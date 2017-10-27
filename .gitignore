@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # maven ignore
 target/
 *.jar
@@ -31,3 +32,29 @@ Thumbs.db
 # local config ignore
 *-local*.yml
 *-local*.xml
+=======
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+>>>>>>> b5f9057ca63c712c6b7ddb65bb2dfebc022e2c0b
