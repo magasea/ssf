@@ -1,4 +1,4 @@
-package main.java.com.shellshellfish.aaas.repositories;
+package com.shellshellfish.aaas.repositories;
 
 import com.shellshellfish.aaas.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;

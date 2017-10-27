@@ -1,4 +1,4 @@
-package main.java.com.shellshellfish.aaas.controller;
+package com.shellshellfish.aaas.controller;
 
 import java.util.List;
 

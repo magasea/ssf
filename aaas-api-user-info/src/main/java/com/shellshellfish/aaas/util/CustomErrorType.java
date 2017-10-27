@@ -1,4 +1,4 @@
-package main.java.com.shellshellfish.aaas.util;
+package com.shellshellfish.aaas.util;
 
 
 public class CustomErrorType {

@@ -1,4 +1,4 @@
-package main.java.com.shellshellfish.aaas.model;
+package com.shellshellfish.aaas.model;
 
 import org.hibernate.validator.constraints.NotEmpty;
 

@@ -1,4 +1,4 @@
-package main.java.com.shellshellfish.aaas.service;
+package com.shellshellfish.aaas.service;
 
 import java.util.List;
 

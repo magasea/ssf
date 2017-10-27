@@ -1,4 +1,4 @@
-package main.java.com.shellshellfish.aaas.configuration;
+package com.shellshellfish.aaas.configuration;
 
 import java.util.Properties;
 
@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
-@EnableJpaRepositories(basePackages = "com.websystique.springboot.repositories",
+@EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.repositories",
 		entityManagerFactoryRef = "entityManagerFactory",
 		transactionManagerRef = "transactionManager")
 @EnableTransactionManagement
