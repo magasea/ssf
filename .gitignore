@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # maven ignore
 target/
 *.jar
@@ -32,7 +31,6 @@ Thumbs.db
 # local config ignore
 *-local*.yml
 *-local*.xml
-=======
 target/
 !.mvn/wrapper/maven-wrapper.jar
 
@@ -57,4 +55,4 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
->>>>>>> b5f9057ca63c712c6b7ddb65bb2dfebc022e2c0b
+
