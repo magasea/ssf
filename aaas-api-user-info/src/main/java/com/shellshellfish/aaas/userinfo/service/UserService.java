@@ -1,7 +1,7 @@
-package com.shellshellfish.aaas.service;
+package com.shellshellfish.aaas.userinfo.service;
 
 
-import com.shellshellfish.aaas.model.User;
+import com.shellshellfish.aaas.userinfo.model.User;
 
 import java.util.List;
 
