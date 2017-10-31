@@ -21,7 +21,7 @@ import com.shellshellfish.aaas.util.CustomErrorType;
 
 @RestController
 @RequestMapping("/api")
-public class estApiController {
+public class RestApiController {
 
 	public static final Logger logger = LoggerFactory.getLogger(RestApiController.class);
 

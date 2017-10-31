@@ -2,7 +2,7 @@ package com.shellshellfish.aaas.util;
 
 import java.util.List;
 
-public class Links {
+public class FishLinks {
     private String self;
     private String up;
     private String backward;
@@ -13,6 +13,23 @@ public class Links {
     private String delete;
     private String describedBy;
     private List<FishHisitory> history;
+    private List<FishChart> charts;
+
+    public String getDescribedBy() {
+        return describedBy;
+    }
+
+    public void setDescribedBy(String describedBy) {
+        this.describedBy = describedBy;
+    }
+
+    public List<FishChart> getCharts() {
+        return charts;
+    }
+
+    public void setCharts(List<FishChart> charts) {
+        this.charts = charts;
+    }
 
     public String getSelf() {
         return self;
@@ -76,14 +93,6 @@ public class Links {
 
     public void setDelete(String delete) {
         this.delete = delete;
-    }
-
-    public String getDescribdBy() {
-        return describedBy;
-    }
-
-    public void setDescribdBy(String describedBy) {
-        this.describedBy = describedBy;
     }
 
     public List<FishHisitory> getHistory() {

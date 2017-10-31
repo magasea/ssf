@@ -6,7 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 
 
-@Import(com.shellshellfish.aaas.configuration.JpaConfiguration.class)
+//@Import(com.shellshellfish.aaas.configuration.JpaConfiguration.class)
+@Import(com.shellshellfish.aaas.configuration.StaticResourceConfiguration.class)
 @SpringBootApplication(scanBasePackages={"com.shellshellfish.aaas"})// same as @Configuration @EnableAutoConfiguration @ComponentScan
 public class SpringBootCRUDApp {
 
