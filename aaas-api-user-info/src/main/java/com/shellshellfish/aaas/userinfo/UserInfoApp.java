@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Import;
 
 
 @Import(JpaConfiguration.class)
-@SpringBootApplication(scanBasePackages={"com.websystique.springboot"})// same as @Configuration @EnableAutoConfiguration @ComponentScan
+@SpringBootApplication(scanBasePackages={"com.shellshellfish.aaas.userinfo"})// same as @Configuration @EnableAutoConfiguration @ComponentScan
 public class UserInfoApp {
 
 	public static void main(String[] args) {
