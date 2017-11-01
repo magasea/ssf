@@ -1,3 +1,4 @@
+
 package com.shellshellfish.aaas.configuration;
 
 import java.util.Properties;
@@ -115,3 +116,4 @@ public class JpaConfiguration {
 	}
 
 }
+
