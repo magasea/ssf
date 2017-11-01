@@ -1,8 +1,12 @@
 package com.shellshellfish.aaas.util;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.UUID;
+
 
 public class BaseResource {
     private String name;
@@ -14,7 +18,18 @@ public class BaseResource {
     private String schemaVersion = "0.1.1";
 
     @JsonProperty("_serviceId")
-    private String serviceId = UUID.randomUUID().toString();
+    private String serviceId = "理财";
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    @JsonProperty("_type")
+    private String type;
 
     public String getName() {
         return name;

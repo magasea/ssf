@@ -1,7 +1,10 @@
 package com.shellshellfish.aaas.util;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FishLinks {
     private String self;
     private String up;

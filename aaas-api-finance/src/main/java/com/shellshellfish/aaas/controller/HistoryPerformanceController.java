@@ -48,14 +48,15 @@ public class HistoryPerformanceController {
 
         performanceResource.setName("历史收益");
         FishLinks links = new FishLinks();
-        links.setSelf("/api/history-performance/abcdef-higjk");
+        links.setSelf("/api/history-performance/1");
         links.setDescribedBy("/schema/history-performance/item.json");
 
         List<FishChart> charts = new ArrayList<>();
-        charts.add(new FishChart("收益率走势图", "/api/history-performance/abcdef-higjk/charts/1", "/schema/history-performance/yield-chart/item.json"));
-        charts.add(new FishChart("最大回撤走势图", "/api/history-performance/abcdef-higjk/charts/2", "/schema/history-performance/max-drawdown-chart/item.json"));
+        charts.add(new FishChart("收益率走势图", "/api/history-performance/1/charts/1", "/schema/history-performance/yield-chart/item.json"));
+        charts.add(new FishChart("最大回撤走势图", "/api/history-performance/1/charts/2", "/schema/history-performance/max-drawdown-chart/item.json"));
         links.setCharts(charts);
         performanceResource.setLinks(links);
+        performanceResource.setType("历史业绩");
 
         return new ResponseEntity<>(performanceResource, HttpStatus.OK);
     }
@@ -63,15 +64,26 @@ public class HistoryPerformanceController {
     @RequestMapping(value = "/history-performance/{product}/charts/1", method = RequestMethod.GET)
     public ResponseEntity<ChartResource> getYieldChart(@PathVariable String product) {
         ChartResource chartResource = new ChartResource();
-        chartResource.setHorizentalValues(Arrays.asList("2014-10-13", "2017-10-11"));
-        chartResource.setVerticalValues(Arrays.asList(-0.1, 0, 0.1, 0.2, 0.3));
+        chartResource.setName("收益率走势图");
+        chartResource.setType("收益率走势图");
+//        chartResource.setHorizentalValues(Arrays.asList("2014-10-13", "2017-10-11"));
+//        chartResource.setVerticalValues(Arrays.asList(-0.1, 0, 0.1, 0.2, 0.3));
         chartResource.setLineValues(Arrays.asList(
-                Arrays.asList(0.01, 0.1, 0.12, 0.13, 0.18, 0.20, 0.30),
-                Arrays.asList(0.01, 0.12, 0.11, 0.13, 0.17, 0.21, 0.20)
+                // line 1
+                Arrays.asList(Arrays.asList("2014-10-13", 0.1),
+                        Arrays.asList("2015-10-13", 0.3),
+                        Arrays.asList("2016-02-13", 0.2)),
+                // line 2
+                Arrays.asList(Arrays.asList("2016-10-11", 0.2),
+                        Arrays.asList("2017-05-11", 0.1),
+                        Arrays.asList("2017-10-11", 0.3))
+
         ));
 
+        chartResource.setLegends(Arrays.asList("等级2", "比较基准=89%中证全债+11%上证指数"));
+
         FishLinks links = new FishLinks();
-        links.setSelf("/api/history-performance/abcdef-higjk/charts/1");
+        links.setSelf("/api/history-performance/1/charts/1");
         links.setDescribedBy("/schema/history-performance/yield-chart/item.json");
         chartResource.setLinks(links);
 
@@ -81,15 +93,23 @@ public class HistoryPerformanceController {
     @RequestMapping(value = "/history-performance/{product}/charts/2", method = RequestMethod.GET)
     public ResponseEntity<ChartResource> getMaxDrawdownChart(@PathVariable String product) {
         ChartResource chartResource = new ChartResource();
-        chartResource.setHorizentalValues(Arrays.asList("2014-10-13", "2017-10-11"));
-        chartResource.setVerticalValues(Arrays.asList(-0.1, 0, 0.1, 0.2, 0.3));
+        chartResource.setName("最大回撤走势图");
+        chartResource.setType("最大回撤走势图");
+//        chartResource.setHorizentalValues(Arrays.asList("2014-10-13", "2017-10-11"));
+//        chartResource.setVerticalValues(Arrays.asList(-0.1, 0, 0.1, 0.2, 0.3));
         chartResource.setLineValues(Arrays.asList(
-                Arrays.asList(0.01, 0.1, 0.12, 0.13, 0.18, 0.20, 0.30),
-                Arrays.asList(0.01, 0.12, 0.11, 0.13, 0.17, 0.21, 0.20)
+                // line 1
+                Arrays.asList(Arrays.asList("2014-10-13", 0.1),
+                        Arrays.asList("2015-10-13", 0.3),
+                        Arrays.asList("2016-02-13", 0.2)),
+                // line 2
+                Arrays.asList(Arrays.asList("2016-10-11", 0.2),
+                        Arrays.asList("2017-05-11", 0.1),
+                        Arrays.asList("2017-10-11", 0.3))
         ));
 
         FishLinks links = new FishLinks();
-        links.setSelf("/api/history-performance/abcdef-higjk/charts/2");
+        links.setSelf("/api/history-performance/1/charts/2");
         links.setDescribedBy("/schema/history-performance/max-drawdown-chart/item.json");
         chartResource.setLinks(links);
 
