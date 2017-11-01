@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.controller;
+package com.shellshellfish.aaas.userinfo.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;

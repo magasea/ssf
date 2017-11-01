@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.model;
+package com.shellshellfish.aaas.userinfo.model;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
