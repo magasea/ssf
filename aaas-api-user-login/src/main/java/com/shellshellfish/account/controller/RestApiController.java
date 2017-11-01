@@ -22,6 +22,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,6 +61,16 @@ public class RestApiController {
 	
 	@Autowired
 	SchemaManager schemaManager;
+	
+	@Bean
+	public ResourceManager resourceManager() {
+		return new ResourceManager();
+	}
+	
+	@Bean
+	public SchemaManager schemaManager() {
+		return new SchemaManager();
+	}
 	
 	@RequestMapping(value = "/register.json", method = RequestMethod.GET)
 	public ResponseEntity<PageSchema> registerschema(
