@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.util;
+package com.shellshellfish.finance.util;
 
 import java.util.List;
 

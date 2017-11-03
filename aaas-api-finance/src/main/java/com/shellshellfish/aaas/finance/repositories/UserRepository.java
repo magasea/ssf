@@ -1,6 +1,6 @@
-package com.shellshellfish.aaas.repositories;
+package com.shellshellfish.finance.repositories;
 
-import com.shellshellfish.aaas.model.User;
+import com.shellshellfish.finance.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
