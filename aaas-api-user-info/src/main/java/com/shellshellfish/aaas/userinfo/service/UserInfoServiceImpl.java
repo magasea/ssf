@@ -4,7 +4,7 @@ import com.shellshellfish.aaas.userinfo.model.bankcard.BankCard;
 import com.shellshellfish.aaas.userinfo.model.invest.InvestProduct;
 import com.shellshellfish.aaas.userinfo.model.user.UserInfoAssectsBrief;
 import com.shellshellfish.aaas.userinfo.model.user.UserInfoBankCards;
-import com.shellshellfish.aaas.userinfo.model.user.UserInfoBase;
+import com.shellshellfish.aaas.userinfo.model.user.UserBaseInfo;
 import com.shellshellfish.aaas.userinfo.model.user.UserPortfolio;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,8 +20,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 
     @Override
-    public UserInfoBase getUserInfoBase(Long userId) {
-        UserInfoBase userInfoBase = new UserInfoBase();
+    public UserBaseInfo getUserInfoBase(Long userId) {
+        UserBaseInfo userInfoBase = new UserBaseInfo();
         userInfoBase.setBirthDay(new Date());
         userInfoBase.setCarrier("程序员");
         userInfoBase.setPhoneNumber("123456789123456789");

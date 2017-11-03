@@ -3,7 +3,7 @@ package com.shellshellfish.aaas.userinfo.model.user;
 import java.util.Date;
 
 
-public class UserInfoBase {
+public class UserBaseInfo {
 
 
     Long userId;
