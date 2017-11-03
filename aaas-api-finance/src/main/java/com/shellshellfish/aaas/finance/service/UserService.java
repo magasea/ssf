@@ -1,7 +1,7 @@
-package com.shellshellfish.finance.service;
+package com.shellshellfish.aaas.finance.service;
 
 
-import com.shellshellfish.finance.model.User;
+import com.shellshellfish.aaas.finance.model.User;
 
 import java.util.List;
 

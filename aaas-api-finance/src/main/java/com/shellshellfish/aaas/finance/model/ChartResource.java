@@ -1,6 +1,6 @@
-package com.shellshellfish.finance.model;
+package com.shellshellfish.aaas.finance.model;
 
-import com.shellshellfish.finance.util.BaseResource;
+import com.shellshellfish.aaas.finance.util.BaseResource;
 
 import java.util.List;
 

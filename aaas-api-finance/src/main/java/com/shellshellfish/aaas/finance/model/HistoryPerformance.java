@@ -1,4 +1,4 @@
-package com.shellshellfish.finance.model;
+package com.shellshellfish.aaas.finance.model;
 
 import java.math.BigDecimal;
 

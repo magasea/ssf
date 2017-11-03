@@ -1,11 +1,11 @@
-package com.shellshellfish.finance.controller;
+package com.shellshellfish.aaas.finance.controller;
 
-import com.shellshellfish.finance.model.ChartResource;
-import com.shellshellfish.finance.service.HistoryPerformanceService;
-import com.shellshellfish.finance.util.FishChart;
-import com.shellshellfish.finance.util.FishLinks;
-import com.shellshellfish.finance.util.PerformanceResource;
-import com.shellshellfish.finance.util.TableEntity;
+import com.shellshellfish.aaas.finance.service.HistoryPerformanceService;
+import com.shellshellfish.aaas.finance.model.ChartResource;
+import com.shellshellfish.aaas.finance.util.FishChart;
+import com.shellshellfish.aaas.finance.util.FishLinks;
+import com.shellshellfish.aaas.finance.util.PerformanceResource;
+import com.shellshellfish.aaas.finance.util.TableEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

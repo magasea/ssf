@@ -1,6 +1,6 @@
-package com.shellshellfish.finance.service;
+package com.shellshellfish.aaas.finance.service;
 
-import com.shellshellfish.finance.model.HistoryPerformance;
+import com.shellshellfish.aaas.finance.model.HistoryPerformance;
 import org.springframework.stereotype.Component;
 
 @Component
