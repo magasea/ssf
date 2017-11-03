@@ -1,10 +1,8 @@
-package com.shellshellfish.aaas.model;
+package com.shellshellfish.finance.model;
 
-import com.shellshellfish.aaas.util.BaseResource;
-import org.springframework.data.geo.Point;
+import com.shellshellfish.finance.util.BaseResource;
 
 import java.util.List;
-import java.util.Map;
 
 public class ChartResource extends BaseResource {
 //    private List<Object> horizentalValues;

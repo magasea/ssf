@@ -1,7 +1,8 @@
-package com.shellshellfish.aaas.controller;
+package com.shellshellfish.finance.controller;
 
 import java.util.List;
 
+import com.shellshellfish.finance.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.shellshellfish.aaas.model.User;
-import com.shellshellfish.aaas.service.UserService;
-import com.shellshellfish.aaas.util.CustomErrorType;
+import com.shellshellfish.finance.service.UserService;
+import com.shellshellfish.finance.util.CustomErrorType;
 
 @RestController
 @RequestMapping("/api")

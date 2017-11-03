@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.configuration;
+package com.shellshellfish.finance.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

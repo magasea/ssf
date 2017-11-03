@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.model;
+package com.shellshellfish.finance.model;
 
 public class HistoryPerformanceResource {
     private String title;

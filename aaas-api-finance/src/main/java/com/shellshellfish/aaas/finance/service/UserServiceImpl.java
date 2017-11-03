@@ -1,9 +1,9 @@
-package com.shellshellfish.aaas.service;
+package com.shellshellfish.finance.service;
 
 import java.util.List;
 
-import com.shellshellfish.aaas.repositories.UserRepository;
-import com.shellshellfish.aaas.model.User;
+import com.shellshellfish.finance.repositories.UserRepository;
+import com.shellshellfish.finance.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

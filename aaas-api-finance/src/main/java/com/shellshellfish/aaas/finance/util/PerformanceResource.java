@@ -1,6 +1,4 @@
-package com.shellshellfish.aaas.util;
-
-import java.util.List;
+package com.shellshellfish.finance.util;
 
 public class PerformanceResource extends BaseResource {
     private TableEntity performance;
