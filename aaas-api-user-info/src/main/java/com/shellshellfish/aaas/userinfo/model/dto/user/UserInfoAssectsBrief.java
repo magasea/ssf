@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.userinfo.model.user;
+package com.shellshellfish.aaas.userinfo.model.dto.user;
 
 public class UserInfoAssectsBrief {
 

@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.userinfo.model.pages;
+package com.shellshellfish.aaas.userinfo.model.dto.pages;
 
 import java.util.List;
 

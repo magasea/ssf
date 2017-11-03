@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.userinfo.model.login;
+package com.shellshellfish.aaas.userinfo.model.dto.login;
 
 public class Logout {
 

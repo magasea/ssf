@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.userinfo.model.user;
+package com.shellshellfish.aaas.userinfo.model.dto.user;
 
 import java.util.Date;
 
@@ -6,19 +6,19 @@ import java.util.Date;
 public class UserBaseInfo {
 
 
-    Long userId;
+    Long id;
     String userName;
     String phoneNumber;
     Date birthDay;
-    String carrier;
+    String occupation;
     String password;
 
-    public Long getUserId() {
-        return userId;
+    public Long getId() {
+        return id;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getUserName() {
@@ -45,12 +45,12 @@ public class UserBaseInfo {
         this.birthDay = birthDay;
     }
 
-    public String getCarrier() {
-        return carrier;
+    public String getOccupation() {
+        return occupation;
     }
 
-    public void setCarrier(String carrier) {
-        this.carrier = carrier;
+    public void setOccupation(String occupation) {
+        this.occupation = occupation;
     }
 
     public String getPassword() {

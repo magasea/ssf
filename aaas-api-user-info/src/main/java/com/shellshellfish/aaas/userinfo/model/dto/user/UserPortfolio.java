@@ -1,7 +1,7 @@
-package com.shellshellfish.aaas.userinfo.model.user;
+package com.shellshellfish.aaas.userinfo.model.dto.user;
 
 
-import com.shellshellfish.aaas.userinfo.model.invest.InvestProduct;
+import com.shellshellfish.aaas.userinfo.model.dto.invest.InvestProduct;
 import java.util.List;
 
 public class UserPortfolio {
