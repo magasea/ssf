@@ -1,24 +1,24 @@
 package com.shellshellfish.aaas.userinfo.model.invest;
 
 public class InvestProduct {
-    Long investId;
+    Long id;
     String name;
     Float ratio;
     Long amount;
 
-    public InvestProduct(Long investId, String name, Float ratio, Long amount) {
-        this.investId = investId;
+    public InvestProduct(Long id, String name, Float ratio, Long amount) {
+        this.id = id;
         this.name = name;
         this.ratio = ratio;
         this.amount = amount;
     }
 
-    public Long getInvestId() {
-        return investId;
+    public Long getid() {
+        return id;
     }
 
-    public void setInvestId(Long investId) {
-        this.investId = investId;
+    public void setid(Long id) {
+        this.id = id;
     }
 
     public String getName() {
