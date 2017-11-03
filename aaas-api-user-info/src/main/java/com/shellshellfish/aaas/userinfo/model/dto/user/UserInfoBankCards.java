@@ -1,7 +1,7 @@
-package com.shellshellfish.aaas.userinfo.model.user;
+package com.shellshellfish.aaas.userinfo.model.dto.user;
 
 
-import com.shellshellfish.aaas.userinfo.model.bankcard.BankCard;
+import com.shellshellfish.aaas.userinfo.model.dto.bankcard.BankCard;
 import java.util.List;
 
 public class UserInfoBankCards {

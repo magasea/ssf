@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
@@ -27,10 +28,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
+@ComponentScan
 @EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.userinfo.repositories",
 		entityManagerFactoryRef = "entityManagerFactory",
 		transactionManagerRef = "transactionManager")
 @EnableTransactionManagement
+
 public class JpaConfiguration {
 
 	@Autowired

@@ -1,16 +1,20 @@
-package com.shellshellfish.aaas.userinfo.model.bankcard;
+package com.shellshellfish.aaas.userinfo.model.dto.bankcard;
 
 import java.util.Date;
 
 public class BankCard {
 
 
+
+    Long userId;
     String bankCardNumber;
     String bankCardUserName;
     Date expireDate;
     String bankName;
 
-    public BankCard(String bankCardNumber, String bankCardUserName, Date expireDate, String bankName) {
+    public BankCard(Long userId, String bankCardNumber, String bankCardUserName, Date expireDate,
+        String bankName) {
+        this.userId = userId;
         this.bankCardNumber = bankCardNumber;
         this.bankCardUserName = bankCardUserName;
         this.expireDate = expireDate;
@@ -49,4 +53,11 @@ public class BankCard {
         this.bankName = bankName;
     }
 
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 }

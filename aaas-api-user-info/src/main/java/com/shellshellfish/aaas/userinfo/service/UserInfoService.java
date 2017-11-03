@@ -1,10 +1,10 @@
 package com.shellshellfish.aaas.userinfo.service;
 
 
-import com.shellshellfish.aaas.userinfo.model.user.UserInfoAssectsBrief;
-import com.shellshellfish.aaas.userinfo.model.user.UserInfoBankCards;
-import com.shellshellfish.aaas.userinfo.model.user.UserBaseInfo;
-import com.shellshellfish.aaas.userinfo.model.user.UserPortfolio;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoBankCards;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
 
 public interface UserInfoService {
     UserBaseInfo getUserInfoBase(Long userId);

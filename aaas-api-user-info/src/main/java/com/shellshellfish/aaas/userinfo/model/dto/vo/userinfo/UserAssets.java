@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.userinfo.model.vo.userinfo;
+package com.shellshellfish.aaas.userinfo.model.dto.vo.userinfo;
 
 public class UserAssets {
 //  "totalAssetsValue":"2478.90",

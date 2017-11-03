@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.userinfo.model.invest;
+package com.shellshellfish.aaas.userinfo.model.dto.invest;
 
 public class InvestProduct {
     Long id;
