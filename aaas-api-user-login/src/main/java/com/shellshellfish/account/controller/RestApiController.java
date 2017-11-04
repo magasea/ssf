@@ -87,17 +87,17 @@ public class RestApiController {
 			//@Valid @NotNull(message="not null") @Max(value=20) @Min(value=1) @RequestParam(value = "id") Integer bankid
 			){
 		   
-		  HashMap<String ,Object> rsmap= resourceManager.describe("register");
+		  HashMap<String ,Object> rsmap= resourceManager.response("register");
 		  //System.out.println(pagestr);
 		  return new ResponseEntity<Map>(rsmap, HttpStatus.OK);	
     }
 
-	@RequestMapping(value = "/login", method = RequestMethod.GET)
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public ResponseEntity<Map> loginres(
 			//@Valid @NotNull(message="not null") @Max(value=20) @Min(value=1) @RequestParam(value = "id") Integer bankid
 			){
 		   
-		  HashMap<String ,Object> rsmap= resourceManager.describe("login");
+		  HashMap<String ,Object> rsmap= resourceManager.response("login");
 		  //System.out.println(pagestr);
 		  return new ResponseEntity<Map>(rsmap, HttpStatus.OK);	
     }

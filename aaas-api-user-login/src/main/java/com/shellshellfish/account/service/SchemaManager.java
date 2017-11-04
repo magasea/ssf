@@ -36,6 +36,7 @@ public class SchemaManager {
 		//self description
 		
 		//for title
+		/*
 		EditorItem titleitem= new EditorItem();
 		titleitem.setName("login");
 		titleitem.setTitle("登录");
@@ -46,6 +47,7 @@ public class SchemaManager {
 		//titleitem.setAction(null);
 		titleitem.setOrdinal("1");		
 		map.put("login", titleitem); 
+		*/
 		
 		//for telphone ,pwd editor
 		EditorItem[] telitems= new EditorItem[2];
@@ -83,10 +85,10 @@ public class SchemaManager {
 		//link 
 		LinkItem[] linkitems= new LinkItem[2];
 		linkitems[0]= new LinkItem();
-		linkitems[0].setName("registration");
+		linkitems[0].setName("fastRegistration");
 		linkitems[0].setTitle("快速注册");
-		linkitems[0].setDescription("registration link");
-		linkitems[0].setHref("/api/register");
+		linkitems[0].setDescription("fastRegistration link");
+		linkitems[0].setHref("/api/fastRegistration");
 		linkitems[0].setType("link");
 		//linkitems[0].setAction("login?username='11'&pwd='111'");
 		linkitems[0].setOrdinal("4");
@@ -105,15 +107,15 @@ public class SchemaManager {
 		
 		//for login button
 		ButtonItem loginbtnitem= new ButtonItem();
-		loginbtnitem.setName("loginclick");
+		loginbtnitem.setName("login");
 		loginbtnitem.setTitle("登录");
-		loginbtnitem.setDescription("login link");
+		loginbtnitem.setDescription("login button");
 		//loginbtnitem.setSelfLink(null);
 		loginbtnitem.setType("link");
 		loginbtnitem.setAction("/api/loginaction?");
 		loginbtnitem.setClickable(true);
 		loginbtnitem.setOrdinal("6");		
-		map.put("loginclick", loginbtnitem); 
+		map.put("login", loginbtnitem); 
 						
 		ps.setProperties(map);
 		return ps;
