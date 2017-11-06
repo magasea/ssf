@@ -3,6 +3,8 @@ package com.shellshellfish.account.service;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.naming.ldap.Rdn;
+
 import com.shellshellfish.account.model.EditorItem;
 
 //import com.shellshellfish.account.model.PageSite;
@@ -11,7 +13,7 @@ public class ResourceManager {
 
 	public ResourceManager(){;}
 	
-	public HashMap<String ,Object> describe(String pagename){
+	public HashMap<String ,Object> response(String pagename){
 	    
 		HashMap<String,Object> map=null;
 	    if (pagename.equals("login"))
@@ -26,8 +28,14 @@ public class ResourceManager {
 	public HashMap<String,Object> registerdesc(){
 		HashMap<String,Object> rsmap= new HashMap<String,Object>();
 		rsmap.put("name","register");
+		rsmap.put("title","注册");
 		rsmap.put("href","/api/register");
 		rsmap.put("describedby", "/api/register.json");
+		
+		
+		rsmap.put("telsuffix","");
+		rsmap.put("telnum","");
+		rsmap.put("agreement","");
 		
 		
 		//label "registration,tel"
@@ -35,7 +43,7 @@ public class ResourceManager {
 	    HashMap<String,Object>[] emap= new HashMap[2];
 	    HashMap<String,Object> emap1= new HashMap<String,Object>();
 	    emap1.put("name", "registration");
-	    emap1.put("value","注册");
+	    
 	    
 	    HashMap<String,Object> emap2= new HashMap<String,Object>();
 	    emap2.put("name", "telsuffix");
@@ -80,18 +88,48 @@ public class ResourceManager {
 	
 	//for login url
 	public HashMap<String,Object> logindesc(){
-		//caption
+		//login resource
 		HashMap<String,Object> rsmap= new HashMap<String,Object>();
 		rsmap.put("name","login");
-		rsmap.put("href","/api/login");
-		rsmap.put("describedby", "/api/login.json");
+		rsmap.put("title","登录");
+		rsmap.put("telnum","");
+		rsmap.put("password","");
+		//rsmap.put("describedby", "/api/login.json");
 		
-		//label "login"
-		HashMap<String,Object> labelmap=new HashMap<String,Object>();
-	    labelmap.put("name", "login");
-	    rsmap.put("login", labelmap);
+		HashMap<String,Object> linkitemmap=new HashMap<String,Object>();
+		HashMap<String,Object> selfmap=new HashMap<String,Object>();
+		HashMap<String,Object> selfitemmap=new HashMap<String,Object>();
+		selfitemmap.put("href", "/api/login");
+		selfitemmap.put("describedBy", "/api/login.json");
+		linkitemmap.put("self",selfitemmap);
+		
 	    
-	    //editor "tel,pwd"
+	    HashMap<String,Object> relatedmap=new HashMap<String,Object>();
+		HashMap<String,Object> relateditem1map=new HashMap<String,Object>();
+		relateditem1map.put("href", "/api/register");
+		//HashMap<String,Object> fastregismap=new HashMap<String,Object>();
+		
+		relatedmap.put("fastRegistration",relateditem1map);
+		
+		HashMap<String,Object> relateditem2map=new HashMap<String,Object>();
+		relateditem2map.put("href", "/api/forgottenpwd");
+		relatedmap.put("forgottenPwd",relateditem2map);		
+		linkitemmap.put("related", relatedmap);
+		
+		HashMap<String,Object> executemap=new HashMap<String,Object>();
+		HashMap<String,Object> loginmap=new HashMap<String,Object>();
+		HashMap<String,Object> loginitemmap=new HashMap<String,Object>();
+		loginitemmap.put("href", "/api/loginverify");
+		loginitemmap.put("describedBy", "/api/loginverify.json");
+		loginitemmap.put("method", "POST");
+		loginmap.put("login", loginitemmap);
+		//executemap.put("execute",loginmap); 
+		linkitemmap.put("execute", loginmap);// post
+		
+		rsmap.put("_links", linkitemmap);
+		return rsmap;
+		/*
+	     //editor "tel,pwd"
 	    HashMap<String,Object> editormap=new HashMap<String,Object>();
 	    HashMap<String,Object>[] emap= new HashMap[2];
 	    HashMap<String,Object> emap1= new HashMap<String,Object>();
@@ -128,9 +166,9 @@ public class ResourceManager {
 	    HashMap<String,Object> buttonmap=new HashMap<String,Object>();
 	    buttonmap.put("name", "loginclick");
 	    rsmap.put("loginclick", buttonmap);
+	   */
 	    
 	    
-	    return rsmap;
 	}
 	
 	

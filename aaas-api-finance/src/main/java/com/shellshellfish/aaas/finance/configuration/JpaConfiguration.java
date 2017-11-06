@@ -1,5 +1,4 @@
-
-package com.shellshellfish.aaas.configuration;
+package com.shellshellfish.aaas.finance.configuration;
 
 import java.util.Properties;
 
@@ -10,10 +9,12 @@ import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
@@ -28,10 +29,13 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
-@EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.repositories",
+@ComponentScan(basePackages = { "com.shellshellfish.aaas.finance.*" })
+@EntityScan("com.shellshellfish.aaas.finance.model.User")
+@EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.finance.repositories",
 		entityManagerFactoryRef = "entityManagerFactory",
 		transactionManagerRef = "transactionManager")
 @EnableTransactionManagement
+
 public class JpaConfiguration {
 
 	@Autowired
@@ -41,7 +45,7 @@ public class JpaConfiguration {
 	private int maxPoolSize;
 
 	/*
-	 * Populate SpringBoot DataSourceProperties object directly from application.yml 
+	 * Populate SpringBoot DataSourceProperties object directly from application.yml
 	 * based on prefix.Thanks to .yml, Hierachical data is mapped out of the box with matching-name
 	 * properties of DataSourceProperties object].
 	 */
@@ -58,16 +62,16 @@ public class JpaConfiguration {
 	@Bean
 	public DataSource dataSource() {
 		DataSourceProperties dataSourceProperties = dataSourceProperties();
-			HikariDataSource dataSource = (HikariDataSource) DataSourceBuilder
-					.create(dataSourceProperties.getClassLoader())
-					.driverClassName(dataSourceProperties.getDriverClassName())
-					.url(dataSourceProperties.getUrl())
-					.username(dataSourceProperties.getUsername())
-					.password(dataSourceProperties.getPassword())
-					.type(HikariDataSource.class)
-					.build();
-			dataSource.setMaximumPoolSize(maxPoolSize);
-			return dataSource;
+		HikariDataSource dataSource = (HikariDataSource) DataSourceBuilder
+				.create(dataSourceProperties.getClassLoader())
+				.driverClassName(dataSourceProperties.getDriverClassName())
+				.url(dataSourceProperties.getUrl())
+				.username(dataSourceProperties.getUsername())
+				.password(dataSourceProperties.getPassword())
+				.type(HikariDataSource.class)
+				.build();
+		dataSource.setMaximumPoolSize(maxPoolSize);
+		return dataSource;
 	}
 
 	/*
@@ -77,7 +81,11 @@ public class JpaConfiguration {
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() throws NamingException {
 		LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
 		factoryBean.setDataSource(dataSource());
-		factoryBean.setPackagesToScan(new String[] { "com.shellshellfish.aaas.common.model" });
+<<<<<<< HEAD
+		factoryBean.setPackagesToScan(new String[] { "com.shellshellfish.aaas.userinfo.model" });
+=======
+		factoryBean.setPackagesToScan(new String[] { "com.shellshellfish.aaas.finance.model" });
+>>>>>>> fc55a980b48bf9a9478ca304eb4e165eba05bb10
 		factoryBean.setJpaVendorAdapter(jpaVendorAdapter());
 		factoryBean.setJpaProperties(jpaProperties());
 		return factoryBean;
@@ -116,4 +124,3 @@ public class JpaConfiguration {
 	}
 
 }
-

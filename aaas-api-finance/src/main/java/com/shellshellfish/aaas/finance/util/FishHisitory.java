@@ -1,4 +1,4 @@
-package com.shellshellfish.finance.util;
+package com.shellshellfish.aaas.finance.util;
 
 public class FishHisitory {
 }
