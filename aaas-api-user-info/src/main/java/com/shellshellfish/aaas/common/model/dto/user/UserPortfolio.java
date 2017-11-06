@@ -1,0 +1,26 @@
+package com.shellshellfish.aaas.common.model.dto.user;
+
+
+import com.shellshellfish.aaas.common.model.dto.invest.InvestProduct;
+import java.util.List;
+
+public class UserPortfolio {
+    Long userId;
+    List<InvestProduct> invests;
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public List<InvestProduct> getInvests() {
+        return invests;
+    }
+
+    public void setInvests(List<InvestProduct> invests) {
+        this.invests = invests;
+    }
+}
