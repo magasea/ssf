@@ -1,15 +1,14 @@
 package com.shellshellfish.aaas.userinfo.service;
 
 
-import com.shellshellfish.aaas.userinfo.model.User;
-
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.User;
 import java.util.List;
 
 public interface UserService {
 	
 	User findById(Long id);
 
-	User findByName(String name);
+
 
 	void saveUser(User user);
 

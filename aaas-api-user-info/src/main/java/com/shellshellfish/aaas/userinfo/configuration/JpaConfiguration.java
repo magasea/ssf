@@ -29,7 +29,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 @ComponentScan
-@EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.userinfo.repositories",
+@EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.userinfo.dao.repositories",
 		entityManagerFactoryRef = "entityManagerFactory",
 		transactionManagerRef = "transactionManager")
 @EnableTransactionManagement
@@ -79,7 +79,7 @@ public class JpaConfiguration {
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() throws NamingException {
 		LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
 		factoryBean.setDataSource(dataSource());
-		factoryBean.setPackagesToScan(new String[] { "com.shellshellfish.aaas.userinfo.model" });
+		factoryBean.setPackagesToScan(new String[] { "com.shellshellfish.aaas.userinfo" });
 		factoryBean.setJpaVendorAdapter(jpaVendorAdapter());
 		factoryBean.setJpaProperties(jpaProperties());
 		return factoryBean;

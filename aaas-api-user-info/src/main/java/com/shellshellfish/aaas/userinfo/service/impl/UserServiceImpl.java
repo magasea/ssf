@@ -1,7 +1,8 @@
-package com.shellshellfish.aaas.userinfo.service;
+package com.shellshellfish.aaas.userinfo.service.impl;
 
-import com.shellshellfish.aaas.userinfo.model.User;
-import com.shellshellfish.aaas.userinfo.repositories.UserRepository;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.User;
+import com.shellshellfish.aaas.userinfo.dao.repositories.UserRepository;
+import com.shellshellfish.aaas.userinfo.service.UserService;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service("userService")
 @Transactional
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UserRepository userRepository;
@@ -21,9 +22,9 @@ public class UserServiceImpl implements UserService{
 		return userRepository.findOne(id);
 	}
 
-	public User findByName(String name) {
-		return userRepository.findByName(name);
-	}
+//	public User findById(Long id) {
+//		return userRepository.findById(id);
+//	}
 
 	public void saveUser(User user) {
 		userRepository.save(user);
@@ -46,7 +47,7 @@ public class UserServiceImpl implements UserService{
 	}
 
 	public boolean isUserExist(User user) {
-		return findByName(user.getName()) != null;
+		return findById(user.getId()) != null;
 	}
 
 }

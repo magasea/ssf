@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name="APP_USER")
-public class User implements Serializable{
+public class UserBak implements Serializable{
 
 	@Id
 	@GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -60,7 +60,7 @@ public class User implements Serializable{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		User user = (User) o;
+		UserBak user = (UserBak) o;
 
 		if (Double.compare(user.salary, salary) != 0) return false;
 		if (id != null ? !id.equals(user.id) : user.id != null) return false;
