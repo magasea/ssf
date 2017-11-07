@@ -22,9 +22,9 @@ public class UserServiceImpl implements UserService {
 		return userRepository.findOne(id);
 	}
 
-	public User findByName(String name) {
-		return userRepository.findByName(name);
-	}
+//	public User findById(Long id) {
+//		return userRepository.findById(id);
+//	}
 
 	public void saveUser(User user) {
 		userRepository.save(user);
