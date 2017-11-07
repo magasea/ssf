@@ -1,12 +1,12 @@
 package com.shellshellfish.aaas.userinfo.dao.repositories;
 
-import com.shellshellfish.aaas.userinfo.model.User;
+import com.shellshellfish.aaas.userinfo.model.UserBak;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<UserBak, Long> {
 
-    User findByName(String name);
+    UserBak findByName(String name);
 
 }
