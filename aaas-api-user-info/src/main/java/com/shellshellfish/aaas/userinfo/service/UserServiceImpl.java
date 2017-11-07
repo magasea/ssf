@@ -1,6 +1,6 @@
 package com.shellshellfish.aaas.userinfo.service;
 
-import com.shellshellfish.aaas.userinfo.model.User;
+import com.shellshellfish.aaas.userinfo.model.UserBak;
 import com.shellshellfish.aaas.userinfo.repositories.UserRepository;
 import java.util.List;
 
@@ -17,19 +17,19 @@ public class UserServiceImpl implements UserService{
 	@Autowired
 	private UserRepository userRepository;
 
-	public User findById(Long id) {
+	public UserBak findById(Long id) {
 		return userRepository.findOne(id);
 	}
 
-	public User findByName(String name) {
+	public UserBak findByName(String name) {
 		return userRepository.findByName(name);
 	}
 
-	public void saveUser(User user) {
+	public void saveUser(UserBak user) {
 		userRepository.save(user);
 	}
 
-	public void updateUser(User user){
+	public void updateUser(UserBak user){
 		saveUser(user);
 	}
 
@@ -41,11 +41,11 @@ public class UserServiceImpl implements UserService{
 		userRepository.deleteAll();
 	}
 
-	public List<User> findAllUsers(){
+	public List<UserBak> findAllUsers(){
 		return userRepository.findAll();
 	}
 
-	public boolean isUserExist(User user) {
+	public boolean isUserExist(UserBak user) {
 		return findByName(user.getName()) != null;
 	}
 

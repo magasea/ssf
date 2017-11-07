@@ -31,38 +31,65 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		
+
 		<!-- Provided -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-tomcat</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
                <groupId>javax.servlet</groupId>
                <artifactId>javax.servlet-api</artifactId>
                <scope>provided</scope>
          </dependency>
-         
-         <dependency>  
-            <groupId>org.springframework.boot</groupId>  
-  
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>  
-         </dependency>  
-             
+
+         <dependency>
+            <groupId>org.springframework.boot</groupId>
+
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+         </dependency>
+
          <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
 		 <dependency>
 		     <groupId>com.alibaba</groupId>
 		     <artifactId>fastjson</artifactId>
 		     <version>1.2.31</version>
 		 </dependency>
-		  
+
+		<!-- Add JPA support -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<!-- Add Hikari Connection Pooling support -->
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+		</dependency>
+		<!-- Add H2 database support [for running with local profile] -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>${h2.version}</version>
+		</dependency>
+		<!-- Add MySQL database support [for running with PRODUCTION profile] -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.5</version>
+		</dependency>
+
 		<!-- add security for swigger static -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -81,7 +108,7 @@
 			<version>2.6.1</version>
 			<scope>compile</scope>
 		</dependency>
-		 
+
 	</dependencies>
 
 	<build>
