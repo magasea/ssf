@@ -3,6 +3,8 @@ package com.shellshellfish.account;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.shellshellfish.account.repositories.UserRepository;
+
 import com.shellshellfish.account.service.AccountService;
 import com.shellshellfish.account.service.AccountServiceImpl;
 import com.shellshellfish.account.service.ResourceManager;
@@ -24,5 +26,7 @@ public class AppConfig {
 	public SchemaManager schemaManager() {
 		return new SchemaManager();
 	}
+	
+	
 	
 }

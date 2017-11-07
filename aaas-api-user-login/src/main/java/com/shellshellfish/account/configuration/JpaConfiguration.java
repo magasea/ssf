@@ -17,10 +17,7 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-<<<<<<< HEAD
 import org.springframework.test.context.ActiveProfiles;
-=======
->>>>>>> 50543af3caa4cda557bb8a85136440fb3f005896
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -30,10 +27,7 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 @Configuration
-<<<<<<< HEAD
 
-=======
->>>>>>> 50543af3caa4cda557bb8a85136440fb3f005896
 @ComponentScan
 @EnableJpaRepositories(basePackages = "com.shellshellfish.account.repositories",
 		entityManagerFactoryRef = "entityManagerFactory",

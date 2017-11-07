@@ -1,10 +1,13 @@
 package com.shellshellfish.account.controller;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -15,7 +18,8 @@ import javax.validation.Valid;
 import com.shellshellfish.account.model.Error;
 import com.shellshellfish.account.model.PageSchema;
 
-
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -37,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.alibaba.fastjson.JSON;
@@ -48,7 +53,7 @@ import com.shellshellfish.account.service.SchemaManager;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("api")
 @Validated
 public class RestApiController {
   //public static final Logger logger = LoggerFactory.getLogger(RestApiController.class);
@@ -72,7 +77,7 @@ public class RestApiController {
 		return new SchemaManager();
 	}
 	
-	@RequestMapping(value = "/register.json", method = RequestMethod.GET)
+	@RequestMapping(value = "/register.json", method = RequestMethod.POST)
 	public ResponseEntity<PageSchema> registerschema(
 			//@Valid @NotNull(message="not null") @Max(value=20) @Min(value=1) @RequestParam(value = "id") Integer bankid
 			){
@@ -82,26 +87,26 @@ public class RestApiController {
 		  return new ResponseEntity<PageSchema>(pageschema, HttpStatus.OK);	
     }
 	
-	@RequestMapping(value = "/register", method = RequestMethod.GET)
+	@RequestMapping(value = "/register", method = RequestMethod.POST)
 	public ResponseEntity<Map> registerres(
-			//@Valid @NotNull(message="not null") @Max(value=20) @Min(value=1) @RequestParam(value = "id") Integer bankid
+			@Valid @NotNull(message="not null") @Max(value=20) @Min(value=1) @RequestParam(value = "id") String bankid
 			){
 		   
-		  HashMap<String ,Object> rsmap= resourceManager.response("register");
+		  HashMap<String ,Object> rsmap= resourceManager.response("register",new String[]{bankid});
 		  //System.out.println(pagestr);
 		  return new ResponseEntity<Map>(rsmap, HttpStatus.OK);	
     }
 
-	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public ResponseEntity<Map> loginres(
-			//@Valid @NotNull(message="not null") @Max(value=20) @Min(value=1) @RequestParam(value = "id") Integer bankid
+	@RequestMapping(value = "/forgottenpwd", method = RequestMethod.GET)
+	public ResponseEntity<Map> forgottenpwdres(			
 			){
 		   
-		  HashMap<String ,Object> rsmap= resourceManager.response("login");
-		  //System.out.println(pagestr);
+		  HashMap<String ,Object> rsmap= resourceManager.response("forgottenpwd",null);
+		  
 		  return new ResponseEntity<Map>(rsmap, HttpStatus.OK);	
     }
 
+	
 	// login schema
 	@RequestMapping(value = "/login.json", method = RequestMethod.GET)
 	public ResponseEntity<PageSchema> loginschema(
@@ -113,6 +118,27 @@ public class RestApiController {
 		  return new ResponseEntity<PageSchema>(ps, HttpStatus.OK);	
     }
 
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
+	public ResponseEntity<Map> loginres(
+			//@Valid @NotNull(message="not null") @Max(value=20) @Min(value=1) @RequestParam(value = "id") String bankid
+			@Valid @NotNull(message="电话不能为空") @DecimalMax(value="99999999999",message="电话长度必须是11位的数字") @Size(min = 11, max = 11,message="电话长度必须是11位的数字")  @RequestParam(value = "telnum") String telnum,
+			@Valid @NotNull(message="密码不能为空") @Size(min = 8, max = 16,message="密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合")  @RequestParam(value = "password") String pwd
+			){
+		   
+		    Pattern p = Pattern.compile(  
+		            "^(?![A-Za-z]+$)(?![A-Z\\d]+$)(?![A-Z\\W]+$)(?![a-z\\d]+$)(?![a-z\\W]+$)(?![\\d\\W]+$)\\S{8,20}$");  
+		    Matcher m = p.matcher(pwd);  
+		    if (m.find()) { //need pwd check  
+		        //int kk=1;  
+		    } else {
+		    	throw new ConstraintViolationException("密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合",null);
+		    }
+		    
+		    HashMap<String ,Object> rsmap= resourceManager.response("login",new String[]{telnum,pwd});
+		    return new ResponseEntity<Map>(rsmap, HttpStatus.OK);	
+    }
+	
+	/*
 	@RequestMapping(value = "/accounts", method = RequestMethod.GET)
     public ResponseEntity<List<Account>> listAllAccounts(
     		@Valid @NotNull(message="not null") @Max(value=10 ,message="max is 10") @RequestParam(value = "type") Integer type,
@@ -181,22 +207,36 @@ public class RestApiController {
 	//@ExceptionHandler(RangeValidationException.class)
 	//@ExceptionHandler(ServletRequestBindingException.class)
 	
+	*/
+	
 	@ExceptionHandler(ConstraintViolationException.class)
-	public ResponseEntity<Error> RangeErrorHandler(ConstraintViolationException e){
+	public ResponseEntity<Error[]> RangeErrorHandler(ConstraintViolationException e){
 	    //String userId = e.getUserId();
 	    //e.getConstraintViolations().
+		Error[] error=null;
 		Set<ConstraintViolation<?>> cons=e.getConstraintViolations();
-		ConstraintViolation<?> con=getconstraint(cons);
-		String errmsg =con.getMessage();
-		//con.g
-		int errval=(Integer)con.getInvalidValue();
-		Path pname=con.getPropertyPath();
-		Iterator<Node> its=pname.iterator();
-		
-		String paraname= getParameterName(its);
-		Error error = new Error(paraname+":"+errmsg);
-	    return new ResponseEntity<Error>(error,HttpStatus.BAD_REQUEST);
+		if (cons!=null) {
+			ConstraintViolation<?>[] con=getconstraint(cons);
+			error=new Error[con.length];
+			for (int i=0;i<con.length;i++) {
+			  String errmsg =con[i].getMessage();
+			
+			
+			  /*
+			  Path pname=con[i].getPropertyPath();
+			  Iterator<Node> its=pname.iterator();			
+			  String paraname= getParameterName(its);
+			  */
+			  error[i] = new Error(errmsg);
+			  error[i].setCode(i);
+			}
+		}else {
+			error =new Error[1];
+			error[0]=new Error(e.getMessage());
+		}
+		return new ResponseEntity<Error[]>(error,HttpStatus.BAD_REQUEST);
 	}
+	
 	
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<Error> ParamMissingErrorHandler(MissingServletRequestParameterException e){
@@ -207,13 +247,15 @@ public class RestApiController {
 	    return new ResponseEntity<Error>(error,HttpStatus.BAD_REQUEST);
 	}
 	
-	public ConstraintViolation<?> getconstraint(Set<ConstraintViolation<?>> cons) {
+	public ConstraintViolation<?>[] getconstraint(Set<ConstraintViolation<?>> cons) {
 		  
 		String msg=null;
 		Iterator<ConstraintViolation<?>> it = cons.iterator();
-		ConstraintViolation<?> con=null;
-		if (it.hasNext()) {  
-		   con = it.next();
+		int len= cons.size();
+		ConstraintViolation<?> con[]=new ConstraintViolation<?>[len];
+		int i=0;
+		while (it.hasNext()) {  
+		   con[i++] = it.next();
 		  //System.out.println(str);  
 		}  	
 		return con;
@@ -232,4 +274,5 @@ public class RestApiController {
 		
 		return name.substring(0,name.length()-1);
 	}
+	
 }

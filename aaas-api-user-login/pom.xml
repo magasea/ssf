@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.shellshellfish.account</groupId>
-	<artifactId>account-service</artifactId>
+	<artifactId>aaas-api-user-login</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>account-service</name>
-	<description>Account Service</description>
+	<name>aaas-api-user-login</name>
+	<description>aaas-api-user-login</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -31,38 +31,57 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
+		
 		<!-- Provided -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-tomcat</artifactId>
 			<scope>provided</scope>
 		</dependency>
-
+		
 		<dependency>
                <groupId>javax.servlet</groupId>
                <artifactId>javax.servlet-api</artifactId>
                <scope>provided</scope>
          </dependency>
-
-         <dependency>
-            <groupId>org.springframework.boot</groupId>
-
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-         </dependency>
-
+         
+         <dependency>  
+            <groupId>org.springframework.boot</groupId>  
+  
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>  
+         </dependency>  
+             
          <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
 		 <dependency>
 		     <groupId>com.alibaba</groupId>
 		     <artifactId>fastjson</artifactId>
 		     <version>1.2.31</version>
 		 </dependency>
+		  
+		<!-- add security for swigger static -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
 
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>2.6.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>2.6.1</version>
+			<scope>compile</scope>
+		</dependency>
+		 
 		<!-- Add JPA support -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -89,26 +108,7 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.5</version>
 		</dependency>
-
-		<!-- add security for swigger static -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger-ui</artifactId>
-			<version>2.6.1</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger2</artifactId>
-			<version>2.6.1</version>
-			<scope>compile</scope>
-		</dependency>
-
+		
 	</dependencies>
 
 	<build>
