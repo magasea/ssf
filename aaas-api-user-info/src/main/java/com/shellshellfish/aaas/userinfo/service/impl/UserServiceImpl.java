@@ -1,7 +1,8 @@
-package com.shellshellfish.aaas.userinfo.service;
+package com.shellshellfish.aaas.userinfo.service.impl;
 
 import com.shellshellfish.aaas.userinfo.model.User;
 import com.shellshellfish.aaas.userinfo.dao.repositories.UserRepository;
+import com.shellshellfish.aaas.userinfo.service.UserService;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service("userService")
 @Transactional
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UserRepository userRepository;

@@ -23,9 +23,13 @@ spring:
   profiles: prod
 datasource:
   sampleapp:
-    url: jdbc:mysql://192.168.0.25:3306/websystique
-    username: myuser
-    password: mypassword
+#    url: jdbc:mysql://192.168.0.25:3306/websystique
+#    username: myuser
+#    password: mypassword
+    url: jdbc:mysql://192.168.0.8:3306/ssflogin
+    username: sa
+    password: abcd1234
+
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema:
     maxPoolSize: 20

@@ -1,5 +1,6 @@
-package com.shellshellfish.aaas.userinfo.service;
+package com.shellshellfish.aaas.userinfo.service.impl;
 
+import com.shellshellfish.aaas.userinfo.dao.service.LinksDaoService;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UserInfoDao;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UserPortfolioDao;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
@@ -8,6 +9,8 @@ import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
 import com.shellshellfish.aaas.userinfo.dao.repositories.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.dao.repositories.UserPortfolioRepository;
+import com.shellshellfish.aaas.userinfo.service.LinkService;
+import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.BeanUtils;
@@ -24,6 +27,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Autowired
     UserPortfolioRepository userPortfolioRepository;
+
+
 
     @Override
     public UserBaseInfo getUserInfoBase(Long userId) {
