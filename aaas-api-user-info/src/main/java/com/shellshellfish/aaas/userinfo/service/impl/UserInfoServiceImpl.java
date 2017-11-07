@@ -1,7 +1,6 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
-import com.shellshellfish.aaas.userinfo.dao.service.LinksDaoService;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UserInfoDao;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.User;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UserPortfolioDao;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoBankCards;
@@ -9,7 +8,6 @@ import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
 import com.shellshellfish.aaas.userinfo.dao.repositories.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.dao.repositories.UserPortfolioRepository;
-import com.shellshellfish.aaas.userinfo.service.LinkService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +36,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 //        userInfoBase.setPhoneNumber("123456789123456789");
 //        userInfoBase.setUserId(userId);
 //        return userInfoBase;
-        UserInfoDao userInfoDao = userInfoRepository.findById(userId);
+        User userInfoDao = userInfoRepository.findById(userId);
         UserBaseInfo userBaseInfo = new UserBaseInfo();
         BeanUtils.copyProperties(userInfoDao, userBaseInfo);
 

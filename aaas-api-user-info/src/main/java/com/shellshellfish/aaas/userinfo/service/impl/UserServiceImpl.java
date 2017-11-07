@@ -1,6 +1,6 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
-import com.shellshellfish.aaas.userinfo.model.User;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.User;
 import com.shellshellfish.aaas.userinfo.dao.repositories.UserRepository;
 import com.shellshellfish.aaas.userinfo.service.UserService;
 import java.util.List;
@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	public boolean isUserExist(User user) {
-		return findByName(user.getName()) != null;
+		return findById(user.getId()) != null;
 	}
 
 }

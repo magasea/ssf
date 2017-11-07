@@ -1,25 +1,24 @@
 package com.shellshellfish.aaas.userinfo.service;
 
 
-import com.shellshellfish.aaas.userinfo.model.UserBak;
-
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.User;
 import java.util.List;
 
 public interface UserService {
 	
-	UserBak findById(Long id);
+	User findById(Long id);
 
-	UserBak findByName(String name);
+	User findByName(String name);
 
-	void saveUser(UserBak user);
+	void saveUser(User user);
 
-	void updateUser(UserBak user);
+	void updateUser(User user);
 
 	void deleteUserById(Long id);
 
 	void deleteAllUsers();
 
-	List<UserBak> findAllUsers();
+	List<User> findAllUsers();
 
-	boolean isUserExist(UserBak user);
+	boolean isUserExist(User user);
 }

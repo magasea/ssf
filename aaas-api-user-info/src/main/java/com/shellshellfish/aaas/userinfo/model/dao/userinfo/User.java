@@ -1,5 +1,8 @@
-package com.shellshellfish.aaas.userinfo.model;
+package com.shellshellfish.aaas.userinfo.model.dao.userinfo;
 
+import com.shellshellfish.aaas.userinfo.model.BankCard;
+import com.shellshellfish.aaas.userinfo.model.PromotionMessage;
+import com.shellshellfish.aaas.userinfo.model.UserAsset;
 import java.io.Serializable;
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -12,14 +15,14 @@ import java.util.List;
  */
 @Entity
 @Table(name="user")
-@NamedQuery(name="User.findAll", query="SELECT u FROM User u")
+@NamedQuery(name="User.findAll", query="SELECT u FROM UserDao u")
 public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(unique=true, nullable=false)
-	private String id;
+	private Long id;
 
 	@Column(nullable=false)
 	private byte activated;
@@ -29,6 +32,11 @@ public class User implements Serializable {
 
 	@Column(name="cell_phone", nullable=false, length=50)
 	private String cellPhone;
+
+
+
+	@Column(name="uuid", nullable=false, length=50)
+	private String uuid;
 
 	@Column(name="created_by", nullable=false, length=50)
 	private String createdBy;
@@ -66,11 +74,11 @@ public class User implements Serializable {
 	public User() {
 	}
 
-	public String getId() {
+	public Long getId() {
 		return this.id;
 	}
 
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -146,78 +154,14 @@ public class User implements Serializable {
 		this.occupation = occupation;
 	}
 
-	public String getPasswordHash() {
-		return this.passwordHash;
+	public String getUuid() {
+		return uuid;
 	}
 
-	public void setPasswordHash(String passwordHash) {
-		this.passwordHash = passwordHash;
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
 	}
 
-	public List<BankCard> getBankCards() {
-		return this.bankCards;
-	}
 
-	public void setBankCards(List<BankCard> bankCards) {
-		this.bankCards = bankCards;
-	}
-
-	public BankCard addBankCard(BankCard bankCard) {
-		getBankCards().add(bankCard);
-		bankCard.setUser(this);
-
-		return bankCard;
-	}
-
-	public BankCard removeBankCard(BankCard bankCard) {
-		getBankCards().remove(bankCard);
-		bankCard.setUser(null);
-
-		return bankCard;
-	}
-
-	public List<PromotionMessage> getPromotionMessages() {
-		return this.promotionMessages;
-	}
-
-	public void setPromotionMessages(List<PromotionMessage> promotionMessages) {
-		this.promotionMessages = promotionMessages;
-	}
-
-	public PromotionMessage addPromotionMessage(PromotionMessage promotionMessage) {
-		getPromotionMessages().add(promotionMessage);
-		promotionMessage.setUser(this);
-
-		return promotionMessage;
-	}
-
-	public PromotionMessage removePromotionMessage(PromotionMessage promotionMessage) {
-		getPromotionMessages().remove(promotionMessage);
-		promotionMessage.setUser(null);
-
-		return promotionMessage;
-	}
-
-	public List<UserAsset> getUserAssets() {
-		return this.userAssets;
-	}
-
-	public void setUserAssets(List<UserAsset> userAssets) {
-		this.userAssets = userAssets;
-	}
-
-	public UserAsset addUserAsset(UserAsset userAsset) {
-		getUserAssets().add(userAsset);
-		userAsset.setUser(this);
-
-		return userAsset;
-	}
-
-	public UserAsset removeUserAsset(UserAsset userAsset) {
-		getUserAssets().remove(userAsset);
-		userAsset.setUser(null);
-
-		return userAsset;
-	}
 
 }

@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.model;
 
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.User;
 import java.io.Serializable;
 import javax.persistence.*;
 import java.util.Date;
