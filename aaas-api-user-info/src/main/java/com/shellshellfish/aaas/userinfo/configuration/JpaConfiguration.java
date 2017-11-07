@@ -29,7 +29,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 @ComponentScan
-@EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.userinfo.repositories",
+@EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.userinfo.dao.repositories",
 		entityManagerFactoryRef = "entityManagerFactory",
 		transactionManagerRef = "transactionManager")
 @EnableTransactionManagement

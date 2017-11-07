@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.userinfo.repositories;
+package com.shellshellfish.aaas.userinfo.dao.repositories;
 
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UserInfoDao;
 import org.springframework.data.jpa.repository.JpaRepository;

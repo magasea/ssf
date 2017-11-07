@@ -9,11 +9,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.persistence.*;
-import java.io.Serializable;
-
 @Entity
 @Table(name="USER_USERINFO")
 public class UserInfoDao implements Serializable {
@@ -82,8 +77,7 @@ public class UserInfoDao implements Serializable {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    com.shellshellfish.aaas.userinfo.model.dao.userinfo.UserInfoDao user =  (com.shellshellfish
-        .aaas.userinfo.model.dao.userinfo.UserInfoDao) o;
+    com.shellshellfish.aaas.userinfo.model.dao.userinfo.UserInfoDao user =  (com.shellshellfish.aaas.userinfo.model.dao.userinfo.UserInfoDao) o;
 
     if (!user.occupation.equals(occupation) ) return false;
     if (id != null ? !id.equals(user.id) : user.id != null) return false;

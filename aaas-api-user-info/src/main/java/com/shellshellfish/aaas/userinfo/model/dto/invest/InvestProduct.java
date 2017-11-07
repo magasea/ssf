@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.userinfo.model.dto.invest;
 public class InvestProduct {
     Long id;
     String name;
+    Long userId;
     Float ratio;
     Long amount;
 
@@ -43,6 +44,22 @@ public class InvestProduct {
 
     public void setAmount(Long amount) {
         this.amount = amount;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
 }

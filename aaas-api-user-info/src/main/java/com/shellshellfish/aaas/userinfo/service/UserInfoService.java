@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoBankCards;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
+import java.util.List;
 
 public interface UserInfoService {
     UserBaseInfo getUserInfoBase(Long userId);
@@ -13,5 +14,5 @@ public interface UserInfoService {
 
     UserInfoBankCards getUserInfoBankCards(Long userId);
 
-    UserPortfolio getUserPortfolio(Long userId);
+    List<UserPortfolio> getUserPortfolios(Long userId);
 }

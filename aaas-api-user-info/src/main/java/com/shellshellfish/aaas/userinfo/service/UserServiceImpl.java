@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.userinfo.service;
 
-import com.shellshellfish.aaas.userinfo.model.UserBak;
-import com.shellshellfish.aaas.userinfo.repositories.UserRepository;
+import com.shellshellfish.aaas.userinfo.model.User;
+import com.shellshellfish.aaas.userinfo.dao.repositories.UserRepository;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,19 +17,19 @@ public class UserServiceImpl implements UserService{
 	@Autowired
 	private UserRepository userRepository;
 
-	public UserBak findById(Long id) {
+	public User findById(Long id) {
 		return userRepository.findOne(id);
 	}
 
-	public UserBak findByName(String name) {
+	public User findByName(String name) {
 		return userRepository.findByName(name);
 	}
 
-	public void saveUser(UserBak user) {
+	public void saveUser(User user) {
 		userRepository.save(user);
 	}
 
-	public void updateUser(UserBak user){
+	public void updateUser(User user){
 		saveUser(user);
 	}
 
@@ -41,11 +41,11 @@ public class UserServiceImpl implements UserService{
 		userRepository.deleteAll();
 	}
 
-	public List<UserBak> findAllUsers(){
+	public List<User> findAllUsers(){
 		return userRepository.findAll();
 	}
 
-	public boolean isUserExist(UserBak user) {
+	public boolean isUserExist(User user) {
 		return findByName(user.getName()) != null;
 	}
 

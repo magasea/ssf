@@ -1,15 +1,15 @@
 package com.shellshellfish.aaas.userinfo.service;
 
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UserInfoDao;
-import com.shellshellfish.aaas.userinfo.model.dto.invest.InvestProduct;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UserPortfolioDao;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoBankCards;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
-import com.shellshellfish.aaas.userinfo.repositories.UserInfoRepository;
+import com.shellshellfish.aaas.userinfo.dao.repositories.UserInfoRepository;
+import com.shellshellfish.aaas.userinfo.dao.repositories.UserPortfolioRepository;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Autowired
     UserInfoRepository userInfoRepository;
 
-
+    @Autowired
+    UserPortfolioRepository userPortfolioRepository;
 
     @Override
     public UserBaseInfo getUserInfoBase(Long userId) {
@@ -35,6 +36,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         UserInfoDao userInfoDao = userInfoRepository.findById(userId);
         UserBaseInfo userBaseInfo = new UserBaseInfo();
         BeanUtils.copyProperties(userInfoDao, userBaseInfo);
+
         return userBaseInfo;
     }
 
@@ -67,21 +69,16 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public UserPortfolio getUserPortfolio(Long userId) {
-        UserPortfolio userPortfolio = new UserPortfolio();
-        userPortfolio.setUserId(userId);
-        List<InvestProduct> investProducts = IntStream.rangeClosed(1, 4)
-            .boxed()
-            .flatMap(value ->
-                IntStream.rangeClosed(1, 13)
-                    .mapToObj(suit -> new InvestProduct(Long.valueOf(""+value),
-                        "张三", Float.valueOf("0.1"), Long.valueOf(""+suit) ))
-            )
-            .collect(Collectors.toList());
-        userPortfolio.setInvests(investProducts);
-        return userPortfolio;
+    public List<UserPortfolio> getUserPortfolios(Long userId) {
+
+        List<UserPortfolioDao> userPortfolioDaos =  userPortfolioRepository.findAllByUserId(userId);
+        List<UserPortfolio> userPortfolios = new ArrayList<>();
+        for(UserPortfolioDao userPortfolioDao: userPortfolioDaos){
+            UserPortfolio userPortfolio = new UserPortfolio();
+            BeanUtils.copyProperties(userPortfolioDao, userPortfolio);
+            userPortfolios.add(userPortfolio);
+        }
+        return userPortfolios;
     }
-
-
 
 }

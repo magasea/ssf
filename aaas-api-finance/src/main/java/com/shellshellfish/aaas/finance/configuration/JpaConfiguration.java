@@ -81,7 +81,11 @@ public class JpaConfiguration {
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() throws NamingException {
 		LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
 		factoryBean.setDataSource(dataSource());
+<<<<<<< HEAD
+		factoryBean.setPackagesToScan(new String[] { "com.shellshellfish.aaas.userinfo.model" });
+=======
 		factoryBean.setPackagesToScan(new String[] { "com.shellshellfish.aaas.finance.model" });
+>>>>>>> fc55a980b48bf9a9478ca304eb4e165eba05bb10
 		factoryBean.setJpaVendorAdapter(jpaVendorAdapter());
 		factoryBean.setJpaProperties(jpaProperties());
 		return factoryBean;
