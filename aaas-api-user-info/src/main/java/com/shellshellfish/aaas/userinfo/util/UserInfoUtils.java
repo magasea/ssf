@@ -1,15 +1,7 @@
 package com.shellshellfish.aaas.userinfo.util;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Currency;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.springframework.util.CollectionUtils;
 
 public class UserInfoUtils {
@@ -18,10 +10,12 @@ public class UserInfoUtils {
       key){
     Map<String, Map<String, Object>> map = new HashMap<>();
     if(CollectionUtils.isEmpty(map1)){
-      return map.put(key, map2);
+      map.put(key, map2);
+      return map;
     }
     if(CollectionUtils.isEmpty(map2)){
-      return map.put(key, map1);
+      map.put(key, map1);
+      return map;
     }
     map.merge(key, map1, (m1, m2) -> {m1.putAll(m2);return m1;});
     map.merge(key, map2, (m1, m2) -> {m1.putAll(m2);return m1;});

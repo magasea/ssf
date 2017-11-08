@@ -8,8 +8,8 @@ public class UserBaseInfo {
 
     Long id;
     String userName;
-    String phoneNumber;
-    Date birthDay;
+    String cellPhone;
+    Date birthAge;
     String occupation;
     String password;
 
@@ -29,20 +29,20 @@ public class UserBaseInfo {
         this.userName = userName;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public String getCellPhone() {
+        return cellPhone;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setCellPhone(String cellPhone) {
+        this.cellPhone = cellPhone;
     }
 
-    public Date getBirthDay() {
-        return birthDay;
+    public Date getBirthAge() {
+        return birthAge;
     }
 
-    public void setBirthDay(Date birthDay) {
-        this.birthDay = birthDay;
+    public void setBirthAge(Date birthDay) {
+        this.birthAge = birthDay;
     }
 
     public String getOccupation() {

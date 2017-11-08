@@ -1,17 +1,13 @@
 package com.shellshellfish.aaas.userinfo.controller;
 
 import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.BankCard;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.User;
+import com.shellshellfish.aaas.userinfo.model.dto.bankcard.BankCard;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
-import com.shellshellfish.aaas.userinfo.service.UserService;
-import com.shellshellfish.aaas.userinfo.util.CustomErrorType;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,53 +28,14 @@ public class RestApiController {
 
 	public static final Logger logger = LoggerFactory.getLogger(RestApiController.class);
 
-	@Autowired
-  UserService userService; //Service which will do all data retrieval/manipulation work
 
 	@Autowired
 	UserInfoService userInfoService;
 
 	// -------------------Retrieve All Users---------------------------------------------
 
-	@RequestMapping(value = "/user/", method = RequestMethod.GET)
-	@AopLinkResources
-	public ResponseEntity<List<User>> listAllUsers() {
-		List<User> users = userService.findAllUsers();
-		if (users.isEmpty()) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT);
-			// You many decide to return HttpStatus.NOT_FOUND
-		}
-		return new ResponseEntity<List<User>>(users, HttpStatus.OK);
-	}
-
-	// -------------------Retrieve Single User------------------------------------------
-
-	@RequestMapping(value = "/user/{id}", method = RequestMethod.GET)
-	@AopLinkResources
-	public ResponseEntity<?> getUser(@PathVariable("id") long id) {
-		logger.info("Fetching User with id {}", id);
-		User user = userService.findById(id);
-		if (user == null) {
-			logger.error("User with id {} not found.", id);
-			return new ResponseEntity(new CustomErrorType("User with id " + id
-					+ " not found"), HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity<User>(user, HttpStatus.OK);
-	}
-
-	// -------------------Create a User-------------------------------------------
 
 
-	// ------------------- Delete All Users-----------------------------
-
-	@RequestMapping(value = "/user/", method = RequestMethod.DELETE)
-	@AopLinkResources
-	public ResponseEntity<User> deleteAllUsers() {
-		logger.info("Deleting All Users");
-
-		userService.deleteAllUsers();
-		return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
-	}
 
 
 	@RequestMapping(value = "/userinfo/id/{id}", method = RequestMethod.GET)
@@ -94,13 +51,17 @@ public class RestApiController {
 		Map<String, Object> result = new HashMap<>();
 		result.put("title","个人信息");
 		Map<String, String> userCellphone = new HashMap<>();
-		userCellphone.put("number",userBaseInfo.getPhoneNumber());
+		userCellphone.put("number",userBaseInfo.getCellPhone());
 		userCellphone.put("title","手机号");
 		result.put("userCellphone",userCellphone);
 		Map<String, String> userBirthAge = new HashMap<>();
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(StringUtils.isEmpty(userBaseInfo.getBirthDay().toString())? (new Date()): null);
-		int year = (cal.get(Calendar.YEAR)%10)* 10;
+		int year = 0;
+		if(null !=  userBaseInfo.getBirthAge()){
+			cal.setTime(userBaseInfo.getBirthAge());
+			year = (cal.get(Calendar.YEAR)%10)* 10;
+		}
+
 		userBirthAge.put("birthAge",""+year);
 		userBirthAge.put("title","出生年代");
 		result.put("userBirthAge",userBirthAge);
@@ -117,7 +78,7 @@ public class RestApiController {
 		}
 
 	}
-
+	
 	@RequestMapping(value = "/userInfo/getUserPersonalInfo/id/{id}", method = RequestMethod.GET)
 	@AopLinkResources
 	public ResponseEntity<?> getUserPersonalInfo(@PathVariable("id") String id){

@@ -17,8 +17,8 @@ public class UiAsset implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	private String id;
+	@GeneratedValue(strategy=GenerationType.SEQUENCE)
+	private long id;
 
 	@Column(name="created_by")
 	private String createdBy;
@@ -47,11 +47,11 @@ public class UiAsset implements Serializable {
 	public UiAsset() {
 	}
 
-	public String getId() {
+	public Long getId() {
 		return this.id;
 	}
 
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

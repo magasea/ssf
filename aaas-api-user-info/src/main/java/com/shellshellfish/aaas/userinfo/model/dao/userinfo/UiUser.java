@@ -2,7 +2,7 @@ package com.shellshellfish.aaas.userinfo.model.dao.userinfo;
 
 import java.io.Serializable;
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.sql.Date;
 
 
 /**
@@ -16,13 +16,13 @@ public class UiUser implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	private String id;
+	@GeneratedValue(strategy=GenerationType.SEQUENCE)
+	private long id;
 
 	private byte activated;
 
 	@Column(name="birth_age")
-	private String birthAge;
+	private Date birthAge;
 
 	@Column(name="cell_phone")
 	private String cellPhone;
@@ -31,16 +31,16 @@ public class UiUser implements Serializable {
 	private String createdBy;
 
 	@Column(name="created_date")
-	private Timestamp createdDate;
+	private Date createdDate;
 
 	@Column(name="last_modified_by")
 	private String lastModifiedBy;
 
 	@Column(name="last_modified_date")
-	private Timestamp lastModifiedDate;
+	private Date lastModifiedDate;
 
 	@Column(name="last_reset_date")
-	private Timestamp lastResetDate;
+	private Date lastResetDate;
 
 	private String occupation;
 
@@ -52,11 +52,11 @@ public class UiUser implements Serializable {
 	public UiUser() {
 	}
 
-	public String getId() {
+	public Long getId() {
 		return this.id;
 	}
 
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -68,11 +68,11 @@ public class UiUser implements Serializable {
 		this.activated = activated;
 	}
 
-	public String getBirthAge() {
+	public Date getBirthAge() {
 		return this.birthAge;
 	}
 
-	public void setBirthAge(String birthAge) {
+	public void setBirthAge(Date birthAge) {
 		this.birthAge = birthAge;
 	}
 
@@ -92,11 +92,11 @@ public class UiUser implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public Timestamp getCreatedDate() {
+	public Date getCreatedDate() {
 		return this.createdDate;
 	}
 
-	public void setCreatedDate(Timestamp createdDate) {
+	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
 	}
 
@@ -108,19 +108,19 @@ public class UiUser implements Serializable {
 		this.lastModifiedBy = lastModifiedBy;
 	}
 
-	public Timestamp getLastModifiedDate() {
+	public Date getLastModifiedDate() {
 		return this.lastModifiedDate;
 	}
 
-	public void setLastModifiedDate(Timestamp lastModifiedDate) {
+	public void setLastModifiedDate(Date lastModifiedDate) {
 		this.lastModifiedDate = lastModifiedDate;
 	}
 
-	public Timestamp getLastResetDate() {
+	public Date getLastResetDate() {
 		return this.lastResetDate;
 	}
 
-	public void setLastResetDate(Timestamp lastResetDate) {
+	public void setLastResetDate(Date lastResetDate) {
 		this.lastResetDate = lastResetDate;
 	}
 

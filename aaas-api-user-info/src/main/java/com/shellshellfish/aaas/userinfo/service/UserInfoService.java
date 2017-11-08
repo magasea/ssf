@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.userinfo.service;
 
 
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.BankCard;
+import com.shellshellfish.aaas.userinfo.model.dto.bankcard.BankCard;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;

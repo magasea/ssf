@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.userinfo.model.dao.userinfo;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import javax.persistence.*;
 import java.util.Date;
 import java.sql.Timestamp;
@@ -17,8 +18,8 @@ public class UiBankcard implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	private String id;
+	@GeneratedValue(strategy=GenerationType.SEQUENCE)
+	private BigInteger id;
 
 	@Column(name="bank_name")
 	private String bankName;
@@ -46,16 +47,16 @@ public class UiBankcard implements Serializable {
 	private Timestamp lastModifiedDate;
 
 	@Column(name="user_id")
-	private java.math.BigInteger userId;
+	private BigInteger userId;
 
 	public UiBankcard() {
 	}
 
-	public String getId() {
+	public BigInteger getId() {
 		return this.id;
 	}
 
-	public void setId(String id) {
+	public void setId(BigInteger id) {
 		this.id = id;
 	}
 
@@ -123,11 +124,11 @@ public class UiBankcard implements Serializable {
 		this.lastModifiedDate = lastModifiedDate;
 	}
 
-	public java.math.BigInteger getUserId() {
+	public BigInteger getUserId() {
 		return this.userId;
 	}
 
-	public void setUserId(java.math.BigInteger userId) {
+	public void setUserId(BigInteger userId) {
 		this.userId = userId;
 	}
 

@@ -82,6 +82,9 @@ public class JpaConfiguration {
 		factoryBean.setPackagesToScan(new String[] { "com.shellshellfish.aaas.userinfo" });
 		factoryBean.setJpaVendorAdapter(jpaVendorAdapter());
 		factoryBean.setJpaProperties(jpaProperties());
+
+
+
 		return factoryBean;
 	}
 

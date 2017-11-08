@@ -21,6 +21,9 @@ public class BankCard {
         this.bankName = bankName;
     }
 
+    public BankCard() {
+    }
+
     public String getBankCardNumber() {
         return bankCardNumber;
     }
