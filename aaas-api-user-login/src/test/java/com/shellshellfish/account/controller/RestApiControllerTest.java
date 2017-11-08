@@ -57,10 +57,18 @@ public class RestApiControllerTest {
     }
 
 	@Test	
-	public void getAccountById() throws Exception {
+	public void login() throws Exception {
+		mvc.perform(MockMvcRequestBuilders.get("/api/login")
+				.contentType("application/json"))
+				.andExpect(MockMvcResultMatchers.status().isOk());
+		
+	}
+	
+	@Test	
+	public void loginverify() throws Exception {
 		Account account = new Account();
 		account.setId(5);
-		account.setPassword("123654aG");
+		account.setPassword("123654aF");
 		account.setTelnum("12332321211");
 		/*
 		mvc.perform(MockMvcRequestBuilders.post("/api/login?id="+ account.getId())
@@ -70,7 +78,7 @@ public class RestApiControllerTest {
 		return ;*/
 		
 		BDDMockito.given(accountService.findById(account.getId())).willReturn(account);
-		mvc.perform(MockMvcRequestBuilders.post("/api/login?telnum="+ account.getTelnum()+"&password="+account.getPassword())
+		mvc.perform(MockMvcRequestBuilders.post("/api/loginverify?telnum="+ account.getTelnum()+"&password="+account.getPassword())
 				.contentType("application/json"))
 				.andExpect(MockMvcResultMatchers.status().isOk());
 				//.andExpect(MockMvcResultMatchers.jsonPath("$.password", Is.is(account.getPassword())))

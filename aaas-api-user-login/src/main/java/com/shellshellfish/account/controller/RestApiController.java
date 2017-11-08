@@ -118,8 +118,8 @@ public class RestApiController {
 		  return new ResponseEntity<PageSchema>(ps, HttpStatus.OK);	
     }
 
-	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public ResponseEntity<Map> loginres(
+	@RequestMapping(value = "/loginverify", method = RequestMethod.POST)
+	public ResponseEntity<Map> loginveirfy(
 			//@Valid @NotNull(message="not null") @Max(value=20) @Min(value=1) @RequestParam(value = "id") String bankid
 			@Valid @NotNull(message="电话不能为空") @DecimalMax(value="99999999999",message="电话长度必须是11位的数字") @Size(min = 11, max = 11,message="电话长度必须是11位的数字")  @RequestParam(value = "telnum") String telnum,
 			@Valid @NotNull(message="密码不能为空") @Size(min = 8, max = 16,message="密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合")  @RequestParam(value = "password") String pwd
@@ -135,6 +135,14 @@ public class RestApiController {
 		    }
 		    
 		    HashMap<String ,Object> rsmap= resourceManager.response("login",new String[]{telnum,pwd});
+		    return new ResponseEntity<Map>(rsmap, HttpStatus.OK);	
+    }
+	
+	@RequestMapping(value = "/login", method = RequestMethod.GET)
+	public ResponseEntity<Map> loginres()
+	{
+		   
+		    HashMap<String ,Object> rsmap= resourceManager.response("login",null);
 		    return new ResponseEntity<Map>(rsmap, HttpStatus.OK);	
     }
 	
