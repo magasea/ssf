@@ -1,20 +1,20 @@
-package com.shellshellfish.aaas.userinfo.model;
+package com.shellshellfish.aaas.userinfo.model.dao.userinfo;
 
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.User;
 import java.io.Serializable;
 import javax.persistence.*;
-import java.util.Date;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 
 /**
- * The persistent class for the bank_card database table.
+ * The persistent class for the user_asset database table.
  * 
  */
 @Entity
-@Table(name="bank_card")
-@NamedQuery(name="BankCard.findAll", query="SELECT b FROM BankCard b")
-public class BankCard implements Serializable {
+@Table(name="user_asset")
+@NamedQuery(name="UserAsset.findAll", query="SELECT u FROM UserAsset u")
+public class UserAsset implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
@@ -22,24 +22,14 @@ public class BankCard implements Serializable {
 	@Column(unique=true, nullable=false)
 	private String id;
 
-	@Column(name="bank_name", nullable=false, length=45)
-	private String bankName;
-
-	@Column(name="card_number", nullable=false, length=45)
-	private String cardNumber;
-
-	@Column(name="card_user_name", length=45)
-	private String cardUserName;
-
 	@Column(name="created_by", length=50)
 	private String createdBy;
 
 	@Column(name="created_date")
 	private Timestamp createdDate;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="expire_date")
-	private Date expireDate;
+	@Column(name="daily_profit", precision=10)
+	private BigDecimal dailyProfit;
 
 	@Column(name="last_modified_by", length=50)
 	private String lastModifiedBy;
@@ -47,12 +37,18 @@ public class BankCard implements Serializable {
 	@Column(name="last_modified_date")
 	private Timestamp lastModifiedDate;
 
+	@Column(name="total_assets", precision=10)
+	private BigDecimal totalAssets;
+
+	@Column(name="total_profit", precision=10)
+	private BigDecimal totalProfit;
+
 	//bi-directional many-to-one association to User
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="user_id", nullable=false)
+	@JoinColumn(name="user_id")
 	private User user;
 
-	public BankCard() {
+	public UserAsset() {
 	}
 
 	public String getId() {
@@ -61,30 +57,6 @@ public class BankCard implements Serializable {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public String getBankName() {
-		return this.bankName;
-	}
-
-	public void setBankName(String bankName) {
-		this.bankName = bankName;
-	}
-
-	public String getCardNumber() {
-		return this.cardNumber;
-	}
-
-	public void setCardNumber(String cardNumber) {
-		this.cardNumber = cardNumber;
-	}
-
-	public String getCardUserName() {
-		return this.cardUserName;
-	}
-
-	public void setCardUserName(String cardUserName) {
-		this.cardUserName = cardUserName;
 	}
 
 	public String getCreatedBy() {
@@ -103,12 +75,12 @@ public class BankCard implements Serializable {
 		this.createdDate = createdDate;
 	}
 
-	public Date getExpireDate() {
-		return this.expireDate;
+	public BigDecimal getDailyProfit() {
+		return this.dailyProfit;
 	}
 
-	public void setExpireDate(Date expireDate) {
-		this.expireDate = expireDate;
+	public void setDailyProfit(BigDecimal dailyProfit) {
+		this.dailyProfit = dailyProfit;
 	}
 
 	public String getLastModifiedBy() {
@@ -125,6 +97,22 @@ public class BankCard implements Serializable {
 
 	public void setLastModifiedDate(Timestamp lastModifiedDate) {
 		this.lastModifiedDate = lastModifiedDate;
+	}
+
+	public BigDecimal getTotalAssets() {
+		return this.totalAssets;
+	}
+
+	public void setTotalAssets(BigDecimal totalAssets) {
+		this.totalAssets = totalAssets;
+	}
+
+	public BigDecimal getTotalProfit() {
+		return this.totalProfit;
+	}
+
+	public void setTotalProfit(BigDecimal totalProfit) {
+		this.totalProfit = totalProfit;
 	}
 
 	public User getUser() {

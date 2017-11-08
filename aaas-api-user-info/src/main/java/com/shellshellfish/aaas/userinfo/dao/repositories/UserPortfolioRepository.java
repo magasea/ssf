@@ -1,11 +1,12 @@
 package com.shellshellfish.aaas.userinfo.dao.repositories;
 
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPortfolio;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UserPortfolioDao;
 import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 
-public interface UserPortfolioRepository extends CrudRepository<UserPortfolioDao, Long> {
+public interface UserPortfolioRepository extends CrudRepository<UiPortfolio, Long> {
 
-  List<UserPortfolioDao> findAllByUserId( Long userId);
+  List<UiPortfolio> findAllByUserId( Long userId);
 
 }

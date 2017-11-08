@@ -1,12 +1,12 @@
 package com.shellshellfish.aaas.userinfo.dao.repositories;
 
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.User;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserInfoRepository extends JpaRepository<User, Long>{
+public interface UserInfoRepository extends JpaRepository<UiUser, Long>{
 
-  User findById(Long id);
+  UiUser findById(Long id);
 
 }

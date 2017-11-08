@@ -1,7 +1,11 @@
 package com.shellshellfish.aaas.userinfo.util;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Currency;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -23,7 +27,4 @@ public class UserInfoUtils {
     map.merge(key, map2, (m1, m2) -> {m1.putAll(m2);return m1;});
     return map;
   }
-
-
-
 }

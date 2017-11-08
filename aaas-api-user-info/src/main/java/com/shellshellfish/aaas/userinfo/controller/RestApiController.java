@@ -1,18 +1,19 @@
 package com.shellshellfish.aaas.userinfo.controller;
 
 import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.BankCard;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.User;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoBankCards;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.service.UserService;
 import com.shellshellfish.aaas.userinfo.util.CustomErrorType;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -84,8 +85,8 @@ public class RestApiController {
 	@AopLinkResources
 	public ResponseEntity<Object> getUserBaseInfo(@PathVariable("id") String id) {
 		System.out.println("userId is " + id);
-		Long userId = Long.getLong(id);
-		UserInfoBankCards userInfoBankCards =  userInfoService.getUserInfoBankCards(userId);
+		Long userId = Long.parseLong(id);
+		List<BankCard> bankCards =  userInfoService.getUserInfoBankCards(userId);
 		UserInfoAssectsBrief userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userId);
 		List<UserPortfolio> userPortfolios = userInfoService.getUserPortfolios(userId);
 		UserBaseInfo userBaseInfo = userInfoService.getUserInfoBase(userId);
@@ -97,13 +98,18 @@ public class RestApiController {
 		userCellphone.put("title","手机号");
 		result.put("userCellphone",userCellphone);
 		Map<String, String> userBirthAge = new HashMap<>();
-		userBirthAge.put("birthAge","");
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(StringUtils.isEmpty(userBaseInfo.getBirthDay().toString())? (new Date()): null);
+		int year = (cal.get(Calendar.YEAR)%10)* 10;
+		userBirthAge.put("birthAge",""+year);
 		userBirthAge.put("title","出生年代");
 		result.put("userBirthAge",userBirthAge);
-		Map<String, String> userCarrier = new HashMap<>();
-		userCarrier.put("birthAge","90后");
-		userCarrier.put("title","出生年代");
-		result.put("userCarrier",userCarrier);
+		result.put("userCarrier",userBaseInfo.getOccupation());
+
+		result.put("userAssets", userInfoAssectsBrief);
+		result.put("userPortfolios", userPortfolios);
+		result.put("userBankCards", bankCards);
+
 		if(StringUtils.isEmpty(id)){
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}else{

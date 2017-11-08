@@ -1,9 +1,8 @@
 package com.shellshellfish.aaas.userinfo.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-import com.shellshellfish.aaas.userinfo.model.BankCard;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.BankCard;
 
 public interface BankCodeRepository extends JpaRepository<BankCard, Long>{
 

@@ -1,6 +1,5 @@
-package com.shellshellfish.aaas.userinfo.model;
+package com.shellshellfish.aaas.userinfo.model.dao.userinfo;
 
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.User;
 import java.io.Serializable;
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -8,47 +7,44 @@ import java.sql.Timestamp;
 
 
 /**
- * The persistent class for the user_asset database table.
+ * The persistent class for the ui_asset database table.
  * 
  */
 @Entity
-@Table(name="user_asset")
-@NamedQuery(name="UserAsset.findAll", query="SELECT u FROM UserAsset u")
-public class UserAsset implements Serializable {
+@Table(name="ui_asset")
+@NamedQuery(name="UiAsset.findAll", query="SELECT u FROM UiAsset u")
+public class UiAsset implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(unique=true, nullable=false)
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	private String id;
 
-	@Column(name="created_by", length=50)
+	@Column(name="created_by")
 	private String createdBy;
 
 	@Column(name="created_date")
 	private Timestamp createdDate;
 
-	@Column(name="daily_profit", precision=10)
+	@Column(name="daily_profit")
 	private BigDecimal dailyProfit;
 
-	@Column(name="last_modified_by", length=50)
+	@Column(name="last_modified_by")
 	private String lastModifiedBy;
 
 	@Column(name="last_modified_date")
 	private Timestamp lastModifiedDate;
 
-	@Column(name="total_assets", precision=10)
+	@Column(name="total_assets")
 	private BigDecimal totalAssets;
 
-	@Column(name="total_profit", precision=10)
+	@Column(name="total_profit")
 	private BigDecimal totalProfit;
 
-	//bi-directional many-to-one association to User
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="user_id")
-	private User user;
+	@Column(name="user_id")
+	private java.math.BigInteger userId;
 
-	public UserAsset() {
+	public UiAsset() {
 	}
 
 	public String getId() {
@@ -115,12 +111,12 @@ public class UserAsset implements Serializable {
 		this.totalProfit = totalProfit;
 	}
 
-	public User getUser() {
-		return this.user;
+	public java.math.BigInteger getUserId() {
+		return this.userId;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setUserId(java.math.BigInteger userId) {
+		this.userId = userId;
 	}
 
 }

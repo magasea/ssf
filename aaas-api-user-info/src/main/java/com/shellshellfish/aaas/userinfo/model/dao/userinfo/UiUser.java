@@ -1,48 +1,39 @@
 package com.shellshellfish.aaas.userinfo.model.dao.userinfo;
 
-import com.shellshellfish.aaas.userinfo.model.PromotionMessage;
 import java.io.Serializable;
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.List;
 
 
 /**
- * The persistent class for the user database table.
+ * The persistent class for the ui_user database table.
  * 
  */
 @Entity
-@Table(name="user")
-@NamedQuery(name="User.findAll", query="SELECT u FROM User u")
-public class User implements Serializable {
+@Table(name="ui_user")
+@NamedQuery(name="UiUser.findAll", query="SELECT u FROM UiUser u")
+public class UiUser implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(unique=true, nullable=false)
-	private Long id;
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	private String id;
 
-	@Column(nullable=false)
 	private byte activated;
 
-	@Column(name="birth_age", length=50)
+	@Column(name="birth_age")
 	private String birthAge;
 
-	@Column(name="cell_phone", nullable=false, length=50)
+	@Column(name="cell_phone")
 	private String cellPhone;
 
-
-
-	@Column(name="uuid", nullable=false, length=50)
-	private String uuid;
-
-	@Column(name="created_by", nullable=false, length=50)
+	@Column(name="created_by")
 	private String createdBy;
 
-	@Column(name="created_date", nullable=false)
+	@Column(name="created_date")
 	private Timestamp createdDate;
 
-	@Column(name="last_modified_by", length=50)
+	@Column(name="last_modified_by")
 	private String lastModifiedBy;
 
 	@Column(name="last_modified_date")
@@ -51,32 +42,21 @@ public class User implements Serializable {
 	@Column(name="last_reset_date")
 	private Timestamp lastResetDate;
 
-	@Column(length=50)
 	private String occupation;
 
-	@Column(name="password_hash", length=60)
+	@Column(name="password_hash")
 	private String passwordHash;
 
-	//bi-directional many-to-one association to BankCard
-	@OneToMany(mappedBy="user")
-	private List<BankCard> bankCards;
+	private String uuid;
 
-	//bi-directional many-to-one association to PromotionMessage
-	@OneToMany(mappedBy="user")
-	private List<PromotionMessage> promotionMessages;
-
-	//bi-directional many-to-one association to UserAsset
-	@OneToMany(mappedBy="user")
-	private List<UserAsset> userAssets;
-
-	public User() {
+	public UiUser() {
 	}
 
-	public Long getId() {
+	public String getId() {
 		return this.id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -152,14 +132,20 @@ public class User implements Serializable {
 		this.occupation = occupation;
 	}
 
+	public String getPasswordHash() {
+		return this.passwordHash;
+	}
+
+	public void setPasswordHash(String passwordHash) {
+		this.passwordHash = passwordHash;
+	}
+
 	public String getUuid() {
-		return uuid;
+		return this.uuid;
 	}
 
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
 	}
-
-
 
 }
