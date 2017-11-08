@@ -13,13 +13,15 @@ public class AccountServiceImpl implements AccountService {
 		// TODO replace with database find_all operation
 		
 		List<Account> accounts = new ArrayList<Account>();
+		/*
+		
 		for (int x = 0; x < pageSize; x++) {
 		    Account account = new Account();
 		    account.setName("Test" + (x+1));
 		    account.setType(type);
 		    account.setId(stPos+x);
 		    accounts.add(account);
-		}
+		}*/
 		return accounts;
 	}
 
@@ -27,8 +29,8 @@ public class AccountServiceImpl implements AccountService {
 	public Account findById(long id) {
 		// TODO replace with database find operation
 		Account account = new Account();
-		account.setName("Checking");
-		account.setType("Fixed");
+		//account.setPassword("");
+		//account.setTelnum("Fixed");
 		account.setId(id);
 		return account;
 	}

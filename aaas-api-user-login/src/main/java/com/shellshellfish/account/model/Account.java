@@ -1,17 +1,17 @@
 package com.shellshellfish.account.model;
 
 public class Account {
-	public String getName() {
-		return name;
+	public String getPassword() {
+		return password;
 	}
-	public void setName(String name) {
-		this.name = name;
+	public void setPassword(String pwd) {
+		this.password = pwd;
 	}
-	public String getType() {
-		return type;
+	public String getTelnum() {
+		return telnum;
 	}
-	public void setType(String type) {
-		this.type = type;
+	public void setTelnum(String num) {
+		this.telnum = num;
 	}
 	public long getId() {
 		return id;
@@ -20,7 +20,7 @@ public class Account {
 		this.id = id;
 	}
 	private long id;
-	private String name;
-	private String type;
+	private String password;
+	private String telnum;
 
 }

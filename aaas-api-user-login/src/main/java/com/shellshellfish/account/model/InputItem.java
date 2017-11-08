@@ -1,7 +1,7 @@
 package com.shellshellfish.account.model;
 
 
-public class EditorItem {
+public class InputItem {
     
 	private String title;
 	private String name;

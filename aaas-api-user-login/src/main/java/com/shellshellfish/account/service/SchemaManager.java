@@ -2,8 +2,8 @@ package com.shellshellfish.account.service;
 
 import java.util.HashMap;
 
-import com.shellshellfish.account.model.ButtonItem;
-import com.shellshellfish.account.model.EditorItem;
+
+import com.shellshellfish.account.model.InputItem;
 import com.shellshellfish.account.model.LinkItem;
 import com.shellshellfish.account.model.PageSchema;
 
@@ -50,9 +50,9 @@ public class SchemaManager {
 		*/
 		
 		//for telphone ,pwd editor
-		EditorItem[] telitems= new EditorItem[2];
+		InputItem[] telitems= new InputItem[2];
 		//telphone
-		telitems[0] =new EditorItem();
+		telitems[0] =new InputItem();
 		telitems[0].setName("telnum");
 		telitems[0].setTitle("手机号码");
 		telitems[0].setDescription("telphone editor");
@@ -65,7 +65,7 @@ public class SchemaManager {
 		telitems[0].setMinlength(11); //length check
 		telitems[0].setMaxlength(11);
 		
-		telitems[1] =new EditorItem();
+		telitems[1] =new InputItem();
 		telitems[1].setName("password");
 		telitems[1].setTitle("登录密码");
 		telitems[1].setDescription("password editor");
@@ -106,16 +106,16 @@ public class SchemaManager {
 		map.put("forgottenpwd", linkitems[1]);
 		
 		//for login button
-		ButtonItem loginbtnitem= new ButtonItem();
-		loginbtnitem.setName("login");
-		loginbtnitem.setTitle("登录");
-		loginbtnitem.setDescription("login button");
+		LinkItem loginitem= new LinkItem();
+		loginitem.setName("login");
+		loginitem.setTitle("登录");
+		loginitem.setDescription("login button");
 		//loginbtnitem.setSelfLink(null);
-		loginbtnitem.setType("link");
-		loginbtnitem.setAction("/api/loginaction?");
-		loginbtnitem.setClickable(true);
-		loginbtnitem.setOrdinal("6");		
-		map.put("login", loginbtnitem); 
+		loginitem.setType("link");
+		loginitem.setHref("/api/loginaction");
+		//loginbtnitem.setClickable(true);
+		loginitem.setOrdinal("6");		
+		map.put("login", loginitem); 
 						
 		ps.setProperties(map);
 		return ps;
@@ -136,7 +136,7 @@ public class SchemaManager {
 		//self description
 		
 		//for 注册title
-		EditorItem titleitem= new EditorItem();
+		InputItem titleitem= new InputItem();
 		titleitem.setName("registration");
 		titleitem.setTitle("注册");
 		titleitem.setDescription("register label");
@@ -148,9 +148,9 @@ public class SchemaManager {
 		map.put("registration", titleitem); 
 		
 		//for telsuffix,telphone  editor
-		EditorItem[] telitems= new EditorItem[2];
+		InputItem[] telitems= new InputItem[2];
 		//tel suffix
-		telitems[0]=new EditorItem();
+		telitems[0]=new InputItem();
 		telitems[0].setName("telsuffix");
 		telitems[0].setTitle("中国大陆 +86");
 		telitems[0].setDescription("telphone suffix editor");
@@ -162,7 +162,7 @@ public class SchemaManager {
 		map.put("telsuffix", telitems[0]);
 		
 		//telphone
-		telitems[1]=new EditorItem();
+		telitems[1]=new InputItem();
 		telitems[1].setName("telnum");
 		telitems[1].setTitle("手机号码");
 		telitems[1].setDescription("telphone editor");
@@ -191,6 +191,7 @@ public class SchemaManager {
 		map.put("agreement", linkitems);
 		
 		//for login button
+		/*
 		ButtonItem loginbtnitem= new ButtonItem();
 		loginbtnitem.setName("register");
 		loginbtnitem.setTitle("注册");
@@ -201,7 +202,7 @@ public class SchemaManager {
 		loginbtnitem.setClickable(true);
 		loginbtnitem.setOrdinal("5");		
 		map.put("register", loginbtnitem); 
-						
+			*/			
 		ps.setProperties(map);
 		return ps;
 
