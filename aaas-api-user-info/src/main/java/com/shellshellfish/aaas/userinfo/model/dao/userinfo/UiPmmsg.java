@@ -17,7 +17,8 @@ public class UiPmmsg implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE)
+	@SequenceGenerator(name="UI_PMMSG_ID_GENERATOR", sequenceName="ui_pmmsg_id_generator")
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="UI_PMMSG_ID_GENERATOR")
 	private String id;
 
 	private String content;

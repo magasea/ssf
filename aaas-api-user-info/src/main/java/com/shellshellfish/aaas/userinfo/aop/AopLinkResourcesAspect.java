@@ -40,6 +40,9 @@ public class AopLinkResourcesAspect {
         log.info("{}",value);
         ResponseEntity<?> entity = (ResponseEntity) value;
         Map<String, Object> entityMap = (Map)entity.getBody();
+        if(!entityMap.containsKey("_links")){
+            entityMap.put("_links", "");
+        }
         log.info("{}",entityMap.get("_links"));
         Map<String, String> cond = new HashMap<>();
         if (proceedingJoinPoint.getSignature().getName().contains("getUserBaseInfo")){
