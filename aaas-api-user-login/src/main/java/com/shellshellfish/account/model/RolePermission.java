@@ -11,9 +11,15 @@ public class RolePermission {
     private Timestamp createdDate;
     private String lastModifiedBy;
     private Timestamp lastModifiedDate;
+    private Role roleByRoleId;
+    private Permission permissionByPermissionId;
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     @Id
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     public long getId() {
         return id;
     }
@@ -23,7 +29,7 @@ public class RolePermission {
     }
 
     @Basic
-    @Column(name = "created_by")
+    @Column(name = "created_by", nullable = true, length = 50)
     public String getCreatedBy() {
         return createdBy;
     }
@@ -33,7 +39,7 @@ public class RolePermission {
     }
 
     @Basic
-    @Column(name = "created_date")
+    @Column(name = "created_date", nullable = true)
     public Timestamp getCreatedDate() {
         return createdDate;
     }
@@ -43,7 +49,7 @@ public class RolePermission {
     }
 
     @Basic
-    @Column(name = "last_modified_by")
+    @Column(name = "last_modified_by", nullable = true, length = 50)
     public String getLastModifiedBy() {
         return lastModifiedBy;
     }
@@ -53,7 +59,7 @@ public class RolePermission {
     }
 
     @Basic
-    @Column(name = "last_modified_date")
+    @Column(name = "last_modified_date", nullable = true)
     public Timestamp getLastModifiedDate() {
         return lastModifiedDate;
     }
@@ -88,5 +94,25 @@ public class RolePermission {
         result = 31 * result + (lastModifiedBy != null ? lastModifiedBy.hashCode() : 0);
         result = 31 * result + (lastModifiedDate != null ? lastModifiedDate.hashCode() : 0);
         return result;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
+    public Role getRoleByRoleId() {
+        return roleByRoleId;
+    }
+
+    public void setRoleByRoleId(Role roleByRoleId) {
+        this.roleByRoleId = roleByRoleId;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "permission_id", referencedColumnName = "id", nullable = false)
+    public Permission getPermissionByPermissionId() {
+        return permissionByPermissionId;
+    }
+
+    public void setPermissionByPermissionId(Permission permissionByPermissionId) {
+        this.permissionByPermissionId = permissionByPermissionId;
     }
 }

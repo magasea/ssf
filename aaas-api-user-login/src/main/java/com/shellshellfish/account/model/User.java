@@ -1,10 +1,8 @@
 package com.shellshellfish.account.model;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.Collection;
 
 @Entity
 public class User {
@@ -20,9 +18,24 @@ public class User {
     private Timestamp lastResetDate;
     private String lastModifiedBy;
     private Timestamp lastModifiedDate;
+    private Collection<UserRole> userRolesById;
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    @Basic
+    @Column(name = "activated", nullable = false)
+    public Boolean getActivated() {
+        return activated;
+    }
+
+    public void setActivated(Boolean activated) {
+        this.activated = activated;
+    }
 
     @Id
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     public long getId() {
         return id;
     }
@@ -32,7 +45,7 @@ public class User {
     }
 
     @Basic
-    @Column(name = "uuid")
+    @Column(name = "uuid", nullable = false, length = 36)
     public String getUuid() {
         return uuid;
     }
@@ -42,7 +55,7 @@ public class User {
     }
 
     @Basic
-    @Column(name = "cell_phone")
+    @Column(name = "cell_phone", nullable = false, length = 50)
     public String getCellPhone() {
         return cellPhone;
     }
@@ -52,7 +65,7 @@ public class User {
     }
 
     @Basic
-    @Column(name = "birth_age")
+    @Column(name = "birth_age", nullable = true, length = 50)
     public String getBirthAge() {
         return birthAge;
     }
@@ -62,7 +75,7 @@ public class User {
     }
 
     @Basic
-    @Column(name = "occupation")
+    @Column(name = "occupation", nullable = true, length = 50)
     public String getOccupation() {
         return occupation;
     }
@@ -72,7 +85,7 @@ public class User {
     }
 
     @Basic
-    @Column(name = "password_hash")
+    @Column(name = "password_hash", nullable = true, length = 60)
     public String getPasswordHash() {
         return passwordHash;
     }
@@ -82,7 +95,7 @@ public class User {
     }
 
     @Basic
-    @Column(name = "activated")
+    @Column(name = "activated", nullable = false)
     public boolean isActivated() {
         return activated;
     }
@@ -92,7 +105,7 @@ public class User {
     }
 
     @Basic
-    @Column(name = "created_by")
+    @Column(name = "created_by", nullable = false, length = 50)
     public String getCreatedBy() {
         return createdBy;
     }
@@ -102,7 +115,7 @@ public class User {
     }
 
     @Basic
-    @Column(name = "created_date")
+    @Column(name = "created_date", nullable = false)
     public Timestamp getCreatedDate() {
         return createdDate;
     }
@@ -112,7 +125,7 @@ public class User {
     }
 
     @Basic
-    @Column(name = "last_reset_date")
+    @Column(name = "last_reset_date", nullable = true)
     public Timestamp getLastResetDate() {
         return lastResetDate;
     }
@@ -122,7 +135,7 @@ public class User {
     }
 
     @Basic
-    @Column(name = "last_modified_by")
+    @Column(name = "last_modified_by", nullable = true, length = 50)
     public String getLastModifiedBy() {
         return lastModifiedBy;
     }
@@ -132,7 +145,7 @@ public class User {
     }
 
     @Basic
-    @Column(name = "last_modified_date")
+    @Column(name = "last_modified_date", nullable = true)
     public Timestamp getLastModifiedDate() {
         return lastModifiedDate;
     }
@@ -182,5 +195,14 @@ public class User {
         result = 31 * result + (lastModifiedBy != null ? lastModifiedBy.hashCode() : 0);
         result = 31 * result + (lastModifiedDate != null ? lastModifiedDate.hashCode() : 0);
         return result;
+    }
+
+    @OneToMany(mappedBy = "userByUserId")
+    public Collection<UserRole> getUserRolesById() {
+        return userRolesById;
+    }
+
+    public void setUserRolesById(Collection<UserRole> userRolesById) {
+        this.userRolesById = userRolesById;
     }
 }

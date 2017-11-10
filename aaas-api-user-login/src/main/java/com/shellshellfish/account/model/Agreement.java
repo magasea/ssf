@@ -15,8 +15,12 @@ public class Agreement {
     private String lastModifiedBy;
     private Timestamp lastModifiedDate;
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     @Id
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     public long getId() {
         return id;
     }
@@ -26,7 +30,7 @@ public class Agreement {
     }
 
     @Basic
-    @Column(name = "content")
+    @Column(name = "content", nullable = true, length = 5000)
     public String getContent() {
         return content;
     }
@@ -36,7 +40,7 @@ public class Agreement {
     }
 
     @Basic
-    @Column(name = "created_by")
+    @Column(name = "created_by", nullable = true, length = 50)
     public String getCreatedBy() {
         return createdBy;
     }
@@ -46,7 +50,7 @@ public class Agreement {
     }
 
     @Basic
-    @Column(name = "created_date")
+    @Column(name = "created_date", nullable = true)
     public Timestamp getCreatedDate() {
         return createdDate;
     }
@@ -56,7 +60,7 @@ public class Agreement {
     }
 
     @Basic
-    @Column(name = "last_modified_by")
+    @Column(name = "last_modified_by", nullable = true, length = 50)
     public String getLastModifiedBy() {
         return lastModifiedBy;
     }
@@ -66,7 +70,7 @@ public class Agreement {
     }
 
     @Basic
-    @Column(name = "last_modified_date")
+    @Column(name = "last_modified_date", nullable = true)
     public Timestamp getLastModifiedDate() {
         return lastModifiedDate;
     }
