@@ -10,6 +10,8 @@ public class Links {
     private String up;
     private String backward;
     private String forward;
+    private String next;
+    private String prev;
 
     private String edit;
     private String delete;
@@ -71,5 +73,21 @@ public class Links {
     public void setDelete(String delete) {
         this.delete = delete;
     }
+
+	public String getNext() {
+		return next;
+	}
+
+	public void setNext(String next) {
+		this.next = next;
+	}
+
+	public String getPrev() {
+		return prev;
+	}
+
+	public void setPrev(String prev) {
+		this.prev = prev;
+	}
 
 }

@@ -1,10 +1,23 @@
 package com.shellshellfish.aaas.risk.util;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
-
+@JsonPropertyOrder({ "name", "resource", "links"})
 public class ResourceWrapper<T> {
+	
+	public ResourceWrapper() {
+		
+	}
+	
+	public ResourceWrapper(T resource) {
+		this.resource = resource;
+	}
+	
 	@JsonProperty("_to_be_modified")
+	//@JsonUnwrapped
 	private T resource;
 	
     public T getResource() {

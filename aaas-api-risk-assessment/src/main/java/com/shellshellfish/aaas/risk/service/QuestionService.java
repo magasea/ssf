@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.shellshellfish.aaas.risk.model.Question;
@@ -43,5 +44,14 @@ public class QuestionService {
 			return convertToQuestionDTO(question, surveyTemplateId);
 		
 		}).collect(Collectors.toList());		
+	}
+	
+	public List<Question> getQuestionsByPage(Integer page, Integer size, List<Question> orignalQuestions){
+		
+		int fromIndex = page * size; 
+		if (fromIndex > orignalQuestions.size() - 1)
+			return orignalQuestions;
+		
+		return orignalQuestions.subList(fromIndex, fromIndex + size);
 	}
 }
