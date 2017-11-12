@@ -112,6 +112,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         for(UiAssetDailyRept uiAssetDailyRept: uiAssetDailyRepts){
             AssetDailyRept assetDailyRept = new AssetDailyRept();
             BeanUtils.copyProperties(uiAssetDailyRept, assetDailyRept);
+            assetDailyRept.setDate(new Date(uiAssetDailyRept.getDate()));
             assetDailyRepts.add(assetDailyRept);
         }
         return assetDailyRepts;

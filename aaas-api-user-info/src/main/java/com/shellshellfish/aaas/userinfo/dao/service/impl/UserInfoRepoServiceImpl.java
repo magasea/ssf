@@ -75,8 +75,10 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
   public List<UiAssetDailyRept> getAssetDailyRept(Long userId, Long beginDate, Long endDate) {
     Query query = new Query();
     query.addCriteria(Criteria.where("userId").is(userId));
+    Date beginDated = new Date(beginDate);
     query.addCriteria(Criteria.where("date").gte(beginDate).lt(endDate));
-    return assetsRepository.findByDateBetweenAndUserId(userId, beginDate, endDate);
+    System.out.println("userId:" + userId + " beginDate:"+beginDate + " endDate:" + endDate);
+    return assetsRepository.findByUserIdAndDateIsBetween(BigInteger.valueOf(userId), beginDate, endDate);
   }
 
   @Override

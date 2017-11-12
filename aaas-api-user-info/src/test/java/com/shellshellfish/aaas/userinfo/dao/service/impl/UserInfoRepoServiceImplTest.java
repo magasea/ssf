@@ -56,7 +56,7 @@ public class UserInfoRepoServiceImplTest {
 
   @org.junit.Test
   public void getUserPortfolios() throws Exception {
-    Long userId = Long.parseLong("1092");
+    Long userId = Long.parseLong("11111");
     List<UiAssetDailyRept> uiAssetDailyRepts = assetsRepository.findByUserId(userId);
     System.out.println(uiAssetDailyRepts);
   }

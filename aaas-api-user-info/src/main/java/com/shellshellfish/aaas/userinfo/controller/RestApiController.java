@@ -10,6 +10,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
 import com.shellshellfish.aaas.userinfo.model.vo.BankcardDetailVo;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.util.DateUtil;
 import com.shellshellfish.aaas.userinfo.util.UserInfoUtils;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -144,28 +145,27 @@ public class RestApiController {
 			throws Exception {
 		SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-DD");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-		Date date = null;
+		Date beginDate = null;
+		Date endDate = null;
 		Long beginTimeLong;
 		Long endTimeLong;
 		try {
-			date = sdf.parse(params.get("beginDate"));
-			if (!params.get("beginDate").equals(sdf.format(date))) {
-				date = null;
-			}
+			beginDate = sdf.parse(params.get("beginDate"));
+
 		}catch (ParseException ex) {
 			ex.printStackTrace();
 		}
-		if (date == null && !StringUtils.isEmpty(params.get("beginDate") )) {
+		if (beginDate == null && !StringUtils.isEmpty(params.get("beginDate") )) {
 			// Invalid date format
 			//maybe frontend send long time value to backend
-			beginTimeLong = Long.getLong(params.get("beginDate"));
+			beginTimeLong = Long.getLong(params.get("b" +
+					"eginDate"));
 			endTimeLong = Long.getLong(params.get("endDate"));
 		} else {
 			// Valid date format
-			date = sdf.parse(params.get("beginDate"));
-			beginTimeLong = date.getTime();
-			date = sdf.parse(params.get("endDate"));
-			endTimeLong = date.getTime();
+			beginTimeLong = DateUtil.getDateOneDayBefore(beginDate);
+			endDate = sdf.parse(params.get("endDate"));
+			endTimeLong = endDate.getTime();
 		}
 
 		List<AssetDailyRept> assetDailyRepts =
