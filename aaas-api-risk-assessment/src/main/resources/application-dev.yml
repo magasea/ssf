@@ -24,8 +24,8 @@ server:
     
 application:
     swagger:
-        title: tplatform API
-        description: tplatform API documentation
+        title: SSF Platform API
+        description: Shell shell fish API documentation
         version: 0.1.X
         termsOfServiceUrl:
         contactName:
