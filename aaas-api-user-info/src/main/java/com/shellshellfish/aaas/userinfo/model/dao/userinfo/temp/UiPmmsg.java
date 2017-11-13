@@ -1,24 +1,24 @@
-package com.shellshellfish.aaas.userinfo.model.dao.userinfo;
+package com.shellshellfish.aaas.userinfo.model.dao.userinfo.temp;
 
 import java.io.Serializable;
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.util.Date;
 import java.sql.Timestamp;
 
 
 /**
- * The persistent class for the ui_sysmsg database table.
+ * The persistent class for the ui_pmmsg database table.
  * 
  */
 @Entity
-@Table(name="ui_sysmsg")
-@NamedQuery(name="UiSysmsg.findAll", query="SELECT u FROM UiSysmsg u")
-public class UiSysmsg implements Serializable {
+@Table(name="ui_pmmsg")
+@NamedQuery(name="UiPmmsg.findAll", query="SELECT u FROM UiPmmsg u")
+public class UiPmmsg implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE)
+	@SequenceGenerator(name="UI_PMMSG_ID_GENERATOR", sequenceName="ui_pmmsg_id_generator")
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="UI_PMMSG_ID_GENERATOR")
 	private String id;
 
 	private String content;
@@ -41,9 +41,9 @@ public class UiSysmsg implements Serializable {
 	private String title;
 
 	@Column(name="user_id")
-	private BigDecimal userId;
+	private java.math.BigInteger userId;
 
-	public UiSysmsg() {
+	public UiPmmsg() {
 	}
 
 	public String getId() {
@@ -110,11 +110,11 @@ public class UiSysmsg implements Serializable {
 		this.title = title;
 	}
 
-	public BigDecimal getUserId() {
+	public java.math.BigInteger getUserId() {
 		return this.userId;
 	}
 
-	public void setUserId(BigDecimal userId) {
+	public void setUserId(java.math.BigInteger userId) {
 		this.userId = userId;
 	}
 

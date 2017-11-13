@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.userinfo.dao.repositories;
+package com.shellshellfish.aaas.userinfo.dao.repositories.mysql;
 
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPortfolio;
 import java.math.BigInteger;

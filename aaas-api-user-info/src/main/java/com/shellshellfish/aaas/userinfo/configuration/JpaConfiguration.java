@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -29,9 +30,10 @@ import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 @ComponentScan
-@EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.userinfo.dao.repositories",
+@EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.userinfo.dao.repositories.mysql",
 		entityManagerFactoryRef = "entityManagerFactory",
 		transactionManagerRef = "transactionManager")
+@EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.userinfo.dao.repositories.mongo")
 @EnableTransactionManagement
 
 public class JpaConfiguration {

@@ -1,11 +1,14 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
-import com.shellshellfish.aaas.userinfo.dao.repositories.UserInfoBankCardsRepository;
-import com.shellshellfish.aaas.userinfo.dao.repositories.UserInfoRepository;
+import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserAssetsRepository;
+import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoBankCardsRepository;
+import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoRepository;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiUser;
 import java.math.BigInteger;
 import java.util.List;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,11 +20,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ActiveProfiles(profiles="prod")
 public class UserInfoRepoServiceImplTest {
 
+  @Test
+  public void getAssetDailyReptByUserId() throws Exception {
+  }
+
   @Autowired
   UserInfoRepository userInfoRepository;
 
   @Autowired
   UserInfoBankCardsRepository userInfoBankCardsRepository;
+
+  @Autowired
+  MongoUserAssetsRepository mongoUserAssetsRepository;
 
   @org.junit.Test
   public void getUserInfoBase() throws Exception {
@@ -46,6 +56,9 @@ public class UserInfoRepoServiceImplTest {
 
   @org.junit.Test
   public void getUserPortfolios() throws Exception {
+    Long userId = Long.parseLong("11111");
+    List<UiAssetDailyRept> uiAssetDailyRepts = mongoUserAssetsRepository.findByUserId(userId);
+    System.out.println(uiAssetDailyRepts);
   }
 
 

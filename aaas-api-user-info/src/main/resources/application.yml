@@ -6,6 +6,8 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.data: debug
+
 ---
 spring:
   profiles: local, default
@@ -23,14 +25,20 @@ datasource:
       format_sql: true
       dialect: org.hibernate.dialect.H2Dialect
 ---
+
 spring:
-  profiles: prod
+    profiles: prod
+    data:
+      mongodb:
+        database: test1
+        host: 192.168.1.10
+        port: 27017
 datasource:
   sampleapp:
 #    url: jdbc:mysql://192.168.0.25:3306/websystique
 #    username: myuser
 #    password: mypassword
-    url: jdbc:mysql://192.168.0.33:3306/ssfuser
+    url: jdbc:mysql://192.168.1.10:3306/ssfuser
     username: sa
     password: abcd1234
 

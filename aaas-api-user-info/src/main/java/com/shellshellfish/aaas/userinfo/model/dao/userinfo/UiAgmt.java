@@ -16,7 +16,8 @@ public class UiAgmt implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE)
+	@SequenceGenerator(name="UI_AGMT_ID_GENERATOR", sequenceName="ui_agmt_id_generator")
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="UI_AGMT_ID_GENERATOR")
 	private long id;
 
 	private String content;

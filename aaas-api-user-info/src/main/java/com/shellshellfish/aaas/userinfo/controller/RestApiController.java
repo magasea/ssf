@@ -1,25 +1,42 @@
 package com.shellshellfish.aaas.userinfo.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
 import com.shellshellfish.aaas.userinfo.model.dto.bankcard.BankCard;
+import com.shellshellfish.aaas.userinfo.model.dto.invest.AssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserSysMsg;
+import com.shellshellfish.aaas.userinfo.model.vo.UserPersonalMsgVo;
+import com.shellshellfish.aaas.userinfo.model.vo.BankcardDetailVo;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.util.DateUtil;
+import com.shellshellfish.aaas.userinfo.util.UserInfoUtils;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,15 +45,8 @@ public class RestApiController {
 
 	public static final Logger logger = LoggerFactory.getLogger(RestApiController.class);
 
-
 	@Autowired
-	UserInfoService userInfoService;
-
-	// -------------------Retrieve All Users---------------------------------------------
-
-
-
-
+  UserInfoService userInfoService;
 
 	@RequestMapping(value = "/userinfo/id/{id}", method = RequestMethod.GET)
 	@AopLinkResources
@@ -78,7 +88,18 @@ public class RestApiController {
 		}
 
 	}
-	
+
+	@RequestMapping(value = "/userinfo/userbankcards/id/{cardNumber}", method = RequestMethod.GET)
+	public ResponseEntity<?> getUserBankCards(@PathVariable("cardNumber") String cardNumber)
+			throws Exception {
+		if(StringUtils.isEmpty(cardNumber)){
+			throw new ServletRequestBindingException("no cardNumber in params");
+		}else{
+			BankCard bankCard =  userInfoService.getUserInfoBankCard(cardNumber);
+			return new ResponseEntity<Object>(bankCard , HttpStatus.OK);
+		}
+	}
+
 	@RequestMapping(value = "/userInfo/getUserPersonalInfo/id/{id}", method = RequestMethod.GET)
 	@AopLinkResources
 	public ResponseEntity<?> getUserPersonalInfo(@PathVariable("id") String id){
@@ -88,6 +109,110 @@ public class RestApiController {
 			Object result =  makePersonInfoResponse();
 			return new ResponseEntity<Object>(result , HttpStatus.OK);
 		}
+	}
+
+	@RequestMapping(value = "/userinfo/bankcards/add/cardnumber/{cardNumber}", method = RequestMethod
+			.POST)
+	@AopLinkResources
+	public ResponseEntity<?> addBankCardWithCardNumber(@PathVariable("cardNumber") String cardNumber){
+		if(StringUtils.isEmpty(cardNumber) ){
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}else{
+			if(!UserInfoUtils.matchLuhn(cardNumber)){
+				return new ResponseEntity<Object>("银行卡号是否准确？" , HttpStatus.OK);
+			}
+			return new ResponseEntity<Object>("银行卡号准确" , HttpStatus.OK);
+		}
+	}
+
+	@RequestMapping(value = "/userinfo/bankcards/add/", method = RequestMethod.POST)
+	public ResponseEntity<?> addBankCardWithDetailInfo(@RequestBody BankcardDetailVo bankcardDetailVo)
+			throws Exception {
+		ObjectMapper mapper = new ObjectMapper();
+
+		// Convert POJO to Map
+		Map<String, Object> params =
+				mapper.convertValue(bankcardDetailVo, new TypeReference<Map<String, Object>>() {});
+
+		if(CollectionUtils.isEmpty(params)){
+			throw new ServletRequestBindingException("no cardNumber in params");
+		}
+		params.forEach((k, v)-> { if( null == v || StringUtils.isEmpty(v.toString())){
+			throw new IllegalArgumentException("no "+k.toString()+"'s value in params");
+		}});
+		return new ResponseEntity<Object>(userInfoService.createBankcard(params) , HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/userinfo/userassets/overview/data", method = RequestMethod.GET)
+	public ResponseEntity<?> getUserAssetsOverview(@RequestParam Map<String, String> params)
+			throws Exception {
+		SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-DD");
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		Date beginDate = null;
+		Date endDate = null;
+		Long beginTimeLong;
+		Long endTimeLong;
+		try {
+			beginDate = sdf.parse(params.get("beginDate"));
+
+		}catch (ParseException ex) {
+			ex.printStackTrace();
+		}
+		if (beginDate == null && !StringUtils.isEmpty(params.get("beginDate") )) {
+			// Invalid date format
+			//maybe frontend send long time value to backend
+			beginTimeLong = Long.getLong(params.get("b" +
+					"eginDate"));
+			endTimeLong = Long.getLong(params.get("endDate"));
+		} else {
+			// Valid date format
+			beginTimeLong = DateUtil.getDateOneDayBefore(beginDate);
+			endDate = sdf.parse(params.get("endDate"));
+			endTimeLong = endDate.getTime();
+		}
+
+		List<AssetDailyRept> assetDailyRepts =
+		userInfoService.getAssetDailyRept(Long.parseLong(params.get("userId")), beginTimeLong, endTimeLong);
+		return new ResponseEntity<Object>(assetDailyRepts , HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/userinfo/userassets/overview/data", method = RequestMethod.POST)
+	public ResponseEntity<?> addUserAssetsOverview(@RequestBody AssetDailyRept assetDailyRept)
+			throws Exception {
+
+		AssetDailyRept assetDailyReptRlt =
+				 userInfoService.addAssetDailyRept(assetDailyRept);
+		return new ResponseEntity<Object>(assetDailyReptRlt , HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/userinfo/message/personal/{userUuid}", method = RequestMethod.GET)
+	public ResponseEntity<?> getPersonalMsg(@PathVariable String userUuid)
+			throws Exception {
+
+		List<UserPersonMsg> userPersonMsgs =  userInfoService.getUserPersonMsg(userUuid);
+		Map<String, Object> result = new HashMap<>();
+		result.put("userPersonMsg", userPersonMsgs);
+		return new ResponseEntity<Object>(result , HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/userinfo/message/system/{userUuid}", method = RequestMethod.GET)
+	public ResponseEntity<?> getSystemMsg(@PathVariable String userUuid)
+			throws Exception {
+		List<UserSysMsg> userSysMsgs = userInfoService.getUserSysMsg(userUuid);
+		Map<String, Object> result = new HashMap<>();
+		result.put("userSysMsgs", userSysMsgs);
+		return new ResponseEntity<Object>(result , HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/userinfo/message/personal/{userUuid}", method = RequestMethod.POST)
+	public ResponseEntity<?> updatePersonalMsg(@RequestBody UserPersonalMsgVo userPersonalMsgVo)
+			throws Exception {
+
+		List<UserPersonMsg> userPersonMsgs =  userInfoService.updateUserPersonMsg(userPersonalMsgVo
+				.getMessagesToUpdate(), userPersonalMsgVo.getUuid(), userPersonalMsgVo.getReadedStatus());
+		Map<String, Object> result = new HashMap<>();
+		result.put("userPersonMsg", userPersonMsgs);
+		return new ResponseEntity<Object>(result , HttpStatus.OK);
 	}
 
 	private Object makePersonInfoResponse() {

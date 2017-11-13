@@ -1,15 +1,13 @@
 package com.shellshellfish.aaas.userinfo.model.dao.userinfo;
-
 import java.io.Serializable;
 import java.math.BigInteger;
 import javax.persistence.*;
 import java.util.Date;
-import java.sql.Timestamp;
 
 
 /**
  * The persistent class for the ui_bankcard database table.
- * 
+ *
  */
 @Entity
 @Table(name="ui_bankcard")
@@ -18,7 +16,8 @@ public class UiBankcard implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE)
+	@SequenceGenerator(name="UI_BANKCARD_ID_GENERATOR" )
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="UI_BANKCARD_ID_GENERATOR")
 	private BigInteger id;
 
 	@Column(name="bank_name")
@@ -27,14 +26,14 @@ public class UiBankcard implements Serializable {
 	@Column(name="card_number")
 	private String cardNumber;
 
-	@Column(name="card_user_name")
-	private String cardUserName;
+	private String cellphone;
 
 	@Column(name="created_by")
 	private String createdBy;
 
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="created_date")
-	private Timestamp createdDate;
+	private Date createdDate;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="expire_date")
@@ -43,11 +42,18 @@ public class UiBankcard implements Serializable {
 	@Column(name="last_modified_by")
 	private String lastModifiedBy;
 
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="last_modified_date")
-	private Timestamp lastModifiedDate;
+	private Date lastModifiedDate;
 
 	@Column(name="user_id")
-	private BigInteger userId;
+	private java.math.BigInteger userId;
+
+	@Column(name="user_name")
+	private String userName;
+
+	@Column(name="user_pid")
+	private String userPid;
 
 	public UiBankcard() {
 	}
@@ -76,12 +82,12 @@ public class UiBankcard implements Serializable {
 		this.cardNumber = cardNumber;
 	}
 
-	public String getCardUserName() {
-		return this.cardUserName;
+	public String getCellphone() {
+		return this.cellphone;
 	}
 
-	public void setCardUserName(String cardUserName) {
-		this.cardUserName = cardUserName;
+	public void setCellphone(String cellphone) {
+		this.cellphone = cellphone;
 	}
 
 	public String getCreatedBy() {
@@ -92,11 +98,11 @@ public class UiBankcard implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public Timestamp getCreatedDate() {
+	public Date getCreatedDate() {
 		return this.createdDate;
 	}
 
-	public void setCreatedDate(Timestamp createdDate) {
+	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
 	}
 
@@ -116,20 +122,36 @@ public class UiBankcard implements Serializable {
 		this.lastModifiedBy = lastModifiedBy;
 	}
 
-	public Timestamp getLastModifiedDate() {
+	public Date getLastModifiedDate() {
 		return this.lastModifiedDate;
 	}
 
-	public void setLastModifiedDate(Timestamp lastModifiedDate) {
+	public void setLastModifiedDate(Date lastModifiedDate) {
 		this.lastModifiedDate = lastModifiedDate;
 	}
 
-	public BigInteger getUserId() {
+	public java.math.BigInteger getUserId() {
 		return this.userId;
 	}
 
-	public void setUserId(BigInteger userId) {
+	public void setUserId(java.math.BigInteger userId) {
 		this.userId = userId;
+	}
+
+	public String getUserName() {
+		return this.userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getUserPid() {
+		return this.userPid;
+	}
+
+	public void setUserPid(String userPid) {
+		this.userPid = userPid;
 	}
 
 }
