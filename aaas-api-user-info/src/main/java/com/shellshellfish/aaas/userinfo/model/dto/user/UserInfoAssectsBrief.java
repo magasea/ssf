@@ -1,44 +1,47 @@
 package com.shellshellfish.aaas.userinfo.model.dto.user;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 public class UserInfoAssectsBrief {
 
 
 
-    Long userId;
+    BigInteger userId;
 
-    String totalAssects;
-    Float dailyProfit;
-    Float totalProfit;
+    BigDecimal totalAssets;
+    BigDecimal dailyProfit;
+    BigDecimal totalProfit;
 
-    public Long getUserId() {
+    public BigInteger getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(BigInteger userId) {
         this.userId = userId;
     }
 
-    public String getTotalAssects() {
-        return totalAssects;
+    public BigDecimal getTotalAssets() {
+        return totalAssets;
     }
 
-    public void setTotalAssects(String totalAssects) {
-        this.totalAssects = totalAssects;
+    public void setTotalAssets(BigDecimal totalAssets) {
+        this.totalAssets = totalAssets;
     }
 
-    public Float getDailyProfit() {
+    public BigDecimal getDailyProfit() {
         return dailyProfit;
     }
 
-    public void setDailyProfit(Float dailyProfit) {
+    public void setDailyProfit(BigDecimal dailyProfit) {
         this.dailyProfit = dailyProfit;
     }
 
-    public Float getTotalProfit() {
+    public BigDecimal getTotalProfit() {
         return totalProfit;
     }
 
-    public void setTotalProfit(Float totalProfit) {
+    public void setTotalProfit(BigDecimal totalProfit) {
         this.totalProfit = totalProfit;
     }
 }

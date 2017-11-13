@@ -42,7 +42,7 @@ public class AopLinkResourcesAspect {
         Map<String, Object> entityMap = (Map)entity.getBody();
         log.info("{}",entityMap.get("_links"));
         Map<String, String> cond = new HashMap<>();
-        if (proceedingJoinPoint.getSignature().getName().contains("getUserPersonalInfo")){
+        if (proceedingJoinPoint.getSignature().getName().contains("getUserBaseInfo")){
             cond.put("requestName","userInfo");
         }else{
             return value;

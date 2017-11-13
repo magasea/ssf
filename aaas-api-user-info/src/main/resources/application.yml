@@ -1,7 +1,11 @@
 ---
 server:
   port: 8080
-  contextPath: /SpringBootCRUDApp
+  contextPath: /
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 ---
 spring:
   profiles: local, default
@@ -26,12 +30,12 @@ datasource:
 #    url: jdbc:mysql://192.168.0.25:3306/websystique
 #    username: myuser
 #    password: mypassword
-    url: jdbc:mysql://192.168.0.8:3306/ssflogin
+    url: jdbc:mysql://192.168.0.33:3306/ssfuser
     username: sa
     password: abcd1234
 
     driverClassName: com.mysql.jdbc.Driver
-    defaultSchema:
+    defaultSchema: ssfuser
     maxPoolSize: 20
     hibernate:
       hbm2ddl.method: update

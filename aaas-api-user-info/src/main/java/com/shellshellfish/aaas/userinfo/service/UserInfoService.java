@@ -1,9 +1,9 @@
 package com.shellshellfish.aaas.userinfo.service;
 
 
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoBankCards;
+import com.shellshellfish.aaas.userinfo.model.dto.bankcard.BankCard;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
 import java.util.List;
 
@@ -12,7 +12,7 @@ public interface UserInfoService {
 
     UserInfoAssectsBrief getUserInfoAssectsBrief(Long userId);
 
-    UserInfoBankCards getUserInfoBankCards(Long userId);
+    List<BankCard> getUserInfoBankCards(Long userId);
 
     List<UserPortfolio> getUserPortfolios(Long userId);
 }
