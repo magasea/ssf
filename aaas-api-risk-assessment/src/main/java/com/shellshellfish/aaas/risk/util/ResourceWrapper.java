@@ -1,38 +1,46 @@
 package com.shellshellfish.aaas.risk.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
-@JsonPropertyOrder({ "name", "resource", "links"})
-@JsonInclude()
+@JsonPropertyOrder({ "name", "item", "_total", "_items", "_links"})
+@JsonInclude(Include.NON_NULL)
 public class ResourceWrapper<T> {
 	
 	public ResourceWrapper() {
 		
 	}
 	
-	public ResourceWrapper(T resource) {
-		this.resource = resource;
+	public ResourceWrapper(T item) {
+		this.item = item;
+	}
+
+	@JsonUnwrapped
+	private T item;
+	
+	public T getItem() {
+		return this.item;
+	}
+
+	public void setItem(T item) {
+		this.item = item;
 	}
 	
-	@JsonProperty("resource")
-	//@JsonUnwrapped
-	private T resource;
+	@JsonProperty("_links")
+	private Links links;
+
+	public Links getLinks() {
+		return links;
+	}
+
+	public void setLinks(Links links) {
+		this.links = links;
+	}
 	
-    public T getResource() {
-		return resource;
-	}
-
-	public void setResource(T resource) {
-		this.resource = resource;
-	}
-
-	private String name;    
-
-    @JsonProperty("_links")
-    private Links links;
+	private String name;  
 
     @JsonProperty("_schemaVersion")
     private String schemaVersion = "0.1.1";
@@ -57,15 +65,7 @@ public class ResourceWrapper<T> {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Links getLinks() {
-        return links;
-    }
-
-    public void setLinks(Links links) {
-        this.links = links;
-    }
+    }   
 
     public String getSchemaVersion() {
         return schemaVersion;

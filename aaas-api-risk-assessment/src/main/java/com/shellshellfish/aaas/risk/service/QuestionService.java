@@ -54,7 +54,7 @@ public class QuestionService {
 		
 		int toIndex = fromIndex + size;
 		if (toIndex > originalQuestions.size()) {
-			toIndex = originalQuestions.size() - 1;
+			toIndex = originalQuestions.size();
 		}
 		
 		return originalQuestions.subList(fromIndex, toIndex);

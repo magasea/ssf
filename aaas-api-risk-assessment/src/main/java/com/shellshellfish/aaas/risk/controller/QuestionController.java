@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,6 +30,7 @@ import com.shellshellfish.aaas.risk.model.dto.QuestionDTO;
 import com.shellshellfish.aaas.risk.service.QuestionService;
 import com.shellshellfish.aaas.risk.service.SurveyTemplateService;
 import com.shellshellfish.aaas.risk.util.AnnotationHelper;
+import com.shellshellfish.aaas.risk.util.CollectionResourceWrapper;
 import com.shellshellfish.aaas.risk.util.Links;
 import com.shellshellfish.aaas.risk.util.ResourceWrapper;
 
@@ -46,15 +48,15 @@ public class QuestionController {
 	@Autowired
 	private QuestionService questionService;
 	
-	@RequestMapping(value = "/questions", method = {RequestMethod.GET, RequestMethod.HEAD}, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ResourceWrapper<List<QuestionDTO>>> getAllQuestions(@RequestParam(required=false)Integer page,
+	@RequestMapping(value = "/banks/{bankUuid}/questions", method = {RequestMethod.GET, RequestMethod.HEAD}, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CollectionResourceWrapper<List<QuestionDTO>>> getAllQuestions(@RequestParam(required=false)Integer page,
 																			  @RequestParam(required=false)Integer size,					
-																			  @RequestParam(required=false, name="user-uuid") String userUuid) throws Exception {
-		log.debug("REST request to get questions based on page id and user id. user uuid:{}, page:{}", userUuid, page);		
+																			  @PathVariable String bankUuid) throws Exception {
+		log.debug("REST request to get questions based on page id and bank uuid. bank uuid:{}, page:{}", bankUuid, page);		
 		if (size == null) {
 			size = 20;
 		}
-		//TODO: get survey template title and version based on userUuid
+		//TODO: get survey template based on bankUuid
 						
 		SurveyTemplate surveyTemplate = surveyTemplateService.getSurveyTemplate("南京银行个人客户风险评估表", "1.0");		
 		
@@ -68,21 +70,22 @@ public class QuestionController {
 		
 		List<QuestionDTO> dtoList = questionService.convertToQuestionDTOs(questions, surveyTemplate.getId());
 		
-		ResourceWrapper<List<QuestionDTO>> resource = new ResourceWrapper<>(dtoList);
+		CollectionResourceWrapper<List<QuestionDTO>> resource = new CollectionResourceWrapper<>(dtoList);
 		Links links = new Links();
 		if (page != null) {
-			links.setSelf(String.format("/api/risk-assessment/questions?page=%d&size=%d", page, size));
-			links.setNext(String.format("/api/risk-assessment/questions?page=%d&size=%d", page + 1, size));
+			links.setSelf(String.format("/api/risk-assessment/banks/%s/questions?page=%d&size=%d", bankUuid, page, size));
+			links.setNext(String.format("/api/risk-assessment/banks/%s/questions?page=%d&size=%d", bankUuid, page + 1, size));
 			if (page > 0) {
-				links.setPrev(String.format("/api/risk-assessment/questions?page=%d&size=%d", page - 1, size));
+				links.setPrev(String.format("/api/risk-assessment/banks/%s/questions?page=%d&size=%d", bankUuid, page - 1, size));
 			}
 		} else {
-			links.setSelf("/api/risk-assessment/questions");
+			links.setSelf(String.format("/api/risk-assessment/banks/%s/questions", bankUuid));
 		}		
 		
 		resource.setLinks(links);	
-		resource.setName("风险评估题目");
-	    AnnotationHelper.changeResourceAnnotion(resource, "questions");
+		resource.setTotal(surveyTemplate.getQuestions().size());
+		resource.setName("风险评估题目"); 
+	//    AnnotationHelper.changeResourceAnnotion(resource, "_items"); 
 	    
 		return new ResponseEntity<>(resource, HttpStatus.OK);
 	}

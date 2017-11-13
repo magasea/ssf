@@ -14,14 +14,26 @@ public class ResourceWrapperTest {
 	private ObjectMapper objectMapper = new ObjectMapper();
 	
 	@Test
-	public void testAdhocJsonProperty() throws JsonProcessingException {
-		ResourceWrapper<List<Dummy>> resourceDummy = new ResourceWrapper<>();
+	public void testResourceWrapper() throws JsonProcessingException {
+		ResourceWrapper<Dummy> resourceDummy = new ResourceWrapper<>();
+		Dummy dummy = new Dummy(1, "dummy");
+				
+		resourceDummy.setName("Dummy");
+		resourceDummy.setItem(dummy);
+
+		System.out.println(objectMapper.writeValueAsString(resourceDummy));
+	}
+	
+	@Test
+	public void testCollectionResourceWrapper() throws JsonProcessingException {
+		CollectionResourceWrapper<List<Dummy>> resourceDummies = new CollectionResourceWrapper<>();
 		Dummy dummy = new Dummy(1, "dummy");
 				
 		List<Dummy> dummies = Arrays.asList(dummy, dummy);
-		resourceDummy.setResource(dummies);
-		//ReflectionUtils.findMethod(Dummy.class, "resource");
-		
-		System.out.println(objectMapper.writeValueAsString(resourceDummy));
+		resourceDummies.setName("Dummies");
+		resourceDummies.setTotal(3);
+		resourceDummies.setItems(dummies);
+
+		System.out.println(objectMapper.writeValueAsString(resourceDummies));
 	}
 }

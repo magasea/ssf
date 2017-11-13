@@ -34,10 +34,10 @@ public class QuestionControllerTest {
 	
 	@Test
 	public void testGetQuestions() throws Exception {
-		mvc.perform(get("/api/risk-assessment/questions?page=0&size=2&user-uuid=xxx"))
+		mvc.perform(get("/api/risk-assessment/banks/bankxxx/questions?page=0&size=2&user-uuid=xxx"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))        
-        .andExpect(jsonPath("$.questions").isArray())
+        .andExpect(jsonPath("$._items").isArray())
         ;
 	}
 	

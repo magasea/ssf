@@ -49,33 +49,30 @@ public class SurveyController {
 	@Autowired
 	private SurveyResultService surveyResultService;
 	
-	@RequestMapping(value = "/survey-templates", method = {RequestMethod.GET, RequestMethod.HEAD}, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ResourceWrapper<SurveyTemplate>> getSurveyTemplate(@RequestParam(required=false, name="user-uuid") String userUuid) throws URISyntaxException {
-		log.debug("REST request to get a survey template. user uuid:{}", userUuid);		
+	@RequestMapping(value = "/banks/{bankUuid}/survey-templates/latest", method = {RequestMethod.GET, RequestMethod.HEAD}, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ResourceWrapper<SurveyTemplate>> getSurveyTemplate(@PathVariable String bankUuid) throws URISyntaxException {
+		log.debug("REST request to get a survey template. bank uuid:{}", bankUuid);		
 		
-		//TODO: get survey template title and version based on userUuid
+		//TODO: get survey template based on bankUuid
 		
 		SurveyTemplate surveyTemplate = surveyTemplateService.getSurveyTemplate("南京银行个人客户风险评估表", "1.0");
 		ResourceWrapper<SurveyTemplate> resource = new ResourceWrapper<>(surveyTemplate);
 		Links links = new Links();
-		if (userUuid == null) {
-			links.setSelf("/api/risk-assessment/survey-templates");
-		} else {
-			links.setSelf(String.format("/api/risk-assessment/survey-templates?user-uuid=%s", userUuid));
-		}
+		links.setSelf(String.format("/api/risk-assessment/banks/%s/survey-templates/latest", bankUuid));
 		
 		resource.setLinks(links);
 		resource.setName("风险评估表");
-		AnnotationHelper.changeResourceAnnotion(resource, "surveyTemplate");
+		//AnnotationHelper.changeResourceAnnotion(resource, "surveyTemplate");
 		 
 		return new ResponseEntity<>(resource, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/survey-results", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<SurveyResult> saveSurveyResult(@RequestBody SurveyResult surveyResult) throws URISyntaxException, Exception{
+	@RequestMapping(value = "/banks/{bankUuid}/survey-results", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<SurveyResult> saveSurveyResult(@PathVariable String bankUuid,
+														 @RequestBody SurveyResult surveyResult) throws URISyntaxException, Exception{
 		log.debug("REST request to Insert or Update a SurveyResult.");
 		
-		surveyResultService.save(surveyResult);		
+		surveyResultService.save(surveyResult);	
 		
 		return ResponseEntity.ok().body(surveyResult);
 	}

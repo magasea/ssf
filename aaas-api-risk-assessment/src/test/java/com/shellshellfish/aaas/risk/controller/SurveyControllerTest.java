@@ -36,7 +36,7 @@ public class SurveyControllerTest {
 	
 	@Test
 	public void testGetSurveyTemplate() throws Exception {
-		mvc.perform(get("/api/risk-assessment/survey-templates?user-uuid=xxx"))
+		mvc.perform(get("/api/risk-assessment/banks/bankxxx/survey-templates/latest"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
         .andExpect(jsonPath("$.surveyTemplate.version").value("1.0"))
@@ -64,7 +64,7 @@ public class SurveyControllerTest {
 				"    ]\r\n" + 
 				"}";
 		
-		mvc.perform(post("/api/risk-assessment/survey-results")
+		mvc.perform(post("/api/risk-assessment/banks/bankxxx/survey-results")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(requestJson))
 				.andDo(print())

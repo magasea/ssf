@@ -10,6 +10,7 @@ public class SurveyTemplate {
 
 	@Id
 	private String id;
+	private String bankUuid;
 	private String title;
 	private List<Question> questions;
 	private String version;	
@@ -41,6 +42,14 @@ public class SurveyTemplate {
 	}
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	public String getBankUuid() {
+		return bankUuid;
+	}
+
+	public void setBankUuid(String bankUuid) {
+		this.bankUuid = bankUuid;
 	}
 	
 	
