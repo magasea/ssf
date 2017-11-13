@@ -4,9 +4,12 @@ import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPersonMsg;
 
 import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
 public interface MongoUserPersonMsgRepo extends MongoRepository<UiPersonMsg, Long> {
-  List<UiPersonMsg> getUiUserPersonMsgByUserIdAndReaded(Long userId, Boolean readed);
+
+  @Query(value = "{'$and':[{'userId':?0},{'readed':?1}]}")
+  List<UiPersonMsg> getUiPersonMsgsByUserIdAndReaded(Long userId, Boolean readed);
 
   List<UiPersonMsg> save(List<UiPersonMsg> inputList);
 

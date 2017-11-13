@@ -16,9 +16,9 @@ public class UiPortfolio implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@SequenceGenerator(name="UI_PORTFOLIS_ID_GENERATOR", sequenceName="ui_portfolis_id_generator")
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="UI_PORTFOLIS_ID_GENERATOR")
-	private long id;
+	@SequenceGenerator(name="UI_PORTFOLIO_ID_GENERATOR" )
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="UI_PORTFOLIO_ID_GENERATOR")
+	private String id;
 
 	private BigInteger investProdId;
 
@@ -27,11 +27,11 @@ public class UiPortfolio implements Serializable {
 	public UiPortfolio() {
 	}
 
-	public Long getId() {
+	public String getId() {
 		return this.id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

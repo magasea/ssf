@@ -2,7 +2,7 @@ package com.shellshellfish.aaas.userinfo.model.dao.userinfo;
 
 import java.io.Serializable;
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.math.BigInteger;
 
 
 /**
@@ -16,9 +16,9 @@ public class UiAgmt implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@SequenceGenerator(name="UI_AGMT_ID_GENERATOR", sequenceName="ui_agmt_id_generator")
+	@SequenceGenerator(name="UI_AGMT_ID_GENERATOR" )
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="UI_AGMT_ID_GENERATOR")
-	private long id;
+	private String id;
 
 	private String content;
 
@@ -26,24 +26,24 @@ public class UiAgmt implements Serializable {
 	private String createdBy;
 
 	@Column(name="created_date")
-	private Timestamp createdDate;
+	private BigInteger createdDate;
 
 	@Column(name="last_modified_by")
 	private String lastModifiedBy;
 
 	@Column(name="last_modified_date")
-	private Timestamp lastModifiedDate;
+	private BigInteger lastModifiedDate;
 
 	private String uuid;
 
 	public UiAgmt() {
 	}
 
-	public Long getId() {
+	public String getId() {
 		return this.id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -63,11 +63,11 @@ public class UiAgmt implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public Timestamp getCreatedDate() {
+	public BigInteger getCreatedDate() {
 		return this.createdDate;
 	}
 
-	public void setCreatedDate(Timestamp createdDate) {
+	public void setCreatedDate(BigInteger createdDate) {
 		this.createdDate = createdDate;
 	}
 
@@ -79,11 +79,11 @@ public class UiAgmt implements Serializable {
 		this.lastModifiedBy = lastModifiedBy;
 	}
 
-	public Timestamp getLastModifiedDate() {
+	public BigInteger getLastModifiedDate() {
 		return this.lastModifiedDate;
 	}
 
-	public void setLastModifiedDate(Timestamp lastModifiedDate) {
+	public void setLastModifiedDate(BigInteger lastModifiedDate) {
 		this.lastModifiedDate = lastModifiedDate;
 	}
 

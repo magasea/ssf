@@ -37,5 +37,7 @@ public interface UserInfoRepoService {
 
   List<UiSysMsg> getUiSysMsg();
 
-  Long getUserIdFromUUID(String userUuid);
+  Long getUserIdFromUUID(String userUuid) throws Exception;
+
+  UiPersonMsg addUiPersonMsg(UiPersonMsg uiPersonMsg);
 }

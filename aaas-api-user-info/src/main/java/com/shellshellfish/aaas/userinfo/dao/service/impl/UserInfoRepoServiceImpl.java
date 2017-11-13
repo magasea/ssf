@@ -114,7 +114,7 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
 
   @Override
   public List<UiPersonMsg> getUiPersonMsg(Long userId) {
-    return mongoUserPersonMsgRepo.getUiUserPersonMsgByUserIdAndReaded(userId, Boolean.FALSE) ;
+    return mongoUserPersonMsgRepo.getUiPersonMsgsByUserIdAndReaded(userId, Boolean.FALSE) ;
   }
 
   @Override
@@ -152,8 +152,18 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
   }
 
   @Override
-  public Long getUserIdFromUUID(String userUuid) {
-    return userInfoRepository.findUserIdByUuid(userUuid);
+  public Long getUserIdFromUUID(String userUuid) throws Exception {
+    UiUser uiUser = userInfoRepository.findUiUserByUuid(userUuid);
+    if(null == uiUser){
+      throw new Exception("not vaild userUuid:" + userUuid);
+    }
+    return Long.valueOf(userInfoRepository.findUiUserByUuid(userUuid).getId());
+  }
+
+  @Override
+  public UiPersonMsg addUiPersonMsg(UiPersonMsg uiPersonMsg) {
+    UiPersonMsg uiPersonMsgResult = mongoUserPersonMsgRepo.save(uiPersonMsg);
+    return uiPersonMsgResult;
   }
 
 

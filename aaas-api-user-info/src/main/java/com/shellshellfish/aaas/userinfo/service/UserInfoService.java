@@ -31,10 +31,10 @@ public interface UserInfoService {
 
     List<UserSysMsg> getUserSysMsg(String userUuid);
 
-    List<UserPersonMsg> getUserPersonMsg(String userUuid);
+    List<UserPersonMsg> getUserPersonMsg(String userUuid) throws Exception;
 
     List<UserPersonMsg> updateUserPersonMsg(List<String> msgId, String userUuid,
-        Boolean readedStatus);
+        Boolean readedStatus) throws Exception;
 
 
 }
