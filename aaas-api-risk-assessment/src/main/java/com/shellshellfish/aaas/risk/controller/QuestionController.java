@@ -35,7 +35,7 @@ import com.shellshellfish.aaas.risk.util.ResourceWrapper;
 import antlr.StringUtils;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/risk-assessment")
 public class QuestionController {
 
 	private final Logger log = LoggerFactory.getLogger(QuestionController.class);
@@ -71,13 +71,13 @@ public class QuestionController {
 		ResourceWrapper<List<QuestionDTO>> resource = new ResourceWrapper<>(dtoList);
 		Links links = new Links();
 		if (page != null) {
-			links.setSelf(String.format("/api/questions?page=%d&size=%d", page, size));
-			links.setNext(String.format("/api/questions?page=%d&size=%d", page + 1, size));
+			links.setSelf(String.format("/api/risk-assessment/questions?page=%d&size=%d", page, size));
+			links.setNext(String.format("/api/risk-assessment/questions?page=%d&size=%d", page + 1, size));
 			if (page > 0) {
-				links.setPrev(String.format("/api/questions?page=%d&size=%d", page - 1, size));
+				links.setPrev(String.format("/api/risk-assessment/questions?page=%d&size=%d", page - 1, size));
 			}
 		} else {
-			links.setSelf("/api/questions");
+			links.setSelf("/api/risk-assessment/questions");
 		}		
 		
 		resource.setLinks(links);	

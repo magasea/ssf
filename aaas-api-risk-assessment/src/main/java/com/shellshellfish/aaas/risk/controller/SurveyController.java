@@ -61,7 +61,7 @@ public class SurveyController {
 		if (userUuid == null) {
 			links.setSelf("/api/risk-assessment/survey-templates");
 		} else {
-			links.setSelf(String.format("/api/risk-assessment/survey-templates?user-uuid=%d", userUuid));
+			links.setSelf(String.format("/api/risk-assessment/survey-templates?user-uuid=%s", userUuid));
 		}
 		
 		resource.setLinks(links);
