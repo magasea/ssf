@@ -1,6 +1,6 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
-import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.AssetsRepository;
+import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserAssetsRepository;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoBankCardsRepository;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
@@ -31,7 +31,7 @@ public class UserInfoRepoServiceImplTest {
   UserInfoBankCardsRepository userInfoBankCardsRepository;
 
   @Autowired
-  AssetsRepository assetsRepository;
+  MongoUserAssetsRepository mongoUserAssetsRepository;
 
   @org.junit.Test
   public void getUserInfoBase() throws Exception {
@@ -57,7 +57,7 @@ public class UserInfoRepoServiceImplTest {
   @org.junit.Test
   public void getUserPortfolios() throws Exception {
     Long userId = Long.parseLong("11111");
-    List<UiAssetDailyRept> uiAssetDailyRepts = assetsRepository.findByUserId(userId);
+    List<UiAssetDailyRept> uiAssetDailyRepts = mongoUserAssetsRepository.findByUserId(userId);
     System.out.println(uiAssetDailyRepts);
   }
 

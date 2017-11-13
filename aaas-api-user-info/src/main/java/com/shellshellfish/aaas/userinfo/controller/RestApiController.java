@@ -7,7 +7,10 @@ import com.shellshellfish.aaas.userinfo.model.dto.bankcard.BankCard;
 import com.shellshellfish.aaas.userinfo.model.dto.invest.AssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserSysMsg;
+import com.shellshellfish.aaas.userinfo.model.vo.UserPersonalMsgVo;
 import com.shellshellfish.aaas.userinfo.model.vo.BankcardDetailVo;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.util.DateUtil;
@@ -43,7 +46,7 @@ public class RestApiController {
 	public static final Logger logger = LoggerFactory.getLogger(RestApiController.class);
 
 	@Autowired
-	UserInfoService userInfoService;
+  UserInfoService userInfoService;
 
 	@RequestMapping(value = "/userinfo/id/{id}", method = RequestMethod.GET)
 	@AopLinkResources
@@ -180,6 +183,36 @@ public class RestApiController {
 		AssetDailyRept assetDailyReptRlt =
 				 userInfoService.addAssetDailyRept(assetDailyRept);
 		return new ResponseEntity<Object>(assetDailyReptRlt , HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/userinfo/message/personal/{userUuid}", method = RequestMethod.GET)
+	public ResponseEntity<?> getPersonalMsg(@PathVariable String userUuid)
+			throws Exception {
+
+		List<UserPersonMsg> userPersonMsgs =  userInfoService.getUserPersonMsg(userUuid);
+		Map<String, Object> result = new HashMap<>();
+		result.put("userPersonMsg", userPersonMsgs);
+		return new ResponseEntity<Object>(result , HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/userinfo/message/system/{userUuid}", method = RequestMethod.GET)
+	public ResponseEntity<?> getSystemMsg(@PathVariable String userUuid)
+			throws Exception {
+		List<UserSysMsg> userSysMsgs = userInfoService.getUserSysMsg(userUuid);
+		Map<String, Object> result = new HashMap<>();
+		result.put("userSysMsgs", userSysMsgs);
+		return new ResponseEntity<Object>(result , HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/userinfo/message/personal/{userUuid}", method = RequestMethod.POST)
+	public ResponseEntity<?> updatePersonalMsg(@RequestBody UserPersonalMsgVo userPersonalMsgVo)
+			throws Exception {
+
+		List<UserPersonMsg> userPersonMsgs =  userInfoService.updateUserPersonMsg(userPersonalMsgVo
+				.getMessagesToUpdate(), userPersonalMsgVo.getUuid(), userPersonalMsgVo.getReadedStatus());
+		Map<String, Object> result = new HashMap<>();
+		result.put("userPersonMsg", userPersonMsgs);
+		return new ResponseEntity<Object>(result , HttpStatus.OK);
 	}
 
 	private Object makePersonInfoResponse() {

@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.userinfo.model.dao.userinfo;
+package com.shellshellfish.aaas.userinfo.model.dao.userinfo.temp;
 
 import java.io.Serializable;
 import javax.persistence.*;

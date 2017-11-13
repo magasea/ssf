@@ -4,25 +4,25 @@ import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAsset;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPortfolio;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiSysMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.bankcard.BankCard;
 import com.shellshellfish.aaas.userinfo.model.dto.invest.AssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserSysMsg;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.util.BankUtil;
 import java.math.BigInteger;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -129,6 +129,51 @@ public class UserInfoServiceImpl implements UserInfoService {
         Date date = new Date(result.getDate());
         assetDailyRept.setDate(date);
         return assetDailyReptResult;
+    }
+
+    @Override
+    public List<UserSysMsg> getUserSysMsg(String userUuid) {
+        List<UiSysMsg> uiSysMsgs = userInfoRepoService.getUiSysMsg();
+        List<UserSysMsg> userSysMsgs = new ArrayList<>();
+        for(UiSysMsg uiSysMsg: uiSysMsgs){
+            UserSysMsg userSysMsg = new UserSysMsg();
+            BeanUtils.copyProperties(uiSysMsg, userSysMsg);
+            userSysMsgs.add(userSysMsg);
+        }
+        return userSysMsgs;
+    }
+
+    @Override
+    public List<UserPersonMsg> getUserPersonMsg(String userUuid) {
+        Long userId = getUserIdFromUUID(userUuid);
+        List<UiPersonMsg> uiPersonMsgs = userInfoRepoService.getUiPersonMsg(userId);
+        List<UserPersonMsg> userPersonMsgs = new ArrayList<>();
+        for(UiPersonMsg uiPersonMsg: uiPersonMsgs){
+            UserPersonMsg userPersonMsg = new UserPersonMsg();
+            BeanUtils.copyProperties(uiPersonMsg, userPersonMsg);
+            userPersonMsgs.add(userPersonMsg);
+        }
+        return userPersonMsgs;
+    }
+
+    @Override
+    public List<UserPersonMsg> updateUserPersonMsg(List<String> msgIds, String userUuid,
+        Boolean readedStatus) {
+        Long userId = getUserIdFromUUID(userUuid);
+        List<UiPersonMsg> uiPersonMsgs = userInfoRepoService.updateUiUserPersonMsg(msgIds, userId,
+            readedStatus);
+        List<UserPersonMsg> userPersonMsgs = new ArrayList<>();
+        for(UiPersonMsg uiPersonMsg: uiPersonMsgs){
+            UserPersonMsg userPersonMsg = new UserPersonMsg();
+            BeanUtils.copyProperties(uiPersonMsg, userPersonMsg);
+            userPersonMsgs.add(userPersonMsg);
+        }
+        return userPersonMsgs;
+    }
+
+    private Long getUserIdFromUUID(String userUuid){
+        Long userId =  userInfoRepoService.getUserIdFromUUID(userUuid);
+        return userId;
     }
 
 }

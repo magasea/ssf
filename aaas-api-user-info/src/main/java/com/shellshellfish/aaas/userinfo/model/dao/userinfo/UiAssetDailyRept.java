@@ -2,9 +2,6 @@ package com.shellshellfish.aaas.userinfo.model.dao.userinfo;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
 import javax.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
@@ -74,19 +71,45 @@ public class UiAssetDailyRept {
   private BigDecimal accumulateProfit;
   private String currentProducts;
 
+  private BigInteger createdBy;
+
+
+  private Long createdDate;
+
+  private BigInteger lastModifiedBy;
+
+  private Long lastModifiedDate;
+
+//  @Override
+//  public String toString() {
+//    long time = date;
+//    SimpleDateFormat sdf = new SimpleDateFormat();
+//    sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+//    sdf.format(new Date(time));
+//    return "UiAssetDailyRept{" +
+//        "userId=" + userId +
+//        ", date=" + sdf.format(new Date(time)) +
+//        ", dailyProfit=" + dailyProfit +
+//        ", accumulateProfitRate=" + accumulateProfitRate +
+//        ", accumulateProfit=" + accumulateProfit +
+//        ", currentProducts='" + currentProducts + '\'' +
+//        '}';
+//  }
+
   @Override
   public String toString() {
-    long time = date;
-    SimpleDateFormat sdf = new SimpleDateFormat();
-    sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-    sdf.format(new Date(time));
     return "UiAssetDailyRept{" +
-        "userId=" + userId +
-        ", date=" + sdf.format(new Date(time)) +
+        "id='" + id + '\'' +
+        ", userId=" + userId +
+        ", date=" + date +
         ", dailyProfit=" + dailyProfit +
         ", accumulateProfitRate=" + accumulateProfitRate +
         ", accumulateProfit=" + accumulateProfit +
         ", currentProducts='" + currentProducts + '\'' +
+        ", createdBy=" + createdBy +
+        ", createdDate=" + createdDate +
+        ", lastModifiedBy=" + lastModifiedBy +
+        ", lastModifiedDate=" + lastModifiedDate +
         '}';
   }
 }
