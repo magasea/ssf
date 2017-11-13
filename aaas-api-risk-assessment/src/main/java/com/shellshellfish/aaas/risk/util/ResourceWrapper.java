@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 @JsonPropertyOrder({ "name", "resource", "links"})
+@JsonInclude()
 public class ResourceWrapper<T> {
 	
 	public ResourceWrapper() {
@@ -16,7 +17,7 @@ public class ResourceWrapper<T> {
 		this.resource = resource;
 	}
 	
-	@JsonProperty("_to_be_modified")
+	@JsonProperty("resource")
 	//@JsonUnwrapped
 	private T resource;
 	
@@ -81,5 +82,5 @@ public class ResourceWrapper<T> {
     public void setServiceId(String serviceId) {
         this.serviceId = serviceId;
     }
-
+    
 }

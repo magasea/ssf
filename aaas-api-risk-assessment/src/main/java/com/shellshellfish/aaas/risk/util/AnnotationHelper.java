@@ -2,10 +2,46 @@ package com.shellshellfish.aaas.risk.util;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class AnnotationHelper {
+
+	@SuppressWarnings("unchecked")
+    public static Object changeAnnotationValue(Annotation annotation, String key, Object newValue){
+        Object handler = Proxy.getInvocationHandler(annotation);
+        Field f;
+        try {
+            f = handler.getClass().getDeclaredField("memberValues");
+        } catch (NoSuchFieldException | SecurityException e) {
+            throw new IllegalStateException(e);
+        }
+        f.setAccessible(true);
+        Map<String, Object> memberValues;
+        try {
+            memberValues = (Map<String, Object>) f.get(handler);
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            throw new IllegalStateException(e);
+        }
+        Object oldValue = memberValues.get(key);
+        if (oldValue == null || oldValue.getClass() != newValue.getClass()) {
+            throw new IllegalArgumentException();
+        }
+        memberValues.put(key,newValue);
+        return oldValue;
+    }
+	
+	 public static Annotation setAttrValue(Annotation anno, Class<? extends Annotation> type, String attrName, Object newValue) throws Exception {
+	        InvocationHandler handler = new AnnotationInvocationHandler(anno, attrName, newValue);
+	        Annotation proxy = (Annotation) Proxy.newProxyInstance(anno.getClass().getClassLoader(), new Class[]{type}, handler);
+	        return proxy;
+	    }
+	 
+	
     private static final String ANNOTATIONS = "annotations";
     public static final String ANNOTATION_DATA = "annotationData";
 
@@ -51,4 +87,12 @@ public class AnnotationHelper {
             }
         }
     }
+    
+	public static void changeResourceAnnotion(ResourceWrapper<?> resource, String resourceName) {
+	    Field field = resource.getClass().getDeclaredFields()[0];
+	    JsonProperty fieldAnnotation = field.getAnnotation(JsonProperty.class);
+	    AnnotationHelper.changeAnnotationValue(fieldAnnotation, "value", resourceName);    
+	}
+	
+        
 }

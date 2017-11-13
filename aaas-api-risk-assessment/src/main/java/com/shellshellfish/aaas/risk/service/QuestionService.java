@@ -46,12 +46,17 @@ public class QuestionService {
 		}).collect(Collectors.toList());		
 	}
 	
-	public List<Question> getQuestionsByPage(Integer page, Integer size, List<Question> orignalQuestions){
+	public List<Question> getQuestionsByPage(Integer page, Integer size, List<Question> originalQuestions){
 		
 		int fromIndex = page * size; 
-		if (fromIndex > orignalQuestions.size() - 1)
-			return orignalQuestions;
+		if (fromIndex > originalQuestions.size() - 1)
+			return new ArrayList<Question>();
 		
-		return orignalQuestions.subList(fromIndex, fromIndex + size);
+		int toIndex = fromIndex + size;
+		if (toIndex > originalQuestions.size()) {
+			toIndex = originalQuestions.size() - 1;
+		}
+		
+		return originalQuestions.subList(fromIndex, toIndex);
 	}
 }
