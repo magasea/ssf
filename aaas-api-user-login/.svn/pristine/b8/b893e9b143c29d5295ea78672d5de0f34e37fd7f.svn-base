@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Implementation-Title: aaas-api-user-login
+Implementation-Version: 0.0.1-SNAPSHOT
+Built-By: ssf
+Implementation-Vendor-Id: com.shellshellfish.account
+Build-Jdk: 1.8.0_144
+Implementation-URL: http://projects.spring.io/spring-boot/aaas-api-use
+ r-login/
+Created-By: Maven Integration for Eclipse
+Implementation-Vendor: Pivotal Software, Inc.
+

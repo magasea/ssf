@@ -15,6 +15,7 @@
         <module>aaas-api-user-login</module>
         <module>aaas-api-user-info</module>
         <module>aaas-api-finance</module>
+        <module>aaas-api-risk-assessment</module>
     </modules>
 
 </project>

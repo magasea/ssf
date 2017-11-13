@@ -1,0 +1,15 @@
+/work/ssf/workspace-sts-3.9.0.RELEASE/aaas-api-user-login/src/main/java/com/shellshellfish/account/service/SchemaManager.java
+/work/ssf/workspace-sts-3.9.0.RELEASE/aaas-api-user-login/src/main/java/com/shellshellfish/account/model/LinkItem.java
+/work/ssf/workspace-sts-3.9.0.RELEASE/aaas-api-user-login/src/main/java/com/shellshellfish/account/service/AccountService.java
+/work/ssf/workspace-sts-3.9.0.RELEASE/aaas-api-user-login/src/main/java/com/shellshellfish/account/model/PageSchema.java
+/work/ssf/workspace-sts-3.9.0.RELEASE/aaas-api-user-login/src/main/java/com/shellshellfish/account/service/ResourceManager.java
+/work/ssf/workspace-sts-3.9.0.RELEASE/aaas-api-user-login/src/main/java/com/shellshellfish/account/service/AccountServiceImpl.java
+/work/ssf/workspace-sts-3.9.0.RELEASE/aaas-api-user-login/src/main/java/com/shellshellfish/account/AppConfig.java
+/work/ssf/workspace-sts-3.9.0.RELEASE/aaas-api-user-login/src/main/java/com/shellshellfish/account/AccountServiceApplication.java
+/work/ssf/workspace-sts-3.9.0.RELEASE/aaas-api-user-login/src/main/java/com/shellshellfish/account/configuration/SwaggerConfig.java
+/work/ssf/workspace-sts-3.9.0.RELEASE/aaas-api-user-login/src/main/java/com/shellshellfish/account/model/Account.java
+/work/ssf/workspace-sts-3.9.0.RELEASE/aaas-api-user-login/src/main/java/com/shellshellfish/account/model/InputItem.java
+/work/ssf/workspace-sts-3.9.0.RELEASE/aaas-api-user-login/src/main/java/com/shellshellfish/account/configuration/SpringSecConfig.java
+/work/ssf/workspace-sts-3.9.0.RELEASE/aaas-api-user-login/src/main/java/com/shellshellfish/account/model/Error.java
+/work/ssf/workspace-sts-3.9.0.RELEASE/aaas-api-user-login/src/main/java/com/shellshellfish/account/configuration/MvcConfiguration.java
+/work/ssf/workspace-sts-3.9.0.RELEASE/aaas-api-user-login/src/main/java/com/shellshellfish/account/controller/RestApiController.java

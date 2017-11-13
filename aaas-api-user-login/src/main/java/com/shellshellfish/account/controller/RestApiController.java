@@ -1,25 +1,24 @@
 package com.shellshellfish.account.controller;
 
-import java.util.Collections;
+
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.validation.ConstraintViolation;
+
 import javax.validation.ConstraintViolationException;
-import javax.validation.Path;
-import javax.validation.Path.Node;
 import javax.validation.Valid;
 //import com.shellshellfish.account.Validation.Max;
-import com.shellshellfish.account.model.Error;
+
+import com.shellshellfish.account.commons.MD5;
+import com.shellshellfish.account.exception.UserException;
 import com.shellshellfish.account.model.PageSchema;
+import com.shellshellfish.account.repositories.SmsVerificationRepositoryCustom;
+import com.shellshellfish.account.repositories.SmsVerificationRepositoryCustomImpl;
 
 import javax.validation.constraints.DecimalMax;
-import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -31,23 +30,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-//import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
-//import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.shellshellfish.account.model.Account;
 import com.shellshellfish.account.service.AccountService;
+import com.shellshellfish.account.service.AccountServiceImpl;
 import com.shellshellfish.account.service.ResourceManager;
 import com.shellshellfish.account.service.SchemaManager;
 
@@ -66,7 +55,7 @@ public class RestApiController {
 	
 	@Autowired
 	SchemaManager schemaManager;
-	
+		
 	@Bean
 	public ResourceManager resourceManager() {
 		return new ResourceManager();
@@ -77,51 +66,122 @@ public class RestApiController {
 		return new SchemaManager();
 	}
 	
+	@Bean
+	public SmsVerificationRepositoryCustom SmsVerificationRepositoryCustomImpl() {
+		return new SmsVerificationRepositoryCustomImpl();
+	}
+	
+	@Bean
+	public AccountService accountService() {
+		return new AccountServiceImpl();
+	}
+	
+	/*
 	@RequestMapping(value = "/register.json", method = RequestMethod.POST)
 	public ResponseEntity<PageSchema> registerschema(
-			//@Valid @NotNull(message="not null") @Max(value=20) @Min(value=1) @RequestParam(value = "id") Integer bankid
+			//@Valid @NotNull(message="电话不能为空") @Max(value=20) @Min(value=1) @RequestParam(value = "id") Integer bankid
 			){
 		   
 		   PageSchema pageschema= schemaManager.getSchemafile("register");
 		  //System.out.println(pagestr);
 		  return new ResponseEntity<PageSchema>(pageschema, HttpStatus.OK);	
-    }
+    }*/
 	
-	@RequestMapping(value = "/register", method = RequestMethod.POST)
-	public ResponseEntity<Map> registerres(
-			@Valid @NotNull(message="not null") @Max(value=20) @Min(value=1) @RequestParam(value = "id") String bankid
+	@RequestMapping(value = "/register", method = RequestMethod.GET)
+	public ResponseEntity<Map> registerres( //register resource
+			//@Valid @NotNull(message="电话不能为空") @Max(value=20) @Min(value=1) @RequestParam(value = "id") String bankid
+			@RequestParam(value = "telnum") String telnum
 			){
 		   
-		  HashMap<String ,Object> rsmap= resourceManager.response("register",new String[]{bankid});
+		  HashMap<String ,Object> rsmap= resourceManager.response("register",new String[]{telnum});
 		  //System.out.println(pagestr);
 		  return new ResponseEntity<Map>(rsmap, HttpStatus.OK);	
     }
+	/**
+	 * 密码设置 初始页面
+	 * 
+	 * @param telnum
+	 * @return
+	 */
+	@RequestMapping(value = "/pwdsetting", method = RequestMethod.POST)
+	public ResponseEntity<Map> pwdsettingres(
+			@Valid @NotNull(message = "电话不能为空") @Size(max = 11, min = 11, message = "手机号格式不对") @RequestParam(value = "telnum") String telnum) {
+		String tel[] = new String[] { telnum };
+		HashMap<String, Object> rsmap = resourceManager.response("pwdsetting", tel);
+		return new ResponseEntity<Map>(rsmap, HttpStatus.OK);
+	}
 
+	/**
+	 * 密码设置 确认
+	 * 
+	 * @param telnum
+	 * @param pwdsetting
+	 * @param pwdconfirm
+	 * @return
+	 */
+	@RequestMapping(value = "/pwdconfirm", method = RequestMethod.POST)
+	public ResponseEntity<String> pwdconfirm(
+			@Valid @NotNull(message = "电话不能为空") @Size(max = 11, min = 11, message = "手机号长度必须是11位的数字") @RequestParam(value = "telnum") String telnum,
+			@Valid @NotNull(message = "密码不能为空") @Size(min = 8, max = 16, message = "密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合") @RequestParam(value = "pwdsetting") String pwdsetting,
+			@Valid @NotNull(message = "密码不能为空") @Size(min = 8, max = 16, message = "密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合") @RequestParam(value = "pwdconfirm") String pwdconfirm) {
+		if (accountService.isSettingPWD(telnum, pwdsetting, pwdconfirm)) { // 密码修正正确
+			return new ResponseEntity<String>("/api/login?telnum=" + telnum, HttpStatus.OK);
+		}
+		return new ResponseEntity<String>("/api/login?telnum=" + telnum, HttpStatus.UNAUTHORIZED);// 未授权用户
+	}
+	
+	//忘记密码下的获取验证码
+	
+	@RequestMapping(value = "/verifycodeget", method = RequestMethod.GET)
+	public ResponseEntity<HttpStatus> verifycodeget(
+			@Valid @NotNull(message="电话不能为空")  @Size(min = 11, max = 11,message="电话长度必须是11位的数字")  @RequestParam(value = "telnum") String telnum
+			){			
+			
+		  //nedd alisms interface to get sms
+		  //send  sms to telphone 
+		return new ResponseEntity<HttpStatus>(HttpStatus.OK);	
+    }
+
+
+	//忘记密码下的密码设置
+	@RequestMapping(value = "/topwdsetting", method = RequestMethod.POST)
+	public ResponseEntity<HttpStatus> topwdsetting(
+			@Valid @NotNull(message="电话不能为空") @Size(min = 11, max = 11,message="电话长度必须是11位的数字")  @RequestParam(value = "telnum") String telnum,
+			@RequestParam(value = "verfiedcode") String verfiedcode)
+			{
+		
+		if (accountService.isSmsVerified(telnum,verfiedcode))
+			return new ResponseEntity<HttpStatus>(HttpStatus.OK);
+		
+		return new ResponseEntity<HttpStatus>(HttpStatus.UNAUTHORIZED);
+	}
+	
 	@RequestMapping(value = "/forgottenpwd", method = RequestMethod.GET)
-	public ResponseEntity<Map> forgottenpwdres(			
-			){
+	public ResponseEntity<Map> forgottenpwdres(@RequestParam(value = "telnum") String telnum){			
+			
 		   
-		  HashMap<String ,Object> rsmap= resourceManager.response("forgottenpwd",null);
+		  HashMap<String ,Object> rsmap= resourceManager.response("forgottenpwd",new String[]{telnum});
 		  
 		  return new ResponseEntity<Map>(rsmap, HttpStatus.OK);	
     }
 
-	
+	/*
 	// login schema
 	@RequestMapping(value = "/login.json", method = RequestMethod.GET)
 	public ResponseEntity<PageSchema> loginschema(
-			//@Valid @NotNull(message="not null") @Max(value=20) @Min(value=1) @RequestParam(value = "id") Integer bankid
+			//@Valid @NotNull(message="电话不能为空") @Max(value=20) @Min(value=1) @RequestParam(value = "id") Integer bankid
 			){
 		   
 		  PageSchema ps= schemaManager.getSchemafile("login");
 		  //System.out.println(pagestr);
 		  return new ResponseEntity<PageSchema>(ps, HttpStatus.OK);	
     }
-
+   */
+	
 	@RequestMapping(value = "/loginverify", method = RequestMethod.POST)
-	public ResponseEntity<Map> loginveirfy(
-			//@Valid @NotNull(message="not null") @Max(value=20) @Min(value=1) @RequestParam(value = "id") String bankid
-			@Valid @NotNull(message="电话不能为空") @DecimalMax(value="99999999999",message="电话长度必须是11位的数字") @Size(min = 11, max = 11,message="电话长度必须是11位的数字")  @RequestParam(value = "telnum") String telnum,
+	public ResponseEntity<HttpStatus> loginveirfy(
+			//@Valid @NotNull(message="电话不能为空") @Max(value=20) @Min(value=1) @RequestParam(value = "id") String bankid
+			@Valid @NotNull(message="电话不能为空") @Size(min = 11, max = 11,message="电话长度必须是11位的数字")  @RequestParam(value = "telnum") String telnum,
 			@Valid @NotNull(message="密码不能为空") @Size(min = 8, max = 16,message="密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合")  @RequestParam(value = "password") String pwd
 			){
 		   
@@ -131,156 +191,145 @@ public class RestApiController {
 		    if (m.find()) { //need pwd check  
 		        //int kk=1;  
 		    } else {
-		    	throw new ConstraintViolationException("密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合",null);
+		    	throw new UserException("100","密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合");
 		    }
 		    
-		    HashMap<String ,Object> rsmap= resourceManager.response("login",new String[]{telnum,pwd});
-		    return new ResponseEntity<Map>(rsmap, HttpStatus.OK);	
+		    String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
+			Pattern telPattern = Pattern.compile(telRegExp);
+			Matcher telMatcher = telPattern.matcher(telnum);
+			if (!telMatcher.find()) {
+				throw new UserException("101", "手机号格式不对");
+			}
+		   
+	         //passwd:abccd4djsN-999
+		    //CellPhone:13611442221
+	        
+	      //  User targetuser = userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
+	        if (accountService.isRegisteredUser(telnum, MD5.getMD5(pwd))) { // 是已登记的用户
+		       return new ResponseEntity<HttpStatus>(HttpStatus.OK);
+	        }
+		    
+	        return new ResponseEntity<HttpStatus>(HttpStatus.UNAUTHORIZED);//未授权用户
+	       	
     }
 	
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
-	public ResponseEntity<Map> loginres()
+	public ResponseEntity<Map> loginres(@RequestParam(value = "telnum") String telnum)
 	{
 		   
-		    HashMap<String ,Object> rsmap= resourceManager.response("login",null);
+		    HashMap<String ,Object> rsmap= resourceManager.response("login",new String[]{telnum});
 		    return new ResponseEntity<Map>(rsmap, HttpStatus.OK);	
     }
 	
-	/*
-	@RequestMapping(value = "/accounts", method = RequestMethod.GET)
-    public ResponseEntity<List<Account>> listAllAccounts(
-    		@Valid @NotNull(message="not null") @Max(value=10 ,message="max is 10") @RequestParam(value = "type") Integer type,
-    		@RequestParam(value = "pageSize", defaultValue = "10") String pageSize,
-    		@RequestParam(value = "start", defaultValue = "0") String stPos) {
-	    
-		//if (Integer.parseInt(type)>=5) {
-			
-		//	RangeValidationException exp=  new RangeValidationException(0);
-		//	exp.setUpperLimit("type",type, "5");
-		//	throw exp;
-		//}
-		
-		
-		
-		List<Account> accounts = accountService.findAllAccounts(String.valueOf(type), Integer.parseInt(pageSize), Integer.parseInt(stPos));
-	    if (accounts.isEmpty()) {
-	    	return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-	    }
-	    return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
+	@RequestMapping(value = "/tosmsverification", method = RequestMethod.POST)
+	public ResponseEntity<String> tosmsverification(			
+			@Valid @NotNull(message="电话不能为空") @Size(min = 11, max = 11,message="电话长度必须是11位的数字")  @RequestParam(value = "telnum") String telnum
+			){
+	         //passwd:abccd4djsN-999
+		    //CellPhone:13611442221
+	        
+	       boolean flag= accountService.isRegisterredTel(telnum);
+	       if (flag==true) {
+	    	   throw new UserException("100","抱歉，此电话号码已注册");
+	       }
+	       
+	       return new ResponseEntity<String>("/smsverification?telnum="+telnum,HttpStatus.OK);//注册OK,return target url
+	       	
     }
-	
-	// Get
-	@RequestMapping(value = "/accounts/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Account> getAccount(@PathVariable("id") long id) {
-		Account account = accountService.findById(id);
-		if (account == null) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+	/**
+	 * 短信验证 初始页面
+	 * 
+	 * @param telnum手机号码
+	 * @return
+	 */
+	@RequestMapping(value = "/smsverification", method = RequestMethod.POST)
+	public ResponseEntity<Map> smsverificationres(
+			@Valid @NotNull(message = "电话不能为空") @Size(max = 11, min = 11, message = "手机号长度必须是11位的数字") @RequestParam(value = "Mobile") String telnum) {
+		String tel[] = new String[] { telnum };
+		HashMap<String, Object> rsmap = resourceManager.response("smsverification", tel);
+		return new ResponseEntity<Map>(rsmap, HttpStatus.OK);
+	}
+
+	/**
+	 * 短信验证 确认
+	 * 
+	 * @param telnum
+	 * @param identifyingcode
+	 * @return
+	 */
+	@RequestMapping(value = "/smsverconfirm", method = RequestMethod.POST)
+	public ResponseEntity<String> smsverconfirm(
+			@Valid @NotNull(message = "电话不能为空") @Size(max = 11, min = 11, message = "手机号长度必须是11位的数字") @RequestParam(value = "telnum") String telnum,
+			@Valid @NotNull(message = "电话不能为空") @Size(max = 6, min = 6, message = "验证码长度必须为6位") @RequestParam(value = "verificationcode") String identifyingcode) {
+		String args[] = new String[] { telnum, identifyingcode };
+
+		// HashMap<String, Object> rsmap =
+		// resourceManager.response("smsverification",args);
+		if (!"123456".equals(identifyingcode)) {
+			throw new UserException("101", "输入验证码不正确");
 		}
-		return new ResponseEntity<Account>(account, HttpStatus.OK);
+
+		return new ResponseEntity<String>("/api/pwdsetting?telnum=" + telnum, HttpStatus.OK);
 	}
-	
-	// Create
-	@RequestMapping(value = "/accounts/", method = RequestMethod.POST)
-	public ResponseEntity<?> createAccount(@RequestBody Account account, UriComponentsBuilder ucBuilder) {
-		long id = accountService.createAccount(account);
-		
-		HttpHeaders headers = new HttpHeaders();
-		headers.setLocation(ucBuilder.path("/api/acounts/{id}").buildAndExpand(id).toUri());
-		return new ResponseEntity<String>(headers, HttpStatus.CREATED);
+
+	/**
+	 * 添加银行卡 初始页面
+	 * 
+	 * @param telnum
+	 * @return
+	 */
+	@RequestMapping(value = "/addbankcard", method = RequestMethod.POST)
+	public ResponseEntity<Map> addbankcardres(
+			@Valid @NotNull(message = "电话不能为空") @Size(max = 11, min = 11, message = "手机号长度必须是11位的数字") @RequestParam(value = "telnum") String telnum) {
+		String args[] = new String[] { telnum };
+		HashMap<String, Object> rsmap = resourceManager.response("addbankcard", args);
+		return new ResponseEntity<Map>(rsmap, HttpStatus.OK);
 	}
-	
-	// Update
-	@RequestMapping(value = "/accounts/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<Account> updateAccount(@PathVariable("id") long id, @RequestBody Account account) {
-		account.setId(id);
-		Account updatedAccount = accountService.updateAccount(account);
-		return new ResponseEntity<Account>(updatedAccount,HttpStatus.OK);
+
+	/**
+	 * 查看
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/viewbklist", method = RequestMethod.POST)
+	public ResponseEntity<String> checkbklistres() {
+		return new ResponseEntity<String>("/api/bklist", HttpStatus.OK);
 	}
-	
-	// Delete
-	@RequestMapping(value = "/accounts/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<Account> deleteAccount(@PathVariable("id") long id) {
-		accountService.deleteById(id);
-		return new ResponseEntity<Account>(HttpStatus.NO_CONTENT);
-	}
-	
-	// Operation with POSt
-	@RequestMapping(value = "/accounts/{id}", method = RequestMethod.POST)
-	public ResponseEntity<?> operateAccount(@PathVariable("id") long id, @RequestBody Map<String, Object> request){
-		Account account = accountService.findById(id);
-		return new ResponseEntity<Map<String, Object>>(accountService.operate(account, request), HttpStatus.OK);
-	}
-	
-	//@ExceptionHandler(MissingServletRequestParameterException.class)
-	//@ExceptionHandler(RangeValidationException.class)
-	//@ExceptionHandler(ServletRequestBindingException.class)
-	
-	*/
-	
-	@ExceptionHandler(ConstraintViolationException.class)
-	public ResponseEntity<Error[]> RangeErrorHandler(ConstraintViolationException e){
-	    //String userId = e.getUserId();
-	    //e.getConstraintViolations().
-		Error[] error=null;
-		Set<ConstraintViolation<?>> cons=e.getConstraintViolations();
-		if (cons!=null) {
-			ConstraintViolation<?>[] con=getconstraint(cons);
-			error=new Error[con.length];
-			for (int i=0;i<con.length;i++) {
-			  String errmsg =con[i].getMessage();
-			
-			
-			  /*
-			  Path pname=con[i].getPropertyPath();
-			  Iterator<Node> its=pname.iterator();			
-			  String paraname= getParameterName(its);
-			  */
-			  error[i] = new Error(errmsg);
-			  error[i].setCode(i);
-			}
-		}else {
-			error =new Error[1];
-			error[0]=new Error(e.getMessage());
+
+	/**
+	 * 添加银行卡 下一步
+	 * 
+	 * @param telnum手机号
+	 * @param bkcardnum银行卡号
+	 * @param bkname银行名称
+	 * @param name用户名
+	 * @return
+	 */
+	@RequestMapping(value = "/bkverrify", method = RequestMethod.POST)
+	public ResponseEntity<String> addbankcardnextres(
+			@Valid @NotNull(message = "电话不能为空") @Size(max = 11, min = 11, message = "手机号长度必须是11位的数字") @RequestParam(value = "telnum") String telnum,
+			@Valid @NotNull(message = "银行卡不能为空") @Size(max = 20, min = 15) @RequestParam(value = "bankcardno") String bkcardnum,
+			@Valid @NotNull(message = "银行名不能为空") @Size(max = 20, min = 4) @RequestParam(value = "bankname") String bkname,
+			@Valid @NotNull(message = "用户名不能为空") @Size(max = 20, min = 2) @RequestParam(value = "name") String name) {
+		String args[] = new String[] { telnum, bkcardnum, bkname, name };
+		if (accountService.addBankCard(args)) {
+			return new ResponseEntity<String>("/api/bknext?telnum=" + telnum, HttpStatus.OK);
 		}
-		return new ResponseEntity<Error[]>(error,HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<String>("/api/bknext?telnum=" + telnum, HttpStatus.UNAUTHORIZED);// 未授权用户
+	}
+
+	/**
+	 * 支持银行列表
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/bklist", method = RequestMethod.POST)
+	public ResponseEntity<Map> viewbklistres() {
+		HashMap<String, Object> rsmap = resourceManager.response("bklist", null);
+		return new ResponseEntity<Map>(rsmap, HttpStatus.OK);
 	}
 	
 	
-	@ExceptionHandler(MissingServletRequestParameterException.class)
-	public ResponseEntity<Error> ParamMissingErrorHandler(MissingServletRequestParameterException e){
-	    String errmsg=e.getMessage();
-	    Error error = new Error(errmsg);
-	    String pname=e.getParameterName();
-	    String ptype= e.getParameterType();
-	    return new ResponseEntity<Error>(error,HttpStatus.BAD_REQUEST);
-	}
-	
-	public ConstraintViolation<?>[] getconstraint(Set<ConstraintViolation<?>> cons) {
-		  
-		String msg=null;
-		Iterator<ConstraintViolation<?>> it = cons.iterator();
-		int len= cons.size();
-		ConstraintViolation<?> con[]=new ConstraintViolation<?>[len];
-		int i=0;
-		while (it.hasNext()) {  
-		   con[i++] = it.next();
-		  //System.out.println(str);  
-		}  	
-		return con;
-	}
-	
-	
-	public String getParameterName(Iterator<Node> its) {
-		
-		Node node;
-		String name="";
-		while (its.hasNext()) {  
-			   node = its.next();
-			   name=name+node.getName()+".";
-			   //System.out.println(str);  
-		}
-		
-		return name.substring(0,name.length()-1);
-	}
 	
 }

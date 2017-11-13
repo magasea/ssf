@@ -11,9 +11,15 @@ public class UserRole {
     private Timestamp createdDate;
     private String lastModifiedBy;
     private Timestamp lastModifiedDate;
+    private User userByUserId;
+    private Role roleByRoleId;
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     @Id
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     public long getId() {
         return id;
     }
@@ -23,7 +29,7 @@ public class UserRole {
     }
 
     @Basic
-    @Column(name = "created_by")
+    @Column(name = "created_by", nullable = true, length = 50)
     public String getCreatedBy() {
         return createdBy;
     }
@@ -33,7 +39,7 @@ public class UserRole {
     }
 
     @Basic
-    @Column(name = "created_date")
+    @Column(name = "created_date", nullable = true)
     public Timestamp getCreatedDate() {
         return createdDate;
     }
@@ -43,7 +49,7 @@ public class UserRole {
     }
 
     @Basic
-    @Column(name = "last_modified_by")
+    @Column(name = "last_modified_by", nullable = true, length = 50)
     public String getLastModifiedBy() {
         return lastModifiedBy;
     }
@@ -53,7 +59,7 @@ public class UserRole {
     }
 
     @Basic
-    @Column(name = "last_modified_date")
+    @Column(name = "last_modified_date", nullable = true)
     public Timestamp getLastModifiedDate() {
         return lastModifiedDate;
     }
@@ -89,5 +95,25 @@ public class UserRole {
         result = 31 * result + (lastModifiedBy != null ? lastModifiedBy.hashCode() : 0);
         result = 31 * result + (lastModifiedDate != null ? lastModifiedDate.hashCode() : 0);
         return result;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    public User getUserByUserId() {
+        return userByUserId;
+    }
+
+    public void setUserByUserId(User userByUserId) {
+        this.userByUserId = userByUserId;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
+    public Role getRoleByRoleId() {
+        return roleByRoleId;
+    }
+
+    public void setRoleByRoleId(Role roleByRoleId) {
+        this.roleByRoleId = roleByRoleId;
     }
 }
