@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
+import com.mongodb.WriteResult;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserAssectsRepository;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserPersonMsgRepo;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserProdMsgRepo;
@@ -22,8 +23,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -53,8 +56,8 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
   @Autowired
   MongoUserProdMsgRepo mongoUserProdMsgRepo;
 
-//  @Autowired
-//  MongoOperations mongoOperations;
+  @Autowired
+  MongoTemplate mongoTemplate;
 
 
   @Override
@@ -125,24 +128,13 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
   @Override
   public List<UiPersonMsg> updateUiUserPersonMsg(List<String> msgs, Long userId, Boolean
       readedStatus) {
+    Query query = new Query();
+    query.addCriteria(Criteria.where("id").in(msgs).and("userId").is(userId));
+    Update update = new Update();
+    update.set("readed", Boolean.FALSE);
+    WriteResult result = mongoTemplate.updateMulti(query, update, UiPersonMsg.class);
+    System.out.println(result);
     List<UiPersonMsg> uiPersonMsgs = new ArrayList<>();
-//    for(String id: msgs){
-//
-//      Query query = new Query();
-//      query.addCriteria(Criteria.where("_id").is(id).and("userId").is(userId));
-//      Update update = new Update().set("readed", readedStatus);
-//      UiPersonMsg uiPersonMsg = mongoOperations.findAndModify(query, update, UiPersonMsg.class);
-//      uiPersonMsgs.add(uiPersonMsg);
-//    }
-
-    for(String id: msgs){
-      UiPersonMsg uiPersonMsg = new UiPersonMsg();
-      uiPersonMsg.setId(id);
-      uiPersonMsg.setUserId(BigInteger.valueOf(userId));
-      uiPersonMsg.setReaded(readedStatus);
-      uiPersonMsgs.add(uiPersonMsg);
-    }
-    mongoUserPersonMsgRepo.save(uiPersonMsgs);
     return uiPersonMsgs;
   }
 

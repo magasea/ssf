@@ -8,9 +8,10 @@ import org.springframework.data.mongodb.repository.Query;
 
 public interface MongoUserPersonMsgRepo extends MongoRepository<UiPersonMsg, Long> {
 
-  @Query(value = "{'$and':[{'userId':?0},{'readed':?1}]}")
+  @Query(value = "{'$and':[{'userId':'?0'},{'readed':?1}]}")
   List<UiPersonMsg> getUiPersonMsgsByUserIdAndReaded(Long userId, Boolean readed);
 
-  List<UiPersonMsg> save(List<UiPersonMsg> inputList);
+  @Override
+  <S extends UiPersonMsg> List<S> save(Iterable<S> entites);
 
 }
