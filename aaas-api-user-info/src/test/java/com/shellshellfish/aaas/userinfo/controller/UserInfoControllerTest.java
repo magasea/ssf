@@ -17,7 +17,7 @@ import org.springframework.web.context.WebApplicationContext;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ActiveProfiles(profiles="prod")
-public class RestApiControllerTest {
+public class UserInfoControllerTest {
   //@Autowired
   private MockMvc mvc;
 

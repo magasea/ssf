@@ -44,7 +44,7 @@ public class UserInfoRepoServiceImplTest {
     Query query = new Query();
     query.addCriteria(Criteria.where("id").in(msgs).and("userId").is("1"));
     Update update = new Update();
-    update.set("readed", Boolean.TRUE);
+    update.set("readed", Boolean.FALSE);
     WriteResult result = mongoTemplate.updateMulti(query, update, UiPersonMsg.class);
     System.out.println(result);
   }

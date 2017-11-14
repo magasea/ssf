@@ -129,9 +129,9 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
   public List<UiPersonMsg> updateUiUserPersonMsg(List<String> msgs, Long userId, Boolean
       readedStatus) {
     Query query = new Query();
-    query.addCriteria(Criteria.where("id").in(msgs).and("userId").is(userId));
+    query.addCriteria(Criteria.where("id").in(msgs).and("userId").is(userId.toString()));
     Update update = new Update();
-    update.set("readed", Boolean.FALSE);
+    update.set("readed", readedStatus);
     WriteResult result = mongoTemplate.updateMulti(query, update, UiPersonMsg.class);
     System.out.println(result);
     List<UiPersonMsg> uiPersonMsgs = new ArrayList<>();
