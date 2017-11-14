@@ -83,9 +83,9 @@ public class Properties {
 
     public static class Swagger {
 
-        private String title = "tplatform API";
+        private String title = "Shell shell fish API";
 
-        private String description = "tplatform API documentation";
+        private String description = "Shell shell fish API documentation";
 
         private String version = "0.0.1";
 
