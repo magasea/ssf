@@ -41,9 +41,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
-public class RestApiController {
+public class UserInfoController {
 
-	public static final Logger logger = LoggerFactory.getLogger(RestApiController.class);
+	public static final Logger logger = LoggerFactory.getLogger(UserInfoController.class);
 
 	@Autowired
   UserInfoService userInfoService;

@@ -12,4 +12,6 @@ public interface UserInfoRepository extends JpaRepository<UiUser, Long>{
 
   @Query(value ="SELECT id FROM ui_user WHERE uuid =:uuid", nativeQuery = true)
   public Long findUserIdByUuid(String uuid);
+
+  public UiUser findUiUserByUuid(String uuid);
 }

@@ -1,17 +1,29 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
+import com.mongodb.WriteResult;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserAssetsRepository;
+import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserPersonMsgRepo;
+import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserProdMsgRepo;
+import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserSysMsgRepo;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoBankCardsRepository;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiUser;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserPersonMsg;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -19,6 +31,31 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 @ActiveProfiles(profiles="prod")
 public class UserInfoRepoServiceImplTest {
+
+  @Autowired
+  MongoTemplate mongoTemplate;
+
+  @Test
+  public void updateUiUserPersonMsg() throws Exception {
+    List<String> msgs = new ArrayList<>();
+    msgs.add("5a098b8a3f6b9e23048bd335");
+    msgs.add("5a098b8a3f6b9e23048bd336");
+    msgs.add("5a098b8a3f6b9e23048bd337");
+    Query query = new Query();
+    query.addCriteria(Criteria.where("id").in(msgs).and("userId").is("1"));
+    Update update = new Update();
+    update.set("readed", Boolean.FALSE);
+    WriteResult result = mongoTemplate.updateMulti(query, update, UiPersonMsg.class);
+    System.out.println(result);
+  }
+
+  @Test
+  public void getUiPersonMsg() throws Exception {
+    List<UiPersonMsg> uiPersonMsgs = mongoUserPersonMsgRepo.getUiPersonMsgsByUserIdAndReaded(Long
+            .valueOf("1"),Boolean.FALSE);
+    System.out.println(uiPersonMsgs);
+  }
+
 
   @Test
   public void getAssetDailyReptByUserId() throws Exception {
@@ -32,6 +69,36 @@ public class UserInfoRepoServiceImplTest {
 
   @Autowired
   MongoUserAssetsRepository mongoUserAssetsRepository;
+
+  @Autowired
+  MongoUserPersonMsgRepo mongoUserPersonMsgRepo;
+
+  @Autowired
+  MongoUserSysMsgRepo mongoUserSysMsgRepo;
+
+  @Autowired
+  MongoUserProdMsgRepo mongoUserProdMsgRepo;
+
+  @Test
+  public void addUiPersonMsg() throws Exception {
+    List<UiPersonMsg> uiPersonMsgs = new ArrayList<>();
+    for(int idx = 0; idx < 10; idx ++)
+
+  {
+    UiPersonMsg uiPersonMsg = new UiPersonMsg();
+    uiPersonMsg.setReaded(Boolean.FALSE);
+    uiPersonMsg.setUserId(BigInteger.valueOf(idx));
+    uiPersonMsg.setContent("aeswrqaewvfaervfa");
+    uiPersonMsg.setCreatedDate((new Date()).getTime());
+    uiPersonMsg.setCreatedBy("1");
+    uiPersonMsg.setMsgSource("bank");
+    uiPersonMsg.setMsgTitle("bank message");
+    uiPersonMsgs.add(uiPersonMsg);
+    mongoUserPersonMsgRepo.save(uiPersonMsg);
+  }
+
+
+  }
 
   @org.junit.Test
   public void getUserInfoBase() throws Exception {

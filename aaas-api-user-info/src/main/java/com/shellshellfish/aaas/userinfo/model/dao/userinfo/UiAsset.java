@@ -3,7 +3,7 @@ package com.shellshellfish.aaas.userinfo.model.dao.userinfo;
 import java.io.Serializable;
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+import java.math.BigInteger;
 
 
 /**
@@ -17,15 +17,15 @@ public class UiAsset implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@SequenceGenerator(name="UI_ASSET_ID_GENERATOR", sequenceName="ui_asset_id_generator")
+	@SequenceGenerator(name="UI_ASSET_ID_GENERATOR" )
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="UI_ASSET_ID_GENERATOR")
-	private long id;
+	private String id;
 
 	@Column(name="created_by")
 	private String createdBy;
 
 	@Column(name="created_date")
-	private Timestamp createdDate;
+	private BigInteger createdDate;
 
 	@Column(name="daily_profit")
 	private BigDecimal dailyProfit;
@@ -34,7 +34,7 @@ public class UiAsset implements Serializable {
 	private String lastModifiedBy;
 
 	@Column(name="last_modified_date")
-	private Timestamp lastModifiedDate;
+	private BigInteger lastModifiedDate;
 
 	@Column(name="total_assets")
 	private BigDecimal totalAssets;
@@ -43,16 +43,16 @@ public class UiAsset implements Serializable {
 	private BigDecimal totalProfit;
 
 	@Column(name="user_id")
-	private java.math.BigInteger userId;
+	private BigInteger userId;
 
 	public UiAsset() {
 	}
 
-	public Long getId() {
+	public String getId() {
 		return this.id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -64,11 +64,11 @@ public class UiAsset implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public Timestamp getCreatedDate() {
+	public BigInteger getCreatedDate() {
 		return this.createdDate;
 	}
 
-	public void setCreatedDate(Timestamp createdDate) {
+	public void setCreatedDate(BigInteger createdDate) {
 		this.createdDate = createdDate;
 	}
 
@@ -88,11 +88,11 @@ public class UiAsset implements Serializable {
 		this.lastModifiedBy = lastModifiedBy;
 	}
 
-	public Timestamp getLastModifiedDate() {
+	public BigInteger getLastModifiedDate() {
 		return this.lastModifiedDate;
 	}
 
-	public void setLastModifiedDate(Timestamp lastModifiedDate) {
+	public void setLastModifiedDate(BigInteger lastModifiedDate) {
 		this.lastModifiedDate = lastModifiedDate;
 	}
 
@@ -112,11 +112,11 @@ public class UiAsset implements Serializable {
 		this.totalProfit = totalProfit;
 	}
 
-	public java.math.BigInteger getUserId() {
+	public BigInteger getUserId() {
 		return this.userId;
 	}
 
-	public void setUserId(java.math.BigInteger userId) {
+	public void setUserId(BigInteger userId) {
 		this.userId = userId;
 	}
 

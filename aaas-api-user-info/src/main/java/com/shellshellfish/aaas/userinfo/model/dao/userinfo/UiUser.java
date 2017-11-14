@@ -2,7 +2,7 @@ package com.shellshellfish.aaas.userinfo.model.dao.userinfo;
 
 import java.io.Serializable;
 import javax.persistence.*;
-import java.sql.Date;
+import java.math.BigInteger;
 
 
 /**
@@ -16,14 +16,14 @@ public class UiUser implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@SequenceGenerator(name="UI_USER_ID_GENERATOR", sequenceName="ui_user_id_generator")
+	@SequenceGenerator(name="UI_USER_ID_GENERATOR" )
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="UI_USER_ID_GENERATOR")
-	private long id;
+	private String id;
 
 	private byte activated;
 
 	@Column(name="birth_age")
-	private Date birthAge;
+	private String birthAge;
 
 	@Column(name="cell_phone")
 	private String cellPhone;
@@ -32,16 +32,16 @@ public class UiUser implements Serializable {
 	private String createdBy;
 
 	@Column(name="created_date")
-	private Date createdDate;
+	private BigInteger createdDate;
 
 	@Column(name="last_modified_by")
 	private String lastModifiedBy;
 
 	@Column(name="last_modified_date")
-	private Date lastModifiedDate;
+	private BigInteger lastModifiedDate;
 
 	@Column(name="last_reset_date")
-	private Date lastResetDate;
+	private BigInteger lastResetDate;
 
 	private String occupation;
 
@@ -53,11 +53,11 @@ public class UiUser implements Serializable {
 	public UiUser() {
 	}
 
-	public Long getId() {
+	public String getId() {
 		return this.id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -69,11 +69,11 @@ public class UiUser implements Serializable {
 		this.activated = activated;
 	}
 
-	public Date getBirthAge() {
+	public String getBirthAge() {
 		return this.birthAge;
 	}
 
-	public void setBirthAge(Date birthAge) {
+	public void setBirthAge(String birthAge) {
 		this.birthAge = birthAge;
 	}
 
@@ -93,11 +93,11 @@ public class UiUser implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public Date getCreatedDate() {
+	public BigInteger getCreatedDate() {
 		return this.createdDate;
 	}
 
-	public void setCreatedDate(Date createdDate) {
+	public void setCreatedDate(BigInteger createdDate) {
 		this.createdDate = createdDate;
 	}
 
@@ -109,19 +109,19 @@ public class UiUser implements Serializable {
 		this.lastModifiedBy = lastModifiedBy;
 	}
 
-	public Date getLastModifiedDate() {
+	public BigInteger getLastModifiedDate() {
 		return this.lastModifiedDate;
 	}
 
-	public void setLastModifiedDate(Date lastModifiedDate) {
+	public void setLastModifiedDate(BigInteger lastModifiedDate) {
 		this.lastModifiedDate = lastModifiedDate;
 	}
 
-	public Date getLastResetDate() {
+	public BigInteger getLastResetDate() {
 		return this.lastResetDate;
 	}
 
-	public void setLastResetDate(Date lastResetDate) {
+	public void setLastResetDate(BigInteger lastResetDate) {
 		this.lastResetDate = lastResetDate;
 	}
 

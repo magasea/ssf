@@ -2,7 +2,6 @@ package com.shellshellfish.aaas.userinfo.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,7 +15,7 @@ import java.util.*;
 @Controller
 @RequestMapping("/api")
 public class UserExController {
-    public static final Logger logger = LoggerFactory.getLogger(RestApiController.class);
+    public static final Logger logger = LoggerFactory.getLogger(UserInfoController.class);
 
     @RequestMapping(value = "/userInfo/{userId}/message", method = RequestMethod.GET)
     @ResponseBody

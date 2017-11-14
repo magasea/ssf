@@ -144,7 +144,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public List<UserPersonMsg> getUserPersonMsg(String userUuid) {
+    public List<UserPersonMsg> getUserPersonMsg(String userUuid) throws Exception {
         Long userId = getUserIdFromUUID(userUuid);
         List<UiPersonMsg> uiPersonMsgs = userInfoRepoService.getUiPersonMsg(userId);
         List<UserPersonMsg> userPersonMsgs = new ArrayList<>();
@@ -158,7 +158,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public List<UserPersonMsg> updateUserPersonMsg(List<String> msgIds, String userUuid,
-        Boolean readedStatus) {
+        Boolean readedStatus) throws Exception {
         Long userId = getUserIdFromUUID(userUuid);
         List<UiPersonMsg> uiPersonMsgs = userInfoRepoService.updateUiUserPersonMsg(msgIds, userId,
             readedStatus);
@@ -171,7 +171,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         return userPersonMsgs;
     }
 
-    private Long getUserIdFromUUID(String userUuid){
+    private Long getUserIdFromUUID(String userUuid) throws Exception {
         Long userId =  userInfoRepoService.getUserIdFromUUID(userUuid);
         return userId;
     }

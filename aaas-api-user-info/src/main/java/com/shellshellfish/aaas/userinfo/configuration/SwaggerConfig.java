@@ -19,7 +19,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.shellshellfish"
-                    + ".aaas.common.controller"))
+                    + ".aaas.userinfo.controller"))
                 .paths(regex("/api.*"))
                 .build()
                 .apiInfo(metaData());
