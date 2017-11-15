@@ -5,28 +5,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ResourceManager {
-
+	public static String URL_HEAD="/api/useraccount";
 	public ResourceManager(){;}
 	
 	public HashMap<String ,Object> response(String pagename,String[] argv){
 	    
 		HashMap<String, Object> map = null;
 		if (pagename.equals("login")) {
-			String telnum=argv[0];
-			map = logindesc(telnum);
+			map = logindesc();
 		} else if (pagename.equals("register")) {
 			String telnum=argv[0];
 			map = registerdesc(telnum);
 		} else if (pagename.equals("forgottenpwd")) {
 			String telnum=argv[0];
 			map = forgottenpwddesc(telnum);
-		} else if (pagename.equals("pwdsetting")) {
+		} else if (pagename.equals("pwdsettings")) {
 			map = pwdSettingDesc(argv);
-		} else if (pagename.equals("smsverification")) {
+		} else if (pagename.equals("smsverifications")) {
 			map = smsVerificationDesc(argv);
-		} else if (pagename.equals("addbankcard")) {
+		} else if (pagename.equals("bankcards")) {
 			map = addBankCardDesc(argv);
-		} else if (pagename.equals("bklist")) {
+		} else if (pagename.equals("supportbanks")) {
 			map = bkListDesc();
 		}
 		return map;
@@ -35,7 +34,6 @@ public class ResourceManager {
 	//for forgottenpwd url
 	public HashMap<String,Object> forgottenpwddesc(String telnum){
 		HashMap<String,Object> rsmap= new HashMap<String,Object>();
-		
 		rsmap.put("name","forgottenpwd");
 		
 		if (telnum==null)
@@ -48,124 +46,144 @@ public class ResourceManager {
 		rsmap.put("pwdsetting",""); //for 密码设置
 		
 		HashMap<String,Object> linkitemmap=new HashMap<String,Object>();
-		HashMap<String,Object> selfmap=new HashMap<String,Object>();
 		HashMap<String,Object> selfitemmap=new HashMap<String,Object>();
-		selfitemmap.put("href", "/api/forgottenpwd");
-		selfitemmap.put("describedBy", "/api/forgottenpwd.json");
+		selfitemmap.put("href", URL_HEAD+"/pwdforgettingpage?telnum="+telnum);
+		selfitemmap.put("describedBy", URL_HEAD+"/pwdforgettingpage.json?telnum="+telnum);
 		linkitemmap.put("self",selfitemmap);
 		
-		HashMap<String,Object> relatedmap=new HashMap<String,Object>();
-		HashMap<String,Object> relateditem1map=new HashMap<String,Object>();
-		relateditem1map.put("href", "/api/verifycodeget");		
-		relatedmap.put("verifycodeget",relateditem1map);
-		linkitemmap.put("related", relatedmap);
+		HashMap<String,Object>[] relateditem1map=new HashMap[1];
+		relateditem1map[0]=new HashMap<String,Object>();
+		relateditem1map[0].put("href", URL_HEAD+"/verifycodeget");	
+		relateditem1map[0].put("name", URL_HEAD+"/verifycodeget");
+		linkitemmap.put("related", relateditem1map);
 		
 		//for pwd setting button 
-		
-		HashMap<String,Object> registermap=new HashMap<String,Object>();
-		HashMap<String,Object> registeritemmap=new HashMap<String,Object>();
-		registeritemmap.put("href", "/api/topwdsetting"); // for password setting button
-		registeritemmap.put("describedBy", "/api/pwdsetting.json");
-		registeritemmap.put("method", "POST");
-		registermap.put("topwdsetting", registeritemmap);		 
-		linkitemmap.put("execute", registermap);// post
+		HashMap<String,Object>[] registeritemmap=new HashMap[1];
+		registeritemmap[0]=new HashMap<String,Object>();
+		registeritemmap[0].put("href", URL_HEAD+"/pwdsettingpage"); // for password setting button
+		registeritemmap[0].put("describedBy", URL_HEAD+"/pwdsettingpage.json");
+		registeritemmap[0].put("method", "POST");
+		registeritemmap[0].put("name", "pwdsettingpage");
+		linkitemmap.put("execute", registeritemmap);// post
 		
 		rsmap.put("_links", linkitemmap);
 		return rsmap;
-		
-		
 	}
 	
 	//for register url
 	public HashMap<String,Object> registerdesc(String telnum){
-		HashMap<String,Object> rsmap= new HashMap<String,Object>();
-		rsmap.put("name","register");
+		HashMap<String,Object> rsMap= new HashMap<String,Object>();
+		HashMap<String, Object>[] mapArray = new HashMap[2];
+		mapArray[0] = new HashMap<String,Object>();
+		mapArray[0].put("name","register");
 		//rsmap.put("title","注册");
-		rsmap.put("telsuffix","");
+		mapArray[0].put("telsuffix","");
 		
 		if (telnum==null)
-		   rsmap.put("telnum","");
+		   mapArray[0].put("telnum","");
 		else
-		   rsmap.put("telnum",telnum);
+		   mapArray[0].put("telnum",telnum);
 		
-		rsmap.put("agreement","");
+		mapArray[0].put("agreement","");
 		
 		HashMap<String,Object> linkitemmap=new HashMap<String,Object>();
-		HashMap<String,Object> selfmap=new HashMap<String,Object>();
 		HashMap<String,Object> selfitemmap=new HashMap<String,Object>();
-		selfitemmap.put("href", "/api/register");
-		selfitemmap.put("describedBy", "/api/register.json");
+		selfitemmap.put("href", URL_HEAD+"/registrationpage?telnum="+telnum);
+		selfitemmap.put("describedBy", URL_HEAD+"/registrationpage.json?telnum="+telnum);
 		linkitemmap.put("self",selfitemmap);
 		
-		HashMap<String,Object> relatedmap=new HashMap<String,Object>();
-		HashMap<String,Object> relateditem1map=new HashMap<String,Object>();
-		relateditem1map.put("href", "/api/register");		
-		relatedmap.put("agreement",relateditem1map);
+		HashMap<String,Object>[] relateditemmap=new HashMap[1];
+		relateditemmap[0] = new HashMap<String,Object>();
+		relateditemmap[0].put("href",  URL_HEAD+"/agreement");
+		relateditemmap[0].put("name", "agreement");
+		linkitemmap.put("related", relateditemmap);
 		
-		HashMap<String,Object> relateditem2map=new HashMap<String,Object>();
-		relateditem2map.put("href", "/api/agreement");
-		relatedmap.put("agreement",relateditem2map);		
-		linkitemmap.put("related", relatedmap);
-		
-		HashMap<String,Object> executemap=new HashMap<String,Object>();
-		HashMap<String,Object> registermap=new HashMap<String,Object>();
-		HashMap<String,Object> registeritemmap=new HashMap<String,Object>();
-		registeritemmap.put("href", "/api/tosmsverification");
-		registeritemmap.put("describedBy", "/api/smsverification.json");
-		registeritemmap.put("method", "POST");
-		registermap.put("register", registeritemmap);
+		HashMap<String,Object>[] registeritemmap=new HashMap[1];
+		registeritemmap[0] = new HashMap<String,Object>();
+		registeritemmap[0].put("href", URL_HEAD+"/smsverificationpage");
+		registeritemmap[0].put("describedBy", URL_HEAD+"/smsverificationpage.json");
+		registeritemmap[0].put("method", "POST");
+		registeritemmap[0].put("name", "register");
 		 
-		linkitemmap.put("execute", registermap);// post
+		linkitemmap.put("execute", registeritemmap);// post
 		
-		rsmap.put("_links", linkitemmap);
+		mapArray[0].put("_links", linkitemmap);
+		/////////////////////////////////////////
+		mapArray[1] = new HashMap<String,Object>();
+		mapArray[1].put("name","register");
+		//rsmap.put("title","注册");
+		mapArray[1].put("telsuffix","");
 		
-	    return rsmap;
+		if (telnum==null)
+		   mapArray[1].put("telnum","");
+		else
+		   mapArray[1].put("telnum",telnum);
+		
+		mapArray[1].put("agreement","");
+		
+		linkitemmap=new HashMap<String,Object>();
+		selfitemmap=new HashMap<String,Object>();
+		selfitemmap.put("href", URL_HEAD+"/registrationpage?telnum="+telnum);
+		selfitemmap.put("describedBy", URL_HEAD+"/registrationpage.json?telnum="+telnum);
+		linkitemmap.put("self",selfitemmap);
+		
+		HashMap<String,Object>[] relateditemmap2=new HashMap[1];
+		relateditemmap2[0] = new HashMap<String,Object>();
+		relateditemmap2[0].put("href", URL_HEAD+"/agreement");
+		relateditemmap2[0].put("name", "agreement");
+		linkitemmap.put("related", relateditemmap2);
+		
+		HashMap<String,Object>[] registeritemmap2=new HashMap[1];
+		registeritemmap2[0] = new HashMap<String,Object>();
+		registeritemmap2[0].put("href", URL_HEAD+"/smsverificationpage");
+		registeritemmap2[0].put("describedBy", URL_HEAD+"/smsverificationpage.json");
+		registeritemmap2[0].put("method", "POST");
+		registeritemmap2[0].put("name", "register");
+		linkitemmap.put("execute", registeritemmap2);// post
+		mapArray[1].put("_links", linkitemmap);
+		
+		rsMap.put("items", mapArray);
+		rsMap.put("_total", "2");
+	    return rsMap;
 	}
 	
 	//for login url
-	public HashMap<String,Object> logindesc(String telnum){
+	public HashMap<String,Object> logindesc(){
 		//login resource
 		HashMap<String,Object> rsmap= new HashMap<String,Object>();
 		rsmap.put("name","login");
 		//rsmap.put("title","登录");
 		
-		if (telnum==null)
-			rsmap.put("telnum","");
-		else
-			rsmap.put("telnum",telnum);
+		rsmap.put("telnum","");
 			
 		rsmap.put("password","");
 		//rsmap.put("describedby", "/api/login.json");
 		
 		HashMap<String,Object> linkitemmap=new HashMap<String,Object>();
-		HashMap<String,Object> selfmap=new HashMap<String,Object>();
 		HashMap<String,Object> selfitemmap=new HashMap<String,Object>();
-		selfitemmap.put("href", "/api/login");
-		selfitemmap.put("describedBy", "/api/login.json");
+		selfitemmap.put("href", URL_HEAD+"/loginpage");
+		selfitemmap.put("describedBy", URL_HEAD+"/loginpage.json");
+		selfitemmap.put("name", "login");
 		linkitemmap.put("self",selfitemmap);
-		
 	    
-	    HashMap<String,Object> relatedmap=new HashMap<String,Object>();
-		HashMap<String,Object> relateditem1map=new HashMap<String,Object>();
-		relateditem1map.put("href", "/api/register");
-		//HashMap<String,Object> fastregismap=new HashMap<String,Object>();
+		HashMap<String,Object>[] relateditemmap=new HashMap[2];
+		relateditemmap[0]=new HashMap<String,Object>();
+		relateditemmap[0].put("name", "fastRegistration");
+		relateditemmap[0].put("href", URL_HEAD+"/registrationpage");
 		
-		relatedmap.put("fastRegistration",relateditem1map);
+		relateditemmap[1]=new HashMap<String,Object>();
+		relateditemmap[1].put("name", "forgottenPwd");
+		relateditemmap[1].put("href", URL_HEAD+"/pwdforgettingpage");
+		linkitemmap.put("related", relateditemmap);
 		
-		HashMap<String,Object> relateditem2map=new HashMap<String,Object>();
-		relateditem2map.put("href", "/api/forgottenpwd");
-		relatedmap.put("forgottenPwd",relateditem2map);		
-		linkitemmap.put("related", relatedmap);
-		
-		
-		HashMap<String,Object> loginmap=new HashMap<String,Object>();
-		HashMap<String,Object> loginitemmap=new HashMap<String,Object>();
-		loginitemmap.put("href", "/api/loginverify");
-		loginitemmap.put("describedBy", "/api/loginverify.json");
-		loginitemmap.put("method", "POST");
-		loginmap.put("login", loginitemmap);
+		HashMap<String,Object>[] loginitemmap=new HashMap[1];
+		loginitemmap[0]=new HashMap<String,Object>();
+		loginitemmap[0].put("name", "login");
+		loginitemmap[0].put("href", URL_HEAD+"/loginverify");
+		loginitemmap[0].put("describedBy", URL_HEAD+"/loginverify.json");
+		loginitemmap[0].put("method", "POST");
 		//executemap.put("execute",loginmap); 
-		linkitemmap.put("execute", loginmap);// post
+		linkitemmap.put("execute", loginitemmap);// post
 		
 		rsmap.put("_links", linkitemmap);
 		return rsmap;
@@ -222,7 +240,7 @@ public class ResourceManager {
 			return rsmap;
 		}
 		// pwdsetting resource
-		rsmap.put("name", "pwdsetting");
+		rsmap.put("name", "pwdsettings");
 		// rsmap.put("title", "密码设置");
 		rsmap.put("pwdsetting", "");
 		rsmap.put("pwdconfirm", "");
@@ -230,17 +248,18 @@ public class ResourceManager {
 
 		HashMap<String, Object> linkitemmap = new HashMap<String, Object>();
 		HashMap<String, Object> selfitemmap = new HashMap<String, Object>();
-		selfitemmap.put("href", "/api/pwdsetting");
-		selfitemmap.put("describedBy", "/api/pwdsetting.json");
+		selfitemmap.put("href", URL_HEAD+"/pwdsettingpage?telnum="+telnum[0]);
+		selfitemmap.put("describedBy", URL_HEAD+"/pwdsettingpage.json?telnum="+telnum[0]);
+		//selfitemmap.put("name", "pwdsettings");
 		linkitemmap.put("self", selfitemmap);
 
-		HashMap<String, Object> executemap = new HashMap<String, Object>();
-		HashMap<String, Object> loginitemmap = new HashMap<String, Object>();
-		loginitemmap.put("href", "/api/pwdconfirm");
-		loginitemmap.put("describedBy", "/api/pwdconfirm.json");
-		loginitemmap.put("method", "POST");
-		executemap.put("pwdsetting", loginitemmap);
-		linkitemmap.put("execute", executemap);// post
+		HashMap<String, Object>[] loginitemmap = new HashMap[1];
+		loginitemmap[0] = new HashMap<String, Object>();
+		loginitemmap[0].put("href", URL_HEAD+"/loginpage");
+		loginitemmap[0].put("describedBy", URL_HEAD+"/loginpage.json");
+		loginitemmap[0].put("method", "POST");
+		loginitemmap[0].put("name","pwdsetting");
+		linkitemmap.put("execute", loginitemmap);// post
 
 		rsmap.put("_links", linkitemmap);
 		return rsmap;
@@ -259,7 +278,7 @@ public class ResourceManager {
 		}
 		/// =====end=======///
 
-		rsmap.put("name", "smsverification");
+		rsmap.put("name", "smsverifications");
 		// rsmap.put("title", "短信验证");
 		rsmap.put("smssuffix", "");
 		rsmap.put("telnum", telnum[0]);
@@ -267,67 +286,68 @@ public class ResourceManager {
 
 		HashMap<String, Object> linkitemmap = new HashMap<String, Object>();
 		HashMap<String, Object> selfitemmap = new HashMap<String, Object>();
-		selfitemmap.put("href", "/api/smsverification");
-		selfitemmap.put("describedBy", "/api/smsverification.json");
+		selfitemmap.put("href", URL_HEAD+"/smsverificationpage?telnum="+telnum[0]);
+		selfitemmap.put("describedBy", URL_HEAD+"/smsverificationpage.json?telnum="+telnum[0]);
 		linkitemmap.put("self", selfitemmap);
 
 		HashMap<String, Object> relatedmap = new HashMap<String, Object>();
-		HashMap<String, Object> relateditem1map = new HashMap<String, Object>();
-		relateditem1map.put("href", "/api/resend");
-		relatedmap.put("resendidentifycode", relateditem1map);
-		linkitemmap.put("related", relatedmap);
+		HashMap<String, Object>[] relateditem1map = new HashMap[1];
+		relateditem1map[0] = new HashMap<String, Object>();
+		relateditem1map[0].put("href", URL_HEAD+"/resendmsg");
+		relateditem1map[0].put("name", "resendidentifycode");
+		linkitemmap.put("related", relateditem1map);
 
-		HashMap<String, Object> executemap = new HashMap<String, Object>();
-		HashMap<String, Object> smsitemmap = new HashMap<String, Object>();
-		smsitemmap.put("href", "/api/smsverconfirm");
-		smsitemmap.put("describedBy", "/api/smsverconfirm.json");
-		smsitemmap.put("method", "POST");
-		executemap.put("conform", smsitemmap);
-		linkitemmap.put("execute", executemap);// post
+		HashMap<String, Object>[] smsitemmap = new HashMap[1];
+		smsitemmap[0] = new HashMap<String, Object>();
+		smsitemmap[0].put("href", URL_HEAD+"/smsverifyconfirmation");
+		smsitemmap[0].put("describedBy", URL_HEAD+"/smsverifyconfirmation.json");
+		smsitemmap[0].put("method", "POST");
+		smsitemmap[0].put("name", "conform");
+		linkitemmap.put("execute", smsitemmap);// post
 
 		rsmap.put("_links", linkitemmap);
 		return rsmap;
 	}
 
 	// for addbankcard url
-	public HashMap<String, Object> addBankCardDesc(String[] telnum) {
+	public HashMap<String, Object> addBankCardDesc(String[] args) {
 		// addbankcard resource
 		HashMap<String, Object> rsmap = new HashMap<String, Object>();
 
 		/// =====start======///
 		Pattern regExp = Pattern.compile("^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$");
-		Matcher m = regExp.matcher(telnum[0]);
+		Matcher m = regExp.matcher(args[1]);
 		if (!m.find()) {
 			rsmap.put("status", "手机号格式不正确");
 			return rsmap;
 		}
 		/// =====end=======///
 
-		rsmap.put("name", "addbankcard");
+		rsmap.put("name", "bankcards");
 		// rsmap.put("title", "短信验证");
-		rsmap.put("cardnumber", "");
+		rsmap.put("bankcardnumber", "");
 		rsmap.put("supportedcard ", "");
-		rsmap.put("telnum ", telnum[0]);
+		rsmap.put("telnum ", args[1]);
 
 		HashMap<String, Object> linkitemmap = new HashMap<String, Object>();
 		HashMap<String, Object> selfitemmap = new HashMap<String, Object>();
-		selfitemmap.put("href", "/api/addbankcard");
-		selfitemmap.put("describedBy", "/api/addbankcard.json");
+		selfitemmap.put("href", URL_HEAD + "/registerations/" + args[0] + "/bankcards?telnum=" + args[1]);
+		selfitemmap.put("describedBy", URL_HEAD + "/registerations/" + args[0] + "/bankcards.json?telnum=" + args[1]);
 		linkitemmap.put("self", selfitemmap);
 
-		HashMap<String, Object> relatedmap = new HashMap<String, Object>();
-		HashMap<String, Object> relateditem1map = new HashMap<String, Object>();
-		relateditem1map.put("href", "/api/viewbklist");
-		relatedmap.put("view", relateditem1map);
-		linkitemmap.put("related", relatedmap);
+		HashMap<String, Object>[] relateditem1map = new HashMap[1];
+		relateditem1map[0] = new HashMap<String, Object>();
+		relateditem1map[0].put("href", URL_HEAD+"/selectbanks");
+		relateditem1map[0].put("name", "view");
+		linkitemmap.put("related", relateditem1map);
 
-		HashMap<String, Object> executemap = new HashMap<String, Object>();
-		HashMap<String, Object> smsitemmap = new HashMap<String, Object>();
-		smsitemmap.put("href", "/api/bkverrify");
-		smsitemmap.put("describedBy", "/api/bkverrify.json");
-		smsitemmap.put("method", "POST");
-		executemap.put("next", smsitemmap);
-		linkitemmap.put("execute", executemap);// post
+		HashMap<String, Object>[] smsitemmap = new HashMap[1];
+		smsitemmap[0] = new HashMap<String, Object>();
+		smsitemmap[0].put("href", URL_HEAD+"/bankcardverification");
+		smsitemmap[0].put("describedBy", URL_HEAD+"/bankcardverification.json");
+		smsitemmap[0].put("method", "GET");
+		smsitemmap[0].put("name", "next");
+		linkitemmap.put("execute", smsitemmap);// post
 
 		rsmap.put("_links", linkitemmap);
 		return rsmap;
@@ -337,10 +357,15 @@ public class ResourceManager {
 	public HashMap<String, Object> bkListDesc() {
 		// bklist resource
 		HashMap<String, Object> rsmap = new HashMap<String, Object>();
+		HashMap<String, Object>[] arrayMap = new HashMap[2];
+		arrayMap[0] = new HashMap<String, Object>();
+		arrayMap[0].put("bank", "工商银行");
+		
+		arrayMap[1] = new HashMap<String, Object>();
+		arrayMap[1].put("bank", "广发银行");
 		rsmap.put("name", "bklist");
-		// rsmap.put("title", "短信验证");
-		rsmap.put("bank", "");
-
+		rsmap.put("bank", arrayMap);
+		rsmap.put("_total", "2");
 		return rsmap;
 	}
 	
