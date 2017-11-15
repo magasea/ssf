@@ -13,4 +13,5 @@ public interface AccountService {
 	boolean isRegisterredTel(String cellphone);
 	boolean isSmsVerified(String cellphone,String verfiedcode);
 	boolean addBankCard(String arg[]);
+	boolean sendSmsMessage(String phone);
 }

@@ -1,7 +1,7 @@
 ---
 server:
   port: 8080
-  contextPath: /ssflogin
+  contextPath: /
 ---
 spring:
   profiles: local, default

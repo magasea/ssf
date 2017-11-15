@@ -38,9 +38,11 @@ public class UserRepositoryTest {
         user.setPasswordHash(MD5.getMD5("abccd4djsN-999"));
         user.setCreatedBy("dev2");
         user.setUuid(UUID.randomUUID().toString());
-        user.setId(29);
+        user.setId(28);
         userRepository.save(user);
         
+        List<User> targetuser = userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
+        System.out.println(targetuser);
         
     }
 }
