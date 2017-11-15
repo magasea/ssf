@@ -4,6 +4,7 @@ import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAsset;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiFriendRule;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPortfolio;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiSysMsg;
@@ -14,6 +15,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.invest.AssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dto.invest.TradeLog;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoFriendRule;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserSysMsg;
@@ -196,6 +198,19 @@ public class UserInfoServiceImpl implements UserInfoService {
         tradeLogList = UserInfoUtils.convertList(tradeLogs, TradeLog.class);
         return  UserInfoUtils.convertListToPage(tradeLogList, pageRequest, tradeLogsPage
             .getTotalElements());
+    }
+
+    @Override
+    public List<UserInfoFriendRule> getUserInfoFriendRules(Long bankId)
+        throws InstantiationException, IllegalAccessException {
+        List<UiFriendRule> uiFriendRules = userInfoRepoService.getUiFriendRule(bankId);
+        List<UserInfoFriendRule> userInfoFriendRules = new ArrayList<>();
+        if(CollectionUtils.isEmpty(uiFriendRules)){
+            return userInfoFriendRules;
+        }else{
+            userInfoFriendRules = UserInfoUtils.convertList(uiFriendRules, UserInfoFriendRule.class);
+            return userInfoFriendRules;
+        }
     }
 
     private Long getUserIdFromUUID(String userUuid) throws Exception {

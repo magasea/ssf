@@ -7,6 +7,7 @@ import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserProdMsgR
 import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserSysMsgRepo;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoAssetsRepository;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoBankCardsRepository;
+import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoFriendRuleRepository;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserPortfolioRepository;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserTradeLogRepository;
@@ -14,6 +15,7 @@ import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAsset;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiFriendRule;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPortfolio;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiProdMsg;
@@ -47,6 +49,9 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
 
   @Autowired
   UserInfoRepository userInfoRepository;
+
+  @Autowired
+  UserInfoFriendRuleRepository userInfoFriendRuleRepository;
 
   @Autowired
   UserTradeLogRepository userTradeLogRepository;
@@ -174,6 +179,15 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
   @Override
   public Iterable<UiTrdLog> addUiTrdLog(List<UiTrdLog> trdLogs) {
     return userTradeLogRepository.save(trdLogs);
+  }
+
+  @Override
+  public List<UiFriendRule> getUiFriendRule(Long bankId) {
+    if(null == bankId) {
+      return userInfoFriendRuleRepository.findAll();
+    }else{
+      return userInfoFriendRuleRepository.findAllByBankId(BigInteger.valueOf(bankId));
+    }
   }
 
 }

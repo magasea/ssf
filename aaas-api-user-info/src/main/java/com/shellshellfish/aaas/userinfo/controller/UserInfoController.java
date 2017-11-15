@@ -8,6 +8,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.invest.AssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dto.invest.TradeLog;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoFriendRule;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserSysMsg;
@@ -244,6 +245,17 @@ public class UserInfoController {
 
 		Map<String, Object> result = new HashMap<>();
 		result.put("_items", tradeLogs);
+		result.put("_page","");
+		return new ResponseEntity<Object>(result , HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/userinfo/friendrules/{userUuid}", method = RequestMethod.GET)
+	public ResponseEntity<?> getTradLogsOfUser(@RequestParam( required = false) Long bankId)
+			throws Exception {
+
+		List<UserInfoFriendRule> userInfoFriendRules = userInfoService.getUserInfoFriendRules(bankId);
+		Map<String, Object> result = new HashMap<>();
+		result.put("_items", userInfoFriendRules);
 		result.put("_page","");
 		return new ResponseEntity<Object>(result , HttpStatus.OK);
 	}
