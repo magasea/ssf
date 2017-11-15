@@ -6,6 +6,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.invest.AssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dto.invest.TradeLog;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoFriendRule;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
@@ -44,5 +45,7 @@ public interface UserInfoService {
 
     List<UserInfoFriendRule> getUserInfoFriendRules(Long bankId)
         throws InstantiationException, IllegalAccessException;
+
+    UserInfoCompanyInfo getCompanyInfo(String userUuid, Long bankId);
 
 }

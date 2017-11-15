@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.userinfo.dao.service;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAsset;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiFriendRule;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPortfolio;
@@ -50,4 +51,8 @@ public interface UserInfoRepoService {
   Iterable<UiTrdLog> addUiTrdLog(List<UiTrdLog> trdLogs);
 
   List<UiFriendRule> getUiFriendRule(Long bankId);
+
+  UiCompanyInfo getCompanyInfo(Long id);
+
+  UiCompanyInfo addCompanyInfo(UiCompanyInfo uiCompanyInfo);
 }

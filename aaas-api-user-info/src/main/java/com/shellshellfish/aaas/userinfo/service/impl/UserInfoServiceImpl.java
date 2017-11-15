@@ -4,6 +4,7 @@ import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAsset;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiFriendRule;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPortfolio;
@@ -15,6 +16,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.invest.AssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dto.invest.TradeLog;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoFriendRule;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
@@ -33,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -212,6 +215,24 @@ public class UserInfoServiceImpl implements UserInfoService {
             return userInfoFriendRules;
         }
     }
+
+    @Override
+    public UserInfoCompanyInfo getCompanyInfo(String userUuid, Long bankId) {
+        Long id = getCompanyId(userUuid, bankId);
+        UiCompanyInfo uiCompanyInfo =  userInfoRepoService.getCompanyInfo(id);
+        UserInfoCompanyInfo userInfoCompanyInfo = new UserInfoCompanyInfo();
+        if(null == uiCompanyInfo){
+            return userInfoCompanyInfo;
+        }
+        BeanUtils.copyProperties(uiCompanyInfo, userInfoCompanyInfo);
+        return userInfoCompanyInfo;
+
+    }
+    //TODO: this function will be adjusted by business rule
+    private Long getCompanyId(String userUuid, Long bankId) {
+        return 1L;
+    }
+
 
     private Long getUserIdFromUUID(String userUuid) throws Exception {
         Long userId =  userInfoRepoService.getUserIdFromUUID(userUuid);

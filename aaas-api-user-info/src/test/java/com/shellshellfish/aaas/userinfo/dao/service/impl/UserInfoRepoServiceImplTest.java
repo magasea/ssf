@@ -10,6 +10,7 @@ import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoRepositor
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiUser;
@@ -33,6 +34,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 @ActiveProfiles(profiles="prod")
 public class UserInfoRepoServiceImplTest {
+
+  @Test
+  public void addCompanyInfo() throws Exception {
+
+    UiCompanyInfo uiCompanyInfo = new UiCompanyInfo();
+    uiCompanyInfo.setCompanyInfo("zn;lan;flkjanewjn;lakjn中午只能你好噢虢");
+    uiCompanyInfo.setServiceNum("400-838-217314gj");
+    userInfoRepoService.addCompanyInfo(uiCompanyInfo);
+  }
 
   @Autowired
   UserInfoRepoService userInfoRepoService;
