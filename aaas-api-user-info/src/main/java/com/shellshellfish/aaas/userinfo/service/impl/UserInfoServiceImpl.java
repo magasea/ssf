@@ -7,9 +7,11 @@ import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPortfolio;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiSysMsg;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.bankcard.BankCard;
 import com.shellshellfish.aaas.userinfo.model.dto.invest.AssetDailyRept;
+import com.shellshellfish.aaas.userinfo.model.dto.invest.TradeLog;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPersonMsg;
@@ -17,20 +19,29 @@ import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserSysMsg;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.util.BankUtil;
+import com.shellshellfish.aaas.userinfo.util.UserInfoUtils;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.hibernate.mapping.Collection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Service("userInfoService")
 @Transactional
 public class UserInfoServiceImpl implements UserInfoService {
+
+    Logger logger = LoggerFactory.getLogger(UserInfoServiceImpl.class);
 
     @Autowired
     UserInfoRepoService userInfoRepoService;
@@ -171,9 +182,24 @@ public class UserInfoServiceImpl implements UserInfoService {
         return userPersonMsgs;
     }
 
+    @Override
+    public Page<TradeLog> getUserTradeLogs(String userUuid, PageRequest pageRequest) throws
+        Exception {
+        Long userId = getUserIdFromUUID(userUuid);
+        Page<UiTrdLog> tradeLogsPage = userInfoRepoService.getUiTrdLog(pageRequest, userId);
+        List<UiTrdLog> tradeLogs = tradeLogsPage.getContent();
+        List<TradeLog> tradeLogList = new ArrayList<>();
+        if(CollectionUtils.isEmpty(tradeLogs)){
+            logger.error("failed to retrieve trade logs for user with uuid:" + userUuid);
+            return UserInfoUtils.convertListToPage(tradeLogList, pageRequest, 0);
+        }
+        tradeLogList = UserInfoUtils.convertList(tradeLogs, TradeLog.class);
+        return  UserInfoUtils.convertListToPage(tradeLogList, pageRequest, tradeLogsPage
+            .getTotalElements());
+    }
+
     private Long getUserIdFromUUID(String userUuid) throws Exception {
         Long userId =  userInfoRepoService.getUserIdFromUUID(userUuid);
         return userId;
     }
-
 }

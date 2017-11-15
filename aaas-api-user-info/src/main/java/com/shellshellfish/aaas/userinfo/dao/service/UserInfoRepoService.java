@@ -7,8 +7,11 @@ import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPortfolio;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiProdMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiSysMsg;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiUser;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 public interface UserInfoRepoService {
   UiUser getUserInfoBase(Long userId);
@@ -40,4 +43,8 @@ public interface UserInfoRepoService {
   Long getUserIdFromUUID(String userUuid) throws Exception;
 
   UiPersonMsg addUiPersonMsg(UiPersonMsg uiPersonMsg);
+
+  Page<UiTrdLog> getUiTrdLog(PageRequest pageRequest, Long userId);
+
+  Iterable<UiTrdLog> addUiTrdLog(List<UiTrdLog> trdLogs);
 }

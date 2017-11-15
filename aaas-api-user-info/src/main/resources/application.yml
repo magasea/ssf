@@ -20,6 +20,7 @@ datasource:
     defaultSchema:
     maxPoolSize: 10
     hibernate:
+
       hbm2ddl.method: create-drop
       show_sql: true
       format_sql: true
@@ -46,6 +47,8 @@ datasource:
     defaultSchema: ssfuser
     maxPoolSize: 20
     hibernate:
+      jdbc:
+        batch_size: 50
       hbm2ddl.method: update
       show_sql: true
       format_sql: true

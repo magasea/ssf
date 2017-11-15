@@ -9,6 +9,7 @@ import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -30,9 +31,8 @@ import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 @ComponentScan
-@EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.userinfo.dao.repositories.mysql",
-		entityManagerFactoryRef = "entityManagerFactory",
-		transactionManagerRef = "transactionManager")
+@EntityScan("com.shellshellfish.aaas.userinfo.model")
+@EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.userinfo.dao.repositories.mysql")
 @EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.userinfo.dao.repositories.mongo")
 @EnableTransactionManagement
 
