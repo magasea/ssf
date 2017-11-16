@@ -175,18 +175,13 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public List<UserPersonMsg> updateUserPersonMsg(List<String> msgIds, String userUuid,
+    public Boolean updateUserPersonMsg(List<String> msgIds, String userUuid,
         Boolean readedStatus) throws Exception {
         Long userId = getUserIdFromUUID(userUuid);
-        List<UiPersonMsg> uiPersonMsgs = userInfoRepoService.updateUiUserPersonMsg(msgIds, userId,
+        Boolean result = userInfoRepoService.updateUiUserPersonMsg(msgIds, userId,
             readedStatus);
-        List<UserPersonMsg> userPersonMsgs = new ArrayList<>();
-        for(UiPersonMsg uiPersonMsg: uiPersonMsgs){
-            UserPersonMsg userPersonMsg = new UserPersonMsg();
-            BeanUtils.copyProperties(uiPersonMsg, userPersonMsg);
-            userPersonMsgs.add(userPersonMsg);
-        }
-        return userPersonMsgs;
+
+        return result;
     }
 
     @Override

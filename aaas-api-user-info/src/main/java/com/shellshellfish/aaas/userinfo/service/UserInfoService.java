@@ -39,7 +39,7 @@ public interface UserInfoService {
 
     List<UserPersonMsg> getUserPersonMsg(String userUuid) throws Exception;
 
-    List<UserPersonMsg> updateUserPersonMsg(List<String> msgId, String userUuid,
+    Boolean updateUserPersonMsg(List<String> msgId, String userUuid,
         Boolean readedStatus) throws Exception;
 
     Page<TradeLog> getUserTradeLogs(String userUuid, PageRequest pageRequest) throws Exception;

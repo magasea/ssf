@@ -38,7 +38,7 @@ public interface UserInfoRepoService {
 
   List<UiProdMsg> getUiProdMsg(Long prodId);
 
-  List<UiPersonMsg> updateUiUserPersonMsg(List<String> msgs, Long user_id, Boolean readedStatus);
+  Boolean updateUiUserPersonMsg(List<String> msgs, Long user_id, Boolean readedStatus);
 
   List<UiSysMsg> getUiSysMsg();
 
