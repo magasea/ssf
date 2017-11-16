@@ -6,6 +6,7 @@ import com.shellshellfish.aaas.userinfo.util.UserInfoUtils;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.util.Map.Entry;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -48,7 +49,7 @@ public class AopLinkResourcesAspect {
         ResponseEntity<?> entity = (ResponseEntity) value;
         Map<String, Object> entityMap = (Map)entity.getBody();
         if(!entityMap.containsKey("_links")){
-            entityMap.put("_links", "");
+            entityMap.put("_links", new HashMap<String, Object>());
         }
         logger.info("{}",entityMap.get("_links"));
         Map<String, String> cond = new HashMap<>();
@@ -59,6 +60,11 @@ public class AopLinkResourcesAspect {
         }
         Map<String, Object> result = linkService.getLinksForRequest(cond);
         Map<String, Object> linkinfo = new HashMap<>();
+        for(Entry<String, Object> entry:((Map<String, Object>)(entityMap.get("_links"))).entrySet
+            ()){
+            result.put(entry.getKey(), entry.getValue());
+        }
+//        UserInfoUtils.mergeMapByKeyForLinks((Map)entityMap.get("_links"), result, "_links" );
         linkinfo.put("_links", result);
         entityMap.put("_links", linkinfo);
         logger.info("{}",entity);
