@@ -58,6 +58,7 @@ public class UserInfoController {
 	@Autowired
   UserInfoService userInfoService;
 
+
 	@RequestMapping(value = "/userinfo/id/{id}", method = RequestMethod.GET)
 	@AopLinkResources
 	public ResponseEntity<Object> getUserBaseInfo(@PathVariable("id") String id) {
@@ -171,8 +172,7 @@ public class UserInfoController {
 		if (beginDate == null && !StringUtils.isEmpty(params.get("beginDate") )) {
 			// Invalid date format
 			//maybe frontend send long time value to backend
-			beginTimeLong = Long.getLong(params.get("b" +
-					"eginDate"));
+			beginTimeLong = Long.getLong(params.get("beginDate"));
 			endTimeLong = Long.getLong(params.get("endDate"));
 		} else {
 			// Valid date format
