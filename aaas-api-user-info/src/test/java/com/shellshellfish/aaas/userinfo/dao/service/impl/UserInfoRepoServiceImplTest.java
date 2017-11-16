@@ -144,8 +144,8 @@ public class UserInfoRepoServiceImplTest {
 
   @org.junit.Test
   public void getUserInfoBankCards() throws Exception {
-    BigInteger userId = BigInteger.valueOf(1);
-    UiBankcard uiBankcard= userInfoBankCardsRepository.findOne(userId);
+//    BigInteger userId = BigInteger.valueOf(1);
+    UiBankcard uiBankcard= userInfoBankCardsRepository.findOne(1L);
     System.out.println(uiBankcard);
     String bankName = "工商银行";
     List<UiBankcard> uiBankcards= userInfoBankCardsRepository.findByBankName(bankName);

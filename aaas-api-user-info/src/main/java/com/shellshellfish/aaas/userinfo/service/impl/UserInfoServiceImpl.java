@@ -111,7 +111,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         uiBankcard.setUserName(params.get("cardUserName").toString());
         uiBankcard.setCellphone(params.get("cardCellphone").toString());
         uiBankcard.setUserPid(params.get("cardUserPid").toString());
-        uiBankcard.setUserId(new BigInteger(params.get("cardUserId").toString()));
+        uiBankcard.setUserId(Long.parseLong(params.get("cardUserId").toString()));
         uiBankcard.setBankName(BankUtil.getNameOfBank(params.get("cardNumber").toString()));
         uiBankcard =  userInfoRepoService.addUserBankcard(uiBankcard);
         BankCard bankCard = new BankCard();

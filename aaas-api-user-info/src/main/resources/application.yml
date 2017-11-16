@@ -39,7 +39,7 @@ datasource:
 #    url: jdbc:mysql://192.168.0.25:3306/websystique
 #    username: myuser
 #    password: mypassword
-    url: jdbc:mysql://192.168.1.10:3306/ssfuser?useUnicode=yes&amp;characterEncoding=UTF-8
+    url: jdbc:mysql://192.168.1.10:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8
     username: sa
     password: abcd1234
 

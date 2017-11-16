@@ -43,7 +43,7 @@ public class UiAsset implements Serializable {
 	private BigDecimal totalProfit;
 
 	@Column(name="user_id")
-	private BigInteger userId;
+	private Long userId;
 
 	public UiAsset() {
 	}
@@ -112,11 +112,11 @@ public class UiAsset implements Serializable {
 		this.totalProfit = totalProfit;
 	}
 
-	public BigInteger getUserId() {
+	public Long getUserId() {
 		return this.userId;
 	}
 
-	public void setUserId(BigInteger userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 

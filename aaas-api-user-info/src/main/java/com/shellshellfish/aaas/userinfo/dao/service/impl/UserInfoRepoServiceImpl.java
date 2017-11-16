@@ -79,27 +79,27 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
 
 
   @Override
-  public UiUser getUserInfoBase(Long userId) {
-    BigInteger userIdLocal = BigInteger.valueOf(userId);
-    return userInfoRepository.findById(userId);
+  public UiUser getUserInfoBase(Long id) {
+    BigInteger userIdLocal = BigInteger.valueOf(id);
+    return userInfoRepository.findById(id);
   }
 
   @Override
   public UiAsset getUserInfoAssectsBrief(Long userId) {
-    BigInteger userIdLocal = BigInteger.valueOf(userId);
-    return userInfoAssetsRepository.findByUserId(userIdLocal);
+//    BigInteger userIdLocal = BigInteger.valueOf(userId);
+    return userInfoAssetsRepository.findByUserId(userId);
   }
 
   @Override
   public List<UiBankcard> getUserInfoBankCards(Long userId) {
-    BigInteger userIdLocal = BigInteger.valueOf(userId);
-    return userInfoBankCardsRepository.findAllByUserId(userIdLocal);
+//    BigInteger userIdLocal = BigInteger.valueOf(userId);
+    return userInfoBankCardsRepository.findAllByUserId(userId);
   }
 
   @Override
   public List<UiPortfolio> getUserPortfolios(Long userId) {
-    BigInteger userIdLocal = BigInteger.valueOf(userId);
-    return userPortfolioRepository.findAllByUserId(userIdLocal);
+//    BigInteger userIdLocal = BigInteger.valueOf(userId);
+    return userPortfolioRepository.findAllByUserId(userId);
   }
 
   @Override
