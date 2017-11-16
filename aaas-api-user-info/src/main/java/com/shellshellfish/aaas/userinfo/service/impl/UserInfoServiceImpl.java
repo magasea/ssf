@@ -105,13 +105,14 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public BankCard createBankcard(Map params) {
+    public BankCard createBankcard(Map params) throws Exception {
+        Long userId = getUserIdFromUUID(params.get("userUuid").toString());
         UiBankcard uiBankcard = new UiBankcard();
         uiBankcard.setCardNumber(params.get("cardNumber").toString());
         uiBankcard.setUserName(params.get("cardUserName").toString());
         uiBankcard.setCellphone(params.get("cardCellphone").toString());
         uiBankcard.setUserPid(params.get("cardUserPid").toString());
-        uiBankcard.setUserId(Long.parseLong(params.get("cardUserId").toString()));
+        uiBankcard.setUserId(userId);
         uiBankcard.setBankName(BankUtil.getNameOfBank(params.get("cardNumber").toString()));
         uiBankcard =  userInfoRepoService.addUserBankcard(uiBankcard);
         BankCard bankCard = new BankCard();
@@ -120,8 +121,9 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public List<AssetDailyRept> getAssetDailyRept(Long userId, Long beginDate, Long endDate) {
-
+    public List<AssetDailyRept> getAssetDailyRept(String userUuid, Long beginDate, Long endDate)
+        throws Exception {
+        Long userId = getUserIdFromUUID(userUuid);
         List<UiAssetDailyRept> uiAssetDailyRepts = userInfoRepoService.getAssetDailyRept(userId,
             beginDate, endDate);
         List<AssetDailyRept> assetDailyRepts = new ArrayList<>();

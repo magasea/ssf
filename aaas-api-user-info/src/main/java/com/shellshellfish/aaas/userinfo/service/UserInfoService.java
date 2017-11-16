@@ -28,9 +28,10 @@ public interface UserInfoService {
 
     BankCard getUserInfoBankCard(String cardNumber);
 
-    BankCard createBankcard(Map params);
+    BankCard createBankcard(Map params) throws Exception;
 
-    List<AssetDailyRept> getAssetDailyRept(Long userId, Long beginDate, Long endDate);
+    List<AssetDailyRept> getAssetDailyRept(String userUuid, Long beginDate, Long endDate)
+        throws Exception;
 
     AssetDailyRept addAssetDailyRept(AssetDailyRept assetDailyRept) throws ParseException;
 

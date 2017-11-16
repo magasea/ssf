@@ -13,6 +13,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoFriendRule;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserSysMsg;
+import com.shellshellfish.aaas.userinfo.model.dto.vo.userinfo.UserAssetsDataFilterVo;
 import com.shellshellfish.aaas.userinfo.model.vo.BankcardDetailVo;
 import com.shellshellfish.aaas.userinfo.model.vo.UserPersonalMsgVo;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
@@ -111,16 +112,16 @@ public class UserInfoController {
 		}
 	}
 
-	@RequestMapping(value = "/userInfo/getUserPersonalInfo/id/{id}", method = RequestMethod.GET)
-	@AopLinkResources
-	public ResponseEntity<?> getUserPersonalInfo(@PathVariable("id") String id){
-		if(StringUtils.isEmpty(id)){
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}else{
-			Object result =  makePersonInfoResponse();
-			return new ResponseEntity<Object>(result , HttpStatus.OK);
-		}
-	}
+//	@RequestMapping(value = "/userInfo/getUserPersonalInfo/id/{id}", method = RequestMethod.GET)
+//	@AopLinkResources
+//	public ResponseEntity<?> getUserPersonalInfo(@PathVariable("id") String id){
+//		if(StringUtils.isEmpty(id)){
+//			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//		}else{
+//			Object result =  makePersonInfoResponse();
+//			return new ResponseEntity<Object>(result , HttpStatus.OK);
+//		}
+//	}
 
 	@RequestMapping(value = "/userinfo/bankcards/add/cardnumber/{cardNumber}", method = RequestMethod
 			.POST)
@@ -136,15 +137,14 @@ public class UserInfoController {
 		}
 	}
 
-	@RequestMapping(value = "/userinfo/bankcards/add/", method = RequestMethod.POST)
-	public ResponseEntity<?> addBankCardWithDetailInfo(@RequestBody BankcardDetailVo bankcardDetailVo)
-			throws Exception {
+	@RequestMapping(value = "/userinfo/bankcards/{useruuid}", method = RequestMethod.POST)
+	public ResponseEntity<?> addBankCardWithDetailInfo(@PathVariable String userUuid, @RequestBody
+			BankcardDetailVo 			bankcardDetailVo) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
-
 		// Convert POJO to Map
 		Map<String, Object> params =
 				mapper.convertValue(bankcardDetailVo, new TypeReference<Map<String, Object>>() {});
-
+		params.put("userUuid", userUuid);
 		if(CollectionUtils.isEmpty(params)){
 			throw new ServletRequestBindingException("no cardNumber in params");
 		}
@@ -154,8 +154,10 @@ public class UserInfoController {
 		return new ResponseEntity<Object>(userInfoService.createBankcard(params) , HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/userinfo/userassets/overview/data", method = RequestMethod.GET)
-	public ResponseEntity<?> getUserAssetsOverview(@RequestParam Map<String, String> params)
+	@RequestMapping(value = "/userinfo/userassets/overview/data/{useruuid}", method = RequestMethod
+			.GET)
+	public ResponseEntity<?> getUserAssetsOverview(@PathVariable String userUuid, @RequestBody
+			UserAssetsDataFilterVo 			userAssetsDataFilterVo)
 			throws Exception {
 		SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-DD");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -164,25 +166,25 @@ public class UserInfoController {
 		Long beginTimeLong;
 		Long endTimeLong;
 		try {
-			beginDate = sdf.parse(params.get("beginDate"));
+			beginDate = sdf.parse(userAssetsDataFilterVo.getBeginDate());
 
 		}catch (ParseException ex) {
 			ex.printStackTrace();
 		}
-		if (beginDate == null && !StringUtils.isEmpty(params.get("beginDate") )) {
+		if (beginDate == null && !StringUtils.isEmpty(userAssetsDataFilterVo.getBeginDate() )) {
 			// Invalid date format
 			//maybe frontend send long time value to backend
-			beginTimeLong = Long.getLong(params.get("beginDate"));
-			endTimeLong = Long.getLong(params.get("endDate"));
+			beginTimeLong = Long.getLong(userAssetsDataFilterVo.getBeginDate());
+			endTimeLong = Long.getLong(userAssetsDataFilterVo.getEndDate());
 		} else {
 			// Valid date format
 			beginTimeLong = DateUtil.getDateOneDayBefore(beginDate);
-			endDate = sdf.parse(params.get("endDate"));
+			endDate = sdf.parse(userAssetsDataFilterVo.getEndDate());
 			endTimeLong = endDate.getTime();
 		}
 
 		List<AssetDailyRept> assetDailyRepts =
-		userInfoService.getAssetDailyRept(Long.parseLong(params.get("userId")), beginTimeLong, endTimeLong);
+		userInfoService.getAssetDailyRept(userUuid, beginTimeLong, endTimeLong);
 		return new ResponseEntity<Object>(assetDailyRepts , HttpStatus.OK);
 	}
 
