@@ -158,32 +158,32 @@ public class UserInfoController {
 		}
 	}
 
-
-	/**
-	 * 个人信息 页面
-	 * 
-	 * @param id
-	 * @return
-	 */
-	@ApiOperation("个人信息 页面")
-	@ApiResponses({
-		@ApiResponse(code=200,message="OK"),
-        @ApiResponse(code=400,message="请求参数没填好"),
-        @ApiResponse(code=401,message="未授权用户"),        				
-		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
-		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
-    })
-	@ApiImplicitParam(paramType="path",name="id",dataType="String",required=true,value="id",defaultValue="")
-	@RequestMapping(value = "/userInfo/userpersonalpage/{id}", method = RequestMethod.GET)
-	@AopLinkResources
-	public ResponseEntity<?> getUserPersonalInfo(@PathVariable("id") String id){
-		if(StringUtils.isEmpty(id)){
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}else{
-			Object result =  makePersonInfoResponse();
-			return new ResponseEntity<Object>(result , HttpStatus.OK);
-		}
-	}
+//
+//	/**
+//	 * 个人信息 页面
+//	 *
+//	 * @param id
+//	 * @return
+//	 */
+//	@ApiOperation("个人信息 页面")
+//	@ApiResponses({
+//		@ApiResponse(code=200,message="OK"),
+//        @ApiResponse(code=400,message="请求参数没填好"),
+//        @ApiResponse(code=401,message="未授权用户"),
+//		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+//		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
+//    })
+//	@ApiImplicitParam(paramType="path",name="id",dataType="String",required=true,value="id",defaultValue="")
+//	@RequestMapping(value = "/userInfo/userpersonalpage/{id}", method = RequestMethod.GET)
+//	@AopLinkResources
+//	public ResponseEntity<?> getUserPersonalInfo(@PathVariable("id") String id){
+//		if(StringUtils.isEmpty(id)){
+//			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//		}else{
+//			Object result =  makePersonInfoResponse();
+//			return new ResponseEntity<Object>(result , HttpStatus.OK);
+//		}
+//	}
 
 
 	/**
@@ -200,15 +200,15 @@ public class UserInfoController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
     })
 	@ApiImplicitParam(paramType="query",name="cardNumber",dataType="String",required=true,value="银行卡号",defaultValue="")
-	@RequestMapping(value = "/userinfo/addbankcards", method = RequestMethod.GET)
-	public ResponseEntity<?> addBankCardWithCardNumber(
+	@RequestMapping(value = "/userinfo/bankcard", method = RequestMethod.GET)
+	public ResponseEntity<?> preCheckBankCardWithCardNumber(
 			@Valid @NotNull(message = "银行卡号不能为空") @Size(max = 20, min = 15) @RequestParam("cardNumber") String cardNumber
 		){
 		if(StringUtils.isEmpty(cardNumber) ){
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}else{
 			if(!UserInfoUtils.matchLuhn(cardNumber)){
-				return new ResponseEntity<Object>("银行卡号不正确." , HttpStatus.OK);
+				return new ResponseEntity<Object>("银行卡号不正确." , HttpStatus.NOT_ACCEPTABLE);
 			}
 			return new ResponseEntity<Object>("/userinfo/bankcards/add/" , HttpStatus.OK);
 		}
@@ -234,7 +234,7 @@ public class UserInfoController {
 		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="id",defaultValue=""),
 		@ApiImplicitParam(name="bankcardDetailVo", value ="银行卡信息",required=true,paramType="body",dataType="BankcardDetailVo")
 	})
-	@RequestMapping(value = "/userinfo/bankcards/{useruuid}", method = RequestMethod.POST)
+	@RequestMapping(value = "/userinfo/{useruuid}/bankcards", method = RequestMethod.POST)
 		public ResponseEntity<?> addBankCardWithDetailInfo(@Valid @NotNull(message="不能为空")
 	@PathVariable("useruuid") String userUuid,
 			@RequestBody BankcardDetailVo bankcardDetailVo) throws Exception {
@@ -257,6 +257,35 @@ public class UserInfoController {
 		}
 	}
 
+	/**
+	 * 列出银行卡	action
+	 * @param id
+	 * @param bankcardDetailVo
+	 * @return
+	 * @throws Exception
+	 */
+	@ApiOperation("用户银行卡集合")
+	@ApiResponses({
+			@ApiResponse(code=200,message="OK"),
+			@ApiResponse(code=400,message="请求参数没填好"),
+			@ApiResponse(code=401,message="未授权用户"),
+			@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+			@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
+	})
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,defaultValue=""),
+	})
+	@RequestMapping(value = "/userinfo/{userUuid}/bankcards", method = RequestMethod.GET)
+	public ResponseEntity<?> addBankCardWithDetailInfo(@Valid @NotNull(message="不能为空")
+	@PathVariable("userUuid") String userUuid) throws Exception {
+
+		List<BankCard> bankCards = userInfoService.getUserInfoBankCards(userUuid);
+		Map<String, Object> result = new HashMap<>();
+		result.put("bankCards", bankCards);
+
+		return new ResponseEntity<Object>(result , HttpStatus.OK);
+
+	}
 
 	/**
 	 * 个人资产总览 首页
@@ -274,7 +303,7 @@ public class UserInfoController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
     })
 
-	@RequestMapping(value = "/userinfo/userassets/overviewpage/{userUuid}", method = RequestMethod
+	@RequestMapping(value = "/userinfo/{userUuid}/userassets/overview", method = RequestMethod
 			.GET)
 	public ResponseEntity<?> getUserAssetsOverview(@Valid @NotNull(message="不能为空") @PathVariable
 			("userUuid") String userUuid, @RequestParam("beginDate") String bgDate, @RequestParam
@@ -350,10 +379,10 @@ public class UserInfoController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="query",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue="")
 	})
-	@RequestMapping(value = "/userinfo/message/investmentmessages", method = RequestMethod.GET)
-	public ResponseEntity<?> getPersonalMsg(@Valid @NotNull(message = "userUuid不可为空") @RequestParam String userUuid)
-			throws Exception {
-
+	@RequestMapping(value = "/userinfo/{userUuid}/message/investmentmessages", method = RequestMethod
+			.GET)
+	public ResponseEntity<?> getPersonalInvstMsg(@Valid @NotNull(message = "userUuid不可为空")
+	@PathVariable(name = "userUuid") String userUuid)	throws Exception {
 		List<UserPersonMsg> userPersonMsgs =  userInfoService.getUserPersonMsg(userUuid);
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
@@ -383,7 +412,8 @@ public class UserInfoController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
     })
 	@ApiImplicitParam(paramType="query",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue="")
-	@RequestMapping(value = "/userinfo/message/systemmessages/{userUuid}", method = RequestMethod.GET)
+	@RequestMapping(value = "/userinfo/{userUuid}/message/systemmessages/", method = RequestMethod
+			.GET)
 	public ResponseEntity<?> getSystemMsg(@Valid @NotNull(message = "userUuid不可为空")@PathVariable String userUuid)
 			throws Exception {
 		List<UserSysMsg> userSysMsgs = userInfoService.getUserSysMsg(userUuid);
@@ -415,7 +445,8 @@ public class UserInfoController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
     })
 	@ApiImplicitParam(name="userPersonalMsgVo", value ="推送内容",required=true,paramType="body",dataType="UserPersonalMsgVo")
-	@RequestMapping(value = "/userinfo/message/updateinvestmentmessages", method = RequestMethod.POST)
+	@RequestMapping(value = "/userinfo/{userUuid}/message/updateinvestmentmessages", method =
+			RequestMethod.POST)
 	public ResponseEntity<?> updatePersonalMsg(@RequestBody UserPersonalMsgVo userPersonalMsgVo)
 			throws Exception {
 
@@ -443,7 +474,7 @@ public class UserInfoController {
 		@ApiImplicitParam(paramType="query",name="sortField",dataType="String",required=false,
 				value="排序",defaultValue="")
 	})
-	@RequestMapping(value = "/userinfo/trade/log/{userUuid}", method = RequestMethod.GET)
+	@RequestMapping(value = "/userinfo/{userUuid}/trade/log", method = RequestMethod.GET)
 	public ResponseEntity<?> getTradLogsOfUser(@PathVariable String userUuid, @RequestParam( required = false) String
 			pageNum, @RequestParam( required = false) String pageSize, @RequestParam( required = false) String sortField )
 			throws Exception {
@@ -540,9 +571,8 @@ public class UserInfoController {
 		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")         				
     })
-	@RequestMapping(value = "/userinfo/companyinfos/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/userinfo/companyinfos", method = RequestMethod.GET)
 	public ResponseEntity<?> getCompanyInfo(
-			@Valid @NotNull(message="id不能为空") @PathVariable("id") String id,
 			@Valid @NotNull(message="用户Uuid") @RequestParam String userUuid, 
 			@Valid @NotNull(message="银行ID") @RequestParam( required = false) Long bankId)
 			throws Exception {
