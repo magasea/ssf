@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Date;
 import java.sql.Timestamp;
-import org.springframework.test.context.ActiveProfiles;
+//import org.springframework.test.context.ActiveProfiles;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.shellshellfish.account.commons.MD5;
 import com.shellshellfish.account.commons.SmsSender;
@@ -16,7 +16,7 @@ import com.shellshellfish.account.repositories.BankCardRepository;
 import com.shellshellfish.account.repositories.SmsVerificationRepositoryCustom;
 import com.shellshellfish.account.repositories.UserRepository;
 
-@ActiveProfiles(profiles = "prod")
+//@ActiveProfiles(profiles = "prod")
 public class AccountServiceImpl implements AccountService {
 
 	@Autowired
