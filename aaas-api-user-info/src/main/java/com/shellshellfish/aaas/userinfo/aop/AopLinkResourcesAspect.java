@@ -50,8 +50,10 @@ public class AopLinkResourcesAspect {
         }else{
             return value;
         }
-        entityMap.put("_links", UserInfoUtils.mergeMapByKeyForLinks((Map)entityMap.get("_links"),
-            linkService.getLinksForRequest(cond), "_links").get("_links"));
+        Map<String, Object> result = linkService.getLinksForRequest(cond);
+        Map<String, Object> linkinfo = new HashMap<>();
+        linkinfo.put("_links", result);         
+        entityMap.put("_links", linkinfo);
         log.info("{}",entity);
         return value;
     }

@@ -7,12 +7,12 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface UserInfoBankCardsRepository extends
-    PagingAndSortingRepository<UiBankcard, BigInteger> {
+    PagingAndSortingRepository<UiBankcard, Long> {
 
-  List<UiBankcard> findAllByUserId(BigInteger userId);
+  List<UiBankcard> findAllByUserId(Long userId);
 
   @Override
-  UiBankcard findOne(BigInteger bigInteger);
+  UiBankcard findOne(Long userId);
 
 //  @Query("select u from ui_bankcard u where u.bank_name = ?1")
   List<UiBankcard> findByBankName(String bankName);

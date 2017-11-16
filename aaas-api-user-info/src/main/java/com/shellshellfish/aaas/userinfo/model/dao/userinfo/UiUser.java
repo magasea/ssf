@@ -18,7 +18,7 @@ public class UiUser implements Serializable {
 	@Id
 	@SequenceGenerator(name="UI_USER_ID_GENERATOR" )
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="UI_USER_ID_GENERATOR")
-	private String id;
+	private Long id;
 
 	private byte activated;
 
@@ -53,11 +53,11 @@ public class UiUser implements Serializable {
 	public UiUser() {
 	}
 
-	public String getId() {
+	public Long getId() {
 		return this.id;
 	}
 
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

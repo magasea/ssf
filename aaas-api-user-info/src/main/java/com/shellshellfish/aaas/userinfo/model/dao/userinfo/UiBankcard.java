@@ -19,7 +19,7 @@ public class UiBankcard implements Serializable {
 	@Id
 	@SequenceGenerator(name="UI_BANKCARD_ID_GENERATOR" )
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="UI_BANKCARD_ID_GENERATOR")
-	private String id;
+	private Long id;
 
 	@Column(name="bank_name")
 	private String bankName;
@@ -46,7 +46,7 @@ public class UiBankcard implements Serializable {
 	private BigInteger lastModifiedDate;
 
 	@Column(name="user_id")
-	private BigInteger userId;
+	private Long userId;
 
 	@Column(name="user_name")
 	private String userName;
@@ -57,11 +57,11 @@ public class UiBankcard implements Serializable {
 	public UiBankcard() {
 	}
 
-	public String getId() {
+	public Long getId() {
 		return this.id;
 	}
 
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -129,11 +129,11 @@ public class UiBankcard implements Serializable {
 		this.lastModifiedDate = lastModifiedDate;
 	}
 
-	public BigInteger getUserId() {
+	public Long getUserId() {
 		return this.userId;
 	}
 
-	public void setUserId(BigInteger userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 

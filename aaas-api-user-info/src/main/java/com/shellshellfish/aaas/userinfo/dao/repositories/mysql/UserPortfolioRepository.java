@@ -8,6 +8,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface UserPortfolioRepository extends PagingAndSortingRepository<UiPortfolio, Long> {
 
-  List<UiPortfolio> findAllByUserId( BigInteger userId);
+  List<UiPortfolio> findAllByUserId( Long userId);
 
 }

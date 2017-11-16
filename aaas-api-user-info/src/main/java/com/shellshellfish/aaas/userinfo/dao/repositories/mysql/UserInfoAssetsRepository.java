@@ -5,8 +5,8 @@ import java.math.BigInteger;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface UserInfoAssetsRepository extends PagingAndSortingRepository<UiAsset, BigInteger> {
+public interface UserInfoAssetsRepository extends PagingAndSortingRepository<UiAsset, Long> {
 
-  UiAsset findByUserId(BigInteger userId);
+  UiAsset findByUserId(Long userId);
 
 }
