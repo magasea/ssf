@@ -18,6 +18,14 @@ public class SurveyResultService {
 		return surveyResultRepository.findAllByUserIdAndSurveyTemplateId(userId, surveyTemplateId); 
 	}
 	
+	public List<SurveyResult> getSurveyResultsByUserId(String userId) {
+		return surveyResultRepository.findAllByUserId(userId);
+	}
+	
+	public List<SurveyResult> getSurveyResultsBySurveyTemplateId(String surveyTemplateId) {
+		return surveyResultRepository.findAllBySurveyTemplateId(surveyTemplateId);
+	}
+		
 	public SurveyResult save(SurveyResult surveyResult) {
 		return surveyResultRepository.save(surveyResult);
 	}

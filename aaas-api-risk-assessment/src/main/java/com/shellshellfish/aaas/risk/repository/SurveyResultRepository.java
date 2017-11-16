@@ -9,5 +9,9 @@ import com.shellshellfish.aaas.risk.model.SurveyResult;
 
 
 public interface SurveyResultRepository extends MongoRepository<SurveyResult, String> {
-	List<SurveyResult> findAllByUserIdAndSurveyTemplateId(String userId, String surveyTemplateId); 
+	SurveyResult findOneByUserIdAndSurveyTemplateId(String userId, String surveyTemplateId); 
+	List<SurveyResult> findAllByUserIdAndSurveyTemplateId(String userId, String surveyTemplateId);
+	List<SurveyResult> findAllByUserId(String userId);
+	List<SurveyResult> findAllBySurveyTemplateId(String surveyTemplateId);
+	
 }

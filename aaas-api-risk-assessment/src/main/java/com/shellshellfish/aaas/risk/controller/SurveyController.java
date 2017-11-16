@@ -67,10 +67,13 @@ public class SurveyController {
 		return new ResponseEntity<>(resource, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/banks/{bankUuid}/survey-results", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/banks/{bankUuid}/users/{userUuid}/survey-results", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SurveyResult> saveSurveyResult(@PathVariable String bankUuid,
+														 @PathVariable String userUuid,
 														 @RequestBody SurveyResult surveyResult) throws URISyntaxException, Exception{
 		log.debug("REST request to Insert or Update a SurveyResult.");
+		
+		surveyResult.setUserId(userUuid);
 		
 		surveyResultService.save(surveyResult);	
 		

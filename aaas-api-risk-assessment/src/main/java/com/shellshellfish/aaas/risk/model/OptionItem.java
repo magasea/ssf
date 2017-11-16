@@ -3,7 +3,6 @@ package com.shellshellfish.aaas.risk.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-
 public class OptionItem {
 
 	private Integer ordinal;
