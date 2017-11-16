@@ -7,16 +7,16 @@ public class BankCard {
 
 
     Long userId;
-    String bankCardNumber;
-    String bankCardUserName;
+    String cardNumber;
+    String userName;
     Date expireDate;
     String bankName;
 
-    public BankCard(Long userId, String bankCardNumber, String bankCardUserName, Date expireDate,
+    public BankCard(Long userId, String cardNumber, String userName, Date expireDate,
         String bankName) {
         this.userId = userId;
-        this.bankCardNumber = bankCardNumber;
-        this.bankCardUserName = bankCardUserName;
+        this.cardNumber = cardNumber;
+        this.userName = userName;
         this.expireDate = expireDate;
         this.bankName = bankName;
     }
@@ -24,23 +24,23 @@ public class BankCard {
     public BankCard() {
     }
 
-    public String getBankCardNumber() {
-        return bankCardNumber;
-    }
+    public String getCardNumber() {
+		return cardNumber;
+	}
 
-    public void setBankCardNumber(String bankCardNumber) {
-        this.bankCardNumber = bankCardNumber;
-    }
+	public void setCardNumber(String cardNumber) {
+		this.cardNumber = cardNumber;
+	}
 
-    public String getBankCardUserName() {
-        return bankCardUserName;
-    }
+	public String getUserName() {
+		return userName;
+	}
 
-    public void setBankCardUserName(String bankCardUserName) {
-        this.bankCardUserName = bankCardUserName;
-    }
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
 
-    public Date getExpireDate() {
+	public Date getExpireDate() {
         return expireDate;
     }
 
