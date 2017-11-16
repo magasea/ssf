@@ -275,15 +275,12 @@ public class UserInfoController {
 		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
     })
-	@ApiImplicitParams({
-		@ApiImplicitParam(paramType="body",name="userAssetsDataFilterVo",
-				dataType="UserAssetsDataFilterVo",required=true,value="id",
-				defaultValue="")
-	})
+	
 	@RequestMapping(value = "/userinfo/userassets/overviewpage/{userUuid}", method = RequestMethod
 			.GET)
 	public ResponseEntity<?> getUserAssetsOverview(@Valid @NotNull(message="不能为空") @PathVariable
-			("userUuid") String userUuid,@RequestBody UserAssetsDataFilterVo userAssetsDataFilterVo)
+			("userUuid") String userUuid, @RequestParam("beginDate") String bgDate, @RequestParam
+			("endDate") String edDate)
 
 			throws Exception {
 		Map<String, Object> result = new HashMap<>();
@@ -295,20 +292,20 @@ public class UserInfoController {
 		Long beginTimeLong;
 		Long endTimeLong;
 		try {
-			beginDate = sdf.parse(userAssetsDataFilterVo.getBeginDate());
+			beginDate = sdf.parse(bgDate);
 
 		}catch (ParseException ex) {
 			ex.printStackTrace();
 		}
-		if (beginDate == null && !StringUtils.isEmpty(userAssetsDataFilterVo.getBeginDate() )) {
+		if (beginDate == null && !StringUtils.isEmpty(bgDate )) {
 			// Invalid date format
 			//maybe frontend send long time value to backend
-			beginTimeLong = Long.getLong(userAssetsDataFilterVo.getBeginDate());
-			endTimeLong = Long.getLong(userAssetsDataFilterVo.getEndDate());
+			beginTimeLong = Long.getLong(bgDate);
+			endTimeLong = Long.getLong(edDate);
 		} else {
 			// Valid date format
 			beginTimeLong = DateUtil.getDateOneDayBefore(beginDate);
-			endDate = sdf.parse(userAssetsDataFilterVo.getEndDate());
+			endDate = sdf.parse(edDate);
 			endTimeLong = endDate.getTime();
 		}
 
