@@ -4,8 +4,9 @@ import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPortfolio;
 import java.math.BigInteger;
 import java.util.List;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface UserPortfolioRepository extends CrudRepository<UiPortfolio, Long> {
+public interface UserPortfolioRepository extends PagingAndSortingRepository<UiPortfolio, Long> {
 
   List<UiPortfolio> findAllByUserId( BigInteger userId);
 

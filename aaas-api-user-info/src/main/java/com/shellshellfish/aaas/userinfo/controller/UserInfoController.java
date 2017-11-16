@@ -5,16 +5,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
 import com.shellshellfish.aaas.userinfo.model.dto.bankcard.BankCard;
 import com.shellshellfish.aaas.userinfo.model.dto.invest.AssetDailyRept;
+import com.shellshellfish.aaas.userinfo.model.dto.invest.TradeLog;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoCompanyInfo;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoFriendRule;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
 import com.shellshellfish.aaas.userinfo.model.dto.user.UserSysMsg;
-import com.shellshellfish.aaas.userinfo.model.vo.UserPersonalMsgVo;
 import com.shellshellfish.aaas.userinfo.model.vo.BankcardDetailVo;
+import com.shellshellfish.aaas.userinfo.model.vo.UserPersonalMsgVo;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.util.Constants;
 import com.shellshellfish.aaas.userinfo.util.DateUtil;
 import com.shellshellfish.aaas.userinfo.util.UserInfoUtils;
+import com.sun.org.apache.regexp.internal.RE;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,6 +33,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
@@ -212,6 +222,53 @@ public class UserInfoController {
 				.getMessagesToUpdate(), userPersonalMsgVo.getUuid(), userPersonalMsgVo.getReadedStatus());
 		Map<String, Object> result = new HashMap<>();
 		result.put("userPersonMsg", userPersonMsgs);
+		return new ResponseEntity<Object>(result , HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/userinfo/trade/log/{userUuid}", method = RequestMethod.GET)
+	public ResponseEntity<?> getTradLogsOfUser(@PathVariable String userUuid, @RequestParam( required = false) String
+			pageNum, @RequestParam( required = false) String pageSize, @RequestParam( required = false) String sortField )
+			throws Exception {
+		PageRequest pageRequest = null;
+		if(!StringUtils.isEmpty(pageNum)){
+			if(!StringUtils.isEmpty(pageSize)){
+				pageRequest = new PageRequest(Integer.parseInt(pageNum) -1, Integer.parseInt
+						(pageSize), Direction.DESC, StringUtils.isEmpty(sortField)? "createdDate": sortField);
+			}else{
+				pageRequest = new PageRequest(Integer.parseInt(pageNum) -1, Constants.PAGE_SIZE, Direction.DESC,
+						sortField);
+			}
+		}else{
+			pageRequest = new PageRequest(0, Constants.PAGE_SIZE, Direction.DESC, "createdDate");
+		}
+
+		Page<TradeLog> tradeLogs =  userInfoService.getUserTradeLogs(userUuid, pageRequest);
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("_items", tradeLogs);
+		result.put("_page","");
+		return new ResponseEntity<Object>(result , HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/userinfo/friendrules/{userUuid}", method = RequestMethod.GET)
+	public ResponseEntity<?> getTradLogsOfUser(@RequestParam( required = false) Long bankId)
+			throws Exception {
+
+		List<UserInfoFriendRule> userInfoFriendRules = userInfoService.getUserInfoFriendRules(bankId);
+		Map<String, Object> result = new HashMap<>();
+		result.put("_items", userInfoFriendRules);
+		result.put("_page","");
+		return new ResponseEntity<Object>(result , HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/userinfo/companyinfo/{userUuid}", method = RequestMethod.GET)
+	public ResponseEntity<?> getCompanyInfo(@PathVariable String userUuid, @RequestParam( required = false) Long bankId)
+			throws Exception {
+
+		UserInfoCompanyInfo userInfoCompanyInfo = userInfoService.getCompanyInfo(userUuid, bankId);
+		Map<String, Object> result = new HashMap<>();
+		result.put("_items", userInfoCompanyInfo);
+		result.put("_page","");
 		return new ResponseEntity<Object>(result , HttpStatus.OK);
 	}
 

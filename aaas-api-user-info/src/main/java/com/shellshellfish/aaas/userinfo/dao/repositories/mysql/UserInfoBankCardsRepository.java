@@ -4,8 +4,10 @@ import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
 import java.math.BigInteger;
 import java.util.List;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface UserInfoBankCardsRepository extends CrudRepository<UiBankcard, BigInteger> {
+public interface UserInfoBankCardsRepository extends
+    PagingAndSortingRepository<UiBankcard, BigInteger> {
 
   List<UiBankcard> findAllByUserId(BigInteger userId);
 

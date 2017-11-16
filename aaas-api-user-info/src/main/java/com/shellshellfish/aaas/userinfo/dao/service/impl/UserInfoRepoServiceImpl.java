@@ -7,22 +7,31 @@ import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserProdMsgR
 import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserSysMsgRepo;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoAssetsRepository;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoBankCardsRepository;
+import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoCompanyInfoRepository;
+import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoFriendRuleRepository;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserPortfolioRepository;
+import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserTradeLogRepository;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAsset;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiCompanyInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiFriendRule;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPortfolio;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiProdMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiSysMsg;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiUser;
+import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoCompanyInfo;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -43,6 +52,15 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
 
   @Autowired
   UserInfoRepository userInfoRepository;
+
+  @Autowired
+  UserInfoFriendRuleRepository userInfoFriendRuleRepository;
+
+  @Autowired
+  UserTradeLogRepository userTradeLogRepository;
+
+  @Autowired
+  UserInfoCompanyInfoRepository userInfoCompanyInfoRepository;
 
   @Autowired
   MongoUserAssectsRepository mongoUserAssectsRepository;
@@ -158,5 +176,35 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
     return uiPersonMsgResult;
   }
 
+  @Override
+  public Page<UiTrdLog> getUiTrdLog(PageRequest pageRequest, Long userId ) {
+    Page<UiTrdLog> uiTrdLogPage = userTradeLogRepository.findAllByUserId(userId, pageRequest );
+    return uiTrdLogPage;
+  }
+
+  @Override
+  public Iterable<UiTrdLog> addUiTrdLog(List<UiTrdLog> trdLogs) {
+    return userTradeLogRepository.save(trdLogs);
+  }
+
+  @Override
+  public List<UiFriendRule> getUiFriendRule(Long bankId) {
+    if(null == bankId) {
+      return userInfoFriendRuleRepository.findAll();
+    }else{
+      return userInfoFriendRuleRepository.findAllByBankId(BigInteger.valueOf(bankId));
+    }
+  }
+
+  @Override
+  public UiCompanyInfo getCompanyInfo(Long id) {
+
+    return userInfoCompanyInfoRepository.findAll().get(0);
+  }
+
+  @Override
+  public UiCompanyInfo addCompanyInfo(UiCompanyInfo uiCompanyInfo) {
+    return userInfoCompanyInfoRepository.save(uiCompanyInfo);
+  }
 
 }
