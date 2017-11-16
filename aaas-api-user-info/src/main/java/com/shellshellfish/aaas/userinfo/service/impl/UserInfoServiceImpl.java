@@ -52,7 +52,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     UserInfoRepoService userInfoRepoService;
 
     @Override
-    public UserBaseInfo getUserInfoBase(Long userId) {
+    public UserBaseInfo getUserInfoBase(String userUuid) throws Exception {
+        Long userId = getUserIdFromUUID(userUuid);
         UiUser userInfoDao = userInfoRepoService.getUserInfoBase(userId);
         UserBaseInfo userBaseInfo = new UserBaseInfo();
         if( null != userInfoDao) {
@@ -62,7 +63,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public UserInfoAssectsBrief getUserInfoAssectsBrief(Long userId) {
+    public UserInfoAssectsBrief getUserInfoAssectsBrief(String userUuid) throws Exception {
+        Long userId = getUserIdFromUUID(userUuid);
         UserInfoAssectsBrief userInfoAssectsBrief = new UserInfoAssectsBrief();
         UiAsset userInfoAssect = userInfoRepoService.getUserInfoAssectsBrief(userId);
         if(null != userInfoAssect){
@@ -72,8 +74,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public List<BankCard> getUserInfoBankCards(Long userId) {
-
+    public List<BankCard> getUserInfoBankCards(String userUuid) throws Exception {
+        Long userId = getUserIdFromUUID(userUuid);
         List<UiBankcard> uiBankcards =  userInfoRepoService.getUserInfoBankCards(userId);
         List<BankCard> bankCardsDto = new ArrayList<>();
         for(UiBankcard uiBankcard: uiBankcards ){
@@ -85,7 +87,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public List<UserPortfolio> getUserPortfolios(Long userId) {
+    public List<UserPortfolio> getUserPortfolios(String userUuid) throws Exception {
+        Long userId = getUserIdFromUUID(userUuid);
         List<UiPortfolio> userPortfolioDaos =  userInfoRepoService.getUserPortfolios(userId);
         List<UserPortfolio> userPortfolios = new ArrayList<>();
         for(UiPortfolio userPortfolioDao: userPortfolioDaos){

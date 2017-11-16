@@ -18,13 +18,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 public interface UserInfoService {
-    UserBaseInfo getUserInfoBase(Long userId);
+    UserBaseInfo getUserInfoBase(String userUuid) throws Exception;
 
-    UserInfoAssectsBrief getUserInfoAssectsBrief(Long userId);
+    UserInfoAssectsBrief getUserInfoAssectsBrief(String userUuid) throws Exception;
 
-    List<BankCard> getUserInfoBankCards(Long userId);
+    List<BankCard> getUserInfoBankCards(String userUuid) throws Exception;
 
-    List<UserPortfolio> getUserPortfolios(Long userId);
+    List<UserPortfolio> getUserPortfolios(String userUuid) throws Exception;
 
     BankCard getUserInfoBankCard(String cardNumber);
 

@@ -79,26 +79,24 @@ public class UserInfoController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
     })
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType="path",name="id",dataType="String",required=true,value="id",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="userid",dataType="String",required=true,value="用户id",defaultValue="")
+		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="userUuid",defaultValue="")
 	})
-	@RequestMapping(value = "/userinfo/initpage/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/userinfo/initpage/{userUuid}", method = RequestMethod.GET)
 	@AopLinkResources
 	public ResponseEntity<Object> getUserBaseInfo(
-			@Valid @NotNull(message="id不能为空") @PathVariable("id") String id,
-			@Valid @NotNull(message="用户名不能为空") @RequestParam(value = "userid") Long userId
-			){
-		System.out.println("userId is " + userId);
+			@Valid @NotNull(message="userUuid不能为空") @PathVariable("userUuid") String userUuid
+			) throws Exception {
+		System.out.println("userUuid is " + userUuid);
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
 		Map<String, Object> selfmap = new HashMap<>();
-		selfmap.put("href", "/api/userinfo/initpage/{id}" );
+		selfmap.put("href", "/api/userinfo/initpage/{userUuid}" );
 		selfmap.put("describedBy","schema//userinfo/initpage.json");
 		
-		List<BankCard> bankCards =  userInfoService.getUserInfoBankCards(userId);
-		UserInfoAssectsBrief userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userId);
-		List<UserPortfolio> userPortfolios = userInfoService.getUserPortfolios(userId);
-		UserBaseInfo userBaseInfo = userInfoService.getUserInfoBase(userId);
+		List<BankCard> bankCards =  userInfoService.getUserInfoBankCards(userUuid);
+		UserInfoAssectsBrief userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
+		List<UserPortfolio> userPortfolios = userInfoService.getUserPortfolios(userUuid);
+		UserBaseInfo userBaseInfo = userInfoService.getUserInfoBase(userUuid);
 
 		result.put("userCellphone", "手机号码");
 		Calendar cal = Calendar.getInstance();
@@ -275,7 +273,7 @@ public class UserInfoController {
 		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
     })
-	
+
 	@RequestMapping(value = "/userinfo/userassets/overviewpage/{userUuid}", method = RequestMethod
 			.GET)
 	public ResponseEntity<?> getUserAssetsOverview(@Valid @NotNull(message="不能为空") @PathVariable
