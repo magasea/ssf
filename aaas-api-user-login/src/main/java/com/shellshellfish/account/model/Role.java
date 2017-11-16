@@ -1,8 +1,10 @@
 package com.shellshellfish.account.model;
 
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.sql.Timestamp;
-import java.util.Collection;
 
 @Entity
 public class Role {
@@ -13,15 +15,9 @@ public class Role {
     private Timestamp createdDate;
     private String lastModifiedBy;
     private Timestamp lastModifiedDate;
-    private Collection<RolePermission> rolePermissionsById;
-    private Collection<UserRole> userRolesById;
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "id")
     public long getId() {
         return id;
     }
@@ -31,7 +27,7 @@ public class Role {
     }
 
     @Basic
-    @Column(name = "name", nullable = false, length = 50)
+    @Column(name = "name")
     public String getName() {
         return name;
     }
@@ -41,7 +37,7 @@ public class Role {
     }
 
     @Basic
-    @Column(name = "is_predefined", nullable = true)
+    @Column(name = "is_predefined")
     public Boolean getPredefined() {
         return isPredefined;
     }
@@ -51,7 +47,7 @@ public class Role {
     }
 
     @Basic
-    @Column(name = "created_by", nullable = true, length = 50)
+    @Column(name = "created_by")
     public String getCreatedBy() {
         return createdBy;
     }
@@ -61,7 +57,7 @@ public class Role {
     }
 
     @Basic
-    @Column(name = "created_date", nullable = true)
+    @Column(name = "created_date")
     public Timestamp getCreatedDate() {
         return createdDate;
     }
@@ -71,7 +67,7 @@ public class Role {
     }
 
     @Basic
-    @Column(name = "last_modified_by", nullable = true, length = 50)
+    @Column(name = "last_modified_by")
     public String getLastModifiedBy() {
         return lastModifiedBy;
     }
@@ -81,7 +77,7 @@ public class Role {
     }
 
     @Basic
-    @Column(name = "last_modified_date", nullable = true)
+    @Column(name = "last_modified_date")
     public Timestamp getLastModifiedDate() {
         return lastModifiedDate;
     }
@@ -120,23 +116,5 @@ public class Role {
         result = 31 * result + (lastModifiedBy != null ? lastModifiedBy.hashCode() : 0);
         result = 31 * result + (lastModifiedDate != null ? lastModifiedDate.hashCode() : 0);
         return result;
-    }
-
-    @OneToMany(mappedBy = "roleByRoleId")
-    public Collection<RolePermission> getRolePermissionsById() {
-        return rolePermissionsById;
-    }
-
-    public void setRolePermissionsById(Collection<RolePermission> rolePermissionsById) {
-        this.rolePermissionsById = rolePermissionsById;
-    }
-
-    @OneToMany(mappedBy = "roleByRoleId")
-    public Collection<UserRole> getUserRolesById() {
-        return userRolesById;
-    }
-
-    public void setUserRolesById(Collection<UserRole> userRolesById) {
-        this.userRolesById = userRolesById;
     }
 }

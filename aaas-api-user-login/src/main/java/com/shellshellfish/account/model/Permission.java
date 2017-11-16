@@ -1,8 +1,10 @@
 package com.shellshellfish.account.model;
 
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.sql.Timestamp;
-import java.util.Collection;
 
 @Entity
 public class Permission {
@@ -12,14 +14,9 @@ public class Permission {
     private Timestamp createdDate;
     private String lastModifiedBy;
     private Timestamp lastModifiedDate;
-    private Collection<RolePermission> rolePermissionsById;
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "id")
     public long getId() {
         return id;
     }
@@ -29,7 +26,7 @@ public class Permission {
     }
 
     @Basic
-    @Column(name = "name", nullable = false, length = 50)
+    @Column(name = "name")
     public String getName() {
         return name;
     }
@@ -39,7 +36,7 @@ public class Permission {
     }
 
     @Basic
-    @Column(name = "created_by", nullable = true, length = 50)
+    @Column(name = "created_by")
     public String getCreatedBy() {
         return createdBy;
     }
@@ -49,7 +46,7 @@ public class Permission {
     }
 
     @Basic
-    @Column(name = "created_date", nullable = true)
+    @Column(name = "created_date")
     public Timestamp getCreatedDate() {
         return createdDate;
     }
@@ -59,7 +56,7 @@ public class Permission {
     }
 
     @Basic
-    @Column(name = "last_modified_by", nullable = true, length = 50)
+    @Column(name = "last_modified_by")
     public String getLastModifiedBy() {
         return lastModifiedBy;
     }
@@ -69,7 +66,7 @@ public class Permission {
     }
 
     @Basic
-    @Column(name = "last_modified_date", nullable = true)
+    @Column(name = "last_modified_date")
     public Timestamp getLastModifiedDate() {
         return lastModifiedDate;
     }
@@ -106,14 +103,5 @@ public class Permission {
         result = 31 * result + (lastModifiedBy != null ? lastModifiedBy.hashCode() : 0);
         result = 31 * result + (lastModifiedDate != null ? lastModifiedDate.hashCode() : 0);
         return result;
-    }
-
-    @OneToMany(mappedBy = "permissionByPermissionId")
-    public Collection<RolePermission> getRolePermissionsById() {
-        return rolePermissionsById;
-    }
-
-    public void setRolePermissionsById(Collection<RolePermission> rolePermissionsById) {
-        this.rolePermissionsById = rolePermissionsById;
     }
 }

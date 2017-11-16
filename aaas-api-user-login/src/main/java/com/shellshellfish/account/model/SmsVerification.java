@@ -16,12 +16,8 @@ public class SmsVerification {
     private String lastModifiedBy;
     private Timestamp lastModifiedDate;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "id")
     public long getId() {
         return id;
     }
@@ -31,7 +27,7 @@ public class SmsVerification {
     }
 
     @Basic
-    @Column(name = "cell_phone", nullable = true, length = 45)
+    @Column(name = "cell_phone")
     public String getCellPhone() {
         return cellPhone;
     }
@@ -41,7 +37,7 @@ public class SmsVerification {
     }
 
     @Basic
-    @Column(name = "sms_code", nullable = true, length = 45)
+    @Column(name = "sms_code")
     public String getSmsCode() {
         return smsCode;
     }
@@ -51,7 +47,7 @@ public class SmsVerification {
     }
 
     @Basic
-    @Column(name = "creation_time", nullable = true)
+    @Column(name = "creation_time")
     public Timestamp getCreationTime() {
         return creationTime;
     }
@@ -61,7 +57,7 @@ public class SmsVerification {
     }
 
     @Basic
-    @Column(name = "expire_time", nullable = true)
+    @Column(name = "expire_time")
     public Timestamp getExpireTime() {
         return expireTime;
     }
@@ -71,7 +67,7 @@ public class SmsVerification {
     }
 
     @Basic
-    @Column(name = "created_by", nullable = true, length = 50)
+    @Column(name = "created_by")
     public String getCreatedBy() {
         return createdBy;
     }
@@ -81,7 +77,7 @@ public class SmsVerification {
     }
 
     @Basic
-    @Column(name = "created_date", nullable = true)
+    @Column(name = "created_date")
     public Timestamp getCreatedDate() {
         return createdDate;
     }
@@ -91,7 +87,7 @@ public class SmsVerification {
     }
 
     @Basic
-    @Column(name = "last_modified_by", nullable = true, length = 50)
+    @Column(name = "last_modified_by")
     public String getLastModifiedBy() {
         return lastModifiedBy;
     }
@@ -101,7 +97,7 @@ public class SmsVerification {
     }
 
     @Basic
-    @Column(name = "last_modified_date", nullable = true)
+    @Column(name = "last_modified_date")
     public Timestamp getLastModifiedDate() {
         return lastModifiedDate;
     }

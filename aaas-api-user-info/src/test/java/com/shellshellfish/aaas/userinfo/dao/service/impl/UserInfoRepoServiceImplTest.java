@@ -7,11 +7,14 @@ import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserProdMsgR
 import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserSysMsgRepo;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoBankCardsRepository;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoRepository;
+import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPersonMsg;
+import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiUser;
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserPersonMsg;
+import com.shellshellfish.aaas.userinfo.util.UserInfoUtils;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,6 +34,34 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 @ActiveProfiles(profiles="prod")
 public class UserInfoRepoServiceImplTest {
+
+  @Test
+  public void addCompanyInfo() throws Exception {
+
+    UiCompanyInfo uiCompanyInfo = new UiCompanyInfo();
+    uiCompanyInfo.setCompanyInfo("zn;lan;flkjanewjn;lakjn中午只能你好噢虢");
+    uiCompanyInfo.setServiceNum("400-838-217314gj");
+    userInfoRepoService.addCompanyInfo(uiCompanyInfo);
+  }
+
+  @Autowired
+  UserInfoRepoService userInfoRepoService;
+
+  @Test
+  public void addUiTrdLog() throws Exception {
+    List<UiTrdLog> uiTradesLogs = new ArrayList<>();
+    for(int idx = 0; idx < 100; idx ++){
+      UiTrdLog uiTradesLog = new UiTrdLog();
+      uiTradesLog.setUserId(3L);
+      uiTradesLog.setAmount(UserInfoUtils.getRandomDecimalInRange(1, 1000000));
+      uiTradesLog.setOperations(UserInfoUtils.getRandomNumberInRange(1,4));
+      uiTradesLog.setProdId(BigInteger.valueOf(UserInfoUtils.getRandomNumberInRange(1,100) ));
+      uiTradesLog.setTradeDate(UserInfoUtils.getCurrentUTCTime());
+      uiTradesLog.setTradeStatus(UserInfoUtils.getRandomNumberInRange(1,3));
+      uiTradesLogs.add(uiTradesLog);
+    }
+    userInfoRepoService.addUiTrdLog(uiTradesLogs);
+  }
 
   @Autowired
   MongoTemplate mongoTemplate;
@@ -113,8 +144,8 @@ public class UserInfoRepoServiceImplTest {
 
   @org.junit.Test
   public void getUserInfoBankCards() throws Exception {
-    BigInteger userId = BigInteger.valueOf(1);
-    UiBankcard uiBankcard= userInfoBankCardsRepository.findOne(userId);
+//    BigInteger userId = BigInteger.valueOf(1);
+    UiBankcard uiBankcard= userInfoBankCardsRepository.findOne(1L);
     System.out.println(uiBankcard);
     String bankName = "工商银行";
     List<UiBankcard> uiBankcards= userInfoBankCardsRepository.findByBankName(bankName);

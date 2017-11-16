@@ -1,23 +1,15 @@
 package com.shellshellfish.account.service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.validation.ConstraintViolationException;
-
 import java.util.Date;
 import java.sql.Timestamp;
-
 //import org.springframework.test.context.ActiveProfiles;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.shellshellfish.account.commons.MD5;
+import com.shellshellfish.account.commons.SmsSender;
 import com.shellshellfish.account.exception.UserException;
-import com.shellshellfish.account.model.Account;
 import com.shellshellfish.account.model.BankCard;
 import com.shellshellfish.account.model.User;
 import com.shellshellfish.account.repositories.BankCardRepository;
@@ -47,7 +39,7 @@ public class AccountServiceImpl implements AccountService {
 	@Override
 	public boolean isSettingPWD(String telnum, String pwdsetting, String pwdconfirm) {
 		List<User> userList = userRepository.findByCellPhone(telnum);
-		if (userList == null || userList.size() != 1) {
+		if (userList == null || userList.size() != 1) {//有可能多于1条的冗余数据
 			return false;
 		}
 		if (pwdsetting.equals(pwdconfirm)) {
@@ -74,10 +66,10 @@ public class AccountServiceImpl implements AccountService {
 				userRepository.save(user);
 				return true;
 			} else {
-				throw new UserException("101", "密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合");
+				throw new UserException("102", "密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合");
 			}
 		} else {
-			throw new UserException("101", "两次密码需要一致");
+			throw new UserException("103", "两次密码需要一致");
 		}
 	}
 
@@ -113,6 +105,12 @@ public class AccountServiceImpl implements AccountService {
 	
 	@Override
 	public boolean isRegisterredTel(String cellphone) {
+		String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
+		Pattern telPattern = Pattern.compile(telRegExp);
+		Matcher telMatcher = telPattern.matcher(cellphone);
+		if (!telMatcher.find()) {
+			throw new UserException("101", "手机号格式不对");
+		}
 		List<User> reslst=userRepository.findByCellPhone(cellphone);
 		if (reslst.size()>0)
 			return true;
@@ -128,5 +126,11 @@ public class AccountServiceImpl implements AccountService {
 		
 		return false;
 		
+	}
+	
+	@Override
+	public boolean sendSmsMessage(String telnum) {
+		String responsemsg= SmsSender.sendVcode(telnum);
+		return true;
 	}
 }

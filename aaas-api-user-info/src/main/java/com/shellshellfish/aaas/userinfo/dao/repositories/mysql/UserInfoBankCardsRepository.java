@@ -4,13 +4,15 @@ import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
 import java.math.BigInteger;
 import java.util.List;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface UserInfoBankCardsRepository extends CrudRepository<UiBankcard, BigInteger> {
+public interface UserInfoBankCardsRepository extends
+    PagingAndSortingRepository<UiBankcard, Long> {
 
-  List<UiBankcard> findAllByUserId(BigInteger userId);
+  List<UiBankcard> findAllByUserId(Long userId);
 
   @Override
-  UiBankcard findOne(BigInteger bigInteger);
+  UiBankcard findOne(Long userId);
 
 //  @Query("select u from ui_bankcard u where u.bank_name = ?1")
   List<UiBankcard> findByBankName(String bankName);
