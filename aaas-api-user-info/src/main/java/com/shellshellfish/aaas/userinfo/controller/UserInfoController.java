@@ -157,32 +157,33 @@ public class UserInfoController {
 		}
 	}
 
-//
-//	/**
-//	 * 个人信息 页面
-//	 *
-//	 * @param id
-//	 * @return
-//	 */
-//	@ApiOperation("个人信息 页面")
-//	@ApiResponses({
-//		@ApiResponse(code=200,message="OK"),
-//        @ApiResponse(code=400,message="请求参数没填好"),
-//        @ApiResponse(code=401,message="未授权用户"),
-//		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
-//		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
-//    })
-//	@ApiImplicitParam(paramType="path",name="id",dataType="String",required=true,value="id",defaultValue="")
-//	@RequestMapping(value = "/userInfo/userpersonalpage/{id}", method = RequestMethod.GET)
-//	@AopLinkResources
-//	public ResponseEntity<?> getUserPersonalInfo(@PathVariable("id") String id){
-//		if(StringUtils.isEmpty(id)){
-//			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//		}else{
-//			Object result =  makePersonInfoResponse();
-//			return new ResponseEntity<Object>(result , HttpStatus.OK);
-//		}
-//	}
+
+	/**
+	 * 个人信息 页面
+	 *
+	 * @param id
+	 * @return
+	 */
+	@ApiOperation("个人信息 页面")
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+        @ApiResponse(code=400,message="请求参数没填好"),
+        @ApiResponse(code=401,message="未授权用户"),
+		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
+    })
+	@ApiImplicitParam(paramType="path",name="id",dataType="String",required=true,value="id",defaultValue="")
+	@RequestMapping(value = "/userInfo/{userUuid}/userpersonalpage/", method = RequestMethod.GET)
+	@AopLinkResources
+	public ResponseEntity<?> getUserPersonalInfo(@PathVariable("userUuid") String userUuid)
+			throws Exception {
+		if(StringUtils.isEmpty(userUuid)){
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}else{
+			UserBaseInfo userBaseInfo =  userInfoService.getUserInfoBase(userUuid);
+			return new ResponseEntity<Object>(userBaseInfo , HttpStatus.OK);
+		}
+	}
 
 
 	/**
