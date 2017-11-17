@@ -144,6 +144,7 @@ public class UserInfoController {
 			)throws Exception {
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
+		List<Map> relateList = new ArrayList<Map>();
 		if(StringUtils.isEmpty(cardNumber)){
 			throw new ServletRequestBindingException("no cardNumber in params");
 		}else{
@@ -152,6 +153,13 @@ public class UserInfoController {
 			selfmap.put("href", URL_HEAD+"/bankcardinfopage/"+id+ "?cardNumber="+cardNumber);
 			selfmap.put("describedBy",URL_HEAD+"/bankcardinfopage.json");
 			result.put("bankCard", bankCard);
+
+			HashMap<String,Object> relateditemmap=new HashMap<>();
+			relateditemmap = new HashMap<String,Object>();
+			relateditemmap.put("href", URL_HEAD+"/unbindbanks");
+			relateditemmap.put("name", "unbindbanks");
+			relateList.add(relateditemmap);
+			links.put("related", relateList);
 			
 			links.put("self", selfmap );
 			result.put("_links", links);
@@ -191,7 +199,7 @@ public class UserInfoController {
 
 
 	/**
-	 * 我的银行卡 添加银行卡
+	 * 银行卡 添加银行卡 下一步
 	 * @param cardNumber
 	 * @return
 	 */
@@ -224,10 +232,49 @@ public class UserInfoController {
 			return new ResponseEntity<Object>(result , HttpStatus.OK);
 		}
 	}
+	
+	/**
+	 *银行卡 添加银行卡 初始页面
+	 * @param cardNumber
+	 * @return
+	 */
+	@ApiOperation("银行卡 添加银行卡 初始页面")
+	@ApiResponses({ 
+		@ApiResponse(code = 200, message = "OK"), 
+		@ApiResponse(code = 400, message = "请求参数没填好"),
+		@ApiResponse(code = 401, message = "未授权用户"), 
+		@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对") })
+	@ApiImplicitParam(paramType = "path", name = "userUuid", dataType = "String", required = true, value = "id", defaultValue = "")
+	@RequestMapping(value = "/userinfo/user/{userUuid}/bankcardpage", method = RequestMethod.GET)
+	public ResponseEntity<?> addPreCheckBankCardWithCardNumber(
+			@Valid @NotNull(message = "id不能为空") @PathVariable("userUuid") String userUuid) {
+
+		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> links = new HashMap<>();
+		Map<String, Object> relateditemmap = new HashMap<>();
+		Map<String, Object> selfmap = new HashMap<>();
+		List<Map> relateList = new ArrayList<Map>();
+		
+		result.put("bankcardnum", "");
+
+		selfmap.put("href", URL_HEAD + "/user/" + userUuid + "/bankcardpage");
+		selfmap.put("describedBy", URL_HEAD + "/user/" + userUuid + "/bankcardpage.json");
+
+		relateditemmap = new HashMap<String, Object>();
+		relateditemmap.put("href", URL_HEAD + "/user/" + userUuid + "/bankcards");
+		relateditemmap.put("name", "bankcards");
+		relateList.add(relateditemmap);
+		
+		links.put("related", relateList);
+		links.put("self", selfmap);
+		result.put("_links", links);
+		return new ResponseEntity<Object>(result, HttpStatus.OK);
+	}
  
 
 	/**
-	 * 添加银行卡	action
+	 * 添加银行卡	提交action
 	 * @param id
 	 * @param bankcardDetailVo
 	 * @return
@@ -295,10 +342,18 @@ public class UserInfoController {
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
 		Map<String, Object> selfmap = new HashMap<>();
-
+		List<Map> relateList = new ArrayList<Map>();
+		
 		selfmap.put("href", URL_HEAD+"/"+userUuid+"/bankcards" );
 		selfmap.put("describedBy",URL_HEAD+"/"+userUuid+"/bankcards.json");
 		result.put("bankCards", bankCards);
+		
+		HashMap<String,Object> relateditemmap=new HashMap<>();
+		relateditemmap = new HashMap<String,Object>();
+		relateditemmap.put("href", URL_HEAD+"/user/"+userUuid+"/bankcardnum");
+		relateditemmap.put("name", "bankcardnum");
+		relateList.add(relateditemmap);
+		links.put("related", relateList);
 		
 		links.put("self", selfmap );
 		result.put("_links", links);
@@ -331,6 +386,7 @@ public class UserInfoController {
 			throws Exception {
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
+		List<Map> relateList = new ArrayList<Map>();
 		SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-DD");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		Date beginDate = null;
@@ -370,8 +426,9 @@ public class UserInfoController {
 		relateditemmap = new HashMap<String,Object>();
 		relateditemmap.put("href", URL_HEAD+"/incometrendchart");
 		relateditemmap.put("name", "incometrendchart");
-		links.put("related", relateditemmap);
+		relateList.add(relateditemmap);
 		
+		links.put("related", relateList);
 		result.put("_links", links);
 
 		return new ResponseEntity<Object>(result , HttpStatus.OK);
@@ -404,21 +461,27 @@ public class UserInfoController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue="")
 	})
-	@RequestMapping(value = "/userinfo/user/{userUuid}/investmentmessages", method =
-			RequestMethod
-			.GET)
-	public ResponseEntity<?> getPersonalInvstMsg(@Valid @NotNull(message = "userUuid不可为空")
-	@PathVariable(name = "userUuid") String userUuid)	throws Exception {
+	@RequestMapping(value = "/userinfo/user/{userUuid}/investmentmessages", method = RequestMethod.GET)
+	public ResponseEntity<?> getPersonalInvstMsg(
+			@Valid @NotNull(message = "userUuid不可为空") @PathVariable(name = "userUuid") String userUuid
+			)throws Exception {
 		List<UserPersonMsg> userPersonMsgs =  userInfoService.getUserPersonMsg(userUuid);
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
+		HashMap<String,Object> relateditemmap=new HashMap<>();
+		List<Map> relateList = new ArrayList<Map>();
 		result.put("userPersonMsg", userPersonMsgs);
 		
 		Map<String, Object> selfmap = new HashMap<>();
 		selfmap.put("href", URL_HEAD+"/"+ userUuid+"/message/investmentmessages");
 		selfmap.put("describedBy",URL_HEAD+"/"+ userUuid+"/message/investmentmessages.json");
 		
+		relateditemmap = new HashMap<String,Object>();
+		relateditemmap.put("href", URL_HEAD+"/user/"+userUuid+"/investmentmessages");
+		relateditemmap.put("name", "investmentmessages");
+		relateList.add(relateditemmap);
 		links.put("self", selfmap );
+		links.put("related", relateList);
 		result.put("_links", links);
 		return new ResponseEntity<Object>(result , HttpStatus.OK);
 	}
@@ -662,24 +725,24 @@ public class UserInfoController {
 		selfmap.put("describedBy",URL_HEAD+"/userpersonalpage.json");
 		
 		Map<String, Object> links = new HashMap<>();
-		List<Map> related = new ArrayList<>();
+		List<Map> relateList = new ArrayList<>();
 		Map<String, Object> userBirthAgeLink = new HashMap<>();
 		userBirthAgeLink.put("name", "userBirthAge");
 		userBirthAgeLink.put("href", URL_HEAD+"/getBirthAges");
-		related.add(userBirthAgeLink);
+		relateList.add(userBirthAgeLink);
 
 		Map<String, Object> userCarrierLink = new HashMap<>();
 		userCarrierLink.put("name", "userCarrier");
 		userCarrierLink.put("href", URL_HEAD+"/getCarriers");
-		related.add(userCarrierLink);
+		relateList.add(userCarrierLink);
 		
 		Map<String, Object> pwdupdateLink = new HashMap<>();
 		pwdupdateLink.put("name", "updatepassword");
 		pwdupdateLink.put("href", URL_HEAD+"/updatepassword");
-		related.add(pwdupdateLink);
+		relateList.add(pwdupdateLink);
 
 		links.put("self", selfmap );
-		links.put("related", related );
+		links.put("related", relateList );
 		result.put("_links", links);
 		return result;
 
