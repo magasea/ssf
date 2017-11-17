@@ -173,7 +173,7 @@ public class UserInfoController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
     })
 	@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="userUuid",defaultValue="")
-	@RequestMapping(value = "/userInfo/{userUuid}/userpersonalpage/", method = RequestMethod.GET)
+	@RequestMapping(value = "/userInfo/user/{userUuid}/userpersonalpage", method = RequestMethod.GET)
 	@AopLinkResources
 	public ResponseEntity<?> getUserPersonalInfo(@PathVariable("userUuid") String userUuid)
 			throws Exception {
@@ -584,7 +584,43 @@ public class UserInfoController {
 		result.put("_links", links);
 		return new ResponseEntity<Object>(result , HttpStatus.OK);
 	}
-	
+
+	@ApiOperation("好友邀请")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="userUuid",dataType="String",required=true,value="用户Uuid",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="bankId",dataType="Long",required=true,value="银行ID",defaultValue="")
+	})
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+		@ApiResponse(code=400,message="请求参数没填好"),
+		@ApiResponse(code=401,message="未授权用户"),
+		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
+	})
+	@RequestMapping(value = "/userinfo/user/{userUuid}/frndinvation", method = RequestMethod.GET)
+	public ResponseEntity<?> getFriendsInvationLinks(
+			@Valid @NotNull(message="用户Uuid") @PathVariable("userUuid") String userUuid,
+			@Valid @NotNull(message="银行ID") @RequestParam( required = false) Long bankId)
+			throws Exception {
+		//:TODO 这段分享朋友邀请好友的做法是要改的
+		Map<String, Object> friendIvtLinks = new HashMap<>();
+		friendIvtLinks.put("wechat","http://wx.qq.com");
+		friendIvtLinks.put("weibo","http://weibo.com");
+		friendIvtLinks.put("qq","http://qq.com");
+		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> selfmap = new HashMap<>();
+		Map<String, Object> links = new HashMap<>();
+
+		result.put("_items", friendIvtLinks );
+		result.put("_page","");
+
+		selfmap.put("href", "/api/userinfo/user/"+userUuid+"/frndinvation?bankId="+ bankId);
+		selfmap.put("describedBy","schema//api/userinfo/user/friendInvation.json");
+		links.put("self", selfmap );
+		result.put("_links", links);
+		return new ResponseEntity<Object>(result , HttpStatus.OK);
+	}
+
 	@ApiOperation("关于我们")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="path",name="id",dataType="String",required=true,value="id",defaultValue=""),
