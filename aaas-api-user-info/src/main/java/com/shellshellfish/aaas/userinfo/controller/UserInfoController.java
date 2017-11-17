@@ -172,7 +172,7 @@ public class UserInfoController {
 		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
     })
-	@ApiImplicitParam(paramType="path",name="id",dataType="String",required=true,value="id",defaultValue="")
+	@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="userUuid",defaultValue="")
 	@RequestMapping(value = "/userInfo/{userUuid}/userpersonalpage/", method = RequestMethod.GET)
 	@AopLinkResources
 	public ResponseEntity<?> getUserPersonalInfo(@PathVariable("userUuid") String userUuid)
