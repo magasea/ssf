@@ -186,14 +186,22 @@ public class UserInfoController {
 	@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="userUuid",defaultValue="")
 	@RequestMapping(value = "/userInfo/user/{userUuid}/userpersonalpage", method = RequestMethod.GET)
 	@AopLinkResources
-	public ResponseEntity<?> getUserPersonalInfo(@PathVariable("userUuid") String userUuid)
-			throws Exception {
+	public ResponseEntity<?> getUserPersonalInfo(
+			@Valid @NotNull(message = "userUuid不能为空") @PathVariable("userUuid") String userUuid)throws Exception {
 		if(StringUtils.isEmpty(userUuid)){
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}else{
 			UserBaseInfo userBaseInfo =  userInfoService.getUserInfoBase(userUuid);
-			return new ResponseEntity<Object>(userBaseInfo , HttpStatus.OK);
-
+			
+			Map<String, Object> result = new HashMap<>();
+			Map<String, Object> links = new HashMap<>();
+			Map<String, Object> selfmap = new HashMap<>();
+			selfmap.put("href", URL_HEAD+"/"+userUuid+"/userpersonalpage");
+			selfmap.put("describedBy",URL_HEAD+"/"+userUuid+"/userpersonalpage.json");
+			links.put("self", selfmap);
+			result.put("_links", links);
+			result.put("userBaseInfo", userBaseInfo);
+			return new ResponseEntity<Object>(result , HttpStatus.OK);
 		}
 	}
 
@@ -214,8 +222,9 @@ public class UserInfoController {
 	@ApiImplicitParam(paramType="query",name="cardNumber",dataType="String",required=true,value="银行卡号",defaultValue="")
 	@RequestMapping(value = "/userinfo/user/{userUuid}/bankcardnum", method = RequestMethod.GET)
 	public ResponseEntity<?> preCheckBankCardWithCardNumber(
+			@Valid @NotNull(message = "userUuid不能为空") @PathVariable("userUuid") String userUuid,
 			@Valid @NotNull(message = "银行卡号不能为空") @Size(max = 20, min = 15) @RequestParam("cardNumber") String cardNumber
-		,@PathVariable("userUuid") String userUuid){
+			){
 		if(StringUtils.isEmpty(cardNumber) ){
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}else{
@@ -292,9 +301,9 @@ public class UserInfoController {
 		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="id",defaultValue=""),
 		@ApiImplicitParam(name="bankcardDetailVo", value ="银行卡信息",required=true,paramType="body",dataType="BankcardDetailVo")
 	})
-	@RequestMapping(value = "/userinfo/user/{useruuid}/bankcards", method = RequestMethod.POST)
+	@RequestMapping(value = "/userinfo/user/{userUuid}/bankcards", method = RequestMethod.POST)
 		public ResponseEntity<?> addBankCardWithDetailInfo(@Valid @NotNull(message="不能为空")
-	@PathVariable("useruuid") String userUuid,
+	@PathVariable("userUuid") String userUuid,
 			@RequestBody BankcardDetailVo bankcardDetailVo) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		// Convert POJO to Map
