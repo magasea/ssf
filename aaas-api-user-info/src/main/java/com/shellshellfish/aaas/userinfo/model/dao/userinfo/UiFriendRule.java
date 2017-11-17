@@ -25,7 +25,8 @@ public class UiFriendRule implements Serializable {
 	@Column(name="bank_name")
 	private String bankName;
 
-	private int content;
+	@Column(name="content")
+	private String content;
 
 	@Column(name="created_by")
 	private String createdBy;
@@ -66,11 +67,11 @@ public class UiFriendRule implements Serializable {
 		this.bankName = bankName;
 	}
 
-	public int getContent() {
+	public String getContent() {
 		return this.content;
 	}
 
-	public void setContent(int content) {
+	public void setContent(String content) {
 		this.content = content;
 	}
 
