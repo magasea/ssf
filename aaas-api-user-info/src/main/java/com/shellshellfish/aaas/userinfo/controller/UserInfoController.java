@@ -59,7 +59,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserInfoController {
 
 	public static final Logger logger = LoggerFactory.getLogger(UserInfoController.class);
-
+	
+	public static String URL_HEAD="/api/userinfo";
+	
 	@Autowired
 	UserInfoService userInfoService;
 
@@ -89,8 +91,8 @@ public class UserInfoController {
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
 		Map<String, Object> selfmap = new HashMap<>();
-		selfmap.put("href", "/api/api/userinfo/initpage/"+userUuid);
-		selfmap.put("describedBy","schema//api/api/userinfo/initpage.json");
+		selfmap.put("href", URL_HEAD+"/initpage/"+userUuid);
+		selfmap.put("describedBy",URL_HEAD+"/initpage.json");
 		
 		List<BankCard> bankCards =  userInfoService.getUserInfoBankCards(userUuid);
 		UserInfoAssectsBrief userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
@@ -142,14 +144,22 @@ public class UserInfoController {
 			)throws Exception {
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
+		List<Map> relateList = new ArrayList<Map>();
 		if(StringUtils.isEmpty(cardNumber)){
 			throw new ServletRequestBindingException("no cardNumber in params");
 		}else{
 			BankCard bankCard =  userInfoService.getUserInfoBankCard(cardNumber);
 			Map<String, Object> selfmap = new HashMap<>();
-			selfmap.put("href", "/api/userinfo/bankcardinfopage/"+id+ "?cardNumber="+cardNumber);
-			selfmap.put("describedBy","schema///api/userinfo/bankcardinfopage.json");
+			selfmap.put("href", URL_HEAD+"/bankcardinfopage/"+id+ "?cardNumber="+cardNumber);
+			selfmap.put("describedBy",URL_HEAD+"/bankcardinfopage.json");
 			result.put("bankCard", bankCard);
+
+			HashMap<String,Object> relateditemmap=new HashMap<>();
+			relateditemmap = new HashMap<String,Object>();
+			relateditemmap.put("href", URL_HEAD+"/unbindbanks");
+			relateditemmap.put("name", "unbindbanks");
+			relateList.add(relateditemmap);
+			links.put("related", relateList);
 			
 			links.put("self", selfmap );
 			result.put("_links", links);
@@ -172,6 +182,7 @@ public class UserInfoController {
 		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
     })
+
 	@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="userUuid",defaultValue="")
 	@RequestMapping(value = "/userInfo/user/{userUuid}/userpersonalpage", method = RequestMethod.GET)
 	@AopLinkResources
@@ -182,12 +193,13 @@ public class UserInfoController {
 		}else{
 			UserBaseInfo userBaseInfo =  userInfoService.getUserInfoBase(userUuid);
 			return new ResponseEntity<Object>(userBaseInfo , HttpStatus.OK);
+
 		}
 	}
 
 
 	/**
-	 * 我的银行卡 添加银行卡
+	 * 银行卡 添加银行卡 下一步
 	 * @param cardNumber
 	 * @return
 	 */
@@ -213,17 +225,56 @@ public class UserInfoController {
 			Map<String, Object> result = new HashMap<>();
 			Map<String, Object> links = new HashMap<>();
 			Map<String, Object> selfmap = new HashMap<>();
-			selfmap.put("href", "/api/userinfo/user/"+userUuid+"/bankcardnum");
-			selfmap.put("describedBy","schema///api/userinfo/bankcardinfopage.json");
+			selfmap.put("href", URL_HEAD+"/user/"+userUuid+"/bankcardnum");
+			selfmap.put("describedBy",URL_HEAD+"/user/"+userUuid+"/bankcardnum.json");
 			links.put("self", selfmap);
 			result.put("_links", links);
 			return new ResponseEntity<Object>(result , HttpStatus.OK);
 		}
 	}
+	
+	/**
+	 *银行卡 添加银行卡 初始页面
+	 * @param cardNumber
+	 * @return
+	 */
+	@ApiOperation("银行卡 添加银行卡 初始页面")
+	@ApiResponses({ 
+		@ApiResponse(code = 200, message = "OK"), 
+		@ApiResponse(code = 400, message = "请求参数没填好"),
+		@ApiResponse(code = 401, message = "未授权用户"), 
+		@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对") })
+	@ApiImplicitParam(paramType = "path", name = "userUuid", dataType = "String", required = true, value = "id", defaultValue = "")
+	@RequestMapping(value = "/userinfo/user/{userUuid}/bankcardpage", method = RequestMethod.GET)
+	public ResponseEntity<?> addPreCheckBankCardWithCardNumber(
+			@Valid @NotNull(message = "id不能为空") @PathVariable("userUuid") String userUuid) {
 
+		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> links = new HashMap<>();
+		Map<String, Object> relateditemmap = new HashMap<>();
+		Map<String, Object> selfmap = new HashMap<>();
+		List<Map> relateList = new ArrayList<Map>();
+		
+		result.put("bankcardnum", "");
+
+		selfmap.put("href", URL_HEAD + "/user/" + userUuid + "/bankcardpage");
+		selfmap.put("describedBy", URL_HEAD + "/user/" + userUuid + "/bankcardpage.json");
+
+		relateditemmap = new HashMap<String, Object>();
+		relateditemmap.put("href", URL_HEAD + "/user/" + userUuid + "/bankcards");
+		relateditemmap.put("name", "bankcards");
+		relateList.add(relateditemmap);
+		
+		links.put("related", relateList);
+		links.put("self", selfmap);
+		result.put("_links", links);
+		return new ResponseEntity<Object>(result, HttpStatus.OK);
+	}
+ 
 
 	/**
-	 * 添加银行卡	action
+	 * 添加银行卡	提交action
 	 * @param id
 	 * @param bankcardDetailVo
 	 * @return
@@ -258,9 +309,9 @@ public class UserInfoController {
 		}});
 		BankCard bankCard = userInfoService.createBankcard(params);
 		if(bankCard==null){
-			return new ResponseEntity<Object>("/userinfo/userpersonalpage" , HttpStatus.OK);
+			return new ResponseEntity<Object>(URL_HEAD+"/userpersonalpage" , HttpStatus.OK);
 		}else{
-			return new ResponseEntity<Object>("/userInfo/userpersonalpage?action='userpersonalpage'" , HttpStatus.OK);
+			return new ResponseEntity<Object>(URL_HEAD+"/userpersonalpage?action='userpersonalpage'" , HttpStatus.OK);
 		}
 	}
 
@@ -291,10 +342,18 @@ public class UserInfoController {
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
 		Map<String, Object> selfmap = new HashMap<>();
-
-		selfmap.put("href", "/api/api/userinfo/"+userUuid+"/bankcards" );
-		selfmap.put("describedBy","schema///api/api/userinfo/"+userUuid+"/bankcards.json");
+		List<Map> relateList = new ArrayList<Map>();
+		
+		selfmap.put("href", URL_HEAD+"/"+userUuid+"/bankcards" );
+		selfmap.put("describedBy",URL_HEAD+"/"+userUuid+"/bankcards.json");
 		result.put("bankCards", bankCards);
+		
+		HashMap<String,Object> relateditemmap=new HashMap<>();
+		relateditemmap = new HashMap<String,Object>();
+		relateditemmap.put("href", URL_HEAD+"/user/"+userUuid+"/bankcardnum");
+		relateditemmap.put("name", "bankcardnum");
+		relateList.add(relateditemmap);
+		links.put("related", relateList);
 		
 		links.put("self", selfmap );
 		result.put("_links", links);
@@ -327,6 +386,7 @@ public class UserInfoController {
 			throws Exception {
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
+		List<Map> relateList = new ArrayList<Map>();
 		SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-DD");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		Date beginDate = null;
@@ -354,14 +414,21 @@ public class UserInfoController {
 		List<AssetDailyRept> assetDailyRepts =
 
 		userInfoService.getAssetDailyRept(userUuid, beginTimeLong, endTimeLong);
-
 		
 		result.put("assetDailyRepts", assetDailyRepts);
 		
 		Map<String, Object> selfmap = new HashMap<>();
-		selfmap.put("href", "/api/userinfo/"+userUuid+"/userassets/overview?beginDate="+bgDate+"&endDate="+edDate);
-		selfmap.put("describedBy","schema//api/userinfo/"+userUuid+"/userassets/overview.json");
+		selfmap.put("href", URL_HEAD+"/"+userUuid+"/userassets/overview?beginDate="+bgDate+"&endDate="+edDate);
+		selfmap.put("describedBy",URL_HEAD+"/"+userUuid+"/userassets/overview.json");
 		links.put("self", selfmap );
+		
+		HashMap<String,Object> relateditemmap=new HashMap<>();
+		relateditemmap = new HashMap<String,Object>();
+		relateditemmap.put("href", URL_HEAD+"/incometrendchart");
+		relateditemmap.put("name", "incometrendchart");
+		relateList.add(relateditemmap);
+		
+		links.put("related", relateList);
 		result.put("_links", links);
 
 		return new ResponseEntity<Object>(result , HttpStatus.OK);
@@ -394,21 +461,27 @@ public class UserInfoController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue="")
 	})
-	@RequestMapping(value = "/userinfo/user/{userUuid}/investmentmessages", method =
-			RequestMethod
-			.GET)
-	public ResponseEntity<?> getPersonalInvstMsg(@Valid @NotNull(message = "userUuid不可为空")
-	@PathVariable(name = "userUuid") String userUuid)	throws Exception {
+	@RequestMapping(value = "/userinfo/user/{userUuid}/investmentmessages", method = RequestMethod.GET)
+	public ResponseEntity<?> getPersonalInvstMsg(
+			@Valid @NotNull(message = "userUuid不可为空") @PathVariable(name = "userUuid") String userUuid
+			)throws Exception {
 		List<UserPersonMsg> userPersonMsgs =  userInfoService.getUserPersonMsg(userUuid);
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
+		HashMap<String,Object> relateditemmap=new HashMap<>();
+		List<Map> relateList = new ArrayList<Map>();
 		result.put("userPersonMsg", userPersonMsgs);
 		
 		Map<String, Object> selfmap = new HashMap<>();
-		selfmap.put("href", "/api/userinfo/"+ userUuid+"/message/investmentmessages");
-		selfmap.put("describedBy","schema//api/userinfo/"+ userUuid+"/message/investmentmessages.json");
+		selfmap.put("href", URL_HEAD+"/"+ userUuid+"/message/investmentmessages");
+		selfmap.put("describedBy",URL_HEAD+"/"+ userUuid+"/message/investmentmessages.json");
 		
+		relateditemmap = new HashMap<String,Object>();
+		relateditemmap.put("href", URL_HEAD+"/user/"+userUuid+"/investmentmessages");
+		relateditemmap.put("name", "investmentmessages");
+		relateList.add(relateditemmap);
 		links.put("self", selfmap );
+		links.put("related", relateList);
 		result.put("_links", links);
 		return new ResponseEntity<Object>(result , HttpStatus.OK);
 	}
@@ -438,8 +511,8 @@ public class UserInfoController {
 		result.put("userSysMsgs", userSysMsgs);
 		
 		Map<String, Object> selfmap = new HashMap<>();
-		selfmap.put("href", "/api/userinfo/"+userUuid+"/message/systemmessages" );
-		selfmap.put("describedBy","schema//api/userinfo/"+userUuid+"/message/systemmessages.json");
+		selfmap.put("href", URL_HEAD+"/"+userUuid+"/message/systemmessages" );
+		selfmap.put("describedBy",URL_HEAD+"/"+userUuid+"/message/systemmessages.json");
 		
 		links.put("self", selfmap );
 		result.put("_links", links);
@@ -471,10 +544,19 @@ public class UserInfoController {
 		if(!result){
 			return new ResponseEntity<Object>("更新内容失败",HttpStatus.UNAUTHORIZED);
 		} else {
-			return new ResponseEntity<Object>("/userinfo/message/updateinvestmentmessages/investmentmessages?userUuid="+userPersonalMsgVo.getUuid() , HttpStatus.OK);
+			return new ResponseEntity<Object>(URL_HEAD+"/message/updateinvestmentmessages/investmentmessages?userUuid="+userPersonalMsgVo.getUuid() , HttpStatus.OK);
 		}
 	}
 
+	/**
+	 * 交易记录
+	 * @param userUuid
+	 * @param pageNum
+	 * @param pageSize
+	 * @param sortField
+	 * @return
+	 * @throws Exception
+	 */
 	@ApiOperation("交易记录")
 	@ApiResponses({
 		@ApiResponse(code=200,message="OK"),
@@ -515,9 +597,9 @@ public class UserInfoController {
 		result.put("_page","");
 		
 		Map<String, Object> selfmap = new HashMap<>();
-		selfmap.put("href", "/api/userinfo/user"+userUuid+"/trade/log?pageNum="+pageNum+"&pageSize"
+		selfmap.put("href", URL_HEAD+"/user"+userUuid+"/trade/log?pageNum="+pageNum+"&pageSize"
 				+ "="+pageSize );
-		selfmap.put("describedBy","schema//api/userinfo/"+userUuid+"/trade/log.json");
+		selfmap.put("describedBy",URL_HEAD+"/"+userUuid+"/trade/log.json");
 		
 		links.put("self", selfmap );
 		result.put("_links", links);
@@ -553,6 +635,14 @@ public class UserInfoController {
 //		result.put("_links", links);
 //		return new ResponseEntity<Object>(result , HttpStatus.OK);
 //	}
+	
+	/**
+	 * 邀请规则
+	 * @param userUuid
+	 * @param bankId
+	 * @return
+	 * @throws Exception
+	 */
 	@ApiOperation("邀请规则")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="userUuid",defaultValue="")
@@ -577,8 +667,8 @@ public class UserInfoController {
 		result.put("_page","");
 		
 		Map<String, Object> selfmap = new HashMap<>();
-		selfmap.put("href", "/api/userinfo/friendrules/"+userUuid+"?bankId="+bankId );
-		selfmap.put("describedBy","schema//api/userinfo/friendrules.json");
+		selfmap.put("href", URL_HEAD+"/friendrules/"+userUuid+"?bankId="+bankId );
+		selfmap.put("describedBy",URL_HEAD+"/friendrules.json");
 		
 		links.put("self", selfmap );
 		result.put("_links", links);
@@ -621,11 +711,20 @@ public class UserInfoController {
 		return new ResponseEntity<Object>(result , HttpStatus.OK);
 	}
 
+
+	/**
+	 * 关于我们
+	 * @param userUuid
+	 * @param bankId
+	 * @return
+	 * @throws Exception
+	 */
+
 	@ApiOperation("关于我们")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType="path",name="id",dataType="String",required=true,value="id",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="userUuid",dataType="String",required=true,value="用户Uuid",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="bankId",dataType="Long",required=true,value="银行ID",defaultValue="")
+		//@ApiImplicitParam(paramType="path",name="id",dataType="String",required=true,value="id",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="userUuid",dataType="String",required=false,value="用户Uuid",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="bankId",dataType="Long",required=false,value="银行ID",defaultValue="")
     })
 	@ApiResponses({
 		@ApiResponse(code=200,message="OK"),
@@ -636,8 +735,8 @@ public class UserInfoController {
     })
 	@RequestMapping(value = "/userinfo/companyinfos", method = RequestMethod.GET)
 	public ResponseEntity<?> getCompanyInfo(
-			@Valid @NotNull(message="用户Uuid") @RequestParam String userUuid, 
-			@Valid @NotNull(message="银行ID") @RequestParam( required = false) Long bankId)
+			 @RequestParam String userUuid, 
+			 @RequestParam( required = false) Long bankId)
 			throws Exception {
 		UserInfoCompanyInfo userInfoCompanyInfo = userInfoService.getCompanyInfo(userUuid, bankId);
 		Map<String, Object> result = new HashMap<>();
@@ -647,8 +746,8 @@ public class UserInfoController {
 		result.put("_items", userInfoCompanyInfo);
 		result.put("_page","");
 		
-		selfmap.put("href", "/api/userinfo/companyinfos?userUuid="+userUuid+"&bankId="+bankId);
-		selfmap.put("describedBy","schema//api/userinfo/companyinfos.json");
+		selfmap.put("href", URL_HEAD+"/companyinfos?userUuid="+userUuid+"&bankId="+bankId);
+		selfmap.put("describedBy",URL_HEAD+"/companyinfos.json");
 		links.put("self", selfmap );
 		result.put("_links", links);
 		return new ResponseEntity<Object>(result , HttpStatus.OK);
@@ -661,28 +760,28 @@ public class UserInfoController {
 		result.put("userCarrier","非金融业");
 		
 		Map<String, Object> selfmap = new HashMap<>();
-		selfmap.put("href", "/api/user/userpersonalpage/{id}" );
-		selfmap.put("describedBy","schema//user/userpersonalpage.json");
+		selfmap.put("href", URL_HEAD+"/userpersonalpage/{id}" );
+		selfmap.put("describedBy",URL_HEAD+"/userpersonalpage.json");
 		
 		Map<String, Object> links = new HashMap<>();
-		List<Map> related = new ArrayList<>();
+		List<Map> relateList = new ArrayList<>();
 		Map<String, Object> userBirthAgeLink = new HashMap<>();
 		userBirthAgeLink.put("name", "userBirthAge");
-		userBirthAgeLink.put("href", "/api/userInfo/getBirthAges/");
-		related.add(userBirthAgeLink);
+		userBirthAgeLink.put("href", URL_HEAD+"/getBirthAges");
+		relateList.add(userBirthAgeLink);
 
 		Map<String, Object> userCarrierLink = new HashMap<>();
 		userCarrierLink.put("name", "userCarrier");
-		userCarrierLink.put("href", "/api/userInfo/getCarriers/");
-		related.add(userCarrierLink);
+		userCarrierLink.put("href", URL_HEAD+"/getCarriers");
+		relateList.add(userCarrierLink);
 		
 		Map<String, Object> pwdupdateLink = new HashMap<>();
 		pwdupdateLink.put("name", "updatepassword");
-		pwdupdateLink.put("href", "/api/userInfo/updatepassword/");
-		related.add(pwdupdateLink);
+		pwdupdateLink.put("href", URL_HEAD+"/updatepassword");
+		relateList.add(pwdupdateLink);
 
 		links.put("self", selfmap );
-		links.put("related", related );
+		links.put("related", relateList );
 		result.put("_links", links);
 		return result;
 
@@ -698,13 +797,13 @@ public class UserInfoController {
 		result.put("userPortfolio", 1);
 		result.put("userBankCards", 1);
 		Map<String, Object> links = new HashMap<>();
-		links.put("self", "/api/user/baseinfo/id" );
-		links.put("describedBy","schema/common/item.json");
+		links.put("self", URL_HEAD+"/baseinfo/id" );
+		links.put("describedBy",URL_HEAD+"/baseinfo/id.json");
 		List<Map> related = new ArrayList<>();
 		Map<String, Object> itemsCellphone = new HashMap<>();
 		itemsCellphone.put("name", "cellphone");
-		itemsCellphone.put("href", "/api/userInfo/getUserPersonalInfo/id/");
-		itemsCellphone.put("describedBy", "schema/userInfo/userBase/item.json");
+		itemsCellphone.put("href", URL_HEAD+"/getUserPersonalInfo/id/");
+		itemsCellphone.put("describedBy", URL_HEAD+"/userBase/item.json");
 		itemsCellphone.put("title", "189****8899");
 		Map<String, Object> iconObj = new HashMap<>();
 		Map<String, String> iconRef = new HashMap<>();
@@ -714,52 +813,52 @@ public class UserInfoController {
 		related.add(itemsCellphone);
 		Map<String, String> userAssetsBrief = new HashMap<>();
 		userAssetsBrief.put("name", "userAssetsBrief");
-		userAssetsBrief.put("href", "/api/userInfo/userAssetsBrief/id");
+		userAssetsBrief.put("href", URL_HEAD+"/userAssetsBrief/id");
 		related.add(userAssetsBrief);
 		Map<String, String> userPortfolio = new HashMap<>();
 		userPortfolio.put("name", "userPortfolio");
-		userPortfolio.put("href", "/api/userInfo/userPortfolio/id");
+		userPortfolio.put("href", URL_HEAD+"/userPortfolio/id");
 		related.add(userPortfolio);
 		Map<String, String> userBankCards = new HashMap<>();
 		userBankCards.put("name", "userBankCards");
-		userBankCards.put("href", "/api/userInfo/userBankCards/id");
+		userBankCards.put("href", URL_HEAD+"/userBankCards/id");
 		related.add(userBankCards);
 
 		Map<String, String> userInviteFriends = new HashMap<>();
 		userInviteFriends.put("name", "userInviteFriends");
-		userInviteFriends.put("href", "/api/userInfo/userInviteFriends/id");
+		userInviteFriends.put("href", URL_HEAD+"/userInviteFriends/id");
 		related.add(userInviteFriends);
 
 
 		Map<String, String> userMessage = new HashMap<>();
 		userMessage.put("name", "userMessage");
-		userMessage.put("href", "/api/userInfo/userMessage/id");
+		userMessage.put("href", URL_HEAD+"/userMessage/id");
 		related.add(userMessage);
 
 		Map<String, String> aboutShellShellFish = new HashMap<>();
 		aboutShellShellFish.put("name", "aboutShellShellFish");
-		aboutShellShellFish.put("href", "/api/userInfo/aboutShellShellFish/id");
+		aboutShellShellFish.put("href", URL_HEAD+"/aboutShellShellFish/id");
 		related.add(aboutShellShellFish);
 
 
 		Map<String, String> logout = new HashMap<>();
 		logout.put("name", "logout");
-		logout.put("href", "/api/userInfo/logout/id");
+		logout.put("href", URL_HEAD+"/logout/id");
 		related.add(logout);
 
 		Map<String, String> homePage = new HashMap<>();
 		homePage.put("name", "homePage");
-		homePage.put("href", "/api/userInfo/homePage/id");
+		homePage.put("href", URL_HEAD+"/homePage/id");
 		related.add(homePage);
 
 		Map<String, String> finance = new HashMap<>();
 		finance.put("name", "finance");
-		finance.put("href", "/api/userInfo/finance/id");
+		finance.put("href", URL_HEAD+"/finance/id");
 		related.add(finance);
 
 		Map<String, String> userInfo = new HashMap<>();
 		userInfo.put("name", "userInfo");
-		userInfo.put("href", "/api/userInfo/userInfo/id");
+		userInfo.put("href", URL_HEAD+"/userInfo/id");
 		related.add(userInfo);
 
 		links.put("related", related );
