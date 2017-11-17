@@ -7,6 +7,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface UserInfoFriendRuleRepository extends PagingAndSortingRepository<UiFriendRule,
     Long> {
-  List<UiFriendRule> findAllByBankId( BigInteger bankId);
+  List<UiFriendRule> findAllByBankId( Long bankId);
   List<UiFriendRule> findAll();
 }

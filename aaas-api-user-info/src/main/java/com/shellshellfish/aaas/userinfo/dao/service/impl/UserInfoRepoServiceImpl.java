@@ -191,7 +191,7 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
     if(null == bankId) {
       return userInfoFriendRuleRepository.findAll();
     }else{
-      return userInfoFriendRuleRepository.findAllByBankId(BigInteger.valueOf(bankId));
+      return userInfoFriendRuleRepository.findAllByBankId(bankId);
     }
   }
 

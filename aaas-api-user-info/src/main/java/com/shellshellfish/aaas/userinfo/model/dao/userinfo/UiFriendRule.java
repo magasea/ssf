@@ -2,7 +2,6 @@ package com.shellshellfish.aaas.userinfo.model.dao.userinfo;
 
 import java.io.Serializable;
 import javax.persistence.*;
-import java.math.BigInteger;
 
 
 /**
@@ -18,13 +17,13 @@ public class UiFriendRule implements Serializable {
 	@Id
 	@SequenceGenerator(name="UI_FRIEND_RULE_ID_GENERATOR" )
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="UI_FRIEND_RULE_ID_GENERATOR")
-	private String id;
+	private Long id;
 
 	@Column(name="bank_id")
-	private BigInteger bankId;
+	private Long bankId;
 
 	@Column(name="bank_name")
-	private BigInteger bankName;
+	private String bankName;
 
 	private int content;
 
@@ -32,38 +31,38 @@ public class UiFriendRule implements Serializable {
 	private String createdBy;
 
 	@Column(name="created_date")
-	private BigInteger createdDate;
+	private Long createdDate;
 
 	@Column(name="last_modified_by")
 	private String lastModifiedBy;
 
 	@Column(name="last_modified_date")
-	private BigInteger lastModifiedDate;
+	private Long lastModifiedDate;
 
 	public UiFriendRule() {
 	}
 
-	public String getId() {
+	public Long getId() {
 		return this.id;
 	}
 
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public BigInteger getBankId() {
+	public Long getBankId() {
 		return this.bankId;
 	}
 
-	public void setBankId(BigInteger bankId) {
+	public void setBankId(Long bankId) {
 		this.bankId = bankId;
 	}
 
-	public BigInteger getBankName() {
+	public String getBankName() {
 		return this.bankName;
 	}
 
-	public void setBankName(BigInteger bankName) {
+	public void setBankName(String bankName) {
 		this.bankName = bankName;
 	}
 
@@ -83,11 +82,11 @@ public class UiFriendRule implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public BigInteger getCreatedDate() {
+	public Long getCreatedDate() {
 		return this.createdDate;
 	}
 
-	public void setCreatedDate(BigInteger createdDate) {
+	public void setCreatedDate(Long createdDate) {
 		this.createdDate = createdDate;
 	}
 
@@ -99,11 +98,11 @@ public class UiFriendRule implements Serializable {
 		this.lastModifiedBy = lastModifiedBy;
 	}
 
-	public BigInteger getLastModifiedDate() {
+	public Long getLastModifiedDate() {
 		return this.lastModifiedDate;
 	}
 
-	public void setLastModifiedDate(BigInteger lastModifiedDate) {
+	public void setLastModifiedDate(Long lastModifiedDate) {
 		this.lastModifiedDate = lastModifiedDate;
 	}
 

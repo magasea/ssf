@@ -80,7 +80,7 @@ public class UserInfoController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="userUuid",defaultValue="")
 	})
-	@RequestMapping(value = "/userinfo/initpage/{userUuid}", method = RequestMethod.GET)
+	@RequestMapping(value = "/userinfo/users/{userUuid}/initpage/", method = RequestMethod.GET)
 	@AopLinkResources
 	public ResponseEntity<Object> getUserBaseInfo(
 			@Valid @NotNull(message="userUuid不能为空") @PathVariable("userUuid") String userUuid
@@ -199,17 +199,24 @@ public class UserInfoController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
     })
 	@ApiImplicitParam(paramType="query",name="cardNumber",dataType="String",required=true,value="银行卡号",defaultValue="")
-	@RequestMapping(value = "/userinfo/bankcard", method = RequestMethod.GET)
+	@RequestMapping(value = "/userinfo/user/{userUuid}/bankcardnum", method = RequestMethod.GET)
 	public ResponseEntity<?> preCheckBankCardWithCardNumber(
 			@Valid @NotNull(message = "银行卡号不能为空") @Size(max = 20, min = 15) @RequestParam("cardNumber") String cardNumber
-		){
+		,@PathVariable("userUuid") String userUuid){
 		if(StringUtils.isEmpty(cardNumber) ){
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}else{
 			if(!UserInfoUtils.matchLuhn(cardNumber)){
 				return new ResponseEntity<Object>("银行卡号不正确." , HttpStatus.NOT_ACCEPTABLE);
 			}
-			return new ResponseEntity<Object>("/userinfo/bankcards/add/" , HttpStatus.OK);
+			Map<String, Object> result = new HashMap<>();
+			Map<String, Object> links = new HashMap<>();
+			Map<String, Object> selfmap = new HashMap<>();
+			selfmap.put("href", "/api/userinfo/user/"+userUuid+"/bankcardnum");
+			selfmap.put("describedBy","schema///api/userinfo/bankcardinfopage.json");
+			links.put("self", selfmap);
+			result.put("_links", links);
+			return new ResponseEntity<Object>(result , HttpStatus.OK);
 		}
 	}
 
@@ -233,7 +240,7 @@ public class UserInfoController {
 		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="id",defaultValue=""),
 		@ApiImplicitParam(name="bankcardDetailVo", value ="银行卡信息",required=true,paramType="body",dataType="BankcardDetailVo")
 	})
-	@RequestMapping(value = "/userinfo/{useruuid}/bankcards", method = RequestMethod.POST)
+	@RequestMapping(value = "/userinfo/user/{useruuid}/bankcards", method = RequestMethod.POST)
 		public ResponseEntity<?> addBankCardWithDetailInfo(@Valid @NotNull(message="不能为空")
 	@PathVariable("useruuid") String userUuid,
 			@RequestBody BankcardDetailVo bankcardDetailVo) throws Exception {
@@ -274,7 +281,7 @@ public class UserInfoController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,defaultValue=""),
 	})
-	@RequestMapping(value = "/userinfo/{userUuid}/bankcards", method = RequestMethod.GET)
+	@RequestMapping(value = "/userinfo/user/{userUuid}/bankcards", method = RequestMethod.GET)
 	public ResponseEntity<?> addBankCardWithDetailInfo(@Valid @NotNull(message="不能为空")
 	@PathVariable("userUuid") String userUuid) throws Exception {
 
@@ -283,7 +290,7 @@ public class UserInfoController {
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
 		Map<String, Object> selfmap = new HashMap<>();
-		
+
 		selfmap.put("href", "/api/api/userinfo/"+userUuid+"/bankcards" );
 		selfmap.put("describedBy","schema///api/api/userinfo/"+userUuid+"/bankcards.json");
 		result.put("bankCards", bankCards);
@@ -310,7 +317,7 @@ public class UserInfoController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
     })
 
-	@RequestMapping(value = "/userinfo/{userUuid}/userassets/overview", method = RequestMethod
+	@RequestMapping(value = "/userinfo/user/{userUuid}/assetoverview", method = RequestMethod
 			.GET)
 	public ResponseEntity<?> getUserAssetsOverview(@Valid @NotNull(message="不能为空") @PathVariable
 			("userUuid") String userUuid, @RequestParam("beginDate") String bgDate, @RequestParam
@@ -386,7 +393,8 @@ public class UserInfoController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue="")
 	})
-	@RequestMapping(value = "/userinfo/{userUuid}/message/investmentmessages", method = RequestMethod
+	@RequestMapping(value = "/userinfo/user/{userUuid}/investmentmessages", method =
+			RequestMethod
 			.GET)
 	public ResponseEntity<?> getPersonalInvstMsg(@Valid @NotNull(message = "userUuid不可为空")
 	@PathVariable(name = "userUuid") String userUuid)	throws Exception {
@@ -419,7 +427,7 @@ public class UserInfoController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
     })
 	@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue="")
-	@RequestMapping(value = "/userinfo/{userUuid}/message/systemmessages", method = RequestMethod
+	@RequestMapping(value = "/userinfo/user/{userUuid}/systemmessages", method = RequestMethod
 			.GET)
 	public ResponseEntity<?> getSystemMsg(@Valid @NotNull(message = "userUuid不可为空")@PathVariable String userUuid)
 			throws Exception {
@@ -452,8 +460,8 @@ public class UserInfoController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
     })
 	@ApiImplicitParam(name="userPersonalMsgVo", value ="推送内容",required=true,paramType="body",dataType="UserPersonalMsgVo")
-	@RequestMapping(value = "/userinfo/{userUuid}/message/updateinvestmentmessages", method =
-			RequestMethod.POST)
+	@RequestMapping(value = "/userinfo/user/{userUuid}/investmentmessages", method =
+			RequestMethod.PATCH)
 	public ResponseEntity<?> updatePersonalMsg(@RequestBody UserPersonalMsgVo userPersonalMsgVo)
 			throws Exception {
 
@@ -481,7 +489,7 @@ public class UserInfoController {
 		@ApiImplicitParam(paramType="query",name="sortField",dataType="String",required=false,
 				value="排序",defaultValue="")
 	})
-	@RequestMapping(value = "/userinfo/{userUuid}/trade/log", method = RequestMethod.GET)
+	@RequestMapping(value = "/userinfo/user/{userUuid}/tradelog", method = RequestMethod.GET)
 	public ResponseEntity<?> getTradLogsOfUser(@PathVariable String userUuid, @RequestParam( required = false) String
 			pageNum, @RequestParam( required = false) String pageSize, @RequestParam( required = false) String sortField )
 			throws Exception {
@@ -506,7 +514,8 @@ public class UserInfoController {
 		result.put("_page","");
 		
 		Map<String, Object> selfmap = new HashMap<>();
-		selfmap.put("href", "/api/userinfo/"+userUuid+"/trade/log?pageNum="+pageNum+"&pageSize="+pageSize );
+		selfmap.put("href", "/api/userinfo/user"+userUuid+"/trade/log?pageNum="+pageNum+"&pageSize"
+				+ "="+pageSize );
 		selfmap.put("describedBy","schema//api/userinfo/"+userUuid+"/trade/log.json");
 		
 		links.put("self", selfmap );
