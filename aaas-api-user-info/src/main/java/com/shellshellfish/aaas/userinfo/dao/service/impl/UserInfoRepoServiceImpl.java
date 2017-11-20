@@ -119,8 +119,7 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
     Date beginDated = new Date(beginDate);
     query.addCriteria(Criteria.where("date").gte(beginDate).lt(endDate));
     System.out.println("userId:" + userId + " beginDate:"+beginDate + " endDate:" + endDate);
-    return mongoUserAssectsRepository
-        .findByUserIdAndDateIsBetween(BigInteger.valueOf(userId), beginDate, endDate);
+    return mongoUserAssectsRepository.findByUserIdAndDateIsBetween(BigInteger.valueOf(userId), beginDate, endDate);
   }
 
   @Override
@@ -144,10 +143,10 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
   }
 
   @Override
-  public Boolean updateUiUserPersonMsg(List<String> msgs, Long userId, Boolean
+  public Boolean updateUiUserPersonMsg(String msg, Long userId, Boolean
       readedStatus) {
     Query query = new Query();
-    query.addCriteria(Criteria.where("id").in(msgs).and("userId").is(userId.toString()));
+    query.addCriteria(Criteria.where("id").is(msg).and("userId").is(userId.toString()));
     Update update = new Update();
     update.set("readed", readedStatus);
     WriteResult result = mongoTemplate.updateMulti(query, update, UiPersonMsg.class);
