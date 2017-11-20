@@ -42,7 +42,7 @@ public class UiTrdLog implements Serializable {
   @Column(name="prod_id")
   private BigInteger prodId;
 
-  @Indexed(name="trade_date_idx", direction = IndexDirection.DESCENDING)
+
   @Column(name="trade_date")
   private Long tradeDate;
 
