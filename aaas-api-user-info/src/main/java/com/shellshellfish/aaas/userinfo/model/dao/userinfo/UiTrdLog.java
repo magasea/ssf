@@ -4,6 +4,8 @@ import java.io.Serializable;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import org.springframework.data.mongodb.core.index.IndexDirection;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 
 /**
@@ -40,6 +42,7 @@ public class UiTrdLog implements Serializable {
   @Column(name="prod_id")
   private BigInteger prodId;
 
+  @Indexed(name="trade_date_idx", direction = IndexDirection.DESCENDING)
   @Column(name="trade_date")
   private Long tradeDate;
 
