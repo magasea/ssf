@@ -178,10 +178,10 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public Boolean updateUserPersonMsg(List<String> msgIds, String userUuid,
+    public Boolean updateUserPersonMsg(String msgId, String userUuid,
         Boolean readedStatus) throws Exception {
         Long userId = getUserIdFromUUID(userUuid);
-        Boolean result = userInfoRepoService.updateUiUserPersonMsg(msgIds, userId,
+        Boolean result = userInfoRepoService.updateUiUserPersonMsg(msgId, userId,
             readedStatus);
 
         return result;

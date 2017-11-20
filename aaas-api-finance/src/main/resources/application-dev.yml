@@ -16,7 +16,7 @@ spring:
         url: jdbc:mysql://192.168.1.10/ssffinance?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&useSSL=false
         name:
         username: sa
-        password: abcd1234
+        password: 1qaz@WSX
         maximum-pool-size: 2000
         hikari:
             data-source-properties:
