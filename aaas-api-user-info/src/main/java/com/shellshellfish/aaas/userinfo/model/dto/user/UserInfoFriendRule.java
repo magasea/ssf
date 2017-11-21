@@ -1,12 +1,16 @@
 package com.shellshellfish.aaas.userinfo.model.dto.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class UserInfoFriendRule {
+	@JsonIgnore
 	private Long id;
+	@JsonIgnore
 	private Long bankId;
 	private String content;
 	private String bankName;

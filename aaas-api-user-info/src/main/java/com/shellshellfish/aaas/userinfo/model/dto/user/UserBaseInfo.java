@@ -2,8 +2,11 @@ package com.shellshellfish.aaas.userinfo.model.dto.user;
 
 import java.util.Date;
 
-public class UserBaseInfo {
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+public class UserBaseInfo {
+	
+	@JsonIgnore
 	Long id;
 	String cellPhone;
 	Date birthAge;
