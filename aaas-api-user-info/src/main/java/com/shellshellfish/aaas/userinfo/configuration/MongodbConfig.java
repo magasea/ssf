@@ -23,8 +23,8 @@ public class MongodbConfig {
 
   @Value("${spring.data.mongodb.database}")
   String database;
-
-  public @Bean
+  @Bean
+  public
   MongoTemplate mongoTemplate() throws Exception {
 
     MongoTemplate mongoTemplate = new MongoTemplate(new MongoClient(host, port),

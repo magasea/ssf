@@ -20,7 +20,6 @@ datasource:
     defaultSchema:
     maxPoolSize: 10
     hibernate:
-
       hbm2ddl.method: create-drop
       show_sql: true
       format_sql: true
@@ -28,21 +27,21 @@ datasource:
 ---
 
 spring:
-    profiles: test
-    data:
-      mongodb:
-        database: test1
-        host: 39.106.58.154
-        port: 27017
+  profiles: test
+  data:
+    mongodb:
+      database: test1
+      host: localhost
+      port: 27017
 datasource:
   sampleapp:
 #    url: jdbc:mysql://192.168.0.25:3306/websystique
 #    username: myuser
 #    password: mypassword
-    url: jdbc:mysql://39.106.58.154:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
+    url: jdbc:mysql://localhost:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci
+    &characterSetResults=utf8&characterEncoding=utf-8
     username: sa
     password: 1qaz@WSX
-
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema: ssfuser
     maxPoolSize: 20

@@ -24,18 +24,14 @@ public class UiPersonMsg implements Serializable {
 
   String msgTitle;
 
-
   private String createdBy;
 
   @Indexed(name ="createdate_idx", direction = IndexDirection.DESCENDING)
   private Long createdDate;
 
-
   private String lastModifiedBy;
 
-
   private Long lastModifiedDate;
-
 
   private Long time;
 

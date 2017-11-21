@@ -18,37 +18,4 @@
         <module>aaas-api-risk-assessment</module>
     </modules>
 
-    <build>
-        <plugins>
-    <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.5.1</version>
-        <executions>
-            <execution>
-                <id>default-deploy</id>
-                <phase>deploy</phase>
-                <goals>
-                    <goal>deploy</goal>
-                </goals>
-            </execution>
-        </executions>
-        <configuration>
-            <serverId>ssf-nexus-releases</serverId>
-            <nexusUrl>http://192.168.1.10:8081/nexus/</nexusUrl>
-            <skipStaging>true</skipStaging>
-        </configuration>
-        </plugin>
-        </plugins>
-    </build>
-    <distributionManagement>
-        <repository>
-            <id>ssf-nexus-releases</id>
-            <url>http://192.168.1.10:8081/repositories/releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>ssf-nexus-snapshots</id>
-            <url>http://192.168.1.10:8081/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>
