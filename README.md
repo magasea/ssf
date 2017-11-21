@@ -29,5 +29,5 @@
 的切换
 11. 我们采用的restful思想进行url设计,任何资源默认支持crud操作,url 的资源从大到小排序从主到次进行排列： 
 比如：api/userinfo/user/{userUuid}/bankcards/{bankcardNum}
-
+12. redis key定义规范:{主模块名字}_{模块名字}_{具体变量名字} 比如 aaas_userinfo_userid
 
