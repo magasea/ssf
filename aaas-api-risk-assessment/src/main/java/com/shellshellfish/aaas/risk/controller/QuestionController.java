@@ -50,8 +50,8 @@ public class QuestionController {
 	
 	@RequestMapping(value = "/banks/{bankUuid}/questions", method = {RequestMethod.GET, RequestMethod.HEAD}, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<CollectionResourceWrapper<List<QuestionDTO>>> getAllQuestions(@RequestParam(required=false)Integer page,
-																			  @RequestParam(required=false)Integer size,					
-																			  @PathVariable String bankUuid) throws Exception {
+																			  			@RequestParam(required=false)Integer size,					
+																			  			@PathVariable String bankUuid) throws Exception {
 		log.debug("REST request to get questions based on page id and bank uuid. bank uuid:{}, page:{}", bankUuid, page);		
 		if (size == null) {
 			size = 20;

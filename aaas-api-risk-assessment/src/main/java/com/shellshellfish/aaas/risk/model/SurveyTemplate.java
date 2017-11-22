@@ -3,6 +3,8 @@ package com.shellshellfish.aaas.risk.model;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.IndexDirection;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
@@ -10,6 +12,7 @@ public class SurveyTemplate {
 
 	@Id
 	private String id;
+	@Indexed(direction=IndexDirection.ASCENDING)
 	private String bankUuid;
 	private String title;
 	private List<Question> questions;
