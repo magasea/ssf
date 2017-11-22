@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Getter
 @Setter
 @Document(collection = "ui_assectdailyrept")
@@ -62,8 +64,10 @@ public class UiAssetDailyRept {
     this.currentProducts = currentProducts;
   }
 
+  @JsonIgnore
   @Id
   private String id;
+  @JsonIgnore
   private BigInteger userId;
   private Long date;
   private BigDecimal dailyProfit;

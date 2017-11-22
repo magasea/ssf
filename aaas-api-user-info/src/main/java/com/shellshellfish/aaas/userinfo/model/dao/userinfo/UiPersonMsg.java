@@ -5,6 +5,8 @@ import java.math.BigInteger;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.IndexDirection;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
@@ -22,18 +24,14 @@ public class UiPersonMsg implements Serializable {
 
   String msgTitle;
 
-
   private String createdBy;
 
-
+  @Indexed(name ="createdate_idx", direction = IndexDirection.DESCENDING)
   private Long createdDate;
-
 
   private String lastModifiedBy;
 
-
   private Long lastModifiedDate;
-
 
   private Long time;
 

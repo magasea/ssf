@@ -25,3 +25,9 @@
 7. swagger能否放在common modle中？
 8. MVCConfiguration设置各种静态资源，但是各个模块尽量要一致
 9. SpringSecurity用来控制controller层的访问，对应的资源和用户权限控制考虑用对应sso或者对等模块实现
+10. 我们尽量用Spring JPA框架或者能够和DB松耦合的框架来实施和DB的交互,以备将来Mysql<->postgres<->mongodb
+的切换
+11. 我们采用的restful思想进行url设计,任何资源默认支持crud操作,url 的资源从大到小排序从主到次进行排列： 
+比如：api/userinfo/user/{userUuid}/bankcards/{bankcardNum}
+12. redis key定义规范:{主模块名字}_{模块名字}_{具体变量名字} 比如 aaas_userinfo_userid
+

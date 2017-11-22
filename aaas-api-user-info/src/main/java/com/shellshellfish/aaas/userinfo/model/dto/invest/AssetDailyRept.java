@@ -3,6 +3,9 @@ package com.shellshellfish.aaas.userinfo.model.dto.invest;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -57,7 +60,7 @@ public class AssetDailyRept {
   public void setCurrentProducts(String currentProducts) {
     this.currentProducts = currentProducts;
   }
-
+  @JsonIgnore
   private BigInteger userId;
   private Date date;
   private BigDecimal dailyProfit;

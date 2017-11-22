@@ -8,7 +8,7 @@ public class DateUtilTest {
 
   @Test
   public void getDateStrFromLong() throws Exception {
-    System.out.println(DateUtil.getDateStrFromLong(684374400000L));
+    System.out.println(DateUtil.getDateStrFromLong(1510883855L));
   }
 
 }

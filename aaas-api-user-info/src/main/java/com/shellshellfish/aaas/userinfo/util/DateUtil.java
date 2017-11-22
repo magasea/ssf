@@ -1,6 +1,9 @@
 package com.shellshellfish.aaas.userinfo.util;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -14,11 +17,14 @@ public class DateUtil {
     }
 
     public static String getDateStrFromLong(Long timeLong){
-        Date date=new Date(timeLong);
-        SimpleDateFormat df2 = new SimpleDateFormat("yyyy-MM-dd");
-        String dateText = df2.format(date);
-        System.out.println(dateText);
-        return  dateText;
+        if(timeLong.toString().length() <= 12){
+            //the time long value is in seconds
+            timeLong = timeLong*1000;
+        }
+        LocalDate date =
+            Instant.ofEpochMilli(timeLong).atZone(ZoneId.systemDefault()).toLocalDate();
+        System.out.println(date);
+        return date.toString();
     }
 
     public static Long getDateLongOneDayBefore(Long inputTime){

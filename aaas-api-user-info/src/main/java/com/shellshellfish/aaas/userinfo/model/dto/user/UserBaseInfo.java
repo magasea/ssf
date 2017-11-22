@@ -2,65 +2,55 @@ package com.shellshellfish.aaas.userinfo.model.dto.user;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class UserBaseInfo {
+	
+	@JsonIgnore
+	Long id;
+	String cellPhone;
+	Date birthAge;
+	String occupation;
+	String passwordhash;
 
+	public Long getId() {
+		return id;
+	}
 
-    Long id;
-    String userName;
-    String cellPhone;
-    Date birthAge;
-    String occupation;
-    String password;
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public Long getId() {
-        return id;
-    }
+	public String getCellPhone() {
+		return cellPhone;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public void setCellPhone(String cellPhone) {
+		this.cellPhone = cellPhone;
+	}
 
-    public String getUserName() {
-        return userName;
-    }
+	public Date getBirthAge() {
+		return birthAge;
+	}
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
+	public void setBirthAge(Date birthDay) {
+		this.birthAge = birthDay;
+	}
 
-    public String getCellPhone() {
-        return cellPhone;
-    }
+	public String getOccupation() {
+		return occupation;
+	}
 
-    public void setCellPhone(String cellPhone) {
-        this.cellPhone = cellPhone;
-    }
+	public void setOccupation(String occupation) {
+		this.occupation = occupation;
+	}
 
-    public Date getBirthAge() {
-        return birthAge;
-    }
+	public String getPasswordhash() {
+		return passwordhash;
+	}
 
-    public void setBirthAge(Date birthDay) {
-        this.birthAge = birthDay;
-    }
-
-    public String getOccupation() {
-        return occupation;
-    }
-
-    public void setOccupation(String occupation) {
-        this.occupation = occupation;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-
+	public void setPasswordhash(String passwordhash) {
+		this.passwordhash = passwordhash;
+	}
 
 }
