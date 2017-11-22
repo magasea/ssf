@@ -1,7 +1,10 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
 import com.shellshellfish.aaas.userinfo.dao.service.LinksDaoService;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -24,16 +27,52 @@ public class LinksDaoServiceImpl implements LinksDaoService{
         _links.put("create",new HashMap());
         _links.put("delete",new HashMap());
         Map<String, Object> related = new HashMap<>();
-        related.put("userInfo","/api/userInfo/baseInfo/id");
-        related.put("userAssets","/api/userInfo/assetsOverview/id");
-        related.put("userInvestedProducts","/api/userInfo/userInvestedProducts/id");
-        related.put("userBankCards","/api/userInfo/userBankCards/id");
-        related.put("userInviteFriends","/api/userInfo/userInviteFriends/id");
-        related.put("userMessages","/api/userInfo/userMessages/id");
-        related.put("aboutUs","/api/userInfo/aboutUs");
-        related.put("home","/api/homePage/id");
-        related.put("finance","/api/finance/id");
-        _links.put("related",related);
+        List<Map> relatedList=new ArrayList();
+        related.put("href","/api/userInfo/baseInfo/id");
+        related.put("name","userInfo");
+        relatedList.add(related);
+        
+        related = new HashMap<>();
+        related.put("href","/api/userInfo/assetsOverview/id");
+        related.put("name","userAssets");
+        relatedList.add(related);
+        
+        related = new HashMap<>();
+        related.put("href","/api/userInfo/userInvestedProducts/id");
+        related.put("name","userInvestedProducts");
+        relatedList.add(related);
+        
+        related = new HashMap<>();
+        related.put("href","/api/userInfo/userBankCards/id");
+        related.put("name","userBankCards");
+        relatedList.add(related);
+        
+        related = new HashMap<>();
+        related.put("href","/api/userInfo/userInviteFriends/id");
+        related.put("name","userInviteFriends");
+        relatedList.add(related);
+        
+        related = new HashMap<>();
+        related.put("href","/api/userInfo/userMessages/id");
+        related.put("name","userMessages");
+        relatedList.add(related);
+        
+        related = new HashMap<>();
+        related.put("href","/api/userInfo/aboutUs");
+        related.put("name","aboutUs");
+        relatedList.add(related);
+        
+        related = new HashMap<>();
+        related.put("href","/api/homePage/id");
+        related.put("name","home");
+        relatedList.add(related);
+        
+        related = new HashMap<>();
+        related.put("href","/api/finance/id");
+        related.put("name","finance");
+        relatedList.add(related);
+        
+        _links.put("related",relatedList);
 
         return _links;
       }

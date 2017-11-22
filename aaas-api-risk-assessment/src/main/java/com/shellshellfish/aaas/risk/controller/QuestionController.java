@@ -1,18 +1,9 @@
 package com.shellshellfish.aaas.risk.controller;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,23 +12,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.shellshellfish.aaas.risk.model.Question;
 import com.shellshellfish.aaas.risk.model.SurveyTemplate;
 import com.shellshellfish.aaas.risk.model.dto.QuestionDTO;
 import com.shellshellfish.aaas.risk.service.QuestionService;
 import com.shellshellfish.aaas.risk.service.SurveyTemplateService;
-import com.shellshellfish.aaas.risk.util.AnnotationHelper;
 import com.shellshellfish.aaas.risk.util.CollectionResourceWrapper;
 import com.shellshellfish.aaas.risk.util.Links;
-import com.shellshellfish.aaas.risk.util.ResourceWrapper;
-
-import antlr.StringUtils;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @RestController
-@RequestMapping("/api/risk-assessment")
+@RequestMapping("/api/riskassessments")
 public class QuestionController {
 
 	private final Logger log = LoggerFactory.getLogger(QuestionController.class);
@@ -48,10 +37,25 @@ public class QuestionController {
 	@Autowired
 	private QuestionService questionService;
 	
+	
+	@ApiOperation("风险测评")
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+        @ApiResponse(code=400,message="请求参数没填好"),
+        @ApiResponse(code=401,message="未授权用户"),        				
+		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
+    })
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="path",name="bankUuid",dataType="String",required=true,value="银行卡的Uuid",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="page",dataType="int",required=false,value="当前显示页",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="size",dataType="int",required=false,value="每页显示数",defaultValue="")
+	})
 	@RequestMapping(value = "/banks/{bankUuid}/questions", method = {RequestMethod.GET, RequestMethod.HEAD}, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CollectionResourceWrapper<List<QuestionDTO>>> getAllQuestions(@RequestParam(required=false)Integer page,
-																			  @RequestParam(required=false)Integer size,					
-																			  @PathVariable String bankUuid) throws Exception {
+	public ResponseEntity<CollectionResourceWrapper<List<QuestionDTO>>> getAllQuestions(
+			@PathVariable String bankUuid,
+			@RequestParam(required=false)Integer page,
+			@RequestParam(required=false)Integer size) throws Exception {
 		log.debug("REST request to get questions based on page id and bank uuid. bank uuid:{}, page:{}", bankUuid, page);		
 		if (size == null) {
 			size = 20;
