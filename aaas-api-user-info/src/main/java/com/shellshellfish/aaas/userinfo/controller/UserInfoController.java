@@ -91,8 +91,8 @@ public class UserInfoController {
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
 		Map<String, Object> selfmap = new HashMap<>();
-		selfmap.put("href", URL_HEAD+"/initpage/"+userUuid);
-		selfmap.put("describedBy","schema//"+URL_HEAD+"/initpage.json");
+		selfmap.put("href", URL_HEAD+"/users/"+userUuid+"/initpage");
+		selfmap.put("describedBy","schema//"+URL_HEAD+"/users/"+userUuid+"/initpage.json");
 		
 		List<BankCard> bankCards =  userInfoService.getUserInfoBankCards(userUuid);
 		UserInfoAssectsBrief userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
@@ -115,6 +115,7 @@ public class UserInfoController {
 		result.put("userBankCards", bankCards);
 		links.put("self", selfmap );
 		result.put("_links", links);
+		result.put("userUuid", userUuid);
 		return new ResponseEntity<Object>(result , HttpStatus.OK);
 	}
 
@@ -134,12 +135,12 @@ public class UserInfoController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
     })
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType="query",name="userId",dataType="String",required=true,value="id",defaultValue=""),
+		//@ApiImplicitParam(paramType="query",name="userId",dataType="String",required=true,value="id",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="cardNumber",dataType="String",required=true,value="银行卡号",defaultValue="")
 	})
 	@RequestMapping(value = "/userinfo/bankcardinfopage", method = RequestMethod.GET)
 	public ResponseEntity<?> getUserBankCards(
-			@Valid @NotNull(message = "id不能为空") @RequestParam("userId") String id,
+			//@Valid @NotNull(message = "id不能为空") @RequestParam("userId") String id,
 			@Valid @NotNull(message = "银行卡号不能为空") @Size(max = 20, min = 15) @RequestParam("cardNumber") String cardNumber
 			)throws Exception {
 		Map<String, Object> result = new HashMap<>();
@@ -150,7 +151,7 @@ public class UserInfoController {
 		}else{
 			BankCard bankCard =  userInfoService.getUserInfoBankCard(cardNumber);
 			Map<String, Object> selfmap = new HashMap<>();
-			selfmap.put("href", URL_HEAD+"/bankcardinfopage?userId="+id+ "&cardNumber="+cardNumber);
+			selfmap.put("href", URL_HEAD+"/bankcardinfopage?cardNumber="+cardNumber);
 			selfmap.put("describedBy","schema//"+URL_HEAD+"/bankcardinfopage.json");
 			result.put("bankCard", bankCard);
 
@@ -163,6 +164,8 @@ public class UserInfoController {
 			
 			links.put("self", selfmap );
 			result.put("_links", links);
+			
+			result.put("cardNumber", cardNumber);
 			return new ResponseEntity<Object>(result , HttpStatus.OK);
 		}
 	}
@@ -182,7 +185,6 @@ public class UserInfoController {
 		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
     })
-
 	@ApiImplicitParam(paramType="path",name="Uuid",dataType="String",required=true,value="用户Uuid",defaultValue="")
 	@RequestMapping(value = "/userInfo/users/{Uuid}", method = RequestMethod.GET)
 	@AopLinkResources
@@ -196,11 +198,12 @@ public class UserInfoController {
 			Map<String, Object> result = new HashMap<>();
 			Map<String, Object> links = new HashMap<>();
 			Map<String, Object> selfmap = new HashMap<>();
-			selfmap.put("href", URL_HEAD+"/"+userUuid+"/users/"+userUuid);
+			selfmap.put("href", URL_HEAD+"/users/"+userUuid);
 			selfmap.put("describedBy","schema//"+URL_HEAD+"/users/"+userUuid+".json");
 			links.put("self", selfmap);
 			result.put("_links", links);
 			result.put("userBaseInfo", userBaseInfo);
+			result.put("uuid", userUuid);
 			return new ResponseEntity<Object>(result , HttpStatus.OK);
 		}
 	}
@@ -292,7 +295,7 @@ public class UserInfoController {
 	 * @return
 	 */
 	@ApiOperation("银行卡 添加银行卡 提交 初始页面")
-	@ApiResponses({ 
+	@ApiResponses({
 		@ApiResponse(code = 200, message = "OK"), 
 		@ApiResponse(code = 400, message = "请求参数没填好"),
 		@ApiResponse(code = 401, message = "未授权用户"), 
@@ -495,6 +498,9 @@ public class UserInfoController {
 			@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
 			@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
 	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,defaultValue=""),
+	})
 	@RequestMapping(value = "/userinfo/users/{userUuid}/messages", method = RequestMethod.GET)
 	public ResponseEntity<?> messages(
 			@Valid @NotNull(message = "userUuid不能为空") @PathVariable("userUuid") String userUuid
@@ -504,10 +510,11 @@ public class UserInfoController {
 		List<Map> rsList = new ArrayList<Map>();
 		Map<String, Object> relatedMap = new HashMap<>();
 		// 智投消息
-		relatedMap.put("href", URL_HEAD + "/users/" + userUuid + "/investmentmessages");
+		relatedMap.put("href", URL_HEAD + "/users/" + userUuid + "/investmentmessages/{messageid}");
 		relatedMap.put("name", "investmentmessages");
 		rsList.add(relatedMap);
 		// 系统消息
+		relatedMap = new HashMap<>();
 		relatedMap.put("href", URL_HEAD + "/users/" + userUuid + "/systemmessages");
 		relatedMap.put("name", "systemmessages");
 		rsList.add(relatedMap);
@@ -586,7 +593,7 @@ public class UserInfoController {
 		
 		HashMap<String,Object> relateditemmap=new HashMap<>();
 		relateditemmap = new HashMap<String,Object>();
-		relateditemmap.put("href", URL_HEAD+"/incometrendchart");
+		relateditemmap.put("href", URL_HEAD+"/users/"+userUuid+"/incometrendchart");
 		relateditemmap.put("name", "incometrendchart");
 		relateList.add(relateditemmap);
 		
@@ -649,6 +656,7 @@ public class UserInfoController {
 		links.put("self", selfmap );
 		links.put("related", relateList);
 		result.put("_links", links);
+		result.put("userUuid", userUuid);
 		return new ResponseEntity<Object>(result , HttpStatus.OK);
 	}
 
@@ -681,8 +689,8 @@ public class UserInfoController {
 		}
 		
 		Map<String, Object> selfmap = new HashMap<>();
-		selfmap.put("href", URL_HEAD+"/"+userUuid+"/message/systemmessages" );
-		selfmap.put("describedBy","schema//"+URL_HEAD+"/"+userUuid+"/message/systemmessages.json");
+		selfmap.put("href", URL_HEAD+"/users/"+userUuid+"/systemmessages" );
+		selfmap.put("describedBy","schema//"+URL_HEAD+"/users/"+userUuid+"/systemmessages.json");
 		
 		links.put("self", selfmap );
 		result.put("_links", links);
@@ -774,9 +782,8 @@ public class UserInfoController {
 		result.put("_page",tradeLogs.getSize());
 		
 		Map<String, Object> selfmap = new HashMap<>();
-		selfmap.put("href", URL_HEAD+"/user"+userUuid+"/trade/log?pageNum="+pageNum+"&pageSize"
-				+ "="+pageSize );
-		selfmap.put("describedBy","schema//"+URL_HEAD+"/"+userUuid+"/trade/log.json");
+		selfmap.put("href", URL_HEAD+"/users/"+userUuid+"/traderecords?pageNum="+pageNum+"&pageSize" + "="+pageSize );
+		selfmap.put("describedBy","schema//"+URL_HEAD+"/users/"+userUuid+"/traderecords.json");
 		
 		links.put("self", selfmap );
 		result.put("_links", links);
@@ -879,21 +886,32 @@ public class UserInfoController {
 			@Valid @NotNull(message="银行ID") @RequestParam( required = false) Long bankId)
 			throws Exception {
 		//:TODO 这段分享朋友邀请好友的做法是要改的
+		List<Map> friendIvtList = new ArrayList<>();
 		Map<String, Object> friendIvtLinks = new HashMap<>();
-		friendIvtLinks.put("wechat","http://wx.qq.com");
-		friendIvtLinks.put("weibo","http://weibo.com");
-		friendIvtLinks.put("qq","http://qq.com");
+		friendIvtLinks.put("href", "http://wx.qq.com");
+		friendIvtLinks.put("name", "wechat");
+		friendIvtList.add(friendIvtLinks);
+		friendIvtLinks.put("href", "http://weibo.com");
+		friendIvtLinks.put("name", "weibo");
+		friendIvtList.add(friendIvtLinks);
+		friendIvtLinks.put("href", "http://qq.com");
+		friendIvtLinks.put("name", "qq");
+		friendIvtList.add(friendIvtLinks);
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> selfmap = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
+		result.put("_items", friendIvtList );
+		result.put("_total",0);
+		if(friendIvtList!=null){
+			result.put("_total",friendIvtList.size());
+		}
 
-		result.put("_items", friendIvtLinks );
-		result.put("_total",friendIvtLinks.size());
-
-		selfmap.put("href", URL_HEAD+"/users/"+userUuid+"/frndinvation?bankId="+ bankId);
+		selfmap.put("href", URL_HEAD+"/users/"+userUuid+"/friendinvitationpage?bankId="+ bankId);
 		selfmap.put("describedBy","schema//"+URL_HEAD+"/users/friendInvation.json");
 		links.put("self", selfmap );
 		result.put("_links", links);
+		result.put("userUuid", userUuid);
+		result.put("bankId", bankId);
 		return new ResponseEntity<Object>(result , HttpStatus.OK);
 	}
 
@@ -920,23 +938,44 @@ public class UserInfoController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")         				
     })
 	@RequestMapping(value = "/userinfo/companyinfos", method = RequestMethod.GET)
-	public ResponseEntity<?> getCompanyInfo(
-			 @RequestParam String userUuid, 
-			 @RequestParam( required = false) Long bankId)
+	public ResponseEntity<?> getCompanyInfo(@RequestParam String userUuid, @RequestParam(required = false) Long bankId)
 			throws Exception {
 		UserInfoCompanyInfo userInfoCompanyInfo = userInfoService.getCompanyInfo(userUuid, bankId);
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> selfmap = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
-		
+
 		result.put("companyinfo", userInfoCompanyInfo);
-		//result.put("_page","");
-		
-		selfmap.put("href", URL_HEAD+"/companyinfos?userUuid="+userUuid+"&bankId="+bankId);
-		selfmap.put("describedBy","schema//"+URL_HEAD+"/companyinfos.json");
-		links.put("self", selfmap );
+		// result.put("_page","");
+		StringBuffer sbf = new StringBuffer();
+		sbf.append(URL_HEAD);
+		sbf.append("/companyinfos");
+		if (userUuid != null || bankId != null) {
+			sbf.append("?");
+			if (userUuid != null && bankId != null) {
+				sbf.append("userUuid=" + userUuid);
+				sbf.append("&bankId=" + bankId);
+			} else if (userUuid != null && bankId == null) {
+				sbf.append("userUuid=" + userUuid);
+			} else if (userUuid == null && bankId != null) {
+				sbf.append("bankId=" + bankId);
+			}
+		}
+		selfmap.put("href", sbf.toString());
+		selfmap.put("describedBy", "schema//" + URL_HEAD + "/companyinfos.json");
+		links.put("self", selfmap);
+		if (userUuid != null) {
+			result.put("userUuid", userUuid);
+		} else {
+			result.put("userUuid", "");
+		}
+		if (bankId != null) {
+			result.put("bankId", bankId);
+		} else {
+			result.put("bankId", "");
+		}
 		result.put("_links", links);
-		return new ResponseEntity<Object>(result , HttpStatus.OK);
+		return new ResponseEntity<Object>(result, HttpStatus.OK);
 	}
 
 	private Object makePersonInfoResponse() {

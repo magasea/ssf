@@ -65,8 +65,8 @@ public class AopLinkResourcesAspect {
             result.put(entry.getKey(), entry.getValue());
         }
 //        UserInfoUtils.mergeMapByKeyForLinks((Map)entityMap.get("_links"), result, "_links" );
-        linkinfo.put("_links", result);
-        entityMap.put("_links", linkinfo);
+        //linkinfo.put("_links", result);
+        entityMap.put("_links", result);
         logger.info("{}",entity);
         return value;
     }

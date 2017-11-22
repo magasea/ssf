@@ -2,10 +2,10 @@ package com.shellshellfish.aaas.userinfo.model.dto.bankcard;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class BankCard {
-
-
-
+	@JsonIgnore
     Long userId;
     String cardNumber;
     String userName;

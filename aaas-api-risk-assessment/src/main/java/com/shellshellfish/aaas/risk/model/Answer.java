@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Answer {
 
+	
 	private Integer questionOrdinal;
-	@JsonProperty("selectedOption")
+	
 	private OptionItem selectedOption;
 	
 	public Answer() {

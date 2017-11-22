@@ -3,8 +3,11 @@ package com.shellshellfish.aaas.risk.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Document
 public class UserRiskAssessment {
+	@JsonIgnore
 	@Id
 	private String id;
 	private String userUuid;
