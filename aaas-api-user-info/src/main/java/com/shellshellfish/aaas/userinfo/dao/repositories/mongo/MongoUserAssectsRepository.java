@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.userinfo.dao.repositories.mongo;
 import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
 import java.math.BigInteger;
 import java.util.List;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.mongodb.repository.Query;
 
 public interface MongoUserAssectsRepository extends

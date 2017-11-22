@@ -5,13 +5,12 @@ option java_package = "com.shellshellfish.aaas.datacollect";
 option java_outer_classname = "DataCollectProto";
 option objc_class_prefix = "DCP";
 
-service MyService {
+service DataCollectionService {
     rpc GetItems (ItemQuery) returns (ItemResponse) {
     }
     rpc CollectItems (ItemCollection) returns (ItemCollectionResponse) {
     }
 }
-
 message ItemQuery {
     int64 id = 1;
 }

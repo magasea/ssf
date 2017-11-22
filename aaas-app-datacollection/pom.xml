@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.shellshellfish</groupId>
-	<artifactId>aaas-app-mongo</artifactId>
+	<artifactId>aaas-app-datacollection</artifactId>
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
-	<name>aaas-app-mongo</name>
+	<name>aaas-app-datacollection</name>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
