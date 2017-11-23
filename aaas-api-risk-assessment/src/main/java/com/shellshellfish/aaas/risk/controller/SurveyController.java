@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @RestController
-@RequestMapping(value = "/api/riskssessments")
+@RequestMapping(value = "/api/riskassessments")
 public class SurveyController {
 
 	private final Logger log = LoggerFactory.getLogger(SurveyController.class);
