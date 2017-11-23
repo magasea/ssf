@@ -179,7 +179,7 @@ public class UserInfoControllerTest {
 	@Test
 	public void updatePersonalMsg() throws Exception {
 		String jsonstr="{\"readedStatus\": true}";
-		mvc.perform(MockMvcRequestBuilders.patch(URL_HEAD+"/users/1/investmentmessages/5a098b8a3f6b9e23048bd335")
+		mvc.perform(MockMvcRequestBuilders.patch(URL_HEAD+"/users/1/investmentmessages/5a098b8a3f6b9e23048bd336")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(jsonstr))
 				.andExpect(MockMvcResultMatchers.status().isOk());
@@ -194,7 +194,7 @@ public class UserInfoControllerTest {
 		mvc.perform(MockMvcRequestBuilders.get(URL_HEAD+"/users/1/investmentmessages/5a098b8a3f6b9e23048bd330")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(jsonstr))
-				.andExpect(MockMvcResultMatchers.status().is(405));
+				.andExpect(MockMvcResultMatchers.status().is(500));
 	}
 	
 	/**
