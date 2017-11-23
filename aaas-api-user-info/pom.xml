@@ -66,11 +66,11 @@
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
 
-		<!-- <dependency>
+		<dependency>
 			<groupId>com.shellshellfish</groupId>
 			<artifactId>aaas-api-common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-		</dependency> -->
+		</dependency>
 
 		<dependency>
     		<groupId>org.apache.commons</groupId>
