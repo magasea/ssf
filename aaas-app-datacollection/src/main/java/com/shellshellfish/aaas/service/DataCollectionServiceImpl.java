@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.datacollection;
+package com.shellshellfish.aaas.service;
 
 import com.shellshellfish.aaas.datacollect.CollectionItem;
 import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc;
@@ -17,19 +17,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
-public class DataCollectionClient {
-  Logger logger = LoggerFactory.getLogger(DataCollectionClient.class);
+public class DataCollectionServiceImpl {
+  Logger logger = LoggerFactory.getLogger(DataCollectionServiceImpl.class);
   private ManagedChannel channel;
   private DataCollectionServiceBlockingStub blockingStub;
   private DataCollectionServiceStub asyncStub;
 
   private Random random = new Random();
 
-  public DataCollectionClient(String host, int port){
+  public DataCollectionServiceImpl(String host, int port){
     this(ManagedChannelBuilder.forAddress(host, port).usePlaintext(true));
   }
 
-  public DataCollectionClient(ManagedChannelBuilder<?> channelBuilder){
+  public DataCollectionServiceImpl(ManagedChannelBuilder<?> channelBuilder){
     channel = channelBuilder.build();
     blockingStub = DataCollectionServiceGrpc.newBlockingStub(channel);
     asyncStub = DataCollectionServiceGrpc.newStub(channel);
