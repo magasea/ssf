@@ -4,7 +4,10 @@ public class NameValuePair<T1, T2> {
 	
 	private T1 name;
 	private T2 value;
+	
+	public NameValuePair() {
 		
+	}
 	
 	public NameValuePair(T1 name, T2 value) {
 		super();
