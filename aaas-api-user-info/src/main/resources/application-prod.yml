@@ -1,6 +1,6 @@
 ---
 server:
-  port: 8080
+  port: 10021
   contextPath: /
 logging:
   level:
@@ -41,7 +41,7 @@ datasource:
 #    password: mypassword
     url: jdbc:mysql://192.168.1.10:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
     username: sa
-    password: 1qaz@WSX
+    password: ssf@A320
 
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema: ssfuser

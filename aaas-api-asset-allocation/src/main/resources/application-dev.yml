@@ -40,7 +40,7 @@ spring:
             database: test
 
 server:
-    port: 9001
+    port: 10024
     
     
 application:
