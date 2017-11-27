@@ -10,9 +10,9 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = MongoTutorialApplication.class)
+@SpringBootTest(classes = MongoServiceApplication.class)
 @WebAppConfiguration
-public class MongoTutorialApplicationTests {
+public class MongoServiceApplicationTests {
 
     @Test
     public void contextLoads() {

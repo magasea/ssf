@@ -6,13 +6,12 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 @SpringBootApplication
 @EnableMongoRepositories("com.shellshellfish.aaas.repositories")
-public class MongoTutorialApplication {
+public class MongoServiceApplication {
 
 	
 	public static void main(String[] args) {
-		SpringApplication.run(MongoTutorialApplication.class, args);
+		SpringApplication.run(MongoServiceApplication.class, args);
 	}
 	
-	public void run() {
-	}
+
 }
