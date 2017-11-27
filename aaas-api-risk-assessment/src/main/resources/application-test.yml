@@ -1,0 +1,45 @@
+spring:
+    devtools:
+        restart:
+            enabled: true
+        livereload:
+            enabled: false 
+            
+            application:
+        name: ssf-risk-assessment
+
+    jackson:
+      serialization:
+        fail-on-empty-beans: false
+
+    data:
+        mongodb:
+            host: localhost
+            port: 27017
+            database: test
+
+server:
+    port: 10023
+    
+    
+application:
+    swagger:
+        title: SSF Platform API
+        description: Shell shell fish API documentation
+        version: 0.1.X
+        termsOfServiceUrl:
+        contactName:
+        contactUrl:
+        contactEmail:
+        license:
+        licenseUrl:
+        
+    cors: 
+        allowed-origins: "*"
+        allowed-methods: GET, PUT, POST, DELETE, OPTIONS, HEAD
+        allowed-headers: "*"
+        exposed-headers: X-Total-Count, Link
+        allow-credentials: true
+        max-age: 1800
+
+    
