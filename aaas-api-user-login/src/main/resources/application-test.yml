@@ -1,6 +1,6 @@
 ---
 server:
-  port: 8080
+  port: 10020
   contextPath: /
 ---
 spring:
