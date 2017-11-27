@@ -19,8 +19,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-@Service
+
 public class DataCollectionServiceImpl implements DataCollectionService {
+
 
 
   Logger logger = LoggerFactory.getLogger(DataCollectionServiceImpl.class);
