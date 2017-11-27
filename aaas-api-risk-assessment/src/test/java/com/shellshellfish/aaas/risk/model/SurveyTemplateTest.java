@@ -16,6 +16,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.shellshellfish.aaas.risk.configuration.MongoConfiguration;
+import com.shellshellfish.aaas.risk.model.dao.OptionItem;
+import com.shellshellfish.aaas.risk.model.dao.Question;
+import com.shellshellfish.aaas.risk.model.dao.SurveyTemplate;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)

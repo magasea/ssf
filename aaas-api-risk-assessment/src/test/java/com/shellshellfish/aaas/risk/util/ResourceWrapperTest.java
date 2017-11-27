@@ -8,6 +8,8 @@ import org.springframework.util.ReflectionUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shellshellfish.aaas.risk.utils.CollectionResourceWrapper;
+import com.shellshellfish.aaas.risk.utils.ResourceWrapper;
 
 public class ResourceWrapperTest {
 	

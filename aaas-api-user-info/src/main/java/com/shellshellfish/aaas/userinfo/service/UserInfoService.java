@@ -1,16 +1,17 @@
 package com.shellshellfish.aaas.userinfo.service;
 
 
-import com.shellshellfish.aaas.userinfo.model.dto.bankcard.BankCard;
-import com.shellshellfish.aaas.userinfo.model.dto.invest.AssetDailyRept;
-import com.shellshellfish.aaas.userinfo.model.dto.invest.TradeLog;
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoCompanyInfo;
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoFriendRule;
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserPersonMsg;
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserSysMsg;
+import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyRept;
+import com.shellshellfish.aaas.userinfo.model.dto.BankCard;
+import com.shellshellfish.aaas.userinfo.model.dto.TradeLog;
+import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfo;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBrief;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfo;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRule;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsg;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolio;
+import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsg;
+
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;

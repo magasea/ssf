@@ -1,49 +1,42 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
-import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAsset;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiCompanyInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiFriendRule;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPersonMsg;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPortfolio;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiSysMsg;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiTrdLog;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiUser;
-import com.shellshellfish.aaas.userinfo.model.dto.bankcard.BankCard;
-import com.shellshellfish.aaas.userinfo.model.dto.invest.AssetDailyRept;
-import com.shellshellfish.aaas.userinfo.model.dto.invest.TradeLog;
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserBaseInfo;
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoAssectsBrief;
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoCompanyInfo;
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserInfoFriendRule;
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserPersonMsg;
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserPortfolio;
-import com.shellshellfish.aaas.userinfo.model.dto.user.UserSysMsg;
-import com.shellshellfish.aaas.userinfo.service.UserInfoService;
-import com.shellshellfish.aaas.userinfo.util.BankUtil;
-import com.shellshellfish.aaas.userinfo.util.UserInfoUtils;
-import java.math.BigInteger;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.hibernate.mapping.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
+import com.shellshellfish.aaas.userinfo.model.dao.UiAsset;
+import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
+import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
+import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.UiFriendRule;
+import com.shellshellfish.aaas.userinfo.model.dao.UiPersonMsg;
+import com.shellshellfish.aaas.userinfo.model.dao.UiPortfolio;
+import com.shellshellfish.aaas.userinfo.model.dao.UiSysMsg;
+import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
+import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
+import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyRept;
+import com.shellshellfish.aaas.userinfo.model.dto.BankCard;
+import com.shellshellfish.aaas.userinfo.model.dto.TradeLog;
+import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfo;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBrief;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfo;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRule;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsg;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolio;
+import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsg;
+import com.shellshellfish.aaas.userinfo.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.utils.BankUtil;
+import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
 
-@Service("userInfoService")
-@Transactional
 public class UserInfoServiceImpl implements UserInfoService {
 
     Logger logger = LoggerFactory.getLogger(UserInfoServiceImpl.class);

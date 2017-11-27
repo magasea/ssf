@@ -12,12 +12,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import com.shellshellfish.aaas.risk.model.SurveyResult;
-import com.shellshellfish.aaas.risk.model.SurveyTemplate;
-import com.shellshellfish.aaas.risk.service.SurveyResultService;
-import com.shellshellfish.aaas.risk.service.SurveyTemplateService;
-import com.shellshellfish.aaas.risk.util.Links;
-import com.shellshellfish.aaas.risk.util.ResourceWrapper;
+
+import com.shellshellfish.aaas.risk.model.dao.SurveyResult;
+import com.shellshellfish.aaas.risk.model.dao.SurveyTemplate;
+import com.shellshellfish.aaas.risk.service.impl.SurveyResultServiceImpl;
+import com.shellshellfish.aaas.risk.service.impl.SurveyTemplateServiceImpl;
+import com.shellshellfish.aaas.risk.utils.Links;
+import com.shellshellfish.aaas.risk.utils.ResourceWrapper;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -32,10 +33,10 @@ public class SurveyController {
 	private final Logger log = LoggerFactory.getLogger(SurveyController.class);
 	
 	@Autowired 
-	private SurveyTemplateService surveyTemplateService;
+	private SurveyTemplateServiceImpl surveyTemplateService;
 	
 	@Autowired
-	private SurveyResultService surveyResultService;
+	private SurveyResultServiceImpl surveyResultService;
 	
 	@ApiOperation("风险测评LIST")
 	@ApiResponses({

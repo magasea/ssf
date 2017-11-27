@@ -1,6 +1,6 @@
 package com.shellshellfish.aaas.risk.model.dto;
 
-import com.shellshellfish.aaas.risk.model.Question;
+import com.shellshellfish.aaas.risk.model.dao.Question;
 
 public class QuestionDTO extends Question{
 	private String surveyTemplateId;

@@ -2,7 +2,8 @@ package com.shellshellfish.aaas.userinfo.aop;
 
 import com.shellshellfish.aaas.userinfo.dao.service.LinksDaoService;
 import com.shellshellfish.aaas.userinfo.service.LinkService;
-import com.shellshellfish.aaas.userinfo.util.UserInfoUtils;
+import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 

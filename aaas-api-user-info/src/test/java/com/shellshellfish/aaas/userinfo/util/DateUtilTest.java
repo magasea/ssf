@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import com.shellshellfish.aaas.userinfo.utils.DateUtil;
+
 public class DateUtilTest {
 
   @Test

@@ -12,13 +12,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.shellshellfish.aaas.risk.model.Question;
-import com.shellshellfish.aaas.risk.model.SurveyTemplate;
+
+import com.shellshellfish.aaas.risk.model.dao.Question;
+import com.shellshellfish.aaas.risk.model.dao.SurveyTemplate;
 import com.shellshellfish.aaas.risk.model.dto.QuestionDTO;
-import com.shellshellfish.aaas.risk.service.QuestionService;
-import com.shellshellfish.aaas.risk.service.SurveyTemplateService;
-import com.shellshellfish.aaas.risk.util.CollectionResourceWrapper;
-import com.shellshellfish.aaas.risk.util.Links;
+import com.shellshellfish.aaas.risk.service.impl.QuestionServiceImpl;
+import com.shellshellfish.aaas.risk.service.impl.SurveyTemplateServiceImpl;
+import com.shellshellfish.aaas.risk.utils.CollectionResourceWrapper;
+import com.shellshellfish.aaas.risk.utils.Links;
+
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -32,10 +34,10 @@ public class QuestionController {
 	private final Logger log = LoggerFactory.getLogger(QuestionController.class);
 	
 	@Autowired
-	private SurveyTemplateService surveyTemplateService;
+	private SurveyTemplateServiceImpl surveyTemplateService;
 	
 	@Autowired
-	private QuestionService questionService;
+	private QuestionServiceImpl questionService;
 	
 	
 	@ApiOperation("风险测评")

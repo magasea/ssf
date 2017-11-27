@@ -1,13 +1,5 @@
 package com.shellshellfish.aaas.risk.configuration;
 
-import javax.annotation.Resource;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.support.GenericConversionService;
-
-import com.shellshellfish.aaas.risk.util.String2OptionItemConverter;
-
 //@Configuration
 public class MongoConvertersConfiguration {
 

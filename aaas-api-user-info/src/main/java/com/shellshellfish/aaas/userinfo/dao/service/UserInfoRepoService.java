@@ -1,19 +1,20 @@
 package com.shellshellfish.aaas.userinfo.dao.service;
 
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAsset;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiCompanyInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiFriendRule;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPersonMsg;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPortfolio;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiProdMsg;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiSysMsg;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiTrdLog;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiUser;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
+import com.shellshellfish.aaas.userinfo.model.dao.UiAsset;
+import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
+import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
+import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.UiFriendRule;
+import com.shellshellfish.aaas.userinfo.model.dao.UiPersonMsg;
+import com.shellshellfish.aaas.userinfo.model.dao.UiPortfolio;
+import com.shellshellfish.aaas.userinfo.model.dao.UiProdMsg;
+import com.shellshellfish.aaas.userinfo.model.dao.UiSysMsg;
+import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
+import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 
 public interface UserInfoRepoService {
   UiUser getUserInfoBase(Long userId);
