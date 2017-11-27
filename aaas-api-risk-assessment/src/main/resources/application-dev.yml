@@ -19,7 +19,7 @@ spring:
             database: test
 
 server:
-    port: 8088
+    port: 10023
     
     
 application:

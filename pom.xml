@@ -16,6 +16,7 @@
         <module>aaas-api-user-info</module>
         <module>aaas-api-finance</module>
         <module>aaas-api-risk-assessment</module>
+        <module>aaas-api-asset-allocation</module>
     </modules>
 
 </project>
