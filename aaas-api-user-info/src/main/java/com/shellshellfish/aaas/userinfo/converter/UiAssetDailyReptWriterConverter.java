@@ -2,7 +2,8 @@ package com.shellshellfish.aaas.userinfo.converter;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
+import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 

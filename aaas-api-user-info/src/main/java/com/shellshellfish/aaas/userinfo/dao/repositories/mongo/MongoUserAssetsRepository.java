@@ -1,13 +1,13 @@
 package com.shellshellfish.aaas.userinfo.dao.repositories.mongo;
 
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
-
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+
+import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 
 public interface MongoUserAssetsRepository extends MongoRepository<UiAssetDailyRept, Long> {
 

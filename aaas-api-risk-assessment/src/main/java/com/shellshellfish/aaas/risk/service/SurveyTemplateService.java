@@ -1,18 +1,11 @@
 package com.shellshellfish.aaas.risk.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import com.shellshellfish.aaas.risk.model.SurveyTemplate;
-import com.shellshellfish.aaas.risk.repository.SurveyTemplateRepository;
+import com.shellshellfish.aaas.risk.model.dto.SurveyTemplateDTO;
 
-@Service
-public class SurveyTemplateService {
-
-	@Autowired
-	private SurveyTemplateRepository surveyTemplateRepository;
-	
-	public SurveyTemplate getSurveyTemplate(String title, String version) {
-		return surveyTemplateRepository.findOneByTitleAndVersion(title, version);
-	}
+public interface SurveyTemplateService {
+	Page<SurveyTemplateDTO> findByTitleAndVersion(Pageable page, String title, String version);
+	SurveyTemplateDTO getSurveyTemplate(String title, String version);
 }

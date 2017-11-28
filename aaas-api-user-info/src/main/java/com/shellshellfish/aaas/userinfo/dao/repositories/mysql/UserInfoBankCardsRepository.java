@@ -1,10 +1,11 @@
 package com.shellshellfish.aaas.userinfo.dao.repositories.mysql;
 
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
 import java.math.BigInteger;
 import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
+
+import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 
 public interface UserInfoBankCardsRepository extends
     PagingAndSortingRepository<UiBankcard, Long> {

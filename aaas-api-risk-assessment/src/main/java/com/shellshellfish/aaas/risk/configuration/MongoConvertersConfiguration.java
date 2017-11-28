@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.support.GenericConversionService;
 
-import com.shellshellfish.aaas.risk.util.String2OptionItemConverter;
+import com.shellshellfish.aaas.risk.utils.String2OptionItemConverter;
 
 //@Configuration
 public class MongoConvertersConfiguration {

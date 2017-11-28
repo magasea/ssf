@@ -12,12 +12,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import com.shellshellfish.aaas.risk.model.SurveyResult;
-import com.shellshellfish.aaas.risk.model.SurveyTemplate;
-import com.shellshellfish.aaas.risk.service.SurveyResultService;
-import com.shellshellfish.aaas.risk.service.SurveyTemplateService;
-import com.shellshellfish.aaas.risk.util.Links;
-import com.shellshellfish.aaas.risk.util.ResourceWrapper;
+
+import com.shellshellfish.aaas.risk.model.dao.SurveyResult;
+import com.shellshellfish.aaas.risk.model.dao.SurveyTemplate;
+import com.shellshellfish.aaas.risk.model.dto.SurveyTemplateDTO;
+import com.shellshellfish.aaas.risk.service.impl.SurveyResultServiceImpl;
+import com.shellshellfish.aaas.risk.service.impl.SurveyTemplateServiceImpl;
+import com.shellshellfish.aaas.risk.utils.Links;
+import com.shellshellfish.aaas.risk.utils.ResourceWrapper;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -32,10 +34,10 @@ public class SurveyController {
 	private final Logger log = LoggerFactory.getLogger(SurveyController.class);
 	
 	@Autowired 
-	private SurveyTemplateService surveyTemplateService;
+	private SurveyTemplateServiceImpl surveyTemplateService;
 	
 	@Autowired
-	private SurveyResultService surveyResultService;
+	private SurveyResultServiceImpl surveyResultService;
 	
 	@ApiOperation("风险测评LIST")
 	@ApiResponses({
@@ -49,20 +51,19 @@ public class SurveyController {
 		@ApiImplicitParam(paramType="path",name="bankUuid",dataType="String",required=true,value="银行卡的Uuid",defaultValue="")
 	})
 	@RequestMapping(value = "/banks/{bankUuid}/surveytemplates/latest", method = {RequestMethod.GET, RequestMethod.HEAD}, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ResourceWrapper<SurveyTemplate>> getSurveyTemplate(
+	public ResponseEntity<ResourceWrapper<SurveyTemplateDTO>> getSurveyTemplate(
 			@PathVariable String bankUuid) throws URISyntaxException {
 		log.debug("REST request to get a survey template. bank uuid:{}", bankUuid);		
+
+		SurveyTemplateDTO surveyTemplate = surveyTemplateService.getSurveyTemplate("南京银行个人客户风险评估表", "1.0");
 		
-		//TODO: get survey template based on bankUuid
-		
-		SurveyTemplate surveyTemplate = surveyTemplateService.getSurveyTemplate("南京银行个人客户风险评估表", "1.0");
-		ResourceWrapper<SurveyTemplate> resource = new ResourceWrapper<>(surveyTemplate);
+		ResourceWrapper<SurveyTemplateDTO> resource = new ResourceWrapper<>(surveyTemplate);
 		Links links = new Links();
 		links.setSelf(String.format("/api/riskassessment/banks/%s/surveytemplates/latest", bankUuid));
 		links.setDescribedBy(String.format("/api/riskassessment/banks/%s/surveytemplates/latest.json", bankUuid));
 		
 		resource.setLinks(links);
-		SurveyTemplate survey = resource.getItem();
+		SurveyTemplateDTO survey = resource.getItem();
 		survey.set_items(survey.getQuestions());
 		survey.set_total(survey.getQuestions().size());
 		//resource.setName("风险评估表");
