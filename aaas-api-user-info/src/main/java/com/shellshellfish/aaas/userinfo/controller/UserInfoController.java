@@ -1,8 +1,40 @@
 package com.shellshellfish.aaas.userinfo.controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.ServletRequestBindingException;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
+import com.shellshellfish.aaas.userinfo.aop.AopPageResources;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCard;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLog;
@@ -16,8 +48,8 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsg;
 import com.shellshellfish.aaas.userinfo.model.vo.BankcardDetailVo;
 import com.shellshellfish.aaas.userinfo.model.vo.UserPersonalMsgVo;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
-import com.shellshellfish.aaas.userinfo.utils.Constants;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
+import com.shellshellfish.aaas.userinfo.utils.PageWrapper;
 import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
 
 import io.swagger.annotations.ApiImplicitParam;
@@ -25,35 +57,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/userinfo")
@@ -752,43 +755,31 @@ public class UserInfoController {
     })
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="id",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="pageNum",dataType="String",required=true,value="页面Num",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="pageSize",dataType="String",required=true,value="页面大小",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="sortField",dataType="String",required=false,
-				value="排序",defaultValue="")
+		@ApiImplicitParam(paramType="query",name="size",dataType="Long",value="每页显示记录数",defaultValue="25"),
+		@ApiImplicitParam(paramType="query",name="page",dataType="Long",value="显示页数（默认第0页开始）",defaultValue="0"),
+		@ApiImplicitParam(paramType="query",name="sort",dataType="String",value="排序条件",defaultValue="id")
 	})
 	@RequestMapping(value = "/users/{userUuid}/traderecords", method = RequestMethod.GET)
-	public ResponseEntity<?> getTradLogsOfUser(@PathVariable String userUuid, @RequestParam( required = false) String
-			pageNum, @RequestParam( required = false) String pageSize, @RequestParam( required = false) String sortField )
-			throws Exception {
-		PageRequest pageRequest = null;
-		if(!StringUtils.isEmpty(pageNum)){
-			if(!StringUtils.isEmpty(pageSize)){
-				pageRequest = new PageRequest(Integer.parseInt(pageNum) -1, Integer.parseInt
-						(pageSize), Direction.DESC, StringUtils.isEmpty(sortField)? "createdDate": sortField);
-			}else{
-				pageRequest = new PageRequest(Integer.parseInt(pageNum) -1, Constants.PAGE_SIZE, Direction.DESC,
-						sortField);
-			}
-		}else{
-			pageRequest = new PageRequest(0, Constants.PAGE_SIZE, Direction.DESC, "createdDate");
+	@AopPageResources
+	public PageWrapper<TradeLog> getTradLogsOfUser(
+			@PathVariable String userUuid, Pageable pageable,
+			@RequestParam(value = "size") Long size, 
+			@RequestParam(value = "page", defaultValue = "0") Long page,
+			@RequestParam(value = "sort") String sort) throws Exception {
+
+		Page<TradeLog> pages = userInfoService.findByUserId(userUuid, pageable);
+		Map<String, Object> selfMap = new HashMap<String, Object>();
+		Map<String, Object> self = new HashMap<String, Object>();
+		selfMap.put("name", "test");
+		selfMap.put("href", URL_HEAD + "/users/"+userUuid+"/traderecords");
+		selfMap.put("describedBy", URL_HEAD + "/users/"+userUuid+"/traderecords.json");
+		self.put("self", selfMap);
+		if (pages == null) {
+			return new PageWrapper<TradeLog>();
 		}
-
-		Page<TradeLog> tradeLogs =  userInfoService.getUserTradeLogs(userUuid, pageRequest);
-
-		Map<String, Object> result = new HashMap<>();
-		Map<String, Object> links = new HashMap<>();
-		result.put("_items", tradeLogs);
-		//result.put("_total", tradeLogs.getSize());
-		result.put("_page",tradeLogs.getSize());
-		
-		Map<String, Object> selfmap = new HashMap<>();
-		selfmap.put("href", URL_HEAD+"/users/"+userUuid+"/traderecords?pageNum="+pageNum+"&pageSize" + "="+pageSize );
-		selfmap.put("describedBy","schema//"+URL_HEAD+"/users/"+userUuid+"/traderecords.json");
-		
-		links.put("self", selfmap );
-		result.put("_links", links);
-		return new ResponseEntity<Object>(result , HttpStatus.OK);
+		PageWrapper<TradeLog> pageWrapper = new PageWrapper<>(pages);
+		pageWrapper.set_links(self);
+		return pageWrapper;
 	}
 
 //	@ApiImplicitParams({

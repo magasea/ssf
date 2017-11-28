@@ -1,16 +1,19 @@
 package com.shellshellfish.aaas.userinfo.model.dto;
 
 import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class UserBaseInfo {
-	
+
 	@JsonIgnore
 	Long id;
+
 	String cellPhone;
+
 	Date birthAge;
+
 	String occupation;
+
 	String passwordhash;
 
 	public Long getId() {

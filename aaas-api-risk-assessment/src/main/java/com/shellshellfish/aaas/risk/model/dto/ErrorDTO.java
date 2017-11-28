@@ -1,10 +1,10 @@
 package com.shellshellfish.aaas.risk.model.dto;
 
-public class Error {
+public class ErrorDTO {
     private int code=0;
     private String message;
 
-    public Error(String message) {
+    public ErrorDTO(String message) {
     	this.message=message;
     }
     

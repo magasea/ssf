@@ -1,6 +1,5 @@
 package com.shellshellfish.aaas.userinfo.service;
 
-import java.util.List;
 import java.util.Map;
 
 public interface LinkService {

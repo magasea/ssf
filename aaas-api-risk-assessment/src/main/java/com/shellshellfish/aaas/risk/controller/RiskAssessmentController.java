@@ -11,14 +11,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.shellshellfish.aaas.risk.model.dao.Answer;
-import com.shellshellfish.aaas.risk.model.dao.SurveyResult;
-import com.shellshellfish.aaas.risk.model.dao.UserRiskAssessment;
+import com.shellshellfish.aaas.risk.model.dto.AnswerDTO;
+import com.shellshellfish.aaas.risk.model.dto.SurveyResultDTO;
+import com.shellshellfish.aaas.risk.model.dto.UserRiskAssessmentDTO;
 import com.shellshellfish.aaas.risk.service.impl.SurveyResultServiceImpl;
 import com.shellshellfish.aaas.risk.utils.Links;
 import com.shellshellfish.aaas.risk.utils.ResourceWrapper;
-
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -47,7 +45,7 @@ public class RiskAssessmentController {
 		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=false,value="用户的Uuid",defaultValue="")
 	})
 	@RequestMapping(value = "/banks/{bankUuid}/users/{userUuid}/assessment", method = {RequestMethod.GET, RequestMethod.HEAD}, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ResourceWrapper<UserRiskAssessment>> getRiskAssessment(
+	public ResponseEntity<ResourceWrapper<UserRiskAssessmentDTO>> getRiskAssessment(
 			@PathVariable String bankUuid,
 			@PathVariable String userUuid) throws Exception {
 		log.debug("REST request to get an assessment results. bank uuid:{}", bankUuid);		
@@ -56,21 +54,23 @@ public class RiskAssessmentController {
 		
 		userUuid = "uuid-of-user-xxx";
 		
-		List<SurveyResult> surveyResults = surveyResultService.getSurveyResultsByUserId(userUuid);
-		SurveyResult surveyResult;		
-		if (surveyResults.size() > 0) {
-			 surveyResult = surveyResults.get(surveyResults.size() - 1);
+		List<SurveyResultDTO> surveyResults = surveyResultService.getSurveyResultsByUserId(userUuid);
+		SurveyResultDTO surveyResult;		
+		if (surveyResults != null && surveyResults.size() > 0) {
+			surveyResult = surveyResults.get(surveyResults.size() - 1);
 		} else {
 			throw new Exception("未找到评测记录");
 		}
 		
-		UserRiskAssessment userRiskAssessment = new UserRiskAssessment();
+		UserRiskAssessmentDTO userRiskAssessment = new UserRiskAssessmentDTO();
 		userRiskAssessment.setUserUuid(userUuid);
-		if (surveyResult != null && surveyResult.getAnswers() != null) {
+		if (surveyResult != null && surveyResult.getAnswers() != null) { 
 			Double score = 0d;
 			for (int i = 0; i < surveyResult.getAnswers().size(); i++) {
-				Answer answer = surveyResult.getAnswers().get(i);
-				score += answer.getSelectedOption().getScore();
+				AnswerDTO answer = surveyResult.getAnswers().get(i);
+				if(answer.getSelectedOption()!=null){
+					score += answer.getSelectedOption().getScore();
+				}
 			}
 			
 			System.out.println("score:" + score);
@@ -83,7 +83,7 @@ public class RiskAssessmentController {
 		Links links = new Links();
 		links.setSelf(String.format("/api/risk-assessment/banks/%s/survey-results/assessment?%s", bankUuid, userUuid));
 		links.setDescribedBy(String.format("/api/risk-assessment/banks/%s/survey-results/assessment.json?%s", bankUuid, userUuid));
-		ResourceWrapper<UserRiskAssessment> resource = new ResourceWrapper<>(userRiskAssessment);		
+		ResourceWrapper<UserRiskAssessmentDTO> resource = new ResourceWrapper<>(userRiskAssessment);		
 		resource.setLinks(links);
 		resource.setName("风险评测结果");
 		//AnnotationHelper.changeResourceAnnotion(resource, "surveyTemplate");

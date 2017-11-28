@@ -1,17 +1,17 @@
-package com.shellshellfish.aaas.risk.model.dao;
+package com.shellshellfish.aaas.risk.model.dto;
 
-public class OptionItem {
+public class OptionItemDTO {
 
 	private Integer ordinal;
 	private String name;
 	private String content;
 	private Integer score;
 	
-	public OptionItem() {
+	public OptionItemDTO() {
 		
 	}
 	
-	public OptionItem(Integer ordinal, String name, String content, Integer score) {
+	public OptionItemDTO(Integer ordinal, String name, String content, Integer score) {
 		super();
 		this.ordinal = ordinal;
 		this.name = name;

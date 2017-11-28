@@ -5,19 +5,13 @@ import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 @Document
 public class SurveyTemplate {
 
-	@JsonIgnore
 	@Id
 	private String id;
-	@JsonIgnore
 	private String bankUuid;
-	@JsonIgnore
 	private String title;
-	@JsonIgnore
 	private List<Question> questions;
 	private String version;	
 	private Integer _total;

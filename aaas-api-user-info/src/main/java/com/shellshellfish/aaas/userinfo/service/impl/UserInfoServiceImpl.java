@@ -1,28 +1,22 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.util.CollectionUtils;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
-import com.shellshellfish.aaas.userinfo.model.dao.UiAsset;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.UiFriendRule;
-import com.shellshellfish.aaas.userinfo.model.dao.UiPersonMsg;
-import com.shellshellfish.aaas.userinfo.model.dao.UiPortfolio;
-import com.shellshellfish.aaas.userinfo.model.dao.UiSysMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
-import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCard;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLog;
@@ -35,8 +29,9 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolio;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsg;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
-import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
+import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
 
+@Service
 public class UserInfoServiceImpl implements UserInfoService {
 
     Logger logger = LoggerFactory.getLogger(UserInfoServiceImpl.class);
@@ -47,56 +42,56 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public UserBaseInfo getUserInfoBase(String userUuid) throws Exception {
         Long userId = getUserIdFromUUID(userUuid);
-        UiUser userInfoDao = userInfoRepoService.getUserInfoBase(userId);
-        UserBaseInfo userBaseInfo = new UserBaseInfo();
-        if( null != userInfoDao) {
-            BeanUtils.copyProperties(userInfoDao, userBaseInfo);
-        }
-        return userBaseInfo;
+        UserBaseInfo userInfoDao = userInfoRepoService.getUserInfoBase(userId);
+//        UserBaseInfo userBaseInfo = new UserBaseInfo();
+//        if( null != userInfoDao) {
+//            BeanUtils.copyProperties(userInfoDao, userBaseInfo);
+//        }
+        return userInfoDao;
     }
 
     @Override
     public UserInfoAssectsBrief getUserInfoAssectsBrief(String userUuid) throws Exception {
         Long userId = getUserIdFromUUID(userUuid);
-        UserInfoAssectsBrief userInfoAssectsBrief = new UserInfoAssectsBrief();
-        UiAsset userInfoAssect = userInfoRepoService.getUserInfoAssectsBrief(userId);
-        if(null != userInfoAssect){
-            BeanUtils.copyProperties(userInfoAssect, userInfoAssectsBrief);
-        }
-        return userInfoAssectsBrief;
+        //UserInfoAssectsBrief userInfoAssectsBrief = new UserInfoAssectsBrief();
+        UserInfoAssectsBrief userInfoAssect = userInfoRepoService.getUserInfoAssectsBrief(userId);
+//        if(null != userInfoAssect){
+//            BeanUtils.copyProperties(userInfoAssect, userInfoAssectsBrief);
+//        }
+        return userInfoAssect;
     }
 
     @Override
     public List<BankCard> getUserInfoBankCards(String userUuid) throws Exception {
         Long userId = getUserIdFromUUID(userUuid);
-        List<UiBankcard> uiBankcards =  userInfoRepoService.getUserInfoBankCards(userId);
-        List<BankCard> bankCardsDto = new ArrayList<>();
-        for(UiBankcard uiBankcard: uiBankcards ){
-            BankCard bankCard = new BankCard();
-            BeanUtils.copyProperties(uiBankcard, bankCard);
-            bankCardsDto.add(bankCard);
-        }
-        return bankCardsDto;
+        List<BankCard> bankcards =  userInfoRepoService.getUserInfoBankCards(userId);
+//        List<BankCard> bankCardsDto = new ArrayList<>();
+//        for(UiBankcard uiBankcard: uiBankcards ){
+//            BankCard bankCard = new BankCard();
+//            BeanUtils.copyProperties(uiBankcard, bankCard);
+//            bankCardsDto.add(bankCard);
+//        }
+        return bankcards;
     }
 
     @Override
     public List<UserPortfolio> getUserPortfolios(String userUuid) throws Exception {
         Long userId = getUserIdFromUUID(userUuid);
-        List<UiPortfolio> userPortfolioDaos =  userInfoRepoService.getUserPortfolios(userId);
-        List<UserPortfolio> userPortfolios = new ArrayList<>();
-        for(UiPortfolio userPortfolioDao: userPortfolioDaos){
-            UserPortfolio userPortfolio = new UserPortfolio();
-            BeanUtils.copyProperties(userPortfolioDao, userPortfolio);
-            userPortfolios.add(userPortfolio);
-        }
-        return userPortfolios;
+        List<UserPortfolio> userPortfolioDaos =  userInfoRepoService.getUserPortfolios(userId);
+//        List<UserPortfolio> userPortfolios = new ArrayList<>();
+//        for(UiPortfolio userPortfolioDao: userPortfolioDaos){
+//            UserPortfolio userPortfolio = new UserPortfolio();
+//            BeanUtils.copyProperties(userPortfolioDao, userPortfolio);
+//            userPortfolios.add(userPortfolio);
+//        }
+        return userPortfolioDaos;
     }
 
     @Override
     public BankCard getUserInfoBankCard(String cardNumber) {
-        UiBankcard uiBankcard = userInfoRepoService.getUserInfoBankCard(cardNumber);
-        BankCard bankCard = new BankCard();
-        BeanUtils.copyProperties(uiBankcard, bankCard);
+    	BankCard bankCard = userInfoRepoService.getUserInfoBankCard(cardNumber);
+//        BankCard bankCard = new BankCard();
+//        BeanUtils.copyProperties(uiBankcard, bankCard);
         return bankCard;
     }
 
@@ -110,9 +105,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         uiBankcard.setUserPid(params.get("cardUserPid").toString());
         uiBankcard.setUserId(userId);
         uiBankcard.setBankName(BankUtil.getNameOfBank(params.get("cardNumber").toString()));
-        uiBankcard =  userInfoRepoService.addUserBankcard(uiBankcard);
-        BankCard bankCard = new BankCard();
-        BeanUtils.copyProperties(uiBankcard, bankCard);
+        BankCard bankCard =  userInfoRepoService.addUserBankcard(uiBankcard);
         return bankCard;
     }
 
@@ -120,16 +113,16 @@ public class UserInfoServiceImpl implements UserInfoService {
     public List<AssetDailyRept> getAssetDailyRept(String userUuid, Long beginDate, Long endDate)
         throws Exception {
         Long userId = getUserIdFromUUID(userUuid);
-        List<UiAssetDailyRept> uiAssetDailyRepts = userInfoRepoService.getAssetDailyRept(userId,
+        List<AssetDailyRept> uiAssetDailyRepts = userInfoRepoService.getAssetDailyRept(userId,
             beginDate, endDate);
-        List<AssetDailyRept> assetDailyRepts = new ArrayList<>();
-        for(UiAssetDailyRept uiAssetDailyRept: uiAssetDailyRepts){
-            AssetDailyRept assetDailyRept = new AssetDailyRept();
-            BeanUtils.copyProperties(uiAssetDailyRept, assetDailyRept);
-            assetDailyRept.setDate(new Date(uiAssetDailyRept.getDate()));
-            assetDailyRepts.add(assetDailyRept);
-        }
-        return assetDailyRepts;
+//        List<AssetDailyRept> assetDailyRepts = new ArrayList<>();
+//        for(UiAssetDailyRept uiAssetDailyRept: uiAssetDailyRepts){
+//            AssetDailyRept assetDailyRept = new AssetDailyRept();
+//            BeanUtils.copyProperties(uiAssetDailyRept, assetDailyRept);
+//            assetDailyRept.setDate(new Date(uiAssetDailyRept.getDate()));
+//            assetDailyRepts.add(assetDailyRept);
+//        }
+        return uiAssetDailyRepts;
     }
 
     @Override
@@ -137,37 +130,37 @@ public class UserInfoServiceImpl implements UserInfoService {
         UiAssetDailyRept uiAssetDailyRept = new UiAssetDailyRept();
         BeanUtils.copyProperties(assetDailyRept, uiAssetDailyRept);
         uiAssetDailyRept.setDate(assetDailyRept.getDate().getTime());
-        UiAssetDailyRept result =  userInfoRepoService.addAssetDailyRept(uiAssetDailyRept);
-        AssetDailyRept assetDailyReptResult = new AssetDailyRept();
-        BeanUtils.copyProperties(result, assetDailyReptResult);
-        Date date = new Date(result.getDate());
-        assetDailyRept.setDate(date);
-        return assetDailyReptResult;
+        AssetDailyRept result =  userInfoRepoService.addAssetDailyRept(uiAssetDailyRept);
+//        AssetDailyRept assetDailyReptResult = new AssetDailyRept();
+//        BeanUtils.copyProperties(result, assetDailyReptResult);
+//        Date date = new Date(result.getDate());
+//        assetDailyRept.setDate(date);
+        return result;
     }
 
     @Override
-    public List<UserSysMsg> getUserSysMsg(String userUuid) {
-        List<UiSysMsg> uiSysMsgs = userInfoRepoService.getUiSysMsg();
-        List<UserSysMsg> userSysMsgs = new ArrayList<>();
-        for(UiSysMsg uiSysMsg: uiSysMsgs){
-            UserSysMsg userSysMsg = new UserSysMsg();
-            BeanUtils.copyProperties(uiSysMsg, userSysMsg);
-            userSysMsgs.add(userSysMsg);
-        }
+    public List<UserSysMsg> getUserSysMsg(String userUuid) throws IllegalAccessException, InstantiationException {
+    	List<UserSysMsg> userSysMsgs = userInfoRepoService.getUiSysMsg();
+//        List<UserSysMsg> userSysMsgs = new ArrayList<>();
+//        for(UiSysMsg uiSysMsg: uiSysMsgs){
+//            UserSysMsg userSysMsg = new UserSysMsg();
+//            BeanUtils.copyProperties(uiSysMsg, userSysMsg);
+//            userSysMsgs.add(userSysMsg);
+//        }
         return userSysMsgs;
     }
 
     @Override
     public List<UserPersonMsg> getUserPersonMsg(String userUuid) throws Exception {
         Long userId = getUserIdFromUUID(userUuid);
-        List<UiPersonMsg> uiPersonMsgs = userInfoRepoService.getUiPersonMsg(userId);
-        List<UserPersonMsg> userPersonMsgs = new ArrayList<>();
-        for(UiPersonMsg uiPersonMsg: uiPersonMsgs){
-            UserPersonMsg userPersonMsg = new UserPersonMsg();
-            BeanUtils.copyProperties(uiPersonMsg, userPersonMsg);
-            userPersonMsgs.add(userPersonMsg);
-        }
-        return userPersonMsgs;
+        List<UserPersonMsg> uiPersonMsgs = userInfoRepoService.getUiPersonMsg(userId);
+//        List<UserPersonMsg> userPersonMsgs = new ArrayList<>();
+//        for(UiPersonMsg uiPersonMsg: uiPersonMsgs){
+//            UserPersonMsg userPersonMsg = new UserPersonMsg();
+//            BeanUtils.copyProperties(uiPersonMsg, userPersonMsg);
+//            userPersonMsgs.add(userPersonMsg);
+//        }
+        return uiPersonMsgs;
     }
 
     @Override
@@ -181,32 +174,19 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public Page<TradeLog> getUserTradeLogs(String userUuid, PageRequest pageRequest) throws
-        Exception {
+    public Page<TradeLog> findByUserId(String userUuid, Pageable pageable) throws Exception {
         Long userId = getUserIdFromUUID(userUuid);
-        Page<UiTrdLog> tradeLogsPage = userInfoRepoService.getUiTrdLog(pageRequest, userId);
-        List<UiTrdLog> tradeLogs = tradeLogsPage.getContent();
-        List<TradeLog> tradeLogList = new ArrayList<>();
-        if(CollectionUtils.isEmpty(tradeLogs)){
-            logger.error("failed to retrieve trade logs for user with uuid:" + userUuid);
-            return UserInfoUtils.convertListToPage(tradeLogList, pageRequest, 0);
-        }
-        tradeLogList = UserInfoUtils.convertList(tradeLogs, TradeLog.class);
-        return  UserInfoUtils.convertListToPage(tradeLogList, pageRequest, tradeLogsPage
-            .getTotalElements());
+        Page<UiTrdLog> tradeLogsPage = userInfoRepoService.findByUserId(pageable, userId);
+        Page<TradeLog> tradeLogResult = MyBeanUtils.convertPageDTO(pageable, tradeLogsPage, TradeLog.class);
+        return tradeLogResult;
     }
 
     @Override
     public List<UserInfoFriendRule> getUserInfoFriendRules(Long bankId)
         throws InstantiationException, IllegalAccessException {
-        List<UiFriendRule> uiFriendRules = userInfoRepoService.getUiFriendRule(bankId);
-        List<UserInfoFriendRule> userInfoFriendRules = new ArrayList<>();
-        if(CollectionUtils.isEmpty(uiFriendRules)){
-            return userInfoFriendRules;
-        }else{
-            userInfoFriendRules = UserInfoUtils.convertList(uiFriendRules, UserInfoFriendRule.class);
-            return userInfoFriendRules;
-        }
+    	List<UserInfoFriendRule> userInfoFriendRules = userInfoRepoService.getUiFriendRule(bankId);
+//      List<UserInfoFriendRule> userInfoFriendRules = new ArrayList<>();
+    	return userInfoFriendRules;
     }
 
     @Override

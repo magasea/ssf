@@ -1,16 +1,12 @@
-package com.shellshellfish.aaas.risk.utils;
+package com.shellshellfish.aaas.userinfo.utils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-
-import com.shellshellfish.aaas.risk.model.dao.Question;
-import com.shellshellfish.aaas.risk.model.dto.QuestionDTO;
 
 public class MyBeanUtils {
 

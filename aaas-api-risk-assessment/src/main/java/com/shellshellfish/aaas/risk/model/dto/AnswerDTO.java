@@ -1,17 +1,15 @@
-package com.shellshellfish.aaas.risk.model.dao;
+package com.shellshellfish.aaas.risk.model.dto;
 
-public class Answer {
-
-	
+public class AnswerDTO {
 	private Integer questionOrdinal;
 	
-	private OptionItem selectedOption;
+	private OptionItemDTO selectedOption;
 	
-	public Answer() {
+	public AnswerDTO() {
 		
 	}
 	
-	public Answer(Integer questionOrdinal, OptionItem selectedOption) {
+	public AnswerDTO(Integer questionOrdinal, OptionItemDTO selectedOption) {
 		super();
 		this.questionOrdinal = questionOrdinal;
 		this.selectedOption = selectedOption;
@@ -23,10 +21,10 @@ public class Answer {
 	public void setQuestionOrdinal(Integer questionOrdinal) {
 		this.questionOrdinal = questionOrdinal;
 	}
-	public OptionItem getSelectedOption() {
+	public OptionItemDTO getSelectedOption() {
 		return selectedOption;
 	}
-	public void setSelectedOption(OptionItem selectedOption) {
+	public void setSelectedOption(OptionItemDTO selectedOption) {
 		this.selectedOption = selectedOption;
 	}
 	

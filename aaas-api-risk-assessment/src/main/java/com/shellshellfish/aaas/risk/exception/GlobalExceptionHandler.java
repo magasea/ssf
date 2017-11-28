@@ -11,7 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import com.shellshellfish.aaas.risk.model.dto.Error;
+import com.shellshellfish.aaas.risk.model.dto.ErrorDTO;
 
 
 @ControllerAdvice
@@ -30,21 +30,21 @@ public class GlobalExceptionHandler{
     }
     
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<Error> RangeErrorHandler(MethodArgumentNotValidException e){
-		Error error = new Error(e.getMessage());
+	public ResponseEntity<ErrorDTO> RangeErrorHandler(MethodArgumentNotValidException e){
+		ErrorDTO error = new ErrorDTO(e.getMessage());
 		//error.setCode(404);
-		return new ResponseEntity<Error>(error, HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<ErrorDTO>(error, HttpStatus.BAD_REQUEST);
    }
     
 	@ExceptionHandler(ConstraintViolationException.class)
-	public ResponseEntity<Error[]> RangeErrorHandler(ConstraintViolationException e){
+	public ResponseEntity<ErrorDTO[]> RangeErrorHandler(ConstraintViolationException e){
 	    //String userId = e.getUserId();
 	    //e.getConstraintViolations().
-		Error[] error=null;
+		ErrorDTO[] error=null;
 		Set<ConstraintViolation<?>> cons=e.getConstraintViolations();
 		if (cons!=null) {
 			ConstraintViolation<?>[] con=getconstraint(cons);
-			error=new Error[con.length];
+			error=new ErrorDTO[con.length];
 			for (int i=0;i<con.length;i++) {
 			  String errmsg =con[i].getMessage();
 			
@@ -54,21 +54,21 @@ public class GlobalExceptionHandler{
 			  Iterator<Node> its=pname.iterator();			
 			  String paraname= getParameterName(its);
 			  */
-			  error[i] = new Error(errmsg);
+			  error[i] = new ErrorDTO(errmsg);
 			  error[i].setCode(i);
 			}
 		}else {
-			error =new Error[1];
-			error[0]=new Error(e.getMessage());
+			error =new ErrorDTO[1];
+			error[0]=new ErrorDTO(e.getMessage());
 		}
-		return new ResponseEntity<Error[]>(error,HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<ErrorDTO[]>(error,HttpStatus.BAD_REQUEST);
    }
 	
 	@ExceptionHandler(UserException.class)
-	public ResponseEntity<Error> UserExceptionHandler(UserException e) {
-		Error error = new Error(e.getMsg());
+	public ResponseEntity<ErrorDTO> UserExceptionHandler(UserException e) {
+		ErrorDTO error = new ErrorDTO(e.getMsg());
 		error.setCode(Integer.parseInt(e.getCode()));
-		return new ResponseEntity<Error>(error, HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<ErrorDTO>(error, HttpStatus.BAD_REQUEST);
 	}
 
 	
@@ -87,12 +87,12 @@ public class GlobalExceptionHandler{
    }
    
    @ExceptionHandler(MissingServletRequestParameterException.class)
-	public ResponseEntity<Error> ParamMissingErrorHandler(MissingServletRequestParameterException e){
+	public ResponseEntity<ErrorDTO> ParamMissingErrorHandler(MissingServletRequestParameterException e){
 	    String errmsg=e.getMessage();
-	    Error error = new Error(errmsg);
+	    ErrorDTO error = new ErrorDTO(errmsg);
 	    String pname=e.getParameterName();
 	    String ptype= e.getParameterType();
-	    return new ResponseEntity<Error>(error,HttpStatus.BAD_REQUEST);
+	    return new ResponseEntity<ErrorDTO>(error,HttpStatus.BAD_REQUEST);
 	}
 	
 	
