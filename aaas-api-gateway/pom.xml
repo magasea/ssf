@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.shellshellfish</groupId>
-	<artifactId>com.shellshellfish.gateway</artifactId>
+	<artifactId>com.shellshellfish.aaas.gateway</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
@@ -26,11 +26,11 @@
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>com.shellshellfish</groupId>
-			<artifactId>com.shellshellfish.bankaccount.grpc.api</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>com.shellshellfish</groupId>-->
+			<!--<artifactId>com.shellshellfish.bankaccount.grpc.api</artifactId>-->
+			<!--<version>0.0.1-SNAPSHOT</version>-->
+		<!--</dependency>-->
 		
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>

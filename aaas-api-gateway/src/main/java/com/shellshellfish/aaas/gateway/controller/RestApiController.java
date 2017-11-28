@@ -1,4 +1,4 @@
-package com.shellshellfish.gateway.controller;
+package com.shellshellfish.aaas.gateway.controller;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.shellshellfish.bankaccount.grpc.BankAccount;
-import com.shellshellfish.gateway.service.BankAccountService;
+import com.shellshellfish.aaas.gateway.service.BankAccountService;
 
 @RestController
 @RequestMapping("/api")

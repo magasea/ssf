@@ -1,4 +1,4 @@
-package com.shellshellfish.gateway.service;
+package com.shellshellfish.aaas.gateway.service;
 
 import java.util.ArrayList;
 import java.util.List;
