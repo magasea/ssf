@@ -766,7 +766,6 @@ public class UserInfoController {
 			@RequestParam(value = "size") Long size, 
 			@RequestParam(value = "page", defaultValue = "0") Long page,
 			@RequestParam(value = "sort") String sort) throws Exception {
-
 		Page<TradeLog> pages = userInfoService.findByUserId(userUuid, pageable);
 		Map<String, Object> selfMap = new HashMap<String, Object>();
 		Map<String, Object> self = new HashMap<String, Object>();
