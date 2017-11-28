@@ -10,6 +10,10 @@ public class ProductInfo {
 	private String productName;
 	private NameValuePair<String, String> investmentPeriod; // 短期 中期 长期
 	private NameValuePair<String, String> riskToleranceLevel; // 保守型 稳健型 平衡型 积极型 进取型
+	private Double minAnnualizedReturn;
+	private Double maxAnnualizedReturn;
+	private Double minRiskLevel;
+	private Double maxRiskLevel;
 	private Date creationTime;
 	
 	private Map<String, Double> assetsRatios;
@@ -62,6 +66,38 @@ public class ProductInfo {
 
 	public void setRiskToleranceLevel(NameValuePair<String, String> riskToleranceLevel) {
 		this.riskToleranceLevel = riskToleranceLevel;
+	}
+
+	public Double getMinAnnualizedReturn() {
+		return minAnnualizedReturn;
+	}
+
+	public void setMinAnnualizedReturn(Double minAnnualizedReturn) {
+		this.minAnnualizedReturn = minAnnualizedReturn;
+	}
+
+	public Double getMaxAnnualizedReturn() {
+		return maxAnnualizedReturn;
+	}
+
+	public void setMaxAnnualizedReturn(Double maxAnnualizedReturn) {
+		this.maxAnnualizedReturn = maxAnnualizedReturn;
+	}
+
+	public Double getMinRiskLevel() {
+		return minRiskLevel;
+	}
+
+	public void setMinRiskLevel(Double minRiskLevel) {
+		this.minRiskLevel = minRiskLevel;
+	}
+
+	public Double getMaxRiskLevel() {
+		return maxRiskLevel;
+	}
+
+	public void setMaxRiskLevel(Double maxRiskLevel) {
+		this.maxRiskLevel = maxRiskLevel;
 	}
 
 }
