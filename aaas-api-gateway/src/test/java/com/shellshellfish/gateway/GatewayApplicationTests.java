@@ -1,4 +1,4 @@
-package com.shellshellfish.gateway;
+package com.shellshellfish.aaas.gateway;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

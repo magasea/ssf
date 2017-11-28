@@ -66,6 +66,10 @@ public class AssetAllocationController {
 		ProductInfo productInfo = new ProductInfo(uuid, "贝贝鱼理财产品A", new Date());
 		productInfo.setInvestmentPeriod(new NameValuePair<>("中期", "1-3年"));
 		productInfo.setRiskToleranceLevel(new NameValuePair<>("平衡型", "C3"));
+		productInfo.setMinAnnualizedReturn(0.035);
+		productInfo.setMaxAnnualizedReturn(0.325);
+		productInfo.setMinRiskLevel(0.035);
+		productInfo.setMaxRiskLevel(0.325);
 		
 		Map<String, Double> assetsRatios = new LinkedHashMap<>();
 		assetsRatios.put("利率债", 0.09d);
@@ -97,6 +101,10 @@ public class AssetAllocationController {
 		ProductInfo productInfo1 = new ProductInfo(UUID.randomUUID().toString(), "贝贝鱼理财产品A", new Date());
 		productInfo1.setInvestmentPeriod(new NameValuePair<>("中期", "1-3年"));
 		productInfo1.setRiskToleranceLevel(new NameValuePair<>("平衡型", "C3"));
+		productInfo1.setMinAnnualizedReturn(0.035);
+		productInfo1.setMaxAnnualizedReturn(0.325);
+		productInfo1.setMinRiskLevel(0.035);
+		productInfo1.setMaxRiskLevel(0.035);
 		Map<String, Double> assetsRatios1 = new LinkedHashMap<>();
 		assetsRatios1.put("利率债", 0.09d);
 		assetsRatios1.put("信用债", 0.08d);
@@ -110,6 +118,10 @@ public class AssetAllocationController {
 		ProductInfo productInfo2 = new ProductInfo(UUID.randomUUID().toString(), "贝贝鱼理财产品B", new Date());
 		productInfo2.setInvestmentPeriod(new NameValuePair<>("中期", "1-3年"));
 		productInfo2.setRiskToleranceLevel(new NameValuePair<>("平衡型", "C3"));
+		productInfo2.setMinAnnualizedReturn(0.035);
+		productInfo2.setMaxAnnualizedReturn(0.325);
+		productInfo2.setMinRiskLevel(0.035);
+		productInfo2.setMaxRiskLevel(0.035);
 		Map<String, Double> assetsRatios2 = new LinkedHashMap<>();
 		assetsRatios2.put("利率债", 0.09d);
 		assetsRatios2.put("信用债", 0.08d);
@@ -208,7 +220,9 @@ public class AssetAllocationController {
 	
 	@ApiOperation("模拟历史年化业绩与模拟历史年化波动率")
 	@RequestMapping(value = "/products/{uuid}/simulated-data", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CollectionResourceWrapper<List<NameValuePair<String, Double>>>> getSimulatedData(@PathVariable String uuid) {
+	public ResponseEntity<CollectionResourceWrapper<List<NameValuePair<String, Double>>>> getSimulatedData(@PathVariable String uuid, 
+																										   @RequestParam(defaultValue="中期") String investmentPeriod, 
+																										   @RequestParam(defaultValue="C3") String riskLevel) {
 		CollectionResourceWrapper<List<NameValuePair<String, Double>>> resource = new CollectionResourceWrapper<>();
 		resource.setItems(Arrays.asList(new NameValuePair<String, Double>("模拟历史年化业绩", 0.073), 
 										new NameValuePair<String, Double>("模拟历史年化波动率", 0.0527)));
@@ -238,6 +252,10 @@ public class AssetAllocationController {
 		ProductInfo productInfo = new ProductInfo(uuid, "贝贝鱼理财产品A", new Date());
 		productInfo.setInvestmentPeriod(new NameValuePair<>("中期", "1-3年"));
 		productInfo.setRiskToleranceLevel(new NameValuePair<>("平衡型", "C3"));
+		productInfo.setMinAnnualizedReturn(0.035);
+		productInfo.setMaxAnnualizedReturn(0.325);
+		productInfo.setMinRiskLevel(0.035);
+		productInfo.setMaxRiskLevel(0.325);
 		
 		Map<String, Double> assetsRatios = new LinkedHashMap<>();
 		assetsRatios.put("利率债", 0.091d);

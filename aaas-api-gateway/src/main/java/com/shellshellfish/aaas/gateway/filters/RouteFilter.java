@@ -1,4 +1,4 @@
-package com.shellshellfish.gateway.filters;
+package com.shellshellfish.aaas.gateway.filters;
 
 
 import javax.servlet.http.HttpServletRequest;
