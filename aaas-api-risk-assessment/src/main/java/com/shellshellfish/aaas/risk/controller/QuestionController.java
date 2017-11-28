@@ -4,6 +4,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.shellshellfish.aaas.risk.aop.AopResources;
 import com.shellshellfish.aaas.risk.model.dao.Question;
 import com.shellshellfish.aaas.risk.model.dao.SurveyTemplate;
 import com.shellshellfish.aaas.risk.model.dto.QuestionDTO;
@@ -50,14 +52,18 @@ public class QuestionController {
     })
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="path",name="bankUuid",dataType="String",required=true,value="银行卡的Uuid",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="page",dataType="int",required=false,value="当前显示页",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="size",dataType="int",required=false,value="每页显示数",defaultValue="")
+		@ApiImplicitParam(paramType="query",name="page",dataType="int",required=false,value="当前显示页",defaultValue="25"),
+		@ApiImplicitParam(paramType="query",name="size",dataType="int",required=false,value="每页显示数",defaultValue="0"),
+		@ApiImplicitParam(paramType="query",name="sort",dataType="String",value="排序条件",defaultValue="id")
 	})
 	@RequestMapping(value = "/banks/{bankUuid}/questions", method = {RequestMethod.GET, RequestMethod.HEAD}, produces = MediaType.APPLICATION_JSON_VALUE)
+	//@AopResources
 	public ResponseEntity<CollectionResourceWrapper<List<QuestionDTO>>> getAllQuestions(
 			@PathVariable String bankUuid,
-			@RequestParam(required=false)Integer page,
-			@RequestParam(required=false)Integer size) throws Exception {
+			Pageable pageable,
+			@RequestParam(value = "size") Integer size,
+			@RequestParam(value = "page",defaultValue="0") Integer page,
+			@RequestParam(value = "sort") String sort) {
 		log.debug("REST request to get questions based on page id and bank uuid. bank uuid:{}, page:{}", bankUuid, page);		
 		if (size == null) {
 			size = 20;
@@ -77,18 +83,8 @@ public class QuestionController {
 		List<QuestionDTO> dtoList = questionService.convertToQuestionDTOs(questions, surveyTemplate.getId());
 		
 		CollectionResourceWrapper<List<QuestionDTO>> resource = new CollectionResourceWrapper<>(dtoList);
-		Links links = new Links();
-		if (page != null) {
-			links.setSelf(String.format("/api/risk-assessment/banks/%s/questions?page=%d&size=%d", bankUuid, page, size));
-			links.setNext(String.format("/api/risk-assessment/banks/%s/questions?page=%d&size=%d", bankUuid, page + 1, size));
-			if (page > 0) {
-				links.setPrev(String.format("/api/risk-assessment/banks/%s/questions?page=%d&size=%d", bankUuid, page - 1, size));
-			}
-		} else {
-			links.setSelf(String.format("/api/risk-assessment/banks/%s/questions", bankUuid));
-		}		
-		
-		resource.setLinks(links);	
+			
+			
 		resource.setTotal(surveyTemplate.getQuestions().size());
 		resource.setName("风险评估题目"); 
 	//    AnnotationHelper.changeResourceAnnotion(resource, "_items"); 

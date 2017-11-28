@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.risk.util;
+package com.shellshellfish.aaas.risk.utils;
 
 public class Dummy {
 	
