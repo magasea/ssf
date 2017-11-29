@@ -1,58 +1,63 @@
 package com.shellshellfish.aaas.userinfo.dao.service;
 
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAsset;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiCompanyInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiFriendRule;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPersonMsg;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPortfolio;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiProdMsg;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiSysMsg;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiTrdLog;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiUser;
 import java.util.List;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
+import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
+import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.UiPersonMsg;
+import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
+import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyRept;
+import com.shellshellfish.aaas.userinfo.model.dto.BankCard;
+import com.shellshellfish.aaas.userinfo.model.dto.TradeLog;
+import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfo;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBrief;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRule;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsg;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolio;
+import com.shellshellfish.aaas.userinfo.model.dto.UserProdMsg;
+import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsg;
 
 public interface UserInfoRepoService {
-  UiUser getUserInfoBase(Long userId);
+	UserBaseInfo getUserInfoBase(Long userId);
 
-  UiAsset getUserInfoAssectsBrief(Long userId);
+	UserInfoAssectsBrief getUserInfoAssectsBrief(Long userId);
 
-  List<UiBankcard> getUserInfoBankCards(Long userId);
+	List<BankCard> getUserInfoBankCards(Long userId) throws IllegalAccessException, InstantiationException;
 
-  List<UiPortfolio> getUserPortfolios(Long userId);
+	List<UserPortfolio> getUserPortfolios(Long userId) throws IllegalAccessException, InstantiationException;
 
-  UiBankcard getUserInfoBankCard(String cardNumber);
+	BankCard getUserInfoBankCard(String cardNumber);
 
-  UiBankcard addUserBankcard(UiBankcard uiBankcard);
+	BankCard addUserBankcard(UiBankcard uiBankcard);
 
-  List<UiAssetDailyRept> getAssetDailyRept(Long userId, Long beginDate, Long endDate);
+	List<AssetDailyRept> getAssetDailyRept(Long userId, Long beginDate, Long endDate)
+			throws IllegalAccessException, InstantiationException;
 
-  UiAssetDailyRept addAssetDailyRept(UiAssetDailyRept uiAssetDailyRept);
+	AssetDailyRept addAssetDailyRept(UiAssetDailyRept uiAssetDailyRept);
 
-  List<UiAssetDailyRept> getAssetDailyReptByUserId(Long userId);
+	List<AssetDailyRept> getAssetDailyReptByUserId(Long userId) throws IllegalAccessException, InstantiationException;
 
-  List<UiPersonMsg> getUiPersonMsg(Long userId);
+	List<UserPersonMsg> getUiPersonMsg(Long userId) throws IllegalAccessException, InstantiationException;
 
-  List<UiProdMsg> getUiProdMsg(Long prodId);
+	List<UserProdMsg> getUiProdMsg(Long prodId) throws IllegalAccessException, InstantiationException;
 
-  List<UiPersonMsg> updateUiUserPersonMsg(List<String> msgs, Long user_id, Boolean readedStatus);
+	Boolean updateUiUserPersonMsg(String msg, Long user_id, Boolean readedStatus);
 
-  List<UiSysMsg> getUiSysMsg();
+	List<UserSysMsg> getUiSysMsg() throws IllegalAccessException, InstantiationException;
 
-  Long getUserIdFromUUID(String userUuid) throws Exception;
+	Long getUserIdFromUUID(String userUuid) throws Exception;
 
-  UiPersonMsg addUiPersonMsg(UiPersonMsg uiPersonMsg);
+	UserPersonMsg addUiPersonMsg(UiPersonMsg uiPersonMsg);
 
-  Page<UiTrdLog> getUiTrdLog(PageRequest pageRequest, Long userId);
+	Page<UiTrdLog> findByUserId(Pageable pageable, Long userId);
 
-  Iterable<UiTrdLog> addUiTrdLog(List<UiTrdLog> trdLogs);
+	Iterable<TradeLog> addUiTrdLog(List<UiTrdLog> trdLogs) throws IllegalAccessException, InstantiationException;
 
-  List<UiFriendRule> getUiFriendRule(Long bankId);
+	List<UserInfoFriendRule> getUiFriendRule(Long bankId) throws IllegalAccessException, InstantiationException;
 
-  UiCompanyInfo getCompanyInfo(Long id);
+	UiCompanyInfo getCompanyInfo(Long id);
 
-  UiCompanyInfo addCompanyInfo(UiCompanyInfo uiCompanyInfo);
+	UiCompanyInfo addCompanyInfo(UiCompanyInfo uiCompanyInfo);
 }

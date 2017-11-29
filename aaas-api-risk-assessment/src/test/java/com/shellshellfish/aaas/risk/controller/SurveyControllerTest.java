@@ -36,11 +36,11 @@ public class SurveyControllerTest {
 	
 	@Test
 	public void testGetSurveyTemplate() throws Exception {
-		mvc.perform(get("/api/risk-assessment/banks/bankxxx/survey-templates/latest"))
+		mvc.perform(get("/api/riskassessments/banks/1/surveytemplates/latest"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-        .andExpect(jsonPath("$.surveyTemplate.version").value("1.0"))
-        .andExpect(jsonPath("$.surveyTemplate.questions").isArray())        
+        .andExpect(jsonPath("$.version").value("1.0"))
+        .andExpect(jsonPath("$._items").isArray())        
         ;
 	}
 	
@@ -64,7 +64,7 @@ public class SurveyControllerTest {
 				"    ]\r\n" + 
 				"}";
 		
-		mvc.perform(post("/api/risk-assessment/banks/bankxxx/survey-results")
+		mvc.perform(post("/api/riskassessments/banks/1/users/1/surveyresults")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(requestJson))
 				.andDo(print())

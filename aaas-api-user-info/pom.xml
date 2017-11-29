@@ -27,7 +27,10 @@
 		<junit.version>4.12</junit.version>
 		<mockito.version>1.9.5</mockito.version>
 		<assertj.version>3.3.0</assertj.version>
-
+		<maven-surefire-plugin.version>2.11</maven-surefire-plugin.version>
+		<maven-surefire-report-plugin.version>2.11</maven-surefire-report-plugin.version>
+		<jxr-maven-plugin.version>2.3</jxr-maven-plugin.version>
+		<junit.version>4.12</junit.version>
 	</properties>
 
 	<dependencies>
@@ -133,18 +136,77 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
 		</dependency>
-
+		<!-- junit surefire test-->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
 
 
 	</dependencies>
 	<build>
 		<plugins>
-			<plugin><!-- Include if you want to make an executable jar[FAT JAR which 
-					includes all dependencies along with sprinboot loader] that you can run on 
-					commandline using java -jar NAME -->
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<!-- junit surefire test-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven-surefire-plugin.version}</version>
+				<configuration>
+					<testFailureIgnore>true</testFailureIgnore>
+				</configuration>
+				<executions>
+					<execution>
+						<id>test</id>
+						<phase>test</phase>
+						<configuration>
+							<argLine>-Dfile.encoding=UTF-8</argLine>
+							<forkMode>once</forkMode>
+							<redirectTestOutputToFile>true</redirectTestOutputToFile>
+							<includes>
+								<include>**/*Test.java</include>
+							</includes>
+						</configuration>
+						<goals>
+							<goal>test</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>${maven-surefire-report-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>generate-test-report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
+	<!-- junit surefire test-->
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>${maven-surefire-report-plugin.version}</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jxr-maven-plugin</artifactId>
+				<version>${jxr-maven-plugin.version}</version>
+			</plugin>
+		</plugins>
+	</reporting>
 </project>

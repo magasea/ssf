@@ -8,13 +8,14 @@ import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserSysMsgRe
 import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoBankCardsRepository;
 import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiAssetDailyRept;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiBankcard;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiCompanyInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiPersonMsg;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiTrdLog;
-import com.shellshellfish.aaas.userinfo.model.dao.userinfo.UiUser;
-import com.shellshellfish.aaas.userinfo.util.UserInfoUtils;
+import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
+import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
+import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.UiPersonMsg;
+import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
+import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
+import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -144,8 +145,8 @@ public class UserInfoRepoServiceImplTest {
 
   @org.junit.Test
   public void getUserInfoBankCards() throws Exception {
-    BigInteger userId = BigInteger.valueOf(1);
-    UiBankcard uiBankcard= userInfoBankCardsRepository.findOne(userId);
+//    BigInteger userId = BigInteger.valueOf(1);
+    UiBankcard uiBankcard= userInfoBankCardsRepository.findOne(1L);
     System.out.println(uiBankcard);
     String bankName = "工商银行";
     List<UiBankcard> uiBankcards= userInfoBankCardsRepository.findByBankName(bankName);
