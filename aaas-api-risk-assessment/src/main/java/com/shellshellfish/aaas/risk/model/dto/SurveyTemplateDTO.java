@@ -12,11 +12,10 @@ public class SurveyTemplateDTO {
 	private String bankUuid;
 	@JsonIgnore
 	private String title;
-	@JsonIgnore
 	private List<QuestionDTO> questions;
 	private String version;
-	private Integer _total;
-	private List<QuestionDTO> _items;
+//	private Integer _total;
+//	private List<QuestionDTO> _items;
 
 	public SurveyTemplateDTO() {
 
@@ -62,20 +61,20 @@ public class SurveyTemplateDTO {
 		this.version = version;
 	}
 
-	public Integer get_total() {
-		return _total;
-	}
-
-	public void set_total(Integer _total) {
-		this._total = _total;
-	}
-
-	public List<QuestionDTO> get_items() {
-		return _items;
-	}
-
-	public void set_items(List<QuestionDTO> _items) {
-		this._items = _items;
-	}
+//	public Integer get_total() {
+//		return _total;
+//	}
+//
+//	public void set_total(Integer _total) {
+//		this._total = _total;
+//	}
+//
+//	public List<QuestionDTO> get_items() {
+//		return _items;
+//	}
+//
+//	public void set_items(List<QuestionDTO> _items) {
+//		this._items = _items;
+//	}
 
 }

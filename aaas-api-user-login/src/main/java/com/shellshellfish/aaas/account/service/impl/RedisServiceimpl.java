@@ -35,7 +35,7 @@ public class RedisServiceimpl implements RedisService{
 		return true;
 	}
 	
-	public boolean saveVeribody(VerificationBody vbody) {
+	public boolean saveVeribody(VerificationBody vbody) throws RuntimeException {
 		if (initflag==false) {
 			connectServer();
 			initflag=true;
@@ -51,7 +51,7 @@ public class RedisServiceimpl implements RedisService{
 	}
 	
 	
-	public  boolean doSmsVerification(VerificationBody vbody) {
+	public  boolean doSmsVerification(VerificationBody vbody) throws RuntimeException {
 		if (initflag==false) {
 			connectServer();
 			initflag=true;

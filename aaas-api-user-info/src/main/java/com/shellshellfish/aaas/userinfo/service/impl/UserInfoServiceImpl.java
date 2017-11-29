@@ -40,7 +40,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     UserInfoRepoService userInfoRepoService;
 
     @Override
-    public UserBaseInfo getUserInfoBase(String userUuid) throws Exception {
+    public UserBaseInfo getUserInfoBase(String userUuid) throws Exception{
         Long userId = getUserIdFromUUID(userUuid);
         UserBaseInfo userInfoDao = userInfoRepoService.getUserInfoBase(userId);
 //        UserBaseInfo userBaseInfo = new UserBaseInfo();
@@ -88,7 +88,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public BankCard getUserInfoBankCard(String cardNumber) {
+    public BankCard getUserInfoBankCard(String cardNumber) throws RuntimeException {
     	BankCard bankCard = userInfoRepoService.getUserInfoBankCard(cardNumber);
 //        BankCard bankCard = new BankCard();
 //        BeanUtils.copyProperties(uiBankcard, bankCard);
@@ -126,7 +126,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public AssetDailyRept addAssetDailyRept(AssetDailyRept assetDailyRept) throws ParseException {
+    public AssetDailyRept addAssetDailyRept(AssetDailyRept assetDailyRept) throws ParseException,RuntimeException {
         UiAssetDailyRept uiAssetDailyRept = new UiAssetDailyRept();
         BeanUtils.copyProperties(assetDailyRept, uiAssetDailyRept);
         uiAssetDailyRept.setDate(assetDailyRept.getDate().getTime());
@@ -139,7 +139,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public List<UserSysMsg> getUserSysMsg(String userUuid) throws IllegalAccessException, InstantiationException {
+    public List<UserSysMsg> getUserSysMsg(String userUuid) throws IllegalAccessException, InstantiationException, RuntimeException {
     	List<UserSysMsg> userSysMsgs = userInfoRepoService.getUiSysMsg();
 //        List<UserSysMsg> userSysMsgs = new ArrayList<>();
 //        for(UiSysMsg uiSysMsg: uiSysMsgs){
@@ -183,14 +183,14 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public List<UserInfoFriendRule> getUserInfoFriendRules(Long bankId)
-        throws InstantiationException, IllegalAccessException {
+        throws InstantiationException, IllegalAccessException,RuntimeException {
     	List<UserInfoFriendRule> userInfoFriendRules = userInfoRepoService.getUiFriendRule(bankId);
 //      List<UserInfoFriendRule> userInfoFriendRules = new ArrayList<>();
     	return userInfoFriendRules;
     }
 
     @Override
-    public UserInfoCompanyInfo getCompanyInfo(String userUuid, Long bankId) {
+    public UserInfoCompanyInfo getCompanyInfo(String userUuid, Long bankId) throws RuntimeException {
         Long id = getCompanyId(userUuid, bankId);
         UiCompanyInfo uiCompanyInfo =  userInfoRepoService.getCompanyInfo(id);
         UserInfoCompanyInfo userInfoCompanyInfo = new UserInfoCompanyInfo();
@@ -202,7 +202,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     }
     //TODO: this function will be adjusted by business rule
-    private Long getCompanyId(String userUuid, Long bankId) {
+    private Long getCompanyId(String userUuid, Long bankId) throws RuntimeException {
         return 1L;
     }
 

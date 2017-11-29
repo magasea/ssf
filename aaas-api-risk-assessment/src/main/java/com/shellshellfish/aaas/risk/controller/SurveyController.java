@@ -63,9 +63,9 @@ public class SurveyController {
 		links.setDescribedBy(String.format("/api/riskassessment/banks/%s/surveytemplates/latest.json", bankUuid));
 		
 		resource.setLinks(links);
-		SurveyTemplateDTO survey = resource.getItem();
-		survey.set_items(survey.getQuestions());
-		survey.set_total(survey.getQuestions().size());
+//		SurveyTemplateDTO survey = resource.getItem();
+//		survey.set_items(survey.getQuestions());
+//		survey.set_total(survey.getQuestions().size());
 		//resource.setName("风险评估表");
 		//AnnotationHelper.changeResourceAnnotion(resource, "surveyTemplate");
 		 

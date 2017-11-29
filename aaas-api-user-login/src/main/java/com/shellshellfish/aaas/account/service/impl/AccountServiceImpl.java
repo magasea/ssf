@@ -43,7 +43,7 @@ public class AccountServiceImpl implements AccountService {
     private AliSms alisms;
 
 	@Override
-	public List<UserDTO> isRegisteredUser(String cellphone, String passwordhash) {
+	public List<UserDTO> isRegisteredUser(String cellphone, String passwordhash) throws RuntimeException {
 		List<User> userList = userRepository.findByCellPhoneAndPasswordHash(cellphone, passwordhash);
 		List<UserDTO> userDtoList = null;
 		if (userList != null && userList.size() > 0) {
@@ -59,7 +59,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public boolean isSettingPWD(String telnum, String pwdsetting, String pwdconfirm) {
+	public boolean isSettingPWD(String telnum, String pwdsetting, String pwdconfirm) throws RuntimeException {
 		List<User> userList = userRepository.findByCellPhone(telnum);
 		if (userList == null || userList.size() != 1) {//有可能多于1条的冗余数据
 			return false;
@@ -96,7 +96,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public boolean addBankCard(String arg[]) {
+	public boolean addBankCard(String arg[]) throws RuntimeException {
 		// 手机号telnum, bkcardnum, bkname, name
 		String telnum = arg[0];
 		// 用户名
@@ -126,7 +126,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public List<UserDTO> isRegisterredTel(String cellphone) {
+	public List<UserDTO> isRegisterredTel(String cellphone) throws RuntimeException {
 		String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
 		Pattern telPattern = Pattern.compile(telRegExp);
 		Matcher telMatcher = telPattern.matcher(cellphone);
@@ -148,7 +148,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public boolean isSmsVerified(String cellphone,String verfiedcode) {
+	public boolean isSmsVerified(String cellphone,String verfiedcode) throws RuntimeException {
 		List<Object[]> reslst=smsVerificationRepositoryCustom.getSmsVerification(cellphone, verfiedcode);
 		if (reslst.size()>0)
 			return true;
@@ -158,7 +158,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public boolean sendSmsMessage(String telnum) {
+	public boolean sendSmsMessage(String telnum) throws RuntimeException {
 		
 		VerificationBody vcodebody=alisms.sendVerificationSms(telnum);
 		if (vcodebody==null)
@@ -173,7 +173,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public boolean doSmsVerification(VerificationBody vbody) {
+	public boolean doSmsVerification(VerificationBody vbody) throws RuntimeException {
 	  	return redisService.doSmsVerification(vbody);
 	}
 }

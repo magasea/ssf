@@ -18,7 +18,7 @@ public class SurveyTemplateServiceImpl implements SurveyTemplateService{
 	private SurveyTemplateRepository surveyTemplateRepository;
 	
 	@Override
-	public SurveyTemplateDTO getSurveyTemplate(String title, String version) {
+	public SurveyTemplateDTO getSurveyTemplate(String title, String version) throws RuntimeException {
 		SurveyTemplate surveyTemplate = surveyTemplateRepository.findOneByTitleAndVersion(title, version);
 		SurveyTemplateDTO surveyTemplateDTO = new SurveyTemplateDTO();
 		BeanUtils.copyProperties(surveyTemplate, surveyTemplateDTO);
@@ -26,7 +26,7 @@ public class SurveyTemplateServiceImpl implements SurveyTemplateService{
 	}
 
 	@Override
-	public Page<SurveyTemplateDTO> findByTitleAndVersion(Pageable page, String title, String version) {
+	public Page<SurveyTemplateDTO> findByTitleAndVersion(Pageable page, String title, String version) throws RuntimeException {
 		Page<SurveyTemplate> questionPage = surveyTemplateRepository.findByTitleAndVersion(title,version, page);
 		return null;
 	}

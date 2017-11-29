@@ -24,11 +24,11 @@ public class SurveyResultServiceImpl implements SurveyResultService{
 	@Autowired
 	private SurveyResultRepository surveyResultRepository;
 	
-	public List<SurveyResult> getSurveyResults(String userId, String surveyTemplateId) {
+	public List<SurveyResult> getSurveyResults(String userId, String surveyTemplateId) throws RuntimeException{
 		return surveyResultRepository.findAllByUserIdAndSurveyTemplateId(userId, surveyTemplateId); 
 	}
 	
-	public List<SurveyResultDTO> getSurveyResultsByUserId(String userId) {
+	public List<SurveyResultDTO> getSurveyResultsByUserId(String userId) throws RuntimeException {
 		List<SurveyResult> list= surveyResultRepository.findAllByUserId(userId);
 		List<SurveyResultDTO> dtoList = new ArrayList<SurveyResultDTO>();
 		if(list!=null&&list.size()>0){
@@ -37,7 +37,7 @@ public class SurveyResultServiceImpl implements SurveyResultService{
 		return dtoList;
 	}
 	
-	public List<SurveyResult> getSurveyResultsBySurveyTemplateId(String surveyTemplateId) {
+	public List<SurveyResult> getSurveyResultsBySurveyTemplateId(String surveyTemplateId) throws RuntimeException {
 		return surveyResultRepository.findAllBySurveyTemplateId(surveyTemplateId);
 	}
 		
@@ -45,7 +45,7 @@ public class SurveyResultServiceImpl implements SurveyResultService{
 		return surveyResultRepository.save(surveyResult);
 	}
 	
-	public static SurveyResultDTO convertToSurveyResultDTO(SurveyResult surveyResult) {
+	public static SurveyResultDTO convertToSurveyResultDTO(SurveyResult surveyResult) throws RuntimeException {
 		SurveyResultDTO dto = new SurveyResultDTO();
 		List<AnswerDTO> answerDTOList = new ArrayList<>();
 		List<Answer> answerList = surveyResult.getAnswers();
@@ -57,7 +57,7 @@ public class SurveyResultServiceImpl implements SurveyResultService{
 		return dto;
 	}
 	
-	public static AnswerDTO convertToAnswerDTO(Answer answer) {
+	public static AnswerDTO convertToAnswerDTO(Answer answer) throws RuntimeException {
 		AnswerDTO dto = new AnswerDTO();
 		OptionItemDTO optionItemDTO = new OptionItemDTO();
  		BeanUtils.copyProperties(answer, dto);

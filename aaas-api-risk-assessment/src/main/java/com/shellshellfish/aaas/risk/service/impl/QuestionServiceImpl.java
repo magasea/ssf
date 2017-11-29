@@ -25,7 +25,7 @@ public class QuestionServiceImpl implements QuestionService{
 	
 	
 	@Override
-	public QuestionDTO convertToQuestionDTO(Question question) {
+	public QuestionDTO convertToQuestionDTO(Question question) throws RuntimeException{
 		QuestionDTO dto = new QuestionDTO();
 		BeanUtils.copyProperties(question, dto);
 		
@@ -33,7 +33,7 @@ public class QuestionServiceImpl implements QuestionService{
 	}
 	
 	@Override
-	public QuestionDTO convertToQuestionDTO(Question question, String surveyTemplateId) {
+	public QuestionDTO convertToQuestionDTO(Question question, String surveyTemplateId) throws RuntimeException{
 		QuestionDTO dto = new QuestionDTO();
 		BeanUtils.copyProperties(question, dto);
 		
@@ -42,7 +42,7 @@ public class QuestionServiceImpl implements QuestionService{
 	}
 	
 	@Override
-	public List<QuestionDTO> convertToQuestionDTOs(List<Question> questions) {
+	public List<QuestionDTO> convertToQuestionDTOs(List<Question> questions) throws RuntimeException{
 		return questions.stream().map(question -> {
 		
 			return convertToQuestionDTO(question);
@@ -51,7 +51,7 @@ public class QuestionServiceImpl implements QuestionService{
 	}	
 	
 	@Override
-	public List<QuestionDTO> convertToQuestionDTOs(List<Question> questions, String surveyTemplateId) {
+	public List<QuestionDTO> convertToQuestionDTOs(List<Question> questions, String surveyTemplateId) throws RuntimeException{
 		return questions.stream().map(question -> {
 		
 			return convertToQuestionDTO(question, surveyTemplateId);
@@ -60,7 +60,7 @@ public class QuestionServiceImpl implements QuestionService{
 	}
 	
 	@Override
-	public List<Question> getQuestionsByPage(Integer page, Integer size, List<Question> originalQuestions){
+	public List<Question> getQuestionsByPage(Integer page, Integer size, List<Question> originalQuestions) throws RuntimeException{
 		
 		int fromIndex = page * size; 
 		if (fromIndex > originalQuestions.size() - 1)
@@ -75,9 +75,9 @@ public class QuestionServiceImpl implements QuestionService{
 	}
 
 	@Override
-	public Page<SurveyTemplateDTO> findByTitleAndVersion(Pageable page, String title, String version) throws InstantiationException, IllegalAccessException {
+	public Page<SurveyTemplateDTO> findByTitleAndVersion(Pageable page, String title, String version) throws InstantiationException, IllegalAccessException, RuntimeException {
 		Page<SurveyTemplate> questionPage = surveyTemplateRepository.findByTitleAndVersion(title,version, page);
-		Page<SurveyTemplateDTO> questionPageDTO = MyBeanUtils.convertPageDTO(page, questionPage, SurveyTemplateDTO.class);
+		Page<SurveyTemplateDTO> questionPageDTO = MyBeanUtils.convertPageDTOs(page, questionPage);
 		return questionPageDTO;
 	}
 }
