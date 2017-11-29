@@ -7,5 +7,5 @@ import com.shellshellfish.aaas.account.model.dto.BankCardDTO;
 
 public interface BankCardService {
 	Page<BankCardDTO> selectBankCardById(Pageable pageable, Long userId)
-			throws InstantiationException, IllegalAccessException;
+			throws RuntimeException, InstantiationException, IllegalAccessException;
 }

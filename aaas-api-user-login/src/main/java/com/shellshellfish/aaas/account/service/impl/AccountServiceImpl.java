@@ -43,19 +43,18 @@ public class AccountServiceImpl implements AccountService {
     private AliSms alisms;
 
 	@Override
-	public List<UserDTO> isRegisteredUser(String cellphone, String passwordhash) throws RuntimeException {
-		List<User> userList = userRepository.findByCellPhoneAndPasswordHash(cellphone, passwordhash);
-		List<UserDTO> userDtoList = null;
-		if (userList != null && userList.size() > 0) {
-			userDtoList = new ArrayList<UserDTO>();
-			try {
-				userDtoList = MyBeanUtils.convertList(userList, UserDTO.class);
-			} catch (IllegalAccessException | InstantiationException e) {
-				e.printStackTrace();
-			}
+	public Boolean isRegisteredUser(String cellphone, String passwordhash) throws RuntimeException{
+		String password = redisService.doGetPwd(cellphone, passwordhash);
+		if(password!=null){
+			return true;
 		}
-
-		return userDtoList;
+		List<User> userList = userRepository.findByCellPhoneAndPasswordHash(cellphone, passwordhash);
+		if (userList != null && userList.size() > 0) {
+			redisService.doPwdSave(cellphone,passwordhash);
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	@Override
@@ -175,5 +174,11 @@ public class AccountServiceImpl implements AccountService {
 	@Override
 	public boolean doSmsVerification(VerificationBody vbody) throws RuntimeException {
 	  	return redisService.doSmsVerification(vbody);
+	}
+
+	@Override
+	public UserDTO doLogout(String cellphone, String verfiedcode) {
+		redisService.doLogout(cellphone, verfiedcode);
+		return null;
 	}
 }

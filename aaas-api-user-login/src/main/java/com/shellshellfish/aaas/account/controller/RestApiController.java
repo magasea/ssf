@@ -28,7 +28,6 @@ import com.shellshellfish.aaas.account.body.RegistrationBody;
 import com.shellshellfish.aaas.account.body.UpdateRegistrationBody;
 import com.shellshellfish.aaas.account.body.VerificationBody;
 import com.shellshellfish.aaas.account.exception.UserException;
-import com.shellshellfish.aaas.account.model.dao.BankCard;
 import com.shellshellfish.aaas.account.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.account.model.dto.UserDTO;
 import com.shellshellfish.aaas.account.service.AccountService;
@@ -268,8 +267,8 @@ public class RestApiController {
 		    //CellPhone:13611442221
 	        
 	      //  User targetuser = userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
-			List<UserDTO> userDtoList = accountService.isRegisteredUser(telnum, MD5.getMD5(password));
-	        if (userDtoList!=null) { // 是已登记的用户
+			Boolean result = accountService.isRegisteredUser(telnum, MD5.getMD5(password));
+	        if (result) { // 是已登记的用户
 		       return new ResponseEntity<String>("",HttpStatus.CREATED);
 	        }
 		    
