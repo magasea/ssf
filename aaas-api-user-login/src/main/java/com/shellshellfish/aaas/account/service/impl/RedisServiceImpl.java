@@ -10,9 +10,9 @@ import com.shellshellfish.aaas.account.body.VerificationBody;
 import com.shellshellfish.aaas.account.service.RedisService;
 import redis.clients.jedis.Jedis;
 
-public class RedisServiceimpl implements RedisService{
+public class RedisServiceImpl implements RedisService{
 	
-	public static final Logger logger = LoggerFactory.getLogger(RedisServiceimpl.class);
+	public static final Logger logger = LoggerFactory.getLogger(RedisServiceImpl.class);
 	
 	@Autowired  
 	private Environment env;  

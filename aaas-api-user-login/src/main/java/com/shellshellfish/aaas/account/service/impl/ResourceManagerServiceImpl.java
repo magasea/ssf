@@ -1,13 +1,15 @@
-package com.shellshellfish.aaas.account.service;
+package com.shellshellfish.aaas.account.service.impl;
 
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.shellshellfish.aaas.account.service.ResourceManagerService;
 
-public class ResourceManager {
+public class ResourceManagerServiceImpl implements ResourceManagerService {
 	public static String URL_HEAD="/api/useraccount";
-	public ResourceManager(){;}
+	public ResourceManagerServiceImpl(){;}
 	
+	@Override
 	public HashMap<String ,Object> response(String pagename,String[] argv){
 	    
 		HashMap<String, Object> map = null;
