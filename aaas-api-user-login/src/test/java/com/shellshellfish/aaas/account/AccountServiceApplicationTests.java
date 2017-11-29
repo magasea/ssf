@@ -1,4 +1,4 @@
-package com.shellshellfish.account;
+package com.shellshellfish.aaas.account;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

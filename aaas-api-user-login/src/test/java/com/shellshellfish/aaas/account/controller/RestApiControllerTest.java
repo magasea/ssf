@@ -1,4 +1,4 @@
-package com.shellshellfish.account.controller;
+package com.shellshellfish.aaas.account.controller;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import org.junit.Before;
@@ -14,10 +14,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import com.shellshellfish.account.model.Account;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes=com.shellshellfish.account.AccountServiceApplication.class)
+@SpringBootTest(classes=com.shellshellfish.aaas.account.AccountServiceApplication.class)
 @ActiveProfiles(profiles="prod")
 public class RestApiControllerTest {
 	

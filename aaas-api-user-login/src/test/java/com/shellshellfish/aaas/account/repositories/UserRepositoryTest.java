@@ -1,8 +1,6 @@
-package com.shellshellfish.account.repositories;
+package com.shellshellfish.aaas.account.repositories;
 
 
-import com.shellshellfish.account.commons.MD5;
-import com.shellshellfish.account.model.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-
+import com.shellshellfish.aaas.account.model.dao.User;
+import com.shellshellfish.aaas.account.repositories.mysql.UserRepository;
+import com.shellshellfish.aaas.account.utils.MD5;
 import java.util.List;
 import java.util.UUID;
 
