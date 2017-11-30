@@ -13,12 +13,15 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.h2.util.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Point;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,9 +30,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shellshellfish.aaas.assetallocation.model.Adjustment;
+import com.shellshellfish.aaas.assetallocation.model.Contribution;
 import com.shellshellfish.aaas.assetallocation.model.Estimation;
+import com.shellshellfish.aaas.assetallocation.model.Notification;
+import com.shellshellfish.aaas.assetallocation.model.PointWithWeight;
 import com.shellshellfish.aaas.assetallocation.model.ProductInfo;
 import com.shellshellfish.aaas.assetallocation.model.RiskControl;
+import com.shellshellfish.aaas.assetallocation.model.SimulationData;
+import com.shellshellfish.aaas.assetallocation.model.SimulationRequest;
+import com.shellshellfish.aaas.assetallocation.model.SlidePoint;
+import com.shellshellfish.aaas.assetallocation.service.ProductService;
 import com.shellshellfish.aaas.assetallocation.util.CollectionResourceWrapper;
 import com.shellshellfish.aaas.assetallocation.util.NameValuePair;
 import com.shellshellfish.aaas.assetallocation.util.ResourceWrapper;
@@ -45,27 +55,37 @@ import io.swagger.annotations.ApiResponses;
 @RequestMapping("/api/asset-allocation")
 public class AssetAllocationController {
 
+	@Autowired
+	private ProductService productService;
+	
 	@ApiOperation("预期年化收益(action=calcExpectedAnnualizedReturn), 预期最大回撤(action=calcExpectedMaxPullback)")
-	@RequestMapping(value = "/products/{uuid}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<NameValuePair<String, Double>> getExpectedAnnualizedReturn(@PathVariable String uuid, @RequestParam(required = true, defaultValue = "calcExpectedAnnualizedReturn") String action) {
+	@RequestMapping(value = "/product-groups/{groupId}/sub-groups/{subGroupId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<NameValuePair<String, Double>> getExpectedAnnualizedReturn(@PathVariable Integer groupId, 
+																					 @PathVariable Integer subGroupId,
+																					 @RequestParam(required = true, defaultValue = "calcExpectedAnnualizedReturn") String action) {
 		
-//		if () {
-//			
-//		} else {
-//			
-//		}
-		
-		return new ResponseEntity<>(new NameValuePair<>("预期年化收益", 0.105d), HttpStatus.OK);
+		switch(action) {
+		case "calcExpectedAnnualizedReturn":
+			return new ResponseEntity<>(productService.calcExpectedAnnualizedReturn(), HttpStatus.OK);
+		case "calcExpectedMaxPullback":
+			return new ResponseEntity<>(productService.calcExpectedMaxPullback(), HttpStatus.OK);
+		default:
+			return new ResponseEntity<>(new NameValuePair<>("Unknown action.", 0d), HttpStatus.OK);
+		}
+
 	}
 	
 	@ApiOperation("返回单个理财产品信息")
-	@RequestMapping(value = "/products/{uuid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ResourceWrapper<ProductInfo>> getProduct(@PathVariable String uuid,
-																	HttpServletRequest request) {
+	@RequestMapping(value = "/product-groups/{groupId}/sub-groups/{subGroupId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ResourceWrapper<ProductInfo>> getProduct(@PathVariable Integer groupId, 
+			 													   @PathVariable Integer subGroupId,
+																   HttpServletRequest request) {
 		
-		ProductInfo productInfo = new ProductInfo(uuid, "贝贝鱼理财产品A", new Date());
-		productInfo.setInvestmentPeriod(new NameValuePair<>("中期", "1-3年"));
-		productInfo.setRiskToleranceLevel(new NameValuePair<>("平衡型", "C3"));
+		ProductInfo productInfo = new ProductInfo(groupId, subGroupId, "贝贝鱼理财产品A");
+//		productInfo.setInvestmentPeriod(new NameValuePair<>("中期", "1-3年"));
+//		productInfo.setRiskToleranceLevel(new NameValuePair<>("平衡型", "C3"));
+		productInfo.setCurrentAnnualizedReturn(0.08);
+		productInfo.setCurrrentRiskLevel(0.15);
 		productInfo.setMinAnnualizedReturn(0.035);
 		productInfo.setMaxAnnualizedReturn(0.325);
 		productInfo.setMinRiskLevel(0.035);
@@ -83,7 +103,7 @@ public class AssetAllocationController {
 		productInfo.setAssetsRatios(assetsRatios);
 		
 		ResourceWrapper<ProductInfo> resource = new ResourceWrapper<>(productInfo);
-		
+		resource.setName("理财产品");
 		return new ResponseEntity<>(resource, HttpStatus.OK);
 	}
 	
@@ -95,12 +115,14 @@ public class AssetAllocationController {
                 value = "每页条数."),
 //        @ApiImplicitParam(name = "sort")
 	})
-	@RequestMapping(value = "/products", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/product-groups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<CollectionResourceWrapper<List<ProductInfo>>> getAllProducts(Pageable pageable, HttpServletRequest request) {
 		
-		ProductInfo productInfo1 = new ProductInfo(UUID.randomUUID().toString(), "贝贝鱼理财产品A", new Date());
-		productInfo1.setInvestmentPeriod(new NameValuePair<>("中期", "1-3年"));
-		productInfo1.setRiskToleranceLevel(new NameValuePair<>("平衡型", "C3"));
+		ProductInfo productInfo1 = new ProductInfo(1, 1, "贝贝鱼理财产品A");
+//		productInfo1.setInvestmentPeriod(new NameValuePair<>("中期", "1-3年"));
+//		productInfo1.setRiskToleranceLevel(new NameValuePair<>("平衡型", "C3"));
+		productInfo1.setCurrentAnnualizedReturn(0.08);
+		productInfo1.setCurrrentRiskLevel(0.15);
 		productInfo1.setMinAnnualizedReturn(0.035);
 		productInfo1.setMaxAnnualizedReturn(0.325);
 		productInfo1.setMinRiskLevel(0.035);
@@ -115,9 +137,11 @@ public class AssetAllocationController {
 		assetsRatios1.put("其他2", 0.05d);		
 		productInfo1.setAssetsRatios(assetsRatios1);
 		
-		ProductInfo productInfo2 = new ProductInfo(UUID.randomUUID().toString(), "贝贝鱼理财产品B", new Date());
-		productInfo2.setInvestmentPeriod(new NameValuePair<>("中期", "1-3年"));
-		productInfo2.setRiskToleranceLevel(new NameValuePair<>("平衡型", "C3"));
+		ProductInfo productInfo2 = new ProductInfo(2, 1, "贝贝鱼理财产品B");
+//		productInfo2.setInvestmentPeriod(new NameValuePair<>("中期", "1-3年"));
+//		productInfo2.setRiskToleranceLevel(new NameValuePair<>("平衡型", "C3"));
+		productInfo1.setCurrentAnnualizedReturn(0.08);
+		productInfo1.setCurrrentRiskLevel(0.15);
 		productInfo2.setMinAnnualizedReturn(0.035);
 		productInfo2.setMaxAnnualizedReturn(0.325);
 		productInfo2.setMinRiskLevel(0.035);
@@ -133,7 +157,7 @@ public class AssetAllocationController {
 		
 		productInfo2.setAssetsRatios(assetsRatios2);		
 		CollectionResourceWrapper<List<ProductInfo>> resource = new CollectionResourceWrapper<>(Arrays.asList(productInfo1, productInfo2));				
-		
+		resource.setName("理财产品");
 		return new ResponseEntity<>(resource, HttpStatus.OK);
 	}
 	
@@ -145,8 +169,9 @@ public class AssetAllocationController {
                 value = "每页条数."),
 //        @ApiImplicitParam(name = "sort")
 	})
-	@RequestMapping(value = "/products/{uuid}/estimations", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ResourceWrapper<Map<String, List<Estimation>>>> getFutureExpectations(Pageable pageable, @PathVariable String uuid,
+	@RequestMapping(value = "/product-groups/{groupId}/sub-groups/{subGroupId}/estimations-page", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ResourceWrapper<Map<String, List<Estimation>>>> getFutureExpectations(Pageable pageable, 
+													   @PathVariable Integer groupId, @PathVariable Integer subGroupId,
 													   @RequestParam(defaultValue="2017-01-01") @DateTimeFormat(pattern="yyyy-MM-dd")Date startDate, @RequestParam(defaultValue="2019-12-12") @DateTimeFormat(pattern="yyyy-MM-dd") Date endDate, 
 													   @RequestParam(defaultValue="30") Integer interval) throws ParseException {
 		
@@ -162,36 +187,38 @@ public class AssetAllocationController {
 	}
 	
 	@ApiOperation("风险控制")
-	@RequestMapping(value = "/products/{uuid}/risk-controls", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CollectionResourceWrapper<List<RiskControl>>> getRiskControls(@PathVariable String uuid) {
+	@RequestMapping(value = "/product-groups/{groupId}/sub-groups/{subGroupId}/risk-controls", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CollectionResourceWrapper<List<RiskControl>>> getRiskControls(@PathVariable Integer groupId, @PathVariable Integer subGroupId) {
 		
 		CollectionResourceWrapper<List<RiskControl>> resource = new CollectionResourceWrapper<>();
-		resource.setItems(Arrays.asList(new RiskControl("历史最大回撤",  -0.0189d, -0.0455d), 
-										new RiskControl("股灾1",  -0.0189d, -0.0455d), 
-										new RiskControl("股灾2",  -0.0189d, -0.0455d), 
-										new RiskControl("熊市1",  -0.0189d, -0.0455d)));
+		resource.setName("风险控制");
+		resource.setItems(Arrays.asList(new RiskControl(1, "历史最大回撤",  -0.0189d, -0.0455d), 
+										new RiskControl(2, "股灾1",  -0.0189d, -0.0455d), 
+										new RiskControl(3, "股灾2",  -0.0189d, -0.0455d), 
+										new RiskControl(4, "熊市1",  -0.0189d, -0.0455d)));
 		
 		return new ResponseEntity<>(resource, HttpStatus.OK);
 	}
 	
 	@ApiOperation("风险控制手段与通知")
-	@RequestMapping(value = "/products/{uuid}/risk-notifications", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CollectionResourceWrapper<List<String>>> getRiskNotifications(@PathVariable String uuid) {
-		CollectionResourceWrapper<List<String>> resource = new CollectionResourceWrapper<>();
-		resource.setItems(Arrays.asList("全市场的系统性风险通知1", 
-										"全市场的系统性风险通知2", 
-										"各类资产的市场风险通知XXX", 
-										"通知XXX"));
+	@RequestMapping(value = "/product-groups/{groupId}/sub-groups/{subGroupId}/risk-notifications", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CollectionResourceWrapper<List<Notification>>> getRiskNotifications(@PathVariable Integer groupId, @PathVariable Integer subGroupId) {
+		CollectionResourceWrapper<List<Notification>> resource = new CollectionResourceWrapper<>();
+		resource.setName("风险控制通知");
+		resource.setItems(Arrays.asList(new Notification(1,"全市场的系统风险", null), 
+										new Notification(2, "各类资产的市场风险", null), 
+										new Notification(3, "风险控制是第一要位!作任何的投资，防范风险是关键的", null), 
+										new Notification(4, "具备相关钩子的专业知识", null)));
 		
 		return new ResponseEntity<>(resource, HttpStatus.OK);
 	}
 	
 	@ApiOperation("调仓记录")
-	@RequestMapping(value = "/products/{uuid}/adjustments", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CollectionResourceWrapper<List<Adjustment>>> getAdjustments(Pageable pageable, @PathVariable String uuid) {
+	@RequestMapping(value = "/product-groups/{groupId}/sub-groups/{subGroupId}/adjustments", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CollectionResourceWrapper<List<Adjustment>>> getAdjustments(Pageable pageable, @PathVariable Integer groupId, @PathVariable Integer subGroupId) {
 		CollectionResourceWrapper<List<Adjustment>> resource = new CollectionResourceWrapper<>();
-		
-		Adjustment adjustment1 = new Adjustment("调整美股港股债券配置比例", new Date());
+		resource.setName("调仓记录");
+		Adjustment adjustment1 = new Adjustment(1, "调整美股港股债券配置比例", new Date());
 		Map<String, Double> assetsRatios1 = new LinkedHashMap<>();
 		assetsRatios1.put("利率债", 0.09d);
 		assetsRatios1.put("信用债", 0.08d);
@@ -202,7 +229,7 @@ public class AssetAllocationController {
 		assetsRatios1.put("其他2", 0.05d);	
 		adjustment1.setAssetsRatios(assetsRatios1);
 		
-		Adjustment adjustment2 = new Adjustment("调整权益类资产配置比例", new Date());
+		Adjustment adjustment2 = new Adjustment(2, "调整权益类资产配置比例", new Date());
 		Map<String, Double> assetsRatios2 = new LinkedHashMap<>();
 		assetsRatios2.put("利率债", 0.09d);
 		assetsRatios2.put("信用债", 0.08d);
@@ -219,39 +246,50 @@ public class AssetAllocationController {
 	}
 	
 	@ApiOperation("模拟历史年化业绩与模拟历史年化波动率")
-	@RequestMapping(value = "/products/{uuid}/simulated-data", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CollectionResourceWrapper<List<NameValuePair<String, Double>>>> getSimulatedData(@PathVariable String uuid, 
-																										   @RequestParam(defaultValue="中期") String investmentPeriod, 
-																										   @RequestParam(defaultValue="C3") String riskLevel) {
-		CollectionResourceWrapper<List<NameValuePair<String, Double>>> resource = new CollectionResourceWrapper<>();
-		resource.setItems(Arrays.asList(new NameValuePair<String, Double>("模拟历史年化业绩", 0.073), 
-										new NameValuePair<String, Double>("模拟历史年化波动率", 0.0527)));
+	@RequestMapping(value = "/product-groups/{groupId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ResourceWrapper<SimulationData>> getSimulatedData(@PathVariable Integer groupId,
+			 																			   @RequestParam(required = true, defaultValue = "calcSimulationData") String action,
+																						   @RequestBody SimulationRequest simulationRequest) {
+		
+		SimulationData simulatedData = new SimulationData(1, 1);		
+		ResourceWrapper<SimulationData>resource = new ResourceWrapper<>(simulatedData);
+		resource.setName("模拟数据");		
+		
+		simulatedData.setValues(Arrays.asList(new NameValuePair<String, Double>("模拟历史年化业绩", 0.073), 
+											  new NameValuePair<String, Double>("模拟历史年化波动率", 0.0527),
+											  new NameValuePair<String, Double>("置信区间", 0.975),
+											  new NameValuePair<String, Double>("最大亏损额", 303d)));
 		
 		return new ResponseEntity<>(resource, HttpStatus.OK);
 	}
 	
 	@ApiOperation("配置收益贡献")
-	@RequestMapping(value = "/products/{uuid}/contributions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CollectionResourceWrapper<List<NameValuePair<String, Double>>>> getContributions(@PathVariable String uuid) {
-		CollectionResourceWrapper<List<NameValuePair<String, Double>>> resource = new CollectionResourceWrapper<>();
-		resource.setItems(Arrays.asList(new NameValuePair<String, Double>("信用债", 0.0906), 
-										new NameValuePair<String, Double>("利率债", 0.0490),
-										new NameValuePair<String, Double>("货币", 0.0349),
-										new NameValuePair<String, Double>("小盘股票", 0.0269),
-										new NameValuePair<String, Double>("香港股票", 0.0073),
-										new NameValuePair<String, Double>("美国股票", 0.0073),
-										new NameValuePair<String, Double>("黄金股票", 0.0073)
+	@RequestMapping(value = "/product-groups/{groupId}/sub-groups/{subGroupId}/contributions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CollectionResourceWrapper<List<Contribution>>> getContributions(@PathVariable Integer groupId, @PathVariable Integer subGroupId,
+																						  @RequestParam(defaultValue="2014-10-11") @DateTimeFormat(pattern="yyyy-MM-dd") Date startDate, 
+																						  @RequestParam(defaultValue="2017-10-11") @DateTimeFormat(pattern="yyyy-MM-dd") Date endDate) {
+		CollectionResourceWrapper<List<Contribution>> resource = new CollectionResourceWrapper<>();
+		resource.setName("配置收益贡献");
+		resource.setItems(Arrays.asList(new Contribution(1, "信用债", 0.0906), 
+										new Contribution(2, "利率债", 0.0490),
+										new Contribution(3, "货币", 0.0349),
+										new Contribution(4, "小盘股票", 0.0269),
+										new Contribution(5, "香港股票", 0.0073),
+										new Contribution(6, "美国股票", 0.0073),
+										new Contribution(7, "黄金股票", 0.0073)
 										));
 		
 		return new ResponseEntity<>(resource, HttpStatus.OK);
 	}
 	
 	@ApiOperation("预期收益率调整 风险率调整  最优组合(有效前沿线)")
-	@RequestMapping(value = "/products/{uuid}/optimizations", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ResourceWrapper<ProductInfo>> optimize(@PathVariable String uuid, @RequestBody NameValuePair<String, Object> parameter) {
-		ProductInfo productInfo = new ProductInfo(uuid, "贝贝鱼理财产品A", new Date());
-		productInfo.setInvestmentPeriod(new NameValuePair<>("中期", "1-3年"));
-		productInfo.setRiskToleranceLevel(new NameValuePair<>("平衡型", "C3"));
+	@RequestMapping(value = "/product-groups/{groupId}/sub-groups/{subGroupId}/optimizations", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ResourceWrapper<ProductInfo>> optimize(@PathVariable Integer groupId, @PathVariable Integer subGroupId, @RequestBody NameValuePair<String, Object> parameter) {
+		ProductInfo productInfo = new ProductInfo(groupId, subGroupId, "贝贝鱼理财产品A");		
+//		productInfo.setInvestmentPeriod(new NameValuePair<>("中期", "1-3年"));
+//		productInfo.setRiskToleranceLevel(new NameValuePair<>("平衡型", "C3"));
+		productInfo.setCurrentAnnualizedReturn(0.08);
+		productInfo.setCurrrentRiskLevel(0.15);
 		productInfo.setMinAnnualizedReturn(0.035);
 		productInfo.setMaxAnnualizedReturn(0.325);
 		productInfo.setMinRiskLevel(0.035);
@@ -269,21 +307,36 @@ public class AssetAllocationController {
 		productInfo.setAssetsRatios(assetsRatios);
 		
 		ResourceWrapper<ProductInfo> resource = new ResourceWrapper<>(productInfo);
+		resource.setName("理财产品");
 		
 		return new ResponseEntity<>(resource, HttpStatus.OK);
 	}
 	
 	@ApiOperation("有效前沿线")
-	@RequestMapping(value = "/products/{uuid}/effective-frontier-points", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CollectionResourceWrapper<List<Point>>> getEffectiveFrontier(@PathVariable String uuid) {
-		CollectionResourceWrapper<List<Point>> resource = new CollectionResourceWrapper<>();
-		resource.setItems(Arrays.asList(new Point(1, -0.5),
-										new Point(1.5, -0.4),
-										new Point(2.0, -0.3),
-										new Point(3.0, -0.2),
-										new Point(4.1, -0.1)
+	@RequestMapping(value = "/product-groups/{groupId}/sub-groups/{subGroupId}/effective-frontier-points", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CollectionResourceWrapper<List<PointWithWeight>>> getEffectiveFrontier(@PathVariable Integer groupId, @PathVariable Integer subGroupId) {
+		CollectionResourceWrapper<List<PointWithWeight>> resource = new CollectionResourceWrapper<>();
+		resource.setItems(Arrays.asList(new PointWithWeight(1, 1d, -0.5d, 0.2d),
+										new PointWithWeight(2, 1.5, -0.4, 0.1),
+										new PointWithWeight(3, 2.0, -0.3, 0.3),
+										new PointWithWeight(4, 3.0, -0.2, 0.2),
+										new PointWithWeight(5, 4.1, -0.1, 0.2)
 										));
-		
+		resource.setName("有效前沿线数据");
+		return new ResponseEntity<>(resource, HttpStatus.OK);
+	}
+	
+	@ApiOperation("滑动条分段数据")
+	@RequestMapping(value = "/product-groups/{groupId}/sub-groups/{subGroupId}/slidebar-points", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CollectionResourceWrapper<List<SlidePoint>>> getSlidebarPoints(@PathVariable Integer groupId, @PathVariable Integer subGroupId) {
+		CollectionResourceWrapper<List<SlidePoint>> resource = new CollectionResourceWrapper<>();
+		resource.setItems(Arrays.asList(new SlidePoint(1, 0.1),
+										new SlidePoint(2, 0.2),
+										new SlidePoint(3, 0.3),
+										new SlidePoint(4, 0.4),
+										new SlidePoint(5, 0.5)
+										));
+		resource.setName("滑动条分段数据");
 		return new ResponseEntity<>(resource, HttpStatus.OK);
 	}
 	
