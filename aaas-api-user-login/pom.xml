@@ -132,16 +132,17 @@
 		</dependency>
 		
 		<!-- aliyun sms sdk -->
+		<!-- aliyun sms sdk -->
 		<dependency>
-		    <groupId>com.aliyun</groupId>
-		    <artifactId>aliyun-java-sdk-core</artifactId>
-		    <version>3.3.1</version>
+			<groupId>com.aliyun</groupId>
+			<artifactId>java-sdk-core</artifactId>
+			<version>3.3.1</version>
 		</dependency>
-		
+
 		<dependency>
-            <groupId>aliyun-java-sdk</groupId>
-            <artifactId>aliyun-java-sdk-dysms</artifactId>
-            <version>1.0.0</version>
+			<groupId>com.aliyun</groupId>
+			<artifactId>java-sdk-dysmsapi</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 		
 		<dependency>

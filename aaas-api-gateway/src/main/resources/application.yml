@@ -2,13 +2,22 @@ zuul:
   routes:
     userinfo:
       path: /api/userinfo/**
-      url: http://192.168.1.3:10021/api/userinfo/
+      url: http://localhost:10021/api/userinfo/
+    userinfo-swagger:
+      path: /api/userinfo/swagger-ui.html
+      url: http://localhost:10021/swagger-ui.html#
     userlogin:
       path: /api/useraccount/**
       url: http://localhost:10020/api/useraccount/
+    userlogin-swagger:
+      path: /api/useraccount/swagger-ui.html/**
+      url: http://localhost:10020/swagger-ui.html
     riskassessments:
       path: /api/riskassessments/**
       url: http://localhost:10022/api/riskassessments/
+    riskassessments-swagger:
+      path: /api/riskassessments/swagger-ui.html/**
+      url: http://localhost:10022/swagger-ui.html/
 #    accounts:
 #      path: /v1/accounts/**
 #      url: http://localhost:8080/api/accounts
@@ -36,6 +45,7 @@ shellshellfish:
   ignoredWhitelist:
     - /api/userinfo/**
     - /api/useraccount/**
+    - /api/riskassessments/**
     - /v1/auth/oauth/token
     - /v1/api/bankaccounts/**
   
