@@ -1,93 +1,176 @@
 package com.shellshellfish.aaas.account.model.dao;
 
-import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 
+import javax.persistence.*;
+import java.util.Date;
+
+
+/**
+ * The persistent class for the user_role database table.
+ * 
+ */
 @Entity
-@Table(name = "user_role", schema = "ssflogin", catalog = "")
-public class UserRole {
-    private long id;
-    private String createdBy;
-    private Timestamp createdDate;
-    private String lastModifiedBy;
-    private Timestamp lastModifiedDate;
+@Table(name="user_role")
+@NamedQuery(name="UserRole.findAll", query="SELECT u FROM UserRole u")
+public class UserRole implements Serializable {
+	private static final long serialVersionUID = 1L;
 
-    @Id
-    @Column(name = "id")
-    public long getId() {
-        return id;
+	@Id
+	private long id;
+
+	private boolean activated;
+
+	@Column(name="birth_age")
+	private String birthAge;
+
+	@Column(name="cell_phone")
+	private String cellPhone;
+
+	@Column(name="created_by")
+	private String createdBy;
+
+	@Column(name="created_date")
+	private Timestamp createdDate;
+
+	@Column(name="last_modified_by")
+	private String lastModifiedBy;
+
+	@Column(name="last_modified_date")
+	private Timestamp lastModifiedDate;
+
+	@Column(name="last_reset_date")
+	private Timestamp lastResetDate;
+
+	private String occupation;
+
+	@Column(name="password_hash")
+	private String passwordHash;
+
+	private String uuid;
+
+	//bi-directional many-to-one association to Role
+	@ManyToOne
+	private Role role;
+
+	//bi-directional many-to-one association to User
+	@ManyToOne
+	private User user;
+
+	public UserRole() {
+	}
+
+	public long getId() {
+		return this.id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public boolean isActivated() {
+        return activated;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setActivated(boolean activated) {
+        this.activated = activated;
     }
 
-    @Basic
-    @Column(name = "created_by")
-    public String getCreatedBy() {
-        return createdBy;
-    }
+	public String getBirthAge() {
+		return this.birthAge;
+	}
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
+	public void setBirthAge(String birthAge) {
+		this.birthAge = birthAge;
+	}
 
-    @Basic
-    @Column(name = "created_date")
-    public Timestamp getCreatedDate() {
-        return createdDate;
-    }
+	public String getCellPhone() {
+		return this.cellPhone;
+	}
 
-    public void setCreatedDate(Timestamp createdDate) {
-        this.createdDate = createdDate;
-    }
+	public void setCellPhone(String cellPhone) {
+		this.cellPhone = cellPhone;
+	}
 
-    @Basic
-    @Column(name = "last_modified_by")
-    public String getLastModifiedBy() {
-        return lastModifiedBy;
-    }
+	public String getCreatedBy() {
+		return this.createdBy;
+	}
 
-    public void setLastModifiedBy(String lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy;
-    }
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
 
-    @Basic
-    @Column(name = "last_modified_date")
-    public Timestamp getLastModifiedDate() {
-        return lastModifiedDate;
-    }
+	public Timestamp getCreatedDate() {
+		return this.createdDate;
+	}
 
-    public void setLastModifiedDate(Timestamp lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
+	public void setCreatedDate(Timestamp createdDate) {
+		this.createdDate = createdDate;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	public String getLastModifiedBy() {
+		return this.lastModifiedBy;
+	}
 
-        UserRole userRole = (UserRole) o;
+	public void setLastModifiedBy(String lastModifiedBy) {
+		this.lastModifiedBy = lastModifiedBy;
+	}
 
-        if (id != userRole.id) return false;
-        if (createdBy != null ? !createdBy.equals(userRole.createdBy) : userRole.createdBy != null) return false;
-        if (createdDate != null ? !createdDate.equals(userRole.createdDate) : userRole.createdDate != null)
-            return false;
-        if (lastModifiedBy != null ? !lastModifiedBy.equals(userRole.lastModifiedBy) : userRole.lastModifiedBy != null)
-            return false;
-        if (lastModifiedDate != null ? !lastModifiedDate.equals(userRole.lastModifiedDate) : userRole.lastModifiedDate != null)
-            return false;
+	public Timestamp getLastModifiedDate() {
+		return this.lastModifiedDate;
+	}
 
-        return true;
-    }
+	public void setLastModifiedDate(Timestamp lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
+	}
 
-    @Override
-    public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
-        result = 31 * result + (createdBy != null ? createdBy.hashCode() : 0);
-        result = 31 * result + (createdDate != null ? createdDate.hashCode() : 0);
-        result = 31 * result + (lastModifiedBy != null ? lastModifiedBy.hashCode() : 0);
-        result = 31 * result + (lastModifiedDate != null ? lastModifiedDate.hashCode() : 0);
-        return result;
-    }
+	public Timestamp getLastResetDate() {
+		return this.lastResetDate;
+	}
+
+	public void setLastResetDate(Timestamp lastResetDate) {
+		this.lastResetDate = lastResetDate;
+	}
+
+	public String getOccupation() {
+		return this.occupation;
+	}
+
+	public void setOccupation(String occupation) {
+		this.occupation = occupation;
+	}
+
+	public String getPasswordHash() {
+		return this.passwordHash;
+	}
+
+	public void setPasswordHash(String passwordHash) {
+		this.passwordHash = passwordHash;
+	}
+
+	public String getUuid() {
+		return this.uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+
+	public Role getRole() {
+		return this.role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
+	public User getUser() {
+		return this.user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
 }
