@@ -15,7 +15,7 @@ import com.shellshellfish.aaas.risk.model.dto.AnswerDTO;
 import com.shellshellfish.aaas.risk.model.dto.OptionItemDTO;
 import com.shellshellfish.aaas.risk.model.dto.QuestionDTO;
 import com.shellshellfish.aaas.risk.model.dto.SurveyResultDTO;
-import com.shellshellfish.aaas.risk.repository.mongo.SurveyResultRepository;
+import com.shellshellfish.aaas.risk.repositories.mongo.SurveyResultRepository;
 import com.shellshellfish.aaas.risk.service.SurveyResultService;
 
 @Service

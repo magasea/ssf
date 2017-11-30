@@ -17,16 +17,16 @@ import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
-import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyRept;
-import com.shellshellfish.aaas.userinfo.model.dto.BankCard;
-import com.shellshellfish.aaas.userinfo.model.dto.TradeLog;
-import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfo;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBrief;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfo;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRule;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsg;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolio;
-import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsg;
+import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfoDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
@@ -40,9 +40,9 @@ public class UserInfoServiceImpl implements UserInfoService {
     UserInfoRepoService userInfoRepoService;
 
     @Override
-    public UserBaseInfo getUserInfoBase(String userUuid) throws Exception{
+    public UserBaseInfoDTO getUserInfoBase(String userUuid) throws Exception{
         Long userId = getUserIdFromUUID(userUuid);
-        UserBaseInfo userInfoDao = userInfoRepoService.getUserInfoBase(userId);
+        UserBaseInfoDTO userInfoDao = userInfoRepoService.getUserInfoBase(userId);
 //        UserBaseInfo userBaseInfo = new UserBaseInfo();
 //        if( null != userInfoDao) {
 //            BeanUtils.copyProperties(userInfoDao, userBaseInfo);
@@ -51,10 +51,10 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public UserInfoAssectsBrief getUserInfoAssectsBrief(String userUuid) throws Exception {
+    public UserInfoAssectsBriefDTO getUserInfoAssectsBrief(String userUuid) throws Exception {
         Long userId = getUserIdFromUUID(userUuid);
         //UserInfoAssectsBrief userInfoAssectsBrief = new UserInfoAssectsBrief();
-        UserInfoAssectsBrief userInfoAssect = userInfoRepoService.getUserInfoAssectsBrief(userId);
+        UserInfoAssectsBriefDTO userInfoAssect = userInfoRepoService.getUserInfoAssectsBrief(userId);
 //        if(null != userInfoAssect){
 //            BeanUtils.copyProperties(userInfoAssect, userInfoAssectsBrief);
 //        }
@@ -62,9 +62,9 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public List<BankCard> getUserInfoBankCards(String userUuid) throws Exception {
+    public List<BankCardDTO> getUserInfoBankCards(String userUuid) throws Exception {
         Long userId = getUserIdFromUUID(userUuid);
-        List<BankCard> bankcards =  userInfoRepoService.getUserInfoBankCards(userId);
+        List<BankCardDTO> bankcards =  userInfoRepoService.getUserInfoBankCards(userId);
 //        List<BankCard> bankCardsDto = new ArrayList<>();
 //        for(UiBankcard uiBankcard: uiBankcards ){
 //            BankCard bankCard = new BankCard();
@@ -75,9 +75,9 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public List<UserPortfolio> getUserPortfolios(String userUuid) throws Exception {
+    public List<UserPortfolioDTO> getUserPortfolios(String userUuid) throws Exception {
         Long userId = getUserIdFromUUID(userUuid);
-        List<UserPortfolio> userPortfolioDaos =  userInfoRepoService.getUserPortfolios(userId);
+        List<UserPortfolioDTO> userPortfolioDaos =  userInfoRepoService.getUserPortfolios(userId);
 //        List<UserPortfolio> userPortfolios = new ArrayList<>();
 //        for(UiPortfolio userPortfolioDao: userPortfolioDaos){
 //            UserPortfolio userPortfolio = new UserPortfolio();
@@ -88,15 +88,15 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public BankCard getUserInfoBankCard(String cardNumber) throws RuntimeException {
-    	BankCard bankCard = userInfoRepoService.getUserInfoBankCard(cardNumber);
+    public BankCardDTO getUserInfoBankCard(String cardNumber) throws RuntimeException {
+    	BankCardDTO bankCard = userInfoRepoService.getUserInfoBankCard(cardNumber);
 //        BankCard bankCard = new BankCard();
 //        BeanUtils.copyProperties(uiBankcard, bankCard);
         return bankCard;
     }
 
     @Override
-    public BankCard createBankcard(Map params) throws Exception {
+    public BankCardDTO createBankcard(Map params) throws Exception {
         Long userId = getUserIdFromUUID(params.get("userUuid").toString());
         UiBankcard uiBankcard = new UiBankcard();
         uiBankcard.setCardNumber(params.get("cardNumber").toString());
@@ -105,15 +105,15 @@ public class UserInfoServiceImpl implements UserInfoService {
         uiBankcard.setUserPid(params.get("cardUserPid").toString());
         uiBankcard.setUserId(userId);
         uiBankcard.setBankName(BankUtil.getNameOfBank(params.get("cardNumber").toString()));
-        BankCard bankCard =  userInfoRepoService.addUserBankcard(uiBankcard);
+        BankCardDTO bankCard =  userInfoRepoService.addUserBankcard(uiBankcard);
         return bankCard;
     }
 
     @Override
-    public List<AssetDailyRept> getAssetDailyRept(String userUuid, Long beginDate, Long endDate)
+    public List<AssetDailyReptDTO> getAssetDailyRept(String userUuid, Long beginDate, Long endDate)
         throws Exception {
         Long userId = getUserIdFromUUID(userUuid);
-        List<AssetDailyRept> uiAssetDailyRepts = userInfoRepoService.getAssetDailyRept(userId,
+        List<AssetDailyReptDTO> uiAssetDailyRepts = userInfoRepoService.getAssetDailyRept(userId,
             beginDate, endDate);
 //        List<AssetDailyRept> assetDailyRepts = new ArrayList<>();
 //        for(UiAssetDailyRept uiAssetDailyRept: uiAssetDailyRepts){
@@ -126,11 +126,11 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public AssetDailyRept addAssetDailyRept(AssetDailyRept assetDailyRept) throws ParseException,RuntimeException {
+    public AssetDailyReptDTO addAssetDailyRept(AssetDailyReptDTO assetDailyRept) throws ParseException,RuntimeException {
         UiAssetDailyRept uiAssetDailyRept = new UiAssetDailyRept();
         BeanUtils.copyProperties(assetDailyRept, uiAssetDailyRept);
         uiAssetDailyRept.setDate(assetDailyRept.getDate().getTime());
-        AssetDailyRept result =  userInfoRepoService.addAssetDailyRept(uiAssetDailyRept);
+        AssetDailyReptDTO result =  userInfoRepoService.addAssetDailyRept(uiAssetDailyRept);
 //        AssetDailyRept assetDailyReptResult = new AssetDailyRept();
 //        BeanUtils.copyProperties(result, assetDailyReptResult);
 //        Date date = new Date(result.getDate());
@@ -139,8 +139,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public List<UserSysMsg> getUserSysMsg(String userUuid) throws IllegalAccessException, InstantiationException, RuntimeException {
-    	List<UserSysMsg> userSysMsgs = userInfoRepoService.getUiSysMsg();
+    public List<UserSysMsgDTO> getUserSysMsg(String userUuid) throws IllegalAccessException, InstantiationException, RuntimeException {
+    	List<UserSysMsgDTO> userSysMsgs = userInfoRepoService.getUiSysMsg();
 //        List<UserSysMsg> userSysMsgs = new ArrayList<>();
 //        for(UiSysMsg uiSysMsg: uiSysMsgs){
 //            UserSysMsg userSysMsg = new UserSysMsg();
@@ -151,9 +151,9 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public List<UserPersonMsg> getUserPersonMsg(String userUuid) throws Exception {
+    public List<UserPersonMsgDTO> getUserPersonMsg(String userUuid) throws Exception {
         Long userId = getUserIdFromUUID(userUuid);
-        List<UserPersonMsg> uiPersonMsgs = userInfoRepoService.getUiPersonMsg(userId);
+        List<UserPersonMsgDTO> uiPersonMsgs = userInfoRepoService.getUiPersonMsg(userId);
 //        List<UserPersonMsg> userPersonMsgs = new ArrayList<>();
 //        for(UiPersonMsg uiPersonMsg: uiPersonMsgs){
 //            UserPersonMsg userPersonMsg = new UserPersonMsg();
@@ -174,26 +174,26 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public Page<TradeLog> findByUserId(String userUuid, Pageable pageable) throws Exception {
+    public Page<TradeLogDTO> findByUserId(String userUuid, Pageable pageable) throws Exception {
         Long userId = getUserIdFromUUID(userUuid);
         Page<UiTrdLog> tradeLogsPage = userInfoRepoService.findByUserId(pageable, userId);
-        Page<TradeLog> tradeLogResult = MyBeanUtils.convertPageDTO(pageable, tradeLogsPage, TradeLog.class);
+        Page<TradeLogDTO> tradeLogResult = MyBeanUtils.convertPageDTO(pageable, tradeLogsPage, TradeLogDTO.class);
         return tradeLogResult;
     }
 
     @Override
-    public List<UserInfoFriendRule> getUserInfoFriendRules(Long bankId)
+    public List<UserInfoFriendRuleDTO> getUserInfoFriendRules(Long bankId)
         throws InstantiationException, IllegalAccessException,RuntimeException {
-    	List<UserInfoFriendRule> userInfoFriendRules = userInfoRepoService.getUiFriendRule(bankId);
+    	List<UserInfoFriendRuleDTO> userInfoFriendRules = userInfoRepoService.getUiFriendRule(bankId);
 //      List<UserInfoFriendRule> userInfoFriendRules = new ArrayList<>();
     	return userInfoFriendRules;
     }
 
     @Override
-    public UserInfoCompanyInfo getCompanyInfo(String userUuid, Long bankId) throws RuntimeException {
+    public UserInfoCompanyInfoDTO getCompanyInfo(String userUuid, Long bankId) throws RuntimeException {
         Long id = getCompanyId(userUuid, bankId);
         UiCompanyInfo uiCompanyInfo =  userInfoRepoService.getCompanyInfo(id);
-        UserInfoCompanyInfo userInfoCompanyInfo = new UserInfoCompanyInfo();
+        UserInfoCompanyInfoDTO userInfoCompanyInfo = new UserInfoCompanyInfoDTO();
         if(null == uiCompanyInfo){
             return userInfoCompanyInfo;
         }

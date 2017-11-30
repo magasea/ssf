@@ -14,7 +14,7 @@ import com.shellshellfish.aaas.risk.model.dao.Question;
 import com.shellshellfish.aaas.risk.model.dao.SurveyTemplate;
 import com.shellshellfish.aaas.risk.model.dto.QuestionDTO;
 import com.shellshellfish.aaas.risk.model.dto.SurveyTemplateDTO;
-import com.shellshellfish.aaas.risk.repository.mongo.SurveyTemplateRepository;
+import com.shellshellfish.aaas.risk.repositories.mongo.SurveyTemplateRepository;
 import com.shellshellfish.aaas.risk.service.QuestionService;
 import com.shellshellfish.aaas.risk.utils.MyBeanUtils;
 

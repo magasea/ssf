@@ -15,17 +15,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import com.mongodb.WriteResult;
-import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserAssectsRepository;
-import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserPersonMsgRepo;
-import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserProdMsgRepo;
-import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserSysMsgRepo;
-import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoAssetsRepository;
-import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoBankCardsRepository;
-import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoCompanyInfoRepository;
-import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoFriendRuleRepository;
-import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoRepository;
-import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserPortfolioRepository;
-import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserTradeLogRepository;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAsset;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
@@ -38,16 +27,27 @@ import com.shellshellfish.aaas.userinfo.model.dao.UiProdMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.UiSysMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
-import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyRept;
-import com.shellshellfish.aaas.userinfo.model.dto.BankCard;
-import com.shellshellfish.aaas.userinfo.model.dto.UserProdMsg;
-import com.shellshellfish.aaas.userinfo.model.dto.TradeLog;
-import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfo;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBrief;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRule;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsg;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolio;
-import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsg;
+import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserProdMsgDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserAssectsRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserPersonMsgRepo;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserProdMsgRepo;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserSysMsgRepo;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoAssetsRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoCompanyInfoRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoFriendRuleRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserPortfolioRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserTradeLogRepository;
 import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
 
 @Service
@@ -90,92 +90,92 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
 	MongoTemplate mongoTemplate;
 
 	@Override
-	public UserBaseInfo getUserInfoBase(Long id) {
+	public UserBaseInfoDTO getUserInfoBase(Long id) {
 		BigInteger userIdLocal = BigInteger.valueOf(id);
 		UiUser uiUser = userInfoRepository.findById(id);
-		UserBaseInfo user = new UserBaseInfo();
+		UserBaseInfoDTO user = new UserBaseInfoDTO();
 		BeanUtils.copyProperties(uiUser, user);
 		return user;
 	}
 
 	@Override
-	public UserInfoAssectsBrief getUserInfoAssectsBrief(Long userId) {
+	public UserInfoAssectsBriefDTO getUserInfoAssectsBrief(Long userId) {
 		// BigInteger userIdLocal = BigInteger.valueOf(userId);
 		UiAsset uiAsset = userInfoAssetsRepository.findByUserId(userId);
-		UserInfoAssectsBrief asset = new UserInfoAssectsBrief();
+		UserInfoAssectsBriefDTO asset = new UserInfoAssectsBriefDTO();
 		BeanUtils.copyProperties(uiAsset, asset);
 		return asset;
 	}
 
 	@Override
-	public List<BankCard> getUserInfoBankCards(Long userId) throws IllegalAccessException, InstantiationException {
+	public List<BankCardDTO> getUserInfoBankCards(Long userId) throws IllegalAccessException, InstantiationException {
 		// BigInteger userIdLocal = BigInteger.valueOf(userId);
 		List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserId(userId);
-		List<BankCard> bankcardDtoList = MyBeanUtils.convertList(bankcardList,BankCard.class);
+		List<BankCardDTO> bankcardDtoList = MyBeanUtils.convertList(bankcardList,BankCardDTO.class);
 		return bankcardDtoList;
 	}
 
 	@Override
-	public List<UserPortfolio> getUserPortfolios(Long userId) throws IllegalAccessException, InstantiationException {
+	public List<UserPortfolioDTO> getUserPortfolios(Long userId) throws IllegalAccessException, InstantiationException {
 		List<UiPortfolio> uiPortfolioList = userPortfolioRepository.findAllByUserId(userId);
-		List<UserPortfolio> bankcardDtoList = MyBeanUtils.convertList(uiPortfolioList,UserPortfolio.class);
+		List<UserPortfolioDTO> bankcardDtoList = MyBeanUtils.convertList(uiPortfolioList,UserPortfolioDTO.class);
 		return bankcardDtoList;
 	}
 
 	@Override
-	public BankCard getUserInfoBankCard(String cardNumber) {
+	public BankCardDTO getUserInfoBankCard(String cardNumber) {
 		UiBankcard uiBankcard = userInfoBankCardsRepository.findUiBankcardByCardNumberIs(cardNumber);
-		BankCard bankcard = new BankCard();
+		BankCardDTO bankcard = new BankCardDTO();
 		BeanUtils.copyProperties(uiBankcard, bankcard);
 		return bankcard;
 	}
 
 	@Override
-	public BankCard addUserBankcard(UiBankcard uiBankcard) {
+	public BankCardDTO addUserBankcard(UiBankcard uiBankcard) {
 		 userInfoBankCardsRepository.save(uiBankcard);
-		 BankCard bankcard = new BankCard();
+		 BankCardDTO bankcard = new BankCardDTO();
 		 BeanUtils.copyProperties(uiBankcard, bankcard);
 		 return bankcard;
 	}
 
 	@Override
-	public List<AssetDailyRept> getAssetDailyRept(Long userId, Long beginDate, Long endDate) throws IllegalAccessException, InstantiationException {
+	public List<AssetDailyReptDTO> getAssetDailyRept(Long userId, Long beginDate, Long endDate) throws IllegalAccessException, InstantiationException {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("userId").is(userId));
 		Date beginDated = new Date(beginDate);
 		query.addCriteria(Criteria.where("date").gte(beginDate).lt(endDate));
 		System.out.println("userId:" + userId + " beginDate:" + beginDate + " endDate:" + endDate);
 		List<UiAssetDailyRept> uiAssetDailyReptList = mongoUserAssectsRepository.findByUserIdAndDateIsBetween(BigInteger.valueOf(userId), beginDate, endDate);
-		List<AssetDailyRept> bankcardDtoList = MyBeanUtils.convertList(uiAssetDailyReptList,AssetDailyRept.class);
+		List<AssetDailyReptDTO> bankcardDtoList = MyBeanUtils.convertList(uiAssetDailyReptList,AssetDailyReptDTO.class);
 		return bankcardDtoList;
 	}
 
 	@Override
-	public AssetDailyRept addAssetDailyRept(UiAssetDailyRept uiAssetDailyRept) {
+	public AssetDailyReptDTO addAssetDailyRept(UiAssetDailyRept uiAssetDailyRept) {
 		mongoUserAssectsRepository.save(uiAssetDailyRept);
-		AssetDailyRept assetDailyRept = new AssetDailyRept();
+		AssetDailyReptDTO assetDailyRept = new AssetDailyReptDTO();
 		BeanUtils.copyProperties(uiAssetDailyRept, assetDailyRept);
 		return assetDailyRept;
 	}
 
 	@Override
-	public List<AssetDailyRept> getAssetDailyReptByUserId(Long userId) throws IllegalAccessException, InstantiationException {
+	public List<AssetDailyReptDTO> getAssetDailyReptByUserId(Long userId) throws IllegalAccessException, InstantiationException {
 		List<UiAssetDailyRept> uiAssetDailyReptList = mongoUserAssectsRepository.findByUserId(userId);
-		List<AssetDailyRept> bankcardDtoList = MyBeanUtils.convertList(uiAssetDailyReptList,AssetDailyRept.class);
+		List<AssetDailyReptDTO> bankcardDtoList = MyBeanUtils.convertList(uiAssetDailyReptList,AssetDailyReptDTO.class);
 		return bankcardDtoList;
 	}
 
 	@Override
-	public List<UserPersonMsg> getUiPersonMsg(Long userId) throws IllegalAccessException, InstantiationException {
+	public List<UserPersonMsgDTO> getUiPersonMsg(Long userId) throws IllegalAccessException, InstantiationException {
 		List<UiPersonMsg> uiPersonMsgList = mongoUserPersonMsgRepo.getUiPersonMsgsByUserIdAndReaded(userId, Boolean.FALSE);
-		List<UserPersonMsg> personMsgDtoList = MyBeanUtils.convertList(uiPersonMsgList,UserPersonMsg.class);
+		List<UserPersonMsgDTO> personMsgDtoList = MyBeanUtils.convertList(uiPersonMsgList,UserPersonMsgDTO.class);
 		return personMsgDtoList;
 	}
 
 	@Override
-	public List<UserProdMsg> getUiProdMsg(Long prodId) throws IllegalAccessException, InstantiationException {
+	public List<UserProdMsgDTO> getUiProdMsg(Long prodId) throws IllegalAccessException, InstantiationException {
 		List<UiProdMsg> uiProdMsgList = mongoUserProdMsgRepo.findAllByProdIdOrderByDateDesc(prodId);
-		List<UserProdMsg> uiProdMsgDtoList = MyBeanUtils.convertList(uiProdMsgList,UserProdMsg.class);
+		List<UserProdMsgDTO> uiProdMsgDtoList = MyBeanUtils.convertList(uiProdMsgList,UserProdMsgDTO.class);
 		return uiProdMsgDtoList;
 	}
 
@@ -191,9 +191,9 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
 	}
 
 	@Override
-	public List<UserSysMsg> getUiSysMsg() throws IllegalAccessException, InstantiationException {
+	public List<UserSysMsgDTO> getUiSysMsg() throws IllegalAccessException, InstantiationException {
 		List<UiSysMsg> uiSysMsgList = mongoUserSysMsgRepo.findAllByOrderByDateDesc();
-		List<UserSysMsg> uiSysMsgDtoList = MyBeanUtils.convertList(uiSysMsgList,UserSysMsg.class);
+		List<UserSysMsgDTO> uiSysMsgDtoList = MyBeanUtils.convertList(uiSysMsgList,UserSysMsgDTO.class);
 		return uiSysMsgDtoList;
 	}
 
@@ -210,9 +210,9 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
 	}
 
 	@Override
-	public UserPersonMsg addUiPersonMsg(UiPersonMsg uiPersonMsg) {
+	public UserPersonMsgDTO addUiPersonMsg(UiPersonMsg uiPersonMsg) {
 		UiPersonMsg uiPersonMsgResult = mongoUserPersonMsgRepo.save(uiPersonMsg);
-		UserPersonMsg personMsg = new UserPersonMsg();
+		UserPersonMsgDTO personMsg = new UserPersonMsgDTO();
 		BeanUtils.copyProperties(uiPersonMsgResult, personMsg);
 		return personMsg;
 	}
@@ -224,14 +224,14 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
 	}
 
 	@Override
-	public Iterable<TradeLog> addUiTrdLog(List<UiTrdLog> trdLogs) throws IllegalAccessException, InstantiationException {
+	public Iterable<TradeLogDTO> addUiTrdLog(List<UiTrdLog> trdLogs) throws IllegalAccessException, InstantiationException {
 		userTradeLogRepository.save(trdLogs);
-		List<TradeLog> trdLogsDtoList = MyBeanUtils.convertList(trdLogs,TradeLog.class);
+		List<TradeLogDTO> trdLogsDtoList = MyBeanUtils.convertList(trdLogs,TradeLogDTO.class);
 		return trdLogsDtoList;
 	}
 
 	@Override
-	public List<UserInfoFriendRule> getUiFriendRule(Long bankId) throws IllegalAccessException, InstantiationException {
+	public List<UserInfoFriendRuleDTO> getUiFriendRule(Long bankId) throws IllegalAccessException, InstantiationException {
 		List<UiFriendRule> uiFriendRuleList = new ArrayList<>();
 		
 		if (null == bankId) {
@@ -239,7 +239,7 @@ public class UserInfoRepoServiceImpl implements UserInfoRepoService {
 		} else {
 			uiFriendRuleList =  userInfoFriendRuleRepository.findAllByBankId(bankId);
 		}
-		List<UserInfoFriendRule> trdLogsDtoList = MyBeanUtils.convertList(uiFriendRuleList,UserInfoFriendRule.class);
+		List<UserInfoFriendRuleDTO> trdLogsDtoList = MyBeanUtils.convertList(uiFriendRuleList,UserInfoFriendRuleDTO.class);
 		return trdLogsDtoList;
 	}
 

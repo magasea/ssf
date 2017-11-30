@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @Configuration
-@EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.risk.repository")
+@EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.risk.repositories.mongo")
 public class MongoConfiguration {
 
 	@Value("${spring.data.mongodb.host}")

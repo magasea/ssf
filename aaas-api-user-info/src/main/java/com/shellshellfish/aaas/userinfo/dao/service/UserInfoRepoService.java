@@ -8,54 +8,54 @@ import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
-import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyRept;
-import com.shellshellfish.aaas.userinfo.model.dto.BankCard;
-import com.shellshellfish.aaas.userinfo.model.dto.TradeLog;
-import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfo;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBrief;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRule;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsg;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolio;
-import com.shellshellfish.aaas.userinfo.model.dto.UserProdMsg;
-import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsg;
+import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserProdMsgDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
 
 public interface UserInfoRepoService {
-	UserBaseInfo getUserInfoBase(Long userId);
+	UserBaseInfoDTO getUserInfoBase(Long userId);
 
-	UserInfoAssectsBrief getUserInfoAssectsBrief(Long userId);
+	UserInfoAssectsBriefDTO getUserInfoAssectsBrief(Long userId);
 
-	List<BankCard> getUserInfoBankCards(Long userId) throws IllegalAccessException, InstantiationException;
+	List<BankCardDTO> getUserInfoBankCards(Long userId) throws IllegalAccessException, InstantiationException;
 
-	List<UserPortfolio> getUserPortfolios(Long userId) throws IllegalAccessException, InstantiationException;
+	List<UserPortfolioDTO> getUserPortfolios(Long userId) throws IllegalAccessException, InstantiationException;
 
-	BankCard getUserInfoBankCard(String cardNumber);
+	BankCardDTO getUserInfoBankCard(String cardNumber);
 
-	BankCard addUserBankcard(UiBankcard uiBankcard);
+	BankCardDTO addUserBankcard(UiBankcard uiBankcard);
 
-	List<AssetDailyRept> getAssetDailyRept(Long userId, Long beginDate, Long endDate)
+	List<AssetDailyReptDTO> getAssetDailyRept(Long userId, Long beginDate, Long endDate)
 			throws IllegalAccessException, InstantiationException;
 
-	AssetDailyRept addAssetDailyRept(UiAssetDailyRept uiAssetDailyRept);
+	AssetDailyReptDTO addAssetDailyRept(UiAssetDailyRept uiAssetDailyRept);
 
-	List<AssetDailyRept> getAssetDailyReptByUserId(Long userId) throws IllegalAccessException, InstantiationException;
+	List<AssetDailyReptDTO> getAssetDailyReptByUserId(Long userId) throws IllegalAccessException, InstantiationException;
 
-	List<UserPersonMsg> getUiPersonMsg(Long userId) throws IllegalAccessException, InstantiationException;
+	List<UserPersonMsgDTO> getUiPersonMsg(Long userId) throws IllegalAccessException, InstantiationException;
 
-	List<UserProdMsg> getUiProdMsg(Long prodId) throws IllegalAccessException, InstantiationException;
+	List<UserProdMsgDTO> getUiProdMsg(Long prodId) throws IllegalAccessException, InstantiationException;
 
 	Boolean updateUiUserPersonMsg(String msg, Long user_id, Boolean readedStatus);
 
-	List<UserSysMsg> getUiSysMsg() throws IllegalAccessException, InstantiationException;
+	List<UserSysMsgDTO> getUiSysMsg() throws IllegalAccessException, InstantiationException;
 
 	Long getUserIdFromUUID(String userUuid) throws Exception;
 
-	UserPersonMsg addUiPersonMsg(UiPersonMsg uiPersonMsg);
+	UserPersonMsgDTO addUiPersonMsg(UiPersonMsg uiPersonMsg);
 
 	Page<UiTrdLog> findByUserId(Pageable pageable, Long userId);
 
-	Iterable<TradeLog> addUiTrdLog(List<UiTrdLog> trdLogs) throws IllegalAccessException, InstantiationException;
+	Iterable<TradeLogDTO> addUiTrdLog(List<UiTrdLog> trdLogs) throws IllegalAccessException, InstantiationException;
 
-	List<UserInfoFriendRule> getUiFriendRule(Long bankId) throws IllegalAccessException, InstantiationException;
+	List<UserInfoFriendRuleDTO> getUiFriendRule(Long bankId) throws IllegalAccessException, InstantiationException;
 
 	UiCompanyInfo getCompanyInfo(Long id);
 

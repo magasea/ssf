@@ -1,11 +1,9 @@
 package com.shellshellfish.aaas.userinfo.configuration;
 
 import java.util.Properties;
-
 import javax.naming.NamingException;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,8 +30,8 @@ import com.zaxxer.hikari.HikariDataSource;
 @Configuration
 @ComponentScan
 @EntityScan("com.shellshellfish.aaas.userinfo.model")
-@EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.userinfo.dao.repositories.mysql")
-@EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.userinfo.dao.repositories.mongo")
+@EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.userinfo.repositories.mysql")
+@EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.userinfo.repositories.mongo")
 @EnableTransactionManagement
 
 public class JpaConfiguration {
