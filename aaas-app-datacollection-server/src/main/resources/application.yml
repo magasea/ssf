@@ -1,0 +1,12 @@
+server:
+  port: 10031
+
+spring:
+    data:
+        mongodb:
+            database: test1
+            host: 192.168.1.10
+            port: 27017
+grpc:
+  host: localhost
+  port: 10030

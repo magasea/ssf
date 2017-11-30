@@ -1,0 +1,5 @@
+server:
+  port: 10028
+grpc:
+  host: localhost
+  port: 10030
