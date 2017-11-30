@@ -1,9 +1,7 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
-import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -11,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
@@ -126,7 +123,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public AssetDailyReptDTO addAssetDailyRept(AssetDailyReptDTO assetDailyRept) throws ParseException,RuntimeException {
+    public AssetDailyReptDTO addAssetDailyRept(AssetDailyReptDTO assetDailyRept){
         UiAssetDailyRept uiAssetDailyRept = new UiAssetDailyRept();
         BeanUtils.copyProperties(assetDailyRept, uiAssetDailyRept);
         uiAssetDailyRept.setDate(assetDailyRept.getDate().getTime());
@@ -139,7 +136,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public List<UserSysMsgDTO> getUserSysMsg(String userUuid) throws IllegalAccessException, InstantiationException, RuntimeException {
+    public List<UserSysMsgDTO> getUserSysMsg(String userUuid) throws IllegalAccessException, InstantiationException {
     	List<UserSysMsgDTO> userSysMsgs = userInfoRepoService.getUiSysMsg();
 //        List<UserSysMsg> userSysMsgs = new ArrayList<>();
 //        for(UiSysMsg uiSysMsg: uiSysMsgs){
@@ -190,7 +187,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public UserInfoCompanyInfoDTO getCompanyInfo(String userUuid, Long bankId) throws RuntimeException {
+    public UserInfoCompanyInfoDTO getCompanyInfo(String userUuid, Long bankId){
         Long id = getCompanyId(userUuid, bankId);
         UiCompanyInfo uiCompanyInfo =  userInfoRepoService.getCompanyInfo(id);
         UserInfoCompanyInfoDTO userInfoCompanyInfo = new UserInfoCompanyInfoDTO();
@@ -202,7 +199,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     }
     //TODO: this function will be adjusted by business rule
-    private Long getCompanyId(String userUuid, Long bankId) throws RuntimeException {
+    private Long getCompanyId(String userUuid, Long bankId){
         return 1L;
     }
 
