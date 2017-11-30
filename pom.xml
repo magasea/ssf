@@ -11,7 +11,7 @@
     <modules>
         <module>aaas-api-common</module>
         <module>aaas-app-mysql</module>
-<!--         <module>aaas-app-datacollection</module> -->
+        <module>aaas-app-datacollection</module> 
         <module>aaas-api-user-login</module>
         <module>aaas-api-user-info</module>
         <module>aaas-api-finance</module>
