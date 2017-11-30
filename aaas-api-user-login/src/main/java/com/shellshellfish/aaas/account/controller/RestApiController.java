@@ -28,6 +28,7 @@ import com.shellshellfish.aaas.account.body.RegistrationBody;
 import com.shellshellfish.aaas.account.body.UpdateRegistrationBody;
 import com.shellshellfish.aaas.account.body.VerificationBody;
 import com.shellshellfish.aaas.account.exception.UserException;
+import com.shellshellfish.aaas.account.model.dao.User;
 import com.shellshellfish.aaas.account.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.account.model.dto.UserDTO;
 import com.shellshellfish.aaas.account.service.AccountService;
@@ -234,6 +235,7 @@ public class RestApiController {
 		@ApiResponse(code=100,message="密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合"),
         @ApiResponse(code=101,message="手机号格式不对"),
         @ApiResponse(code=200,message="OK"),
+        @ApiResponse(code=204,message="OK"),
         @ApiResponse(code=400,message="请求参数没填好"),
         @ApiResponse(code=401,message="未授权用户"),        				
 		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
@@ -241,40 +243,46 @@ public class RestApiController {
         
     })
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public ResponseEntity<String> login(@Valid @RequestBody LoginBody loginBody){
-			String telnum = loginBody.getTelnum();
-			String password = loginBody.getPassword();
-			if(telnum.length()!=11) {
-				throw new UserException("100","电话长度必须是11位的数字");
-			}
-		    Pattern p = Pattern.compile(  
-		            "^(?![A-Za-z]+$)(?![A-Z\\d]+$)(?![A-Z\\W]+$)(?![a-z\\d]+$)(?![a-z\\W]+$)(?![\\d\\W]+$)\\S{8,20}$");  
-		    Matcher m = p.matcher(password);  
-		    if (m.find()) { //need pwd check  
-		        //int kk=1;  
-		    } else {
-		    	throw new UserException("101","密码长度至少8位,至多20位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合");
-		    }
-		    
-		    String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
-			Pattern telPattern = Pattern.compile(telRegExp);
-			Matcher telMatcher = telPattern.matcher(telnum);
-			if (!telMatcher.find()) {
-				throw new UserException("102", "手机号格式不对");
-			}
-		   
-	         //passwd:abccd4djsN-999
-		    //CellPhone:13611442221
-	        
-	      //  User targetuser = userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
-			Boolean result = accountService.isRegisteredUser(telnum, MD5.getMD5(password));
-	        if (result) { // 是已登记的用户
-		       return new ResponseEntity<String>("",HttpStatus.CREATED);
-	        }
-		    
-	        return new ResponseEntity<String>("/login",HttpStatus.NO_CONTENT);//未授权用户
-	       	
-    }
+	public ResponseEntity<?> login(@Valid @RequestBody LoginBody loginBody) {
+		String telnum = loginBody.getTelnum();
+		String password = loginBody.getPassword();
+		if (telnum.length() != 11) {
+			throw new UserException("100", "电话长度必须是11位的数字");
+		}
+		Pattern p = Pattern.compile(
+				"^(?![A-Za-z]+$)(?![A-Z\\d]+$)(?![A-Z\\W]+$)(?![a-z\\d]+$)(?![a-z\\W]+$)(?![\\d\\W]+$)\\S{8,20}$");
+		Matcher m = p.matcher(password);
+		if (m.find()) { // need pwd check
+			// int kk=1;
+		} else {
+			throw new UserException("101", "密码长度至少8位,至多20位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合");
+		}
+
+		String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
+		Pattern telPattern = Pattern.compile(telRegExp);
+		Matcher telMatcher = telPattern.matcher(telnum);
+		if (!telMatcher.find()) {
+			throw new UserException("102", "手机号格式不对");
+		}
+
+		// passwd:abccd4djsN-999
+		// CellPhone:13611442221
+
+		// User targetuser =
+		// userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
+		List<User> result = accountService.isRegisteredUser(telnum, MD5.getMD5(password));
+		if (result != null && result.size() > 0) { // 是已登记的用户
+			User user = result.get(0);
+			String uuid = user.getUuid();
+			String token = "Token-XXXXXXXX";
+			String obj[] = new String[] { uuid, token };
+			HashMap<String, Object> rsmap = resourceManagerService.response("loginhome", obj);
+			return new ResponseEntity<Object>(rsmap, HttpStatus.CREATED);
+		}
+
+		return new ResponseEntity<Object>("/login", HttpStatus.NO_CONTENT);// 未授权用户
+
+	}
 	
 	
 	//短信验证
@@ -590,4 +598,49 @@ public class RestApiController {
 		pageWrapper.setSort(pageable.getSort());
 		return pageWrapper;
 	}
+	
+	@ApiOperation("用户退出")
+	@ApiImplicitParam(name="loginBody", value ="用户数据 手机号码/密码",required=true,paramType="body",dataType="LoginBody")
+	@ApiResponses({
+		@ApiResponse(code=100,message="密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合"),
+        @ApiResponse(code=101,message="手机号格式不对"),
+        @ApiResponse(code=200,message="OK"),
+        @ApiResponse(code=400,message="请求参数没填好"),
+        @ApiResponse(code=401,message="未授权用户"),        				
+		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
+        
+    })
+	@RequestMapping(value = "/logout", method = RequestMethod.POST)
+	public ResponseEntity<String> logout(@Valid @RequestBody LoginBody loginBody){
+			String telnum = loginBody.getTelnum();
+			String password = loginBody.getPassword();
+			if(telnum.length()!=11) {
+				throw new UserException("100","电话长度必须是11位的数字");
+			}
+		    Pattern p = Pattern.compile(  
+		            "^(?![A-Za-z]+$)(?![A-Z\\d]+$)(?![A-Z\\W]+$)(?![a-z\\d]+$)(?![a-z\\W]+$)(?![\\d\\W]+$)\\S{8,20}$");  
+		    Matcher m = p.matcher(password);  
+		    if (m.find()) { //need pwd check  
+		        //int kk=1;  
+		    } else {
+		    	throw new UserException("101","密码长度至少8位,至多20位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合");
+		    }
+		    
+		    String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
+			Pattern telPattern = Pattern.compile(telRegExp);
+			Matcher telMatcher = telPattern.matcher(telnum);
+			if (!telMatcher.find()) {
+				throw new UserException("102", "手机号格式不对");
+			}
+		   
+	         //passwd:abccd4djsN-999
+		    //CellPhone:13611442221
+	        
+	      //  User targetuser = userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
+			accountService.doLogout(telnum,password);
+		    
+	        return new ResponseEntity<String>("/login",HttpStatus.NO_CONTENT);//未授权用户
+	       	
+    }
 }

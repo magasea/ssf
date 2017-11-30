@@ -3,10 +3,11 @@ package com.shellshellfish.aaas.account.service;
 import java.util.List;
 
 import com.shellshellfish.aaas.account.body.VerificationBody;
+import com.shellshellfish.aaas.account.model.dao.User;
 import com.shellshellfish.aaas.account.model.dto.UserDTO;
 
 public interface AccountService {
-	Boolean isRegisteredUser(String cellphone, String passwordhash);
+	List<User> isRegisteredUser(String cellphone, String passwordhash);
 	boolean isSettingPWD(String id, String pwdsetting, String pwdconfirm);
 	List<UserDTO> isRegisterredTel(String cellphone);
 	boolean isSmsVerified(String cellphone,String verfiedcode);
