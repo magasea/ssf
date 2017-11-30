@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.datacollection.server.util;
+package com.shellshellfish.aaas.datacollection.client.util;
 
 
 public class CustomErrorType {

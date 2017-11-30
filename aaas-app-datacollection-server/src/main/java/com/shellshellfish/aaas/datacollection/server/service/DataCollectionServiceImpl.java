@@ -8,8 +8,10 @@ import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc.DataCollect
 import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc.DataCollectionServiceStub;
 import com.shellshellfish.aaas.datacollection.server.model.DailyFunds;
 import com.shellshellfish.aaas.datacollection.server.repositories.DailyFundsRepository;
+import com.shellshellfish.aaas.datacollection.server.util.DateUtil;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -36,8 +38,13 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase {
       responseObserver){
     String navLatestDate = request.getNavLatestDate();
     List<String> code = request.getCodesList();
-    List<DailyFunds> dailyFundsList = dailyFundsRepository.findByNavLatestDateAndCodeIsIn
-        (navLatestDate, code);
+    List<DailyFunds> dailyFundsList = null;
+    try {
+      dailyFundsList = dailyFundsRepository.findByNavLatestDateBetweenAndCodeIsIn
+          (DateUtil.getDateLongValOneDayBefore(navLatestDate), DateUtil.getDateLongVal(navLatestDate), code);
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
     List<com.shellshellfish.aaas.datacollect.DailyFunds> dailyFundsListProto = new ArrayList<>();
     for(DailyFunds dailyFunds : dailyFundsList){
       dailyFundsListProto.add(

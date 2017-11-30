@@ -14,7 +14,6 @@ public class DailyFunds {
   String id;
   @Column(name = "navunit")
   String navUnit;
-
   String update;
   @Column(name = "fundscale")
   String fundScale;

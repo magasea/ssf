@@ -45,8 +45,6 @@ public class DataCollectionServiceImpl implements DataCollectionService {
 
   @PostConstruct
   public void init(){
-
-    managedChannel = grpcChannelBuilder.build();
     blockingStub = DataCollectionServiceGrpc.newBlockingStub(managedChannel);
     asyncStub = DataCollectionServiceGrpc.newStub(managedChannel);
   }

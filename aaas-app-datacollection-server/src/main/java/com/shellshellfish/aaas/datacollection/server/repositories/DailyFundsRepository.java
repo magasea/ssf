@@ -10,4 +10,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 public interface DailyFundsRepository extends PagingAndSortingRepository<DailyFunds, String> {
 
   List<DailyFunds> findByNavLatestDateAndCodeIsIn(String navLastestDate, List<String> code);
+
+  List<DailyFunds> findByNavLatestDateBetweenAndCodeIsIn(Long navLastestDateLow, Long
+      navLastestDateHigh,  List<String> code);
 }
