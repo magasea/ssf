@@ -13,6 +13,7 @@
         <module>aaas-app-mysql</module>
         <module>aaas-app-datacollection-server</module>
         <module>aaas-app-datacollection-client</module>
+
         <module>aaas-api-user-login</module>
         <module>aaas-api-user-info</module>
         <module>aaas-api-finance</module>

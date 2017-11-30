@@ -37,7 +37,7 @@ public class RedisServiceImpl implements RedisService {
 	}
 
 	@Override
-	public boolean saveVeribody(VerificationBody vbody) throws RuntimeException {
+	public boolean saveVeribody(VerificationBody vbody){
 		if (initflag == false) {
 			connectServer();
 			initflag = true;
@@ -53,7 +53,7 @@ public class RedisServiceImpl implements RedisService {
 	}
 
 	@Override
-	public boolean doSmsVerification(VerificationBody vbody) throws RuntimeException {
+	public boolean doSmsVerification(VerificationBody vbody) {
 		if (initflag == false) {
 			connectServer();
 			initflag = true;
@@ -72,7 +72,7 @@ public class RedisServiceImpl implements RedisService {
 	}
 
 	@Override
-	public boolean doPwdSave(String cellphone, String passwordhash) throws RuntimeException {
+	public boolean doPwdSave(String cellphone, String passwordhash) {
 		if (initflag == false) {
 			connectServer();
 			initflag = true;
@@ -86,7 +86,7 @@ public class RedisServiceImpl implements RedisService {
 	}
 
 	@Override
-	public String doGetPwd(String cellphone, String passwordhash) throws RuntimeException {
+	public String doGetPwd(String cellphone, String passwordhash) {
 		if (initflag == false) {
 			connectServer();
 			initflag = true;
@@ -100,7 +100,7 @@ public class RedisServiceImpl implements RedisService {
 	}
 
 	@Override
-	public void doLogout(String cellphone, String passwordhash) throws RuntimeException {
+	public void doLogout(String cellphone, String passwordhash) {
 		if (initflag == false) {
 			connectServer();
 			initflag = true;

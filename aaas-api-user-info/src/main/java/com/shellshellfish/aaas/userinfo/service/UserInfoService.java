@@ -32,10 +32,9 @@ public interface UserInfoService {
 
     BankCardDTO createBankcard(Map params) throws Exception;
 
-    List<AssetDailyReptDTO> getAssetDailyRept(String userUuid, Long beginDate, Long endDate)
-        throws Exception;
+    List<AssetDailyReptDTO> getAssetDailyRept(String userUuid, Long beginDate, Long endDate) throws Exception;
 
-    AssetDailyReptDTO addAssetDailyRept(AssetDailyReptDTO assetDailyRept) throws ParseException;
+    AssetDailyReptDTO addAssetDailyRept(AssetDailyReptDTO assetDailyRept);
 
     List<UserSysMsgDTO> getUserSysMsg(String userUuid) throws IllegalAccessException, InstantiationException;
 
@@ -46,8 +45,7 @@ public interface UserInfoService {
 
     Page<TradeLogDTO> findByUserId(String userUuid, Pageable pageable) throws Exception;
 
-    List<UserInfoFriendRuleDTO> getUserInfoFriendRules(Long bankId)
-        throws InstantiationException, IllegalAccessException;
+    List<UserInfoFriendRuleDTO> getUserInfoFriendRules(Long bankId) throws InstantiationException, IllegalAccessException;
 
     UserInfoCompanyInfoDTO getCompanyInfo(String userUuid, Long bankId);
 

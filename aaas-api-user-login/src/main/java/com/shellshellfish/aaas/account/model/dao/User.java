@@ -1,92 +1,79 @@
 package com.shellshellfish.aaas.account.model.dao;
 
-import javax.persistence.Basic;
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import java.sql.Timestamp;
 
+/**
+ * The persistent class for the user database table.
+ * 
+ */
 @Entity
-@Table(name = "user", schema = "ssflogin", catalog = "")
-public class User {
-    private long id;
-    private String uuid;
-    private String cellPhone;
-    private String birthAge;
-    private String occupation;
-    private String passwordHash;
-    private boolean activated;
-    private String createdBy;
-    private Timestamp createdDate;
-    private Timestamp lastResetDate;
-    private String lastModifiedBy;
-    private Timestamp lastModifiedDate;
+@Table(name="user")
+@NamedQuery(name="User.findAll", query="SELECT u FROM User u")
+public class User implements Serializable {
+	private static final long serialVersionUID = 1L;
 
-    @Id
-    @Column(name = "id")
-    public long getId() {
-        return id;
-    }
+	@Id
+	private long id;
 
-    public void setId(long id) {
-        this.id = id;
-    }
+	@Column(name = "activated")
+	private boolean activated;
 
-    @Basic
-    @Column(name = "uuid")
-    public String getUuid() {
-        return uuid;
-    }
+	@Column(name = "bankid")
+	private int bankid;
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
+	@Column(name="birth_age")
+	private String birthAge;
 
-    @Basic
-    @Column(name = "cell_phone")
-    public String getCellPhone() {
-        return cellPhone;
-    }
+	@Column(name="cell_phone")
+	private String cellPhone;
 
-    public void setCellPhone(String cellPhone) {
-        this.cellPhone = cellPhone;
-    }
+	@Column(name="created_by")
+	private String createdBy;
 
-    @Basic
-    @Column(name = "birth_age")
-    public String getBirthAge() {
-        return birthAge;
-    }
+	@Column(name="created_date")
+	private Timestamp createdDate;
 
-    public void setBirthAge(String birthAge) {
-        this.birthAge = birthAge;
-    }
+	@Column(name="last_modified_by")
+	private String lastModifiedBy;
 
-    @Basic
-    @Column(name = "occupation")
-    public String getOccupation() {
-        return occupation;
-    }
+	@Column(name="last_modified_date")
+	private Timestamp lastModifiedDate;
 
-    public void setOccupation(String occupation) {
-        this.occupation = occupation;
-    }
+	@Column(name="last_reset_date")
+	private Timestamp lastResetDate;
 
-    @Basic
-    @Column(name = "password_hash")
-    public String getPasswordHash() {
-        return passwordHash;
-    }
+	private String occupation;
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
+	@Column(name="password_hash")
+	private String passwordHash;
 
-    @Basic
-    @Column(name = "activated")
-    public boolean isActivated() {
+	private String uuid;
+
+	//bi-directional many-to-one association to UserRole
+	@OneToMany(mappedBy="user")
+	private List<UserRole> userRoles;
+
+	public User() {
+	}
+
+	public long getId() {
+		return this.id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public boolean isActivated() {
         return activated;
     }
 
@@ -94,96 +81,114 @@ public class User {
         this.activated = activated;
     }
 
-    @Basic
-    @Column(name = "created_by")
-    public String getCreatedBy() {
-        return createdBy;
-    }
+	public int getBankid() {
+		return this.bankid;
+	}
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
+	public void setBankid(int bankid) {
+		this.bankid = bankid;
+	}
 
-    @Basic
-    @Column(name = "created_date")
-    public Timestamp getCreatedDate() {
-        return createdDate;
-    }
+	public String getBirthAge() {
+		return this.birthAge;
+	}
 
-    public void setCreatedDate(Timestamp createdDate) {
-        this.createdDate = createdDate;
-    }
+	public void setBirthAge(String birthAge) {
+		this.birthAge = birthAge;
+	}
 
-    @Basic
-    @Column(name = "last_reset_date")
-    public Timestamp getLastResetDate() {
-        return lastResetDate;
-    }
+	public String getCellPhone() {
+		return this.cellPhone;
+	}
 
-    public void setLastResetDate(Timestamp lastResetDate) {
-        this.lastResetDate = lastResetDate;
-    }
+	public void setCellPhone(String cellPhone) {
+		this.cellPhone = cellPhone;
+	}
 
-    @Basic
-    @Column(name = "last_modified_by")
-    public String getLastModifiedBy() {
-        return lastModifiedBy;
-    }
+	public String getCreatedBy() {
+		return this.createdBy;
+	}
 
-    public void setLastModifiedBy(String lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy;
-    }
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
 
-    @Basic
-    @Column(name = "last_modified_date")
-    public Timestamp getLastModifiedDate() {
-        return lastModifiedDate;
-    }
+	public Timestamp getCreatedDate() {
+		return this.createdDate;
+	}
 
-    public void setLastModifiedDate(Timestamp lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
+	public void setCreatedDate(Timestamp createdDate) {
+		this.createdDate = createdDate;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	public String getLastModifiedBy() {
+		return this.lastModifiedBy;
+	}
 
-        User user = (User) o;
+	public void setLastModifiedBy(String lastModifiedBy) {
+		this.lastModifiedBy = lastModifiedBy;
+	}
 
-        if (id != user.id) return false;
-        if (activated != user.activated) return false;
-        if (uuid != null ? !uuid.equals(user.uuid) : user.uuid != null) return false;
-        if (cellPhone != null ? !cellPhone.equals(user.cellPhone) : user.cellPhone != null) return false;
-        if (birthAge != null ? !birthAge.equals(user.birthAge) : user.birthAge != null) return false;
-        if (occupation != null ? !occupation.equals(user.occupation) : user.occupation != null) return false;
-        if (passwordHash != null ? !passwordHash.equals(user.passwordHash) : user.passwordHash != null) return false;
-        if (createdBy != null ? !createdBy.equals(user.createdBy) : user.createdBy != null) return false;
-        if (createdDate != null ? !createdDate.equals(user.createdDate) : user.createdDate != null) return false;
-        if (lastResetDate != null ? !lastResetDate.equals(user.lastResetDate) : user.lastResetDate != null)
-            return false;
-        if (lastModifiedBy != null ? !lastModifiedBy.equals(user.lastModifiedBy) : user.lastModifiedBy != null)
-            return false;
-        if (lastModifiedDate != null ? !lastModifiedDate.equals(user.lastModifiedDate) : user.lastModifiedDate != null)
-            return false;
+	public Timestamp getLastModifiedDate() {
+		return this.lastModifiedDate;
+	}
 
-        return true;
-    }
+	public void setLastModifiedDate(Timestamp lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
+	}
 
-    @Override
-    public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
-        result = 31 * result + (uuid != null ? uuid.hashCode() : 0);
-        result = 31 * result + (cellPhone != null ? cellPhone.hashCode() : 0);
-        result = 31 * result + (birthAge != null ? birthAge.hashCode() : 0);
-        result = 31 * result + (occupation != null ? occupation.hashCode() : 0);
-        result = 31 * result + (passwordHash != null ? passwordHash.hashCode() : 0);
-        result = 31 * result + (activated ? 1 : 0);
-        result = 31 * result + (createdBy != null ? createdBy.hashCode() : 0);
-        result = 31 * result + (createdDate != null ? createdDate.hashCode() : 0);
-        result = 31 * result + (lastResetDate != null ? lastResetDate.hashCode() : 0);
-        result = 31 * result + (lastModifiedBy != null ? lastModifiedBy.hashCode() : 0);
-        result = 31 * result + (lastModifiedDate != null ? lastModifiedDate.hashCode() : 0);
-        return result;
-    }
+	public Timestamp getLastResetDate() {
+		return this.lastResetDate;
+	}
+
+	public void setLastResetDate(Timestamp lastResetDate) {
+		this.lastResetDate = lastResetDate;
+	}
+
+	public String getOccupation() {
+		return this.occupation;
+	}
+
+	public void setOccupation(String occupation) {
+		this.occupation = occupation;
+	}
+
+	public String getPasswordHash() {
+		return this.passwordHash;
+	}
+
+	public void setPasswordHash(String passwordHash) {
+		this.passwordHash = passwordHash;
+	}
+
+	public String getUuid() {
+		return this.uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+
+	public List<UserRole> getUserRoles() {
+		return this.userRoles;
+	}
+
+	public void setUserRoles(List<UserRole> userRoles) {
+		this.userRoles = userRoles;
+	}
+
+	public UserRole addUserRole(UserRole userRole) {
+		getUserRoles().add(userRole);
+		userRole.setUser(this);
+
+		return userRole;
+	}
+
+	public UserRole removeUserRole(UserRole userRole) {
+		getUserRoles().remove(userRole);
+		userRole.setUser(null);
+
+		return userRole;
+	}
+
 }

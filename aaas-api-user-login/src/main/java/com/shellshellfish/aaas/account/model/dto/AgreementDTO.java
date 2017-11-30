@@ -2,7 +2,10 @@ package com.shellshellfish.aaas.account.model.dto;
 
 import java.sql.Timestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class AgreementDTO {
+	@JsonIgnore
 	private long id;
 	private String content;
 	private String createdBy;

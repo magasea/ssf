@@ -6,10 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.springframework.beans.BeanUtils;
 //import org.springframework.test.context.ActiveProfiles;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import com.shellshellfish.aaas.account.body.VerificationBody;
 import com.shellshellfish.aaas.account.exception.UserException;
 import com.shellshellfish.aaas.account.model.dao.BankCard;
@@ -43,7 +41,7 @@ public class AccountServiceImpl implements AccountService {
     private AliSms alisms;
 
 	@Override
-	public Boolean isRegisteredUser(String cellphone, String passwordhash) throws RuntimeException{
+	public Boolean isRegisteredUser(String cellphone, String passwordhash){
 		String password = redisService.doGetPwd(cellphone, passwordhash);
 		if(password!=null){
 			return true;
@@ -58,7 +56,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public boolean isSettingPWD(String telnum, String pwdsetting, String pwdconfirm) throws RuntimeException {
+	public boolean isSettingPWD(String telnum, String pwdsetting, String pwdconfirm) {
 		List<User> userList = userRepository.findByCellPhone(telnum);
 		if (userList == null || userList.size() != 1) {//有可能多于1条的冗余数据
 			return false;
@@ -95,7 +93,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public boolean addBankCard(String arg[]) throws RuntimeException {
+	public boolean addBankCard(String arg[]) {
 		// 手机号telnum, bkcardnum, bkname, name
 		String telnum = arg[0];
 		// 用户名
@@ -125,7 +123,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public List<UserDTO> isRegisterredTel(String cellphone) throws RuntimeException {
+	public List<UserDTO> isRegisterredTel(String cellphone) {
 		String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
 		Pattern telPattern = Pattern.compile(telRegExp);
 		Matcher telMatcher = telPattern.matcher(cellphone);
@@ -147,7 +145,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public boolean isSmsVerified(String cellphone,String verfiedcode) throws RuntimeException {
+	public boolean isSmsVerified(String cellphone,String verfiedcode) {
 		List<Object[]> reslst=smsVerificationRepositoryCustom.getSmsVerification(cellphone, verfiedcode);
 		if (reslst.size()>0)
 			return true;
@@ -157,7 +155,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public boolean sendSmsMessage(String telnum) throws RuntimeException {
+	public boolean sendSmsMessage(String telnum) {
 		
 		VerificationBody vcodebody=alisms.sendVerificationSms(telnum);
 		if (vcodebody==null)
@@ -172,7 +170,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public boolean doSmsVerification(VerificationBody vbody) throws RuntimeException {
+	public boolean doSmsVerification(VerificationBody vbody) {
 	  	return redisService.doSmsVerification(vbody);
 	}
 

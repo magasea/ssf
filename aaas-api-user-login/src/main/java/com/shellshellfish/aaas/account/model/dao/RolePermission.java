@@ -1,92 +1,105 @@
 package com.shellshellfish.aaas.account.model.dao;
 
-import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 
+
+/**
+ * The persistent class for the role_permission database table.
+ * 
+ */
 @Entity
-@Table(name = "role_permission", schema = "ssflogin", catalog = "")
-public class RolePermission {
-    private long id;
-    private String createdBy;
-    private Timestamp createdDate;
-    private String lastModifiedBy;
-    private Timestamp lastModifiedDate;
+@Table(name="role_permission")
+@NamedQuery(name="RolePermission.findAll", query="SELECT r FROM RolePermission r")
+public class RolePermission implements Serializable {
+	private static final long serialVersionUID = 1L;
 
-    @Id
-    @Column(name = "id")
-    public long getId() {
-        return id;
-    }
+	@Id
+	private long id;
 
-    public void setId(long id) {
-        this.id = id;
-    }
+	@Column(name="created_by")
+	private String createdBy;
 
-    @Basic
-    @Column(name = "created_by")
-    public String getCreatedBy() {
-        return createdBy;
-    }
+	@Column(name="created_date")
+	private Timestamp createdDate;
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
+	@Column(name="last_modified_by")
+	private String lastModifiedBy;
 
-    @Basic
-    @Column(name = "created_date")
-    public Timestamp getCreatedDate() {
-        return createdDate;
-    }
+	@Column(name="last_modified_date")
+	private Timestamp lastModifiedDate;
 
-    public void setCreatedDate(Timestamp createdDate) {
-        this.createdDate = createdDate;
-    }
+	//bi-directional many-to-one association to Permission
+	@ManyToOne
+	private Permission permission;
 
-    @Basic
-    @Column(name = "last_modified_by")
-    public String getLastModifiedBy() {
-        return lastModifiedBy;
-    }
+	//bi-directional many-to-one association to Role
+	@ManyToOne
+	private Role role;
 
-    public void setLastModifiedBy(String lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy;
-    }
+	public RolePermission() {
+	}
 
-    @Basic
-    @Column(name = "last_modified_date")
-    public Timestamp getLastModifiedDate() {
-        return lastModifiedDate;
-    }
+	public long getId() {
+		return this.id;
+	}
 
-    public void setLastModifiedDate(Timestamp lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
+	public void setId(long id) {
+		this.id = id;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	public String getCreatedBy() {
+		return this.createdBy;
+	}
 
-        RolePermission that = (RolePermission) o;
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
 
-        if (id != that.id) return false;
-        if (createdBy != null ? !createdBy.equals(that.createdBy) : that.createdBy != null) return false;
-        if (createdDate != null ? !createdDate.equals(that.createdDate) : that.createdDate != null) return false;
-        if (lastModifiedBy != null ? !lastModifiedBy.equals(that.lastModifiedBy) : that.lastModifiedBy != null)
-            return false;
-        if (lastModifiedDate != null ? !lastModifiedDate.equals(that.lastModifiedDate) : that.lastModifiedDate != null)
-            return false;
+	public Timestamp getCreatedDate() {
+		return this.createdDate;
+	}
 
-        return true;
-    }
+	public void setCreatedDate(Timestamp createdDate) {
+		this.createdDate = createdDate;
+	}
 
-    @Override
-    public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
-        result = 31 * result + (createdBy != null ? createdBy.hashCode() : 0);
-        result = 31 * result + (createdDate != null ? createdDate.hashCode() : 0);
-        result = 31 * result + (lastModifiedBy != null ? lastModifiedBy.hashCode() : 0);
-        result = 31 * result + (lastModifiedDate != null ? lastModifiedDate.hashCode() : 0);
-        return result;
-    }
+	public String getLastModifiedBy() {
+		return this.lastModifiedBy;
+	}
+
+	public void setLastModifiedBy(String lastModifiedBy) {
+		this.lastModifiedBy = lastModifiedBy;
+	}
+
+	public Timestamp getLastModifiedDate() {
+		return this.lastModifiedDate;
+	}
+
+	public void setLastModifiedDate(Timestamp lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
+	}
+
+	public Permission getPermission() {
+		return this.permission;
+	}
+
+	public void setPermission(Permission permission) {
+		this.permission = permission;
+	}
+
+	public Role getRole() {
+		return this.role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
 }

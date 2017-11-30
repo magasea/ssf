@@ -1,120 +1,97 @@
 package com.shellshellfish.aaas.account.model.dao;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import java.io.Serializable;
+import javax.persistence.*;
 import java.sql.Timestamp;
 
+
+/**
+ * The persistent class for the role database table.
+ * 
+ */
 @Entity
-public class Role {
-    private long id;
-    private String name;
-    private Boolean isPredefined;
-    private String createdBy;
-    private Timestamp createdDate;
-    private String lastModifiedBy;
-    private Timestamp lastModifiedDate;
+@Table(name="role")
+@NamedQuery(name="Role.findAll", query="SELECT r FROM Role r")
+public class Role implements Serializable {
+	private static final long serialVersionUID = 1L;
 
-    @Id
-    @Column(name = "id")
-    public long getId() {
-        return id;
-    }
+	@Id
+	private long id;
 
-    public void setId(long id) {
-        this.id = id;
-    }
+	@Column(name="created_by")
+	private String createdBy;
 
-    @Basic
-    @Column(name = "name")
-    public String getName() {
-        return name;
-    }
+	@Column(name="created_date")
+	private Timestamp createdDate;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	@Column(name="is_predefined")
+	private Boolean isPredefined;
 
-    @Basic
-    @Column(name = "is_predefined")
-    public Boolean getPredefined() {
-        return isPredefined;
-    }
+	@Column(name="last_modified_by")
+	private String lastModifiedBy;
 
-    public void setPredefined(Boolean predefined) {
-        isPredefined = predefined;
-    }
+	@Column(name="last_modified_date")
+	private Timestamp lastModifiedDate;
 
-    @Basic
-    @Column(name = "created_by")
-    public String getCreatedBy() {
-        return createdBy;
-    }
+	private String name;
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
+	public Role() {
+	}
 
-    @Basic
-    @Column(name = "created_date")
-    public Timestamp getCreatedDate() {
-        return createdDate;
-    }
+	public long getId() {
+		return this.id;
+	}
 
-    public void setCreatedDate(Timestamp createdDate) {
-        this.createdDate = createdDate;
-    }
+	public void setId(long id) {
+		this.id = id;
+	}
 
-    @Basic
-    @Column(name = "last_modified_by")
-    public String getLastModifiedBy() {
-        return lastModifiedBy;
-    }
+	public String getCreatedBy() {
+		return this.createdBy;
+	}
 
-    public void setLastModifiedBy(String lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy;
-    }
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
 
-    @Basic
-    @Column(name = "last_modified_date")
-    public Timestamp getLastModifiedDate() {
-        return lastModifiedDate;
-    }
+	public Timestamp getCreatedDate() {
+		return this.createdDate;
+	}
 
-    public void setLastModifiedDate(Timestamp lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
+	public void setCreatedDate(Timestamp createdDate) {
+		this.createdDate = createdDate;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	public Boolean getIsPredefined() {
+		return this.isPredefined;
+	}
 
-        Role role = (Role) o;
+	public void setIsPredefined(Boolean isPredefined) {
+		this.isPredefined = isPredefined;
+	}
 
-        if (id != role.id) return false;
-        if (name != null ? !name.equals(role.name) : role.name != null) return false;
-        if (isPredefined != null ? !isPredefined.equals(role.isPredefined) : role.isPredefined != null) return false;
-        if (createdBy != null ? !createdBy.equals(role.createdBy) : role.createdBy != null) return false;
-        if (createdDate != null ? !createdDate.equals(role.createdDate) : role.createdDate != null) return false;
-        if (lastModifiedBy != null ? !lastModifiedBy.equals(role.lastModifiedBy) : role.lastModifiedBy != null)
-            return false;
-        if (lastModifiedDate != null ? !lastModifiedDate.equals(role.lastModifiedDate) : role.lastModifiedDate != null)
-            return false;
+	public String getLastModifiedBy() {
+		return this.lastModifiedBy;
+	}
 
-        return true;
-    }
+	public void setLastModifiedBy(String lastModifiedBy) {
+		this.lastModifiedBy = lastModifiedBy;
+	}
 
-    @Override
-    public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (isPredefined != null ? isPredefined.hashCode() : 0);
-        result = 31 * result + (createdBy != null ? createdBy.hashCode() : 0);
-        result = 31 * result + (createdDate != null ? createdDate.hashCode() : 0);
-        result = 31 * result + (lastModifiedBy != null ? lastModifiedBy.hashCode() : 0);
-        result = 31 * result + (lastModifiedDate != null ? lastModifiedDate.hashCode() : 0);
-        return result;
-    }
+	public Timestamp getLastModifiedDate() {
+		return this.lastModifiedDate;
+	}
+
+	public void setLastModifiedDate(Timestamp lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 }
