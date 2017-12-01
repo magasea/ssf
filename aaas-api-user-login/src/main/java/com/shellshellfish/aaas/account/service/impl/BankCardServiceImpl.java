@@ -18,7 +18,7 @@ public class BankCardServiceImpl implements BankCardService {
 
 	@Override
 	public Page<BankCardDTO> selectBankCardById(Pageable pageable, Long userId)
-			throws InstantiationException, IllegalAccessException, RuntimeException {
+			throws InstantiationException, IllegalAccessException {
 		Page<BankCard> bankCardPage = bankCardRepository.findByUserId(userId, pageable);
 		Page<BankCardDTO> bankCardDtoPage = MyBeanUtils.convertPageDTO(pageable, bankCardPage, BankCardDTO.class);
 		return bankCardDtoPage;

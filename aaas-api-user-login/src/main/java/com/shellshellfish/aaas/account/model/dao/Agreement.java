@@ -1,108 +1,86 @@
 package com.shellshellfish.aaas.account.model.dao;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import java.io.Serializable;
+import javax.persistence.*;
 import java.sql.Timestamp;
 
+
+/**
+ * The persistent class for the agreement database table.
+ * 
+ */
 @Entity
-public class Agreement {
-    private long id;
-    private String content;
-    private String createdBy;
-    private Timestamp createdDate;
-    private String lastModifiedBy;
-    private Timestamp lastModifiedDate;
+@Table(name="agreement")
+@NamedQuery(name="Agreement.findAll", query="SELECT a FROM Agreement a")
+public class Agreement implements Serializable {
+	private static final long serialVersionUID = 1L;
 
-    @Id
-    @Column(name = "id")
-    public long getId() {
-        return id;
-    }
+	@Id
+	private long id;
 
-    public void setId(long id) {
-        this.id = id;
-    }
+	private String content;
 
-    @Basic
-    @Column(name = "content")
-    public String getContent() {
-        return content;
-    }
+	@Column(name="created_by")
+	private String createdBy;
 
-    public void setContent(String content) {
-        this.content = content;
-    }
+	@Column(name="created_date")
+	private Timestamp createdDate;
 
-    @Basic
-    @Column(name = "created_by")
-    public String getCreatedBy() {
-        return createdBy;
-    }
+	@Column(name="last_modified_by")
+	private String lastModifiedBy;
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
+	@Column(name="last_modified_date")
+	private Timestamp lastModifiedDate;
 
-    @Basic
-    @Column(name = "created_date")
-    public Timestamp getCreatedDate() {
-        return createdDate;
-    }
+	public Agreement() {
+	}
 
-    public void setCreatedDate(Timestamp createdDate) {
-        this.createdDate = createdDate;
-    }
+	public long getId() {
+		return this.id;
+	}
 
-    @Basic
-    @Column(name = "last_modified_by")
-    public String getLastModifiedBy() {
-        return lastModifiedBy;
-    }
+	public void setId(long id) {
+		this.id = id;
+	}
 
-    public void setLastModifiedBy(String lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy;
-    }
+	public String getContent() {
+		return this.content;
+	}
 
-    @Basic
-    @Column(name = "last_modified_date")
-    public Timestamp getLastModifiedDate() {
-        return lastModifiedDate;
-    }
+	public void setContent(String content) {
+		this.content = content;
+	}
 
-    public void setLastModifiedDate(Timestamp lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
+	public String getCreatedBy() {
+		return this.createdBy;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
 
-        Agreement agreement = (Agreement) o;
+	public Timestamp getCreatedDate() {
+		return this.createdDate;
+	}
 
-        if (id != agreement.id) return false;
-        if (content != null ? !content.equals(agreement.content) : agreement.content != null) return false;
-        if (createdBy != null ? !createdBy.equals(agreement.createdBy) : agreement.createdBy != null) return false;
-        if (createdDate != null ? !createdDate.equals(agreement.createdDate) : agreement.createdDate != null)
-            return false;
-        if (lastModifiedBy != null ? !lastModifiedBy.equals(agreement.lastModifiedBy) : agreement.lastModifiedBy != null)
-            return false;
-        if (lastModifiedDate != null ? !lastModifiedDate.equals(agreement.lastModifiedDate) : agreement.lastModifiedDate != null)
-            return false;
+	public void setCreatedDate(Timestamp createdDate) {
+		this.createdDate = createdDate;
+	}
 
-        return true;
-    }
+	public String getLastModifiedBy() {
+		return this.lastModifiedBy;
+	}
 
-    @Override
-    public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
-        result = 31 * result + (content != null ? content.hashCode() : 0);
-        result = 31 * result + (createdBy != null ? createdBy.hashCode() : 0);
-        result = 31 * result + (createdDate != null ? createdDate.hashCode() : 0);
-        result = 31 * result + (lastModifiedBy != null ? lastModifiedBy.hashCode() : 0);
-        result = 31 * result + (lastModifiedDate != null ? lastModifiedDate.hashCode() : 0);
-        return result;
-    }
+	public void setLastModifiedBy(String lastModifiedBy) {
+		this.lastModifiedBy = lastModifiedBy;
+	}
+
+	public Timestamp getLastModifiedDate() {
+		return this.lastModifiedDate;
+	}
+
+	public void setLastModifiedDate(Timestamp lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
+	}
+
 }

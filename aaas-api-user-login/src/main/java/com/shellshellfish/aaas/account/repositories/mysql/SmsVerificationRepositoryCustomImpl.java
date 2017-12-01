@@ -5,8 +5,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.shellshellfish.aaas.account.model.dao.SmsVerification;
-
 public class SmsVerificationRepositoryCustomImpl implements SmsVerificationRepositoryCustom {
 
 	 @Autowired

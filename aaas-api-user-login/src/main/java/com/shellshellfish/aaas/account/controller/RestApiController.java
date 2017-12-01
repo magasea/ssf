@@ -28,12 +28,11 @@ import com.shellshellfish.aaas.account.body.RegistrationBody;
 import com.shellshellfish.aaas.account.body.UpdateRegistrationBody;
 import com.shellshellfish.aaas.account.body.VerificationBody;
 import com.shellshellfish.aaas.account.exception.UserException;
-import com.shellshellfish.aaas.account.model.dao.BankCard;
 import com.shellshellfish.aaas.account.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.account.model.dto.UserDTO;
 import com.shellshellfish.aaas.account.service.AccountService;
 import com.shellshellfish.aaas.account.service.BankCardService;
-import com.shellshellfish.aaas.account.service.ResourceManager;
+import com.shellshellfish.aaas.account.service.ResourceManagerService;
 import com.shellshellfish.aaas.account.service.SchemaManager;
 import com.shellshellfish.aaas.account.utils.MD5;
 import com.shellshellfish.aaas.account.utils.PageWrapper;
@@ -57,7 +56,7 @@ public class RestApiController {
 	AccountService accountService;
 	
 	@Autowired
-	ResourceManager resourceManager;
+	ResourceManagerService resourceManagerService;
 	
 	@Autowired
 	SchemaManager schemaManager;
@@ -116,7 +115,7 @@ public class RestApiController {
 	public ResponseEntity<Map> registrationpage( 
 			@Valid @NotNull(message="电话不能为空") @Size(min = 11, max = 11,message="电话长度必须是11位的数字")  @RequestParam(value = "telnum") String telnum){
 		   
-		  HashMap<String ,Object> rsmap= resourceManager.response("register",new String[]{telnum});
+		  HashMap<String ,Object> rsmap= resourceManagerService.response("register",new String[]{telnum});
 		  //System.out.println(pagestr);
 		  return new ResponseEntity<Map>(rsmap, HttpStatus.OK);	
     }
@@ -182,7 +181,7 @@ public class RestApiController {
 		if (!telMatcher.find()) {
 			throw new UserException("102", "手机号格式不对");
 		}
-		HashMap<String, Object> rsmap = resourceManager.response("forgottenpwd", new String[] { telnum });
+		HashMap<String, Object> rsmap = resourceManagerService.response("forgottenpwd", new String[] { telnum });
 
 		return new ResponseEntity<Map>(rsmap, HttpStatus.OK);
 	}
@@ -225,7 +224,7 @@ public class RestApiController {
     })		
 	@RequestMapping(value = "/loginpage", method = RequestMethod.GET)
 	public ResponseEntity<Map> loginpage(){
-		    HashMap<String ,Object> rsmap= resourceManager.response("login",null);
+		    HashMap<String ,Object> rsmap= resourceManagerService.response("login",null);
 		    return new ResponseEntity<Map>(rsmap, HttpStatus.OK);	
     }
 	
@@ -268,8 +267,8 @@ public class RestApiController {
 		    //CellPhone:13611442221
 	        
 	      //  User targetuser = userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
-			List<UserDTO> userDtoList = accountService.isRegisteredUser(telnum, MD5.getMD5(password));
-	        if (userDtoList!=null) { // 是已登记的用户
+			Boolean result = accountService.isRegisteredUser(telnum, MD5.getMD5(password));
+	        if (result) { // 是已登记的用户
 		       return new ResponseEntity<String>("",HttpStatus.CREATED);
 	        }
 		    
@@ -335,7 +334,7 @@ public class RestApiController {
 			throw new UserException("102", "手机号格式不对");
 		}
 		String tel[] = new String[] { telnum };
-		HashMap<String, Object> rsmap = resourceManager.response("smsverifications", tel);
+		HashMap<String, Object> rsmap = resourceManagerService.response("smsverifications", tel);
 		return new ResponseEntity<Map>(rsmap, HttpStatus.OK);
 	}
 
@@ -400,7 +399,7 @@ public class RestApiController {
 			@Valid @NotNull(message = "id不能为空") @PathVariable("id") String id,
 			@Valid @NotNull(message = "电话不能为空") @Size(max = 11, min = 11, message = "手机号长度必须是11位的数字") @RequestParam(value = "telnum") String telnum) {
 		String args[] = new String[] { id,telnum };
-		HashMap<String, Object> rsmap = resourceManager.response("bankcards", args);
+		HashMap<String, Object> rsmap = resourceManagerService.response("bankcards", args);
 		return new ResponseEntity<Map>(rsmap, HttpStatus.OK);
 	}
 
@@ -473,7 +472,7 @@ public class RestApiController {
 	})
 	@RequestMapping(value = "/supportbanks", method = RequestMethod.GET)
 	public ResponseEntity<Map> banksres() {
-		HashMap<String, Object> rsmap = resourceManager.response("supportbanks", null);
+		HashMap<String, Object> rsmap = resourceManagerService.response("supportbanks", null);
 		return new ResponseEntity<Map>(rsmap, HttpStatus.OK);
 	}
 	
@@ -496,7 +495,7 @@ public class RestApiController {
 	public ResponseEntity<Map> pwdsettingres(
 			@Valid @NotNull(message = "电话不能为空") @Size(max = 11, min = 11, message = "手机号格式不对") @RequestParam(value = "telnum") String telnum) {
 		String tel[] = new String[] { telnum };
-		HashMap<String, Object> rsmap = resourceManager.response("pwdsettings", tel);
+		HashMap<String, Object> rsmap = resourceManagerService.response("pwdsettings", tel);
 		return new ResponseEntity<Map>(rsmap, HttpStatus.OK);
 	}
 	

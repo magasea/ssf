@@ -1,23 +1,21 @@
 package com.shellshellfish.aaas.account.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-
 import com.shellshellfish.aaas.account.repositories.mysql.SmsVerificationRepositoryCustom;
 import com.shellshellfish.aaas.account.repositories.mysql.SmsVerificationRepositoryCustomImpl;
 import com.shellshellfish.aaas.account.service.AccountService;
 import com.shellshellfish.aaas.account.service.RedisService;
-import com.shellshellfish.aaas.account.service.ResourceManager;
+import com.shellshellfish.aaas.account.service.ResourceManagerService;
 import com.shellshellfish.aaas.account.service.SchemaManager;
 import com.shellshellfish.aaas.account.service.impl.AccountServiceImpl;
-import com.shellshellfish.aaas.account.service.impl.RedisServiceimpl;
+import com.shellshellfish.aaas.account.service.impl.RedisServiceImpl;
+import com.shellshellfish.aaas.account.service.impl.ResourceManagerServiceImpl;
 
 @Configuration
 public class AppConfig {
-	
 	
 	@Autowired
     Environment env;
@@ -28,8 +26,8 @@ public class AppConfig {
 	}
 	
 	@Bean
-	public ResourceManager resourceManager() {
-		return new ResourceManager();
+	public ResourceManagerService resourceManagerService() {
+		return new ResourceManagerServiceImpl();
 	}
 	
 	@Bean
@@ -44,7 +42,7 @@ public class AppConfig {
 	
 	@Bean
 	public RedisService redisService() {
-		return new RedisServiceimpl();
+		return new RedisServiceImpl();
 	}
 	
 	

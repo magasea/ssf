@@ -4,14 +4,17 @@ import java.util.Date;
 import java.util.Map;
 
 public class Adjustment {
+	private Integer id;
+	private String name;
 	private String title;
 	private Date date;
 	private Map<String, Double> assetsRatios;	
 	
 	
-	public Adjustment(String title, Date date) {
+	public Adjustment(Integer id, String name, Date date) {
 		super();
-		this.title = title;
+		this.id = id;
+		this.name = name;
 		this.date = date;
 	}
 	public String getTitle() {
@@ -31,6 +34,18 @@ public class Adjustment {
 	}
 	public void setAssetsRatios(Map<String, Double> assetsRatios) {
 		this.assetsRatios = assetsRatios;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 }

@@ -2,22 +2,25 @@ package com.shellshellfish.aaas.assetallocation.model;
 
 public class RiskControl {
 	
-	public RiskControl(String event, Double level2RiskControl, Double benchmark) {
+	public RiskControl(Integer id, String name, Double level2RiskControl, Double benchmark) {
 		super();
-		this.setEvent(event);
+		this.setId(id);
+		this.setName(name);
 		this.setLevel2RiskControl(level2RiskControl);
 		this.setBenchmark(benchmark);
 	}
 	
-	private String event;
+	private Integer id;
+	
+	private String name;
 	private Double level2RiskControl;
 	private Double benchmark;
 	
-	public String getEvent() {
-		return event;
+	public String getName() {
+		return name;
 	}
-	public void setEvent(String event) {
-		this.event = event;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public Double getLevel2RiskControl() {
@@ -34,6 +37,12 @@ public class RiskControl {
 
 	public void setBenchmark(Double benchmark) {
 		this.benchmark = benchmark;
+	}
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 }

@@ -35,18 +35,18 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
 import com.shellshellfish.aaas.userinfo.aop.AopPageResources;
-import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyRept;
-import com.shellshellfish.aaas.userinfo.model.dto.BankCard;
-import com.shellshellfish.aaas.userinfo.model.dto.TradeLog;
-import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfo;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBrief;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfo;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRule;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsg;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolio;
-import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsg;
-import com.shellshellfish.aaas.userinfo.model.vo.BankcardDetailVo;
-import com.shellshellfish.aaas.userinfo.model.vo.UserPersonalMsgVo;
+import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.BankcardDetailBodyDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfoDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPersonalMsgBodyDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 import com.shellshellfish.aaas.userinfo.utils.PageWrapper;
@@ -98,10 +98,10 @@ public class UserInfoController {
 		selfmap.put("href", URL_HEAD+"/users/"+userUuid+"/initpage");
 		selfmap.put("describedBy","schema//"+URL_HEAD+"/users/"+userUuid+"/initpage.json");
 		
-		List<BankCard> bankCards =  userInfoService.getUserInfoBankCards(userUuid);
-		UserInfoAssectsBrief userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
-		List<UserPortfolio> userPortfolios = userInfoService.getUserPortfolios(userUuid);
-		UserBaseInfo userBaseInfo = userInfoService.getUserInfoBase(userUuid);
+		List<BankCardDTO> bankCards =  userInfoService.getUserInfoBankCards(userUuid);
+		UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
+		List<UserPortfolioDTO> userPortfolios = userInfoService.getUserPortfolios(userUuid);
+		UserBaseInfoDTO userBaseInfo = userInfoService.getUserInfoBase(userUuid);
 
 		result.put("userCellphone", "手机号码");
 		Calendar cal = Calendar.getInstance();
@@ -153,7 +153,7 @@ public class UserInfoController {
 		if(StringUtils.isEmpty(cardNumber)){
 			throw new ServletRequestBindingException("no cardNumber in params");
 		}else{
-			BankCard bankCard =  userInfoService.getUserInfoBankCard(cardNumber);
+			BankCardDTO bankCard =  userInfoService.getUserInfoBankCard(cardNumber);
 			Map<String, Object> selfmap = new HashMap<>();
 			selfmap.put("href", URL_HEAD+"/bankcardinfopage?cardNumber="+cardNumber);
 			selfmap.put("describedBy","schema//"+URL_HEAD+"/bankcardinfopage.json");
@@ -197,7 +197,7 @@ public class UserInfoController {
 		if(StringUtils.isEmpty(userUuid)){
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}else{
-			UserBaseInfo userBaseInfo =  userInfoService.getUserInfoBase(userUuid);
+			UserBaseInfoDTO userBaseInfo =  userInfoService.getUserInfoBase(userUuid);
 			
 			Map<String, Object> result = new HashMap<>();
 			Map<String, Object> links = new HashMap<>();
@@ -371,7 +371,7 @@ public class UserInfoController {
 	@RequestMapping(value = "/users/{userUuid}/bankcards", method = RequestMethod.POST)
 	public ResponseEntity<?> addBankCardWithDetailInfo(
 			@Valid @NotNull(message = "不能为空") @PathVariable("userUuid") String userUuid,
-			@RequestBody BankcardDetailVo bankcardDetailVo) throws Exception {
+			@RequestBody BankcardDetailBodyDTO bankcardDetailVo) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		// Convert POJO to Map
 		Map<String, Object> params = mapper.convertValue(bankcardDetailVo, new TypeReference<Map<String, Object>>() {
@@ -385,7 +385,7 @@ public class UserInfoController {
 				throw new IllegalArgumentException("no " + k.toString() + "'s value in params");
 			}
 		});
-		BankCard bankCard = userInfoService.createBankcard(params);
+		BankCardDTO bankCard = userInfoService.createBankcard(params);
 		if (bankCard == null) {
 			return new ResponseEntity<Object>(
 					URL_HEAD + "/users/" + userUuid + "/bankcardpage?cardNumber=" + bankcardDetailVo.getCardNumber(),
@@ -418,7 +418,7 @@ public class UserInfoController {
 	public ResponseEntity<?> bankcardsInfo(@Valid @NotNull(message="不能为空")
 	@PathVariable("userUuid") String userUuid) throws Exception {
 
-		List<BankCard> bankCards = userInfoService.getUserInfoBankCards(userUuid);
+		List<BankCardDTO> bankCards = userInfoService.getUserInfoBankCards(userUuid);
 		
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
@@ -584,7 +584,7 @@ public class UserInfoController {
 			endTimeLong = endDate.getTime();
 		}
 
-		List<AssetDailyRept> assetDailyRepts = userInfoService.getAssetDailyRept(userUuid, beginTimeLong, endTimeLong);
+		List<AssetDailyReptDTO> assetDailyRepts = userInfoService.getAssetDailyRept(userUuid, beginTimeLong, endTimeLong);
 		
 		result.put("_items", assetDailyRepts);
 		if(assetDailyRepts!=null){
@@ -638,7 +638,7 @@ public class UserInfoController {
 	public ResponseEntity<?> getPersonalInvstMsg(
 			@Valid @NotNull(message = "userUuid不可为空") @PathVariable(name = "userUuid") String userUuid
 			)throws Exception {
-		List<UserPersonMsg> userPersonMsgs =  userInfoService.getUserPersonMsg(userUuid);
+		List<UserPersonMsgDTO> userPersonMsgs =  userInfoService.getUserPersonMsg(userUuid);
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
 		HashMap<String,Object> relateditemmap=new HashMap<>();
@@ -683,7 +683,7 @@ public class UserInfoController {
 			.GET)
 	public ResponseEntity<?> getSystemMsg(@Valid @NotNull(message = "userUuid不可为空")@PathVariable String userUuid)
 			throws Exception {
-		List<UserSysMsg> userSysMsgs = userInfoService.getUserSysMsg(userUuid);
+		List<UserSysMsgDTO> userSysMsgs = userInfoService.getUserSysMsg(userUuid);
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
 		result.put("_items", userSysMsgs);
@@ -725,7 +725,7 @@ public class UserInfoController {
 	public ResponseEntity<?> updatePersonalMsg(
 			@Valid @NotNull(message = "userUuid不可为空")@PathVariable String userUuid,
 			@Valid @NotNull(message = "id")@PathVariable String id,
-			@RequestBody UserPersonalMsgVo userPersonalMsgVo)
+			@RequestBody UserPersonalMsgBodyDTO userPersonalMsgVo)
 			throws Exception {	
 		//id message ID
 		Boolean result =  userInfoService.updateUserPersonMsg(id, userUuid, userPersonalMsgVo.getReadedStatus());
@@ -761,12 +761,12 @@ public class UserInfoController {
 	})
 	@RequestMapping(value = "/users/{userUuid}/traderecords", method = RequestMethod.GET)
 	@AopPageResources
-	public PageWrapper<TradeLog> getTradLogsOfUser(
+	public PageWrapper<TradeLogDTO> getTradLogsOfUser(
 			@PathVariable String userUuid, Pageable pageable,
 			@RequestParam(value = "size") Long size, 
 			@RequestParam(value = "page", defaultValue = "0") Long page,
 			@RequestParam(value = "sort") String sort) throws Exception {
-		Page<TradeLog> pages = userInfoService.findByUserId(userUuid, pageable);
+		Page<TradeLogDTO> pages = userInfoService.findByUserId(userUuid, pageable);
 		Map<String, Object> selfMap = new HashMap<String, Object>();
 		Map<String, Object> self = new HashMap<String, Object>();
 		selfMap.put("name", "test");
@@ -774,9 +774,9 @@ public class UserInfoController {
 		selfMap.put("describedBy", URL_HEAD + "/users/"+userUuid+"/traderecords.json");
 		self.put("self", selfMap);
 		if (pages == null) {
-			return new PageWrapper<TradeLog>();
+			return new PageWrapper<TradeLogDTO>();
 		}
-		PageWrapper<TradeLog> pageWrapper = new PageWrapper<>(pages);
+		PageWrapper<TradeLogDTO> pageWrapper = new PageWrapper<>(pages);
 		pageWrapper.set_links(self);
 		return pageWrapper;
 	}
@@ -833,7 +833,7 @@ public class UserInfoController {
 			@Valid @NotNull(message = "userUuid不可为空")@PathVariable Long bankid)
 			throws Exception {
 
-		List<UserInfoFriendRule> userInfoFriendRules = userInfoService.getUserInfoFriendRules(bankid);
+		List<UserInfoFriendRuleDTO> userInfoFriendRules = userInfoService.getUserInfoFriendRules(bankid);
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
 		result.put("_items", userInfoFriendRules);
@@ -931,7 +931,7 @@ public class UserInfoController {
 	@RequestMapping(value = "/companyinfos", method = RequestMethod.GET)
 	public ResponseEntity<?> getCompanyInfo(@RequestParam String userUuid, @RequestParam(required = false) Long bankId)
 			throws Exception {
-		UserInfoCompanyInfo userInfoCompanyInfo = userInfoService.getCompanyInfo(userUuid, bankId);
+		UserInfoCompanyInfoDTO userInfoCompanyInfo = userInfoService.getCompanyInfo(userUuid, bankId);
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> selfmap = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();

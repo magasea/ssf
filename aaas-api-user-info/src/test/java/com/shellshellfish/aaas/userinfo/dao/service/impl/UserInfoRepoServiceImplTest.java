@@ -1,12 +1,6 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
 import com.mongodb.WriteResult;
-import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserAssetsRepository;
-import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserPersonMsgRepo;
-import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserProdMsgRepo;
-import com.shellshellfish.aaas.userinfo.dao.repositories.mongo.MongoUserSysMsgRepo;
-import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoBankCardsRepository;
-import com.shellshellfish.aaas.userinfo.dao.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
@@ -14,6 +8,12 @@ import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserAssetsRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserPersonMsgRepo;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserProdMsgRepo;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserSysMsgRepo;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
 
 import java.math.BigInteger;

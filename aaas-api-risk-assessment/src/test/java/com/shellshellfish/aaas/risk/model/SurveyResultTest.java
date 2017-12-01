@@ -21,7 +21,7 @@ import com.shellshellfish.aaas.risk.model.dao.OptionItem;
 import com.shellshellfish.aaas.risk.model.dao.Question;
 import com.shellshellfish.aaas.risk.model.dao.SurveyResult;
 import com.shellshellfish.aaas.risk.model.dao.SurveyTemplate;
-import com.shellshellfish.aaas.risk.repository.mongo.SurveyTemplateRepository;
+import com.shellshellfish.aaas.risk.repositories.mongo.SurveyTemplateRepository;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
