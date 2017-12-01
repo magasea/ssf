@@ -25,6 +25,7 @@ public class DailyFunds {
   String navAdj;
 
   String navLatestDate;
+
   String code;
 
   String bmIndexChgPct;

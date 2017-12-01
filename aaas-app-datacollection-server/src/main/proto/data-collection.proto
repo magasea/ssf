@@ -21,13 +21,13 @@ message DailyFundsCollection{
 
 message DailyFunds {
   string id = 1;
-  string nav_unit = 2;
-  string fund_scale = 3;
-  string nav_accum = 4;
-  string yield_of_7_days = 5;
-  string nav_adj = 6;
+  double nav_unit = 2;
+  float fund_scale = 3;
+  double nav_accum = 4;
+  float yield_of_7_days = 5;
+  double nav_adj = 6;
   string nav_latest_date = 7;
   string code = 8;
-  string million_revenue = 9;
-  string bm_index_chg_pct = 10;
+  double million_revenue = 9;
+  float bm_index_chg_pct = 10;
 }

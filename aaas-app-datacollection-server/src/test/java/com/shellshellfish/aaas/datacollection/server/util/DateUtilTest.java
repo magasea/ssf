@@ -24,6 +24,8 @@ public class DateUtilTest {
 
   @Test
   public void getDateStrFromLong() throws Exception {
+    long timeLong = 1465228800L;
+    System.out.println(DateUtil.getDateStrFromLong(timeLong));
   }
 
   @Test

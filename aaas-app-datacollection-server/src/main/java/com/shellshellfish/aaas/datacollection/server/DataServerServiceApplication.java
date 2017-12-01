@@ -3,12 +3,15 @@ package com.shellshellfish.aaas.datacollection.server;
 import io.grpc.Server;
 import java.io.IOException;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @SpringBootApplication
 @EnableMongoRepositories("com.shellshellfish.aaas.datacollection.server.repositories")
+@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
 public class DataServerServiceApplication {
 
 	private static Server server;

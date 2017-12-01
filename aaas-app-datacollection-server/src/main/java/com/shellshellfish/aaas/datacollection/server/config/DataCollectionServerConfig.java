@@ -15,11 +15,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.lognet.springboot.grpc.GRpcServerBuilderConfigurer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.stereotype.Service;
 
 @Configuration
+@EntityScan("com.shellshellfish.aaas.datacollection.server.model")
+@EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.datacollection.server"
+    + ".repositories")
 public class DataCollectionServerConfig extends GRpcServerBuilderConfigurer {
 
 
