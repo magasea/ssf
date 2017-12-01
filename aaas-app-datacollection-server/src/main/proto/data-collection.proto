@@ -26,7 +26,7 @@ message DailyFunds {
   double nav_accum = 4;
   float yield_of_7_days = 5;
   double nav_adj = 6;
-  string nav_latest_date = 7;
+  int64 nav_latest_date = 7;
   string code = 8;
   double million_revenue = 9;
   float bm_index_chg_pct = 10;
