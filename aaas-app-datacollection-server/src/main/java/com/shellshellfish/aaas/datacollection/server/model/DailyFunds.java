@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.datacollection.server.model;
 
+import javax.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
@@ -19,26 +20,26 @@ public class DailyFunds {
   @Field( value = "navlatestdate")
   Long navLatestDate;
   @Field( value = "fundscale")
-  Float fundsScale;
+  Float fundsScale = Float.MIN_VALUE;;
   @Indexed(name ="code", direction = IndexDirection.DESCENDING)
   @Field( value = "code")
   String code;
-  @Field( value = "navadj")
-  Double navAdj;
+  @Column(name="navadj")
+  Double navAdj = Double.MIN_VALUE;
   @Field( value = "querydate")
   String queryDate;
   @Field( value = "bmindexchgpct")
-  Float bmIndexChgPct;
-  @Field( value = "yieldof7days")
-  Float  yieldOf7Days;
+  Float bmIndexChgPct = Float.MIN_VALUE;;
+  @Column( name="yeildof7days", columnDefinition="float default "+Float.MIN_VALUE)
+  Float  yieldOf7Days = Float.MIN_VALUE;
   @Field( value = "update")
   String update;
-  @Field( value = "10kunityield")
-  Double millionRevenue;
+  @Column( name="10kunityield", columnDefinition="double default "+Double.MIN_VALUE)
+  Double millionRevenue = Double.MIN_VALUE;
   @Field( value = "navunit")
-  Double navUnit;
+  Double navUnit = Double.MIN_VALUE;
   @Field( value = "navaccum")
-  Double navAccum;
+  Double navAccum = Double.MIN_VALUE;
 
   public String getId() {
     return id;
