@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.finance.trade;
+package com.shellshellfish.aaas.datacollection.server;
 
 import io.grpc.Server;
 import java.io.IOException;
@@ -10,7 +10,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @SpringBootApplication
-@EnableMongoRepositories("com.shellshellfish.aaas.finance.trade")
+@EnableMongoRepositories("com.shellshellfish.aaas.datacollection.server.repositories")
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
 public class DataServerServiceApplication {
 

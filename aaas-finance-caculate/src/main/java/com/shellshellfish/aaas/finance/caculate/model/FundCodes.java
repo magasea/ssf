@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.finance.trade.model;
+package com.shellshellfish.aaas.datacollection.server.model;
 
 import lombok.Getter;
 import lombok.Setter;

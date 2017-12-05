@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.finance.trade.util;
+package com.shellshellfish.aaas.datacollection.server.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

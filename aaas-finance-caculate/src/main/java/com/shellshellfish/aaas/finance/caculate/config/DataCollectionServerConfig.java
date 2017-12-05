@@ -1,6 +1,6 @@
-packagecom.shellshellfish.aaas.finance.trade.server.config;
+package com.shellshellfish.aaas.datacollection.server.config;
 
-importcom.shellshellfish.aaas.finance.trade.server.service.DataCollectionServiceImpl;
+import com.shellshellfish.aaas.datacollection.server.service.DataCollectionServiceImpl;
 import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
 import io.grpc.Server;

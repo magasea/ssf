@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.finance.trade.service;
+package com.shellshellfish.aaas.datacollection.server.service;
 
 import java.util.List;
 

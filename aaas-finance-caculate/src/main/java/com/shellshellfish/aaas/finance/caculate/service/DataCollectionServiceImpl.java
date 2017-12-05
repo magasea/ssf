@@ -1,15 +1,14 @@
-package com.shellshellfish.aaas.finance.trade.service;
+package com.shellshellfish.aaas.datacollection.server.service;
 
 
 import com.shellshellfish.aaas.datacollect.DailyFunds.Builder;
 import com.shellshellfish.aaas.datacollect.DailyFundsCollection;
 import com.shellshellfish.aaas.datacollect.DailyFundsQuery;
 import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc.DataCollectionServiceImplBase;
-
-import com.shellshellfish.aaas.finance.trade.model.DailyFunds;
-import com.shellshellfish.aaas.finance.trade.repositories.DailyFundsRepository;
-import com.shellshellfish.aaas.finance.trade.util.DataCollectorUtil;
-import com.shellshellfish.aaas.finance.trade.util.DateUtil;
+import com.shellshellfish.aaas.datacollection.server.model.DailyFunds;
+import com.shellshellfish.aaas.datacollection.server.repositories.DailyFundsRepository;
+import com.shellshellfish.aaas.datacollection.server.util.DataCollectorUtil;
+import com.shellshellfish.aaas.datacollection.server.util.DateUtil;
 import io.grpc.stub.StreamObserver;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase {
       responseObserver){
     String navLatestDate = request.getNavLatestDate();
     List<String> code = request.getCodesList();
-    List<com.shellshellfish.aaas.finance.trade.model.DailyFunds> dailyFundsList = null;
+    List<DailyFunds> dailyFundsList = null;
     try {
       Query query = new Query();
       query.addCriteria(Criteria.where("navlatestdate").is(DateUtil.getDateLongVal(navLatestDate)

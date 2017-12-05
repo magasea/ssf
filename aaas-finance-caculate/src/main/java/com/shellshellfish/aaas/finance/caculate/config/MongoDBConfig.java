@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.finance.trade.config;
+package com.shellshellfish.aaas.datacollection.server.config;
 
 import com.mongodb.MongoClient;
 import org.springframework.beans.factory.annotation.Value;

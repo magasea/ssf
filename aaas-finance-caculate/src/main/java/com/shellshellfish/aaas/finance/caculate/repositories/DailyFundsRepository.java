@@ -1,7 +1,7 @@
-package com.shellshellfish.aaas.finance.trade.repositories;
+package com.shellshellfish.aaas.datacollection.server.repositories;
 
 
-import com.shellshellfish.aaas.finance.trade.model.DailyFunds;
+import com.shellshellfish.aaas.datacollection.server.model.DailyFunds;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
