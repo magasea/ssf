@@ -588,7 +588,7 @@ public class RestApiController {
 		executeList.add(executeMap);
 		execute.put("related", executeList);
 		if(pages==null){
-			return new ResponseEntity<PageWrapper<BankCardDTO>>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		PageWrapper<BankCardDTO> pageWrapper = new PageWrapper<>(pages);
 		pageWrapper.set_links(self);
