@@ -8,11 +8,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 //import org.springframework.test.context.ActiveProfiles;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.shellshellfish.aaas.account.body.VerificationBody;
+
 import com.shellshellfish.aaas.account.exception.UserException;
 import com.shellshellfish.aaas.account.model.dao.BankCard;
 import com.shellshellfish.aaas.account.model.dao.User;
 import com.shellshellfish.aaas.account.model.dto.UserDTO;
+import com.shellshellfish.aaas.account.model.dto.VerificationBodyDTO;
 import com.shellshellfish.aaas.account.repositories.mysql.BankCardRepository;
 import com.shellshellfish.aaas.account.repositories.mysql.SmsVerificationRepositoryCustom;
 import com.shellshellfish.aaas.account.repositories.mysql.UserRepository;
@@ -157,7 +158,7 @@ public class AccountServiceImpl implements AccountService {
 	@Override
 	public boolean sendSmsMessage(String telnum) throws RuntimeException {
 		
-		VerificationBody vcodebody=alisms.sendVerificationSms(telnum);
+		VerificationBodyDTO vcodebody=alisms.sendVerificationSms(telnum);
 		if (vcodebody==null)
 			return false;
 		
@@ -170,7 +171,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public boolean doSmsVerification(VerificationBody vbody) throws RuntimeException {
+	public boolean doSmsVerification(VerificationBodyDTO vbody) throws RuntimeException {
 	  	return redisService.doSmsVerification(vbody);
 	}
 
