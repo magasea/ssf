@@ -50,7 +50,7 @@ public class ProductController {
 		
 		Product product = productService.getProduct(id);
 		if (product == null) {
-			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			
 		} else {
 			ResourceWrapper<Product> resource = new ResourceWrapper<>(product);
