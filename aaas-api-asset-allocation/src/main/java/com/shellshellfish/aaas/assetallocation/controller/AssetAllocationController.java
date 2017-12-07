@@ -52,7 +52,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @RestController
-@RequestMapping("/api/asset-allocation")
+@RequestMapping("/api1/asset-allocation")
 public class AssetAllocationController {
 
 	@Autowired

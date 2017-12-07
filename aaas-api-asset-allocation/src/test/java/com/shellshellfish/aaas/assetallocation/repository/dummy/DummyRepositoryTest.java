@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.finance.repository.dummy;
+package com.shellshellfish.aaas.assetallocation.repository.dummy;
 
 import java.util.List;
 
@@ -13,7 +13,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.assetallocation.model.Dummy;
-import com.shellshellfish.aaas.assetallocation.repository.dummy.DummyRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest

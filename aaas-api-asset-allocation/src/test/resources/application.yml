@@ -15,5 +15,3 @@ spring:
         fail-on-empty-beans: false
 
 
-shellshellfish:
-   asset-allocation-url: "http://localhost:10024/"

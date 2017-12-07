@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.finance.repository.dummy;
+package com.shellshellfish.aaas.assetallocation.repository.dummy;
 
 import java.util.List;
 
