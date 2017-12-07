@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.finance;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shellshellfish.aaas.finance.util.OneFundApi;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import java.util.UUID;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
+@Ignore
 public class OneFundApiTest {
     private static final Logger logger = LoggerFactory.getLogger(OneFundApi.class);
 
