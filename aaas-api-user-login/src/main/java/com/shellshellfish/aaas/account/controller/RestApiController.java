@@ -157,10 +157,7 @@ public class RestApiController {
 	public ResponseEntity<HttpStatus> updateregistrationsId(
 			@Valid @RequestBody UpdateRegistrationBodyDTO updateregistrationBody
 			){
-		
-		String telnum=updateregistrationBody.getTelnum();
-		String verfiedcode=updateregistrationBody.getIdentifyingcode();
-		if (accountService.isSmsVerified(telnum,verfiedcode))
+		if (accountService.isSmsVerified(updateregistrationBody))
 			return new ResponseEntity<HttpStatus>(HttpStatus.RESET_CONTENT);
 		
 		return new ResponseEntity<HttpStatus>(HttpStatus.UNAUTHORIZED);
@@ -270,7 +267,8 @@ public class RestApiController {
 
 		// User targetuser =
 		// userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
-		List<User> result = accountService.isRegisteredUser(telnum, MD5.getMD5(password));
+		loginBodyDTO.setPassword(MD5.getMD5(password));
+		List<User> result = accountService.isRegisteredUser(loginBodyDTO);
 		if (result != null && result.size() > 0) { // 是已登记的用户
 			User user = result.get(0);
 			String uuid = user.getUuid();
@@ -302,7 +300,7 @@ public class RestApiController {
 		// CellPhone:13611442221
 		String telnum = registrationBody.getTelnum();
 		if ("checkDupTelNum".equals(action)) {
-			List<UserDTO> userList = accountService.isRegisterredTel(telnum);
+			List<UserDTO> userList = accountService.isRegisterredTel(registrationBody);
 			if (userList != null && userList.size() > 0) {
 				throw new UserException("103", "抱歉，此电话号码已注册");
 			}
@@ -544,7 +542,7 @@ public class RestApiController {
 		String telnum = pwdSettingBody.getTelnum();
 		String pwdsetting = pwdSettingBody.getPassword();
 		String pwdconfirm = pwdSettingBody.getPwdconfirm();
-		if (accountService.isSettingPWD(telnum, pwdsetting, pwdconfirm)) { // 密码修正正确
+		if (accountService.isSettingPWD(pwdSettingBody)) { // 密码修正正确
 			return new ResponseEntity<String>(URL_HEAD+"/loginpage?action='loginpage'&telnum=" + telnum, HttpStatus.OK);
 		}
 		return new ResponseEntity<String>(URL_HEAD+"/loginpage?action='loginpage'&telnum=" + telnum, HttpStatus.UNAUTHORIZED);// 未授权用户
@@ -558,7 +556,7 @@ public class RestApiController {
 	})
 	@RequestMapping(value = "/test", method = RequestMethod.GET)
 	@AopPageResources
-	public PageWrapper<BankCardDTO> selectbankinfos(
+	public ResponseEntity<PageWrapper<BankCardDTO>> selectbankinfos(
 			Pageable pageable,
 			@RequestParam(value = "size") Long size,
 			@RequestParam(value = "page",defaultValue="0") Long page,
@@ -590,13 +588,13 @@ public class RestApiController {
 		executeList.add(executeMap);
 		execute.put("related", executeList);
 		if(pages==null){
-			return new PageWrapper<BankCardDTO>();
+			return new ResponseEntity<PageWrapper<BankCardDTO>>(HttpStatus.NOT_FOUND);
 		}
 		PageWrapper<BankCardDTO> pageWrapper = new PageWrapper<>(pages);
 		pageWrapper.set_links(self);
 		pageWrapper.set_links(execute);
 		pageWrapper.setSort(pageable.getSort());
-		return pageWrapper;
+		return new ResponseEntity<>(pageWrapper,HttpStatus.OK);
 	}
 	
 	@ApiOperation("用户退出")
@@ -638,7 +636,7 @@ public class RestApiController {
 		    //CellPhone:13611442221
 	        
 	      //  User targetuser = userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
-			accountService.doLogout(telnum,password);
+			accountService.doLogout(loginBody);
 		    
 	        return new ResponseEntity<String>("/login",HttpStatus.NO_CONTENT);//未授权用户
 	       	

@@ -6,6 +6,6 @@ public interface RedisService {
     boolean doSmsVerification(VerificationBodyDTO vbody);
     boolean saveVeribody(VerificationBodyDTO vbody);
     boolean doPwdSave(String cellphone, String passwordhash);
-	void doLogout(String cellphone, String verfiedcode);
+	void doLogout(String cellphone, String password);
 	String doGetPwd(String cellphone, String passwordhash);
 }
