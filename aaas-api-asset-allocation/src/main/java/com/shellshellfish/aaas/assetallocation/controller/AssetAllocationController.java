@@ -247,18 +247,18 @@ public class AssetAllocationController {
 	
 	@ApiOperation("模拟历史年化业绩与模拟历史年化波动率")
 	@RequestMapping(value = "/product-groups/{groupId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ResourceWrapper<SimulationData>> getSimulatedData(@PathVariable Integer groupId,
+	public ResponseEntity<ResourceWrapper<SimulationData>> postSimulatedData(@PathVariable Integer groupId,
 			 																			   @RequestParam(required = true, defaultValue = "calcSimulationData") String action,
 																						   @RequestBody SimulationRequest simulationRequest) {
 		
 		SimulationData simulatedData = new SimulationData(1, 1);		
-		ResourceWrapper<SimulationData>resource = new ResourceWrapper<>(simulatedData);
-		resource.setName("模拟数据");		
-		
 		simulatedData.setValues(Arrays.asList(new NameValuePair<String, Double>("模拟历史年化业绩", 0.073), 
 											  new NameValuePair<String, Double>("模拟历史年化波动率", 0.0527),
 											  new NameValuePair<String, Double>("置信区间", 0.975),
 											  new NameValuePair<String, Double>("最大亏损额", 303d)));
+		
+		ResourceWrapper<SimulationData>resource = new ResourceWrapper<>(simulatedData);
+		resource.setName("模拟数据");	
 		
 		return new ResponseEntity<>(resource, HttpStatus.OK);
 	}
@@ -316,11 +316,11 @@ public class AssetAllocationController {
 	@RequestMapping(value = "/product-groups/{groupId}/sub-groups/{subGroupId}/effective-frontier-points", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<CollectionResourceWrapper<List<PointWithWeight>>> getEffectiveFrontier(@PathVariable Integer groupId, @PathVariable Integer subGroupId) {
 		CollectionResourceWrapper<List<PointWithWeight>> resource = new CollectionResourceWrapper<>();
-		resource.setItems(Arrays.asList(new PointWithWeight(1, 1d, -0.5d, 0.2d),
-										new PointWithWeight(2, 1.5, -0.4, 0.1),
-										new PointWithWeight(3, 2.0, -0.3, 0.3),
-										new PointWithWeight(4, 3.0, -0.2, 0.2),
-										new PointWithWeight(5, 4.1, -0.1, 0.2)
+		resource.setItems(Arrays.asList(new PointWithWeight(1, 1d, -0.5d, Arrays.asList(0.2d, 0.3d, 0.1d)),
+										new PointWithWeight(2, 1.5, -0.4, Arrays.asList(0.2d, 0.3d, 0.1d)),
+										new PointWithWeight(3, 2.0, -0.3, Arrays.asList(0.2d, 0.3d, 0.1d)),
+										new PointWithWeight(4, 3.0, -0.2, Arrays.asList(0.2d, 0.3d, 0.1d)),
+										new PointWithWeight(5, 4.1, -0.1, Arrays.asList(0.2d, 0.3d, 0.1d))
 										));
 		resource.setName("有效前沿线数据");
 		return new ResponseEntity<>(resource, HttpStatus.OK);
@@ -328,7 +328,8 @@ public class AssetAllocationController {
 	
 	@ApiOperation("滑动条分段数据")
 	@RequestMapping(value = "/product-groups/{groupId}/sub-groups/{subGroupId}/slidebar-points", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CollectionResourceWrapper<List<SlidePoint>>> getSlidebarPoints(@PathVariable Integer groupId, @PathVariable Integer subGroupId) {
+	public ResponseEntity<CollectionResourceWrapper<List<SlidePoint>>> getSlidebarPoints(@PathVariable Integer groupId, @PathVariable Integer subGroupId,
+																						 @RequestParam(defaultValue="risk") String slidebarType) {
 		CollectionResourceWrapper<List<SlidePoint>> resource = new CollectionResourceWrapper<>();
 		resource.setItems(Arrays.asList(new SlidePoint(1, 0.1),
 										new SlidePoint(2, 0.2),

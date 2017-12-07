@@ -10,45 +10,27 @@ public class DailyFunds {
 
   String id;
 
-  String navUnit;
+  Long navLatestDate;
 
-  String update;
+  Float fundsScale;
 
-  String fundScale;
+  String code;
 
-  String navAccum;
-
-  String yieldOf7Days;
+  Double navAdj;
 
   String queryDate;
 
-  String navAdj;
+  Float bmIndexChgPct;
 
-  String navLatestDate;
-  String code;
+  Float  yieldOf7Days;
 
-  String bmIndexChgPct;
+  String update;
 
-  String millionRevenue;
+  Double millionRevenue;
 
+  Double navUnit;
 
-  @Override
-  public String toString() {
-    return "DailyFunds{" +
-        "id='" + id + '\'' +
-        ", navUnit='" + navUnit + '\'' +
-        ", update='" + update + '\'' +
-        ", fundScale='" + fundScale + '\'' +
-        ", navAccum='" + navAccum + '\'' +
-        ", yieldOf7Days='" + yieldOf7Days + '\'' +
-        ", queryDate='" + queryDate + '\'' +
-        ", navAdj='" + navAdj + '\'' +
-        ", navLatestDate='" + navLatestDate + '\'' +
-        ", code='" + code + '\'' +
-        ", bmIndexChgPct='" + bmIndexChgPct + '\'' +
-        ", millionRevenue='" + millionRevenue + '\'' +
-        '}';
-  }
+  Double navAccum;
 
   public String getId() {
     return id;
@@ -58,68 +40,20 @@ public class DailyFunds {
     this.id = id;
   }
 
-  public String getNavUnit() {
-    return navUnit;
-  }
-
-  public void setNavUnit(String navUnit) {
-    this.navUnit = navUnit;
-  }
-
-  public String getUpdate() {
-    return update;
-  }
-
-  public void setUpdate(String update) {
-    this.update = update;
-  }
-
-  public String getFundScale() {
-    return fundScale;
-  }
-
-  public void setFundScale(String fundScale) {
-    this.fundScale = fundScale;
-  }
-
-  public String getNavAccum() {
-    return navAccum;
-  }
-
-  public void setNavAccum(String navAccum) {
-    this.navAccum = navAccum;
-  }
-
-  public String getYieldOf7Days() {
-    return yieldOf7Days;
-  }
-
-  public void setYieldOf7Days(String yieldOf7Days) {
-    this.yieldOf7Days = yieldOf7Days;
-  }
-
-  public String getQueryDate() {
-    return queryDate;
-  }
-
-  public void setQueryDate(String queryDate) {
-    this.queryDate = queryDate;
-  }
-
-  public String getNavAdj() {
-    return navAdj;
-  }
-
-  public void setNavAdj(String navAdj) {
-    this.navAdj = navAdj;
-  }
-
-  public String getNavLatestDate() {
+  public Long getNavLatestDate() {
     return navLatestDate;
   }
 
-  public void setNavLatestDate(String navLatestDate) {
+  public void setNavLatestDate(Long navLatestDate) {
     this.navLatestDate = navLatestDate;
+  }
+
+  public Float getFundsScale() {
+    return fundsScale;
+  }
+
+  public void setFundsScale(Float fundsScale) {
+    this.fundsScale = fundsScale;
   }
 
   public String getCode() {
@@ -130,19 +64,70 @@ public class DailyFunds {
     this.code = code;
   }
 
-  public String getBminDexChgPct() {
+  public Double getNavAdj() {
+    return navAdj;
+  }
+
+  public void setNavAdj(Double navAdj) {
+    this.navAdj = navAdj;
+  }
+
+  public String getQueryDate() {
+    return queryDate;
+  }
+
+  public void setQueryDate(String queryDate) {
+    this.queryDate = queryDate;
+  }
+
+  public Float getBmIndexChgPct() {
     return bmIndexChgPct;
   }
 
-  public void setBminDexChgPct(String bmIndexChgPct) {
+  public void setBmIndexChgPct(Float bmIndexChgPct) {
     this.bmIndexChgPct = bmIndexChgPct;
   }
 
-  public String getMillionRevenue() {
+  public Float getYieldOf7Days() {
+    return yieldOf7Days;
+  }
+
+  public void setYieldOf7Days(Float yieldOf7Days) {
+    this.yieldOf7Days = yieldOf7Days;
+  }
+
+  public String getUpdate() {
+    return update;
+  }
+
+  public void setUpdate(String update) {
+    this.update = update;
+  }
+
+  public Double getMillionRevenue() {
     return millionRevenue;
   }
 
-  public void setMillionRevenue(String millionRevenue) {
+  public void setMillionRevenue(Double millionRevenue) {
     this.millionRevenue = millionRevenue;
   }
+
+  public Double getNavUnit() {
+    return navUnit;
+  }
+
+  public void setNavUnit(Double navUnit) {
+    this.navUnit = navUnit;
+  }
+
+  public Double getNavAccum() {
+    return navAccum;
+  }
+
+  public void setNavAccum(Double navAccum) {
+    this.navAccum = navAccum;
+  }
+
+
 }
+
