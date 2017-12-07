@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shellshellfish.aaas.finance.model.Product;
 import com.shellshellfish.aaas.finance.service.ProductService;
+import com.shellshellfish.aaas.finance.service.impl.ProductServiceImpl;
 import com.shellshellfish.aaas.finance.util.CollectionResourceWrapper;
 import com.shellshellfish.aaas.finance.util.Links;
 import com.shellshellfish.aaas.finance.util.ResourceWrapper;

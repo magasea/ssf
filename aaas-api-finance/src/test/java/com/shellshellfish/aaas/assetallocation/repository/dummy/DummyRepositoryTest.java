@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.finance.model.Dummy;
+import com.shellshellfish.aaas.finance.repository.mongo2.DummyRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest

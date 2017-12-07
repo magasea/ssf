@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.assetallocation.repository.dummy;
+package com.shellshellfish.aaas.finance.repository.mongo2;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 

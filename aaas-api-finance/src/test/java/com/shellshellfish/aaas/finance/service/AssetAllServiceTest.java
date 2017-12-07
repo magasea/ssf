@@ -4,6 +4,8 @@ import com.shellshellfish.aaas.finance.returnType.FundAllReturn;
 import com.shellshellfish.aaas.finance.returnType.FundReturn;
 import com.shellshellfish.aaas.finance.returnType.PerformanceVolatilityReturn;
 import com.shellshellfish.aaas.finance.returnType.RevenueContributionReturn;
+import com.shellshellfish.aaas.finance.service.impl.AssetAllocationServiceImpl;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 public class AssetAllServiceTest {
 
     @Autowired
-    private AssetAllocationService allocationService;
+    private AssetAllocationServiceImpl allocationService;
 
     @Test
     public void getProduct() {

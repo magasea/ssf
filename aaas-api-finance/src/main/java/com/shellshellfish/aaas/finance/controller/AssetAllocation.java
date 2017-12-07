@@ -1,7 +1,8 @@
 package com.shellshellfish.aaas.finance.controller;
 
 import com.shellshellfish.aaas.finance.returnType.*;
-import com.shellshellfish.aaas.finance.service.AssetAllocationService;
+import com.shellshellfish.aaas.finance.service.impl.AssetAllocationServiceImpl;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -24,7 +25,7 @@ public class AssetAllocation {
     RestTemplate template;
 
     @Autowired
-    AssetAllocationService assetAllocationService;
+    AssetAllocationServiceImpl assetAllocationService;
 
     /**
      * 查询所有基金组合
