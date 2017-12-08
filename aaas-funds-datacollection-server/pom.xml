@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.shellshellfish</groupId>
-	<artifactId>aaas-app-datacollection-server</artifactId>
+	<artifactId>aaas-funds-datacollection-server</artifactId>
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
-	<name>aaas-app-datacollection-server</name>
+	<name>aaas-funds-datacollection-server</name>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -66,6 +66,7 @@
 			<artifactId>grpc-core</artifactId>
 			<version>${grpc.version}</version>
 		</dependency>
+
 
 		<!-- https://mvnrepository.com/artifact/io.grpc/grpc-all -->
 		<dependency>
