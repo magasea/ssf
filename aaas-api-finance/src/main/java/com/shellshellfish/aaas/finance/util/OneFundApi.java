@@ -1,11 +1,13 @@
 package com.shellshellfish.aaas.finance.util;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shellshellfish.aaas.finance.trade.model.OneFundAccount;
+import com.shellshellfish.aaas.finance.trade.model.ApplyResult;
+import com.shellshellfish.aaas.finance.trade.model.BuyFundResult;
+import com.shellshellfish.aaas.finance.trade.model.OpenAccountResult;
+import com.shellshellfish.aaas.finance.trade.model.SellFundResult;
 import org.apache.commons.codec.digest.UnixCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +18,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -36,7 +37,7 @@ public class OneFundApi {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public OneFundAccount openAccount(String name, String phone, String identityNo, String bankNo, String bankId) throws JsonProcessingException {
+    public OpenAccountResult openAccount(String name, String phone, String identityNo, String bankNo, String bankId) throws Exception {
         Map<String, Object> info = init();
 //        info.put("name", "张飞");
 //        info.put("phone", "13816629390");
@@ -56,16 +57,20 @@ public class OneFundApi {
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
 
-        OneFundAccount account = null;
+        OpenAccountResult openAccountResult = null;
         JSONObject jsonObject = JSONObject.parseObject(json);
         Integer status = jsonObject.getInteger("status");
         if (status.equals(1)) {
-            account = jsonObject.getObject("data", OneFundAccount.class);
+            openAccountResult = jsonObject.getObject("data", OpenAccountResult.class);
+        } else {
+            String errno = jsonObject.getString("errno");
+            String msg = jsonObject.getString("msg");
+            throw new Exception(errno + ":" + msg);
         }
-        return account;
+        return openAccountResult;
     }
 
-    public String buyFund(String tradeAcco, Double applySum, String outsideOrderNo, String fundCode) throws JsonProcessingException {
+    public BuyFundResult buyFund(String tradeAcco, Double applySum, String outsideOrderNo, String fundCode) throws Exception {
         Map<String, Object> info = init();
 
         info.put("tradeacco", tradeAcco);
@@ -80,10 +85,94 @@ public class OneFundApi {
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
 
-        return json;
+        BuyFundResult buyFundResult = null;
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        Integer status = jsonObject.getInteger("status");
+        if (status.equals(1)) {
+            buyFundResult = jsonObject.getObject("data", BuyFundResult.class);
+        } else {
+            String errno = jsonObject.getString("errno");
+            String msg = jsonObject.getString("msg");
+            throw new Exception(errno + ":" + msg);
+        }
+
+        return buyFundResult;
     }
 
-    public String getApplyList() throws JsonProcessingException {
+    public SellFundResult sellFund(Integer sellNum, String outsideOrderNo, String tradeAcco, String fundCode) throws Exception {
+        Map<String, Object> info = init();
+
+        info.put("sell_num", sellNum);
+        info.put("outsideorderno", outsideOrderNo);
+        info.put("tradeacco", tradeAcco);
+        info.put("fundcode", fundCode);
+        info.put("sell_type", 0);
+
+        postInit(info);
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/sell_fund";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        SellFundResult sellFundResult = null;
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        Integer status = jsonObject.getInteger("status");
+        if (status.equals(1)) {
+            sellFundResult = jsonObject.getObject("data", SellFundResult.class);
+        } else {
+            String errno = jsonObject.getString("errno");
+            String msg = jsonObject.getString("msg");
+            throw new Exception(errno + ":" + msg);
+        }
+
+        return sellFundResult;
+    }
+
+    public ApplyResult getApplyResultByApplySerial(String applySerial) throws JsonProcessingException {
+        Map<String, Object> info = init();
+        info.put("applyserial", applySerial);
+        postInit(info);
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_apply_list";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        ApplyResult applyResult = null;
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        Integer status = jsonObject.getInteger("status");
+        applyResult = getApplyResult(applyResult, jsonObject, status);
+        return applyResult;
+    }
+
+    public ApplyResult getApplyResultByOutsideOrderNo(String outsideOrderNo) throws JsonProcessingException {
+        Map<String, Object> info = init();
+        info.put("outsideorderno", outsideOrderNo);
+        postInit(info);
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_apply_list";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        ApplyResult applyResult = null;
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        Integer status = jsonObject.getInteger("status");
+        applyResult = getApplyResult(applyResult, jsonObject, status);
+        return applyResult;
+    }
+
+    private ApplyResult getApplyResult(ApplyResult applyResult, JSONObject jsonObject, Integer status) {
+        if (status.equals(1)) {
+            JSONArray jsonArray = jsonObject.getJSONArray("data");
+            applyResult = jsonArray.getObject(0, ApplyResult.class);
+        } else {
+            String errno = jsonObject.getString("errno");
+            String msg = jsonObject.getString("msg");
+            // throw new Exception(errno + ":" + msg);
+        }
+        return applyResult;
+    }
+
+    public String getAllApplyList() throws JsonProcessingException {
         Map<String, Object> info = init();
 
         postInit(info);
@@ -209,7 +298,7 @@ public class OneFundApi {
     public String getTradeRate(String fundCode, String buinflag) throws JsonProcessingException {
         Map<String, Object> info = init();
         info.put("fundcode", fundCode);
-        info.put("buinflag", buinflag);
+//        info.put("buinflag", buinflag);
         postInit(info);
 
         String url = "https://onetest.51fa.la/v2/internet/fundapi/get_rate";
@@ -227,17 +316,17 @@ public class OneFundApi {
             String fundCode = jsonObject.getString("fundcode");
             logger.info("fundCode:{}", fundCode);
             String tradeRateInfo = getTradeRate(fundCode, "022");
-            mongoTemplate.save(tradeRateInfo, "rateinfo");
+            mongoTemplate.save(tradeRateInfo, "rateInfo");
         }
     }
 
     public void writeFundToMongoDb(String json) {
-        mongoTemplate.save(json, "zhongzheng");
+        mongoTemplate.save(json, "fundInfo");
     }
 
     public void writeAllFundsToMongoDb(List<String> funds) {
         for (String fund: funds) {
-            mongoTemplate.save(fund, "zhongzheng");
+            mongoTemplate.save(fund, "fundInfo");
         }
     }
 

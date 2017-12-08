@@ -1,6 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.model;
 
-public class OneFundAccount {
+public class OpenAccountResult {
     private String custNo;
     private String fundAcco;
     private String tradeAcco;
