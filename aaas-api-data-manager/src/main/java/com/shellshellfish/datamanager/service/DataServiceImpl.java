@@ -4,16 +4,22 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.shellshellfish.datamanager.commons.DataConvertUtils;
 import com.shellshellfish.datamanager.model.DailyFunds;
 import com.shellshellfish.datamanager.model.FundCodes;
+import com.shellshellfish.datamanager.model.IndicatorPoint;
 import com.shellshellfish.datamanager.repositories.MongoDailyFundsRepository;
 import com.shellshellfish.datamanager.repositories.MongoFundCodesRepository;
 
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 @Service
 public class DataServiceImpl implements DataService {
 	
@@ -21,6 +27,9 @@ public class DataServiceImpl implements DataService {
 	MongoFundCodesRepository mongoFundCodesRepository;
 	@Autowired
 	MongoDailyFundsRepository mongoDailyFundsRepository;
+	
+	 @Autowired
+	 private MongoTemplate mongoTemplate;
 	
 	public boolean saveDailytoDBforday(String codelist,String querydate) {
 		return callpython("./getdaily.sh"+" "+codelist+" "+querydate);
@@ -87,5 +96,19 @@ public class DataServiceImpl implements DataService {
 		//String[] abc= new String[] {"000001.OF","000003.OF"};
 		return mongoDailyFundsRepository.findByCodeAndDate(codelist, date);
 	}
+	
+	public List<IndicatorPoint>  getMaxfallPeriod(String code,long fromtime,long totime){
+		
+		fromtime=fromtime-18000; //diff in python and java
+		totime=totime-18000;
+		Criteria criteria = Criteria.where("code").is(code).and("querydate").gte(fromtime).lte(totime);
+		Query query = new Query(criteria);
+		List<DailyFunds> list = mongoTemplate.find(query, DailyFunds.class);
+		 
+		List<IndicatorPoint> ptlst=DataConvertUtils.getIndFromDailyData(list);
+		
+		return ptlst;
+	}
+	
 	
 }

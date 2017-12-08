@@ -1,5 +1,7 @@
 package com.shellshellfish.datamanager.model;
 
+import java.util.Date;
+
 import javax.persistence.Id;
 
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -18,14 +20,14 @@ public class DailyFunds {
 	@Field("code")
 	private String code;    //基金代码
 	@Field("update")
-	private String update;    //更新日期
+	private long update;    //更新日期
 	@Field("querydate")
-	private String querydate;    //查询日期
+	private long querydate;    //查询日期
 	
 	@Field("navadj")
 	private String navadj;  //复权单位净值
 	@Field("navlatestdate")
-	private String navlatestdate; //最新净值日期
+	private long navlatestdate; //最新净值日期
 	@Field("fundscale")
 	private String fundscale; //基金规模
 	@Field("navunit")
@@ -47,19 +49,19 @@ public class DailyFunds {
 	    this.code = code;
 	}
 
-	public String getUpdate() {
+	public long getUpdate() {
 	    return update;
 	}
 
-	public void setUpdate(String date) {
+	public void setUpdate(long date) {
 	    this.update = date;
 	}
 	
-	public String getQuerydate() {
+	public long getQuerydate() {
 	    return querydate;
 	}
 
-	public void setQuerydate(String date) {
+	public void setQuerydate(long date) {
 	    this.querydate = date;
 	}
 
@@ -72,11 +74,11 @@ public class DailyFunds {
 	}
 	
 
-	public String getNavlatestdate() {
+	public long getNavlatestdate() {
 	    return navlatestdate;
 	}
 
-	public void setNavlatestdate(String navlatestdate) {
+	public void setNavlatestdate(long navlatestdate) {
 	    this.navlatestdate = navlatestdate;
 	}
 	
