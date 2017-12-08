@@ -761,7 +761,7 @@ public class UserInfoController {
 	})
 	@RequestMapping(value = "/users/{userUuid}/traderecords", method = RequestMethod.GET)
 	@AopPageResources
-	public PageWrapper<TradeLogDTO> getTradLogsOfUser(
+	public ResponseEntity<PageWrapper<TradeLogDTO>> getTradLogsOfUser(
 			@PathVariable String userUuid, Pageable pageable,
 			@RequestParam(value = "size") Long size, 
 			@RequestParam(value = "page", defaultValue = "0") Long page,
@@ -774,11 +774,11 @@ public class UserInfoController {
 		selfMap.put("describedBy", URL_HEAD + "/users/"+userUuid+"/traderecords.json");
 		self.put("self", selfMap);
 		if (pages == null) {
-			return new PageWrapper<TradeLogDTO>();
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		PageWrapper<TradeLogDTO> pageWrapper = new PageWrapper<>(pages);
 		pageWrapper.set_links(self);
-		return pageWrapper;
+		return new ResponseEntity<>(pageWrapper,HttpStatus.OK);
 	}
 
 //	@ApiImplicitParams({

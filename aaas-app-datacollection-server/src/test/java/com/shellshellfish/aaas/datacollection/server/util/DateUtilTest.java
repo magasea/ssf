@@ -31,5 +31,8 @@ public class DateUtilTest {
   @Test
   public void getDateLongOneDayBefore() throws Exception {
   }
-
+  public static  void main(String[] input){
+    System.out.println(Double.MIN_VALUE);
+    System.out.println(Long.MIN_VALUE);
+  }
 }

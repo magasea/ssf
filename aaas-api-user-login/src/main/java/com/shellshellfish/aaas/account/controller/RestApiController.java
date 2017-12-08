@@ -22,14 +22,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.shellshellfish.aaas.account.aop.AopPageResources;
-import com.shellshellfish.aaas.account.body.LoginBody;
-import com.shellshellfish.aaas.account.body.PwdSettingBody;
-import com.shellshellfish.aaas.account.body.RegistrationBody;
-import com.shellshellfish.aaas.account.body.UpdateRegistrationBody;
-import com.shellshellfish.aaas.account.body.VerificationBody;
 import com.shellshellfish.aaas.account.exception.UserException;
+import com.shellshellfish.aaas.account.model.dao.User;
 import com.shellshellfish.aaas.account.model.dto.BankCardDTO;
+import com.shellshellfish.aaas.account.model.dto.LoginBodyDTO;
+import com.shellshellfish.aaas.account.model.dto.PwdSettingBodyDTO;
+import com.shellshellfish.aaas.account.model.dto.RegistrationBodyDTO;
+import com.shellshellfish.aaas.account.model.dto.UpdateRegistrationBodyDTO;
 import com.shellshellfish.aaas.account.model.dto.UserDTO;
+import com.shellshellfish.aaas.account.model.dto.VerificationBodyDTO;
 import com.shellshellfish.aaas.account.service.AccountService;
 import com.shellshellfish.aaas.account.service.BankCardService;
 import com.shellshellfish.aaas.account.service.ResourceManagerService;
@@ -146,7 +147,7 @@ public class RestApiController {
 	//
 	@ApiOperation("密码设置")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name="updateregistrationBody", value ="用户数据 电话号码/验证码",required=true,paramType="body",dataType="UpdateRegistrationBody")
+		@ApiImplicitParam(name="updateregistrationBody", value ="用户数据 电话号码/验证码",required=true,paramType="body",dataType="UpdateRegistrationBodyDTO")
     })
 	@ApiResponses({
 		@ApiResponse(code=200,message="OK"),
@@ -154,12 +155,9 @@ public class RestApiController {
     })		
 	@RequestMapping(value = "/registrations", method = RequestMethod.PATCH)
 	public ResponseEntity<HttpStatus> updateregistrationsId(
-			@Valid @RequestBody UpdateRegistrationBody updateregistrationBody
+			@Valid @RequestBody UpdateRegistrationBodyDTO updateregistrationBody
 			){
-		
-		String telnum=updateregistrationBody.getTelnum();
-		String verfiedcode=updateregistrationBody.getIdentifyingcode();
-		if (accountService.isSmsVerified(telnum,verfiedcode))
+		if (accountService.isSmsVerified(updateregistrationBody))
 			return new ResponseEntity<HttpStatus>(HttpStatus.RESET_CONTENT);
 		
 		return new ResponseEntity<HttpStatus>(HttpStatus.UNAUTHORIZED);
@@ -229,11 +227,12 @@ public class RestApiController {
     }
 	
 	@ApiOperation("用户登录验证")
-	@ApiImplicitParam(name="loginBody", value ="用户数据 手机号码/密码",required=true,paramType="body",dataType="LoginBody")
+	@ApiImplicitParam(name="loginBodyDTO", value ="用户数据 手机号码/密码",required=true,paramType="body",dataType="LoginBodyDTO")
 	@ApiResponses({
 		@ApiResponse(code=100,message="密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合"),
         @ApiResponse(code=101,message="手机号格式不对"),
         @ApiResponse(code=200,message="OK"),
+        @ApiResponse(code=204,message="OK"),
         @ApiResponse(code=400,message="请求参数没填好"),
         @ApiResponse(code=401,message="未授权用户"),        				
 		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
@@ -241,47 +240,54 @@ public class RestApiController {
         
     })
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public ResponseEntity<String> login(@Valid @RequestBody LoginBody loginBody){
-			String telnum = loginBody.getTelnum();
-			String password = loginBody.getPassword();
-			if(telnum.length()!=11) {
-				throw new UserException("100","电话长度必须是11位的数字");
-			}
-		    Pattern p = Pattern.compile(  
-		            "^(?![A-Za-z]+$)(?![A-Z\\d]+$)(?![A-Z\\W]+$)(?![a-z\\d]+$)(?![a-z\\W]+$)(?![\\d\\W]+$)\\S{8,20}$");  
-		    Matcher m = p.matcher(password);  
-		    if (m.find()) { //need pwd check  
-		        //int kk=1;  
-		    } else {
-		    	throw new UserException("101","密码长度至少8位,至多20位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合");
-		    }
-		    
-		    String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
-			Pattern telPattern = Pattern.compile(telRegExp);
-			Matcher telMatcher = telPattern.matcher(telnum);
-			if (!telMatcher.find()) {
-				throw new UserException("102", "手机号格式不对");
-			}
-		   
-	         //passwd:abccd4djsN-999
-		    //CellPhone:13611442221
-	        
-	      //  User targetuser = userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
-			Boolean result = accountService.isRegisteredUser(telnum, MD5.getMD5(password));
-	        if (result) { // 是已登记的用户
-		       return new ResponseEntity<String>("",HttpStatus.CREATED);
-	        }
-		    
-	        return new ResponseEntity<String>("/login",HttpStatus.NO_CONTENT);//未授权用户
-	       	
-    }
+	public ResponseEntity<?> login(@Valid @RequestBody LoginBodyDTO loginBodyDTO) {
+		String telnum = loginBodyDTO.getTelnum();
+		String password = loginBodyDTO.getPassword();
+		if (telnum.length() != 11) {
+			throw new UserException("100", "电话长度必须是11位的数字");
+		}
+		Pattern p = Pattern.compile(
+				"^(?![A-Za-z]+$)(?![A-Z\\d]+$)(?![A-Z\\W]+$)(?![a-z\\d]+$)(?![a-z\\W]+$)(?![\\d\\W]+$)\\S{8,20}$");
+		Matcher m = p.matcher(password);
+		if (m.find()) { // need pwd check
+			// int kk=1;
+		} else {
+			throw new UserException("101", "密码长度至少8位,至多20位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合");
+		}
+
+		String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
+		Pattern telPattern = Pattern.compile(telRegExp);
+		Matcher telMatcher = telPattern.matcher(telnum);
+		if (!telMatcher.find()) {
+			throw new UserException("102", "手机号格式不对");
+		}
+
+		// passwd:abccd4djsN-999
+		// CellPhone:13611442221
+
+		// User targetuser =
+		// userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
+		loginBodyDTO.setPassword(MD5.getMD5(password));
+		List<User> result = accountService.isRegisteredUser(loginBodyDTO);
+		if (result != null && result.size() > 0) { // 是已登记的用户
+			User user = result.get(0);
+			String uuid = user.getUuid();
+			String token = "Token-XXXXXXXX";
+			String obj[] = new String[] { uuid, token };
+			HashMap<String, Object> rsmap = resourceManagerService.response("loginhome", obj);
+			return new ResponseEntity<Object>(rsmap, HttpStatus.CREATED);
+		}
+
+		return new ResponseEntity<Object>("/login", HttpStatus.NO_CONTENT);// 未授权用户
+
+	}
 	
 	
 	//短信验证
 	@ApiOperation("注册页的确认")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="action", value ="action:checkDupTelNum",required=true,paramType="query",dataType="String"),
-		@ApiImplicitParam(name="registrationBody", value ="用户数据 电话号码",required=true,paramType="body",dataType="RegistrationBody")
+		@ApiImplicitParam(name="registrationBody", value ="用户数据 电话号码",required=true,paramType="body",dataType="RegistrationBodyDTO")
     })
 	@ApiResponses({
 		@ApiResponse(code=103,message="抱歉，此电话号码已注册"),
@@ -289,12 +295,12 @@ public class RestApiController {
     })			
 	@RequestMapping(value = "/registrations", method = RequestMethod.POST)
 	public ResponseEntity<String> registrationpageId(@RequestParam String action,
-			@Valid @RequestBody RegistrationBody registrationBody) {
+			@Valid @RequestBody RegistrationBodyDTO registrationBody) {
 		// passwd:abccd4djsN-999
 		// CellPhone:13611442221
 		String telnum = registrationBody.getTelnum();
 		if ("checkDupTelNum".equals(action)) {
-			List<UserDTO> userList = accountService.isRegisterredTel(telnum);
+			List<UserDTO> userList = accountService.isRegisterredTel(registrationBody);
 			if (userList != null && userList.size() > 0) {
 				throw new UserException("103", "抱歉，此电话号码已注册");
 			}
@@ -347,7 +353,7 @@ public class RestApiController {
 	 */
 	@ApiOperation("短信验证 确认按钮")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name="verificationBody", value ="用户数据 手机号码/验证码",required=true,paramType="body",dataType="VerificationBody")
+		@ApiImplicitParam(name="verificationBody", value ="用户数据 手机号码/验证码",required=true,paramType="body",dataType="VerificationBodyDTO")
 	})
 	@ApiResponses({
 		@ApiResponse(code=200,message="OK"),
@@ -358,7 +364,7 @@ public class RestApiController {
 	})
 	@RequestMapping(value = "/smsverifications", method = RequestMethod.POST)
 	public ResponseEntity<String> smsverificationpageId(
-			@Valid @RequestBody VerificationBody verificationBody) {
+			@Valid @RequestBody VerificationBodyDTO verificationBody) {
 		String telnum = verificationBody.getTelnum();
 		String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
 		Pattern telPattern = Pattern.compile(telRegExp);
@@ -510,7 +516,7 @@ public class RestApiController {
 	@ApiOperation("密码设置 确认按钮")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="path",name="id",dataType="String",required=true,value="id",defaultValue=""),
-		@ApiImplicitParam(name="pwdSettingBody", value ="用户数据 手机号码/初始密码/确认密码",required=true,paramType="body",dataType="PwdSettingBody")
+		@ApiImplicitParam(name="pwdSettingBody", value ="用户数据 手机号码/初始密码/确认密码",required=true,paramType="body",dataType="PwdSettingBodyDTO")
 //		@ApiImplicitParam(paramType="query",name="telnum",dataType="String",required=true,value="用户的手机号码"),
 //		@ApiImplicitParam(paramType="query",name="pwdsetting",dataType="String",required=true,value="用户的密码"),
 //		@ApiImplicitParam(paramType="query",name="pwdconfirm",dataType="String",required=true,value="用户的确认密码")
@@ -528,7 +534,7 @@ public class RestApiController {
 	//@RequestMapping(value = "/pwdsettingpage/{id}", method = RequestMethod.PATCH)
 	public ResponseEntity<String> pwdsettingpageId(
 			@Valid @NotNull(message="id不能为空") @PathVariable("id") String id,
-			@Valid @RequestBody PwdSettingBody pwdSettingBody
+			@Valid @RequestBody PwdSettingBodyDTO pwdSettingBody
 //			@Valid @NotNull(message = "电话不能为空") @Size(max = 11, min = 11, message = "手机号长度必须是11位的数字") @RequestParam(value = "telnum") String telnum,
 //			@Valid @NotNull(message = "密码不能为空") @Size(min = 8, max = 16, message = "密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合") @RequestParam(value = "pwdsetting") String pwdsetting,
 //			@Valid @NotNull(message = "确认密码不能为空") @Size(min = 8, max = 16, message = "确认密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合") @RequestParam(value = "pwdconfirm") String pwdconfirm
@@ -536,7 +542,7 @@ public class RestApiController {
 		String telnum = pwdSettingBody.getTelnum();
 		String pwdsetting = pwdSettingBody.getPassword();
 		String pwdconfirm = pwdSettingBody.getPwdconfirm();
-		if (accountService.isSettingPWD(telnum, pwdsetting, pwdconfirm)) { // 密码修正正确
+		if (accountService.isSettingPWD(pwdSettingBody)) { // 密码修正正确
 			return new ResponseEntity<String>(URL_HEAD+"/loginpage?action='loginpage'&telnum=" + telnum, HttpStatus.OK);
 		}
 		return new ResponseEntity<String>(URL_HEAD+"/loginpage?action='loginpage'&telnum=" + telnum, HttpStatus.UNAUTHORIZED);// 未授权用户
@@ -550,7 +556,7 @@ public class RestApiController {
 	})
 	@RequestMapping(value = "/test", method = RequestMethod.GET)
 	@AopPageResources
-	public PageWrapper<BankCardDTO> selectbankinfos(
+	public ResponseEntity<PageWrapper<BankCardDTO>> selectbankinfos(
 			Pageable pageable,
 			@RequestParam(value = "size") Long size,
 			@RequestParam(value = "page",defaultValue="0") Long page,
@@ -582,12 +588,57 @@ public class RestApiController {
 		executeList.add(executeMap);
 		execute.put("related", executeList);
 		if(pages==null){
-			return new PageWrapper<BankCardDTO>();
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		PageWrapper<BankCardDTO> pageWrapper = new PageWrapper<>(pages);
 		pageWrapper.set_links(self);
 		pageWrapper.set_links(execute);
 		pageWrapper.setSort(pageable.getSort());
-		return pageWrapper;
+		return new ResponseEntity<>(pageWrapper,HttpStatus.OK);
 	}
+	
+	@ApiOperation("用户退出")
+	@ApiImplicitParam(name="loginBody", value ="用户数据 手机号码/密码",required=true,paramType="body",dataType="LoginBody")
+	@ApiResponses({
+		@ApiResponse(code=100,message="密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合"),
+        @ApiResponse(code=101,message="手机号格式不对"),
+        @ApiResponse(code=200,message="OK"),
+        @ApiResponse(code=400,message="请求参数没填好"),
+        @ApiResponse(code=401,message="未授权用户"),        				
+		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
+        
+    })
+	@RequestMapping(value = "/logout", method = RequestMethod.POST)
+	public ResponseEntity<String> logout(@Valid @RequestBody LoginBodyDTO loginBody){
+			String telnum = loginBody.getTelnum();
+			String password = loginBody.getPassword();
+			if(telnum.length()!=11) {
+				throw new UserException("100","电话长度必须是11位的数字");
+			}
+		    Pattern p = Pattern.compile(  
+		            "^(?![A-Za-z]+$)(?![A-Z\\d]+$)(?![A-Z\\W]+$)(?![a-z\\d]+$)(?![a-z\\W]+$)(?![\\d\\W]+$)\\S{8,20}$");  
+		    Matcher m = p.matcher(password);  
+		    if (m.find()) { //need pwd check  
+		        //int kk=1;  
+		    } else {
+		    	throw new UserException("101","密码长度至少8位,至多20位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合");
+		    }
+		    
+		    String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
+			Pattern telPattern = Pattern.compile(telRegExp);
+			Matcher telMatcher = telPattern.matcher(telnum);
+			if (!telMatcher.find()) {
+				throw new UserException("102", "手机号格式不对");
+			}
+		   
+	         //passwd:abccd4djsN-999
+		    //CellPhone:13611442221
+	        
+	      //  User targetuser = userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
+			accountService.doLogout(loginBody);
+		    
+	        return new ResponseEntity<String>("/login",HttpStatus.NO_CONTENT);//未授权用户
+	       	
+    }
 }

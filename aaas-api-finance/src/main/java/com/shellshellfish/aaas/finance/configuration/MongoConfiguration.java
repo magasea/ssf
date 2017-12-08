@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @Configuration
-@EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.finance.repository.product", mongoTemplateRef = "mongoTemplate")
+@EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.finance.repository.mongo", mongoTemplateRef = "mongoTemplate")
 public class MongoConfiguration {
 
 	// @Bean

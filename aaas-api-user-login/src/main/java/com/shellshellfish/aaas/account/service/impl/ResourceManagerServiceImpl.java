@@ -10,16 +10,16 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
 	public ResourceManagerServiceImpl(){;}
 	
 	@Override
-	public HashMap<String ,Object> response(String pagename,String[] argv){
-	    
+	public HashMap<String, Object> response(String pagename, String[] argv) {
+
 		HashMap<String, Object> map = null;
 		if (pagename.equals("login")) {
 			map = logindesc();
 		} else if (pagename.equals("register")) {
-			String telnum=argv[0];
+			String telnum = argv[0];
 			map = registerdesc(telnum);
 		} else if (pagename.equals("forgottenpwd")) {
-			String telnum=argv[0];
+			String telnum = argv[0];
 			map = forgottenpwddesc(telnum);
 		} else if (pagename.equals("pwdsettings")) {
 			map = pwdSettingDesc(argv);
@@ -29,6 +29,8 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
 			map = addBankCardDesc(argv);
 		} else if (pagename.equals("supportbanks")) {
 			map = bkListDesc();
+		} else if (pagename.equals("loginhome")) {
+			map = loginhome(argv);
 		}
 		return map;
 	}
@@ -351,6 +353,34 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
 		smsitemmap[0].put("name", "next");
 		linkitemmap.put("execute", smsitemmap);// post
 
+		rsmap.put("_links", linkitemmap);
+		return rsmap;
+	}
+	
+	public HashMap<String, Object> loginhome(String[] args) {
+		// addbankcard resource
+		HashMap<String, Object> rsmap = new HashMap<String, Object>();
+		String uuid = args[0];
+		String token = args[1];
+		
+		rsmap.put("name", "loginhome");
+		rsmap.put("uuid", uuid);
+		rsmap.put("token ", token);
+		
+		HashMap<String, Object> linkitemmap = new HashMap<String, Object>();
+		HashMap<String, Object> selfitemmap = new HashMap<String, Object>();
+		selfitemmap.put("href", URL_HEAD + "/login");
+		selfitemmap.put("describedBy", URL_HEAD + "/login.json");
+		linkitemmap.put("self", selfitemmap);
+		
+		HashMap<String, Object>[] smsitemmap = new HashMap[1];
+		smsitemmap[0] = new HashMap<String, Object>();
+		smsitemmap[0].put("href", URL_HEAD+"/loginhome");
+		smsitemmap[0].put("describedBy", URL_HEAD+"/loginhome.json");
+		smsitemmap[0].put("method", "POST");
+		smsitemmap[0].put("name", "next");
+		linkitemmap.put("related", smsitemmap);// post
+		
 		rsmap.put("_links", linkitemmap);
 		return rsmap;
 	}

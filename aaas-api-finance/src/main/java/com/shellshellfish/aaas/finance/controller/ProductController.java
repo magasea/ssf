@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shellshellfish.aaas.finance.model.Product;
 import com.shellshellfish.aaas.finance.service.ProductService;
+import com.shellshellfish.aaas.finance.service.impl.ProductServiceImpl;
 import com.shellshellfish.aaas.finance.util.CollectionResourceWrapper;
 import com.shellshellfish.aaas.finance.util.Links;
 import com.shellshellfish.aaas.finance.util.ResourceWrapper;
@@ -50,7 +51,7 @@ public class ProductController {
 		
 		Product product = productService.getProduct(id);
 		if (product == null) {
-			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			
 		} else {
 			ResourceWrapper<Product> resource = new ResourceWrapper<>(product);

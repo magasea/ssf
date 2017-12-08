@@ -36,5 +36,4 @@ public class DataController {
 		return responseEntity;
 	}
 
-	
 }

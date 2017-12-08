@@ -12,7 +12,7 @@ import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 
 @Configuration																									
-@EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.finance.repository.dummy", mongoTemplateRef = "secondaryMongoTemplate")
+@EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.assetallocation.repository.dummy", mongoTemplateRef = "secondaryMongoTemplate")
 public class SecondaryMongoConfiguration {
 
 	// @Bean

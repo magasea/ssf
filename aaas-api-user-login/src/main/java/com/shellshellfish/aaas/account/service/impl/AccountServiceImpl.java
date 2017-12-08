@@ -6,13 +6,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 //import org.springframework.test.context.ActiveProfiles;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.shellshellfish.aaas.account.body.VerificationBody;
+
 import com.shellshellfish.aaas.account.exception.UserException;
 import com.shellshellfish.aaas.account.model.dao.BankCard;
 import com.shellshellfish.aaas.account.model.dao.User;
+import com.shellshellfish.aaas.account.model.dto.LoginBodyDTO;
+import com.shellshellfish.aaas.account.model.dto.PwdSettingBodyDTO;
+import com.shellshellfish.aaas.account.model.dto.RegistrationBodyDTO;
+import com.shellshellfish.aaas.account.model.dto.UpdateRegistrationBodyDTO;
 import com.shellshellfish.aaas.account.model.dto.UserDTO;
+import com.shellshellfish.aaas.account.model.dto.VerificationBodyDTO;
 import com.shellshellfish.aaas.account.repositories.mysql.BankCardRepository;
 import com.shellshellfish.aaas.account.repositories.mysql.SmsVerificationRepositoryCustom;
 import com.shellshellfish.aaas.account.repositories.mysql.UserRepository;
@@ -41,22 +47,28 @@ public class AccountServiceImpl implements AccountService {
     private AliSms alisms;
 
 	@Override
-	public Boolean isRegisteredUser(String cellphone, String passwordhash){
-		String password = redisService.doGetPwd(cellphone, passwordhash);
-		if(password!=null){
-			return true;
-		}
+	public List<User> isRegisteredUser(LoginBodyDTO loginBodyDTO) throws RuntimeException{
+//		String password = redisService.doGetPwd(cellphone, passwordhash);
+//		if(password!=null){
+//			return true;
+//		}
+		String cellphone = loginBodyDTO.getTelnum();
+		String passwordhash = loginBodyDTO.getPassword();
+		
 		List<User> userList = userRepository.findByCellPhoneAndPasswordHash(cellphone, passwordhash);
 		if (userList != null && userList.size() > 0) {
-			redisService.doPwdSave(cellphone,passwordhash);
-			return true;
+//			redisService.doPwdSave(cellphone,passwordhash);
+			return userList;
 		} else {
-			return false;
+			return new ArrayList<User>();
 		}
 	}
 	
 	@Override
-	public boolean isSettingPWD(String telnum, String pwdsetting, String pwdconfirm) {
+	public boolean isSettingPWD(PwdSettingBodyDTO pwdSettingBody) throws RuntimeException{
+		String telnum = pwdSettingBody.getTelnum();
+		String pwdsetting = pwdSettingBody.getPassword();
+		String pwdconfirm = pwdSettingBody.getPwdconfirm();
 		List<User> userList = userRepository.findByCellPhone(telnum);
 		if (userList == null || userList.size() != 1) {//有可能多于1条的冗余数据
 			return false;
@@ -93,7 +105,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public boolean addBankCard(String arg[]) {
+	public boolean addBankCard(String arg[]) throws RuntimeException{
 		// 手机号telnum, bkcardnum, bkname, name
 		String telnum = arg[0];
 		// 用户名
@@ -123,7 +135,8 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public List<UserDTO> isRegisterredTel(String cellphone) {
+	public List<UserDTO> isRegisterredTel(RegistrationBodyDTO registrationBody) throws RuntimeException {
+		String cellphone = registrationBody.getTelnum();
 		String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
 		Pattern telPattern = Pattern.compile(telRegExp);
 		Matcher telMatcher = telPattern.matcher(cellphone);
@@ -145,7 +158,9 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public boolean isSmsVerified(String cellphone,String verfiedcode) {
+	public boolean isSmsVerified(UpdateRegistrationBodyDTO registrationBodyDTO) throws RuntimeException {
+		String cellphone = registrationBodyDTO.getTelnum();
+		String verfiedcode = registrationBodyDTO.getIdentifyingcode();
 		List<Object[]> reslst=smsVerificationRepositoryCustom.getSmsVerification(cellphone, verfiedcode);
 		if (reslst.size()>0)
 			return true;
@@ -155,9 +170,9 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public boolean sendSmsMessage(String telnum) {
+	public boolean sendSmsMessage(String telnum) throws RuntimeException {
 		
-		VerificationBody vcodebody=alisms.sendVerificationSms(telnum);
+		VerificationBodyDTO vcodebody=alisms.sendVerificationSms(telnum);
 		if (vcodebody==null)
 			return false;
 		
@@ -170,13 +185,15 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public boolean doSmsVerification(VerificationBody vbody) {
+	public boolean doSmsVerification(VerificationBodyDTO vbody) throws RuntimeException {
 	  	return redisService.doSmsVerification(vbody);
 	}
 
 	@Override
-	public UserDTO doLogout(String cellphone, String verfiedcode) {
-		redisService.doLogout(cellphone, verfiedcode);
+	public UserDTO doLogout(LoginBodyDTO loginBody) {
+		String cellphone = loginBody.getTelnum();
+		String password = loginBody.getPassword();
+		redisService.doLogout(cellphone, password);
 		return null;
 	}
 }

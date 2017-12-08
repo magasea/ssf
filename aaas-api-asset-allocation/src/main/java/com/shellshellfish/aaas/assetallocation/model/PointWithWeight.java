@@ -1,13 +1,15 @@
 package com.shellshellfish.aaas.assetallocation.model;
 
+import java.util.List;
+
 public class PointWithWeight {
 	private Integer id;
 	private Double x;
 	private Double y;
-	private Double w;
+	private List<Double> w;
 	
 		
-	public PointWithWeight(Integer id, Double x, Double y, Double w) {
+	public PointWithWeight(Integer id, Double x, Double y, List<Double> w) {
 		super();
 		this.id = id;
 		this.x = x;
@@ -32,10 +34,10 @@ public class PointWithWeight {
 	public void setY(Double y) {
 		this.y = y;
 	}
-	public Double getW() {
+	public List<Double> getW() {
 		return w;
 	}
-	public void setW(Double w) {
+	public void setW(List<Double> w) {
 		this.w = w;
 	}
 	
