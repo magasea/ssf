@@ -43,7 +43,7 @@
         where a.code = b.fund_id and fund_group_id = #{id} and risk_income_interval_id = #{subId}) a GROUP BY a.fund_income_type
     </select>
 
-    <select id="efficientFrontier" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupDetails">
+    <select id="efficientFrontier" resultType= "com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupDetails">
         select fund_id from fund_group_details where fund_group_id = #{uuid} and risk_income_interval_id = #{subGroupId}
     </select>
 
@@ -69,7 +69,7 @@
 
     <select id="getPerformanceVolatility" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.RiskIncomeInterval">
         select * from risk_income_interval b,straegy a
-        where a.fund_group_id=b.fund_group_id and a.fund_group_id = #{id} and a.cust_risk = #{cust_risk}
+        where a.fund_group_id=b.fund_group_id and a.cust_risk = #{cust_risk}
         and a.investment_horizon = #{investment_horizon} ORDER BY b.simulate_historical_year_performance
     </select>
 
