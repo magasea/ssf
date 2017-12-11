@@ -16,8 +16,7 @@ public class TrdOrder implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@SequenceGenerator(name="TRD_ORDER_ID_GENERATOR" )
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="TRD_ORDER_ID_GENERATOR")
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 
 	@Column(name="bank_card_num")

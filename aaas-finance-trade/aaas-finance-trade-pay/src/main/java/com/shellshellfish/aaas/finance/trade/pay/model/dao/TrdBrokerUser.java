@@ -2,7 +2,7 @@ package com.shellshellfish.aaas.finance.trade.pay.model.dao;
 
 import java.io.Serializable;
 import javax.persistence.*;
-import java.math.BigInteger;
+
 
 
 /**
@@ -18,13 +18,13 @@ public class TrdBrokerUser implements Serializable {
 	@Id
 	@SequenceGenerator(name="TRD_BROKER_USER_ID_GENERATOR" )
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="TRD_BROKER_USER_ID_GENERATOR")
-	private String id;
+	private Long id;
 
 	@Column(name="create_by")
-	private BigInteger createBy;
+	private Long createBy;
 
 	@Column(name="create_date")
-	private BigInteger createDate;
+	private Long createDate;
 
 	private int priority;
 
@@ -35,38 +35,38 @@ public class TrdBrokerUser implements Serializable {
 	private int tradeBrokerId;
 
 	@Column(name="update_by")
-	private BigInteger updateBy;
+	private Long updateBy;
 
 	@Column(name="update_date")
-	private BigInteger updateDate;
+	private Long updateDate;
 
 	@Column(name="user_id")
-	private BigInteger userId;
+	private Long userId;
 
 	public TrdBrokerUser() {
 	}
 
-	public String getId() {
+	public Long getId() {
 		return this.id;
 	}
 
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public BigInteger getCreateBy() {
+	public Long getCreateBy() {
 		return this.createBy;
 	}
 
-	public void setCreateBy(BigInteger createBy) {
+	public void setCreateBy(Long createBy) {
 		this.createBy = createBy;
 	}
 
-	public BigInteger getCreateDate() {
+	public Long getCreateDate() {
 		return this.createDate;
 	}
 
-	public void setCreateDate(BigInteger createDate) {
+	public void setCreateDate(Long createDate) {
 		this.createDate = createDate;
 	}
 
@@ -94,27 +94,27 @@ public class TrdBrokerUser implements Serializable {
 		this.tradeBrokerId = tradeBrokerId;
 	}
 
-	public BigInteger getUpdateBy() {
+	public Long getUpdateBy() {
 		return this.updateBy;
 	}
 
-	public void setUpdateBy(BigInteger updateBy) {
+	public void setUpdateBy(Long updateBy) {
 		this.updateBy = updateBy;
 	}
 
-	public BigInteger getUpdateDate() {
+	public Long getUpdateDate() {
 		return this.updateDate;
 	}
 
-	public void setUpdateDate(BigInteger updateDate) {
+	public void setUpdateDate(Long updateDate) {
 		this.updateDate = updateDate;
 	}
 
-	public BigInteger getUserId() {
+	public Long getUserId() {
 		return this.userId;
 	}
 
-	public void setUserId(BigInteger userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 

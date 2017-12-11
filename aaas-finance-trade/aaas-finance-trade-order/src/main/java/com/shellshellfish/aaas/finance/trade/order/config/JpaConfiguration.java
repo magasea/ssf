@@ -29,8 +29,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @ComponentScan
-@EntityScan("com.shellshellfish.aaas.finance.trade.model")
-@EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.finance.trade.repositories")
+@EntityScan("com.shellshellfish.aaas.finance.trade.model.dao")
+@EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.finance.trade.order.repositories")
 @EnableTransactionManagement
 
 public class JpaConfiguration {
@@ -78,7 +78,7 @@ public class JpaConfiguration {
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() throws NamingException {
 		LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
 		factoryBean.setDataSource(dataSource());
-		factoryBean.setPackagesToScan(new String[] { "com.shellshellfish.aaas.userinfo" });
+		factoryBean.setPackagesToScan(new String[] { "com.shellshellfish.aaas.finance.trade.order" });
 		factoryBean.setJpaVendorAdapter(jpaVendorAdapter());
 		factoryBean.setJpaProperties(jpaProperties());
 

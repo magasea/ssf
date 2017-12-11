@@ -12,4 +12,9 @@ public interface PayService {
    */
   TrdPayFlow payOrder(TrdOrderPay trdOrderPay);
 
+  /**
+   * 根据支付情况发出消息，将支付信息广播
+   */
+  TrdPayFlow notifyPay(TrdPayFlow trdPayFlow);
+
 }

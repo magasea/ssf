@@ -15,8 +15,8 @@ public class TrdTradeBank implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@SequenceGenerator(name="TRD_TRADE_BANK_ID_GENERATOR" )
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="TRD_TRADE_BANK_ID_GENERATOR")
+
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 
 	@Column(name="bank_id")

@@ -16,8 +16,7 @@ public class TrdOrderDetail implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@SequenceGenerator(name="TRD_ORDER_DETAIL_ID_GENERATOR" )
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="TRD_ORDER_DETAIL_ID_GENERATOR")
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 
 	@Column(name="bought_date")

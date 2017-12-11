@@ -7,26 +7,25 @@ import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowReposito
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class BroadcastMessageConsumers {
-    private static final Logger logger = LoggerFactory.getLogger(BroadcastMessageConsumers.class);
-
+public class BroadcastMessageProducers {
+    private static final Logger logger = LoggerFactory.getLogger(BroadcastMessageProducers.class);
     @Autowired
-    PayService payService;
-
-    @Autowired
-    TrdPayFlowRepository trdPayFlowRepository;
+    RabbitTemplate rabbitTemplate;
 
 
+    @Value("${spring.rabbitmq.topicQueueName}")
+    String topicQueueName;
 
-    public void receiveMessage(TrdOrderPay trdOrderPay) {
-        logger.info("Received fanout 1 message: " + trdOrderPay);
-        TrdPayFlow trdPayFlow = payService.payOrder(trdOrderPay);
-        TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
-        payService.notifyPay(trdPayFlowResult);
+    public void sendMessage(TrdPayFlow trdPayFlow) {
+        logger.info("send message: " + trdPayFlow.getOrderId());
+        rabbitTemplate.convertAndSend(topicQueueName, "", trdPayFlow);
+
     }
 
 }

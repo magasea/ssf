@@ -1,44 +1,38 @@
-package com.shellshellfish.aaas.finance.trade.pay.model.dao;
+package com.shellshellfish.aaas.common.message.order;
 
 import java.io.Serializable;
-import javax.persistence.*;
-
 
 
 /**
  * The persistent class for the trd_pay_flow database table.
  * 
  */
-@Entity
-@Table(name="trd_pay_flow")
-@NamedQuery(name="TrdPayFlow.findAll", query="SELECT t FROM TrdPayFlow t")
+
 public class TrdPayFlow implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	@Id
-	@SequenceGenerator(name="TRD_PAY_FLOW_ID_GENERATOR" )
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="TRD_PAY_FLOW_ID_GENERATOR")
+
 	private Long id;
 
-	@Column(name="apply_serial")
+	
 	private String applySerial;
 
-	@Column(name="apply_sum")
+	
 	private Long applySum;
 
-	@Column(name="bank_card_num")
+	
 	private String bankCardNum;
 
-	@Column(name="create_by")
+	
 	private Long createBy;
 
-	@Column(name="create_date")
+	
 	private Long createDate;
 
-	@Column(name="order_id")
+	
 	private String orderId;
 
-	@Column(name="outside_orderno")
+	
 	private String outsideOrderno;
 
 	public String getFundCode() {
@@ -49,34 +43,34 @@ public class TrdPayFlow implements Serializable {
 		this.fundCode = fundCode;
 	}
 
-	@Column(name="fund_code")
+	
 	private String fundCode;
 
-	@Column(name="pay_date")
+	
 	private Long payDate;
 
-	@Column(name="pay_status")
+	
 	private int payStatus;
 
-	@Column(name="pay_type")
+	
 	private int payType;
 
-	@Column(name="prod_code")
+	
 	private String prodCode;
 
-	@Column(name="trade_acco")
+	
 	private String tradeAcco;
 
-	@Column(name="trade_broke_id")
+	
 	private String tradeBrokeId;
 
-	@Column(name="update_by")
+	
 	private Long updateBy;
 
-	@Column(name="update_date")
+	
 	private Long updateDate;
 
-	@Column(name="user_id")
+	
 	private Long userId;
 
 	public TrdPayFlow() {

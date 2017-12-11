@@ -11,11 +11,20 @@ public class BroadcastMessageProducer {
 
     private final RabbitTemplate rabbitTemplate;
 
-    @Value("${spring.rabbitmq.topicQueueName}")
-    String topicQueueName;
+    @Value("${spring.rabbitmq.topicQueuePayName}")
+    String topicQueuePayName;
+
+    @Value("${spring.rabbitmq.topicQueueOrderName}")
+    String topicQueueOrderName;
 
     @Value("${spring.rabbitmq.topicExchangeName}")
     String topicExchangeName;
+
+    @Value("${spring.rabbitmq.topicPay}")
+    String topicPay;
+
+    @Value("${spring.rabbitmq.topicOrder}")
+    String topicOrder;
 
     @Autowired
     public BroadcastMessageProducer(RabbitTemplate rabbitTemplate) {
@@ -23,6 +32,6 @@ public class BroadcastMessageProducer {
     }
 
     public void sendMessages(TrdOrderPay message) {
-        rabbitTemplate.convertAndSend(topicExchangeName, "order", message);
+        rabbitTemplate.convertAndSend(topicExchangeName, topicOrder, message);
     }
 }
