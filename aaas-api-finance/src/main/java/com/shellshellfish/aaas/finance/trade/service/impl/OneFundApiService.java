@@ -1,10 +1,11 @@
-package com.shellshellfish.aaas.finance.trade.service;
+package com.shellshellfish.aaas.finance.trade.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.finance.trade.model.*;
+import com.shellshellfish.aaas.finance.trade.service.FundTradeApiService;
 import org.apache.commons.codec.digest.UnixCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

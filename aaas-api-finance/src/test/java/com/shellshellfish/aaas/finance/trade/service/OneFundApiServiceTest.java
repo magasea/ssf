@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.finance.trade.model.*;
+import com.shellshellfish.aaas.finance.trade.service.impl.OneFundApiService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -155,7 +156,7 @@ public class OneFundApiServiceTest {
     }
 
     @Test
-    public void testFillTradeResult() throws JsonProcessingException {
+    public void testFillTradeRateResult() throws JsonProcessingException {
         String json = "{\n" +
                 "    \"status\": 1,\n" +
                 "    \"errno\": \"0000\",\n" +
