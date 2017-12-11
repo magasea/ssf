@@ -6,7 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import com.shellshellfish.aaas.account.body.VerificationBody;
+
+import com.shellshellfish.aaas.account.model.dto.VerificationBodyDTO;
 import com.shellshellfish.aaas.account.service.RedisService;
 import redis.clients.jedis.Jedis;
 
@@ -37,7 +38,7 @@ public class RedisServiceImpl implements RedisService {
 	}
 
 	@Override
-	public boolean saveVeribody(VerificationBody vbody){
+	public boolean saveVeribody(VerificationBodyDTO vbody){
 		if (initflag == false) {
 			connectServer();
 			initflag = true;
@@ -53,7 +54,7 @@ public class RedisServiceImpl implements RedisService {
 	}
 
 	@Override
-	public boolean doSmsVerification(VerificationBody vbody) {
+	public boolean doSmsVerification(VerificationBodyDTO vbody) {
 		if (initflag == false) {
 			connectServer();
 			initflag = true;

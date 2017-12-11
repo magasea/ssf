@@ -1,8 +1,13 @@
 package com.shellshellfish.aaas.assetallocation;
 
 
+
 import io.grpc.Server;
 import java.io.IOException;
+
+
+import org.mybatis.spring.annotation.MapperScan;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,9 +20,10 @@ import com.shellshellfish.aaas.assetallocation.configuration.Properties;
 
 
 @ComponentScan
-@SpringBootApplication(scanBasePackages={"com.shellshellfish.aaas.assetallocation"})
+@SpringBootApplication(scanBasePackages={"com.shellshellfish.aaas.assetallocation.repository.dummy"})
 @EnableAutoConfiguration(exclude={MongoAutoConfiguration.class})
 @EnableConfigurationProperties({ Properties.class })
+
 
 public class AssetAllocationApp {
 
@@ -35,5 +41,11 @@ public class AssetAllocationApp {
 		if (server != null) {
 			server.awaitTermination();
 		}
+
+@MapperScan("com.shellshellfish.aaas.assetallocation.neo.mapper")
+public class AssetAllocationApp {
+	public static void main(String[] args) {
+		SpringApplication.run(AssetAllocationApp.class, args);
+
 	}
 }

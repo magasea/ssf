@@ -10,7 +10,7 @@ import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
-import com.shellshellfish.aaas.account.body.VerificationBody;
+import com.shellshellfish.aaas.account.model.dto.VerificationBodyDTO;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -138,7 +138,7 @@ public class AliSms {
         return querySendDetailsResponse;
     }
 
-    public  VerificationBody sendVerificationSms(String phonenum) {
+    public  VerificationBodyDTO sendVerificationSms(String phonenum) {
     	SendSmsResponse response;
     	try {
     	     response = sendSms(phonenum);
@@ -153,7 +153,7 @@ public class AliSms {
     		outputDebugInfo(response);
     		//if (response.getCode().equals("OK")) {
     		
-    	VerificationBody vericodebody= new VerificationBody();
+    	VerificationBodyDTO vericodebody= new VerificationBodyDTO();
         vericodebody.setTelnum(phonenum);
         vericodebody.setIdentifyingcode(response.getBizId());//get vericode        	
     	return vericodebody;

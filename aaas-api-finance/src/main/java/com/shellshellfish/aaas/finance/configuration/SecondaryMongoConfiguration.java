@@ -1,18 +1,14 @@
 package com.shellshellfish.aaas.finance.configuration;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-
-import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 
 @Configuration																									
-@EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.finance.repository.dummy", mongoTemplateRef = "secondaryMongoTemplate")
+@EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.finance.repository.mongo2", mongoTemplateRef = "secondaryMongoTemplate")
 public class SecondaryMongoConfiguration {
 
 	// @Bean

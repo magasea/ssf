@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.shellshellfish.datamanager.model.DailyFunds;
 import com.shellshellfish.datamanager.model.FundCodes;
+import com.shellshellfish.datamanager.model.IndicatorPoint;
 
 
 public interface DataService {
@@ -17,4 +18,6 @@ public interface DataService {
     
     public List<FundCodes>  getAllFundCodes();
     public List<DailyFunds>  getDailyFunds(String[] codelist,String date);
+    
+    public List<IndicatorPoint>  getMaxfallPeriod(String code,long fromtime,long totime);
 }

@@ -1,8 +1,16 @@
 package com.shellshellfish.datamanager.controller;
 
 
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
+import java.util.SimpleTimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shellshellfish.datamanager.model.DailyFunds;
 import com.shellshellfish.datamanager.model.FundCodes;
+import com.shellshellfish.datamanager.model.IndicatorPoint;
 import com.shellshellfish.datamanager.service.DataService;
 import com.shellshellfish.datamanager.service.DataServiceImpl;
 
@@ -133,4 +142,46 @@ public class RestApiController {
 		return new ResponseEntity<List<DailyFunds>>(fundslst,HttpStatus.OK);
     }
 	
+	//最大回撤区间函数:(得到此区间内所有复权单位净值)
+	@RequestMapping(value = "/getMaxfallPeriod", method = RequestMethod.GET)
+	public ResponseEntity<List<IndicatorPoint>> getMaxFallPeriod(
+			@RequestParam(value = "code") String code,
+			@RequestParam(value = "fromdate") String fromdate,
+			@RequestParam(value = "todate") String todate){
+		
+		Date stdate=null;
+		Date enddate=null;
+		long sttime=0L;
+		long endtime=0L;
+		Timestamp ts;
+		try
+		{
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			stdate = sdf.parse(fromdate);
+			
+	        Calendar cal = Calendar.getInstance();
+	        cal.setTime(stdate);//date 换成已经已知的Date对象
+	        cal.add(Calendar.HOUR_OF_DAY, -8);// before 8 hour (GMT 8)
+	        Date e=cal.getTime();
+	        sttime=e.getTime()/1000;
+	        
+	        enddate= sdf.parse(todate);
+	        
+	        cal.setTime(enddate);
+	        cal.add(Calendar.HOUR_OF_DAY, -8);// before 8 hour (GMT 8)
+	        e=cal.getTime();
+	        endtime=e.getTime()/1000;
+	        
+			
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+			return new ResponseEntity<List<IndicatorPoint>>(new ArrayList<IndicatorPoint>(),HttpStatus.BAD_REQUEST);
+		}	
+		
+		List<IndicatorPoint> lst=dataService.getMaxfallPeriod(code, sttime, endtime);
+		return new ResponseEntity<List<IndicatorPoint>>(lst,HttpStatus.OK);
+	   
+	}
 }
