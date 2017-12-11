@@ -6,6 +6,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface TrdBrokderRepository extends PagingAndSortingRepository<TrdTradeBroker, Long> {
 
-  TrdTradeBroker findFirstByPriority();
-
+  @Override
+  TrdTradeBroker findOne(Long id);
 }

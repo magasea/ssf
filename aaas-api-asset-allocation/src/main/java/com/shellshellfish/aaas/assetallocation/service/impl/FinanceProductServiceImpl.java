@@ -1,8 +1,9 @@
 package com.shellshellfish.aaas.assetallocation.service.impl;
 
 import com.shellshellfish.aaas.assetallocation.service.FinanceProductService;
-import com.shellshellfish.aaas.common.modules.finance.product.ProductBaseInfo;
-import com.shellshellfish.aaas.common.modules.finance.product.ProductMakeUpInfo;
+
+import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
+import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoCollection;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoCollection.Builder;
