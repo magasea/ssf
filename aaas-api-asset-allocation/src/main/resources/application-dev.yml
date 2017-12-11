@@ -42,7 +42,9 @@ spring:
 server:
     port: 10024
     
-    
+grpc:
+  host: localhost
+  port: 10031
 application:
     swagger:
         title: SSF Platform API

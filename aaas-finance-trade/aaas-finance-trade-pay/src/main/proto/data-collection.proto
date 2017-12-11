@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.shellshellfish.aaas.datacollect";
+option java_outer_classname = "DataCollectProto";
+option objc_class_prefix = "DCP";
+
+service DataCollectionService {
+    rpc GetFundDataOfDay (DailyFundsQuery) returns (DailyFundsCollection) {
+    }
+}
+
+message DailyFundsQuery {
+  repeated string codes = 1;
+  string nav_latest_date = 2;
+}
+
+message DailyFundsCollection{
+  repeated DailyFunds dailyFunds = 1;
+}
+
+message DailyFunds {
+  string id = 1;
+  double nav_unit = 2;
+  float fund_scale = 3;
+  double nav_accum = 4;
+  float yield_of_7_days = 5;
+  double nav_adj = 6;
+  int64 nav_latest_date = 7;
+  string code = 8;
+  double million_revenue = 9;
+  float bm_index_chg_pct = 10;
+}

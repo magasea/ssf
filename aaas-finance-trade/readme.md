@@ -1,6 +1,5 @@
-#### 理财交易系统
- 对接各种支付交易接口
- 记录交易流水
- 用消息系统通知对应的模块做相应数据更新
-
- 
+### aaas-finance-trade
+ 1. 该模块有2个子系统
+  订单系统
+  支付系统
+ 2. 子系统之间用messagequeue来串通采用rabbitmq的 topic fanout queue便于日后扩展  

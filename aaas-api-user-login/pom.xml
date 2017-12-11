@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.5.7.RELEASE</version>
+		<version>1.5.8.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -28,6 +28,9 @@
 		<jxr-maven-plugin.version>2.3</jxr-maven-plugin.version>
 		<junit.version>4.12</junit.version>
 		<lombok.version>1.16.10</lombok.version>
+
+		<grpc.version>1.8.0</grpc.version><!-- CURRENT_GRPC_VERSION -->
+
 	</properties>
 
 	<dependencies>
@@ -52,12 +55,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
-		<!-- Provided -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-tomcat</artifactId>
-			<scope>provided</scope>
-		</dependency>
+
 		
 		<dependency>
                <groupId>javax.servlet</groupId>
@@ -77,7 +75,11 @@
 		     <artifactId>fastjson</artifactId>
 		     <version>1.2.31</version>
 		 </dependency>
-		  
+		<dependency>
+			<groupId>io.grpc</groupId>
+			<artifactId>grpc-core</artifactId>
+			<version>${grpc.version}</version>
+		</dependency>
 		<!-- add security for swigger static -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
