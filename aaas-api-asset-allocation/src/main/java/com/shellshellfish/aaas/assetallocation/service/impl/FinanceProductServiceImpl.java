@@ -4,10 +4,12 @@ import com.shellshellfish.aaas.assetallocation.service.FinanceProductService;
 
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
+
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoCollection;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoCollection.Builder;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoQuery;
+import com.shellshellfish.aaas.trade.finance.prod.FinanceProductServiceGrpc.FinanceProductServiceImplBase;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-import com.shellshellfish.aaas.trade.finance.prod.FinanceProductServiceGrpc
-    .FinanceProductServiceImplBase;
+
 
 public class FinanceProductServiceImpl  extends
     FinanceProductServiceImplBase implements FinanceProductService{

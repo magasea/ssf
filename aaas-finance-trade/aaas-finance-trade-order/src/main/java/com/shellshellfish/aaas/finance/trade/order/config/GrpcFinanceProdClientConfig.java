@@ -8,12 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @Configuration
 @EntityScan("com.shellshellfish.aaas.datacollection.server.model")
-@EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.datacollection.server"
-    + ".repositories")
 public class GrpcFinanceProdClientConfig extends GRpcServerBuilderConfigurer {
 
 
