@@ -140,7 +140,6 @@
 			<groupId>com.matlab</groupId>
 			<artifactId>matlab-javabuilder-ws</artifactId>
 			<version>0.0.1</version>
-
 		</dependency>
 	</dependencies>
 	

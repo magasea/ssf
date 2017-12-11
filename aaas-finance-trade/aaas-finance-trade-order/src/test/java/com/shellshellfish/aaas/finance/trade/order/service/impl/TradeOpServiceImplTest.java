@@ -55,7 +55,6 @@ public class TradeOpServiceImplTest {
     productBaseInfo.setProdId(1L);
     List<ProductMakeUpInfo> productMakeUpInfos =  financeProdInfoService.getFinanceProdMakeUpInfo
         (productBaseInfo);
-
     FinanceProdBuyInfo financeProdBuyInfo = new FinanceProdBuyInfo();
     financeProdBuyInfo.setBankAcc("62127649173401236041");
     financeProdBuyInfo.setGroupId(1L);
@@ -65,7 +64,6 @@ public class TradeOpServiceImplTest {
     financeProdBuyInfo.setUserId(11L);
     TrdOrder trdOrder = tradeOpService.buyFinanceProduct(financeProdBuyInfo);
     logger.info("trdOrder:" + trdOrder);
-
 
   }
 

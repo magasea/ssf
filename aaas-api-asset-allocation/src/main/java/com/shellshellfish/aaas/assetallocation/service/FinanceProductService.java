@@ -1,7 +1,8 @@
 package com.shellshellfish.aaas.assetallocation.service;
 
-import com.shellshellfish.aaas.common.modules.finance.product.ProductBaseInfo;
-import com.shellshellfish.aaas.common.modules.finance.product.ProductMakeUpInfo;
+
+import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
+import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import java.util.List;
 
 /**

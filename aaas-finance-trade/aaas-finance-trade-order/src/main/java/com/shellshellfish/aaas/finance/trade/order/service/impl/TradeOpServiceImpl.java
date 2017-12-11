@@ -62,7 +62,7 @@ public class TradeOpServiceImpl implements TradeOpService {
   TrdOrder genOrderFromBuyInfoAndProdMakeUpInfo(FinanceProdBuyInfo financeProdBuyInfo,
       List<ProductMakeUpInfo> productMakeUpInfos){
     //generate order
-    TrdTradeBroker trdTradeBroker = trdBrokderRepository.findFirstByPriority();
+    TrdTradeBroker trdTradeBroker = trdBrokderRepository.findOne(1L);
     String orderId = TradeUtil.generateOrderId(Integer.getInteger(financeProdBuyInfo.getBankAcc()
             .substring(0,6)),trdTradeBroker.getTradeBrokerId());
     TrdOrder trdOrder = new TrdOrder();

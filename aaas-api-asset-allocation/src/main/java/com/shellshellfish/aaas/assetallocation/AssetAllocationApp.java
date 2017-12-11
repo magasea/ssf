@@ -23,7 +23,7 @@ import com.shellshellfish.aaas.assetallocation.configuration.Properties;
 @SpringBootApplication(scanBasePackages={"com.shellshellfish.aaas.assetallocation.repository.dummy"})
 @EnableAutoConfiguration(exclude={MongoAutoConfiguration.class})
 @EnableConfigurationProperties({ Properties.class })
-
+@MapperScan("com.shellshellfish.aaas.assetallocation.neo.mapper")
 
 public class AssetAllocationApp {
 
@@ -42,10 +42,6 @@ public class AssetAllocationApp {
 			server.awaitTermination();
 		}
 
-@MapperScan("com.shellshellfish.aaas.assetallocation.neo.mapper")
-public class AssetAllocationApp {
-	public static void main(String[] args) {
-		SpringApplication.run(AssetAllocationApp.class, args);
-
 	}
 }
+

@@ -81,9 +81,6 @@ public class JpaConfiguration {
 		factoryBean.setPackagesToScan(new String[] { "com.shellshellfish.aaas.finance.trade.order" });
 		factoryBean.setJpaVendorAdapter(jpaVendorAdapter());
 		factoryBean.setJpaProperties(jpaProperties());
-
-
-
 		return factoryBean;
 	}
 
