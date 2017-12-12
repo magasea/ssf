@@ -49,7 +49,7 @@ public class FundGroupService {
                         assetsRatios.put(inter.getFund_income_type(), inter.getProportion());
                     }
                     _items.put("groupId", interval.getFund_group_id());
-                    _items.put("subGroupId", interval.getRisk_income_interval_id());
+                    _items.put("subGroupId", interval.getFund_group_sub_id());
                     _items.put("name", interval.getFund_group_name());
                 }
                 _items.put("minAnnualizedReturn", interval.getIncome_min_num());
