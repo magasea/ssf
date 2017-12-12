@@ -4,9 +4,10 @@ import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
+import com.shellshellfish.aaas.finance.trade.pay.config.AutoWiringSpringBeanJobFactory;
 import java.io.IOException;
 import javax.annotation.PostConstruct;
-import org.baeldung.springquartz.config.AutoWiringSpringBeanJobFactory;
+
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;

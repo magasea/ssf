@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.pay.scheduler;
 
-import org.baeldung.springquartz.basics.service.SampleJobService;
+
+import com.shellshellfish.aaas.finance.trade.pay.service.impl.SampleJobService;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;

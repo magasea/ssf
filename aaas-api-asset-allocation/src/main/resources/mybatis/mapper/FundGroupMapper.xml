@@ -97,7 +97,5 @@
     <select id="getFundGroupBuy" parameterType="java.lang.String" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupBuy">
         select * from fundgroupbuydetail c where c.fund_group_buy_id = #{id}
     </select>
-    <select id="getFundGroupBuy" parameterType="java.lang.String" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupHistory">
-        select * from fundgroupbuydetail c where c.fund_group_buy_id = #{id}
-    </select>
+
 </mapper>
