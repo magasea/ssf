@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Created by wangyinuo on 2017/11/30.
  */
-public class RevenueContributionReturn {
+public class ReturnType {
 
     private int _total;
     private List<Map<String,Object>> _items;

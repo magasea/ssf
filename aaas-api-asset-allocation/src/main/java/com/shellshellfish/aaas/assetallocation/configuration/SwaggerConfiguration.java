@@ -51,9 +51,9 @@ public class SwaggerConfiguration {
             .genericModelSubstitutes(ResponseEntity.class)
             .ignoredParameterTypes(Pageable.class)
             .ignoredParameterTypes(java.sql.Date.class)
-            .directModelSubstitute(java.time.LocalDate.class, java.sql.Date.class)
+            /*.directModelSubstitute(java.time.LocalDate.class, java.sql.Date.class)
             .directModelSubstitute(java.time.ZonedDateTime.class, Date.class)
-            .directModelSubstitute(java.time.LocalDateTime.class, Date.class)
+            .directModelSubstitute(java.time.LocalDateTime.class, Date.class)*/
             .select()
             .paths(regex(DEFAULT_INCLUDE_PATTERN))
             .build();

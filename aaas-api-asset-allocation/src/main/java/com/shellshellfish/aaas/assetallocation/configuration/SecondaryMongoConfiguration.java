@@ -27,17 +27,17 @@ public class SecondaryMongoConfiguration {
 	// mongoProperties.getDatabase());
 	// }
 
-	@Value("${spring.data.mongodb.host}")
-	private String host;
-
-	@Value("${spring.data.mongodb.port}")
-	private int port;
-
-	@Value("${spring.data.mongodb.database}")
-	private String database;
+//	@Value("${spring.data.mongodb.host}")
+//	private String host;
+//
+//	@Value("${spring.data.mongodb.port}")
+//	private int port;
+//
+//	@Value("${spring.data.mongodb.database}")
+//	private String database;
 
 	@Bean(name = "secondaryMongoTemplate")
 	public MongoTemplate mongoTemplate() throws Exception {
-		return new MongoTemplate(new MongoClient(host, port), "test1");
+		return new MongoTemplate(new MongoClient("192.168.1.10", 27017), "test1");
 	}
 }

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shellshellfish.aaas.assetallocation.neo.mapper.JobTimeRecordMapper">
+
+    <!--Job 记录 -->
+    <resultMap id="JobTimeRecordMap" type="com.shellshellfish.aaas.assetallocation.neo.job.entity.JobTimeRecord">
+        <result property="id" column="id" />
+        <result property="jobName" column="job_name" />
+        <result property="triggerName" column="trigger_name" />
+        <result property="triggerTime" column="trigger_time" />
+        <result property="createTime" column="created_time"  />
+        <result property="updateTime" column="update_time"/>
+
+    </resultMap>
+
+    <select id="getJobTimeRecord"  resultMap="JobTimeRecordMap">
+
+		SELECT
+		*
+		FROM job_time_record
+		where trigger_name =#{triggerName}
+
+    </select>
+
+    <insert id="insertJobTimeRecord" parameterType="com.shellshellfish.aaas.assetallocation.neo.job.entity.JobTimeRecord" >
+        INSERT INTO
+        job_time_record
+        (job_name,trigger_name,trigger_time,created_time,update_time)
+        VALUES
+        (#{jobName},#{triggerName},#{triggerTime},#{createTime},#{updateTime})
+    </insert>
+
+    <update id="updateJobTimeRecord" parameterType="com.shellshellfish.aaas.assetallocation.neo.job.entity.JobTimeRecord" >
+        UPDATE
+        job_time_record
+        SET trigger_time=#{triggerTime},
+            update_time=#{updateTime}
+        WHERE trigger_name=#{triggerName}
+    </update>
+</mapper>
