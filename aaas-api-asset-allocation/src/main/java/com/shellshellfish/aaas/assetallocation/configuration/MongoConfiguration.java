@@ -28,25 +28,25 @@ public class MongoConfiguration {
 	// mongoProperties.getDatabase());
 	// }
 
-	@Value("${spring.data.mongodb.host}")
-	private String host;
-
-	@Value("${spring.data.mongodb.port}")
-	private int port;
-
-	@Value("${spring.data.mongodb.database}")
-	private String database;
+//	@Value("${spring.data.mongodb.host}")
+//	private String host;
+//
+//	@Value("${spring.data.mongodb.port}")
+//	private int port;
+//
+//	@Value("${spring.data.mongodb.database}")
+//	private String database;
 
 	@Bean
 	public Mongo mongo() throws Exception {
 		// return new MongoClient(mongoProperties.getHost(), mongoProperties.getPort());
-		return new MongoClient(host, port);
+		return new MongoClient("192.168.1.10", 27017);
 	}
 
 	@Bean
 	@Primary
 	@Qualifier("mongoTemplate")
 	public MongoTemplate mongoTemplate() throws Exception {
-		return new MongoTemplate(new MongoClient(host, port), database);
+		return new MongoTemplate(new MongoClient("192.168.1.10", 27017), "test");
 	}
 }

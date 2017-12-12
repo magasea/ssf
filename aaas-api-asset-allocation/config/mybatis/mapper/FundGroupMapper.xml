@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper">
+    <select id="selectFundGroup" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
+        SELECT
+        *
+        FROM straegy a,fund_group b,fund_basic_data d,fund_group_details c
+        where a.fund_group_id = b.id and b.id = c.fund_group_id and c.fund_id = d.code
+        <if test="risk != null">
+            and cust_risk = #{risk}
+        </if>
+        <if test="incomeyear != null">
+            and investment_horizon = #{incomeyear}
+        </if>
+    </select>
+
+    <insert id="insertRecommendHistory" parameterType="map">
+        INSERT into Recommend_History(cust_id,fund_group_id,recommend_add_time,recommend_last_mod_time) VALUE (#{custID},#{fundGroupID},#{time},#{time})
+    </insert>
+
+    <select id="selectAllFundGroup" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
+        select * from fund_group a,fund_group_details b,fund_basic_data c,straegy d
+        where a.id = b.fund_group_id and b.fund_id = c.code and a.id = d.fund_group_id
+    </select>
+
+    <select id="selectAllFundGroupNum" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
+        select fund_group_id,count(fund_group_id) total from fund_group_details GROUP BY fund_group_id
+    </select>
+
+    <select id="selectById" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
+        select * from risk_income_interval e,fund_group a,fund_group_details b,fund_basic_data c,straegy d
+        where a.id = b.fund_group_id and b.fund_id = c.code and a.id = d.fund_group_id and b.risk_income_interval_id = e.id
+        and a.id = #{id} and b.risk_income_interval_id = #{subGroupId}
+    </select>
+    <select id="getinterval" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
+        select * from risk_income_interval d,straegy a,fund_group b,fund_basic_data e,fund_group_details c
+        where a.fund_group_id = b.id and b.id = c.fund_group_id and c.fund_id = e.code and c.fund_group_id=d.fund_group_id and d.id=c.risk_income_interval_id
+        and d.risk_num=#{riskValue} and d.income_num=#{returnValue} and c.fund_group_id=#{id}
+    </select>
+
+    <select id="getProportion" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
+        select a.fund_income_type,a.fund_group_id,sum(proportion) proportion from (select * from fund_basic_data a,fund_group_details b
+        where a.code = b.fund_id and fund_group_id = #{id} and risk_income_interval_id = #{subId}) a GROUP BY a.fund_income_type
+    </select>
+
+    <select id="efficientFrontier" resultType= "com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupDetails">
+        select fund_id from fund_group_details where fund_group_id = #{uuid} and risk_income_interval_id = #{subGroupId}
+    </select>
+
+    <update id="updateStatus" parameterType="map">
+        update fund_group set status = #{status},group_last_mod_time=#{time} where id = #{id}
+    </update>
+
+    <insert id="insertFundGroup" parameterType="map" useGeneratedKeys="true" keyProperty="id">
+        insert into fund_group (FUND_GROUP_NAME,group_add_time,group_last_mod_time) VALUE (#{fund_group_name},#{group_add_time},#{group_add_time})
+    </insert>
+
+    <insert id="insertFundGroupDetail" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupDetailsList">
+        insert into fund_group_details (fund_id,fund_group_id,proportion,details_last_mod_time) VALUES
+        <foreach collection="list" item="userid" index="index"
+                 open="(" close=")" separator="),(">
+            #{userid.fund_id},#{userid.fund_group_id},#{userid.proportion},#{userid.details_last_mod_time}
+        </foreach>
+    </insert>
+
+    <select id="selectReturnAndPullback" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
+        select * from risk_income_interval where fund_group_id = #{id} and id=#{subGroupId}
+    </select>
+
+    <select id="getPerformanceVolatility" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.RiskIncomeInterval">
+        select * from risk_income_interval b,straegy a
+        where a.fund_group_id=b.fund_group_id and a.cust_risk = #{cust_risk}
+        and a.investment_horizon = #{investment_horizon} ORDER BY b.simulate_historical_year_performance
+    </select>
+
+    <select id="getRevenueContribution" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
+        select d.fund_income_type fund_income_type,sum(d.revenue_contribution) revenue_contribution from
+        (select a.revenue_contribution,c.fund_income_type from fund_group_details a,risk_income_interval b,fund_basic_data c
+        where a.fund_group_id = b.fund_group_id and a.fund_id = c.code and b.fund_group_id=#{id}
+        and b.id=#{subGroupId}) d
+        GROUP BY d.fund_income_type
+    </select>
+
+    <select id="getRiskController" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.RiskController">
+        select * from riskcontroller where fund_group_id = #{id} and risk_income_interval_id = #{subGroupId}
+    </select>
+    
+    <select id="getScaleMark" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.RiskIncomeInterval">
+        select risk_num,income_num from risk_income_interval where fund_group_id=#{id}
+    </select>
+
+    <select id="getFundNetValue" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
+        select navadj,navlatestdate navLatestDate from fund_net_value a
+        where a.code= #{id} and navlatestdate BETWEEN #{starttime} and #{endtime}
+        ORDER BY navlatestdate
+    </select>
+    <select id="getFundGroupBuy" parameterType="java.lang.String" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupBuy">
+        select * from fundgroupbuydetail c where c.fund_group_buy_id = #{id}
+    </select>
+</mapper>
