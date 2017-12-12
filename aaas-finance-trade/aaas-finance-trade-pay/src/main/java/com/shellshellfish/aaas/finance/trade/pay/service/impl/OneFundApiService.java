@@ -1,20 +1,18 @@
-package com.shellshellfish.aaas.finance.util;
+package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shellshellfish.aaas.finance.trade.model.ApplyResult;
-import com.shellshellfish.aaas.finance.trade.model.BuyFundResult;
-import com.shellshellfish.aaas.finance.trade.model.OpenAccountResult;
-import com.shellshellfish.aaas.finance.trade.model.SellFundResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.*;
+import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import org.apache.commons.codec.digest.UnixCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,20 +21,21 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-@Component
-public class OneFundApi {
+@Service
+public class OneFundApiService implements FundTradeApiService {
 
-    private static final Logger logger = LoggerFactory.getLogger(OneFundApi.class);
+    private static final Logger logger = LoggerFactory.getLogger(OneFundApiService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public OneFundApi() {
+    public OneFundApiService() {
         restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(Charset.forName("UTF-8")));
     }
 
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    @Override
     public OpenAccountResult openAccount(String name, String phone, String identityNo, String bankNo, String bankId) throws Exception {
         Map<String, Object> info = init();
 //        info.put("name", "张飞");
@@ -70,6 +69,7 @@ public class OneFundApi {
         return openAccountResult;
     }
 
+    @Override
     public BuyFundResult buyFund(String tradeAcco, Double applySum, String outsideOrderNo, String fundCode) throws Exception {
         Map<String, Object> info = init();
 
@@ -99,6 +99,7 @@ public class OneFundApi {
         return buyFundResult;
     }
 
+    @Override
     public SellFundResult sellFund(Integer sellNum, String outsideOrderNo, String tradeAcco, String fundCode) throws Exception {
         Map<String, Object> info = init();
 
@@ -128,6 +129,33 @@ public class OneFundApi {
         return sellFundResult;
     }
 
+    @Override
+    public CancelTradeResult cancelTrade(String applySerial) throws Exception {
+        Map<String, Object> info = init();
+
+        info.put("applyserial", applySerial);
+
+        postInit(info);
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/cancel_trade";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        CancelTradeResult cancelTradeResult = null;
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        Integer status = jsonObject.getInteger("status");
+        if (status.equals(1)) {
+            cancelTradeResult = jsonObject.getObject("data", CancelTradeResult.class);
+        } else {
+            String errno = jsonObject.getString("errno");
+            String msg = jsonObject.getString("msg");
+            throw new Exception(errno + ":" + msg);
+        }
+
+        return cancelTradeResult;
+    }
+
+    @Override
     public ApplyResult getApplyResultByApplySerial(String applySerial) throws JsonProcessingException {
         Map<String, Object> info = init();
         info.put("applyserial", applySerial);
@@ -144,6 +172,7 @@ public class OneFundApi {
         return applyResult;
     }
 
+    @Override
     public ApplyResult getApplyResultByOutsideOrderNo(String outsideOrderNo) throws JsonProcessingException {
         Map<String, Object> info = init();
         info.put("outsideorderno", outsideOrderNo);
@@ -172,6 +201,7 @@ public class OneFundApi {
         return applyResult;
     }
 
+    @Override
     public String getAllApplyList() throws JsonProcessingException {
         Map<String, Object> info = init();
 
@@ -184,6 +214,7 @@ public class OneFundApi {
         return json;
     }
 
+    @Override
     public String getExamContent() throws JsonProcessingException {
         Map<String, Object> info = init();
 
@@ -196,6 +227,7 @@ public class OneFundApi {
         return json;
     }
 
+    @Override
     public String commitRisk() throws JsonProcessingException {
         Map<String, Object> info = init();
         info.put("risk_ability", 3);
@@ -208,6 +240,7 @@ public class OneFundApi {
         return json;
     }
 
+    @Override
     public String commitFakeAnswer() throws JsonProcessingException {
         Map<String, Object> info = init();
 
@@ -241,6 +274,7 @@ public class OneFundApi {
         return json;
     }
 
+    @Override
     public String getUserRiskList() throws JsonProcessingException {
         Map<String, Object> info = init();
 
@@ -253,6 +287,7 @@ public class OneFundApi {
         return json;
     }
 
+    @Override
     public String getFundInfo(String fundCode) throws Exception {
         Map<String, Object> info = init();
         if (!StringUtils.isEmpty(fundCode)) {
@@ -277,6 +312,7 @@ public class OneFundApi {
         return jsonObject.getJSONObject("data").toJSONString();
     }
 
+    @Override
     public List<String> getAllFundsInfo() throws Exception {
         String json = getFundInfo(null);
 
@@ -295,10 +331,11 @@ public class OneFundApi {
         return funds;
     }
 
-    public String getTradeRate(String fundCode, String buinflag) throws JsonProcessingException {
+    @Override
+    public String getTradeRate(String fundCode, String businFlag) throws JsonProcessingException {
         Map<String, Object> info = init();
         info.put("fundcode", fundCode);
-//        info.put("buinflag", buinflag);
+        info.put("buinflag", businFlag);
         postInit(info);
 
         String url = "https://onetest.51fa.la/v2/internet/fundapi/get_rate";
@@ -309,6 +346,61 @@ public class OneFundApi {
         return json;
     }
 
+    @Override
+    public List<TradeRateResult> getTradeRateAsList(String fundCode, String businFlag) throws JsonProcessingException {
+        String json = getTradeRate(fundCode, businFlag);
+
+        return fillTradeRateResults(json);
+    }
+
+    public List<TradeRateResult> fillTradeRateResults(String json) {
+        List<TradeRateResult> tradeRateResults = null;
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        Integer status = jsonObject.getInteger("status");
+        if (status.equals(1)) {
+            tradeRateResults = new ArrayList<>();
+            JSONArray jsonArray = jsonObject.getJSONArray("data");
+            for(int i = 0; i < jsonArray.size(); i++) {
+                TradeRateResult tradeRateResult = jsonArray.getObject(i, TradeRateResult.class);
+                tradeRateResults.add(tradeRateResult);
+            }
+        }
+
+        return tradeRateResults;
+    }
+
+    @Override
+    public List<TradeLimitResult> getTradeLimits(String fundCode, String businFlag) throws Exception {
+        Map<String, Object> info = init();
+        info.put("fundcode", fundCode);
+        info.put("buinflag", businFlag);
+        postInit(info);
+
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_trade_limit";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        return fillTradeLimitResults(json);
+    }
+
+    public List<TradeLimitResult> fillTradeLimitResults(String json) {
+        List<TradeLimitResult> tradeLimitResults = null;
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        Integer status = jsonObject.getInteger("status");
+        if (status.equals(1)) {
+            tradeLimitResults = new ArrayList<>();
+            JSONArray jsonArray = jsonObject.getJSONArray("data");
+            for(int i = 0; i < jsonArray.size(); i++) {
+                TradeLimitResult tradeLimitResult = jsonArray.getObject(i, TradeLimitResult.class);
+                tradeLimitResults.add(tradeLimitResult);
+            }
+        }
+
+        return tradeLimitResults;
+    }
+
+    @Override
     public void writeAllTradeRateToMongoDb() throws Exception {
         List<String> funds = getAllFundsInfo();
         for(String fund:funds) {
@@ -320,23 +412,25 @@ public class OneFundApi {
         }
     }
 
+    @Override
     public void writeFundToMongoDb(String json) {
         mongoTemplate.save(json, "fundInfo");
     }
 
+    @Override
     public void writeAllFundsToMongoDb(List<String> funds) {
         for (String fund: funds) {
             mongoTemplate.save(fund, "fundInfo");
         }
     }
 
-    public void postInit(Map<String, Object> info) {
+    private void postInit(Map<String, Object> info) {
         String sign = makeMsg(info);
         logger.info("sign: {}", sign);
         info.put("sign", sign);
     }
 
-    public Map<String, Object> init() throws JsonProcessingException {
+    private Map<String, Object> init() throws JsonProcessingException {
         Map<String, Object> info = new HashMap<>();
 
         String publicKey = "enVoZWNlc2hpMQ==";
@@ -359,7 +453,7 @@ public class OneFundApi {
         return info;
     }
 
-    public String makeMsg(Map<String, Object> param) {
+    private String makeMsg(Map<String, Object> param) {
         List<String> keys  = new ArrayList<>(param.keySet());
         Collections.sort(keys);
         String str = "";
@@ -373,7 +467,7 @@ public class OneFundApi {
         return sign;
     }
 
-    public static String md5(String text) {
+    private static String md5(String text) {
         try {
             MessageDigest digester = MessageDigest.getInstance("MD5");
             digester.update(text.getBytes());
@@ -392,7 +486,7 @@ public class OneFundApi {
 
     final protected static char[] hexArray = "0123456789abcdef".toCharArray();
 
-    public static String bytesToHex(byte[] bytes) {
+    private static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {
             int v = bytes[j] & 0xFF;

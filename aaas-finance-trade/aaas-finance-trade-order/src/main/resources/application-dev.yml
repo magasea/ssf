@@ -1,5 +1,5 @@
 server:
-  port: 10031
+  port: 10040
 logging:
   level:
     org.hibernate.SQL: DEBUG
@@ -44,3 +44,6 @@ grpc:
   finance_prod_client:
     host: localhost
     port: 10031
+  order_server:
+    host: localhost
+    port: 10041
