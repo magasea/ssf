@@ -19,7 +19,6 @@ spring:
     topicExchangeName: com.ssf.topic.exchange
     topicPay: shellshellfish.pay
     topicOrder: shellshellfish.order
-
     data:
         mongodb:
             host: 192.168.1.10
@@ -50,3 +49,15 @@ grpc:
   finance_prod_client:
     host: localhost
     port: 10030
+using:
+  spring:
+    schedulerFactory: true
+org:
+    quartz:
+        jobStore:
+            class: org.quartz.simpl.RAMJobStore
+            misfireThreshold: 60000
+        threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 2
+            threadsInheritContextClassLoaderOfInitializingThread: true

@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.finance.trade.pay.model.dao;
+package com.shellshellfish.aaas.model;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -11,12 +11,13 @@ import javax.persistence.Table;
  */
 
 @Entity
-@Table(name = "trd_trade_broker", schema = "ssftrdpay", catalog = "")
-public class TrdTradeBroker {
+@Table(name = "trd_broker_user", schema = "ssftrdpay", catalog = "")
+public class TrdBrokerUser {
 
   private long id;
-  private String tradeBrokerName;
   private int tradeBrokerId;
+  private long userId;
+  private String tradeAcco;
   private int priority;
   private long createBy;
   private long createDate;
@@ -34,16 +35,6 @@ public class TrdTradeBroker {
   }
 
   @Basic
-  @Column(name = "trade_broker_name")
-  public String getTradeBrokerName() {
-    return tradeBrokerName;
-  }
-
-  public void setTradeBrokerName(String tradeBrokerName) {
-    this.tradeBrokerName = tradeBrokerName;
-  }
-
-  @Basic
   @Column(name = "trade_broker_id")
   public int getTradeBrokerId() {
     return tradeBrokerId;
@@ -51,6 +42,26 @@ public class TrdTradeBroker {
 
   public void setTradeBrokerId(int tradeBrokerId) {
     this.tradeBrokerId = tradeBrokerId;
+  }
+
+  @Basic
+  @Column(name = "user_id")
+  public long getUserId() {
+    return userId;
+  }
+
+  public void setUserId(long userId) {
+    this.userId = userId;
+  }
+
+  @Basic
+  @Column(name = "trade_acco")
+  public String getTradeAcco() {
+    return tradeAcco;
+  }
+
+  public void setTradeAcco(String tradeAcco) {
+    this.tradeAcco = tradeAcco;
   }
 
   @Basic
@@ -112,12 +123,15 @@ public class TrdTradeBroker {
       return false;
     }
 
-    TrdTradeBroker that = (TrdTradeBroker) o;
+    TrdBrokerUser that = (TrdBrokerUser) o;
 
     if (id != that.id) {
       return false;
     }
     if (tradeBrokerId != that.tradeBrokerId) {
+      return false;
+    }
+    if (userId != that.userId) {
       return false;
     }
     if (priority != that.priority) {
@@ -135,8 +149,7 @@ public class TrdTradeBroker {
     if (updateDate != that.updateDate) {
       return false;
     }
-    if (tradeBrokerName != null ? !tradeBrokerName.equals(that.tradeBrokerName)
-        : that.tradeBrokerName != null) {
+    if (tradeAcco != null ? !tradeAcco.equals(that.tradeAcco) : that.tradeAcco != null) {
       return false;
     }
 
@@ -146,8 +159,9 @@ public class TrdTradeBroker {
   @Override
   public int hashCode() {
     int result = (int) (id ^ (id >>> 32));
-    result = 31 * result + (tradeBrokerName != null ? tradeBrokerName.hashCode() : 0);
     result = 31 * result + tradeBrokerId;
+    result = 31 * result + (int) (userId ^ (userId >>> 32));
+    result = 31 * result + (tradeAcco != null ? tradeAcco.hashCode() : 0);
     result = 31 * result + priority;
     result = 31 * result + (int) (createBy ^ (createBy >>> 32));
     result = 31 * result + (int) (createDate ^ (createDate >>> 32));

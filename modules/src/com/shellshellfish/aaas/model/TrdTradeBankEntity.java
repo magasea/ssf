@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.finance.trade.pay.model.dao;
+package com.shellshellfish.aaas.model;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -6,18 +6,13 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-/**
- * Created by chenwei on 十二月, 2017
- */
-
 @Entity
-@Table(name = "trd_trade_broker", schema = "ssftrdpay", catalog = "")
-public class TrdTradeBroker {
+@Table(name = "trd_trade_bank", schema = "ssftrdorder", catalog = "")
+public class TrdTradeBankEntity {
 
   private long id;
-  private String tradeBrokerName;
-  private int tradeBrokerId;
-  private int priority;
+  private String bankName;
+  private int bankId;
   private long createBy;
   private long createDate;
   private long updateBy;
@@ -34,33 +29,23 @@ public class TrdTradeBroker {
   }
 
   @Basic
-  @Column(name = "trade_broker_name")
-  public String getTradeBrokerName() {
-    return tradeBrokerName;
+  @Column(name = "bank_name")
+  public String getBankName() {
+    return bankName;
   }
 
-  public void setTradeBrokerName(String tradeBrokerName) {
-    this.tradeBrokerName = tradeBrokerName;
-  }
-
-  @Basic
-  @Column(name = "trade_broker_id")
-  public int getTradeBrokerId() {
-    return tradeBrokerId;
-  }
-
-  public void setTradeBrokerId(int tradeBrokerId) {
-    this.tradeBrokerId = tradeBrokerId;
+  public void setBankName(String bankName) {
+    this.bankName = bankName;
   }
 
   @Basic
-  @Column(name = "priority")
-  public int getPriority() {
-    return priority;
+  @Column(name = "bank_id")
+  public int getBankId() {
+    return bankId;
   }
 
-  public void setPriority(int priority) {
-    this.priority = priority;
+  public void setBankId(int bankId) {
+    this.bankId = bankId;
   }
 
   @Basic
@@ -112,15 +97,12 @@ public class TrdTradeBroker {
       return false;
     }
 
-    TrdTradeBroker that = (TrdTradeBroker) o;
+    TrdTradeBankEntity that = (TrdTradeBankEntity) o;
 
     if (id != that.id) {
       return false;
     }
-    if (tradeBrokerId != that.tradeBrokerId) {
-      return false;
-    }
-    if (priority != that.priority) {
+    if (bankId != that.bankId) {
       return false;
     }
     if (createBy != that.createBy) {
@@ -135,8 +117,7 @@ public class TrdTradeBroker {
     if (updateDate != that.updateDate) {
       return false;
     }
-    if (tradeBrokerName != null ? !tradeBrokerName.equals(that.tradeBrokerName)
-        : that.tradeBrokerName != null) {
+    if (bankName != null ? !bankName.equals(that.bankName) : that.bankName != null) {
       return false;
     }
 
@@ -146,9 +127,8 @@ public class TrdTradeBroker {
   @Override
   public int hashCode() {
     int result = (int) (id ^ (id >>> 32));
-    result = 31 * result + (tradeBrokerName != null ? tradeBrokerName.hashCode() : 0);
-    result = 31 * result + tradeBrokerId;
-    result = 31 * result + priority;
+    result = 31 * result + (bankName != null ? bankName.hashCode() : 0);
+    result = 31 * result + bankId;
     result = 31 * result + (int) (createBy ^ (createBy >>> 32));
     result = 31 * result + (int) (createDate ^ (createDate >>> 32));
     result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));

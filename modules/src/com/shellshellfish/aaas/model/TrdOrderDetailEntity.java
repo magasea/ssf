@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.finance.trade.order.model.dao;
+package com.shellshellfish.aaas.model;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -8,7 +8,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "trd_order_detail", schema = "ssftrdorder", catalog = "")
-public class TrdOrderDetail {
+public class TrdOrderDetailEntity {
 
   private long id;
   private String orderId;
@@ -240,7 +240,7 @@ public class TrdOrderDetail {
       return false;
     }
 
-    TrdOrderDetail that = (TrdOrderDetail) o;
+    TrdOrderDetailEntity that = (TrdOrderDetailEntity) o;
 
     if (id != that.id) {
       return false;

@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.finance.trade.order.model.dao;
+package com.shellshellfish.aaas.model;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -7,25 +7,20 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "trd_order_detail", schema = "ssftrdorder", catalog = "")
-public class TrdOrderDetail {
+@Table(name = "trd_order", schema = "ssftrdorder", catalog = "")
+public class TrdOrderEntity {
 
   private long id;
   private String orderId;
-  private String tradeApplySerial;
-  private long boughtDate;
-  private int tradeType;
+  private String bankCardNum;
+  private String prodCode;
+  private int orderStatus;
+  private long orderDate;
+  private int orderType;
   private long payAmount;
   private long payFee;
   private long userId;
   private long prodId;
-  private String fundCode;
-  private long fundQuantity;
-  private long fundNum;
-  private long fundNumConfirmed;
-  private long buyFee;
-  private long buyDiscount;
-  private int orderDetailStatus;
   private long createBy;
   private long createDate;
   private long updateBy;
@@ -52,33 +47,53 @@ public class TrdOrderDetail {
   }
 
   @Basic
-  @Column(name = "trade_apply_serial")
-  public String getTradeApplySerial() {
-    return tradeApplySerial;
+  @Column(name = "bank_card_num")
+  public String getBankCardNum() {
+    return bankCardNum;
   }
 
-  public void setTradeApplySerial(String tradeApplySerial) {
-    this.tradeApplySerial = tradeApplySerial;
-  }
-
-  @Basic
-  @Column(name = "bought_date")
-  public long getBoughtDate() {
-    return boughtDate;
-  }
-
-  public void setBoughtDate(long boughtDate) {
-    this.boughtDate = boughtDate;
+  public void setBankCardNum(String bankCardNum) {
+    this.bankCardNum = bankCardNum;
   }
 
   @Basic
-  @Column(name = "trade_type")
-  public int getTradeType() {
-    return tradeType;
+  @Column(name = "prod_code")
+  public String getProdCode() {
+    return prodCode;
   }
 
-  public void setTradeType(int tradeType) {
-    this.tradeType = tradeType;
+  public void setProdCode(String prodCode) {
+    this.prodCode = prodCode;
+  }
+
+  @Basic
+  @Column(name = "order_status")
+  public int getOrderStatus() {
+    return orderStatus;
+  }
+
+  public void setOrderStatus(int orderStatus) {
+    this.orderStatus = orderStatus;
+  }
+
+  @Basic
+  @Column(name = "order_date")
+  public long getOrderDate() {
+    return orderDate;
+  }
+
+  public void setOrderDate(long orderDate) {
+    this.orderDate = orderDate;
+  }
+
+  @Basic
+  @Column(name = "order_type")
+  public int getOrderType() {
+    return orderType;
+  }
+
+  public void setOrderType(int orderType) {
+    this.orderType = orderType;
   }
 
   @Basic
@@ -119,76 +134,6 @@ public class TrdOrderDetail {
 
   public void setProdId(long prodId) {
     this.prodId = prodId;
-  }
-
-  @Basic
-  @Column(name = "fund_code")
-  public String getFundCode() {
-    return fundCode;
-  }
-
-  public void setFundCode(String fundCode) {
-    this.fundCode = fundCode;
-  }
-
-  @Basic
-  @Column(name = "fund_quantity")
-  public long getFundQuantity() {
-    return fundQuantity;
-  }
-
-  public void setFundQuantity(long fundQuantity) {
-    this.fundQuantity = fundQuantity;
-  }
-
-  @Basic
-  @Column(name = "fund_num")
-  public long getFundNum() {
-    return fundNum;
-  }
-
-  public void setFundNum(long fundNum) {
-    this.fundNum = fundNum;
-  }
-
-  @Basic
-  @Column(name = "fund_num_confirmed")
-  public long getFundNumConfirmed() {
-    return fundNumConfirmed;
-  }
-
-  public void setFundNumConfirmed(long fundNumConfirmed) {
-    this.fundNumConfirmed = fundNumConfirmed;
-  }
-
-  @Basic
-  @Column(name = "buy_fee")
-  public long getBuyFee() {
-    return buyFee;
-  }
-
-  public void setBuyFee(long buyFee) {
-    this.buyFee = buyFee;
-  }
-
-  @Basic
-  @Column(name = "buy_discount")
-  public long getBuyDiscount() {
-    return buyDiscount;
-  }
-
-  public void setBuyDiscount(long buyDiscount) {
-    this.buyDiscount = buyDiscount;
-  }
-
-  @Basic
-  @Column(name = "order_detail_status")
-  public int getOrderDetailStatus() {
-    return orderDetailStatus;
-  }
-
-  public void setOrderDetailStatus(int orderDetailStatus) {
-    this.orderDetailStatus = orderDetailStatus;
   }
 
   @Basic
@@ -240,15 +185,18 @@ public class TrdOrderDetail {
       return false;
     }
 
-    TrdOrderDetail that = (TrdOrderDetail) o;
+    TrdOrderEntity that = (TrdOrderEntity) o;
 
     if (id != that.id) {
       return false;
     }
-    if (boughtDate != that.boughtDate) {
+    if (orderStatus != that.orderStatus) {
       return false;
     }
-    if (tradeType != that.tradeType) {
+    if (orderDate != that.orderDate) {
+      return false;
+    }
+    if (orderType != that.orderType) {
       return false;
     }
     if (payAmount != that.payAmount) {
@@ -261,24 +209,6 @@ public class TrdOrderDetail {
       return false;
     }
     if (prodId != that.prodId) {
-      return false;
-    }
-    if (fundQuantity != that.fundQuantity) {
-      return false;
-    }
-    if (fundNum != that.fundNum) {
-      return false;
-    }
-    if (fundNumConfirmed != that.fundNumConfirmed) {
-      return false;
-    }
-    if (buyFee != that.buyFee) {
-      return false;
-    }
-    if (buyDiscount != that.buyDiscount) {
-      return false;
-    }
-    if (orderDetailStatus != that.orderDetailStatus) {
       return false;
     }
     if (createBy != that.createBy) {
@@ -296,11 +226,10 @@ public class TrdOrderDetail {
     if (orderId != null ? !orderId.equals(that.orderId) : that.orderId != null) {
       return false;
     }
-    if (tradeApplySerial != null ? !tradeApplySerial.equals(that.tradeApplySerial)
-        : that.tradeApplySerial != null) {
+    if (bankCardNum != null ? !bankCardNum.equals(that.bankCardNum) : that.bankCardNum != null) {
       return false;
     }
-    if (fundCode != null ? !fundCode.equals(that.fundCode) : that.fundCode != null) {
+    if (prodCode != null ? !prodCode.equals(that.prodCode) : that.prodCode != null) {
       return false;
     }
 
@@ -311,20 +240,15 @@ public class TrdOrderDetail {
   public int hashCode() {
     int result = (int) (id ^ (id >>> 32));
     result = 31 * result + (orderId != null ? orderId.hashCode() : 0);
-    result = 31 * result + (tradeApplySerial != null ? tradeApplySerial.hashCode() : 0);
-    result = 31 * result + (int) (boughtDate ^ (boughtDate >>> 32));
-    result = 31 * result + tradeType;
+    result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
+    result = 31 * result + (prodCode != null ? prodCode.hashCode() : 0);
+    result = 31 * result + orderStatus;
+    result = 31 * result + (int) (orderDate ^ (orderDate >>> 32));
+    result = 31 * result + orderType;
     result = 31 * result + (int) (payAmount ^ (payAmount >>> 32));
     result = 31 * result + (int) (payFee ^ (payFee >>> 32));
     result = 31 * result + (int) (userId ^ (userId >>> 32));
     result = 31 * result + (int) (prodId ^ (prodId >>> 32));
-    result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
-    result = 31 * result + (int) (fundQuantity ^ (fundQuantity >>> 32));
-    result = 31 * result + (int) (fundNum ^ (fundNum >>> 32));
-    result = 31 * result + (int) (fundNumConfirmed ^ (fundNumConfirmed >>> 32));
-    result = 31 * result + (int) (buyFee ^ (buyFee >>> 32));
-    result = 31 * result + (int) (buyDiscount ^ (buyDiscount >>> 32));
-    result = 31 * result + orderDetailStatus;
     result = 31 * result + (int) (createBy ^ (createBy >>> 32));
     result = 31 * result + (int) (createDate ^ (createDate >>> 32));
     result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
