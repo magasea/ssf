@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,8 +68,8 @@ public class FundGroupController {
      */
     @ApiOperation("配置收益贡献")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/contributions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RevenueContributionReturn getRevenueContribution(@PathVariable("groupId") String uuid, @PathVariable("subGroupId") String subGroupId){
-        RevenueContributionReturn rcb = fundGroupService.getRevenueContribution(uuid,subGroupId);
+    public ReturnType getRevenueContribution(@PathVariable("groupId") String uuid, @PathVariable("subGroupId") String subGroupId){
+        ReturnType rcb = fundGroupService.getRevenueContribution(uuid,subGroupId);
         return rcb;
     }
 
@@ -78,8 +79,8 @@ public class FundGroupController {
      */
     @ApiOperation("有效前沿线")
     @RequestMapping(value = "/api/asset-allocation/products/{groupId}/sub-groups/{subGroupId}/effective-frontier-points", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RevenueContributionReturn efficientFrontier(@PathVariable("groupId") String id,@PathVariable("subGroupId") String subGroupId){
-        RevenueContributionReturn aReturn = fundGroupService.efficientFrontier(id,subGroupId);
+    public ReturnType efficientFrontier(@PathVariable("groupId") String id, @PathVariable("subGroupId") String subGroupId){
+        ReturnType aReturn = fundGroupService.efficientFrontier(id,subGroupId);
         return aReturn;
     }
 
@@ -104,8 +105,8 @@ public class FundGroupController {
      */
     @ApiOperation("风险控制")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/risk-controls", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RevenueContributionReturn getRiskController(@PathVariable("groupId") String id, @PathVariable("subGroupId") String subGroupId){
-        RevenueContributionReturn rct = fundGroupService.getRiskController(id,subGroupId);
+    public ReturnType getRiskController(@PathVariable("groupId") String id, @PathVariable("subGroupId") String subGroupId){
+        ReturnType rct = fundGroupService.getRiskController(id,subGroupId);
         return rct;
     }
 
@@ -116,22 +117,21 @@ public class FundGroupController {
      */
     @ApiOperation("风险控制手段与通知")
     @RequestMapping(value = "/api/asset-allocation/products/{uuid}/risk-notifications", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RevenueContributionReturn getmeansAndNoticesRetrun(@PathVariable("uuid") String uuid){
-        RevenueContributionReturn man = fundGroupService.getmeansAndNoticesRetrun();
+    public ReturnType getmeansAndNoticesRetrun(@PathVariable("uuid") String uuid){
+        ReturnType man = fundGroupService.getmeansAndNoticesRetrun();
         return man;
     }
 
     /**
      * 模拟历史年化业绩与模拟历史年化波动率
-     * @param uuid
      * @param riskLevel
      * @param investmentPeriod
      * @return
      */
     @ApiOperation("模拟历史年化业绩与模拟历史年化波动率")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public PerformanceVolatilityReturn getPerformanceVolatility(@PathVariable("groupId") String uuid,@RequestParam(defaultValue="1") String riskLevel,@RequestParam(defaultValue="1") String investmentPeriod) {
-        PerformanceVolatilityReturn riskIncomeIntervals= fundGroupService.getPerformanceVolatility(uuid,riskLevel,investmentPeriod);
+    public PerformanceVolatilityReturn getPerformanceVolatility(@RequestParam(defaultValue="1") String riskLevel,@RequestParam(defaultValue="1") String investmentPeriod) {
+        PerformanceVolatilityReturn riskIncomeIntervals= fundGroupService.getPerformanceVolatility(riskLevel,investmentPeriod);
         return riskIncomeIntervals;
     }
 
@@ -143,9 +143,56 @@ public class FundGroupController {
      */
     @ApiOperation("滑动条分段数据")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/slidebar-points", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RevenueContributionReturn getScaleMark(@PathVariable("groupId") String id, String slidebarType){
-        RevenueContributionReturn smk = fundGroupService.getScaleMark(id,slidebarType);
+    public ReturnType getScaleMark(@PathVariable("groupId") String id, String slidebarType){
+        ReturnType smk = fundGroupService.getScaleMark(id,slidebarType);
         return smk;
     }
 
+    /**
+     * 组合收益率走势图
+     *
+     * @param id
+     * @param subGroupId
+     * @param mouth      几个月以来每天
+     * @return
+     * @throws ParseException
+     */
+    @ApiOperation("组合收益率走势图-每天")
+    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ReturnType getFundGroupIncome(@PathVariable("groupId") String id,@PathVariable("subGroupId") String subGroupId,@RequestParam(defaultValue="-1") int mouth) throws ParseException {
+        ReturnType smk = fundGroupService.getFundGroupIncome(id,subGroupId,mouth);
+        return smk;
+    }
+
+    /**
+     * 组合收益率走势图
+     *
+     * @param id
+     * @param subGroupId
+     * @param mouth      几个月以来每月
+     * @return
+     * @throws ParseException
+     */
+    @ApiOperation("组合收益率走势图-每月")
+    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield-mounth", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ReturnType getFundGroupIncomeMounth(@PathVariable("groupId") String id,@PathVariable("subGroupId") String subGroupId,@RequestParam(defaultValue="-12") int mouth) throws ParseException {
+        ReturnType smk = fundGroupService.getFundGroupIncomeMounth(id,subGroupId,mouth);
+        return smk;
+    }
+
+    /**
+     * 组合内各基金收益率走势图
+     *
+     * @param id
+     * @param subGroupId
+     * @param mouth      几个月以来
+     * @return
+     * @throws ParseException
+     */
+    @ApiOperation("组合内各基金收益率走势图")
+    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/single-yield", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ReturnType getFundIncome(@PathVariable("groupId") String id,@PathVariable("subGroupId") String subGroupId,@RequestParam(defaultValue="-1") int mouth) throws ParseException {
+        ReturnType smk = fundGroupService.getFundIncome(id,subGroupId,mouth);
+        return smk;
+    }
 }
