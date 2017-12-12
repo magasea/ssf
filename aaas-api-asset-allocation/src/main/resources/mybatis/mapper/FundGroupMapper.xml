@@ -5,7 +5,7 @@
         SELECT
         *
         FROM straegy a,fund_group b,fund_basic_data d,fund_group_details c
-        where a.fund_group_id = b.id and b.id = c.fund_group_id and c.fund_id = d.code
+        where a.fund_group_id = b.id and b.id = c.fund_group_id and c.fund_code = d.code
         <if test="risk != null">
             and cust_risk = #{risk}
         </if>
@@ -20,7 +20,7 @@
 
     <select id="selectAllFundGroup" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
         select * from fund_group a,fund_group_details b,fund_basic_data c,straegy d
-        where a.id = b.fund_group_id and b.fund_id = c.code and a.id = d.fund_group_id
+        where a.id = b.fund_group_id and b.fund_code = c.code and a.id = d.fund_group_id
     </select>
 
     <select id="selectAllFundGroupNum" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
@@ -29,22 +29,22 @@
 
     <select id="selectById" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
         select * from fund_group_sub e,fund_group a,fund_group_details b,fund_basic_data c,straegy d
-        where a.id = b.fund_group_id and b.fund_id = c.code and a.id = d.fund_group_id and b.fund_group_sub_id = e.id
+        where a.id = b.fund_group_id and b.fund_code = c.code and a.id = d.fund_group_id and b.fund_group_sub_id = e.id
         and a.id = #{id} and b.fund_group_sub_id = #{subGroupId}
     </select>
     <select id="getinterval" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
         select * from fund_group_sub d,straegy a,fund_group b,fund_basic_data e,fund_group_details c
-        where a.fund_group_id = b.id and b.id = c.fund_group_id and c.fund_id = e.code and c.fund_group_id=d.fund_group_id and d.id=c.fund_group_sub_id
+        where a.fund_group_id = b.id and b.id = c.fund_group_id and c.fund_code = e.code and c.fund_group_id=d.fund_group_id and d.id=c.fund_group_sub_id
         and d.risk_num=#{riskValue} and d.income_num=#{returnValue} and c.fund_group_id=#{id}
     </select>
 
     <select id="getProportion" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
         select a.fund_income_type,a.fund_group_id,sum(proportion) proportion from (select * from fund_basic_data a,fund_group_details b
-        where a.code = b.fund_id and fund_group_id = #{id} and fund_group_sub_id = #{subId}) a GROUP BY a.fund_income_type
+        where a.code = b.fund_code and fund_group_id = #{id} and fund_group_sub_id = #{subId}) a GROUP BY a.fund_income_type
     </select>
 
     <select id="efficientFrontier" resultType= "com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupDetails">
-        select fund_id from fund_group_details where fund_group_id = #{uuid} and fund_group_sub_id = #{subGroupId}
+        select fund_code from fund_group_details where fund_group_id = #{uuid} and fund_group_sub_id = #{subGroupId}
     </select>
 
     <update id="updateStatus" parameterType="map">
@@ -56,7 +56,7 @@
     </insert>
 
     <insert id="insertFundGroupDetail" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupDetailsList">
-        insert into fund_group_details (fund_id,fund_group_id,proportion,details_last_mod_time) VALUES
+        insert into fund_group_details (fund_code,fund_group_id,proportion,details_last_mod_time) VALUES
         <foreach collection="list" item="userid" index="index"
                  open="(" close=")" separator="),(">
             #{userid.fund_id},#{userid.fund_group_id},#{userid.proportion},#{userid.details_last_mod_time}
@@ -76,7 +76,7 @@
     <select id="getRevenueContribution" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
         select d.fund_income_type fund_income_type,sum(d.revenue_contribution) revenue_contribution from
         (select a.revenue_contribution,c.fund_income_type from fund_group_details a,fund_group_sub b,fund_basic_data c
-        where a.fund_group_id = b.fund_group_id and a.fund_id = c.code and b.fund_group_id=#{id}
+        where a.fund_group_id = b.fund_group_id and a.fund_code = c.code and b.fund_group_id=#{id}
         and b.id=#{subGroupId}) d
         GROUP BY d.fund_income_type
     </select>
@@ -95,6 +95,9 @@
         ORDER BY navlatestdate
     </select>
     <select id="getFundGroupBuy" parameterType="java.lang.String" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupBuy">
+        select * from fundgroupbuydetail c where c.fund_group_buy_id = #{id}
+    </select>
+    <select id="getFundGroupBuy" parameterType="java.lang.String" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupHistory">
         select * from fundgroupbuydetail c where c.fund_group_buy_id = #{id}
     </select>
 </mapper>
