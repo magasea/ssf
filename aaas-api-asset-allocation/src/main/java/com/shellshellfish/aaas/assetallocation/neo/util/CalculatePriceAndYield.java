@@ -2,11 +2,10 @@ package com.shellshellfish.aaas.assetallocation.neo.util;
 
 import com.mathworks.toolbox.javabuilder.MWException;
 
-import com.shellshellfish.aaas.assetallocation.tools.MatLab;
+import com.yihui.MatLab;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,8 +53,6 @@ public class CalculatePriceAndYield {
         } catch (MWException e) {
             logger.error("Failed to calculatePriceToYield");
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         return retSeriesList;
@@ -98,8 +95,6 @@ public class CalculatePriceAndYield {
 
         } catch (MWException e) {
             logger.error("Failed to calculateYieldToPrice");
-            e.printStackTrace();
-        } catch (IOException e) {
             e.printStackTrace();
         }
 
