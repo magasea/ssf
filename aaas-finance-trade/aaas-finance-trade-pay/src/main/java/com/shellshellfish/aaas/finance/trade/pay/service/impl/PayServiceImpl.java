@@ -2,8 +2,10 @@ package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
 import com.shellshellfish.aaas.common.message.order.TrdOrderPay;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
+import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
 
+import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +21,16 @@ public class PayServiceImpl implements PayService{
   @Autowired
   BroadcastMessageProducers broadcastMessageProducers;
 
+  @Autowired
+  FundTradeApiService fundTradeApiService;
+
   @Override
   public TrdPayFlow payOrder(TrdOrderPay trdOrderPay) {
     logger.info("payOrder fundCode:"+trdOrderPay.getFundCode());
     //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
+    trdOrderPay.getFundCode();
 
-
+    BuyFundResult fundResult = fundTradeApiService.buyFund()
     TrdPayFlow trdPayFlow = new TrdPayFlow();
     return trdPayFlow;
   }
