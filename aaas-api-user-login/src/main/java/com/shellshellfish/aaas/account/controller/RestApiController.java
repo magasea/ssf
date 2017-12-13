@@ -114,7 +114,8 @@ public class RestApiController {
     })					
 	@RequestMapping(value = "/registrationpage", method = RequestMethod.GET)
 	public ResponseEntity<Map> registrationpage( 
-			@Valid @NotNull(message="电话不能为空") @Size(min = 11, max = 11,message="电话长度必须是11位的数字")  @RequestParam(value = "telnum") String telnum){
+			//@Valid @NotNull(message="电话不能为空") @Size(min = 11, max = 11,message="电话长度必须是11位的数字")  
+			@RequestParam(value = "telnum") String telnum){
 		   
 		  HashMap<String ,Object> rsmap= resourceManagerService.response("register",new String[]{telnum});
 		  //System.out.println(pagestr);
@@ -172,7 +173,9 @@ public class RestApiController {
 	@ApiResponses({ @ApiResponse(code = 200, message = "OK") })
 	@RequestMapping(value = "/pwdforgettingpage", method = RequestMethod.GET)
 	public ResponseEntity<Map> forgottenpwdres(
-			@Valid @NotNull(message = "手机号码不能为空") @Size(max = 11, min = 11, message = "手机号长度必须是11位的数字") @RequestParam(value = "telnum") String telnum) {
+			//@Valid @NotNull(message = "手机号码不能为空") @Size(max = 11, min = 11, message = "手机号长度必须是11位的数字") 
+			@RequestParam(value = "telnum") String telnum
+			) {
 		String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
 		Pattern telPattern = Pattern.compile(telRegExp);
 		Matcher telMatcher = telPattern.matcher(telnum);
@@ -193,8 +196,10 @@ public class RestApiController {
 	@ApiResponses({ @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 500, message = "服务器内部程序错误") })
 	@RequestMapping(value = "/telnums/{id}", method = RequestMethod.POST)
 	public ResponseEntity<HttpStatus> codeRequest(
-			@Valid @NotNull(message = "id不能为空") @PathVariable("id") String id,
-			@Valid @NotNull(message = "action不能为空") @RequestParam(value = "action") String action) {
+			//@Valid @NotNull(message = "id不能为空") 
+			@PathVariable("id") String id,
+			//@Valid @NotNull(message = "action不能为空") 
+			@RequestParam(value = "action") String action) {
 		if ("getVerificationCode".equals(action)) {
 			String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
 			Pattern telPattern = Pattern.compile(telRegExp);
@@ -275,6 +280,13 @@ public class RestApiController {
 			String token = "Token-XXXXXXXX";
 			String obj[] = new String[] { uuid, token };
 			HashMap<String, Object> rsmap = resourceManagerService.response("loginhome", obj);
+			rsmap.put("totalAssets", "10");
+			rsmap.put("dailyProfit", "2.5%");
+			rsmap.put("totalProfit", "2.6%");
+			rsmap.put("investpProd", "3");
+			rsmap.put("bankTotal", "4");
+			rsmap.put("unreadTotal", "7");
+			rsmap.put("isTest", "F");
 			return new ResponseEntity<Object>(rsmap, HttpStatus.CREATED);
 		}
 
@@ -332,7 +344,8 @@ public class RestApiController {
 	})
 	@RequestMapping(value = "/smsverificationpage", method = RequestMethod.GET)
 	public ResponseEntity<Map> smsverificationsres(
-			@Valid @NotNull(message = "电话不能为空") @Size(max = 11, min = 11, message = "手机号长度必须是11位的数字") @RequestParam(value = "telnum") String telnum) {
+			//@Valid @NotNull(message = "电话不能为空") @Size(max = 11, min = 11, message = "手机号长度必须是11位的数字") 
+			@RequestParam(value = "telnum") String telnum) {
 		String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
 		Pattern telPattern = Pattern.compile(telRegExp);
 		Matcher telMatcher = telPattern.matcher(telnum);
@@ -402,8 +415,10 @@ public class RestApiController {
 	})
 	@RequestMapping(value = "/registrations/{id}/bankcards", method = RequestMethod.GET)
 	public ResponseEntity<Map> bankcardsresId(
-			@Valid @NotNull(message = "id不能为空") @PathVariable("id") String id,
-			@Valid @NotNull(message = "电话不能为空") @Size(max = 11, min = 11, message = "手机号长度必须是11位的数字") @RequestParam(value = "telnum") String telnum) {
+			//@Valid @NotNull(message = "id不能为空") 
+			@PathVariable("id") String id,
+			//@Valid @NotNull(message = "电话不能为空") @Size(max = 11, min = 11, message = "手机号长度必须是11位的数字") 
+			@RequestParam(value = "telnum") String telnum) {
 		String args[] = new String[] { id,telnum };
 		HashMap<String, Object> rsmap = resourceManagerService.response("bankcards", args);
 		return new ResponseEntity<Map>(rsmap, HttpStatus.OK);
@@ -499,7 +514,8 @@ public class RestApiController {
 	})
 	@RequestMapping(value = "/pwdsettingpage", method = RequestMethod.GET)
 	public ResponseEntity<Map> pwdsettingres(
-			@Valid @NotNull(message = "电话不能为空") @Size(max = 11, min = 11, message = "手机号格式不对") @RequestParam(value = "telnum") String telnum) {
+			//@Valid @NotNull(message = "电话不能为空") @Size(max = 11, min = 11, message = "手机号格式不对") 
+			@RequestParam(value = "telnum") String telnum) {
 		String tel[] = new String[] { telnum };
 		HashMap<String, Object> rsmap = resourceManagerService.response("pwdsettings", tel);
 		return new ResponseEntity<Map>(rsmap, HttpStatus.OK);
