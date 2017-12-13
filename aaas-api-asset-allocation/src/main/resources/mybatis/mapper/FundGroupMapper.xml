@@ -90,9 +90,8 @@
     </select>
 
     <select id="getFundNetValue" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
-        select navadj,navlatestdate navLatestDate from fund_net_value a
-        where a.code= #{id} and navlatestdate BETWEEN #{starttime} and #{endtime}
-        ORDER BY navlatestdate
+        select a.fund_income_type,sum(b.UNITNAV) navadj,b.navlatestdate navlatestDate from fund_basic_data a,fund_net_value b
+        where a.code=b.code and a.fund_income_type=#{fund_income_type} and b.NAVLATESTDATE BETWEEN #{startTime} and #{endtTime} GROUP BY a.fund_income_type,b.NAVLATESTDATE
     </select>
     <select id="getFundGroupBuy" parameterType="java.lang.String" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupBuy">
         select * from fundgroupbuydetail c where c.fund_group_buy_id = #{id}
