@@ -5,6 +5,8 @@ import io.grpc.Server;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TimeZone;
+import javax.annotation.PostConstruct;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Declarable;
@@ -20,13 +22,24 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
 public class PayServiceApplication {
 
-	@Value("${spring.rabbitmq.topicQueueName}")
-	String topicQueueName;
+	@Value("${spring.rabbitmq.topicQueuePayName}")
+	String topicQueuePayName;
+
+	@Value("${spring.rabbitmq.topicPay}")
+	String topicPay;
+
+	@Value("${spring.rabbitmq.topicOrder}")
+	String topicOrder;
+
+	@Value("${spring.rabbitmq.topicQueueOrderName}")
+	String topicQueueOrderName;
 
 	@Value("${spring.rabbitmq.topicExchangeName}")
 	String topicExchangeName;
@@ -44,7 +57,7 @@ public class PayServiceApplication {
 			MessageListenerAdapter listenerAdapter) {
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 		container.setConnectionFactory(connectionFactory);
-		container.setQueueNames(topicQueueName);
+		container.setQueueNames(topicQueuePayName);
 		container.setMessageListener(listenerAdapter);
 		return container;
 	}
@@ -56,20 +69,23 @@ public class PayServiceApplication {
 
 	@Bean
 	public List<Declarable> topicBindings() {
-		Queue topicQueue = new Queue(topicQueueName, false);
+		Queue topicPayQueue = new Queue(topicQueuePayName, false);
+		Queue topicOrderQueue = new Queue(topicQueueOrderName, false);
 		TopicExchange topicExchange = new TopicExchange(topicExchangeName);
 
 		return Arrays.asList(
-				topicQueue,
+				topicPayQueue,
+				topicOrderQueue,
 				topicExchange,
-				BindingBuilder.bind(topicQueue).to(topicExchange).with("order")
+				BindingBuilder.bind(topicPayQueue).to(topicExchange).with(topicPay),
+				BindingBuilder.bind(topicOrderQueue).to(topicExchange).with("pay")
 		);
 	}
 
 
 	@Bean
 	Queue queue() {
-		return new Queue(topicQueueName, false);
+		return new Queue(topicQueuePayName, false);
 	}
 
 	@Bean
@@ -79,8 +95,12 @@ public class PayServiceApplication {
 
 	@Bean
 	Binding binding(Queue queue, TopicExchange exchange) {
-		return BindingBuilder.bind(queue).to(exchange).with(topicQueueName);
+		return BindingBuilder.bind(queue).to(exchange).with(topicQueuePayName);
 	}
 
+	@PostConstruct
+	void started() {
+		TimeZone.setDefault(TimeZone.getTimeZone("Etc/UTC"));
+	}
 
 }

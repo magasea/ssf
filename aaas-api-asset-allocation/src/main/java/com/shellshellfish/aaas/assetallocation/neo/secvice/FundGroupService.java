@@ -34,13 +34,13 @@ public class FundGroupService {
     public FundAllReturn selectAllFundGroup() {
         List<Interval> fundGroup = fundGroupMapper.selectAllFundGroup();
         List<Interval> fundGroupNum = fundGroupMapper.selectAllFundGroupNum();
-        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> list = new ArrayList<>();
         FundAllReturn far = new FundAllReturn();
 
         for (int i = 0; i < fundGroupNum.size(); i++) {
-            Map<String, Object> _items = new HashMap<String, Object>();
-            Map<String, String> _links = new HashMap<String, String>();
-            Map<String, Double> assetsRatios = new HashMap<String, Double>();
+            Map<String, Object> _items = new HashMap<>();
+            Map<String, String> _links = new HashMap<>();
+            Map<String, Double> assetsRatios = new HashMap<>();
             for (Interval interval : fundGroup) {
                 if (interval.getFund_group_id().equalsIgnoreCase(fundGroupNum.get(i).getFund_group_id())) {
                     List<Interval> intervals = fundGroupMapper.getProportion(interval.getFund_group_id(), interval.getId());
@@ -49,7 +49,7 @@ public class FundGroupService {
                         assetsRatios.put(inter.getFund_income_type(), inter.getProportion());
                     }
                     _items.put("groupId", interval.getFund_group_id());
-                    _items.put("subGroupId", interval.getRisk_income_interval_id());
+                    _items.put("subGroupId", interval.getFund_group_sub_id());
                     _items.put("name", interval.getFund_group_name());
                 }
                 _items.put("minAnnualizedReturn", interval.getIncome_min_num());
@@ -115,7 +115,7 @@ public class FundGroupService {
      * @return
      */
     public Map<String, Object> selectReturnAndPullback(String id, String returntype, String subGroupId) {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("id", id);
         map.put("subGroupId", subGroupId);
         Interval interval = fundGroupMapper.selectReturnAndPullback(map);
@@ -139,14 +139,14 @@ public class FundGroupService {
      */
     public ReturnType getRevenueContribution(String id, String subGroupId) {
         ReturnType rcb = new ReturnType();
-        Map<String, String> _links = new HashMap<String, String>();
-        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        Map<String, String> _links = new HashMap<>();
+        List<Map<String, Object>> list = new ArrayList<>();
         Map<String, Object> map = new HashMap<>();
         map.put("subGroupId", subGroupId);
         map.put("id", id);
         List<Interval> itr = fundGroupMapper.getRevenueContribution(map);
         for (int i = 0; i < itr.size(); i++) {
-            Map<String, Object> _items = new HashMap<String, Object>();
+            Map<String, Object> _items = new HashMap<>();
             _items.put("id", i + 1);
             _items.put("name", itr.get(i).getFund_income_type());
             _items.put("value", itr.get(i).getRevenue_contribution());
@@ -172,10 +172,10 @@ public class FundGroupService {
         for (FundGroupDetails fgd : fundidlist) {
             ls.add(fgd.getFund_id());
         }
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         ReturnType aReturn = new ReturnType();
-        Map<String, String> _links = new HashMap<String, String>();
-        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        Map<String, String> _links = new HashMap<>();
+        List<Map<String, Object>> list = new ArrayList<>();
         List<float[][]> resust = null;
         CovarianceModel covarianceModel = null;
         //测试数据
@@ -199,11 +199,11 @@ public class FundGroupService {
         resust = MVO.efficientFrontier(ExpReturn, ExpCovariance, 10);
         if (resust.get(0).length != 0) {
             for (int i = 0; i < 10; i++) {
-                Map<String, Object> _items = new HashMap<String, Object>();
+                Map<String, Object> _items = new HashMap<>();
                 _items.put("id", 1);
                 _items.put("x", resust.get(0)[i][0]);
                 _items.put("y", resust.get(1)[i][0]);
-                List<Float> list1 = new ArrayList<Float>();
+                List<Float> list1 = new ArrayList<>();
                 for (int t = 0; t < ls.size(); t++) {
                     list1.add(resust.get(2)[t][i]);
                 }
@@ -230,12 +230,12 @@ public class FundGroupService {
     public ReturnType getRiskController(String id, String subGroupId) {
         List<RiskController> riskControllers = fundGroupMapper.getRiskController(id, subGroupId);
         ReturnType rct = new ReturnType();
-        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-        Map<String, String> _links = new HashMap<String, String>();
+        List<Map<String, Object>> list = new ArrayList<>();
+        Map<String, String> _links = new HashMap<>();
         rct.set_total(riskControllers.size());
         if (riskControllers.size() > 0) {
             for (RiskController riskController : riskControllers) {
-                Map<String, Object> _items = new HashMap<String, Object>();
+                Map<String, Object> _items = new HashMap<>();
                 _items.put("id", riskController.getId());
                 _items.put("name", riskController.getName());
                 _items.put("level2RiskControl", riskController.getRisk_controller());
@@ -258,12 +258,12 @@ public class FundGroupService {
      */
     public ReturnType getmeansAndNoticesRetrun() {
         ReturnType man = new ReturnType();
-        Map<String, String> _links = new HashMap<String, String>();
-        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        Map<String, String> _links = new HashMap<>();
+        List<Map<String, Object>> list = new ArrayList<>();
         man.set_total(4);
         man.setName("风险控制通知");
         for (int i = 0; i < 4; i++) {
-            Map<String, Object> _items = new HashMap<String, Object>();
+            Map<String, Object> _items = new HashMap<>();
             if (i == 0) {
                 _items.put("id", 1);
                 _items.put("name", "全市场的系统风险");
@@ -298,9 +298,9 @@ public class FundGroupService {
      * @return
      */
     public PerformanceVolatilityReturn getPerformanceVolatility(String cust_risk, String investment_horizon) {
-        Map<String, Object> map = new HashMap<String, Object>();
-        Map<String, String> _links = new HashMap<String, String>();
-        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        Map<String, Object> map = new HashMap<>();
+        Map<String, String> _links = new HashMap<>();
+        List<Map<String, Object>> list = new ArrayList<>();
         PerformanceVolatilityReturn aReturn = new PerformanceVolatilityReturn();
         if (cust_risk == null || cust_risk.equalsIgnoreCase("")) {
             map.put("cust_risk", "C3");
@@ -318,8 +318,8 @@ public class FundGroupService {
             aReturn.setName("模拟数据");
             aReturn.setProductGroupId(riskIncomeInterval.getFund_group_id());
             aReturn.setProductSubGroupId(riskIncomeInterval.getId());
-            for (int i = 0; i < 4; i++) {
-                Map<String, Object> maps = new HashMap<String, Object>();
+            for (int i = 0; i < 5; i++) {
+                Map<String, Object> maps = new HashMap<>();
                 if (i == 0) {
                     maps.put("id", 1);
                     maps.put("name", "模拟历史年化业绩");
@@ -336,6 +336,10 @@ public class FundGroupService {
                     maps.put("id", 4);
                     maps.put("name", "最大亏损额");
                     maps.put("value", riskIncomeInterval.getMaximum_losses());
+                } else if (i==4){
+                    maps.put("id", 4);
+                    maps.put("name", "夏普比率");
+                    maps.put("value", riskIncomeInterval.getSharpe_ratio());
                 }
                 list.add(maps);
             }
@@ -356,14 +360,14 @@ public class FundGroupService {
      */
     public ReturnType getScaleMark(String id, String slidebarType) {
         ReturnType smk = new ReturnType();
-        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-        Map<String, String> _links = new HashMap<String, String>();
+        List<Map<String, Object>> list = new ArrayList<>();
+        Map<String, String> _links = new HashMap<>();
         List<RiskIncomeInterval> riskIncomeIntervalList = fundGroupMapper.getScaleMark(id);
         if (riskIncomeIntervalList.size() != 0) {
             if (slidebarType.equalsIgnoreCase("risk")) {
                 smk.setName("风险率");
                 for (int i = 0; i < riskIncomeIntervalList.size(); i++) {
-                    Map<String, Object> maps = new HashMap<String, Object>();
+                    Map<String, Object> maps = new HashMap<>();
                     maps.put("id", i + 1);
                     maps.put("value", riskIncomeIntervalList.get(i).getRisk_num());
                     list.add(maps);
@@ -371,7 +375,7 @@ public class FundGroupService {
             } else {
                 smk.setName("收益率");
                 for (int i = 0; i < riskIncomeIntervalList.size(); i++) {
-                    Map<String, Object> maps = new HashMap<String, Object>();
+                    Map<String, Object> maps = new HashMap<>();
                     maps.put("id", i + 1);
                     maps.put("value", riskIncomeIntervalList.get(i).getIncome_num());
                     list.add(maps);
@@ -395,7 +399,189 @@ public class FundGroupService {
      * @return
      * @throws ParseException
      */
-    public ReturnType getFundGroupIncome(String id, String subGroupId, int mouth) throws ParseException {
+    public ReturnType getFundGroupIncome(String id, String subGroupId, int mouth, String returnType) throws ParseException {
+        ReturnType fgi = new ReturnType();
+        List<Map<String, Object>> list = new ArrayList<>();
+        Calendar ca = Calendar.getInstance();
+        Map<String, String> _links = new HashMap<>();
+        Date enddate = new Date();
+        ca.setTime(enddate);
+        ca.add(Calendar.MONTH, mouth);
+        String starttime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
+        ca.setTime(enddate);
+        ca.add(Calendar.DATE, -1);
+        String endtime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
+        Map<String, String> mapStr = new HashMap<>();
+        mapStr.put("fund_group_id", id);
+        mapStr.put("fund_group_sub_id", subGroupId);
+        mapStr.put("starttime", starttime);
+        mapStr.put("endtime", endtime);
+        List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
+        if (returnType.equalsIgnoreCase("income")) {
+            for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
+                Map<String, Object> map = new HashMap<>();
+                map.put(new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()), fundGroupHistory.getIncome_num());
+                list.add(map);
+            }
+            fgi.setName("组合收益率走势图");
+        } else {
+            for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
+                Map<String, Object> map = new HashMap<>();
+                map.put(new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()), fundGroupHistory.getMaximum_retracement());
+                list.add(map);
+            }
+            fgi.setName("组合最大回撤走势图");
+        }
+        fgi.set_total(list.size());
+        fgi.set_items(list);
+        fgi.set_links(_links);
+        fgi.set_schemaVersion("0.1.1");
+        fgi.set_serviceId("资产配置");
+        return fgi;
+    }
+
+    /**
+     * 组合收益率走势图     一周以来以来每天
+     *
+     * @param id
+     * @param subGroupId
+     * @return
+     * @throws ParseException
+     */
+    public ReturnType getFundGroupIncomeWeek(String id, String subGroupId, String returnType) throws ParseException {
+        ReturnType fgi = new ReturnType();
+        List<Map<String, Object>> list = new ArrayList<>();
+        Calendar ca = Calendar.getInstance();
+        Map<String, String> _links = new HashMap<>();
+        //Date endDate = new Date();
+        Date endDate = new SimpleDateFormat("yyyy-MM-dd").parse("2017-11-25");
+        ca.setTime(endDate);
+        ca.add(Calendar.DATE, -7);
+        String startTime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
+        ca.setTime(endDate);
+        ca.add(Calendar.DATE, -1);
+        String endTime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
+        Map<String, String> mapStr = new HashMap<>();
+        mapStr.put("fund_group_id", id);
+        mapStr.put("fund_group_sub_id", subGroupId);
+        mapStr.put("starttime", startTime);
+        mapStr.put("endtime", endTime);
+        List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
+        if (returnType.equalsIgnoreCase("income")) {
+            for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
+                Map<String, Object> map = new HashMap<>();
+                map.put(new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()), fundGroupHistory.getIncome_num());
+                list.add(map);
+            }
+            fgi.setName("组合收益率走势图");
+        } else {
+            for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
+                Map<String, Object> map = new HashMap<>();
+                map.put(new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()), fundGroupHistory.getMaximum_retracement());
+                list.add(map);
+            }
+            fgi.setName("组合最大回撤走势图");
+        }
+        fgi.set_total(list.size());
+        fgi.set_items(list);
+        fgi.set_links(_links);
+        fgi.set_schemaVersion("0.1.1");
+        fgi.set_serviceId("资产配置");
+        return fgi;
+    }
+
+    /**
+     * 净值增长率(净值增长)走势图     一周以来以来每天
+     *
+     * @param id
+     * @param subGroupId
+     * @return
+     * @throws ParseException
+     */
+    public ReturnType getFundNetValue(String id, String subGroupId, String returnType) throws ParseException {
+        ReturnType fgi = new ReturnType();
+        List<Map<String, Object>> list = new ArrayList<>();
+        Calendar ca = Calendar.getInstance();
+        Map<String, String> _links = new HashMap<>();
+        //Date endDate = new Date();
+        Date endDate = new SimpleDateFormat("yyyy-MM-dd").parse("2017-11-25");
+        ca.setTime(endDate);
+        ca.add(Calendar.DATE, -8);
+        String startTime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
+        ca.setTime(endDate);
+        ca.add(Calendar.DATE, -1);
+        String endTime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
+        List<Interval> interval = fundGroupMapper.getProportion(id, subGroupId);
+        for (Interval interval1 : interval) {
+            Map<String, Object> map = new HashMap<>();
+            Map<String, Object> fundMap = new HashMap<>();
+            List<FundNetVal> fundNetValues = fundGroupMapper.getFundNetValue(interval1.getFund_income_type(), startTime, endTime);
+            for (int i = 1; i < fundNetValues.size(); i++) {
+                if (returnType.equalsIgnoreCase("1")) {
+                    fgi.setName("净值增长");
+                    fundMap.put(new SimpleDateFormat("yyyy-MM-dd").format(fundNetValues.get(i).getNavLatestDate()), fundNetValues.get(i).getNavadj());
+                } else {
+                    fgi.setName("净值增长率");
+                    double navadjReturn = (fundNetValues.get(i).getNavadj()-fundNetValues.get(i-1).getNavadj())/fundNetValues.get(i-1).getNavadj();
+                    fundMap.put(new SimpleDateFormat("yyyy-MM-dd").format(fundNetValues.get(i).getNavLatestDate()), navadjReturn);
+                }
+            }
+            map.put("navadj", fundMap);
+            map.put("基金类型", interval1.getFund_income_type());
+            list.add(map);
+        }
+        fgi.set_total(list.size());
+        fgi.set_items(list);
+        fgi.set_links(_links);
+        fgi.set_schemaVersion("0.1.1");
+        fgi.set_serviceId("资产配置");
+        return fgi;
+    }
+
+    /**
+     * 把传出数据转为json格式
+     *
+     * @param interval
+     * @return
+     */
+    public FundReturn getFundReturn(List<Interval> interval) {
+        FundReturn fr = new FundReturn();
+        if (interval.size() != 0) {
+            Map<String, Double> assetsRatios = new HashMap<>();
+            Map<String, String> _links = new HashMap<>();
+            List<Map<String, Double>> list = new ArrayList<>();
+            List<Interval> intervals = fundGroupMapper.getProportion(interval.get(0).getFund_group_id(), interval.get(0).getId());
+            //基金组合内的各基金权重
+            for (Interval inter : intervals) {
+                assetsRatios.put(inter.getFund_income_type(), inter.getProportion());
+            }
+            list.add(assetsRatios);
+            fr.setGroupId(interval.get(0).getFund_group_id());
+            fr.setSubGroupId(interval.get(0).getId());
+            fr.setName(interval.get(0).getFund_group_name());
+            fr.setMinAnnualizedReturn(interval.get(0).getIncome_min_num());
+            fr.setMaxAnnualizedReturn(interval.get(0).getIncome_max_num());
+            fr.setMinRiskLevel(interval.get(0).getRisk_min_num());
+            fr.setMaxRiskLevel(interval.get(0).getRisk_max_num());
+            fr.set_links(_links);
+            fr.setCreationTime(interval.get(0).getDetails_last_mod_time().getTime());
+            fr.set_schemaVersion("0.1.1");
+            fr.set_serviceId("资产配置");
+            fr.setAssetsRatios(list);
+        }
+        return fr;
+    }
+
+    /**
+     * 组合收益率走势图
+     *
+     * @param id
+     * @param subGroupId
+     * @param mouth      几个月以来每天
+     * @return
+     * @throws ParseException
+     */
+    /*public ReturnType getFundGroupIncome(String id, String subGroupId, int mouth) throws ParseException {
         ReturnType fgi = new ReturnType();
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         Calendar ca = Calendar.getInstance();
@@ -437,151 +623,5 @@ public class FundGroupService {
         fgi.set_schemaVersion("0.1.1");
         fgi.set_serviceId("资产配置");
         return fgi;
-    }
-
-    /**
-     * 组合收益率走势图
-     *
-     * @param id
-     * @param subGroupId
-     * @param mouth      几个月以来每月
-     * @return
-     * @throws ParseException
-     */
-    public ReturnType getFundGroupIncomeMounth(String id, String subGroupId, int mouth) throws ParseException {
-        ReturnType fgi = new ReturnType();
-        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-        Calendar ca = Calendar.getInstance();
-        Map<String, String> _links = new HashMap<String, String>();
-        CalculatePriceAndYield cpa = new CalculatePriceAndYield();
-        List<Interval> interval = fundGroupMapper.selectById(id, subGroupId);
-        Date enddate = ca.getTime();
-        ca.setTime(enddate);
-        ca.add(Calendar.MONTH, mouth+1);
-        ca.set(Calendar.DAY_OF_MONTH, 0);
-        Date startdate = ca.getTime();
-        //for (; startdate.getTime() <= enddate.getTime(); ) {
-        for (int i=0; i<Math.abs(mouth);i++ ) {
-            Map<String, Object> map = new HashMap<String, Object>();
-            ca.setTime(startdate);
-            ca.set(Calendar.DAY_OF_MONTH, 1);
-            String time1 = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
-            System.out.println("startdate:"+new SimpleDateFormat("yyyy-MM-dd").format(startdate));
-            System.out.println("time1"+time1);
-            double num = 0;
-            for (Interval interval1 : interval) {
-                List<FundNetVal> fundNetValues = fundGroupMapper.getFundNetValue(interval1.getFund_id(), time1, new SimpleDateFormat("yyyy-MM-dd").format(startdate));
-                if (fundNetValues.size() != 0) {
-                    List<Double> list1 = new ArrayList<Double>();
-                    list1.add(fundNetValues.get(0).getNavadj());
-                    list1.add(fundNetValues.get(fundNetValues.size() - 1).getNavadj());
-                    list1 = cpa.calculatePriceToYield(list1, "Simple");
-                    num += list1.get(0) * interval1.getProportion();
-                }
-            }
-            map.put(new SimpleDateFormat("yyyy-MM").format(startdate), num);
-            list.add(map);
-            ca.setTime(startdate);
-            ca.add(Calendar.MONTH, +1);
-            ca.add(Calendar.DAY_OF_MONTH, -1);
-            String time2 = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
-            startdate = new SimpleDateFormat("yyyy-MM-dd").parse(time2);
-        }
-        fgi.setName("组合收益率走势图");
-        fgi.set_total(list.size());
-        fgi.set_items(list);
-        fgi.set_links(_links);
-        fgi.set_schemaVersion("0.1.1");
-        fgi.set_serviceId("资产配置");
-        return fgi;
-    }
-    /**
-     * 组合内各基金收益率走势图
-     *
-     * @param id
-     * @param subGroupId
-     * @param mouth      几个月以来
-     * @return
-     * @throws ParseException
-     */
-    public ReturnType getFundIncome(String id, String subGroupId, int mouth) throws ParseException {
-        ReturnType fgi = new ReturnType();
-        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-        Calendar ca = Calendar.getInstance();
-        Map<String, String> _links = new HashMap<String, String>();
-        CalculatePriceAndYield cpa = new CalculatePriceAndYield();
-        List<Interval> interval = fundGroupMapper.selectById(id, subGroupId);
-        for (Interval interval1 : interval) {
-            List<Map<String, Object>> list2 = new ArrayList<Map<String, Object>>();
-            Map<String, Object> map = new HashMap<String, Object>();
-            map.put("name",interval1.getFname());
-            Date enddate = new Date();
-            ca.setTime(enddate);
-            ca.add(Calendar.MONTH, mouth);
-            ca.add(Calendar.DATE, +1);
-            Date startdate = ca.getTime();
-            for (; startdate.getTime() <= enddate.getTime(); ) {
-                Map<String, Object> map1 = new HashMap<String, Object>();
-                ca.setTime(startdate);
-                ca.add(Calendar.DATE, -1);
-                String time1 = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
-                List<FundNetVal> fundNetValues = fundGroupMapper.getFundNetValue(interval1.getFund_id(), time1, new SimpleDateFormat("yyyy-MM-dd").format(startdate));
-                if (fundNetValues.size() != 0) {
-                    List<Double> list1 = new ArrayList<Double>();
-                    list1.add(fundNetValues.get(0).getNavadj());
-                    list1.add(fundNetValues.get(fundNetValues.size() - 1).getNavadj());
-                    list1 = cpa.calculatePriceToYield(list1, "Simple");
-                    map1.put(new SimpleDateFormat("yyyy-MM-dd").format(startdate), list1.get(0));
-                }
-                list2.add(map1);
-                ca.setTime(startdate);
-                ca.add(Calendar.DATE, +1);
-                String time2 = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
-                startdate = new SimpleDateFormat("yyyy-MM-dd").parse(time2);
-            }
-            map.put("yield",list2);
-            list.add(map);
-        }
-        fgi.setName("基金组合内各收益率走势图");
-        fgi.set_total(list.size());
-        fgi.set_items(list);
-        fgi.set_links(_links);
-        fgi.set_schemaVersion("0.1.1");
-        fgi.set_serviceId("资产配置");
-        return fgi;
-    }
-
-    /**
-     * 把传出数据转为json格式
-     *
-     * @param interval
-     * @return
-     */
-    public FundReturn getFundReturn(List<Interval> interval) {
-        FundReturn fr = new FundReturn();
-        if (interval.size() != 0) {
-            Map<String, Double> assetsRatios = new HashMap<String, Double>();
-            Map<String, String> _links = new HashMap<String, String>();
-            List<Map<String, Double>> list = new ArrayList<Map<String, Double>>();
-            List<Interval> intervals = fundGroupMapper.getProportion(interval.get(0).getFund_group_id(), interval.get(0).getId());
-            //基金组合内的各基金权重
-            for (Interval inter : intervals) {
-                assetsRatios.put(inter.getFund_income_type(), inter.getProportion());
-            }
-            list.add(assetsRatios);
-            fr.setGroupId(interval.get(0).getFund_group_id());
-            fr.setSubGroupId(interval.get(0).getId());
-            fr.setName(interval.get(0).getFund_group_name());
-            fr.setMinAnnualizedReturn(interval.get(0).getIncome_min_num());
-            fr.setMaxAnnualizedReturn(interval.get(0).getIncome_max_num());
-            fr.setMinRiskLevel(interval.get(0).getRisk_min_num());
-            fr.setMaxRiskLevel(interval.get(0).getRisk_max_num());
-            fr.set_links(_links);
-            fr.setCreationTime(interval.get(0).getDetails_last_mod_time().getTime());
-            fr.set_schemaVersion("0.1.1");
-            fr.set_serviceId("资产配置");
-            fr.setAssetsRatios(list);
-        }
-        return fr;
-    }
+    }*/
 }

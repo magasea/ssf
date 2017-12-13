@@ -1,10 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.pay.message;
 
 
-import com.shellshellfish.aaas.common.message.order.TrdOrderPay;
-import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
-import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;
-import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
+import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -19,13 +16,15 @@ public class BroadcastMessageProducers {
     RabbitTemplate rabbitTemplate;
 
 
-    @Value("${spring.rabbitmq.topicQueueName}")
-    String topicQueueName;
+    @Value("${spring.rabbitmq.topicPay}")
+    String topicPay;
+
+    @Value("${spring.rabbitmq.topicQueuePayName}")
+    String topicQueuePayName;
 
     public void sendMessage(TrdPayFlow trdPayFlow) {
         logger.info("send message: " + trdPayFlow.getOrderId());
-        rabbitTemplate.convertAndSend(topicQueueName, "", trdPayFlow);
-
+        rabbitTemplate.convertAndSend(topicQueuePayName, topicPay, trdPayFlow);
     }
 
 }

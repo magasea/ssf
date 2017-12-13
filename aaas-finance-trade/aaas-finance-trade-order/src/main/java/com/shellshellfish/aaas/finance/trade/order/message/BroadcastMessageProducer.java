@@ -1,6 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.message;
 
-import com.shellshellfish.aaas.common.message.order.TrdOrderPay;
+import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,7 +31,7 @@ public class BroadcastMessageProducer {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void sendMessages(TrdOrderPay message) {
+    public void sendMessages(TrdOrderDetail message) {
         rabbitTemplate.convertAndSend(topicExchangeName, topicOrder, message);
     }
 }

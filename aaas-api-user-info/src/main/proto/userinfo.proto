@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.shellshellfish.aaas.userinfo.grpc";
+option java_outer_classname = "UserInfoProto";
+option objc_class_prefix = "UIP";
+
+service UserInfoService {
+    rpc GetUserId (UserIdQuery) returns (UserId) {
+    }
+}
+
+message UserIdQuery {
+  string uuid = 1;
+  string telphone = 2;
+  string pid = 3;
+}
+
+message UserId{
+  int64 userId = 1;
+}

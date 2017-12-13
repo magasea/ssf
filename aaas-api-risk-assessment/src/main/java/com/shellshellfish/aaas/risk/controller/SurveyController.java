@@ -1,6 +1,10 @@
 package com.shellshellfish.aaas.risk.controller;
 
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.shellshellfish.aaas.risk.model.dao.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,16 +90,35 @@ public class SurveyController {
 		@ApiImplicitParam(paramType="body",name="surveyResult",dataType="SurveyResult",required=true,value="测评结果BODY",defaultValue="")
 	})
 	@RequestMapping(value = "/banks/{bankUuid}/users/{userUuid}/surveyresults", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<SurveyResult> saveSurveyResult(@PathVariable String bankUuid,
+	public ResponseEntity<Map<String, String>> saveSurveyResult(@PathVariable String bankUuid,
 														 @PathVariable String userUuid,
 														 @RequestBody SurveyResult surveyResult) throws URISyntaxException, Exception{
 		log.debug("REST request to Insert or Update a SurveyResult.");
 		
 		surveyResult.setUserId(userUuid);
 		
-		surveyResultService.save(surveyResult);	
-		
-		return ResponseEntity.ok().body(surveyResult);
+		surveyResultService.save(surveyResult);
+
+		Integer sum = 0;
+		for(Answer answer: surveyResult.getAnswers()) {
+			sum += answer.getSelectedOption().getScore();
+		}
+
+		Map<String, String> map = new HashMap<>();
+
+		if (sum <=73) {
+			map.put("riskLevel", "保守型");
+		} else if (sum >= 74 && sum <= 107) {
+			map.put("riskLevel", "稳健型");
+		} else if (sum >= 108 && sum <= 141) {
+			map.put("riskLevel", "平衡型");
+		} else if (sum >= 142 && sum <= 175) {
+			map.put("riskLevel", "成长型");
+		} else if (sum >= 176) {
+			map.put("riskLevel", "进取型");
+		}
+
+		return ResponseEntity.ok().body(map);
 	}
 	
 	

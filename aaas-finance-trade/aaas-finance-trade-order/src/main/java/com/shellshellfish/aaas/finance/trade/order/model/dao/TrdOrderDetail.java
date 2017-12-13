@@ -1,198 +1,334 @@
 package com.shellshellfish.aaas.finance.trade.order.model.dao;
 
-import java.io.Serializable;
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
-
-
-/**
- * The persistent class for the trd_order_detail database table.
- * 
- */
 @Entity
-@Table(name="trd_order_detail")
-@NamedQuery(name="TrdOrderDetail.findAll", query="SELECT t FROM TrdOrderDetail t")
-public class TrdOrderDetail implements Serializable {
-	private static final long serialVersionUID = 1L;
+@Table(name = "trd_order_detail", schema = "ssftrdorder", catalog = "")
+public class TrdOrderDetail {
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long id;
+  private long id;
+  private String orderId;
+  private String tradeApplySerial;
+  private long boughtDate;
+  private int tradeType;
+  private long payAmount;
+  private long payFee;
+  private long userId;
+  private long prodId;
+  private String fundCode;
+  private long fundQuantity;
+  private long fundNum;
+  private long fundNumConfirmed;
+  private long buyFee;
+  private long buyDiscount;
+  private int orderDetailStatus;
+  private long createBy;
+  private long createDate;
+  private long updateBy;
+  private long updateDate;
 
-	@Column(name="bought_date")
-	private Long boughtDate;
+  @Id
+  @Column(name = "id")
+  public long getId() {
+    return id;
+  }
 
-	@Column(name="create_by")
-	private Long createBy;
+  public void setId(long id) {
+    this.id = id;
+  }
 
-	@Column(name="create_date")
-	private Long createDate;
+  @Basic
+  @Column(name = "order_id")
+  public String getOrderId() {
+    return orderId;
+  }
 
-	@Column(name="fund_code")
-	private String fundCode;
+  public void setOrderId(String orderId) {
+    this.orderId = orderId;
+  }
 
-	@Column(name="fund_quantity")
-	private Long fundQuantity;
+  @Basic
+  @Column(name = "trade_apply_serial")
+  public String getTradeApplySerial() {
+    return tradeApplySerial;
+  }
 
-	@Column(name="order_detail_status")
-	private int orderDetailStatus;
+  public void setTradeApplySerial(String tradeApplySerial) {
+    this.tradeApplySerial = tradeApplySerial;
+  }
 
-	@Column(name="order_id")
-	private String orderId;
+  @Basic
+  @Column(name = "bought_date")
+  public long getBoughtDate() {
+    return boughtDate;
+  }
 
-	@Column(name="pay_amount")
-	private Long payAmount;
+  public void setBoughtDate(long boughtDate) {
+    this.boughtDate = boughtDate;
+  }
 
-	@Column(name="pay_fee")
-	private Long payFee;
+  @Basic
+  @Column(name = "trade_type")
+  public int getTradeType() {
+    return tradeType;
+  }
 
-	@Column(name="prod_id")
-	private Long prodId;
+  public void setTradeType(int tradeType) {
+    this.tradeType = tradeType;
+  }
 
-	@Column(name="trade_apply_serial")
-	private String tradeApplySerial;
+  @Basic
+  @Column(name = "pay_amount")
+  public long getPayAmount() {
+    return payAmount;
+  }
 
-	@Column(name="trade_type")
-	private int tradeType;
+  public void setPayAmount(long payAmount) {
+    this.payAmount = payAmount;
+  }
 
-	@Column(name="update_by")
-	private Long updateBy;
+  @Basic
+  @Column(name = "pay_fee")
+  public long getPayFee() {
+    return payFee;
+  }
 
-	@Column(name="update_date")
-	private Long updateDate;
+  public void setPayFee(long payFee) {
+    this.payFee = payFee;
+  }
 
-	@Column(name="user_id")
-	private Long userId;
+  @Basic
+  @Column(name = "user_id")
+  public long getUserId() {
+    return userId;
+  }
 
-	public TrdOrderDetail() {
-	}
+  public void setUserId(long userId) {
+    this.userId = userId;
+  }
 
-	public Long getId() {
-		return this.id;
-	}
+  @Basic
+  @Column(name = "prod_id")
+  public long getProdId() {
+    return prodId;
+  }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+  public void setProdId(long prodId) {
+    this.prodId = prodId;
+  }
 
-	public Long getBoughtDate() {
-		return this.boughtDate;
-	}
+  @Basic
+  @Column(name = "fund_code")
+  public String getFundCode() {
+    return fundCode;
+  }
 
-	public void setBoughtDate(Long boughtDate) {
-		this.boughtDate = boughtDate;
-	}
+  public void setFundCode(String fundCode) {
+    this.fundCode = fundCode;
+  }
 
-	public Long getCreateBy() {
-		return this.createBy;
-	}
+  @Basic
+  @Column(name = "fund_quantity")
+  public long getFundQuantity() {
+    return fundQuantity;
+  }
 
-	public void setCreateBy(Long createBy) {
-		this.createBy = createBy;
-	}
+  public void setFundQuantity(long fundQuantity) {
+    this.fundQuantity = fundQuantity;
+  }
 
-	public Long getCreateDate() {
-		return this.createDate;
-	}
+  @Basic
+  @Column(name = "fund_num")
+  public long getFundNum() {
+    return fundNum;
+  }
 
-	public void setCreateDate(Long createDate) {
-		this.createDate = createDate;
-	}
+  public void setFundNum(long fundNum) {
+    this.fundNum = fundNum;
+  }
 
-	public String getFundCode() {
-		return this.fundCode;
-	}
+  @Basic
+  @Column(name = "fund_num_confirmed")
+  public long getFundNumConfirmed() {
+    return fundNumConfirmed;
+  }
 
-	public void setFundCode(String fundCode) {
-		this.fundCode = fundCode;
-	}
+  public void setFundNumConfirmed(long fundNumConfirmed) {
+    this.fundNumConfirmed = fundNumConfirmed;
+  }
 
-	public Long getFundQuantity() {
-		return this.fundQuantity;
-	}
+  @Basic
+  @Column(name = "buy_fee")
+  public long getBuyFee() {
+    return buyFee;
+  }
 
-	public void setFundQuantity(Long fundQuantity) {
-		this.fundQuantity = fundQuantity;
-	}
+  public void setBuyFee(long buyFee) {
+    this.buyFee = buyFee;
+  }
 
-	public int getOrderDetailStatus() {
-		return this.orderDetailStatus;
-	}
+  @Basic
+  @Column(name = "buy_discount")
+  public long getBuyDiscount() {
+    return buyDiscount;
+  }
 
-	public void setOrderDetailStatus(int orderDetailStatus) {
-		this.orderDetailStatus = orderDetailStatus;
-	}
+  public void setBuyDiscount(long buyDiscount) {
+    this.buyDiscount = buyDiscount;
+  }
 
-	public String getOrderId() {
-		return this.orderId;
-	}
+  @Basic
+  @Column(name = "order_detail_status")
+  public int getOrderDetailStatus() {
+    return orderDetailStatus;
+  }
 
-	public void setOrderId(String orderId) {
-		this.orderId = orderId;
-	}
+  public void setOrderDetailStatus(int orderDetailStatus) {
+    this.orderDetailStatus = orderDetailStatus;
+  }
 
-	public Long getPayAmount() {
-		return this.payAmount;
-	}
+  @Basic
+  @Column(name = "create_by")
+  public long getCreateBy() {
+    return createBy;
+  }
 
-	public void setPayAmount(Long payAmount) {
-		this.payAmount = payAmount;
-	}
+  public void setCreateBy(long createBy) {
+    this.createBy = createBy;
+  }
 
-	public Long getPayFee() {
-		return this.payFee;
-	}
+  @Basic
+  @Column(name = "create_date")
+  public long getCreateDate() {
+    return createDate;
+  }
 
-	public void setPayFee(Long payFee) {
-		this.payFee = payFee;
-	}
+  public void setCreateDate(long createDate) {
+    this.createDate = createDate;
+  }
 
-	public Long getProdId() {
-		return this.prodId;
-	}
+  @Basic
+  @Column(name = "update_by")
+  public long getUpdateBy() {
+    return updateBy;
+  }
 
-	public void setProdId(Long prodId) {
-		this.prodId = prodId;
-	}
+  public void setUpdateBy(long updateBy) {
+    this.updateBy = updateBy;
+  }
 
-	public String getTradeApplySerial() {
-		return this.tradeApplySerial;
-	}
+  @Basic
+  @Column(name = "update_date")
+  public long getUpdateDate() {
+    return updateDate;
+  }
 
-	public void setTradeApplySerial(String tradeApplySerial) {
-		this.tradeApplySerial = tradeApplySerial;
-	}
+  public void setUpdateDate(long updateDate) {
+    this.updateDate = updateDate;
+  }
 
-	public int getTradeType() {
-		return this.tradeType;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
-	public void setTradeType(int tradeType) {
-		this.tradeType = tradeType;
-	}
+    TrdOrderDetail that = (TrdOrderDetail) o;
 
-	public Long getUpdateBy() {
-		return this.updateBy;
-	}
+    if (id != that.id) {
+      return false;
+    }
+    if (boughtDate != that.boughtDate) {
+      return false;
+    }
+    if (tradeType != that.tradeType) {
+      return false;
+    }
+    if (payAmount != that.payAmount) {
+      return false;
+    }
+    if (payFee != that.payFee) {
+      return false;
+    }
+    if (userId != that.userId) {
+      return false;
+    }
+    if (prodId != that.prodId) {
+      return false;
+    }
+    if (fundQuantity != that.fundQuantity) {
+      return false;
+    }
+    if (fundNum != that.fundNum) {
+      return false;
+    }
+    if (fundNumConfirmed != that.fundNumConfirmed) {
+      return false;
+    }
+    if (buyFee != that.buyFee) {
+      return false;
+    }
+    if (buyDiscount != that.buyDiscount) {
+      return false;
+    }
+    if (orderDetailStatus != that.orderDetailStatus) {
+      return false;
+    }
+    if (createBy != that.createBy) {
+      return false;
+    }
+    if (createDate != that.createDate) {
+      return false;
+    }
+    if (updateBy != that.updateBy) {
+      return false;
+    }
+    if (updateDate != that.updateDate) {
+      return false;
+    }
+    if (orderId != null ? !orderId.equals(that.orderId) : that.orderId != null) {
+      return false;
+    }
+    if (tradeApplySerial != null ? !tradeApplySerial.equals(that.tradeApplySerial)
+        : that.tradeApplySerial != null) {
+      return false;
+    }
+    if (fundCode != null ? !fundCode.equals(that.fundCode) : that.fundCode != null) {
+      return false;
+    }
 
-	public void setUpdateBy(Long updateBy) {
-		this.updateBy = updateBy;
-	}
+    return true;
+  }
 
-	public Long getUpdateDate() {
-		return this.updateDate;
-	}
-
-	public void setUpdateDate(Long updateDate) {
-		this.updateDate = updateDate;
-	}
-
-	public Long getUserId() {
-		return this.userId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
-
+  @Override
+  public int hashCode() {
+    int result = (int) (id ^ (id >>> 32));
+    result = 31 * result + (orderId != null ? orderId.hashCode() : 0);
+    result = 31 * result + (tradeApplySerial != null ? tradeApplySerial.hashCode() : 0);
+    result = 31 * result + (int) (boughtDate ^ (boughtDate >>> 32));
+    result = 31 * result + tradeType;
+    result = 31 * result + (int) (payAmount ^ (payAmount >>> 32));
+    result = 31 * result + (int) (payFee ^ (payFee >>> 32));
+    result = 31 * result + (int) (userId ^ (userId >>> 32));
+    result = 31 * result + (int) (prodId ^ (prodId >>> 32));
+    result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
+    result = 31 * result + (int) (fundQuantity ^ (fundQuantity >>> 32));
+    result = 31 * result + (int) (fundNum ^ (fundNum >>> 32));
+    result = 31 * result + (int) (fundNumConfirmed ^ (fundNumConfirmed >>> 32));
+    result = 31 * result + (int) (buyFee ^ (buyFee >>> 32));
+    result = 31 * result + (int) (buyDiscount ^ (buyDiscount >>> 32));
+    result = 31 * result + orderDetailStatus;
+    result = 31 * result + (int) (createBy ^ (createBy >>> 32));
+    result = 31 * result + (int) (createDate ^ (createDate >>> 32));
+    result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
+    result = 31 * result + (int) (updateDate ^ (updateDate >>> 32));
+    return result;
+  }
 }

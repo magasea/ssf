@@ -55,17 +55,19 @@ public class FinanceProductServiceImpl  extends
 
 
   private List<ProductMakeUpInfo> generateTestData(){
-    List<ProductMakeUpInfo> productMakeUpInfos = new ArrayList<>();
+    List<ProductMakeUpInfo> productMakeUpInfos = new ArrayList<ProductMakeUpInfo>();
 
     String id = "1";
     String subGroupId = "1";
     List<Interval> intervalList = fundGroupMapper.selectById(id, subGroupId);
-    ProductMakeUpInfo productMakeUpInfo = new ProductMakeUpInfo();
     if (intervalList.size()>0){
       for (Interval interval : intervalList) {
+        ProductMakeUpInfo productMakeUpInfo = new ProductMakeUpInfo();
         productMakeUpInfo.setFundCode(interval.getFund_id());
-        productMakeUpInfo.setFundShare((int)interval.getProportion()*10000);
+        productMakeUpInfo.setGroupId(Long.parseLong(interval.getFund_group_id()));
+        productMakeUpInfo.setFundShare((int) (interval.getProportion()*10000));
         productMakeUpInfo.setProdName(interval.getFname());
+        productMakeUpInfo.setProdId(Long.parseLong(interval.getFund_group_sub_id()));
         productMakeUpInfos.add(productMakeUpInfo);
       }
     }

@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.assetallocation.neo.util;
 
 import com.mathworks.toolbox.javabuilder.MWNumericArray;
-import com.shellshellfish.aaas.assetallocation.tools.MatLab;
+import com.yihui.MatLab;
 
 
 import java.util.ArrayList;

@@ -45,8 +45,8 @@ public interface FundGroupMapper {
 
     List<FundGroupBuy> getFundGroupBuy(@Param("id") String id);
 
-    List<FundNetVal> getFundNetValue(@Param("id") String id, @Param("starttime") String starttime, @Param("endtime") String endtime);
+    List<FundNetVal> getFundNetValue(@Param("fund_income_type") String fund_income_type, @Param("startTime") String starttime, @Param("endtTime") String endtime);
 
-
+    List<FundGroupHistory> getHistory(Map map);
 
 }

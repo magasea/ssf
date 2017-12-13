@@ -1,6 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.pay.service;
 
-import com.shellshellfish.aaas.common.message.order.TrdOrderPay;
+import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
 
 public interface PayService {
@@ -10,7 +10,7 @@ public interface PayService {
    * @param trdOrderPay
    * @return
    */
-  TrdPayFlow payOrder(TrdOrderPay trdOrderPay);
+  TrdPayFlow payOrder(TrdOrderDetail trdOrderPay) throws Exception;
 
   /**
    * 根据支付情况发出消息，将支付信息广播

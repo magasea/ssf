@@ -31,17 +31,18 @@ public class FinanceProdInfoServiceImpl implements FinanceProdInfoService {
 
 
 
+
   @Autowired
-  ManagedChannel managedChannel;
+  ManagedChannel managedFINChannel;
 
 
   @PostConstruct
   public void init(){
-    financeProductServiceFutureStub = FinanceProductServiceGrpc.newFutureStub(managedChannel);
+    financeProductServiceFutureStub = FinanceProductServiceGrpc.newFutureStub(managedFINChannel);
   }
 
   public void shutdown() throws InterruptedException {
-    managedChannel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+    managedFINChannel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
   }
 
   @Override

@@ -2,8 +2,6 @@ package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
-
-import com.shellshellfish.aaas.common.message.order.TrdOrderPay;
 import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProducer;
 import com.shellshellfish.aaas.finance.trade.order.model.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
@@ -89,7 +87,8 @@ public class TradeOpServiceImpl implements TradeOpService {
       trdOrderDetail.setProdId(trdOrder.getProdId());
       trdOrderDetail.setTradeType(trdOrder.getOrderType());
       trdOrderDetailRepository.save(trdOrderDetail);
-      TrdOrderPay trdOrderPay = new TrdOrderPay();
+      com.shellshellfish.aaas.common.message.order.TrdOrderDetail trdOrderPay =  new com
+          .shellshellfish.aaas.common.message.order.TrdOrderDetail();
       BeanUtils.copyProperties(trdOrderDetail, trdOrderPay);
       broadcastMessageProducer.sendMessages(trdOrderPay);
     }

@@ -10,6 +10,15 @@ public class RiskIncomeInterval extends Strategy {
     private double simulate_historical_year_performance;//模拟历史年化业绩
     private double confidence_interval;//置信区间
     private double maximum_losses;//最大亏损额
+    private double sharpe_ratio;//夏普比率
+
+    public double getSharpe_ratio() {
+        return sharpe_ratio;
+    }
+
+    public void setSharpe_ratio(double sharpe_ratio) {
+        this.sharpe_ratio = sharpe_ratio;
+    }
 
     public double getRisk_num() {
         return risk_num;

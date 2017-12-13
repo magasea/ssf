@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.finance.trade.model.*;
 import com.shellshellfish.aaas.finance.trade.service.impl.OneFundApiService;
+import org.h2.tools.Csv;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -15,14 +17,24 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.sql.RowSet;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-//@Ignore
+@Ignore
 public class OneFundApiServiceTest {
     private static final Logger logger = LoggerFactory.getLogger(OneFundApiService.class);
 
@@ -69,10 +81,17 @@ public class OneFundApiServiceTest {
 
     @Test
     @Rollback(false)
-    public void testBuyFund() throws JsonProcessingException {
-//        String result = oneFundApiService.buyFund("33346", 108.8d, "201712-" + UUID.randomUUID(), "000590");
+    public void testBuyFund() throws Exception {
+        BuyFundResult result = oneFundApiService.buyFund("33346", 0.99d, "201712-" + UUID.randomUUID(), "000590");
 
-        // mongoTemplate.save(result, "buyfund");
+        mongoTemplate.save(result, "buyfund");
+    }
+
+    @Test
+    @Rollback(false)
+    public void testSellFund() throws Exception {
+        SellFundResult result = oneFundApiService.sellFund(16,  "201712-" + UUID.randomUUID(),"33346",  "000407");
+        mongoTemplate.save(result, "sellfund");
     }
 
     @Test
@@ -122,6 +141,18 @@ public class OneFundApiServiceTest {
     }
 
     @Test
+    public void testWriteFundCodeAndFundNameToCsvFile() throws IOException {
+        List<FundInfo> fundInfos = mongoTemplate.findAll(FundInfo.class, "fundInfo");
+        List<String> lines = new ArrayList<>();
+        for(FundInfo info: fundInfos) {
+            lines.add(info.getFundcode() + ", " + info.getFundname());
+        }
+
+        Path file = Paths.get("d:\\zhongzheng99.csv");
+        Files.write(file, lines, Charset.forName("UTF-8"));
+    }
+
+    @Test
     public void testOpenAccountResult() throws JsonProcessingException {
         String json = "{\"status\":1,\"errno\":\"0000\",\"msg\":\"\\u6210\\u529f\",\"data\":{\"custno\":\"88048\",\"fundacco\":\"*21000033346\",\"tradeacco\":\"33346\",\"applyserial\":\"20171206000967\"}}";
         JSONObject jsonObject = JSONObject.parseObject(json);
@@ -153,6 +184,28 @@ public class OneFundApiServiceTest {
     public void testGetTradeLimits() throws Exception {
         List<TradeLimitResult> tradeLimits = oneFundApiService.getTradeLimits("000072", "022");
         assertNotNull(tradeLimits);
+    }
+
+    @Test
+    public void testGetDiscount() throws Exception {
+        Double discount = oneFundApiService.getDiscount("000590", "022");
+        logger.info("{}", discount);
+    }
+
+    @Test
+    public void testGetRate() throws Exception {
+        Double rate = oneFundApiService.getRate("000590", "022");
+        logger.info("{}", rate);
+    }
+
+    @Test
+    public void testCalcPoundage() throws Exception {
+        Double totalAmount = 108.8d;
+        Double rate = oneFundApiService.getRate("000590", "022");
+        Double discount = oneFundApiService.getDiscount("000590", "022");
+        Double poundage = oneFundApiService.calcPoundage(totalAmount, rate, discount);
+
+        logger.info("{}", poundage);
     }
 
     @Test

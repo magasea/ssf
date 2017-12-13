@@ -35,17 +35,17 @@ public class MessageRabbitConfig {
 
     @Bean
     public List<Declarable> topicBindings() {
-        Queue topicQueue1 = new Queue(topicQueuePayName, false);
-        Queue topicQueue2 = new Queue(topicQueueOrderName, false);
+        Queue topicQueuePay = new Queue(topicQueuePayName, false);
+        Queue topicQueueOrder = new Queue(topicQueueOrderName, false);
 
         TopicExchange topicExchange = new TopicExchange(topicExchangeName);
 
         return Arrays.asList(
-                topicQueue1,
-                topicQueue2,
+                topicQueuePay,
+                topicQueueOrder,
                 topicExchange,
-                BindingBuilder.bind(topicQueue1).to(topicExchange).with(topicPay),
-                BindingBuilder.bind(topicQueue2).to(topicExchange).with(topicOrder)
+                BindingBuilder.bind(topicQueuePay).to(topicExchange).with(topicPay),
+                BindingBuilder.bind(topicQueueOrder).to(topicExchange).with(topicOrder)
         );
     }
 
