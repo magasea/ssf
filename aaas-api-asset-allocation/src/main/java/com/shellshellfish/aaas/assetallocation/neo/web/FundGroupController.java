@@ -180,19 +180,4 @@ public class FundGroupController {
         ReturnType smk = fundGroupService.getFundGroupIncomeWeek(id,subGroupId ,returnType);
         return smk;
     }
-    /**
-     * 组合内各基金收益率走势图
-     *
-     * @param id
-     * @param subGroupId
-     * @param mouth      几个月以来
-     * @return
-     * @throws ParseException
-     */
-    @ApiOperation("组合内各基金收益率走势图")
-    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/single-yield", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType getFundIncome(@PathVariable("groupId") String id,@PathVariable("subGroupId") String subGroupId,@RequestParam(defaultValue="-1") int mouth) throws ParseException {
-        ReturnType smk = fundGroupService.getFundIncome(id,subGroupId,mouth);
-        return smk;
-    }
 }
