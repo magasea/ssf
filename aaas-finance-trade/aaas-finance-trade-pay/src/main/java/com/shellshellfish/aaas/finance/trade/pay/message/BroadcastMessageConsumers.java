@@ -20,8 +20,6 @@ public class BroadcastMessageConsumers {
     @Autowired
     TrdPayFlowRepository trdPayFlowRepository;
 
-
-
     public void receiveMessage(TrdOrderDetail trdOrderPay) throws Exception {
         logger.info("Received fanout 1 message: " + trdOrderPay);
         TrdPayFlow trdPayFlow = payService.payOrder(trdOrderPay);

@@ -1,21 +1,8 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.stereotype.Service;
 import com.mongodb.WriteResult;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
+import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAsset;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
@@ -29,13 +16,13 @@ import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserProdMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserProdMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserAssectsRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserPersonMsgRepo;
@@ -49,9 +36,22 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserPortfolioRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserTradeLogRepository;
 import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Service;
 
 @Service
-public class UserInfoRepoServiceImpl implements UserInfoRepoService {
+public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase implements UserInfoRepoService {
 
 	@Autowired
 	UserInfoBankCardsRepository userInfoBankCardsRepository;

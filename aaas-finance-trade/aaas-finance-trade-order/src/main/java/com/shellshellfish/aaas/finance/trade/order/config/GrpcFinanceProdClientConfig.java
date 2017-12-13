@@ -8,7 +8,6 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import javax.annotation.PostConstruct;
-import org.lognet.springboot.grpc.GRpcServerBuilderConfigurer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
@@ -16,26 +15,44 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EntityScan("com.shellshellfish.aaas.datacollection.server.model")
-public class GrpcFinanceProdClientConfig extends GRpcServerBuilderConfigurer {
+public class GrpcFinanceProdClientConfig {
 
 
 
 
   @Value("${grpc.finance_prod_client.host}")
-  String host;
+  String finHost;
 
   @Value("${grpc.finance_prod_client.port}")
-  int port;
+  int finPort;
 
   @Bean
-  ManagedChannelBuilder<?> grpcChannelBuilder(){
-    return ManagedChannelBuilder.forAddress(host, port);
+  ManagedChannelBuilder<?> grpcFINChannelBuilder(){
+    return ManagedChannelBuilder.forAddress(finHost, finPort);
+  }
+
+  @Value("${grpc.userinfo_client.host}")
+  String uiHost;
+
+  @Value("${grpc.userinfo_client.port}")
+  int uiPort;
+
+  @Bean
+  ManagedChannelBuilder<?> grpcUIChannelBuilder(){
+    return ManagedChannelBuilder.forAddress(finHost, finPort);
   }
 
   @Bean
   @PostConstruct
-  ManagedChannel managedChannel(){
-    ManagedChannel managedChannel = grpcChannelBuilder().usePlaintext(true).build();
+  ManagedChannel managedFINChannel(){
+    ManagedChannel managedChannel = grpcFINChannelBuilder().usePlaintext(true).build();
+    return managedChannel;
+  }
+
+  @Bean
+  @PostConstruct
+  ManagedChannel managedUIChannel(){
+    ManagedChannel managedChannel = grpcUIChannelBuilder().usePlaintext(true).build();
     return managedChannel;
   }
 

@@ -52,3 +52,7 @@ datasource:
       format_sql: true
       dialect: org.hibernate.dialect.MySQLDialect
 
+grpc:
+  userinfo:
+    host: localhost
+    port: 10041
