@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -70,7 +71,7 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
-    public BuyFundResult buyFund(String tradeAcco, Double applySum, String outsideOrderNo, String fundCode) throws Exception {
+    public BuyFundResult buyFund(String tradeAcco, BigDecimal applySum, String outsideOrderNo, String fundCode) throws Exception {
         Map<String, Object> info = init();
 
         info.put("tradeacco", tradeAcco);

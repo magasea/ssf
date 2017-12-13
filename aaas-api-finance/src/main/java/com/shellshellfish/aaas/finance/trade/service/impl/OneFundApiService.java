@@ -400,6 +400,42 @@ public class OneFundApiService implements FundTradeApiService {
         return tradeLimitResults;
     }
 
+    public Double getDiscount(String fundCode, String businFlag) throws Exception {
+        Map<String, Object> info = init();
+        info.put("fundcode", fundCode);
+        info.put("businflag", businFlag);
+        postInit(info);
+
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_trade_discount";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        JSONObject jsonObject = (JSONObject) JSONObject.parse(json);
+        Integer status = jsonObject.getInteger("status");
+        if (!status.equals(1)){
+            throw new Exception(jsonObject.getString("msg"));
+        }
+
+        JSONArray jsonArray = jsonObject.getJSONArray("data");
+        Double discount = jsonArray.getJSONObject(0).getDouble("discount");
+        return discount;
+    }
+
+    public Double getRate(String fundCode, String businFlag) throws Exception {
+        List<TradeRateResult> tradeRateResults = getTradeRateAsList(fundCode, businFlag);
+        for(TradeRateResult rate: tradeRateResults) {
+            if (rate.getChngMinTermMark().equals("日常申购费") && rate.getChagRateUnitMark().equals("%")) {
+                return  Double.parseDouble(rate.getChagRateUpLim())/100d;
+            }
+        }
+        throw new Exception("no rate found");
+    }
+
+    public Double calcPoundage(Double totalAmount, Double rate, Double discount) {
+        return totalAmount * rate * discount / (1 + rate * discount);
+    }
+
     @Override
     public void writeAllTradeRateToMongoDb() throws Exception {
         List<String> funds = getAllFundsInfo();
