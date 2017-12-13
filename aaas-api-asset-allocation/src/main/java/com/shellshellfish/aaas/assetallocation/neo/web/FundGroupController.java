@@ -180,4 +180,19 @@ public class FundGroupController {
         ReturnType smk = fundGroupService.getFundGroupIncomeWeek(id,subGroupId ,returnType);
         return smk;
     }
+
+    /**
+     * 净值增长率(净值增长)走势图     一周以来以来每天
+     *
+     * @param id
+     * @param subGroupId
+     * @return
+     * @throws ParseException
+     */
+    @ApiOperation("组合各种类型净值收益")
+    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/fund-navadj", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ReturnType getFundNetValue(String id, String subGroupId, String returnType) throws ParseException {
+        ReturnType smk = fundGroupService.getFundNetValue(id,subGroupId ,returnType);
+        return smk;
+    }
 }
