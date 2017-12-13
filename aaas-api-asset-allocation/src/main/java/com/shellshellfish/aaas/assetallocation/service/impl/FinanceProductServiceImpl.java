@@ -55,7 +55,7 @@ public class FinanceProductServiceImpl  extends
 
 
   private List<ProductMakeUpInfo> generateTestData(){
-    List<ProductMakeUpInfo> productMakeUpInfos = new ArrayList<>();
+    List<ProductMakeUpInfo> productMakeUpInfos = new ArrayList<ProductMakeUpInfo>();
 
     String id = "1";
     String subGroupId = "1";

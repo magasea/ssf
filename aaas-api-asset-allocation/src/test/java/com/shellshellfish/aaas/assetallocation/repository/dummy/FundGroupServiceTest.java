@@ -112,7 +112,7 @@ public class FundGroupServiceTest {
 
     @Test
     public void getFundGroupIncome() throws ParseException {
-        ReturnType d = allocationService.getFundGroupIncome("1","1",-1);
+        ReturnType d = allocationService.getFundGroupIncome("1","1",-1,"income");
         System.out.println(d);
     }
 
