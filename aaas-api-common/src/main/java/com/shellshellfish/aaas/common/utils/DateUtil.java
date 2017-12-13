@@ -1,10 +1,14 @@
-package com.shellshellfish.aaas.finance.trade.pay.util;
+package com.shellshellfish.aaas.common.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -60,6 +64,10 @@ public class DateUtil {
         return getDateLongValOneDayBefore(inputDate);
     }
 
+    public static Long getCurrentDateInLong(){
+        LocalTime nowInUtc = LocalTime.now(Clock.systemUTC());
+        return nowInUtc.toNanoOfDay();
+    }
 
 
 

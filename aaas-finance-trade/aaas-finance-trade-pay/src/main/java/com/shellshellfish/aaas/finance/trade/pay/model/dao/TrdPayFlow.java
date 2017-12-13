@@ -7,7 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Created by chenwei on 十二月, 2017
+ * Created by chenwei on 2017- 十二月 - 13
  */
 
 @Entity
@@ -26,6 +26,7 @@ public class TrdPayFlow {
   private int payStatus;
   private long payDate;
   private int payType;
+  private Long payAmount;
   private long fundSum;
   private long fundSumConfirmed;
   private long buyFee;
@@ -154,6 +155,16 @@ public class TrdPayFlow {
 
   public void setPayType(int payType) {
     this.payType = payType;
+  }
+
+  @Basic
+  @Column(name = "pay_amount")
+  public Long getPayAmount() {
+    return payAmount;
+  }
+
+  public void setPayAmount(Long payAmount) {
+    this.payAmount = payAmount;
   }
 
   @Basic
@@ -322,6 +333,9 @@ public class TrdPayFlow {
     if (fundCode != null ? !fundCode.equals(that.fundCode) : that.fundCode != null) {
       return false;
     }
+    if (payAmount != null ? !payAmount.equals(that.payAmount) : that.payAmount != null) {
+      return false;
+    }
 
     return true;
   }
@@ -340,6 +354,7 @@ public class TrdPayFlow {
     result = 31 * result + payStatus;
     result = 31 * result + (int) (payDate ^ (payDate >>> 32));
     result = 31 * result + payType;
+    result = 31 * result + (payAmount != null ? payAmount.hashCode() : 0);
     result = 31 * result + (int) (fundSum ^ (fundSum >>> 32));
     result = 31 * result + (int) (fundSumConfirmed ^ (fundSumConfirmed >>> 32));
     result = 31 * result + (int) (buyFee ^ (buyFee >>> 32));

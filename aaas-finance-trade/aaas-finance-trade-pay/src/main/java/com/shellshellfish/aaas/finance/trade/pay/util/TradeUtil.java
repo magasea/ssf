@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.pay.util;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -39,5 +40,13 @@ public class TradeUtil {
 
   }
 
+  /**
+   *
+   * @param originNum
+   * @return
+   */
+  public static double getDoubleWithDiv100(Long originNum){
+    return Math.round(originNum/100.0);
+  }
 
 }

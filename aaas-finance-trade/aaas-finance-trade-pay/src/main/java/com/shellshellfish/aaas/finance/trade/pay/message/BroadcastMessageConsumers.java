@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.pay.message;
 
 
-import com.shellshellfish.aaas.common.message.order.TrdOrderPay;
+import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
@@ -22,7 +22,7 @@ public class BroadcastMessageConsumers {
 
 
 
-    public void receiveMessage(TrdOrderPay trdOrderPay) {
+    public void receiveMessage(TrdOrderDetail trdOrderPay) throws Exception {
         logger.info("Received fanout 1 message: " + trdOrderPay);
         TrdPayFlow trdPayFlow = payService.payOrder(trdOrderPay);
         TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);

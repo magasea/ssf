@@ -1,10 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.pay.message;
 
 
-import com.shellshellfish.aaas.common.message.order.TrdOrderPay;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
-import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;
-import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;

@@ -1,9 +1,9 @@
 package com.shellshellfish.aaas.common.message.order;
 
-
 /**
- * Created by chenwei on 十二月, 2017
+ * Created by chenwei on 2017- 十二月 - 13
  */
+
 
 
 public class TrdPayFlow {
@@ -20,6 +20,7 @@ public class TrdPayFlow {
   private int payStatus;
   private long payDate;
   private int payType;
+  private Long payAmount;
   private long fundSum;
   private long fundSumConfirmed;
   private long buyFee;
@@ -31,6 +32,7 @@ public class TrdPayFlow {
   private long updateDate;
 
   
+  
   public long getId() {
     return id;
   }
@@ -39,6 +41,8 @@ public class TrdPayFlow {
     this.id = id;
   }
 
+  
+  
   public String getOrderId() {
     return orderId;
   }
@@ -47,7 +51,8 @@ public class TrdPayFlow {
     this.orderId = orderId;
   }
 
-
+  
+  
   public String getTradeAcco() {
     return tradeAcco;
   }
@@ -57,6 +62,7 @@ public class TrdPayFlow {
   }
 
   
+  
   public String getTradeBrokeId() {
     return tradeBrokeId;
   }
@@ -65,6 +71,8 @@ public class TrdPayFlow {
     this.tradeBrokeId = tradeBrokeId;
   }
 
+  
+  
   public String getApplySerial() {
     return applySerial;
   }
@@ -73,7 +81,8 @@ public class TrdPayFlow {
     this.applySerial = applySerial;
   }
 
-
+  
+  
   public String getOutsideOrderno() {
     return outsideOrderno;
   }
@@ -82,6 +91,8 @@ public class TrdPayFlow {
     this.outsideOrderno = outsideOrderno;
   }
 
+  
+  
   public String getBankCardNum() {
     return bankCardNum;
   }
@@ -90,7 +101,8 @@ public class TrdPayFlow {
     this.bankCardNum = bankCardNum;
   }
 
- 
+  
+  
   public String getProdCode() {
     return prodCode;
   }
@@ -99,7 +111,8 @@ public class TrdPayFlow {
     this.prodCode = prodCode;
   }
 
- 
+  
+  
   public String getFundCode() {
     return fundCode;
   }
@@ -108,7 +121,8 @@ public class TrdPayFlow {
     this.fundCode = fundCode;
   }
 
-
+  
+  
   public int getPayStatus() {
     return payStatus;
   }
@@ -117,7 +131,8 @@ public class TrdPayFlow {
     this.payStatus = payStatus;
   }
 
-
+  
+  
   public long getPayDate() {
     return payDate;
   }
@@ -126,13 +141,24 @@ public class TrdPayFlow {
     this.payDate = payDate;
   }
 
-
+  
+  
   public int getPayType() {
     return payType;
   }
 
   public void setPayType(int payType) {
     this.payType = payType;
+  }
+
+  
+  
+  public Long getPayAmount() {
+    return payAmount;
+  }
+
+  public void setPayAmount(Long payAmount) {
+    this.payAmount = payAmount;
   }
 
   
@@ -225,7 +251,7 @@ public class TrdPayFlow {
     this.updateDate = updateDate;
   }
 
-  @Override
+  
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -301,11 +327,14 @@ public class TrdPayFlow {
     if (fundCode != null ? !fundCode.equals(that.fundCode) : that.fundCode != null) {
       return false;
     }
+    if (payAmount != null ? !payAmount.equals(that.payAmount) : that.payAmount != null) {
+      return false;
+    }
 
     return true;
   }
 
-  @Override
+  
   public int hashCode() {
     int result = (int) (id ^ (id >>> 32));
     result = 31 * result + (orderId != null ? orderId.hashCode() : 0);
@@ -319,6 +348,7 @@ public class TrdPayFlow {
     result = 31 * result + payStatus;
     result = 31 * result + (int) (payDate ^ (payDate >>> 32));
     result = 31 * result + payType;
+    result = 31 * result + (payAmount != null ? payAmount.hashCode() : 0);
     result = 31 * result + (int) (fundSum ^ (fundSum >>> 32));
     result = 31 * result + (int) (fundSumConfirmed ^ (fundSumConfirmed >>> 32));
     result = 31 * result + (int) (buyFee ^ (buyFee >>> 32));
