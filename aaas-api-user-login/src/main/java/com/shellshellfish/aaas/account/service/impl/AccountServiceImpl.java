@@ -172,18 +172,16 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public boolean sendSmsMessage(String telnum) throws RuntimeException {
+	public String sendSmsMessage(String telnum) throws RuntimeException {
 		
 		VerificationBodyDTO vcodebody=alisms.sendVerificationSms(telnum);
 		if (vcodebody==null)
-			return false;
+			return "";
 		
 		//save to redis server
-		Boolean result = redisService.saveVeribody(vcodebody);
-		if(result){
-			return true;
-		}
-		return false;
+		//Boolean result = redisService.saveVeribody(vcodebody);
+		
+		return vcodebody.getIdentifyingcode();
 	}
 	
 	@Override

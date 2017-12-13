@@ -195,11 +195,12 @@ public class RestApiController {
 	})
 	@ApiResponses({ @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 500, message = "服务器内部程序错误") })
 	@RequestMapping(value = "/telnums/{id}", method = RequestMethod.POST)
-	public ResponseEntity<HttpStatus> codeRequest(
+	public ResponseEntity<Map> codeRequest(
 			//@Valid @NotNull(message = "id不能为空") 
 			@PathVariable("id") String id,
 			//@Valid @NotNull(message = "action不能为空") 
 			@RequestParam(value = "action") String action) {
+		Map<String,Object> result = new HashMap();
 		if ("getVerificationCode".equals(action)) {
 			String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
 			Pattern telPattern = Pattern.compile(telRegExp);
@@ -207,12 +208,13 @@ public class RestApiController {
 			if (!telMatcher.find()) {
 				throw new UserException("102", "手机号格式不对");
 			}
-			if (!accountService.sendSmsMessage(id)) {
-				return new ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR);
+			String code = accountService.sendSmsMessage(id);
+			if (code==""||code==null) {
+				return new ResponseEntity<Map>(result,HttpStatus.INTERNAL_SERVER_ERROR);
 			}
-			
+			result.put("identifyingCode", code);
 		}
-		return new ResponseEntity<HttpStatus>(HttpStatus.OK);
+		return new ResponseEntity<Map>(result,HttpStatus.OK);
 	}
 
 
