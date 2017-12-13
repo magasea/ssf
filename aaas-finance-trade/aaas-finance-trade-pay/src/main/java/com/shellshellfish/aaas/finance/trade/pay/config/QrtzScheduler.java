@@ -1,10 +1,10 @@
-package com.shellshellfish.aaas.finance.trade.pay.scheduler;
+package com.shellshellfish.aaas.finance.trade.pay.config;
 
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-import com.shellshellfish.aaas.finance.trade.pay.config.AutoWiringSpringBeanJobFactory;
+import com.shellshellfish.aaas.finance.trade.pay.scheduler.CheckFundsBuyJob;
 import java.io.IOException;
 import javax.annotation.PostConstruct;
 
@@ -62,7 +62,7 @@ public class QrtzScheduler {
     @Bean
     public JobDetail jobDetail() {
 
-        return newJob().ofType(SampleJob.class).storeDurably().withIdentity(JobKey.jobKey("Qrtz_Job_Detail")).withDescription("Invoke Sample Job service...").build();
+        return newJob().ofType(CheckFundsBuyJob.class).storeDurably().withIdentity(JobKey.jobKey("Qrtz_Job_Detail")).withDescription("Invoke Sample Job service...").build();
     }
 
     @Bean

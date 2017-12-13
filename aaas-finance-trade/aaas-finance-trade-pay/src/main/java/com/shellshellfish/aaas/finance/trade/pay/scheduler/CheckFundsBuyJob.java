@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.pay.scheduler;
 
 
-import com.shellshellfish.aaas.finance.trade.pay.service.impl.SampleJobService;
+import com.shellshellfish.aaas.finance.trade.pay.service.impl.CheckFundsBuyJobService;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -11,12 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SampleJob implements Job {
+public class CheckFundsBuyJob implements Job {
 
     Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private SampleJobService jobService;
+    private CheckFundsBuyJobService jobService;
 
     public void execute(JobExecutionContext context) throws JobExecutionException {
 

@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.pay.util;
 
+import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -24,4 +25,19 @@ public class TradeUtil {
     calendar.set(9999,12,31);
     System.out.println(calendar.getTimeInMillis());
   }
+
+  /**
+   * 输入为有小数点的数字
+   * 输出为精确到百分之一的整型
+   * @param originNum
+   * @return
+   */
+  public static Long getLongNumWithMul100(String originNum){
+
+      BigDecimal origBigD = new BigDecimal(originNum);
+      return  origBigD.multiply(BigDecimal.valueOf(100)).longValue();
+
+  }
+
+
 }

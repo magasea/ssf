@@ -1,21 +1,22 @@
-package com.shellshellfish.aaas.finance.trade.pay.scheduler;
+package com.shellshellfish.aaas.finance.trade.pay.config;
 
-import com.shellshellfish.aaas.finance.trade.pay.config.AutoWiringSpringBeanJobFactory;
+import com.shellshellfish.aaas.finance.trade.pay.scheduler.CheckFundsBuyJob;
+import java.text.ParseException;
 import javax.annotation.PostConstruct;
 import org.quartz.JobDetail;
-import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 
 @Configuration
@@ -26,6 +27,9 @@ public class SpringQrtzScheduler {
 
     @Autowired
     private ApplicationContext applicationContext;
+
+    @Value("${cron.frequency.jobwithcrontrigger}")
+    String cronExpr;
 
     @PostConstruct
     public void init() {
@@ -59,7 +63,7 @@ public class SpringQrtzScheduler {
     public JobDetailFactoryBean jobDetail() {
 
         JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
-        jobDetailFactory.setJobClass(SampleJob.class);
+        jobDetailFactory.setJobClass(CheckFundsBuyJob.class);
         jobDetailFactory.setName("Qrtz_Job_Detail");
         jobDetailFactory.setDescription("Invoke Sample Job service...");
         jobDetailFactory.setDurability(true);
@@ -67,16 +71,13 @@ public class SpringQrtzScheduler {
     }
 
     @Bean
-    public SimpleTriggerFactoryBean trigger(JobDetail job) {
+    public CronTriggerFactoryBean trigger(JobDetail job) throws ParseException {
 
-        SimpleTriggerFactoryBean trigger = new SimpleTriggerFactoryBean();
+        CronTriggerFactoryBean trigger = new CronTriggerFactoryBean();
+
         trigger.setJobDetail(job);
+        trigger.setCronExpression(cronExpr);
 
-        int frequencyInSec = 10;
-        logger.info("Configuring trigger to fire every {} seconds", frequencyInSec);
-
-        trigger.setRepeatInterval(frequencyInSec * 1000);
-        trigger.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
         trigger.setName("Qrtz_Trigger");
         return trigger;
     }
