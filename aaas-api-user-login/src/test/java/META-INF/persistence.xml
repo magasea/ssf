@@ -10,5 +10,6 @@
 		<class>com.shellshellfish.aaas.account.model.dao.RolePermission</class>
 		<class>com.shellshellfish.aaas.account.model.dao.SmsVerification</class>
 		<class>com.shellshellfish.aaas.account.model.dao.UserRole</class>
+		<class>com.shellshellfish.aaas.account.model.dao2.UiAsset</class>
 	</persistence-unit>
 </persistence>
