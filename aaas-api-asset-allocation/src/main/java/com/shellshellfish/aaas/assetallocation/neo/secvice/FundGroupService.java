@@ -318,7 +318,7 @@ public class FundGroupService {
             aReturn.setName("模拟数据");
             aReturn.setProductGroupId(riskIncomeInterval.getFund_group_id());
             aReturn.setProductSubGroupId(riskIncomeInterval.getId());
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 5; i++) {
                 Map<String, Object> maps = new HashMap<>();
                 if (i == 0) {
                     maps.put("id", 1);
@@ -336,6 +336,10 @@ public class FundGroupService {
                     maps.put("id", 4);
                     maps.put("name", "最大亏损额");
                     maps.put("value", riskIncomeInterval.getMaximum_losses());
+                } else if (i==4){
+                    maps.put("id", 4);
+                    maps.put("name", "夏普比率");
+                    maps.put("value", riskIncomeInterval.getSharpe_ratio());
                 }
                 list.add(maps);
             }

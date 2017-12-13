@@ -130,7 +130,7 @@ public class FundGroupController {
      */
     @ApiOperation("模拟历史年化业绩与模拟历史年化波动率")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public PerformanceVolatilityReturn getPerformanceVolatility(@RequestParam(defaultValue="1") String riskLevel,@RequestParam(defaultValue="1") String investmentPeriod) {
+    public PerformanceVolatilityReturn getPerformanceVolatility(@RequestParam(defaultValue="C1") String riskLevel,@RequestParam(defaultValue="1") String investmentPeriod) {
         PerformanceVolatilityReturn riskIncomeIntervals= fundGroupService.getPerformanceVolatility(riskLevel,investmentPeriod);
         return riskIncomeIntervals;
     }
