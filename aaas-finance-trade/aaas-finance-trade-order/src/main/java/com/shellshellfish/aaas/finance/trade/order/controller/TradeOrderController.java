@@ -36,7 +36,7 @@ public class TradeOrderController {
   /**
    * 购买理财产品 页面
    *
-   * @param id
+   * @param userUuid
    * @return
    */
   @ApiOperation("购买理财产品 页面")
@@ -58,6 +58,7 @@ public class TradeOrderController {
     }else{
 
     }
+    return null;
   }
 
 

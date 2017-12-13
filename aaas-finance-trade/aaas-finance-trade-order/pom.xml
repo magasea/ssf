@@ -164,7 +164,15 @@
 							<outputDirectory>src/main/proto</outputDirectory>
 							<resources>
 								<resource>
-									<directory>../proto/trade/</directory>
+									<directory>../../proto/trade/</directory>
+									<filtering>true</filtering>
+								</resource>
+								<resource>
+								<directory>../../proto/finance/</directory>
+								<filtering>true</filtering>
+							</resource>
+								<resource>
+									<directory>../../proto/userinfo/</directory>
 									<filtering>true</filtering>
 								</resource>
 							</resources>

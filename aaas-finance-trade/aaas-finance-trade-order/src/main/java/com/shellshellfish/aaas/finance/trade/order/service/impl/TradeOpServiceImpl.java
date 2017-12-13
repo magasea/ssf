@@ -14,9 +14,16 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderReposito
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdInfoService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
 import com.shellshellfish.aaas.finance.trade.order.util.TradeUtil;
+import com.shellshellfish.aaas.trade.finance.prod.FinanceProductServiceGrpc;
+import com.shellshellfish.aaas.trade.finance.prod.FinanceProductServiceGrpc.FinanceProductServiceFutureStub;
+import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
+import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc.UserInfoServiceFutureStub;
+import io.grpc.ManagedChannel;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -43,6 +50,26 @@ public class TradeOpServiceImpl implements TradeOpService {
 
   @Autowired
   BroadcastMessageProducer broadcastMessageProducer;
+
+  @Autowired
+  UserInfoServiceFutureStub userInfoServiceFutureStub;
+
+
+
+
+  @Autowired
+  ManagedChannel managedUIChannel;
+
+
+
+  @PostConstruct
+  public void init(){
+    userInfoServiceFutureStub = UserInfoServiceGrpc.newFutureStub(managedUIChannel);
+  }
+
+  public void shutdown() throws InterruptedException {
+    managedUIChannel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+  }
 
   @Override
   public TrdOrder buyFinanceProduct(FinanceProdBuyInfo financeProdBuyInfo)
@@ -94,4 +121,9 @@ public class TradeOpServiceImpl implements TradeOpService {
     }
     return trdOrder;
   }
+
+  private Long getUserId(){
+    return null;
+  }
+
 }

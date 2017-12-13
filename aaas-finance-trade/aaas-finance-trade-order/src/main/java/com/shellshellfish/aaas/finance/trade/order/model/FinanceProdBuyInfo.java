@@ -10,6 +10,7 @@ public class FinanceProdBuyInfo {
   Long prodId;//产品编号
   Long groupId;//产品分组编号
   Long userId;//用户
+  String uuid; //用户 uuid
   String bankAcc;//银行账户
   String orderId;//订单号ID
 

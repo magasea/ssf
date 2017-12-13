@@ -36,6 +36,7 @@ public class FinanceProdInfoServiceImpl implements FinanceProdInfoService {
   ManagedChannel managedFINChannel;
 
 
+
   @PostConstruct
   public void init(){
     financeProductServiceFutureStub = FinanceProductServiceGrpc.newFutureStub(managedFINChannel);
