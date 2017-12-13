@@ -2,7 +2,7 @@ package com.shellshellfish.aaas.assetallocation.neo.util;
 
 import com.mathworks.toolbox.javabuilder.MWException;
 
-import com.shellshellfish.aaas.assetallocation.tools.MatLab;
+import com.yihui.MatLab;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +42,6 @@ public class CalculatePortvrisks {
 
         } catch (MWException e) {
             logger.error("Failed to calculatePortvrisk!");
-            e.printStackTrace();
-        } catch (IOException e) {
             e.printStackTrace();
         }
 
