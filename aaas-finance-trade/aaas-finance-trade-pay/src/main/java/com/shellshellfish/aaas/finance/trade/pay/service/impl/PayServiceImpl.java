@@ -9,7 +9,7 @@ import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdBrokerUserRepository;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
-import com.shellshellfish.aaas.finance.trade.pay.util.TradeUtil;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;

@@ -28,7 +28,7 @@ datasource:
 ---
 
 spring:
-    profiles: prod
+    profiles: dev
     data:
       mongodb:
         database: test1
@@ -53,3 +53,7 @@ datasource:
       format_sql: true
       dialect: org.hibernate.dialect.MySQLDialect
 
+grpc:
+  userinfo:
+    host: localhost
+    port: 10041

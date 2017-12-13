@@ -1,9 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.message;
 
-import static org.junit.Assert.*;
-
-import com.shellshellfish.aaas.common.message.order.TrdOrderPay;
-import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
+import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +18,7 @@ public class BroadcastMessageProducerTest {
 
   @Test
   public void sendMessages() throws Exception {
-    TrdOrderPay trdOrderPay = new TrdOrderPay();
+    TrdOrderDetail trdOrderPay = new TrdOrderDetail();
     broadcastMessageProducer.sendMessages(trdOrderPay);
   }
 

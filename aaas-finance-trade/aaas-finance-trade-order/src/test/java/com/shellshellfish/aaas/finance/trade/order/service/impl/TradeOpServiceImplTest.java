@@ -1,11 +1,9 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
-import static org.junit.Assert.*;
-
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProducer;
-import com.shellshellfish.aaas.finance.trade.order.model.FinanceProdBuyInfo;
+import com.shellshellfish.aaas.finance.trade.order.model.vo.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderTypeEnum;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokderRepository;
@@ -13,6 +11,7 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRe
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdInfoService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
+import java.math.BigDecimal;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,7 +57,7 @@ public class TradeOpServiceImplTest {
     FinanceProdBuyInfo financeProdBuyInfo = new FinanceProdBuyInfo();
     financeProdBuyInfo.setBankAcc("62127649173401236041");
     financeProdBuyInfo.setGroupId(1L);
-    financeProdBuyInfo.setMoney(100000L);
+    financeProdBuyInfo.setMoney(BigDecimal.valueOf(100000L));
     financeProdBuyInfo.setProdId(1L);
     financeProdBuyInfo.setOrderType(TrdOrderTypeEnum.BUY.ordinal());
     financeProdBuyInfo.setUserId(11L);

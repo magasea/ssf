@@ -1,8 +1,14 @@
 package com.shellshellfish.aaas.finance.trade.order.model.dao;
 
 import java.io.Serializable;
-import javax.persistence.*;
 import java.math.BigInteger;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 
 
 /**

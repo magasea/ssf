@@ -1,18 +1,27 @@
-package com.shellshellfish.aaas.finance.trade.order.model;
+package com.shellshellfish.aaas.finance.trade.order.model.vo;
 
+import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class FinanceProdBuyInfo {
-  Long money;//金额单位到分
+  BigDecimal money;//金额单位到分
   Long prodId;//产品编号
   Long groupId;//产品分组编号
   Long userId;//用户
   String uuid; //用户 uuid
   String bankAcc;//银行账户
   String orderId;//订单号ID
+
+  public String getUuid() {
+    return uuid;
+  }
+
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+  }
 
   public int getOrderType() {
     return orderType;
@@ -24,11 +33,11 @@ public class FinanceProdBuyInfo {
 
   int orderType; //1-购买 2-分红 3-赎回
 
-  public Long getMoney() {
+  public BigDecimal getMoney() {
     return money;
   }
 
-  public void setMoney(Long money) {
+  public void setMoney(BigDecimal money) {
     this.money = money;
   }
 

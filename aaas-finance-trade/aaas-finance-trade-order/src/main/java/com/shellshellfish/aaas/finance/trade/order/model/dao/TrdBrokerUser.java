@@ -1,5 +1,6 @@
-package com.shellshellfish.aaas.finance.trade.pay.model.dao;
+package com.shellshellfish.aaas.finance.trade.order.model.dao;
 
+import io.swagger.models.auth.In;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -7,17 +8,18 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Created by chenwei on 十二月, 2017
+ * Created by chenwei on 2017- 十二月 - 13
  */
 
 @Entity
-@Table(name = "trd_trade_broker", schema = "ssftrdpay", catalog = "")
-public class TrdTradeBroker {
+@Table(name = "trd_broker_user", schema = "ssftrdorder", catalog = "")
+public class TrdBrokerUser {
 
   private long id;
-  private String tradeBrokerName;
-  private int tradeBrokerId;
-  private int priority;
+  private Integer tradeBrokerId;
+  private Long userId;
+  private String tradeAcco;
+  private Integer priority;
   private long createBy;
   private long createDate;
   private long updateBy;
@@ -34,32 +36,42 @@ public class TrdTradeBroker {
   }
 
   @Basic
-  @Column(name = "trade_broker_name")
-  public String getTradeBrokerName() {
-    return tradeBrokerName;
-  }
-
-  public void setTradeBrokerName(String tradeBrokerName) {
-    this.tradeBrokerName = tradeBrokerName;
-  }
-
-  @Basic
   @Column(name = "trade_broker_id")
-  public int getTradeBrokerId() {
+  public Integer getTradeBrokerId() {
     return tradeBrokerId;
   }
 
-  public void setTradeBrokerId(int tradeBrokerId) {
+  public void setTradeBrokerId(Integer tradeBrokerId) {
     this.tradeBrokerId = tradeBrokerId;
   }
 
   @Basic
+  @Column(name = "user_id")
+  public Long getUserId() {
+    return userId;
+  }
+
+  public void setUserId(Long userId) {
+    this.userId = userId;
+  }
+
+  @Basic
+  @Column(name = "trade_acco")
+  public String getTradeAcco() {
+    return tradeAcco;
+  }
+
+  public void setTradeAcco(String tradeAcco) {
+    this.tradeAcco = tradeAcco;
+  }
+
+  @Basic
   @Column(name = "priority")
-  public int getPriority() {
+  public Integer getPriority() {
     return priority;
   }
 
-  public void setPriority(int priority) {
+  public void setPriority(Integer priority) {
     this.priority = priority;
   }
 
@@ -112,15 +124,9 @@ public class TrdTradeBroker {
       return false;
     }
 
-    TrdTradeBroker that = (TrdTradeBroker) o;
+    TrdBrokerUser that = (TrdBrokerUser) o;
 
     if (id != that.id) {
-      return false;
-    }
-    if (tradeBrokerId != that.tradeBrokerId) {
-      return false;
-    }
-    if (priority != that.priority) {
       return false;
     }
     if (createBy != that.createBy) {
@@ -135,8 +141,17 @@ public class TrdTradeBroker {
     if (updateDate != that.updateDate) {
       return false;
     }
-    if (tradeBrokerName != null ? !tradeBrokerName.equals(that.tradeBrokerName)
-        : that.tradeBrokerName != null) {
+    if (tradeBrokerId != null ? !tradeBrokerId.equals(that.tradeBrokerId)
+        : that.tradeBrokerId != null) {
+      return false;
+    }
+    if (userId != null ? !userId.equals(that.userId) : that.userId != null) {
+      return false;
+    }
+    if (tradeAcco != null ? !tradeAcco.equals(that.tradeAcco) : that.tradeAcco != null) {
+      return false;
+    }
+    if (priority != null ? !priority.equals(that.priority) : that.priority != null) {
       return false;
     }
 
@@ -146,9 +161,10 @@ public class TrdTradeBroker {
   @Override
   public int hashCode() {
     int result = (int) (id ^ (id >>> 32));
-    result = 31 * result + (tradeBrokerName != null ? tradeBrokerName.hashCode() : 0);
-    result = 31 * result + tradeBrokerId;
-    result = 31 * result + priority;
+    result = 31 * result + (tradeBrokerId != null ? tradeBrokerId.hashCode() : 0);
+    result = 31 * result + (userId != null ? userId.hashCode() : 0);
+    result = 31 * result + (tradeAcco != null ? tradeAcco.hashCode() : 0);
+    result = 31 * result + (priority != null ? priority.hashCode() : 0);
     result = 31 * result + (int) (createBy ^ (createBy >>> 32));
     result = 31 * result + (int) (createDate ^ (createDate >>> 32));
     result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));

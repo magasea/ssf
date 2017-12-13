@@ -8,4 +8,5 @@ public interface TrdBrokderRepository extends PagingAndSortingRepository<TrdTrad
 
   @Override
   TrdTradeBroker findOne(Long id);
+
 }

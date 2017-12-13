@@ -8,9 +8,8 @@ import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
 
 import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
-import com.shellshellfish.aaas.finance.trade.pay.util.TradeUtil;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import java.time.Instant;
-import java.util.Calendar;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

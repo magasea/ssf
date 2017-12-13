@@ -2,6 +2,8 @@ package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
 import com.mongodb.WriteResult;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
+import com.shellshellfish.aaas.userinfo.grpc.UserId;
+import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAsset;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
@@ -36,6 +38,7 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserPortfolioRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserTradeLogRepository;
 import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
+import io.grpc.stub.StreamObserver;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -88,6 +91,8 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Autowired
 	MongoTemplate mongoTemplate;
+
+
 
 	@Override
 	public UserBaseInfoDTO getUserInfoBase(Long id) {
@@ -254,4 +259,15 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		return userInfoCompanyInfoRepository.save(uiCompanyInfo);
 	}
 
+	@Override
+	public void getUserId(UserIdQuery userIdQuery, StreamObserver<UserId> responseObserver){
+		Long userId = null;
+		try {
+			userId = getUserIdFromUUID(userIdQuery.getUuid());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		responseObserver.onNext(UserId.newBuilder().setUserId(userId).build());
+		responseObserver.onCompleted();
+	}
 }

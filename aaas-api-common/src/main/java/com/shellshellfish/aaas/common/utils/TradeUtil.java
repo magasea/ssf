@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.finance.trade.pay.util;
+package com.shellshellfish.aaas.common.utils;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -28,7 +28,7 @@ public class TradeUtil {
   }
 
   /**
-   * 输入为有小数点的数字
+   * 输入为有小数点的数字的字符串
    * 输出为精确到百分之一的整型
    * @param originNum
    * @return
@@ -41,6 +41,19 @@ public class TradeUtil {
   }
 
   /**
+   * 输入为有小数点的数字的BigDecimal
+   * 输出为精确到百分之一的整型
+   * @param originNum
+   * @return
+   */
+  public static Long getLongNumWithMul100(BigDecimal originNum){
+
+
+    return  originNum.multiply(BigDecimal.valueOf(100)).longValue();
+
+  }
+
+  /**
    *
    * @param originNum
    * @return
@@ -48,5 +61,8 @@ public class TradeUtil {
   public static double getDoubleWithDiv100(Long originNum){
     return Math.round(originNum/100.0);
   }
+
+
+
 
 }
