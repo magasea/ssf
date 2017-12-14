@@ -1,7 +1,8 @@
 package com.shellshellfish.aaas.assetallocation.neo.util;
 
+import com.mathworks.toolbox.javabuilder.MWException;
 import com.mathworks.toolbox.javabuilder.MWNumericArray;
-import com.yihui.MatLab;
+import com.yihui.MATLAB;
 
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class MVO {
         Object[] resust = null;
         List<float [][]> list = new ArrayList<>();
         try{
-            MatLab ml = new MatLab();
+            MATLAB ml = new MATLAB();
             resust = ml.efficientFrontier(3,ExpReturn,ExpCovariance,count);
             MWNumericArray temp = (MWNumericArray)resust[0];
             float [][] weights=(float[][])temp.toFloatArray();
@@ -51,7 +52,7 @@ public class MVO {
     public static Object[] incomeAndRisk(Double [] ExpReturn,Double[][] ExpCovariance,Double [] PortWts){
         Object[] resust = null;
         try{
-            MatLab ml = new MatLab();
+            MATLAB ml = new MATLAB();
             resust = ml.riskAndIncome(2,ExpReturn,ExpCovariance,PortWts);
             MWNumericArray temp = (MWNumericArray)resust[0];
             float [][] weights=(float[][])temp.toFloatArray();
@@ -64,5 +65,22 @@ public class MVO {
             e.printStackTrace();
         }
         return resust;
+    }
+
+    /**
+     * 计算夏普比率
+     * @param asset
+     * @param cash
+     * @return
+     */
+    public static Object sharpeRatio(Double[] asset ,Double cash){
+        Object result = null;
+        try {
+            MATLAB ml = new MATLAB();
+            result = ml.sharpeRatio(1,asset,cash)[0];
+        } catch (MWException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }

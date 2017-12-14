@@ -19,11 +19,11 @@ public interface FundGroupMapper {
 
     List<Interval> selectAllFundGroupNum();
 
-    List<Interval> selectById(@Param("id") String id, @Param("subGroupId") String subGroupId);
+    List<Interval> selectById(Map map);
 
-    List<Interval> getProportion( @Param("id") String id, @Param("subId") String subId);
+    List<Interval> getProportion(Map map);
 
-    List<FundGroupDetails> efficientFrontier(@Param("uuid") String uuid,@Param("subGroupId") String subGroupId);
+    List<FundGroupDetails> efficientFrontier(Map map);
 
     List<Interval> getinterval(Map map);
 
@@ -39,14 +39,16 @@ public interface FundGroupMapper {
 
     List<Interval> getRevenueContribution(Map map);
 
-    List<RiskController> getRiskController(@Param("id") String id, @Param("subGroupId") String subGroupId);
+    List<RiskController> getRiskController(Map map);
 
     List<RiskIncomeInterval> getScaleMark(@Param("id") String id);
 
     List<FundGroupBuy> getFundGroupBuy(@Param("id") String id);
 
-    List<FundNetVal> getFundNetValue(@Param("fund_income_type") String fund_income_type, @Param("startTime") String starttime, @Param("endtTime") String endtime);
+    List<FundNetVal> getFundNetValue(Map map);
 
     List<FundGroupHistory> getHistory(Map map);
+
+    List<FundNetVal> getSharpeRatio(Map map);
 
 }
