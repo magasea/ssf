@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class FundGroupServiceTest {
 
     @Autowired
@@ -46,6 +46,11 @@ public class FundGroupServiceTest {
         ca.add(Calendar.MONTH, 1);
         ca.add(Calendar.DAY_OF_MONTH, -1);
         System.out.println(new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime()));
+
+        double d = 0.2;
+        double c = 0.4;
+        double a = d/c;
+        System.out.println(a);
     }
 
     @Test

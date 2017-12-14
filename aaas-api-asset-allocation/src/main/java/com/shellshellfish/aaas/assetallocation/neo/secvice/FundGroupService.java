@@ -318,7 +318,7 @@ public class FundGroupService {
             aReturn.setName("模拟数据");
             aReturn.setProductGroupId(riskIncomeInterval.getFund_group_id());
             aReturn.setProductSubGroupId(riskIncomeInterval.getId());
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 5; i++) {
                 Map<String, Object> maps = new HashMap<>();
                 if (i == 0) {
                     maps.put("id", 1);
@@ -336,6 +336,10 @@ public class FundGroupService {
                     maps.put("id", 4);
                     maps.put("name", "最大亏损额");
                     maps.put("value", riskIncomeInterval.getMaximum_losses());
+                } else if (i==4){
+                    maps.put("id", 4);
+                    maps.put("name", "夏普比率");
+                    maps.put("value", riskIncomeInterval.getSharpe_ratio());
                 }
                 list.add(maps);
             }
@@ -497,27 +501,34 @@ public class FundGroupService {
     public ReturnType getFundNetValue(String id, String subGroupId, String returnType) throws ParseException {
         ReturnType fgi = new ReturnType();
         List<Map<String, Object>> list = new ArrayList<>();
-        Map<String, Object> map = new HashMap<>();
         Calendar ca = Calendar.getInstance();
         Map<String, String> _links = new HashMap<>();
         //Date endDate = new Date();
         Date endDate = new SimpleDateFormat("yyyy-MM-dd").parse("2017-11-25");
         ca.setTime(endDate);
-        ca.add(Calendar.DATE, -7);
+        ca.add(Calendar.DATE, -8);
         String startTime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
         ca.setTime(endDate);
         ca.add(Calendar.DATE, -1);
         String endTime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
         List<Interval> interval = fundGroupMapper.getProportion(id, subGroupId);
         for (Interval interval1 : interval) {
+            Map<String, Object> map = new HashMap<>();
             Map<String, Object> fundMap = new HashMap<>();
-            List<FundNetVal> fundNetValues = fundGroupMapper.getFundNetValue(interval1.getFund_income_type(),startTime, endTime);
-            for (FundNetVal fundNetVal : fundNetValues) {
-                if (interval1.getFund_income_type().equalsIgnoreCase(fundNetVal.getCode())) {
-                    fundMap.put(new SimpleDateFormat("yyyy-MM-dd").format(fundNetVal.getNavLatestDate()), fundNetVal.getNavadj());
+            List<FundNetVal> fundNetValues = fundGroupMapper.getFundNetValue(interval1.getFund_income_type(), startTime, endTime);
+            for (int i = 1; i < fundNetValues.size(); i++) {
+                if (returnType.equalsIgnoreCase("1")) {
+                    fgi.setName("净值增长");
+                    fundMap.put(new SimpleDateFormat("yyyy-MM-dd").format(fundNetValues.get(i).getNavLatestDate()), fundNetValues.get(i).getNavadj());
+                } else {
+                    fgi.setName("净值增长率");
+                    double navadjReturn = (fundNetValues.get(i).getNavadj()-fundNetValues.get(i-1).getNavadj())/fundNetValues.get(i-1).getNavadj();
+                    fundMap.put(new SimpleDateFormat("yyyy-MM-dd").format(fundNetValues.get(i).getNavLatestDate()), navadjReturn);
                 }
             }
-            //map.put(fundNetVal.getCode(), fundNetVal.);
+            map.put("navadj", fundMap);
+            map.put("基金类型", interval1.getFund_income_type());
+            list.add(map);
         }
         fgi.set_total(list.size());
         fgi.set_items(list);

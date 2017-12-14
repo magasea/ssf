@@ -70,6 +70,7 @@ public class GlobalExceptionHandler{
 	public ResponseEntity<Error> UserExceptionHandler(UserException e) {
 		Error error = new Error(e.getMsg());
 		error.setCode(Integer.parseInt(e.getCode()));
+		error.setMessage(e.getMsg());
 		return new ResponseEntity<Error>(error, HttpStatus.BAD_REQUEST);
 	}
 

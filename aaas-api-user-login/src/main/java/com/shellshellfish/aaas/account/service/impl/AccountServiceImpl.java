@@ -6,10 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 //import org.springframework.test.context.ActiveProfiles;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.shellshellfish.aaas.account.exception.UserException;
 import com.shellshellfish.aaas.account.model.dao.BankCard;
 import com.shellshellfish.aaas.account.model.dao.User;
@@ -40,6 +38,9 @@ public class AccountServiceImpl implements AccountService {
 	@Autowired
 	private BankCardRepository bankCardRepository;
 	
+//	@Autowired
+//	private AssetRepository assetRepository;
+	
 	@Autowired
     private RedisService redisService;
 	
@@ -56,6 +57,7 @@ public class AccountServiceImpl implements AccountService {
 		String passwordhash = loginBodyDTO.getPassword();
 		
 		List<User> userList = userRepository.findByCellPhoneAndPasswordHash(cellphone, passwordhash);
+		//List<UiAsset> userAssetList = assetRepository.findAll();
 		if (userList != null && userList.size() > 0) {
 //			redisService.doPwdSave(cellphone,passwordhash);
 			return userList;
@@ -170,18 +172,16 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public boolean sendSmsMessage(String telnum) throws RuntimeException {
+	public String sendSmsMessage(String telnum) throws RuntimeException {
 		
 		VerificationBodyDTO vcodebody=alisms.sendVerificationSms(telnum);
 		if (vcodebody==null)
-			return false;
+			return "";
 		
 		//save to redis server
-		Boolean result = redisService.saveVeribody(vcodebody);
-		if(result){
-			return true;
-		}
-		return false;
+		//Boolean result = redisService.saveVeribody(vcodebody);
+		
+		return vcodebody.getIdentifyingcode();
 	}
 	
 	@Override
