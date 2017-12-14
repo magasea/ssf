@@ -16,6 +16,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class PayServiceImpl implements PayService{
 
@@ -37,7 +39,7 @@ public class PayServiceImpl implements PayService{
         .getTradeAcco();
     //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
     trdOrderPay.getFundCode();
-    double payAmount = TradeUtil.getDoubleWithDiv100(trdOrderPay.getPayAmount());
+    BigDecimal payAmount = TradeUtil.getBigDecimalNumWithMul100(trdOrderPay.getPayAmount());
     BuyFundResult fundResult = fundTradeApiService.buyFund(userTrdAcco, payAmount, String
         .valueOf(trdOrderPay.getId()),trdOrderPay.getFundCode());
     TrdPayFlow trdPayFlow = new TrdPayFlow();
