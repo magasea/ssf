@@ -4,7 +4,7 @@ zuul:
       path: /phoneapi-ssf/**
       url: http://localhost:10025/phoneapi-ssf
     userinfo:
-      path: /api/f/SHT/temp-11-15/aaas/aaas-api-gateway/userinfo/**
+      path: /api/userinfo/**
       url: http://localhost:10021/api/userinfo/
     userinfo-swagger:
       path: /api/userinfo/swagger-ui.html
