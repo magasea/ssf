@@ -4,6 +4,7 @@ import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
 import com.shellshellfish.aaas.assetallocation.neo.secvice.FundGroupService;
 import com.shellshellfish.aaas.assetallocation.service.impl.FinanceProductServiceImpl;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
+import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,11 +125,12 @@ public class FundGroupServiceTest {
     @Test
     public void financeProductService(){
         ProductBaseInfo productBaseInfo = new ProductBaseInfo();
-        financeProductService.getProductInfo(productBaseInfo);
+        List<ProductMakeUpInfo> a = financeProductService.getProductInfo(productBaseInfo);
     }
 
     @Test
     public void sharpeRatio(){
-        allocationService.sharpeRatio("1","1");
+        int i = allocationService.sharpeRatio("5","6");
+        System.out.println(i);
     }
 }

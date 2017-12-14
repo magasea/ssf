@@ -195,4 +195,20 @@ public class FundGroupController {
         ReturnType smk = fundGroupService.getFundNetValue(id,subGroupId ,returnType);
         return smk;
     }
+
+    /**
+     * 未来收益走势图
+     *
+     * @param id
+     * @param subGroupId
+     * @return
+     * @throws ParseException
+     */
+    @ApiOperation("未来收益走势图")
+    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/expected-income", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ReturnType getExpectedIncome(@PathVariable("groupId") String id,@PathVariable("subGroupId") String subGroupId){
+        ReturnType smk = fundGroupService.getExpectedIncome(id,subGroupId);
+        return smk;
+    }
+
 }
