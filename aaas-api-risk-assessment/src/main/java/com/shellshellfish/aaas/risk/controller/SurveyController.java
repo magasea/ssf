@@ -2,9 +2,12 @@ package com.shellshellfish.aaas.risk.controller;
 
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.shellshellfish.aaas.risk.model.dao.Answer;
+import com.shellshellfish.aaas.risk.model.dao.Question;
+import com.shellshellfish.aaas.risk.model.dto.QuestionDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +63,7 @@ public class SurveyController {
 		log.debug("REST request to get a survey template. bank uuid:{}", bankUuid);		
 
 		SurveyTemplateDTO surveyTemplate = surveyTemplateService.getSurveyTemplate("南京银行个人客户风险评估表", "1.0");
-		
+
 		ResourceWrapper<SurveyTemplateDTO> resource = new ResourceWrapper<>(surveyTemplate);
 		Links links = new Links();
 		links.setSelf(String.format("/api/riskassessment/banks/%s/surveytemplates/latest", bankUuid));
@@ -94,10 +97,6 @@ public class SurveyController {
 														 @PathVariable String userUuid,
 														 @RequestBody SurveyResult surveyResult) throws URISyntaxException, Exception{
 		log.debug("REST request to Insert or Update a SurveyResult.");
-		
-		surveyResult.setUserId(userUuid);
-		
-		surveyResultService.save(surveyResult);
 
 		Integer sum = 0;
 		for(Answer answer: surveyResult.getAnswers()) {
@@ -106,7 +105,7 @@ public class SurveyController {
 
 		Map<String, String> map = new HashMap<>();
 
-		if (sum <=73) {
+		if (sum <= 73) {
 			map.put("riskLevel", "保守型");
 		} else if (sum >= 74 && sum <= 107) {
 			map.put("riskLevel", "稳健型");
@@ -118,8 +117,10 @@ public class SurveyController {
 			map.put("riskLevel", "进取型");
 		}
 
+		surveyResult.setUserId(userUuid);
+		surveyResult.setRiskLevel(map.get("riskLevel"));
+		surveyResultService.save(surveyResult);
+
 		return ResponseEntity.ok().body(map);
 	}
-	
-	
 }
