@@ -43,7 +43,10 @@ public class FundGroupService {
             Map<String, Double> assetsRatios = new HashMap<>();
             for (Interval interval : fundGroup) {
                 if (interval.getFund_group_id().equalsIgnoreCase(fundGroupNum.get(i).getFund_group_id())) {
-                    List<Interval> intervals = fundGroupMapper.getProportion(interval.getFund_group_id(), interval.getId());
+                    Map<String,String> query = new HashMap<>();
+                    query.put("id",interval.getFund_group_id());
+                    query.put("subId",interval.getId());
+                    List<Interval> intervals = fundGroupMapper.getProportion(query);
                     //基金组合内的各基金权重
                     for (Interval inter : intervals) {
                         assetsRatios.put(inter.getFund_income_type(), inter.getProportion());
@@ -78,7 +81,10 @@ public class FundGroupService {
      */
     public FundReturn selectById(String id, String subGroupId) {
         FundReturn fr = null;
-        List<Interval> interval = fundGroupMapper.selectById(id, subGroupId);
+        Map<String,String> query = new HashMap<>();
+        query.put("id",id);
+        query.put("subGroupId",subGroupId);
+        List<Interval> interval = fundGroupMapper.selectById(query);
         if (interval.size() != 0) {
             fr = getFundReturn(interval);
         }
@@ -167,7 +173,10 @@ public class FundGroupService {
      * @return
      */
     public ReturnType efficientFrontier(String id, String subId) {
-        List<FundGroupDetails> fundidlist = fundGroupMapper.efficientFrontier(id, subId);
+        Map<String,String> query = new HashMap<>();
+        query.put("uuid",id);
+        query.put("subGroupId",subId);
+        List<FundGroupDetails> fundidlist = fundGroupMapper.efficientFrontier(query);
         List<String> ls = new ArrayList<>();
         for (FundGroupDetails fgd : fundidlist) {
             ls.add(fgd.getFund_id());
@@ -228,7 +237,10 @@ public class FundGroupService {
      * @return
      */
     public ReturnType getRiskController(String id, String subGroupId) {
-        List<RiskController> riskControllers = fundGroupMapper.getRiskController(id, subGroupId);
+        Map<String,String> query = new HashMap<>();
+        query.put("id",id);
+        query.put("subGroupId",subGroupId);
+        List<RiskController> riskControllers = fundGroupMapper.getRiskController(query);
         ReturnType rct = new ReturnType();
         List<Map<String, Object>> list = new ArrayList<>();
         Map<String, String> _links = new HashMap<>();
@@ -511,11 +523,18 @@ public class FundGroupService {
         ca.setTime(endDate);
         ca.add(Calendar.DATE, -1);
         String endTime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
-        List<Interval> interval = fundGroupMapper.getProportion(id, subGroupId);
+        Map<String,String> query = new HashMap<>();
+        query.put("id",id);
+        query.put("subId",subGroupId);
+        List<Interval> interval = fundGroupMapper.getProportion(query);
         for (Interval interval1 : interval) {
             Map<String, Object> map = new HashMap<>();
             Map<String, Object> fundMap = new HashMap<>();
-            List<FundNetVal> fundNetValues = fundGroupMapper.getFundNetValue(interval1.getFund_income_type(), startTime, endTime);
+            Map<String,String> query1 = new HashMap<>();
+            query1.put("fund_income_type",interval1.getFund_income_type());
+            query1.put("startTime",startTime);
+            query1.put("endtTime",endTime);
+            List<FundNetVal> fundNetValues = fundGroupMapper.getFundNetValue(query1);
             for (int i = 1; i < fundNetValues.size(); i++) {
                 if (returnType.equalsIgnoreCase("1")) {
                     fgi.setName("净值增长");
@@ -539,6 +558,27 @@ public class FundGroupService {
     }
 
     /**
+     * 计算夏普比率
+     * @param group_id
+     * @param subGroupId
+     * @return
+     */
+    public Double sharpeRatio(String group_id,String subGroupId){
+        //测试数据
+        //Double[] asset ={1.2000,   1.3000  ,  0.9000 ,   1.5000};
+        Double cash = 0.0135;
+        Map<String,String> query = new HashMap<>();
+        query.put("fund_group_id",group_id);
+        query.put("subGroupId",subGroupId);
+        List<FundNetVal> fundNetValList = fundGroupMapper.getSharpeRatio(query);
+        Double[] asset =new Double[fundNetValList.size()];
+        for(int i = 0; i<fundNetValList.size();i++){
+            asset[i]= fundNetValList.get(i).getNavadj();
+        }
+        double sharpeRatio = Double.parseDouble(MVO.sharpeRatio(asset,cash).toString());
+        return sharpeRatio;
+    }
+    /**
      * 把传出数据转为json格式
      *
      * @param interval
@@ -550,7 +590,10 @@ public class FundGroupService {
             Map<String, Double> assetsRatios = new HashMap<>();
             Map<String, String> _links = new HashMap<>();
             List<Map<String, Double>> list = new ArrayList<>();
-            List<Interval> intervals = fundGroupMapper.getProportion(interval.get(0).getFund_group_id(), interval.get(0).getId());
+            Map<String,String> query = new HashMap<>();
+            query.put("id",interval.get(0).getFund_group_id());
+            query.put("subId",interval.get(0).getId());
+            List<Interval> intervals = fundGroupMapper.getProportion(query);
             //基金组合内的各基金权重
             for (Interval inter : intervals) {
                 assetsRatios.put(inter.getFund_income_type(), inter.getProportion());

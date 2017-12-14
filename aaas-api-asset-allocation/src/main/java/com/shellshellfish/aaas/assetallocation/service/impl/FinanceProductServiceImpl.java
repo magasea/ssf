@@ -17,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class FinanceProductServiceImpl  extends
@@ -28,12 +30,11 @@ public class FinanceProductServiceImpl  extends
   @Autowired
   private FundGroupMapper fundGroupMapper;
 
-
   @Override
   public List<ProductMakeUpInfo> getProductInfo(ProductBaseInfo productBaseInfo) {
     //ToDo: 目前是用hardCode数据 将来要用真实开发的功能来填充
     logger.info("prodId:{} groupId:{}",productBaseInfo.getProdId(), productBaseInfo.getGroupId());
-    return generateTestData();
+    return generateTestData(productBaseInfo.getProdId().toString(), productBaseInfo.getGroupId().toString());
   }
 
   @Override
@@ -53,13 +54,12 @@ public class FinanceProductServiceImpl  extends
     responseObserver.onCompleted();
   }
 
-
-  private List<ProductMakeUpInfo> generateTestData(){
-    List<ProductMakeUpInfo> productMakeUpInfos = new ArrayList<ProductMakeUpInfo>();
-
-    String id = "1";
-    String subGroupId = "1";
-    List<Interval> intervalList = fundGroupMapper.selectById(id, subGroupId);
+  private List<ProductMakeUpInfo> generateTestData(String id,String subGroupId ){
+    List<ProductMakeUpInfo> productMakeUpInfos = new ArrayList<>();
+    Map<String,String> query = new HashMap<>();
+    query.put("id",id);
+    query.put("subGroupId",subGroupId);
+    List<Interval> intervalList = fundGroupMapper.selectById(query);
     if (intervalList.size()>0){
       for (Interval interval : intervalList) {
         ProductMakeUpInfo productMakeUpInfo = new ProductMakeUpInfo();
@@ -71,27 +71,6 @@ public class FinanceProductServiceImpl  extends
         productMakeUpInfos.add(productMakeUpInfo);
       }
     }
-
-
-    /*ProductMakeUpInfo productMakeUpInfo1 = new ProductMakeUpInfo();
-    productMakeUpInfo1.setFundCode("290006.OF");
-    productMakeUpInfo1.setFundShare(3333);
-    productMakeUpInfo1.setGroupId(1L);
-    productMakeUpInfo1.setProdName("理财产品A1");
-    productMakeUpInfo1.setProdId(100L);
-    productMakeUpInfos.add(productMakeUpInfo1);
-    ProductMakeUpInfo productMakeUpInfo2 = new ProductMakeUpInfo();
-    productMakeUpInfo1.setFundCode("000788.OF");
-    productMakeUpInfo1.setFundShare(3333);
-    productMakeUpInfo1.setGroupId(1L);
-    productMakeUpInfo1.setProdName("理财产品A1");
-    productMakeUpInfo1.setProdId(100L);
-    productMakeUpInfos.add(productMakeUpInfo2);*/
     return productMakeUpInfos;
-
   }
-
-
-
-
 }
