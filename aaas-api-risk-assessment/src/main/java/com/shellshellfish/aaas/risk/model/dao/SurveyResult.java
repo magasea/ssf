@@ -15,7 +15,16 @@ public class SurveyResult {
 	private String userId;
 	private String surveyTemplateId;
 	private List<Answer> answers;
-	
+	private String riskLevel;
+
+	public String getRiskLevel() {
+		return riskLevel;
+	}
+
+	public void setRiskLevel(String riskLevel) {
+		this.riskLevel = riskLevel;
+	}
+
 	public SurveyResult() {
 		
 	}

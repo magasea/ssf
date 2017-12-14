@@ -20,6 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import javax.sql.RowSet;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -82,7 +83,7 @@ public class OneFundApiServiceTest {
     @Test
     @Rollback(false)
     public void testBuyFund() throws Exception {
-        BuyFundResult result = oneFundApiService.buyFund("33346", 0.99d, "201712-" + UUID.randomUUID(), "000590");
+        BuyFundResult result = oneFundApiService.buyFund("33346", BigDecimal.valueOf(0.99d), "201712-" + UUID.randomUUID(), "000590");
 
         mongoTemplate.save(result, "buyfund");
     }
@@ -141,6 +142,19 @@ public class OneFundApiServiceTest {
     }
 
     @Test
+    public void testGetUserBankList() throws Exception {
+        List<FundInfo> fundInfos = mongoTemplate.findAll(FundInfo.class, "fundInfo");
+        List<String> lines = new ArrayList<>();
+        for(FundInfo info: fundInfos) {
+            List<UserBank> userBanks = oneFundApiService.getUserBank(info.getFundcode());
+            if (!userBanks.get(0).getBankName().equals("建设银行")) {
+                logger.info(new ObjectMapper().writeValueAsString(userBanks));
+                break;
+            }
+        }
+    }
+
+    @Test
     public void testWriteFundCodeAndFundNameToCsvFile() throws IOException {
         List<FundInfo> fundInfos = mongoTemplate.findAll(FundInfo.class, "fundInfo");
         List<String> lines = new ArrayList<>();
@@ -188,22 +202,22 @@ public class OneFundApiServiceTest {
 
     @Test
     public void testGetDiscount() throws Exception {
-        Double discount = oneFundApiService.getDiscount("000590", "022");
+        BigDecimal discount = oneFundApiService.getDiscount("000590", "022");
         logger.info("{}", discount);
     }
 
     @Test
     public void testGetRate() throws Exception {
-        Double rate = oneFundApiService.getRate("000590", "022");
+        BigDecimal rate = oneFundApiService.getRate("000590", "022");
         logger.info("{}", rate);
     }
 
     @Test
     public void testCalcPoundage() throws Exception {
-        Double totalAmount = 108.8d;
-        Double rate = oneFundApiService.getRate("000590", "022");
-        Double discount = oneFundApiService.getDiscount("000590", "022");
-        Double poundage = oneFundApiService.calcPoundage(totalAmount, rate, discount);
+        BigDecimal totalAmount = BigDecimal.valueOf(108.8d);
+        BigDecimal rate = oneFundApiService.getRate("000590", "022");
+        BigDecimal discount = oneFundApiService.getDiscount("000590", "022");
+        BigDecimal poundage = oneFundApiService.calcPoundage(totalAmount, rate, discount);
 
         logger.info("{}", poundage);
     }

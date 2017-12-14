@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -70,7 +71,7 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
-    public BuyFundResult buyFund(String tradeAcco, Double applySum, String outsideOrderNo, String fundCode) throws Exception {
+    public BuyFundResult buyFund(String tradeAcco, BigDecimal applySum, String outsideOrderNo, String fundCode) throws Exception {
         Map<String, Object> info = init();
 
         info.put("tradeacco", tradeAcco);
@@ -400,7 +401,7 @@ public class OneFundApiService implements FundTradeApiService {
         return tradeLimitResults;
     }
 
-    public Double getDiscount(String fundCode, String businFlag) throws Exception {
+    public BigDecimal getDiscount(String fundCode, String businFlag) throws Exception {
         Map<String, Object> info = init();
         info.put("fundcode", fundCode);
         info.put("businflag", businFlag);
@@ -418,22 +419,53 @@ public class OneFundApiService implements FundTradeApiService {
         }
 
         JSONArray jsonArray = jsonObject.getJSONArray("data");
-        Double discount = jsonArray.getJSONObject(0).getDouble("discount");
+        BigDecimal discount = jsonArray.getJSONObject(0).getBigDecimal("discount");
         return discount;
     }
 
-    public Double getRate(String fundCode, String businFlag) throws Exception {
+    public BigDecimal getRate(String fundCode, String businFlag) throws Exception {
         List<TradeRateResult> tradeRateResults = getTradeRateAsList(fundCode, businFlag);
-        for(TradeRateResult rate: tradeRateResults) {
-            if (rate.getChngMinTermMark().equals("日常申购费") && rate.getChagRateUnitMark().equals("%")) {
-                return  Double.parseDouble(rate.getChagRateUpLim())/100d;
+        for(TradeRateResult rateResult: tradeRateResults) {
+            if (rateResult.getChngMinTermMark().equals("日常申购费") && rateResult.getChagRateUnitMark().equals("%")) {
+                Double rate = Double.parseDouble(rateResult.getChagRateUpLim())/100d;
+                return BigDecimal.valueOf(rate);
             }
         }
         throw new Exception("no rate found");
     }
 
-    public Double calcPoundage(Double totalAmount, Double rate, Double discount) {
-        return totalAmount * rate * discount / (1 + rate * discount);
+    public BigDecimal calcPoundageByTotalAmount(BigDecimal totalAmount, BigDecimal rate, BigDecimal discount) {
+        // return totalAmount * rate * discount / (1 + rate * discount);
+        BigDecimal temp = rate.multiply(discount);
+        return totalAmount.multiply(temp).divide(temp.add(BigDecimal.ONE));
+    }
+
+    public BigDecimal calcPoundage(BigDecimal amount, BigDecimal rate, BigDecimal discount){
+        return amount.multiply(rate).multiply(discount);
+    }
+
+    public List<UserBank> getUserBank(String fundCode) throws Exception {
+        Map<String, Object> info = init();
+        info.put("fundcode", fundCode);
+        postInit(info);
+
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_user_bank_list";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        JSONObject jsonObject = (JSONObject) JSONObject.parse(json);
+        Integer status = jsonObject.getInteger("status");
+        if (!status.equals(1)){
+            throw new Exception(jsonObject.getString("msg"));
+        }
+
+        List<UserBank> userBanks = new ArrayList<>();
+        JSONArray jsonArray = jsonObject.getJSONArray("data");
+        for(int i = 0; i < jsonArray.size(); i++) {
+            userBanks.add(jsonArray.getObject(i, UserBank.class));
+        }
+        return userBanks;
     }
 
     @Override

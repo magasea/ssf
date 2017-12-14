@@ -3,12 +3,13 @@ package com.shellshellfish.aaas.finance.trade.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shellshellfish.aaas.finance.trade.model.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface FundTradeApiService {
     OpenAccountResult openAccount(String name, String phone, String identityNo, String bankNo, String bankId) throws Exception;
 
-    BuyFundResult buyFund(String tradeAcco, Double applySum, String outsideOrderNo, String fundCode) throws Exception;
+    BuyFundResult buyFund(String tradeAcco, BigDecimal applySum, String outsideOrderNo, String fundCode) throws Exception;
 
     SellFundResult sellFund(Integer sellNum, String outsideOrderNo, String tradeAcco, String fundCode) throws Exception;
 
