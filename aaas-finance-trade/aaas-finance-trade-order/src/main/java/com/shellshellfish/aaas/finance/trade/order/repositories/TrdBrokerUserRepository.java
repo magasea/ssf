@@ -9,8 +9,8 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  * Created by chenwei on 2017- 十二月 - 13
  */
 
-public interface TrdBrokerUserRepository extends PagingAndSortingRepository<TrdTradeBroker, Long> {
+public interface TrdBrokerUserRepository extends PagingAndSortingRepository<TrdBrokerUser, Long> {
 
-  List<TrdBrokerUser> findTrdTradeBrokersByUserId(Long userId);
+  List<TrdBrokerUser> findByUserId(Long userId);
 
 }
