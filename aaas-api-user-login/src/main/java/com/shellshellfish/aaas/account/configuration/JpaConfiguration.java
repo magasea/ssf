@@ -76,13 +76,15 @@ public class JpaConfiguration {
 	 * Entity Manager Factory setup.
 	 */
 	@Bean
-	@Primary
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() throws NamingException {
 		LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
 		factoryBean.setDataSource(dataSource());
-		factoryBean.setPackagesToScan(new String[] { "com.shellshellfish.aaas.account.model.dao" });
+		factoryBean.setPackagesToScan(new String[] { "com.shellshellfish.aaas.account" });
 		factoryBean.setJpaVendorAdapter(jpaVendorAdapter());
 		factoryBean.setJpaProperties(jpaProperties());
+
+
+
 		return factoryBean;
 	}
 
