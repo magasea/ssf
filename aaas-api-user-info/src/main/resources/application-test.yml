@@ -31,11 +31,22 @@ spring:
   data:
     mongodb:
       database: test1
-      host: localhost
+      host: 192.168.1.10
       port: 27017
+  rabbitmq:
+    username: ssf
+    password: shellshellfish
+    host: 192.168.1.22
+    port: 5672
+    virtual-host: aaas
+    topicQueuePayName: com.ssf.topic.queue.pay
+    topicQueueOrderName: com.ssf.topic.queue.order
+    topicExchangeName: com.ssf.topic.exchange
+    topicPay: shellshellfish.pay
+    topicOrder: shellshellfish.order
 datasource:
   sampleapp:
-    url: jdbc:mysql://localhost:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8
+    url: jdbc:mysql://192.168.1.10:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8
     username: sa
     password: 1qaz@WSX
     driverClassName: com.mysql.jdbc.Driver
@@ -51,7 +62,7 @@ datasource:
       show_sql: true
       format_sql: true
       dialect: org.hibernate.dialect.MySQLDialect
-
+  
 grpc:
   userinfo:
     host: localhost

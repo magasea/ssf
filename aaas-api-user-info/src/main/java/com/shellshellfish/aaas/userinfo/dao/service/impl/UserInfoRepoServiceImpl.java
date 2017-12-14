@@ -276,7 +276,12 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		UiBankcard bank = new UiBankcard();
 		bank.setCardNumber(cardNumber);
 		bank.setUserId(Long.parseLong(userUuid));
-		userInfoBankCardsRepository.delete(bank);
+		List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserIdAndCardNumber(Long.parseLong(userUuid),cardNumber);
+		if(bankcardList==null){
+			return false;
+		}
+		UiBankcard bankcard = bankcardList.get(0);
+		userInfoBankCardsRepository.delete(bankcard.getId());
 		return true;
 	}
 }
