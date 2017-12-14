@@ -62,6 +62,13 @@ public class TradeUtil {
     return Math.round(originNum/100.0);
   }
 
+  public static BigDecimal getBigDecimalNumWithMul100(Long originNum){
+
+
+    return new BigDecimal(originNum).divide(BigDecimal.valueOf(100));
+
+  }
+
 
 
 
