@@ -46,6 +46,7 @@ security:
       
 shellshellfish:
   ignoredWhitelist:
+    - /phoneapi-ssf/**
     - /api/userinfo/**
     - /api/useraccount/**
     - /api/riskassessments/**
