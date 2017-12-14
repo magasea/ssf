@@ -44,7 +44,7 @@ public class TradeOrderController {
       @ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
       @ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
   })
-  @RequestMapping(value = "/funds/buy}", method = RequestMethod.POST)
+  @RequestMapping(value = "/funds/buy", method = RequestMethod.POST)
   public ResponseEntity<?> buyFinanceProd(@RequestBody FinanceProdBuyInfo financeProdBuyInfo)
       throws Exception {
     if( null == financeProdBuyInfo.getUserId()){

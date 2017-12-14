@@ -2,11 +2,10 @@ package com.shellshellfish.aaas.assetallocation.neo.util;
 
 import com.mathworks.toolbox.javabuilder.MWException;
 
-import com.yihui.MatLab;
+import com.yihui.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 
 /**
  * Author: yongquan.xiong
@@ -24,7 +23,7 @@ public class CalculateMaxdrawdowns {
         Object[] result=null;
         Double maxdrawdownValue=null;
         try {
-            MatLab matLab= new MatLab();
+            MATLAB matLab= new MATLAB();
             result=matLab.calculateMaxdrawdown(1,temp);
 
             if(result!=null && result[0]!=null){

@@ -16,6 +16,7 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRe
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdInfoService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
+import com.shellshellfish.aaas.trade.finance.prod.FinanceProductServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc.UserInfoServiceFutureStub;
@@ -91,8 +92,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       List<ProductMakeUpInfo> productMakeUpInfos){
     //generate order
 //    TrdTradeBroker trdTradeBroker = trdBrokderRepository.findOne(1L);
-    List<TrdBrokerUser> trdBrokerUsers = trdBrokerUserRepository.findTrdTradeBrokersByUserId
-        (financeProdBuyInfo.getUserId());
+    List<TrdBrokerUser> trdBrokerUsers = trdBrokerUserRepository.findByUserId(financeProdBuyInfo.getUserId());
     int trdBrokerId = trdBrokerUsers.get(0).getTradeBrokerId();
     String orderId = TradeUtil.generateOrderId(Integer.getInteger(financeProdBuyInfo.getBankAcc()
             .substring(0,6)),trdBrokerId);
@@ -132,8 +132,12 @@ public class TradeOpServiceImpl implements TradeOpService {
   public Long getUserId(String userUuid) throws ExecutionException, InterruptedException {
     UserIdQuery.Builder builder = UserIdQuery.newBuilder();
     builder.setUuid(userUuid);
-    long userId = userInfoServiceFutureStub.getUserId(builder.build()).get().getUserId();
-    return userId;
+    com.shellshellfish.aaas.userinfo.grpc.UserId userId = userInfoServiceFutureStub.getUserId(builder
+        .build()).get();
+    return userId.getUserId();
   }
+
+
+
 
 }

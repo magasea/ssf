@@ -126,4 +126,9 @@ public class FundGroupServiceTest {
         ProductBaseInfo productBaseInfo = new ProductBaseInfo();
         financeProductService.getProductInfo(productBaseInfo);
     }
+
+    @Test
+    public void sharpeRatio(){
+        allocationService.sharpeRatio("1","1");
+    }
 }
