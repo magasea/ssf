@@ -1100,16 +1100,21 @@ public class UserInfoController {
 		@ApiImplicitParam(paramType="path",name="bankcardId",dataType="String",required=true,value="银行卡ID",defaultValue=""),
 	})
 	@RequestMapping(value = "/users/{userUuid}/unbundlingBankCards/{bankcardId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> unbundlingBank(
+	public ResponseEntity<Map> unbundlingBank(
 			@Valid @NotNull(message = "userUuid不可为空")@PathVariable String userUuid,
 			@Valid @NotNull(message = "id")@PathVariable String bankcardId)
 			throws Exception {	
+		Map<String, Object> resultMap = new HashMap<String, Object>();
 		//id message ID
 		Boolean result =  userInfoService.deleteBankCard(userUuid, bankcardId);
 		if(!result){
-			return new ResponseEntity<Object>("更新内容失败",HttpStatus.UNAUTHORIZED);
+			resultMap.put("status", "NG");
+			return new ResponseEntity<Map>(resultMap,HttpStatus.UNAUTHORIZED);
 		} else {
-			return new ResponseEntity<Object>(URL_HEAD+"/message/updateinvestmentmessages/investmentmessages?userUuid="+userUuid , HttpStatus.OK);
+			//return new ResponseEntity<Object>(URL_HEAD+"/message/updateinvestmentmessages/investmentmessages?userUuid="+userUuid , HttpStatus.OK);
+			resultMap.put("status", "OK");
+			resultMap.put("msg", "解绑成功");
+			return new ResponseEntity<Map>(resultMap, HttpStatus.OK);
 		}
 	}
 	

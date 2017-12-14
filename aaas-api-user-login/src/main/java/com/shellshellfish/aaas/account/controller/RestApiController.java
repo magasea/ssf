@@ -458,9 +458,9 @@ public class RestApiController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
 	})
 	@RequestMapping(value = "/selectbanks", method = RequestMethod.GET)
-	public ResponseEntity<List<Map>> selectbanks(@RequestParam(value = "uuid") String id) {
+	public ResponseEntity<List<Map>> selectbanks(@RequestParam(value = "uuid") String uuid) {
 		
-		List<BankCard> bankcardList = bankCardService.selectBankCardByUserId(Long.parseLong(id));
+		List<BankCard> bankcardList = bankCardService.selectBankCardByUserId(Long.parseLong(uuid));
 		List<Map> result = new ArrayList<>();
 		if(bankcardList!=null){
 			for(int i=0;i<bankcardList.size();i++){
