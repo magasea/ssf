@@ -270,4 +270,13 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		responseObserver.onNext(UserId.newBuilder().setUserId(userId).build());
 		responseObserver.onCompleted();
 	}
+
+	@Override
+	public Boolean deleteBankCard(String userUuid,String cardNumber) {
+		UiBankcard bank = new UiBankcard();
+		bank.setCardNumber(cardNumber);
+		bank.setUserId(Long.parseLong(userUuid));
+		userInfoBankCardsRepository.delete(bank);
+		return true;
+	}
 }

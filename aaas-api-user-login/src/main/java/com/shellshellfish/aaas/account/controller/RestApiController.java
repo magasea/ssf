@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.shellshellfish.aaas.account.aop.AopPageResources;
 import com.shellshellfish.aaas.account.exception.UserException;
+import com.shellshellfish.aaas.account.model.dao.BankCard;
 import com.shellshellfish.aaas.account.model.dao.User;
 import com.shellshellfish.aaas.account.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.account.model.dto.LoginBodyDTO;
@@ -435,6 +436,19 @@ public class RestApiController {
 	 * 
 	 * @return
 	 */
+//	@ApiOperation("银行卡查看")
+//	@ApiResponses({
+//		@ApiResponse(code=200,message="OK"),
+//		@ApiResponse(code=400,message="请求参数没填好"),
+//		@ApiResponse(code=401,message="当前请求需要用户验证"),
+//		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+//		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
+//	})
+//	@RequestMapping(value = "/selectbanks", method = RequestMethod.GET)
+//	public ResponseEntity<String> selectbanks() {
+//		return new ResponseEntity<String>(URL_HEAD+"/banks?action='banks'", HttpStatus.OK);
+//	}
+	
 	@ApiOperation("银行卡查看")
 	@ApiResponses({
 		@ApiResponse(code=200,message="OK"),
@@ -444,8 +458,20 @@ public class RestApiController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
 	})
 	@RequestMapping(value = "/selectbanks", method = RequestMethod.GET)
-	public ResponseEntity<String> selectbanks() {
-		return new ResponseEntity<String>(URL_HEAD+"/banks?action='banks'", HttpStatus.OK);
+	public ResponseEntity<List<Map>> selectbanks(@RequestParam(value = "uuid") String id) {
+		
+		List<BankCard> bankcardList = bankCardService.selectBankCardByUserId(Long.parseLong(id));
+		List<Map> result = new ArrayList<>();
+		if(bankcardList!=null){
+			for(int i=0;i<bankcardList.size();i++){
+				Map<String,Object> map = new HashMap();
+				BankCard bankCard = bankcardList.get(i);
+				map.put("bankName",bankCard.getBankName());
+				map.put("bankcardNum",bankCard.getCardNumber());
+				result.add(map);
+			}
+		}
+		return new ResponseEntity<List<Map>>(result, HttpStatus.OK);
 	}
 
 	/**

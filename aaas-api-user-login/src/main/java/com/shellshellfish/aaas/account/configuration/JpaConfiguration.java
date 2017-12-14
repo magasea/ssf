@@ -30,7 +30,7 @@ import java.util.Properties;
 
 @ComponentScan
 @EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.account.repositories.mysql",
-		entityManagerFactoryRef = "entityManagerFactory1",
+		entityManagerFactoryRef = "entityManagerFactory",
 		transactionManagerRef = "transactionManager")
 @EnableTransactionManagement
 
@@ -77,7 +77,7 @@ public class JpaConfiguration {
 	 */
 	@Bean
 	@Primary
-	public LocalContainerEntityManagerFactoryBean entityManagerFactory1() throws NamingException {
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory() throws NamingException {
 		LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
 		factoryBean.setDataSource(dataSource());
 		factoryBean.setPackagesToScan(new String[] { "com.shellshellfish.aaas.account.model.dao" });

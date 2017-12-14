@@ -49,4 +49,6 @@ public interface UserInfoService {
 
     UserInfoCompanyInfoDTO getCompanyInfo(String userUuid, Long bankId);
 
+	Boolean deleteBankCard(String userUuid, String bankcardId);
+
 }

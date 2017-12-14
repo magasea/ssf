@@ -208,4 +208,10 @@ public class UserInfoServiceImpl implements UserInfoService {
         Long userId =  userInfoRepoService.getUserIdFromUUID(userUuid);
         return userId;
     }
+
+	@Override
+	public Boolean deleteBankCard(String userUuid, String bankcardId) {
+		Boolean result = userInfoRepoService.deleteBankCard(userUuid);
+		return null;
+	}
 }

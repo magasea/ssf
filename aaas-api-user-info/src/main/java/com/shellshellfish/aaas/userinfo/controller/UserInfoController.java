@@ -1081,4 +1081,36 @@ public class UserInfoController {
 		result.put("_links", links);
 		return result;
 	}
+	
+	/**
+	 * 解绑银行卡
+	 * @return
+	 * @throws Exception
+	 */
+	@ApiOperation("解绑银行卡")
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+        @ApiResponse(code=400,message="请求参数没填好"),
+        @ApiResponse(code=401,message="未授权用户"),        				
+		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
+    })
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue=""),
+		@ApiImplicitParam(paramType="path",name="bankcardId",dataType="String",required=true,value="银行卡ID",defaultValue=""),
+	})
+	@RequestMapping(value = "/users/{userUuid}/unbundlingBankCards/{bankcardId}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> unbundlingBank(
+			@Valid @NotNull(message = "userUuid不可为空")@PathVariable String userUuid,
+			@Valid @NotNull(message = "id")@PathVariable String bankcardId)
+			throws Exception {	
+		//id message ID
+		Boolean result =  userInfoService.deleteBankCard(userUuid, bankcardId);
+		if(!result){
+			return new ResponseEntity<Object>("更新内容失败",HttpStatus.UNAUTHORIZED);
+		} else {
+			return new ResponseEntity<Object>(URL_HEAD+"/message/updateinvestmentmessages/investmentmessages?userUuid="+userUuid , HttpStatus.OK);
+		}
+	}
+	
 }
