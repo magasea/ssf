@@ -147,13 +147,13 @@
                     <include>**/*.jar</include>
                 </includes>
             </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <targetPath>/</targetPath>
-                <includes>
-                    <include>**/*.*</include>
-                </includes>
-            </resource>
+            <!--<resource>-->
+                <!--<directory>src/main/resources</directory>-->
+                <!--<targetPath>/</targetPath>-->
+                <!--<includes>-->
+                    <!--<include>**/*</include>-->
+                <!--</includes>-->
+            <!--</resource>-->
         </resources>
         <extensions>
             <extension>
@@ -211,8 +211,8 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <encoding>UTF-8</encoding>
                     <compilerArguments>
                         <extdirs>${project.basedir}/lib</extdirs>
