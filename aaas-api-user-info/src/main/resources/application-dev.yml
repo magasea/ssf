@@ -57,3 +57,15 @@ grpc:
   userinfo:
     host: localhost
     port: 10041
+spring:
+  rabbitmq:
+    username: ssf
+    password: shellshellfish
+    host: 192.168.1.22
+    port: 5672
+    virtual-host: aaas
+    topicQueuePayName: com.ssf.topic.queue.pay
+    topicQueueOrderName: com.ssf.topic.queue.order
+    topicExchangeName: com.ssf.topic.exchange
+    topicPay: shellshellfish.pay
+    topicOrder: shellshellfish.order

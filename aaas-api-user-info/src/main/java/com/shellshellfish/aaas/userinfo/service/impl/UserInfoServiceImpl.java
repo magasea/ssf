@@ -211,7 +211,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Override
 	public Boolean deleteBankCard(String userUuid, String bankcardId) {
-		Boolean result = userInfoRepoService.deleteBankCard(userUuid);
-		return null;
+		Boolean result = userInfoRepoService.deleteBankCard(userUuid, bankcardId);
+		return result;
 	}
 }

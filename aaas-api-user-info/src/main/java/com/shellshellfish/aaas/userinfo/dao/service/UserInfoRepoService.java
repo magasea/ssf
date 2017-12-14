@@ -61,7 +61,5 @@ public interface UserInfoRepoService {
 
 	UiCompanyInfo addCompanyInfo(UiCompanyInfo uiCompanyInfo);
 
-	Boolean deleteBankCard(String userUuid);
-
 	Boolean deleteBankCard(String userUuid, String cardNumber);
 }

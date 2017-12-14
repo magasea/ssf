@@ -78,7 +78,7 @@ public class PayServiceApplication {
 				topicOrderQueue,
 				topicExchange,
 				BindingBuilder.bind(topicPayQueue).to(topicExchange).with(topicPay),
-				BindingBuilder.bind(topicOrderQueue).to(topicExchange).with("pay")
+				BindingBuilder.bind(topicOrderQueue).to(topicExchange).with(topicOrder)
 		);
 	}
 

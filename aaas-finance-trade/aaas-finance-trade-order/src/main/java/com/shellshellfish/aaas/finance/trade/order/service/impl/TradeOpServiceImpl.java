@@ -94,7 +94,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 //    TrdTradeBroker trdTradeBroker = trdBrokderRepository.findOne(1L);
     List<TrdBrokerUser> trdBrokerUsers = trdBrokerUserRepository.findByUserId(financeProdBuyInfo.getUserId());
     int trdBrokerId = trdBrokerUsers.get(0).getTradeBrokerId();
-    String orderId = TradeUtil.generateOrderId(Integer.getInteger(financeProdBuyInfo.getBankAcc()
+    String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdBuyInfo.getBankAcc()
             .substring(0,6)),trdBrokerId);
     TrdOrder trdOrder = new TrdOrder();
     trdOrder.setBankCardNum(financeProdBuyInfo.getBankAcc());
