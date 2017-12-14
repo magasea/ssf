@@ -308,10 +308,13 @@ public class RestApiController {
         @ApiResponse(code=200,message="OK")        
     })			
 	@RequestMapping(value = "/registrations", method = RequestMethod.POST)
-	public ResponseEntity<String> registrationpageId(@RequestParam String action,
+	//public ResponseEntity<String> registrationpageId(@RequestParam String action,
+	public ResponseEntity<Map> registrationpageId(
+			@RequestParam String action,
 			@Valid @RequestBody RegistrationBodyDTO registrationBody) {
 		// passwd:abccd4djsN-999
 		// CellPhone:13611442221
+		Map<String,Object> result = new HashMap();
 		String telnum = registrationBody.getTelnum();
 		if ("checkDupTelNum".equals(action)) {
 			List<UserDTO> userList = accountService.isRegisterredTel(registrationBody);
@@ -321,8 +324,9 @@ public class RestApiController {
 		} else {
 			throw new UserException("104", "不支持此动作");
 		}
-
-		return new ResponseEntity<String>("/smsverificationpage?telnum=" + telnum, HttpStatus.CREATED);
+		result.put("result", "OK");
+		return new ResponseEntity<Map>(result, HttpStatus.CREATED);
+//		return new ResponseEntity<String>("/smsverificationpage?telnum=" + telnum, HttpStatus.CREATED);
 	}
 
     //---code seprated by chenyuan----//
