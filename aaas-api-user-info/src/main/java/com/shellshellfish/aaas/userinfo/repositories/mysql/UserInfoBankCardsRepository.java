@@ -11,6 +11,8 @@ public interface UserInfoBankCardsRepository extends
     PagingAndSortingRepository<UiBankcard, Long> {
 
   List<UiBankcard> findAllByUserId(Long userId);
+  
+  List<UiBankcard> findAllByUserIdAndCardNumber(Long userId,String bankName);
 
   @Override
   UiBankcard findOne(Long userId);
