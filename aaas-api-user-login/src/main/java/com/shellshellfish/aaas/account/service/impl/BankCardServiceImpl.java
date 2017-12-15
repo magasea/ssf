@@ -32,5 +32,4 @@ public class BankCardServiceImpl implements BankCardService {
 		//Page<BankCardDTO> bankCardDtoPage = MyBeanUtils.convertPageDTO(pageable, bankCardPage, BankCardDTO.class);
 		return bankCard;
 	}
-
 }

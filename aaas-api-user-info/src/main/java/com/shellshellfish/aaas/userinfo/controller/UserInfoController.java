@@ -48,6 +48,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserPersonalMsgBodyDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 import com.shellshellfish.aaas.userinfo.utils.PageWrapper;
 import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
@@ -369,14 +370,20 @@ public class UserInfoController {
 		@ApiImplicitParam(name="bankcardDetailVo", value ="银行卡信息",required=true,paramType="body",dataType="BankcardDetailVo")
 	})
 	@RequestMapping(value = "/users/{userUuid}/bankcards", method = RequestMethod.POST)
-	public ResponseEntity<?> addBankCardWithDetailInfo(
+	public ResponseEntity<Map> addBankCardWithDetailInfo(
 			@Valid @NotNull(message = "不能为空") @PathVariable("userUuid") String userUuid,
 			@RequestBody BankcardDetailBodyDTO bankcardDetailVo) throws Exception {
+		Map<String, Object> result = new HashMap<>();
 		ObjectMapper mapper = new ObjectMapper();
 		// Convert POJO to Map
 		Map<String, Object> params = mapper.convertValue(bankcardDetailVo, new TypeReference<Map<String, Object>>() {
 		});
 		params.put("userUuid", userUuid);
+		Object object = params.get("bankName");
+		if(object==null||"".equals(object)){
+			object = BankUtil.getNameOfBank(params.get("cardNumber").toString());
+		}
+		params.put("bankName", object.toString());
 		if (CollectionUtils.isEmpty(params)) {
 			throw new ServletRequestBindingException("no cardNumber in params");
 		}
@@ -387,11 +394,15 @@ public class UserInfoController {
 		});
 		BankCardDTO bankCard = userInfoService.createBankcard(params);
 		if (bankCard == null) {
-			return new ResponseEntity<Object>(
-					URL_HEAD + "/users/" + userUuid + "/bankcardpage?cardNumber=" + bankcardDetailVo.getCardNumber(),
-					HttpStatus.NO_CONTENT);
+//			return new ResponseEntity<Object>(
+//					URL_HEAD + "/users/" + userUuid + "/bankcardpage?cardNumber=" + bankcardDetailVo.getCardNumber(),
+//					HttpStatus.NO_CONTENT);
+			result.put("msg", "添加失败");
+			return new ResponseEntity<Map>(result,HttpStatus.NO_CONTENT);
 		} else {
-			return new ResponseEntity<Object>(URL_HEAD + "/initpage", HttpStatus.OK);
+			//return new ResponseEntity<Object>(URL_HEAD + "/initpage", HttpStatus.OK);
+			result.put("msg", "添加成功");
+			return new ResponseEntity<Map>(result, HttpStatus.OK);
 		}
 	}
 
