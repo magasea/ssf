@@ -31,3 +31,50 @@
 比如：api/userinfo/user/{userUuid}/bankcards/{bankcardNum}
 12. redis key定义规范:{主模块名字}_{模块名字}_{具体变量名字} 比如 aaas_userinfo_userid
 
+### 项目端口规范约定
+* aaas-api-asset-allocation 
+  - 自身 10020
+  - GRPC 10021
+* aaas-api-data-manager
+  - 自身 10030
+  - GRPC 10031
+* aaas-api-gateway
+  - 自身 10040
+  - GRPC 10041
+* aaas-api-risk-assessment
+  - 自身 10050
+  - GRPC 10051
+* aaas-api-user-info
+  - 自身 10060
+  - GRPC 10061
+* aaas-api-user-login
+  - 自身 10070
+  - GRPC 10071
+* aaas-app-datacollection-client
+  - 自身 10080
+  - GRPC 10081
+* aaas-app-datacollection-server
+  - 自身 10090
+  - GRPC 10091
+* aaas-finance-trade-order
+  - 自身 10100
+  - GRPC 10101
+* aaas-finance-trade-pay
+  - 自身 10110
+  - GRPC 10111 
+* aaas-api-finance
+  - 自身 10120
+  - GRPC 10121 
+* mid-api
+  - 自身 10130
+  - GRPC 10131
+
+* rabbitmq: 5672
+* reddit: 6379
+
+### 项目profile约定
+ - 所有项目开发的profile 用application-dev.yml
+ - 所有项目测试的profile 用application-test.yml
+ - 所有项目上线的profile 用application-prod.yml
+ 
+  

@@ -51,4 +51,8 @@ public interface FundGroupMapper {
 
     List<FundNetVal> getSharpeRatio(Map map);
 
+    List<FundGroupExpectedIncome> getExpectedIncome(Map map);
+
+    int updateSharpeRatio(Map map);
+
 }

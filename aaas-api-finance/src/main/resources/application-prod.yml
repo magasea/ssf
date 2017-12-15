@@ -13,7 +13,7 @@ spring:
         fail-on-empty-beans: false
 
 #    datasource:
-#        url: jdbc:mysql://192.168.1.10/ssffinance?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&useSSL=false
+#        url: jdbc:mysql://localhost/ssffinance?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&useSSL=false
 #        name:
 #        username: sa
 #        password: abcd1234
@@ -35,16 +35,16 @@ spring:
  #           hibernate.cache.region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
     data:
         mongodb:
-            host: 192.168.1.10
+            host: localhost
             port: 27017
-            database: test
+            database: zhongzheng
 
 server:
-    port: 10020
-    
+    port: 10120
 grpc:
   host: localhost
-  port: 10021
+  port: 10121
+    
 application:
     swagger:
         title: SSF Platform API

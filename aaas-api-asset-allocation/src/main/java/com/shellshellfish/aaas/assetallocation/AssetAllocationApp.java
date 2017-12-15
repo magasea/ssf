@@ -20,7 +20,7 @@ import com.shellshellfish.aaas.assetallocation.configuration.Properties;
 
 
 @ComponentScan
-@SpringBootApplication(scanBasePackages={"com.shellshellfish.aaas.assetallocation.repository.dummy"})
+@SpringBootApplication(scanBasePackages={"com.shellshellfish.aaas.assetallocation"})
 @EnableAutoConfiguration(exclude={MongoAutoConfiguration.class})
 @EnableConfigurationProperties({ Properties.class })
 @MapperScan("com.shellshellfish.aaas.assetallocation.neo.mapper")

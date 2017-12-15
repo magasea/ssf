@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @Configuration
 @EntityScan("com.shellshellfish.aaas.assectallocation.model")
 public class GrpcServerCfg {
+
   @Value("${grpc.host}")
   String host;
 

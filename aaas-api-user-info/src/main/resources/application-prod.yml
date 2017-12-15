@@ -1,6 +1,6 @@
 ---
 server:
-  port: 10021
+  port: 10060
   contextPath: /
 logging:
   level:
@@ -27,7 +27,6 @@ datasource:
 ---
 
 spring:
-  profiles: test
   data:
     mongodb:
       database: test1
@@ -66,4 +65,4 @@ datasource:
 grpc:
   userinfo:
     host: localhost
-    port: 10041
+    port: 10061

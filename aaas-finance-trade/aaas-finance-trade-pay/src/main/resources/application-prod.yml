@@ -1,5 +1,5 @@
 server:
-  port: 10031
+  port: 10110
 logging:
   level:
     org.hibernate.SQL: DEBUG
@@ -11,7 +11,7 @@ spring:
   rabbitmq:
     username: ssf
     password: shellshellfish
-    host: 192.168.1.22
+    host: localhost
     port: 5672
     virtual-host: aaas
     topicQueuePayName: com.ssf.topic.queue.pay
@@ -23,14 +23,14 @@ spring:
     topicOrder: shellshellfish.order
     data:
         mongodb:
-            host: 192.168.1.10
+            host: localhost
             port: 27017
             database: zhongzheng
 
 
 datasource:
   sampleapp:
-    url: jdbc:mysql://192.168.1.10:3306/ssftrdpay?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8
+    url: jdbc:mysql://localhost:3306/ssftrdpay?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8
     username: sa
     password: 1qaz@WSX
     driverClassName: com.mysql.jdbc.Driver
@@ -50,7 +50,10 @@ datasource:
 grpc:
   finance_prod_client:
     host: localhost
-    port: 10030
+    port: 10021
+grpc:
+  host: localhost
+  port: 10111
 using:
   spring:
     schedulerFactory: true

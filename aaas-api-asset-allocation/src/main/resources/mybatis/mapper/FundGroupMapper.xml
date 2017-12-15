@@ -111,4 +111,12 @@
         where a.fund_code=b.code and a.fund_group_id=#{fund_group_id} and a.fund_group_sub_id=#{subGroupId}
         GROUP BY b.NAVLATESTDATE
     </select>
+
+    <select id="getExpectedIncome" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupExpectedIncome">
+        select * from fund_group_expected_income where fund_group_id = #{fund_group_id} and fund_group_sub_id = #{subGroupId}
+    </select>
+
+    <update id="updateSharpeRatio" >
+        update fund_group_sub set sharpe_ratio = #{sharpeRatio} where id = #{id}
+    </update>
 </mapper>

@@ -1,38 +1,12 @@
----
 server:
-  port: 10021
-  contextPath: /
+  port: 10050
 logging:
   level:
     org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.springframework.data: debug
-
----
 spring:
-  profiles: local, default
-datasource:
-  sampleapp:
-    url: jdbc:h2:~/test
-    username: SA
-    password:
-    driverClassName: org.h2.Driver
-    defaultSchema:
-    maxPoolSize: 10
-    hibernate:
-      hbm2ddl.method: create-drop
-      show_sql: true
-      format_sql: true
-      dialect: org.hibernate.dialect.H2Dialect
----
-
-spring:
-  profiles: test
-  data:
-    mongodb:
-      database: test1
-      host: localhost
-      port: 27017
   rabbitmq:
     username: ssf
     password: shellshellfish
@@ -44,13 +18,14 @@ spring:
     topicExchangeName: com.ssf.topic.exchange
     topicPay: shellshellfish.pay
     topicOrder: shellshellfish.order
+
 datasource:
   sampleapp:
-    url: jdbc:mysql://localhost:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8
+    url: jdbc:mysql://localhost:3306/ssftrdorder?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
     username: sa
     password: 1qaz@WSX
     driverClassName: com.mysql.jdbc.Driver
-    defaultSchema: ssfuser
+    defaultSchema: ssftrdorder
     maxPoolSize: 20
     hibernate:
       connection:
@@ -61,9 +36,17 @@ datasource:
       hbm2ddl.method: update
       show_sql: true
       format_sql: true
-      dialect: org.hibernate.dialect.MySQLDialect
-  
+      dialect: org.hibernate.dialect.MySQL57Dialect
+      id.new_generator_mappings: false
+
+
 grpc:
-  userinfo:
+  finance_prod_client:
     host: localhost
-    port: 10041
+    port: 10021
+  order_server:
+    host: localhost
+    port: 10101
+  userinfo_client:
+    host: localhost
+    port: 10061
