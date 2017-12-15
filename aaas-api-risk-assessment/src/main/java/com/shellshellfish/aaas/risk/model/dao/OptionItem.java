@@ -1,12 +1,9 @@
 package com.shellshellfish.aaas.risk.model.dao;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 public class OptionItem {
 
 	private Integer ordinal;
 	private String name;
-	@JsonIgnore
 	private String content;
 	private Integer score;
 	
