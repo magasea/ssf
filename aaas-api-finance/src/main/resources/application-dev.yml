@@ -40,8 +40,10 @@ spring:
             database: zhongzheng
 
 server:
-    port: 10022
-    
+    port: 10120
+grpc:
+  host: localhost
+  port: 10121
     
 application:
     swagger:

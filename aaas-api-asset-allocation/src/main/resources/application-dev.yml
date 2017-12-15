@@ -40,11 +40,11 @@ spring:
             database: test
 
 server:
-    port: 10030
+    port: 10020
     
 grpc:
   host: localhost
-  port: 10031
+  port: 10021
 application:
     swagger:
         title: SSF Platform API

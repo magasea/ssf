@@ -65,6 +65,9 @@
 * aaas-api-finance
   - 自身 10120
   - GRPC 10121 
+* mid-api
+  - 自身 10130
+  - GRPC 10131
 
 * rabbitmq: 5672
 * reddit: 6379
