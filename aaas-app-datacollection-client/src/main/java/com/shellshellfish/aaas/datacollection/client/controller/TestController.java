@@ -11,7 +11,7 @@ public class TestController {
 
 
 
-	@RequestMapping(value = "/echo/{arg}", method = RequestMethod.POST)
+	@RequestMapping(value = "/heartbeat/echo/{arg}", method = RequestMethod.POST)
 	public String echo(@PathVariable String arg) {
 		return arg;
 	}
