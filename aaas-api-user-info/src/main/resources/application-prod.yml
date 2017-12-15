@@ -27,7 +27,6 @@ datasource:
 ---
 
 spring:
-  profiles: test
   data:
     mongodb:
       database: test1
