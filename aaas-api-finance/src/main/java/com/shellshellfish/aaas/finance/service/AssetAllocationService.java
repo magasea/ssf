@@ -5,6 +5,7 @@ import java.util.Map;
 import com.shellshellfish.aaas.finance.returnType.FundAllReturn;
 import com.shellshellfish.aaas.finance.returnType.FundReturn;
 import com.shellshellfish.aaas.finance.returnType.PerformanceVolatilityReturn;
+import com.shellshellfish.aaas.finance.returnType.ReturnType;
 import com.shellshellfish.aaas.finance.returnType.RevenueContributionReturn;
 
 public interface AssetAllocationService {
@@ -18,4 +19,5 @@ public interface AssetAllocationService {
 	public RevenueContributionReturn getmeansAndNoticesRetrun(String id);
 	public PerformanceVolatilityReturn getPerformanceVolatility(String id,String cust_risk,String investment_horizon);
 	public RevenueContributionReturn getScaleMark(String id,String slidebarType);
+	public ReturnType getPortfolioYield(String id, String subGroupId, int month, String returnType);
 }

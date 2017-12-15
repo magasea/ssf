@@ -1,8 +1,6 @@
 package com.shellshellfish.aaas.finance.controller;
 
 import java.util.Map;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +29,10 @@ public class IndexController {
 	IndexService indexService;
 
 	@ApiOperation("理财产品 首页")
-//	@ApiImplicitParams({
-//		@ApiImplicitParam(paramType="query",name="groupId",dataType="String",required=true,value="基金组合ID",defaultValue="1"),
-//		@ApiImplicitParam(paramType="query",name="subGroupId",dataType="String",required=true,value="risk_income_interval_id",defaultValue="1")
-//    })
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="uid",dataType="String",required=true,value="用户ID",defaultValue="1"),
+		@ApiImplicitParam(paramType="query",name="productType",dataType="String",required=true,value="产品类型",defaultValue="C1")
+    })
 	@ApiResponses({
 		@ApiResponse(code=200,message="OK"),
         @ApiResponse(code=204,message="OK"),
@@ -45,12 +43,12 @@ public class IndexController {
     })	
 	@RequestMapping(value = "/product-groups/homepage", method = RequestMethod.GET)
 	public ResponseEntity<?> homepage(
-//			@Valid @NotNull(message="groupId不能为空") @RequestParam(value = "groupId") String groupId,
-//			@Valid @NotNull(message="subGroupId不能为空") @RequestParam(value = "subGroupId") String subGroupId
+			@RequestParam(value = "uid") String uid,
+			@RequestParam(value = "productType") String productType
 			) {
 		// FundReturn fundReturn =
 		// assetAllocationService.selectById(groupId,subGroupId);
-		Map<String, Object> resultMap = indexService.homepage();
+		Map<String, Object> resultMap = indexService.homepage(uid,productType);
 
 		return new ResponseEntity<>(resultMap, HttpStatus.OK);
 	}
@@ -69,7 +67,7 @@ public class IndexController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")        
     })	
 	@RequestMapping(value = "/product-groups/risktypes/{risktype}", method = RequestMethod.GET)
-	public ResponseEntity<?> getRiskInfo(
+	public ResponseEntity<Map> getRiskInfo(
 			@PathVariable String risktype
 			) {
 		Map<String, Object> resultMap = indexService.getRiskInfo(risktype);
@@ -86,7 +84,7 @@ public class IndexController {
 		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")        
     })	
-	@RequestMapping(value = "/product-groups/homepage/charts/1", method = RequestMethod.GET)
+	//@RequestMapping(value = "/product-groups/homepage/charts/1", method = RequestMethod.GET)
 	public ResponseEntity<ChartResource> getYieldChart() {
 		ChartResource chartResource = indexService.getChart();
 		return new ResponseEntity<>(chartResource, HttpStatus.OK);

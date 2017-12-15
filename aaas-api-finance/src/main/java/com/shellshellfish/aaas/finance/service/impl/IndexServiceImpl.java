@@ -25,25 +25,33 @@ public class IndexServiceImpl implements IndexService {
 	AssetAllocationServiceImpl assetAllocationService;
 
 	@Override
-	public Map<String, Object> homepage() {
+	public Map<String, Object> homepage(String uid,String productType) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String, Object> linksMap = new HashMap<String, Object>();
 		List<Map> relateList = new ArrayList();
 		Map<String, Object> linkMap = new HashMap<String, Object>();
 		linkMap.put("href", "/api/ssf-finance/retests");
 		linkMap.put("name", "retest");
+		linkMap.put("description", "重新测试");
 		relateList.add(linkMap);
 
 		Map<String, Object> riskMap = new HashMap<String, Object>();
-		riskMap.put("href", "/api/ssf-finance/risktypes/{risktype}");
+		riskMap.put("href", "/api/ssf-finance/prerisktypes/{risktype}");
 		riskMap.put("name", "prerisktypes");
+		linkMap.put("description", "link:\"<\"");
 		relateList.add(riskMap);
 
-		Map<String, Object> chartMap = new HashMap<String, Object>();
-		chartMap.put("href", "/api/ssf-finance/product-groups/charts/1");
-		chartMap.put("name", "charts");
-		relateList.add(chartMap);
-		linksMap.put("related", relateList);
+		riskMap = new HashMap<String, Object>();
+		riskMap.put("href", "/api/ssf-finance/nextrisktypes/{risktype}");
+		riskMap.put("name", "nextrisktypes");
+		linkMap.put("description", "link:\">\"");
+		relateList.add(riskMap);
+
+//		Map<String, Object> chartMap = new HashMap<String, Object>();
+//		chartMap.put("href", "/api/ssf-finance/product-groups/charts/1");
+//		chartMap.put("name", "charts");
+//		relateList.add(chartMap);
+//		linksMap.put("related", relateList);
 
 		Map<String, Object> selfMap = new HashMap<String, Object>();
 		selfMap.put("href", "/api/ssf-finance/product-groups/homepage");
@@ -52,8 +60,8 @@ public class IndexServiceImpl implements IndexService {
 
 		double historicalYearPerformance = 0;
 		double historicalvolatility = 0;
-		PerformanceVolatilityReturn performanceVolatilityReturn = assetAllocationService.getPerformanceVolatility("1",
-				"C1", "1");
+		PerformanceVolatilityReturn performanceVolatilityReturn = assetAllocationService.getPerformanceVolatility(uid,
+				productType, "1");
 		if (performanceVolatilityReturn != null) {
 			// .getPerformanceVolatility(cust_risk, investment_horizon);
 			List<Map<String, Object>> list = performanceVolatilityReturn.get_items();
@@ -77,9 +85,21 @@ public class IndexServiceImpl implements IndexService {
 		result.put("subGroupId", subGroupId);
 
 		FundReturn fundReturn = assetAllocationService.selectById(groupId, subGroupId);
-		List<Map<String, Double>> assetsRatiosList = fundReturn.getAssetsRatios();
-		result.put("assetsRatios", assetsRatiosList);
-
+		if(fundReturn!=null){
+			List<Map<String, Double>> assetsRatiosList = fundReturn.getAssetsRatios();
+			result.put("product_list", assetsRatiosList);
+		}
+		//近6个月收益图
+		ReturnType returnType = assetAllocationService.getPortfolioYield(groupId, subGroupId, new Integer(-6), "income");
+		result.put("income6month", returnType);
+		
+		List<String> banner_list = new ArrayList<>();
+		banner_list.add("/phoneapi-ssf/finance-home/image/page-1.jpg");
+		banner_list.add("/phoneapi-ssf/finance-home/image/page-2.jpg");
+		banner_list.add("/phoneapi-ssf/finance-home/image/page-3.jpg");
+		banner_list.add("/phoneapi-ssf/finance-home/image/page-4.jpg");
+		result.put("banner_list", banner_list);
+		
 		result.put("name", "理财产品 首页");
 		result.put("_links", linksMap);
 

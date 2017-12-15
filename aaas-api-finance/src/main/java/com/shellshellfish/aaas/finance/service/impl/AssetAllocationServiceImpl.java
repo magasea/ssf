@@ -7,11 +7,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import com.shellshellfish.aaas.finance.returnType.FundAllReturn;
 import com.shellshellfish.aaas.finance.returnType.FundReturn;
 import com.shellshellfish.aaas.finance.returnType.PerformanceVolatilityReturn;
+import com.shellshellfish.aaas.finance.returnType.ReturnType;
 import com.shellshellfish.aaas.finance.returnType.RevenueContributionReturn;
 import com.shellshellfish.aaas.finance.service.AssetAllocationService;
 
@@ -162,5 +165,20 @@ public class AssetAllocationServiceImpl implements AssetAllocationService {
 		return restTemplate.getForEntity(
 				url + "/api/asset-allocation/product-groups/" + id + "/slidebar-points?slidebarType=" + slidebarType,
 				RevenueContributionReturn.class).getBody();
+	}
+	
+	/**
+	 * 组合收益率(最大回撤)走势图     (几个月以来每天)
+	 * @param id
+	 * @param subGroupId
+	 * @param month
+	 * @param returnType 查询类型（income：收益率，其他的：最大回撤）
+	 * @return
+	 */
+	@Override
+	public ReturnType getPortfolioYield(String id,String subGroupId,int month,String returnType) {
+		return restTemplate.getForEntity(
+				url + "/api/asset-allocation/product-groups/"+id+"/sub-groups/"+subGroupId+"/portfolio-yield?mouth="+month+"&returnType="+returnType,
+				ReturnType.class).getBody();
 	}
 }

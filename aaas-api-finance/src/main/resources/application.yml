@@ -16,4 +16,4 @@ spring:
 
 
 shellshellfish:
-   asset-allocation-url: "http://localhost:10030/"
+   asset-allocation-url: "http://localhost:10020/"
