@@ -68,5 +68,10 @@
 
 * rabbitmq: 5672
 * reddit: 6379
+
+### 项目profile约定
+所有项目开发的profile 用application-dev.yml
+所有项目测试的profile 用application-test.yml
+所有项目上线的profile 用application-prod.yml
  
   
