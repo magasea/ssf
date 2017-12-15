@@ -16,6 +16,8 @@ spring:
     virtual-host: aaas
     topicQueuePayName: com.ssf.topic.queue.pay
     topicQueueOrderName: com.ssf.topic.queue.order
+    topicQueueTrdLogName: com.ssf.topic.queue.trdlog
+    topicQueueBankcardName: com.ssf.topic.queue.bankcard
     topicExchangeName: com.ssf.topic.exchange
     topicPay: shellshellfish.pay
     topicOrder: shellshellfish.order
