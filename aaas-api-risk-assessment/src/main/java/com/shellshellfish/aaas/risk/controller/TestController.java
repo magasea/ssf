@@ -15,7 +15,7 @@ public class TestController {
 
 	@ApiOperation("测试项目是否正常启动， 返回接收到的数据")
 
-	@RequestMapping(value = "/echo/{arg}", method = RequestMethod.POST)
+	@RequestMapping(value = "/heartbeat/echo/{arg}", method = RequestMethod.POST)
 	public String echo(@PathVariable String arg) {
 		return arg;
 	}

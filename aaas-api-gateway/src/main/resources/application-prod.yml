@@ -53,4 +53,5 @@ shellshellfish:
     - /api/riskassessments/**
     - /v1/auth/oauth/token
     - /v1/api/bankaccounts/**
+    - /heartbeat/
   

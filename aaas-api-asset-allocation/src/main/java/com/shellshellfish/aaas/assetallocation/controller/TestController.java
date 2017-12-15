@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.account.controller;
+package com.shellshellfish.aaas.assetallocation.controller;
 
 
 import io.swagger.annotations.Api;
