@@ -2,7 +2,7 @@ zuul:
   routes:
     api-mid:
       path: /phoneapi-ssf/**
-      url: http://localhost:10025/phoneapi-ssf
+      url: http://localhost:10130/phoneapi-ssf
     userinfo:
       path: /api/f/SHT/temp-11-15/aaas/aaas-api-gateway/userinfo/**
       url: http://localhost:10021/api/userinfo/
@@ -37,12 +37,14 @@ ribbon:
     enabled: false
 
 server:
-  port: 10024
- 
+  port: 10040
+grpc:
+  host: localhost
+  port: 10041
 security:
   oauth2: 
     resource:
-      userInfoUri: http://localhost:10025/auth/user
+      userInfoUri: http://localhost:10070/auth/user
       
 shellshellfish:
   ignoredWhitelist:
