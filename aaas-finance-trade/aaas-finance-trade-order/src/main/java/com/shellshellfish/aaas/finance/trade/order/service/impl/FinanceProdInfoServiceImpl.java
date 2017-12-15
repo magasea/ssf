@@ -10,6 +10,8 @@ import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoQuery;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProductServiceGrpc;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProductServiceGrpc.FinanceProductServiceFutureStub;
 import io.grpc.ManagedChannel;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -19,7 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class FinanceProdInfoServiceImpl implements FinanceProdInfoService {
@@ -61,4 +65,18 @@ public class FinanceProdInfoServiceImpl implements FinanceProdInfoService {
     }
     return productMakeUpInfoList;
   }
+
+  @Override
+  public BigDecimal getMinBuyValue(ProductBaseInfo productBaseInfo) throws ExecutionException, InterruptedException {
+      List<ProductMakeUpInfo> productMakeUpInfoList = getFinanceProdMakeUpInfo(productBaseInfo);
+      return null;
+      //TODO: to be added next week
+  }
+
+  @Override
+  public BigDecimal getMaxBuyValue(ProductBaseInfo productBaseInfo) {
+      return null;
+      //TODO: to be added next week
+  }
+
 }

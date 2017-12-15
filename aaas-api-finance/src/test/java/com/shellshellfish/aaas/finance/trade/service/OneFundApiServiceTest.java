@@ -47,7 +47,7 @@ public class OneFundApiServiceTest {
 
     @Test
     public void testOpenAccount() throws Exception {
-        oneFundApiService.openAccount("张飞", "13816629390", "612727198301116032", "4367421214584329558", "005");
+        oneFundApiService.openAccount("shellshellfish","张飞", "13816629390", "612727198301116032", "4367421214584329558", "005");
     }
 
     @Test
@@ -83,7 +83,7 @@ public class OneFundApiServiceTest {
     @Test
     @Rollback(false)
     public void testBuyFund() throws Exception {
-        BuyFundResult result = oneFundApiService.buyFund("33346", BigDecimal.valueOf(0.99d), "201712-" + UUID.randomUUID(), "000590");
+        BuyFundResult result = oneFundApiService.buyFund("shellshellfish","33346", BigDecimal.valueOf(0.99d), "201712-" + UUID.randomUUID(), "000590");
 
         mongoTemplate.save(result, "buyfund");
     }
@@ -91,7 +91,7 @@ public class OneFundApiServiceTest {
     @Test
     @Rollback(false)
     public void testSellFund() throws Exception {
-        SellFundResult result = oneFundApiService.sellFund(16,  "201712-" + UUID.randomUUID(),"33346",  "000407");
+        SellFundResult result = oneFundApiService.sellFund("shellshellfish",16,  "201712-" + UUID.randomUUID(),"33346",  "000407");
         mongoTemplate.save(result, "sellfund");
     }
 
@@ -105,38 +105,38 @@ public class OneFundApiServiceTest {
     @Test
     @Rollback(false)
     public void testCommitFakeAnswer() throws JsonProcessingException {
-        String result = oneFundApiService.commitFakeAnswer();
+        String result = oneFundApiService.commitFakeAnswer("shellshellfish");
         mongoTemplate.save(result, "fakeAnswerResult");
     }
 
     @Test
     public void testCommitRisk() throws JsonProcessingException {
-        String result = oneFundApiService.commitRisk();
+        String result = oneFundApiService.commitRisk("shellshellfish");
         mongoTemplate.save(result, "riskResult");
     }
 
     @Test
     public void testGetUserRiskList() throws JsonProcessingException {
-        oneFundApiService.getUserRiskList();
+        oneFundApiService.getUserRiskList("shellshellfish");
     }
 
     @Test
     @Rollback(false)
     public void testGetApplyList() throws JsonProcessingException {
-        String result = oneFundApiService.getAllApplyList();
+        String result = oneFundApiService.getAllApplyList("shellshellfish");
         mongoTemplate.save(result, "appplyResult");
     }
 
     @Test
     public void testGetApplyResultByApplySerial() throws Exception {
-        ApplyResult applyResult = oneFundApiService.getApplyResultByApplySerial("20171207000676");
+        ApplyResult applyResult = oneFundApiService.getApplyResultByApplySerial("shellshellfish","20171207000676");
         assertNotNull(applyResult);
         logger.info(new ObjectMapper().writeValueAsString(applyResult));
     }
 
     @Test
     public void testGetApplyResultByOutsideOrderNo() throws JsonProcessingException {
-        ApplyResult applyResult = oneFundApiService.getApplyResultByOutsideOrderNo("201712-17a7807d-5d40-4681-adf3-23f");
+        ApplyResult applyResult = oneFundApiService.getApplyResultByOutsideOrderNo("shellshellfish","201712-17a7807d-5d40-4681-adf3-23f");
         assertNotNull(applyResult);
         logger.info(new ObjectMapper().writeValueAsString(applyResult));
     }
@@ -219,6 +219,17 @@ public class OneFundApiServiceTest {
         BigDecimal discount = oneFundApiService.getDiscount("000590", "022");
         BigDecimal poundage = oneFundApiService.calcPoundage(totalAmount, rate, discount);
 
+        logger.info("{}", poundage);
+    }
+
+    @Test
+    public void testCalcDiscountPoundage() throws Exception {
+        BigDecimal totalAmount = BigDecimal.valueOf(100d);
+        BigDecimal rate = BigDecimal.valueOf(0.04);
+        BigDecimal discount = BigDecimal.valueOf(0.5);
+        BigDecimal poundage = oneFundApiService.calcDiscountPoundage(totalAmount, rate, discount);
+        poundage = poundage.setScale(1);
+        assertEquals(poundage, BigDecimal.valueOf(2.0));
         logger.info("{}", poundage);
     }
 
