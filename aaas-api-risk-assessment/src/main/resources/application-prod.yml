@@ -19,8 +19,10 @@ spring:
             database: test
 
 server:
-    port: 10023
-    
+    port: 10050
+grpc:
+  host: localhost
+  port: 10051
     
 application:
     swagger:

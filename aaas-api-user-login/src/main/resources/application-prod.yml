@@ -1,6 +1,6 @@
 ---
 server:
-  port: 10020
+  port: 10070
   contextPath: /
 ---
 spring:
@@ -34,3 +34,6 @@ datasource:
       show_sql: true
       format_sql: true
       dialect: org.hibernate.dialect.MySQLDialect
+grpc:
+  host: localhost
+  port: 10071
