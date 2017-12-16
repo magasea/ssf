@@ -9,11 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
@@ -457,35 +454,47 @@ public class UserInfoController {
 	})
 	@RequestMapping(value = "/users/{userUuid}/bankcards", method = RequestMethod.GET)
 	//@RequestMapping(value = "/userinfo/users/supportbankcards", method = RequestMethod.GET)
-	public ResponseEntity<?> bankcardsInfo(@Valid @NotNull(message="不能为空")
+	public ResponseEntity<List<Map>> bankcardsInfo(@Valid @NotNull(message="不能为空")
 	@PathVariable("userUuid") String userUuid) throws Exception {
 
 		List<BankCardDTO> bankCards = userInfoService.getUserInfoBankCards(userUuid);
 		
-		Map<String, Object> result = new HashMap<>();
-		Map<String, Object> links = new HashMap<>();
-		Map<String, Object> selfmap = new HashMap<>();
-		List<Map> relateList = new ArrayList<Map>();
-		
-		selfmap.put("href", URL_HEAD+"/"+userUuid+"/bankcards" );
-		selfmap.put("describedBy","schema//"+URL_HEAD+"/"+userUuid+"/bankcards.json");
-		
-		result.put("_items", bankCards);
-		result.put("_total", 0);
+//		Map<String, Object> result = new HashMap<>();
+//		Map<String, Object> links = new HashMap<>();
+//		Map<String, Object> selfmap = new HashMap<>();
+//		List<Map> relateList = new ArrayList<Map>();
+//		
+//		selfmap.put("href", URL_HEAD+"/"+userUuid+"/bankcards" );
+//		selfmap.put("describedBy","schema//"+URL_HEAD+"/"+userUuid+"/bankcards.json");
+//		
+//		result.put("_items", bankCards);
+//		result.put("_total", 0);
+//		if(bankCards!=null){
+//			result.put("_total", bankCards.size());
+//		}
+//		
+//		HashMap<String,Object> relateditemmap=new HashMap<>();
+//		relateditemmap = new HashMap<String,Object>();
+//		relateditemmap.put("href", URL_HEAD+"/users/"+userUuid+"/bankcardnum");
+//		relateditemmap.put("name", "bankcardnum");
+//		relateList.add(relateditemmap);
+//		links.put("related", relateList);
+//		
+//		links.put("self", selfmap );
+//		result.put("_links", links);
+		List<Map> bankList = new ArrayList<>();
 		if(bankCards!=null){
-			result.put("_total", bankCards.size());
+			for(int i=0;i<bankCards.size();i++){
+				Map<String,Object> map = new HashMap();
+				BankCardDTO bankCard = bankCards.get(i);
+				map.put("bankName",bankCard.getBankName());
+				map.put("bankcardNum",bankCard.getCardNumber());
+				map.put("bankCode",BankUtil.getCodeOfBank(bankCard.getCardNumber()));
+				bankList.add(map);
+			}
 		}
-		
-		HashMap<String,Object> relateditemmap=new HashMap<>();
-		relateditemmap = new HashMap<String,Object>();
-		relateditemmap.put("href", URL_HEAD+"/users/"+userUuid+"/bankcardnum");
-		relateditemmap.put("name", "bankcardnum");
-		relateList.add(relateditemmap);
-		links.put("related", relateList);
-		
-		links.put("self", selfmap );
-		result.put("_links", links);
-		return new ResponseEntity<Object>(result , HttpStatus.OK);
+		//result.put("bankList", bankList);
+		return new ResponseEntity<List<Map>>(bankList , HttpStatus.OK);
 
 	}
 	
