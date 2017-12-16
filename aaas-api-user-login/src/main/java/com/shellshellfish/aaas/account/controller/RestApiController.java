@@ -38,6 +38,7 @@ import com.shellshellfish.aaas.account.service.AccountService;
 import com.shellshellfish.aaas.account.service.BankCardService;
 import com.shellshellfish.aaas.account.service.ResourceManagerService;
 import com.shellshellfish.aaas.account.service.SchemaManager;
+import com.shellshellfish.aaas.account.utils.BankUtil;
 import com.shellshellfish.aaas.account.utils.MD5;
 import com.shellshellfish.aaas.account.utils.PageWrapper;
 import io.swagger.annotations.Api;
@@ -287,8 +288,9 @@ public class RestApiController {
 		if (result != null && result.size() > 0) { // 是已登记的用户
 			User user = result.get(0);
 			String uuid = user.getUuid();
+			String uid = user.getId()+"";
 			String token = "Token-XXXXXXXX";
-			String obj[] = new String[] { uuid, token };
+			String obj[] = new String[] { uid,uuid, token };
 			HashMap<String, Object> rsmap = resourceManagerService.response("loginhome", obj);
 			rsmap.put("totalAssets", "10");
 			rsmap.put("dailyProfit", "2.5%");
@@ -476,6 +478,7 @@ public class RestApiController {
 				BankCard bankCard = bankcardList.get(i);
 				map.put("bankName",bankCard.getBankName());
 				map.put("bankcardNum",bankCard.getCardNumber());
+				map.put("bankCode",BankUtil.getCodeOfBank(bankCard.getCardNumber()));
 				result.add(map);
 			}
 		}

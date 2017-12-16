@@ -401,7 +401,9 @@ public class UserInfoController {
 			return new ResponseEntity<Map>(result,HttpStatus.NO_CONTENT);
 		} else {
 			//return new ResponseEntity<Object>(URL_HEAD + "/initpage", HttpStatus.OK);
-			result.put("msg", "添加成功");
+//			String code = BankUtil.getCodeOfBank(bankCard.getCardNumber());
+//			result.put("code", code);
+			result.put("status", "添加成功");
 			return new ResponseEntity<Map>(result, HttpStatus.OK);
 		}
 	}

@@ -360,11 +360,14 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
 	public HashMap<String, Object> loginhome(String[] args) {
 		// addbankcard resource
 		HashMap<String, Object> rsmap = new HashMap<String, Object>();
-		String uuid = args[0];
-		String token = args[1];
+		String uid = args[0];
+		String uuid = args[1];
+		String token = args[2];
 		
 		rsmap.put("name", "loginhome");
+		rsmap.put("uid", uid);
 		rsmap.put("uuid", uuid);
+		rsmap.put("token ", token);
 		rsmap.put("token ", token);
 		
 		HashMap<String, Object> linkitemmap = new HashMap<String, Object>();
