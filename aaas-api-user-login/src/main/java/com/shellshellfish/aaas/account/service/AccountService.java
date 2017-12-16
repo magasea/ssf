@@ -12,7 +12,7 @@ import com.shellshellfish.aaas.account.model.dto.VerificationBodyDTO;
 
 public interface AccountService {
 	List<User> isRegisteredUser(LoginBodyDTO loginBodyDTO);
-	boolean isSettingPWD(PwdSettingBodyDTO pwdSettingBody);
+	String isSettingPWD(PwdSettingBodyDTO pwdSettingBody);
 	List<UserDTO> isRegisterredTel(RegistrationBodyDTO registrationBody);
 	boolean isSmsVerified(UpdateRegistrationBodyDTO registrationBodyDTO);
 	boolean addBankCard(String arg[]);

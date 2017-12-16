@@ -7,8 +7,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.shellshellfish.aaas.finance.model.ChartResource;
 import com.shellshellfish.aaas.finance.returnType.FundReturn;
@@ -108,29 +113,12 @@ public class IndexServiceImpl implements IndexService {
 
 	@Override
 	public ChartResource getChart() {
-		ChartResource chartResource = new ChartResource();
-		chartResource.setName("历史收益图");
-		chartResource.setType("历史收益图");
-		ReturnType returnType = null;
-		// ReturnType returnType =
-		// assetAllocationService.getFundGroupIncomeMounth(id,subGroupId,6);
-		List<Map<String, Object>> list = returnType.get_items();
-		List<List<List<Object>>> listAfter = new ArrayList();
-		if (list != null) {
-			return chartResource;
-		}
-		List<List<Object>> listAfter2 = new ArrayList();
-		for (int i = 0; i < list.size(); i++) {
-			List<Object> listConvert = new ArrayList();
-			Map<String, Object> value = list.get(i);
-			for (String key : value.keySet()) {
-				listConvert.add(key);
-				listConvert.add(value.get(key));
-			}
-			listAfter2.add(listConvert);
-		}
-		listAfter.add(listAfter2);
-		chartResource.setLineValues(listAfter);
+	        ChartResource chartResource = new ChartResource();
+	        chartResource.setName("最大回撤走势图");
+	        chartResource.setLineValues(Arrays.asList(
+	                Arrays.asList(Arrays.asList("2014-10-13", 0.1)
+	        ));
+
 		FishLinks links = new FishLinks();
 		links.setSelf("/api/ssf-finance/product-groups/homepage/charts/1");
 		links.setDescribedBy("/schema/api/ssf-finance/product-groups/homepage/charts/item.json");

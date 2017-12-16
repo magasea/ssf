@@ -67,13 +67,13 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public boolean isSettingPWD(PwdSettingBodyDTO pwdSettingBody) throws RuntimeException{
+	public String isSettingPWD(PwdSettingBodyDTO pwdSettingBody) throws RuntimeException{
 		String telnum = pwdSettingBody.getTelnum();
 		String pwdsetting = pwdSettingBody.getPassword();
 		String pwdconfirm = pwdSettingBody.getPwdconfirm();
 		List<User> userList = userRepository.findByCellPhone(telnum);
 		if (userList == null || userList.size() != 1) {//有可能多于1条的冗余数据
-			return false;
+			return "";
 		}
 		if (pwdsetting.equals(pwdconfirm)) {
 			Pattern pwdPattern = Pattern.compile(
@@ -97,7 +97,7 @@ public class AccountServiceImpl implements AccountService {
 				Timestamp nowdate = new Timestamp(date.getTime());
 				user.setLastModifiedDate(nowdate);
 				userRepository.save(user);
-				return true;
+				return user.getId();
 			} else {
 				throw new UserException("102", "密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合");
 			}

@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -156,13 +158,13 @@ public class RestApiController {
         @ApiResponse(code=401,message="未授权用户")        				
     })		
 	@RequestMapping(value = "/registrations", method = RequestMethod.PATCH)
-	public ResponseEntity<HttpStatus> updateregistrationsId(
+	public ResponseEntity<String> updateregistrationsId(
 			@Valid @RequestBody UpdateRegistrationBodyDTO updateregistrationBody
 			){
 		if (accountService.isSmsVerified(updateregistrationBody))
-			return new ResponseEntity<HttpStatus>(HttpStatus.RESET_CONTENT);
+			return new ResponseEntity<>("OK", HttpStatus.RESET_CONTENT);
 		
-		return new ResponseEntity<HttpStatus>(HttpStatus.UNAUTHORIZED);
+		return new ResponseEntity<>("Failed", HttpStatus.UNAUTHORIZED);
 	}
 	
 	//忘记密码 初始化页面
@@ -289,7 +291,7 @@ public class RestApiController {
 			rsmap.put("investpProd", "3");
 			rsmap.put("bankTotal", "4");
 			rsmap.put("unreadTotal", "7");
-			rsmap.put("isTest", "F");
+			rsmap.put("isTestFlag", "T");
 			return new ResponseEntity<Object>(rsmap, HttpStatus.CREATED);
 		}
 
@@ -326,6 +328,7 @@ public class RestApiController {
 			throw new UserException("104", "不支持此动作");
 		}
 		result.put("result", "OK");
+		result.put("isTestFlag", "F");
 		return new ResponseEntity<Map>(result, HttpStatus.CREATED);
 //		return new ResponseEntity<String>("/smsverificationpage?telnum=" + telnum, HttpStatus.CREATED);
 	}
@@ -590,8 +593,10 @@ public class RestApiController {
 		String telnum = pwdSettingBody.getTelnum();
 		String pwdsetting = pwdSettingBody.getPassword();
 		String pwdconfirm = pwdSettingBody.getPwdconfirm();
-		if (accountService.isSettingPWD(pwdSettingBody)) { // 密码修正正确
-			return new ResponseEntity<String>(URL_HEAD+"/loginpage?action='loginpage'&telnum=" + telnum, HttpStatus.OK);
+		String uid = accountService.isSettingPWD(pwdSettingBody);
+		if (!StringUtils.isEmpty(uid)) { // 密码修正正确
+			//return new ResponseEntity<String>(URL_HEAD+"/loginpage?action='loginpage'&telnum=" + telnum, HttpStatus.OK);
+			return new ResponseEntity<String>(uid, HttpStatus.OK);
 		}
 		return new ResponseEntity<String>(URL_HEAD+"/loginpage?action='loginpage'&telnum=" + telnum, HttpStatus.UNAUTHORIZED);// 未授权用户
 	}
