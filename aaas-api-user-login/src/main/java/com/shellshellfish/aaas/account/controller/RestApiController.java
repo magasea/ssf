@@ -164,12 +164,12 @@ public class RestApiController {
 		Map<String,Object> result = new HashMap();
 		String uid = accountService.isSmsVerified(updateregistrationBody);
 		if (!StringUtils.isEmpty(uid)){
-			result.put("status", "OK");
+			//result.put("status", "OK");
 			result.put("uid", uid);
-			return new ResponseEntity<>(result, HttpStatus.RESET_CONTENT);
+			return new ResponseEntity<Map>(result, HttpStatus.OK);
 		}
 		result.put("status", "Failed");
-		return new ResponseEntity<>(result, HttpStatus.UNAUTHORIZED);
+		return new ResponseEntity<Map>(result, HttpStatus.UNAUTHORIZED);
 	}
 	
 	//忘记密码 初始化页面
