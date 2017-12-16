@@ -405,6 +405,33 @@ public class UserInfoController {
 			return new ResponseEntity<Map>(result, HttpStatus.OK);
 		}
 	}
+	
+	/**
+	 * 添加银行卡	提交action
+	 * @param id
+	 * @param bankcardDetailVo
+	 * @return
+	 * @throws Exception
+	 */
+	@ApiOperation("银行查看")
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+        @ApiResponse(code=400,message="请求参数没填好"),
+        @ApiResponse(code=401,message="未授权用户"),        				
+		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
+    })
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="path",name="bankcardNum",dataType="String",required=true,value="银行卡号",defaultValue=""),
+	})
+	@RequestMapping(value = "/bankcards/{bankcardNum}/banks", method = RequestMethod.GET)
+	public ResponseEntity<Map> getBankName(@PathVariable("bankcardNum") String bankcardNum) throws Exception {
+		Map<String, Object> result = new HashMap<>();
+		
+		String bankName = BankUtil.getNameOfBank(bankcardNum);
+		result.put("bankName", bankName);
+		return new ResponseEntity<Map>(result, HttpStatus.OK);
+	}
 
 	/**
 	 * 列出银行卡	action
