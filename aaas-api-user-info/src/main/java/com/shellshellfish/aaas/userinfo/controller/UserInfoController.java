@@ -429,7 +429,9 @@ public class UserInfoController {
 		Map<String, Object> result = new HashMap<>();
 		
 		String bankName = BankUtil.getNameOfBank(bankcardNum);
+		String bankCode = BankUtil.getCodeOfBank(bankcardNum);
 		result.put("bankName", bankName);
+		result.put("bankCode", bankCode);
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
 
