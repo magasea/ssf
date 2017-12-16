@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.shellshellfish.aaas.account.exception.UserException;
 import com.shellshellfish.aaas.account.model.dao.BankCard;
+import com.shellshellfish.aaas.account.model.dao.SmsVerification;
 import com.shellshellfish.aaas.account.model.dao.User;
 import com.shellshellfish.aaas.account.model.dto.LoginBodyDTO;
 import com.shellshellfish.aaas.account.model.dto.PwdSettingBodyDTO;
@@ -18,6 +19,7 @@ import com.shellshellfish.aaas.account.model.dto.UpdateRegistrationBodyDTO;
 import com.shellshellfish.aaas.account.model.dto.UserDTO;
 import com.shellshellfish.aaas.account.model.dto.VerificationBodyDTO;
 import com.shellshellfish.aaas.account.repositories.mysql.BankCardRepository;
+import com.shellshellfish.aaas.account.repositories.mysql.SmsVerificationRepository;
 import com.shellshellfish.aaas.account.repositories.mysql.SmsVerificationRepositoryCustom;
 import com.shellshellfish.aaas.account.repositories.mysql.UserRepository;
 import com.shellshellfish.aaas.account.service.AccountService;
@@ -37,6 +39,9 @@ public class AccountServiceImpl implements AccountService {
 	
 	@Autowired
 	private BankCardRepository bankCardRepository;
+	
+	@Autowired
+	private SmsVerificationRepository smsVerificationRepository;
 	
 //	@Autowired
 //	private AssetRepository assetRepository;
@@ -193,7 +198,18 @@ public class AccountServiceImpl implements AccountService {
 		
 		//save to redis server
 		//Boolean result = redisService.saveVeribody(vcodebody);
-		
+		SmsVerification sms = smsVerificationRepository.findByCellPhone(telnum);
+		SmsVerification smsVerification = new SmsVerification();
+		if(sms!=null){
+			smsVerification.setId(sms.getId());
+		}
+		smsVerification.setCellPhone(telnum);
+		Date date = new Date();
+		Timestamp nowdate = new Timestamp(date.getTime());
+//		smsVerification.setCreatedDate(nowdate);
+//		smsVerification.setExpireTime(nowdate);
+		smsVerification.setSmsCode(vcodebody.getIdentifyingcode());
+		smsVerificationRepository.save(smsVerification);
 		return vcodebody.getIdentifyingcode();
 	}
 	
