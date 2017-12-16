@@ -158,13 +158,18 @@ public class RestApiController {
         @ApiResponse(code=401,message="未授权用户")        				
     })		
 	@RequestMapping(value = "/registrations", method = RequestMethod.PATCH)
-	public ResponseEntity<String> updateregistrationsId(
+	public ResponseEntity<Map> updateregistrationsId(
 			@Valid @RequestBody UpdateRegistrationBodyDTO updateregistrationBody
 			){
-		if (accountService.isSmsVerified(updateregistrationBody))
-			return new ResponseEntity<>("OK", HttpStatus.RESET_CONTENT);
-		
-		return new ResponseEntity<>("Failed", HttpStatus.UNAUTHORIZED);
+		Map<String,Object> result = new HashMap();
+		String uid = accountService.isSmsVerified(updateregistrationBody);
+		if (!StringUtils.isEmpty(uid)){
+			result.put("status", "OK");
+			result.put("uid", uid);
+			return new ResponseEntity<>(result, HttpStatus.RESET_CONTENT);
+		}
+		result.put("status", "Failed");
+		return new ResponseEntity<>(result, HttpStatus.UNAUTHORIZED);
 	}
 	
 	//忘记密码 初始化页面

@@ -97,7 +97,8 @@ public class AccountServiceImpl implements AccountService {
 				Timestamp nowdate = new Timestamp(date.getTime());
 				user.setLastModifiedDate(nowdate);
 				userRepository.save(user);
-				return user.getId();
+				String userId = user.getId()+"";
+				return userId;
 			} else {
 				throw new UserException("102", "密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合");
 			}
@@ -160,14 +161,26 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public boolean isSmsVerified(UpdateRegistrationBodyDTO registrationBodyDTO) throws RuntimeException {
+	public String isSmsVerified(UpdateRegistrationBodyDTO registrationBodyDTO) throws RuntimeException {
 		String cellphone = registrationBodyDTO.getTelnum();
 		String verfiedcode = registrationBodyDTO.getIdentifyingcode();
-		List<Object[]> reslst=smsVerificationRepositoryCustom.getSmsVerification(cellphone, verfiedcode);
-		if (reslst.size()>0)
-			return true;
-		
-		return false;
+//		List<Object[]> reslst=smsVerificationRepositoryCustom.getSmsVerification(cellphone, verfiedcode);
+//		if (reslst.size()>0)
+//			return "";
+		User user = new User();
+		if(!registrationBodyDTO.getPassword().equals(registrationBodyDTO.getPwdconfirm())){
+			return "";
+		}
+		user.setPasswordHash(MD5.getMD5(registrationBodyDTO.getPassword()));
+		Date date = new Date();
+		Timestamp nowdate = new Timestamp(date.getTime());
+		user.setLastModifiedDate(nowdate);
+		user.setCellPhone(cellphone);
+		userRepository.save(user);
+		List<User> userList = userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
+		User result = userList.get(0);
+		String uid = result.getId()+"";
+		return uid;
 		
 	}
 	

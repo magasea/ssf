@@ -10,7 +10,6 @@ public class SurveyTemplateDTO {
 	private String id;
 	@JsonIgnore
 	private String bankUuid;
-	@JsonIgnore
 	private String title;
 	private List<QuestionDTO> questions;
 	private String version;

@@ -14,7 +14,7 @@ public interface AccountService {
 	List<User> isRegisteredUser(LoginBodyDTO loginBodyDTO);
 	String isSettingPWD(PwdSettingBodyDTO pwdSettingBody);
 	List<UserDTO> isRegisterredTel(RegistrationBodyDTO registrationBody);
-	boolean isSmsVerified(UpdateRegistrationBodyDTO registrationBodyDTO);
+	String isSmsVerified(UpdateRegistrationBodyDTO registrationBodyDTO);
 	boolean addBankCard(String arg[]);
 	String sendSmsMessage(String phone);
 	boolean doSmsVerification(VerificationBodyDTO vbody);
