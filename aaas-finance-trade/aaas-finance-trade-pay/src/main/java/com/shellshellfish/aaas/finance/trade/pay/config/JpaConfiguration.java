@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.pay.config;
 
 import autovalue.shaded.org.apache.commons.lang.StringUtils;
+import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.Properties;
 import javax.naming.NamingException;
@@ -8,6 +9,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -18,16 +20,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
 @Configuration
 @ComponentScan
-@EntityScan("com.shellshellfish.aaas.finance.trade.pay.model")
+@EntityScan("com.shellshellfish.aaas.finance.trade.model.dao")
 @EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.finance.trade.pay.repositories")
 @EnableTransactionManagement
 
@@ -57,16 +59,16 @@ public class JpaConfiguration {
 	@Bean
 	public DataSource dataSource() {
 		DataSourceProperties dataSourceProperties = dataSourceProperties();
-			HikariDataSource dataSource = (HikariDataSource) DataSourceBuilder
-					.create(dataSourceProperties.getClassLoader())
-					.driverClassName(dataSourceProperties.getDriverClassName())
-					.url(dataSourceProperties.getUrl())
-					.username(dataSourceProperties.getUsername())
-					.password(dataSourceProperties.getPassword())
-					.type(HikariDataSource.class)
-					.build();
-			dataSource.setMaximumPoolSize(maxPoolSize);
-			return dataSource;
+		HikariDataSource dataSource = (HikariDataSource) DataSourceBuilder
+				.create(dataSourceProperties.getClassLoader())
+				.driverClassName(dataSourceProperties.getDriverClassName())
+				.url(dataSourceProperties.getUrl())
+				.username(dataSourceProperties.getUsername())
+				.password(dataSourceProperties.getPassword())
+				.type(HikariDataSource.class)
+				.build();
+		dataSource.setMaximumPoolSize(maxPoolSize);
+		return dataSource;
 	}
 
 	/*
@@ -76,12 +78,9 @@ public class JpaConfiguration {
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() throws NamingException {
 		LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
 		factoryBean.setDataSource(dataSource());
-		factoryBean.setPackagesToScan(new String[] { "com.shellshellfish.aaas.userinfo" });
+		factoryBean.setPackagesToScan(new String[] { "com.shellshellfish.aaas.finance.trade.pay" });
 		factoryBean.setJpaVendorAdapter(jpaVendorAdapter());
 		factoryBean.setJpaProperties(jpaProperties());
-
-
-
 		return factoryBean;
 	}
 

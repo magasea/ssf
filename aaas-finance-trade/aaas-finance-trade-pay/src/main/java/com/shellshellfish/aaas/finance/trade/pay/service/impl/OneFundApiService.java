@@ -4,8 +4,27 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shellshellfish.aaas.finance.trade.pay.model.*;
+import com.shellshellfish.aaas.finance.trade.pay.model.ApplyResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.CancelTradeResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.OpenAccountResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.SellFundResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.TradeLimitResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.TradeRateResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.UserBank;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
+import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.codec.digest.UnixCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,12 +34,6 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
-
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
 
 @Service
 public class OneFundApiService implements FundTradeApiService {

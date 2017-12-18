@@ -8,6 +8,11 @@ logging:
     org.springframework.data: debug
     org.springframework.data.mongodb.core.MongoTemplate: DEBUG
 spring:
+#  data:
+#    mongodb:
+#      database: test1
+#      host: 192.168.1.10
+#      port: 27017
   rabbitmq:
     username: ssf
     password: shellshellfish
@@ -22,10 +27,10 @@ spring:
     topicPay: shellshellfish.pay
     topicOrder: shellshellfish.order
   data:
-      mongodb:
-          host: 192.168.1.10
-          port: 27017
-          database: zhongzheng
+    mongodb:
+      host: 192.168.1.10
+      port: 27017
+      database: trade
 
 
 datasource:

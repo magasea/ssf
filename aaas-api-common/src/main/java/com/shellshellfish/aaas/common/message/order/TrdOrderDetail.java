@@ -13,6 +13,8 @@ public class TrdOrderDetail {
 	private long payFee;
 	private long userId;
 	private long prodId;
+	private int tradeBrokeId;
+	private String tradeAccount;
 	private String fundCode;
 	private long fundQuantity;
 	private long fundNum;
@@ -225,7 +227,22 @@ public class TrdOrderDetail {
 		this.updateDate = updateDate;
 	}
 
-	
+	public int getTradeBrokeId() {
+		return tradeBrokeId;
+	}
+
+	public void setTradeBrokeId(int tradeBrokeId) {
+		this.tradeBrokeId = tradeBrokeId;
+	}
+
+	public String getTradeAccount() {
+		return tradeAccount;
+	}
+
+	public void setTradeAccount(String tradeAccount) {
+		this.tradeAccount = tradeAccount;
+	}
+
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;

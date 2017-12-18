@@ -49,7 +49,7 @@ public class SpringQrtzScheduler {
     public SchedulerFactoryBean scheduler(Trigger trigger, JobDetail job) {
 
         SchedulerFactoryBean schedulerFactory = new SchedulerFactoryBean();
-        schedulerFactory.setConfigLocation(new ClassPathResource("quartz.properties"));
+//        schedulerFactory.setConfigLocation(new ClassPathResource("quartz.properties"));
 
         logger.debug("Setting the Scheduler up");
         schedulerFactory.setJobFactory(springBeanJobFactory());
