@@ -1,6 +1,9 @@
 package com.shellshellfish.aaas.assetallocation.neo.web;
 
-import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
+import com.shellshellfish.aaas.assetallocation.neo.returnType.FundAllReturn;
+import com.shellshellfish.aaas.assetallocation.neo.returnType.FundReturn;
+import com.shellshellfish.aaas.assetallocation.neo.returnType.PerformanceVolatilityReturn;
+import com.shellshellfish.aaas.assetallocation.neo.returnType.ReturnType;
 import com.shellshellfish.aaas.assetallocation.neo.secvice.FundGroupService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**

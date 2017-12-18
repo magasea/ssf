@@ -10,9 +10,9 @@
     <name>aaas-api-asset-allocation</name>
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.8.RELEASE</version>
+        <groupId>com.shellshellfish</groupId>
+        <artifactId>aaas</artifactId>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
     <properties>
