@@ -34,6 +34,16 @@ public class FundGroupController {
     }
 
     /**
+     * 返回首页五个产品
+     * @return
+     */
+    @ApiOperation("返回首页五个产品")
+    @RequestMapping(value = "/api/asset-allocation/products/home-page", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ReturnType getPerformanceVolatilityHomePage(){
+        ReturnType fr = fundGroupService.getPerformanceVolatilityHomePage();
+        return fr;
+    }
+    /**
      * 按照ID查询基金组合明细
      * @param id
      * @return
@@ -57,9 +67,8 @@ public class FundGroupController {
     @ApiOperation("预期年化收益(action=calcExpectedAnnualizedReturn), 预期最大回撤(action=calcExpectedMaxPullback)")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String,Object>> selectReturnAndPullback(@PathVariable("groupId") String id, @PathVariable("subGroupId") String subGroupId,@RequestParam(defaultValue="1") String returntype){
-        Map<String,Object> map = new HashMap<String,Object>();
-        map= fundGroupService.selectReturnAndPullback(id,returntype,subGroupId);
-        return new ResponseEntity<Map<String,Object>>(map, HttpStatus.OK);
+        Map<String,Object> map = fundGroupService.selectReturnAndPullback(id,returntype,subGroupId);
+        return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
     /**
