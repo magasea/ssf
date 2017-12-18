@@ -169,9 +169,10 @@ public class AccountServiceImpl implements AccountService {
 	public String isSmsVerified(UpdateRegistrationBodyDTO registrationBodyDTO) throws RuntimeException {
 		String cellphone = registrationBodyDTO.getTelnum();
 		String verfiedcode = registrationBodyDTO.getIdentifyingcode();
-//		List<Object[]> reslst=smsVerificationRepositoryCustom.getSmsVerification(cellphone, verfiedcode);
-//		if (reslst.size()>0)
-//			return "";
+		//List<Object[]> reslst=smsVerificationRepositoryCustom.getSmsVerification(cellphone, verfiedcode);
+		List<SmsVerification> reslst=smsVerificationRepository.findByCellPhoneAndSmsCode(cellphone, verfiedcode);
+		if (reslst.size()==0)
+			return "";
 		User user = new User();
 		if(!registrationBodyDTO.getPassword().equals(registrationBodyDTO.getPwdconfirm())){
 			return "";
