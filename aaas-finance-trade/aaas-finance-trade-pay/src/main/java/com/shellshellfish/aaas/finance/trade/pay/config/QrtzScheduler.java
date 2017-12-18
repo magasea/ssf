@@ -47,7 +47,7 @@ public class QrtzScheduler {
     public Scheduler scheduler(Trigger trigger, JobDetail job) throws SchedulerException, IOException {
 
         StdSchedulerFactory factory = new StdSchedulerFactory();
-        factory.initialize(new ClassPathResource("quartz.properties").getInputStream());
+//        factory.initialize(new ClassPathResource("quartz.properties").getInputStream());
 
         logger.debug("Getting a handle to the Scheduler");
         Scheduler scheduler = factory.getScheduler();

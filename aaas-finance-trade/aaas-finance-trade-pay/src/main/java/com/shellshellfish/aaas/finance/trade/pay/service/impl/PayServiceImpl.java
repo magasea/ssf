@@ -6,7 +6,6 @@ import com.shellshellfish.aaas.common.utils.DateUtil;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
 import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
-import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdBrokerUserRepository;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
@@ -29,19 +28,17 @@ public class PayServiceImpl implements PayService{
   @Autowired
   FundTradeApiService fundTradeApiService;
 
-  @Autowired
-  TrdBrokerUserRepository trdBrokerUserRepository;
+
 
   @Override
   public TrdPayFlow payOrder(TrdOrderDetail trdOrderPay) throws Exception {
     logger.info("payOrder fundCode:"+trdOrderPay.getFundCode());
-    String userTrdAcco = trdBrokerUserRepository.findByUserId(trdOrderPay.getUserId())
-        .getTradeAcco();
+
     //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
     trdOrderPay.getFundCode();
     BigDecimal payAmount = TradeUtil.getBigDecimalNumWithMul100(trdOrderPay.getPayAmount());
-    BuyFundResult fundResult = fundTradeApiService.buyFund(userTrdAcco, payAmount, String
-        .valueOf(trdOrderPay.getId()),trdOrderPay.getFundCode());
+    BuyFundResult fundResult = fundTradeApiService.buyFund(trdOrderPay.getTradeAccount(), payAmount,
+        String.valueOf(trdOrderPay.getId()),trdOrderPay.getFundCode());
     TrdPayFlow trdPayFlow = new TrdPayFlow();
     trdPayFlow.setCreateDate(DateUtil.getCurrentDateInLong());
     trdPayFlow.setCreateBy(0L);
