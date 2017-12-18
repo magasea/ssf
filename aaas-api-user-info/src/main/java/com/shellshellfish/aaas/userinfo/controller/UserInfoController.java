@@ -557,7 +557,7 @@ public class UserInfoController {
 		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,defaultValue=""),
 	})
 	@RequestMapping(value = "/users/{userUuid}/messages", method = RequestMethod.GET)
-	public ResponseEntity<?> messages(
+	public ResponseEntity<Map> messages(
 			@Valid @NotNull(message = "userUuid不能为空") @PathVariable("userUuid") String userUuid
 			) throws Exception {
 		HashMap<String, Object> rsmap = new HashMap<String, Object>();
@@ -582,7 +582,7 @@ public class UserInfoController {
 
 		links.put("related", rsList);
 		rsmap.put("_links", links);
-		return new ResponseEntity<Object>(rsmap, HttpStatus.OK);
+		return new ResponseEntity<Map>(rsmap, HttpStatus.OK);
 	}
 
 	/**
@@ -923,9 +923,9 @@ public class UserInfoController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
 	})
 	@RequestMapping(value = "/users/{userUuid}/friendinvitationpage", method = RequestMethod.GET)
-	public ResponseEntity<?> getFriendsInvationLinks(
+	public ResponseEntity<Map> getFriendsInvationLinks(
 			@Valid @NotNull(message="用户Uuid") @PathVariable("userUuid") String userUuid,
-			@Valid @NotNull(message="银行ID") @RequestParam( required = false) Long bankId)
+			@Valid @NotNull(message="银行ID") @RequestParam(value = "bankId",required = false) Long bankId)
 			throws Exception {
 		//:TODO 这段分享朋友邀请好友的做法是要改的
 		List<Map> friendIvtList = new ArrayList<>();
@@ -954,7 +954,7 @@ public class UserInfoController {
 		result.put("_links", links);
 		result.put("userUuid", userUuid);
 		result.put("bankId", bankId);
-		return new ResponseEntity<Object>(result , HttpStatus.OK);
+		return new ResponseEntity<Map>(result , HttpStatus.OK);
 	}
 
 
