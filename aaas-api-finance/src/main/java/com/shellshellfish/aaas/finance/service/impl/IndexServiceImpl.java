@@ -117,7 +117,7 @@ public class IndexServiceImpl implements IndexService {
 	        chartResource.setName("最大回撤走势图");
 	        chartResource.setLineValues(Arrays.asList(
 	                Arrays.asList(Arrays.asList("2014-10-13", 0.1)
-	        ));
+	        )));
 
 		FishLinks links = new FishLinks();
 		links.setSelf("/api/ssf-finance/product-groups/homepage/charts/1");

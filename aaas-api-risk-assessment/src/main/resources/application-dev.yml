@@ -14,12 +14,12 @@ spring:
 
     data:
         mongodb:
-            host: localhost
+            host: 192.168.1.10
             port: 27017
             database: test
 
 server:
-    port: 10023
+    port: 10050
     
     
 application:
