@@ -40,6 +40,8 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UserTradeLogRepositor
 import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
 import io.grpc.stub.StreamObserver;
 import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -283,5 +285,54 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		UiBankcard bankcard = bankcardList.get(0);
 		userInfoBankCardsRepository.delete(bankcard.getId());
 		return true;
+	}
+
+	@Override
+	public Boolean saveUser(String userUuid, String cellphone, String isTestFlag) {
+		UiUser uiUser = new UiUser();
+		uiUser.setId(Long.parseLong(userUuid));
+		uiUser.setUuid(userUuid);
+		byte activity = 1;
+		uiUser.setActivated(activity);
+		uiUser.setCellPhone(cellphone);
+		uiUser.setOccupation("金融");
+		uiUser.setCreatedBy("sys");
+		uiUser.setIsTestFlag(isTestFlag);
+		Date currentTime = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HHmmss"); 
+		String dateString = sdf.format(currentTime);
+		dateString = dateString.replace(" ", "");
+		BigInteger createDate = new BigInteger(dateString);
+		uiUser.setCreatedDate(createDate);
+		userInfoRepository.save(uiUser);
+		return true;
+	}
+
+	@Override
+	public Boolean updateCellphone(String cellphone, String isTestFlag) {
+		List<UiUser> userList= userInfoRepository.findByCellPhone(cellphone);
+		UiUser uiUser = new UiUser();
+		Boolean flag = false;
+		if(userList!=null&&userList.size()>0){
+			uiUser = userList.get(0);
+			uiUser.setIsTestFlag(isTestFlag);
+			userInfoRepository.save(uiUser);
+			return true;
+		}
+		return flag;
+	}
+
+	@Override
+	public UserBaseInfoDTO findByCellphone(String cellphone) {
+		List<UiUser> userList= userInfoRepository.findByCellPhone(cellphone);
+		UiUser uiUser = new UiUser();
+		UserBaseInfoDTO user = new UserBaseInfoDTO();
+		Boolean flag = false;
+		if(userList!=null&&userList.size()>0){
+			uiUser = userList.get(0);
+			BeanUtils.copyProperties(uiUser, user);
+			return user;
+		}
+		return user;
 	}
 }

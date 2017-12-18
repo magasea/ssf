@@ -702,4 +702,14 @@ public class RestApiController {
 	        return new ResponseEntity<String>("/login",HttpStatus.NO_CONTENT);//未授权用户
 	       	
     }
+	
+	@RequestMapping(value = "/users/{uidid}", method = RequestMethod.GET)
+	public ResponseEntity<Map> getUserInfo(
+			@Valid @NotNull(message="id不能为空") @PathVariable("uidid") String uidid
+			) throws IllegalAccessException, InstantiationException {
+		Map<String,Object> result = new HashMap<String,Object>();
+		UserDTO user  = accountService.getUserInfo(uidid);
+		result.put("result", user);
+		return new ResponseEntity<Map>(result, HttpStatus.OK);
+	}
 }

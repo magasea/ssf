@@ -15,6 +15,8 @@ public class UserBaseInfoDTO {
 	String occupation;
 
 	String passwordhash;
+	
+	String isTestFlag;
 
 	public Long getId() {
 		return id;
@@ -54,6 +56,14 @@ public class UserBaseInfoDTO {
 
 	public void setPasswordhash(String passwordhash) {
 		this.passwordhash = passwordhash;
+	}
+
+	public String getIsTestFlag() {
+		return isTestFlag;
+	}
+
+	public void setIsTestFlag(String isTestFlag) {
+		this.isTestFlag = isTestFlag;
 	}
 
 }

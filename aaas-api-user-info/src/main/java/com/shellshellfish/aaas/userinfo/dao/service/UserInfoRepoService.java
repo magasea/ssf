@@ -62,4 +62,10 @@ public interface UserInfoRepoService {
 	UiCompanyInfo addCompanyInfo(UiCompanyInfo uiCompanyInfo);
 
 	Boolean deleteBankCard(String userUuid, String cardNumber);
+
+	Boolean saveUser(String userUuid, String cellphone, String isTestFlag);
+
+	UserBaseInfoDTO findByCellphone(String cellphone);
+
+	Boolean updateCellphone(String cellphone, String isTestFlag);
 }

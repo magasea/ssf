@@ -49,7 +49,6 @@ import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 import com.shellshellfish.aaas.userinfo.utils.PageWrapper;
 import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
-
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -79,7 +78,7 @@ public class UserInfoController {
         @ApiResponse(code=400,message="请求参数没填好"),
         @ApiResponse(code=401,message="未授权用户"),        				
 		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
-		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
+		@ApiResponse(code=404,message="请求路径没有或页面跳")   
     })
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="userUuid",defaultValue="")
@@ -1169,4 +1168,89 @@ public class UserInfoController {
 		}
 	}
 	
+	/**
+	 * uiUser 注册 时，add UIUser表
+	 * @return
+	 * @throws Exception
+	 */
+//	@ApiOperation("uiUser")
+//	@ApiResponses({
+//		@ApiResponse(code=200,message="OK"),
+//        @ApiResponse(code=400,message="请求参数没填好"),
+//        @ApiResponse(code=401,message="未授权用户"),        				
+//		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+//		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
+//    })
+//	@ApiImplicitParams({
+//		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue=""),
+//		@ApiImplicitParam(paramType="path",name="bankcardId",dataType="String",required=true,value="银行卡ID",defaultValue=""),
+//	})
+	@RequestMapping(value = "/users/{userUuid}", method = RequestMethod.POST)
+	public ResponseEntity<Map> addUiUser(
+			@Valid @NotNull(message = "userUuid不可为空")@PathVariable String userUuid,
+			@Valid @NotNull(message = "cellphone")@RequestParam String cellphone,
+			@Valid @NotNull(message = "isTestFlag")@RequestParam String isTestFlag)throws Exception {	
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		//id message ID
+		Boolean result =  userInfoService.addUiUser(userUuid, cellphone,isTestFlag);
+		if(!result){
+			resultMap.put("status", "NG");
+			return new ResponseEntity<Map>(resultMap,HttpStatus.UNAUTHORIZED);
+		} else {
+			//return new ResponseEntity<Object>(URL_HEAD+"/message/updateinvestmentmessages/investmentmessages?userUuid="+userUuid , HttpStatus.OK);
+			resultMap.put("status", "OK");
+			resultMap.put("msg", "设置成功成功");
+			return new ResponseEntity<Map>(resultMap, HttpStatus.OK);
+		}
+	}
+	
+	/**
+	 * 已风险测评后， 更新isTestFlag为T
+	 * @param cellphone
+	 * @param isTestFlag
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/users/{cellphone}", method = RequestMethod.PATCH)
+	public ResponseEntity<Map> updateUiUser(
+			@Valid @NotNull(message = "cellphone")@PathVariable String cellphone,
+			@Valid @NotNull(message = "isTestFlag")@RequestParam String isTestFlag)throws Exception {	
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		//id message ID
+		Boolean result =  userInfoService.updateUiUser(cellphone,isTestFlag);
+		if(!result){
+			resultMap.put("status", "NG");
+			return new ResponseEntity<Map>(resultMap,HttpStatus.UNAUTHORIZED);
+		} else {
+			//return new ResponseEntity<Object>(URL_HEAD+"/message/updateinvestmentmessages/investmentmessages?userUuid="+userUuid , HttpStatus.OK);
+			resultMap.put("status", "OK");
+			resultMap.put("msg", "设置成功");
+			return new ResponseEntity<Map>(resultMap, HttpStatus.OK);
+		}
+	}
+	
+	/**
+	 * 查看UIUser表信息
+	 * @param userUuid
+	 * @param cellphone
+	 * @param isTestFlag
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/users/telnums/{cellphone}", method = RequestMethod.GET)
+	public ResponseEntity<Map> getUiUser(
+			@PathVariable String cellphone)throws Exception {	
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		//id message ID
+		UserBaseInfoDTO result =  userInfoService.selectUiUser(cellphone);
+		if(result==null&&result.getId()==null){
+			resultMap.put("status", "NG");
+			return new ResponseEntity<Map>(resultMap,HttpStatus.UNAUTHORIZED);
+		} else {
+			//return new ResponseEntity<Object>(URL_HEAD+"/message/updateinvestmentmessages/investmentmessages?userUuid="+userUuid , HttpStatus.OK);
+			resultMap.put("result", result);
+			resultMap.put("status", "OK");
+			return new ResponseEntity<Map>(resultMap, HttpStatus.OK);
+		}
+	}
 }
