@@ -1,15 +1,22 @@
 package com.shellshellfish.aaas.assetallocation.service.impl;
+import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.shellshellfish.aaas.assetallocation.neo.entity.Interval;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.service.FinanceProductService;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
+import com.shellshellfish.aaas.common.grpc.finance.product.ProductDetailInfoPage;
+import com.shellshellfish.aaas.common.grpc.finance.product.ProductDetailQueryInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
+import com.shellshellfish.aaas.trade.finance.prod.FinanceProdDetailItem;
+import com.shellshellfish.aaas.trade.finance.prod.FinanceProdDetails;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoCollection;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoCollection.Builder;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoQuery;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProductServiceGrpc.FinanceProductServiceImplBase;
 import io.grpc.stub.StreamObserver;
+import java.math.BigDecimal;
+import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -36,6 +43,58 @@ public class FinanceProductServiceImpl  extends
     logger.info("prodId:{} groupId:{}",productBaseInfo.getProdId(), productBaseInfo.getGroupId());
     //return generateTestData(productBaseInfo.getProdId().toString(), productBaseInfo.getGroupId().toString());
     return generateTestData("1","1");
+  }
+
+  @Override
+  public ProductDetailInfoPage getProductDetailInfo(ProductDetailQueryInfo productDetailQueryInfo) {
+    return generateTestData(productDetailQueryInfo);
+  }
+
+  @Override
+  public void getFinanceProds(com.shellshellfish.aaas.trade.finance.prod.FinanceProdDetailQuery request,
+      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.trade.finance.prod.FinanceProdDetails>
+          responseObserver){
+    ProductDetailQueryInfo productDetailQueryInfo = new ProductDetailQueryInfo();
+    BeanUtils.copyProperties(request, productDetailQueryInfo);
+    ProductDetailInfoPage productDetailInfoPage = getProductDetailInfo(productDetailQueryInfo);
+    FinanceProdDetailItem.Builder builderOfFPDI = FinanceProdDetailItem.newBuilder();
+    FinanceProdDetails.Builder builderOfFPD = FinanceProdDetails.newBuilder();
+
+    for(Map<String, Object> item: productDetailInfoPage.getItems()){
+      //Todo: need coding
+//      for(Entry<String, Object> subItem: item.entrySet()){
+//        builderOfFPDI.setField(subItem.getKey(),subItem.getKey());
+//      }
+//      BeanUtils.copyProperties(productMakeUpInfo, builderOfFPI);
+//      builderOfFPIC.addFinanceProdInfo(builderOfFPI);
+//      builderOfFPI.clear();
+    }
+    responseObserver.onNext(builderOfFPD.build());
+    responseObserver.onCompleted();
+  }
+
+  private ProductDetailInfoPage generateTestData(ProductDetailQueryInfo productDetailQueryInfo){
+    ProductDetailInfoPage productDetailInfoPage = new ProductDetailInfoPage();
+    productDetailInfoPage.setGroupId(productDetailQueryInfo.getGroupId());
+    productDetailInfoPage.setPageNum(productDetailQueryInfo.getPageNum());
+    productDetailInfoPage.setPageSize(productDetailQueryInfo.getPageSize());
+    productDetailInfoPage.setProdId(productDetailQueryInfo.getProdId());
+    List<Map<String, Object>> items = new ArrayList<>();
+    for(int idx = 0; idx < 100; idx ++){
+      Map<String, Object> item = new HashMap<>();
+      if(idx%4 == 0){
+        item.put(""+idx, new Integer(idx));
+      }else if(idx%4 == 1){
+        item.put(""+idx, ""+idx);
+      }else if(idx%4 == 2){
+        item.put(""+idx, new BigDecimal(idx));
+      }else if(idx%4 == 1){
+        item.put(""+idx, Long.valueOf(idx));
+      }
+      items.add(item);
+    }
+    productDetailInfoPage.setItems(items);
+    return productDetailInfoPage;
   }
 
   @Override
