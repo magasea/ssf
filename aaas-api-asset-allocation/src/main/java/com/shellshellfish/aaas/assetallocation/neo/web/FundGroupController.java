@@ -1,6 +1,9 @@
 package com.shellshellfish.aaas.assetallocation.neo.web;
 
-import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
+import com.shellshellfish.aaas.assetallocation.neo.returnType.FundAllReturn;
+import com.shellshellfish.aaas.assetallocation.neo.returnType.FundReturn;
+import com.shellshellfish.aaas.assetallocation.neo.returnType.PerformanceVolatilityReturn;
+import com.shellshellfish.aaas.assetallocation.neo.returnType.ReturnType;
 import com.shellshellfish.aaas.assetallocation.neo.secvice.FundGroupService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -33,6 +35,16 @@ public class FundGroupController {
         return far;
     }
 
+    /**
+     * 返回首页五个产品
+     * @return
+     */
+    @ApiOperation("返回首页五个产品")
+    @RequestMapping(value = "/api/asset-allocation/products/home-page", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ReturnType getPerformanceVolatilityHomePage(){
+        ReturnType fr = fundGroupService.getPerformanceVolatilityHomePage();
+        return fr;
+    }
     /**
      * 按照ID查询基金组合明细
      * @param id
@@ -57,9 +69,8 @@ public class FundGroupController {
     @ApiOperation("预期年化收益(action=calcExpectedAnnualizedReturn), 预期最大回撤(action=calcExpectedMaxPullback)")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String,Object>> selectReturnAndPullback(@PathVariable("groupId") String id, @PathVariable("subGroupId") String subGroupId,@RequestParam(defaultValue="1") String returntype){
-        Map<String,Object> map = new HashMap<String,Object>();
-        map= fundGroupService.selectReturnAndPullback(id,returntype,subGroupId);
-        return new ResponseEntity<Map<String,Object>>(map, HttpStatus.OK);
+        Map<String,Object> map = fundGroupService.selectReturnAndPullback(id,returntype,subGroupId);
+        return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
     /**

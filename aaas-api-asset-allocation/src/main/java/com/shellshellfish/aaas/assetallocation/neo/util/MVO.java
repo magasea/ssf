@@ -14,7 +14,7 @@ import java.util.List;
 public class MVO {
 
     /**
-     *
+     *计算有效前沿线值
      * @param ExpReturn 期望收益率
      * @param ExpCovariance 协方差矩阵
      * @param count 有效前沿线生成的点数
@@ -43,7 +43,7 @@ public class MVO {
     }
 
     /**
-     *
+     *已知组合收益率，协方差，权重计算组合预期收益率，预期风险率
      * @param ExpReturn 期望收益率
      * @param ExpCovariance 协方差矩阵
      * @param PortWts 权重
@@ -69,8 +69,8 @@ public class MVO {
 
     /**
      * 计算夏普比率
-     * @param asset
-     * @param cash
+     * @param asset 每天基金复权单位净值*权重相加
+     * @param cash 0.0013
      * @return
      */
     public static Object sharpeRatio(Double[] asset ,Double cash){

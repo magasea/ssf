@@ -45,7 +45,7 @@ public class FundGroupService {
                     if (interval.getFund_group_id().equalsIgnoreCase(fundGroupNum.get(i).getFund_group_id())) {
                         Map<String, String> query = new HashMap<>();
                         query.put("id", interval.getFund_group_id());
-                        query.put("subId", interval.getId());
+                        query.put("subId", interval.getFund_group_sub_id());
                         List<Interval> intervals = fundGroupMapper.getProportion(query);
                         //基金组合内的各基金权重
                         for (Interval inter : intervals) {
@@ -59,7 +59,7 @@ public class FundGroupService {
                     _items.put("maxAnnualizedReturn", interval.getIncome_max_num());
                     _items.put("minRiskLevel", interval.getRisk_min_num());
                     _items.put("maxRiskLevel", interval.getRisk_max_num());
-                    _items.put("creationTime", interval.getDetails_last_mod_time().getTime());//时间戳
+                    //_items.put("creationTime", interval.getDetails_last_mod_time().getTime());//时间戳
                     _items.put("assetsRatios", assetsRatios);//组合内各基金权重
                     far.set_links(_links);
                 }
@@ -72,6 +72,23 @@ public class FundGroupService {
             far.set_serviceId("资产配置");
         }
         return far;
+    }
+
+    public ReturnType getPerformanceVolatilityHomePage(){
+        ReturnType fr = new ReturnType();
+        List<Map<String, Object>> listMap =  new ArrayList<>();
+        Map<String, String> _links = new HashMap<>();
+        Map<String,Object> map = new HashMap<>();
+        for (int i = 1;i<6;i++){
+            PerformanceVolatilityReturn pfvr = getPerformanceVolatility("C"+i+"","2");
+            map.put(i+"",pfvr);
+        }
+        listMap.add(map);
+        fr.set_items(listMap);
+        fr.set_links(_links);
+        fr.set_schemaVersion("0.1.1");
+        fr.set_serviceId("资产配置");
+        return fr;
     }
 
     /**
