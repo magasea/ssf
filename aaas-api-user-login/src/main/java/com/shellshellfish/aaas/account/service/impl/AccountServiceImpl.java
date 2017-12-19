@@ -219,7 +219,7 @@ public class AccountServiceImpl implements AccountService {
 //		smsVerification.setCreatedDate(nowdate);
 //		smsVerification.setExpireTime(nowdate);
 		Timestamp nowdate = new Timestamp(date.getTime()); 
-		Timestamp expdate = new Timestamp(date.getTime()+ 60000); //1 minute
+		Timestamp expdate = new Timestamp(date.getTime()+ 600000); //1 minute
 		
 		smsVerification.setCreatedDate(nowdate);
 		smsVerification.setExpireTime(expdate);
