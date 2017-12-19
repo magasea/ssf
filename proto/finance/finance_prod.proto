@@ -26,7 +26,7 @@ message FinanceProdInfo {
   int64 group_id = 2; //理财产品类组id
   string prod_name = 3 ; //理财产品名称
   string fund_code = 4 ;//该理财产品中的某个基金编号,
-  int32 fund_quantity = 5 ;//该理财产品中的基金份额百分比,
+  int32 fund_share = 5 ;//该理财产品中的基金份额百分比,
 }
 
 //获取理财产品系列

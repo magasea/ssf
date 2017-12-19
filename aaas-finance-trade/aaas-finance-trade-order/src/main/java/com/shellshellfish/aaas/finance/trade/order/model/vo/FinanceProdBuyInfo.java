@@ -8,7 +8,8 @@ import lombok.Setter;
 @Setter
 public class FinanceProdBuyInfo {
   BigDecimal money;//金额单位到分
-  Long prodId;//产品编号
+  Long prodId;//产品ID
+  String prodCode;//产品编码
   Long groupId;//产品分组编号
   Long userId;//用户
   String uuid; //用户 uuid
@@ -79,5 +80,13 @@ public class FinanceProdBuyInfo {
 
   public void setOrderId(String orderId) {
     this.orderId = orderId;
+  }
+
+  public String getProdCode() {
+    return prodCode;
+  }
+
+  public void setProdCode(String prodCode) {
+    this.prodCode = prodCode;
   }
 }

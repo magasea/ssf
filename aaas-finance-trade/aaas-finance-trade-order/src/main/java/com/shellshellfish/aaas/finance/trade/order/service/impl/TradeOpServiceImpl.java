@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
@@ -77,12 +78,15 @@ public class TradeOpServiceImpl implements TradeOpService {
 
   @Override
   public TrdOrder buyFinanceProduct(FinanceProdBuyInfo financeProdBuyInfo)
-      throws ExecutionException, InterruptedException {
+      throws Exception {
     ProductBaseInfo productBaseInfo = new ProductBaseInfo();
     BeanUtils.copyProperties(financeProdBuyInfo, productBaseInfo);
     List<ProductMakeUpInfo> productMakeUpInfos =  financeProdInfoService.getFinanceProdMakeUpInfo
         (productBaseInfo);
-
+    if(productMakeUpInfos.size() <=0 ){
+      logger.info("failed to get prod make up informations!");
+      throw new Exception("failed to get prod make up informations!");
+    }
     return genOrderFromBuyInfoAndProdMakeUpInfo(financeProdBuyInfo, productMakeUpInfos);
 
   }
@@ -103,6 +107,10 @@ public class TradeOpServiceImpl implements TradeOpService {
     trdOrder.setOrderType(financeProdBuyInfo.getOrderType());
     trdOrder.setProdId(financeProdBuyInfo.getProdId());
     trdOrder.setOrderStatus(TrdOrderStatusEnum.WAITCONFIRM.ordinal());
+    trdOrder.setOrderId(orderId);
+    trdOrder.setCreateBy(financeProdBuyInfo.getUserId());
+    trdOrder.setPayAmount(TradeUtil.getLongNumWithMul100(financeProdBuyInfo.getMoney()));
+    trdOrder.setProdCode(financeProdBuyInfo.getProdCode());
     trdOrderRepository.save(trdOrder);
 
     //generate sub order for each funds
@@ -112,10 +120,11 @@ public class TradeOpServiceImpl implements TradeOpService {
       //规定基金占比用百分比并且精确万分之一
       BigDecimal fundRatio = BigDecimal.valueOf(productMakeUpInfo.getFundShare()).divide
           (BigDecimal.valueOf(10000));
-      trdOrderDetail.setFundQuantity(fundRatio.multiply(financeProdBuyInfo.getMoney()).toBigInteger()
+      trdOrderDetail.setFundMoneyQuantity(fundRatio.multiply(financeProdBuyInfo.getMoney())
+          .multiply(BigDecimal.valueOf(100)).toBigInteger()
           .longValue());
       trdOrderDetail.setBoughtDate(TradeUtil.getUTCTime());
-      trdOrderDetail.setCreateBy(0L);
+      trdOrderDetail.setCreateBy(financeProdBuyInfo.getUserId());
       trdOrderDetail.setFundCode(productMakeUpInfo.getFundCode());
       trdOrderDetail.setProdId(trdOrder.getProdId());
       trdOrderDetail.setTradeType(trdOrder.getOrderType());

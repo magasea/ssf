@@ -36,7 +36,7 @@ public class FinanceProductServiceImpl  extends
     //ToDo: 目前是用hardCode数据 将来要用真实开发的功能来填充
     logger.info("prodId:{} groupId:{}",productBaseInfo.getProdId(), productBaseInfo.getGroupId());
     //return generateTestData(productBaseInfo.getProdId().toString(), productBaseInfo.getGroupId().toString());
-    return generateTestData("1","1");
+    return generateTestData(productBaseInfo.getProdId().toString(),productBaseInfo.getGroupId().toString());
   }
 
   @Override
@@ -119,7 +119,10 @@ public class FinanceProductServiceImpl  extends
         ProductMakeUpInfo productMakeUpInfo = new ProductMakeUpInfo();
         productMakeUpInfo.setFundCode(interval.getFund_id());
         productMakeUpInfo.setGroupId(Long.parseLong(interval.getFund_group_id()));
-        productMakeUpInfo.setFundShare((int) (interval.getProportion()*10000));
+
+        Integer result = Double.valueOf(interval.getProportion()*10000).intValue();
+        logger.info("fundShare:" + interval.getProportion() + "result:"+result);
+        productMakeUpInfo.setFundShare(result);
         productMakeUpInfo.setProdName(interval.getFname());
         productMakeUpInfo.setProdId(Long.parseLong(interval.getFund_group_sub_id()));
         productMakeUpInfos.add(productMakeUpInfo);

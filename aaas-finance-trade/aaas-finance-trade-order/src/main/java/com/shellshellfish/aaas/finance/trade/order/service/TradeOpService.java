@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutionException;
 public interface TradeOpService {
 
   TrdOrder buyFinanceProduct(FinanceProdBuyInfo financeProdInfo)
-      throws ExecutionException, InterruptedException;
+      throws Exception;
 
   Long getUserId(String uuid) throws ExecutionException, InterruptedException;
 

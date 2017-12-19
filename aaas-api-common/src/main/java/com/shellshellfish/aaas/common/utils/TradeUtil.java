@@ -10,8 +10,8 @@ public class TradeUtil {
     Long utcTime = getUTCTime();
     System.out.println(utcTime);
     StringBuilder sb = new StringBuilder();
-    sb.append(String.format("%4d", bankId)).append(String.format("%4d", tradeBrokerId)).append
-        (String.format("%018d", utcTime.toString()));
+    sb.append(String.format("%04d", bankId)).append(String.format("%04d", tradeBrokerId)).append
+        (String.format("%018d", utcTime));
     return sb.toString();
   }
 

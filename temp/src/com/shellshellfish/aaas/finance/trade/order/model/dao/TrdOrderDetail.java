@@ -3,8 +3,6 @@ package com.shellshellfish.aaas.finance.trade.order.model.dao;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -16,7 +14,7 @@ import javax.persistence.Table;
 @Table(name = "trd_order_detail", schema = "ssftrdorder", catalog = "")
 public class TrdOrderDetail {
 
-  private Long id;
+  private long id;
   private String orderId;
   private String tradeApplySerial;
   private long boughtDate;
@@ -39,12 +37,11 @@ public class TrdOrderDetail {
 
   @Id
   @Column(name = "id")
-  @GeneratedValue(strategy= GenerationType.IDENTITY)
-  public Long getId() {
+  public long getId() {
     return id;
   }
 
-  public void setId(Long id) {
+  public void setId(long id) {
     this.id = id;
   }
 

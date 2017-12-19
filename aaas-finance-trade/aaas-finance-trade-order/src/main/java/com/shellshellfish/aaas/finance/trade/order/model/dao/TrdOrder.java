@@ -1,187 +1,263 @@
 package com.shellshellfish.aaas.finance.trade.order.model.dao;
 
-import java.io.Serializable;
-import javax.persistence.*;
-
-
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
- * The persistent class for the trd_order database table.
- * 
+ * Created by chenwei on 2017- 十二月 - 18
  */
+
 @Entity
-@Table(name="trd_order")
-@NamedQuery(name="TrdOrder.findAll", query="SELECT t FROM TrdOrder t")
-public class TrdOrder implements Serializable {
-	private static final long serialVersionUID = 1L;
+@Table(name = "trd_order", schema = "ssftrdorder", catalog = "")
+public class TrdOrder {
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long id;
+  private long id;
+  private String orderId;
+  private String bankCardNum;
+  private String prodCode;
+  private int orderStatus;
+  private long orderDate;
+  private int orderType;
+  private long payAmount;
+  private long payFee;
+  private long userId;
+  private long prodId;
+  private long createBy;
+  private long createDate;
+  private long updateBy;
+  private long updateDate;
 
-	@Column(name="bank_card_num")
-	private String bankCardNum;
+  @Id
+  @Column(name = "id")
+  public long getId() {
+    return id;
+  }
 
-	@Column(name="create_by")
-	private Long createBy;
+  public void setId(long id) {
+    this.id = id;
+  }
 
-	@Column(name="create_date")
-	private Long createDate;
+  @Basic
+  @Column(name = "order_id")
+  public String getOrderId() {
+    return orderId;
+  }
 
-	@Column(name="order_date")
-	private Long orderDate;
+  public void setOrderId(String orderId) {
+    this.orderId = orderId;
+  }
 
-	@Column(name="order_id")
-	private String orderId;
+  @Basic
+  @Column(name = "bank_card_num")
+  public String getBankCardNum() {
+    return bankCardNum;
+  }
 
-	@Column(name="order_status")
-	private int orderStatus;
+  public void setBankCardNum(String bankCardNum) {
+    this.bankCardNum = bankCardNum;
+  }
 
-	@Column(name="order_type")
-	private int orderType;
+  @Basic
+  @Column(name = "prod_code")
+  public String getProdCode() {
+    return prodCode;
+  }
 
-	@Column(name="pay_amount")
-	private Long payAmount;
+  public void setProdCode(String prodCode) {
+    this.prodCode = prodCode;
+  }
 
-	@Column(name="pay_fee")
-	private Long payFee;
+  @Basic
+  @Column(name = "order_status")
+  public int getOrderStatus() {
+    return orderStatus;
+  }
 
-	@Column(name="prod_code")
-	private String prodCode;
+  public void setOrderStatus(int orderStatus) {
+    this.orderStatus = orderStatus;
+  }
 
-	@Column(name="prod_id")
-	private Long prodId;
+  @Basic
+  @Column(name = "order_date")
+  public long getOrderDate() {
+    return orderDate;
+  }
 
-	@Column(name="update_by")
-	private Long updateBy;
+  public void setOrderDate(long orderDate) {
+    this.orderDate = orderDate;
+  }
 
-	@Column(name="update_date")
-	private Long updateDate;
+  @Basic
+  @Column(name = "order_type")
+  public int getOrderType() {
+    return orderType;
+  }
 
-	@Column(name="user_id")
-	private Long userId;
+  public void setOrderType(int orderType) {
+    this.orderType = orderType;
+  }
 
-	public TrdOrder() {
-	}
+  @Basic
+  @Column(name = "pay_amount")
+  public long getPayAmount() {
+    return payAmount;
+  }
 
-	public Long getId() {
-		return this.id;
-	}
+  public void setPayAmount(long payAmount) {
+    this.payAmount = payAmount;
+  }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+  @Basic
+  @Column(name = "pay_fee")
+  public long getPayFee() {
+    return payFee;
+  }
 
-	public String getBankCardNum() {
-		return this.bankCardNum;
-	}
+  public void setPayFee(long payFee) {
+    this.payFee = payFee;
+  }
 
-	public void setBankCardNum(String bankCardNum) {
-		this.bankCardNum = bankCardNum;
-	}
+  @Basic
+  @Column(name = "user_id")
+  public long getUserId() {
+    return userId;
+  }
 
-	public Long getCreateBy() {
-		return this.createBy;
-	}
+  public void setUserId(long userId) {
+    this.userId = userId;
+  }
 
-	public void setCreateBy(Long createBy) {
-		this.createBy = createBy;
-	}
+  @Basic
+  @Column(name = "prod_id")
+  public long getProdId() {
+    return prodId;
+  }
 
-	public Long getCreateDate() {
-		return this.createDate;
-	}
+  public void setProdId(long prodId) {
+    this.prodId = prodId;
+  }
 
-	public void setCreateDate(Long createDate) {
-		this.createDate = createDate;
-	}
+  @Basic
+  @Column(name = "create_by")
+  public long getCreateBy() {
+    return createBy;
+  }
 
-	public Long getOrderDate() {
-		return this.orderDate;
-	}
+  public void setCreateBy(long createBy) {
+    this.createBy = createBy;
+  }
 
-	public void setOrderDate(Long orderDate) {
-		this.orderDate = orderDate;
-	}
+  @Basic
+  @Column(name = "create_date")
+  public long getCreateDate() {
+    return createDate;
+  }
 
-	public String getOrderId() {
-		return this.orderId;
-	}
+  public void setCreateDate(long createDate) {
+    this.createDate = createDate;
+  }
 
-	public void setOrderId(String orderId) {
-		this.orderId = orderId;
-	}
+  @Basic
+  @Column(name = "update_by")
+  public long getUpdateBy() {
+    return updateBy;
+  }
 
-	public int getOrderStatus() {
-		return this.orderStatus;
-	}
+  public void setUpdateBy(long updateBy) {
+    this.updateBy = updateBy;
+  }
 
-	public void setOrderStatus(int orderStatus) {
-		this.orderStatus = orderStatus;
-	}
+  @Basic
+  @Column(name = "update_date")
+  public long getUpdateDate() {
+    return updateDate;
+  }
 
-	public int getOrderType() {
-		return this.orderType;
-	}
+  public void setUpdateDate(long updateDate) {
+    this.updateDate = updateDate;
+  }
 
-	public void setOrderType(int orderType) {
-		this.orderType = orderType;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
-	public Long getPayAmount() {
-		return this.payAmount;
-	}
+    TrdOrder trdOrder = (TrdOrder) o;
 
-	public void setPayAmount(Long payAmount) {
-		this.payAmount = payAmount;
-	}
+    if (id != trdOrder.id) {
+      return false;
+    }
+    if (orderStatus != trdOrder.orderStatus) {
+      return false;
+    }
+    if (orderDate != trdOrder.orderDate) {
+      return false;
+    }
+    if (orderType != trdOrder.orderType) {
+      return false;
+    }
+    if (payAmount != trdOrder.payAmount) {
+      return false;
+    }
+    if (payFee != trdOrder.payFee) {
+      return false;
+    }
+    if (userId != trdOrder.userId) {
+      return false;
+    }
+    if (prodId != trdOrder.prodId) {
+      return false;
+    }
+    if (createBy != trdOrder.createBy) {
+      return false;
+    }
+    if (createDate != trdOrder.createDate) {
+      return false;
+    }
+    if (updateBy != trdOrder.updateBy) {
+      return false;
+    }
+    if (updateDate != trdOrder.updateDate) {
+      return false;
+    }
+    if (orderId != null ? !orderId.equals(trdOrder.orderId) : trdOrder.orderId != null) {
+      return false;
+    }
+    if (bankCardNum != null ? !bankCardNum.equals(trdOrder.bankCardNum)
+        : trdOrder.bankCardNum != null) {
+      return false;
+    }
+    if (prodCode != null ? !prodCode.equals(trdOrder.prodCode) : trdOrder.prodCode != null) {
+      return false;
+    }
 
-	public Long getPayFee() {
-		return this.payFee;
-	}
+    return true;
+  }
 
-	public void setPayFee(Long payFee) {
-		this.payFee = payFee;
-	}
-
-	public String getProdCode() {
-		return this.prodCode;
-	}
-
-	public void setProdCode(String prodCode) {
-		this.prodCode = prodCode;
-	}
-
-	public Long getProdId() {
-		return this.prodId;
-	}
-
-	public void setProdId(Long prodId) {
-		this.prodId = prodId;
-	}
-
-	public Long getUpdateBy() {
-		return this.updateBy;
-	}
-
-	public void setUpdateBy(Long updateBy) {
-		this.updateBy = updateBy;
-	}
-
-	public Long getUpdateDate() {
-		return this.updateDate;
-	}
-
-	public void setUpdateDate(Long updateDate) {
-		this.updateDate = updateDate;
-	}
-
-	public Long getUserId() {
-		return this.userId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
-
+  @Override
+  public int hashCode() {
+    int result = (int) (id ^ (id >>> 32));
+    result = 31 * result + (orderId != null ? orderId.hashCode() : 0);
+    result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
+    result = 31 * result + (prodCode != null ? prodCode.hashCode() : 0);
+    result = 31 * result + orderStatus;
+    result = 31 * result + (int) (orderDate ^ (orderDate >>> 32));
+    result = 31 * result + orderType;
+    result = 31 * result + (int) (payAmount ^ (payAmount >>> 32));
+    result = 31 * result + (int) (payFee ^ (payFee >>> 32));
+    result = 31 * result + (int) (userId ^ (userId >>> 32));
+    result = 31 * result + (int) (prodId ^ (prodId >>> 32));
+    result = 31 * result + (int) (createBy ^ (createBy >>> 32));
+    result = 31 * result + (int) (createDate ^ (createDate >>> 32));
+    result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
+    result = 31 * result + (int) (updateDate ^ (updateDate >>> 32));
+    return result;
+  }
 }

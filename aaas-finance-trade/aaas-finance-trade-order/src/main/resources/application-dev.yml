@@ -43,10 +43,10 @@ datasource:
 grpc:
   finance_prod_client:
     host: localhost
-    port: 10031
+    port: 10021
   order_server:
     host: localhost
     port: 10051
   userinfo_client:
     host: localhost
-    port: 10041
+    port: 10061

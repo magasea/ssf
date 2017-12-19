@@ -8,9 +8,13 @@
     <artifactId>aaas</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.8.RELEASE</version>
+    </parent>
     <modules>
         <module>aaas-api-common</module>
-        <module>aaas-app-mysql</module>
         <module>aaas-api-asset-allocation</module>
         <module>aaas-funds-datacollection-server</module>
         <module>aaas-app-datacollection-client</module>
@@ -19,6 +23,7 @@
         <module>aaas-api-finance</module>
         <module>aaas-finance-trade</module>
         <module>aaas-api-risk-assessment</module>
+        <module>aaas-api-gateway</module>
     </modules>
 
 </project>
