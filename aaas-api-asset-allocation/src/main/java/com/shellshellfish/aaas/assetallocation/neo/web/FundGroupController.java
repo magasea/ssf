@@ -140,7 +140,7 @@ public class FundGroupController {
      * @return
      */
     @ApiOperation("模拟历史年化业绩与模拟历史年化波动率")
-    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/asset-allocation/product-groups/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public PerformanceVolatilityReturn getPerformanceVolatility(@RequestParam(defaultValue="C1") String riskLevel,@RequestParam(defaultValue="1") String investmentPeriod) {
         PerformanceVolatilityReturn riskIncomeIntervals= fundGroupService.getPerformanceVolatility(riskLevel,investmentPeriod);
         return riskIncomeIntervals;
@@ -202,8 +202,8 @@ public class FundGroupController {
      */
     @ApiOperation("组合各种类型净值收益")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/fund-navadj", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType getFundNetValue(String id, String subGroupId, String returnType) throws ParseException {
-        ReturnType smk = fundGroupService.getFundNetValue(id,subGroupId ,returnType);
+    public ReturnType getFundNetValue(String id, String subGroupId,@RequestParam(defaultValue="1") String returnType) throws ParseException {
+        ReturnType smk = fundGroupService.getFundNetValue(id,subGroupId , returnType);
         return smk;
     }
 

@@ -40,6 +40,11 @@
         and d.income_num=#{returnValue} and c.fund_group_id=#{id}
     </select>
 
+    <select id="getFundCode" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
+        select a.fname,a.code fund_code,a.fund_income_type from fund_basic_data a, fund_group_details b
+        where a.code = b.fund_code and fund_group_id = #{id} and fund_group_sub_id = #{subId}
+    </select>
+
     <select id="getProportion" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
         select a.fund_income_type,a.fund_group_id,sum(proportion) proportion from (select * from fund_basic_data a,
         fund_group_details b where a.code = b.fund_code and fund_group_id = #{id} and fund_group_sub_id = #{subId}) a
@@ -94,9 +99,9 @@
     </select>
 
     <select id="getFundNetValue" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
-        select a.fund_income_type,sum(b.UNITNAV) navadj,b.navlatestdate navlatestDate from fund_basic_data a,
-        fund_net_value b  where a.code=b.code and a.fund_income_type=#{fund_income_type} and b.NAVLATESTDATE
-        BETWEEN #{startTime} and #{endtTime} GROUP BY a.fund_income_type,b.NAVLATESTDATE
+        select a.fund_income_type,b.navadj,b.navlatestdate navlatestDate from fund_basic_data a,
+        fund_net_value b  where a.code=b.code and a.code=#{fund_code} and b.NAVLATESTDATE
+        BETWEEN #{startTime} and #{endtTime}
     </select>
     <select id="getFundGroupBuy" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupBuy">
         select * from fundgroupbuydetail c where c.fund_group_buy_id = #{id}
@@ -119,4 +124,27 @@
     <update id="updateSharpeRatio" >
         update fund_group_sub set sharpe_ratio = #{sharpeRatio} where id = #{id}
     </update>
+
+    <select id="getNavadj" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
+        select sum(a.navadj*b.proportion) navadj,a.navlatestdate from fund_net_value a,fund_group_details b
+        where a.code=b.fund_code and fund_group_id = #{fund_group_id} and fund_group_sub_id = #{subGroupId}
+        <if test="endTime != null and endTime != '' ">
+          and navlatestdate > #{startTime} and navlatestdate &lt; #{endTime}
+        </if>
+        group by a.navlatestdate
+    </select>
+
+    <insert id="insertGroupNavadj">
+        insert into fund_group_history (fund_group_sub_id,fund_group_id,income_num,time)
+        VALUES (#{subGroupId},#{fund_group_id},#{num},#{time})
+    </insert>
+
+    <update id="updateMaximumRetracement">
+        update fund_group_history set maximum_retracement = #{retracement} where fund_group_id = #{fund_group_id}
+        and fund_group_sub_id = #{subGroupId} and time = #{time}
+    </update>
+
+    <select id="getGroupStartTime" resultType="String">
+        select interval_last_mod_time from fund_group_sub where fund_group_id=#{fund_group_id} and id = #{subGroupId}
+    </select>
 </mapper>

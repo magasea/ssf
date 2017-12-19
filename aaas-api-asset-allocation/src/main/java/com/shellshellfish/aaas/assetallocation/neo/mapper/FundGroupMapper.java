@@ -23,6 +23,8 @@ public interface FundGroupMapper {
 
     List<Interval> getProportion(Map map);
 
+    List<Interval> getFundCode(Map map);
+
     List<FundGroupDetails> efficientFrontier(Map map);
 
     List<Interval> getinterval(Map map);
@@ -54,5 +56,13 @@ public interface FundGroupMapper {
     List<FundGroupExpectedIncome> getExpectedIncome(Map map);
 
     int updateSharpeRatio(Map map);
+
+    List<FundNetVal> getNavadj(Map map);
+
+    int insertGroupNavadj(Map map);
+
+    int updateMaximumRetracement(Map map);
+
+    String getGroupStartTime(Map map);
 
 }

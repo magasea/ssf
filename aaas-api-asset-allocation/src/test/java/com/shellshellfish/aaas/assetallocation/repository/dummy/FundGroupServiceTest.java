@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.assetallocation.repository.dummy;
 
 import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
 import com.shellshellfish.aaas.assetallocation.neo.secvice.FundGroupService;
+import com.shellshellfish.aaas.assetallocation.neo.util.MVO;
 import com.shellshellfish.aaas.assetallocation.service.impl.FinanceProductServiceImpl;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
@@ -52,6 +53,20 @@ public class FundGroupServiceTest {
         double c = 0.4;
         double a = d/c;
         System.out.println(a);
+    }
+
+    @Test
+    public void aa() {
+        Double [] ExpReturn = { 0.0054, 0.0531, 0.0779, 0.0934, 0.0130 };
+        Double[][] ExpCovariance = {{0.0569,  0.0092,  0.0039,  0.0070,  0.0022},
+                {0.0092,  0.0380,  0.0035,  0.0197,  0.0028},
+                {0.0039,  0.0035,  0.0997,  0.0100,  0.0070},
+                {0.0070,  0.0197,  0.0100,  0.0461,  0.0050},
+                {0.0022,  0.0028,  0.0070,  0.0050,  0.0573}};
+        for (int i = 0;i<10000;i++){
+            System.out.println(i);
+            MVO.efficientFrontier(ExpReturn, ExpCovariance, 10);
+        }
     }
 
     @Test
@@ -127,6 +142,11 @@ public class FundGroupServiceTest {
     public void financeProductService(){
         ProductBaseInfo productBaseInfo = new ProductBaseInfo();
         List<ProductMakeUpInfo> a = financeProductService.getProductInfo(productBaseInfo);
+    }
+
+    @Test
+    public void getNavadj(){
+        allocationService.getNavadj("6","111111");
     }
 
     @Test

@@ -11,6 +11,15 @@ public class RiskIncomeInterval extends Strategy {
     private double confidence_interval;//置信区间
     private double maximum_losses;//最大亏损额
     private double sharpe_ratio;//夏普比率
+    private String interval_last_mod_time;//组合分组最后修改时间
+
+    public String getInterval_last_mod_time() {
+        return interval_last_mod_time;
+    }
+
+    public void setInterval_last_mod_time(String interval_last_mod_time) {
+        this.interval_last_mod_time = interval_last_mod_time;
+    }
 
     public double getSharpe_ratio() {
         return sharpe_ratio;
