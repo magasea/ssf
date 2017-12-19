@@ -163,10 +163,11 @@ public class RestApiController {
 			@Valid @RequestBody UpdateRegistrationBodyDTO updateregistrationBody
 			){
 		Map<String,Object> result = new HashMap();
-		String uid = accountService.isSmsVerified(updateregistrationBody);
-		if (!StringUtils.isEmpty(uid)){
-			//result.put("status", "OK");
-			result.put("uid", uid);
+		UserDTO user = accountService.isSmsVerified(updateregistrationBody);
+		if (user!=null&&user.getId()!=0){
+			result.put("status", "OK");
+			result.put("uuid", user.getUuid());
+			//result.put("uid", uid);
 			return new ResponseEntity<Map>(result, HttpStatus.OK);
 		}
 		result.put("status", "Failed");
@@ -218,6 +219,18 @@ public class RestApiController {
 				throw new UserException("102", "手机号格式不对");
 			}
 			String code = accountService.sendSmsMessage(id);
+			if (code==""||code==null) {
+				return new ResponseEntity<Map>(result,HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			result.put("identifyingCode", code);
+		} else if ("getVerificationCode2".equals(action)) {
+			String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
+			Pattern telPattern = Pattern.compile(telRegExp);
+			Matcher telMatcher = telPattern.matcher(id);
+			if (!telMatcher.find()) {
+				throw new UserException("102", "手机号格式不对");
+			}
+			String code = accountService.getSmsMessage(id);
 			if (code==""||code==null) {
 				return new ResponseEntity<Map>(result,HttpStatus.INTERNAL_SERVER_ERROR);
 			}

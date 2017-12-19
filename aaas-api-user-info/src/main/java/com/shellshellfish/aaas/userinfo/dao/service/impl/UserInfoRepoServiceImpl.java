@@ -1,5 +1,23 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
+import java.math.BigInteger;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Service;
+
 import com.mongodb.WriteResult;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.grpc.UserId;
@@ -37,27 +55,16 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoFriendRuleRep
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserPortfolioRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserTradeLogRepository;
+import com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl;
 import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
+
 import io.grpc.stub.StreamObserver;
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.stereotype.Service;
 
 @Service
 public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase implements UserInfoRepoService {
 
+	Logger logger = LoggerFactory.getLogger(UserInfoServiceImpl.class);
+	
 	@Autowired
 	UserInfoBankCardsRepository userInfoBankCardsRepository;
 
@@ -139,8 +146,11 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public BankCardDTO addUserBankcard(UiBankcard uiBankcard) {
+		 logger.info("reservice149");
 		 userInfoBankCardsRepository.save(uiBankcard);
+		 logger.info("reservice151");
 		 BankCardDTO bankcard = new BankCardDTO();
+		 logger.info("reservice153");
 		 BeanUtils.copyProperties(uiBankcard, bankcard);
 		 return bankcard;
 	}
@@ -206,7 +216,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public Long getUserIdFromUUID(String userUuid) throws Exception {
-		UiUser uiUser = userInfoRepository.findUiUserByUuid(userUuid);
+		UiUser uiUser = userInfoRepository.findByUuid(userUuid);
 		Long userId = new Long(0);
 		if (null == uiUser) {
 			throw new Exception("not vaild userUuid:" + userUuid);
@@ -290,7 +300,10 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	@Override
 	public Boolean saveUser(String userUuid, String cellphone, String isTestFlag) {
 		UiUser uiUser = new UiUser();
-		uiUser.setId(Long.parseLong(userUuid));
+		List<UiUser> userList= userInfoRepository.findByCellPhone(cellphone);
+		if(userList!=null&&userList.size()>0){
+			uiUser = userList.get(0);
+		}
 		uiUser.setUuid(userUuid);
 		byte activity = 1;
 		uiUser.setActivated(activity);

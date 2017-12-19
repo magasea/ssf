@@ -6,12 +6,12 @@ package com.shellshellfish.aaas.userinfo.utils;
  *
  */
 public class BankUtil {
-  public static void main(String[] args) {
-    String cardNumber = "6210986802084484920";//卡号
-    //String name = getNameOfBank(cardNumber);
-    String name = getCodeOfBank(cardNumber);
-    System.out.println(name);
-  }
+//  public static void main(String[] args) {
+//    String cardNumber = "6210986802084484920";//卡号
+//    //String name = getNameOfBank(cardNumber);
+//    String name = getCodeOfBank(cardNumber);
+//    System.out.println(name);
+//  }
 
 
   //传入卡号 得到银行名称
