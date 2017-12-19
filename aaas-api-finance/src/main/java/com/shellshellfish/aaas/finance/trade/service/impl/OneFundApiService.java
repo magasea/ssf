@@ -216,6 +216,65 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
+    public ConfirmResult getConfirmResultByApplySerial(String userUuid, String applySerial) throws JsonProcessingException {
+        Map<String, Object> info = init(userUuid);
+        info.put("applyserial", applySerial);
+        postInit(info);
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_confirm_list";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        ConfirmResult confirmResult = null;
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        Integer status = jsonObject.getInteger("status");
+        confirmResult = getConfirmResult(confirmResult, jsonObject, status);
+        return confirmResult;
+    }
+
+    @Override
+    public ConfirmResult getConfirmResultByOutsideOrderNo(String userUuid, String outsideOrderNo) throws JsonProcessingException {
+        Map<String, Object> info = init(userUuid);
+        info.put("outsideorderno", outsideOrderNo);
+        postInit(info);
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_confirm_list";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        ConfirmResult confirmResult = null;
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        Integer status = jsonObject.getInteger("status");
+        confirmResult = getConfirmResult(confirmResult, jsonObject, status);
+        return confirmResult;
+    }
+
+    private ConfirmResult getConfirmResult(ConfirmResult confirmResult, JSONObject jsonObject, Integer status) {
+        if (status.equals(1)) {
+            JSONArray jsonArray = jsonObject.getJSONArray("data");
+            confirmResult = jsonArray.getObject(0, ConfirmResult.class);
+        } else {
+            String errno = jsonObject.getString("errno");
+            String msg = jsonObject.getString("msg");
+            // throw new Exception(errno + ":" + msg);
+        }
+        return confirmResult;
+    }
+
+    @Override
+    public String getAllConfirmList(String userUuid) throws JsonProcessingException {
+        Map<String, Object> info = init(userUuid);
+
+        postInit(info);
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_confirm_list";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        return json;
+    }
+
+    @Override
     public String getExamContent() throws JsonProcessingException {
         Map<String, Object> info = init();
 
@@ -476,6 +535,33 @@ public class OneFundApiService implements FundTradeApiService {
             userBanks.add(jsonArray.getObject(i, UserBank.class));
         }
         return userBanks;
+    }
+
+    Map<String, BankCardLimitation> bankCardLimitations = new HashMap<>();
+    @Override
+    public Map<String, BankCardLimitation> getBankCardLimitations() {
+        if ( bankCardLimitations.isEmpty() ) {
+            bankCardLimitations.put("中国银行", new BankCardLimitation(BigDecimal.valueOf(50000), BigDecimal.valueOf(500000)));
+            bankCardLimitations.put("农业银行", new BankCardLimitation(BigDecimal.valueOf(20000), BigDecimal.valueOf(20000)));
+            bankCardLimitations.put("建设银行", new BankCardLimitation(BigDecimal.valueOf(50000), BigDecimal.valueOf(50000)));
+            bankCardLimitations.put("中国银行", new BankCardLimitation(BigDecimal.valueOf(50000), BigDecimal.valueOf(50000)));
+            bankCardLimitations.put("中信银行", new BankCardLimitation(BigDecimal.valueOf(5000), BigDecimal.valueOf(5000)));
+            bankCardLimitations.put("广发银行", new BankCardLimitation(BigDecimal.valueOf(500000), BigDecimal.valueOf(Long.MAX_VALUE)));
+            // bankCardLimitations.put("民生银行", new BankCardLimitation(BigDecimal.valueOf(50000), BigDecimal.valueOf(500000)));
+            bankCardLimitations.put("平安银行", new BankCardLimitation(BigDecimal.valueOf(500000), BigDecimal.valueOf(5000000)));
+            bankCardLimitations.put("光大银行", new BankCardLimitation(BigDecimal.valueOf(50000), BigDecimal.valueOf(50000)));
+            bankCardLimitations.put("浦发银行", new BankCardLimitation(BigDecimal.valueOf(50000), BigDecimal.valueOf(50000)));
+            bankCardLimitations.put("交通银行", new BankCardLimitation(BigDecimal.valueOf(50000), BigDecimal.valueOf(50000)));
+            bankCardLimitations.put("工商银行", new BankCardLimitation(BigDecimal.valueOf(50000), BigDecimal.valueOf(50000)));
+            bankCardLimitations.put("邮储银行", new BankCardLimitation(BigDecimal.valueOf(50000), BigDecimal.valueOf(50000)));
+            bankCardLimitations.put("兴业银行", new BankCardLimitation(BigDecimal.valueOf(50000), BigDecimal.valueOf(50000)));
+        }
+        return bankCardLimitations;
+    }
+
+    @Override
+    public BankCardLimitation getBankCardLimitation(String bankName) {
+        return getBankCardLimitations().get(bankName);
     }
 
     @Override

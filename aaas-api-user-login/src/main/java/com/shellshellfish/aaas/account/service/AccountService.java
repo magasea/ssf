@@ -14,10 +14,11 @@ public interface AccountService {
 	List<User> isRegisteredUser(LoginBodyDTO loginBodyDTO);
 	String isSettingPWD(PwdSettingBodyDTO pwdSettingBody);
 	List<UserDTO> isRegisterredTel(RegistrationBodyDTO registrationBody);
-	String isSmsVerified(UpdateRegistrationBodyDTO registrationBodyDTO);
+	UserDTO isSmsVerified(UpdateRegistrationBodyDTO registrationBodyDTO);
 	boolean addBankCard(String arg[]);
 	String sendSmsMessage(String phone);
 	boolean doSmsVerification(VerificationBodyDTO vbody);
 	UserDTO doLogout(LoginBodyDTO loginBody);
 	UserDTO getUserInfo(String uid) throws IllegalAccessException, InstantiationException;
+	String getSmsMessage(String cellphone);
 }

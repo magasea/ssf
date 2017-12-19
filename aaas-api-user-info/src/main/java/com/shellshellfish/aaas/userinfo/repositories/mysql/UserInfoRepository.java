@@ -15,7 +15,7 @@ public interface UserInfoRepository extends PagingAndSortingRepository<UiUser, L
   @Query(value ="SELECT id FROM ui_user WHERE uuid =:uuid", nativeQuery = true)
   public Long findUserIdByUuid(Long uuid);
 
-  public UiUser findUiUserByUuid(String uuid);
+  public UiUser findByUuid(String uuid);
   
   List<UiUser> findByCellPhone(String cellphone);
 }

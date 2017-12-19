@@ -388,14 +388,18 @@ public class UserInfoController {
 				throw new IllegalArgumentException("no " + k.toString() + "'s value in params");
 			}
 		});
+		logger.info("line391");
 		BankCardDTO bankCard = userInfoService.createBankcard(params);
+		logger.info("line393");
 		if (bankCard == null) {
+			logger.info("line395");
 //			return new ResponseEntity<Object>(
 //					URL_HEAD + "/users/" + userUuid + "/bankcardpage?cardNumber=" + bankcardDetailVo.getCardNumber(),
 //					HttpStatus.NO_CONTENT);
 			result.put("msg", "添加失败");
 			return new ResponseEntity<Map>(result,HttpStatus.NO_CONTENT);
 		} else {
+			logger.info("line402");
 			//return new ResponseEntity<Object>(URL_HEAD + "/initpage", HttpStatus.OK);
 //			String code = BankUtil.getCodeOfBank(bankCard.getCardNumber());
 //			result.put("code", code);
@@ -1158,7 +1162,7 @@ public class UserInfoController {
 		//id message ID
 		Boolean result =  userInfoService.deleteBankCard(userUuid, bankcardId);
 		if(!result){
-			resultMap.put("status", "NG");
+			resultMap.put("status", "Fail");
 			return new ResponseEntity<Map>(resultMap,HttpStatus.UNAUTHORIZED);
 		} else {
 			//return new ResponseEntity<Object>(URL_HEAD+"/message/updateinvestmentmessages/investmentmessages?userUuid="+userUuid , HttpStatus.OK);

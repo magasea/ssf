@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.finance.trade.model.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 public interface FundTradeApiService {
 
@@ -21,6 +22,12 @@ public interface FundTradeApiService {
     ApplyResult getApplyResultByOutsideOrderNo(String userUuid, String outsideOrderNo) throws JsonProcessingException;
 
     String getAllApplyList(String userUuid) throws JsonProcessingException;
+
+    ConfirmResult getConfirmResultByApplySerial(String userUuid, String applySerial) throws JsonProcessingException;
+
+    ConfirmResult getConfirmResultByOutsideOrderNo(String userUuid, String outsideOrderNo) throws JsonProcessingException;
+
+    String getAllConfirmList(String userUuid) throws JsonProcessingException;
 
     String getExamContent() throws JsonProcessingException;
 
@@ -51,6 +58,10 @@ public interface FundTradeApiService {
     BigDecimal calcDiscountPoundage(BigDecimal amount, BigDecimal rate, BigDecimal discount);
 
     List<UserBank> getUserBank(String fundCode) throws Exception;
+
+    Map<String, BankCardLimitation> getBankCardLimitations();
+
+    BankCardLimitation getBankCardLimitation(String bankName);
 
     void writeAllTradeRateToMongoDb() throws Exception;
 

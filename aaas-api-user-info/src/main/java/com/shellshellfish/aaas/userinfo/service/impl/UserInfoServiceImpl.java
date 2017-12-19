@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
@@ -38,7 +40,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public UserBaseInfoDTO getUserInfoBase(String userUuid) throws Exception{
-        Long userId = getUserIdFromUUID(userUuid);
+    	Long userId = getUserIdFromUUID(userUuid);
         UserBaseInfoDTO userInfoDao = userInfoRepoService.getUserInfoBase(userId);
 //        UserBaseInfo userBaseInfo = new UserBaseInfo();
 //        if( null != userInfoDao) {
@@ -49,7 +51,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public UserInfoAssectsBriefDTO getUserInfoAssectsBrief(String userUuid) throws Exception {
-        Long userId = getUserIdFromUUID(userUuid);
+    	Long userId = getUserIdFromUUID(userUuid);
         //UserInfoAssectsBrief userInfoAssectsBrief = new UserInfoAssectsBrief();
         UserInfoAssectsBriefDTO userInfoAssect = userInfoRepoService.getUserInfoAssectsBrief(userId);
 //        if(null != userInfoAssect){
@@ -60,7 +62,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public List<BankCardDTO> getUserInfoBankCards(String userUuid) throws Exception {
-        Long userId = getUserIdFromUUID(userUuid);
+    	Long userId = getUserIdFromUUID(userUuid);
         List<BankCardDTO> bankcards =  userInfoRepoService.getUserInfoBankCards(userId);
 //        List<BankCard> bankCardsDto = new ArrayList<>();
 //        for(UiBankcard uiBankcard: uiBankcards ){
@@ -73,7 +75,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public List<UserPortfolioDTO> getUserPortfolios(String userUuid) throws Exception {
-        Long userId = getUserIdFromUUID(userUuid);
+    	Long userId = getUserIdFromUUID(userUuid);
         List<UserPortfolioDTO> userPortfolioDaos =  userInfoRepoService.getUserPortfolios(userId);
 //        List<UserPortfolio> userPortfolios = new ArrayList<>();
 //        for(UiPortfolio userPortfolioDao: userPortfolioDaos){
@@ -94,14 +96,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public BankCardDTO createBankcard(Map params) throws Exception {
-        Long userId = getUserIdFromUUID(params.get("userUuid").toString());
+    	Long userId = getUserIdFromUUID(params.get("userUuid").toString());
         UiBankcard uiBankcard = new UiBankcard();
         uiBankcard.setCardNumber(params.get("cardNumber").toString());
         uiBankcard.setUserName(params.get("cardUserName").toString());
         uiBankcard.setCellphone(params.get("cardCellphone").toString());
         uiBankcard.setUserPid(params.get("cardUserPid").toString());
         uiBankcard.setUserId(userId);
-        uiBankcard.setBankName(BankUtil.getNameOfBank(params.get("cardNumber").toString()));
+        if(!StringUtils.isEmpty(params.get("cardNumber"))){
+        	String bankName = BankUtil.getNameOfBank(params.get("cardNumber").toString());
+        	if(!StringUtils.isEmpty(bankName)){
+        		uiBankcard.setBankName(BankUtil.getNameOfBank(params.get("cardNumber").toString()));
+        	}
+        }
         BankCardDTO bankCard =  userInfoRepoService.addUserBankcard(uiBankcard);
         return bankCard;
     }
@@ -109,7 +116,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public List<AssetDailyReptDTO> getAssetDailyRept(String userUuid, Long beginDate, Long endDate)
         throws Exception {
-        Long userId = getUserIdFromUUID(userUuid);
+    	Long userId = getUserIdFromUUID(userUuid);
         List<AssetDailyReptDTO> uiAssetDailyRepts = userInfoRepoService.getAssetDailyRept(userId,
             beginDate, endDate);
 //        List<AssetDailyRept> assetDailyRepts = new ArrayList<>();
@@ -149,7 +156,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public List<UserPersonMsgDTO> getUserPersonMsg(String userUuid) throws Exception {
-        Long userId = getUserIdFromUUID(userUuid);
+    	Long userId = getUserIdFromUUID(userUuid);
         List<UserPersonMsgDTO> uiPersonMsgs = userInfoRepoService.getUiPersonMsg(userId);
 //        List<UserPersonMsg> userPersonMsgs = new ArrayList<>();
 //        for(UiPersonMsg uiPersonMsg: uiPersonMsgs){
@@ -163,7 +170,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public Boolean updateUserPersonMsg(String msgId, String userUuid,
         Boolean readedStatus) throws Exception {
-        Long userId = getUserIdFromUUID(userUuid);
+    	Long userId = getUserIdFromUUID(userUuid);
         Boolean result = userInfoRepoService.updateUiUserPersonMsg(msgId, userId,
             readedStatus);
 
@@ -172,7 +179,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public Page<TradeLogDTO> findByUserId(String userUuid, Pageable pageable) throws Exception {
-        Long userId = getUserIdFromUUID(userUuid);
+    	Long userId = getUserIdFromUUID(userUuid);
         Page<UiTrdLog> tradeLogsPage = userInfoRepoService.findByUserId(pageable, userId);
         Page<TradeLogDTO> tradeLogResult = MyBeanUtils.convertPageDTO(pageable, tradeLogsPage, TradeLogDTO.class);
         return tradeLogResult;

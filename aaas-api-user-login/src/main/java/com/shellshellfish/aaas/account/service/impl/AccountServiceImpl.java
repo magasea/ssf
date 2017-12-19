@@ -4,8 +4,11 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.springframework.beans.BeanUtils;
 //import org.springframework.test.context.ActiveProfiles;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.shellshellfish.aaas.account.exception.UserException;
@@ -60,14 +63,18 @@ public class AccountServiceImpl implements AccountService {
 //		}
 		String cellphone = loginBodyDTO.getTelnum();
 		String passwordhash = loginBodyDTO.getPassword();
-		
+		List<User> userListPhone = userRepository.findByCellPhone(cellphone);
+		if(userListPhone==null){
+			throw new UserException("101", "登录账号不正确");
+		}
 		List<User> userList = userRepository.findByCellPhoneAndPasswordHash(cellphone, passwordhash);
 		//List<UiAsset> userAssetList = assetRepository.findAll();
 		if (userList != null && userList.size() > 0) {
 //			redisService.doPwdSave(cellphone,passwordhash);
 			return userList;
 		} else {
-			return new ArrayList<User>();
+			//return new ArrayList<User>();
+			throw new UserException("101", "登录密码不正确");
 		}
 	}
 	
@@ -166,27 +173,29 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public String isSmsVerified(UpdateRegistrationBodyDTO registrationBodyDTO) throws RuntimeException {
+	public UserDTO isSmsVerified(UpdateRegistrationBodyDTO registrationBodyDTO) throws RuntimeException {
 		String cellphone = registrationBodyDTO.getTelnum();
 		String verfiedcode = registrationBodyDTO.getIdentifyingcode();
 		//List<Object[]> reslst=smsVerificationRepositoryCustom.getSmsVerification(cellphone, verfiedcode);
 		List<SmsVerification> reslst=smsVerificationRepository.findByCellPhoneAndSmsCode(cellphone, verfiedcode);
 		if (reslst.size()==0)
-			return "";
+			throw new UserException("101", "验证码不正确，请重新输入");
 		User user = new User();
 		if(!registrationBodyDTO.getPassword().equals(registrationBodyDTO.getPwdconfirm())){
-			return "";
+			throw new UserException("101", "两次密码不一致");
 		}
 		user.setPasswordHash(MD5.getMD5(registrationBodyDTO.getPassword()));
 		Date date = new Date();
 		Timestamp nowdate = new Timestamp(date.getTime());
 		user.setLastModifiedDate(nowdate);
 		user.setCellPhone(cellphone);
+		user.setUuid(UUID.randomUUID().toString());
 		userRepository.save(user);
 		List<User> userList = userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
-		User result = userList.get(0);
-		String uid = result.getId()+"";
-		return uid;
+		User userResult = userList.get(0);
+		UserDTO userDto = new UserDTO();
+		BeanUtils.copyProperties(userResult, userDto);
+		return userDto;
 		
 	}
 	
@@ -236,5 +245,12 @@ public class AccountServiceImpl implements AccountService {
 			userDTO = userDtoList.get(0);
 		}
 		return userDTO;
+	}
+
+	@Override
+	public String getSmsMessage(String cellphone) {
+		SmsVerification sms = smsVerificationRepository.findByCellPhone(cellphone);
+		String smsCode = sms.getSmsCode();
+		return smsCode;
 	}
 }

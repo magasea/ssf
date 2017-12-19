@@ -43,6 +43,7 @@ public class UiUser implements Serializable {
 	@Column(name="last_reset_date")
 	private BigInteger lastResetDate;
 
+	@Column(name="occupation")
 	private String occupation;
 
 	@Column(name="password_hash")
@@ -51,6 +52,7 @@ public class UiUser implements Serializable {
 	@Column(name="isTestFlag")
 	private String isTestFlag;
 
+	@Column(name="uuid")
 	private String uuid;
 
 	public UiUser() {
