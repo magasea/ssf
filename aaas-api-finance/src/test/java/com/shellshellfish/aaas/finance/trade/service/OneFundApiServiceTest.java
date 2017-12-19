@@ -35,7 +35,7 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-@Ignore
+//@Ignore
 public class OneFundApiServiceTest {
     private static final Logger logger = LoggerFactory.getLogger(OneFundApiService.class);
 
@@ -142,6 +142,27 @@ public class OneFundApiServiceTest {
     }
 
     @Test
+    @Rollback(false)
+    public void testGetConfirmList() throws JsonProcessingException {
+        String result = oneFundApiService.getAllConfirmList("shellshellfish");
+        mongoTemplate.save(result, "confirmResult");
+    }
+
+    @Test
+    public void testGetConfirmResultByApplySerial() throws JsonProcessingException {
+        ConfirmResult confirmResult = oneFundApiService.getConfirmResultByApplySerial("shellshellfish", "20171212000399");
+        assertNotNull(confirmResult);
+        logger.info(new ObjectMapper().writeValueAsString(confirmResult));
+    }
+
+    @Test
+    public void testGetConfirmResultByOutsideOrderNo() throws JsonProcessingException {
+        ConfirmResult confirmResult = oneFundApiService.getConfirmResultByOutsideOrderNo("shellshellfish","201712-adedd068-ced2-46e5-a00b-f5f");
+        assertNotNull(confirmResult);
+        logger.info(new ObjectMapper().writeValueAsString(confirmResult));
+    }
+
+    @Test
     public void testGetUserBankList() throws Exception {
         List<FundInfo> fundInfos = mongoTemplate.findAll(FundInfo.class, "fundInfo");
         List<String> lines = new ArrayList<>();
@@ -231,6 +252,14 @@ public class OneFundApiServiceTest {
         poundage = poundage.setScale(1);
         assertEquals(poundage, BigDecimal.valueOf(2.0));
         logger.info("{}", poundage);
+    }
+
+    @Test
+    public void testGetBankCardLimitation() throws JsonProcessingException {
+        BankCardLimitation bankCardLimitation = oneFundApiService.getBankCardLimitation("中国银行");
+        assertEquals(BigDecimal.valueOf(50000), bankCardLimitation.getPerTrans());
+        assertEquals(BigDecimal.valueOf(50000), bankCardLimitation.getPerDay());
+        logger.info("{}", new ObjectMapper().writeValueAsString(bankCardLimitation));
     }
 
     @Test
