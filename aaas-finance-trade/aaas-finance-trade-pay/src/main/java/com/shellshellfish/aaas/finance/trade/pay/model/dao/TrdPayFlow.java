@@ -3,11 +3,13 @@ package com.shellshellfish.aaas.finance.trade.pay.model.dao;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Created by chenwei on 2017- 十二月 - 13
+ * Created by chenwei on 2017- 十二月 - 19
  */
 
 @Entity
@@ -15,7 +17,7 @@ import javax.persistence.Table;
 public class TrdPayFlow {
 
   private long id;
-  private String orderId;
+  private long orderDetailId;
   private String tradeAcco;
   private String tradeBrokeId;
   private String applySerial;
@@ -39,6 +41,7 @@ public class TrdPayFlow {
 
   @Id
   @Column(name = "id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   public long getId() {
     return id;
   }
@@ -48,13 +51,13 @@ public class TrdPayFlow {
   }
 
   @Basic
-  @Column(name = "order_id")
-  public String getOrderId() {
-    return orderId;
+  @Column(name = "order_detail_id")
+  public long getOrderDetailId() {
+    return orderDetailId;
   }
 
-  public void setOrderId(String orderId) {
-    this.orderId = orderId;
+  public void setOrderDetailId(long orderDetailId) {
+    this.orderDetailId = orderDetailId;
   }
 
   @Basic
@@ -271,6 +274,9 @@ public class TrdPayFlow {
     if (id != that.id) {
       return false;
     }
+    if (orderDetailId != that.orderDetailId) {
+      return false;
+    }
     if (payStatus != that.payStatus) {
       return false;
     }
@@ -307,9 +313,6 @@ public class TrdPayFlow {
     if (updateDate != that.updateDate) {
       return false;
     }
-    if (orderId != null ? !orderId.equals(that.orderId) : that.orderId != null) {
-      return false;
-    }
     if (tradeAcco != null ? !tradeAcco.equals(that.tradeAcco) : that.tradeAcco != null) {
       return false;
     }
@@ -343,7 +346,7 @@ public class TrdPayFlow {
   @Override
   public int hashCode() {
     int result = (int) (id ^ (id >>> 32));
-    result = 31 * result + (orderId != null ? orderId.hashCode() : 0);
+    result = 31 * result + (int) (orderDetailId ^ (orderDetailId >>> 32));
     result = 31 * result + (tradeAcco != null ? tradeAcco.hashCode() : 0);
     result = 31 * result + (tradeBrokeId != null ? tradeBrokeId.hashCode() : 0);
     result = 31 * result + (applySerial != null ? applySerial.hashCode() : 0);

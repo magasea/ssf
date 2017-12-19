@@ -43,7 +43,7 @@ public class CheckFundsBuyJobService {
                 for(TrdPayFlow trdPayFlow: trdPayFlows){
                     // TODO: replace userId with userUuid
                     ApplyResult applyResult =fundTradeApiService.getApplyResultByOutsideOrderNo
-                        (Long.toString(trdPayFlow.getUserId()), trdPayFlow.getOrderId().toString());
+                        (Long.toString(trdPayFlow.getUserId()), ""+trdPayFlow.getOrderDetailId());
                     if( null!= applyResult && !StringUtils.isEmpty(applyResult.getApplyshare())){
                         com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
                             new com.shellshellfish.aaas.common.message.order.TrdPayFlow();

@@ -23,7 +23,7 @@ public class BroadcastMessageProducers {
     String topicQueuePayName;
 
     public void sendMessage(TrdPayFlow trdPayFlow) {
-        logger.info("send message: " + trdPayFlow.getOrderId());
+        logger.info("send message: " + trdPayFlow.getOrderDetailId());
         rabbitTemplate.convertAndSend(topicQueuePayName, topicPay, trdPayFlow);
     }
 

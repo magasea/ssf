@@ -44,7 +44,7 @@ public class PayServiceImpl implements PayService{
     trdPayFlow.setCreateDate(DateUtil.getCurrentDateInLong());
     trdPayFlow.setCreateBy(0L);
     trdPayFlow.setPayAmount((trdOrderPay.getPayAmount()));
-    trdPayFlow.setPayStatus(TrdOrderStatusEnum.WAITCONFIRM.ordinal());
+    trdPayFlow.setPayStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
     return trdPayFlow;
   }

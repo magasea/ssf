@@ -1,12 +1,17 @@
-package com.shellshellfish.aaas.common.message.order;
+package com.shellshellfish.aaas.finance.trade.pay.model.dao;
 
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * Created by chenwei on 2017- 十二月 - 19
  */
 
-
-
+@Entity
+@Table(name = "trd_pay_flow", schema = "ssftrdpay", catalog = "")
 public class TrdPayFlow {
 
   private long id;
@@ -32,9 +37,8 @@ public class TrdPayFlow {
   private long updateBy;
   private long updateDate;
 
-  
-  
-  
+  @Id
+  @Column(name = "id")
   public long getId() {
     return id;
   }
@@ -43,8 +47,8 @@ public class TrdPayFlow {
     this.id = id;
   }
 
-  
-  
+  @Basic
+  @Column(name = "order_detail_id")
   public long getOrderDetailId() {
     return orderDetailId;
   }
@@ -53,8 +57,8 @@ public class TrdPayFlow {
     this.orderDetailId = orderDetailId;
   }
 
-  
-  
+  @Basic
+  @Column(name = "trade_acco")
   public String getTradeAcco() {
     return tradeAcco;
   }
@@ -63,8 +67,8 @@ public class TrdPayFlow {
     this.tradeAcco = tradeAcco;
   }
 
-  
-  
+  @Basic
+  @Column(name = "trade_broke_id")
   public String getTradeBrokeId() {
     return tradeBrokeId;
   }
@@ -73,8 +77,8 @@ public class TrdPayFlow {
     this.tradeBrokeId = tradeBrokeId;
   }
 
-  
-  
+  @Basic
+  @Column(name = "apply_serial")
   public String getApplySerial() {
     return applySerial;
   }
@@ -83,8 +87,8 @@ public class TrdPayFlow {
     this.applySerial = applySerial;
   }
 
-  
-  
+  @Basic
+  @Column(name = "outside_orderno")
   public String getOutsideOrderno() {
     return outsideOrderno;
   }
@@ -93,8 +97,8 @@ public class TrdPayFlow {
     this.outsideOrderno = outsideOrderno;
   }
 
-  
-  
+  @Basic
+  @Column(name = "bank_card_num")
   public String getBankCardNum() {
     return bankCardNum;
   }
@@ -103,8 +107,8 @@ public class TrdPayFlow {
     this.bankCardNum = bankCardNum;
   }
 
-  
-  
+  @Basic
+  @Column(name = "prod_code")
   public String getProdCode() {
     return prodCode;
   }
@@ -113,8 +117,8 @@ public class TrdPayFlow {
     this.prodCode = prodCode;
   }
 
-  
-  
+  @Basic
+  @Column(name = "fund_code")
   public String getFundCode() {
     return fundCode;
   }
@@ -123,8 +127,8 @@ public class TrdPayFlow {
     this.fundCode = fundCode;
   }
 
-  
-  
+  @Basic
+  @Column(name = "pay_status")
   public int getPayStatus() {
     return payStatus;
   }
@@ -133,8 +137,8 @@ public class TrdPayFlow {
     this.payStatus = payStatus;
   }
 
-  
-  
+  @Basic
+  @Column(name = "pay_date")
   public long getPayDate() {
     return payDate;
   }
@@ -143,8 +147,8 @@ public class TrdPayFlow {
     this.payDate = payDate;
   }
 
-  
-  
+  @Basic
+  @Column(name = "pay_type")
   public int getPayType() {
     return payType;
   }
@@ -153,8 +157,8 @@ public class TrdPayFlow {
     this.payType = payType;
   }
 
-  
-  
+  @Basic
+  @Column(name = "pay_amount")
   public Long getPayAmount() {
     return payAmount;
   }
@@ -163,8 +167,8 @@ public class TrdPayFlow {
     this.payAmount = payAmount;
   }
 
-  
-  
+  @Basic
+  @Column(name = "fund_sum")
   public long getFundSum() {
     return fundSum;
   }
@@ -173,8 +177,8 @@ public class TrdPayFlow {
     this.fundSum = fundSum;
   }
 
-  
-  
+  @Basic
+  @Column(name = "fund_sum_confirmed")
   public long getFundSumConfirmed() {
     return fundSumConfirmed;
   }
@@ -183,8 +187,8 @@ public class TrdPayFlow {
     this.fundSumConfirmed = fundSumConfirmed;
   }
 
-  
-  
+  @Basic
+  @Column(name = "buy_fee")
   public long getBuyFee() {
     return buyFee;
   }
@@ -193,8 +197,8 @@ public class TrdPayFlow {
     this.buyFee = buyFee;
   }
 
-  
-  
+  @Basic
+  @Column(name = "buy_discount")
   public long getBuyDiscount() {
     return buyDiscount;
   }
@@ -203,8 +207,8 @@ public class TrdPayFlow {
     this.buyDiscount = buyDiscount;
   }
 
-  
-  
+  @Basic
+  @Column(name = "user_id")
   public long getUserId() {
     return userId;
   }
@@ -213,8 +217,8 @@ public class TrdPayFlow {
     this.userId = userId;
   }
 
-  
-  
+  @Basic
+  @Column(name = "create_by")
   public long getCreateBy() {
     return createBy;
   }
@@ -223,8 +227,8 @@ public class TrdPayFlow {
     this.createBy = createBy;
   }
 
-  
-  
+  @Basic
+  @Column(name = "create_date")
   public long getCreateDate() {
     return createDate;
   }
@@ -233,8 +237,8 @@ public class TrdPayFlow {
     this.createDate = createDate;
   }
 
-  
-  
+  @Basic
+  @Column(name = "update_by")
   public long getUpdateBy() {
     return updateBy;
   }
@@ -243,8 +247,8 @@ public class TrdPayFlow {
     this.updateBy = updateBy;
   }
 
-  
-  
+  @Basic
+  @Column(name = "update_date")
   public long getUpdateDate() {
     return updateDate;
   }
@@ -253,7 +257,7 @@ public class TrdPayFlow {
     this.updateDate = updateDate;
   }
 
-  
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -336,7 +340,7 @@ public class TrdPayFlow {
     return true;
   }
 
-  
+  @Override
   public int hashCode() {
     int result = (int) (id ^ (id >>> 32));
     result = 31 * result + (int) (orderDetailId ^ (orderDetailId >>> 32));

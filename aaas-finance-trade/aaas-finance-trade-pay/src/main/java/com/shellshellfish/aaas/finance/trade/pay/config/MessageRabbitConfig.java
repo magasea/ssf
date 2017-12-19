@@ -1,21 +1,10 @@
 package com.shellshellfish.aaas.finance.trade.pay.config;
 
-import java.util.Arrays;
-import java.util.List;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Declarable;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
-import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile("!test")
+
 public class MessageRabbitConfig {
     @Value("${spring.rabbitmq.topicQueuePayName}")
     String topicQueuePayName;
@@ -33,28 +22,28 @@ public class MessageRabbitConfig {
     String topicOrder;
 
 
-    @Bean
-    public List<Declarable> topicBindings() {
-        Queue topicQueuePay = new Queue(topicQueuePayName, false);
-        Queue topicQueueOrder = new Queue(topicQueueOrderName, false);
-
-        TopicExchange topicExchange = new TopicExchange(topicExchangeName);
-
-        return Arrays.asList(
-                topicQueuePay,
-                topicQueueOrder,
-                topicExchange,
-                BindingBuilder.bind(topicQueuePay).to(topicExchange).with(topicPay),
-                BindingBuilder.bind(topicQueueOrder).to(topicExchange).with(topicOrder)
-        );
-    }
-
-
-    @Bean
-    public SimpleRabbitListenerContainerFactory container(ConnectionFactory connectionFactory, SimpleRabbitListenerContainerFactoryConfigurer configurer) {
-        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
-        configurer.configure(factory, connectionFactory);
-        return factory;
-    }
+//    @Bean
+//    public List<Declarable> topicBindings() {
+//        Queue topicQueuePay = new Queue(topicQueuePayName, false);
+//        Queue topicQueueOrder = new Queue(topicQueueOrderName, false);
+//
+//        TopicExchange topicExchange = new TopicExchange(topicExchangeName);
+//
+//        return Arrays.asList(
+//                topicQueuePay,
+//                topicQueueOrder,
+//                topicExchange,
+//                BindingBuilder.bind(topicQueuePay).to(topicExchange).with(topicPay),
+//                BindingBuilder.bind(topicQueueOrder).to(topicExchange).with(topicOrder)
+//        );
+//    }
+//
+//
+//    @Bean
+//    public SimpleRabbitListenerContainerFactory container(ConnectionFactory connectionFactory, SimpleRabbitListenerContainerFactoryConfigurer configurer) {
+//        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+//        configurer.configure(factory, connectionFactory);
+//        return factory;
+//    }
 
 }

@@ -62,7 +62,7 @@ public class PayServiceApplication {
 			MessageListenerAdapter listenerAdapter) {
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 		container.setConnectionFactory(connectionFactory);
-		container.setQueueNames(topicQueuePayName);
+		container.setQueueNames(topicQueueOrderName);
 		container.setMessageListener(listenerAdapter);
 		return container;
 	}
@@ -93,10 +93,7 @@ public class PayServiceApplication {
 		return new Queue(topicQueuePayName, false);
 	}
 
-	@Bean
-	TopicExchange exchange() {
-		return new TopicExchange("com.ssf.topic.exchange");
-	}
+
 
 	@Bean
 	Binding binding(Queue queue, TopicExchange exchange) {

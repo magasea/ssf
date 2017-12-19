@@ -1,7 +1,16 @@
 package com.shellshellfish.aaas.common.enums;
 
 public enum TrdOrderStatusEnum {
-  WAITCONFIRM(0), CONFIRMED(1), FAILED(-1);
+  WAITPAY(0), PAYWAITCONFIRM(1), CONFIRMED(2), FAILED(-1);
+
+  public int getStatus() {
+    return status;
+  }
+
+  public void setStatus(int status) {
+    this.status = status;
+  }
+
   private int status;
   TrdOrderStatusEnum(int status){
     this.status = status;
