@@ -66,17 +66,4 @@ public class FinanceProdInfoServiceImpl implements FinanceProdInfoService {
     return productMakeUpInfoList;
   }
 
-  @Override
-  public BigDecimal getMinBuyValue(ProductBaseInfo productBaseInfo) throws ExecutionException, InterruptedException {
-      List<ProductMakeUpInfo> productMakeUpInfoList = getFinanceProdMakeUpInfo(productBaseInfo);
-      return null;
-      //TODO: to be added next week
-  }
-
-  @Override
-  public BigDecimal getMaxBuyValue(ProductBaseInfo productBaseInfo) {
-      return null;
-      //TODO: to be added next week
-  }
-
 }

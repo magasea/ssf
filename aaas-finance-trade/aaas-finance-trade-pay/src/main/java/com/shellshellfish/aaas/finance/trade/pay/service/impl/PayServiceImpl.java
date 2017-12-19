@@ -37,7 +37,8 @@ public class PayServiceImpl implements PayService{
     //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
     trdOrderPay.getFundCode();
     BigDecimal payAmount = TradeUtil.getBigDecimalNumWithMul100(trdOrderPay.getPayAmount());
-    BuyFundResult fundResult = fundTradeApiService.buyFund(trdOrderPay.getTradeAccount(), payAmount,
+    //TODO: replace userId with userUuid
+    BuyFundResult fundResult = fundTradeApiService.buyFund(Long.toString(trdOrderPay.getUserId()), trdOrderPay.getTradeAccount(), payAmount,
         String.valueOf(trdOrderPay.getId()),trdOrderPay.getFundCode());
     TrdPayFlow trdPayFlow = new TrdPayFlow();
     trdPayFlow.setCreateDate(DateUtil.getCurrentDateInLong());

@@ -4,27 +4,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shellshellfish.aaas.finance.trade.pay.model.ApplyResult;
-import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
-import com.shellshellfish.aaas.finance.trade.pay.model.CancelTradeResult;
-import com.shellshellfish.aaas.finance.trade.pay.model.OpenAccountResult;
-import com.shellshellfish.aaas.finance.trade.pay.model.SellFundResult;
-import com.shellshellfish.aaas.finance.trade.pay.model.TradeLimitResult;
-import com.shellshellfish.aaas.finance.trade.pay.model.TradeRateResult;
-import com.shellshellfish.aaas.finance.trade.pay.model.UserBank;
+import com.shellshellfish.aaas.finance.trade.pay.model.*;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.codec.digest.UnixCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +15,12 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
+
+import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
 @Service
 public class OneFundApiService implements FundTradeApiService {
@@ -50,8 +37,8 @@ public class OneFundApiService implements FundTradeApiService {
     private MongoTemplate mongoTemplate;
 
     @Override
-    public OpenAccountResult openAccount(String name, String phone, String identityNo, String bankNo, String bankId) throws Exception {
-        Map<String, Object> info = init();
+    public OpenAccountResult openAccount(String userUuid, String name, String phone, String identityNo, String bankNo, String bankId) throws Exception {
+        Map<String, Object> info = init(userUuid);
 //        info.put("name", "张飞");
 //        info.put("phone", "13816629390");
 //        info.put("identityno", "612727198301116032");
@@ -84,8 +71,8 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
-    public BuyFundResult buyFund(String tradeAcco, BigDecimal applySum, String outsideOrderNo, String fundCode) throws Exception {
-        Map<String, Object> info = init();
+    public BuyFundResult buyFund(String userUuid, String tradeAcco, BigDecimal applySum, String outsideOrderNo, String fundCode) throws Exception {
+        Map<String, Object> info = init(userUuid);
 
         info.put("tradeacco", tradeAcco);
         info.put("applysum", applySum);
@@ -114,8 +101,8 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
-    public SellFundResult sellFund(Integer sellNum, String outsideOrderNo, String tradeAcco, String fundCode) throws Exception {
-        Map<String, Object> info = init();
+    public SellFundResult sellFund(String userUuid, Integer sellNum, String outsideOrderNo, String tradeAcco, String fundCode) throws Exception {
+        Map<String, Object> info = init(userUuid);
 
         info.put("sell_num", sellNum);
         info.put("outsideorderno", outsideOrderNo);
@@ -144,8 +131,8 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
-    public CancelTradeResult cancelTrade(String applySerial) throws Exception {
-        Map<String, Object> info = init();
+    public CancelTradeResult cancelTrade(String userUuid, String applySerial) throws Exception {
+        Map<String, Object> info = init(userUuid);
 
         info.put("applyserial", applySerial);
 
@@ -170,8 +157,8 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
-    public ApplyResult getApplyResultByApplySerial(String applySerial) throws JsonProcessingException {
-        Map<String, Object> info = init();
+    public ApplyResult getApplyResultByApplySerial(String userUuid, String applySerial) throws JsonProcessingException {
+        Map<String, Object> info = init(userUuid);
         info.put("applyserial", applySerial);
         postInit(info);
         String url = "https://onetest.51fa.la/v2/internet/fundapi/get_apply_list";
@@ -187,8 +174,8 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
-    public ApplyResult getApplyResultByOutsideOrderNo(String outsideOrderNo) throws JsonProcessingException {
-        Map<String, Object> info = init();
+    public ApplyResult getApplyResultByOutsideOrderNo(String userUuid, String outsideOrderNo) throws JsonProcessingException {
+        Map<String, Object> info = init(userUuid);
         info.put("outsideorderno", outsideOrderNo);
         postInit(info);
         String url = "https://onetest.51fa.la/v2/internet/fundapi/get_apply_list";
@@ -216,8 +203,8 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
-    public String getAllApplyList() throws JsonProcessingException {
-        Map<String, Object> info = init();
+    public String getAllApplyList(String userUuid) throws JsonProcessingException {
+        Map<String, Object> info = init(userUuid);
 
         postInit(info);
         String url = "https://onetest.51fa.la/v2/internet/fundapi/get_apply_list";
@@ -242,8 +229,8 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
-    public String commitRisk() throws JsonProcessingException {
-        Map<String, Object> info = init();
+    public String commitRisk(String userUuid) throws JsonProcessingException {
+        Map<String, Object> info = init(userUuid);
         info.put("risk_ability", 3);
         postInit(info);
         String url = "https://onetest.51fa.la/v2/internet/fundapi/commit_risk";
@@ -255,8 +242,8 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
-    public String commitFakeAnswer() throws JsonProcessingException {
-        Map<String, Object> info = init();
+    public String commitFakeAnswer(String userUuid) throws JsonProcessingException {
+        Map<String, Object> info = init(userUuid);
 
         Map<String, String> fakeAnswer = new LinkedHashMap<>();
         fakeAnswer.put("00066", "001");
@@ -289,8 +276,8 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
-    public String getUserRiskList() throws JsonProcessingException {
-        Map<String, Object> info = init();
+    public String getUserRiskList(String userUuid) throws JsonProcessingException {
+        Map<String, Object> info = init(userUuid);
 
         postInit(info);
         String url = "https://onetest.51fa.la/v2/internet/fundapi/get_user_risk_list";
@@ -414,6 +401,7 @@ public class OneFundApiService implements FundTradeApiService {
         return tradeLimitResults;
     }
 
+    @Override
     public BigDecimal getDiscount(String fundCode, String businFlag) throws Exception {
         Map<String, Object> info = init();
         info.put("fundcode", fundCode);
@@ -436,6 +424,7 @@ public class OneFundApiService implements FundTradeApiService {
         return discount;
     }
 
+    @Override
     public BigDecimal getRate(String fundCode, String businFlag) throws Exception {
         List<TradeRateResult> tradeRateResults = getTradeRateAsList(fundCode, businFlag);
         for(TradeRateResult rateResult: tradeRateResults) {
@@ -447,16 +436,24 @@ public class OneFundApiService implements FundTradeApiService {
         throw new Exception("no rate found");
     }
 
+    @Override
     public BigDecimal calcPoundageByTotalAmount(BigDecimal totalAmount, BigDecimal rate, BigDecimal discount) {
         // return totalAmount * rate * discount / (1 + rate * discount);
         BigDecimal temp = rate.multiply(discount);
         return totalAmount.multiply(temp).divide(temp.add(BigDecimal.ONE));
     }
 
+    @Override
     public BigDecimal calcPoundage(BigDecimal amount, BigDecimal rate, BigDecimal discount){
         return amount.multiply(rate).multiply(discount);
     }
 
+    @Override
+    public BigDecimal calcDiscountPoundage(BigDecimal amount, BigDecimal rate, BigDecimal discount) {
+        return amount.multiply(rate).multiply(BigDecimal.ONE.subtract(discount));
+    }
+
+    @Override
     public List<UserBank> getUserBank(String fundCode) throws Exception {
         Map<String, Object> info = init();
         info.put("fundcode", fundCode);
@@ -512,11 +509,15 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     private Map<String, Object> init() throws JsonProcessingException {
+        return init("shellshellfish");
+    }
+
+    private Map<String, Object> init(String userUuid) throws JsonProcessingException {
         Map<String, Object> info = new HashMap<>();
 
         String publicKey = "enVoZWNlc2hpMQ==";
         String platformCode = "zuheceshi1";
-        String platformOpenId = "shellshellfish";//"noUserToOneFund";
+        String platformOpenId = userUuid;//"shellshellfish";//"noUserToOneFund";
         Long time = new Date().toInstant().getEpochSecond();
         String data = objectMapper.writeValueAsString(Arrays.asList(platformOpenId));
 

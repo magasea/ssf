@@ -11,9 +11,4 @@ public interface FinanceProdInfoService {
 
   List<ProductMakeUpInfo> getFinanceProdMakeUpInfo(ProductBaseInfo productBaseInfo)
       throws ExecutionException, InterruptedException;
-
-
-    BigDecimal getMinBuyValue(ProductBaseInfo productBaseInfo) throws ExecutionException, InterruptedException;
-
-  BigDecimal getMaxBuyValue(ProductBaseInfo productBaseInfo);
 }
