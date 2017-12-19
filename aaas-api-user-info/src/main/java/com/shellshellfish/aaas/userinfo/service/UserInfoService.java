@@ -51,4 +51,10 @@ public interface UserInfoService {
 
 	Boolean deleteBankCard(String userUuid, String bankcardId);
 
+	Boolean addUiUser(String userUuid, String cellphone, String isTestFlag);
+
+	Boolean updateUiUser(String cellphone, String isTestFlag);
+
+	UserBaseInfoDTO selectUiUser(String cellphone);
+
 }

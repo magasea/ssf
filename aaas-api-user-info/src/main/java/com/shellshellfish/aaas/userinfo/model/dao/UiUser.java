@@ -47,6 +47,9 @@ public class UiUser implements Serializable {
 
 	@Column(name="password_hash")
 	private String passwordHash;
+	
+	@Column(name="isTestFlag")
+	private String isTestFlag;
 
 	private String uuid;
 
@@ -147,6 +150,14 @@ public class UiUser implements Serializable {
 
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
+	}
+
+	public String getIsTestFlag() {
+		return isTestFlag;
+	}
+
+	public void setIsTestFlag(String isTestFlag) {
+		this.isTestFlag = isTestFlag;
 	}
 
 }

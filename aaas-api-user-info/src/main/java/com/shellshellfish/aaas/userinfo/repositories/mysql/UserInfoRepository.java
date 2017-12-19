@@ -1,5 +1,7 @@
 package com.shellshellfish.aaas.userinfo.repositories.mysql;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
@@ -14,4 +16,6 @@ public interface UserInfoRepository extends PagingAndSortingRepository<UiUser, L
   public Long findUserIdByUuid(Long uuid);
 
   public UiUser findUiUserByUuid(String uuid);
+  
+  List<UiUser> findByCellPhone(String cellphone);
 }

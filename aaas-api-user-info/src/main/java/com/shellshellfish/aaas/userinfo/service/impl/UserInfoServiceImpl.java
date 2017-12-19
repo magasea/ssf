@@ -214,4 +214,22 @@ public class UserInfoServiceImpl implements UserInfoService {
 		Boolean result = userInfoRepoService.deleteBankCard(userUuid, bankcardId);
 		return result;
 	}
+
+	@Override
+	public Boolean addUiUser(String userUuid, String cellphone, String isTestFlag) {
+		Boolean result = userInfoRepoService.saveUser(userUuid, cellphone,isTestFlag);
+		return result;
+	}
+
+	@Override
+	public Boolean updateUiUser(String cellphone, String isTestFlag) {
+		Boolean result = userInfoRepoService.updateCellphone(cellphone,isTestFlag);
+		return result;
+	}
+
+	@Override
+	public UserBaseInfoDTO selectUiUser(String cellphone) {
+		UserBaseInfoDTO result = userInfoRepoService.findByCellphone(cellphone);
+		return result;
+	}
 }

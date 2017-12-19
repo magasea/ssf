@@ -19,4 +19,5 @@ public interface AccountService {
 	String sendSmsMessage(String phone);
 	boolean doSmsVerification(VerificationBodyDTO vbody);
 	UserDTO doLogout(LoginBodyDTO loginBody);
+	UserDTO getUserInfo(String uid) throws IllegalAccessException, InstantiationException;
 }

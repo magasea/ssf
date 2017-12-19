@@ -35,8 +35,7 @@ public class FinanceProductServiceImpl  extends
   public List<ProductMakeUpInfo> getProductInfo(ProductBaseInfo productBaseInfo) {
     //ToDo: 目前是用hardCode数据 将来要用真实开发的功能来填充
     logger.info("prodId:{} groupId:{}",productBaseInfo.getProdId(), productBaseInfo.getGroupId());
-    //return generateTestData(productBaseInfo.getProdId().toString(), productBaseInfo.getGroupId().toString());
-    return generateTestData(productBaseInfo.getProdId().toString(),productBaseInfo.getGroupId().toString());
+    return generateTestData(productBaseInfo.getProdId().toString(), productBaseInfo.getGroupId().toString());
   }
 
   @Override

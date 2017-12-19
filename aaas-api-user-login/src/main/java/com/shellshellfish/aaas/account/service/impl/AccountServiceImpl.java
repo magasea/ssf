@@ -226,4 +226,15 @@ public class AccountServiceImpl implements AccountService {
 		redisService.doLogout(cellphone, password);
 		return null;
 	}
+	
+	@Override
+	public UserDTO getUserInfo(String uid) throws IllegalAccessException, InstantiationException {
+		List<User> userList = userRepository.findById(Long.parseLong(uid));
+		List<UserDTO> userDtoList = MyBeanUtils.convertList(userList, UserDTO.class);
+		UserDTO userDTO = new UserDTO();
+		if(userDtoList!=null&&userDtoList.size()>0){
+			userDTO = userDtoList.get(0);
+		}
+		return userDTO;
+	}
 }
