@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -132,6 +133,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       com.shellshellfish.aaas.common.message.order.TrdOrderDetail trdOrderPay =  new com
           .shellshellfish.aaas.common.message.order.TrdOrderDetail();
       BeanUtils.copyProperties(trdOrderDetail, trdOrderPay);
+//      GenericMessage<TrdOrderDetail> genericMessage = new GenericMessage<TrdOrderDetail>();
       broadcastMessageProducer.sendMessages(trdOrderPay);
     }
     return trdOrder;

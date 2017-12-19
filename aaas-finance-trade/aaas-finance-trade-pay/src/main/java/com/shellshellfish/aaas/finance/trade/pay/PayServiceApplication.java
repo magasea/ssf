@@ -95,10 +95,7 @@ public class PayServiceApplication {
 
 
 
-	@Bean
-	Binding binding(Queue queue, TopicExchange exchange) {
-		return BindingBuilder.bind(queue).to(exchange).with(topicQueuePayName);
-	}
+
 
 	@PostConstruct
 	void started() {

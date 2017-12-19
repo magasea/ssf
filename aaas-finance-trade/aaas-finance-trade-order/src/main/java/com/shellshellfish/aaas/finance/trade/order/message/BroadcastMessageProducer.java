@@ -4,6 +4,7 @@ import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -31,7 +32,7 @@ public class BroadcastMessageProducer {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void sendMessages(TrdOrderDetail message) {
-        rabbitTemplate.convertAndSend(topicExchangeName, topicOrder, message);
+    public void sendMessages(TrdOrderDetail trdOrderDetail) {
+        rabbitTemplate.convertAndSend(topicExchangeName, topicOrder, trdOrderDetail);
     }
 }
