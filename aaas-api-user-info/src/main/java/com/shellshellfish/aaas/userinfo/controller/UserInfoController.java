@@ -89,6 +89,7 @@ public class UserInfoController {
 			@Valid @NotNull(message="userUuid不能为空") @PathVariable("userUuid") String userUuid
 			) throws Exception {
 		System.out.println("userUuid is " + userUuid);
+		logger.info("getUserBaseInfo method run..");
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
 		Map<String, Object> selfmap = new HashMap<>();
@@ -144,6 +145,7 @@ public class UserInfoController {
 			//@Valid @NotNull(message = "id不能为空") @RequestParam("userId") String id,
 			@Valid @NotNull(message = "银行卡号不能为空") @Size(max = 20, min = 15) @RequestParam("cardNumber") String cardNumber
 			)throws Exception {
+		logger.info("getUserBankCards method run..");
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
 		List<Map> relateList = new ArrayList<Map>();
@@ -191,8 +193,10 @@ public class UserInfoController {
 	@AopLinkResources
 	public ResponseEntity<?> getUserPersonalInfo(
 			@Valid @NotNull(message = "用户Uuid不能为空") @PathVariable("Uuid") String userUuid)throws Exception {
+		logger.info("getUserPersonalInfo method run..");
 		if(StringUtils.isEmpty(userUuid)){
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			//return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			throw new Exception("not vaild userUuid:" + userUuid);
 		}else{
 			UserBaseInfoDTO userBaseInfo =  userInfoService.getUserInfoBase(userUuid);
 			
@@ -310,7 +314,7 @@ public class UserInfoController {
 	public ResponseEntity<?> bankCardSubmitInit(
 			@Valid @NotNull(message = "id不能为空") @PathVariable("userUuid") String userUuid,
 			@Valid @NotNull(message = "银行卡NUM不能为空") @RequestParam("cardNumber") String cardNumber) {
-
+		logger.info("bankCardSubmitInit method run..");
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
 		Map<String, Object> relateditemmap = new HashMap<>();
@@ -369,6 +373,7 @@ public class UserInfoController {
 	public ResponseEntity<Map> addBankCardWithDetailInfo(
 			@Valid @NotNull(message = "不能为空") @PathVariable("userUuid") String userUuid,
 			@RequestBody BankcardDetailBodyDTO bankcardDetailVo) throws Exception {
+		logger.info("addBankCardWithDetailInfo method run..");
 		Map<String, Object> result = new HashMap<>();
 		ObjectMapper mapper = new ObjectMapper();
 		// Convert POJO to Map
@@ -388,18 +393,14 @@ public class UserInfoController {
 				throw new IllegalArgumentException("no " + k.toString() + "'s value in params");
 			}
 		});
-		logger.info("line391");
 		BankCardDTO bankCard = userInfoService.createBankcard(params);
-		logger.info("line393");
 		if (bankCard == null) {
-			logger.info("line395");
 //			return new ResponseEntity<Object>(
 //					URL_HEAD + "/users/" + userUuid + "/bankcardpage?cardNumber=" + bankcardDetailVo.getCardNumber(),
 //					HttpStatus.NO_CONTENT);
 			result.put("msg", "添加失败");
 			return new ResponseEntity<Map>(result,HttpStatus.NO_CONTENT);
 		} else {
-			logger.info("line402");
 			//return new ResponseEntity<Object>(URL_HEAD + "/initpage", HttpStatus.OK);
 //			String code = BankUtil.getCodeOfBank(bankCard.getCardNumber());
 //			result.put("code", code);
@@ -428,6 +429,7 @@ public class UserInfoController {
 	})
 	@RequestMapping(value = "/bankcards/{bankcardNum}/banks", method = RequestMethod.GET)
 	public ResponseEntity<Map> getBankName(@PathVariable("bankcardNum") String bankcardNum) throws Exception {
+		logger.info("getBankName method run..");
 		Map<String, Object> result = new HashMap<>();
 		
 		String bankName = BankUtil.getNameOfBank(bankcardNum);
@@ -459,7 +461,7 @@ public class UserInfoController {
 	//@RequestMapping(value = "/userinfo/users/supportbankcards", method = RequestMethod.GET)
 	public ResponseEntity<List<Map>> bankcardsInfo(@Valid @NotNull(message="不能为空")
 	@PathVariable("userUuid") String userUuid) throws Exception {
-
+		logger.info("bankcardsInfo method run..");
 		List<BankCardDTO> bankCards = userInfoService.getUserInfoBankCards(userUuid);
 		
 //		Map<String, Object> result = new HashMap<>();
@@ -518,6 +520,7 @@ public class UserInfoController {
 	})
 	@RequestMapping(value = "/users/supportbankcards", method = RequestMethod.GET)
 	public ResponseEntity<?> supportBankCards() throws Exception {
+		logger.info("supportBankCards method run..");
 		HashMap<String, Object> rsmap = new HashMap<String, Object>();
 		Map<String, Object> links = new HashMap<>();
 		List<Map> rsList = new ArrayList<Map>();
@@ -563,6 +566,7 @@ public class UserInfoController {
 	public ResponseEntity<Map> messages(
 			@Valid @NotNull(message = "userUuid不能为空") @PathVariable("userUuid") String userUuid
 			) throws Exception {
+		logger.info("messages method run..");
 		HashMap<String, Object> rsmap = new HashMap<String, Object>();
 		Map<String, Object> links = new HashMap<>();
 		List<Map> rsList = new ArrayList<Map>();
@@ -611,6 +615,7 @@ public class UserInfoController {
 			("endDate") String edDate)
 
 			throws Exception {
+		logger.info("getUserAssetsOverview method run..");
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
 		List<Map> relateList = new ArrayList<Map>();
@@ -692,6 +697,7 @@ public class UserInfoController {
 	public ResponseEntity<?> getPersonalInvstMsg(
 			@Valid @NotNull(message = "userUuid不可为空") @PathVariable(name = "userUuid") String userUuid
 			)throws Exception {
+		logger.info("getPersonalInvstMsg method run..");
 		List<UserPersonMsgDTO> userPersonMsgs =  userInfoService.getUserPersonMsg(userUuid);
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
@@ -737,6 +743,7 @@ public class UserInfoController {
 			.GET)
 	public ResponseEntity<?> getSystemMsg(@Valid @NotNull(message = "userUuid不可为空")@PathVariable String userUuid)
 			throws Exception {
+		logger.info("getSystemMsg method run..");
 		List<UserSysMsgDTO> userSysMsgs = userInfoService.getUserSysMsg(userUuid);
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
@@ -781,6 +788,7 @@ public class UserInfoController {
 			@Valid @NotNull(message = "id")@PathVariable String id,
 			@RequestBody UserPersonalMsgBodyDTO userPersonalMsgVo)
 			throws Exception {	
+		logger.info("updatePersonalMsg method run..");
 		//id message ID
 		Boolean result =  userInfoService.updateUserPersonMsg(id, userUuid, userPersonalMsgVo.getReadedStatus());
 		if(!result){
@@ -820,6 +828,7 @@ public class UserInfoController {
 			@RequestParam(value = "size") Long size, 
 			@RequestParam(value = "page", defaultValue = "0") Long page,
 			@RequestParam(value = "sort") String sort) throws Exception {
+		logger.info("getTradLogsOfUser method run..");
 		Page<TradeLogDTO> pages = userInfoService.findByUserId(userUuid, pageable);
 		Map<String, Object> selfMap = new HashMap<String, Object>();
 		Map<String, Object> self = new HashMap<String, Object>();
@@ -886,7 +895,7 @@ public class UserInfoController {
 	public ResponseEntity<?> getFriendRules(
 			@Valid @NotNull(message = "userUuid不可为空")@PathVariable Long bankid)
 			throws Exception {
-
+		logger.info("getFriendRules method run..");
 		List<UserInfoFriendRuleDTO> userInfoFriendRules = userInfoService.getUserInfoFriendRules(bankid);
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
@@ -930,6 +939,7 @@ public class UserInfoController {
 			@Valid @NotNull(message="用户Uuid") @PathVariable("userUuid") String userUuid,
 			@Valid @NotNull(message="银行ID") @RequestParam(value = "bankId",required = false) Long bankId)
 			throws Exception {
+		logger.info("getFriendsInvationLinks method run..");
 		//:TODO 这段分享朋友邀请好友的做法是要改的
 		List<Map> friendIvtList = new ArrayList<>();
 		Map<String, Object> friendIvtLinks = new HashMap<>();
@@ -985,6 +995,7 @@ public class UserInfoController {
 	@RequestMapping(value = "/companyinfos", method = RequestMethod.GET)
 	public ResponseEntity<?> getCompanyInfo(@RequestParam String userUuid, @RequestParam(required = false) Long bankId)
 			throws Exception {
+		logger.info("getCompanyInfo method run..");
 		UserInfoCompanyInfoDTO userInfoCompanyInfo = userInfoService.getCompanyInfo(userUuid, bankId);
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> selfmap = new HashMap<>();
@@ -1158,6 +1169,7 @@ public class UserInfoController {
 			@Valid @NotNull(message = "userUuid不可为空")@PathVariable String userUuid,
 			@Valid @NotNull(message = "id")@PathVariable String bankcardId)
 			throws Exception {	
+		logger.info("unbundlingBank method run..");
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		//id message ID
 		Boolean result =  userInfoService.deleteBankCard(userUuid, bankcardId);
@@ -1194,6 +1206,7 @@ public class UserInfoController {
 			@Valid @NotNull(message = "userUuid不可为空")@PathVariable String userUuid,
 			@Valid @NotNull(message = "cellphone")@RequestParam String cellphone,
 			@Valid @NotNull(message = "isTestFlag")@RequestParam String isTestFlag)throws Exception {	
+		logger.info("addUiUser method run..");
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		//id message ID
 		Boolean result =  userInfoService.addUiUser(userUuid, cellphone,isTestFlag);
@@ -1219,6 +1232,7 @@ public class UserInfoController {
 	public ResponseEntity<Map> updateUiUser(
 			@Valid @NotNull(message = "cellphone")@PathVariable String cellphone,
 			@Valid @NotNull(message = "isTestFlag")@RequestParam String isTestFlag)throws Exception {	
+		logger.info("updateUiUser method run..");
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		//id message ID
 		Boolean result =  userInfoService.updateUiUser(cellphone,isTestFlag);
@@ -1244,12 +1258,13 @@ public class UserInfoController {
 	@RequestMapping(value = "/users/telnums/{cellphone}", method = RequestMethod.GET)
 	public ResponseEntity<Map> getUiUser(
 			@PathVariable String cellphone)throws Exception {	
+		logger.info("getUiUser method run..");
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		//id message ID
 		UserBaseInfoDTO result =  userInfoService.selectUiUser(cellphone);
 		if(result==null&&result.getId()==null){
 			resultMap.put("status", "NG");
-			return new ResponseEntity<Map>(resultMap,HttpStatus.UNAUTHORIZED);
+			throw new Exception("用户不存在");
 		} else {
 			//return new ResponseEntity<Object>(URL_HEAD+"/message/updateinvestmentmessages/investmentmessages?userUuid="+userUuid , HttpStatus.OK);
 			resultMap.put("result", result);

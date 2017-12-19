@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class UserBaseInfoDTO {
 
-	@JsonIgnore
 	Long id;
 
 	String cellPhone;

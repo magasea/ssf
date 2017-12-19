@@ -176,10 +176,11 @@ public class AccountServiceImpl implements AccountService {
 	public UserDTO isSmsVerified(UpdateRegistrationBodyDTO registrationBodyDTO) throws RuntimeException {
 		String cellphone = registrationBodyDTO.getTelnum();
 		String verfiedcode = registrationBodyDTO.getIdentifyingcode();
-		//List<Object[]> reslst=smsVerificationRepositoryCustom.getSmsVerification(cellphone, verfiedcode);
-		List<SmsVerification> reslst=smsVerificationRepository.findByCellPhoneAndSmsCode(cellphone, verfiedcode);
-		if (reslst.size()==0)
+		List<Object[]> reslst=smsVerificationRepositoryCustom.getSmsVerification(cellphone, verfiedcode);
+		//List<SmsVerification> reslst=smsVerificationRepository.findByCellPhoneAndSmsCode(cellphone, verfiedcode);
+		if (reslst!=null||reslst.size()==0){
 			throw new UserException("101", "验证码不正确，请重新输入");
+		}
 		User user = new User();
 		if(!registrationBodyDTO.getPassword().equals(registrationBodyDTO.getPwdconfirm())){
 			throw new UserException("101", "两次密码不一致");
@@ -215,9 +216,13 @@ public class AccountServiceImpl implements AccountService {
 		}
 		smsVerification.setCellPhone(telnum);
 		Date date = new Date();
-		Timestamp nowdate = new Timestamp(date.getTime());
 //		smsVerification.setCreatedDate(nowdate);
 //		smsVerification.setExpireTime(nowdate);
+		Timestamp nowdate = new Timestamp(date.getTime()); 
+		Timestamp expdate = new Timestamp(date.getTime()+ 60000); //1 minute
+		
+		smsVerification.setCreatedDate(nowdate);
+		smsVerification.setExpireTime(expdate);
 		smsVerification.setSmsCode(vcodebody.getIdentifyingcode());
 		smsVerificationRepository.save(smsVerification);
 		return vcodebody.getIdentifyingcode();
@@ -250,7 +255,10 @@ public class AccountServiceImpl implements AccountService {
 	@Override
 	public String getSmsMessage(String cellphone) {
 		SmsVerification sms = smsVerificationRepository.findByCellPhone(cellphone);
-		String smsCode = sms.getSmsCode();
+		String smsCode = "";
+		if(sms!=null){
+			smsCode = sms.getSmsCode();
+		}
 		return smsCode;
 	}
 }
