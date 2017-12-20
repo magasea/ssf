@@ -65,4 +65,12 @@ public interface FundGroupMapper {
 
     String getGroupStartTime(Map map);
 
+    List<EfficientFrontier> getEfficientFrontier(Map map);
+
+    List<EfficientFrontier> getEfficientFrontierDetail(String id);
+
+    List<FundNetVal> getNavadjStartTime(Map map);
+
+    List<FundNetVal> getNavadjEndTime(Map map);
+
 }
