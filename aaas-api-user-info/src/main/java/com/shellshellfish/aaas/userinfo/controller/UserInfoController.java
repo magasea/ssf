@@ -367,7 +367,7 @@ public class UserInfoController {
     })
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="id",defaultValue=""),
-		@ApiImplicitParam(name="bankcardDetailVo", value ="银行卡信息",required=true,paramType="body",dataType="BankcardDetailVo")
+		@ApiImplicitParam(name="bankcardDetailVo", value ="银行卡信息",required=true,paramType="body",dataType="BankcardDetailBodyDTO")
 	})
 	@RequestMapping(value = "/users/{userUuid}/bankcards", method = RequestMethod.POST)
 	public ResponseEntity<Map> addBankCardWithDetailInfo(
