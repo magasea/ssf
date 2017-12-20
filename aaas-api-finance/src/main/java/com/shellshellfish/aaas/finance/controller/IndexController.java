@@ -30,7 +30,7 @@ public class IndexController {
 
 	@ApiOperation("理财产品 首页")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=true,value="用户ID",defaultValue="1")
+		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=false,value="用户ID",defaultValue="1")
 //		@ApiImplicitParam(paramType="query",name="productType",dataType="String",required=true,value="产品类型",defaultValue="C1")
     })
 	@ApiResponses({

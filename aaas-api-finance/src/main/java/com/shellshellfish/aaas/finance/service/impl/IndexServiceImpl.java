@@ -73,7 +73,7 @@ public class IndexServiceImpl implements IndexService {
 			for (int i = 0; i < items.size(); i++) {
 				itemMap = items.get(i);
 				for (Object key : itemMap.keySet()) {
-					if ("1".equals(key)) {
+					if ("C1".equals(key)) {
 						investmentHorizonMap.put("investmentHorizon", "保守型");
 						investmentHorizonMap.put("investmentHorizonCode", "C1");
 						obj = (Map<String, Object>) itemMap.get(key);
@@ -159,6 +159,7 @@ public class IndexServiceImpl implements IndexService {
 		
 		result.put("name", "理财产品 首页");
 		result.put("_links", linksMap);
+		result.put("uuid", uuid);
 
 		return result;
 	}
