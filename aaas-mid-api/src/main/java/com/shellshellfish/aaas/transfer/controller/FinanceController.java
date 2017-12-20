@@ -1,35 +1,41 @@
 package com.shellshellfish.aaas.transfer.controller;
 
-import com.shellshellfish.aaas.dto.FinanceProductCompo;
-import com.shellshellfish.aaas.model.JsonResult;
-import com.shellshellfish.aaas.service.MidApiService;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+import com.shellshellfish.aaas.dto.FinanceProductCompo;
+import com.shellshellfish.aaas.model.JsonResult;
+import com.shellshellfish.aaas.service.MidApiService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("/phoneapi-ssf")
 @Api("转换相关restapi")
 public class FinanceController {
 
+	Logger logger = LoggerFactory.getLogger(UserInfoController.class);
+	
 	// @Autowired
 	@Value("${shellshellfish.user-user-info}")
 	private String userinfoUrl;
@@ -49,24 +55,20 @@ public class FinanceController {
 	@Autowired
 	private MidApiService service;
 	
-
-
 	@ApiOperation("1.首页")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "uid", dataType = "String", required = false, value = "用户ID", defaultValue = "1"),
-			@ApiImplicitParam(paramType = "query", name = "productType", dataType = "String", required = true, value = "产品类型", defaultValue = "C1") })
+			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID", defaultValue = "1") })
 	@RequestMapping(value = "/finance-home", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult financeHome(@RequestParam String uid, @RequestParam String productType) {
-		Map<String,Object> result = new HashMap<String,Object>();
+	public JsonResult financeHome(@RequestParam String uuid) {
+		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			MultiValueMap<String, String> requestEntity = new LinkedMultiValueMap<>();
-			requestEntity.add("uid", uid);
-			requestEntity.add("productType", productType);
-			result = restTemplate.getForEntity(
-					financeUrl + "/api/ssf-finance/product-groups/homepage?uid=" + uid + "&productType=" + productType,
-					Map.class).getBody()
-					;
+			requestEntity.add("uuid", uuid);
+//			requestEntity.add("productType", productType);
+			result = restTemplate
+					.getForEntity(financeUrl + "/api/ssf-finance/product-groups/homepage?uuid=" + uuid, Map.class)
+					.getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
 				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
@@ -149,55 +151,173 @@ public class FinanceController {
 		}
 		return new JsonResult(JsonResult.Fail, "查看理财产品详情失败", result);
 	}
-	
-
-	
-	
 
 	@ApiOperation("历史业绩")
-    @RequestMapping(value="/historicalPerformancePage",method=RequestMethod.POST)
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "6"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "111135"),
+	})
+	@RequestMapping(value = "/historicalPerformancePage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getHistoricalPerformance(){
-		//先获取全部产品
-		String url=financeUrl+"/api/asset-allocation/products";
-		Map result=null;//中间容器
-		Object object=null;
-		List<Map<String,Object>> prdList=null; //中间容器
-		List<FinanceProductCompo> resultList=new ArrayList<FinanceProductCompo>();//结果集
+	public JsonResult getHistoricalPerformance(@RequestParam String groupId, @RequestParam String subGroupId) {
+		// 先获取全部产品
+		String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/historicalPer-formance?fund_group_id=" + groupId
+				+ "&subGroupId=" + subGroupId;
+		Map<String,Object> result = new HashMap<String,Object>();// 中间容器
+		Object object = null;
+		List<Map<String, Object>> prdList = null; // 中间容器
+		List<FinanceProductCompo> resultList = new ArrayList<FinanceProductCompo>();// 结果集
+		try {
+			result = restTemplate.getForEntity(url, Map.class).getBody();
+			logger.info("历史业绩-第一部分数据获取成功");
+			if (result != null) {
+				object = result.get("_items");
+				if (object != null) {
+					logger.info("object获取成功");
+					result.put("historicalPerformance",object);
+					result.remove("_items");
+					result.remove("name");
+					result.remove("_schemaVersion");
+					result.remove("_serviceId");
+				} else {
+					logger.info("object获取失败");
+				}
 
-			try{
-			result=restTemplate.getForEntity(url, Map.class).getBody();
-			}catch(Exception e){
-				//获取list失败直接返回
-				String message=e.getMessage();
-				result.put("错误原因", message+",获取理财产品调用restTemplate方法发生错误！");
-				return new JsonResult(JsonResult.Fail, "获取理财List数据失败",result);
+			} else {
+				return new JsonResult(JsonResult.SUCCESS, "获取失败", resultList);
 			}
-			//如果成功获取内部值，再遍历获取每一个产品的年化收益(进入service)
-			if(result!=null){
-				object=result.get("_items");
-			   if (object instanceof List){
-				   //转换成List
-				   prdList=(List<Map<String,Object>>)object;
-				   for (Map<String,Object> productMap:prdList){
-					   //获取goupid和subGroupId
-					  String groupId= productMap.get("groupId").toString();
-					  String subGroupId= productMap.get("subGroupId").toString();
-					  String prdName=productMap.get("name").toString();
-				      Map productCompo=(Map) productMap.get("assetsRatios");
-					   //去另一接口获取历史收益率图表的数据
-					  Map histYieldRate = getCombYieldRate(groupId,subGroupId);
-					  //去另一个接口获取预期年化，预期最大回撤
-					  Map ExpAnnReturn= getExpAnnReturn(groupId,subGroupId);
-					  Map ExpMaxReturn=getExpMaxReturn(groupId,subGroupId);
-					  //将结果封装进实体类
-					  FinanceProductCompo prd=new FinanceProductCompo(groupId, subGroupId, prdName, ExpMaxReturn.size()>0?ExpAnnReturn.get("value").toString():null, ExpMaxReturn.size()>0?ExpAnnReturn.get("value").toString():null, productCompo, histYieldRate);
-					  resultList.add(prd);			  				                                              }
-			                             }
-			                  }else{
-			return new JsonResult(JsonResult.Fail, "没有获取到产品", null);
-			                  }
-			return new JsonResult(JsonResult.SUCCESS, "获取成功", resultList);
+		} catch (Exception e) {
+			// 获取list失败直接返回
+			logger.error("获取理财产品调用restTemplate方法发生错误",e);
+			String message = e.getMessage();
+			result.put("错误原因", message + ",获取理财产品调用restTemplate方法发生错误！");
+			return new JsonResult(JsonResult.Fail, "获取理财List数据失败", result);
+		}
+		
+		//收益率走势图
+		//http://localhost:10020/api/asset-allocation/product-groups/6/sub-groups/111111/portfolio-yield-week?returnType=income
+		url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId +"/sub-groups/"+subGroupId+"/portfolio-yield-week?returnType=income";
+		Map<String,Object> incomeResult = new HashMap<String,Object>();
+		incomeResult = restTemplate.getForEntity(url, Map.class).getBody();
+		// 如果成功获取内部值，再遍历获取每一个产品的年化收益(进入service)
+		Object obj = null;
+		if (incomeResult != null) {
+			logger.info("历史业绩-第一部分数据获取成功");
+			obj = incomeResult.get("_items");
+			if (obj != null) {
+				logger.info("obj获取成功");
+				result.put("portfolioYield",obj);
+			} else {
+				logger.info("object获取失败");
+			}
+		} else {
+			logger.error("获取收益率失败");
+			return new JsonResult(JsonResult.SUCCESS, "获取收益率失败", resultList);
+		}
+		//最大回撤走势图
+		url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId +"/sub-groups/"+subGroupId+"/portfolio-yield-week?returnType=1";
+		Map<String,Object> incomeResult1 = new HashMap<String,Object>();
+		incomeResult1 = restTemplate.getForEntity(url, Map.class).getBody();
+		// 如果成功获取内部值，再遍历获取每一个产品的年化收益(进入service)
+		Object obj1 = null;
+		if (incomeResult1 != null) {
+			logger.info("历史业绩-第一部分数据获取成功");
+			obj1 = incomeResult1.get("_items");
+			if (obj1 != null) {
+				logger.info("obj1获取成功");
+				result.put("maxRetreat",obj1);
+			} else {
+				logger.info("object获取失败");
+			}
+		} else {
+			logger.error("获取收益率失败");
+			return new JsonResult(JsonResult.SUCCESS, "获取收益率失败", result);
+		}
+		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+	}
+	
+	@ApiOperation("未来预期page")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "6"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "111135"),
+	})
+	@RequestMapping(value = "/futureExpectation", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult getFutureExpectation(@RequestParam String groupId, @RequestParam String subGroupId) {
+		// 预期平均年化收益
+		String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/historicalPer-formance?fund_group_id=" + groupId
+				+ "&subGroupId=" + subGroupId;
+		Map<String,Object> result = new HashMap<String,Object>();// 中间容器
+		Object object = null;
+		List<Map<String, Object>> prdList = null; // 中间容器
+		List<FinanceProductCompo> resultList = new ArrayList<FinanceProductCompo>();// 结果集
+		try {
+			result = restTemplate.getForEntity(url, Map.class).getBody();
+			logger.info("历史业绩-第一部分数据获取成功");
+			if (result != null) {
+				object = result.get("_items");
+				if (object != null) {
+					logger.info("object获取成功");
+					result.put("historicalPerformance",object);
+					result.remove("_items");
+					result.remove("name");
+					result.remove("_schemaVersion");
+					result.remove("_serviceId");
+				} else {
+					logger.info("object获取失败");
+				}
+				
+			} else {
+				return new JsonResult(JsonResult.SUCCESS, "获取失败", resultList);
+			}
+		} catch (Exception e) {
+			// 获取list失败直接返回
+			logger.error("获取理财产品调用restTemplate方法发生错误",e);
+			String message = e.getMessage();
+			result.put("错误原因", message + ",获取理财产品调用restTemplate方法发生错误！");
+			return new JsonResult(JsonResult.Fail, "获取理财List数据失败", result);
+		}
+		
+		//收益率走势图
+		//http://localhost:10020/api/asset-allocation/product-groups/6/sub-groups/111111/portfolio-yield-week?returnType=income
+		url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId +"/sub-groups/"+subGroupId+"/portfolio-yield-week?returnType=income";
+		Map<String,Object> incomeResult = new HashMap<String,Object>();
+		incomeResult = restTemplate.getForEntity(url, Map.class).getBody();
+		// 如果成功获取内部值，再遍历获取每一个产品的年化收益(进入service)
+		Object obj = null;
+		if (incomeResult != null) {
+			logger.info("历史业绩-第一部分数据获取成功");
+			obj = incomeResult.get("_items");
+			if (obj != null) {
+				logger.info("obj获取成功");
+				result.put("portfolioYield",obj);
+			} else {
+				logger.info("object获取失败");
+			}
+		} else {
+			logger.error("获取收益率失败");
+			return new JsonResult(JsonResult.SUCCESS, "获取收益率失败", resultList);
+		}
+		//最大回撤走势图
+		url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId +"/sub-groups/"+subGroupId+"/portfolio-yield-week?returnType=1";
+		Map<String,Object> incomeResult1 = new HashMap<String,Object>();
+		incomeResult1 = restTemplate.getForEntity(url, Map.class).getBody();
+		// 如果成功获取内部值，再遍历获取每一个产品的年化收益(进入service)
+		Object obj1 = null;
+		if (incomeResult1 != null) {
+			logger.info("历史业绩-第一部分数据获取成功");
+			obj1 = incomeResult1.get("_items");
+			if (obj1 != null) {
+				logger.info("obj1获取成功");
+				result.put("maxRetreat",obj1);
+			} else {
+				logger.info("object获取失败");
+			}
+		} else {
+			logger.error("获取收益率失败");
+			return new JsonResult(JsonResult.SUCCESS, "获取收益率失败", result);
+		}
+		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 	}
 	
 	
