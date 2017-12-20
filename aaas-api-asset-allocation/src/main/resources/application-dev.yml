@@ -6,7 +6,7 @@ spring:
             enabled: false 
             
             application:
-        name: ssf-finance
+        name: ssf-asset-allocation
 
     jackson:
       serialization:
