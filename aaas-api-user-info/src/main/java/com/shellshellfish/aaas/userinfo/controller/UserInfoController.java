@@ -395,6 +395,7 @@ public class UserInfoController {
 		});
 		BankCardDTO bankCard = userInfoService.createBankcard(params);
 		if (bankCard == null) {
+			logger.info("addBankCardWithDetailInfo method 添加失败..");
 //			return new ResponseEntity<Object>(
 //					URL_HEAD + "/users/" + userUuid + "/bankcardpage?cardNumber=" + bankcardDetailVo.getCardNumber(),
 //					HttpStatus.NO_CONTENT);
@@ -404,13 +405,14 @@ public class UserInfoController {
 			//return new ResponseEntity<Object>(URL_HEAD + "/initpage", HttpStatus.OK);
 //			String code = BankUtil.getCodeOfBank(bankCard.getCardNumber());
 //			result.put("code", code);
+			logger.info("addBankCardWithDetailInfo method 添加成功..");
 			result.put("status", "添加成功");
 			return new ResponseEntity<Map>(result, HttpStatus.OK);
 		}
 	}
 	
 	/**
-	 * 添加银行卡	提交action
+	 * 银行查看
 	 * @param id
 	 * @param bankcardDetailVo
 	 * @return
@@ -440,7 +442,7 @@ public class UserInfoController {
 	}
 
 	/**
-	 * 列出银行卡	action
+	 * 列出银行卡
 	 * @param id
 	 * @param bankcardDetailVo
 	 * @return
