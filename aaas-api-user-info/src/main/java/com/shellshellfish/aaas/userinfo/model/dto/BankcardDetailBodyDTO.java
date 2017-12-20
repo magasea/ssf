@@ -12,7 +12,7 @@ public class BankcardDetailBodyDTO {
 	private String cardUserName;
 	private String cardCellphone;
 	private String cardUserPid;
-	private BigInteger cardUserId;
+	private String cardUuId;
 	private String bankName;
 
 	public String getCardNumber() {
@@ -47,12 +47,12 @@ public class BankcardDetailBodyDTO {
 		this.cardUserPid = cardUserPid;
 	}
 
-	public BigInteger getCardUserId() {
-		return cardUserId;
+	public String getCardUuId() {
+		return cardUuId;
 	}
 
-	public void setCardUserId(BigInteger cardUserId) {
-		this.cardUserId = cardUserId;
+	public void setCardUuId(String cardUuId) {
+		this.cardUuId = cardUuId;
 	}
 
 	public String getBankName() {

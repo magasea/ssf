@@ -1,0 +1,52 @@
+server:
+  port: 10050
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.data: debug
+spring:
+  rabbitmq:
+    username: ssf
+    password: shellshellfish
+    host: 192.168.1.22
+    port: 5672
+    virtual-host: aaas
+    topicQueuePayName: com-ssf-topic-queue-pay
+    topicQueueOrderName: com-ssf-topic-queue-order
+    topicExchangeName: com-ssf-topic-exchange
+    topicPay: shellshellfish.pay
+    topicOrder: shellshellfish.order
+
+datasource:
+  sampleapp:
+    url: jdbc:mysql://192.168.1.10:3306/ssftrdorder?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
+    username: sa
+    password: 1qaz@WSX
+    driverClassName: com.mysql.jdbc.Driver
+    defaultSchema: ssftrdorder
+    maxPoolSize: 20
+    hibernate:
+      connection:
+        useUnicode: true
+        characterEncoding: UTF-8
+      jdbc:
+        batch_size: 50
+      hbm2ddl.method: update
+      show_sql: true
+      format_sql: true
+      dialect: org.hibernate.dialect.MySQL57Dialect
+      id.new_generator_mappings: false
+
+
+grpc:
+  finance_prod_client:
+    host: localhost
+    port: 10021
+  order_server:
+    host: localhost
+    port: 10051
+  userinfo_client:
+    host: localhost
+    port: 10061
