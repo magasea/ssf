@@ -89,9 +89,9 @@ public class FundGroupController {
      * @return
      */
     @ApiOperation("有效前沿线")
-    @RequestMapping(value = "/api/asset-allocation/products/{groupId}/sub-groups/{subGroupId}/effective-frontier-points", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType efficientFrontier(@PathVariable("groupId") String id, @PathVariable("subGroupId") String subGroupId){
-        ReturnType aReturn = fundGroupService.efficientFrontier(id,subGroupId);
+    @RequestMapping(value = "/api/asset-allocation/products/{groupId}/effective-frontier-points", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ReturnType efficientFrontier(@PathVariable("groupId") String id){
+        ReturnType aReturn = fundGroupService.efficientFrontier(id);
         return aReturn;
     }
 
