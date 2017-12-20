@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -17,9 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-
 import com.shellshellfish.aaas.model.JsonResult;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -30,6 +29,8 @@ import io.swagger.annotations.ApiOperation;
 @Api("转换相关restapi")
 public class UserInfoController {
 
+	Logger logger = LoggerFactory.getLogger(UserInfoController.class);
+	
 	//@Autowired
 	@Value("${shellshellfish.user-user-info}")
 	private String userinfoUrl;
@@ -66,22 +67,30 @@ public class UserInfoController {
 //			requestEntity.add("action", "getVerificationCode2");
 			verifyReult = restTemplate.postForEntity(loginUrl + "/api/useraccount/telnums/" + mobile + "?action=getVerificationCode2",null, Map.class).getBody();
 			if(verifyReult==null||verifyReult.size()==0){
+				logger.info("获取验证码验证是否正确");
 				result.put("msg", "添加失败");
 				return new JsonResult(JsonResult.SUCCESS, "添加银行卡验证码不正确", result);
 			}else if(!verifyReult.get("identifyingCode").equals(verifyCode)){
 				result.put("msg", "添加失败");
 				return new JsonResult(JsonResult.SUCCESS, "添加银行卡验证码不正确", result);
 			}
-			//获取uid
-			String urlUid=userinfoUrl+"/api/userinfo/users/telnums/"+mobile;
-			Map uidMap = restTemplate.getForEntity(urlUid,Map.class).getBody();
-			
-			Map resultMap = (Map) uidMap.get("result");
-			Integer uid = (Integer) resultMap.get("id");
+//			//获取uid
+//			String urlUid=userinfoUrl+"/api/userinfo/users/"+uuid;
+//			Map uidMap = restTemplate.getForEntity(urlUid,Map.class).getBody();
+//			logger.info("获取uid..");
+//			Map resultMap = (Map) uidMap.get("result");
+//			Integer uid = (Integer) resultMap.get("id");
+//			logger.info("uid=="+uid);
 			String url=userinfoUrl+"/api/userinfo/users/"+uuid+"/bankcards";
-			String str="{\"cardNumber\":\""+bankCard+"\",\"cardUserName\":\""+name+"\",\"cardCellphone\":\""+mobile+"\",\"cardUserPid\":\""+idcard+"\",\"cardUserId\":\""+uid+"\"}";
+			String str="{\"cardNumber\":\""+bankCard+"\",\"cardUserName\":\""+name+"\",\"cardCellphone\":\""+mobile+"\",\"cardUserPid\":\""+idcard+"\",\"cardUuId\":\""+uuid+"\"}";
+			logger.info("urlUid=="+str);
+			logger.info("str=="+str);
 			result=restTemplate.postForEntity(url,getHttpEntity(str),Map.class).getBody();
-			
+			if(result==null){
+				logger.info("添加银行卡失败");
+			} else {
+				logger.info("添加银行卡成功");
+			}
 			return new JsonResult(JsonResult.SUCCESS, "添加银行卡成功", result);
 		} catch (Exception e) {
 			Map<String, Object> map = new HashMap();
@@ -202,7 +211,7 @@ public class UserInfoController {
 	
 	@ApiOperation("系统消息-我的消息")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "uid", dataType = "String", required = true, value = "用户ID", defaultValue = "1")
+		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = "1")
 	})
 	@RequestMapping(value = "/systemMsg", method = RequestMethod.POST)
 	@ResponseBody
@@ -212,30 +221,34 @@ public class UserInfoController {
 //		MultiValueMap<String, String> requestEntity = new LinkedMultiValueMap<>();
 //		requestEntity.add("bankId", "1");
 		try {
-			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid+"/investmentmessages", Map.class).getBody();
+			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid+"/systemmessages", Map.class).getBody();
 			if(result==null||result.size()==0){
-				return new JsonResult(JsonResult.SUCCESS, "添加银行卡失败", result);
+				logger.info("系统消息获取失败");
+				return new JsonResult(JsonResult.SUCCESS, "系统消息获取失败", result);
 			}
 			result.remove("_links");
 			result.put("uuid",uuid);
-			result.remove("userUuid");
+			//result.remove("userUuid");
 			List items = (ArrayList) result.get("_items");
 			if(items!=null){
 				for(int i=0;i<items.size();i++){
 					Map item = (Map) items.get(i);
 					Map<String,Object> listMap = new HashMap<String,Object>();
 					listMap.put("content", item.get("content"));
-					listMap.put("title", item.get("msgTitle"));
+					listMap.put("date", item.get("date"));
 					list.add(listMap);
 				}
+				logger.info("系统消息获取成功");
+			} else {
+				logger.info("系统消息为空");
 			}
 			result.put("_items",list);
 			result.remove("_total");
-			return new JsonResult(JsonResult.SUCCESS, "添加银行卡成功", result);
+			return new JsonResult(JsonResult.SUCCESS, "系统消息获取成功", result);
 		} catch (Exception e) {
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("errorCode", "400");
-			return new JsonResult(JsonResult.Fail, "添加银行卡失败", result);
+			return new JsonResult(JsonResult.Fail, "系统消息获取失败", result);
 		}
 	}
 	

@@ -19,6 +19,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestTemplate;
 
+import com.shellshellfish.aaas.service.MidApiService;
+import com.shellshellfish.aaas.transfer.service.impl.MidApiServiceImpl;
+
 
 @Configuration
 public class WebConfigure implements ServletContextInitializer, EmbeddedServletContainerCustomizer{
@@ -83,6 +86,11 @@ public class WebConfigure implements ServletContextInitializer, EmbeddedServletC
     @Bean
     public RestTemplate restTemplate(){
         return new RestTemplate();
+    }
+    
+    @Bean
+    public MidApiService midApiService(){
+        return new MidApiServiceImpl();
     }
 
 

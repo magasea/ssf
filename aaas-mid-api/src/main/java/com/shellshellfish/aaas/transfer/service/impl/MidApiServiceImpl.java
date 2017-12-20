@@ -42,7 +42,9 @@ private String assetAlloctionUrl;
 		}
 		//转成list
 		List prdList=(List)result.get("_items");
-		for(Object prd :prdList)
+		for(Object prd :prdList){
+			
+		}
 		
 		
 		

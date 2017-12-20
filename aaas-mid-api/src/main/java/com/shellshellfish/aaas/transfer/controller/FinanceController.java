@@ -147,14 +147,60 @@ public class FinanceController {
 			result.put("错误原因", e.getMessage()+",restTemplate调用组合各种类型净值收益失败");
 			return new JsonResult(JsonResult.Fail, "查看理财产品详情失败", result);
 		}
-	
+		return new JsonResult(JsonResult.Fail, "查看理财产品详情失败", result);
 	}
 	
 
 	
 	
 
+	@ApiOperation("历史业绩")
+    @RequestMapping(value="/historicalPerformancePage",method=RequestMethod.POST)
+	@ResponseBody
+	public JsonResult getHistoricalPerformance(){
+		//先获取全部产品
+		String url=financeUrl+"/api/asset-allocation/products";
+		Map result=null;//中间容器
+		Object object=null;
+		List<Map<String,Object>> prdList=null; //中间容器
+		List<FinanceProductCompo> resultList=new ArrayList<FinanceProductCompo>();//结果集
 
+			try{
+			result=restTemplate.getForEntity(url, Map.class).getBody();
+			}catch(Exception e){
+				//获取list失败直接返回
+				String message=e.getMessage();
+				result.put("错误原因", message+",获取理财产品调用restTemplate方法发生错误！");
+				return new JsonResult(JsonResult.Fail, "获取理财List数据失败",result);
+			}
+			//如果成功获取内部值，再遍历获取每一个产品的年化收益(进入service)
+			if(result!=null){
+				object=result.get("_items");
+			   if (object instanceof List){
+				   //转换成List
+				   prdList=(List<Map<String,Object>>)object;
+				   for (Map<String,Object> productMap:prdList){
+					   //获取goupid和subGroupId
+					  String groupId= productMap.get("groupId").toString();
+					  String subGroupId= productMap.get("subGroupId").toString();
+					  String prdName=productMap.get("name").toString();
+				      Map productCompo=(Map) productMap.get("assetsRatios");
+					   //去另一接口获取历史收益率图表的数据
+					  Map histYieldRate = getCombYieldRate(groupId,subGroupId);
+					  //去另一个接口获取预期年化，预期最大回撤
+					  Map ExpAnnReturn= getExpAnnReturn(groupId,subGroupId);
+					  Map ExpMaxReturn=getExpMaxReturn(groupId,subGroupId);
+					  //将结果封装进实体类
+					  FinanceProductCompo prd=new FinanceProductCompo(groupId, subGroupId, prdName, ExpMaxReturn.size()>0?ExpAnnReturn.get("value").toString():null, ExpMaxReturn.size()>0?ExpAnnReturn.get("value").toString():null, productCompo, histYieldRate);
+					  resultList.add(prd);			  				                                              }
+			                             }
+			                  }else{
+			return new JsonResult(JsonResult.Fail, "没有获取到产品", null);
+			                  }
+			return new JsonResult(JsonResult.SUCCESS, "获取成功", resultList);
+	}
+	
+	
 
 	/**
 	 * 获取预期最大回撤（/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt，参数+2）
