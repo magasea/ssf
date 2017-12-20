@@ -21,6 +21,8 @@ public interface FundGroupMapper {
 
     List<Interval> selectById(Map map);
 
+    List<Interval> getProportionOne(Map map);
+
     List<Interval> getProportion(Map map);
 
     List<Interval> getFundCode(Map map);

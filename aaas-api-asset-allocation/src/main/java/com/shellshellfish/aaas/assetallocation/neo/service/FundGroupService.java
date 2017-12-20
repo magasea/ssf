@@ -20,9 +20,6 @@ public class FundGroupService {
     @Autowired
     private FundGroupMapper fundGroupMapper;
 
-    @Autowired
-    ReturnCalculateDataService returnCalculateDataService;
-
     /**
      * 查询所有基金组合
      *
@@ -46,7 +43,7 @@ public class FundGroupService {
                         List<Interval> intervals = fundGroupMapper.getProportion(query);
                         //基金组合内的各基金权重
                         for (Interval inter : intervals) {
-                            assetsRatios.put(inter.getFund_income_type(), inter.getProportion());
+                            assetsRatios.put(inter.getFund_type_two(), inter.getProportion());
                         }
                         _items.put("groupId", interval.getFund_group_id());
                         _items.put("subGroupId", interval.getFund_group_sub_id());
@@ -69,6 +66,35 @@ public class FundGroupService {
             far.set_serviceId("资产配置");
         }
         return far;
+    }
+
+    /**
+     * 产品类别比重
+     * @param fund_group_id
+     * @param fund_group_sub_id
+     * @return
+     */
+    public ReturnType getProportionOne(String fund_group_id, String fund_group_sub_id){
+        ReturnType fr = new ReturnType();
+        List<Map<String, Object>> listMap = new ArrayList<>();
+        Map<String, String> _links = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
+        Map<String, String> query = new HashMap<>();
+        query.put("id", fund_group_id);
+        query.put("subId", fund_group_sub_id);
+        List<Interval> intervals = fundGroupMapper.getProportionOne(query);
+        //基金组合内的各基金权重
+        for (Interval inter : intervals) {
+            map.put(inter.getFund_type_one(), inter.getProportion());
+        }
+        listMap.add(map);
+        fr.set_total(map.size());
+        fr.setName("产品类别比重");
+        fr.set_items(listMap);
+        fr.set_links(_links);
+        fr.set_schemaVersion("0.1.1");
+        fr.set_serviceId("资产配置");
+        return fr;
     }
 
     public ReturnType getPerformanceVolatilityHomePage() {
@@ -170,7 +196,7 @@ public class FundGroupService {
             for (int i = 0; i < itr.size(); i++) {
                 Map<String, Object> _items = new HashMap<>();
                 _items.put("id", i + 1);
-                _items.put("name", itr.get(i).getFund_income_type());
+                _items.put("name", itr.get(i).getFund_type_two());
                 _items.put("value", itr.get(i).getRevenue_contribution());
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
                 String startTime = sdf.format(itr.get(i).getDetails_last_mod_time());
@@ -613,10 +639,10 @@ public class FundGroupService {
                     }
                 }
                 map.put("navadj", fundMap);
-                map.put("基金类型", interval1.getFund_income_type());
+                map.put("基金类型", interval1.getFund_type_two());
                 for(Interval interval2:interval){
-                    if(interval1.getFund_income_type().equalsIgnoreCase(interval2.getFund_income_type())){
-                        map.put(interval1.getFund_income_type(),interval2.getProportion());
+                    if(interval1.getFund_type_two().equalsIgnoreCase(interval2.getFund_type_two())){
+                        map.put(interval1.getFund_type_two(),interval2.getProportion());
                         break;
                     }
                 }
@@ -765,7 +791,7 @@ public class FundGroupService {
             List<Interval> intervals = fundGroupMapper.getProportion(query);
             //基金组合内的各基金权重
             for (Interval inter : intervals) {
-                assetsRatios.put(inter.getFund_income_type(), inter.getProportion());
+                assetsRatios.put(inter.getFund_type_two(), inter.getProportion());
             }
             list.add(assetsRatios);
             fr.setGroupId(interval.get(0).getFund_group_id());

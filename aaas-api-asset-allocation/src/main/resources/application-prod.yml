@@ -34,11 +34,6 @@ spring:
 #            hibernate.generate_statistics: true
  #           hibernate.cache.region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
     data:
-        mongodb:
-            host: localhost
-            port: 27017
-            database: test
-
         mybatis:
             config-locations: classpath:mybatis/mybatis-config.xml
             mapper-locations: classpath:mybatis/mapper/*.xml
