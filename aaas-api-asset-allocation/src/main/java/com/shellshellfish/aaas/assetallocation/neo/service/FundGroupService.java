@@ -684,7 +684,7 @@ public class FundGroupService {
         for (FundNetVal fundNetVal : list){
             query.put("num",fundNetVal.getNavadj());
             query.put("time",fundNetVal.getNavLatestDate());
-            //fundGroupMapper.insertGroupNavadj(query);
+            fundGroupMapper.insertGroupNavadj(query);
         }
         String groupStartTime = fundGroupMapper.getGroupStartTime(query);
         Calendar ca = Calendar.getInstance();//得到一个Calendar的实例
