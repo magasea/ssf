@@ -1,0 +1,68 @@
+spring:
+    devtools:
+        restart:
+            enabled: true
+        livereload:
+            enabled: false 
+            
+            application:
+        name: ssf-finance
+
+    jackson:
+      serialization:
+        fail-on-empty-beans: false
+
+#    datasource:
+#        url: jdbc:mysql://192.168.1.10/ssffinance?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&useSSL=false
+#        name:
+#        username: sa
+#        password: abcd1234
+#        maximum-pool-size: 2000
+#        hikari:
+#            data-source-properties:
+#                cachePrepStmts: true
+#                prepStmtCacheSize: 250
+#                prepStmtCacheSqlLimit: 2048
+#                useServerPrepStmts: true
+#    jpa:
+#        database-platform: org.hibernate.spatial.dialect.mysql.MySQLSpatialDialect
+#        database: MYSQL
+#        show_sql: true
+#        properties:
+#            hibernate.cache.use_second_level_cache: true
+#            hibernate.cache.use_query_cache: false
+#            hibernate.generate_statistics: true
+ #           hibernate.cache.region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
+    data:
+        mongodb:
+            host: 192.168.1.10
+            port: 27017
+            database: zhongzheng
+
+server:
+    port: 10120
+grpc:
+  host: localhost
+  port: 10121
+    
+application:
+    swagger:
+        title: SSF Platform API
+        description: Shell shell fish API documentation
+        version: 0.1.X
+        termsOfServiceUrl:
+        contactName:
+        contactUrl:
+        contactEmail:
+        license:
+        licenseUrl:
+        
+    cors: 
+        allowed-origins: "*"
+        allowed-methods: GET, PUT, POST, DELETE, OPTIONS, HEAD
+        allowed-headers: "*"
+        exposed-headers: X-Total-Count, Link
+        allow-credentials: true
+        max-age: 1800
+
+    
