@@ -1,22 +1,15 @@
 package com.shellshellfish.aaas.assetallocation;
 
 
-
+import com.shellshellfish.aaas.assetallocation.configuration.Properties;
 import io.grpc.Server;
 import java.io.IOException;
-
-
 import org.mybatis.spring.annotation.MapperScan;
-
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
-
-import com.shellshellfish.aaas.assetallocation.configuration.Properties;
 
 
 @ComponentScan
