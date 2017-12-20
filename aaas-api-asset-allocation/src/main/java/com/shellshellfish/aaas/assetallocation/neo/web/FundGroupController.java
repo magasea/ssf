@@ -36,6 +36,19 @@ public class FundGroupController {
     }
 
     /**
+     * 产品类别比重
+     * @param fund_group_id
+     * @param fund_group_sub_id
+     * @return
+     */
+    @ApiOperation("产品类别比重")
+    @RequestMapping(value = "/api/asset-allocation/products/{groupId}/sub-groups/{subGroupId}/one-type", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ReturnType getProportionOne(String fund_group_id, String fund_group_sub_id){
+        ReturnType fr = fundGroupService.getProportionOne(fund_group_id,fund_group_sub_id);
+        return fr;
+    }
+
+    /**
      * 返回首页五个产品
      * @return
      */

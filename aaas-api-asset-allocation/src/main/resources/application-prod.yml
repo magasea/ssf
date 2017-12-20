@@ -6,7 +6,7 @@ spring:
             enabled: false 
             
             application:
-        name: ssf-finance
+        name: ssf-asset-allocation
 
     jackson:
       serialization:
@@ -34,20 +34,14 @@ spring:
 #            hibernate.generate_statistics: true
  #           hibernate.cache.region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
     data:
-        mongodb:
-            host: localhost
-            port: 27017
-            database: test
-
         mybatis:
-            config-locations: classpath:mybatis/mybatis-config.xml
-            mapper-locations: classpath:mybatis/mapper/*.xml
-        spring:
-            datasource:
-                driverClassName: com.mysql.jdbc.Driver
-                password: 1qaz@WSX
-                url: jdbc:mysql://localhost:3306/choice?useUnicode=true&characterEncoding=utf-8
-                username: sa
+            configLocation: classpath:mybatis/mybatis-config.xml
+            mapperLocations: classpath:mybatis/mapper/*.xml
+    datasource:
+        driverClassName: com.mysql.jdbc.Driver
+        password: 1qaz@WSX
+        url: jdbc:mysql://localhost:3306/choice?useUnicode=true&characterEncoding=utf-8
+        username: sa
 
 server:
     port: 10020

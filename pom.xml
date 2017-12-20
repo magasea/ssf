@@ -24,6 +24,7 @@
         <module>aaas-finance-trade</module>
         <module>aaas-api-risk-assessment</module>
         <module>aaas-api-gateway</module>
+        <module>aaas-mid-api</module>
     </modules>
 
 </project>
