@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.assetallocation.neo.secvice;
+package com.shellshellfish.aaas.assetallocation.neo.service;
 
 import com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal;
 import com.shellshellfish.aaas.assetallocation.neo.job.entity.JobTimeRecord;

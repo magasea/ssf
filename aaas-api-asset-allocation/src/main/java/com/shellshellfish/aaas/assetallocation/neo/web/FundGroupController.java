@@ -4,7 +4,7 @@ import com.shellshellfish.aaas.assetallocation.neo.returnType.FundAllReturn;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.FundReturn;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.PerformanceVolatilityReturn;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.ReturnType;
-import com.shellshellfish.aaas.assetallocation.neo.secvice.FundGroupService;
+import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -117,7 +117,8 @@ public class FundGroupController {
     @ApiOperation("风险控制")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/risk-controls", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ReturnType getRiskController(@PathVariable("groupId") String id, @PathVariable("subGroupId") String subGroupId){
-        ReturnType rct = fundGroupService.getRiskController(id,subGroupId);
+        //ReturnType rct = fundGroupService.getRiskController(id,subGroupId);
+        ReturnType rct = fundGroupService.getRiskController("1","2");
         return rct;
     }
 
@@ -140,9 +141,22 @@ public class FundGroupController {
      * @return
      */
     @ApiOperation("模拟历史年化业绩与模拟历史年化波动率")
-    @RequestMapping(value = "/api/asset-allocation/product-groups/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/asset-allocation/product-groups", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public PerformanceVolatilityReturn getPerformanceVolatility(@RequestParam(defaultValue="C1") String riskLevel,@RequestParam(defaultValue="1") String investmentPeriod) {
         PerformanceVolatilityReturn riskIncomeIntervals= fundGroupService.getPerformanceVolatility(riskLevel,investmentPeriod);
+        return riskIncomeIntervals;
+    }
+
+    /**
+     * 历史业绩
+     * @param fund_group_id
+     * @param subGroupId
+     * @return
+     */
+    @ApiOperation("历史业绩")
+    @RequestMapping(value = "/api/asset-allocation/product-groups/historicalPer-formance", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public PerformanceVolatilityReturn getHistoricalPerformance(@RequestParam(defaultValue="6") String fund_group_id,@RequestParam(defaultValue="111111") String subGroupId) {
+        PerformanceVolatilityReturn riskIncomeIntervals= fundGroupService.getHistoricalPerformance(fund_group_id,subGroupId);
         return riskIncomeIntervals;
     }
 

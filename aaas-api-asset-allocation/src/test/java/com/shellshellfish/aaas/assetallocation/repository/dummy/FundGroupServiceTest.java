@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.assetallocation.repository.dummy;
 
 import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
-import com.shellshellfish.aaas.assetallocation.neo.secvice.FundGroupService;
+import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupService;
 import com.shellshellfish.aaas.assetallocation.neo.util.MVO;
 import com.shellshellfish.aaas.assetallocation.service.impl.FinanceProductServiceImpl;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
@@ -123,6 +123,11 @@ public class FundGroupServiceTest {
         PerformanceVolatilityReturn performanceVolatilityReturn = allocationService.getPerformanceVolatility( "C1", "1");
         assertTrue(performanceVolatilityReturn.getName().equals("模拟数据"));
         assertTrue(performanceVolatilityReturn.get_items().get(0).get("name").equals("模拟历史年化业绩"));
+    }
+
+    @Test
+    public void getHistoricalPerformance() {
+        PerformanceVolatilityReturn performanceVolatilityReturn = allocationService.getHistoricalPerformance( "6", "111111");
     }
 
     @Test
