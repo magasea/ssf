@@ -38,6 +38,15 @@ spring:
             host: 192.168.1.10
             port: 27017
             database: test
+        mybatis:
+            config-locations: classpath:mybatis/mybatis-config.xml
+            mapper-locations: classpath:mybatis/mapper/*.xml
+        spring:
+            datasource:
+                driverClassName: com.mysql.jdbc.Driver
+                password: 1qaz@WSX
+                url: jdbc:mysql://192.168.1.10:3306/choice?useUnicode=true&characterEncoding=utf-8
+                username: sa
 
 server:
     port: 10020
