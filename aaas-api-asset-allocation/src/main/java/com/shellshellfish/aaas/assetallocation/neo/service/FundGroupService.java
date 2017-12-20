@@ -78,7 +78,7 @@ public class FundGroupService {
         Map<String, Object> map = new HashMap<>();
         for (int i = 1; i < 6; i++) {
             PerformanceVolatilityReturn pfvr = getPerformanceVolatility("C" + i + "", "2");
-            map.put(i + "", pfvr);
+            map.put("C"+i, pfvr);
         }
         listMap.add(map);
         fr.set_items(listMap);
@@ -172,6 +172,12 @@ public class FundGroupService {
                 _items.put("id", i + 1);
                 _items.put("name", itr.get(i).getFund_income_type());
                 _items.put("value", itr.get(i).getRevenue_contribution());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
+                String startTime = sdf.format(itr.get(i).getDetails_last_mod_time());
+                Calendar ca = Calendar.getInstance();//得到一个Calendar的实例
+                ca.add(Calendar.DATE,-1);
+                String endTime = sdf.format(ca.getTime());
+                _items.put("time",startTime+"~"+endTime);
                 list.add(_items);
             }
             rcb.setName("配置收益贡献");
@@ -189,58 +195,31 @@ public class FundGroupService {
      *
      * @return
      */
-    public ReturnType efficientFrontier(String id, String subId) {
-        //List<FundGroupDetails> fundidlist = fundGroupMapper.efficientFrontier(query);
-        //List<String> ls = new ArrayList<>();
-        //for (FundGroupDetails fgd : fundidlist) {
-        //    ls.add(fgd.getFund_id());
-        //}
-        //CovarianceModel covarianceModel = null;
-        //测试数据
-        /*Double [] ExpReturn = { 0.0054, 0.0531, 0.0779, 0.0934, 0.0130 };
-        Double[][] ExpCovariance = {{0.0569,  0.0092,  0.0039,  0.0070,  0.0022},
-                {0.0092,  0.0380,  0.0035,  0.0197,  0.0028},
-                {0.0039,  0.0035,  0.0997,  0.0100,  0.0070},
-                {0.0070,  0.0197,  0.0100,  0.0461,  0.0050},
-                {0.0022,  0.0028,  0.0070,  0.0050,  0.0573}};*/
-
-        //Double[] ExpReturn = null;
-        //Double[][] ExpCovariance = null;
-        //covarianceModel = returnCalculateDataService.getYieldRatioArr(/*new SimpleDateFormat("yyyy-MM-dd").format(new Date())*/"2017-10-27", ls, TYPE_OF_DAY);//测试日期
-        /*if (covarianceModel.getStatus().equals(SUCCEED_STATUS)) {
-            ExpReturn = covarianceModel.getYieldRatioArr();
-        }
-        covarianceModel = returnCalculateDataService.getCovarianceArr(*//*new SimpleDateFormat("yyyy-MM-dd").format(new Date())*//*"2017-10-27", ls, TYPE_OF_DAY);//测试日期
-        if (covarianceModel.getStatus().equals(SUCCEED_STATUS)) {
-            ExpCovariance = covarianceModel.getCovarianceArr();
-        }*/
-        //resust = MVO.efficientFrontier(ExpReturn, ExpCovariance, 10);
-
+    public ReturnType efficientFrontier(String id) {
         ReturnType aReturn = new ReturnType();
         Map<String, String> _links = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
-        List<float[][]> resust = null;
-
         Map<String, String> query = new HashMap<>();
+        int i = 1;
         query.put("fund_group_id", id);
-        query.put("subGroupId", subId);
         List<EfficientFrontier> efficientFrontiers = fundGroupMapper.getEfficientFrontier(query);
-        for (EfficientFrontier efficientFrontier : efficientFrontiers){
+        if (efficientFrontiers.size()!=0) {
+            for (EfficientFrontier efficientFrontier : efficientFrontiers) {
+                List<EfficientFrontier> efficientFrontiers1 = fundGroupMapper.getEfficientFrontierDetail(efficientFrontier.getId());
+                if (efficientFrontiers1.size() != 0) {
+                    Map<String, Object> _items = new HashMap<>();
+                    _items.put("id", i++);
+                    _items.put("x", efficientFrontier.getRisk_num());
+                    _items.put("y", efficientFrontier.getIncome_num());
+                    List<Double> list1 = new ArrayList<>();
+                    for (int t = 0; t < efficientFrontiers1.size(); t++) {
+                        list1.add(efficientFrontiers1.get(t).getFund_proportion());
+                    }
+                    _items.put("w", list1);
 
-        }
-        if (resust.get(0).length != 0) {
-            for (int i = 0; i < 10; i++) {
-                Map<String, Object> _items = new HashMap<>();
-                _items.put("id", 1);
-                _items.put("x", resust.get(0)[i][0]);
-                _items.put("y", resust.get(1)[i][0]);
-                List<Float> list1 = new ArrayList<>();
-                for (int t = 0; t < 6; t++) {
-                    list1.add(resust.get(2)[t][i]);
+                    list.add(_items);
                 }
-                _items.put("w", list1);
 
-                list.add(_items);
             }
             aReturn.setName("有效前沿线数据");
             aReturn.set_items(list);
@@ -797,7 +776,7 @@ public class FundGroupService {
             fr.setMinRiskLevel(interval.get(0).getRisk_min_num());
             fr.setMaxRiskLevel(interval.get(0).getRisk_max_num());
             fr.set_links(_links);
-            fr.setCreationTime(interval.get(0).getDetails_last_mod_time().getTime());
+            //fr.setCreationTime(interval.get(0).getDetails_last_mod_time().getTime());
             fr.set_schemaVersion("0.1.1");
             fr.set_serviceId("资产配置");
             fr.setAssetsRatios(list);
