@@ -4,7 +4,7 @@ import com.shellshellfish.aaas.assetallocation.neo.returnType.FundAllReturn;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.FundReturn;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.PerformanceVolatilityReturn;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.ReturnType;
-import com.shellshellfish.aaas.assetallocation.neo.secvice.FundGroupService;
+import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

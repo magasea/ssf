@@ -4,7 +4,7 @@
     <select id="selectFundGroup" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
         SELECT
         *
-        FROM straegy a,fund_group b,fund_basic_data d,fund_group_details c
+        FROM straegy a,fund_group b,fund_basic d,fund_group_details c
         where a.fund_group_id = b.id and b.id = c.fund_group_id and c.fund_code = d.code
         <if test="risk != null">
             and cust_risk = #{risk}
@@ -20,7 +20,7 @@
     </insert>
 
     <select id="selectAllFundGroup" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
-        select * from fund_group a,fund_group_details b,fund_basic_data c,straegy d
+        select * from fund_group a,fund_group_details b,fund_basic c,straegy d
         where a.id = b.fund_group_id and b.fund_code = c.code and a.id = d.fund_group_id
     </select>
 
@@ -29,26 +29,26 @@
     </select>
 
     <select id="selectById" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
-        select * from fund_group_sub e,fund_group a,fund_group_details b,fund_basic_data c,straegy d
+        select * from fund_group_sub e,fund_group a,fund_group_details b,fund_basic c,straegy d
         where a.id = b.fund_group_id and b.fund_code = c.code and a.id = d.fund_group_id and b.fund_group_sub_id = e.id
         and a.id = #{id} and b.fund_group_sub_id = #{subGroupId}
     </select>
     <select id="getinterval" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
-        select * from fund_group_sub d,straegy a,fund_group b,fund_basic_data e,fund_group_details c
+        select * from fund_group_sub d,straegy a,fund_group b,fund_basic e,fund_group_details c
         where a.fund_group_id = b.id and b.id = c.fund_group_id and c.fund_code = e.code and
         c.fund_group_id=d.fund_group_id and d.id=c.fund_group_sub_id and d.risk_num=#{riskValue}
         and d.income_num=#{returnValue} and c.fund_group_id=#{id}
     </select>
 
     <select id="getFundCode" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
-        select a.fname,a.code fund_code,a.fund_income_type from fund_basic_data a, fund_group_details b
+        select a.fname,a.code fund_code,a.fund_type_two from fund_basic a, fund_group_details b
         where a.code = b.fund_code and fund_group_id = #{id} and fund_group_sub_id = #{subId}
     </select>
 
     <select id="getProportion" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
-        select a.fund_income_type,a.fund_group_id,sum(proportion) proportion from (select * from fund_basic_data a,
+        select a.fund_type_two,a.fund_group_id,sum(proportion) proportion from (select * from fund_basic a,
         fund_group_details b where a.code = b.fund_code and fund_group_id = #{id} and fund_group_sub_id = #{subId}) a
-        GROUP BY a.fund_income_type
+        GROUP BY a.fund_type_two
     </select>
 
     <select id="efficientFrontier" resultType= "com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupDetails">
@@ -84,10 +84,10 @@
     </select>
 
     <select id="getRevenueContribution" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
-        select d.fund_income_type fund_income_type,sum(d.revenue_contribution) revenue_contribution from
-        (select a.revenue_contribution,c.fund_income_type from fund_group_details a,fund_group_sub b,fund_basic_data c
+        select d.fund_type_two fund_type_two,sum(d.revenue_contribution) revenue_contribution from
+        (select a.revenue_contribution,c.fund_type_two from fund_group_details a,fund_group_sub b,fund_basic c
         where a.fund_group_id = b.fund_group_id and a.fund_code = c.code and b.fund_group_id=#{id}
-        and b.id=#{subGroupId}) d GROUP BY d.fund_income_type
+        and b.id=#{subGroupId}) d GROUP BY d.fund_type_two
     </select>
 
     <select id="getRiskController" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.RiskController">
@@ -99,7 +99,7 @@
     </select>
 
     <select id="getFundNetValue" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
-        select a.fund_income_type,b.navadj,b.navlatestdate navlatestDate from fund_basic_data a,
+        select a.fund_type_two,b.navadj,b.navlatestdate navlatestDate from fund_basic a,
         fund_net_value b  where a.code=b.code and a.code=#{fund_code} and b.NAVLATESTDATE
         BETWEEN #{startTime} and #{endtTime}
     </select>

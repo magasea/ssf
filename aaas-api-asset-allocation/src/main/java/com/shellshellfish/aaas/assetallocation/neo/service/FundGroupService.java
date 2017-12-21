@@ -1,21 +1,16 @@
-package com.shellshellfish.aaas.assetallocation.neo.secvice;
+package com.shellshellfish.aaas.assetallocation.neo.service;
 
 import com.shellshellfish.aaas.assetallocation.neo.entity.*;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
 import com.shellshellfish.aaas.assetallocation.neo.util.CalculateMaxdrawdowns;
-import com.shellshellfish.aaas.assetallocation.neo.util.CalculatePriceAndYield;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.shellshellfish.aaas.assetallocation.neo.util.MVO;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.SUCCEED_STATUS;
-import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.TYPE_OF_DAY;
 
 /**
  * Created by wangyinuo on 2017/11/27.
@@ -51,7 +46,7 @@ public class FundGroupService {
                         List<Interval> intervals = fundGroupMapper.getProportion(query);
                         //基金组合内的各基金权重
                         for (Interval inter : intervals) {
-                            assetsRatios.put(inter.getFund_income_type(), inter.getProportion());
+                            assetsRatios.put(inter.getFund_type_two(), inter.getProportion());
                         }
                         _items.put("groupId", interval.getFund_group_id());
                         _items.put("subGroupId", interval.getFund_group_sub_id());
@@ -175,7 +170,7 @@ public class FundGroupService {
             for (int i = 0; i < itr.size(); i++) {
                 Map<String, Object> _items = new HashMap<>();
                 _items.put("id", i + 1);
-                _items.put("name", itr.get(i).getFund_income_type());
+                _items.put("name", itr.get(i).getFund_type_two());
                 _items.put("value", itr.get(i).getRevenue_contribution());
                 list.add(_items);
             }
@@ -574,10 +569,10 @@ public class FundGroupService {
                     }
                 }
                 map.put("navadj", fundMap);
-                map.put("基金类型", interval1.getFund_income_type());
+                map.put("基金类型", interval1.getFund_type_two());
                 for(Interval interval2:interval){
-                    if(interval1.getFund_income_type().equalsIgnoreCase(interval2.getFund_income_type())){
-                        map.put(interval1.getFund_income_type(),interval2.getProportion());
+                    if(interval1.getFund_type_two().equalsIgnoreCase(interval2.getFund_type_two())){
+                        map.put(interval1.getFund_type_two(),interval2.getProportion());
                         break;
                     }
                 }
@@ -726,7 +721,7 @@ public class FundGroupService {
             List<Interval> intervals = fundGroupMapper.getProportion(query);
             //基金组合内的各基金权重
             for (Interval inter : intervals) {
-                assetsRatios.put(inter.getFund_income_type(), inter.getProportion());
+                assetsRatios.put(inter.getFund_type_two(), inter.getProportion());
             }
             list.add(assetsRatios);
             fr.setGroupId(interval.get(0).getFund_group_id());
