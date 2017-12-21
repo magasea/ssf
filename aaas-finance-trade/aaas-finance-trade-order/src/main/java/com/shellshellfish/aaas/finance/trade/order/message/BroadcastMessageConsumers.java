@@ -42,15 +42,19 @@ public class BroadcastMessageConsumers {
             durable = "true"),  key = "${spring.rabbitmq.topicOrder}")
     )
     public void receiveMessage(TrdPayFlow trdPayFlow) throws Exception {
-        logger.info("Received fanout 1 message: " + trdPayFlow);
-        logger.info("receiveMessageFromFanout1: " + trdPayFlow.getFundCode());
-        TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
-        trdOrderDetail.setId(trdPayFlow.getOrderDetailId());
-        trdOrderDetail.setBuyFee(trdPayFlow.getBuyFee());
-        trdOrderDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
-        trdOrderDetail.setUpdateDate(TradeUtil.getUTCTime());
-        trdOrderDetail.setOrderDetailStatus(trdPayFlow.getPayStatus());
-        trdOrderDetailRepository.save(trdOrderDetail);
+        try{
+            logger.info("Received fanout 1 message: " + trdPayFlow);
+            logger.info("receiveMessageFromFanout1: " + trdPayFlow.getFundCode());
+            TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
+            trdOrderDetail.setId(trdPayFlow.getOrderDetailId());
+            trdOrderDetail.setBuyFee(trdPayFlow.getBuyFee());
+            trdOrderDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+            trdOrderDetail.setUpdateDate(TradeUtil.getUTCTime());
+            trdOrderDetail.setOrderDetailStatus(trdPayFlow.getPayStatus());
+            trdOrderDetailRepository.save(trdOrderDetail);
+        }catch (Exception ex){
+            logger.error(ex.getMessage());
+        }
     }
 
 }

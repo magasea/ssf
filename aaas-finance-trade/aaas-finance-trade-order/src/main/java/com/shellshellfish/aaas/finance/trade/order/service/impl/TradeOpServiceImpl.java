@@ -146,6 +146,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 
     }
     payDto.setOrderDetailList(trdOrderDetails);
+    payDto.setTrdBrokerId(trdBrokerId);
     broadcastMessageProducer.sendMessages(payDto);
     return trdOrder;
   }

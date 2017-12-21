@@ -1,19 +1,23 @@
-package com.shellshellfish.aaas.common.message.order;
+package com.shellshellfish.aaas.userinfo.model;
 
-import java.io.Serializable;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * Created by chenwei on 2017- 十二月 - 21
  */
 
-
-
-public class TrdPayFlow implements Serializable{
+@Entity
+@Table(name = "trd_pay_flow", schema = "ssftrdpay", catalog = "")
+public class TrdPayFlow {
 
   private long id;
   private long orderDetailId;
   private String tradeAcco;
-  private String tradeBrokeId;
+  private long tradeBrokeId;
   private String applySerial;
   private String outsideOrderno;
   private String bankCardNum;
@@ -34,8 +38,8 @@ public class TrdPayFlow implements Serializable{
   private long updateDate;
   private String prodCode;
 
-  
-  
+  @Id
+  @Column(name = "id")
   public long getId() {
     return id;
   }
@@ -44,8 +48,8 @@ public class TrdPayFlow implements Serializable{
     this.id = id;
   }
 
-  
-  
+  @Basic
+  @Column(name = "order_detail_id")
   public long getOrderDetailId() {
     return orderDetailId;
   }
@@ -54,8 +58,8 @@ public class TrdPayFlow implements Serializable{
     this.orderDetailId = orderDetailId;
   }
 
-  
-  
+  @Basic
+  @Column(name = "trade_acco")
   public String getTradeAcco() {
     return tradeAcco;
   }
@@ -64,18 +68,18 @@ public class TrdPayFlow implements Serializable{
     this.tradeAcco = tradeAcco;
   }
 
-  
-  
-  public String getTradeBrokeId() {
+  @Basic
+  @Column(name = "trade_broke_id")
+  public long getTradeBrokeId() {
     return tradeBrokeId;
   }
 
-  public void setTradeBrokeId(String tradeBrokeId) {
+  public void setTradeBrokeId(long tradeBrokeId) {
     this.tradeBrokeId = tradeBrokeId;
   }
 
-  
-  
+  @Basic
+  @Column(name = "apply_serial")
   public String getApplySerial() {
     return applySerial;
   }
@@ -84,8 +88,8 @@ public class TrdPayFlow implements Serializable{
     this.applySerial = applySerial;
   }
 
-  
-  
+  @Basic
+  @Column(name = "outside_orderno")
   public String getOutsideOrderno() {
     return outsideOrderno;
   }
@@ -94,8 +98,8 @@ public class TrdPayFlow implements Serializable{
     this.outsideOrderno = outsideOrderno;
   }
 
-  
-  
+  @Basic
+  @Column(name = "bank_card_num")
   public String getBankCardNum() {
     return bankCardNum;
   }
@@ -104,8 +108,8 @@ public class TrdPayFlow implements Serializable{
     this.bankCardNum = bankCardNum;
   }
 
-  
-  
+  @Basic
+  @Column(name = "prod_id")
   public long getProdId() {
     return prodId;
   }
@@ -114,8 +118,8 @@ public class TrdPayFlow implements Serializable{
     this.prodId = prodId;
   }
 
-  
-  
+  @Basic
+  @Column(name = "fund_code")
   public String getFundCode() {
     return fundCode;
   }
@@ -124,8 +128,8 @@ public class TrdPayFlow implements Serializable{
     this.fundCode = fundCode;
   }
 
-  
-  
+  @Basic
+  @Column(name = "pay_status")
   public int getPayStatus() {
     return payStatus;
   }
@@ -134,8 +138,8 @@ public class TrdPayFlow implements Serializable{
     this.payStatus = payStatus;
   }
 
-  
-  
+  @Basic
+  @Column(name = "pay_date")
   public long getPayDate() {
     return payDate;
   }
@@ -144,8 +148,8 @@ public class TrdPayFlow implements Serializable{
     this.payDate = payDate;
   }
 
-  
-  
+  @Basic
+  @Column(name = "pay_type")
   public int getPayType() {
     return payType;
   }
@@ -154,8 +158,8 @@ public class TrdPayFlow implements Serializable{
     this.payType = payType;
   }
 
-  
-  
+  @Basic
+  @Column(name = "pay_amount")
   public Long getPayAmount() {
     return payAmount;
   }
@@ -164,8 +168,8 @@ public class TrdPayFlow implements Serializable{
     this.payAmount = payAmount;
   }
 
-  
-  
+  @Basic
+  @Column(name = "fund_sum")
   public long getFundSum() {
     return fundSum;
   }
@@ -174,8 +178,8 @@ public class TrdPayFlow implements Serializable{
     this.fundSum = fundSum;
   }
 
-  
-  
+  @Basic
+  @Column(name = "fund_sum_confirmed")
   public long getFundSumConfirmed() {
     return fundSumConfirmed;
   }
@@ -184,8 +188,8 @@ public class TrdPayFlow implements Serializable{
     this.fundSumConfirmed = fundSumConfirmed;
   }
 
-  
-  
+  @Basic
+  @Column(name = "buy_fee")
   public long getBuyFee() {
     return buyFee;
   }
@@ -194,8 +198,8 @@ public class TrdPayFlow implements Serializable{
     this.buyFee = buyFee;
   }
 
-  
-  
+  @Basic
+  @Column(name = "buy_discount")
   public long getBuyDiscount() {
     return buyDiscount;
   }
@@ -204,8 +208,8 @@ public class TrdPayFlow implements Serializable{
     this.buyDiscount = buyDiscount;
   }
 
-  
-  
+  @Basic
+  @Column(name = "user_id")
   public long getUserId() {
     return userId;
   }
@@ -214,8 +218,8 @@ public class TrdPayFlow implements Serializable{
     this.userId = userId;
   }
 
-  
-  
+  @Basic
+  @Column(name = "create_by")
   public long getCreateBy() {
     return createBy;
   }
@@ -224,8 +228,8 @@ public class TrdPayFlow implements Serializable{
     this.createBy = createBy;
   }
 
-  
-  
+  @Basic
+  @Column(name = "create_date")
   public long getCreateDate() {
     return createDate;
   }
@@ -234,8 +238,8 @@ public class TrdPayFlow implements Serializable{
     this.createDate = createDate;
   }
 
-  
-  
+  @Basic
+  @Column(name = "update_by")
   public long getUpdateBy() {
     return updateBy;
   }
@@ -244,8 +248,8 @@ public class TrdPayFlow implements Serializable{
     this.updateBy = updateBy;
   }
 
-  
-  
+  @Basic
+  @Column(name = "update_date")
   public long getUpdateDate() {
     return updateDate;
   }
@@ -254,8 +258,8 @@ public class TrdPayFlow implements Serializable{
     this.updateDate = updateDate;
   }
 
-  
-  
+  @Basic
+  @Column(name = "prod_code")
   public String getProdCode() {
     return prodCode;
   }
@@ -264,7 +268,7 @@ public class TrdPayFlow implements Serializable{
     this.prodCode = prodCode;
   }
 
-  
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -279,6 +283,9 @@ public class TrdPayFlow implements Serializable{
       return false;
     }
     if (orderDetailId != that.orderDetailId) {
+      return false;
+    }
+    if (tradeBrokeId != that.tradeBrokeId) {
       return false;
     }
     if (prodId != that.prodId) {
@@ -323,10 +330,6 @@ public class TrdPayFlow implements Serializable{
     if (tradeAcco != null ? !tradeAcco.equals(that.tradeAcco) : that.tradeAcco != null) {
       return false;
     }
-    if (tradeBrokeId != null ? !tradeBrokeId.equals(that.tradeBrokeId)
-        : that.tradeBrokeId != null) {
-      return false;
-    }
     if (applySerial != null ? !applySerial.equals(that.applySerial) : that.applySerial != null) {
       return false;
     }
@@ -350,12 +353,12 @@ public class TrdPayFlow implements Serializable{
     return true;
   }
 
-  
+  @Override
   public int hashCode() {
     int result = (int) (id ^ (id >>> 32));
     result = 31 * result + (int) (orderDetailId ^ (orderDetailId >>> 32));
     result = 31 * result + (tradeAcco != null ? tradeAcco.hashCode() : 0);
-    result = 31 * result + (tradeBrokeId != null ? tradeBrokeId.hashCode() : 0);
+    result = 31 * result + (int) (tradeBrokeId ^ (tradeBrokeId >>> 32));
     result = 31 * result + (applySerial != null ? applySerial.hashCode() : 0);
     result = 31 * result + (outsideOrderno != null ? outsideOrderno.hashCode() : 0);
     result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);

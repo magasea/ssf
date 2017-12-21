@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.dao.service;
 
+import com.shellshellfish.aaas.userinfo.model.dao.UiSysMsg;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -68,4 +69,7 @@ public interface UserInfoRepoService {
 	UserBaseInfoDTO findByCellphone(String cellphone);
 
 	Boolean updateCellphone(String cellphone, String isTestFlag);
+
+	public UserSysMsgDTO addUiSysMsg(UiSysMsg uiSysMsg) throws IllegalAccessException,
+			InstantiationException;
 }

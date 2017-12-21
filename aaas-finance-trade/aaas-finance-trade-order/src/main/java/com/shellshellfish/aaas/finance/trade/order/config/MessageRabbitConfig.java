@@ -82,10 +82,10 @@ public class MessageRabbitConfig {
         return new TopicExchange(topicExchangeName);
     }
 
-    @Bean
-    Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(topicOrder);
-    }
+//    @Bean
+//    Binding binding(Queue queue, TopicExchange exchange) {
+//        return BindingBuilder.bind(queue).to(exchange).with(topicOrder);
+//    }
 
     @Bean
     public SimpleRabbitListenerContainerFactory jsaFactory(ConnectionFactory connectionFactory,
@@ -130,19 +130,19 @@ public class MessageRabbitConfig {
 
 
 
-    @Bean
-    public List<Declarable> topicBindings() {
-//		Queue topicQueue1 = new Queue(topicQueuePayName, false);
-
-
-        TopicExchange topicExchange = new TopicExchange(topicExchangeName);
-
-        return Arrays.asList(
-           queue(),
-            topicExchange,
-            BindingBuilder.bind(queue()).to(topicExchange).with(topicPay)
-        );
-    }
+//    @Bean
+//    public List<Declarable> topicBindings() {
+////		Queue topicQueue1 = new Queue(topicQueuePayName, false);
+//
+//
+//        TopicExchange topicExchange = new TopicExchange(topicExchangeName);
+//
+//        return Arrays.asList(
+//           queue(),
+//            topicExchange,
+//            BindingBuilder.bind(queue()).to(topicExchange).with(topicPay)
+//        );
+//    }
 
 
 //	@Bean

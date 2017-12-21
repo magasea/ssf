@@ -25,9 +25,12 @@ public class BroadcastMessageProducers {
     @Value("${spring.rabbitmq.topicQueuePayName}")
     String topicQueuePayName;
 
+    @Value("${spring.rabbitmq.topicExchangeName}")
+    String exchange;
+
     public void sendMessage(TrdPayFlow trdPayFlow) {
         logger.info("send message: " + trdPayFlow.getOrderDetailId());
-        rabbitTemplate.convertAndSend(topicQueuePayName, topicOrder, trdPayFlow);
+        rabbitTemplate.convertAndSend(exchange, topicOrder, trdPayFlow);
     }
 
 }
