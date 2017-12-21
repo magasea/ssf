@@ -30,7 +30,7 @@ public class IndexServiceImpl implements IndexService {
 	AssetAllocationServiceImpl assetAllocationService;
 
 	@Override
-	public Map<String, Object> homepage(String uid,String productType) {
+	public Map<String, Object> homepage(String uuid) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String, Object> linksMap = new HashMap<String, Object>();
 		List<Map> relateList = new ArrayList();
@@ -62,32 +62,84 @@ public class IndexServiceImpl implements IndexService {
 		selfMap.put("href", "/api/ssf-finance/product-groups/homepage");
 		selfMap.put("describedBy", "/api/ssf-finance/product-groups/homepage.json");
 		linksMap.put("self", selfMap);
-
+		
+		ReturnType resultType = assetAllocationService.getPerformanceVolatilityHomePage();
+		List<Map<String, Object>> items = resultType.get_items();
+		Map<String, Object> itemMap = new HashMap<String, Object>();
+		Map<String, Object> investmentHorizonMap = new HashMap<String, Object>();
+		List<Object> riskList = new ArrayList<Object>();
+		Map<String,Object> obj = null;
+		if (items != null && items.size() > 0) {
+			for (int i = 0; i < items.size(); i++) {
+				itemMap = items.get(i);
+				for (Object key : itemMap.keySet()) {
+					if ("C1".equals(key)) {
+						investmentHorizonMap.put("investmentHorizon", "保守型");
+						investmentHorizonMap.put("investmentHorizonCode", "C1");
+						obj = (Map<String, Object>) itemMap.get(key);
+					} else if ("C2".equals(key)) {
+						investmentHorizonMap.put("investmentHorizon", "稳健型");
+						investmentHorizonMap.put("investmentHorizonCode", "C2");
+					} else if ("C3".equals(key)) {
+						investmentHorizonMap.put("investmentHorizon", "平衡型");
+						investmentHorizonMap.put("investmentHorizonCode", "C3");
+					} else if ("C4".equals(key)) {
+						investmentHorizonMap.put("investmentHorizon", "积极型");
+						investmentHorizonMap.put("investmentHorizonCode", "C4");
+					} else if ("C5".equals(key)) {
+						investmentHorizonMap.put("investmentHorizon", "进取型");
+						investmentHorizonMap.put("investmentHorizonCode", "C5");
+					}
+					riskList.add(investmentHorizonMap);
+				}
+			}
+		} else {
+			throw new Exception("产品类型不存在.");
+		}
+		
+		List<Map<String,Object>> investmentHorizonMap2 = new ArrayList<Map<String,Object>>();
+		investmentHorizonMap2 = (List<Map<String, Object>>) obj.get("_items");
+		String groupId = (String) obj.get("productGroupId");
+		String subGroupId = (String) obj.get("productSubGroupId");
+		Map<String, Object> itemMap2 = new HashMap<String, Object>();
 		double historicalYearPerformance = 0;
 		double historicalvolatility = 0;
-		PerformanceVolatilityReturn performanceVolatilityReturn = assetAllocationService.getPerformanceVolatility(uid,
-				productType, "1");
-		if (performanceVolatilityReturn != null) {
-			// .getPerformanceVolatility(cust_risk, investment_horizon);
-			List<Map<String, Object>> list = performanceVolatilityReturn.get_items();
-			if (list != null) {
-				for (int i = 0; i < list.size(); i++) {
-					Map<String, Object> map = list.get(i);
-					Integer id = (Integer) map.get("id");
-					if (id == 1) {
-						historicalYearPerformance = (double) map.get("value");
-					} else if (id == 2) {
-						historicalvolatility = (double) map.get("value");
-					}
+		if(investmentHorizonMap2!=null&&investmentHorizonMap2.size()>0){
+			for(int i=0;i<investmentHorizonMap2.size();i++){
+				itemMap2 = investmentHorizonMap2.get(i);
+				int id = (int) itemMap2.get("id");
+				if(id == 1){
+					historicalYearPerformance = (double) itemMap2.get("value");
+				} else if(id == 2){
+					historicalvolatility = (double) itemMap2.get("value");
 				}
 			}
 		}
+//		
+//		PerformanceVolatilityReturn performanceVolatilityReturn = assetAllocationService.getPerformanceVolatility(uuid,
+//				"C1", null);
+//		if (performanceVolatilityReturn != null) {
+//			// .getPerformanceVolatility(cust_risk, investment_horizon);
+//			List<Map<String, Object>> list = performanceVolatilityReturn.get_items();
+//			if (list != null) {
+//				for (int i = 0; i < list.size(); i++) {
+//					Map<String, Object> map = list.get(i);
+//					Integer id = (Integer) map.get("id");
+//					if (id == 1) {
+//						historicalYearPerformance = (double) map.get("value");
+//					} else if (id == 2) {
+//						historicalvolatility = (double) map.get("value");
+//					}
+//				}
+//			}
+//		}
 		result.put("historicalYearPerformance", historicalYearPerformance);
 		result.put("historicalvolatility", historicalvolatility);
-		String groupId = performanceVolatilityReturn.getProductGroupId();
-		String subGroupId = performanceVolatilityReturn.getProductSubGroupId();
+//		String groupId = performanceVolatilityReturn.getProductGroupId();
+//		String subGroupId = performanceVolatilityReturn.getProductSubGroupId();
 		result.put("groupId", groupId);
 		result.put("subGroupId", subGroupId);
+		result.put("productTypeList", riskList);
 
 		FundReturn fundReturn = assetAllocationService.selectById(groupId, subGroupId);
 		if(fundReturn!=null){
@@ -107,6 +159,7 @@ public class IndexServiceImpl implements IndexService {
 		
 		result.put("name", "理财产品 首页");
 		result.put("_links", linksMap);
+		result.put("uuid", uuid);
 
 		return result;
 	}

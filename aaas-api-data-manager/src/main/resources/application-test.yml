@@ -1,7 +1,7 @@
 ---
 server:
-  port: 10550
-  contextPath: /SpringBootCRUDApp
+  port: 10030
+  contextPath: /
 ---
 spring:
   profiles: local, default
@@ -18,14 +18,20 @@ datasource:
       show_sql: true
       format_sql: true
       dialect: org.hibernate.dialect.H2Dialect
+  
 ---
 spring:
-  profiles: prod
+  profiles: local, default
+  data:
+      mongodb:
+        database: funds
+        host: 192.168.1.10
+        port: 27017
 datasource:
   sampleapp:
-    url: jdbc:mysql://192.168.0.25:3306/websystique
-    username: myuser
-    password: mypassword
+    url: jdbc:mysql://192.168.1.10:3306/ssflogin?useUnicode=true&characterEncoding=utf-8
+    username: sa
+    password: abcd1234
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema:
     maxPoolSize: 20
@@ -34,4 +40,9 @@ datasource:
       show_sql: true
       format_sql: true
       dialect: org.hibernate.dialect.MySQLDialect
-
+daily:
+  fromdate: 2016-01-01
+  todate: now
+grpc:
+  host: localhost
+  port: 10031

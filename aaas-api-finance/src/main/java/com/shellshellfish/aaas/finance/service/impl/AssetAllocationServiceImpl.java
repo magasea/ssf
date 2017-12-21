@@ -181,4 +181,16 @@ public class AssetAllocationServiceImpl implements AssetAllocationService {
 				url + "/api/asset-allocation/product-groups/"+id+"/sub-groups/"+subGroupId+"/portfolio-yield?mouth="+month+"&returnType="+returnType,
 				ReturnType.class).getBody();
 	}
+	/**
+	 * 返回首页五个产品
+	 * @param id
+	 * @param subGroupId
+	 * @param month
+	 * @param returnType 查询类型（income：收益率，其他的：最大回撤）
+	 * @return
+	 */
+	@Override
+	public ReturnType getPerformanceVolatilityHomePage() {
+		return restTemplate.getForEntity(url + "/api/asset-allocation/products/home-page",ReturnType.class).getBody();
+	}
 }

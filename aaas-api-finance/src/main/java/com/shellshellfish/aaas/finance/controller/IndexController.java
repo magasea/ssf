@@ -30,8 +30,8 @@ public class IndexController {
 
 	@ApiOperation("理财产品 首页")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType="query",name="uid",dataType="String",required=true,value="用户ID",defaultValue="1"),
-		@ApiImplicitParam(paramType="query",name="productType",dataType="String",required=true,value="产品类型",defaultValue="C1")
+		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=false,value="用户ID",defaultValue="1")
+//		@ApiImplicitParam(paramType="query",name="productType",dataType="String",required=true,value="产品类型",defaultValue="C1")
     })
 	@ApiResponses({
 		@ApiResponse(code=200,message="OK"),
@@ -43,12 +43,12 @@ public class IndexController {
     })	
 	@RequestMapping(value = "/product-groups/homepage", method = RequestMethod.GET)
 	public ResponseEntity<?> homepage(
-			@RequestParam(value = "uid") String uid,
-			@RequestParam(value = "productType") String productType
-			) {
+			@RequestParam(value = "uuid") String uuid
+//			@RequestParam(value = "productType") String productType
+			) throws Exception {
 		// FundReturn fundReturn =
 		// assetAllocationService.selectById(groupId,subGroupId);
-		Map<String, Object> resultMap = indexService.homepage(uid,productType);
+		Map<String, Object> resultMap = indexService.homepage(uuid);
 
 		return new ResponseEntity<>(resultMap, HttpStatus.OK);
 	}

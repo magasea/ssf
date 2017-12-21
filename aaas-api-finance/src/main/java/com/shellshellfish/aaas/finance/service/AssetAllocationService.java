@@ -20,4 +20,5 @@ public interface AssetAllocationService {
 	public PerformanceVolatilityReturn getPerformanceVolatility(String id,String cust_risk,String investment_horizon);
 	public RevenueContributionReturn getScaleMark(String id,String slidebarType);
 	public ReturnType getPortfolioYield(String id, String subGroupId, int month, String returnType);
+	public ReturnType getPerformanceVolatilityHomePage();
 }
