@@ -8,6 +8,8 @@ option objc_class_prefix = "UIP";
 service UserInfoService {
     rpc GetUserId (UserIdQuery) returns (UserId) {
     }
+    rpc GetUserUUID (UserUUIDQuery) returns (UserUUID) {
+    }
 }
 
 message UserIdQuery {
@@ -18,4 +20,12 @@ message UserIdQuery {
 
 message UserId{
   int64 userId = 1;
+}
+
+message UserUUID{
+  string user_uuid = 1;
+}
+
+message UserUUIDQuery {
+  int64 user_id = 1;
 }

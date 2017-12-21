@@ -1,6 +1,8 @@
 package com.shellshellfish.aaas.finance.trade.order.message;
 
+import com.shellshellfish.aaas.common.message.order.PayDto;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +12,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class BroadcastMessageProducer {
 
-    private final RabbitTemplate rabbitTemplate;
 
     @Value("${spring.rabbitmq.topicQueuePayName}")
     String topicQueuePayName;
@@ -27,12 +28,21 @@ public class BroadcastMessageProducer {
     @Value("${spring.rabbitmq.topicOrder}")
     String topicOrder;
 
-    @Autowired
-    public BroadcastMessageProducer(RabbitTemplate rabbitTemplate) {
-        this.rabbitTemplate = rabbitTemplate;
-    }
+//    @Autowired
+//    public BroadcastMessageProducer(RabbitTemplate rabbitTemplate) {
+//        this.rabbitTemplate = rabbitTemplate;
+//    }
 
-    public void sendMessages(TrdOrderDetail trdOrderDetail) {
-        rabbitTemplate.convertAndSend(topicExchangeName, topicOrder, trdOrderDetail);
+
+
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+
+
+    public void sendMessages(PayDto payDto){
+        rabbitTemplate.convertAndSend(topicExchangeName, topicPay, payDto);
+        System.out.println("Send msg = " + payDto);
     }
 }
