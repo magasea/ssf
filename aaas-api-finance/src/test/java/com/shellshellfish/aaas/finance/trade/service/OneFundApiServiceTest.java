@@ -5,8 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.finance.trade.model.*;
 import com.shellshellfish.aaas.finance.trade.service.impl.OneFundApiService;
-import org.h2.tools.Csv;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -14,18 +12,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.sql.RowSet;
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -75,35 +69,30 @@ public class OneFundApiServiceTest {
     }
 
     @Test
-    @Rollback(false)
     public void testWriteAllTradeRateToMongoDb() throws Exception {
         oneFundApiService.writeAllTradeRateToMongoDb();
     }
 
     @Test
-    @Rollback(false)
     public void testBuyFund() throws Exception {
-        BuyFundResult result = oneFundApiService.buyFund("shellshellfish","33346", BigDecimal.valueOf(0.99d), "201712-" + UUID.randomUUID(), "000590");
+        BuyFundResult result = oneFundApiService.buyFund("shellshellfish","33346", BigDecimal.valueOf(1.09d), "201712-" + UUID.randomUUID(), "000614.OF");
 
         mongoTemplate.save(result, "buyfund");
     }
 
     @Test
-    @Rollback(false)
     public void testSellFund() throws Exception {
         SellFundResult result = oneFundApiService.sellFund("shellshellfish",16,  "201712-" + UUID.randomUUID(),"33346",  "000407");
         mongoTemplate.save(result, "sellfund");
     }
 
     @Test
-    @Rollback(false)
     public void testGetExamContent() throws JsonProcessingException {
         String result = oneFundApiService.getExamContent();
         mongoTemplate.save(result, "exam");
     }
 
     @Test
-    @Rollback(false)
     public void testCommitFakeAnswer() throws JsonProcessingException {
         String result = oneFundApiService.commitFakeAnswer("shellshellfish");
         mongoTemplate.save(result, "fakeAnswerResult");
@@ -121,7 +110,6 @@ public class OneFundApiServiceTest {
     }
 
     @Test
-    @Rollback(false)
     public void testGetApplyList() throws JsonProcessingException {
         String result = oneFundApiService.getAllApplyList("shellshellfish");
         mongoTemplate.save(result, "appplyResult");
@@ -142,7 +130,6 @@ public class OneFundApiServiceTest {
     }
 
     @Test
-    @Rollback(false)
     public void testGetConfirmList() throws JsonProcessingException {
         String result = oneFundApiService.getAllConfirmList("shellshellfish");
         mongoTemplate.save(result, "confirmResult");
@@ -260,6 +247,12 @@ public class OneFundApiServiceTest {
         assertEquals(BigDecimal.valueOf(50000), bankCardLimitation.getPerTrans());
         assertEquals(BigDecimal.valueOf(50000), bankCardLimitation.getPerDay());
         logger.info("{}", new ObjectMapper().writeValueAsString(bankCardLimitation));
+    }
+
+    @Test
+    public void testGetFundNotice() throws Exception {
+        List<FundNotice> fundNotices = oneFundApiService.getFundNotices("000614");
+        logger.info("{}", new ObjectMapper().writeValueAsString(fundNotices));
     }
 
     @Test
@@ -418,8 +411,4 @@ public class OneFundApiServiceTest {
 //        System.out.println(json);
 
     }
-
-
-
-
 }

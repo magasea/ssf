@@ -23,13 +23,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 @Service
-public class OneFundApiService implements FundTradeApiService {
+public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
-    private static final Logger logger = LoggerFactory.getLogger(OneFundApiService.class);
+    private static final Logger logger = LoggerFactory.getLogger(FundTradeZhongZhengApiService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public OneFundApiService() {
+    public FundTradeZhongZhengApiService() {
         restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(Charset.forName("UTF-8")));
     }
 
@@ -72,6 +72,10 @@ public class OneFundApiService implements FundTradeApiService {
 
     @Override
     public BuyFundResult buyFund(String userUuid, String tradeAcco, BigDecimal applySum, String outsideOrderNo, String fundCode) throws Exception {
+        if (fundCode.contains(".")) {
+            fundCode = StringUtils.split(fundCode, ".")[0];
+        }
+
         Map<String, Object> info = init(userUuid);
 
         info.put("tradeacco", tradeAcco);
