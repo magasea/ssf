@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.message;
 
+import com.shellshellfish.aaas.common.message.order.PayDto;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,8 +19,8 @@ public class BroadcastMessageProducerTest {
 
   @Test
   public void sendMessages() throws Exception {
-    TrdOrderDetail trdOrderPay = new TrdOrderDetail();
-    broadcastMessageProducer.sendMessages(trdOrderPay);
+    PayDto payDto = new PayDto();
+    broadcastMessageProducer.sendMessages(payDto);
   }
 
 }

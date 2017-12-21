@@ -7,14 +7,23 @@ public class FundBasic {
 
     private String name;//基金简称
     private String fname;//基金全称
-    private String fund_income_type;//基金投资类型
+    private String fund_type_one;//
+    private String fund_type_two;//
 
-    public String getFund_income_type() {
-        return fund_income_type;
+    public String getFund_type_one() {
+        return fund_type_one;
     }
 
-    public void setFund_income_type(String fund_income_type) {
-        this.fund_income_type = fund_income_type;
+    public void setFund_type_one(String fund_type_one) {
+        this.fund_type_one = fund_type_one;
+    }
+
+    public String getFund_type_two() {
+        return fund_type_two;
+    }
+
+    public void setFund_type_two(String fund_type_two) {
+        this.fund_type_two = fund_type_two;
     }
 
     public String getName() {

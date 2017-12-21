@@ -4,18 +4,17 @@
 	<modelVersion>4.0.0</modelVersion>
 
 <groupId>com.shellshellfish.account</groupId>
-	<artifactId>mid-api</artifactId>
+	<artifactId>aaas-mid-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 <packaging>jar</packaging>
 
-	<name>mid-api</name>
+	<name>aaas-mid-api</name>
 	<description>mid-api</description>
 
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.5.7.RELEASE</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<groupId>com.shellshellfish</groupId>
+		<artifactId>aaas</artifactId>
+		<version>1.0-SNAPSHOT</version>
 	</parent>
 
 	<properties>

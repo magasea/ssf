@@ -68,7 +68,9 @@
 * mid-api
   - 自身 10130
   - GRPC 10131
-
+* mid-apii -- 外包
+  - 自身 10140
+  - GRPC 10141
 * rabbitmq: 5672
 * reddit: 6379
 
