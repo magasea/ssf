@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.finance.trade.order.service.impl;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
+import com.shellshellfish.aaas.common.message.order.PayDto;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProducer;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
@@ -23,6 +24,7 @@ import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc.UserInfoServiceFutureStub;
 import io.grpc.ManagedChannel;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -97,10 +99,16 @@ public class TradeOpServiceImpl implements TradeOpService {
       List<ProductMakeUpInfo> productMakeUpInfos){
     //generate order
 //    TrdTradeBroker trdTradeBroker = trdBrokderRepository.findOne(1L);
+    PayDto payDto = new PayDto();
     List<TrdBrokerUser> trdBrokerUsers = trdBrokerUserRepository.findByUserId(financeProdBuyInfo.getUserId());
     int trdBrokerId = trdBrokerUsers.get(0).getTradeBrokerId();
     String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdBuyInfo.getBankAcc()
             .substring(0,6)),trdBrokerId);
+    payDto.setTrdAccount(trdBrokerUsers.get(0).getTradeAcco());
+    payDto.setUserUuid(financeProdBuyInfo.getUuid());
+    List<com.shellshellfish.aaas.common.message.order.TrdOrderDetail> trdOrderDetails =  new
+        ArrayList<com.shellshellfish.aaas.common.message.order.TrdOrderDetail>();
+
     TrdOrder trdOrder = new TrdOrder();
     trdOrder.setBankCardNum(financeProdBuyInfo.getBankAcc());
     trdOrder.setOrderDate(TradeUtil.getUTCTime());
@@ -134,8 +142,11 @@ public class TradeOpServiceImpl implements TradeOpService {
           .shellshellfish.aaas.common.message.order.TrdOrderDetail();
       BeanUtils.copyProperties(trdOrderDetail, trdOrderPay);
 //      GenericMessage<TrdOrderDetail> genericMessage = new GenericMessage<TrdOrderDetail>();
-      broadcastMessageProducer.sendMessages(trdOrderPay);
+      trdOrderDetails.add(trdOrderPay);
+
     }
+    payDto.setOrderDetailList(trdOrderDetails);
+    broadcastMessageProducer.sendMessages(payDto);
     return trdOrder;
   }
 
