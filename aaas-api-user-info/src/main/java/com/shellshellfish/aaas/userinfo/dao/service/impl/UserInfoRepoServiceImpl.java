@@ -1,13 +1,12 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
+import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskTestFlagEnum;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import java.math.BigInteger;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -19,7 +18,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-
 import com.mongodb.WriteResult;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.grpc.UserId;
@@ -311,9 +309,9 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		uiUser.setActivated(activity);
 		uiUser.setCellPhone(cellphone);
 		uiUser.setOccupation("金融");
-		uiUser.setCreatedBy("sys");
+		uiUser.setCreatedBy(""+SystemUserEnum.SYSTEM_USER_ENUM.ordinal());
 
-		uiUser.setIsTestFlag(UserRiskTestFlagEnum.valueOf(isTestFlag).getRiskTestFlag());
+		//uiUser.setIsTestFlag(UserRiskTestFlagEnum.valueOf(isTestFlag).getRiskTestFlag());
 		uiUser.setCreatedDate(TradeUtil.getUTCTime());
 		userInfoRepository.save(uiUser);
 		return true;
