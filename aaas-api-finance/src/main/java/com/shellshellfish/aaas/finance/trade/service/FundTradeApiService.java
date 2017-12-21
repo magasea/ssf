@@ -29,6 +29,10 @@ public interface FundTradeApiService {
 
     String getAllConfirmList(String userUuid) throws JsonProcessingException;
 
+    FundNotice getLatestFundNotice(String fundCode) throws Exception;
+
+    List<FundNotice> getFundNotices(String fundCode) throws Exception;
+
     String getExamContent() throws JsonProcessingException;
 
     String commitRisk(String userUuid) throws JsonProcessingException;

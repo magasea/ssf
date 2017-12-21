@@ -1,0 +1,26 @@
+---
+server:
+  port: 10140
+grpc:
+  host: localhost
+  port: 10141
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.data: debug
+    
+shellshellfish:
+  user-login-url: "http://localhost:10070"
+  risk-assessment-url: "http://localhost:10050"
+  userinfo-url: "http://localhost:10060"
+  finance-url: "http://localhost:10120"
+  asset-alloction-url: "http://localhost:10020"
+  
+security:
+  basic:
+    enabled: false
+management:
+  security:
+    enabled: false
+  

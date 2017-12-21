@@ -50,6 +50,20 @@ public class AssetAllocationServiceImpl implements AssetAllocationService {
 						FundReturn.class)
 				.getBody();
 	}
+	
+	/**
+     * 产品类别比重
+     * @param fund_group_id
+     * @param fund_group_sub_id
+     * @return
+     */
+	@Override
+	public ReturnType getProportionOne(String groupId, String subGroupId) {
+		return restTemplate
+				.getForEntity(url + "/api/asset-allocation/products/" + groupId + "/sub-groups/" + subGroupId+"/one-type",
+						ReturnType.class)
+				.getBody();
+	}
 
 	/**
 	 * 预期年化收益(action=calcExpectedAnnualizedReturn),

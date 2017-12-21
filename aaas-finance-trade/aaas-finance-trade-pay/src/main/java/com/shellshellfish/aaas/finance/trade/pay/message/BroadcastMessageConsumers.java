@@ -33,10 +33,12 @@ public class BroadcastMessageConsumers {
         exchange =  @Exchange(value = "${spring.rabbitmq.topicExchangeName}", type = "topic",
             durable = "true"),  key = "${spring.rabbitmq.topicPay}")
     )
-    public void receiveMessage(PayDto message) throws Exception {
-        PayDto payDto = payService.payOrder(message);
-
-
+    public void receiveMessage(PayDto message) {
+        try {
+            PayDto payDto = payService.payOrder(message);
+        }catch (Exception ex){
+            logger.error(ex.getMessage());
+        }
     }
 
 }

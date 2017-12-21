@@ -1,165 +1,251 @@
 package com.shellshellfish.aaas.userinfo.model.dao;
 
-import java.io.Serializable;
-import javax.persistence.*;
-import java.math.BigInteger;
-
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
- * The persistent class for the ui_user database table.
- * 
+ * Created by chenwei on 2017- 十二月 - 21
  */
+
 @Entity
-@Table(name="ui_user")
-@NamedQuery(name="UiUser.findAll", query="SELECT u FROM UiUser u")
-public class UiUser implements Serializable {
-	private static final long serialVersionUID = 1L;
+@Table(name = "ui_user", schema = "ssfuser", catalog = "")
+public class UiUser {
 
-	@Id
-	@SequenceGenerator(name="UI_USER_ID_GENERATOR" )
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="UI_USER_ID_GENERATOR")
-	private Long id;
+  private long id;
+  private String uuid;
+  private String cellPhone;
+  private String birthAge;
+  private String occupation;
+  private int activated;
+  private String createdBy;
+  private long createdDate;
+  private Long lastResetDate;
+  private String lastModifiedBy;
+  private Long lastModifiedDate;
+  private String passwordHash;
+  private Integer isTestFlag;
+  private Integer riskLevel;
 
-	private byte activated;
+  @Id
+  @Column(name = "id")
+  public long getId() {
+    return id;
+  }
 
-	@Column(name="birth_age")
-	private String birthAge;
+  public void setId(long id) {
+    this.id = id;
+  }
 
-	@Column(name="cell_phone")
-	private String cellPhone;
+  @Basic
+  @Column(name = "uuid")
+  public String getUuid() {
+    return uuid;
+  }
 
-	@Column(name="created_by")
-	private String createdBy;
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+  }
 
-	@Column(name="created_date")
-	private BigInteger createdDate;
+  @Basic
+  @Column(name = "cell_phone")
+  public String getCellPhone() {
+    return cellPhone;
+  }
 
-	@Column(name="last_modified_by")
-	private String lastModifiedBy;
+  public void setCellPhone(String cellPhone) {
+    this.cellPhone = cellPhone;
+  }
 
-	@Column(name="last_modified_date")
-	private BigInteger lastModifiedDate;
+  @Basic
+  @Column(name = "birth_age")
+  public String getBirthAge() {
+    return birthAge;
+  }
 
-	@Column(name="last_reset_date")
-	private BigInteger lastResetDate;
+  public void setBirthAge(String birthAge) {
+    this.birthAge = birthAge;
+  }
 
-	@Column(name="occupation")
-	private String occupation;
+  @Basic
+  @Column(name = "occupation")
+  public String getOccupation() {
+    return occupation;
+  }
 
-	@Column(name="password_hash")
-	private String passwordHash;
-	
-	@Column(name="isTestFlag")
-	private String isTestFlag;
+  public void setOccupation(String occupation) {
+    this.occupation = occupation;
+  }
 
-	@Column(name="uuid")
-	private String uuid;
+  @Basic
+  @Column(name = "activated")
+  public int getActivated() {
+    return activated;
+  }
 
-	public UiUser() {
-	}
+  public void setActivated(int activated) {
+    this.activated = activated;
+  }
 
-	public Long getId() {
-		return this.id;
-	}
+  @Basic
+  @Column(name = "created_by")
+  public String getCreatedBy() {
+    return createdBy;
+  }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
 
-	public byte getActivated() {
-		return this.activated;
-	}
+  @Basic
+  @Column(name = "created_date")
+  public long getCreatedDate() {
+    return createdDate;
+  }
 
-	public void setActivated(byte activated) {
-		this.activated = activated;
-	}
+  public void setCreatedDate(long createdDate) {
+    this.createdDate = createdDate;
+  }
 
-	public String getBirthAge() {
-		return this.birthAge;
-	}
+  @Basic
+  @Column(name = "last_reset_date")
+  public Long getLastResetDate() {
+    return lastResetDate;
+  }
 
-	public void setBirthAge(String birthAge) {
-		this.birthAge = birthAge;
-	}
+  public void setLastResetDate(Long lastResetDate) {
+    this.lastResetDate = lastResetDate;
+  }
 
-	public String getCellPhone() {
-		return this.cellPhone;
-	}
+  @Basic
+  @Column(name = "last_modified_by")
+  public String getLastModifiedBy() {
+    return lastModifiedBy;
+  }
 
-	public void setCellPhone(String cellPhone) {
-		this.cellPhone = cellPhone;
-	}
+  public void setLastModifiedBy(String lastModifiedBy) {
+    this.lastModifiedBy = lastModifiedBy;
+  }
 
-	public String getCreatedBy() {
-		return this.createdBy;
-	}
+  @Basic
+  @Column(name = "last_modified_date")
+  public Long getLastModifiedDate() {
+    return lastModifiedDate;
+  }
 
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
-	}
+  public void setLastModifiedDate(Long lastModifiedDate) {
+    this.lastModifiedDate = lastModifiedDate;
+  }
 
-	public BigInteger getCreatedDate() {
-		return this.createdDate;
-	}
+  @Basic
+  @Column(name = "password_hash")
+  public String getPasswordHash() {
+    return passwordHash;
+  }
 
-	public void setCreatedDate(BigInteger createdDate) {
-		this.createdDate = createdDate;
-	}
+  public void setPasswordHash(String passwordHash) {
+    this.passwordHash = passwordHash;
+  }
 
-	public String getLastModifiedBy() {
-		return this.lastModifiedBy;
-	}
+  @Basic
+  @Column(name = "is_test_flag")
+  public Integer getIsTestFlag() {
+    return isTestFlag;
+  }
 
-	public void setLastModifiedBy(String lastModifiedBy) {
-		this.lastModifiedBy = lastModifiedBy;
-	}
+  public void setIsTestFlag(Integer isTestFlag) {
+    this.isTestFlag = isTestFlag;
+  }
 
-	public BigInteger getLastModifiedDate() {
-		return this.lastModifiedDate;
-	}
+  @Basic
+  @Column(name = "risk_level")
+  public Integer getRiskLevel() {
+    return riskLevel;
+  }
 
-	public void setLastModifiedDate(BigInteger lastModifiedDate) {
-		this.lastModifiedDate = lastModifiedDate;
-	}
+  public void setRiskLevel(Integer riskLevel) {
+    this.riskLevel = riskLevel;
+  }
 
-	public BigInteger getLastResetDate() {
-		return this.lastResetDate;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
-	public void setLastResetDate(BigInteger lastResetDate) {
-		this.lastResetDate = lastResetDate;
-	}
+    UiUser uiUser = (UiUser) o;
 
-	public String getOccupation() {
-		return this.occupation;
-	}
+    if (id != uiUser.id) {
+      return false;
+    }
+    if (activated != uiUser.activated) {
+      return false;
+    }
+    if (createdDate != uiUser.createdDate) {
+      return false;
+    }
+    if (uuid != null ? !uuid.equals(uiUser.uuid) : uiUser.uuid != null) {
+      return false;
+    }
+    if (cellPhone != null ? !cellPhone.equals(uiUser.cellPhone) : uiUser.cellPhone != null) {
+      return false;
+    }
+    if (birthAge != null ? !birthAge.equals(uiUser.birthAge) : uiUser.birthAge != null) {
+      return false;
+    }
+    if (occupation != null ? !occupation.equals(uiUser.occupation) : uiUser.occupation != null) {
+      return false;
+    }
+    if (createdBy != null ? !createdBy.equals(uiUser.createdBy) : uiUser.createdBy != null) {
+      return false;
+    }
+    if (lastResetDate != null ? !lastResetDate.equals(uiUser.lastResetDate)
+        : uiUser.lastResetDate != null) {
+      return false;
+    }
+    if (lastModifiedBy != null ? !lastModifiedBy.equals(uiUser.lastModifiedBy)
+        : uiUser.lastModifiedBy != null) {
+      return false;
+    }
+    if (lastModifiedDate != null ? !lastModifiedDate.equals(uiUser.lastModifiedDate)
+        : uiUser.lastModifiedDate != null) {
+      return false;
+    }
+    if (passwordHash != null ? !passwordHash.equals(uiUser.passwordHash)
+        : uiUser.passwordHash != null) {
+      return false;
+    }
+    if (isTestFlag != null ? !isTestFlag.equals(uiUser.isTestFlag) : uiUser.isTestFlag != null) {
+      return false;
+    }
+    if (riskLevel != null ? !riskLevel.equals(uiUser.riskLevel) : uiUser.riskLevel != null) {
+      return false;
+    }
 
-	public void setOccupation(String occupation) {
-		this.occupation = occupation;
-	}
+    return true;
+  }
 
-	public String getPasswordHash() {
-		return this.passwordHash;
-	}
-
-	public void setPasswordHash(String passwordHash) {
-		this.passwordHash = passwordHash;
-	}
-
-	public String getUuid() {
-		return this.uuid;
-	}
-
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
-
-	public String getIsTestFlag() {
-		return isTestFlag;
-	}
-
-	public void setIsTestFlag(String isTestFlag) {
-		this.isTestFlag = isTestFlag;
-	}
-
+  @Override
+  public int hashCode() {
+    int result = (int) (id ^ (id >>> 32));
+    result = 31 * result + (uuid != null ? uuid.hashCode() : 0);
+    result = 31 * result + (cellPhone != null ? cellPhone.hashCode() : 0);
+    result = 31 * result + (birthAge != null ? birthAge.hashCode() : 0);
+    result = 31 * result + (occupation != null ? occupation.hashCode() : 0);
+    result = 31 * result + activated;
+    result = 31 * result + (createdBy != null ? createdBy.hashCode() : 0);
+    result = 31 * result + (int) (createdDate ^ (createdDate >>> 32));
+    result = 31 * result + (lastResetDate != null ? lastResetDate.hashCode() : 0);
+    result = 31 * result + (lastModifiedBy != null ? lastModifiedBy.hashCode() : 0);
+    result = 31 * result + (lastModifiedDate != null ? lastModifiedDate.hashCode() : 0);
+    result = 31 * result + (passwordHash != null ? passwordHash.hashCode() : 0);
+    result = 31 * result + (isTestFlag != null ? isTestFlag.hashCode() : 0);
+    result = 31 * result + (riskLevel != null ? riskLevel.hashCode() : 0);
+    return result;
+  }
 }
