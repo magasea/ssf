@@ -45,6 +45,12 @@
         where a.code = b.fund_code and fund_group_id = #{id} and fund_group_sub_id = #{subId}
     </select>
 
+    <select id="getProportionOne" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
+        select a.fund_type_one,a.fund_group_id,sum(proportion) proportion from (select * from fund_basic a,
+        fund_group_details b where a.code = b.fund_code and fund_group_id = #{id} and fund_group_sub_id = #{subId}) a
+        GROUP BY a.fund_type_one
+    </select>
+
     <select id="getProportion" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
         select a.fund_type_two,a.fund_group_id,sum(proportion) proportion from (select * from fund_basic a,
         fund_group_details b where a.code = b.fund_code and fund_group_id = #{id} and fund_group_sub_id = #{subId}) a
@@ -52,7 +58,7 @@
     </select>
 
     <select id="efficientFrontier" resultType= "com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupDetails">
-        select fund_code from fund_group_details where fund_group_id = #{uuid} and fund_group_sub_id = #{subGroupId}
+        select fund_code from fund_group_details where fund_group_id = #{fund_group_id} and fund_group_sub_id = #{subGroupId}
     </select>
 
     <update id="updateStatus" parameterType="map">
@@ -79,12 +85,25 @@
 
     <select id="getPerformanceVolatility"
             resultType="com.shellshellfish.aaas.assetallocation.neo.entity.RiskIncomeInterval">
-        select * from fund_group_sub b,straegy a where a.fund_group_id=b.fund_group_id and a.cust_risk = #{cust_risk}
-        and a.investment_horizon = #{investment_horizon} ORDER BY b.simulate_historical_year_performance
+        select * from fund_group_sub b,straegy a where a.fund_group_id=b.fund_group_id
+         <if test="cust_risk != null and cust_risk !=''">
+         and  a.cust_risk = #{cust_risk}
+         </if>
+        <if test="investment_horizon != null and investment_horizon !=''">
+        and a.investment_horizon = #{investment_horizon}
+        </if>
+        <if test="fund_group_id != null and fund_group_id !=''">
+            and  b.fund_group_id = #{fund_group_id}
+        </if>
+        <if test="subGroupId != null and subGroupId !=''">
+            and b.id = #{subGroupId}
+        </if>
+        ORDER BY b.simulate_historical_year_performance
     </select>
 
     <select id="getRevenueContribution" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
-        select d.fund_type_two fund_type_two,sum(d.revenue_contribution) revenue_contribution from
+        select d.fund_type_two fund_type_two,sum(d.revenue_contribution) revenue_contribution,(select interval_last_mod_time from fund_group_sub
+        where fund_group_id=#{id} and id=#{subGroupId}) details_last_mod_time from
         (select a.revenue_contribution,c.fund_type_two from fund_group_details a,fund_group_sub b,fund_basic c
         where a.fund_group_id = b.fund_group_id and a.fund_code = c.code and b.fund_group_id=#{id}
         and b.id=#{subGroupId}) d GROUP BY d.fund_type_two
@@ -147,4 +166,25 @@
     <select id="getGroupStartTime" resultType="String">
         select interval_last_mod_time from fund_group_sub where fund_group_id=#{fund_group_id} and id = #{subGroupId}
     </select>
+
+    <select id="getEfficientFrontier" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.EfficientFrontier">
+        select * from efficient_frontier where fund_group_id=#{fund_group_id}
+    </select>
+
+    <select id="getEfficientFrontierDetail" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.EfficientFrontier">
+        select * from efficient_frontier_detail where efficient_frontier_id = #{id}
+    </select>
+
+    <select id="getNavadjStartTime" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
+        select a.fund_code code,b.navadj*a.proportion navadj from fund_group_details a,fund_net_value b,fund_group_sub c
+        where a.fund_code=b.code and b.NAVLATESTDATE = c.interval_last_mod_time and a.fund_group_id = #{fund_group_id}
+        and a.fund_group_sub_id=#{subGroupId}
+    </select>
+
+    <select id="getNavadjEndTime" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
+        select a.fund_code code,b.navadj*a.proportion navadj from fund_group_details a,fund_net_value b
+        where a.fund_code=b.code and a.fund_group_id = #{fund_group_id} and a.fund_group_sub_id=#{subGroupId}
+        order by b.navlatestdate desc limit #{num}
+    </select>
+
 </mapper>

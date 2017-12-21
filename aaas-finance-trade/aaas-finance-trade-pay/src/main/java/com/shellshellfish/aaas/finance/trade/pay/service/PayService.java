@@ -2,7 +2,7 @@ package com.shellshellfish.aaas.finance.trade.pay.service;
 
 import com.shellshellfish.aaas.common.message.order.PayDto;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
-import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
+import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 
 public interface PayService {
 
