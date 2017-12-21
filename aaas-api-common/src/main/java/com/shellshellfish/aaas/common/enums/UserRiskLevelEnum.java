@@ -1,5 +1,8 @@
 package com.shellshellfish.aaas.common.enums;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by chenwei on 2017- 十二月 - 21
  */
@@ -22,7 +25,31 @@ public enum UserRiskLevelEnum {
   public void setComment(String comment) {
     this.comment = comment;
   }
+  private static final Map lookup =
+      new HashMap();
+  static {
+    //Create reverse lookup hash map
+    for(UserRiskLevelEnum d : UserRiskLevelEnum.values())
+      lookup.put(d.getComment(), d);
+  }
+  public static UserRiskLevelEnum get(String userRiskLevelStr) {
+    //the reverse lookup by simply getting
+    //the value from the lookup HsahMap.
+    return (UserRiskLevelEnum) lookup.get(userRiskLevelStr);
+  }
 
+  private static final Map lookupByInt =
+      new HashMap();
+  static {
+    //Create reverse lookup hash map
+    for(UserRiskLevelEnum d : UserRiskLevelEnum.values())
+      lookup.put(d.getRiskLevel(), d);
+  }
+  public static UserRiskLevelEnum get(int userRiskLevel) {
+    //the reverse lookup by simply getting
+    //the value from the lookup HsahMap.
+    return (UserRiskLevelEnum) lookup.get(userRiskLevel);
+  }
   private int riskLevel;
   private String comment;
   UserRiskLevelEnum(int riskLevel, String comment){

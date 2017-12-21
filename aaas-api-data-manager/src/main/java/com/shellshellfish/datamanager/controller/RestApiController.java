@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SimpleTimeZone;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shellshellfish.datamanager.model.DailyFunds;
 import com.shellshellfish.datamanager.model.FundCodes;
+import com.shellshellfish.datamanager.model.FundManagers;
 import com.shellshellfish.datamanager.model.IndicatorPoint;
 import com.shellshellfish.datamanager.service.DataService;
 import com.shellshellfish.datamanager.service.DataServiceImpl;
@@ -40,7 +42,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @Configuration
-@PropertySource(value = "classpath:application.properties",encoding = "utf-8")
+
 @RestController
 @RequestMapping("api/datamanager")
 @Validated
@@ -53,10 +55,10 @@ public class RestApiController {
 	@Autowired
 	DataService dataService;
 	
-	@Value("${daily.fromdate}")
+	///@Value("${daily.fromdate}")
     String deffromdate;
     
-	@Value("${daily.todate}")
+	//@Value("${daily.todate}")
     String deftodate;
     
 	
@@ -138,7 +140,7 @@ public class RestApiController {
 		@RequestParam(value = "curdate") String querydate){
 		
 		String[] codelist=codes.split(",");
-		List<DailyFunds> fundslst=dataService.getDailyFunds(codelist, querydate);
+		List<DailyFunds> fundslst=dataService.getDailyFundsBycode(codelist);
 		return new ResponseEntity<List<DailyFunds>>(fundslst,HttpStatus.OK);
     }
 	
@@ -184,4 +186,43 @@ public class RestApiController {
 		return new ResponseEntity<List<IndicatorPoint>>(lst,HttpStatus.OK);
 	   
 	}
+	
+	//基金经理
+	@RequestMapping(value = "/getFundManager", method = RequestMethod.GET)
+	public ResponseEntity<HashMap<String,Object>> getDailyFunds(
+		@RequestParam(value = "name") String name){
+		
+		
+		
+		HashMap fundmanagersmap=dataService.getFundManager(name);
+		
+		return new ResponseEntity<HashMap<String,Object>>(fundmanagersmap,HttpStatus.OK);
+    }
+	
+	//基金概况
+	@RequestMapping(value = "/getFundInfo", method = RequestMethod.GET)
+	public ResponseEntity<List<DailyFunds>> getFundInfo(
+		@RequestParam(value = "codes") String codes){
+		
+		String[] codelist=codes.split(",");
+		List<DailyFunds> fundslst=dataService.getDailyFundsBycode(codelist);
+		return new ResponseEntity<List<DailyFunds>>(fundslst,HttpStatus.OK);
+
+    }
+	
+	
+	//基金经理
+	@RequestMapping(value = "/getFundCompany", method = RequestMethod.GET)
+	public ResponseEntity<HashMap<String,Object>> getFundCompany(
+			@RequestParam(value = "name") String name){
+			
+			
+			
+			HashMap fundmanagersmap=dataService.getFundCompany(name);
+			
+			return new ResponseEntity<HashMap<String,Object>>(fundmanagersmap,HttpStatus.OK);
+	 }
+		
+		
+	
 }

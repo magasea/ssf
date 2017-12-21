@@ -19,6 +19,10 @@ public class DailyFunds {
 	private String id;
 	@Field("code")
 	private String code;    //基金代码
+	
+	@Field("fname")
+	private String fname;    //基金全称
+	
 	@Field("update")
 	private long update;    //更新日期
 	@Field("querydate")
@@ -41,12 +45,26 @@ public class DailyFunds {
 	@Field("bmindexchgpct")
 	private String bmindexchgpct;//标的指数涨跌幅
 	
+	@Field("custodianbank")
+	private String custodianbank; //基金托管人
+	
+	@Field("founddate")
+	private String founddate ;//基金成立日
+	
 	public String getCode() {
 	    return code;
 	}
 
 	public void setCode(String code) {
 	    this.code = code;
+	}
+	
+	public String getFname() {
+	    return fname;
+	}
+
+	public void setFname(String name) {
+	    this.fname = name;
 	}
 
 	public long getUpdate() {
@@ -133,6 +151,21 @@ public class DailyFunds {
 	    this.bmindexchgpct = bmindexchgpct;
 	}
 
-	
+	public String getCustodianbank() {
+	    return custodianbank;
+	}
+
+	public void setCustodianbank(String custodianbank) {
+	    this.custodianbank= custodianbank;
+	}
+
+	public String getFounddate() {
+	    return founddate;
+	}
+
+	public void setFounddate(String founddate) {
+	    this.founddate = founddate;
+	}
+
 	
 }
