@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.userinfo.model.dao;
+package com.shellshellfish.aaas.userinfo.model;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -19,7 +19,7 @@ public class UiUser {
   private String cellPhone;
   private String birthAge;
   private String occupation;
-  private int activated;
+  private boolean activated;
   private String createdBy;
   private long createdDate;
   private Long lastResetDate;
@@ -81,11 +81,11 @@ public class UiUser {
 
   @Basic
   @Column(name = "activated")
-  public int getActivated() {
+  public boolean isActivated() {
     return activated;
   }
 
-  public void setActivated(int activated) {
+  public void setActivated(boolean activated) {
     this.activated = activated;
   }
 
@@ -237,7 +237,7 @@ public class UiUser {
     result = 31 * result + (cellPhone != null ? cellPhone.hashCode() : 0);
     result = 31 * result + (birthAge != null ? birthAge.hashCode() : 0);
     result = 31 * result + (occupation != null ? occupation.hashCode() : 0);
-    result = 31 * result + activated;
+    result = 31 * result + (activated ? 1 : 0);
     result = 31 * result + (createdBy != null ? createdBy.hashCode() : 0);
     result = 31 * result + (int) (createdDate ^ (createdDate >>> 32));
     result = 31 * result + (lastResetDate != null ? lastResetDate.hashCode() : 0);
