@@ -70,11 +70,16 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         return openAccountResult;
     }
 
-    @Override
-    public BuyFundResult buyFund(String userUuid, String tradeAcco, BigDecimal applySum, String outsideOrderNo, String fundCode) throws Exception {
-        if (fundCode.contains(".")) {
+    private String trimSuffix(String fundCode) {
+        if (fundCode != null && fundCode.contains(".")) {
             fundCode = StringUtils.split(fundCode, ".")[0];
         }
+        return fundCode;
+    }
+
+    @Override
+    public BuyFundResult buyFund(String userUuid, String tradeAcco, BigDecimal applySum, String outsideOrderNo, String fundCode) throws Exception {
+        fundCode = trimSuffix(fundCode);
 
         Map<String, Object> info = init(userUuid);
 
@@ -106,6 +111,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
     @Override
     public SellFundResult sellFund(String userUuid, Integer sellNum, String outsideOrderNo, String tradeAcco, String fundCode) throws Exception {
+        fundCode = trimSuffix(fundCode);
+
         Map<String, Object> info = init(userUuid);
 
         info.put("sell_num", sellNum);
@@ -294,6 +301,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
     @Override
     public String getFundInfo(String fundCode) throws Exception {
+        fundCode = trimSuffix(fundCode);
+
         Map<String, Object> info = init();
         if (!StringUtils.isEmpty(fundCode)) {
             info.put("fundcode", fundCode);
@@ -338,6 +347,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
     @Override
     public String getTradeRate(String fundCode, String businFlag) throws JsonProcessingException {
+        fundCode = trimSuffix(fundCode);
+
         Map<String, Object> info = init();
         info.put("fundcode", fundCode);
         info.put("buinflag", businFlag);
@@ -353,6 +364,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
     @Override
     public List<TradeRateResult> getTradeRateAsList(String fundCode, String businFlag) throws JsonProcessingException {
+        fundCode = trimSuffix(fundCode);
+
         String json = getTradeRate(fundCode, businFlag);
 
         return fillTradeRateResults(json);
@@ -376,6 +389,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
     @Override
     public List<TradeLimitResult> getTradeLimits(String fundCode, String businFlag) throws Exception {
+        fundCode = trimSuffix(fundCode);
+
         Map<String, Object> info = init();
         info.put("fundcode", fundCode);
         info.put("buinflag", businFlag);
@@ -407,6 +422,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
     @Override
     public BigDecimal getDiscount(String fundCode, String businFlag) throws Exception {
+        fundCode = trimSuffix(fundCode);
+
         Map<String, Object> info = init();
         info.put("fundcode", fundCode);
         info.put("businflag", businFlag);
@@ -430,6 +447,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
     @Override
     public BigDecimal getRate(String fundCode, String businFlag) throws Exception {
+        fundCode = trimSuffix(fundCode);
+
         List<TradeRateResult> tradeRateResults = getTradeRateAsList(fundCode, businFlag);
         for(TradeRateResult rateResult: tradeRateResults) {
             if (rateResult.getChngMinTermMark().equals("日常申购费") && rateResult.getChagRateUnitMark().equals("%")) {
@@ -459,6 +478,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
     @Override
     public List<UserBank> getUserBank(String fundCode) throws Exception {
+        fundCode = trimSuffix(fundCode);
+
         Map<String, Object> info = init();
         info.put("fundcode", fundCode);
         postInit(info);
