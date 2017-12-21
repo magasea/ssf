@@ -80,6 +80,8 @@ public class PayServiceImpl implements PayService{
         trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
         trdPayFlow.setCreateBy(trdOrderDetail.getUserId());
         trdPayFlow.setUpdateBy(trdOrderDetail.getUserId());
+//        trdPayFlow.set.setProdId(trdOrderDetail.getProdId());
+
         TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
         notifyPay(trdPayFlowResult);
       }

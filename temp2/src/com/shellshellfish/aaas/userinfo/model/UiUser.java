@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.userinfo.model.dao;
+package com.shellshellfish.aaas.userinfo.model;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;

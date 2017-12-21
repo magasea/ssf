@@ -4,7 +4,7 @@ package com.shellshellfish.aaas.common.enums;
  * Created by chenwei on 2017- 十二月 - 21
  */
 public enum UserRiskTestFlagEnum {
-  DONE(1,"已做"), NOTDONE(0, "未作");
+  DONE(1,"T"), NOTDONE(0, "F");
 
   public int getRiskTestFlag() {
     return riskTestFlag;
