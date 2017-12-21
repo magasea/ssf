@@ -11,6 +11,7 @@ import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowReposito
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,7 @@ public class PayServiceImpl implements PayService{
   public PayDto payOrder(PayDto payDto) throws Exception {
     String trdAcco = payDto.getTrdAccount();
     List<TrdOrderDetail> orderDetailList = payDto.getOrderDetailList();
+    List<Exception > errs = new ArrayList<>();
     for(TrdOrderDetail trdOrderDetail: orderDetailList){
       logger.info("payOrder fundCode:"+trdOrderDetail.getFundCode());
       //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
@@ -49,12 +51,25 @@ public class PayServiceImpl implements PayService{
       trdPayFlow.setCreateBy(0L);
       trdPayFlow.setPayAmount(trdOrderDetail.getFundMoneyQuantity());
       trdPayFlow.setPayStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
-      BuyFundResult fundResult = fundTradeApiService.buyFund(payDto.getUserUuid()
-          , trdAcco, payAmount,String.valueOf(trdOrderDetail.getId()),trdOrderDetail.getFundCode());
-      trdPayFlow.setApplySerial(fundResult.getApplySerial());
-      trdPayFlow.setPayStatus(TradeUtil.getPayFlowStatus(fundResult.getKkstat()));
-      TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
-      notifyPay(trdPayFlowResult);
+      BuyFundResult fundResult = null;
+      try {
+        fundResult = fundTradeApiService.buyFund(payDto.getUserUuid()
+            , trdAcco, payAmount, String.valueOf(trdOrderDetail.getId()),
+            trdOrderDetail.getFundCode());
+      }catch (Exception ex){
+        ex.printStackTrace();
+        logger.error(ex.getMessage());
+        errs.add(ex);
+      }
+      if(null != fundResult){
+        trdPayFlow.setApplySerial(fundResult.getApplySerial());
+        trdPayFlow.setPayStatus(TradeUtil.getPayFlowStatus(fundResult.getKkstat()));
+        TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
+        notifyPay(trdPayFlowResult);
+      }
+    }
+    if(errs.size() > 0){
+      throw new Exception("meet errors in pay api services");
     }
     return payDto;
   }
