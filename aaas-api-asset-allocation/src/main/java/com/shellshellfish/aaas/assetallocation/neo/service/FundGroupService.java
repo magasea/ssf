@@ -77,8 +77,8 @@ public class FundGroupService {
         Map<String, String> _links = new HashMap<>();
         Map<String, Object> map = new HashMap<>();
         for (int i = 1; i < 6; i++) {
-            PerformanceVolatilityReturn pfvr = getPerformanceVolatility("C" + i + "", "2");
-            map.put(i + "", pfvr);
+            PerformanceVolatilityReturn pfvr = getPerformanceVolatility("C" + i, "2");
+            map.put("C" + i, pfvr);
         }
         listMap.add(map);
         fr.set_items(listMap);
@@ -174,6 +174,7 @@ public class FundGroupService {
                 _items.put("value", itr.get(i).getRevenue_contribution());
                 list.add(_items);
             }
+            Map<String, Object> _items = new HashMap<>();
             rcb.setName("配置收益贡献");
             rcb.set_total(itr.size());
             rcb.set_items(list);
@@ -637,11 +638,11 @@ public class FundGroupService {
         query.put("fund_group_id", group_id);
         query.put("subGroupId", subGroupId);
         List<FundNetVal> list = fundGroupMapper.getNavadj(query);
-        /*for (FundNetVal fundNetVal : list){
+        for (FundNetVal fundNetVal : list){
             query.put("num",fundNetVal.getNavadj());
             query.put("time",fundNetVal.getNavLatestDate());
             fundGroupMapper.insertGroupNavadj(query);
-        }*/
+        }
         String groupStartTime = fundGroupMapper.getGroupStartTime(query);
         Calendar ca = Calendar.getInstance();//得到一个Calendar的实例
         Date date = new Date();
