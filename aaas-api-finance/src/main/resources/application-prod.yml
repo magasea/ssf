@@ -56,13 +56,3 @@ application:
         contactEmail:
         license:
         licenseUrl:
-        
-    cors: 
-        allowed-origins: "*"
-        allowed-methods: GET, PUT, POST, DELETE, OPTIONS, HEAD
-        allowed-headers: "*"
-        exposed-headers: X-Total-Count, Link
-        allow-credentials: true
-        max-age: 1800
-
-    

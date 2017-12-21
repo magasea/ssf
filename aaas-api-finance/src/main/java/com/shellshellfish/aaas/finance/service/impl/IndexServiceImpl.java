@@ -141,10 +141,15 @@ public class IndexServiceImpl implements IndexService {
 		result.put("subGroupId", subGroupId);
 		result.put("productTypeList", riskList);
 
-		FundReturn fundReturn = assetAllocationService.selectById(groupId, subGroupId);
-		if(fundReturn!=null){
-			List<Map<String, Double>> assetsRatiosList = fundReturn.getAssetsRatios();
-			result.put("product_list", assetsRatiosList);
+//		FundReturn fundReturn = assetAllocationService.selectById(groupId, subGroupId);
+//		if(fundReturn!=null){
+//			List<Map<String, Double>> assetsRatiosList = fundReturn.getAssetsRatios();
+//			result.put("product_list", assetsRatiosList);
+//		}
+		ReturnType proportionOne = assetAllocationService.getProportionOne(groupId, subGroupId);
+		if(proportionOne!=null){
+			List<Map<String, Object>> proportionOneList = proportionOne.get_items();
+			result.put("product_list", proportionOneList);
 		}
 		//近6个月收益图
 		ReturnType returnType = assetAllocationService.getPortfolioYield(groupId, subGroupId, new Integer(-6), "income");

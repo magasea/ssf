@@ -252,6 +252,30 @@ public class UserInfoController {
 		}
 	}
 	
+	@ApiOperation("解绑银行卡")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=true,value="用户uuid",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="cardno",dataType="String",required=true,value="银行卡ID",defaultValue=""),
+	})
+	@RequestMapping(value = "/unbundlingBankCards", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult unbundlingBankCards(@RequestParam String uuid,@RequestParam String cardno) {
+		Map<Object, Object> result = new HashMap<Object, Object>();
+		try {
+//			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/"+uid+"/unbundlingBankCards/"+cardno, Map.class)
+//					.getBody();
+			restTemplate.delete(userinfoUrl + "/api/userinfo/users/"+uuid+"/unbundlingBankCards/"+cardno);
+			result.put("status", "1");
+			result.put("msg", "解绑成功");
+			return new JsonResult(JsonResult.SUCCESS, "解绑银行卡成功", result);
+		} catch (Exception e) {
+			result = new HashMap<>();
+			result.put("errorCode", "400");
+			result.put("error", "");
+			return new JsonResult(JsonResult.Fail, "解绑银行卡失败", result);
+		}
+	}
+	
 	/**
 	 * 通用方法处理post请求带requestbody
 	 * @param JsonString

@@ -23,13 +23,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 @Service
-public class OneFundApiService implements FundTradeApiService {
+public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
-    private static final Logger logger = LoggerFactory.getLogger(OneFundApiService.class);
+    private static final Logger logger = LoggerFactory.getLogger(FundTradeZhongZhengApiService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public OneFundApiService() {
+    public FundTradeZhongZhengApiService() {
         restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(Charset.forName("UTF-8")));
     }
 
@@ -70,8 +70,17 @@ public class OneFundApiService implements FundTradeApiService {
         return openAccountResult;
     }
 
+    private String trimSuffix(String fundCode) {
+        if (fundCode != null && fundCode.contains(".")) {
+            fundCode = StringUtils.split(fundCode, ".")[0];
+        }
+        return fundCode;
+    }
+
     @Override
     public BuyFundResult buyFund(String userUuid, String tradeAcco, BigDecimal applySum, String outsideOrderNo, String fundCode) throws Exception {
+        fundCode = trimSuffix(fundCode);
+
         Map<String, Object> info = init(userUuid);
 
         info.put("tradeacco", tradeAcco);
@@ -102,6 +111,8 @@ public class OneFundApiService implements FundTradeApiService {
 
     @Override
     public SellFundResult sellFund(String userUuid, Integer sellNum, String outsideOrderNo, String tradeAcco, String fundCode) throws Exception {
+        fundCode = trimSuffix(fundCode);
+
         Map<String, Object> info = init(userUuid);
 
         info.put("sell_num", sellNum);
@@ -290,6 +301,8 @@ public class OneFundApiService implements FundTradeApiService {
 
     @Override
     public String getFundInfo(String fundCode) throws Exception {
+        fundCode = trimSuffix(fundCode);
+
         Map<String, Object> info = init();
         if (!StringUtils.isEmpty(fundCode)) {
             info.put("fundcode", fundCode);
@@ -334,6 +347,8 @@ public class OneFundApiService implements FundTradeApiService {
 
     @Override
     public String getTradeRate(String fundCode, String businFlag) throws JsonProcessingException {
+        fundCode = trimSuffix(fundCode);
+
         Map<String, Object> info = init();
         info.put("fundcode", fundCode);
         info.put("buinflag", businFlag);
@@ -349,6 +364,8 @@ public class OneFundApiService implements FundTradeApiService {
 
     @Override
     public List<TradeRateResult> getTradeRateAsList(String fundCode, String businFlag) throws JsonProcessingException {
+        fundCode = trimSuffix(fundCode);
+
         String json = getTradeRate(fundCode, businFlag);
 
         return fillTradeRateResults(json);
@@ -372,6 +389,8 @@ public class OneFundApiService implements FundTradeApiService {
 
     @Override
     public List<TradeLimitResult> getTradeLimits(String fundCode, String businFlag) throws Exception {
+        fundCode = trimSuffix(fundCode);
+
         Map<String, Object> info = init();
         info.put("fundcode", fundCode);
         info.put("buinflag", businFlag);
@@ -403,6 +422,8 @@ public class OneFundApiService implements FundTradeApiService {
 
     @Override
     public BigDecimal getDiscount(String fundCode, String businFlag) throws Exception {
+        fundCode = trimSuffix(fundCode);
+
         Map<String, Object> info = init();
         info.put("fundcode", fundCode);
         info.put("businflag", businFlag);
@@ -426,6 +447,8 @@ public class OneFundApiService implements FundTradeApiService {
 
     @Override
     public BigDecimal getRate(String fundCode, String businFlag) throws Exception {
+        fundCode = trimSuffix(fundCode);
+
         List<TradeRateResult> tradeRateResults = getTradeRateAsList(fundCode, businFlag);
         for(TradeRateResult rateResult: tradeRateResults) {
             if (rateResult.getChngMinTermMark().equals("日常申购费") && rateResult.getChagRateUnitMark().equals("%")) {
@@ -455,6 +478,8 @@ public class OneFundApiService implements FundTradeApiService {
 
     @Override
     public List<UserBank> getUserBank(String fundCode) throws Exception {
+        fundCode = trimSuffix(fundCode);
+
         Map<String, Object> info = init();
         info.put("fundcode", fundCode);
         postInit(info);
