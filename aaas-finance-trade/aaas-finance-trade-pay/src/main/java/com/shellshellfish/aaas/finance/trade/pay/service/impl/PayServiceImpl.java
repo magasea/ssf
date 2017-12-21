@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import com.shellshellfish.aaas.common.enums.TrdPayFlowStatusEnum;
 import com.shellshellfish.aaas.common.message.order.PayDto;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import com.shellshellfish.aaas.common.utils.DateUtil;
@@ -61,9 +62,24 @@ public class PayServiceImpl implements PayService{
         logger.error(ex.getMessage());
         errs.add(ex);
       }
+      //ToDo: 如果有真实数据， 则删除下面if代码
+      if(null == fundResult){
+
+        fundResult = new BuyFundResult();
+        fundResult.setApplySerial("12312341");
+        fundResult.setCapitalMode("");
+        fundResult.setOutsideOrderNo(""+trdOrderDetail.getId());
+        fundResult.setKkstat(TrdPayFlowStatusEnum.NOTHANDLED.getComment());
+
+      }
       if(null != fundResult){
         trdPayFlow.setApplySerial(fundResult.getApplySerial());
         trdPayFlow.setPayStatus(TradeUtil.getPayFlowStatus(fundResult.getKkstat()));
+        trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
+        trdPayFlow.setFundCode(trdOrderDetail.getFundCode());
+        trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
+        trdPayFlow.setCreateBy(trdOrderDetail.getUserId());
+        trdPayFlow.setUpdateBy(trdOrderDetail.getUserId());
         TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
         notifyPay(trdPayFlowResult);
       }
