@@ -4,16 +4,16 @@ server:
   contextPath: /
 ---
 spring:
-  profiles: test
+  profiles: dev
   data:
       mongodb:
         database: funds
-        host: localhost
+        host: 192.168.1.10
         port: 27017
 
 datasource:
   sampleapp:
-    url: jdbc:mysql://localhost:3306/ssftrdorder?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://192.168.1.10:3306/ssftrdorder?useUnicode=true&characterEncoding=utf-8
     username: sa
     password: abcd1234
     driverClassName: com.mysql.jdbc.Driver

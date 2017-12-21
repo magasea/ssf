@@ -65,4 +65,4 @@ application:
         allow-credentials: true
         max-age: 1800
 
-    
+api-data-manager-url: http://localhost:10030
