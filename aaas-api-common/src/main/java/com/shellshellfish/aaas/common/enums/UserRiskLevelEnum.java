@@ -37,6 +37,19 @@ public enum UserRiskLevelEnum {
     //the value from the lookup HsahMap.
     return (UserRiskLevelEnum) lookup.get(userRiskLevelStr);
   }
+
+  private static final Map lookupByInt =
+      new HashMap();
+  static {
+    //Create reverse lookup hash map
+    for(UserRiskLevelEnum d : UserRiskLevelEnum.values())
+      lookup.put(d.getRiskLevel(), d);
+  }
+  public static UserRiskLevelEnum get(int userRiskLevel) {
+    //the reverse lookup by simply getting
+    //the value from the lookup HsahMap.
+    return (UserRiskLevelEnum) lookup.get(userRiskLevel);
+  }
   private int riskLevel;
   private String comment;
   UserRiskLevelEnum(int riskLevel, String comment){
