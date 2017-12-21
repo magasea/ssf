@@ -1,7 +1,6 @@
 package com.shellshellfish.aaas.userinfo.model.dto;
 
 import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class UserBaseInfoDTO {
 
@@ -15,7 +14,7 @@ public class UserBaseInfoDTO {
 
 	String passwordhash;
 	
-	String isTestFlag;
+	Integer isTestFlag;
 
 	public Long getId() {
 		return id;
@@ -57,11 +56,11 @@ public class UserBaseInfoDTO {
 		this.passwordhash = passwordhash;
 	}
 
-	public String getIsTestFlag() {
+	public Integer getIsTestFlag() {
 		return isTestFlag;
 	}
 
-	public void setIsTestFlag(String isTestFlag) {
+	public void setIsTestFlag(Integer isTestFlag) {
 		this.isTestFlag = isTestFlag;
 	}
 
