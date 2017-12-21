@@ -20,7 +20,7 @@
     </insert>
 
     <select id="selectAllFundGroup" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
-        select * from fund_group a,fund_group_details b,fund_basic c,straegy d
+        select * from fund_group_basic a,fund_group_details b,fund_basic c,straegy d
         where a.id = b.fund_group_id and b.fund_code = c.code and a.id = d.fund_group_id
     </select>
 
