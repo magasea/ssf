@@ -1,8 +1,9 @@
 package com.shellshellfish.aaas.common.message.order;
 
 
+import java.io.Serializable;
 
-public class TrdOrderDetail {
+public class TrdOrderDetail implements Serializable {
 
 	private Long id;
 	private String orderId;
