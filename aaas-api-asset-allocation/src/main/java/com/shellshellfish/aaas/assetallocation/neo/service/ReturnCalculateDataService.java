@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.assetallocation.neo.secvice;
+package com.shellshellfish.aaas.assetallocation.neo.service;
 
 import com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.CovarianceMapper;

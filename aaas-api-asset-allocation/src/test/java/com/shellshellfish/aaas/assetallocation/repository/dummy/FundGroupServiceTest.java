@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.assetallocation.repository.dummy;
 
 import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
-import com.shellshellfish.aaas.assetallocation.neo.secvice.FundGroupService;
+import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupService;
 import com.shellshellfish.aaas.assetallocation.neo.util.MVO;
 import com.shellshellfish.aaas.assetallocation.service.impl.FinanceProductServiceImpl;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
