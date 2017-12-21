@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.finance.trade.model.*;
 import com.shellshellfish.aaas.finance.trade.service.impl.OneFundApiService;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -29,7 +30,7 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-//@Ignore
+@Ignore
 public class OneFundApiServiceTest {
     private static final Logger logger = LoggerFactory.getLogger(OneFundApiService.class);
 
