@@ -96,7 +96,7 @@ public class FundGroupServiceTest {
     @Test
     public void efficientFrontier() {
         System.out.println(System.getProperty("java.library.path"));
-        ReturnType revenueContributionReturn = allocationService.efficientFrontier("1", "2");
+        ReturnType revenueContributionReturn = allocationService.efficientFrontier("1");
         assertTrue(revenueContributionReturn.getName().equals("有效前沿线数据"));
     }
 
