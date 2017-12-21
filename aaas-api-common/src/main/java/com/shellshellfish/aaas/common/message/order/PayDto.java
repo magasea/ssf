@@ -9,6 +9,15 @@ import java.util.List;
 
 public class PayDto implements Serializable{
   String trdAccount;
+  int trdBrokerId;
+
+  public int getTrdBrokerId() {
+    return trdBrokerId;
+  }
+
+  public void setTrdBrokerId(int trdBrokeId) {
+    this.trdBrokerId = trdBrokeId;
+  }
 
   public String getUserUuid() {
     return userUuid;
