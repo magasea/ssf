@@ -7,8 +7,8 @@ public class FundBasic {
 
     private String name;//基金简称
     private String fname;//基金全称
-    private String fund_type_one;//基金投资二级分类
-    private String fund_type_two;//基金投资二级分类
+    private String fund_type_one;//
+    private String fund_type_two;//
 
     public String getFund_type_one() {
         return fund_type_one;

@@ -31,7 +31,7 @@ public class CalculateMaxdrawdowns {
                 maxdrawdownValue=Double.parseDouble(result[0].toString());
 
             }
-            matLab.dispose();
+
         } catch (MWException e) {
             logger.error("Failed to calculateMaxdrawdown!");
             e.printStackTrace();

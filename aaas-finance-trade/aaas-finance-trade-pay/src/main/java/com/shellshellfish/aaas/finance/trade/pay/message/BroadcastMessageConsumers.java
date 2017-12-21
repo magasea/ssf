@@ -1,13 +1,19 @@
 package com.shellshellfish.aaas.finance.trade.pay.message;
 
 
+import com.shellshellfish.aaas.common.message.order.PayDto;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Component;
 import org.springframework.amqp.core.Message;
@@ -18,20 +24,18 @@ public class BroadcastMessageConsumers {
     @Autowired
     PayService payService;
 
-    @Autowired
-    TrdPayFlowRepository trdPayFlowRepository;
 
-    public void receiveMessage(Message message) throws Exception {
 
-        if(TrdOrderDetail.class.isInstance(message.getBody())) {
-            logger.info("isInstance: " + message);
-//            TrdOrderDetail trdOrderPay = (TrdOrderDetail) message.getBody();
-//            TrdPayFlow trdPayFlow = payService.payOrder(trdOrderPay);
-//            TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
-//            payService.notifyPay(trdPayFlowResult);
-        }else{
-            logger.info("receiveMessageFromFanout1: " + message);
-        }
+
+
+    @RabbitListener( containerFactory = "jsaFactory",bindings = @QueueBinding(
+        value = @Queue(value = "${spring.rabbitmq.topicQueueOrderName}", durable = "false"),
+        exchange =  @Exchange(value = "${spring.rabbitmq.topicExchangeName}", type = "topic",
+            durable = "true"),  key = "${spring.rabbitmq.topicPay}")
+    )
+    public void receiveMessage(PayDto message) throws Exception {
+        PayDto payDto = payService.payOrder(message);
+
 
     }
 

@@ -1,10 +1,11 @@
 package com.shellshellfish.aaas.common.message.order;
 
+
 import java.io.Serializable;
 
-public class TrdOrderDetail {
+public class TrdOrderDetail implements Serializable {
 
-	private long id;
+	private Long id;
 	private String orderId;
 	private String tradeApplySerial;
 	private long boughtDate;
@@ -13,10 +14,8 @@ public class TrdOrderDetail {
 	private long payFee;
 	private long userId;
 	private long prodId;
-	private int tradeBrokeId;
-	private String tradeAccount;
 	private String fundCode;
-	private long fundQuantity;
+	private long fundMoneyQuantity;
 	private long fundNum;
 	private long fundNumConfirmed;
 	private long buyFee;
@@ -29,11 +28,12 @@ public class TrdOrderDetail {
 
 	
 	
-	public long getId() {
+	
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -129,12 +129,12 @@ public class TrdOrderDetail {
 
 	
 	
-	public long getFundQuantity() {
-		return fundQuantity;
+	public long getFundMoneyQuantity() {
+		return fundMoneyQuantity;
 	}
 
-	public void setFundQuantity(long fundQuantity) {
-		this.fundQuantity = fundQuantity;
+	public void setFundMoneyQuantity(long fundMoneyQuantity) {
+		this.fundMoneyQuantity = fundMoneyQuantity;
 	}
 
 	
@@ -227,22 +227,7 @@ public class TrdOrderDetail {
 		this.updateDate = updateDate;
 	}
 
-	public int getTradeBrokeId() {
-		return tradeBrokeId;
-	}
-
-	public void setTradeBrokeId(int tradeBrokeId) {
-		this.tradeBrokeId = tradeBrokeId;
-	}
-
-	public String getTradeAccount() {
-		return tradeAccount;
-	}
-
-	public void setTradeAccount(String tradeAccount) {
-		this.tradeAccount = tradeAccount;
-	}
-
+	
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -274,7 +259,7 @@ public class TrdOrderDetail {
 		if (prodId != that.prodId) {
 			return false;
 		}
-		if (fundQuantity != that.fundQuantity) {
+		if (fundMoneyQuantity != that.fundMoneyQuantity) {
 			return false;
 		}
 		if (fundNum != that.fundNum) {
@@ -330,7 +315,7 @@ public class TrdOrderDetail {
 		result = 31 * result + (int) (userId ^ (userId >>> 32));
 		result = 31 * result + (int) (prodId ^ (prodId >>> 32));
 		result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
-		result = 31 * result + (int) (fundQuantity ^ (fundQuantity >>> 32));
+		result = 31 * result + (int) (fundMoneyQuantity ^ (fundMoneyQuantity >>> 32));
 		result = 31 * result + (int) (fundNum ^ (fundNum >>> 32));
 		result = 31 * result + (int) (fundNumConfirmed ^ (fundNumConfirmed >>> 32));
 		result = 31 * result + (int) (buyFee ^ (buyFee >>> 32));

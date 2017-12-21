@@ -11,7 +11,13 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRe
 import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Component;
 
@@ -25,26 +31,26 @@ public class BroadcastMessageConsumers {
     @Autowired
     TrdOrderDetailRepository trdOrderDetailRepository;
 
-    public void receiveMessage(GenericMessage message) throws Exception {
-        logger.info("Received fanout 1 message: " + message);
 
-        if(TrdPayFlow.class.isInstance(message.getPayload())){
-            TrdPayFlow trdPayFlow = (TrdPayFlow) message.getPayload();
-            logger.info("receiveMessageFromFanout1: " + trdPayFlow.getFundCode());
-            TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
-            trdOrderDetail.setId(trdPayFlow.getOrderDetailId());
-            trdOrderDetail.setBuyFee(trdPayFlow.getBuyFee());
-            trdOrderDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
-            trdOrderDetail.setUpdateDate(TradeUtil.getUTCTime());
-            trdOrderDetail.setOrderDetailStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
-            trdOrderDetailRepository.save(trdOrderDetail);
-        }else{
-            logger.info("receiveMessageFromFanout1: " + message);
-        }
+    @Value("${spring.rabbitmq.topicOrder}")
+    String topicOrder;
 
 
-
-//        orderService.notifyPay(trdPayFlowResult);
+    @RabbitListener(bindings = @QueueBinding(
+        value = @Queue(value = "${spring.rabbitmq.topicQueuePayName}", durable = "false"),
+        exchange =  @Exchange(value = "${spring.rabbitmq.topicExchangeName}", type = "topic",
+            durable = "true"),  key = "${spring.rabbitmq.topicOrder}")
+    )
+    public void receiveMessage(TrdPayFlow trdPayFlow) throws Exception {
+        logger.info("Received fanout 1 message: " + trdPayFlow);
+        logger.info("receiveMessageFromFanout1: " + trdPayFlow.getFundCode());
+        TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
+        trdOrderDetail.setId(trdPayFlow.getOrderDetailId());
+        trdOrderDetail.setBuyFee(trdPayFlow.getBuyFee());
+        trdOrderDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+        trdOrderDetail.setUpdateDate(TradeUtil.getUTCTime());
+        trdOrderDetail.setOrderDetailStatus(trdPayFlow.getPayStatus());
+        trdOrderDetailRepository.save(trdOrderDetail);
     }
 
 }

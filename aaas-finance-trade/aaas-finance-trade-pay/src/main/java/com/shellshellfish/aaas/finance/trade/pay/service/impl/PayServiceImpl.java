@@ -1,14 +1,17 @@
 package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import com.shellshellfish.aaas.common.message.order.PayDto;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import com.shellshellfish.aaas.common.utils.DateUtil;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
 import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
+import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -28,25 +31,32 @@ public class PayServiceImpl implements PayService{
   @Autowired
   FundTradeApiService fundTradeApiService;
 
+  @Autowired
+  TrdPayFlowRepository trdPayFlowRepository;
 
 
   @Override
-  public TrdPayFlow payOrder(TrdOrderDetail trdOrderPay) throws Exception {
-    logger.info("payOrder fundCode:"+trdOrderPay.getFundCode());
-
-    //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
-    trdOrderPay.getFundCode();
-    BigDecimal payAmount = TradeUtil.getBigDecimalNumWithMul100(trdOrderPay.getPayAmount());
-    //TODO: replace userId with userUuid
-    BuyFundResult fundResult = fundTradeApiService.buyFund(Long.toString(trdOrderPay.getUserId()), trdOrderPay.getTradeAccount(), payAmount,
-        String.valueOf(trdOrderPay.getId()),trdOrderPay.getFundCode());
-    TrdPayFlow trdPayFlow = new TrdPayFlow();
-    trdPayFlow.setCreateDate(DateUtil.getCurrentDateInLong());
-    trdPayFlow.setCreateBy(0L);
-    trdPayFlow.setPayAmount((trdOrderPay.getPayAmount()));
-    trdPayFlow.setPayStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
-
-    return trdPayFlow;
+  public PayDto payOrder(PayDto payDto) throws Exception {
+    String trdAcco = payDto.getTrdAccount();
+    List<TrdOrderDetail> orderDetailList = payDto.getOrderDetailList();
+    for(TrdOrderDetail trdOrderDetail: orderDetailList){
+      logger.info("payOrder fundCode:"+trdOrderDetail.getFundCode());
+      //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
+      BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundMoneyQuantity());
+      //TODO: replace userId with userUuid
+      TrdPayFlow trdPayFlow = new TrdPayFlow();
+      trdPayFlow.setCreateDate(DateUtil.getCurrentDateInLong());
+      trdPayFlow.setCreateBy(0L);
+      trdPayFlow.setPayAmount(trdOrderDetail.getFundMoneyQuantity());
+      trdPayFlow.setPayStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
+      BuyFundResult fundResult = fundTradeApiService.buyFund(payDto.getUserUuid()
+          , trdAcco, payAmount,String.valueOf(trdOrderDetail.getId()),trdOrderDetail.getFundCode());
+      trdPayFlow.setApplySerial(fundResult.getApplySerial());
+      trdPayFlow.setPayStatus(TradeUtil.getPayFlowStatus(fundResult.getKkstat()));
+      TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
+      notifyPay(trdPayFlowResult);
+    }
+    return payDto;
   }
 
   @Override

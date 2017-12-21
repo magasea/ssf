@@ -1,5 +1,7 @@
 package com.shellshellfish.aaas.common.utils;
 
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import com.shellshellfish.aaas.common.enums.TrdPayFlowStatusEnum;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Calendar;
@@ -62,11 +64,22 @@ public class TradeUtil {
     return Math.round(originNum/100.0);
   }
 
-  public static BigDecimal getBigDecimalNumWithMul100(Long originNum){
+  public static BigDecimal getBigDecimalNumWithDiv100(Long originNum){
 
 
     return new BigDecimal(originNum).divide(BigDecimal.valueOf(100));
 
+  }
+
+  public static int getPayFlowStatus(String kkstat){
+    if(kkstat.equals(TrdPayFlowStatusEnum.CONFIRMSUCCESS) || kkstat.equals(TrdPayFlowStatusEnum.REALTIMECONFIRMSUCESS)){
+      return TrdOrderStatusEnum.CONFIRMED.getStatus();
+    }else if(kkstat.equals(TrdPayFlowStatusEnum.CONFIRMFAILED) || kkstat.equals
+        (TrdPayFlowStatusEnum.NOTHANDLED)){
+      return TrdOrderStatusEnum.FAILED.getStatus();
+    }else{
+      return TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus();
+    }
   }
 
 
