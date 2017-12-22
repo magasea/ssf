@@ -49,7 +49,6 @@ public class FundAllReturn {
     public String get_schemaVersion() {
         return _schemaVersion;
     }
-
     public void set_schemaVersion(String _schemaVersion) {
         this._schemaVersion = _schemaVersion;
     }

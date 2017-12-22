@@ -15,12 +15,27 @@ import com.shellshellfish.aaas.dto.FinanceProductCompo;
 @Service
 public interface MidApiService {
 	/**
-	 * 获取产品的code，名字，净值增长和精致增长率图表数据
+	 * 获取产品的code，名字，净值增长值
 	 * @param groupId
 	 * @param subGroupId
 	 * @return
 	 */
-	Map<String,Object> getPrdNPVIncrement(String groupId,String subGroupId);
+	Map<String,Object> getPrdNPVList(String groupId,String subGroupId);
 	
+	/**
+	 * 获取产品的年收益率和最大回撤率
+	 * @param groupId
+	 * @param subGroupId
+	 * @return
+	 */
+	Map<String,Object> getExpAnnualAndMaxReturn(String groupId,String subGroupId);
+	
+	/**
+	 * 获取优化方案后的结果
+	 * @param riskLevel
+	 * @param invstTerm
+	 * @return
+	 */
+	Map<String,Object> getOptAdjustment(String riskLevel,String invstTerm);
 	
 }

@@ -1,11 +1,11 @@
 package com.shellshellfish.aaas.userinfo.exception;
 
-public class UserException extends RuntimeException {
+public class UserInfoException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 	private String code;
 	private String msg;
 
-	public UserException(String code, String msg) {
+	public UserInfoException(String code, String msg) {
 		this.code = code;
 		this.msg = msg;
 	}

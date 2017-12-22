@@ -114,7 +114,7 @@
     </select>
     
     <select id="getScaleMark" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.RiskIncomeInterval">
-        select risk_num,income_num from fund_group_sub where fund_group_id=#{id}
+        select risk_num,income_num from fund_group_sub where fund_group_id=#{id} order by #{slidebarType}
     </select>
 
     <select id="getFundNetValue" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">

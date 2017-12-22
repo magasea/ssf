@@ -68,7 +68,7 @@ public interface UserInfoRepoService {
 
 	UserBaseInfoDTO findByCellphone(String cellphone);
 
-	Boolean updateCellphone(String cellphone, String isTestFlag);
+	Boolean updateCellphone(String cellphone, String isTestFlag, String riskLevel);
 
 	public UserSysMsgDTO addUiSysMsg(UiSysMsg uiSysMsg) throws IllegalAccessException,
 			InstantiationException;

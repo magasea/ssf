@@ -53,8 +53,10 @@ public interface UserInfoService {
 
 	Boolean addUiUser(String userUuid, String cellphone, String isTestFlag);
 
-	Boolean updateUiUser(String cellphone, String isTestFlag);
+	//Boolean updateUiUser(String cellphone, String isTestFlag);
 
 	UserBaseInfoDTO selectUiUser(String cellphone);
+
+	Boolean updateUiUser(String cellphone, String isTestFlag, String riskLevel);
 
 }
