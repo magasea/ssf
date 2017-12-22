@@ -16,10 +16,10 @@ public class FundReturn {
     private String name;
     private Map<String,String> investmentPeriod;
     private Map<String,String> riskToleranceLevel;
-    private double minAnnualizedReturn;
+    /*private double minAnnualizedReturn;
     private double maxAnnualizedReturn;
     private double minRiskLevel;
-    private double maxRiskLevel;
+    private double maxRiskLevel;*/
     private Map<String,String> _links;
     private Long creationTime;
     private String _schemaVersion;
@@ -51,7 +51,7 @@ public class FundReturn {
         this.subGroupId = subGroupId;
     }
 
-    public double getMinAnnualizedReturn() {
+    /*public double getMinAnnualizedReturn() {
         return minAnnualizedReturn;
     }
 
@@ -81,7 +81,7 @@ public class FundReturn {
 
     public void setMaxRiskLevel(double maxRiskLevel) {
         this.maxRiskLevel = maxRiskLevel;
-    }
+    }*/
 
     public Long getCreationTime() {
         return creationTime;
