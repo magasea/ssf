@@ -25,7 +25,7 @@
     </select>
 
     <select id="selectAllFundGroupNum" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
-        select fund_group_id,count(fund_group_id) total from fund_group_details GROUP BY fund_group_id
+        select id fund_group_id,fund_group_name from fund_group
     </select>
 
     <select id="selectById" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
@@ -114,7 +114,7 @@
     </select>
     
     <select id="getScaleMark" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.RiskIncomeInterval">
-        select risk_num,income_num from fund_group_sub where fund_group_id=#{id} order by #{slidebarType}
+        select id,risk_num,income_num from fund_group_sub where fund_group_id=#{id} order by #{slidebarType}
     </select>
 
     <select id="getFundNetValue" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
