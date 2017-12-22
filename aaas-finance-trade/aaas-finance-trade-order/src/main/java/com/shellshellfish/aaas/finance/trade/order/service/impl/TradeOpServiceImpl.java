@@ -36,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 public class TradeOpServiceImpl implements TradeOpService {
@@ -90,6 +91,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       logger.info("failed to get prod make up informations!");
       throw new Exception("failed to get prod make up informations!");
     }
+
     return genOrderFromBuyInfoAndProdMakeUpInfo(financeProdBuyInfo, productMakeUpInfos);
 
   }
@@ -102,6 +104,10 @@ public class TradeOpServiceImpl implements TradeOpService {
     PayDto payDto = new PayDto();
     List<TrdBrokerUser> trdBrokerUsers = trdBrokerUserRepository.findByUserId(financeProdBuyInfo.getUserId());
     int trdBrokerId = trdBrokerUsers.get(0).getTradeBrokerId();
+    if(StringUtils.isEmpty(trdBrokerUsers.get(0).getTradeAcco())){
+        //Todo: get userBankCardInfo to make tradAcco
+      logger.info("test");
+    }
     String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdBuyInfo.getBankAcc()
             .substring(0,6)),trdBrokerId);
     payDto.setTrdAccount(trdBrokerUsers.get(0).getTradeAcco());
