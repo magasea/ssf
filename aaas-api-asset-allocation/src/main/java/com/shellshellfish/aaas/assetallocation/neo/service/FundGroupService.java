@@ -675,8 +675,10 @@ public class FundGroupService {
         List<Map<String, Object>> list = new ArrayList<>();
         Map<String, String> _links = new HashMap<>();
         Map<String, String> query = new HashMap<>();
-        query.put("fund_group_id", id);
-        query.put("subGroupId", subGroupId);
+        /*query.put("fund_group_id", id);
+        query.put("subGroupId", subGroupId);*/
+        query.put("fund_group_id", "1");
+        query.put("subGroupId", "1");
         List<FundGroupExpectedIncome> fgeiList = fundGroupMapper.getExpectedIncome(query);
         if (fgeiList.size() != 0) {
             for (FundGroupExpectedIncome fgei : fgeiList) {

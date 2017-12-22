@@ -39,13 +39,14 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) {
 	Map<String,Object> resultMap=new HashMap<String,Object>();
 	List<FundNAVInfo> resultList=new ArrayList<FundNAVInfo>();
     //获取所有产品净值增长值的list
-	List<FundNAVInfo> listA=getNPVIncrement(groupId, subGroupId);
+ 	List<FundNAVInfo> listA=getNPVIncrement(groupId, subGroupId);
 	//获取所有产品净值增长率的list
 	List<FundNAVInfo> listB=getNPVIncrementRate(groupId, subGroupId);
 	//遍历每一个对象进行对比
 	if(listA==null||listB==null){
 		logger.error("获取净值增长值活净值增长率为null");
-		resultMap.put("list", resultList);
+		resultMap.put("error", "获取净值增长值或净值增长率为空值");
+		return resultMap;
 	}
 	for (FundNAVInfo infoA:listA){
 		for (FundNAVInfo infoB:listB){

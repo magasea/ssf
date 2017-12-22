@@ -110,11 +110,12 @@ public class FinanceController {
 			   if (object instanceof List){
 				   //转换成List
 				   prdList=(List<Map<String,Object>>)object;
+				   try{
 				   for (Map<String,Object> productMap:prdList){
 					   //获取goupid和subGroupId
-					  String groupId= productMap.get("groupId").toString();
-					  String subGroupId= productMap.get("subGroupId").toString();
-					  String prdName=productMap.get("name").toString();
+					  String groupId= (productMap.get("groupId"))==null?null:(productMap.get("groupId")).toString();
+					  String subGroupId= (productMap.get("subGroupId"))==null?null:(productMap.get("subGroupId")).toString();
+					  String prdName=productMap.get("name")==null?null:(productMap.get("name")).toString();
 				      Map productCompo=(Map) productMap.get("assetsRatios");
 					   //去另一接口获取历史收益率图表的数据
 					  Map histYieldRate = getCombYieldRate(groupId,subGroupId);
@@ -123,7 +124,13 @@ public class FinanceController {
 					  Map ExpMaxReturn=getExpMaxReturn(groupId,subGroupId);
 					  //将结果封装进实体类
 					  FinanceProductCompo prd=new FinanceProductCompo(groupId, subGroupId, prdName, ExpMaxReturn.size()>0?ExpAnnReturn.get("value").toString():null, ExpMaxReturn.size()>0?ExpAnnReturn.get("value").toString():null, productCompo, histYieldRate);
-					  resultList.add(prd);			  				                                              }
+					  resultList.add(prd);			  				                                             
+					  }
+				   }catch (Exception e){
+					   result.clear();
+					   result.put("error","获取产品的field属性失败");
+					   return new JsonResult(JsonResult.Fail, "获取失败", result);
+				   }
 			                             }
 			                  }else{
 			return new JsonResult(JsonResult.Fail, "没有获取到产品", null);
