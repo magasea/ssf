@@ -169,7 +169,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
 
         Map<String, Object> info = init();
         info.put("fundcode", fundCode);
-        info.put("buinflag", businFlag);
+        info.put("businflag", businFlag);
         postInit(info);
 
         String url = "https://onetest.51fa.la/v2/internet/fundapi/get_rate";
@@ -211,7 +211,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
 
         Map<String, Object> info = init();
         info.put("fundcode", fundCode);
-        info.put("buinflag", businFlag);
+        info.put("businflag", businFlag);
         postInit(info);
 
         String url = "https://onetest.51fa.la/v2/internet/fundapi/get_trade_limit";
@@ -264,12 +264,28 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
     }
 
     @Override
-    public BigDecimal getRate(String fundCode, String businFlag) throws Exception {
+    public BigDecimal getRateOfBuyFund(String fundCode, String businFlag) throws Exception {
+        // TODO:
         fundCode = trimSuffix(fundCode);
 
         List<TradeRateResult> tradeRateResults = getTradeRateAsList(fundCode, businFlag);
         for(TradeRateResult rateResult: tradeRateResults) {
             if (rateResult.getChngMinTermMark().equals("日常申购费") && rateResult.getChagRateUnitMark().equals("%")) {
+                Double rate = Double.parseDouble(rateResult.getChagRateUpLim())/100d;
+                return BigDecimal.valueOf(rate);
+            }
+        }
+        throw new Exception("no rate found");
+    }
+
+    @Override
+    public BigDecimal getRateOfSellFund(String fundCode, String businFlag) throws Exception {
+        // TODO:
+        fundCode = trimSuffix(fundCode);
+
+        List<TradeRateResult> tradeRateResults = getTradeRateAsList(fundCode, businFlag);
+        for(TradeRateResult rateResult: tradeRateResults) {
+            if (rateResult.getChngMinTermMark().equals("日常赎回费") && rateResult.getChagRateUnitMark().equals("%")) {
                 Double rate = Double.parseDouble(rateResult.getChagRateUpLim())/100d;
                 return BigDecimal.valueOf(rate);
             }
@@ -285,12 +301,12 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
     }
 
     @Override
-    public BigDecimal calcPoundage(BigDecimal amount, BigDecimal rate, BigDecimal discount){
+    public BigDecimal calcPoundageSaving(BigDecimal amount, BigDecimal rate, BigDecimal discount){
         return amount.multiply(rate).multiply(discount);
     }
 
     @Override
-    public BigDecimal calcDiscountPoundage(BigDecimal amount, BigDecimal rate, BigDecimal discount) {
+    public BigDecimal calcDiscountSaving(BigDecimal amount, BigDecimal rate, BigDecimal discount) {
         return amount.multiply(rate).multiply(BigDecimal.ONE.subtract(discount));
     }
 

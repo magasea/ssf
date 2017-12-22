@@ -1,18 +1,19 @@
 package com.shellshellfish.aaas.finance.trade.order.service;
 
-import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
+import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
+import com.shellshellfish.aaas.finance.trade.order.model.PoundageResult;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.concurrent.ExecutionException;
+import java.util.List;
 
 @Service
 public interface FinanceProdCalcService {
-    BigDecimal getMinBuyAmount(ProductBaseInfo productBaseInfo) throws Exception;
+    BigDecimal getMinBuyAmount(List<ProductMakeUpInfo> productMakeUpInfoList) throws Exception;
 
-    BigDecimal getMaxBuyAmount(ProductBaseInfo productBaseInfo) throws ExecutionException, InterruptedException;
+    BigDecimal getMaxBuyAmount(List<ProductMakeUpInfo> productMakeUpInfoList) throws Exception;
 
-    BigDecimal getPoundageOfBuyFund(BigDecimal amount, ProductBaseInfo productBaseInfo) throws ExecutionException, InterruptedException;
+    PoundageResult getPoundageOfBuyFund(BigDecimal amount, List<ProductMakeUpInfo> productMakeUpInfoList) throws Exception;
 
-    BigDecimal getPoundageDiscountSavingOfBuyFund(BigDecimal amount, ProductBaseInfo productBaseInfo) throws ExecutionException, InterruptedException;
+    PoundageResult getPoundageOfSellFund(BigDecimal totalAmount, List<ProductMakeUpInfo> productMakeUpInfoList) throws Exception;
 }

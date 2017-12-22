@@ -30,13 +30,15 @@ public interface FundInfoApiService {
 
     BigDecimal getDiscount(String fundCode, String businFlag) throws Exception;
 
-    BigDecimal getRate(String fundCode, String businFlag) throws Exception;
+    BigDecimal getRateOfBuyFund(String fundCode, String businFlag) throws Exception;
+
+    BigDecimal getRateOfSellFund(String fundCode, String businFlag) throws Exception;
 
     BigDecimal calcPoundageByTotalAmount(BigDecimal totalAmount, BigDecimal rate, BigDecimal discount);
 
-    BigDecimal calcPoundage(BigDecimal amount, BigDecimal rate, BigDecimal discount);
+    BigDecimal calcPoundageSaving(BigDecimal amount, BigDecimal rate, BigDecimal discount);
 
-    BigDecimal calcDiscountPoundage(BigDecimal amount, BigDecimal rate, BigDecimal discount);
+    BigDecimal calcDiscountSaving(BigDecimal amount, BigDecimal rate, BigDecimal discount);
 
     List<UserBank> getUserBank(String fundCode) throws Exception;
 
