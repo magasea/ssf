@@ -685,14 +685,15 @@ public class OneFundApiService implements FundTradeApiService {
     private String makeMsg(Map<String, Object> param) {
         List<String> keys  = new ArrayList<>(param.keySet());
         Collections.sort(keys);
-        String str = "";
+        StringBuilder builder = new StringBuilder();// str = "";
         for(String key:keys) {
-            str += key;
-            str += param.get(key);
+            builder.append(key).append(param.get(key));
+//            str += key;
+//            str += param.get(key);
         }
-        logger.info("str :{}", str);
+        logger.info("str :{}", builder.toString());
 
-        String sign = md5(str);
+        String sign = md5(builder.toString());
         return sign;
     }
 
