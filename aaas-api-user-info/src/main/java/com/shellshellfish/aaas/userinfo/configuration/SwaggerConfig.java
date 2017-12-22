@@ -30,10 +30,8 @@ public class SwaggerConfig {
                 "Spring Boot REST API for Online Store",
                 "1.0",
                 "Terms of service",
-                new Contact("chen wei", "https://www.shellshellfish.com/about/",
-                    "david.chen@shellshellfish.com"),
-               "Apache License Version 2.0",
-                "https://www.apache.org/licenses/LICENSE-2.0");
+                "chen wei", "https://www.shellshellfish.com/about/",
+                    "david.chen@shellshellfish.com" );
         return apiInfo;
     }
 }

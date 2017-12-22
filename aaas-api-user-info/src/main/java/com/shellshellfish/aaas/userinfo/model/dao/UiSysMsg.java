@@ -18,13 +18,13 @@ public class UiSysMsg {
 
 	private String content;
 
-	private String createdBy;
+	private Long createdBy;
 
 	private Long createdDate;
 
-	private String lastModifiedBy;
+	private Long updateBy;
 
-	private Long lastModifiedDate;
+	private Long updateDate;
 
 	private String date;
 
@@ -54,11 +54,11 @@ public class UiSysMsg {
 		this.content = content;
 	}
 
-	public String getCreatedBy() {
+	public Long getCreatedBy() {
 		return createdBy;
 	}
 
-	public void setCreatedBy(String createdBy) {
+	public void setCreatedBy(Long createdBy) {
 		this.createdBy = createdBy;
 	}
 
@@ -70,20 +70,20 @@ public class UiSysMsg {
 		this.createdDate = createdDate;
 	}
 
-	public String getLastModifiedBy() {
-		return lastModifiedBy;
+	public Long getUpdateBy() {
+		return updateBy;
 	}
 
-	public void setLastModifiedBy(String lastModifiedBy) {
-		this.lastModifiedBy = lastModifiedBy;
+	public void setUpdateBy(Long updateBy) {
+		this.updateBy = updateBy;
 	}
 
-	public Long getLastModifiedDate() {
-		return lastModifiedDate;
+	public Long getUpdateDatepdateDate() {
+		return updateDate;
 	}
 
-	public void setLastModifiedDate(Long lastModifiedDate) {
-		this.lastModifiedDate = lastModifiedDate;
+	public void setUpdateDate(Long updateDate) {
+		this.updateDate = updateDate;
 	}
 
 	public String getDate() {
@@ -105,7 +105,7 @@ public class UiSysMsg {
 	@Override
 	public String toString() {
 		return "UiSysMsg{" + ", content='" + content + '\'' + ", source='" + source + '\'' + ", createdBy='" + createdBy
-				+ '\'' + ", createdDate=" + createdDate + ", lastModifiedBy='" + lastModifiedBy + '\''
-				+ ", lastModifiedDate=" + lastModifiedDate + ", date=" + date + ", title='" + title + '\'' + '}';
+				+ '\'' + ", createdDate=" + createdDate + ", updateBy='" + updateBy + '\''
+				+ ", lastModifiedDate=" + updateDate + ", date=" + date + ", title='" + title + '\'' + '}';
 	}
 }

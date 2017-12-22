@@ -190,11 +190,74 @@ public class DataServiceImpl implements DataService {
 	}
 	
 	
-	//非货币基金:区间复权单位净值增长率
-	//货币基金:区间涨跌幅
+	//场内基金(SH,SZ):区间涨跌幅
+	//场外基金(OF):区间复权单位净值增长率
 	public String getYearscale(String code) {
 		return "";
 	}
 		
+	//历史净值
+	public HashMap<String,Object> getHistoryNetvalue(String code,String period){
+		HashMap<String,Object> hnmap=new HashMap<String,Object>();
+		hnmap.put("code", code);
+		hnmap.put("period", period);
+		
+		HashMap[] dmap=new HashMap[10];
+		for (int i=0;i<10;i++) {
+			 dmap[i]=new HashMap<String,String>();
+			 int index=i+1;
+			 String hitemstr="date"+index+"|||"+"unit net"+index+"|||"+"accum"+index+"|||"+"day scale"+index; //还需要一个年化收益率
+			 dmap[i].put("historydetail",hitemstr);
+			 
+		}
+		hnmap.put("historylist",dmap);
+		return hnmap;
+				
+	}
+	
+	public HashMap<String,Object> getFundValueInfo(String code){
+		HashMap<String,Object> hnmap=new HashMap<String,Object>();
+		hnmap.put("code", code); //代码
+		HashMap<String,Object> dmap=new HashMap<String,Object>();
+		
+		dmap.put("value", "3%");
+		dmap.put("grade", "100/150");
+		hnmap.put("dayscale",dmap); //日涨幅
+		
+		HashMap<String,Object> y1map=new HashMap<String,Object>();
+		y1map.put("value", "10%");
+		y1map.put("grade", "120/150");
+		hnmap.put("y1scale", y1map);//年涨幅
+		
+		HashMap<String,Object> y3map=new HashMap<String,Object>();
+		y3map.put("value", "14%");
+		y3map.put("grade", "20/150");
+		hnmap.put("y3scale", y3map);//年涨幅
+		
+		HashMap<String,Object> weekmap=new HashMap<String,Object>();
+		weekmap.put("value", "-4%");
+		weekmap.put("grade", "140/150");
+		hnmap.put("weekscale", weekmap);//周涨幅
+		
+		HashMap<String,Object> m1map=new HashMap<String,Object>();
+		m1map.put("value", "7%");
+		m1map.put("grade", "70/150");
+		hnmap.put("m1scale", m1map);//1个月涨幅
+		
+		HashMap<String,Object> m3map=new HashMap<String,Object>();
+		m3map.put("value", "1%");
+		m3map.put("grade", "50/150");
+		hnmap.put("m3scale", m3map);//3个月涨幅
+		
+		HashMap<String,Object> m6map=new HashMap<String,Object>();
+		m6map.put("value", "-5%");
+		m6map.put("grade", "90/150");
+		hnmap.put("m6scale", m6map);//6个月涨幅
+		
+		hnmap.put("net", "3.5");//净值
+		hnmap.put("classtype", "2");//分级类型
+		hnmap.put("rate", "4");//评级
+		return hnmap;
+	}
 	
 }

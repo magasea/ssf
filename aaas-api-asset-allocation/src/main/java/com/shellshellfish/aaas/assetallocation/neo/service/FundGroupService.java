@@ -26,37 +26,30 @@ public class FundGroupService {
      * @return
      */
     public FundAllReturn selectAllFundGroup() {
-        List<Interval> fundGroup = fundGroupMapper.selectAllFundGroup();
         List<Interval> fundGroupNum = fundGroupMapper.selectAllFundGroupNum();
+        //
         List<Map<String, Object>> list = new ArrayList<>();
         FundAllReturn far = new FundAllReturn();
         if (fundGroupNum.size() != 0) {
-            for (int i = 0; i < fundGroupNum.size(); i++) {
+            for(Interval interval : fundGroupNum){
                 Map<String, Object> _items = new HashMap<>();
-                Map<String, String> _links = new HashMap<>();
                 Map<String, Double> assetsRatios = new HashMap<>();
-                for (Interval interval : fundGroup) {
-                    if (interval.getFund_group_id().equalsIgnoreCase(fundGroupNum.get(i).getFund_group_id())) {
-                        Map<String, String> query = new HashMap<>();
-                        query.put("id", interval.getFund_group_id());
-                        query.put("subId", interval.getFund_group_sub_id());
-                        List<Interval> intervals = fundGroupMapper.getProportion(query);
-                        //基金组合内的各基金权重
-                        for (Interval inter : intervals) {
-                            assetsRatios.put(inter.getFund_type_two(), inter.getProportion());
-                        }
-                        _items.put("groupId", interval.getFund_group_id());
-                        _items.put("subGroupId", interval.getFund_group_sub_id());
-                        _items.put("name", interval.getFund_group_name());
-                    }
-                    /*_items.put("minAnnualizedReturn", interval.getIncome_min_num());
-                    _items.put("maxAnnualizedReturn", interval.getIncome_max_num());
-                    _items.put("minRiskLevel", interval.getRisk_min_num());
-                    _items.put("maxRiskLevel", interval.getRisk_max_num());*/
-                    //_items.put("creationTime", interval.getDetails_last_mod_time().getTime());//时间戳
-                    _items.put("assetsRatios", assetsRatios);//组合内各基金权重
-                    far.set_links(_links);
+                Map<String, String> query = new HashMap<>();
+                query.put("fund_group_id", interval.getFund_group_id());
+                List<RiskIncomeInterval> riskIncomeIntervalList = fundGroupMapper.getPerformanceVolatility(query);
+                RiskIncomeInterval riskIncomeInterval = riskIncomeIntervalList.get(riskIncomeIntervalList.size()/2);
+                System.out.println(riskIncomeInterval);
+                query.put("id", riskIncomeInterval.getFund_group_id());
+                query.put("subId", riskIncomeInterval.getId());
+                List<Interval> intervals = fundGroupMapper.getProportion(query);
+                //基金组合内的各基金权重
+                for (Interval inter : intervals) {
+                    assetsRatios.put(inter.getFund_type_two(), inter.getProportion());
                 }
+                _items.put("groupId", interval.getFund_group_id());
+                _items.put("subGroupId", riskIncomeInterval.getId());
+                _items.put("name", interval.getFund_group_name());
+                _items.put("assetsRatios", assetsRatios);//组合内各基金权重
                 list.add(_items);
             }
             far.setName("基金组合");
@@ -467,7 +460,7 @@ public class FundGroupService {
         if (riskIncomeIntervalList.size() != 0) {
             if (slidebarType.equalsIgnoreCase("risk_num")) {
                 smk.setName("风险率");
-                for (int i = 0; i < riskIncomeIntervalList.size(); i++) {
+                for (int i = 0; i < 10; i++) {
                     Map<String, Object> maps = new HashMap<>();
                     maps.put("id", i + 1);
                     //maps.put("value", riskIncomeIntervalList.get(10*i-1).getRisk_num());
@@ -476,7 +469,7 @@ public class FundGroupService {
                 }
             } else if (slidebarType.equalsIgnoreCase("income_num")){
                 smk.setName("收益率");
-                for (int i = 0; i < riskIncomeIntervalList.size(); i++) {
+                for (int i = 0; i < 10; i++) {
                     Map<String, Object> maps = new HashMap<>();
                     maps.put("id", i + 1);
                     //maps.put("value", riskIncomeIntervalList.get(10*i-1).getIncome_num());
