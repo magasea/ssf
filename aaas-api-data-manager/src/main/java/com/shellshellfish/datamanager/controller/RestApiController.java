@@ -224,5 +224,28 @@ public class RestApiController {
 	 }
 		
 		
+	//历史净值
+	//code:基金代码
+	//period: 1: 3month,2: 6month,3: 1year,4: 3year
+	@RequestMapping(value = "/getHistoryNetvalue", method = RequestMethod.GET)
+	public ResponseEntity<HashMap<String,Object>> getHistoryNetvalue(
+			@RequestParam(value = "code") String code,
+			@RequestParam(value = "period") String period){
+    			
+		   HashMap hnmap=dataService.getHistoryNetvalue(code,period);
+		   return new ResponseEntity<HashMap<String,Object>>(hnmap,HttpStatus.OK);
+	}
 	
+	
+	 //基金概况
+	 @RequestMapping(value = "/getFundValueInfo", method = RequestMethod.GET)
+	 public ResponseEntity<HashMap<String,Object>> getFundValueInfo(
+			@RequestParam(value = "code") String code){
+			
+			HashMap valmap=dataService.getFundValueInfo(code);
+			return new ResponseEntity<HashMap<String,Object>>(valmap,HttpStatus.OK);
+
+	 }
+		
+
 }
