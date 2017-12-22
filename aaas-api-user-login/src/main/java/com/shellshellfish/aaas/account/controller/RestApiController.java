@@ -8,8 +8,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -348,7 +346,7 @@ public class RestApiController {
 			throw new UserException("104", "不支持此动作");
 		}
 		result.put("result", "OK");
-		result.put("isTestFlag", "F");
+		result.put("isTestFlag", "0");
 		return new ResponseEntity<Map>(result, HttpStatus.CREATED);
 //		return new ResponseEntity<String>("/smsverificationpage?telnum=" + telnum, HttpStatus.CREATED);
 	}
