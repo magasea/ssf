@@ -37,3 +37,15 @@ datasource:
 grpc:
   host: localhost
   port: 10071
+ali:
+    accessKeyId: LTAIpZL9r6q0kkPV
+    accessKeySecret: dBsex06RIIB7LfBF2Pdx4TeRzpklwr
+app:
+    debug: true
+redis:
+    host: localhost
+    port: 6379
+    pwd: redis123
+sms:
+    signcode: SMS_110225054
+    signname: \u8D22\u5BCCE\u667A\u6295
