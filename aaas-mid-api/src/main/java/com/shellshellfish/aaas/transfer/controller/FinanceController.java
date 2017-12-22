@@ -156,7 +156,7 @@ public class FinanceController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID", defaultValue = ""),
 		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "6"),
-		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "111135"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "100050"),
 	})
 	@RequestMapping(value = "/historicalPerformancePage", method = RequestMethod.POST)
 	@ResponseBody
@@ -239,7 +239,7 @@ public class FinanceController {
 	
 	@ApiOperation("未来预期page")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID", defaultValue = "1"),
 		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "6"),
 		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "111135"),
 	})

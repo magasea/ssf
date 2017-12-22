@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import com.shellshellfish.aaas.model.JsonResult;
 import io.swagger.annotations.Api;
@@ -88,10 +89,18 @@ public class UserInfoController {
 			result=restTemplate.postForEntity(url,getHttpEntity(str),Map.class).getBody();
 			if(result==null){
 				logger.info("添加银行卡失败");
+				return new JsonResult(JsonResult.Fail, "添加银行卡失败", result);
 			} else {
 				logger.info("添加银行卡成功");
+				return new JsonResult(JsonResult.SUCCESS, "添加银行卡成功", result);
 			}
-			return new JsonResult(JsonResult.SUCCESS, "添加银行卡成功", result);
+			
+		} catch (HttpClientErrorException e) {
+			result = new HashMap<String, String>();
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			result.put("error", e.getResponseBodyAsString());
+			return new JsonResult(JsonResult.Fail, "发送失败", result);
 		} catch (Exception e) {
 			Map<String, Object> map = new HashMap();
 			map.put("errorCode", "400");
@@ -110,12 +119,16 @@ public class UserInfoController {
 //					.getBody();
 			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid +"/bankcards", List.class)
 					.getBody();
-			return new JsonResult(JsonResult.SUCCESS, "发送成功", result);
+			if(result==null){
+				return new JsonResult(JsonResult.SUCCESS, "获取银行卡为空", null);
+			} else {
+				return new JsonResult(JsonResult.SUCCESS, "获取银行卡成功", result);
+			}
 		} catch (Exception e) {
 			Map<String, Object> map = new HashMap();
 			map.put("errorCode", "400");
 			result.add(map);
-			return new JsonResult(JsonResult.Fail, "发送失败", result);
+			return new JsonResult(JsonResult.Fail, "获取银行卡失败", result);
 		}
 	}
 	
