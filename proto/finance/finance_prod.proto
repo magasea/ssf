@@ -11,11 +11,8 @@ service FinanceProductService {
     rpc GetFinanceProdInfo (FinanceProdInfoQuery) returns (FinanceProdInfoCollection) {
     }
     rpc GetFinanceProds (FinanceProdDetailQuery) returns (FinanceProdDetails){}
-<<<<<<< HEAD
+
     rpc GetProds(google.protobuf.Empty) returns (ProdInfos){}
-=======
-    rpc GetProds(ProdQuery) returns (ProdInfos){}
->>>>>>> 8536013ae920839a292d67c567a5d01c1931d980
 }
 //获取当前理财产品信息
 message FinanceProdInfoQuery {
@@ -35,8 +32,6 @@ message FinanceProdInfo {
   int32 fund_share = 5 ;//该理财产品中的基金份额百分比,
 }
 
-message ProdQuery{
-}
 
 message ProdInfos{
   repeated ProdInfo prodInfo = 1;
