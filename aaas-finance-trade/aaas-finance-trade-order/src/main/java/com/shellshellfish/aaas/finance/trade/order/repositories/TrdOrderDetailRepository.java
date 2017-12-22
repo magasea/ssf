@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.finance.trade.order.repositories;
 
 
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
+import java.util.List;
 import java.util.Map;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -19,6 +20,8 @@ public interface TrdOrderDetailRepository extends PagingAndSortingRepository<Trd
   int updateByParam(@Param("tradeApplySerial") String tradeApplySerial, @Param("updateDate") Long
       updateDate, @Param("updateBy") Long updateBy,  @Param("id") Long id, @Param
       ("orderDetailStatus") int orderDetailStatus);
+
+  List<TrdOrderDetail> findTrdOrderDetailsByOrderId(Long orderId);
 
 //  TrdOrderDetail updateByParam(Map param);
 }
