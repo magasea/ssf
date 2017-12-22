@@ -359,7 +359,7 @@ public class FinanceController {
 			result=(Map) restTemplate.postForEntity(url,getHttpEntity(str),Map.class).getBody();
 		}catch(Exception e){
 			result=new HashMap<String,Object>();
-			result.put("错误原因", e.getMessage());
+			result.put("error", "restTemplate获取预期最大回撤失败");
 		}
 		return result;
 	}
@@ -383,7 +383,7 @@ public class FinanceController {
 			result=(Map) restTemplate.postForEntity(url,getHttpEntity(str),Map.class).getBody();
 		}catch(Exception e){
 			result=new HashMap<String,Object>();
-			result.put("错误原因", e.getMessage());
+			result.put("error", "restTemplate获取预期年化收益失败");
 		}
 		return result;
 	}
@@ -404,7 +404,7 @@ public class FinanceController {
  		result=restTemplate.getForEntity(url, Map.class,groupId,subgroupId).getBody();
 		}catch(Exception e){
 			result=new HashMap<String,Object>();
-			result.put("错误原因", e.getMessage());
+			result.put("error", "restTemplate获取预期组合收益率走势图失败");
 		}
 		return result;
 	}
