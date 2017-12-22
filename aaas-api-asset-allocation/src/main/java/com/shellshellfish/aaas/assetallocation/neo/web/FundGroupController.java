@@ -176,7 +176,7 @@ public class FundGroupController {
     /**
      * 分段数据
      * @param id
-     * @param slidebarType（risk风险率     income收益率）
+     * @param slidebarType  (risk_num    风险率,income_num  收益率)
      * @return
      */
     @ApiOperation("滑动条分段数据")

@@ -45,7 +45,7 @@ public interface FundGroupMapper {
 
     List<RiskController> getRiskController(Map map);
 
-    List<RiskIncomeInterval> getScaleMark(@Param("id") String id);
+    List<RiskIncomeInterval> getScaleMark(@Param("id") String id,@Param("slidebarType") String slidebarType);
 
     List<FundGroupBuy> getFundGroupBuy(@Param("id") String id);
 

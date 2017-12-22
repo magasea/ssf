@@ -20,9 +20,6 @@ public class FundGroupService {
     @Autowired
     private FundGroupMapper fundGroupMapper;
 
-    @Autowired
-    ReturnCalculateDataService returnCalculateDataService;
-
     /**
      * 查询所有基金组合
      *
@@ -267,8 +264,10 @@ public class FundGroupService {
      */
     public ReturnType getRiskController(String id, String subGroupId) {
         Map<String, String> query = new HashMap<>();
-        query.put("id", id);
-        query.put("subGroupId", subGroupId);
+        /*query.put("id", id);
+        query.put("subGroupId", subGroupId);*/
+        query.put("id", "1");
+        query.put("subGroupId", "2");
         List<RiskController> riskControllers = fundGroupMapper.getRiskController(query);
         ReturnType rct = new ReturnType();
         List<Map<String, Object>> list = new ArrayList<>();
@@ -280,6 +279,7 @@ public class FundGroupService {
                 _items.put("id", riskController.getId());
                 _items.put("name", riskController.getName());
                 _items.put("level2RiskControl", riskController.getRisk_controller());
+                _items.put("time", riskController.getStart_time()+"~"+riskController.getEnd_time());
                 _items.put("benchmark", riskController.getBenchmark());
                 list.add(_items);
             }
@@ -355,7 +355,7 @@ public class FundGroupService {
         }
         List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getPerformanceVolatility(map);
         if (riskIncomeIntervals.size() > 0) {
-            RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(riskIncomeIntervals.size() / 2);
+            RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(riskIncomeIntervals.size() / 2-1);
             aReturn.setName("模拟数据");
             aReturn.setProductGroupId(riskIncomeInterval.getFund_group_id());
             aReturn.setProductSubGroupId(riskIncomeInterval.getId());
@@ -456,28 +456,30 @@ public class FundGroupService {
      * 滑动条分段数据
      *
      * @param id
-     * @param slidebarType
+     * @param slidebarType (risk_num    风险率,income_num  收益率)
      * @return
      */
     public ReturnType getScaleMark(String id, String slidebarType) {
         ReturnType smk = new ReturnType();
         List<Map<String, Object>> list = new ArrayList<>();
         Map<String, String> _links = new HashMap<>();
-        List<RiskIncomeInterval> riskIncomeIntervalList = fundGroupMapper.getScaleMark(id);
+        List<RiskIncomeInterval> riskIncomeIntervalList = fundGroupMapper.getScaleMark(id,slidebarType);
         if (riskIncomeIntervalList.size() != 0) {
-            if (slidebarType.equalsIgnoreCase("risk")) {
+            if (slidebarType.equalsIgnoreCase("risk_num")) {
                 smk.setName("风险率");
                 for (int i = 0; i < riskIncomeIntervalList.size(); i++) {
                     Map<String, Object> maps = new HashMap<>();
                     maps.put("id", i + 1);
+                    //maps.put("value", riskIncomeIntervalList.get(10*i-1).getRisk_num());
                     maps.put("value", riskIncomeIntervalList.get(i).getRisk_num());
                     list.add(maps);
                 }
-            } else {
+            } else if (slidebarType.equalsIgnoreCase("income_num")){
                 smk.setName("收益率");
                 for (int i = 0; i < riskIncomeIntervalList.size(); i++) {
                     Map<String, Object> maps = new HashMap<>();
                     maps.put("id", i + 1);
+                    //maps.put("value", riskIncomeIntervalList.get(10*i-1).getIncome_num());
                     maps.put("value", riskIncomeIntervalList.get(i).getIncome_num());
                     list.add(maps);
                 }
