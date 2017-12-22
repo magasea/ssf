@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.userinfo.dao.service.impl;
 import com.mongodb.WriteResult;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.userinfo.UserInfoApp;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
@@ -33,9 +34,10 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.BootstrapWith;
+import org.springframework.test.context.TestContextBootstrapper;
 import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
+@RunWith(value= SpringRunner.class)
 @SpringBootTest
 @ActiveProfiles(profiles="dev")
 public class UserInfoRepoServiceImplTest {
@@ -44,12 +46,14 @@ public class UserInfoRepoServiceImplTest {
   public void addUiSysMsg() throws Exception {
     UiSysMsg uiSysMsg = new UiSysMsg();
     for(int idx = 0; idx < 100; idx ++){
+      uiSysMsg = new UiSysMsg();
       uiSysMsg.setContent(""+idx);
       uiSysMsg.setCreatedDate(TradeUtil.getUTCTime());
       uiSysMsg.setCreatedBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
       uiSysMsg.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
       uiSysMsg.setUpdateDate(TradeUtil.getUTCTime());
       userInfoRepoService.addUiSysMsg(uiSysMsg);
+      uiSysMsg = null;
     }
 
   }

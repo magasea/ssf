@@ -30,7 +30,6 @@ datasource:
 ---
 
 spring:
-  profiles: dev
   data:
     mongodb:
       database: test1
