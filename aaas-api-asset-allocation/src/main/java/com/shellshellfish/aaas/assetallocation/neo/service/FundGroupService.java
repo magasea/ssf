@@ -52,10 +52,10 @@ public class FundGroupService {
                         _items.put("subGroupId", interval.getFund_group_sub_id());
                         _items.put("name", interval.getFund_group_name());
                     }
-                    _items.put("minAnnualizedReturn", interval.getIncome_min_num());
+                    /*_items.put("minAnnualizedReturn", interval.getIncome_min_num());
                     _items.put("maxAnnualizedReturn", interval.getIncome_max_num());
                     _items.put("minRiskLevel", interval.getRisk_min_num());
-                    _items.put("maxRiskLevel", interval.getRisk_max_num());
+                    _items.put("maxRiskLevel", interval.getRisk_max_num());*/
                     //_items.put("creationTime", interval.getDetails_last_mod_time().getTime());//时间戳
                     _items.put("assetsRatios", assetsRatios);//组合内各基金权重
                     far.set_links(_links);
@@ -698,6 +698,7 @@ public class FundGroupService {
         return rt;
     }
 
+
     /**
      * 计算组合单位收益净值
      *
@@ -729,7 +730,7 @@ public class FundGroupService {
                     temp[i] = list.get(i).getNavadj();
                 }
                 double maximum_retracement = 0;
-                if (temp.length!=0) {
+                if (temp.length>1) {
                     CalculateMaxdrawdowns cm = new CalculateMaxdrawdowns();
                     maximum_retracement = cm.calculateMaxdrawdown(temp);
                 }
@@ -799,10 +800,10 @@ public class FundGroupService {
             fr.setGroupId(interval.get(0).getFund_group_id());
             fr.setSubGroupId(interval.get(0).getId());
             fr.setName(interval.get(0).getFund_group_name());
-            fr.setMinAnnualizedReturn(interval.get(0).getIncome_min_num());
+            /*fr.setMinAnnualizedReturn(interval.get(0).getIncome_min_num());
             fr.setMaxAnnualizedReturn(interval.get(0).getIncome_max_num());
             fr.setMinRiskLevel(interval.get(0).getRisk_min_num());
-            fr.setMaxRiskLevel(interval.get(0).getRisk_max_num());
+            fr.setMaxRiskLevel(interval.get(0).getRisk_max_num());*/
             fr.set_links(_links);
             //fr.setCreationTime(interval.get(0).getDetails_last_mod_time().getTime());
             fr.set_schemaVersion("0.1.1");
@@ -810,5 +811,14 @@ public class FundGroupService {
             fr.setAssetsRatios(list);
         }
         return fr;
+    }
+
+    public void get(){
+        List<Interval> aa = fundGroupMapper.get();
+        System.out.println(new Date());
+        for (Interval a : aa){
+            getNavadj(a.getFund_group_id(),a.getId());
+        }
+        System.out.println(new Date());
     }
 }

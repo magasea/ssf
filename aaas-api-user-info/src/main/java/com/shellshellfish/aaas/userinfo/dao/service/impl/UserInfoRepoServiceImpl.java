@@ -220,6 +220,15 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	}
 
 	@Override
+	public UserSysMsgDTO addUiSysMsg(UiSysMsg uiSysMsg) throws IllegalAccessException,
+			InstantiationException {
+		UiSysMsg uiSysMsgResult = mongoUserSysMsgRepo.save(uiSysMsg);
+		UserSysMsgDTO uiSysMsgDto = new UserSysMsgDTO();
+		BeanUtils.copyProperties(uiSysMsgResult, uiSysMsgDto);
+		return uiSysMsgDto;
+	}
+
+	@Override
 	public Long getUserIdFromUUID(String userUuid) throws Exception {
 		UiUser uiUser = userInfoRepository.findByUuid(userUuid);
 		Long userId = new Long(0);

@@ -56,6 +56,8 @@ application:
         contactEmail:
         license:
         licenseUrl:
+
+api-data-manager-url: http://localhost:10030
         
 
     

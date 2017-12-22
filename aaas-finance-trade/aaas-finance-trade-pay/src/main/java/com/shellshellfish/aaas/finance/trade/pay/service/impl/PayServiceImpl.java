@@ -54,9 +54,8 @@ public class PayServiceImpl implements PayService{
       trdPayFlow.setPayStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
       BuyFundResult fundResult = null;
       try {
-        fundResult = fundTradeApiService.buyFund(payDto.getUserUuid()
-            , trdAcco, payAmount, String.valueOf(trdOrderDetail.getId()),
-            trdOrderDetail.getFundCode());
+        fundResult = fundTradeApiService.buyFund(payDto.getUserUuid(), trdAcco, payAmount,
+            String.valueOf(trdOrderDetail.getId()),trdOrderDetail.getFundCode());
       }catch (Exception ex){
         ex.printStackTrace();
         logger.error(ex.getMessage());
@@ -80,10 +79,14 @@ public class PayServiceImpl implements PayService{
         trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
         trdPayFlow.setCreateBy(trdOrderDetail.getUserId());
         trdPayFlow.setUpdateBy(trdOrderDetail.getUserId());
-//        trdPayFlow.set.setProdId(trdOrderDetail.getProdId());
-
+        trdPayFlow.setTradeAcco(trdAcco);
+        trdPayFlow.setProdId(trdOrderDetail.getProdId());
+        trdPayFlow.setTradeBrokeId(payDto.getTrdBrokerId());;
         TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
-        notifyPay(trdPayFlowResult);
+        com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
+            .shellshellfish.aaas.common.message.order.TrdPayFlow();
+        BeanUtils.copyProperties(trdPayFlowResult, trdPayFlowMsg);
+        notifyPay(trdPayFlowMsg);
       }
     }
     if(errs.size() > 0){
@@ -93,12 +96,10 @@ public class PayServiceImpl implements PayService{
   }
 
   @Override
-  public TrdPayFlow notifyPay(TrdPayFlow trdPayFlow) {
+  public com.shellshellfish.aaas.common.message.order.TrdPayFlow notifyPay(com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlow) {
     logger.info("notify trdPayFlow fundCode:" + trdPayFlow.getFundCode());
-    com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
-        .shellshellfish.aaas.common.message.order.TrdPayFlow();
-    BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
-    broadcastMessageProducers.sendMessage(trdPayFlowMsg);
+
+    broadcastMessageProducers.sendMessage(trdPayFlow);
     return trdPayFlow;
   }
 }

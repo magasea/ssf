@@ -20,7 +20,7 @@
     </insert>
 
     <select id="selectAllFundGroup" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
-        select * from fund_group a,fund_group_details b,fund_basic c,straegy d
+        select * from fund_group_basic a,fund_group_details b,fund_basic c,straegy d
         where a.id = b.fund_group_id and b.fund_code = c.code and a.id = d.fund_group_id
     </select>
 
@@ -185,6 +185,10 @@
         select a.fund_code code,b.navadj*a.proportion navadj from fund_group_details a,fund_net_value b
         where a.fund_code=b.code and a.fund_group_id = #{fund_group_id} and a.fund_group_sub_id=#{subGroupId}
         order by b.navlatestdate desc limit #{num}
+    </select>
+
+    <select id="get" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
+        select id,fund_group_id from fund_group_sub
     </select>
 
 </mapper>

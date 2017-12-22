@@ -14,7 +14,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "trd_order_detail", schema = "ssftrdorder", catalog = "")
-public class TrdOrderDetail {
+public class TrdOrderDetail  {
 
   private Long id;
   private String orderId;

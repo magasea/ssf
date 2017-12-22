@@ -3,13 +3,11 @@ package com.shellshellfish.aaas.finance.trade.pay.model.dao;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Created by chenwei on 2017- 十二月 - 19
+ * Created by chenwei on 2017- 十二月 - 21
  */
 
 @Entity
@@ -19,11 +17,11 @@ public class TrdPayFlow {
   private long id;
   private long orderDetailId;
   private String tradeAcco;
-  private String tradeBrokeId;
+  private long tradeBrokeId;
   private String applySerial;
   private String outsideOrderno;
   private String bankCardNum;
-  private String prodCode;
+  private long prodId;
   private String fundCode;
   private int payStatus;
   private long payDate;
@@ -38,10 +36,10 @@ public class TrdPayFlow {
   private long createDate;
   private long updateBy;
   private long updateDate;
+  private String prodCode;
 
   @Id
   @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
   public long getId() {
     return id;
   }
@@ -72,11 +70,11 @@ public class TrdPayFlow {
 
   @Basic
   @Column(name = "trade_broke_id")
-  public String getTradeBrokeId() {
+  public long getTradeBrokeId() {
     return tradeBrokeId;
   }
 
-  public void setTradeBrokeId(String tradeBrokeId) {
+  public void setTradeBrokeId(long tradeBrokeId) {
     this.tradeBrokeId = tradeBrokeId;
   }
 
@@ -111,13 +109,13 @@ public class TrdPayFlow {
   }
 
   @Basic
-  @Column(name = "prod_code")
-  public String getProdCode() {
-    return prodCode;
+  @Column(name = "prod_id")
+  public long getProdId() {
+    return prodId;
   }
 
-  public void setProdCode(String prodCode) {
-    this.prodCode = prodCode;
+  public void setProdId(long prodId) {
+    this.prodId = prodId;
   }
 
   @Basic
@@ -260,6 +258,16 @@ public class TrdPayFlow {
     this.updateDate = updateDate;
   }
 
+  @Basic
+  @Column(name = "prod_code")
+  public String getProdCode() {
+    return prodCode;
+  }
+
+  public void setProdCode(String prodCode) {
+    this.prodCode = prodCode;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -275,6 +283,12 @@ public class TrdPayFlow {
       return false;
     }
     if (orderDetailId != that.orderDetailId) {
+      return false;
+    }
+    if (tradeBrokeId != that.tradeBrokeId) {
+      return false;
+    }
+    if (prodId != that.prodId) {
       return false;
     }
     if (payStatus != that.payStatus) {
@@ -316,10 +330,6 @@ public class TrdPayFlow {
     if (tradeAcco != null ? !tradeAcco.equals(that.tradeAcco) : that.tradeAcco != null) {
       return false;
     }
-    if (tradeBrokeId != null ? !tradeBrokeId.equals(that.tradeBrokeId)
-        : that.tradeBrokeId != null) {
-      return false;
-    }
     if (applySerial != null ? !applySerial.equals(that.applySerial) : that.applySerial != null) {
       return false;
     }
@@ -330,13 +340,13 @@ public class TrdPayFlow {
     if (bankCardNum != null ? !bankCardNum.equals(that.bankCardNum) : that.bankCardNum != null) {
       return false;
     }
-    if (prodCode != null ? !prodCode.equals(that.prodCode) : that.prodCode != null) {
-      return false;
-    }
     if (fundCode != null ? !fundCode.equals(that.fundCode) : that.fundCode != null) {
       return false;
     }
     if (payAmount != null ? !payAmount.equals(that.payAmount) : that.payAmount != null) {
+      return false;
+    }
+    if (prodCode != null ? !prodCode.equals(that.prodCode) : that.prodCode != null) {
       return false;
     }
 
@@ -348,11 +358,11 @@ public class TrdPayFlow {
     int result = (int) (id ^ (id >>> 32));
     result = 31 * result + (int) (orderDetailId ^ (orderDetailId >>> 32));
     result = 31 * result + (tradeAcco != null ? tradeAcco.hashCode() : 0);
-    result = 31 * result + (tradeBrokeId != null ? tradeBrokeId.hashCode() : 0);
+    result = 31 * result + (int) (tradeBrokeId ^ (tradeBrokeId >>> 32));
     result = 31 * result + (applySerial != null ? applySerial.hashCode() : 0);
     result = 31 * result + (outsideOrderno != null ? outsideOrderno.hashCode() : 0);
     result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
-    result = 31 * result + (prodCode != null ? prodCode.hashCode() : 0);
+    result = 31 * result + (int) (prodId ^ (prodId >>> 32));
     result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
     result = 31 * result + payStatus;
     result = 31 * result + (int) (payDate ^ (payDate >>> 32));
@@ -367,6 +377,7 @@ public class TrdPayFlow {
     result = 31 * result + (int) (createDate ^ (createDate >>> 32));
     result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
     result = 31 * result + (int) (updateDate ^ (updateDate >>> 32));
+    result = 31 * result + (prodCode != null ? prodCode.hashCode() : 0);
     return result;
   }
 }
