@@ -11,6 +11,7 @@ service FinanceProductService {
     rpc GetFinanceProdInfo (FinanceProdInfoQuery) returns (FinanceProdInfoCollection) {
     }
     rpc GetFinanceProds (FinanceProdDetailQuery) returns (FinanceProdDetails){}
+
     rpc GetProds(google.protobuf.Empty) returns (ProdInfos){}
 }
 //获取当前理财产品信息
@@ -30,6 +31,8 @@ message FinanceProdInfo {
   string fund_code = 4 ;//该理财产品中的某个基金编号,
   int32 fund_share = 5 ;//该理财产品中的基金份额百分比,
 }
+
+
 message ProdInfos{
   repeated ProdInfo prodInfo = 1;
 }
