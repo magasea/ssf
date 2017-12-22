@@ -19,6 +19,7 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderReposito
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdInfoService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProductServiceGrpc;
+import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
@@ -99,7 +100,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 
   @Transactional
   TrdOrder genOrderFromBuyInfoAndProdMakeUpInfo(FinanceProdBuyInfo financeProdBuyInfo,
-      List<ProductMakeUpInfo> productMakeUpInfos){
+      List<ProductMakeUpInfo> productMakeUpInfos) throws ExecutionException, InterruptedException {
     //generate order
 //    TrdTradeBroker trdTradeBroker = trdBrokderRepository.findOne(1L);
     PayDto payDto = new PayDto();
@@ -111,7 +112,9 @@ public class TradeOpServiceImpl implements TradeOpService {
       UserIdOrUUIDQuery.Builder builder = UserIdOrUUIDQuery.newBuilder();
       builder.setUuid(financeProdBuyInfo.getUuid());
 
-      userInfoServiceFutureStub.getUserBankInfo(builder.build());
+      com.shellshellfish.aaas.userinfo.grpc.UserBankInfo userBankInfo =
+          userInfoServiceFutureStub.getUserBankInfo(builder.build()).get();
+
     }
     String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdBuyInfo.getBankAcc()
             .substring(0,6)),trdBrokerId);
