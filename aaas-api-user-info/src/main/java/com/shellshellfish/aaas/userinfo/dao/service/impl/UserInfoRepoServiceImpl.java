@@ -1,8 +1,5 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
-import com.shellshellfish.aaas.common.enums.SystemUserEnum;
-import com.shellshellfish.aaas.common.enums.UserRiskTestFlagEnum;
-import com.shellshellfish.aaas.common.utils.TradeUtil;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,6 +16,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import com.mongodb.WriteResult;
+import com.shellshellfish.aaas.common.enums.SystemUserEnum;
+import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.grpc.UserId;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
@@ -61,10 +61,11 @@ import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
 import io.grpc.stub.StreamObserver;
 
 @Service
-public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase implements UserInfoRepoService {
+public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
+		implements UserInfoRepoService {
 
 	Logger logger = LoggerFactory.getLogger(UserInfoServiceImpl.class);
-	
+
 	@Autowired
 	UserInfoBankCardsRepository userInfoBankCardsRepository;
 
@@ -101,8 +102,6 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	@Autowired
 	MongoTemplate mongoTemplate;
 
-
-
 	@Override
 	public UserBaseInfoDTO getUserInfoBase(Long id) {
 		BigInteger userIdLocal = BigInteger.valueOf(id);
@@ -125,14 +124,14 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	public List<BankCardDTO> getUserInfoBankCards(Long userId) throws IllegalAccessException, InstantiationException {
 		// BigInteger userIdLocal = BigInteger.valueOf(userId);
 		List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserId(userId);
-		List<BankCardDTO> bankcardDtoList = MyBeanUtils.convertList(bankcardList,BankCardDTO.class);
+		List<BankCardDTO> bankcardDtoList = MyBeanUtils.convertList(bankcardList, BankCardDTO.class);
 		return bankcardDtoList;
 	}
 
 	@Override
 	public List<UserPortfolioDTO> getUserPortfolios(Long userId) throws IllegalAccessException, InstantiationException {
 		List<UiPortfolio> uiPortfolioList = userPortfolioRepository.findAllByUserId(userId);
-		List<UserPortfolioDTO> bankcardDtoList = MyBeanUtils.convertList(uiPortfolioList,UserPortfolioDTO.class);
+		List<UserPortfolioDTO> bankcardDtoList = MyBeanUtils.convertList(uiPortfolioList, UserPortfolioDTO.class);
 		return bankcardDtoList;
 	}
 
@@ -146,24 +145,27 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public BankCardDTO addUserBankcard(UiBankcard uiBankcard) {
-		 logger.info("reservice149");
-		 userInfoBankCardsRepository.save(uiBankcard);
-		 logger.info("reservice151");
-		 BankCardDTO bankcard = new BankCardDTO();
-		 logger.info("reservice153");
-		 BeanUtils.copyProperties(uiBankcard, bankcard);
-		 return bankcard;
+		logger.info("reservice149");
+		userInfoBankCardsRepository.save(uiBankcard);
+		logger.info("reservice151");
+		BankCardDTO bankcard = new BankCardDTO();
+		logger.info("reservice153");
+		BeanUtils.copyProperties(uiBankcard, bankcard);
+		return bankcard;
 	}
 
 	@Override
-	public List<AssetDailyReptDTO> getAssetDailyRept(Long userId, Long beginDate, Long endDate) throws IllegalAccessException, InstantiationException {
+	public List<AssetDailyReptDTO> getAssetDailyRept(Long userId, Long beginDate, Long endDate)
+			throws IllegalAccessException, InstantiationException {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("userId").is(userId));
 		Date beginDated = new Date(beginDate);
 		query.addCriteria(Criteria.where("date").gte(beginDate).lt(endDate));
 		System.out.println("userId:" + userId + " beginDate:" + beginDate + " endDate:" + endDate);
-		List<UiAssetDailyRept> uiAssetDailyReptList = mongoUserAssectsRepository.findByUserIdAndDateIsBetween(BigInteger.valueOf(userId), beginDate, endDate);
-		List<AssetDailyReptDTO> bankcardDtoList = MyBeanUtils.convertList(uiAssetDailyReptList,AssetDailyReptDTO.class);
+		List<UiAssetDailyRept> uiAssetDailyReptList = mongoUserAssectsRepository
+				.findByUserIdAndDateIsBetween(BigInteger.valueOf(userId), beginDate, endDate);
+		List<AssetDailyReptDTO> bankcardDtoList = MyBeanUtils.convertList(uiAssetDailyReptList,
+				AssetDailyReptDTO.class);
 		return bankcardDtoList;
 	}
 
@@ -176,23 +178,26 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	}
 
 	@Override
-	public List<AssetDailyReptDTO> getAssetDailyReptByUserId(Long userId) throws IllegalAccessException, InstantiationException {
+	public List<AssetDailyReptDTO> getAssetDailyReptByUserId(Long userId)
+			throws IllegalAccessException, InstantiationException {
 		List<UiAssetDailyRept> uiAssetDailyReptList = mongoUserAssectsRepository.findByUserId(userId);
-		List<AssetDailyReptDTO> bankcardDtoList = MyBeanUtils.convertList(uiAssetDailyReptList,AssetDailyReptDTO.class);
+		List<AssetDailyReptDTO> bankcardDtoList = MyBeanUtils.convertList(uiAssetDailyReptList,
+				AssetDailyReptDTO.class);
 		return bankcardDtoList;
 	}
 
 	@Override
 	public List<UserPersonMsgDTO> getUiPersonMsg(Long userId) throws IllegalAccessException, InstantiationException {
-		List<UiPersonMsg> uiPersonMsgList = mongoUserPersonMsgRepo.getUiPersonMsgsByUserIdAndReaded(userId, Boolean.FALSE);
-		List<UserPersonMsgDTO> personMsgDtoList = MyBeanUtils.convertList(uiPersonMsgList,UserPersonMsgDTO.class);
+		List<UiPersonMsg> uiPersonMsgList = mongoUserPersonMsgRepo.getUiPersonMsgsByUserIdAndReaded(userId,
+				Boolean.FALSE);
+		List<UserPersonMsgDTO> personMsgDtoList = MyBeanUtils.convertList(uiPersonMsgList, UserPersonMsgDTO.class);
 		return personMsgDtoList;
 	}
 
 	@Override
 	public List<UserProdMsgDTO> getUiProdMsg(Long prodId) throws IllegalAccessException, InstantiationException {
 		List<UiProdMsg> uiProdMsgList = mongoUserProdMsgRepo.findAllByProdIdOrderByDateDesc(prodId);
-		List<UserProdMsgDTO> uiProdMsgDtoList = MyBeanUtils.convertList(uiProdMsgList,UserProdMsgDTO.class);
+		List<UserProdMsgDTO> uiProdMsgDtoList = MyBeanUtils.convertList(uiProdMsgList, UserProdMsgDTO.class);
 		return uiProdMsgDtoList;
 	}
 
@@ -210,8 +215,17 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	@Override
 	public List<UserSysMsgDTO> getUiSysMsg() throws IllegalAccessException, InstantiationException {
 		List<UiSysMsg> uiSysMsgList = mongoUserSysMsgRepo.findAllByOrderByDateDesc();
-		List<UserSysMsgDTO> uiSysMsgDtoList = MyBeanUtils.convertList(uiSysMsgList,UserSysMsgDTO.class);
+		List<UserSysMsgDTO> uiSysMsgDtoList = MyBeanUtils.convertList(uiSysMsgList, UserSysMsgDTO.class);
 		return uiSysMsgDtoList;
+	}
+
+	@Override
+	public UserSysMsgDTO addUiSysMsg(UiSysMsg uiSysMsg) throws IllegalAccessException,
+			InstantiationException {
+		UiSysMsg uiSysMsgResult = mongoUserSysMsgRepo.save(uiSysMsg);
+		UserSysMsgDTO uiSysMsgDto = new UserSysMsgDTO();
+		BeanUtils.copyProperties(uiSysMsgResult, uiSysMsgDto);
+		return uiSysMsgDto;
 	}
 
 	@Override
@@ -236,27 +250,30 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public Page<UiTrdLog> findByUserId(Pageable pageable, Long userId) {
-		Page<UiTrdLog> uiTrdLogPage = userTradeLogRepository.findByUserId(pageable,userId);
+		Page<UiTrdLog> uiTrdLogPage = userTradeLogRepository.findByUserId(pageable, userId);
 		return uiTrdLogPage;
 	}
 
 	@Override
-	public Iterable<TradeLogDTO> addUiTrdLog(List<UiTrdLog> trdLogs) throws IllegalAccessException, InstantiationException {
+	public Iterable<TradeLogDTO> addUiTrdLog(List<UiTrdLog> trdLogs)
+			throws IllegalAccessException, InstantiationException {
 		userTradeLogRepository.save(trdLogs);
-		List<TradeLogDTO> trdLogsDtoList = MyBeanUtils.convertList(trdLogs,TradeLogDTO.class);
+		List<TradeLogDTO> trdLogsDtoList = MyBeanUtils.convertList(trdLogs, TradeLogDTO.class);
 		return trdLogsDtoList;
 	}
 
 	@Override
-	public List<UserInfoFriendRuleDTO> getUiFriendRule(Long bankId) throws IllegalAccessException, InstantiationException {
+	public List<UserInfoFriendRuleDTO> getUiFriendRule(Long bankId)
+			throws IllegalAccessException, InstantiationException {
 		List<UiFriendRule> uiFriendRuleList = new ArrayList<>();
-		
+
 		if (null == bankId) {
 			uiFriendRuleList = userInfoFriendRuleRepository.findAll();
 		} else {
-			uiFriendRuleList =  userInfoFriendRuleRepository.findAllByBankId(bankId);
+			uiFriendRuleList = userInfoFriendRuleRepository.findAllByBankId(bankId);
 		}
-		List<UserInfoFriendRuleDTO> trdLogsDtoList = MyBeanUtils.convertList(uiFriendRuleList,UserInfoFriendRuleDTO.class);
+		List<UserInfoFriendRuleDTO> trdLogsDtoList = MyBeanUtils.convertList(uiFriendRuleList,
+				UserInfoFriendRuleDTO.class);
 		return trdLogsDtoList;
 	}
 
@@ -272,7 +289,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	}
 
 	@Override
-	public void getUserId(UserIdQuery userIdQuery, StreamObserver<UserId> responseObserver){
+	public void getUserId(UserIdQuery userIdQuery, StreamObserver<UserId> responseObserver) {
 		Long userId = null;
 		try {
 			userId = getUserIdFromUUID(userIdQuery.getUuid());
@@ -284,12 +301,13 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	}
 
 	@Override
-	public Boolean deleteBankCard(String userUuid,String cardNumber) {
+	public Boolean deleteBankCard(String userUuid, String cardNumber) {
 		UiBankcard bank = new UiBankcard();
 		bank.setCardNumber(cardNumber);
 		bank.setUserId(Long.parseLong(userUuid));
-		List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserIdAndCardNumber(Long.parseLong(userUuid),cardNumber);
-		if(bankcardList==null||bankcardList.size()==0){
+		List<UiBankcard> bankcardList = userInfoBankCardsRepository
+				.findAllByUserIdAndCardNumber(Long.parseLong(userUuid), cardNumber);
+		if (bankcardList == null || bankcardList.size() == 0) {
 			return false;
 		}
 		UiBankcard bankcard = bankcardList.get(0);
@@ -300,8 +318,8 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	@Override
 	public Boolean saveUser(String userUuid, String cellphone, String isTestFlag) {
 		UiUser uiUser = new UiUser();
-		List<UiUser> userList= userInfoRepository.findByCellPhone(cellphone);
-		if(userList!=null&&userList.size()>0){
+		List<UiUser> userList = userInfoRepository.findByCellPhone(cellphone);
+		if (userList != null && userList.size() > 0) {
 			uiUser = userList.get(0);
 		}
 		uiUser.setUuid(userUuid);
@@ -309,22 +327,25 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		uiUser.setActivated(activity);
 		uiUser.setCellPhone(cellphone);
 		uiUser.setOccupation("金融");
-		uiUser.setCreatedBy(""+SystemUserEnum.SYSTEM_USER_ENUM.ordinal());
-
-		//uiUser.setIsTestFlag(UserRiskTestFlagEnum.valueOf(isTestFlag).getRiskTestFlag());
+		uiUser.setCreatedBy("" + SystemUserEnum.SYSTEM_USER_ENUM.ordinal());
+		// uiUser.setIsTestFlag(UserRiskTestFlagEnum.valueOf(isTestFlag).getRiskTestFlag());
+		uiUser.setIsTestFlag(Integer.valueOf(isTestFlag));
 		uiUser.setCreatedDate(TradeUtil.getUTCTime());
 		userInfoRepository.save(uiUser);
 		return true;
 	}
 
 	@Override
-	public Boolean updateCellphone(String cellphone, String isTestFlag) {
-		List<UiUser> userList= userInfoRepository.findByCellPhone(cellphone);
+	public Boolean updateCellphone(String cellphone, String isTestFlag, String riskLevel) {
+		List<UiUser> userList = userInfoRepository.findByCellPhone(cellphone);
 		UiUser uiUser = new UiUser();
 		Boolean flag = false;
-		if(userList!=null&&userList.size()>0){
+		if (userList != null && userList.size() > 0) {
 			uiUser = userList.get(0);
-			uiUser.setIsTestFlag(UserRiskTestFlagEnum.valueOf(isTestFlag).getRiskTestFlag());
+			// uiUser.setIsTestFlag(UserRiskTestFlagEnum.valueOf(isTestFlag).getRiskTestFlag());
+			uiUser.setIsTestFlag(Integer.valueOf(isTestFlag));
+			//uiUser.setRiskLevel(UserRiskLevelEnum.valueOf(riskLevel).getRiskLevel());
+			uiUser.setRiskLevel(UserRiskLevelEnum.get(riskLevel).getRiskLevel());
 			userInfoRepository.save(uiUser);
 			return true;
 		}
@@ -333,11 +354,11 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public UserBaseInfoDTO findByCellphone(String cellphone) {
-		List<UiUser> userList= userInfoRepository.findByCellPhone(cellphone);
+		List<UiUser> userList = userInfoRepository.findByCellPhone(cellphone);
 		UiUser uiUser = new UiUser();
 		UserBaseInfoDTO user = new UserBaseInfoDTO();
 		Boolean flag = false;
-		if(userList!=null&&userList.size()>0){
+		if (userList != null && userList.size() > 0) {
 			uiUser = userList.get(0);
 			BeanUtils.copyProperties(uiUser, user);
 			return user;

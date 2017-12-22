@@ -87,8 +87,15 @@ public class LoginController {
 					.getBody();
 		    Map userMap =  (Map) userinfo.get("result");
 		    result.put("isTestFlag", userMap.get("isTestFlag"));
+		    result.put("testResult", userinfo.get("testResult"));
 		    return new JsonResult(JsonResult.SUCCESS,"登陆成功",result);
-		}catch(Exception e){
+		} catch (HttpClientErrorException e) {
+			result = new HashMap<String, String>();
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			result.put("error", e.getResponseBodyAsString());
+			return new JsonResult(JsonResult.Fail, "发送失败", result);
+		} catch(Exception e){
 			result=new HashMap<>();
 		    result.put("errorCode","400");
 		    result.put("error", "参数错误");
@@ -173,7 +180,7 @@ public class LoginController {
 		    if(StringUtils.isEmpty(uuid)){
 		    	return new JsonResult(JsonResult.Fail, "注册失败", "uuid为空");
 		    }
-		    url=userinfoUrl+"/api/userinfo/users/"+uuid+"?cellphone="+telNum+"&isTestFlag=F";
+		    url=userinfoUrl+"/api/userinfo/users/"+uuid+"?cellphone="+telNum+"&isTestFlag=0";
 		    Map fxResult=new HashMap();
 		    fxResult=restTemplate.postForEntity(url,null,Map.class).getBody();
 		    if("OK".equals(fxResult.get("status"))){
@@ -182,6 +189,13 @@ public class LoginController {
 		    } else {
 		    	return new JsonResult(JsonResult.Fail, "注册时，设置是否测评失败", null);
 		    }
+		} catch (HttpClientErrorException e) {
+			result = new HashMap();
+			result.put("errorCode", "400");
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			result.put("error", e.getResponseBodyAsString());
+			return new JsonResult(JsonResult.Fail, "注册失败", result);
 		}catch(Exception e){
 			 return new JsonResult(JsonResult.Fail, "注册失败", null);
 		}

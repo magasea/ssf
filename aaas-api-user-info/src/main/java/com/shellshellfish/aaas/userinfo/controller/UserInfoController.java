@@ -12,7 +12,6 @@ import java.util.TimeZone;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,8 +30,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
 import com.shellshellfish.aaas.userinfo.aop.AopPageResources;
+import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankcardDetailBodyDTO;
@@ -383,6 +385,9 @@ public class UserInfoController {
 		Object object = params.get("bankName");
 		if(object==null||"".equals(object)){
 			object = BankUtil.getNameOfBank(params.get("cardNumber").toString());
+			if(StringUtils.isEmpty(object)){
+				throw new UserInfoException("404","银行卡号不正确");
+			}
 		}
 		params.put("bankName", object.toString());
 		if (CollectionUtils.isEmpty(params)) {
@@ -495,6 +500,8 @@ public class UserInfoController {
 				Map<String,Object> map = new HashMap();
 				BankCardDTO bankCard = bankCards.get(i);
 				map.put("bankName",bankCard.getBankName());
+				map.put("bankType","储蓄卡");
+				map.put("bankcardSecurity",getBankcardNumber(bankCard.getCardNumber()));
 				map.put("bankcardNum",bankCard.getCardNumber());
 				map.put("bankCode",BankUtil.getCodeOfBank(bankCard.getCardNumber()));
 				bankList.add(map);
@@ -1233,11 +1240,13 @@ public class UserInfoController {
 	@RequestMapping(value = "/users/{cellphone}", method = RequestMethod.PATCH)
 	public ResponseEntity<Map> updateUiUser(
 			@Valid @NotNull(message = "cellphone")@PathVariable String cellphone,
-			@Valid @NotNull(message = "isTestFlag")@RequestParam String isTestFlag)throws Exception {	
+			@Valid @NotNull(message = "isTestFlag")@RequestParam String isTestFlag,
+			@Valid @NotNull(message = "riskLevel")@RequestParam String riskLevel
+			)throws Exception {	
 		logger.info("updateUiUser method run..");
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		//id message ID
-		Boolean result =  userInfoService.updateUiUser(cellphone,isTestFlag);
+		Boolean result =  userInfoService.updateUiUser(cellphone,isTestFlag,riskLevel);
 		if(!result){
 			resultMap.put("status", "NG");
 			return new ResponseEntity<Map>(resultMap,HttpStatus.UNAUTHORIZED);
@@ -1270,8 +1279,33 @@ public class UserInfoController {
 		} else {
 			//return new ResponseEntity<Object>(URL_HEAD+"/message/updateinvestmentmessages/investmentmessages?userUuid="+userUuid , HttpStatus.OK);
 			resultMap.put("result", result);
+			int isTestFlag = result.getIsTestFlag();
+			if(result.getRiskLevel()!=null){
+				int testResult = result.getRiskLevel();
+				if(isTestFlag==0){
+					resultMap.put("testResult", "");
+				} else {
+					resultMap.put("testResult", UserRiskLevelEnum.get(testResult).getComment());
+				}
+			} else {
+				resultMap.put("testResult", "");
+			}
+			
 			resultMap.put("status", "OK");
 			return new ResponseEntity<Map>(resultMap, HttpStatus.OK);
 		}
+	}
+	public static String getBankcardNumber(String bankcard) {
+		//String str = "622588013770686";
+		//System.out.println(str.replaceAll("([\\d]{4})", "$1 ")+"");
+		bankcard = bankcard.replaceAll("([\\d]{4})", "$1 ");
+		String bankcardS[] = bankcard.split(" ");
+		StringBuilder bankcardSecurity = new StringBuilder();
+		for(int i=0;i<bankcardS.length-1;i++){
+			bankcardSecurity.append("**** ");
+		}
+		bankcardSecurity.append(bankcardS[bankcardS.length-1]);
+		System.out.println(bankcardSecurity);
+		return bankcardSecurity.toString();
 	}
 }

@@ -36,7 +36,7 @@ spring:
   rabbitmq:
     username: ssf
     password: shellshellfish
-    host: localhost
+    host: 192.168.1.10
     port: 5672
     virtual-host: aaas
     topicQueuePayName: com.ssf.topic.queue.pay

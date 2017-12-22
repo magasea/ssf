@@ -3,8 +3,11 @@ zuul:
     api-mid:
       path: /phoneapi-ssf/**
       url: http://localhost:10130/phoneapi-ssf
+    apii-mid:
+      path: /phoneapii-ssf/**
+      url: http://localhost:10140/phoneapii-ssf
     userinfo:
-      path: /api/userinfo/**
+      path: /api/f/SHT/temp-11-15/aaas/aaas-api-gateway/userinfo/**
       url: http://localhost:10060/api/userinfo/
     userlogin:
       path: /api/useraccount/**
@@ -53,4 +56,7 @@ shellshellfish:
     - /api/riskassessments/**
     - /v1/auth/oauth/token
     - /v1/api/bankaccounts/**
+    - /phoneapi-ssf/**
+    - /phoneapii-ssf/**
+    - /heartbeat/
   

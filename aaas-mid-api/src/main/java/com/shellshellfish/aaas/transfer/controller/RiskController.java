@@ -3,6 +3,9 @@ package com.shellshellfish.aaas.transfer.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -34,7 +37,9 @@ import io.swagger.annotations.ApiResponses;
 @RequestMapping("phoneapi-ssf/")
 @Api("转换相关restapi")
 public class RiskController {
-
+	
+	Logger logger = LoggerFactory.getLogger(UserInfoController.class);
+	
 	@Value("${shellshellfish.risk-assessment-url}")
 	private String url;
 	
@@ -119,7 +124,14 @@ public class RiskController {
 			result.put("msg", "风险测评-结果成功");
 			result.remove("_links");
 			result.remove("_schemaVersion");
-			
+			Object obj = result.get("riskLevel");
+			String riskLevel = "";
+			if(obj!=null){
+				logger.info("风险测评-结果成功");
+				riskLevel = (String) obj;
+			} else{
+				logger.error("风险测评-结果失败");
+			}
 			//String telNum = "13573143909";
 			//获取uid
 			String urlUid=userinfoUrl+"/api/userinfo/users/"+userUuid;
@@ -127,8 +139,7 @@ public class RiskController {
 			Map resultMap = (Map) uidMap.get("userBaseInfo");
 			String telNum = (String) resultMap.get("cellPhone");
 			
-			
-			String url=userinfoUrl+"/api/userinfo/users/"+telNum+"?isTestFlag=T";
+			String url=userinfoUrl+"/api/userinfo/users/"+telNum+"?isTestFlag=1&riskLevel="+riskLevel;
 			Map fxResult=new HashMap();
 			//String isTestFlag = "T";
 			//fxResult=restTemplate.postForEntity(url,isTestFlag,Map.class).getBody();

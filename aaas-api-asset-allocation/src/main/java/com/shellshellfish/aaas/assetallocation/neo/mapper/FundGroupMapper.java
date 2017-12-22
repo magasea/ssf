@@ -21,6 +21,8 @@ public interface FundGroupMapper {
 
     List<Interval> selectById(Map map);
 
+    List<Interval> getProportionOne(Map map);
+
     List<Interval> getProportion(Map map);
 
     List<Interval> getFundCode(Map map);
@@ -43,7 +45,7 @@ public interface FundGroupMapper {
 
     List<RiskController> getRiskController(Map map);
 
-    List<RiskIncomeInterval> getScaleMark(@Param("id") String id);
+    List<RiskIncomeInterval> getScaleMark(@Param("id") String id,@Param("slidebarType") String slidebarType);
 
     List<FundGroupBuy> getFundGroupBuy(@Param("id") String id);
 
@@ -64,5 +66,15 @@ public interface FundGroupMapper {
     int updateMaximumRetracement(Map map);
 
     String getGroupStartTime(Map map);
+
+    List<EfficientFrontier> getEfficientFrontier(Map map);
+
+    List<EfficientFrontier> getEfficientFrontierDetail(String id);
+
+    List<FundNetVal> getNavadjStartTime(Map map);
+
+    List<FundNetVal> getNavadjEndTime(Map map);
+
+    List<Interval> get();
 
 }

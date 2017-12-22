@@ -229,8 +229,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public Boolean updateUiUser(String cellphone, String isTestFlag) {
-		Boolean result = userInfoRepoService.updateCellphone(cellphone,isTestFlag);
+	public Boolean updateUiUser(String cellphone, String isTestFlag, String riskLevel) {
+		Boolean result = userInfoRepoService.updateCellphone(cellphone,isTestFlag,riskLevel);
 		return result;
 	}
 

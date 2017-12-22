@@ -64,8 +64,8 @@ public class AccountServiceImpl implements AccountService {
 		String cellphone = loginBodyDTO.getTelnum();
 		String passwordhash = loginBodyDTO.getPassword();
 		List<User> userListPhone = userRepository.findByCellPhone(cellphone);
-		if(userListPhone==null){
-			throw new UserException("101", "登录账号不正确");
+		if(userListPhone==null||userListPhone.size()==0){
+			throw new UserException("101", "登录用户账号不正确");
 		}
 		List<User> userList = userRepository.findByCellPhoneAndPasswordHash(cellphone, passwordhash);
 		//List<UiAsset> userAssetList = assetRepository.findAll();
@@ -74,7 +74,7 @@ public class AccountServiceImpl implements AccountService {
 			return userList;
 		} else {
 			//return new ArrayList<User>();
-			throw new UserException("101", "登录密码不正确");
+			throw new UserException("101", "登录用户密码不正确");
 		}
 	}
 	

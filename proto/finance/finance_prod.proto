@@ -1,5 +1,6 @@
 syntax = "proto3";
 import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
 
 option java_multiple_files = true;
 option java_package = "com.shellshellfish.aaas.trade.finance.prod";
@@ -10,6 +11,8 @@ service FinanceProductService {
     rpc GetFinanceProdInfo (FinanceProdInfoQuery) returns (FinanceProdInfoCollection) {
     }
     rpc GetFinanceProds (FinanceProdDetailQuery) returns (FinanceProdDetails){}
+
+    rpc GetProds(google.protobuf.Empty) returns (ProdInfos){}
 }
 //获取当前理财产品信息
 message FinanceProdInfoQuery {
@@ -27,6 +30,16 @@ message FinanceProdInfo {
   string prod_name = 3 ; //理财产品名称
   string fund_code = 4 ;//该理财产品中的某个基金编号,
   int32 fund_share = 5 ;//该理财产品中的基金份额百分比,
+}
+
+
+message ProdInfos{
+  repeated ProdInfo prodInfo = 1;
+}
+message ProdInfo {
+  int64 prod_id = 1 ;//理财产品Id,
+  int64 group_id = 2; //理财产品类组id
+  string prod_name = 3 ; //理财产品名称
 }
 
 //获取理财产品系列

@@ -11,7 +11,9 @@ import org.springframework.amqp.core.Declarable;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -23,6 +25,21 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class MessageRabbitConfig {
+    @Value("${spring.rabbitmq.host}")
+    String rabbitHost;
+
+    @Value("${spring.rabbitmq.port}")
+    int rabbitPort;
+
+    @Value("${spring.rabbitmq.username}")
+    String rabbitUN;
+
+    @Value("${spring.rabbitmq.password}")
+    String rabbitPW;
+
+    @Value("${spring.rabbitmq.virtual-host}")
+    String rabbitVH;
+
     @Value("${spring.rabbitmq.topicQueuePayName}")
     String topicQueuePayName;
 
@@ -39,33 +56,23 @@ public class MessageRabbitConfig {
     String topicOrder;
 
     @Bean
-    SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
-        MessageListenerAdapter listenerAdapter) {
-        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory);
-        container.setQueueNames(topicQueueOrderName);
-        container.setMessageListener(listenerAdapter);
-        return container;
+    public ConnectionFactory connectionFactory(){
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory(rabbitHost);
+        connectionFactory.setUsername(rabbitUN);
+        connectionFactory.setPassword(rabbitPW);
+        connectionFactory.setPort(rabbitPort);
+        connectionFactory.setVirtualHost(rabbitVH);
+        connectionFactory.setRequestedHeartBeat(60);
+        return connectionFactory;
     }
 
     @Bean
-    MessageListenerAdapter listenerAdapter(BroadcastMessageConsumers receiver) {
-        return new MessageListenerAdapter(receiver, "receiveMessage");
-    }
-
-    @Bean
-    public List<Declarable> topicBindings() {
-        Queue topicPayQueue = new Queue(topicQueuePayName, false);
-        Queue topicOrderQueue = new Queue(topicQueueOrderName, false);
-        TopicExchange topicExchange = new TopicExchange(topicExchangeName);
-
-        return Arrays.asList(
-            topicOrderQueue,
-            topicPayQueue,
-            topicExchange,
-            BindingBuilder.bind(topicPayQueue).to(topicExchange).with(topicPay),
-            BindingBuilder.bind(topicPayQueue).to(topicExchange).with(topicOrder)
-        );
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory() {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory());
+        factory.setConcurrentConsumers(3);
+        factory.setMaxConcurrentConsumers(10);
+        return factory;
     }
 
     @Bean
@@ -73,24 +80,9 @@ public class MessageRabbitConfig {
         return new TopicExchange(topicExchangeName);
     }
 
-    @Bean
-    Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(topicPay);
-    }
-
-    @Bean
-    Queue queue() {
-        return new Queue(topicQueuePayName, false);
-    }
-
-    @PostConstruct
-    void started() {
-        TimeZone.setDefault(TimeZone.getTimeZone("Etc/UTC"));
-    }
-
 //    @Bean
-//    public MessageConverter jsonMessageConverter(){
-//        return new Jackson2JsonMessageConverter();
+//    Binding binding(Queue queue, TopicExchange exchange) {
+//        return BindingBuilder.bind(queue).to(exchange).with(topicOrder);
 //    }
 
     @Bean
@@ -104,4 +96,72 @@ public class MessageRabbitConfig {
     }
 
 
+//    @Bean
+//    public MessageConverter jsonMessageConverter(){
+//        return new Jackson2JsonMessageConverter();
+//    }
+
+    @Bean
+    public RabbitTemplate rabbitTemplate() {
+        final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory());
+//        rabbitTemplate.setMessageConverter(jsonMessageConverter());
+        return rabbitTemplate;
+    }
+
+
+
+//    @Bean
+//    Queue queue() {
+//        return new Queue(topicQueuePayName, false);
+//    }
+
+//	@Bean
+//	TopicExchange exchange() {
+//		return new TopicExchange("com.ssf.topic.exchange");
+//	}
+
+//	@Bean
+//	Binding binding(Queue queue, TopicExchange exchange) {
+//		return BindingBuilder.bind(queue).to(exchange).with(topicQueueOrderName);
+//	}
+
+
+
+
+//    @Bean
+//    public List<Declarable> topicBindings() {
+////		Queue topicQueue1 = new Queue(topicQueuePayName, false);
+//
+//
+//        TopicExchange topicExchange = new TopicExchange(topicExchangeName);
+//
+//        return Arrays.asList(
+//            queue(),
+//            topicExchange,
+//            BindingBuilder.bind(queue()).to(topicExchange).with(topicOrder)
+//        );
+//    }
+
+
+//	@Bean
+//	TopicExchange exchange() {
+//		return new TopicExchange("com.ssf.topic.exchange");
+//	}
+
+
+
+//    @Bean
+//    SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
+//        MessageListenerAdapter listenerAdapter) {
+//        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+//        container.setConnectionFactory(connectionFactory);
+//        container.setQueueNames(topicQueueOrderName);
+//        container.setMessageListener(listenerAdapter);
+//        return container;
+//    }
+//
+//    @Bean
+//    MessageListenerAdapter listenerAdapter(BroadcastMessageConsumers receiver) {
+//        return new MessageListenerAdapter(receiver, "receiveMessage");
+//    }
 }

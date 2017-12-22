@@ -13,8 +13,10 @@ public class UserBaseInfoDTO {
 	String occupation;
 
 	String passwordhash;
-	
+
 	Integer isTestFlag;
+
+	Integer riskLevel;
 
 	public Long getId() {
 		return id;
@@ -62,6 +64,14 @@ public class UserBaseInfoDTO {
 
 	public void setIsTestFlag(Integer isTestFlag) {
 		this.isTestFlag = isTestFlag;
+	}
+
+	public Integer getRiskLevel() {
+		return riskLevel;
+	}
+
+	public void setRiskLevel(Integer riskLevel) {
+		this.riskLevel = riskLevel;
 	}
 
 }

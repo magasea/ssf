@@ -1,13 +1,14 @@
 package com.shellshellfish.aaas.common.message.order;
 
+import java.io.Serializable;
 
 /**
- * Created by chenwei on 2017- 十二月 - 19
+ * Created by chenwei on 2017- 十二月 - 21
  */
 
 
 
-public class TrdPayFlow {
+public class TrdPayFlow implements Serializable{
 
   private long id;
   private long orderDetailId;
@@ -16,7 +17,7 @@ public class TrdPayFlow {
   private String applySerial;
   private String outsideOrderno;
   private String bankCardNum;
-  private String prodCode;
+  private long prodId;
   private String fundCode;
   private int payStatus;
   private long payDate;
@@ -31,8 +32,8 @@ public class TrdPayFlow {
   private long createDate;
   private long updateBy;
   private long updateDate;
+  private String prodCode;
 
-  
   
   
   public long getId() {
@@ -105,12 +106,12 @@ public class TrdPayFlow {
 
   
   
-  public String getProdCode() {
-    return prodCode;
+  public long getProdId() {
+    return prodId;
   }
 
-  public void setProdCode(String prodCode) {
-    this.prodCode = prodCode;
+  public void setProdId(long prodId) {
+    this.prodId = prodId;
   }
 
   
@@ -254,6 +255,16 @@ public class TrdPayFlow {
   }
 
   
+  
+  public String getProdCode() {
+    return prodCode;
+  }
+
+  public void setProdCode(String prodCode) {
+    this.prodCode = prodCode;
+  }
+
+  
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -268,6 +279,9 @@ public class TrdPayFlow {
       return false;
     }
     if (orderDetailId != that.orderDetailId) {
+      return false;
+    }
+    if (prodId != that.prodId) {
       return false;
     }
     if (payStatus != that.payStatus) {
@@ -323,13 +337,13 @@ public class TrdPayFlow {
     if (bankCardNum != null ? !bankCardNum.equals(that.bankCardNum) : that.bankCardNum != null) {
       return false;
     }
-    if (prodCode != null ? !prodCode.equals(that.prodCode) : that.prodCode != null) {
-      return false;
-    }
     if (fundCode != null ? !fundCode.equals(that.fundCode) : that.fundCode != null) {
       return false;
     }
     if (payAmount != null ? !payAmount.equals(that.payAmount) : that.payAmount != null) {
+      return false;
+    }
+    if (prodCode != null ? !prodCode.equals(that.prodCode) : that.prodCode != null) {
       return false;
     }
 
@@ -345,7 +359,7 @@ public class TrdPayFlow {
     result = 31 * result + (applySerial != null ? applySerial.hashCode() : 0);
     result = 31 * result + (outsideOrderno != null ? outsideOrderno.hashCode() : 0);
     result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
-    result = 31 * result + (prodCode != null ? prodCode.hashCode() : 0);
+    result = 31 * result + (int) (prodId ^ (prodId >>> 32));
     result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
     result = 31 * result + payStatus;
     result = 31 * result + (int) (payDate ^ (payDate >>> 32));
@@ -360,6 +374,7 @@ public class TrdPayFlow {
     result = 31 * result + (int) (createDate ^ (createDate >>> 32));
     result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
     result = 31 * result + (int) (updateDate ^ (updateDate >>> 32));
+    result = 31 * result + (prodCode != null ? prodCode.hashCode() : 0);
     return result;
   }
 }
