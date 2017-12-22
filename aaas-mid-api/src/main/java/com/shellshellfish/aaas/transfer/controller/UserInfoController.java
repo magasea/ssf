@@ -61,8 +61,8 @@ public class UserInfoController {
 			@RequestParam String idcard,
 			@RequestParam String mobile,
 			@RequestParam String verifyCode) {
-		Map verifyReult = new HashMap();
-		Map result = new HashMap();
+		Map<String, Object> verifyReult = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 //			MultiValueMap<String, String> requestEntity = new LinkedMultiValueMap<>();
 //			requestEntity.add("action", "getVerificationCode2");
@@ -96,11 +96,11 @@ public class UserInfoController {
 			}
 			
 		} catch (HttpClientErrorException e) {
-			result = new HashMap<String, String>();
+			result = new HashMap<String, Object>();
 			String str = e.getResponseBodyAsString();
 			System.out.println(str);
 			result.put("error", e.getResponseBodyAsString());
-			return new JsonResult(JsonResult.Fail, "发送失败", result);
+			return new JsonResult(JsonResult.Fail, "添加银行卡失败", result);
 		} catch (Exception e) {
 			Map<String, Object> map = new HashMap();
 			map.put("errorCode", "400");
