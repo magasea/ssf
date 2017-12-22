@@ -75,4 +75,6 @@ public interface FundGroupMapper {
 
     List<FundNetVal> getNavadjEndTime(Map map);
 
+    List<Interval> get();
+
 }
