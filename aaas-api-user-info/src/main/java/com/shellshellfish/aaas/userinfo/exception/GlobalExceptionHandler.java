@@ -64,8 +64,8 @@ public class GlobalExceptionHandler{
 		return new ResponseEntity<ErrorDTO[]>(error,HttpStatus.BAD_REQUEST);
    }
 	
-	@ExceptionHandler(UserException.class)
-	public ResponseEntity<ErrorDTO> UserExceptionHandler(UserException e) {
+	@ExceptionHandler(UserInfoException.class)
+	public ResponseEntity<ErrorDTO> UserInfoExceptionHandler(UserInfoException e) {
 		ErrorDTO error = new ErrorDTO(e.getMsg());
 		error.setCode(Integer.parseInt(e.getCode()));
 		return new ResponseEntity<ErrorDTO>(error, HttpStatus.BAD_REQUEST);
