@@ -61,7 +61,11 @@ public interface FundGroupMapper {
 
     List<FundNetVal> getNavadj(Map map);
 
+    List<FundNetVal> getNavadjBenchmark(Map map);
+
     int insertGroupNavadj(Map map);
+
+    int insertGroupNavadjBenchmark(Map map);
 
     int updateMaximumRetracement(Map map);
 
@@ -75,6 +79,8 @@ public interface FundGroupMapper {
 
     List<FundNetVal> getNavadjEndTime(Map map);
 
-    List<Interval> get();
+    List<Interval> getAllIdAndSubId();
+
+    String getRiskNum(@Param("id") String id);
 
 }

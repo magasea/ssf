@@ -95,9 +95,6 @@
         <if test="fund_group_id != null and fund_group_id !=''">
             and  b.fund_group_id = #{fund_group_id}
         </if>
-        <if test="subGroupId != null and subGroupId !=''">
-            and b.id = #{subGroupId}
-        </if>
         ORDER BY b.simulate_historical_year_performance
     </select>
 
@@ -127,7 +124,10 @@
     </select>
 
     <select id="getHistory" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupHistory">
-        select * from fund_group_history where fund_group_id = #{fund_group_id} and fund_group_sub_id=#{fund_group_sub_id}
+        select * from fund_group_history where fund_group_id = #{fund_group_id}
+        <if test="fund_group_sub_id != null and fund_group_sub_id != ''">
+          and fund_group_sub_id=#{fund_group_sub_id}
+        </if>
         and time BETWEEN #{starttime} and #{endtime}
     </select>
     <select id="getSharpeRatio" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
@@ -153,14 +153,34 @@
         group by a.navlatestdate
     </select>
 
+    <select id="getNavadjBenchmark" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
+        select sum(a.navadj*b.proportion) navadj,a.navlatestdate from fund_net_value a,fund_group_benchmark b
+        where a.code=b.fund_code and risk_level= #{risk_level}
+        <if test="endTime != null and endTime != '' ">
+          and navlatestdate > #{startTime} and navlatestdate &lt; #{endTime}
+        </if>
+        group by a.navlatestdate
+    </select>
+
     <insert id="insertGroupNavadj">
         insert into fund_group_history (fund_group_sub_id,fund_group_id,income_num,time)
         VALUES (#{subGroupId},#{fund_group_id},#{num},#{time})
     </insert>
 
+    <insert id="insertGroupNavadjBenchmark">
+        insert into fund_group_history (fund_group_id,income_num,time)
+        VALUES (#{risk_level},#{num},#{time})
+    </insert>
+
     <update id="updateMaximumRetracement">
-        update fund_group_history set maximum_retracement = #{retracement} where fund_group_id = #{fund_group_id}
-        and fund_group_sub_id = #{subGroupId} and time = #{time}
+        update fund_group_history set maximum_retracement = #{retracement} where
+        <if test="fund_group_id != null and fund_group_id != ''">
+          fund_group_id = #{fund_group_id} and fund_group_sub_id = #{subGroupId}
+        </if>
+        <if test="risk_level != null and risk_level != ''">
+            fund_group_id = #{risk_level}
+        </if>
+        and time = #{time}
     </update>
 
     <select id="getGroupStartTime" resultType="String">
@@ -187,8 +207,11 @@
         order by b.navlatestdate desc limit #{num}
     </select>
 
-    <select id="get" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
+    <select id="getAllIdAndSubId" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
         select id,fund_group_id from fund_group_sub
     </select>
 
+    <select id="getRiskNum" resultType="String">
+        select cust_risk from straegy where id = #{id}
+    </select>
 </mapper>

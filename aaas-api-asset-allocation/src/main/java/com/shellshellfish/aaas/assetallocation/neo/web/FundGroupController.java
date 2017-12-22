@@ -249,4 +249,10 @@ public class FundGroupController {
         return smk;
     }
 
+    @ApiOperation("计算复权单位净值和最大回撤")
+    @RequestMapping(value = "/api/asset-allocation/product-groups/getAllIdAndSubId", method = RequestMethod.GET)
+    public void getAllIdAndSubId(){
+        fundGroupService.getAllIdAndSubId();
+    }
+
 }
