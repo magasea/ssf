@@ -1,5 +1,6 @@
 syntax = "proto3";
 import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
 
 option java_multiple_files = true;
 option java_package = "com.shellshellfish.aaas.trade.finance.prod";
@@ -10,7 +11,7 @@ service FinanceProductService {
     rpc GetFinanceProdInfo (FinanceProdInfoQuery) returns (FinanceProdInfoCollection) {
     }
     rpc GetFinanceProds (FinanceProdDetailQuery) returns (FinanceProdDetails){}
-    rpc GetProds() return (ProdInfos){}
+    rpc GetProds(google.protobuf.Empty) returns (ProdInfos){}
 }
 //获取当前理财产品信息
 message FinanceProdInfoQuery {
