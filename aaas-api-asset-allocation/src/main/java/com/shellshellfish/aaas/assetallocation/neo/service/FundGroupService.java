@@ -730,7 +730,7 @@ public class FundGroupService {
                     temp[i] = list.get(i).getNavadj();
                 }
                 double maximum_retracement = 0;
-                if (temp.length!=0) {
+                if (temp.length>1) {
                     CalculateMaxdrawdowns cm = new CalculateMaxdrawdowns();
                     maximum_retracement = cm.calculateMaxdrawdown(temp);
                 }
@@ -811,5 +811,14 @@ public class FundGroupService {
             fr.setAssetsRatios(list);
         }
         return fr;
+    }
+
+    public void get(){
+        List<Interval> aa = fundGroupMapper.get();
+        System.out.println(new Date());
+        for (Interval a : aa){
+            getNavadj(a.getFund_group_id(),a.getId());
+        }
+        System.out.println(new Date());
     }
 }

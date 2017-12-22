@@ -95,7 +95,6 @@ public class FinanceController {
 		Object object=null;
 		List<Map<String,Object>> prdList=null; //中间容器
 		List<FinanceProductCompo> resultList=new ArrayList<FinanceProductCompo>();//结果集
-
 			try{
 			result=restTemplate.getForEntity(url, Map.class).getBody();
 			}catch(Exception e){
@@ -143,20 +142,22 @@ public class FinanceController {
 	public JsonResult getPrdDetails(String groupId,String subGroupId){
 		Map result=null;
 		try{
-			result=service.getPrdNPVIncrement(groupId, subGroupId);
+			result=service.getPrdNPVList(groupId, subGroupId);
 		}catch(Exception e){
 			result=new HashMap<>();
 			result.put("错误原因", e.getMessage()+",restTemplate调用组合各种类型净值收益失败");
 			return new JsonResult(JsonResult.Fail, "查看理财产品详情失败", result);
 		}
-		return new JsonResult(JsonResult.Fail, "查看理财产品详情失败", result);
+		return new JsonResult(JsonResult.Fail, "查看理财产品详情成功", result);
 	}
+	
+	
+	
 
 	@ApiOperation("历史业绩")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID", defaultValue = ""),
-		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "6"),
-		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "100050"),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "6"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "111135"),
 	})
 	@RequestMapping(value = "/historicalPerformancePage", method = RequestMethod.POST)
 	@ResponseBody
@@ -239,239 +240,101 @@ public class FinanceController {
 	
 	@ApiOperation("未来预期page")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID", defaultValue = "1"),
-		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "6"),
-		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "111135"),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "6"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "111135"),
 	})
-	@RequestMapping(value = "/futureExpectationPage", method = RequestMethod.POST)
+	@RequestMapping(value = "/futureExpectation", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getFutureExpectation(@RequestParam String groupId, @RequestParam String subGroupId) {
-		Map<String,Object> result = new HashMap<String,Object>();
-		// 预期平均年化收益率
-		Map<String,Object> optMap = new HashMap<String,Object>();
-		String url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt?returnType=1";
-		optMap= restTemplate.postForEntity(url,null,Map.class).getBody();
-		if (optMap != null && !optMap.isEmpty()) {
-			logger.info("预期平均年化收益率获取成功");
-			Object obj = optMap.get("value");
-			String value = "";
-			if (obj != null) {
-				logger.info("预期平均年化收益率获取成功2");
-				value = obj.toString();
-				result.put("averageAnnualRate", value);
+		// 预期平均年化收益
+		String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/historicalPer-formance?fund_group_id=" + groupId
+				+ "&subGroupId=" + subGroupId;
+		Map<String,Object> result = new HashMap<String,Object>();// 中间容器
+		Object object = null;
+		List<Map<String, Object>> prdList = null; // 中间容器
+		List<FinanceProductCompo> resultList = new ArrayList<FinanceProductCompo>();// 结果集
+		try {
+			result = restTemplate.getForEntity(url, Map.class).getBody();
+			logger.info("历史业绩-第一部分数据获取成功");
+			if (result != null) {
+				object = result.get("_items");
+				if (object != null) {
+					logger.info("object获取成功");
+					result.put("historicalPerformance",object);
+					result.remove("_items");
+					result.remove("name");
+					result.remove("_schemaVersion");
+					result.remove("_serviceId");
+				} else {
+					logger.info("object获取失败");
+				}
+				
 			} else {
-				logger.error("预期平均年化收益率获取失败");
+				return new JsonResult(JsonResult.SUCCESS, "获取失败", resultList);
 			}
-		} else {
-			logger.error("预期平均年化收益率获取失败2");
+		} catch (Exception e) {
+			// 获取list失败直接返回
+			logger.error("获取理财产品调用restTemplate方法发生错误",e);
+			String message = e.getMessage();
+			result.put("错误原因", message + ",获取理财产品调用restTemplate方法发生错误！");
+			return new JsonResult(JsonResult.Fail, "获取理财List数据失败", result);
 		}
 		
-		//未来收益走势图
-		Object object = null;
-		List<Map<String, Object>> prdList = new ArrayList<Map<String, Object>>(); // 中间容器
-		url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/expected-income";
-		try {
-			Map<String,Object> expectedIncomeMap = new HashMap<String,Object>();
-			expectedIncomeMap = restTemplate.getForEntity(url, Map.class).getBody();
-			if(expectedIncomeMap!=null&&!expectedIncomeMap.isEmpty()){
-				logger.info("未来收益走势图数据获取成功");
-				Object obj2 = expectedIncomeMap.get("_items");
-				if (obj2 != null) {
-					logger.info("未来收益走势图数据获取成功2");
-					//prdList = (List<Map<String, Object>>) obj2;
-					result.put("expectedIncome", obj2);
-				} else {
-					logger.error("未来收益走势图数据获取失败");
-				}
+		//收益率走势图
+		//http://localhost:10020/api/asset-allocation/product-groups/6/sub-groups/111111/portfolio-yield-week?returnType=income
+		url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId +"/sub-groups/"+subGroupId+"/portfolio-yield-week?returnType=income";
+		Map<String,Object> incomeResult = new HashMap<String,Object>();
+		incomeResult = restTemplate.getForEntity(url, Map.class).getBody();
+		// 如果成功获取内部值，再遍历获取每一个产品的年化收益(进入service)
+		Object obj = null;
+		if (incomeResult != null) {
+			logger.info("历史业绩-第一部分数据获取成功");
+			obj = incomeResult.get("_items");
+			if (obj != null) {
+				logger.info("obj获取成功");
+				result.put("portfolioYield",obj);
 			} else {
-				logger.error("未来收益走势图数据获取失败2");
+				logger.info("object获取失败");
 			}
-		} catch (Exception e) {
-			// 获取list失败直接返回
-			logger.error("未来收益走势图数据发生错误",e);
-			String message = e.getMessage();
-			result.put("错误原因", message + ",未来收益走势图数据发生错误！");
-			return new JsonResult(JsonResult.Fail, "未来收益走势图数据失败", result);
+		} else {
+			logger.error("获取收益率失败");
+			return new JsonResult(JsonResult.SUCCESS, "获取收益率失败", resultList);
+		}
+		//最大回撤走势图
+		url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId +"/sub-groups/"+subGroupId+"/portfolio-yield-week?returnType=1";
+		Map<String,Object> incomeResult1 = new HashMap<String,Object>();
+		incomeResult1 = restTemplate.getForEntity(url, Map.class).getBody();
+		// 如果成功获取内部值，再遍历获取每一个产品的年化收益(进入service)
+		Object obj1 = null;
+		if (incomeResult1 != null) {
+			logger.info("历史业绩-第一部分数据获取成功");
+			obj1 = incomeResult1.get("_items");
+			if (obj1 != null) {
+				logger.info("obj1获取成功");
+				result.put("maxRetreat",obj1);
+			} else {
+				logger.info("object获取失败");
+			}
+		} else {
+			logger.error("获取收益率失败");
+			return new JsonResult(JsonResult.SUCCESS, "获取收益率失败", result);
 		}
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 	}
 	
-	@ApiOperation("风险控制")
+	
+	
+	@ApiOperation("查询产品的历史收益率和最大回撤")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = "1"),
-		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "6"),
-		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "111135"),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "6"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "111111")
 	})
-	@RequestMapping(value = "/riskMangementPage", method = RequestMethod.POST)
+	@RequestMapping(value="/getExpAnnualAndMaxReturn",method=RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getRiskManagement(@RequestParam String uuid,@RequestParam String groupId, @RequestParam String subGroupId) {
-		Map<String, Object> result = new HashMap<String, Object>();
-		// 最大回撤走势图
-		Map<String, Object> portfolioYieldWeekMap = new HashMap<String, Object>();
-		try {
-			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
-					+ subGroupId + "/portfolio-yield-week?returnType=1";
-			portfolioYieldWeekMap = restTemplate.getForEntity(url, Map.class).getBody();
-			if (portfolioYieldWeekMap != null && !portfolioYieldWeekMap.isEmpty()) {
-				logger.info("最大回撤走势图获取成功");
-				Object obj = portfolioYieldWeekMap.get("_items");
-				String value = "";
-				if (obj != null) {
-					logger.info("最大回撤走势图获取成功2");
-					// value = obj.toString();
-					result.put("portfolioYieldWeek", obj);
-				} else {
-					logger.error("最大回撤走势图获取失败");
-				}
-			} else {
-				logger.error("预期平均年化收益率获取失败2");
-			}
-
-			// 等级风险
-			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId
-					+ "/risk-controls";
-			Map<String, Object> riskMap = new HashMap<String, Object>();
-			riskMap = restTemplate.getForEntity(url, Map.class).getBody();
-			if (riskMap != null && !riskMap.isEmpty()) {
-				logger.info("等级风险数据获取成功");
-				Object obj2 = riskMap.get("_items");
-				if (obj2 != null) {
-					logger.info("等级风险数据获取成功2");
-					// prdList = (List<Map<String, Object>>) obj2;
-					result.put("levelRiskControl", obj2);
-				} else {
-					logger.info("等级风险数据获取失败");
-				}
-			} else {
-				logger.info("等级风险数据获取失败2");
-			}
-			
-			// 风险控制手段与通知
-			url = assetAlloctionUrl + "/api/asset-allocation/products/" + uuid + "/risk-notifications";
-			Map<String, Object> riskNotificationsMap = new HashMap<String, Object>();
-			riskNotificationsMap = restTemplate.getForEntity(url, Map.class).getBody();
-			if (riskNotificationsMap != null && !riskNotificationsMap.isEmpty()) {
-				logger.info("风险控制手段与通知数据获取成功");
-				Object obj2 = riskNotificationsMap.get("_items");
-				if (obj2 != null) {
-					logger.info("风险控制手段与通知获取成功2");
-					List<Map<String, Object>> prdList = (List<Map<String, Object>>) obj2;
-					for(int i=0;i<prdList.size();i++){
-						Map<String, Object> prdMap = prdList.get(i);
-						prdMap.remove("content");
-					}
-					result.put("riskNotifications", prdList);
-				} else {
-					logger.info("风险控制手段与通知失败");
-				}
-			} else {
-				logger.info("风险控制手段与通知失败2");
-			}
-			
-		} catch (Exception e) {
-			// 获取list失败直接返回
-			logger.error("风险控制数据发生错误", e);
-			String message = e.getMessage();
-			result.put("错误原因", message + ",风险控制数据发生错误！");
-			return new JsonResult(JsonResult.Fail, "风险控制数据失败", result);
-		}
-		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+	public JsonResult getExpAnnualAndMaxReturn(String groupId,String subGroupId){
+		return new JsonResult(JsonResult.SUCCESS,"请求成功",service.getExpAnnualAndMaxReturn(groupId, subGroupId));
 	}
 	
-	@ApiOperation("全球配置")
-	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID", defaultValue = "1"),
-		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "6"),
-		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "111135"),
-	})
-	@RequestMapping(value = "/globalConfigurationPage", method = RequestMethod.POST)
-	@ResponseBody
-	public JsonResult getGlobalConfiguration(@RequestParam String uuid,@RequestParam String groupId, @RequestParam String subGroupId) {
-		Map<String, Object> result = new HashMap<String, Object>();
-		// 配置收益贡献
-		Map<String, Object> configurationBenefitContributionMap = new HashMap<String, Object>();
-		try {
-			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/contributions";
-			configurationBenefitContributionMap = restTemplate.getForEntity(url, Map.class).getBody();
-			if (configurationBenefitContributionMap != null && !configurationBenefitContributionMap.isEmpty()) {
-				logger.info("配置收益贡献获取成功");
-				Object obj = configurationBenefitContributionMap.get("_items");
-				Object category = configurationBenefitContributionMap.get("_total");
-				List<Map<String, Object>> value = new ArrayList<Map<String, Object>>();
-				if (obj != null||category!=null) {
-					logger.info("配置收益贡献获取成功2");
-					value = (List<Map<String, Object>>) obj;
-					Map<String,Object> configMap = value.get(0);
-					Object configTime = null;
-					if(configMap!=null&&configMap.size()>0){
-						logger.info("配置收益贡献时间获取成功");
-						configTime = configMap.get("time");
-						if(configTime==null){
-							logger.error("配置收益贡献时间获取为空");
-						}
-					} else {
-						logger.error("配置收益贡献时间获取失败");
-					}
-					result.put("configurationBenefitContribution", obj);
-					result.put("categoryQuantity", category);
-					result.put("configurationTime", configTime);
-				} else {
-					logger.error("配置收益贡献获取失败"+category);
-				}
-			} else {
-				logger.error("配置收益贡献获取失败2");
-			}
-			
-			// 等级风险
-			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId
-					+ "/risk-controls";
-			Map<String, Object> riskMap = new HashMap<String, Object>();
-			riskMap = restTemplate.getForEntity(url, Map.class).getBody();
-			if (riskMap != null && !riskMap.isEmpty()) {
-				logger.info("等级风险数据获取成功");
-				Object obj2 = riskMap.get("_items");
-				if (obj2 != null) {
-					logger.info("等级风险数据获取成功2");
-					// prdList = (List<Map<String, Object>>) obj2;
-					result.put("levelRiskControl", obj2);
-				} else {
-					logger.info("等级风险数据获取失败");
-				}
-			} else {
-				logger.info("等级风险数据获取失败2");
-			}
-			
-			// 风险控制手段与通知
-			url = assetAlloctionUrl + "/api/asset-allocation/products/" + uuid + "/risk-notifications";
-			Map<String, Object> riskNotificationsMap = new HashMap<String, Object>();
-			riskNotificationsMap = restTemplate.getForEntity(url, Map.class).getBody();
-			if (riskNotificationsMap != null && !riskNotificationsMap.isEmpty()) {
-				logger.info("风险控制手段与通知数据获取成功");
-				Object obj2 = riskNotificationsMap.get("_items");
-				if (obj2 != null) {
-					logger.info("风险控制手段与通知获取成功2");
-					List<Map<String, Object>> prdList = (List<Map<String, Object>>) obj2;
-					for(int i=0;i<prdList.size();i++){
-						Map<String, Object> prdMap = prdList.get(i);
-						prdMap.remove("content");
-					}
-					result.put("riskNotifications", prdList);
-				} else {
-					logger.info("风险控制手段与通知失败");
-				}
-			} else {
-				logger.info("风险控制手段与通知失败2");
-			}
-			
-		} catch (Exception e) {
-			// 获取list失败直接返回
-			logger.error("风险控制数据发生错误", e);
-			String message = e.getMessage();
-			result.put("错误原因", message + ",风险控制数据发生错误！");
-			return new JsonResult(JsonResult.Fail, "风险控制数据失败", result);
-		}
-		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
-	}
 	
 	
 
@@ -616,6 +479,25 @@ public class FinanceController {
 	}
 
 
+	
+	@ApiOperation("调整方案")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="riskLevel",dataType="String",required = true,value="风险承受级别",defaultValue="C1"),
+		@ApiImplicitParam(paramType="query",name="invstTerm",dataType="String",required = true,value="投资期限",defaultValue="1")
+	})
+	@RequestMapping(value="/optAdjustment",method=RequestMethod.POST)
+	@ResponseBody
+	public JsonResult getOptAdjustment(String riskLevel,String invstTerm){
+		try{
+		return new JsonResult(JsonResult.SUCCESS, "请求成功",service.getOptAdjustment(riskLevel, invstTerm));
+		}catch(Exception e){
+	    return new JsonResult(JsonResult.Fail, "请求失败",service.getOptAdjustment(riskLevel, invstTerm));
+		}
+		
+	}
+	
+	
+	
 
 	private JsonResult postConnectFinaceUrl(String url,String groupId ,String subGroupId){
 		Map<String,Object> result;

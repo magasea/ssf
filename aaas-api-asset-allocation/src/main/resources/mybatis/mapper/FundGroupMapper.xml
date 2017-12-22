@@ -187,4 +187,8 @@
         order by b.navlatestdate desc limit #{num}
     </select>
 
+    <select id="get" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
+        select id,fund_group_id from fund_group_sub
+    </select>
+
 </mapper>
