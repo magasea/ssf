@@ -259,7 +259,10 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
         }
 
         JSONArray jsonArray = jsonObject.getJSONArray("data");
-        BigDecimal discount = jsonArray.getJSONObject(0).getBigDecimal("discount");
+        BigDecimal discount = BigDecimal.ONE;
+        if (jsonArray.size() > 0) {
+            discount = jsonArray.getJSONObject(0).getBigDecimal("discount");
+        }
         return discount;
     }
 

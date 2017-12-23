@@ -23,11 +23,12 @@ public class ProductMakeUpInfo {
 
   }
 
-  public ProductMakeUpInfo(Long prodId, Long groupId, String prodName, String fundCode, Integer fundShare) {
+  public ProductMakeUpInfo(Long prodId, Long groupId, String prodName, String fundCode, String fundName, Integer fundShare) {
     this.prodId = prodId;
     this.groupId = groupId;
     this.prodName = prodName;
     this.fundCode = fundCode;
+    this.fundName = fundName;
     this.fundShare = fundShare;
   }
 
