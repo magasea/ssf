@@ -257,6 +257,16 @@ public class OneFundApiServiceTest {
     }
 
     @Test
+    public void testWriteAllTradeDiscountToMongodDb() throws Exception{
+        oneFundApiService.writeAllTradeDiscountToMongodDb();
+    }
+
+    @Test
+    public void testWriteAllTradeLimitToMongoDb() throws Exception{
+        oneFundApiService.writeAllTradeLimitToMongoDb();
+    }
+
+    @Test
     public void testFillTradeRateResult() throws JsonProcessingException {
         String json = "{\n" +
                 "    \"status\": 1,\n" +

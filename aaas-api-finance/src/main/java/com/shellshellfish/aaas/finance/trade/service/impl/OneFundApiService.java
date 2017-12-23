@@ -483,6 +483,22 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
+    public String getTradeLimitAsRawString(String fundCode, String businFlag) throws JsonProcessingException {
+        fundCode = trimSuffix(fundCode);
+
+        Map<String, Object> info = init();
+        info.put("fundcode", fundCode);
+        info.put("buinflag", businFlag);
+        postInit(info);
+
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_trade_limit";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+        return json;
+    }
+
+    @Override
     public List<TradeLimitResult> getTradeLimits(String fundCode, String businFlag) throws Exception {
         fundCode = trimSuffix(fundCode);
 
@@ -516,6 +532,23 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
+    public String getDiscountRawString(String fundCode, String businFlag) throws Exception{
+        fundCode = trimSuffix(fundCode);
+
+        Map<String, Object> info = init();
+        info.put("fundcode", fundCode);
+        info.put("businflag", businFlag);
+        postInit(info);
+
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_trade_discount";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        return json;
+    }
+
+    @Override
     public BigDecimal getDiscount(String fundCode, String businFlag) throws Exception {
         fundCode = trimSuffix(fundCode);
 
@@ -536,6 +569,10 @@ public class OneFundApiService implements FundTradeApiService {
         }
 
         JSONArray jsonArray = jsonObject.getJSONArray("data");
+        if (jsonArray.size() > 0) {
+            return BigDecimal.ONE;
+        }
+
         BigDecimal discount = jsonArray.getJSONObject(0).getBigDecimal("discount");
         return discount;
     }
@@ -634,6 +671,36 @@ public class OneFundApiService implements FundTradeApiService {
             logger.info("fundCode:{}", fundCode);
             String tradeRateInfo = getTradeRate(fundCode, "022");
             mongoTemplate.save(tradeRateInfo, "rateInfo");
+//            tradeRateInfo = getTradeRate(fundCode, "024");
+//            mongoTemplate.save(tradeRateInfo, "rateInfo");
+        }
+    }
+
+    @Override
+    public void writeAllTradeDiscountToMongodDb() throws Exception {
+        List<String> funds = getAllFundsInfo();
+        for(String fund:funds) {
+            JSONObject jsonObject = JSONObject.parseObject(fund);
+            String fundCode = jsonObject.getString("fundcode");
+            logger.info("fundCode:{}", fundCode);
+            String tradeRateInfo = getDiscountRawString(fundCode, "022");
+            mongoTemplate.save(tradeRateInfo, "discountInfo");
+            tradeRateInfo = getDiscountRawString(fundCode, "024");
+            mongoTemplate.save(tradeRateInfo, "discountInfo");
+        }
+    }
+
+    @Override
+    public void writeAllTradeLimitToMongoDb() throws Exception {
+        List<String> funds = getAllFundsInfo();
+        for(String fund:funds) {
+            JSONObject jsonObject = JSONObject.parseObject(fund);
+            String fundCode = jsonObject.getString("fundcode");
+            logger.info("fundCode:{}", fundCode);
+            String tradeLimitInfo = getTradeLimitAsRawString(fundCode, "022");
+            mongoTemplate.save(tradeLimitInfo, "limitInfo");
+            tradeLimitInfo = getTradeLimitAsRawString(fundCode, "024");
+            mongoTemplate.save(tradeLimitInfo, "limitInfo");
         }
     }
 

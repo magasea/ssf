@@ -49,7 +49,11 @@ public interface FundTradeApiService {
 
     List<TradeRateResult> getTradeRateAsList(String fundCode, String businFlag) throws JsonProcessingException;
 
+    String getTradeLimitAsRawString(String fundCode, String businFlag) throws JsonProcessingException;
+
     List<TradeLimitResult> getTradeLimits(String fundCode, String businFlag) throws Exception;
+
+    String getDiscountRawString(String fundCode, String businFlag) throws Exception;
 
     BigDecimal getDiscount(String fundCode, String businFlag) throws Exception;
 
@@ -68,6 +72,10 @@ public interface FundTradeApiService {
     BankCardLimitation getBankCardLimitation(String bankName);
 
     void writeAllTradeRateToMongoDb() throws Exception;
+
+    void writeAllTradeDiscountToMongodDb() throws Exception;
+
+    void writeAllTradeLimitToMongoDb() throws Exception;
 
     void writeFundToMongoDb(String json);
 

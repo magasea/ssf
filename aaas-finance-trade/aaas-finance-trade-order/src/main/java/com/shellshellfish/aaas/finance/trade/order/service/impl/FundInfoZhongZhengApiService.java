@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.MongoClient;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeLimitResult;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeRateResult;
 import com.shellshellfish.aaas.finance.trade.order.model.UserBank;
@@ -11,6 +12,10 @@ import com.shellshellfish.aaas.finance.trade.order.service.FundInfoApiService;
 import org.apache.commons.codec.digest.UnixCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -33,9 +38,8 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
         restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(Charset.forName("UTF-8")));
     }
 
-//    @Autowired
-//    private MongoTemplate mongoTemplate;
-
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     private String trimSuffix(String fundCode) {
         if (fundCode != null && fundCode.contains(".")) {
@@ -167,6 +171,15 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
     public String getTradeRate(String fundCode, String businFlag) throws JsonProcessingException {
         fundCode = trimSuffix(fundCode);
 
+        Query query = new Query();
+        query.addCriteria(Criteria.where("data.FUND_CODE").is(fundCode));
+        List<String> rateInfoDocs = mongoTemplate.find(query, String.class, "rateInfo");
+
+        if (rateInfoDocs.size() > 0) {
+            logger.info(rateInfoDocs.get(0));
+            return rateInfoDocs.get(0);
+        }
+
         Map<String, Object> info = init();
         info.put("fundcode", fundCode);
         info.put("businflag", businFlag);
@@ -209,14 +222,25 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
     public List<TradeLimitResult> getTradeLimits(String fundCode, String businFlag) throws Exception {
         fundCode = trimSuffix(fundCode);
 
-        Map<String, Object> info = init();
-        info.put("fundcode", fundCode);
-        info.put("businflag", businFlag);
-        postInit(info);
+        Query query = new Query();
+        query.addCriteria(Criteria.where("data.fundCode").is(fundCode));
+        List<String> rateInfoDocs = mongoTemplate.find(query, String.class, "limitInfo");
 
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_trade_limit";
+        String json;
+        if (rateInfoDocs.size() > 0) {
+            json = rateInfoDocs.get(0);
 
-        String json = restTemplate.postForObject(url, info, String.class);
+        } else {
+            Map<String, Object> info = init();
+            info.put("fundcode", fundCode);
+            info.put("businflag", businFlag);
+            postInit(info);
+
+            String url = "https://onetest.51fa.la/v2/internet/fundapi/get_trade_limit";
+
+            json = restTemplate.postForObject(url, info, String.class);
+        }
+
         logger.info("{}", json);
 
         return fillTradeLimitResults(json);
@@ -242,14 +266,25 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
     public BigDecimal getDiscount(String fundCode, String businFlag) throws Exception {
         fundCode = trimSuffix(fundCode);
 
-        Map<String, Object> info = init();
-        info.put("fundcode", fundCode);
-        info.put("businflag", businFlag);
-        postInit(info);
+        Query query = new Query();
+        query.addCriteria(Criteria.where("data.fundcode").is(fundCode));
+        List<String> discountInfoDocs = mongoTemplate.find(query, String.class, "discountInfo");
 
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_trade_discount";
+        String json;
+        if (discountInfoDocs.size() > 0) {
+            logger.info(discountInfoDocs.get(0));
+            json = discountInfoDocs.get(0);
+        } else {
+            Map<String, Object> info = init();
+            info.put("fundcode", fundCode);
+            info.put("businflag", businFlag);
+            postInit(info);
 
-        String json = restTemplate.postForObject(url, info, String.class);
+            String url = "https://onetest.51fa.la/v2/internet/fundapi/get_trade_discount";
+
+            json = restTemplate.postForObject(url, info, String.class);
+        }
+
         logger.info("{}", json);
 
         JSONObject jsonObject = (JSONObject) JSONObject.parse(json);
