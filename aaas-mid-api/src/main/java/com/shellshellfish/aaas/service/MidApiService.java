@@ -20,7 +20,7 @@ public interface MidApiService {
 	 * @param subGroupId
 	 * @return
 	 */
-	Map<String,Object> getPrdNPVList(String groupId,String subGroupId);
+	Map<String,Object> getPrdNPVList(String groupId,String subGroupId) throws Exception;
 	
 	/**
 	 * 获取产品的年收益率和最大回撤率

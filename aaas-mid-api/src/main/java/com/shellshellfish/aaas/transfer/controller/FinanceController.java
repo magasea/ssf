@@ -26,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 import com.shellshellfish.aaas.dto.FinanceProductCompo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
+import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -92,14 +93,13 @@ public class FinanceController {
 				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 			}
 //			requestEntity.add("productType", productType);
-			result.put("msg", "获取成功");
+			/*result.put("msg", "获取成功");*/
 			result.remove("_links");
 			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
-			Map<String, Object> map = new HashMap();
-			map.put("errorCode", "400");
-			return new JsonResult(JsonResult.Fail, "获取失败", map);
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail,str,"");
 		}
 	}
 
@@ -120,8 +120,7 @@ public class FinanceController {
 				//获取list失败直接返回
 				result=new HashMap<>();
 				String message=e.getMessage();
-				result.put("错误原因", message+",获取理财产品调用restTemplate方法发生错误！");
-				return new JsonResult(JsonResult.Fail, "获取理财List数据失败",result);
+				return new JsonResult(JsonResult.Fail, "获取理财产品调用restTemplate方法发生错误！","");
 			}
 			//如果成功获取内部值，再遍历获取每一个产品的年化收益(进入service)
 			if(result!=null){
@@ -129,7 +128,7 @@ public class FinanceController {
 			   if (object instanceof List){
 				   //转换成List
 				   prdList=(List<Map<String,Object>>)object;
-				   try{
+				try{
 				   for (Map<String,Object> productMap:prdList){
 					   //获取goupid和subGroupId
 					  String groupId= (productMap.get("groupId"))==null?null:(productMap.get("groupId")).toString();
@@ -146,13 +145,11 @@ public class FinanceController {
 					  resultList.add(prd);			  				                                             
 					  }
 				   }catch (Exception e){
-					   result.clear();
-					   result.put("error","获取产品的field属性失败");
-					   return new JsonResult(JsonResult.Fail, "获取失败", result);
+					   return new JsonResult(JsonResult.Fail, "获取产品的field属性失败", result);
 				   }
 			                             }
 			                  }else{
-			return new JsonResult(JsonResult.Fail, "没有获取到产品", null);
+			return new JsonResult(JsonResult.Fail, "没有获取到产品", "");
 			                  }
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", resultList);
 	}
@@ -170,9 +167,8 @@ public class FinanceController {
 		try{
 			result=service.getPrdNPVList(groupId, subGroupId);
 		}catch(Exception e){
-			result=new HashMap<>();
-			result.put("错误原因", e.getMessage()+",restTemplate调用组合各种类型净值收益失败");
-			return new JsonResult(JsonResult.Fail, "查看理财产品详情失败", result);
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, "");
 		}
 		return new JsonResult(JsonResult.Fail, "查看理财产品详情成功", result);
 	}

@@ -31,12 +31,14 @@ public ReturnedException(Exception e){
 	   setErrorMsg(isResourceAccessException);
 	   return;
 	}
-	if(e instanceof HttpClientErrorException){
+	else if(e instanceof HttpClientErrorException){
 		String error=((HttpClientErrorException)e).getResponseBodyAsString();
 		setErrorMsg(isHttpClientErrorException+EasyKit.getErrorMessage(error));
 		return;
 	}
-	
+	else{
+			setErrorMsg(e.getMessage());	
+	}
 	
 }
 	
