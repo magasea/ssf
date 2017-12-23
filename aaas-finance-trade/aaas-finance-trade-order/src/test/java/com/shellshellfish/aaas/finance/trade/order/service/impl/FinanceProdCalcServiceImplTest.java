@@ -2,7 +2,7 @@ package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
-import com.shellshellfish.aaas.finance.trade.order.model.PoundageResult;
+import com.shellshellfish.aaas.finance.trade.order.model.DistributionResult;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeLimitResult;
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdCalcService;
 import org.junit.Before;
@@ -40,13 +40,13 @@ public class FinanceProdCalcServiceImplTest {
     @Before
     public void setUp(){
         productMakeUpInfoList = Arrays.asList(
-                new ProductMakeUpInfo(100021L, 3L, "华安德国30(DAX)ETF联接(QDII)", "000614.OF", 1000),
-                new ProductMakeUpInfo(100021L, 3L, "东方金元宝货币", "001987.OF", 3668),
-                new ProductMakeUpInfo(100021L, 3L, "华安黄金易ETF联接A", "000216.OF", 1000),
-                new ProductMakeUpInfo(100021L, 3L, "东方多策略灵活配置混合C", "002068.OF", 1000),
-                new ProductMakeUpInfo(100021L, 3L, "东方惠新灵活配置混合C", "002163.OF", 1000),
-                new ProductMakeUpInfo(100021L, 3L, "汇添富安心中国债券A", "000395.OF", 1331),
-                new ProductMakeUpInfo(100021L, 3L, "汇添富国企创新股票", "001490.OF", 1000)
+                new ProductMakeUpInfo(100021L, 3L, "", "000614.OF", "华安德国30(DAX)ETF联接(QDII)", 1000),
+                new ProductMakeUpInfo(100021L, 3L, "", "001987.OF", "东方金元宝货币", 3668),
+                new ProductMakeUpInfo(100021L, 3L, "", "000216.OF", "华安黄金易ETF联接A", 1000),
+                new ProductMakeUpInfo(100021L, 3L, "", "002068.OF", "东方多策略灵活配置混合C", 1000),
+                new ProductMakeUpInfo(100021L, 3L, "", "002163.OF", "东方惠新灵活配置混合C",1000),
+                new ProductMakeUpInfo(100021L, 3L, "",  "000395.OF", "汇添富安心中国债券A", 1331),
+                new ProductMakeUpInfo(100021L, 3L, "", "001490.OF", "汇添富国企创新股票", 1000)
         );
     }
 
@@ -101,14 +101,20 @@ public class FinanceProdCalcServiceImplTest {
 
     @Test
     public void testGetPoundageOfBuyFund() throws Exception {
-        PoundageResult poundageResult = financeProdCalcService.getPoundageOfBuyFund(BigDecimal.valueOf(5000), productMakeUpInfoList);
-        logger.info("poundageResult: {}", new ObjectMapper().writeValueAsString(poundageResult));
+        Date start = new Date();
+        DistributionResult distributionResult = financeProdCalcService.getPoundageOfBuyFund(BigDecimal.valueOf(5000), productMakeUpInfoList);
+        Date end = new Date();
+        logger.info("duration: {}", end.getTime() - start.getTime());
+        logger.info("distributionResult: {}", new ObjectMapper().writeValueAsString(distributionResult));
     }
 
     @Test
     public void testGetPoundageOfSellFund() throws Exception {
-        PoundageResult poundageResult = financeProdCalcService.getPoundageOfSellFund(BigDecimal.valueOf(5000), productMakeUpInfoList);
-        logger.info("poundageResult: {}", new ObjectMapper().writeValueAsString(poundageResult));
+        Date start = new Date();
+        DistributionResult distributionResult = financeProdCalcService.getPoundageOfSellFund(BigDecimal.valueOf(5000), productMakeUpInfoList);
+        Date end = new Date();
+        logger.info("duration: {}", end.getTime() - start.getTime());
+        logger.info("distributionResult: {}", new ObjectMapper().writeValueAsString(distributionResult));
     }
 
 }

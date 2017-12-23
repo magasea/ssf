@@ -237,7 +237,7 @@ public class RestApiController {
 	}
 	
 	
-	 //基金概况
+	 //基金价值指标
 	 @RequestMapping(value = "/getFundValueInfo", method = RequestMethod.GET)
 	 public ResponseEntity<HashMap<String,Object>> getFundValueInfo(
 			@RequestParam(value = "code") String code){

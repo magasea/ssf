@@ -4,7 +4,7 @@ import java.util.Map;
 import com.shellshellfish.aaas.finance.model.ChartResource;
 
 public interface IndexService {
-	Map<String, Object> homepage(String uuid) throws Exception ;
 	ChartResource getChart();
 	Map<String, Object> getRiskInfo(String risktype);
+	Map<String, Object> homepage(String uuid, String isTestFlag, String testResult) throws Exception;
 }

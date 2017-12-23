@@ -147,7 +147,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	}
 
 	@Override
-	public BankCardDTO addUserBankcard(UiBankcard uiBankcard) {
+	public BankCardDTO addUserBankcard(UiBankcard uiBankcard) throws Exception {
 		logger.info("reservice149");
 		userInfoBankCardsRepository.save(uiBankcard);
 		logger.info("reservice151");
