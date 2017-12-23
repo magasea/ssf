@@ -4,7 +4,7 @@ server:
   contextPath: /
 ---
 spring:
-<<<<<<< HEAD
+
   profiles: local, default
 datasource:
   sampleapp:
@@ -22,8 +22,6 @@ datasource:
   
 ---
 spring:
-=======
->>>>>>> 6caba0c3bb7eca90410ec0fe7fd0d793ae2799b2
   profiles: prod
   data:
       mongodb:

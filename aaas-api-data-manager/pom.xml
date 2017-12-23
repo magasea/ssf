@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-tomcat</artifactId>
-<<<<<<< HEAD
+
 			<!-- <scope>provided</scope>-->
 		</dependency>
 		
@@ -58,11 +58,11 @@
          </dependency>
         -->
           
-=======
+
 		</dependency>
 
 
->>>>>>> 6caba0c3bb7eca90410ec0fe7fd0d793ae2799b2
+
          <dependency>  
             <groupId>org.springframework.boot</groupId>  
   
