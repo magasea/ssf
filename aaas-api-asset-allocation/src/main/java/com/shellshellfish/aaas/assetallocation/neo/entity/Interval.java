@@ -4,19 +4,10 @@ package com.shellshellfish.aaas.assetallocation.neo.entity;
  * Created by wangyinuo on 2017/11/22.
  */
 public class Interval extends FundGroupDetails {
-    private String total;
     private String income_risk_type;//判断类别
     private double income_risk_num;//具体值
     private double expected_annualized_return;//预期年化收益
     private double expected_max_retracement;//预期最大回撤
-
-    public String getTotal() {
-        return total;
-    }
-
-    public void setTotal(String total) {
-        this.total = total;
-    }
 
     public String getIncome_risk_type() {
         return income_risk_type;

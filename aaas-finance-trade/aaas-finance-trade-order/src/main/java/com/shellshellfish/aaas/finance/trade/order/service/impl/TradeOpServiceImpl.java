@@ -19,6 +19,8 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderReposito
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdInfoService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProductServiceGrpc;
+import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
+import com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc.UserInfoServiceFutureStub;
@@ -36,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 public class TradeOpServiceImpl implements TradeOpService {
@@ -90,18 +93,29 @@ public class TradeOpServiceImpl implements TradeOpService {
       logger.info("failed to get prod make up informations!");
       throw new Exception("failed to get prod make up informations!");
     }
+
     return genOrderFromBuyInfoAndProdMakeUpInfo(financeProdBuyInfo, productMakeUpInfos);
 
   }
 
   @Transactional
   TrdOrder genOrderFromBuyInfoAndProdMakeUpInfo(FinanceProdBuyInfo financeProdBuyInfo,
-      List<ProductMakeUpInfo> productMakeUpInfos){
+      List<ProductMakeUpInfo> productMakeUpInfos) throws ExecutionException, InterruptedException {
     //generate order
 //    TrdTradeBroker trdTradeBroker = trdBrokderRepository.findOne(1L);
     PayDto payDto = new PayDto();
     List<TrdBrokerUser> trdBrokerUsers = trdBrokerUserRepository.findByUserId(financeProdBuyInfo.getUserId());
     int trdBrokerId = trdBrokerUsers.get(0).getTradeBrokerId();
+    if(StringUtils.isEmpty(trdBrokerUsers.get(0).getTradeAcco())){
+        //Todo: get userBankCardInfo to make tradAcco
+      logger.info("trdBrokerUsers.get(0).getTradeAcco() is empty");
+      UserIdOrUUIDQuery.Builder builder = UserIdOrUUIDQuery.newBuilder();
+      builder.setUuid(financeProdBuyInfo.getUuid());
+
+      com.shellshellfish.aaas.userinfo.grpc.UserBankInfo userBankInfo =
+          userInfoServiceFutureStub.getUserBankInfo(builder.build()).get();
+
+    }
     String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdBuyInfo.getBankAcc()
             .substring(0,6)),trdBrokerId);
     payDto.setTrdAccount(trdBrokerUsers.get(0).getTradeAcco());

@@ -124,6 +124,7 @@ public class FinanceProductServiceImpl  extends
         productMakeUpInfo.setFundShare(result);
         productMakeUpInfo.setProdName(interval.getFname());
         productMakeUpInfo.setProdId(Long.parseLong(interval.getFund_group_sub_id()));
+        productMakeUpInfo.setProdName(interval.getFname());
         productMakeUpInfos.add(productMakeUpInfo);
       }
     }

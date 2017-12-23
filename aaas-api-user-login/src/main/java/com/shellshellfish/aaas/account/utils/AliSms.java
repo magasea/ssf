@@ -35,7 +35,6 @@ import org.springframework.context.annotation.PropertySource;
  * 国际短信发送请勿参照此DEMO
  */
 @Configuration
-@PropertySource(value = "classpath:application.properties",encoding = "utf-8")
 public class AliSms {
 	public static final Logger logger = LoggerFactory.getLogger(AliSms.class);
 	

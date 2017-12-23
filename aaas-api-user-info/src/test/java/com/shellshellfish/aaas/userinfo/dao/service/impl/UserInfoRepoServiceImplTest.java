@@ -1,11 +1,15 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
 import com.mongodb.WriteResult;
+import com.shellshellfish.aaas.common.enums.SystemUserEnum;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.userinfo.UserInfoApp;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiPersonMsg;
+import com.shellshellfish.aaas.userinfo.model.dao.UiSysMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserAssetsRepository;
@@ -15,7 +19,6 @@ import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserSysMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,17 +27,36 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTestContextBootstrapper;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.BootstrapWith;
+import org.springframework.test.context.TestContextBootstrapper;
 import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
+@RunWith(value= SpringRunner.class)
 @SpringBootTest
-@ActiveProfiles(profiles="prod")
+@ActiveProfiles(profiles="dev")
 public class UserInfoRepoServiceImplTest {
+
+  @Test
+  public void addUiSysMsg() throws Exception {
+    UiSysMsg uiSysMsg = new UiSysMsg();
+    for(int idx = 0; idx < 100; idx ++){
+      uiSysMsg = new UiSysMsg();
+      uiSysMsg.setContent(""+idx);
+      uiSysMsg.setCreatedDate(TradeUtil.getUTCTime());
+      uiSysMsg.setCreatedBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+      uiSysMsg.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+      uiSysMsg.setUpdateDate(TradeUtil.getUTCTime());
+      userInfoRepoService.addUiSysMsg(uiSysMsg);
+      uiSysMsg = null;
+    }
+
+  }
 
   @Test
   public void addCompanyInfo() throws Exception {

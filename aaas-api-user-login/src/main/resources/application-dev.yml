@@ -1,10 +1,9 @@
 ---
 server:
-  port: 10030
+  port: 10070
   contextPath: /
 ---
 spring:
-<<<<<<< HEAD
   profiles: local, default
 datasource:
   sampleapp:
@@ -19,20 +18,12 @@ datasource:
       show_sql: true
       format_sql: true
       dialect: org.hibernate.dialect.H2Dialect
-  
 ---
 spring:
-=======
->>>>>>> 6caba0c3bb7eca90410ec0fe7fd0d793ae2799b2
-  profiles: prod
-  data:
-      mongodb:
-        database: funds
-        host: localhost
-        port: 27017
+
 datasource:
   sampleapp:
-    url: jdbc:mysql://localhost:3306/ssftrdorder?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://192.168.1.10:3306/ssflogin?useUnicode=true&characterEncoding=utf-8
     username: sa
     password: 1qaz@WSX
     driverClassName: com.mysql.jdbc.Driver
@@ -43,4 +34,18 @@ datasource:
       show_sql: true
       format_sql: true
       dialect: org.hibernate.dialect.MySQLDialect
-
+grpc:
+  host: 192.168.1.10
+  port: 10071
+ali:
+    accessKeyId: LTAIpZL9r6q0kkPV
+    accessKeySecret: dBsex06RIIB7LfBF2Pdx4TeRzpklwr
+app:
+    debug: true
+redis:
+    host: 192.168.1.10
+    port: 6379
+    pwd: redis123
+sms:
+    signcode: SMS_117526841
+    signname: 财富E智投

@@ -7,4 +7,5 @@ import com.shellshellfish.aaas.userinfo.model.dao.UiSysMsg;
 
 public interface MongoUserSysMsgRepo extends MongoRepository<UiSysMsg, Long> {
   List<UiSysMsg> findAllByOrderByDateDesc();
+  UiSysMsg save(UiSysMsg uiSysMsg);
 }

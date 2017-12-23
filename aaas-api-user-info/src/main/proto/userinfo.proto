@@ -8,6 +8,8 @@ option objc_class_prefix = "UIP";
 service UserInfoService {
     rpc GetUserId (UserIdQuery) returns (UserId) {
     }
+    rpc GetUserBankInfo(UserIdOrUUIDQuery) returns (UserBankInfo){
+    }
 }
 
 message UserIdQuery {
@@ -18,4 +20,17 @@ message UserIdQuery {
 
 message UserId{
   int64 userId = 1;
+}
+
+message UserIdOrUUIDQuery{
+  int64 userId = 1;
+  string uuid = 2;
+}
+
+message UserBankInfo{
+  int64 userId = 1;
+  string uuid = 2;
+  string userName = 3;
+  string userPid = 4;
+  repeated string cardNumbers = 5;
 }

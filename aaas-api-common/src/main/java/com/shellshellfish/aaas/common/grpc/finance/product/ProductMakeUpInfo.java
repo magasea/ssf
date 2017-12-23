@@ -7,7 +7,29 @@ public class ProductMakeUpInfo {
   Long groupId;
   String prodName;
   String fundCode;
+
+  public String getFundName() {
+    return fundName;
+  }
+
+  public void setFundName(String fundName) {
+    this.fundName = fundName;
+  }
+
+  String fundName;
   Integer fundShare;
+
+  public ProductMakeUpInfo() {
+
+  }
+
+  public ProductMakeUpInfo(Long prodId, Long groupId, String prodName, String fundCode, Integer fundShare) {
+    this.prodId = prodId;
+    this.groupId = groupId;
+    this.prodName = prodName;
+    this.fundCode = fundCode;
+    this.fundShare = fundShare;
+  }
 
   public Long getProdId() {
     return prodId;
