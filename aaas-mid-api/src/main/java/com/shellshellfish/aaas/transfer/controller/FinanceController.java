@@ -15,15 +15,18 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+
 import com.shellshellfish.aaas.dto.FinanceProductCompo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -57,22 +60,38 @@ public class FinanceController {
 	
 	@ApiOperation("1.首页")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID", defaultValue = "1") })
+			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID"),
+			@ApiImplicitParam(paramType = "query", name = "isTestFlag", dataType = "String", required = false, value = "是否测评（1-已做 0-未做）"),
+			@ApiImplicitParam(paramType = "query", name = "testResult", dataType = "String", required = false, value = "测评结果",defaultValue="平衡型")
+			})
 	@RequestMapping(value = "/finance-home", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult financeHome(@RequestParam String uuid) {
+	public JsonResult financeHome(
+			@RequestParam(required=false) String uuid,
+			@RequestParam(required=false) String isTestFlag,
+			@RequestParam(required=false) String testResult) {
 		Map<String, Object> result = new HashMap<String, Object>();
+		logger.info("mid financeHome method run..");
 		try {
+			if("1".equals(isTestFlag)){
+				if(StringUtils.isEmpty(uuid)){
+					return new JsonResult(JsonResult.Fail, "用户ID必须输入", null);
+				} else if(StringUtils.isEmpty(testResult)){
+					return new JsonResult(JsonResult.Fail, "测评结果必须输入", null);
+				}
+			}
 			MultiValueMap<String, String> requestEntity = new LinkedMultiValueMap<>();
+			uuid = uuid == null ? "" : uuid;
 			requestEntity.add("uuid", uuid);
-//			requestEntity.add("productType", productType);
-			result = restTemplate
-					.getForEntity(financeUrl + "/api/ssf-finance/product-groups/homepage?uuid=" + uuid, Map.class)
-					.getBody();
+			isTestFlag = isTestFlag == null ? "" : isTestFlag;
+			testResult = testResult == null ? "" : testResult;
+			result = restTemplate.getForEntity(financeUrl + "/api/ssf-finance/product-groups/homepage?uuid=" + uuid
+					+ "&isTestFlag=" + isTestFlag + "&testResult=" + testResult, Map.class).getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
 				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 			}
+//			requestEntity.add("productType", productType);
 			result.put("msg", "获取成功");
 			result.remove("_links");
 			result.remove("_links");

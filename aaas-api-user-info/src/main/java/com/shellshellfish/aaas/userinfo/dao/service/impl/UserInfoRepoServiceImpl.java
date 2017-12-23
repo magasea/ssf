@@ -1,5 +1,8 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
+import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
+
+import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -144,7 +147,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	}
 
 	@Override
-	public BankCardDTO addUserBankcard(UiBankcard uiBankcard) {
+	public BankCardDTO addUserBankcard(UiBankcard uiBankcard) throws Exception {
 		logger.info("reservice149");
 		userInfoBankCardsRepository.save(uiBankcard);
 		logger.info("reservice151");
@@ -364,5 +367,36 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			return user;
 		}
 		return user;
+	}
+
+
+
+
+	/**
+	 */
+	public void getUserBankInfo(com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery request,
+			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserBankInfo> responseObserver) {
+		Long userId = request.getUserId();
+		List<BankCardDTO> bankCardDTOS = null;
+		try {
+			bankCardDTOS = getUserInfoBankCards(userId);
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		}
+		if( bankCardDTOS.size() >= 0 ){
+			logger.error("failed to find bankCards by userId:" + userId);
+		}
+		UserBankInfo.Builder builder = UserBankInfo.newBuilder();
+		builder.setUserId(userId);
+		builder.setUserName(bankCardDTOS.get(0).getUserName());
+		builder.setUserPid(bankCardDTOS.get(0).getUserPid());
+		builder.setUuid(request.getUuid());
+		for(int idx = 0; idx < bankCardDTOS.size(); idx++){
+			builder.setCardNumbers(idx, bankCardDTOS.get(idx).getCardNumber());
+		}
+		responseObserver.onNext(builder.build());
+		responseObserver.onCompleted();
 	}
 }

@@ -1,6 +1,5 @@
 package com.shellshellfish.aaas.finance.trade.order.model.dao;
 
-import io.swagger.models.auth.In;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,7 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Created by chenwei on 2017- 十二月 - 13
+ * Created by chenwei on 2017- 十二月 - 22
  */
 
 @Entity
@@ -16,10 +15,11 @@ import javax.persistence.Table;
 public class TrdBrokerUser {
 
   private long id;
-  private Integer tradeBrokerId;
+  private Long tradeBrokerId;
   private Long userId;
   private String tradeAcco;
   private Integer priority;
+  private String bankCardNum;
   private long createBy;
   private long createDate;
   private long updateBy;
@@ -37,11 +37,11 @@ public class TrdBrokerUser {
 
   @Basic
   @Column(name = "trade_broker_id")
-  public Integer getTradeBrokerId() {
+  public Long getTradeBrokerId() {
     return tradeBrokerId;
   }
 
-  public void setTradeBrokerId(Integer tradeBrokerId) {
+  public void setTradeBrokerId(Long tradeBrokerId) {
     this.tradeBrokerId = tradeBrokerId;
   }
 
@@ -73,6 +73,16 @@ public class TrdBrokerUser {
 
   public void setPriority(Integer priority) {
     this.priority = priority;
+  }
+
+  @Basic
+  @Column(name = "bank_card_num")
+  public String getBankCardNum() {
+    return bankCardNum;
+  }
+
+  public void setBankCardNum(String bankCardNum) {
+    this.bankCardNum = bankCardNum;
   }
 
   @Basic
@@ -154,6 +164,9 @@ public class TrdBrokerUser {
     if (priority != null ? !priority.equals(that.priority) : that.priority != null) {
       return false;
     }
+    if (bankCardNum != null ? !bankCardNum.equals(that.bankCardNum) : that.bankCardNum != null) {
+      return false;
+    }
 
     return true;
   }
@@ -165,6 +178,7 @@ public class TrdBrokerUser {
     result = 31 * result + (userId != null ? userId.hashCode() : 0);
     result = 31 * result + (tradeAcco != null ? tradeAcco.hashCode() : 0);
     result = 31 * result + (priority != null ? priority.hashCode() : 0);
+    result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
     result = 31 * result + (int) (createBy ^ (createBy >>> 32));
     result = 31 * result + (int) (createDate ^ (createDate >>> 32));
     result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));

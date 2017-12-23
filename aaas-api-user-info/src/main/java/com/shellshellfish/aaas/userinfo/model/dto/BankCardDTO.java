@@ -9,16 +9,27 @@ public class BankCardDTO {
     Long userId;
     String cardNumber;
     String userName;
+
+  public String getUserPid() {
+    return userPid;
+  }
+
+  public void setUserPid(String userPid) {
+    this.userPid = userPid;
+  }
+
+  String userPid;
     Date expireDate;
     String bankName;
 
     public BankCardDTO(Long userId, String cardNumber, String userName, Date expireDate,
-        String bankName) {
+        String bankName, String userPid) {
         this.userId = userId;
         this.cardNumber = cardNumber;
         this.userName = userName;
         this.expireDate = expireDate;
         this.bankName = bankName;
+        this.userPid = userPid;
     }
 
     public BankCardDTO() {

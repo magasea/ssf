@@ -21,13 +21,19 @@ public class IndexServiceImpl implements IndexService {
 
 	@Autowired
 	AssetAllocationServiceImpl assetAllocationService;
+	
+	private final String CONSERV = "保守型";
+	private final String STABLE = "稳健型";
+	private final String BALANCE = "平衡型";
+	private final String INPROVING = "成长型";
+	private final String AGGRESSIVE = "进取型";
 
 	@Override
-	public Map<String, Object> homepage(String uuid) throws Exception {
+	public Map<String, Object> homepage(String uuid, String isTestFlag, String testResult) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String, Object> resultC = new HashMap<String, Object>();
 		Map<String, Object> linksMap = new HashMap<String, Object>();
-		List<Map> relateList = new ArrayList();
+		List<Map<String,Object>> relateList = new ArrayList<Map<String,Object>>();
 		Map<String, Object> linkMap = new HashMap<String, Object>();
 		linkMap.put("href", "/api/ssf-finance/retests");
 		linkMap.put("name", "retest");
@@ -70,20 +76,35 @@ public class IndexServiceImpl implements IndexService {
 				for (Object key : itemMap.keySet()) {
 					investmentHorizonMap = new HashMap<String, Object>();
 					if ("C1".equals(key)) {
-						investmentHorizonMap.put("investmentHorizon", "保守型");
+						investmentHorizonMap.put("investmentHorizon", CONSERV);
 						investmentHorizonMap.put("investmentHorizonCode", "C1");
+						if("1".equals(isTestFlag)&&!CONSERV.equals(testResult)){
+							continue;
+						}
 					} else if ("C2".equals(key)) {
-						investmentHorizonMap.put("investmentHorizon", "稳健型");
+						investmentHorizonMap.put("investmentHorizon", STABLE);
 						investmentHorizonMap.put("investmentHorizonCode", "C2");
+						if("1".equals(isTestFlag)&&!STABLE.equals(testResult)){
+							continue;
+						}
 					} else if ("C3".equals(key)) {
-						investmentHorizonMap.put("investmentHorizon", "平衡型");
+						investmentHorizonMap.put("investmentHorizon", BALANCE);
 						investmentHorizonMap.put("investmentHorizonCode", "C3");
+						if("1".equals(isTestFlag)&&!BALANCE.equals(testResult)){
+							continue;
+						}
 					} else if ("C4".equals(key)) {
-						investmentHorizonMap.put("investmentHorizon", "积极型");
+						investmentHorizonMap.put("investmentHorizon", INPROVING);
 						investmentHorizonMap.put("investmentHorizonCode", "C4");
+						if("1".equals(isTestFlag)&&!INPROVING.equals(testResult)){
+							continue;
+						}
 					} else if ("C5".equals(key)) {
-						investmentHorizonMap.put("investmentHorizon", "进取型");
+						investmentHorizonMap.put("investmentHorizon", AGGRESSIVE);
 						investmentHorizonMap.put("investmentHorizonCode", "C5");
+						if("1".equals(isTestFlag)&&!AGGRESSIVE.equals(testResult)){
+							continue;
+						}
 					}
 					resultC = new HashMap<String, Object>();
 					obj = (Map<String, Object>) itemMap.get(key);
@@ -121,7 +142,7 @@ public class IndexServiceImpl implements IndexService {
 					
 					result.put(key+"", resultC);
 				}
-				resultC.put("productTypeList", riskList);
+				result.put("productTypeList", riskList);
 			}
 		} else {
 			throw new Exception("产品类型不存在.");

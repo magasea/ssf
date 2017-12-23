@@ -37,18 +37,16 @@ spring:
       port: 27017
 
   rabbitmq:
-    username: ssf
-    password: shellshellfish
-    host: 192.168.1.22
-    port: 5672
-    virtual-host: aaas
-    topicQueuePayName: com.ssf.topic.queue.pay
-    topicQueueOrderName: com.ssf.topic.queue.order
-    topicQueueTrdLogName: com.ssf.topic.queue.trdlog
-    topicQueueBankcardName: com.ssf.topic.queue.bankcard
-    topicExchangeName: com.ssf.topic.exchange
-    topicPay: shellshellfish.pay
-    topicOrder: shellshellfish.order
+      username: ssf
+      password: shellshellfish
+      host: 192.168.1.22
+      port: 5672
+      virtual-host: aaas
+      topicQueuePayName: com-ssf-topic-queue-pay
+      topicQueueOrderName: com-ssf-topic-queue-order
+      topicExchangeName: com-ssf-topic-exchange
+      topicPay: shellshellfish.pay
+      topicOrder: shellshellfish.order
 
 datasource:
   sampleapp:

@@ -47,7 +47,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserPersonalMsgBodyDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
-import com.shellshellfish.aaas.userinfo.utils.BankUtil;
+import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 import com.shellshellfish.aaas.userinfo.utils.PageWrapper;
 import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
@@ -398,6 +398,11 @@ public class UserInfoController {
 				throw new IllegalArgumentException("no " + k.toString() + "'s value in params");
 			}
 		});
+		
+		BankCardDTO bankIsExist  =  userInfoService.getUserInfoBankCard(bankcardDetailVo.getCardNumber());
+		if(bankIsExist != null){
+			throw new UserInfoException("404","银行卡号已经存在，请重新输入");
+		}
 		BankCardDTO bankCard = userInfoService.createBankcard(params);
 		if (bankCard == null) {
 			logger.info("addBankCardWithDetailInfo method 添加失败..");

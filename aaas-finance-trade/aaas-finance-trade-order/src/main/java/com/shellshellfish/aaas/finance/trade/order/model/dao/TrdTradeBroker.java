@@ -1,115 +1,175 @@
 package com.shellshellfish.aaas.finance.trade.order.model.dao;
 
-import java.io.Serializable;
-import java.math.BigInteger;
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
-
 /**
- * The persistent class for the trd_trade_broker database table.
- * 
+ * Created by chenwei on 2017- 十二月 - 22
  */
+
 @Entity
-@Table(name="trd_trade_broker")
-@NamedQuery(name="TrdTradeBroker.findAll", query="SELECT t FROM TrdTradeBroker t")
-public class TrdTradeBroker implements Serializable {
-	private static final long serialVersionUID = 1L;
+@Table(name = "trd_trade_broker", schema = "ssftrdorder", catalog = "")
+public class TrdTradeBroker {
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long id;
+  private long id;
+  private Long createBy;
+  private Long createDate;
+  private int priority;
+  private String tradeBrokerCode;
+  private String tradeBrokerName;
+  private Long updateBy;
+  private Long updateDate;
+  private Integer tradeBrokerId;
 
-	@Column(name="create_by")
-	private BigInteger createBy;
+  @Id
+  @Column(name = "id")
+  public long getId() {
+    return id;
+  }
 
-	@Column(name="create_date")
-	private BigInteger createDate;
+  public void setId(long id) {
+    this.id = id;
+  }
 
-	private int priority;
+  @Basic
+  @Column(name = "create_by")
+  public Long getCreateBy() {
+    return createBy;
+  }
 
-	@Column(name="trade_broker_id")
-	private int tradeBrokerId;
+  public void setCreateBy(Long createBy) {
+    this.createBy = createBy;
+  }
 
-	@Column(name="trade_broker_name")
-	private String tradeBrokerName;
+  @Basic
+  @Column(name = "create_date")
+  public Long getCreateDate() {
+    return createDate;
+  }
 
-	@Column(name="update_by")
-	private BigInteger updateBy;
+  public void setCreateDate(Long createDate) {
+    this.createDate = createDate;
+  }
 
-	@Column(name="update_date")
-	private BigInteger updateDate;
+  @Basic
+  @Column(name = "priority")
+  public int getPriority() {
+    return priority;
+  }
 
-	public TrdTradeBroker() {
-	}
+  public void setPriority(int priority) {
+    this.priority = priority;
+  }
 
-	public Long getId() {
-		return this.id;
-	}
+  @Basic
+  @Column(name = "trade_broker_code")
+  public String getTradeBrokerCode() {
+    return tradeBrokerCode;
+  }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+  public void setTradeBrokerCode(String tradeBrokerCode) {
+    this.tradeBrokerCode = tradeBrokerCode;
+  }
 
-	public BigInteger getCreateBy() {
-		return this.createBy;
-	}
+  @Basic
+  @Column(name = "trade_broker_name")
+  public String getTradeBrokerName() {
+    return tradeBrokerName;
+  }
 
-	public void setCreateBy(BigInteger createBy) {
-		this.createBy = createBy;
-	}
+  public void setTradeBrokerName(String tradeBrokerName) {
+    this.tradeBrokerName = tradeBrokerName;
+  }
 
-	public BigInteger getCreateDate() {
-		return this.createDate;
-	}
+  @Basic
+  @Column(name = "update_by")
+  public Long getUpdateBy() {
+    return updateBy;
+  }
 
-	public void setCreateDate(BigInteger createDate) {
-		this.createDate = createDate;
-	}
+  public void setUpdateBy(Long updateBy) {
+    this.updateBy = updateBy;
+  }
 
-	public int getPriority() {
-		return this.priority;
-	}
+  @Basic
+  @Column(name = "update_date")
+  public Long getUpdateDate() {
+    return updateDate;
+  }
 
-	public void setPriority(int priority) {
-		this.priority = priority;
-	}
+  public void setUpdateDate(Long updateDate) {
+    this.updateDate = updateDate;
+  }
 
-	public int getTradeBrokerId() {
-		return this.tradeBrokerId;
-	}
+  @Basic
+  @Column(name = "trade_broker_id")
+  public Integer getTradeBrokerId() {
+    return tradeBrokerId;
+  }
 
-	public void setTradeBrokerId(int tradeBrokerId) {
-		this.tradeBrokerId = tradeBrokerId;
-	}
+  public void setTradeBrokerId(Integer tradeBrokerId) {
+    this.tradeBrokerId = tradeBrokerId;
+  }
 
-	public String getTradeBrokerName() {
-		return this.tradeBrokerName;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
-	public void setTradeBrokerName(String tradeBrokerName) {
-		this.tradeBrokerName = tradeBrokerName;
-	}
+    TrdTradeBroker that = (TrdTradeBroker) o;
 
-	public BigInteger getUpdateBy() {
-		return this.updateBy;
-	}
+    if (id != that.id) {
+      return false;
+    }
+    if (priority != that.priority) {
+      return false;
+    }
+    if (createBy != null ? !createBy.equals(that.createBy) : that.createBy != null) {
+      return false;
+    }
+    if (createDate != null ? !createDate.equals(that.createDate) : that.createDate != null) {
+      return false;
+    }
+    if (tradeBrokerCode != null ? !tradeBrokerCode.equals(that.tradeBrokerCode)
+        : that.tradeBrokerCode != null) {
+      return false;
+    }
+    if (tradeBrokerName != null ? !tradeBrokerName.equals(that.tradeBrokerName)
+        : that.tradeBrokerName != null) {
+      return false;
+    }
+    if (updateBy != null ? !updateBy.equals(that.updateBy) : that.updateBy != null) {
+      return false;
+    }
+    if (updateDate != null ? !updateDate.equals(that.updateDate) : that.updateDate != null) {
+      return false;
+    }
+    if (tradeBrokerId != null ? !tradeBrokerId.equals(that.tradeBrokerId)
+        : that.tradeBrokerId != null) {
+      return false;
+    }
 
-	public void setUpdateBy(BigInteger updateBy) {
-		this.updateBy = updateBy;
-	}
+    return true;
+  }
 
-	public BigInteger getUpdateDate() {
-		return this.updateDate;
-	}
-
-	public void setUpdateDate(BigInteger updateDate) {
-		this.updateDate = updateDate;
-	}
-
+  @Override
+  public int hashCode() {
+    int result = (int) (id ^ (id >>> 32));
+    result = 31 * result + (createBy != null ? createBy.hashCode() : 0);
+    result = 31 * result + (createDate != null ? createDate.hashCode() : 0);
+    result = 31 * result + priority;
+    result = 31 * result + (tradeBrokerCode != null ? tradeBrokerCode.hashCode() : 0);
+    result = 31 * result + (tradeBrokerName != null ? tradeBrokerName.hashCode() : 0);
+    result = 31 * result + (updateBy != null ? updateBy.hashCode() : 0);
+    result = 31 * result + (updateDate != null ? updateDate.hashCode() : 0);
+    result = 31 * result + (tradeBrokerId != null ? tradeBrokerId.hashCode() : 0);
+    return result;
+  }
 }

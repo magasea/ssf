@@ -2,16 +2,22 @@ package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdPayFlowStatusEnum;
+import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayDto;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import com.shellshellfish.aaas.common.utils.DateUtil;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.finance.trade.pay.BindBankCardQuery;
+import com.shellshellfish.aaas.finance.trade.pay.BindBankCardResult;
+import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceImplBase;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
 import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.OpenAccountResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
-import com.shellshellfish.aaas.common.utils.TradeUtil;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -20,10 +26,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-
 @Service
-public class PayServiceImpl implements PayService{
+public class PayServiceImpl extends PayRpcServiceImplBase implements PayService {
 
   Logger logger = LoggerFactory.getLogger(PayServiceImpl.class);
 
@@ -35,6 +39,8 @@ public class PayServiceImpl implements PayService{
 
   @Autowired
   TrdPayFlowRepository trdPayFlowRepository;
+
+
 
 
   @Override
@@ -101,5 +107,31 @@ public class PayServiceImpl implements PayService{
 
     broadcastMessageProducers.sendMessage(trdPayFlow);
     return trdPayFlow;
+  }
+
+  @Override
+  public String bindCard(BindBankCard bindBankCard) {
+    try {
+      OpenAccountResult openAccountResult = fundTradeApiService.openAccount("" +bindBankCard
+              .getUserId(), bindBankCard.getUserName(),bindBankCard.getCellphone(), bindBankCard
+              .getUserPid(), bindBankCard.getBankCardNum(),
+          bindBankCard.getBankCode());
+      return openAccountResult.getTradeAcco();
+    } catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  @Override
+  public void bindBankCard(com.shellshellfish.aaas.finance.trade.pay.BindBankCardQuery bindBankCardQuery,
+      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.pay.BindBankCardResult> responseObserver){
+    BindBankCard bindBankCard = new BindBankCard();
+    BeanUtils.copyProperties(bindBankCardQuery, bindBankCard);
+    String trdAcco = bindCard(bindBankCard);
+    BindBankCardResult.Builder builder = BindBankCardResult.newBuilder();
+    builder.setTradeacco(trdAcco);
+    responseObserver.onNext(builder.build());
+    responseObserver.onCompleted();
   }
 }

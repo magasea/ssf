@@ -24,9 +24,20 @@ public class GrpcFinanceProdClientConfig {
   @Value("${grpc.finance_prod_client.port}")
   int finPort;
 
+  @Value("${grpc.pay_client.host}")
+  String payHost;
+
+  @Value("${grpc.pay_client.port}")
+  int payPort;
+
   @Bean
   ManagedChannelBuilder<?> grpcFINChannelBuilder(){
     return ManagedChannelBuilder.forAddress(finHost, finPort);
+  }
+
+  @Bean
+  ManagedChannelBuilder<?> grpcPayChannelBuilder(){
+    return ManagedChannelBuilder.forAddress(payHost, payPort);
   }
 
   @Value("${grpc.userinfo_client.host}")
@@ -51,6 +62,13 @@ public class GrpcFinanceProdClientConfig {
   @PostConstruct
   ManagedChannel managedUIChannel(){
     ManagedChannel managedChannel = grpcUIChannelBuilder().usePlaintext(true).build();
+    return managedChannel;
+  }
+
+  @Bean
+  @PostConstruct
+  ManagedChannel managedPayChannel(){
+    ManagedChannel managedChannel = grpcPayChannelBuilder().usePlaintext(true).build();
     return managedChannel;
   }
 

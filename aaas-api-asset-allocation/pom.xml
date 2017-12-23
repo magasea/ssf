@@ -200,6 +200,10 @@
                                     <directory>../proto/finance/</directory>
                                     <filtering>true</filtering>
                                 </resource>
+                                <resource>
+                                    <directory>../proto/datacollection/</directory>
+                                    <filtering>true</filtering>
+                                </resource>
                             </resources>
                         </configuration>
                     </execution>
