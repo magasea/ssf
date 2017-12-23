@@ -76,7 +76,7 @@ public class FundGroupServiceTest {
 
     @Test
     public void selectById() {
-        FundReturn fundReturn = allocationService.selectById("1", "1");
+        FundReturn fundReturn = allocationService.selectById("1", "100000");
     }
 
     @Test
@@ -140,18 +140,26 @@ public class FundGroupServiceTest {
     @Test
     public void getNavadj(){
         allocationService.getAllIdAndSubId();
-        allocationService.getNavadj("5","100049");
-        //allocationService.getNavadjBenchmark("C1");
+        //allocationService.getNavadj("5","100049");
     }
 
     @Test
     public void getNavadjBenchmark(){
+        //allocationService.getNavadjBenchmark("C1");
         allocationService.getNavadjBenchmark("C2");
+        //allocationService.getNavadjBenchmark("C3");
+        //allocationService.getNavadjBenchmark("C4");
+        //allocationService.getNavadjBenchmark("C5");
     }
 
     @Test
     public void sharpeRatio(){
         int i = allocationService.sharpeRatio("5","6");
         System.out.println(i);
+    }
+
+    @Test
+    public void contribution(){
+        allocationService.contribution();
     }
 }

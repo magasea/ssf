@@ -83,4 +83,8 @@ public interface FundGroupMapper {
 
     String getRiskNum(@Param("id") String id);
 
+    int deleteData(@Param("tableName") String tableName);
+
+    int updateContribution(Map map);
+
 }

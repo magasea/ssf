@@ -249,10 +249,16 @@ public class FundGroupController {
         return smk;
     }
 
-    @ApiOperation("计算复权单位净值和最大回撤")
+    @ApiOperation("计算所有基金组合或基准复权单位净值，最大回撤和夏普比率")
     @RequestMapping(value = "/api/asset-allocation/product-groups/getAllIdAndSubId", method = RequestMethod.GET)
     public void getAllIdAndSubId(){
+        fundGroupService.deleteData("fund_group_history");
         fundGroupService.getAllIdAndSubId();
+        fundGroupService.getNavadjBenchmark("C1");
+        fundGroupService.getNavadjBenchmark("C2");
+        fundGroupService.getNavadjBenchmark("C3");
+        fundGroupService.getNavadjBenchmark("C4");
+        fundGroupService.getNavadjBenchmark("C5");
     }
 
 }

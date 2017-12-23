@@ -36,8 +36,8 @@
     <select id="getinterval" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
         select * from fund_group_sub d,straegy a,fund_group b,fund_basic e,fund_group_details c
         where a.fund_group_id = b.id and b.id = c.fund_group_id and c.fund_code = e.code and
-        c.fund_group_id=d.fund_group_id and d.id=c.fund_group_sub_id and d.risk_num=#{riskValue}
-        and d.income_num=#{returnValue} and c.fund_group_id=#{id}
+        c.fund_group_id=d.fund_group_id and d.id=c.fund_group_sub_id and
+        ABS(d.risk_num - #{riskValue}) &lt; 0.00001 and ABS(d.income_num - #{returnValue}) &lt; 0.00001 and c.fund_group_id=#{id}
     </select>
 
     <select id="getFundCode" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
@@ -168,12 +168,12 @@
     </insert>
 
     <insert id="insertGroupNavadjBenchmark">
-        insert into fund_group_history (fund_group_id,income_num,time)
+        insert into fund_group_history_1 (fund_group_id,income_num,time)
         VALUES (#{risk_level},#{num},#{time})
     </insert>
 
     <update id="updateMaximumRetracement">
-        update fund_group_history set maximum_retracement = #{retracement} where
+        update fund_group_history_1 set maximum_retracement = #{retracement} where
         <if test="fund_group_id != null and fund_group_id != ''">
           fund_group_id = #{fund_group_id} and fund_group_sub_id = #{subGroupId}
         </if>
@@ -196,7 +196,7 @@
     </select>
 
     <select id="getNavadjStartTime" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
-        select a.fund_code code,b.navadj*a.proportion navadj from fund_group_details a,fund_net_value b,fund_group_sub c
+        select DISTINCT a.fund_code code,b.navadj*a.proportion navadj from fund_group_details a,fund_net_value b,fund_group_sub c
         where a.fund_code=b.code and b.NAVLATESTDATE = c.interval_last_mod_time and a.fund_group_id = #{fund_group_id}
         and a.fund_group_sub_id=#{subGroupId}
     </select>
@@ -214,4 +214,12 @@
     <select id="getRiskNum" resultType="String">
         select cust_risk from straegy where id = #{id}
     </select>
+
+    <delete id="deleteData">
+        TRUNCATE TABLE ${tableName}
+    </delete>
+
+    <update id="updateContribution">
+        update fund_group_details set revenue_contribution = #{contribution} where fund_group_sub_id= #{subGroupId} and fund_code= #{code}
+    </update>
 </mapper>
