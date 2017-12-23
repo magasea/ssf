@@ -303,12 +303,12 @@ public class RestApiController {
 			String token = "Token-XXXXXXXX";
 			String obj[] = new String[] { uid,uuid, token };
 			HashMap<String, Object> rsmap = resourceManagerService.response("loginhome", obj);
-			rsmap.put("totalAssets", "10");
-			rsmap.put("dailyProfit", "2.5%");
-			rsmap.put("totalProfit", "2.6%");
-			rsmap.put("investpProd", "3");
-			rsmap.put("bankTotal", "4");
-			rsmap.put("unreadTotal", "7");
+//			rsmap.put("totalAssets", "10");
+//			rsmap.put("dailyProfit", "2.5%");
+//			rsmap.put("totalProfit", "2.6%");
+//			rsmap.put("investpProd", "3");
+//			rsmap.put("bankTotal", "4");
+//			rsmap.put("unreadTotal", "7");
 			rsmap.put("isTestFlag", "T");
 			return new ResponseEntity<Object>(rsmap, HttpStatus.CREATED);
 		}

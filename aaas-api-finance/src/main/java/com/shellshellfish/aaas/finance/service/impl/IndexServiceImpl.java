@@ -142,7 +142,7 @@ public class IndexServiceImpl implements IndexService {
 					
 					result.put(key+"", resultC);
 				}
-				resultC.put("productTypeList", riskList);
+				result.put("productTypeList", riskList);
 			}
 		} else {
 			throw new Exception("产品类型不存在.");
