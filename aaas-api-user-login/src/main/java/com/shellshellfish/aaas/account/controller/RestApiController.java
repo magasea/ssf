@@ -723,4 +723,18 @@ public class RestApiController {
 		result.put("result", user);
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
+	
+	@RequestMapping(value = "/users/{uuid}/passwords/{password}", method = RequestMethod.PATCH)
+	public ResponseEntity<Map> getUserInfo(
+			@Valid @NotNull(message="id不能为空") @PathVariable("uuid") String uuid,
+			@Valid @NotNull(message="password不能为空") @PathVariable("password") String password,
+			@RequestParam(value = "newpassword") String newpassword
+			) throws IllegalAccessException, InstantiationException {
+		Map<String,Object> result = new HashMap<String,Object>();
+		password = MD5.getMD5(password);
+		newpassword = MD5.getMD5(newpassword);
+		accountService.updateUser(uuid,password,newpassword);
+		result.put("result", "OK");
+		return new ResponseEntity<Map>(result, HttpStatus.OK);
+	}
 }

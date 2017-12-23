@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.transfer.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -187,7 +188,6 @@ public class LoginController {
 		}
 	}
 	
-	
 	@ApiOperation("忘记密码")
 	@ApiImplicitParams({
 	@ApiImplicitParam(paramType="query",name="telNum",dataType="String",required=true,value="手机号码",defaultValue="13818977524"),
@@ -196,7 +196,7 @@ public class LoginController {
 	})
 	@RequestMapping(value="/forgottenPsw",method=RequestMethod.POST)
 	@ResponseBody
-	public JsonResult resetPsw(@RequestParam String telNum,@RequestParam String password,@RequestParam String verifyCode){
+	public JsonResult forgottenPsw(@RequestParam String telNum,@RequestParam String password,@RequestParam String verifyCode){
 		//先调用注册手机号接口
 		Map result=null;
 		try{
@@ -217,6 +217,50 @@ public class LoginController {
 		}catch(Exception e){
 			String str=new ReturnedException(e).getErrorMsg();
 			 return new JsonResult(JsonResult.Fail, str, "");
+		}
+		
+	}
+	
+	@ApiOperation("修改密码")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=true,value="用户ID"),
+		@ApiImplicitParam(paramType="query",name="oldPWD",dataType="String",required=true,value="旧密码"),
+		@ApiImplicitParam(paramType="query",name="newPWD",dataType="String",required=true,value="新密码"),
+	})
+	@RequestMapping(value="/resetPsw",method=RequestMethod.POST)
+	@ResponseBody
+	public JsonResult resetPsw(
+			@RequestParam String uuid,
+			@RequestParam String oldPWD,
+			@RequestParam String newPWD){
+		Map<String, Object> result=new HashMap<String, Object>();
+		try{
+			if(oldPWD.equals(newPWD)){
+				return new JsonResult(JsonResult.Fail, "新旧密码不能一致", "");
+			}
+			String url=loginUrl+"/api/useraccount/users/"+uuid;
+			result = restTemplate.getForEntity(url, Map.class).getBody();
+			if(result==null){
+				return new JsonResult(JsonResult.Fail, "用户不存在", result);
+			}
+//			Map<String, Object> res = (Map<String, Object>) result.get("result");
+//			Object pwd = res.get("passwordHash");
+//			String old = MD5.getMD5(oldPWD);
+//			if(!old.equals(pwd)){
+//				return new JsonResult(JsonResult.Fail, "旧密码输入不正，请重新输入", "");
+//			}
+			url=loginUrl+"/api/useraccount/users/"+uuid+"/passwords/"+oldPWD+"?newpassword="+newPWD;
+			restTemplatePeach.exchange(url, HttpMethod.PATCH, null, Map.class).getBody();
+			return new JsonResult(JsonResult.SUCCESS, "更改密码正确", null);
+		} catch (HttpClientErrorException e) {
+			result = new HashMap();
+			result.put("errorCode", "400");
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			result.put("error", e.getResponseBodyAsString());
+			return new JsonResult(JsonResult.Fail, "修改密码失败", result);
+		}catch(Exception e){
+			return new JsonResult(JsonResult.Fail, "Fail", result);
 		}
 		
 	}
