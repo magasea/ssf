@@ -4,7 +4,7 @@ server:
   contextPath: /
 ---
 spring:
-  profiles: prod
+  profiles: local, default
 datasource:
   sampleapp:
     url: jdbc:h2:~/test
@@ -21,17 +21,17 @@ datasource:
   
 ---
 spring:
-  profiles: local, default
+  profiles: prod
   data:
       mongodb:
         database: funds
-        host: 192.168.1.10
+        host: localhost
         port: 27017
 datasource:
   sampleapp:
-    url: jdbc:mysql://192.168.1.10:3306/ssftrdorder?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://localhost:3306/ssftrdorder?useUnicode=true&characterEncoding=utf-8
     username: sa
-    password: abcd1234
+    password: 1qaz@WSX
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema:
     maxPoolSize: 20
