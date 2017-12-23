@@ -7,11 +7,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 
-
-import org.hibernate.mapping.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +18,14 @@ import com.shellshellfish.datamanager.model.FundCodes;
 import com.shellshellfish.datamanager.model.FundCompanys;
 import com.shellshellfish.datamanager.model.FundManagers;
 import com.shellshellfish.datamanager.model.IndicatorPoint;
+import com.shellshellfish.datamanager.model.ListedFundCodes;
+import com.shellshellfish.datamanager.model.OffundYeildRate;
+import com.shellshellfish.datamanager.model.RangeIndicator;
 import com.shellshellfish.datamanager.repositories.MongoDailyFundsRepository;
 import com.shellshellfish.datamanager.repositories.MongoFundCodesRepository;
 import com.shellshellfish.datamanager.repositories.MongoFundCompanysRepository;
 import com.shellshellfish.datamanager.repositories.MongoFundManagersRepository;
+import com.shellshellfish.datamanager.repositories.MongoListedFundCodesRepository;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -35,6 +36,10 @@ public class DataServiceImpl implements DataService {
 	
 	@Autowired
 	MongoFundCodesRepository mongoFundCodesRepository;
+	
+	@Autowired
+	MongoListedFundCodesRepository mongoListedFundCodesRepository;
+	
 	@Autowired
 	MongoDailyFundsRepository mongoDailyFundsRepository;
 	
@@ -193,10 +198,47 @@ public class DataServiceImpl implements DataService {
 	//场内基金(SH,SZ):区间涨跌幅
 	//场外基金(OF):区间复权单位净值增长率
 	public String getYearscale(String code) {
-		return "";
+		String diff="0";
+		List<ListedFundCodes> lcodelst=mongoListedFundCodesRepository.findByCode(code);
+		if (lcodelst!=null & lcodelst.size()==1) { //场内基金,取区间涨跌幅
+		   diff=getDiffValueBylistedcode(code);
+			
+		}else {//场外基金(OF)
+		  diff=getDiffValueByofcode(code); 	
+		}
+			 
+		return diff;
 	}
 		
-	//历史净值
+	public String  getDiffValueBylistedcode(String code){
+		
+		Criteria criteria = Criteria.where("code").is(code);
+		Query query = new Query(criteria);
+		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC,"queryenddate")); 
+		
+		List<RangeIndicator> list = mongoTemplate.find(query, RangeIndicator.class);
+		if (list==null || list.size()==0)
+			return "none"; //取不到,bug
+		
+		return list.get(0).getDifferrangep();
+		
+	}
+	
+    public String  getDiffValueByofcode(String code){
+		
+		Criteria criteria = Criteria.where("code").is(code);
+		Query query = new Query(criteria);
+		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC,"queryenddate")); 
+		
+		List<OffundYeildRate> list = mongoTemplate.find(query, OffundYeildRate.class);
+		if (list==null || list.size()==0)
+			return "none"; //取不到,bug
+		
+		return list.get(0).getNavadjreturnp();
+		
+	}
+	
+    //历史净值
 	public HashMap<String,Object> getHistoryNetvalue(String code,String period){
 		HashMap<String,Object> hnmap=new HashMap<String,Object>();
 		hnmap.put("code", code);
@@ -214,6 +256,8 @@ public class DataServiceImpl implements DataService {
 		return hnmap;
 				
 	}
+	
+	//日涨幅,近一年涨幅,净值,分级类型,评级
 	
 	public HashMap<String,Object> getFundValueInfo(String code){
 		HashMap<String,Object> hnmap=new HashMap<String,Object>();
