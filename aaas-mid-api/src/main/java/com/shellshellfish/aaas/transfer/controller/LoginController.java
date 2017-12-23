@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import com.shellshellfish.aaas.model.JsonResult;
+import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+import com.shellshellfish.aaas.transfer.utils.EasyKit;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -66,11 +69,15 @@ public class LoginController {
 	@RequestParam("password") 	String password){
 		Map result=null;
 		//HttpClient http = new Ht
-		try{
+		try {
 			String str = "{\"password\":\""+password+"\",\"telnum\":\""+telNum+"\"}";	
 			String url=loginUrl+"/api/useraccount/login";
 			HttpEntity<String> entity =  getHttpEntity(str);
 			result=restTemplate.postForObject(loginUrl+"/api/useraccount/login",entity,Map.class);
+		    /*}catch(HttpClientErrorException e){
+			 String str=e.getResponseBodyAsString();
+			 return new JsonResult(JsonResult.Fail,EasyKit.getErrorMessage(str), "");
+			}*/
 			/**********************添加的测试数据*******************************/
 			result.put("totalAssets", "10,000,000"); //总资产
 			result.put("dailyReturn", "3.8%"); //日收益率
@@ -83,24 +90,18 @@ public class LoginController {
 			result.remove("_links");
 			result.remove("self");
 		    result.put("telNum",telNum);
+		 /*try{*/
 		    Map userinfo = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/telnums/" + telNum, Map.class)
 					.getBody();
 		    Map userMap =  (Map) userinfo.get("result");
 		    result.put("isTestFlag", userMap.get("isTestFlag"));
 		    result.put("testResult", userinfo.get("testResult"));
 		    return new JsonResult(JsonResult.SUCCESS,"登陆成功",result);
-		} catch (HttpClientErrorException e) {
+		} catch (Exception e) {
 			result = new HashMap<String, String>();
-			String str = e.getResponseBodyAsString();
-			System.out.println(str);
-			result.put("error", e.getResponseBodyAsString());
-			return new JsonResult(JsonResult.Fail, "发送失败", result);
-		} catch(Exception e){
-			result=new HashMap<>();
-		    result.put("errorCode","400");
-		    result.put("error", "参数错误");
-		}
-	   return new JsonResult(JsonResult.Fail,"登陆失败",result);
+			String errorMsg=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail,errorMsg,"");
+		} 
    }
 
 	@ApiOperation("发送验证码")
@@ -112,27 +113,18 @@ public class LoginController {
 		try {
 			MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 			headers.add("content-type", "application/json;charset=utf8");
-			
 			MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
 			body.add("action", "getVerificationCode");
 			HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<MultiValueMap<String,String>>(body, headers);
 			result = restTemplate.postForEntity(loginUrl + "/api/useraccount/telnums/" + telNum + "?action=getVerificationCode",null, Map.class).getBody();
 			result.remove("_links");
 			result.remove("_schemaVersion");
-			return new JsonResult(JsonResult.SUCCESS, "发送成功9", result);
-		} catch (HttpClientErrorException e) {
-			result = new HashMap();
-			result.put("errorCode", "400");
-			String str = e.getResponseBodyAsString();
-			System.out.println(str);
-			result.put("error", e.getResponseBodyAsString());
-			return new JsonResult(JsonResult.Fail, "发送失败", result);
+			return new JsonResult(JsonResult.SUCCESS, "发送成功", result);
+		} catch (Exception e) {
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail,str, "");
 		}
-		catch (Exception e) {
-			result = new HashMap<>();
-			result.put("errorCode", "400");
-			return new JsonResult(JsonResult.Fail, "发送失败", result);
-		}
+		
 	}
 	
 	/**
@@ -189,15 +181,9 @@ public class LoginController {
 		    } else {
 		    	return new JsonResult(JsonResult.Fail, "注册时，设置是否测评失败", null);
 		    }
-		} catch (HttpClientErrorException e) {
-			result = new HashMap();
-			result.put("errorCode", "400");
-			String str = e.getResponseBodyAsString();
-			System.out.println(str);
-			result.put("error", e.getResponseBodyAsString());
-			return new JsonResult(JsonResult.Fail, "注册失败", result);
-		}catch(Exception e){
-			 return new JsonResult(JsonResult.Fail, "注册失败", null);
+		} catch (Exception e) {
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, "");
 		}
 	}
 	
@@ -229,7 +215,8 @@ public class LoginController {
 		    result=restTemplatePeach.exchange(url, HttpMethod.PATCH, getHttpEntity(str), Map.class).getBody();
 		    return new JsonResult(JsonResult.SUCCESS, "OK", result);
 		}catch(Exception e){
-			 return new JsonResult(JsonResult.Fail, "Fail", result);
+			String str=new ReturnedException(e).getErrorMsg();
+			 return new JsonResult(JsonResult.Fail, str, "");
 		}
 		
 	}

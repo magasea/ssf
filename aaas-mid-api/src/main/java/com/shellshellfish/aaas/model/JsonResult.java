@@ -9,7 +9,16 @@ public class JsonResult {
  
  public JsonResult(String success,String message,Object object){
 	this.head=new Head(success,message);
+	switch (success) {
+	case JsonResult.SUCCESS:
+		this.result=object;
+		break;
+    
+	default:
+		break;
+	}
 	this.result=object;
+	
  }
  
 public Head getHead() {
