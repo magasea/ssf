@@ -242,12 +242,11 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Override
-	public UserDTO getUserInfo(String uid) throws IllegalAccessException, InstantiationException {
-		List<User> userList = userRepository.findById(Long.parseLong(uid));
-		List<UserDTO> userDtoList = MyBeanUtils.convertList(userList, UserDTO.class);
+	public UserDTO getUserInfo(String uuid) throws IllegalAccessException, InstantiationException {
+		User user = userRepository.findByUuid(uuid);
 		UserDTO userDTO = new UserDTO();
-		if(userDtoList!=null&&userDtoList.size()>0){
-			userDTO = userDtoList.get(0);
+		if(user!=null){
+			BeanUtils.copyProperties(user, userDTO);
 		}
 		return userDTO;
 	}
@@ -260,5 +259,21 @@ public class AccountServiceImpl implements AccountService {
 			smsCode = sms.getSmsCode();
 		}
 		return smsCode;
+	}
+
+	@Override
+	public void updateUser(String uuid, String password, String newPassword) throws IllegalAccessException, InstantiationException {
+		UserDTO userDto = this.getUserInfo(uuid);
+		User user = new User();
+		if(userDto == null){
+			throw new UserException("404", "用户不存在");
+		} else {
+			if(!password.equals(userDto.getPasswordHash())){
+				throw new UserException("404", "用户与原密码不一致，请重新输入");
+			}
+			userDto.setPasswordHash(newPassword);
+			BeanUtils.copyProperties(userDto, user);
+			userRepository.save(user);
+		}
 	}
 }

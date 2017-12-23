@@ -21,4 +21,5 @@ public interface AccountService {
 	UserDTO doLogout(LoginBodyDTO loginBody);
 	UserDTO getUserInfo(String uid) throws IllegalAccessException, InstantiationException;
 	String getSmsMessage(String cellphone);
+	void updateUser(String uuid, String password, String newPassword) throws IllegalAccessException, InstantiationException;
 }
