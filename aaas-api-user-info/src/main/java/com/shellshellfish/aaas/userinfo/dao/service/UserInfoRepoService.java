@@ -31,7 +31,7 @@ public interface UserInfoRepoService {
 
 	BankCardDTO getUserInfoBankCard(String cardNumber);
 
-	BankCardDTO addUserBankcard(UiBankcard uiBankcard);
+	BankCardDTO addUserBankcard(UiBankcard uiBankcard) throws Exception;
 
 	List<AssetDailyReptDTO> getAssetDailyRept(Long userId, Long beginDate, Long endDate)
 			throws IllegalAccessException, InstantiationException;
