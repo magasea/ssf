@@ -83,7 +83,7 @@ public class FinanceController {
 			}
 			MultiValueMap<String, String> requestEntity = new LinkedMultiValueMap<>();
 			uuid = uuid == null ? "" : uuid;
-			requestEntity.add("uuid", uuid); 
+			requestEntity.add("uuid", uuid);
 			isTestFlag = isTestFlag == null ? "" : isTestFlag;
 			testResult = testResult == null ? "" : testResult;
 			result = restTemplate.getForEntity(financeUrl + "/api/ssf-finance/product-groups/homepage?uuid=" + uuid
