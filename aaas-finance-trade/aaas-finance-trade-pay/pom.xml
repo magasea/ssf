@@ -184,7 +184,8 @@
 							<outputDirectory>src/main/proto</outputDirectory>
 							<resources>
 								<resource>
-									<directory>../proto/trade/</directory>
+									<directory>../../proto/userinfo/</directory>
+									<directory>../../proto/pay/</directory>
 									<filtering>true</filtering>
 								</resource>
 							</resources>

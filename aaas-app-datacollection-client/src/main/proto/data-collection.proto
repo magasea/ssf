@@ -21,13 +21,17 @@ message DailyFundsCollection{
 
 message DailyFunds {
   string id = 1;
-  double nav_unit = 2;
-  float fund_scale = 3;
-  double nav_accum = 4;
-  float yield_of_7_days = 5;
-  double nav_adj = 6;
-  int64 nav_latest_date = 7;
-  string code = 8;
-  double million_revenue = 9;
-  float bm_index_chg_pct = 10;
+  double nav_unit = 2;//单位净值
+  float fund_scale = 3;//基金规模
+  double nav_accum = 4;//累计单位净值
+  float yield_of_7_days = 5;//7日年化收益率
+  double nav_adj = 6;//复权单位净值
+  int64 nav_latest_date = 7;//最新净值日期
+  double million_revenue = 8;//万份基金单位收益
+  float bm_index_chg_pct = 9;//标的指数涨跌幅
+  string code = 10;//基金代码
+  string fname = 11;//基金名称
+  string fund_type_one = 12;//基金一级分类
+  string fund_type_two = 13;//基金二级分类
+  string close = 14;//日行情收盘价
 }

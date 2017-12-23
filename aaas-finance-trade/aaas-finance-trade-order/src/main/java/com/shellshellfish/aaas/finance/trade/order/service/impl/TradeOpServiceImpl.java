@@ -1,12 +1,16 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
+import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
+import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayDto;
+import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProducer;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
+import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdTradeBankDic;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
@@ -16,7 +20,9 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokderReposi
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokerUserRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.TrdTradeBankDicRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdInfoService;
+import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProductServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
@@ -58,6 +64,9 @@ public class TradeOpServiceImpl implements TradeOpService {
   TrdOrderDetailRepository trdOrderDetailRepository;
 
   @Autowired
+  TrdTradeBankDicRepository trdTradeBankDicRepository;
+
+  @Autowired
   BroadcastMessageProducer broadcastMessageProducer;
 
 
@@ -67,6 +76,9 @@ public class TradeOpServiceImpl implements TradeOpService {
   @Autowired
   TrdBrokerUserRepository trdBrokerUserRepository;
 
+
+  @Autowired
+  PayService payService;
 
   @Autowired
   ManagedChannel managedUIChannel;
@@ -105,20 +117,41 @@ public class TradeOpServiceImpl implements TradeOpService {
 //    TrdTradeBroker trdTradeBroker = trdBrokderRepository.findOne(1L);
     PayDto payDto = new PayDto();
     List<TrdBrokerUser> trdBrokerUsers = trdBrokerUserRepository.findByUserId(financeProdBuyInfo.getUserId());
-    int trdBrokerId = trdBrokerUsers.get(0).getTradeBrokerId();
-    if(StringUtils.isEmpty(trdBrokerUsers.get(0).getTradeAcco())){
+
+    int trdBrokerId = trdBrokerUsers.get(0).getTradeBrokerId().intValue();
+    String bankCardNum = financeProdBuyInfo.getBankAcc();
+    String trdAcco = trdBrokerUsers.get(0).getTradeAcco();
+    if(StringUtils.isEmpty(trdAcco)){
         //Todo: get userBankCardInfo to make tradAcco
-      logger.info("trdBrokerUsers.get(0).getTradeAcco() is empty");
+      logger.info("trdBrokerUsers.get(0).getTradeAcco() is empty, 坑货出现，需要生成交易账号再交易");
       UserIdOrUUIDQuery.Builder builder = UserIdOrUUIDQuery.newBuilder();
       builder.setUuid(financeProdBuyInfo.getUuid());
 
       com.shellshellfish.aaas.userinfo.grpc.UserBankInfo userBankInfo =
           userInfoServiceFutureStub.getUserBankInfo(builder.build()).get();
 
+      BindBankCard bindBankCard = new BindBankCard();
+      TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndAndBankCardNum
+          (userBankInfo.getUserId(),financeProdBuyInfo.getBankAcc());
+      bindBankCard.setBankCardNum(financeProdBuyInfo.getBankAcc());
+      TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository.findByBankNameAndTraderBrokerId
+          (BankUtil.getNameOfBank(financeProdBuyInfo.getBankAcc()), TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
+
+      bindBankCard.setBankCode(trdTradeBankDic.getBankCode());
+      bindBankCard.setCellphone(userBankInfo.getCellphone());
+      bindBankCard.setBankCardNum(financeProdBuyInfo.getBankAcc());
+      bindBankCard.setTradeBrokerId(trdBrokerUser.getTradeBrokerId());
+      bindBankCard.setUserId(trdBrokerUser.getUserId());
+      bindBankCard.setUserName(userBankInfo.getUserName());
+      bindBankCard.setUserPid(userBankInfo.getUserPid());
+      trdAcco = payService.bindCard(bindBankCard);
+      trdBrokerUserRepository.updateTradeAcco(trdAcco, TradeUtil.getUTCTime(), bindBankCard
+          .getUserId(),  bindBankCard.getUserId());
+
     }
     String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdBuyInfo.getBankAcc()
             .substring(0,6)),trdBrokerId);
-    payDto.setTrdAccount(trdBrokerUsers.get(0).getTradeAcco());
+    payDto.setTrdAccount(trdAcco);
     payDto.setUserUuid(financeProdBuyInfo.getUuid());
     List<com.shellshellfish.aaas.common.message.order.TrdOrderDetail> trdOrderDetails =  new
         ArrayList<com.shellshellfish.aaas.common.message.order.TrdOrderDetail>();
@@ -173,8 +206,5 @@ public class TradeOpServiceImpl implements TradeOpService {
         .build()).get();
     return userId.getUserId();
   }
-
-
-
 
 }

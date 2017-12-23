@@ -33,20 +33,7 @@ import org.springframework.context.annotation.Bean;
 // @Configuration @EnableAutoConfiguration @ComponentScan
 public class UserInfoApp {
 
-	@Value("${spring.rabbitmq.topicQueuePayName}")
-	String topicQueuePayName;
 
-	@Value("${spring.rabbitmq.topicPay}")
-	String topicPay;
-
-	@Value("${spring.rabbitmq.topicOrder}")
-	String topicOrder;
-
-	@Value("${spring.rabbitmq.topicQueueOrderName}")
-	String topicQueueOrderName;
-
-	@Value("${spring.rabbitmq.topicExchangeName}")
-	String topicExchangeName;
 
 	private static Server server;
 
@@ -64,52 +51,6 @@ public class UserInfoApp {
 
 	}
 
-
-	@Bean
-	SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
-			MessageListenerAdapter listenerAdapter) {
-		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-		container.setConnectionFactory(connectionFactory);
-		container.setQueueNames(topicQueuePayName);
-		container.setMessageListener(listenerAdapter);
-		return container;
-	}
-
-	@Bean
-	MessageListenerAdapter listenerAdapter(BroadcastMessageConsumers receiver) {
-		return new MessageListenerAdapter(receiver, "receiveMessage");
-	}
-
-	@Bean
-	public List<Declarable> topicBindings() {
-		Queue topicPayQueue = new Queue(topicQueuePayName, false);
-		Queue topicOrderQueue = new Queue(topicQueueOrderName, false);
-		TopicExchange topicExchange = new TopicExchange(topicExchangeName);
-
-		return Arrays.asList(
-				topicPayQueue,
-				topicOrderQueue,
-				topicExchange,
-				BindingBuilder.bind(topicPayQueue).to(topicExchange).with(topicPay),
-				BindingBuilder.bind(topicOrderQueue).to(topicExchange).with(topicOrder)
-		);
-	}
-
-
-	@Bean
-	Queue queue() {
-		return new Queue(topicQueuePayName, false);
-	}
-
-	@Bean
-	TopicExchange exchange() {
-		return new TopicExchange("com.ssf.topic.exchange");
-	}
-
-	@Bean
-	Binding binding(Queue queue, TopicExchange exchange) {
-		return BindingBuilder.bind(queue).to(exchange).with(topicQueuePayName);
-	}
 
 	@PostConstruct
 	void started() {

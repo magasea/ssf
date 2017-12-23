@@ -32,5 +32,7 @@ message UserBankInfo{
   string uuid = 2;
   string userName = 3;
   string userPid = 4;
-  repeated string cardNumbers = 5;
+  string cellphone = 5;
+  repeated string cardNumbers = 6;
+
 }

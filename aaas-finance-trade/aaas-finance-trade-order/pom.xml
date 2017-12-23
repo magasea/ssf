@@ -186,6 +186,11 @@
 								<filtering>true</filtering>
 							</resource>
 								<resource>
+
+									<directory>../../proto/pay/</directory>
+									<filtering>true</filtering>
+								</resource>
+								<resource>
 									<directory>../../proto/userinfo/</directory>
 									<filtering>true</filtering>
 								</resource>

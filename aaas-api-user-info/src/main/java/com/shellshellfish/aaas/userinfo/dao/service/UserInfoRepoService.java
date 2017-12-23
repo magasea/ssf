@@ -72,4 +72,6 @@ public interface UserInfoRepoService {
 
 	public UserSysMsgDTO addUiSysMsg(UiSysMsg uiSysMsg) throws IllegalAccessException,
 			InstantiationException;
+
+
 }

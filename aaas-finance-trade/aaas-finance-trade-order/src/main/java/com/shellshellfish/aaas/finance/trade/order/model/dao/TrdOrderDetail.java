@@ -3,20 +3,18 @@ package com.shellshellfish.aaas.finance.trade.order.model.dao;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Created by chenwei on 2017- 十二月 - 19
+ * Created by chenwei on 2017- 十二月 - 22
  */
 
 @Entity
 @Table(name = "trd_order_detail", schema = "ssftrdorder", catalog = "")
-public class TrdOrderDetail  {
+public class TrdOrderDetail {
 
-  private Long id;
+  private long id;
   private String orderId;
   private String tradeApplySerial;
   private long boughtDate;
@@ -36,15 +34,18 @@ public class TrdOrderDetail  {
   private long createDate;
   private long updateBy;
   private long updateDate;
+  private String bankCardNum;
+  private Long fundQuantity;
+  private Integer orderStatus;
+  private String prodCode;
 
   @Id
   @Column(name = "id")
-  @GeneratedValue(strategy= GenerationType.IDENTITY)
-  public Long getId() {
+  public long getId() {
     return id;
   }
 
-  public void setId(Long id) {
+  public void setId(long id) {
     this.id = id;
   }
 
@@ -238,6 +239,46 @@ public class TrdOrderDetail  {
     this.updateDate = updateDate;
   }
 
+  @Basic
+  @Column(name = "bank_card_num")
+  public String getBankCardNum() {
+    return bankCardNum;
+  }
+
+  public void setBankCardNum(String bankCardNum) {
+    this.bankCardNum = bankCardNum;
+  }
+
+  @Basic
+  @Column(name = "fund_quantity")
+  public Long getFundQuantity() {
+    return fundQuantity;
+  }
+
+  public void setFundQuantity(Long fundQuantity) {
+    this.fundQuantity = fundQuantity;
+  }
+
+  @Basic
+  @Column(name = "order_status")
+  public Integer getOrderStatus() {
+    return orderStatus;
+  }
+
+  public void setOrderStatus(Integer orderStatus) {
+    this.orderStatus = orderStatus;
+  }
+
+  @Basic
+  @Column(name = "prod_code")
+  public String getProdCode() {
+    return prodCode;
+  }
+
+  public void setProdCode(String prodCode) {
+    this.prodCode = prodCode;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -310,6 +351,19 @@ public class TrdOrderDetail  {
     if (fundCode != null ? !fundCode.equals(that.fundCode) : that.fundCode != null) {
       return false;
     }
+    if (bankCardNum != null ? !bankCardNum.equals(that.bankCardNum) : that.bankCardNum != null) {
+      return false;
+    }
+    if (fundQuantity != null ? !fundQuantity.equals(that.fundQuantity)
+        : that.fundQuantity != null) {
+      return false;
+    }
+    if (orderStatus != null ? !orderStatus.equals(that.orderStatus) : that.orderStatus != null) {
+      return false;
+    }
+    if (prodCode != null ? !prodCode.equals(that.prodCode) : that.prodCode != null) {
+      return false;
+    }
 
     return true;
   }
@@ -336,6 +390,10 @@ public class TrdOrderDetail  {
     result = 31 * result + (int) (createDate ^ (createDate >>> 32));
     result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
     result = 31 * result + (int) (updateDate ^ (updateDate >>> 32));
+    result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
+    result = 31 * result + (fundQuantity != null ? fundQuantity.hashCode() : 0);
+    result = 31 * result + (orderStatus != null ? orderStatus.hashCode() : 0);
+    result = 31 * result + (prodCode != null ? prodCode.hashCode() : 0);
     return result;
   }
 }
