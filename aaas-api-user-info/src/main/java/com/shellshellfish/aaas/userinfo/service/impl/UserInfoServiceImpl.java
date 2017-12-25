@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
+import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
@@ -62,8 +63,18 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public List<BankCardDTO> getUserInfoBankCards(String userUuid) throws Exception {
-    	Long userId = getUserIdFromUUID(userUuid);
-        List<BankCardDTO> bankcards =  userInfoRepoService.getUserInfoBankCards(userId);
+    	Long userId=null;
+    	try{
+    	 userId = getUserIdFromUUID(userUuid);
+    	}catch(Exception e){
+    		throw new UserInfoException("404", "该用户不存在");
+    	}
+    	List<BankCardDTO> bankcards=null;
+    	try{
+         bankcards =  userInfoRepoService.getUserInfoBankCards(userId);
+    	}catch(Exception e){
+    		throw new UserInfoException("404", "该用户暂时没有绑定银行卡");
+    	}
 //        List<BankCard> bankCardsDto = new ArrayList<>();
 //        for(UiBankcard uiBankcard: uiBankcards ){
 //            BankCard bankCard = new BankCard();
