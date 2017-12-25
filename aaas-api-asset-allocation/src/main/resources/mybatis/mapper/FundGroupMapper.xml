@@ -212,7 +212,7 @@
     </select>
 
     <select id="getRiskNum" resultType="String">
-        select cust_risk from straegy where id = #{id}
+        select cust_risk from straegy where fund_group_id = #{id}
     </select>
 
     <delete id="deleteData">

@@ -543,7 +543,6 @@ public class FundGroupService {
         Map<String, String> _links = new HashMap<>();
         Map<String, Object> allMap = new HashMap<>();
         Map<String, Object> mapBasic = new HashMap<>();
-        Map<String, Object> mapBenchmark = new HashMap<>();
         //Date endDate = new Date();
         Date endDate = new SimpleDateFormat("yyyy-MM-dd").parse("2017-11-25");
         ca.setTime(endDate);
@@ -571,10 +570,14 @@ public class FundGroupService {
                 mapStr.put("fund_group_id",riskNum);
                 mapStr.remove("fund_group_sub_id");
                 fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
+                List<Map<String, Object>> listBenchmark = new ArrayList<>();
                 for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
-                    mapBenchmark.put(new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()), fundGroupHistory.getIncome_num());
+                    Map<String, Object> mapBenchmark = new HashMap<>();
+                    mapBenchmark.put("time", new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()));
+                    mapBenchmark.put("value", fundGroupHistory.getIncome_num());
+                    listBenchmark.add(mapBenchmark);
                 }
-                allMap.put("incomeBenchmark",mapBenchmark);
+                allMap.put("incomeBenchmark",listBenchmark);
                 list.add(allMap);
 
                 fgi.setName("组合收益率走势图");
@@ -587,10 +590,14 @@ public class FundGroupService {
                 mapStr.put("fund_group_id",riskNum);
                 mapStr.remove("fund_group_sub_id");
                 fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
+                List<Map<String, Object>> listBenchmark = new ArrayList<>();
                 for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
-                    mapBenchmark.put(new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()), fundGroupHistory.getMaximum_retracement());
+                    Map<String, Object> mapBenchmark = new HashMap<>();
+                    mapBenchmark.put("time", new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()));
+                    mapBenchmark.put("value", fundGroupHistory.getIncome_num());
+                    listBenchmark.add(mapBenchmark);
                 }
-                allMap.put("retracementBenchmark",mapBenchmark);
+                allMap.put("incomeBenchmark",listBenchmark);
                 list.add(allMap);
                 fgi.setName("组合最大回撤走势图");
             }
@@ -638,8 +645,8 @@ public class FundGroupService {
                 query1.put("endtTime", endTime);
                 List<FundNetVal> fundNetValues = fundGroupMapper.getFundNetValue(query1);
                 List<Map<String, Object>> listFund = new ArrayList<>();
-                Map<String, Object> fundMap = new HashMap<>();
                 for (int i = 1; i < fundNetValues.size(); i++) {
+                    Map<String, Object> fundMap = new HashMap<>();
                     if (returnType.equalsIgnoreCase("1")) {
                         fgi.setName("净值增长");
                         fundMap.put("time", new SimpleDateFormat("yyyy-MM-dd").format(fundNetValues.get(i).getNavLatestDate()));
@@ -694,11 +701,11 @@ public class FundGroupService {
             for (FundGroupExpectedIncome fgei : fgeiList) {
                 Map<String, Object> map = new HashMap<>();
                 Map<String, Object> map1 = new HashMap<>();
-                map1.put("预期收益", fgei.getExpected_income());
-                map1.put("高概率最高收益", fgei.getHigh_percent_max_income());
-                map1.put("高概率最低收益", fgei.getHigh_percent_min_income());
-                map1.put("低概率最高收益", fgei.getLow_percent_max_income());
-                map1.put("低概率最低收益", fgei.getLow_percent_min_income());
+                map1.put("expected_income", fgei.getExpected_income());
+                map1.put("high_percent_max_income", fgei.getHigh_percent_max_income());
+                map1.put("high_percent_min_income", fgei.getHigh_percent_min_income());
+                map1.put("low_percent_max_income", fgei.getLow_percent_max_income());
+                map1.put("low_percent_min_income", fgei.getLow_percent_min_income());
                 map.put("income_mounth_time", fgei.getIncome_mounth_time());
                 map.put("_item", map1);
                 list.add(map);
