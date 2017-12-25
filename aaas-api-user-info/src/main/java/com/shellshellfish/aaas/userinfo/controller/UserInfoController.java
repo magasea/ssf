@@ -769,7 +769,12 @@ public class UserInfoController {
 	public ResponseEntity<?> getSystemMsg(@Valid @NotNull(message = "userUuid不可为空")@PathVariable String userUuid)
 			throws Exception {
 		logger.info("getSystemMsg method run..");
-		List<UserSysMsgDTO> userSysMsgs = userInfoService.getUserSysMsg(userUuid);
+		List<UserSysMsgDTO> userSysMsgs=null;
+		try{
+		userSysMsgs = userInfoService.getUserSysMsg(userUuid);
+		}catch(Exception e){
+			throw new UserInfoException("404", "无法获取uid="+userUuid+" 客户的消息");
+		}
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
 		result.put("_items", userSysMsgs);
@@ -1199,8 +1204,9 @@ public class UserInfoController {
 		//id message ID
 		Boolean result =  userInfoService.deleteBankCard(userUuid, bankcardId);
 		if(!result){
-			resultMap.put("status", "Fail");
-			return new ResponseEntity<Map>(resultMap,HttpStatus.UNAUTHORIZED);
+			/*resultMap.put("status", "Fail");
+			return new ResponseEntity<Map>(resultMap,HttpStatus.UNAUTHORIZED);*/
+			throw new UserInfoException("404", "解绑银行卡失败");
 		} else {
 			//return new ResponseEntity<Object>(URL_HEAD+"/message/updateinvestmentmessages/investmentmessages?userUuid="+userUuid , HttpStatus.OK);
 			resultMap.put("status", "OK");
@@ -1386,6 +1392,110 @@ public class UserInfoController {
 		}
 		resultMap.put("totalRevenue", totalRevenue);
 		
+		return new ResponseEntity<Map>(resultMap, HttpStatus.OK);
+	}
+	
+	/**
+	 * 资产总览
+	 * @return
+	 * @throws Exception 
+	 */
+	@ApiOperation("资产总览")
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+		@ApiResponse(code=400,message="请求参数没填好"),
+		@ApiResponse(code=401,message="未授权用户"),        				
+		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue="")
+	})
+	@RequestMapping(value = "/users/{userUuid}/asset", method = RequestMethod.GET)
+	public ResponseEntity<Map> assetView(
+			@Valid @NotNull(message = "userUuid不能为空") @PathVariable("userUuid") String userUuid
+			) throws Exception{
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
+		//总资产
+		BigDecimal totalAssets = new BigDecimal("0");
+		if(userInfoAssectsBrief.getTotalAssets()!=null){
+			totalAssets = userInfoAssectsBrief.getTotalAssets();
+		}
+		resultMap.put("totalAssets", totalAssets);
+		//日收益
+		BigDecimal dailyReturn = new BigDecimal("0");
+		if(userInfoAssectsBrief.getDailyProfit()!=null){
+			dailyReturn = userInfoAssectsBrief.getDailyProfit();
+		}
+		resultMap.put("dailyReturn", dailyReturn);
+		//累计收益
+		BigDecimal totalRevenue = new BigDecimal("0");
+		if(userInfoAssectsBrief.getTotalProfit()!=null){
+			totalRevenue = userInfoAssectsBrief.getTotalProfit();
+		}
+		resultMap.put("totalRevenue", totalRevenue);
+		// 累计收益率
+		if(totalAssets == new BigDecimal(0)){
+			resultMap.put("totalRevenue", "0");
+		} else {
+			BigDecimal totalRevenueRate = totalRevenue.divide(totalAssets);
+			resultMap.put("totalRevenue", totalRevenueRate);
+		}
+		//收益走势图
+		List<Map<String,Object>> trendYieldList = new ArrayList<Map<String,Object>>();
+		Map<String,Object> trendYieldMap = new HashMap();
+		trendYieldMap.put("date","12.25");
+		trendYieldMap.put("value","-0.09");
+		trendYieldList.add(trendYieldMap);
+		trendYieldMap = new HashMap();
+		trendYieldMap.put("date","12.26");
+		trendYieldMap.put("value","0.00");
+		trendYieldList.add(trendYieldMap);
+		trendYieldMap = new HashMap();
+		trendYieldMap.put("date","12.27");
+		trendYieldMap.put("value","0.20");
+		trendYieldList.add(trendYieldMap);
+		trendYieldMap = new HashMap();
+		trendYieldMap.put("date","12.28");
+		trendYieldMap.put("value","0.30");
+		trendYieldList.add(trendYieldMap);
+		trendYieldMap = new HashMap();
+		trendYieldMap.put("date","12.29");
+		trendYieldMap.put("value","0.40");
+		trendYieldList.add(trendYieldMap);
+		trendYieldMap = new HashMap();
+		trendYieldMap.put("date","12.30");
+		trendYieldMap.put("value","0.50");
+		trendYieldList.add(trendYieldMap);
+		resultMap.put("trendYield", trendYieldList);
+		//理财收益月报
+		List<Map<String,Object>> finaniceReportList = new ArrayList<Map<String,Object>>();
+		Map<String,Object> finaniceReportMap = new HashMap();
+		finaniceReportMap.put("month","06");
+		finaniceReportMap.put("value","30.18");
+		finaniceReportList.add(finaniceReportMap);
+		finaniceReportMap = new HashMap();
+		finaniceReportMap.put("month","07");
+		finaniceReportMap.put("value","-16.32");
+		finaniceReportList.add(finaniceReportMap);
+		finaniceReportMap = new HashMap();
+		finaniceReportMap.put("month","08");
+		finaniceReportMap.put("value","26.64");
+		finaniceReportList.add(finaniceReportMap);
+		finaniceReportMap = new HashMap();
+		finaniceReportMap.put("month","09");
+		finaniceReportMap.put("value","22.10");
+		finaniceReportList.add(finaniceReportMap);
+		finaniceReportMap = new HashMap();
+		finaniceReportMap.put("month","10");
+		finaniceReportMap.put("value","46.22");
+		finaniceReportList.add(finaniceReportMap);
+		finaniceReportMap = new HashMap();
+		finaniceReportMap.put("month","11");
+		finaniceReportMap.put("value","26.66");
+		finaniceReportList.add(finaniceReportMap);
+		resultMap.put("finaniceReport", finaniceReportList);
 		return new ResponseEntity<Map>(resultMap, HttpStatus.OK);
 	}
 }
