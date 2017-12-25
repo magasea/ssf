@@ -243,7 +243,7 @@ public class UserInfoController {
 			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid+"/systemmessages", Map.class).getBody();
 			if(result==null||result.size()==0){
 				logger.info("系统消息获取失败");
-				return new JsonResult(JsonResult.SUCCESS, "系统消息获取失败", result);
+				return new JsonResult(JsonResult.Fail, "系统消息获取失败", "");
 			}
 			result.remove("_links");
 			result.put("uuid",uuid);
@@ -265,9 +265,10 @@ public class UserInfoController {
 			result.remove("_total");
 			return new JsonResult(JsonResult.SUCCESS, "系统消息获取成功", result);
 		} catch (Exception e) {
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("errorCode", "400");
-			return new JsonResult(JsonResult.Fail, "系统消息获取失败", result);
+			/*Map<String, Object> map = new HashMap<String, Object>();
+			map.put("errorCode", "400");*/
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, "");
 		}
 	}
 	
@@ -288,10 +289,11 @@ public class UserInfoController {
 			result.put("msg", "解绑成功");
 			return new JsonResult(JsonResult.SUCCESS, "解绑银行卡成功", result);
 		} catch (Exception e) {
-			result = new HashMap<>();
+			/*result = new HashMap<>();
 			result.put("errorCode", "400");
-			result.put("error", "");
-			return new JsonResult(JsonResult.Fail, "解绑银行卡失败", result);
+			result.put("error", "");*/
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, "");
 		}
 	}
 	

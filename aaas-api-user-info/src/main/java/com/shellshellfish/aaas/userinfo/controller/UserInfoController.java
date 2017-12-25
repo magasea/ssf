@@ -769,7 +769,12 @@ public class UserInfoController {
 	public ResponseEntity<?> getSystemMsg(@Valid @NotNull(message = "userUuid不可为空")@PathVariable String userUuid)
 			throws Exception {
 		logger.info("getSystemMsg method run..");
-		List<UserSysMsgDTO> userSysMsgs = userInfoService.getUserSysMsg(userUuid);
+		List<UserSysMsgDTO> userSysMsgs=null;
+		try{
+		userSysMsgs = userInfoService.getUserSysMsg(userUuid);
+		}catch(Exception e){
+			throw new UserInfoException("404", "无法获取uid="+userUuid+" 客户的消息");
+		}
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
 		result.put("_items", userSysMsgs);
@@ -1199,8 +1204,9 @@ public class UserInfoController {
 		//id message ID
 		Boolean result =  userInfoService.deleteBankCard(userUuid, bankcardId);
 		if(!result){
-			resultMap.put("status", "Fail");
-			return new ResponseEntity<Map>(resultMap,HttpStatus.UNAUTHORIZED);
+			/*resultMap.put("status", "Fail");
+			return new ResponseEntity<Map>(resultMap,HttpStatus.UNAUTHORIZED);*/
+			throw new UserInfoException("404", "解绑银行卡失败");
 		} else {
 			//return new ResponseEntity<Object>(URL_HEAD+"/message/updateinvestmentmessages/investmentmessages?userUuid="+userUuid , HttpStatus.OK);
 			resultMap.put("status", "OK");
