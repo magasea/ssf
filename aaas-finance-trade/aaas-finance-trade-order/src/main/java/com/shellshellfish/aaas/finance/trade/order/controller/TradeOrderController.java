@@ -83,22 +83,23 @@ public class TradeOrderController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = true, value = "groupId", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "Long", required = true, value = "subGroupId", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "Long", required = true, value = "购买金额", defaultValue = "") })
+			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "BigDecimal", required = true, value = "购买金额", defaultValue = "") })
 	@ApiResponses({ 
 			@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
 			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
 			@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
 			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对") })
 	@RequestMapping(value = "/funds/buyProduct", method = RequestMethod.GET)
-	public ResponseEntity<DistributionResult> buyProduct(@RequestParam(value = "groupId") Long groupId,
-			@RequestParam(value = "subGroupId") Long subGroupId, @RequestParam(value = "totalAmount") Long totalAmount)
+	public ResponseEntity<DistributionResult> buyProduct(
+			@RequestParam(value = "groupId") Long groupId,
+			@RequestParam(value = "subGroupId") Long subGroupId,
+			@RequestParam(value = "totalAmount") BigDecimal totalAmount)
 			throws Exception {
 		ProductBaseInfo productBaseInfo = new ProductBaseInfo();
 		productBaseInfo.setProdId(groupId);
 		productBaseInfo.setGroupId(subGroupId);
 		List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
-		DistributionResult distributionResult = financeProdCalcService
-				.getPoundageOfSellFund(BigDecimal.valueOf(totalAmount), productList);
+		DistributionResult distributionResult = financeProdCalcService.getPoundageOfSellFund(totalAmount, productList);
 		return new ResponseEntity<DistributionResult>(distributionResult, HttpStatus.OK);
 	}
 
