@@ -76,7 +76,7 @@ public class FundGroupServiceTest {
 
     @Test
     public void selectById() {
-        FundReturn fundReturn = allocationService.selectById("1", "100000");
+        FundReturn fundReturn = allocationService.selectById("2", "2000");
     }
 
     @Test
@@ -134,6 +134,8 @@ public class FundGroupServiceTest {
     @Test
     public void financeProductService(){
         ProductBaseInfo productBaseInfo = new ProductBaseInfo();
+        productBaseInfo.setProdId(2L);
+        productBaseInfo.setGroupId(2000L);
         List<ProductMakeUpInfo> a = financeProductService.getProductInfo(productBaseInfo);
     }
 
