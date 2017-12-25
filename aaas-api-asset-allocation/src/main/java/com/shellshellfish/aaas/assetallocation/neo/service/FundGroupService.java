@@ -69,16 +69,17 @@ public class FundGroupService {
         ReturnType fr = new ReturnType();
         List<Map<String, Object>> listMap = new ArrayList<>();
         Map<String, String> _links = new HashMap<>();
-        Map<String, Object> map = new HashMap<>();
         Map<String, String> query = new HashMap<>();
         query.put("id", fund_group_id);
         query.put("subId", fund_group_sub_id);
         List<Interval> intervals = fundGroupMapper.getProportionOne(query);
         for(Interval interval :intervals){
-            map.put(interval.getFund_type_one(),interval.getProportion());
+            Map<String, Object> map = new HashMap<>();
+            map.put("type",interval.getFund_type_one());
+            map.put("value",interval.getProportion());
+            listMap.add(map);
         }
-        listMap.add(map);
-        fr.set_total(map.size());
+        fr.set_total(listMap.size());
         fr.setName("产品类别比重");
         fr.set_items(listMap);
         fr.set_links(_links);
@@ -515,7 +516,8 @@ public class FundGroupService {
             if (returnType.equalsIgnoreCase("income")) {
                 for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
                     Map<String, Object> map = new HashMap<>();
-                    map.put(new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()), fundGroupHistory.getIncome_num());
+                    map.put("time",new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()));
+                    map.put("value", fundGroupHistory.getIncome_num());
                     list.add(map);
                 }
                 fgi.setName("组合收益率走势图");
@@ -715,7 +717,7 @@ public class FundGroupService {
 
 
     /**
-     * 计算组合单位收益净值
+     * 计算组合单位收益净值和最大回撤
      *
      * @param group_id
      * @param subGroupId
@@ -728,11 +730,17 @@ public class FundGroupService {
         for (FundNetVal fundNetVal : list){
             query.put("num",fundNetVal.getNavadj());
             query.put("time",fundNetVal.getNavLatestDate());
-            fundGroupMapper.insertGroupNavadj(query);
+            //fundGroupMapper.insertGroupNavadj(query);
         }
         String groupStartTime = fundGroupMapper.getGroupStartTime(query);
         Calendar ca = Calendar.getInstance();
-        Date date = new Date();
+        Date date = null;
+        try {
+            date = new SimpleDateFormat("yyyy-MM-dd").parse("2016-11-17");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        //Date date = new Date();
         try {
             for (; date.getTime() > new SimpleDateFormat("yyyy-MM-dd").parse(groupStartTime).getTime(); ) {
                 query.put("endTime", new SimpleDateFormat("yyyy-MM-dd").format(date));
@@ -760,6 +768,7 @@ public class FundGroupService {
                 }
                 query.put("retracement", maximum_retracement);
                 query.put("time", new SimpleDateFormat("yyyy-MM-dd").format(date));
+                fundGroupMapper.updateMaximumRetracement(query);
                 ca.setTime(date);
                 ca.add(Calendar.DATE,-1);
                 date = ca.getTime();
@@ -770,7 +779,7 @@ public class FundGroupService {
     }
 
     /**
-     * 计算组合基准单位收益净值
+     * 计算组合基准单位收益净值和最大回撤
      *
      * @param risk_level
      */
@@ -910,6 +919,9 @@ public class FundGroupService {
         return fundGroupMapper.deleteData(tableName);
     }
 
+    /**
+     * 计算所有组合中基金收益贡献比
+     */
     public void contribution(){
         List<Interval> aa = fundGroupMapper.getAllIdAndSubId();
         for (Interval a : aa){
