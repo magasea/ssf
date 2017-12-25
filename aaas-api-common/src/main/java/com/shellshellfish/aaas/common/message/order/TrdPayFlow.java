@@ -1,23 +1,21 @@
 package com.shellshellfish.aaas.common.message.order;
 
-import java.io.Serializable;
-
 /**
- * Created by chenwei on 2017- 十二月 - 21
+ * Created by chenwei on 2017- 十二月 - 25
  */
 
 
 
-public class TrdPayFlow implements Serializable{
+public class TrdPayFlow {
 
   private long id;
   private long orderDetailId;
   private String tradeAcco;
-  private String tradeBrokeId;
+  private long tradeBrokeId;
   private String applySerial;
   private String outsideOrderno;
   private String bankCardNum;
-  private long prodId;
+  private long userProdId;
   private String fundCode;
   private int payStatus;
   private long payDate;
@@ -66,11 +64,11 @@ public class TrdPayFlow implements Serializable{
 
   
   
-  public String getTradeBrokeId() {
+  public long getTradeBrokeId() {
     return tradeBrokeId;
   }
 
-  public void setTradeBrokeId(String tradeBrokeId) {
+  public void setTradeBrokeId(long tradeBrokeId) {
     this.tradeBrokeId = tradeBrokeId;
   }
 
@@ -106,12 +104,12 @@ public class TrdPayFlow implements Serializable{
 
   
   
-  public long getProdId() {
-    return prodId;
+  public long getUserProdId() {
+    return userProdId;
   }
 
-  public void setProdId(long prodId) {
-    this.prodId = prodId;
+  public void setUserProdId(long userProdId) {
+    this.userProdId = userProdId;
   }
 
   
@@ -281,7 +279,10 @@ public class TrdPayFlow implements Serializable{
     if (orderDetailId != that.orderDetailId) {
       return false;
     }
-    if (prodId != that.prodId) {
+    if (tradeBrokeId != that.tradeBrokeId) {
+      return false;
+    }
+    if (userProdId != that.userProdId) {
       return false;
     }
     if (payStatus != that.payStatus) {
@@ -323,10 +324,6 @@ public class TrdPayFlow implements Serializable{
     if (tradeAcco != null ? !tradeAcco.equals(that.tradeAcco) : that.tradeAcco != null) {
       return false;
     }
-    if (tradeBrokeId != null ? !tradeBrokeId.equals(that.tradeBrokeId)
-        : that.tradeBrokeId != null) {
-      return false;
-    }
     if (applySerial != null ? !applySerial.equals(that.applySerial) : that.applySerial != null) {
       return false;
     }
@@ -355,11 +352,11 @@ public class TrdPayFlow implements Serializable{
     int result = (int) (id ^ (id >>> 32));
     result = 31 * result + (int) (orderDetailId ^ (orderDetailId >>> 32));
     result = 31 * result + (tradeAcco != null ? tradeAcco.hashCode() : 0);
-    result = 31 * result + (tradeBrokeId != null ? tradeBrokeId.hashCode() : 0);
+    result = 31 * result + (int) (tradeBrokeId ^ (tradeBrokeId >>> 32));
     result = 31 * result + (applySerial != null ? applySerial.hashCode() : 0);
     result = 31 * result + (outsideOrderno != null ? outsideOrderno.hashCode() : 0);
     result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
-    result = 31 * result + (int) (prodId ^ (prodId >>> 32));
+    result = 31 * result + (int) (userProdId ^ (userProdId >>> 32));
     result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
     result = 31 * result + payStatus;
     result = 31 * result + (int) (payDate ^ (payDate >>> 32));

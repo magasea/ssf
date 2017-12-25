@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import com.shellshellfish.aaas.model.JsonResult;
+import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -69,11 +71,11 @@ public class UserInfoController {
 			verifyReult = restTemplate.postForEntity(loginUrl + "/api/useraccount/telnums/" + mobile + "?action=getVerificationCode2",null, Map.class).getBody();
 			if(verifyReult==null||verifyReult.size()==0){
 				logger.info("获取验证码验证是否正确");
-				result.put("msg", "添加失败");
-				return new JsonResult(JsonResult.SUCCESS, "添加银行卡验证码不正确", result);
+				/*result.put("msg", "添加失败");*/
+				return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", "");
 			}else if(!verifyReult.get("identifyingCode").equals(verifyCode)){
-				result.put("msg", "添加失败");
-				return new JsonResult(JsonResult.SUCCESS, "添加银行卡验证码不正确", result);
+				/*result.put("msg", "添加失败");*/
+				return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", "");
 			}
 //			//获取uid
 //			String urlUid=userinfoUrl+"/api/userinfo/users/"+uuid;
@@ -93,18 +95,18 @@ public class UserInfoController {
 			} else {
 				logger.info("添加银行卡成功");
 				return new JsonResult(JsonResult.SUCCESS, "添加银行卡成功", result);
-			}
-			
-		} catch (HttpClientErrorException e) {
+			}	
+		} /*catch (HttpClientErrorException e) {
 			result = new HashMap<String, Object>();
 			String str = e.getResponseBodyAsString();
 			System.out.println(str);
 			result.put("error", e.getResponseBodyAsString());
 			return new JsonResult(JsonResult.Fail, "添加银行卡失败", result);
-		} catch (Exception e) {
-			Map<String, Object> map = new HashMap();
-			map.put("errorCode", "400");
-			return new JsonResult(JsonResult.Fail, "添加银行卡失败", result);
+		}*/ catch (Exception e) {
+			/*Map<String, Object> map = new HashMap();
+			map.put("errorCode", "400");*/
+			String str=new ReturnedException(e).getErrorMsg();		
+			return new JsonResult(JsonResult.Fail,str,"");
 		}
 	}
 	
@@ -125,10 +127,11 @@ public class UserInfoController {
 				return new JsonResult(JsonResult.SUCCESS, "获取银行卡成功", result);
 			}
 		} catch (Exception e) {
-			Map<String, Object> map = new HashMap();
+			/*Map<String, Object> map = new HashMap();
 			map.put("errorCode", "400");
-			result.add(map);
-			return new JsonResult(JsonResult.Fail, "获取银行卡失败", result);
+			result.add(map);*/
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, "");
 		}
 	}
 	
@@ -142,14 +145,15 @@ public class UserInfoController {
 		Map result = new HashMap();
 		try {
 			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/bankcards/" + bankNum+"/banks", Map.class).getBody();
-			if(result==null||result.size()==0){
+			/*if(result==null||result.size()==0){
 				return new JsonResult(JsonResult.SUCCESS, "获取", result);
-			}
-			return new JsonResult(JsonResult.SUCCESS, "添加银行卡成功", result);
+			}*/
+			return new JsonResult(JsonResult.SUCCESS, "获取银行名称成功", result);
 		} catch (Exception e) {
-			Map<String, Object> map = new HashMap();
-			map.put("errorCode", "400");
-			return new JsonResult(JsonResult.Fail, "添加银行卡失败", result);
+			/*Map<String, Object> map = new HashMap();
+			map.put("errorCode", "400");*/
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, "");
 		}
 	}
 	/**
@@ -176,7 +180,8 @@ public class UserInfoController {
 			return new JsonResult(JsonResult.SUCCESS,"获取个人信息成功", result);
 		}
 		catch(Exception e){
-			return new JsonResult(JsonResult.Fail,"获取个人信息失败", result);
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail,str, "");
 		}		
 	}
 	
@@ -196,7 +201,7 @@ public class UserInfoController {
 		try {
 			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid+"/investmentmessages", Map.class).getBody();
 			if(result==null||result.size()==0){
-				return new JsonResult(JsonResult.SUCCESS, "智投推送失败", result);
+				return new JsonResult(JsonResult.Fail, "获取不到推送信息", "");
 			}
 			result.remove("_links");
 			result.put("uuid",uuid);
@@ -215,9 +220,10 @@ public class UserInfoController {
 			result.remove("_total");
 			return new JsonResult(JsonResult.SUCCESS, "智投推送成功", result);
 		} catch (Exception e) {
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("errorCode", "400");
-			return new JsonResult(JsonResult.Fail, "智投推送失败", result);
+			/*Map<String, Object> map = new HashMap<String, Object>();
+			map.put("errorCode", "400");*/
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, "");
 		}
 	}
 	
@@ -237,7 +243,7 @@ public class UserInfoController {
 			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid+"/systemmessages", Map.class).getBody();
 			if(result==null||result.size()==0){
 				logger.info("系统消息获取失败");
-				return new JsonResult(JsonResult.SUCCESS, "系统消息获取失败", result);
+				return new JsonResult(JsonResult.Fail, "系统消息获取失败", "");
 			}
 			result.remove("_links");
 			result.put("uuid",uuid);
@@ -259,9 +265,10 @@ public class UserInfoController {
 			result.remove("_total");
 			return new JsonResult(JsonResult.SUCCESS, "系统消息获取成功", result);
 		} catch (Exception e) {
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("errorCode", "400");
-			return new JsonResult(JsonResult.Fail, "系统消息获取失败", result);
+			/*Map<String, Object> map = new HashMap<String, Object>();
+			map.put("errorCode", "400");*/
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, "");
 		}
 	}
 	
@@ -282,10 +289,11 @@ public class UserInfoController {
 			result.put("msg", "解绑成功");
 			return new JsonResult(JsonResult.SUCCESS, "解绑银行卡成功", result);
 		} catch (Exception e) {
-			result = new HashMap<>();
+			/*result = new HashMap<>();
 			result.put("errorCode", "400");
-			result.put("error", "");
-			return new JsonResult(JsonResult.Fail, "解绑银行卡失败", result);
+			result.put("error", "");*/
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, "");
 		}
 	}
 	

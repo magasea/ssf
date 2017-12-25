@@ -328,8 +328,7 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 			return resultMap;
 		}catch(Exception e){
 			throw e;
-		}
-		
+		}	
 	}
 
 

@@ -58,6 +58,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setCreateBy(0L);
       trdPayFlow.setPayAmount(trdOrderDetail.getFundMoneyQuantity());
       trdPayFlow.setPayStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
+      trdPayFlow.setUserProdId(payDto.getUserProdId());
       BuyFundResult fundResult = null;
       try {
         fundResult = fundTradeApiService.buyFund(payDto.getUserUuid(), trdAcco, payAmount,
@@ -86,7 +87,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         trdPayFlow.setCreateBy(trdOrderDetail.getUserId());
         trdPayFlow.setUpdateBy(trdOrderDetail.getUserId());
         trdPayFlow.setTradeAcco(trdAcco);
-        trdPayFlow.setProdId(trdOrderDetail.getProdId());
+        trdPayFlow.setUserProdId(trdOrderDetail.getUserProdId());
         trdPayFlow.setTradeBrokeId(payDto.getTrdBrokerId());;
         TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
         com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com

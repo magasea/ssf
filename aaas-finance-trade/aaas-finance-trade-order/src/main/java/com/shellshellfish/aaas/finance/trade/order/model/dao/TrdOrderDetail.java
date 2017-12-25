@@ -7,7 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Created by chenwei on 2017- 十二月 - 22
+ * Created by chenwei on 2017- 十二月 - 25
  */
 
 @Entity
@@ -22,7 +22,7 @@ public class TrdOrderDetail {
   private long payAmount;
   private long payFee;
   private long userId;
-  private long prodId;
+  private long userProdId;
   private String fundCode;
   private long fundMoneyQuantity;
   private long fundNum;
@@ -120,13 +120,13 @@ public class TrdOrderDetail {
   }
 
   @Basic
-  @Column(name = "prod_id")
-  public long getProdId() {
-    return prodId;
+  @Column(name = "user_prod_id")
+  public long getUserProdId() {
+    return userProdId;
   }
 
-  public void setProdId(long prodId) {
-    this.prodId = prodId;
+  public void setUserProdId(long userProdId) {
+    this.userProdId = userProdId;
   }
 
   @Basic
@@ -308,7 +308,7 @@ public class TrdOrderDetail {
     if (userId != that.userId) {
       return false;
     }
-    if (prodId != that.prodId) {
+    if (userProdId != that.userProdId) {
       return false;
     }
     if (fundMoneyQuantity != that.fundMoneyQuantity) {
@@ -378,7 +378,7 @@ public class TrdOrderDetail {
     result = 31 * result + (int) (payAmount ^ (payAmount >>> 32));
     result = 31 * result + (int) (payFee ^ (payFee >>> 32));
     result = 31 * result + (int) (userId ^ (userId >>> 32));
-    result = 31 * result + (int) (prodId ^ (prodId >>> 32));
+    result = 31 * result + (int) (userProdId ^ (userProdId >>> 32));
     result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
     result = 31 * result + (int) (fundMoneyQuantity ^ (fundMoneyQuantity >>> 32));
     result = 31 * result + (int) (fundNum ^ (fundNum >>> 32));
