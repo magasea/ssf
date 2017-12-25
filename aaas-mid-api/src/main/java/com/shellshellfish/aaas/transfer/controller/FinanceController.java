@@ -662,9 +662,11 @@ public class FinanceController {
 	@ResponseBody
 	public JsonResult getOptAdjustment(String riskLevel,String invstTerm){
 		try{
+
 		return new JsonResult(JsonResult.SUCCESS, "请求成功",service.getOptAdjustment(riskLevel, invstTerm));
 		}catch(Exception e){
-	    return new JsonResult(JsonResult.Fail, "请求失败",service.getOptAdjustment(riskLevel, invstTerm));
+		String str=new ReturnedException(e).getErrorMsg();
+	    return new JsonResult(JsonResult.Fail, str,"");
 		}
 		
 	}

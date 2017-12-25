@@ -14,26 +14,26 @@ import com.shellshellfish.aaas.transfer.utils.EasyKit;
 public class ReturnedException extends RuntimeException{
   
   private String errorMsg;
-  private final static String isResourceAccessException="IO异常，与远程的API调用失败";
-  private final static String isHttpClientErrorException="";
+  private final static String ResourceAccessExceptionErrMSG="IO异常，与远程的API调用失败";
+  private final static String HttpClientErrorExceptionErrMSG="";
 
 public String getErrorMsg() {
 	return errorMsg;
 }
 
 public void setErrorMsg(String errorMsg) {
+	
 	this.errorMsg = errorMsg;
 }
   
- 
 public ReturnedException(Exception e){
 	if(e instanceof ResourceAccessException){
-	   setErrorMsg(isResourceAccessException);
+	   setErrorMsg(ResourceAccessExceptionErrMSG);
 	   return;
 	}
 	else if(e instanceof HttpClientErrorException){
 		String error=((HttpClientErrorException)e).getResponseBodyAsString();
-		setErrorMsg(isHttpClientErrorException+EasyKit.getErrorMessage(error));
+		setErrorMsg(HttpClientErrorExceptionErrMSG+EasyKit.getErrorMessage(error));
 		return;
 	}
 	else{

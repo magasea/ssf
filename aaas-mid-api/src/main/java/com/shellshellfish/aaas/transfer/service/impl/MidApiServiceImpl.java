@@ -285,8 +285,11 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 		return info;
 	}
 
+	
+	
+	
 	@Override
-	public Map<String, Object> getOptAdjustment(String riskLevel, String invstTerm) {
+	public Map<String, Object> getOptAdjustment(String riskLevel, String invstTerm) throws Exception {
 		String[] field={"模拟历史年化业绩","模拟历史年化波动率","置信区间","最大亏损额","夏普比率"};//记录要获取的数据的属性值
 		String[] valueInEnglish={"hisAnnualPerformanceSimu","histAnnualVolaSimu","confInterval","maxDeficit","sharpeRatio"}; //记录对应属性值的英文字段
 		Map relationMap=new HashMap<>();//关系表
@@ -317,18 +320,14 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 		    		resultMap.put(relationMap.get(name).toString(), value);
 		    	}
 		    }catch(Exception e){
-		    relationMap.clear();
-		    logger.error("获取优化方案提取map数据失败");
-		    resultMap.put("获取优化方案错误", "获取优化方案提取map数据失败");	
+		       throw new Exception("获取调整方案Map的Field值失败，可能Map为空");
 		    }
 		    String hisAnnualPerformanceSimuresult= resultMap.get("hisAnnualPerformanceSimu").toString();
 	    	//计算模拟历史收益
-	    resultMap.put("historicReturn",CalculatorFunctions.getHistoricReturn("10000", hisAnnualPerformanceSimuresult));
+	       resultMap.put("historicReturn",CalculatorFunctions.getHistoricReturn("10000", hisAnnualPerformanceSimuresult));
 			return resultMap;
 		}catch(Exception e){
-			logger.error("获取优化方案时调用restTemplate错误");
-			resultMap.put("获取优化方案错误", "获取优化方案时调用restTemplate失败");
-			return resultMap;
+			throw e;
 		}
 		
 	}
