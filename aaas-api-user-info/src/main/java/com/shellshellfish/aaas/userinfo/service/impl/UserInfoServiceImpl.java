@@ -27,7 +27,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
-import com.shellshellfish.aaas.common.utils.BankUtil;
+import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
 
 @Service
