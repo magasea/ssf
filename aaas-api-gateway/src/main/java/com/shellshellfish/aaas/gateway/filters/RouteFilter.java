@@ -3,6 +3,8 @@ package com.shellshellfish.aaas.gateway.filters;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.netflix.zuul.ZuulFilter;
@@ -11,13 +13,16 @@ import com.netflix.zuul.context.RequestContext;
 @Component
 public class RouteFilter extends ZuulFilter {
 
+	Logger logger = LoggerFactory.getLogger(PreFilter.class);
+
 	@Override
 	public Object run() {
 		RequestContext ctx = RequestContext.getCurrentContext();
 	    HttpServletRequest request = ctx.getRequest();
-	 
-	    System.out.println("Inside route filter");
-	    System.out.println("Request Method : " + request.getMethod() + " Request URL : " + request.getRequestURL().toString());
+
+		logger.info("Inside route filter");
+		logger.info("Request Method : " + request.getMethod() + " Request URL : " + request.getRequestURL
+				().toString());
 	    
 	    // you can setup the response without really
 	    // ctx.setResponseBody("Hello, hijack");

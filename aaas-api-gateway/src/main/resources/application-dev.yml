@@ -24,6 +24,9 @@ zuul:
     riskassessments-swagger:
       path: /api/riskassessments/swagger-ui.html/**
       url: http://localhost:10050/swagger-ui.html/
+    datamanager:
+      path: /api/datamanager/**
+      url: http://localhost:10030//api/datamanager
 #    accounts:
 #      path: /v1/accounts/**
 #      url: http://localhost:8080/api/accounts
@@ -51,6 +54,7 @@ security:
 
 shellshellfish:
   ignoredWhitelist:
+    - /api/datamanager/**
     - /api/userinfo/**
     - /api/useraccount/**
     - /api/riskassessments/**

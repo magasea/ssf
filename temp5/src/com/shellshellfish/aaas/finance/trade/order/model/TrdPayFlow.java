@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.finance.trade.pay.model.dao;
+package com.shellshellfish.aaas.finance.trade.order.model;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
