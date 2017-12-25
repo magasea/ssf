@@ -108,6 +108,11 @@
 			<artifactId>lombok</artifactId>
 			<version>RELEASE</version>
 		</dependency>
+		<dependency>
+			<groupId>com.shellshellfish</groupId>
+			<artifactId>aaas-api-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>
