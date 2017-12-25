@@ -25,7 +25,7 @@ public class FundReturn {
     private String _schemaVersion;
     private String _serviceId;
     @JsonUnwrapped
-    private List<Map<String,Double>> assetsRatios;
+    private List<Map<String,Object>> assetsRatios;
 
     public String getGroupId() {
         return groupId;
@@ -130,11 +130,11 @@ public class FundReturn {
         this.investmentPeriod = investmentPeriod;
     }
 
-    public List<Map<String, Double>> getAssetsRatios() {
+    public List<Map<String, Object>> getAssetsRatios() {
         return assetsRatios;
     }
 
-    public void setAssetsRatios(List<Map<String, Double>> assetsRatios) {
+    public void setAssetsRatios(List<Map<String, Object>> assetsRatios) {
         this.assetsRatios = assetsRatios;
     }
 }

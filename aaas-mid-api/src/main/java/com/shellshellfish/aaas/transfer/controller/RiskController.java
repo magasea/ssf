@@ -23,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.shellshellfish.aaas.dto.SurveyResult;
 import com.shellshellfish.aaas.model.JsonResult;
+import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -88,10 +89,11 @@ public class RiskController {
 			result.put("title", "尊敬的客户您好！欢迎来到贝贝鱼风险测评...");
 			return new JsonResult(JsonResult.SUCCESS, "风险测评成功", result);
 		} catch (Exception e) {
-			result = new HashMap<>();
+			/*result = new HashMap<>();
 			result.put("errorCode", "400");
-			result.put("error", "");
-			return new JsonResult(JsonResult.Fail, "风险测评失败", result);
+			result.put("error", "");*/
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, "");
 		}
 	}
 	

@@ -36,6 +36,6 @@ public interface MidApiService {
 	 * @param invstTerm
 	 * @return
 	 */
-	Map<String,Object> getOptAdjustment(String riskLevel,String invstTerm);
+	Map<String,Object> getOptAdjustment(String riskLevel,String invstTerm) throws Exception;
 	
 }
