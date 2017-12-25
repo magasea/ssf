@@ -32,6 +32,7 @@ import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
+import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.grpc.UserId;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
@@ -321,13 +322,15 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public Boolean deleteBankCard(String userUuid, String cardNumber) {
-		UiBankcard bank = new UiBankcard();
-		bank.setCardNumber(cardNumber);
-		bank.setUserId(Long.parseLong(userUuid));
-		List<UiBankcard> bankcardList = userInfoBankCardsRepository
-				.findAllByUserIdAndCardNumber(Long.parseLong(userUuid), cardNumber);
+		Long userId = null;
+		try {
+			userId = getUserIdFromUUID(userUuid);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserIdAndCardNumber(userId, cardNumber);
 		if (bankcardList == null || bankcardList.size() == 0) {
-			return false;
+			throw new UserInfoException("404","解绑的银行卡不存在");
 		}
 		UiBankcard bankcard = bankcardList.get(0);
 		userInfoBankCardsRepository.delete(bankcard.getId());
