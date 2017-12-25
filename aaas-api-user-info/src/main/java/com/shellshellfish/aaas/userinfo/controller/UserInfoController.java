@@ -201,7 +201,12 @@ public class UserInfoController {
 			//return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			throw new Exception("not vaild userUuid:" + userUuid);
 		}else{
-			UserBaseInfoDTO userBaseInfo =  userInfoService.getUserInfoBase(userUuid);
+			UserBaseInfoDTO userBaseInfo=null;
+			try{
+			 userBaseInfo =  userInfoService.getUserInfoBase(userUuid);
+			}catch(Exception e){
+				throw new UserInfoException("404","无法获取到uid="+userUuid+" 用户的个人信息数据");
+			}
 			
 			Map<String, Object> result = new HashMap<>();
 			Map<String, Object> links = new HashMap<>();
@@ -441,14 +446,18 @@ public class UserInfoController {
 		@ApiImplicitParam(paramType="path",name="bankcardNum",dataType="String",required=true,value="银行卡号",defaultValue=""),
 	})
 	@RequestMapping(value = "/bankcards/{bankcardNum}/banks", method = RequestMethod.GET)
-	public ResponseEntity<Map> getBankName(@PathVariable("bankcardNum") String bankcardNum) throws Exception {
+	public ResponseEntity<?> getBankName(@PathVariable("bankcardNum") String bankcardNum) {
 		logger.info("getBankName method run..");
 		Map<String, Object> result = new HashMap<>();
 		
 		String bankName = BankUtil.getNameOfBank(bankcardNum);
 		String bankCode = BankUtil.getCodeOfBank(bankcardNum);
+		if("".equals(bankName)||"".equals(bankCode)||bankName==null||bankCode==null){
+			throw  new UserInfoException("404","没有找到卡号对应的机构名称和机构号");
+		}
 		result.put("bankName", bankName);
 		result.put("bankCode", bankCode);
+	   
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
 
@@ -513,6 +522,7 @@ public class UserInfoController {
 				bankList.add(map);
 			}
 		}
+			
 		//result.put("bankList", bankList);
 		return new ResponseEntity<List<Map>>(bankList , HttpStatus.OK);
 
