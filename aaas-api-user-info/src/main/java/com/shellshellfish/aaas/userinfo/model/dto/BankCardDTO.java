@@ -22,14 +22,19 @@ public class BankCardDTO {
     Date expireDate;
     String bankName;
 
+
+
+  String cellphone;
+
     public BankCardDTO(Long userId, String cardNumber, String userName, Date expireDate,
-        String bankName, String userPid) {
+        String bankName, String userPid, String cellphone) {
         this.userId = userId;
         this.cardNumber = cardNumber;
         this.userName = userName;
         this.expireDate = expireDate;
         this.bankName = bankName;
         this.userPid = userPid;
+        this.cellphone = cellphone;
     }
 
     public BankCardDTO() {
@@ -74,4 +79,12 @@ public class BankCardDTO {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
+
+  public String getCellphone() {
+    return cellphone;
+  }
+
+  public void setCellphone(String cellphone) {
+    this.cellphone = cellphone;
+  }
 }

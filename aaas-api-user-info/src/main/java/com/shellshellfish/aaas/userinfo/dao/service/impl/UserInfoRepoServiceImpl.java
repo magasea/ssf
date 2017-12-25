@@ -2,7 +2,15 @@ package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
 import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
 
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo;
+import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoCollectionOrBuilder;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
+import com.shellshellfish.aaas.userinfo.grpc.UserProdId;
+import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
+import com.shellshellfish.aaas.userinfo.model.dao.UiProducts;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -62,6 +71,7 @@ import com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl;
 import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
 
 import io.grpc.stub.StreamObserver;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
@@ -89,6 +99,12 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Autowired
 	UserInfoCompanyInfoRepository userInfoCompanyInfoRepository;
+
+	@Autowired
+	UiProductRepo uiProductRepo;
+
+	@Autowired
+	UiProductDetailRepo uiProductDetailRepo;
 
 	@Autowired
 	MongoUserAssectsRepository mongoUserAssectsRepository;
@@ -393,10 +409,58 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		builder.setUserName(bankCardDTOS.get(0).getUserName());
 		builder.setUserPid(bankCardDTOS.get(0).getUserPid());
 		builder.setUuid(request.getUuid());
+		builder.setCellphone(bankCardDTOS.get(0).getCellphone());
 		for(int idx = 0; idx < bankCardDTOS.size(); idx++){
 			builder.setCardNumbers(idx, bankCardDTOS.get(idx).getCardNumber());
 		}
 		responseObserver.onNext(builder.build());
 		responseObserver.onCompleted();
+	}
+
+
+	/**
+	 */
+	public void genUserProdsFromOrder(com.shellshellfish.aaas.userinfo.grpc.FinanceProdInfosQuery request,
+			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserProdId> responseObserver) {
+		UserProdId.Builder respBuilder = UserProdId.newBuilder();
+		List<com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo> financeProdInfoList =
+				request.getProdListList();
+		if(CollectionUtils.isEmpty(financeProdInfoList)){
+			logger.error("FinanceProdInfoCollection is empty! will return -1");
+			respBuilder.setUserProdId(-1L);
+			responseObserver.onNext(respBuilder.build());
+			responseObserver.onCompleted();
+			return;
+		}
+		List<com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo> financeProdInfosValue =
+		financeProdInfoList;
+		FinanceProdInfo financeProdInfoFirst = financeProdInfosValue.get(0);
+		logger.info("financeProdInfoFirst is:" + financeProdInfoFirst + " prodName:"
+				+ " "+financeProdInfoFirst.getProdName() + "groupId:"+financeProdInfoFirst.getGroupId() +
+				"prodId:" +financeProdInfoFirst.getProdId()  );
+		UiProducts uiProducts = new UiProducts();
+		uiProducts.setCreateBy(request.getUserId());
+		BeanUtils.copyProperties(financeProdInfoFirst, uiProducts);
+		uiProducts.setCreateDate(TradeUtil.getUTCTime());
+		uiProducts.setUpdateBy(request.getUserId());
+		uiProducts.setUpdateDate(TradeUtil.getUTCTime());
+		uiProducts.setStatus(TrdOrderStatusEnum.WAITPAY.getStatus());
+		UiProducts saveResult = uiProductRepo.save(uiProducts);
+		Long userProdId = saveResult.getId();
+		logger.info("saved UiProducts with result id:" + userProdId);
+		for(FinanceProdInfo financeProdInfo: financeProdInfosValue){
+			UiProductDetail uiProductDetail = new UiProductDetail();
+			BeanUtils.copyProperties(financeProdInfo, uiProductDetail);
+			uiProductDetail.setCreateBy(request.getUserId());
+			uiProductDetail.setCreateDate(TradeUtil.getUTCTime());
+			uiProductDetail.setUpdateBy(request.getUserId());
+			uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
+			uiProductDetail.setUserProdId(userProdId);
+			uiProductDetailRepo.save(uiProductDetail);
+		}
+		respBuilder.setUserProdId(userProdId);
+		responseObserver.onNext(respBuilder.build());
+		responseObserver.onCompleted();
+		return;
 	}
 }

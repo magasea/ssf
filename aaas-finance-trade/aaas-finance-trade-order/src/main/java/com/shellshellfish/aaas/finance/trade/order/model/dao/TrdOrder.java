@@ -7,7 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Created by chenwei on 2017- 十二月 - 22
+ * Created by chenwei on 2017- 十二月 - 25
  */
 
 @Entity
@@ -25,6 +25,7 @@ public class TrdOrder {
   private Long payFee;
   private long userId;
   private long prodId;
+  private long userProdId;
   private long createBy;
   private long createDate;
   private long updateBy;
@@ -148,6 +149,16 @@ public class TrdOrder {
 
   public void setProdId(long prodId) {
     this.prodId = prodId;
+  }
+
+  @Basic
+  @Column(name = "user_prod_id")
+  public long getUserProdId() {
+    return userProdId;
+  }
+
+  public void setUserProdId(long userProdId) {
+    this.userProdId = userProdId;
   }
 
   @Basic
@@ -322,6 +333,9 @@ public class TrdOrder {
     if (prodId != trdOrder.prodId) {
       return false;
     }
+    if (userProdId != trdOrder.userProdId) {
+      return false;
+    }
     if (createBy != trdOrder.createBy) {
       return false;
     }
@@ -400,6 +414,7 @@ public class TrdOrder {
     result = 31 * result + (payFee != null ? payFee.hashCode() : 0);
     result = 31 * result + (int) (userId ^ (userId >>> 32));
     result = 31 * result + (int) (prodId ^ (prodId >>> 32));
+    result = 31 * result + (int) (userProdId ^ (userProdId >>> 32));
     result = 31 * result + (int) (createBy ^ (createBy >>> 32));
     result = 31 * result + (int) (createDate ^ (createDate >>> 32));
     result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
