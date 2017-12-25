@@ -46,7 +46,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-tomcat</artifactId>
-
 			<!-- <scope>provided</scope>-->
 		</dependency>
 		
@@ -58,11 +57,6 @@
          </dependency>
         -->
           
-
-		
-
-
-
          <dependency>  
             <groupId>org.springframework.boot</groupId>  
   
@@ -77,11 +71,11 @@
 		 </dependency>
 		  
 		<!-- add security for swigger static -->
-		<!-- 
+		 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency> -->
+		</dependency> 
 
 		<dependency>
 			<groupId>io.springfox</groupId>
@@ -140,6 +134,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		
 		
 		
 	</dependencies>

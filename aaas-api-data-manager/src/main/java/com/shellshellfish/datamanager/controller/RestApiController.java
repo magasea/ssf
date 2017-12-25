@@ -75,6 +75,7 @@ public class RestApiController {
 			//@Valid @NotNull(message="电话不能为空") @Max(value=20) @Min(value=1) @RequestParam(value = "id") Integer bankid
 			){
 		   
+		
 		  if (!dataService.saveAllfundCodestoDB())
 			  return new ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR);
 		   
@@ -188,14 +189,24 @@ public class RestApiController {
 	}
 	
 	//基金经理
+	@ApiOperation("基金经理信息")
+	@ApiImplicitParam(paramType = "query", name = "name", dataType = "String", required = true, value = "基金经理名字", defaultValue = "")
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+        @ApiResponse(code=400,message="请求参数没填好"),
+        
+    })
+	
 	@RequestMapping(value = "/getFundManager", method = RequestMethod.GET)
 	public ResponseEntity<HashMap<String,Object>> getDailyFunds(
 		@RequestParam(value = "name") String name){
 		
-		
-		
-		HashMap fundmanagersmap=dataService.getFundManager(name);
-		
+		HashMap<String,Object> fundmanagersmap=dataService.getFundManager(name);
+		if (fundmanagersmap==null) {
+			HashMap<String ,Object> errorMap=new HashMap();
+			errorMap.put("error msg", "该基金经理不存在");
+			return new ResponseEntity<HashMap<String,Object>>(errorMap,HttpStatus.BAD_REQUEST);
+		}
 		return new ResponseEntity<HashMap<String,Object>>(fundmanagersmap,HttpStatus.OK);
     }
 	
