@@ -80,9 +80,9 @@ public class LoginController {
 				return new JsonResult(JsonResult.Fail,"登录信息获取为空","");
 			}
 			/**********************添加的测试数据*******************************/
-			result.put("totalAssets", "10,000,000"); //总资产
-			result.put("dailyReturn", "3.8%"); //日收益率
-			result.put("totalRevenue", "10,000"); //累计收益
+			//result.put("totalAssets", "10,000,000"); //总资产
+			//result.put("dailyReturn", "3.8%"); //日收益率
+			//result.put("totalRevenue", "10,000"); //累计收益
 			result.put("myInvstTotalQty", "3"); //我的智投组合数量
 			String uuid = (String) result.get("uuid");
 			
@@ -93,6 +93,9 @@ public class LoginController {
 			}
 			result.put("myCardTotalQty", userinfoMap.get("myCardTotalQty")); //我的银行卡数量
 			result.put("messageUnread", userinfoMap.get("messageUnread")); //未读消息数量	
+			result.put("totalAssets", userinfoMap.get("totalAssets")); //总资产
+			result.put("dailyReturn", userinfoMap.get("dailyReturn")); //日收益率
+			result.put("totalRevenue", userinfoMap.get("totalRevenue")); //累计收益
 			/**********************添加的测试数据*******************************/
 			//移除不需要的数据
 			result.remove("_links");
