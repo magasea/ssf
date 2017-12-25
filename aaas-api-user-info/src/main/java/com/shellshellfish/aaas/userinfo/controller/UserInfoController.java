@@ -47,7 +47,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserPersonalMsgBodyDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
-import com.shellshellfish.aaas.common.utils.BankUtil;
+import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 import com.shellshellfish.aaas.userinfo.utils.PageWrapper;
 import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
@@ -1300,6 +1300,7 @@ public class UserInfoController {
 			return new ResponseEntity<Map>(resultMap, HttpStatus.OK);
 		}
 	}
+	
 	public static String getBankcardNumber(String bankcard) {
 		//String str = "622588013770686";
 		//System.out.println(str.replaceAll("([\\d]{4})", "$1 ")+"");
@@ -1312,5 +1313,47 @@ public class UserInfoController {
 		bankcardSecurity.append(bankcardS[bankcardS.length-1]);
 		System.out.println(bankcardSecurity);
 		return bankcardSecurity.toString();
+	}
+	
+	
+	/**
+	 * 登录首页信息（我的消息和银行卡数量）
+	 * @param cardNumber
+	 * @return
+	 * @throws Exception 
+	 */
+	@ApiOperation("我的数量统计")
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+        @ApiResponse(code=400,message="请求参数没填好"),
+        @ApiResponse(code=401,message="未授权用户"),        				
+		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
+    })
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue="")
+	})
+	@RequestMapping(value = "/users/{userUuid}/count", method = RequestMethod.GET)
+	public ResponseEntity<Map> count(
+			@Valid @NotNull(message = "userUuid不能为空") @PathVariable("userUuid") String userUuid
+			) throws Exception{
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		List<UserPersonMsgDTO> userPersonMsgsList =  userInfoService.getUserPersonMsg(userUuid);
+		int count = 0;
+		if(userPersonMsgsList!=null&&userPersonMsgsList.size()>0){
+			UserPersonMsgDTO userPersonMsg = new UserPersonMsgDTO();
+			userPersonMsg =  userPersonMsgsList.get(0);
+			if(!userPersonMsg.getReaded()){
+				count++;
+			}
+		} 
+		resultMap.put("messageUnread", count);
+		List<BankCardDTO> bankcards =  userInfoService.getUserInfoBankCards(userUuid);
+		if(bankcards!=null&&bankcards.size()>0){
+			resultMap.put("myCardTotalQty", bankcards.size());
+		} else {
+			resultMap.put("myCardTotalQty", 0);
+		}
+		return new ResponseEntity<Map>(resultMap, HttpStatus.OK);
 	}
 }
