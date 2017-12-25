@@ -19,51 +19,88 @@ public class FundNAVInfo {
 	/*基金代码*/
 	private String fundCode;
 	/*净值增长*/
-	private Map NPVIncrement;
+	private List<Map> NPVIncrement;
 	/*净值增长率*/
-	private Map NPVIncreRate;
+	private List<Map> NPVIncreRate;
 	/*基金类型*/
 	private String fundType;
 	
 	
 
 	
+	
 	public String getAvgIncreRate() {
 		return avgIncreRate;
 	}
+
+
+
 	public void setAvgIncreRate(String avgIncreRate) {
 		this.avgIncreRate = avgIncreRate;
 	}
+
+
+
 	public String getName() {
 		return name;
 	}
+
+
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
+
+
 	public String getFundCode() {
 		return fundCode;
 	}
+
+
+
 	public void setFundCode(String fundCode) {
 		this.fundCode = fundCode;
 	}
-	public Map getNPVIncrement() {
+
+
+
+	public List<Map> getNPVIncrement() {
 		return NPVIncrement;
 	}
-	public void setNPVIncrement(Map nPVIncrement) {
+
+
+
+	public void setNPVIncrement(List<Map> nPVIncrement) {
 		NPVIncrement = nPVIncrement;
 	}
-	public Map getNPVIncreRate() {
+
+
+
+	public List<Map> getNPVIncreRate() {
 		return NPVIncreRate;
 	}
-	public void setNPVIncreRate(Map nPVIncreRate) {
+
+
+
+	public void setNPVIncreRate(List<Map> nPVIncreRate) {
 		NPVIncreRate = nPVIncreRate;
 	}
+
+
+
 	public String getFundType() {
 		return fundType;
 	}
+
+
+
 	public void setFundType(String fundType) {
 		this.fundType = fundType;
 	}
+
+
+
 	@Override
 	public String toString() {
 		return "FundNAVInfo [avgIncreRate=" + avgIncreRate + ", name=" + name + ", fundCode=" + fundCode

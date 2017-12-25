@@ -266,11 +266,11 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 		}catch(Exception e){
 			logger.error("获取map中的参数出错");
 		}
-		Map NPVIncrement=null;
+		List NPVIncrement=null;
 		try{
-		 NPVIncrement=(Map)map.get("navadj");//净值增长值
+		 NPVIncrement=(List)map.get("navadj");//净值增长值
 		}catch(Exception e){
-			logger.error("转换净值增长值时出错");
+			logger.error("净值增长值或净值增长率转换为List时出错");
 		}
 		info.setFundCode(fundCode);
 		info.setName(name);
