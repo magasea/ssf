@@ -887,7 +887,6 @@ public class FundGroupService {
     public FundReturn getFundReturn(List<Interval> interval) {
         FundReturn fr = new FundReturn();
         if (interval.size() != 0) {
-            Map<String, Object> assetsRatios = new HashMap<>();
             Map<String, String> _links = new HashMap<>();
             List<Map<String, Object>> list = new ArrayList<>();
             Map<String, String> query = new HashMap<>();
@@ -896,10 +895,13 @@ public class FundGroupService {
             List<Interval> intervals = fundGroupMapper.getProportion(query);
             //基金组合内的各基金权重
             for (Interval inter : intervals) {
-                assetsRatios.put("type",inter.getFund_type_two());
-                assetsRatios.put("value", inter.getProportion());
+                if (inter.getProportion() != 0) {
+                    Map<String, Object> assetsRatios = new HashMap<>();
+                    assetsRatios.put("type", inter.getFund_type_two());
+                    assetsRatios.put("value", inter.getProportion());
+                    list.add(assetsRatios);
+                }
             }
-            list.add(assetsRatios);
             fr.setGroupId(interval.get(0).getFund_group_id());
             fr.setSubGroupId(interval.get(0).getId());
             fr.setName(interval.get(0).getFund_group_name());
