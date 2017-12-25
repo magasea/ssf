@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.controller;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1354,6 +1355,27 @@ public class UserInfoController {
 		} else {
 			resultMap.put("myCardTotalQty", 0);
 		}
+		
+		UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
+		//总资产
+		BigDecimal totalAssets = new BigDecimal("0");
+		if(userInfoAssectsBrief.getTotalAssets()!=null){
+			totalAssets = userInfoAssectsBrief.getTotalAssets();
+		}
+		resultMap.put("totalAssets", totalAssets);
+		//日收益
+		BigDecimal dailyReturn = new BigDecimal("0");
+		if(userInfoAssectsBrief.getDailyProfit()!=null){
+			dailyReturn = userInfoAssectsBrief.getDailyProfit();
+		}
+		resultMap.put("dailyReturn", dailyReturn);
+		//累计收益
+		BigDecimal totalRevenue = new BigDecimal("0");
+		if(userInfoAssectsBrief.getTotalProfit()!=null){
+			totalRevenue = userInfoAssectsBrief.getTotalProfit();
+		}
+		resultMap.put("totalRevenue", totalRevenue);
+		
 		return new ResponseEntity<Map>(resultMap, HttpStatus.OK);
 	}
 }
