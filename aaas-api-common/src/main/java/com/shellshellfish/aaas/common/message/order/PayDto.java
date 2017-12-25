@@ -11,6 +11,16 @@ public class PayDto implements Serializable{
   String trdAccount;
   int trdBrokerId;
 
+  public Long getUserProdId() {
+    return userProdId;
+  }
+
+  public void setUserProdId(Long userProdId) {
+    this.userProdId = userProdId;
+  }
+
+  Long userProdId;
+
   public int getTrdBrokerId() {
     return trdBrokerId;
   }

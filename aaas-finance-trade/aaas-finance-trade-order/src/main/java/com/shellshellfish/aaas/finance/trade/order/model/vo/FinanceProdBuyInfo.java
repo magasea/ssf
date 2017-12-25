@@ -9,6 +9,7 @@ import lombok.Setter;
 public class FinanceProdBuyInfo {
   BigDecimal money;//金额单位到分
   Long prodId;//产品ID
+  Long userProdId;//用户的理财产品ID
   String prodCode;//产品编码
   Long groupId;//产品分组编号
   Long userId;//用户
@@ -88,5 +89,13 @@ public class FinanceProdBuyInfo {
 
   public void setProdCode(String prodCode) {
     this.prodCode = prodCode;
+  }
+
+  public Long getUserProdId() {
+    return userProdId;
+  }
+
+  public void setUserProdId(Long userProdId) {
+    this.userProdId = userProdId;
   }
 }

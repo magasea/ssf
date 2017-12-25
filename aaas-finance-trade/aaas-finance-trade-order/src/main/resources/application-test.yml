@@ -18,12 +18,11 @@ spring:
     topicExchangeName: com-ssf-topic-exchange
     topicPay: shellshellfish.pay
     topicOrder: shellshellfish.order
-
   data:
     mongodb:
-    host: 192.168.1.10
-    port: 27017
-    database: zhongzheng
+      host: 192.168.1.10
+      port: 27017
+      database: zhongzheng
 
 datasource:
   sampleapp:
@@ -48,6 +47,9 @@ datasource:
 
 grpc:
   finance_prod_client:
+    host: localhost
+    port: 10021
+  pay_client:
     host: localhost
     port: 10021
   order_server:

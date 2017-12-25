@@ -10,9 +10,9 @@
 	<name>aaas-funds-datacollection-server</name>
 
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.5.8.RELEASE</version>
+		<groupId>com.shellshellfish</groupId>
+		<artifactId>aaas</artifactId>
+		<version>1.0-SNAPSHOT</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -20,6 +20,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 		<grpc.version>1.8.0</grpc.version><!-- CURRENT_GRPC_VERSION -->
+		<maven-surefire-report-plugin.version>2.11</maven-surefire-report-plugin.version>
 	</properties>
 
 	<dependencies>
@@ -107,16 +108,22 @@
 			<artifactId>lombok</artifactId>
 			<version>RELEASE</version>
 		</dependency>
+		<dependency>
+			<groupId>com.shellshellfish</groupId>
+			<artifactId>aaas-api-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>
+
 		<extensions>
-		<extension>
-			<groupId>kr.motd.maven</groupId>
-			<artifactId>os-maven-plugin</artifactId>
-			<version>1.5.0.Final</version>
-		</extension>
-	</extensions>
+			<extension>
+				<groupId>kr.motd.maven</groupId>
+				<artifactId>os-maven-plugin</artifactId>
+				<version>1.5.0.Final</version>
+			</extension>
+		</extensions>
 		<plugins>
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
@@ -130,7 +137,7 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${basedir}/src/main/proto</outputDirectory>
+							<outputDirectory>src/main/proto</outputDirectory>
 							<resources>
 								<resource>
 									<directory>../proto/datacollection/</directory>
@@ -162,6 +169,46 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<!-- junit surefire test-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven-surefire-plugin.version}</version>
+				<configuration>
+					<testFailureIgnore>true</testFailureIgnore>
+				</configuration>
+				<executions>
+					<execution>
+						<id>test</id>
+						<phase>test</phase>
+						<configuration>
+							<argLine>-Dfile.encoding=UTF-8</argLine>
+							<forkMode>once</forkMode>
+							<redirectTestOutputToFile>true</redirectTestOutputToFile>
+							<includes>
+								<include>**/*Test.java</include>
+							</includes>
+						</configuration>
+						<goals>
+							<goal>test</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>${maven-surefire-report-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>generate-test-report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

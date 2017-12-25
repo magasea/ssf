@@ -24,7 +24,11 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.TrdTradeBankDicR
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdInfoService;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
+import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo;
+import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoCollection;
+import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoQuery;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProductServiceGrpc;
+import com.shellshellfish.aaas.userinfo.grpc.FinanceProdInfosQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
@@ -37,10 +41,12 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
+import org.omg.PortableServer.REQUEST_PROCESSING_POLICY_ID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -105,10 +111,31 @@ public class TradeOpServiceImpl implements TradeOpService {
       logger.info("failed to get prod make up informations!");
       throw new Exception("failed to get prod make up informations!");
     }
-
+    //在用户理财产品系统里面生成用户的理财产品, 这是日后《我的理财产品》模块的依据
+    Long userProdId =  genUserProduct(financeProdBuyInfo, productMakeUpInfos);
+    financeProdBuyInfo.setUserProdId(userProdId);
     return genOrderFromBuyInfoAndProdMakeUpInfo(financeProdBuyInfo, productMakeUpInfos);
 
   }
+
+  private Long genUserProduct(FinanceProdBuyInfo financeProdBuyInfo,
+      List<ProductMakeUpInfo> productMakeUpInfos) throws ExecutionException, InterruptedException {
+    FinanceProdInfosQuery.Builder requestBuilder = FinanceProdInfosQuery.newBuilder();
+    requestBuilder.setUserId(financeProdBuyInfo.getUserId());
+
+    FinanceProdInfoCollection.Builder subReqBuilder = FinanceProdInfoCollection.newBuilder();
+    FinanceProdInfo.Builder finProdInfoBuilder = FinanceProdInfo.newBuilder();
+    for(int idx = 0; idx < productMakeUpInfos.size(); idx ++){
+      BeanUtils.copyProperties(productMakeUpInfos.get(idx), finProdInfoBuilder);
+      requestBuilder.setProdList(idx, finProdInfoBuilder);
+      finProdInfoBuilder.clear();
+    }
+    Long userProdId = userInfoServiceFutureStub.genUserProdsFromOrder(requestBuilder
+        .build()).get().getUserProdId();
+    logger.info("genUserProduct get :" + userProdId);
+    return userProdId;
+  }
+
 
   @Transactional
   TrdOrder genOrderFromBuyInfoAndProdMakeUpInfo(FinanceProdBuyInfo financeProdBuyInfo,
@@ -182,7 +209,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       trdOrderDetail.setBoughtDate(TradeUtil.getUTCTime());
       trdOrderDetail.setCreateBy(financeProdBuyInfo.getUserId());
       trdOrderDetail.setFundCode(productMakeUpInfo.getFundCode());
-      trdOrderDetail.setProdId(trdOrder.getProdId());
+      trdOrderDetail.setUserProdId(trdOrder.getUserProdId());
       trdOrderDetail.setTradeType(trdOrder.getOrderType());
       trdOrderDetailRepository.save(trdOrderDetail);
       com.shellshellfish.aaas.common.message.order.TrdOrderDetail trdOrderPay =  new com

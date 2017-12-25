@@ -1,330 +1,393 @@
 package com.shellshellfish.aaas.common.message.order;
 
+/**
+ * Created by chenwei on 2017- 十二月 - 25
+ */
 
-import java.io.Serializable;
 
-public class TrdOrderDetail implements Serializable {
 
-	private Long id;
-	private String orderId;
-	private String tradeApplySerial;
-	private long boughtDate;
-	private int tradeType;
-	private long payAmount;
-	private long payFee;
-	private long userId;
-	private long prodId;
-	private String fundCode;
-	private long fundMoneyQuantity;
-	private long fundNum;
-	private long fundNumConfirmed;
-	private long buyFee;
-	private long buyDiscount;
-	private int orderDetailStatus;
-	private long createBy;
-	private long createDate;
-	private long updateBy;
-	private long updateDate;
+public class TrdOrderDetail {
 
-	
-	
-	
-	public Long getId() {
-		return id;
-	}
+  private long id;
+  private String orderId;
+  private String tradeApplySerial;
+  private long boughtDate;
+  private int tradeType;
+  private long payAmount;
+  private long payFee;
+  private long userId;
+  private long userProdId;
+  private String fundCode;
+  private long fundMoneyQuantity;
+  private long fundNum;
+  private long fundNumConfirmed;
+  private long buyFee;
+  private long buyDiscount;
+  private int orderDetailStatus;
+  private long createBy;
+  private long createDate;
+  private long updateBy;
+  private long updateDate;
+  private String bankCardNum;
+  private Long fundQuantity;
+  private Integer orderStatus;
+  private String prodCode;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+  
+  
+  public long getId() {
+    return id;
+  }
 
-	
-	
-	public String getOrderId() {
-		return orderId;
-	}
+  public void setId(long id) {
+    this.id = id;
+  }
 
-	public void setOrderId(String orderId) {
-		this.orderId = orderId;
-	}
+  
+  
+  public String getOrderId() {
+    return orderId;
+  }
 
-	
-	
-	public String getTradeApplySerial() {
-		return tradeApplySerial;
-	}
+  public void setOrderId(String orderId) {
+    this.orderId = orderId;
+  }
 
-	public void setTradeApplySerial(String tradeApplySerial) {
-		this.tradeApplySerial = tradeApplySerial;
-	}
+  
+  
+  public String getTradeApplySerial() {
+    return tradeApplySerial;
+  }
 
-	
-	
-	public long getBoughtDate() {
-		return boughtDate;
-	}
+  public void setTradeApplySerial(String tradeApplySerial) {
+    this.tradeApplySerial = tradeApplySerial;
+  }
 
-	public void setBoughtDate(long boughtDate) {
-		this.boughtDate = boughtDate;
-	}
+  
+  
+  public long getBoughtDate() {
+    return boughtDate;
+  }
 
-	
-	
-	public int getTradeType() {
-		return tradeType;
-	}
+  public void setBoughtDate(long boughtDate) {
+    this.boughtDate = boughtDate;
+  }
 
-	public void setTradeType(int tradeType) {
-		this.tradeType = tradeType;
-	}
+  
+  
+  public int getTradeType() {
+    return tradeType;
+  }
 
-	
-	
-	public long getPayAmount() {
-		return payAmount;
-	}
+  public void setTradeType(int tradeType) {
+    this.tradeType = tradeType;
+  }
 
-	public void setPayAmount(long payAmount) {
-		this.payAmount = payAmount;
-	}
+  
+  
+  public long getPayAmount() {
+    return payAmount;
+  }
 
-	
-	
-	public long getPayFee() {
-		return payFee;
-	}
+  public void setPayAmount(long payAmount) {
+    this.payAmount = payAmount;
+  }
 
-	public void setPayFee(long payFee) {
-		this.payFee = payFee;
-	}
+  
+  
+  public long getPayFee() {
+    return payFee;
+  }
 
-	
-	
-	public long getUserId() {
-		return userId;
-	}
+  public void setPayFee(long payFee) {
+    this.payFee = payFee;
+  }
 
-	public void setUserId(long userId) {
-		this.userId = userId;
-	}
+  
+  
+  public long getUserId() {
+    return userId;
+  }
 
-	
-	
-	public long getProdId() {
-		return prodId;
-	}
+  public void setUserId(long userId) {
+    this.userId = userId;
+  }
 
-	public void setProdId(long prodId) {
-		this.prodId = prodId;
-	}
+  
+  
+  public long getUserProdId() {
+    return userProdId;
+  }
 
-	
-	
-	public String getFundCode() {
-		return fundCode;
-	}
+  public void setUserProdId(long userProdId) {
+    this.userProdId = userProdId;
+  }
 
-	public void setFundCode(String fundCode) {
-		this.fundCode = fundCode;
-	}
+  
+  
+  public String getFundCode() {
+    return fundCode;
+  }
 
-	
-	
-	public long getFundMoneyQuantity() {
-		return fundMoneyQuantity;
-	}
+  public void setFundCode(String fundCode) {
+    this.fundCode = fundCode;
+  }
 
-	public void setFundMoneyQuantity(long fundMoneyQuantity) {
-		this.fundMoneyQuantity = fundMoneyQuantity;
-	}
+  
+  
+  public long getFundMoneyQuantity() {
+    return fundMoneyQuantity;
+  }
 
-	
-	
-	public long getFundNum() {
-		return fundNum;
-	}
+  public void setFundMoneyQuantity(long fundMoneyQuantity) {
+    this.fundMoneyQuantity = fundMoneyQuantity;
+  }
 
-	public void setFundNum(long fundNum) {
-		this.fundNum = fundNum;
-	}
+  
+  
+  public long getFundNum() {
+    return fundNum;
+  }
 
-	
-	
-	public long getFundNumConfirmed() {
-		return fundNumConfirmed;
-	}
+  public void setFundNum(long fundNum) {
+    this.fundNum = fundNum;
+  }
 
-	public void setFundNumConfirmed(long fundNumConfirmed) {
-		this.fundNumConfirmed = fundNumConfirmed;
-	}
+  
+  
+  public long getFundNumConfirmed() {
+    return fundNumConfirmed;
+  }
 
-	
-	
-	public long getBuyFee() {
-		return buyFee;
-	}
+  public void setFundNumConfirmed(long fundNumConfirmed) {
+    this.fundNumConfirmed = fundNumConfirmed;
+  }
 
-	public void setBuyFee(long buyFee) {
-		this.buyFee = buyFee;
-	}
+  
+  
+  public long getBuyFee() {
+    return buyFee;
+  }
 
-	
-	
-	public long getBuyDiscount() {
-		return buyDiscount;
-	}
+  public void setBuyFee(long buyFee) {
+    this.buyFee = buyFee;
+  }
 
-	public void setBuyDiscount(long buyDiscount) {
-		this.buyDiscount = buyDiscount;
-	}
+  
+  
+  public long getBuyDiscount() {
+    return buyDiscount;
+  }
 
-	
-	
-	public int getOrderDetailStatus() {
-		return orderDetailStatus;
-	}
+  public void setBuyDiscount(long buyDiscount) {
+    this.buyDiscount = buyDiscount;
+  }
 
-	public void setOrderDetailStatus(int orderDetailStatus) {
-		this.orderDetailStatus = orderDetailStatus;
-	}
+  
+  
+  public int getOrderDetailStatus() {
+    return orderDetailStatus;
+  }
 
-	
-	
-	public long getCreateBy() {
-		return createBy;
-	}
+  public void setOrderDetailStatus(int orderDetailStatus) {
+    this.orderDetailStatus = orderDetailStatus;
+  }
 
-	public void setCreateBy(long createBy) {
-		this.createBy = createBy;
-	}
+  
+  
+  public long getCreateBy() {
+    return createBy;
+  }
 
-	
-	
-	public long getCreateDate() {
-		return createDate;
-	}
+  public void setCreateBy(long createBy) {
+    this.createBy = createBy;
+  }
 
-	public void setCreateDate(long createDate) {
-		this.createDate = createDate;
-	}
+  
+  
+  public long getCreateDate() {
+    return createDate;
+  }
 
-	
-	
-	public long getUpdateBy() {
-		return updateBy;
-	}
+  public void setCreateDate(long createDate) {
+    this.createDate = createDate;
+  }
 
-	public void setUpdateBy(long updateBy) {
-		this.updateBy = updateBy;
-	}
+  
+  
+  public long getUpdateBy() {
+    return updateBy;
+  }
 
-	
-	
-	public long getUpdateDate() {
-		return updateDate;
-	}
+  public void setUpdateBy(long updateBy) {
+    this.updateBy = updateBy;
+  }
 
-	public void setUpdateDate(long updateDate) {
-		this.updateDate = updateDate;
-	}
+  
+  
+  public long getUpdateDate() {
+    return updateDate;
+  }
 
-	
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
+  public void setUpdateDate(long updateDate) {
+    this.updateDate = updateDate;
+  }
 
-		TrdOrderDetail that = (TrdOrderDetail) o;
+  
+  
+  public String getBankCardNum() {
+    return bankCardNum;
+  }
 
-		if (id != that.id) {
-			return false;
-		}
-		if (boughtDate != that.boughtDate) {
-			return false;
-		}
-		if (tradeType != that.tradeType) {
-			return false;
-		}
-		if (payAmount != that.payAmount) {
-			return false;
-		}
-		if (payFee != that.payFee) {
-			return false;
-		}
-		if (userId != that.userId) {
-			return false;
-		}
-		if (prodId != that.prodId) {
-			return false;
-		}
-		if (fundMoneyQuantity != that.fundMoneyQuantity) {
-			return false;
-		}
-		if (fundNum != that.fundNum) {
-			return false;
-		}
-		if (fundNumConfirmed != that.fundNumConfirmed) {
-			return false;
-		}
-		if (buyFee != that.buyFee) {
-			return false;
-		}
-		if (buyDiscount != that.buyDiscount) {
-			return false;
-		}
-		if (orderDetailStatus != that.orderDetailStatus) {
-			return false;
-		}
-		if (createBy != that.createBy) {
-			return false;
-		}
-		if (createDate != that.createDate) {
-			return false;
-		}
-		if (updateBy != that.updateBy) {
-			return false;
-		}
-		if (updateDate != that.updateDate) {
-			return false;
-		}
-		if (orderId != null ? !orderId.equals(that.orderId) : that.orderId != null) {
-			return false;
-		}
-		if (tradeApplySerial != null ? !tradeApplySerial.equals(that.tradeApplySerial)
-				: that.tradeApplySerial != null) {
-			return false;
-		}
-		if (fundCode != null ? !fundCode.equals(that.fundCode) : that.fundCode != null) {
-			return false;
-		}
+  public void setBankCardNum(String bankCardNum) {
+    this.bankCardNum = bankCardNum;
+  }
 
-		return true;
-	}
+  
+  
+  public Long getFundQuantity() {
+    return fundQuantity;
+  }
 
-	
-	public int hashCode() {
-		int result = (int) (id ^ (id >>> 32));
-		result = 31 * result + (orderId != null ? orderId.hashCode() : 0);
-		result = 31 * result + (tradeApplySerial != null ? tradeApplySerial.hashCode() : 0);
-		result = 31 * result + (int) (boughtDate ^ (boughtDate >>> 32));
-		result = 31 * result + tradeType;
-		result = 31 * result + (int) (payAmount ^ (payAmount >>> 32));
-		result = 31 * result + (int) (payFee ^ (payFee >>> 32));
-		result = 31 * result + (int) (userId ^ (userId >>> 32));
-		result = 31 * result + (int) (prodId ^ (prodId >>> 32));
-		result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
-		result = 31 * result + (int) (fundMoneyQuantity ^ (fundMoneyQuantity >>> 32));
-		result = 31 * result + (int) (fundNum ^ (fundNum >>> 32));
-		result = 31 * result + (int) (fundNumConfirmed ^ (fundNumConfirmed >>> 32));
-		result = 31 * result + (int) (buyFee ^ (buyFee >>> 32));
-		result = 31 * result + (int) (buyDiscount ^ (buyDiscount >>> 32));
-		result = 31 * result + orderDetailStatus;
-		result = 31 * result + (int) (createBy ^ (createBy >>> 32));
-		result = 31 * result + (int) (createDate ^ (createDate >>> 32));
-		result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
-		result = 31 * result + (int) (updateDate ^ (updateDate >>> 32));
-		return result;
-	}
+  public void setFundQuantity(Long fundQuantity) {
+    this.fundQuantity = fundQuantity;
+  }
+
+  
+  
+  public Integer getOrderStatus() {
+    return orderStatus;
+  }
+
+  public void setOrderStatus(Integer orderStatus) {
+    this.orderStatus = orderStatus;
+  }
+
+  
+  
+  public String getProdCode() {
+    return prodCode;
+  }
+
+  public void setProdCode(String prodCode) {
+    this.prodCode = prodCode;
+  }
+
+  
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    TrdOrderDetail that = (TrdOrderDetail) o;
+
+    if (id != that.id) {
+      return false;
+    }
+    if (boughtDate != that.boughtDate) {
+      return false;
+    }
+    if (tradeType != that.tradeType) {
+      return false;
+    }
+    if (payAmount != that.payAmount) {
+      return false;
+    }
+    if (payFee != that.payFee) {
+      return false;
+    }
+    if (userId != that.userId) {
+      return false;
+    }
+    if (userProdId != that.userProdId) {
+      return false;
+    }
+    if (fundMoneyQuantity != that.fundMoneyQuantity) {
+      return false;
+    }
+    if (fundNum != that.fundNum) {
+      return false;
+    }
+    if (fundNumConfirmed != that.fundNumConfirmed) {
+      return false;
+    }
+    if (buyFee != that.buyFee) {
+      return false;
+    }
+    if (buyDiscount != that.buyDiscount) {
+      return false;
+    }
+    if (orderDetailStatus != that.orderDetailStatus) {
+      return false;
+    }
+    if (createBy != that.createBy) {
+      return false;
+    }
+    if (createDate != that.createDate) {
+      return false;
+    }
+    if (updateBy != that.updateBy) {
+      return false;
+    }
+    if (updateDate != that.updateDate) {
+      return false;
+    }
+    if (orderId != null ? !orderId.equals(that.orderId) : that.orderId != null) {
+      return false;
+    }
+    if (tradeApplySerial != null ? !tradeApplySerial.equals(that.tradeApplySerial)
+        : that.tradeApplySerial != null) {
+      return false;
+    }
+    if (fundCode != null ? !fundCode.equals(that.fundCode) : that.fundCode != null) {
+      return false;
+    }
+    if (bankCardNum != null ? !bankCardNum.equals(that.bankCardNum) : that.bankCardNum != null) {
+      return false;
+    }
+    if (fundQuantity != null ? !fundQuantity.equals(that.fundQuantity)
+        : that.fundQuantity != null) {
+      return false;
+    }
+    if (orderStatus != null ? !orderStatus.equals(that.orderStatus) : that.orderStatus != null) {
+      return false;
+    }
+    if (prodCode != null ? !prodCode.equals(that.prodCode) : that.prodCode != null) {
+      return false;
+    }
+
+    return true;
+  }
+
+  
+  public int hashCode() {
+    int result = (int) (id ^ (id >>> 32));
+    result = 31 * result + (orderId != null ? orderId.hashCode() : 0);
+    result = 31 * result + (tradeApplySerial != null ? tradeApplySerial.hashCode() : 0);
+    result = 31 * result + (int) (boughtDate ^ (boughtDate >>> 32));
+    result = 31 * result + tradeType;
+    result = 31 * result + (int) (payAmount ^ (payAmount >>> 32));
+    result = 31 * result + (int) (payFee ^ (payFee >>> 32));
+    result = 31 * result + (int) (userId ^ (userId >>> 32));
+    result = 31 * result + (int) (userProdId ^ (userProdId >>> 32));
+    result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
+    result = 31 * result + (int) (fundMoneyQuantity ^ (fundMoneyQuantity >>> 32));
+    result = 31 * result + (int) (fundNum ^ (fundNum >>> 32));
+    result = 31 * result + (int) (fundNumConfirmed ^ (fundNumConfirmed >>> 32));
+    result = 31 * result + (int) (buyFee ^ (buyFee >>> 32));
+    result = 31 * result + (int) (buyDiscount ^ (buyDiscount >>> 32));
+    result = 31 * result + orderDetailStatus;
+    result = 31 * result + (int) (createBy ^ (createBy >>> 32));
+    result = 31 * result + (int) (createDate ^ (createDate >>> 32));
+    result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
+    result = 31 * result + (int) (updateDate ^ (updateDate >>> 32));
+    result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
+    result = 31 * result + (fundQuantity != null ? fundQuantity.hashCode() : 0);
+    result = 31 * result + (orderStatus != null ? orderStatus.hashCode() : 0);
+    result = 31 * result + (prodCode != null ? prodCode.hashCode() : 0);
+    return result;
+  }
 }

@@ -21,9 +21,9 @@ spring:
 
   data:
     mongodb:
-    host: localhost
-    port: 27017
-    database: zhongzheng
+      host: localhost
+      port: 27017
+      database: zhongzheng
 
 datasource:
   sampleapp:
@@ -48,6 +48,9 @@ datasource:
 
 grpc:
   finance_prod_client:
+    host: localhost
+    port: 10021
+  pay_client:
     host: localhost
     port: 10021
   order_server:
