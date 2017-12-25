@@ -835,6 +835,7 @@ public class FundGroupService {
                 }
                 query.put("retracement", maximum_retracement);
                 query.put("time", new SimpleDateFormat("yyyy-MM-dd").format(date));
+                fundGroupMapper.updateMaximumRetracement(query);
                 ca.setTime(date);
                 ca.add(Calendar.DATE,-1);
                 date = ca.getTime();
