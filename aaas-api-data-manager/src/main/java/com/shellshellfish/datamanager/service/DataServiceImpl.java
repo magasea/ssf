@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -17,20 +19,25 @@ import com.shellshellfish.datamanager.model.DailyFunds;
 import com.shellshellfish.datamanager.model.FundCodes;
 import com.shellshellfish.datamanager.model.FundCompanys;
 import com.shellshellfish.datamanager.model.FundManagers;
+import com.shellshellfish.datamanager.model.FundYearIndicator;
+import com.shellshellfish.datamanager.model.FundYeildRate;
 import com.shellshellfish.datamanager.model.IndicatorPoint;
-import com.shellshellfish.datamanager.model.ListedFundCodes;
-import com.shellshellfish.datamanager.model.OffundYeildRate;
-import com.shellshellfish.datamanager.model.RangeIndicator;
+
+
+
 import com.shellshellfish.datamanager.repositories.MongoDailyFundsRepository;
 import com.shellshellfish.datamanager.repositories.MongoFundCodesRepository;
 import com.shellshellfish.datamanager.repositories.MongoFundCompanysRepository;
 import com.shellshellfish.datamanager.repositories.MongoFundManagersRepository;
+import com.shellshellfish.datamanager.repositories.MongoFundYearIndicatorRepository;
 import com.shellshellfish.datamanager.repositories.MongoListedFundCodesRepository;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 @Service
 public class DataServiceImpl implements DataService {
 	
@@ -48,6 +55,9 @@ public class DataServiceImpl implements DataService {
 	
 	@Autowired
 	MongoFundCompanysRepository mongoFundCompanysRepository;
+	
+	@Autowired
+	MongoFundYearIndicatorRepository mongoFundYearIndicatorRepository;
 	
 	@Autowired
 	private MongoTemplate mongoTemplate;
@@ -147,7 +157,7 @@ public class DataServiceImpl implements DataService {
 		HashMap<String,Object> fmmap=null;
 		List<FundManagers> lst= mongoFundManagersRepository.findByManagername(name);
 		if (lst==null || lst.size()==0)
-			return new HashMap<String,Object>();
+			return null;
 		else {
 			fmmap=new HashMap<String,Object>();
 			fmmap.put("manager", lst.get(0).getMnager());
@@ -169,6 +179,7 @@ public class DataServiceImpl implements DataService {
 		
 	}
 		
+	//基金公司信息
 	public HashMap<String,Object>  getFundCompany(String name){
 		HashMap<String,Object> fmmap=null;
 		List<FundCompanys> lst= mongoFundCompanysRepository.findByCompanyname(name);
@@ -180,11 +191,25 @@ public class DataServiceImpl implements DataService {
 			fmmap.put("scale", lst.get(0).getScale());
 			fmmap.put("fundnum",lst.size());
 			HashMap[] dmap=new HashMap[lst.size()];
+			String[] codes=new String[lst.size()];
+			
 			for (int i=0;i<lst.size();i++) {
 				 dmap[i]=new HashMap<String,String>();
-				 String jobstr=lst.get(i).getFundname()+"|||"+lst.get(i).getFundtype()+"|||"+getYearscale(lst.get(i).getCode()); //还需要一个年化收益率
-				 dmap[i].put("funditem",jobstr);
-				 
+				 String itemstr=lst.get(i).getFundname()+"|||"+lst.get(i).getFundtype();//+"|||"+getYearscale(lst.get(i).getCode()); //还需要一个年化收益率
+				 dmap[i].put("funditem",itemstr);
+				 dmap[i].put("code", lst.get(i).getCode());
+				 codes[i]=lst.get(i).getCode();
+			}
+			
+			List<FundYearIndicator> yearindilst=getYearscale(codes);
+			if (yearindilst!=null) {
+		       for (int i=0;i<dmap.length;i++) {
+		    	   String code=(String)dmap[i].get("code");
+		    	   String val=getnavaccumreturnpFromlist(yearindilst,code); //区间累计单位净值增长率
+		    	   String funditem=(String)dmap[i].get("funditem");
+		    	   funditem=funditem+"|||"+val;
+		    	   dmap[i].put("funditem",funditem);
+		       }
 			}
 			fmmap.put("fundlist",dmap);
 			
@@ -195,21 +220,64 @@ public class DataServiceImpl implements DataService {
 	}
 	
 	
-	//场内基金(SH,SZ):区间涨跌幅
-	//场外基金(OF):区间复权单位净值增长率
-	public String getYearscale(String code) {
-		String diff="0";
-		List<ListedFundCodes> lcodelst=mongoListedFundCodesRepository.findByCode(code);
-		if (lcodelst!=null & lcodelst.size()==1) { //场内基金,取区间涨跌幅
-		   diff=getDiffValueBylistedcode(code);
-			
-		}else {//场外基金(OF)
-		  diff=getDiffValueByofcode(code); 	
+	public String  getnavaccumreturnpFromlist(List<FundYearIndicator> list,String code ) {
+		for (int i=0;i<list.size();i++) {
+			if (code.equals(list.get(i).getCode()))
+				return 	list.get(i).getNavaccumreturnp();
 		}
-			 
-		return diff;
+		
+		return "none";  //if here,not found
+	}
+	
+	
+	//不分场内和场外基金,使用同一的计算方式：
+	
+	//unsued:场内基金(SH,SZ):区间涨跌幅
+	//unused:场外基金(OF):区间复权单位净值增长率
+	
+	public List<FundYearIndicator> getYearscale(String[] codes) {
+		
+		
+		Date d=new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String sdate=sdf.format(d);
+		String yearstr=sdate.substring(0, 4);
+		String stdate=yearstr+"-01-01";
+		
+		String enddate=yearstr+"-12-31";
+		long sttime=0;
+		long endtime=0;
+		try {
+			
+			Date stdated = sdf.parse(stdate);
+			
+	        Calendar cal = Calendar.getInstance();
+	        cal.setTime(stdated);//date 换成已经已知的Date对象
+	        //cal.add(Calendar.HOUR_OF_DAY, -8);// before 8 hour (GMT 8)
+	        Date e=cal.getTime();
+	        sttime=e.getTime()/1000;
+	        
+	        Date enddated= sdf.parse(enddate);
+	        
+	        cal.setTime(enddated);
+	        //cal.add(Calendar.HOUR_OF_DAY, -8);// before 8 hour (GMT 8)
+	        e=cal.getTime();
+	        endtime=e.getTime()/1000;
+	        
+	        //sttime=sttime-18000; //diff in python and java
+			//endtime=endtime-18000;
+		}catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+			return null;
+		}		
+		List<FundYearIndicator> lcodelst=mongoFundYearIndicatorRepository.findByCodeAndQuerydate(codes,sttime,endtime);
+		
+		return lcodelst;
 	}
 		
+    
+	/*
 	public String  getDiffValueBylistedcode(String code){
 		
 		Criteria criteria = Criteria.where("code").is(code);
@@ -236,7 +304,7 @@ public class DataServiceImpl implements DataService {
 		
 		return list.get(0).getNavadjreturnp();
 		
-	}
+	}*/
 	
     //历史净值
 	public HashMap<String,Object> getHistoryNetvalue(String code,String period){

@@ -8,8 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
 @Setter
-@Document(collection = "offund_yieldrate")
-public class OffundYeildRate {
+@Document(collection = "fund_yieldrate")
+public class FundYeildRate {
 	
 	@Id
 	private String id;
