@@ -182,7 +182,7 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 		expAnnRate=result.get("value").toString();
 		resultMap.put("expAnnRate", expAnnRate);
 		}catch(Exception e){
-			resultMap.put("预期年收益率获取失败获取失败","");
+			resultMap.put("expAnnRate","");
 		}
 		try{
 			String url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt?returntype=2";
@@ -191,7 +191,7 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 			expMaxReturn=result.get("value").toString();
 			resultMap.put("expMaxReturn", expMaxReturn);
 			}catch(Exception e){
-			resultMap.put("预期最大回撤获取失败","");
+			resultMap.put("expMaxReturn","");
 			}
 		return resultMap;	
 	}

@@ -76,9 +76,9 @@ public class FinanceController {
 		try {
 			if("1".equals(isTestFlag)){
 				if(StringUtils.isEmpty(uuid)){
-					return new JsonResult(JsonResult.Fail, "用户ID必须输入", null);
+					return new JsonResult(JsonResult.Fail, "用户ID必须输入", "");
 				} else if(StringUtils.isEmpty(testResult)){
-					return new JsonResult(JsonResult.Fail, "测评结果必须输入", null);
+					return new JsonResult(JsonResult.Fail, "测评结果必须输入", "");
 				}
 			}
 			MultiValueMap<String, String> requestEntity = new LinkedMultiValueMap<>();
@@ -89,8 +89,8 @@ public class FinanceController {
 			result = restTemplate.getForEntity(financeUrl + "/api/ssf-finance/product-groups/homepage?uuid=" + uuid
 					+ "&isTestFlag=" + isTestFlag + "&testResult=" + testResult, Map.class).getBody();
 			if (result == null || result.size() == 0) {
-				result.put("msg", "获取失败");
-				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+				/*result.put("msg", "获取失败");*/
+				return new JsonResult(JsonResult.SUCCESS, "没有获取到产品", "");
 			}
 //			requestEntity.add("productType", productType);
 			/*result.put("msg", "获取成功");*/
@@ -170,7 +170,7 @@ public class FinanceController {
 			String str=new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, "");
 		}
-		return new JsonResult(JsonResult.Fail, "查看理财产品详情成功", result);
+		return new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", result);
 	}
 	
 	
@@ -215,7 +215,7 @@ public class FinanceController {
 			logger.error("获取理财产品调用restTemplate方法发生错误",e);
 			String message = e.getMessage();
 			result.put("错误原因", message + ",获取理财产品调用restTemplate方法发生错误！");
-			return new JsonResult(JsonResult.Fail, "获取理财List数据失败", result);
+			return new JsonResult(JsonResult.Fail, "获取理财List数据失败", "");
 		}
 		
 		//收益率走势图
@@ -312,9 +312,10 @@ public class FinanceController {
 		} catch (Exception e) {
 			// 获取list失败直接返回
 			logger.error("未来收益走势图数据发生错误",e);
-			String message = e.getMessage();
-			result.put("错误原因", message + ",未来收益走势图数据发生错误！");
-			return new JsonResult(JsonResult.Fail, "未来收益走势图数据失败", result);
+			/*String message = e.getMessage();
+			result.put("错误原因", message + ",未来收益走势图数据发生错误！"); */
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, "未来收益走势图数据失败", "");
 		}
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 	}
@@ -491,7 +492,7 @@ public class FinanceController {
 			logger.error("风险控制数据发生错误", e);
 			String message = e.getMessage();
 			result.put("错误原因", message + ",风险控制数据发生错误！");
-			return new JsonResult(JsonResult.Fail, "风险控制数据失败", result);
+			return new JsonResult(JsonResult.Fail, "风险控制数据失败", "");
 		}
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 	}
