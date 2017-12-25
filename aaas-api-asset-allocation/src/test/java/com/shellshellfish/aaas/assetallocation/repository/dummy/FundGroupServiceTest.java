@@ -141,8 +141,8 @@ public class FundGroupServiceTest {
 
     @Test
     public void getNavadj(){
-        //allocationService.getAllIdAndSubId();
-        allocationService.getNavadj("10","100094");
+        allocationService.getAllIdAndSubId();
+        //allocationService.getNavadj("10","100094");
     }
 
     @Test
