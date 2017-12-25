@@ -125,9 +125,9 @@ public class TradeOpServiceImpl implements TradeOpService {
 
     FinanceProdInfoCollection.Builder subReqBuilder = FinanceProdInfoCollection.newBuilder();
     FinanceProdInfo.Builder finProdInfoBuilder = FinanceProdInfo.newBuilder();
-    for(int idx = 0; idx < productMakeUpInfos.size(); idx ++){
-      BeanUtils.copyProperties(productMakeUpInfos.get(idx), finProdInfoBuilder);
-      requestBuilder.setProdList(idx, finProdInfoBuilder);
+    for( ProductMakeUpInfo productMakeUpInfo: productMakeUpInfos){
+      BeanUtils.copyProperties(productMakeUpInfo, finProdInfoBuilder);
+      requestBuilder.addProdList(finProdInfoBuilder);
       finProdInfoBuilder.clear();
     }
     Long userProdId = userInfoServiceFutureStub.genUserProdsFromOrder(requestBuilder
