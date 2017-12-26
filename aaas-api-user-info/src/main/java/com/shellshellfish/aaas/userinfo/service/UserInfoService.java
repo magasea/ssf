@@ -59,6 +59,8 @@ public interface UserInfoService {
 
 	Boolean updateUiUser(String cellphone, String isTestFlag, String riskLevel);
 
-	ProductsDTO findByProdId(String prodId) throws Exception;
+	List<ProductsDTO> findProductInfos(String uuid) throws Exception;
+
+	ProductsDTO findByProdId(String prodId) throws IllegalAccessException, InstantiationException;
 
 }

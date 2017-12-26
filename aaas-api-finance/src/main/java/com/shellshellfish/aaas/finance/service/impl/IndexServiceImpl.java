@@ -149,10 +149,10 @@ public class IndexServiceImpl implements IndexService {
 		}
 		
 		List<String> banner_list = new ArrayList<>();
-		banner_list.add("/phoneapi-ssf/finance-home/image/page-1.jpg");
-		banner_list.add("/phoneapi-ssf/finance-home/image/page-2.jpg");
-		banner_list.add("/phoneapi-ssf/finance-home/image/page-3.jpg");
-		banner_list.add("/phoneapi-ssf/finance-home/image/page-4.jpg");
+		banner_list.add("http://47.96.164.161/1.png");
+		banner_list.add("http://47.96.164.161/2.png");
+		banner_list.add("http://47.96.164.161/3.png");
+		banner_list.add("http://47.96.164.161/4.png");
 		result.put("banner_list", banner_list);
 		
 		result.put("name", "理财产品 首页");
