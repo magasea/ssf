@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.transfer.controller;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,8 +84,9 @@ public class TransferController {
 		//首先验证验证码\
 		try{
 		String verify=service.verifyMSGCode(telNum, msgCode);
+		//验证码不通过则直接返回失败
 		if ("验证失败".equals(verify)){
-			return new JsonResult(JsonResult.Fail,"手机验证失败", "");
+			return new JsonResult(JsonResult.Fail,"手机验证失败", JsonResult.EMPTYRESULT);
 		}
 		
 		
@@ -94,8 +96,7 @@ public class TransferController {
 			String str=new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, "");
 		}
-
-		return new JsonResult(JsonResult.SUCCESS, "购买成功", null);
+		return new JsonResult(JsonResult.SUCCESS, "购买成功", JsonResult.EMPTYRESULT);
 	}
 	
 }
