@@ -16,7 +16,7 @@ shellshellfish:
   userinfo-url: "http://localhost:10060"
   finance-url: "http://localhost:10120"
   asset-alloction-url: "http://localhost:10020"
-
+  trade-order-url: "http://localhost:10100"
 
 security:
   basic:

@@ -156,7 +156,7 @@ public class FundGroupServiceTest {
 
     @Test
     public void sharpeRatio(){
-        int i = allocationService.sharpeRatio("5","6");
+        int i = allocationService.sharpeRatio("3","30089");
         System.out.println(i);
     }
 

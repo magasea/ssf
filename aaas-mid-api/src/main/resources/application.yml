@@ -15,7 +15,8 @@ shellshellfish:
   risk-assessment-url: "http://localhost:10050"
   user-user-info: "http://localhost:10060"
   finance-url: "http://localhost:10120"
-  asset-alloction-url: "http://localhost:10020"
+  asset-alloction-url: "http://localhost:10100"
+  
 
 security:
   basic:

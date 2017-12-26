@@ -101,7 +101,7 @@ public class TradeOrderController {
 		List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
 		DistributionResult distributionResult = financeProdCalcService.getPoundageOfSellFund(totalAmount, productList);
 		return new ResponseEntity<DistributionResult>(distributionResult, HttpStatus.OK);
-	}
+	} 
 
 
 

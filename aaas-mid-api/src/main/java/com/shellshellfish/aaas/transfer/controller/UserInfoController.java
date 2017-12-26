@@ -288,13 +288,10 @@ public class UserInfoController {
 			result.put("status", "1");
 			result.put("msg", "解绑成功");
 			return new JsonResult(JsonResult.SUCCESS, "解绑银行卡成功", result);
-		} catch (Exception e) {
-			/*result = new HashMap<>();
-			result.put("errorCode", "400");
-			result.put("error", "");*/
+		}catch(Exception e){
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail, str, "");
-		}
+			return new JsonResult(JsonResult.Fail,str, "");
+		}	
 	}
 	
 	/**

@@ -1,5 +1,5 @@
 server:
-  port: 10050
+  port: 10100
 logging:
   level:
     org.hibernate.SQL: DEBUG
