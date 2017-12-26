@@ -102,27 +102,21 @@ public class FundGroupServiceTest {
     @Test
     public void getRiskController() {
         ReturnType revenueContributionReturn = allocationService.getRiskController("1", "2");
-        //assertTrue(revenueContributionReturn.get_items().get(0).get("name").equals("股灾1"));
     }
 
     @Test
     public void getmeansAndNoticesRetrun() {
         ReturnType revenueContributionReturn = allocationService.getmeansAndNoticesRetrun();
-        //assertTrue(revenueContributionReturn.getName().equals("风险控制通知"));
     }
 
     @Test
     public void getPerformanceVolatility() {
         PerformanceVolatilityReturn performanceVolatilityReturn = allocationService.getPerformanceVolatility( "C1", "1");
-        //assertTrue(performanceVolatilityReturn.getName().equals("模拟数据"));
-        //assertTrue(performanceVolatilityReturn.get_items().get(0).get("name").equals("模拟历史年化业绩"));
     }
 
     @Test
     public void getScaleMark() {
         ReturnType revenueContributionReturn = allocationService.getScaleMark("1", "risk");
-        //assertTrue(revenueContributionReturn.getName().equals("风险率"));
-        //assertTrue((new Double(revenueContributionReturn.get_items().get(0).get("value").toString()) - 0.13) == 0);
     }
 
     @Test
@@ -139,29 +133,29 @@ public class FundGroupServiceTest {
         List<ProductMakeUpInfo> a = financeProductService.getProductInfo(productBaseInfo);
     }
 
-    @Test
+    /*@Test
     public void getNavadj(){
         allocationService.getAllIdAndSubId();
         //allocationService.getNavadj("10","100094");
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void getNavadjBenchmark(){
         allocationService.getNavadjBenchmark("C1");
         allocationService.getNavadjBenchmark("C2");
         allocationService.getNavadjBenchmark("C3");
         allocationService.getNavadjBenchmark("C4");
         allocationService.getNavadjBenchmark("C5");
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void sharpeRatio(){
         int i = allocationService.sharpeRatio("3","30089");
         System.out.println(i);
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void contribution(){
         allocationService.contribution();
-    }
+    }*/
 }

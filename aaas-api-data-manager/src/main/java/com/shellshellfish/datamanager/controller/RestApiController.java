@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.SimpleTimeZone;
 
+import javax.validation.constraints.NotNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -211,6 +213,13 @@ public class RestApiController {
     }
 	
 	//基金概况
+	@ApiOperation("基金概况")
+	@ApiImplicitParam(paramType = "query", name = "codes", dataType = "String", required = true, value = "基金列表", defaultValue = "")
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+        @ApiResponse(code=400,message="请求参数没填好")
+        
+    })
 	@RequestMapping(value = "/getFundInfo", method = RequestMethod.GET)
 	public ResponseEntity<List<DailyFunds>> getFundInfo(
 		@RequestParam(value = "codes") String codes){
@@ -221,8 +230,14 @@ public class RestApiController {
 
     }
 	
-	
-	//基金经理
+	//基金公司
+	@ApiOperation("基金公司")
+	@ApiImplicitParam(paramType = "query", name = "name", dataType = "String", required = true, value = "基金名称", defaultValue = "")
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+        @ApiResponse(code=400,message="请求参数没填好")
+        
+    })
 	@RequestMapping(value = "/getFundCompany", method = RequestMethod.GET)
 	public ResponseEntity<HashMap<String,Object>> getFundCompany(
 			@RequestParam(value = "name") String name){
@@ -236,15 +251,29 @@ public class RestApiController {
 		
 		
 	//历史净值
+	@ApiOperation("历史净值")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="code", value ="基金代码",required=true,paramType="query",dataType="String"),
+		@ApiImplicitParam(name="type", value ="类型",required=true,paramType="query",dataType="String"),
+		@ApiImplicitParam(name="date", value ="日期",required=false,paramType="query",dataType="String")
+    })
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+        @ApiResponse(code=400,message="请求参数没填好")
+        
+    })
 	//code:基金代码
-	//period: 1: 3month,2: 6month,3: 1year,4: 3year
+	//type: 1: 3month,2: 6month,3: 1year,4: 3year
 	@RequestMapping(value = "/getHistoryNetvalue", method = RequestMethod.GET)
 	public ResponseEntity<HashMap<String,Object>> getHistoryNetvalue(
-			@RequestParam(value = "code") String code,
-			@RequestParam(value = "period") String period){
+			@NotNull(message="代码不能为空") @RequestParam(value = "code") String code,
+			@NotNull(message="类型不能为空") @RequestParam(value = "type") String type,
+			@RequestParam(value = "date" ,required = false) String date){
     			
-		   HashMap hnmap=dataService.getHistoryNetvalue(code,period);
-		   return new ResponseEntity<HashMap<String,Object>>(hnmap,HttpStatus.OK);
+		    if (date==null)
+		    	date=new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+		    HashMap hnmap=dataService.getHistoryNetvalue(code,type,date);
+		    return new ResponseEntity<HashMap<String,Object>>(hnmap,HttpStatus.OK);
 	}
 	
 	

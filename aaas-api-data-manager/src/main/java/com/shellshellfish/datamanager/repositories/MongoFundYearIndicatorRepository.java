@@ -19,10 +19,10 @@ public interface MongoFundYearIndicatorRepository extends
 
     
 	@Query("{\"code\":{$in:?0},\"querystdate\":?1,\"queryenddate\":?2}") //$orderby: {code : -1}
-    List<FundYearIndicator> findByCodeAndQuerydate(String[] code,long fromdate,long todate);
+    List<FundYearIndicator> findByCodeAndQuerydate(String[] code,long fromtime,long totime);
 
-    //@Query("{\"code\":?0,\"querydate\" : {\"$gte\":?1, \"$lte\":?2}}")
-	//List<DailyFunds> findByCodeAndQuerydate(String code,String fromdate,String todate);
+    @Query("{\"code\":?0,\"querydate\" : {\"$gte\":?1, \"$lte\":?2}}")
+	List<FundYearIndicator> getHistoryNetByCodeAndQuerydate(String code,long fromtime,long totime);
     
 
 }
