@@ -4,13 +4,15 @@
 <mapper namespace="com.shellshellfish.aaas.assetallocation.neo.mapper.FundCalculateDataMapper">
 
     <!--关联查询净值数据 -->
-    <resultMap id="covarianceModelMap" type="com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel">
+    <resultMap id="fundCalculateDataMap" type="com.shellshellfish.aaas.assetallocation.neo.entity.FundCalculateData">
 
-        <result property="navDate" column="NAVLATESTDATE" />
-        <result property="codeA" column="A_CODE" />
-        <result property="unitNavA" column="A_UNITNAV" />
-        <result property="codeB" column="B_CODE" />
-        <result property="unitNavB" column="B_UNITNAV" />
+        <result property="id" column="id" />
+        <result property="code" column="code" />
+        <result property="yieldRatio" column="yield_ratio" />
+        <result property="riskRatio" column="risk_ratio" />
+        <result property="navDate" column="nav_date" />
+        <result property="semiVariance" column="semi_variance" />
+        <result property="navadj" column="navadj" />
 
     </resultMap>
 
@@ -18,47 +20,70 @@
     <insert id="insertFundCalculateDataDay" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCalculateData" >
         INSERT INTO
         fund_calculate_data_day
-        (code,yield_ratio,risk_ratio,nav_date,semi_variance)
+        (code,yield_ratio,risk_ratio,nav_date,semi_variance,navadj)
         VALUES
-        (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance})
+        (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance},#{navadj})
     </insert>
 
     <insert id="insertFundCalculateDataWeek" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCalculateData" >
         INSERT INTO
         fund_calculate_data_week
-        (code,yield_ratio,risk_ratio,nav_date,semi_variance)
+        (code,yield_ratio,risk_ratio,nav_date,semi_variance,navadj)
         VALUES
-        (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance})
+        (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance},#{navadj})
     </insert>
 
     <insert id="insertFundCalculateDataMonth" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCalculateData" >
         INSERT INTO
         fund_calculate_data_month
-        (code,yield_ratio,risk_ratio,nav_date,semi_variance)
+        (code,yield_ratio,risk_ratio,nav_date,semi_variance,navadj)
         VALUES
-        (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance})
+        (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance},#{navadj})
     </insert>
 
     <insert id="insertFundCalculateDataYear" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCalculateData" >
         INSERT INTO
         fund_calculate_data_year
-        (code,yield_ratio,risk_ratio,nav_date,semi_variance)
+        (code,yield_ratio,risk_ratio,nav_date,semi_variance,navadj)
         VALUES
-        (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance})
+        (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance},#{navadj})
     </insert>
-
 
     <select id="findYieldRatio"  resultType="java.lang.Double" statementType="STATEMENT">
         SELECT
         yield_ratio
         FROM ${tableName}
-        WHERE code='${code}' AND nav_date='${selectDate}'
+        WHERE code='${code}' AND '${selectDate}'>=nav_date limit 1
     </select>
 
     <select id="findRiskRatio"  resultType="java.lang.Double" statementType="STATEMENT">
         SELECT
         risk_ratio
         FROM ${tableName}
-        WHERE code='${code}' AND nav_date='${selectDate}'
+        WHERE code='${code}' AND '${selectDate}'>=nav_date limit 1
     </select>
+
+    <select id="findNavadjByType"  resultMap="fundCalculateDataMap" statementType="STATEMENT">
+        SELECT
+        *
+        FROM ${tableName}
+        WHERE code='${code}'
+        AND nav_date>='${startDate}'
+        AND '${endDate}' >=nav_date
+        ORDER BY nav_date DESC
+
+    </select>
+
+    <select id="findNavadjByCodeAndDate"  resultType="java.lang.Double" statementType="STATEMENT">
+        SELECT
+        navadj
+        FROM ${tableName}
+        WHERE code='${code}'
+        AND nav_date>='${startDate}'
+        AND '${endDate}' >=nav_date
+        ORDER BY nav_date
+
+    </select>
+
+
 </mapper>

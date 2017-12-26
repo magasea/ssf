@@ -8,7 +8,8 @@ import java.io.Serializable;
 
 
 
-public class TrdPayFlow  implements Serializable {
+
+public class TrdPayFlow {
 
   private long id;
   private long orderDetailId;
@@ -33,6 +34,7 @@ public class TrdPayFlow  implements Serializable {
   private long updateBy;
   private long updateDate;
   private String prodCode;
+  private String errMsg;
 
   
   
@@ -262,6 +264,16 @@ public class TrdPayFlow  implements Serializable {
 
   public void setProdCode(String prodCode) {
     this.prodCode = prodCode;
+  }
+
+  
+  
+  public String getErrMsg() {
+    return errMsg;
+  }
+
+  public void setErrMsg(String errMsg) {
+    this.errMsg = errMsg;
   }
 
   
