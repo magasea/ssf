@@ -18,12 +18,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.jta.JtaTransactionManager;
 
 @Configuration
 @ComponentScan
@@ -106,12 +108,29 @@ public class JpaConfiguration {
 		return properties;
 	}
 
+//	@Bean
+//	@Autowired
+//	public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+//		JpaTransactionManager txManager = new JpaTransactionManager();
+//		txManager.setEntityManagerFactory(emf);
+//		return txManager;
+//	}
+
+
 	@Bean
-	@Autowired
-	public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-		JpaTransactionManager txManager = new JpaTransactionManager();
-		txManager.setEntityManagerFactory(emf);
+	public DataSourceTransactionManager transactionManager() {
+		DataSourceTransactionManager txManager = new DataSourceTransactionManager();
+		txManager.setDataSource(dataSource());
 		return txManager;
 	}
+
+//	@Bean
+//	public PlatformTransactionManager transactionManager(){
+//		JpaTransactionManager transactionManager
+//				= new JpaTransactionManager();
+//		transactionManager.setEntityManagerFactory(
+//				entityManagerFactoryBean().getObject() );
+//		return transactionManager;
+//	}
 
 }

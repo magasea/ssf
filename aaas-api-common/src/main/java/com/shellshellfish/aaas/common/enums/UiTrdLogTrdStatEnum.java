@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.userinfo.model.dao;
+package com.shellshellfish.aaas.common.enums;
 
 public enum UiTrdLogTrdStatEnum {
   CONFIRMING(0),
