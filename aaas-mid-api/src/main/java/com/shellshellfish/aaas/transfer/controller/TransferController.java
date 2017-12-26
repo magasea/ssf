@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.transfer.controller;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +56,14 @@ public class TransferController {
 	public JsonResult getEstPurAmount(String groupId,String subGroupId,String totalAmount){
 	  Map resultMap=null;
 	  try{
-	   String url=tradeOrderUrl+"/api/trade/funds/buyProduct?groupId="+groupId+"&subGroupId="+subGroupId+"&totalAmount="+totalAmount;
-	   
+	   String url=tradeOrderUrl+"/api/trade/funds/buyProduct?groupId="+groupId+"&subGroupId="+subGroupId+"&totalAmount="+totalAmount; 
 	   resultMap= restTemplate.getForEntity(url,Map.class).getBody();
+	   BigDecimal poundage=BigDecimal.valueOf(Double.parseDouble(resultMap.get("poundage").toString()));
+	   BigDecimal discount=BigDecimal.valueOf(Double.parseDouble( resultMap.get("discountSaving").toString()));
+	   BigDecimal total=poundage.add(BigDecimal.valueOf(Double.parseDouble((totalAmount))));
+	   BigDecimal totalOffDiscount=total.add(discount);
+	   resultMap.put("total", total);
+	   resultMap.put("originalCost", totalOffDiscount);
 	   return new JsonResult(JsonResult.SUCCESS,"获取成功",resultMap);
 	  }catch(Exception e){
 		  String str=new ReturnedException(e).getErrorMsg();
