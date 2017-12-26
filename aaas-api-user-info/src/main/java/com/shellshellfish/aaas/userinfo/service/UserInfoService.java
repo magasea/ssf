@@ -45,6 +45,8 @@ public interface UserInfoService {
 
     Page<TradeLogDTO> findByUserId(String userUuid, Pageable pageable) throws Exception;
 
+    List<TradeLogDTO> findByUserId(String uuid) throws Exception;
+    
     List<UserInfoFriendRuleDTO> getUserInfoFriendRules(Long bankId) throws InstantiationException, IllegalAccessException;
 
     UserInfoCompanyInfoDTO getCompanyInfo(String userUuid, Long bankId);

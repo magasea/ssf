@@ -273,7 +273,14 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		Page<UiTrdLog> uiTrdLogPage = userTradeLogRepository.findByUserId(pageable, userId);
 		return uiTrdLogPage;
 	}
-
+	
+	@Override
+	public List<TradeLogDTO> findByUserId(Long userId) throws IllegalAccessException, InstantiationException {
+		List<UiTrdLog> uiTrdLogList = userTradeLogRepository.findByUserId(userId);
+		List<TradeLogDTO> trdLogsDtoList = MyBeanUtils.convertList(uiTrdLogList, TradeLogDTO.class);
+		return trdLogsDtoList;
+	}
+	
 	@Override
 	public Iterable<TradeLogDTO> addUiTrdLog(List<UiTrdLog> trdLogs)
 			throws IllegalAccessException, InstantiationException {

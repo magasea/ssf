@@ -250,4 +250,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 		UserBaseInfoDTO result = userInfoRepoService.findByCellphone(cellphone);
 		return result;
 	}
+	
+	@Override
+	public List<TradeLogDTO> findByUserId(String uuid) throws Exception {
+		Long userId = getUserIdFromUUID(uuid);
+		List<TradeLogDTO> uiTrdLogList = userInfoRepoService.findByUserId(userId);
+		return uiTrdLogList;
+	}
 }

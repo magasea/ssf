@@ -73,5 +73,5 @@ public interface UserInfoRepoService {
 	public UserSysMsgDTO addUiSysMsg(UiSysMsg uiSysMsg) throws IllegalAccessException,
 			InstantiationException;
 
-
+	List<TradeLogDTO> findByUserId(Long userId) throws IllegalAccessException, InstantiationException;
 }
