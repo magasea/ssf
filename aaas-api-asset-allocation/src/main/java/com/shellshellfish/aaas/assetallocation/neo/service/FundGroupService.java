@@ -4,6 +4,8 @@ import com.shellshellfish.aaas.assetallocation.neo.entity.*;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
 import com.shellshellfish.aaas.assetallocation.neo.util.CalculateMaxdrawdowns;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.shellshellfish.aaas.assetallocation.neo.util.MVO;
@@ -19,6 +21,8 @@ import java.util.*;
 public class FundGroupService {
     @Autowired
     private FundGroupMapper fundGroupMapper;
+
+    Logger logger = LoggerFactory.getLogger(FundGroupService.class);
 
     /**
      * 查询所有基金组合
@@ -222,10 +226,8 @@ public class FundGroupService {
             for (int i = 1; i < 11;i++){
                 Map<String, Object> _items = new HashMap<>();
                 _items.put("id", i);
-                //_items.put("x", riskIncomeIntervalList.get(10*i-1).getRisk_num());
-                //_items.put("y", riskIncomeIntervalList.get(10*i-1).getIncome_num());
-                _items.put("x", riskIncomeIntervalList.get(i-1).getRisk_num());
-                _items.put("y", riskIncomeIntervalList.get(i-1).getIncome_num());
+                _items.put("x", riskIncomeIntervalList.get(10*i-1).getRisk_num());
+                _items.put("y", riskIncomeIntervalList.get(10*i-1).getIncome_num());
                 list.add(_items);
             }
             aReturn.setName("有效前沿线数据");
@@ -778,6 +780,7 @@ public class FundGroupService {
                 date = ca.getTime();
             }
         } catch (ParseException e) {
+            logger.error("getNavadj:"+ e.getMessage());
             e.printStackTrace();
         }
     }
@@ -835,6 +838,7 @@ public class FundGroupService {
                 }
                 query.put("retracement", maximum_retracement);
                 query.put("time", new SimpleDateFormat("yyyy-MM-dd").format(date));
+                fundGroupMapper.updateMaximumRetracement(query);
                 ca.setTime(date);
                 ca.add(Calendar.DATE,-1);
                 date = ca.getTime();
@@ -883,7 +887,6 @@ public class FundGroupService {
     public FundReturn getFundReturn(List<Interval> interval) {
         FundReturn fr = new FundReturn();
         if (interval.size() != 0) {
-            Map<String, Object> assetsRatios = new HashMap<>();
             Map<String, String> _links = new HashMap<>();
             List<Map<String, Object>> list = new ArrayList<>();
             Map<String, String> query = new HashMap<>();
@@ -892,10 +895,13 @@ public class FundGroupService {
             List<Interval> intervals = fundGroupMapper.getProportion(query);
             //基金组合内的各基金权重
             for (Interval inter : intervals) {
-                assetsRatios.put("type",inter.getFund_type_two());
-                assetsRatios.put("value", inter.getProportion());
+                if (inter.getProportion() != 0) {
+                    Map<String, Object> assetsRatios = new HashMap<>();
+                    assetsRatios.put("type", inter.getFund_type_two());
+                    assetsRatios.put("value", inter.getProportion());
+                    list.add(assetsRatios);
+                }
             }
-            list.add(assetsRatios);
             fr.setGroupId(interval.get(0).getFund_group_id());
             fr.setSubGroupId(interval.get(0).getId());
             fr.setName(interval.get(0).getFund_group_name());
@@ -939,7 +945,7 @@ public class FundGroupService {
             double accumulatedIncome = 0;
             for(FundNetVal fundNetVal : navadjStart){
                 for (FundNetVal fundNetVal1 : navadjEnd){
-                    if (fundNetVal.getCode().equalsIgnoreCase(fundNetVal1.getCode())){
+                    if (fundNetVal.getCode().equalsIgnoreCase(fundNetVal1.getCode()) && fundNetVal.getNavadj() != 0){
                         accumulatedIncome+=(fundNetVal1.getNavadj()-fundNetVal.getNavadj())/fundNetVal.getNavadj();
                     }
                 }
@@ -947,10 +953,18 @@ public class FundGroupService {
             for(FundNetVal fundNetVal : navadjStart){
                 for (FundNetVal fundNetVal1 : navadjEnd){
                     if (fundNetVal.getCode().equalsIgnoreCase(fundNetVal1.getCode())){
-                        double contribution =(fundNetVal1.getNavadj()-fundNetVal.getNavadj())/fundNetVal.getNavadj()/accumulatedIncome;
-                        query.put("code",fundNetVal.getCode());
-                        query.put("contribution",contribution);
-                        fundGroupMapper.updateContribution(query);
+                        if (fundNetVal.getNavadj() != 0) {
+                            double contribution = (fundNetVal1.getNavadj() - fundNetVal.getNavadj()) / fundNetVal.getNavadj() / accumulatedIncome;
+                            query.put("code", fundNetVal.getCode());
+                            query.put("contribution", contribution);
+                            fundGroupMapper.updateContribution(query);
+                            break;
+                        }else {
+                            query.put("code", fundNetVal.getCode());
+                            query.put("contribution", 0);
+                            fundGroupMapper.updateContribution(query);
+                            break;
+                        }
                     }
                 }
             }

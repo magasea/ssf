@@ -6,6 +6,7 @@ import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductDetailInfoPage;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductDetailQueryInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
+import com.shellshellfish.aaas.common.utils.DataCollectorUtil;
 import com.shellshellfish.aaas.trade.finance.prod.*;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoCollection.Builder;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProductServiceGrpc.FinanceProductServiceImplBase;
@@ -99,7 +100,8 @@ public class FinanceProductServiceImpl  extends
     Builder builderOfFPIC = FinanceProdInfoCollection.newBuilder();
     FinanceProdInfo.Builder builderOfFPI = FinanceProdInfo.newBuilder();
     for(ProductMakeUpInfo productMakeUpInfo: productMakeUpInfos){
-      BeanUtils.copyProperties(productMakeUpInfo, builderOfFPI);
+      BeanUtils.copyProperties(productMakeUpInfo, builderOfFPI, DataCollectorUtil
+          .getNullPropertyNames(productMakeUpInfo));
       builderOfFPIC.addFinanceProdInfo(builderOfFPI);
       builderOfFPI.clear();
     }
@@ -122,9 +124,10 @@ public class FinanceProductServiceImpl  extends
         Integer result = Double.valueOf(interval.getProportion()*10000).intValue();
         logger.info("fundShare:" + interval.getProportion() + "result:"+result);
         productMakeUpInfo.setFundShare(result);
-        productMakeUpInfo.setProdName(interval.getFname());
+        productMakeUpInfo.setProdName(interval.getFund_group_name());
         productMakeUpInfo.setProdId(Long.parseLong(interval.getFund_group_sub_id()));
-        productMakeUpInfo.setProdName(interval.getFname());
+
+        productMakeUpInfo.setFundName(interval.getFname());
         productMakeUpInfos.add(productMakeUpInfo);
       }
     }

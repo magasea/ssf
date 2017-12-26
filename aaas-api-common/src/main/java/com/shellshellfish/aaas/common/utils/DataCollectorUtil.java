@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.datacollection.server.util;
+package com.shellshellfish.aaas.common.utils;
 
 import java.util.HashMap;
 import java.util.HashSet;
