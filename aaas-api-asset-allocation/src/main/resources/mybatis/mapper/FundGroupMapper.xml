@@ -108,7 +108,7 @@
         select d.fund_type_two fund_type_two,sum(d.revenue_contribution) revenue_contribution,(select interval_last_mod_time from fund_group_sub
         where fund_group_id=#{id} and id=#{subGroupId}) details_last_mod_time from
         (select a.revenue_contribution,c.fund_type_two from fund_group_details a,fund_group_sub b,fund_basic c
-        where a.fund_group_id = b.fund_group_id and a.fund_code = c.code and b.fund_group_id=#{id}
+        where a.fund_group_id = b.fund_group_id and a.fund_group_sub_id = b.id and a.fund_code = c.code and b.fund_group_id=#{id}
         and b.id=#{subGroupId}) d GROUP BY d.fund_type_two
     </select>
 
