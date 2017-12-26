@@ -14,10 +14,10 @@ public interface ConstantUtil {
     String WEEKDAY_OF_FRI ="Fri";
 
     String START_QUERY_DATE ="1980-01-01";
-    String TRIGGER_NAME_OF_DAY ="triggerOfDay";
-    String TRIGGER_NAME_OF_WEEK ="triggerOfWeek";
-    String TRIGGER_NAME_OF_MONTH ="triggerOfMonth";
-    String TRIGGER_NAME_OF_YEAR ="triggerOfYear";
+    String CALCULATE_DATA_OF_DAY ="calculateDataOfDay";
+    String CALCULATE_DATA_OF_WEEK ="calculateDataOfWeek";
+    String CALCULATE_DATA_OF_MONTH ="calculateDataOfMonth";
+    String CALCULATE_DATA_OF_YEAR ="calculateDataOfYear";
 
     String FUND_CALCULATE_JOB ="fundCalculateJob";
 
@@ -28,7 +28,9 @@ public interface ConstantUtil {
 
     String SUCCEED_STATUS ="succeed";
     String FAILUED_STATUS ="failued";
+    String NULL_STATUS ="null";
 
     String ADJUSTED_FACTOR_TRIGGER="adjustedFactorTrigger";
 
+    Integer SUB_GROUP_COUNT=100; // 调用 MVO 输出点的个数
 }
