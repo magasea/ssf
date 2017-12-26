@@ -20,6 +20,7 @@ public class FundYeildRate {
 	@Field("navadjreturnp")
 	private String navadjreturnp; //区间复权单位净值增长率
 	
+	
 	public String getDate() {
 	    return date;
 	}
@@ -28,6 +29,7 @@ public class FundYeildRate {
 	    this.date = date;
 	}
 
+	
 
 	public String getCode() {
 	    return code;
