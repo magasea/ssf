@@ -178,6 +178,7 @@ public class TradeOpServiceImpl implements TradeOpService {
             .substring(0,6)),trdBrokerId);
     payDto.setTrdAccount(trdAcco);
     payDto.setUserUuid(financeProdBuyInfo.getUuid());
+    payDto.setUserProdId(financeProdBuyInfo.getUserProdId());
     List<com.shellshellfish.aaas.common.message.order.TrdOrderDetail> trdOrderDetails =  new
         ArrayList<com.shellshellfish.aaas.common.message.order.TrdOrderDetail>();
 
@@ -187,6 +188,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     trdOrder.setCreateDate(TradeUtil.getUTCTime());
     trdOrder.setOrderType(financeProdBuyInfo.getOrderType());
     trdOrder.setProdId(financeProdBuyInfo.getProdId());
+    trdOrder.setUserProdId(financeProdBuyInfo.getUserProdId());
     trdOrder.setOrderStatus(TrdOrderStatusEnum.WAITCONFIRM.ordinal());
     trdOrder.setOrderId(orderId);
     trdOrder.setCreateBy(financeProdBuyInfo.getUserId());

@@ -4,6 +4,7 @@ import com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel;
 import com.shellshellfish.aaas.assetallocation.neo.job.entity.JobTimeRecord;
 import com.shellshellfish.aaas.assetallocation.neo.job.service.JobTimeService;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.CovarianceMapper;
+import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
 import org.apache.commons.math3.stat.correlation.Covariance;
 import org.slf4j.Logger;
@@ -34,6 +35,8 @@ public class CovarianceCalculateService {
     private JobTimeService jobTimeService;
     @Autowired
     private FundCalculateService fundCalculateService;
+    @Autowired
+    private FundGroupMapper fundGroupMapper;
 
     private static final Logger logger= LoggerFactory.getLogger(CovarianceCalculateService.class);
 
@@ -74,10 +77,11 @@ public class CovarianceCalculateService {
         }
 
         List<String> fundNetValArrList=new ArrayList<>();
+        //获取组合中code
         try {
-            fundNetValArrList =fundNetValMapper.getAllCodeByDate(selectDate);
+            fundNetValArrList=fundGroupMapper.findGroupCode();
         }catch (Exception e){
-            logger.error("查询净值数据code失败!");
+            logger.error("查询code失败!");
             e.printStackTrace();
         }
 
@@ -111,6 +115,9 @@ public class CovarianceCalculateService {
                         }
 
                         covarianceModel.setNavDate(tempCovarianceModel.getNavDate());
+
+                        covarianceModel.setNavadjA(tempCovarianceModel.getNavadjA());
+                        covarianceModel.setNavadjB(tempCovarianceModel.getNavadjB());
                         //计算协方差
                         Double cov=calculateCovariance(j,covarianceModelList,number);
 
@@ -176,9 +183,9 @@ public class CovarianceCalculateService {
 
         List<String> fundNetValArrList=new ArrayList<>();
         try {
-            fundNetValArrList =fundNetValMapper.getAllCodeByDate(selectDate);
+            fundNetValArrList=fundGroupMapper.findGroupCode();
         }catch (Exception e){
-            logger.error("查询净值数据code失败!");
+            logger.error("查询code失败!");
             e.printStackTrace();
         }
 
@@ -214,6 +221,8 @@ public class CovarianceCalculateService {
                         }
 
                         covarianceModel.setNavDate(tempCovarianceModel.getNavDate());
+                        covarianceModel.setNavadjA(tempCovarianceModel.getNavadjA());
+                        covarianceModel.setNavadjB(tempCovarianceModel.getNavadjB());
                         //计算协方差
                         Double cov=calculateCovariance(j,covarianceModelList,number);
 
@@ -279,9 +288,9 @@ public class CovarianceCalculateService {
 
         List<String> fundNetValArrList=new ArrayList<>();
         try {
-            fundNetValArrList =fundNetValMapper.getAllCodeByDate(selectDate);
+            fundNetValArrList=fundGroupMapper.findGroupCode();
         }catch (Exception e){
-            logger.error("查询净值数据code失败!");
+            logger.error("查询code失败!");
             e.printStackTrace();
         }
 
@@ -316,7 +325,8 @@ public class CovarianceCalculateService {
                         }
 
                         covarianceModel.setNavDate(tempCovarianceModel.getNavDate());
-
+                        covarianceModel.setNavadjA(tempCovarianceModel.getNavadjA());
+                        covarianceModel.setNavadjB(tempCovarianceModel.getNavadjB());
                         //计算协方差
                         Double cov=calculateCovariance(j,covarianceModelList,number);
 
@@ -381,9 +391,9 @@ public class CovarianceCalculateService {
 
         List<String> fundNetValArrList=new ArrayList<>();
         try {
-            fundNetValArrList =fundNetValMapper.getAllCodeByDate(selectDate);
+            fundNetValArrList=fundGroupMapper.findGroupCode();
         }catch (Exception e){
-            logger.error("查询净值数据code失败!");
+            logger.error("查询code失败!");
             e.printStackTrace();
         }
 
@@ -420,6 +430,8 @@ public class CovarianceCalculateService {
                         }
 
                         covarianceModel.setNavDate(tempCovarianceModel.getNavDate());
+                        covarianceModel.setNavadjA(tempCovarianceModel.getNavadjA());
+                        covarianceModel.setNavadjB(tempCovarianceModel.getNavadjB());
                         //计算协方差
                         Double cov=calculateCovariance(j,covarianceModelList,number);
 
@@ -571,7 +583,7 @@ public class CovarianceCalculateService {
                     return null;
                 }else{
                     countOfWeek=0;
-                    CovarianceModel tempCovarianceModel=getEffectData(tempNum-2,fundList);//一周之内找不到周五数据，则取该周周尾有效数据
+                    CovarianceModel tempCovarianceModel=getEffectData(tempNum-2,fundList);//一周之内找不到周五数据，则取该天有效数据
                     return tempCovarianceModel;
                 }
 
@@ -652,16 +664,28 @@ public class CovarianceCalculateService {
      * 计算协方差方法
      */
     public Double calculateCovariance(int j, List<CovarianceModel> covarianceModelList, int number){
-        List<List<Double>> list=new ArrayList<>();
+
         List<Double> listA=new ArrayList<>();
         List<Double> listB=new ArrayList<>();
         Double cov=0d;
+        List<Double> yieldRatioArrA=new ArrayList<>();
+        List<Double> yieldRatioArrB=new ArrayList<>();
         //取值
         while(listA.size()<number){
             CovarianceModel tempCovarianceModel=covarianceModelList.get(j);
             if(tempCovarianceModel.getNavadjA()!=null && tempCovarianceModel.getNavadjB()!=null){
                 listA.add(tempCovarianceModel.getNavadjA().doubleValue());
                 listB.add(tempCovarianceModel.getNavadjB().doubleValue());
+
+                if(listA.size()>1){
+                    Double yieldRatioA =fundCalculateService.calculateYieldRatio(listA.get(listA.size()-2),listA.get(listA.size()-1));
+                    yieldRatioArrA.add(yieldRatioA);
+
+                    Double yieldRatioB =fundCalculateService.calculateYieldRatio(listB.get(listB.size()-2),listB.get(listB.size()-1));
+                    yieldRatioArrB.add(yieldRatioB);
+
+                }
+
             }
             j++;
             if(j>=covarianceModelList.size()){
@@ -669,12 +693,8 @@ public class CovarianceCalculateService {
             }
         }
 
-        list.add(listA);
-        list.add(listB);
-
-        //计算协方差每维变量个数须 >=2
-        if(listA.size()>1){
-            cov=getCovariance(listA.toArray(new Double[0]),listB.toArray(new Double[0]));
+        if(yieldRatioArrA.size()>1){
+            cov=getCovariance(yieldRatioArrA.toArray(new Double[0]),yieldRatioArrB.toArray(new Double[0]));
         }
 
         return cov;

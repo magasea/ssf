@@ -38,11 +38,13 @@ spring:
     host: localhost
     port: 5672
     virtual-host: aaas
-    topicQueuePayName: com.ssf.topic.queue.pay
-    topicQueueOrderName: com.ssf.topic.queue.order
-    topicExchangeName: com.ssf.topic.exchange
-    topicPay: shellshellfish.pay
-    topicOrder: shellshellfish.order
+      topicQueuePayName: com-ssf-topic-queue-pay
+      topicQueueOrderName: com-ssf-topic-queue-order
+      topicQueueUserinfoName: com-ssf-topic-queue-userinfo
+      topicExchangeName: com-ssf-topic-exchange
+      topicPay: shellshellfish.pay
+      topicOrder: shellshellfish.order
+      topicUserinfo: shellshellfish.userinfo
 datasource:
   sampleapp:
     url: jdbc:mysql://localhost:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8

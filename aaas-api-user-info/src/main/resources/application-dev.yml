@@ -44,9 +44,11 @@ spring:
       virtual-host: aaas
       topicQueuePayName: com-ssf-topic-queue-pay
       topicQueueOrderName: com-ssf-topic-queue-order
+      topicQueueUserinfoName: com-ssf-topic-queue-userinfo
       topicExchangeName: com-ssf-topic-exchange
       topicPay: shellshellfish.pay
       topicOrder: shellshellfish.order
+      topicUserinfo: shellshellfish.userinfo
 
 datasource:
   sampleapp:

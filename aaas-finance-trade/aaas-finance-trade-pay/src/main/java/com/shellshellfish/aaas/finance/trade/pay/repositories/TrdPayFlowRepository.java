@@ -9,4 +9,7 @@ public interface TrdPayFlowRepository extends PagingAndSortingRepository<TrdPayF
   TrdPayFlow save(TrdPayFlow trdPayFlow);
 
   List<TrdPayFlow> findAllByFundSumConfirmedIsNull();
+
+  List<TrdPayFlow> findAllByUserProdId(Long userProdId);
+
 }
