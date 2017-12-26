@@ -435,35 +435,44 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			responseObserver.onCompleted();
 			return;
 		}
-		List<com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo> financeProdInfosValue =
-		financeProdInfoList;
-		FinanceProdInfo financeProdInfoFirst = financeProdInfosValue.get(0);
-		logger.info("financeProdInfoFirst is:" + financeProdInfoFirst + " prodName:"
-				+ " "+financeProdInfoFirst.getProdName() + "groupId:"+financeProdInfoFirst.getGroupId() +
-				"prodId:" +financeProdInfoFirst.getProdId()  );
-		UiProducts uiProducts = new UiProducts();
-		uiProducts.setCreateBy(request.getUserId());
-		BeanUtils.copyProperties(financeProdInfoFirst, uiProducts);
-		uiProducts.setCreateDate(TradeUtil.getUTCTime());
-		uiProducts.setUpdateBy(request.getUserId());
-		uiProducts.setUpdateDate(TradeUtil.getUTCTime());
-		uiProducts.setStatus(TrdOrderStatusEnum.WAITPAY.getStatus());
-		UiProducts saveResult = uiProductRepo.save(uiProducts);
-		Long userProdId = saveResult.getId();
-		logger.info("saved UiProducts with result id:" + userProdId);
-		for(FinanceProdInfo financeProdInfo: financeProdInfosValue){
-			UiProductDetail uiProductDetail = new UiProductDetail();
-			BeanUtils.copyProperties(financeProdInfo, uiProductDetail);
-			uiProductDetail.setCreateBy(request.getUserId());
-			uiProductDetail.setCreateDate(TradeUtil.getUTCTime());
-			uiProductDetail.setUpdateBy(request.getUserId());
-			uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
-			uiProductDetail.setUserProdId(userProdId);
-			uiProductDetailRepo.save(uiProductDetail);
+		try{
+			List<com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo> financeProdInfosValue =
+					financeProdInfoList;
+			FinanceProdInfo financeProdInfoFirst = financeProdInfosValue.get(0);
+			logger.info("financeProdInfoFirst is:" + financeProdInfoFirst + " prodName:"
+					+ " "+financeProdInfoFirst.getProdName() + "groupId:"+financeProdInfoFirst.getGroupId() +
+					"prodId:" +financeProdInfoFirst.getProdId()  );
+			UiProducts uiProducts = new UiProducts();
+			uiProducts.setCreateBy(request.getUserId());
+			BeanUtils.copyProperties(financeProdInfoFirst, uiProducts);
+			uiProducts.setCreateDate(TradeUtil.getUTCTime());
+			uiProducts.setUpdateBy(request.getUserId());
+			uiProducts.setUpdateDate(TradeUtil.getUTCTime());
+			uiProducts.setStatus(TrdOrderStatusEnum.WAITPAY.getStatus());
+			UiProducts saveResult = uiProductRepo.save(uiProducts);
+			Long userProdId = saveResult.getId();
+			logger.info("saved UiProducts with result id:" + userProdId);
+			for(FinanceProdInfo financeProdInfo: financeProdInfosValue){
+				UiProductDetail uiProductDetail = new UiProductDetail();
+				BeanUtils.copyProperties(financeProdInfo, uiProductDetail);
+				uiProductDetail.setCreateBy(request.getUserId());
+				uiProductDetail.setCreateDate(TradeUtil.getUTCTime());
+				uiProductDetail.setUpdateBy(request.getUserId());
+				uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
+				uiProductDetail.setUserProdId(userProdId);
+				uiProductDetailRepo.save(uiProductDetail);
+			}
+			respBuilder.setUserProdId(userProdId);
+			responseObserver.onNext(respBuilder.build());
+			responseObserver.onCompleted();
+			return;
+		}catch (Exception ex){
+			logger.error(ex.getMessage());
+			respBuilder.setUserProdId(-1L);
+			responseObserver.onNext(respBuilder.build());
+			responseObserver.onCompleted();
+			return;
 		}
-		respBuilder.setUserProdId(userProdId);
-		responseObserver.onNext(respBuilder.build());
-		responseObserver.onCompleted();
-		return;
+
 	}
 }

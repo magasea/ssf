@@ -79,7 +79,7 @@ public class TradeOrderController {
   /**
    * 购买理财产品 购买
    *
-   * @param financeProdBuyInfo
+   * @param totalAmount
    * @return
    */
 	@ApiOperation("购买理财产品 购买页面")
