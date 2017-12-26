@@ -19,6 +19,9 @@ public class BroadcastMessageProducers {
     @Value("${spring.rabbitmq.topicPay}")
     String topicPay;
 
+    @Value("${spring.rabbitmq.topicUserinfo}")
+    String topicUserinfo;
+
     @Value("${spring.rabbitmq.topicOrder}")
     String topicOrder;
 
@@ -31,6 +34,7 @@ public class BroadcastMessageProducers {
     public void sendMessage(TrdPayFlow trdPayFlow) {
         logger.info("send message: " + trdPayFlow.getOrderDetailId());
         rabbitTemplate.convertAndSend(exchange, topicOrder, trdPayFlow);
+        rabbitTemplate.convertAndSend(exchange, topicUserinfo, trdPayFlow);
     }
 
 }

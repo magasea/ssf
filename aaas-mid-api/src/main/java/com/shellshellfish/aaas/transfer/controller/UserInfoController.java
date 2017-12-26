@@ -288,13 +288,31 @@ public class UserInfoController {
 			result.put("status", "1");
 			result.put("msg", "解绑成功");
 			return new JsonResult(JsonResult.SUCCESS, "解绑银行卡成功", result);
-		} catch (Exception e) {
-			/*result = new HashMap<>();
-			result.put("errorCode", "400");
-			result.put("error", "");*/
+		}catch(Exception e){
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail, str, "");
-		}
+			return new JsonResult(JsonResult.Fail,str, "");
+		}	
+	}
+	
+	@ApiOperation("交易记录")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=true,value="用户uuid",defaultValue="")
+	})
+	@RequestMapping(value = "/traderecords", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult tradeLogsOfUser(@RequestParam String uuid) {
+		Map<Object, Object> result = new HashMap<Object, Object>();
+		try {
+			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid+"/traderecords", Map.class).getBody();
+			if (result == null || result.size() == 0) {
+				logger.error("系统消息获取失败");
+				return new JsonResult(JsonResult.Fail, "交易记录获取失败", "");
+			}
+			return new JsonResult(JsonResult.SUCCESS, "交易记录成功", result);
+		}catch(Exception e){
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail,str, "");
+		}	
 	}
 	
 	/**

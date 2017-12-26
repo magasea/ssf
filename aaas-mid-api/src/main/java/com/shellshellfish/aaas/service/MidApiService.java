@@ -14,6 +14,16 @@ import com.shellshellfish.aaas.dto.FinanceProductCompo;
  */
 @Service
 public interface MidApiService {
+	
+	
+	/**
+	 * 验证码验证接口
+	 * @param msgCode
+	 * @return
+	 * @throws Exception
+	 */
+	String verifyMSGCode(String telNum,String msgCode) throws Exception;
+	
 	/**
 	 * 获取产品的code，名字，净值增长值
 	 * @param groupId

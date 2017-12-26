@@ -2,36 +2,38 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.shellshellfish.aaas.assetallocation.neo.mapper.CovarianceMapper">
+
     <insert id="insertCovarianceOfDay" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel" >
         INSERT INTO
         fund_covariance_day
-        (code_A,code_B,covariance,nav_date)
+        (code_A,code_B,covariance,nav_date,navadjA,navadjB)
         VALUES
-        (#{codeA},#{codeB},#{covariance},#{navDate})
+        (#{codeA},#{codeB},#{covariance},#{navDate},#{navadjA},#{navadjB})
     </insert>
+
 
     <insert id="insertCovarianceOfWeek" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel" >
         INSERT INTO
         fund_covariance_week
-        (code_A,code_B,covariance,nav_date)
+        (code_A,code_B,covariance,nav_date,navadjA,navadjB)
         VALUES
-        (#{codeA},#{codeB},#{covariance},#{navDate})
+        (#{codeA},#{codeB},#{covariance},#{navDate},#{navadjA},#{navadjB})
     </insert>
 
     <insert id="insertCovarianceOfMonth" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel" >
         INSERT INTO
         fund_covariance_month
-        (code_A,code_B,covariance,nav_date)
+        (code_A,code_B,covariance,nav_date,navadjA,navadjB)
         VALUES
-        (#{codeA},#{codeB},#{covariance},#{navDate})
+        (#{codeA},#{codeB},#{covariance},#{navDate},#{navadjA},#{navadjB})
     </insert>
 
     <insert id="insertCovarianceOfYear" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel" >
         INSERT INTO
         fund_covariance_year
-        (code_A,code_B,covariance,nav_date)
+        (code_A,code_B,covariance,nav_date,navadjA,navadjB)
         VALUES
-        (#{codeA},#{codeB},#{covariance},#{navDate})
+        (#{codeA},#{codeB},#{covariance},#{navDate},#{navadjA},#{navadjB})
     </insert>
 
     <select id="findCovariance"  resultType="java.lang.Double" statementType="STATEMENT">
@@ -40,6 +42,7 @@
         FROM ${tableName}
         WHERE code_A IN ('${codeA}','${codeB}')
         AND code_B IN ('${codeA}','${codeB}')
-        AND nav_date='${selectDate}'
+        AND '${selectDate}'>=nav_date limit 1
     </select>
+
 </mapper>

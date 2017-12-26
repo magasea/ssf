@@ -7,6 +7,7 @@ import com.shellshellfish.aaas.datacollect.DailyFundsCollection;
 import com.shellshellfish.aaas.datacollect.DailyFundsQuery;
 import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc.DataCollectionServiceImplBase;
 import com.shellshellfish.aaas.datacollection.server.model.DailyFunds;
+import com.shellshellfish.aaas.datacollection.server.model.FundResources;
 import com.shellshellfish.aaas.datacollection.server.repositories.DailyFundsRepository;
 
 import com.shellshellfish.aaas.datacollection.server.util.DateUtil;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.util.CollectionUtils;
 
 
 public class DataCollectionServiceImpl extends DataCollectionServiceImplBase {
@@ -42,21 +44,31 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase {
   public void getFundDataOfDay(DailyFundsQuery request, StreamObserver<DailyFundsCollection>
       responseObserver){
     String navLatestDate = request.getNavLatestDate();
-    List<String> code = request.getCodesList();
+    List<String> codes = request.getCodesList();
     List<DailyFunds> dailyFundsList = null;
     try {
       Query query = new Query();
       query.addCriteria(Criteria.where("navlatestdate").is(DateUtil.getDateLongVal(navLatestDate)
-          /1000).and("code").in(code));
+          /1000).and("code").in(codes));
       dailyFundsList  = mongoTemplate.find(query, DailyFunds.class, "dailyfunds");
     } catch (ParseException e) {
       e.printStackTrace();
     }
     List<com.shellshellfish.aaas.datacollect.DailyFunds> dailyFundsListProto = new ArrayList<>();
     Builder builderDailyFunds = com.shellshellfish.aaas.datacollect.DailyFunds.newBuilder();
-    for(DailyFunds dailyFunds : dailyFundsList){
+    for(DailyFunds dailyFunds: dailyFundsList){
       BeanUtils.copyProperties(dailyFunds, builderDailyFunds, DataCollectorUtil
           .getNullPropertyNames(dailyFunds));
+      Query query = new Query();
+      query.addCriteria(Criteria.where("code").is(dailyFunds.getCode()));
+      List<FundResources> fundResources = mongoTemplate.find(query, FundResources.class,
+          "fundresources");
+      if( CollectionUtils.isEmpty(fundResources)){
+        logger.error("cannot find fundTypeOne for code:" + dailyFunds.getCode());
+      }else{
+        builderDailyFunds.setFirstInvestType(fundResources.get(0).getFirstinvesttype());
+        builderDailyFunds.setSecondInvestType(fundResources.get(0).getSecondinvesttype());
+      }
       dailyFundsListProto.add(builderDailyFunds.build());
       builderDailyFunds.clear();
     }

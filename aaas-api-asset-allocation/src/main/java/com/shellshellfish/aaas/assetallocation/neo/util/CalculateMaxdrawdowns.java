@@ -1,8 +1,7 @@
 package com.shellshellfish.aaas.assetallocation.neo.util;
 
 import com.mathworks.toolbox.javabuilder.MWException;
-
-import com.yihui.*;
+import com.yihui.MATLAB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,21 +16,23 @@ public class CalculateMaxdrawdowns {
     private static final Logger logger= LoggerFactory.getLogger(CalculateMaxdrawdowns.class);
 
     /*
-     * 计算最大回撤率
+     * @Desc:计算最大回撤率
+     * @Param:
+     *        netValueArr:净值数据
      */
-    public Double calculateMaxdrawdown( double[] temp){
+    public Double calculateMaxdrawdown( double[] netValueArr){
         Object[] result=null;
         Double maxdrawdownValue=null;
         try {
             MATLAB matLab= new MATLAB();
-            result=matLab.calculateMaxdrawdown(1,temp);
-
+            result=matLab.calculateMaxdrawdown(1,netValueArr);
+            matLab.dispose();
             if(result!=null && result[0]!=null){
 
                 maxdrawdownValue=Double.parseDouble(result[0].toString());
 
             }
-            matLab.dispose();
+
         } catch (MWException e) {
             logger.error("Failed to calculateMaxdrawdown!");
             e.printStackTrace();
@@ -39,5 +40,4 @@ public class CalculateMaxdrawdowns {
 
         return maxdrawdownValue;
     }
-
 }

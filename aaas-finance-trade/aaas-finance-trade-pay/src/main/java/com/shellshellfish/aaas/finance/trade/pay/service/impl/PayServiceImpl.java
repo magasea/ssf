@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class PayServiceImpl extends PayRpcServiceImplBase implements PayService {
@@ -45,9 +46,24 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
   @Override
   public PayDto payOrder(PayDto payDto) throws Exception {
+
+    List<TrdOrderDetail> orderDetailList = payDto.getOrderDetailList();
+    PayDto payDtoResult = null;
+    List<TrdPayFlow> trdPayFlows =  trdPayFlowRepository.findAllByUserProdId(payDto.getUserProdId());
+    if(CollectionUtils.isEmpty(trdPayFlows)){
+      //说明是新的订单
+      payDtoResult = payNewOrder(payDto);
+    }else{
+      //Todo
+      //说明是重复请求
+    }
+    return payDtoResult;
+  }
+
+  private PayDto payNewOrder(PayDto payDto) throws Exception{
+    List<Exception > errs = new ArrayList<>();
     String trdAcco = payDto.getTrdAccount();
     List<TrdOrderDetail> orderDetailList = payDto.getOrderDetailList();
-    List<Exception > errs = new ArrayList<>();
     for(TrdOrderDetail trdOrderDetail: orderDetailList){
       logger.info("payOrder fundCode:"+trdOrderDetail.getFundCode());
       //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
@@ -56,6 +72,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       TrdPayFlow trdPayFlow = new TrdPayFlow();
       trdPayFlow.setCreateDate(DateUtil.getCurrentDateInLong());
       trdPayFlow.setCreateBy(0L);
+
       trdPayFlow.setPayAmount(trdOrderDetail.getFundMoneyQuantity());
       trdPayFlow.setPayStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(payDto.getUserProdId());
@@ -70,12 +87,19 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       }
       //ToDo: 如果有真实数据， 则删除下面if代码
       if(null == fundResult){
-
-        fundResult = new BuyFundResult();
-        fundResult.setApplySerial("12312341");
-        fundResult.setCapitalMode("");
-        fundResult.setOutsideOrderNo(""+trdOrderDetail.getId());
-        fundResult.setKkstat(TrdPayFlowStatusEnum.NOTHANDLED.getComment());
+        com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
+            .shellshellfish.aaas.common.message.order.TrdPayFlow();
+        trdPayFlowMsg.setPayStatus(TrdPayFlowStatusEnum.NOTHANDLED.getStatus());
+        StringBuilder errMsg = new StringBuilder();
+        for(Exception ex: errs){
+          errMsg.append(ex.getMessage());
+          errMsg.append("|");
+        }
+        trdPayFlowMsg.setErrMsg(errMsg.toString());
+        trdPayFlowMsg.setUserId(trdOrderDetail.getUserId());
+        trdPayFlowMsg.setOrderDetailId(trdOrderDetail.getId());
+        notifyPay(trdPayFlowMsg);
+        errs.clear();
 
       }
       if(null != fundResult){

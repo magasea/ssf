@@ -35,6 +35,7 @@ public class MVO {
             list.add(weights);
             list.add(weights1);
             list.add(weights2);
+            ml.dispose();
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -60,6 +61,7 @@ public class MVO {
             float [][] weights1=(float[][])temp1.toFloatArray();
             resust[0]=weights;
             resust[1]=weights1;
+            ml.dispose();
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -78,6 +80,7 @@ public class MVO {
         try {
             MATLAB ml = new MATLAB();
             result = ml.sharpeRatio(1,asset,cash)[0];
+            ml.dispose();
         } catch (MWException e) {
             e.printStackTrace();
         }

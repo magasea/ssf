@@ -73,10 +73,13 @@ public class TradeOrderController {
     return new ResponseEntity<Object>(HttpStatus.OK);
   }
   
+  
+  
+  
   /**
    * 购买理财产品 购买
    *
-   * @param financeProdBuyInfo
+   * @param totalAmount
    * @return
    */
 	@ApiOperation("购买理财产品 购买页面")
@@ -101,7 +104,7 @@ public class TradeOrderController {
 		List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
 		DistributionResult distributionResult = financeProdCalcService.getPoundageOfSellFund(totalAmount, productList);
 		return new ResponseEntity<DistributionResult>(distributionResult, HttpStatus.OK);
-	}
+	} 
 
 
 

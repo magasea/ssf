@@ -1,9 +1,11 @@
 package com.shellshellfish.aaas.assetallocation.neo.mapper;
 
 import com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel;
+import com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds;
 import com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -14,11 +16,8 @@ import java.util.List;
 //@Mapper
 public interface FundNetValMapper {
 
-    //根据时间查询净值表数据
-    List<FundNetVal> getAllByDate(Date selectDate);
-
-    //根据时间查询净值表code数据
-    List<String> getAllCodeByDate(Date selectDate);
+    //根据时间以及code查询净值表数据
+    List<FundNetVal> getAllDataByCodeAndDate(HashMap<String,Object> codeMap);
 
     //根据时间查询阶段扫描最大时间
     Date getMaxNavDateByDate(Date selectDate);
@@ -31,4 +30,20 @@ public interface FundNetValMapper {
 
     //更新数据 adjustedFactor (复权因子)
     Integer updateAdjustedFactor(FundNetVal fundNetVal);
+
+    //根据时间查询阶段扫描最大时间
+    Date getMaxNavDateByCode(String code);
+
+    //将通过rpc获取到的每日基金数据插入 fund_net_value
+    Integer insertDailyDataToFundNetVal(List<Dailyfunds> dailyfundsList);
+
+    //将通过rpc获取到的 基准 每日基金数据插入 fund_net_value
+    Integer insertBenchmarkDailyDataToFundNetVal(List<Dailyfunds> dailyfundsList);
+
+    //将通过rpc获取到的每日基金基础数据插入 fund_basic
+    Integer insertBasicDataToFundBasic(Dailyfunds dailyfunds);
+
+    //根据code 查询 fund_basic 表中是否已有数据
+    String findBasicDataByCode(String code);
+
 }

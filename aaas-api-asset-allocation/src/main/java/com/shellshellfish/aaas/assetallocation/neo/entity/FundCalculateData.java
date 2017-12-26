@@ -14,6 +14,7 @@ public class FundCalculateData {
     private Double riskRatio;//风险率
     private Date navDate;//净值日期
     private Double semiVariance;//半方差
+    private Double navadj;//复权单位净值
 
     public Integer getId() {
         return id;
@@ -63,6 +64,14 @@ public class FundCalculateData {
         this.semiVariance = semiVariance;
     }
 
+    public Double getNavadj() {
+        return navadj;
+    }
+
+    public void setNavadj(Double navadj) {
+        this.navadj = navadj;
+    }
+
     @Override
     public String toString() {
         return "FundCalculateData{" +
@@ -72,6 +81,7 @@ public class FundCalculateData {
                 ", riskRatio=" + riskRatio +
                 ", navDate=" + navDate +
                 ", semiVariance=" + semiVariance +
+                ", navadj=" + navadj +
                 '}';
     }
 }

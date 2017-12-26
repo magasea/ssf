@@ -1,8 +1,11 @@
 package com.shellshellfish.aaas.common.message.order;
 
+import java.io.Serializable;
+
 /**
  * Created by chenwei on 2017- 十二月 - 25
  */
+
 
 
 
@@ -31,6 +34,7 @@ public class TrdPayFlow {
   private long updateBy;
   private long updateDate;
   private String prodCode;
+  private String errMsg;
 
   
   
@@ -260,6 +264,16 @@ public class TrdPayFlow {
 
   public void setProdCode(String prodCode) {
     this.prodCode = prodCode;
+  }
+
+  
+  
+  public String getErrMsg() {
+    return errMsg;
+  }
+
+  public void setErrMsg(String errMsg) {
+    this.errMsg = errMsg;
   }
 
   

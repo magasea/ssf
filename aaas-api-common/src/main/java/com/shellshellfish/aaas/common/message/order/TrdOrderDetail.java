@@ -1,12 +1,14 @@
 package com.shellshellfish.aaas.common.message.order;
 
+import java.io.Serializable;
+
 /**
  * Created by chenwei on 2017- 十二月 - 25
  */
 
 
 
-public class TrdOrderDetail {
+public class TrdOrderDetail implements Serializable {
 
   private long id;
   private String orderId;

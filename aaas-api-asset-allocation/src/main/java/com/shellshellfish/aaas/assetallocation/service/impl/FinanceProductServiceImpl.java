@@ -124,7 +124,7 @@ public class FinanceProductServiceImpl  extends
         Integer result = Double.valueOf(interval.getProportion()*10000).intValue();
         logger.info("fundShare:" + interval.getProportion() + "result:"+result);
         productMakeUpInfo.setFundShare(result);
-        productMakeUpInfo.setProdName(interval.getFname());
+        productMakeUpInfo.setProdName(interval.getFund_group_name());
         productMakeUpInfo.setProdId(Long.parseLong(interval.getFund_group_sub_id()));
 
         productMakeUpInfo.setFundName(interval.getFname());

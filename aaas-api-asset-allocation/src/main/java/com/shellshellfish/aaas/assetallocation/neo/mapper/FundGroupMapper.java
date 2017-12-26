@@ -87,4 +87,35 @@ public interface FundGroupMapper {
 
     int updateContribution(Map map);
 
+    //查询 fund_group_basic 中全部 code
+    List<String> findAllGroupCode();
+
+    //查询产品组合中 code
+    List<String> findGroupCode();
+
+    //查询基准组合中 code
+    List<String> findBenchmarkCode();
+
+    //查询组合中有效 group_id 中 code
+    List<FundCombination> findAllGroupId();
+
+    //取 MVO 方法计算的数据 insert into fund_group_details
+    Integer insertIntoFundGroupDetails(List<FundCombination> list);
+
+    //取 MVO 方法计算的数据 insert into fund_group_sub
+    Integer insertIntoFundGroupSub(List<FundCombination> fundCombinationList);
+
+    //将 fund_group_details 中 数据 备份到 fund_group_details_history
+    Integer transIntoFundGroupDetailsHistory();
+
+    //将 fund_group_sub 中 数据 备份到 fund_group_sub_history
+    Integer transIntoFundGroupSubHistory();
+
+    //将 fund_group_details 中 数据 删除
+    Integer deleteFundGroupDetails();
+
+    //将 fund_group_sub 中 数据 删除
+    Integer deleteFundGroupSub();
+
+
 }

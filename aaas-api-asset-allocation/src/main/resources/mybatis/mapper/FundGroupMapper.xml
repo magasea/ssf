@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper">
+
+    <resultMap id="fundGroupMap" type="com.shellshellfish.aaas.assetallocation.neo.entity.FundCombination">
+        <result property="groupId" column="group_id" />
+        <result property="code" column="code" />
+    </resultMap>
+
     <select id="selectFundGroup" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
         SELECT
         *
@@ -102,7 +108,7 @@
         select d.fund_type_two fund_type_two,sum(d.revenue_contribution) revenue_contribution,(select interval_last_mod_time from fund_group_sub
         where fund_group_id=#{id} and id=#{subGroupId}) details_last_mod_time from
         (select a.revenue_contribution,c.fund_type_two from fund_group_details a,fund_group_sub b,fund_basic c
-        where a.fund_group_id = b.fund_group_id and a.fund_code = c.code and b.fund_group_id=#{id}
+        where a.fund_group_id = b.fund_group_id and a.fund_group_sub_id = b.id and a.fund_code = c.code and b.fund_group_id=#{id}
         and b.id=#{subGroupId}) d GROUP BY d.fund_type_two
     </select>
 
@@ -222,4 +228,68 @@
     <update id="updateContribution">
         update fund_group_details set revenue_contribution = #{contribution} where fund_group_sub_id= #{subGroupId} and fund_code= #{code}
     </update>
+
+
+    <!--add by yongquan.xiong-->
+    <select id="findAllGroupCode"  resultType="java.lang.String">
+        SELECT DISTINCT code FROM fund_group_basic WHERE is_valid='1'
+    </select>
+
+    <select id="findGroupCode"  resultType="java.lang.String">
+        SELECT DISTINCT code FROM fund_group_basic WHERE group_id !='0' AND is_valid='1'
+    </select>
+
+    <select id="findBenchmarkCode"  resultType="java.lang.String">
+        SELECT code FROM fund_group_basic WHERE identifier ='1' AND is_valid='1'
+    </select>
+
+    <select id="findAllGroupId"  resultMap="fundGroupMap">
+        SELECT group_id ,code FROM fund_group_basic WHERE group_id !='0' AND is_valid='1'
+    </select>
+
+    <insert id="insertIntoFundGroupDetails" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCombination">
+        insert into fund_group_details_copy (fund_code,fund_group_id,fund_group_sub_id,proportion)
+        <foreach collection="list" item="details" index="index" separator="union all">
+            ( SELECT
+            #{details.code},#{details.groupId},#{details.subGroupId},#{details.proportion}
+            FROM dual
+            )
+        </foreach>
+    </insert>
+
+
+    <insert id="insertIntoFundGroupSub" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCombination">
+        insert into fund_group_sub_copy (id,fund_group_id,risk_num,income_num,
+        expected_annualized_return,simulate_historical_year_performance,
+        expected_max_retracement,simulate_historical_volatility)
+        <foreach collection="list" item="details" index="index" separator="union all">
+            ( SELECT
+            #{details.subGroupId},#{details.groupId},#{details.subGroupRisk},#{details.subGroupYield},
+            #{details.expectedAnnualizedReturn},#{details.simulateHistoricalYearPerformance},
+            #{details.expectedMaxRetracement},#{details.simulateHistoricalVolatility}
+            FROM dual
+            )
+        </foreach>
+
+    </insert>
+
+    <insert id="transIntoFundGroupDetailsHistory" >
+        INSERT INTO fund_group_details_history
+        SELECT * from fund_group_details_copy
+    </insert>
+
+    <insert id="transIntoFundGroupSubHistory" >
+        INSERT INTO fund_group_sub_history
+        SELECT * from fund_group_sub_copy
+    </insert>
+
+    <delete id="deleteFundGroupDetails">
+        DELETE FROM fund_group_details_copy
+    </delete>
+
+    <delete id="deleteFundGroupSub">
+        DELETE FROM fund_group_sub_copy
+    </delete>
+
+
 </mapper>
