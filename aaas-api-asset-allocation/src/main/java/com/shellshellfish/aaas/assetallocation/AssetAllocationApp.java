@@ -17,10 +17,12 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 
 import com.shellshellfish.aaas.assetallocation.configuration.Properties;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 
 @ComponentScan
 @SpringBootApplication(scanBasePackages={"com.shellshellfish.aaas.assetallocation"})
+@EnableScheduling
 @EnableAutoConfiguration(exclude={MongoAutoConfiguration.class})
 @EnableConfigurationProperties({ Properties.class })
 @MapperScan("com.shellshellfish.aaas.assetallocation.neo.mapper")
