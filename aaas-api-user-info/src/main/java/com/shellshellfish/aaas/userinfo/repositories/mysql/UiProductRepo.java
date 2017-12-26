@@ -12,4 +12,6 @@ public interface UiProductRepo  extends PagingAndSortingRepository<UiProducts, L
 
   @Override
   UiProducts save(UiProducts uiProducts);
+
+
 }
