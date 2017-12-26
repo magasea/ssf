@@ -43,13 +43,17 @@ public class FundGroupService {
                 query.put("id", riskIncomeInterval.getFund_group_id());
                 query.put("subId", riskIncomeInterval.getId());
                 List<Interval> intervals = fundGroupMapper.getProportion(query);
+                List<Map<String, Object>> listMap = new ArrayList<>();
                 //基金组合内的各基金权重
                 for (Interval inter : intervals) {
-                    Map<String, Object> assetsRatios = new HashMap<>();
-                    assetsRatios.put("type",inter.getFund_type_two());
-                    assetsRatios.put("value", inter.getProportion());
-                    _items.put("assetsRatios", assetsRatios);//组合内各基金权重
+                    if (inter.getProportion() != 0) {
+                        Map<String, Object> assetsRatios = new HashMap<>();
+                        assetsRatios.put("type", inter.getFund_type_two());
+                        assetsRatios.put("value", inter.getProportion());
+                        listMap.add(assetsRatios);
+                    }
                 }
+                _items.put("assetsRatios", listMap);//组合内各基金权重
                 _items.put("groupId", interval.getFund_group_id());
                 _items.put("subGroupId", riskIncomeInterval.getId());
                 _items.put("name", interval.getFund_group_name());
@@ -392,8 +396,10 @@ public class FundGroupService {
         double accumulatedIncome = 0;
         for(FundNetVal fundNetVal : navadjStart){
             for (FundNetVal fundNetVal1 : navadjEnd){
-                if (fundNetVal.getCode().equalsIgnoreCase(fundNetVal1.getCode())){
+                if (fundNetVal.getCode().equalsIgnoreCase(fundNetVal1.getCode()) && fundNetVal.getNavadj() != 0){
                     accumulatedIncome+=(fundNetVal1.getNavadj()-fundNetVal.getNavadj())/fundNetVal.getNavadj();
+                }else {
+                    accumulatedIncome+=fundNetVal1.getNavadj();
                 }
             }
         }
