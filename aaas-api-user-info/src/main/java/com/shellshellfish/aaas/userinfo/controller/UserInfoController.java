@@ -1533,6 +1533,84 @@ public class UserInfoController {
 		}
 		Map<String,Object> map = null;
 		TradeLogDTO tradeLog = new TradeLogDTO();
+		for (int i = 0; i < tradeLogList.size(); i++) {
+			map = new HashMap<String, Object>();
+			tradeLog = tradeLogList.get(i);
+			map.put("amount", tradeLog.getAmount());
+			int operations = tradeLog.getOperations();
+			if (operations == 1) {
+				map.put("operations", "购买");
+			} else if (operations == 2) {
+				map.put("operations", "赎回");
+			} else if (operations == 3) {
+				map.put("operations", "分红");
+			} else {
+				map.put("operations", "其他");
+			}
+			// map.put("operations",tradeLog.getOperations());
+			int tradeStatus = tradeLog.getTradeStatus();
+			if (tradeStatus == 0) {
+				map.put("tradeStatus", "确认中");
+			} else if (tradeStatus == 1) {
+				map.put("tradeStatus", "确认成功");
+			} else {
+				map.put("tradeStatus", "其他");
+			}
+			// map.put("tradeStatus",tradeLog.getTradeStatus());
+			if (tradeLog.getTradeDate() != null) {
+				map.put("tradeDate", DateUtil.getDateType(tradeLog.getTradeDate()));
+			} else {
+				map.put("tradeDate", "");
+			}
+			// map.put("prodId",tradeLog.getProdId());
+			logger.info("理财产品findByProdId查询start");
+			ProductsDTO products = userInfoService.findByProdId(tradeLog.getProdId() + "");
+			logger.info("理财产品findByProdId查询end");
+			if (products == null) {
+				throw new UserInfoException("404", "理财产品:" + tradeLog.getProdId() + "为空");
+			}
+			map.put("prodName", products.getProdName());
+			tradeLogs.add(map);
+		}
+		result.put("tradeLogs", tradeLogs);
+		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
+	
+	/**
+	 * 我的智投组合
+	 * @param userUuid
+	 * @return
+	 * @throws Exception
+	 */
+	@ApiOperation("我的智投组合")
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+		@ApiResponse(code=400,message="请求参数没填好"),
+		@ApiResponse(code=401,message="未授权用户"),        				
+		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue="")
+	})
+	//@RequestMapping(value = "/users/{userUuid}/chicombination", method = RequestMethod.GET)
+	public ResponseEntity<Map> getMyCombination(
+			@PathVariable String userUuid
+			) throws Exception {
+		Map<String, Object> result = new HashMap<String, Object>();
+		logger.info("getMyCombination method run..");
+		List<TradeLogDTO> tradeLogList = userInfoService.findByUserId(userUuid);
+		
+		
+		
+		
+		
+		List<Map<String,Object>> tradeLogs = new ArrayList<Map<String,Object>>();
+		if(tradeLogList==null||tradeLogList.size()==0){
+			throw new UserInfoException("404", "交易记录为空");
+		}
+		Map<String,Object> map = null;
+		TradeLogDTO tradeLog = new TradeLogDTO();
 		for(int i=0;i<tradeLogList.size();i++){
 			map = new HashMap<String,Object>();
 			tradeLog = tradeLogList.get(i);
