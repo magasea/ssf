@@ -21,6 +21,7 @@ spring:
     topicExchangeName: com.ssf.topic.exchange
     topicPay: shellshellfish.pay
     topicOrder: shellshellfish.order
+    topicUserinfo: shellshellfish.userinfo
     data:
         mongodb:
             host: localhost

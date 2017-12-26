@@ -37,6 +37,7 @@ public class TrdPayFlow {
   private long updateBy;
   private long updateDate;
   private String prodCode;
+  private String errMsg;
 
   @Id
   @Column(name = "id")
@@ -266,6 +267,16 @@ public class TrdPayFlow {
 
   public void setProdCode(String prodCode) {
     this.prodCode = prodCode;
+  }
+
+  @Basic
+  @Column(name = "err_msg")
+  public String getErrMsg() {
+    return errMsg;
+  }
+
+  public void setErrMsg(String errMsg) {
+    this.errMsg = errMsg;
   }
 
   @Override
