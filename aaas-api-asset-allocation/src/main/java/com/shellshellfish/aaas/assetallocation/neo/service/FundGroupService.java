@@ -454,8 +454,7 @@ public class FundGroupService {
                 for (int i = 0; i < 10; i++) {
                     Map<String, Object> maps = new HashMap<>();
                     maps.put("id", i + 1);
-                    //maps.put("value", riskIncomeIntervalList.get(10*i+9).getRisk_num());
-                    maps.put("value", riskIncomeIntervalList.get(i).getRisk_num());
+                    maps.put("value", riskIncomeIntervalList.get(10*i+9).getRisk_num());
                     list.add(maps);
                 }
             } else if (slidebarType.equalsIgnoreCase("income_num")){
@@ -463,13 +462,12 @@ public class FundGroupService {
                 for (int i = 0; i < 10; i++) {
                     Map<String, Object> maps = new HashMap<>();
                     maps.put("id", i + 1);
-                    //maps.put("value", riskIncomeIntervalList.get(10*i+9).getIncome_num());
-                    maps.put("value", riskIncomeIntervalList.get(i).getIncome_num());
+                    maps.put("value", riskIncomeIntervalList.get(10*i+9).getIncome_num());
                     list.add(maps);
                 }
             }
             smk.set_items(list);
-            smk.set_total(riskIncomeIntervalList.size());
+            smk.set_total(list.size());
             smk.set_links(_links);
             smk.set_schemaVersion("0.1.1");
             smk.set_serviceId("资产配置");
@@ -736,17 +734,17 @@ public class FundGroupService {
         for (FundNetVal fundNetVal : list){
             query.put("num",fundNetVal.getNavadj());
             query.put("time",fundNetVal.getNavLatestDate());
-            //fundGroupMapper.insertGroupNavadj(query);
+            fundGroupMapper.insertGroupNavadj(query);
         }
         String groupStartTime = fundGroupMapper.getGroupStartTime(query);
         Calendar ca = Calendar.getInstance();
-        Date date = null;
+        /*Date date = null;
         try {
             date = new SimpleDateFormat("yyyy-MM-dd").parse("2016-11-17");
         } catch (ParseException e) {
             e.printStackTrace();
-        }
-        //Date date = new Date();
+        }*/
+        Date date = new Date();
         try {
             for (; date.getTime() > new SimpleDateFormat("yyyy-MM-dd").parse(groupStartTime).getTime(); ) {
                 query.put("endTime", new SimpleDateFormat("yyyy-MM-dd").format(date));
