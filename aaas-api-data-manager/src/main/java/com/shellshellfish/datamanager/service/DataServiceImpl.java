@@ -4,10 +4,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -307,18 +310,85 @@ public class DataServiceImpl implements DataService {
 	}*/
 	
     //历史净值
-	public HashMap<String,Object> getHistoryNetvalue(String code,String period){
+	public HashMap<String,Object> getHistoryNetvalue(String code,String type,String settingdate){
 		HashMap<String,Object> hnmap=new HashMap<String,Object>();
 		hnmap.put("code", code);
-		hnmap.put("period", period);
+		hnmap.put("period", type);
 		
-		HashMap[] dmap=new HashMap[10];
-		for (int i=0;i<10;i++) {
+		//get current date as todate
+		
+		Date stdate=null;
+		Date enddate=null;
+		long sttime=0L;
+		long endtime=0L;
+		
+		try
+		{
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			
+			enddate = sdf.parse(settingdate);
+			endtime=enddate.getTime()/1000; //seconds
+			
+			GregorianCalendar gc=new GregorianCalendar();
+            gc.setTime(enddate);
+            if (type.equals("1"))
+               gc.add(2, -Integer.parseInt("3"));//3 month
+            else if (type.equals("2"))
+               gc.add(2, -Integer.parseInt("6"));//6 month
+            else if (type.equals("3"))
+                gc.add(2, -Integer.parseInt("12"));//1 year
+            else 
+                gc.add(2, -Integer.parseInt("36"));//3 year
+             
+            
+            System.out.println(new SimpleDateFormat("yyyy-MM-dd").format(gc.getTime()));
+            sttime=gc.getTime().getTime()/1000; //seconds
+        
+			
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+			return null;
+		}	
+		
+		Criteria criteria = Criteria.where("code").is(code).and("querydate").gte(sttime).lte(endtime);
+		Query query = new Query(criteria);
+		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC,"querydate")); 
+		List<FundYearIndicator> list = mongoTemplate.find(query, FundYearIndicator.class);
+		
+		if (list==null || list.size()==0)
+			return null;
+		
+		HashMap[] dmap=new HashMap[list.size()];
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
+		
+		
+		for (int i=0;i<list.size();i++) {
 			 dmap[i]=new HashMap<String,String>();
-			 int index=i+1;
-			 String hitemstr="date"+index+"|||"+"unit net"+index+"|||"+"accum"+index+"|||"+"day scale"+index; //还需要一个年化收益率
-			 dmap[i].put("historydetail",hitemstr);
-			 
+			 String qd=sdf.format(new Date(list.get(i).getQuerydate()*1000));
+			 String navunit=list.get(i).getNavunit();
+			 String navaccum=list.get(i).getNavaccum();
+			 // String hitemstr="date"+index+"|||"+"unit net"+index+"|||"+"accum"+index+"|||"+"day scale"+index; //还需要一个年化收益率
+			 dmap[i].put("date",qd);
+			 dmap[i].put("navunit",navunit);
+			 dmap[i].put("navaccum",navaccum);
+			 double dayup=0.0;
+			 String sdayup="0.00";
+			 try {
+			      double d1=Double.parseDouble(navunit);
+			      
+			      if (i!=list.size()-1) {
+			    	  double d2=Double.parseDouble(list.get(i+1).getNavunit());
+			    	  dayup= (d1-d2)/d2*100; 
+			    	  sdayup=String.format("%.2f", dayup);
+			      }
+			 }catch (NumberFormatException e)
+			 {
+				 e.getMessage();
+				 dayup=0;
+			 }
+			 dmap[i].put("dayup",sdayup+"%");
 		}
 		hnmap.put("historylist",dmap);
 		return hnmap;
