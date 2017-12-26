@@ -34,8 +34,6 @@ public class FundGroupDataService {
 
     private SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
 
-
-    @Test
     public void insertFundData(){
 
        //查询 fund_group_basic （基金组合基本表）中有效组合的code

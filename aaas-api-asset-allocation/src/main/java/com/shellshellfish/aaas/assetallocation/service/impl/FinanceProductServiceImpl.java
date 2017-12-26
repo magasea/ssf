@@ -44,28 +44,28 @@ public class FinanceProductServiceImpl  extends
     return generateTestData(productDetailQueryInfo);
   }
 
-  @Override
-  public void getFinanceProds(com.shellshellfish.aaas.trade.finance.prod.FinanceProdDetailQuery request,
-      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.trade.finance.prod.FinanceProdDetails>
-          responseObserver){
-    ProductDetailQueryInfo productDetailQueryInfo = new ProductDetailQueryInfo();
-    BeanUtils.copyProperties(request, productDetailQueryInfo);
-    ProductDetailInfoPage productDetailInfoPage = getProductDetailInfo(productDetailQueryInfo);
-    FinanceProdDetailItem.Builder builderOfFPDI = FinanceProdDetailItem.newBuilder();
-    FinanceProdDetails.Builder builderOfFPD = FinanceProdDetails.newBuilder();
-
-    for(Map<String, Object> item: productDetailInfoPage.getItems()){
-      //Todo: need coding
-//      for(Entry<String, Object> subItem: item.entrySet()){
-//        builderOfFPDI.setField(subItem.getKey(),subItem.getKey());
-//      }
-//      BeanUtils.copyProperties(productMakeUpInfo, builderOfFPI);
-//      builderOfFPIC.addFinanceProdInfo(builderOfFPI);
-//      builderOfFPI.clear();
-    }
-    responseObserver.onNext(builderOfFPD.build());
-    responseObserver.onCompleted();
-  }
+//  @Override
+//  public void getFinanceProds(com.shellshellfish.aaas.trade.finance.prod.FinanceProdDetailQuery request,
+//      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.trade.finance.prod.FinanceProdDetails>
+//          responseObserver){
+//    ProductDetailQueryInfo productDetailQueryInfo = new ProductDetailQueryInfo();
+//    BeanUtils.copyProperties(request, productDetailQueryInfo);
+//    ProductDetailInfoPage productDetailInfoPage = getProductDetailInfo(productDetailQueryInfo);
+//    FinanceProdDetailItem.Builder builderOfFPDI = FinanceProdDetailItem.newBuilder();
+//    FinanceProdDetails.Builder builderOfFPD = FinanceProdDetails.newBuilder();
+//
+//    for(Map<String, Object> item: productDetailInfoPage.getItems()){
+//      //Todo: need coding
+////      for(Entry<String, Object> subItem: item.entrySet()){
+////        builderOfFPDI.setField(subItem.getKey(),subItem.getKey());
+////      }
+////      BeanUtils.copyProperties(productMakeUpInfo, builderOfFPI);
+////      builderOfFPIC.addFinanceProdInfo(builderOfFPI);
+////      builderOfFPI.clear();
+//    }
+//    responseObserver.onNext(builderOfFPD.build());
+//    responseObserver.onCompleted();
+//  }
 
   private ProductDetailInfoPage generateTestData(ProductDetailQueryInfo productDetailQueryInfo){
     ProductDetailInfoPage productDetailInfoPage = new ProductDetailInfoPage();

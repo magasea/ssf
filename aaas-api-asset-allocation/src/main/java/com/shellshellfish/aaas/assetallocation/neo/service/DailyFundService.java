@@ -35,7 +35,6 @@ public class DailyFundService {
      * 获取基金每日数据并insert into：fund_net_value 以及 fund_basic
      *
      */
-    @Test
     public void  insertDailyFund(){
 
 
@@ -46,25 +45,28 @@ public class DailyFundService {
         List<String> benchmarkCode=fundGroupMapper.findBenchmarkCode();
 
         for(int i=0;i<codeList.size();i++){
+            List<String> listCode=new ArrayList<>();
             String code=codeList.get(i);
+            listCode.add(code);
             //根据 code 查询fund_net_val 中已有数据的最近净值日期
 
             Date maxDate=fundNetValMapper.getMaxNavDateByCode(code);
-            if(maxDate==null){
+            String maxDateStr="";
+            if(maxDate!=null){
                 try {
-                    maxDate=sdf.parse("1970-01-01");
-                } catch (ParseException e) {
+                    maxDateStr=sdf.format(maxDate);
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
 
-            Date todayDate=new Date();
+            String todayDate=sdf.format(new Date());
 
 
             //rpc 调用获取每日数据
             List<Dailyfunds> dailyfundsList=new ArrayList<>();
             try{
-//                List<Dailyfunds> dailyfundsList=getFundDataOfDay(code,maxDate,todayDate);
+//                List<Dailyfunds> dailyfundsList=getFundDataOfDay(listCode,maxDateStr,todayDate);
             }catch(Exception e){
                 logger.error("调用每日接口获取数据失败：code="+code+",startDate="+maxDate+",todayDate="+todayDate);
             }
