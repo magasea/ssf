@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -247,6 +248,12 @@ public class FundGroupController {
     public ReturnType getExpectedIncome(@PathVariable("groupId") String id,@PathVariable("subGroupId") String subGroupId){
         ReturnType smk = fundGroupService.getExpectedIncome(id,subGroupId);
         return smk;
+    }
+
+    @ApiOperation("拉数据所需基金代码")
+    @RequestMapping(value = "/api/asset-allocation/product-groups/fund-code", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<String> findAllGroupCode(){
+        return fundGroupService.findAllGroupCode();
     }
 
     /*@ApiOperation("计算所有基金组合或基准复权单位净值，最大回撤和夏普比率")

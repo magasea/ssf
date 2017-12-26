@@ -731,6 +731,10 @@ public class FundGroupService {
         return rt;
     }
 
+    public List<String> findAllGroupCode(){
+        List<String> list = fundGroupMapper.findAllGroupCode();
+        return list;
+    }
 
     /**
      * 计算组合单位收益净值和最大回撤
