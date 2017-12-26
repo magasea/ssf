@@ -1,7 +1,10 @@
 package com.shellshellfish.aaas.assetallocation.neo.mapper;
 
+
 import com.shellshellfish.aaas.assetallocation.neo.entity.FundCalculateData;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * Author: yongquan.xiong
@@ -27,5 +30,11 @@ public interface FundCalculateDataMapper {
 
     //查询风险率(方差)
     Double findRiskRatio(@Param("tableName") String tableName, @Param("code") String code, @Param("selectDate") String selectDate);
+
+    //查询复权单位净值
+    List<FundCalculateData> findNavadjByType(@Param("tableName") String tableName, @Param("code") String code, @Param("startDate") String startDate, @Param("endDate") String endDate);
+
+    //查询复权单位净值
+    List<Double> findNavadjByCodeAndDate(@Param("tableName") String tableName, @Param("code") String code, @Param("startDate") String startDate, @Param("endDate") String endDate);
 
 }

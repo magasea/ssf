@@ -58,6 +58,19 @@
         ORDER BY NAVLATESTDATE DESC
     </select>
 
+    <select id="getAllDataByCodeAndDate"  resultMap="FundNetValMap">
+        SELECT
+        *
+        FROM fund_net_value fnv
+        WHERE NAVLATESTDATE>=#{selectDate}
+        AND fnv.code IN
+        <foreach collection="codeList" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+
+        ORDER BY NAVLATESTDATE DESC
+    </select>
+
     <select id="getMaxNavDateByDate"  resultType="java.util.Date">
         SELECT
         MAX(NAVLATESTDATE)
@@ -77,4 +90,50 @@
         SET ADJUSTEDFACTOR=#{adjustedFactor}
         WHERE ID=#{id}
     </update>
+
+    <select id="getMaxNavDateByCode"  resultType="java.util.Date">
+        SELECT
+        MAX(NAVLATESTDATE)
+        FROM fund_net_value_copy
+        WHERE code=#{code}
+    </select>
+
+    <insert id="insertDailyDataToFundNetVal" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
+        INSERT INTO fund_net_value_copy (CODE,NAVLATESTDATE,UNITNAV,NAVACCUM,NAVADJ,YIELDOF7DAYS,MILLION_REVENUE)
+        <foreach collection="list" item="dailyData" index="index" separator="union all">
+            ( SELECT
+            #{dailyData.code},#{dailyData.navLatestDate},#{dailyData.navUnit},#{dailyData.navAccum},
+            #{dailyData.navAdj},#{dailyData.yieldOf7Days},#{dailyData.millionRevenue}
+            FROM dual
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertBenchmarkDailyDataToFundNetVal" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
+        INSERT INTO fund_net_value_copy (CODE,NAVLATESTDATE,UNITNAV,NAVACCUM,NAVADJ,YIELDOF7DAYS,MILLION_REVENUE)
+        <foreach collection="list" item="dailyData" index="index" separator="union all">
+            ( SELECT
+            #{dailyData.code},#{dailyData.navLatestDate},#{dailyData.navUnit},#{dailyData.navAccum},
+            #{dailyData.close},#{dailyData.yieldOf7Days},#{dailyData.millionRevenue}
+            FROM dual
+            )
+        </foreach>
+    </insert>
+
+
+    <insert id="insertBasicDataToFundBasic" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
+        INSERT INTO fund_basic_copy (code,fname,fund_type_one,fund_type_two,fund_scale,bm_index_chgpct)
+        VALUES (
+        #{code},#{fname},#{fundTypeOne},#{fundTypeTwo},#{fundScale},#{bmIndexChgPct}
+        )
+    </insert>
+
+
+    <select id="findBasicDataByCode"  resultType="java.lang.String">
+        SELECT
+        code
+        FROM fund_basic_copy
+        WHERE code=#{code}
+    </select>
+
 </mapper>
