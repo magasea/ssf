@@ -31,7 +31,7 @@ message DailyFunds {
   float bm_index_chg_pct = 9;//标的指数涨跌幅
   string code = 10;//基金代码
   string fname = 11;//基金名称
-  string fund_type_one = 12;//基金一级分类
-  string fund_type_two = 13;//基金二级分类
+  string first_invest_type = 12;//基金一级分类
+  string second_invest_type = 13;//基金二级分类
   string close = 14;//日行情收盘价
 }
