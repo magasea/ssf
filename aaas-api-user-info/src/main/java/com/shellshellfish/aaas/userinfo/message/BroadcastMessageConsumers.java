@@ -25,7 +25,7 @@ public class BroadcastMessageConsumers {
 
 
     @RabbitListener(bindings = @QueueBinding(
-        value = @Queue(value = "${spring.rabbitmq.topicQueueOrderName}", durable = "false"),
+        value = @Queue(value = "${spring.rabbitmq.topicQueuePayName}", durable = "false"),
         exchange =  @Exchange(value = "${spring.rabbitmq.topicExchangeName}", type = "topic",
             durable = "true"),  key = "${spring.rabbitmq.topicUserinfo}")
     )
