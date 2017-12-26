@@ -32,6 +32,14 @@ public class DailyFunds {
 
   Double navAccum;
 
+  String fname;
+
+  String firstInvestType;
+
+  String secondInvestType;
+
+  Double close;
+
   public String getId() {
     return id;
   }

@@ -12,7 +12,8 @@ service DataCollectionService {
 
 message DailyFundsQuery {
   repeated string codes = 1;
-  string nav_latest_date = 2;
+  string nav_latest_date_start = 2;
+  string nav_latest_date_end = 3;
 }
 
 message DailyFundsCollection{
