@@ -1,15 +1,13 @@
 package com.shellshellfish.aaas.userinfo.service;
 
 
-import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
@@ -60,5 +58,7 @@ public interface UserInfoService {
 	UserBaseInfoDTO selectUiUser(String cellphone);
 
 	Boolean updateUiUser(String cellphone, String isTestFlag, String riskLevel);
+
+	ProductsDTO findByProdId(String prodId) throws Exception;
 
 }

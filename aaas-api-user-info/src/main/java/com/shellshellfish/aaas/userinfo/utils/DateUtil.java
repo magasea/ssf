@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.utils;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -32,6 +33,10 @@ public class DateUtil {
         return getDateOneDayBefore(inputDate);
     }
 
-
-
+    public static String getDateType(Long inputTime){
+    	Date date = new Date(inputTime+60000*60*24);
+    	DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    	String result = format.format(date);
+		return result;
+    }
 }

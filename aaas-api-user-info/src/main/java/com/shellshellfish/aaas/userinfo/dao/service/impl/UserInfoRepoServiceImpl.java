@@ -49,6 +49,7 @@ import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
@@ -73,6 +74,7 @@ import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
 
 import io.grpc.stub.StreamObserver;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 @Service
 public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
@@ -481,5 +483,19 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			return;
 		}
 
+	}
+
+	@Override
+	public ProductsDTO findByProdId(String prodId) {
+		if(StringUtils.isEmpty(prodId)){
+			throw new UserInfoException("404", "智投组合产品ID不能为空");
+		}
+		UiProducts productsData = uiProductRepo.findByProdId(Long.valueOf(prodId));
+		if (productsData == null) {
+			throw new UserInfoException("404", "智投组合产品:" + prodId + "为空");
+		}
+		ProductsDTO product = new ProductsDTO();
+		BeanUtils.copyProperties(productsData, product);
+		return product;
 	}
 }

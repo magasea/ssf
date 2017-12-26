@@ -19,6 +19,7 @@ import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
@@ -256,5 +257,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 		Long userId = getUserIdFromUUID(uuid);
 		List<TradeLogDTO> uiTrdLogList = userInfoRepoService.findByUserId(userId);
 		return uiTrdLogList;
+	}
+	
+	@Override
+	public ProductsDTO findByProdId(String prodId) throws Exception {
+		ProductsDTO products = userInfoRepoService.findByProdId(prodId);
+		return products;
 	}
 }
