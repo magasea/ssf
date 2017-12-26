@@ -25,9 +25,9 @@ public class BroadcastMessageConsumers {
 
 
     @RabbitListener(bindings = @QueueBinding(
-        value = @Queue(value = "${spring.rabbitmq.topicQueuePayName}", durable = "false"),
+        value = @Queue(value = "${spring.rabbitmq.topicQueueOrderName}", durable = "false"),
         exchange =  @Exchange(value = "${spring.rabbitmq.topicExchangeName}", type = "topic",
-            durable = "true"),  key = "${spring.rabbitmq.topicOrder}")
+            durable = "true"),  key = "${spring.rabbitmq.topicUserinfo}")
     )
     public void receiveMessage(TrdPayFlow trdPayFlow) throws Exception {
         logger.info("Received fanout 1 message: " + trdPayFlow);

@@ -40,6 +40,7 @@ public class TrdOrder {
   private Long fundQuantity;
   private Integer orderDetailStatus;
   private String tradeApplySerial;
+  private String errMsg;
 
   @Id
   @Column(name = "id")
@@ -299,6 +300,16 @@ public class TrdOrder {
 
   public void setTradeApplySerial(String tradeApplySerial) {
     this.tradeApplySerial = tradeApplySerial;
+  }
+
+  @Basic
+  @Column(name = "err_msg")
+  public String getErrMsg() {
+    return errMsg;
+  }
+
+  public void setErrMsg(String errMsg) {
+    this.errMsg = errMsg;
   }
 
   @Override
