@@ -38,6 +38,7 @@ import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankcardDetailBodyDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
@@ -851,7 +852,7 @@ public class UserInfoController {
 		@ApiImplicitParam(paramType="query",name="page",dataType="Long",value="显示页数（默认第0页开始）",defaultValue="0"),
 		@ApiImplicitParam(paramType="query",name="sort",dataType="String",value="排序条件",defaultValue="id")
 	})
-	@RequestMapping(value = "/users/{userUuid}/traderecords", method = RequestMethod.GET)
+	//@RequestMapping(value = "/users/{userUuid}/traderecords", method = RequestMethod.GET)
 	@AopPageResources
 	public ResponseEntity<PageWrapper<TradeLogDTO>> getTradLogsOfUser(
 			@PathVariable String userUuid, Pageable pageable,
@@ -859,7 +860,7 @@ public class UserInfoController {
 			@RequestParam(value = "page", defaultValue = "0") Long page,
 			@RequestParam(value = "sort") String sort) throws Exception {
 		logger.info("getTradLogsOfUser method run..");
-		Page<TradeLogDTO> pages = userInfoService.findByUserId(userUuid, pageable);
+        Page<TradeLogDTO> pages = userInfoService.findByUserId(userUuid, pageable);
 		Map<String, Object> selfMap = new HashMap<String, Object>();
 		Map<String, Object> self = new HashMap<String, Object>();
 		selfMap.put("name", "test");
@@ -1497,5 +1498,63 @@ public class UserInfoController {
 		finaniceReportList.add(finaniceReportMap);
 		resultMap.put("finaniceReport", finaniceReportList);
 		return new ResponseEntity<Map>(resultMap, HttpStatus.OK);
+	}
+	
+	/**
+	 * 交易记录
+	 * @param userUuid
+	 * @param pageNum
+	 * @param pageSize
+	 * @param sortField
+	 * @return
+	 * @throws Exception
+	 */
+	@ApiOperation("交易记录")
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+        @ApiResponse(code=400,message="请求参数没填好"),
+        @ApiResponse(code=401,message="未授权用户"),        				
+		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
+    })
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue="")
+	})
+	@RequestMapping(value = "/users/{userUuid}/traderecords", method = RequestMethod.GET)
+	public ResponseEntity<Map> getTradLogsOfUser(
+			@PathVariable String userUuid
+			) throws Exception {
+		Map<String, Object> result = new HashMap<String, Object>();
+		logger.info("getTradLogsOfUser method run..");
+		List<TradeLogDTO> tradeLogList = userInfoService.findByUserId(userUuid);
+		List<Map<String,Object>> tradeLogs = new ArrayList<Map<String,Object>>();
+		if(tradeLogList==null||tradeLogList.size()==0){
+			throw new UserInfoException("404", "交易记录为空");
+		}
+		Map<String,Object> map = null;
+		TradeLogDTO tradeLog = new TradeLogDTO();
+		for(int i=0;i<tradeLogList.size();i++){
+			map = new HashMap<String,Object>();
+			tradeLog = tradeLogList.get(i);
+			map.put("amount",tradeLog.getAmount());
+			map.put("operations",tradeLog.getOperations());
+			map.put("tradeStatus",tradeLog.getTradeStatus());
+			if(tradeLog.getTradeDate()!=null){
+				map.put("tradeDate",DateUtil.getDateType(tradeLog.getTradeDate()));
+			} else {
+				map.put("tradeDate","");
+			}
+			//map.put("prodId",tradeLog.getProdId());
+			logger.info("理财产品findByProdId查询start");
+			ProductsDTO products = userInfoService.findByProdId(tradeLog.getProdId()+"");
+			logger.info("理财产品findByProdId查询end");
+			if(products==null){
+				throw new UserInfoException("404", "理财产品:"+tradeLog.getProdId()+"为空");
+			}
+			map.put("prodName",products.getProdName());
+			tradeLogs.add(map);
+		}
+		result.put("tradeLogs", tradeLogs);
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 }

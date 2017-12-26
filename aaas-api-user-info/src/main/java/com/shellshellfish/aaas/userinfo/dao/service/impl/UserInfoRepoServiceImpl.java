@@ -49,6 +49,7 @@ import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
@@ -73,6 +74,7 @@ import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
 
 import io.grpc.stub.StreamObserver;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 @Service
 public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
@@ -273,7 +275,14 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		Page<UiTrdLog> uiTrdLogPage = userTradeLogRepository.findByUserId(pageable, userId);
 		return uiTrdLogPage;
 	}
-
+	
+	@Override
+	public List<TradeLogDTO> findByUserId(Long userId) throws IllegalAccessException, InstantiationException {
+		List<UiTrdLog> uiTrdLogList = userTradeLogRepository.findByUserId(userId);
+		List<TradeLogDTO> trdLogsDtoList = MyBeanUtils.convertList(uiTrdLogList, TradeLogDTO.class);
+		return trdLogsDtoList;
+	}
+	
 	@Override
 	public Iterable<TradeLogDTO> addUiTrdLog(List<UiTrdLog> trdLogs)
 			throws IllegalAccessException, InstantiationException {
@@ -435,35 +444,58 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			responseObserver.onCompleted();
 			return;
 		}
-		List<com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo> financeProdInfosValue =
-		financeProdInfoList;
-		FinanceProdInfo financeProdInfoFirst = financeProdInfosValue.get(0);
-		logger.info("financeProdInfoFirst is:" + financeProdInfoFirst + " prodName:"
-				+ " "+financeProdInfoFirst.getProdName() + "groupId:"+financeProdInfoFirst.getGroupId() +
-				"prodId:" +financeProdInfoFirst.getProdId()  );
-		UiProducts uiProducts = new UiProducts();
-		uiProducts.setCreateBy(request.getUserId());
-		BeanUtils.copyProperties(financeProdInfoFirst, uiProducts);
-		uiProducts.setCreateDate(TradeUtil.getUTCTime());
-		uiProducts.setUpdateBy(request.getUserId());
-		uiProducts.setUpdateDate(TradeUtil.getUTCTime());
-		uiProducts.setStatus(TrdOrderStatusEnum.WAITPAY.getStatus());
-		UiProducts saveResult = uiProductRepo.save(uiProducts);
-		Long userProdId = saveResult.getId();
-		logger.info("saved UiProducts with result id:" + userProdId);
-		for(FinanceProdInfo financeProdInfo: financeProdInfosValue){
-			UiProductDetail uiProductDetail = new UiProductDetail();
-			BeanUtils.copyProperties(financeProdInfo, uiProductDetail);
-			uiProductDetail.setCreateBy(request.getUserId());
-			uiProductDetail.setCreateDate(TradeUtil.getUTCTime());
-			uiProductDetail.setUpdateBy(request.getUserId());
-			uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
-			uiProductDetail.setUserProdId(userProdId);
-			uiProductDetailRepo.save(uiProductDetail);
+		try{
+			List<com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo> financeProdInfosValue =
+					financeProdInfoList;
+			FinanceProdInfo financeProdInfoFirst = financeProdInfosValue.get(0);
+			logger.info("financeProdInfoFirst is:" + financeProdInfoFirst + " prodName:"
+					+ " "+financeProdInfoFirst.getProdName() + "groupId:"+financeProdInfoFirst.getGroupId() +
+					"prodId:" +financeProdInfoFirst.getProdId()  );
+			UiProducts uiProducts = new UiProducts();
+			uiProducts.setCreateBy(request.getUserId());
+			BeanUtils.copyProperties(financeProdInfoFirst, uiProducts);
+			uiProducts.setCreateDate(TradeUtil.getUTCTime());
+			uiProducts.setUpdateBy(request.getUserId());
+			uiProducts.setUpdateDate(TradeUtil.getUTCTime());
+			uiProducts.setStatus(TrdOrderStatusEnum.WAITPAY.getStatus());
+			UiProducts saveResult = uiProductRepo.save(uiProducts);
+			Long userProdId = saveResult.getId();
+			logger.info("saved UiProducts with result id:" + userProdId);
+			for(FinanceProdInfo financeProdInfo: financeProdInfosValue){
+				UiProductDetail uiProductDetail = new UiProductDetail();
+				BeanUtils.copyProperties(financeProdInfo, uiProductDetail);
+				uiProductDetail.setCreateBy(request.getUserId());
+				uiProductDetail.setCreateDate(TradeUtil.getUTCTime());
+				uiProductDetail.setUpdateBy(request.getUserId());
+				uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
+				uiProductDetail.setUserProdId(userProdId);
+				uiProductDetailRepo.save(uiProductDetail);
+			}
+			respBuilder.setUserProdId(userProdId);
+			responseObserver.onNext(respBuilder.build());
+			responseObserver.onCompleted();
+			return;
+		}catch (Exception ex){
+			logger.error(ex.getMessage());
+			respBuilder.setUserProdId(-1L);
+			responseObserver.onNext(respBuilder.build());
+			responseObserver.onCompleted();
+			return;
 		}
-		respBuilder.setUserProdId(userProdId);
-		responseObserver.onNext(respBuilder.build());
-		responseObserver.onCompleted();
-		return;
+
+	}
+
+	@Override
+	public ProductsDTO findByProdId(String prodId) {
+		if(StringUtils.isEmpty(prodId)){
+			throw new UserInfoException("404", "智投组合产品ID不能为空");
+		}
+		UiProducts productsData = uiProductRepo.findByProdId(Long.valueOf(prodId));
+		if (productsData == null) {
+			throw new UserInfoException("404", "智投组合产品:" + prodId + "为空");
+		}
+		ProductsDTO product = new ProductsDTO();
+		BeanUtils.copyProperties(productsData, product);
+		return product;
 	}
 }

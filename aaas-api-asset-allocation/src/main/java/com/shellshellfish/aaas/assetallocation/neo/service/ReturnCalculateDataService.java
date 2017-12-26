@@ -29,73 +29,20 @@ public class ReturnCalculateDataService {
     @Autowired
     private CovarianceMapper covarianceMapper;
 
+
     /*
-      * 返回收益率矩阵
-      */
-    public CovarianceModel getYieldRatioArr(String selectDate, List<String> codeList, String type){
+     * @Desc:返回MVO 方法所需参数
+     * @param:
+     *        selectDate:净值日期
+     *        codeList:基金代码集合
+     *        type:数据类型（日周月年）
+     */
+    public CovarianceModel getMVOParamData(String selectDate, List<String> codeList,String type){
         CovarianceModel covarianceModel=new CovarianceModel();
         Double[] yieldRatio=new Double[codeList.size()];
         String code="";
-        String tableName="";
-        switch (type){
-            case TYPE_OF_DAY:
-                tableName="fund_calculate_data_day";
-                break;
-            case TYPE_OF_WEEK:
-                tableName="fund_calculate_data_week";
-                break;
-            case TYPE_OF_MONTH:
-                tableName="fund_calculate_data_month";
-                break;
-            case TYPE_OF_YEAR:
-                tableName="fund_calculate_data_year";
-                break;
-            default:
-                tableName="";
-                break;
-        }
-        for(int i=0;i<codeList.size();i++){
-            code=codeList.get(i);
-            if(code!=null && !"".equals(code) && !"".equals(tableName)){
-                //根据code & selectDate 查询收益率
-                Double yieldRatioVal=fundCalculateDataMapper.findYieldRatio(tableName,code,selectDate);
-                if(yieldRatioVal!=null){
-                    yieldRatio[i]=yieldRatioVal;
-                }else{
-                    covarianceModel.setStatus(FAILUED_STATUS);//失败，数据无效
-                    logger.debug("yieldRatioVal 无效：yieldRatioVal："+yieldRatioVal);
-                    break;
-                }
-            }else{
-                covarianceModel.setStatus(FAILUED_STATUS);//失败，数据无效
-                logger.debug("code or tableName 无效：code："+code +",tableName:"+tableName);
-                break;
-            }
-
-        }
-
-        if(covarianceModel.getStatus()==null){
-            covarianceModel.setStatus(SUCCEED_STATUS);//成功，数据有效
-        }
-
-        covarianceModel.setYieldRatioArr(yieldRatio);
-
-        return covarianceModel;
-    }
-
-
-    /*
-    * 返回协方差矩阵
-    */
-    public CovarianceModel getCovarianceArr(String selectDate, List<String> codeList,String type){
-        CovarianceModel covarianceModel=new CovarianceModel();
-        Double[][] covarianceDoubleArr=new Double[codeList.size()][codeList.size()];
-        String codeA="";
-        String codeB="";
         String tableName1="";//协方差记录表
         String tableName2="";//方差/风险率（risk_ratio）记录表
-        List<List<Double>> list=new ArrayList<>();
-
         switch (type){
             case TYPE_OF_DAY:
                 tableName1="fund_covariance_day";
@@ -119,7 +66,40 @@ public class ReturnCalculateDataService {
                 break;
         }
 
+        //取出收益率组成 1 X n 矩阵
+        for(int i=0;i<codeList.size();i++){
+            code=codeList.get(i);
+            if(code!=null && !"".equals(code) && !"".equals(tableName2)){
+                //根据code & selectDate 查询收益率
+                Double yieldRatioVal=fundCalculateDataMapper.findYieldRatio(tableName2,code,selectDate);
+                if(yieldRatioVal!=null){
+                    yieldRatio[i]=yieldRatioVal;
+                }else{
+                    covarianceModel.setStatus(NULL_STATUS);//无数据
+                    logger.debug("yieldRatioVal 无数据");
+                    break;
+                }
+            }else{
+                covarianceModel.setStatus(FAILUED_STATUS);//失败，数据无效
+                logger.debug("code or tableName 无效：code："+code +",tableName:"+tableName2);
+                break;
+            }
 
+        }
+
+        if(covarianceModel.getStatus()==null){
+            covarianceModel.setStatus(SUCCEED_STATUS);//成功，数据有效
+        }else{
+            return covarianceModel; //失败情况下就直接返回，不再继续后续步骤
+        }
+
+        covarianceModel.setYieldRatioArr(yieldRatio);
+
+        //取出对应协方差组成 n X n 矩阵
+        Double[][] covarianceDoubleArr=new Double[codeList.size()][codeList.size()];
+        String codeA="";
+        String codeB="";
+        List<List<Double>> list=new ArrayList<>();
         //遍历查询数据
         for(int i=0;i<codeList.size();i++){
             List<Double> tempList=new ArrayList();
@@ -133,8 +113,8 @@ public class ReturnCalculateDataService {
                             if(riskRatio!=null){
                                 tempList.add(riskRatio*riskRatio);
                             }else{
-                                covarianceModel.setStatus(FAILUED_STATUS);//失败，数据无效
-                                logger.debug("riskRatio 无效：riskRatio："+riskRatio);
+                                covarianceModel.setStatus(NULL_STATUS);//无数据
+                                logger.debug("riskRatio 无数据：");
                                 break;
                             }
                         }else{   //此时 codeA ！=codeB, 协方差 查询 tableName1
@@ -142,8 +122,8 @@ public class ReturnCalculateDataService {
                             if(covariance!=null){
                                 tempList.add(covariance);
                             }else{
-                                covarianceModel.setStatus(FAILUED_STATUS);//失败，数据无效
-                                logger.debug("covariance 无效：covariance："+covariance);
+                                covarianceModel.setStatus(NULL_STATUS);//无数据
+                                logger.debug("covariance 无数据：");
                                 break;
                             }
                         }
@@ -165,8 +145,8 @@ public class ReturnCalculateDataService {
 
         }
 
-        if(covarianceModel.getStatus()==null){
-            covarianceModel.setStatus(SUCCEED_STATUS);//成功，数据有效
+        if(!SUCCEED_STATUS.equals(covarianceModel.getStatus())){
+            return covarianceModel; //失败情况下就直接返回，不再继续后续步骤
         }
 
         //转为数组矩阵
@@ -186,8 +166,6 @@ public class ReturnCalculateDataService {
         }
         return ps;
     }
-
-
 
 
 }

@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal;
 import com.shellshellfish.aaas.assetallocation.neo.job.entity.JobTimeRecord;
 import com.shellshellfish.aaas.assetallocation.neo.job.service.JobTimeService;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundCalculateDataMapper;
+import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,8 @@ public class FundCalculateService {
 
     @Autowired
     private JobTimeService jobTimeService;
+    @Autowired
+    private FundGroupMapper fundGroupMapper;
 
     private static final Logger logger= LoggerFactory.getLogger(FundCalculateService.class);
 
@@ -51,8 +54,13 @@ public class FundCalculateService {
     public Map<String,List<FundNetVal>> selectFundNetValueByDate( Date selectDate){
 
         List<FundNetVal> fundNetValArrList=new ArrayList<>();
+        //查询产品组合中 code
+        List<String> codeList=fundGroupMapper.findGroupCode();
+        HashMap<String,Object> codeMap=new HashMap<>();
+        codeMap.put("codeList",codeList);
+        codeMap.put("selectDate",selectDate);
         try {
-            fundNetValArrList =fundNetValMapper.getAllByDate(selectDate);
+            fundNetValArrList =fundNetValMapper.getAllDataByCodeAndDate(codeMap);
         }catch (Exception e){
             logger.error("查询净值数据失败!");
             e.printStackTrace();
@@ -87,7 +95,13 @@ public class FundCalculateService {
         //查询计算风险率所需参数（取值数量）
         Integer number=getNumberFromSysConfig(TYPE_OF_DAY);
         //查询TriggerJob 上次执行时间
-        JobTimeRecord jobTimeRecord=jobTimeService.selectJobTimeRecord(TRIGGER_NAME_OF_DAY);
+        JobTimeRecord jobTimeRecord=null;
+        try{
+            jobTimeRecord=jobTimeService.selectJobTimeRecord(CALCULATE_DATA_OF_DAY);
+        }catch(Exception e){
+            logger.error("查询 计算每日的收益率以及风险率记录时间 失败");
+        }
+
         Date selectDate=new Date();
         if(jobTimeRecord==null || jobTimeRecord.getTriggerTime()==null){
             try {
@@ -110,8 +124,8 @@ public class FundCalculateService {
 
                 String code=entry.getKey();
                 List<FundNetVal> fundList=entry.getValue();
-                Double navadj1;//当天净值
-                Double navadj2;//前一天净值
+                Double navadj1;//当天复权单位净值
+                Double navadj2;//前一天复权单位净值
                 Double yieldRatio=0d;//收益率
                 Double riskRatio=0d;//风险率
                 Double semiVariance=0d;//半方差
@@ -145,6 +159,7 @@ public class FundCalculateService {
                         fundCalculateData.setYieldRatio(yieldRatio==null?0d:yieldRatio);//收益率
                         fundCalculateData.setRiskRatio(riskRatio==null?0d:riskRatio);//风险率
                         fundCalculateData.setSemiVariance(semiVariance==null?0d:semiVariance);//半方差
+                        fundCalculateData.setNavadj(fundNetVal1.getNavadj());//复权单位净值
 
                         try{
                             fundCalculateDataMapper.insertFundCalculateDataDay(fundCalculateData);
@@ -173,14 +188,14 @@ public class FundCalculateService {
         if(jobTimeRecord==null){
 
             jobTimeRecordTemp.setJobName(FUND_CALCULATE_JOB);
-            jobTimeRecordTemp.setTriggerName(TRIGGER_NAME_OF_DAY);
+            jobTimeRecordTemp.setTriggerName(CALCULATE_DATA_OF_DAY);
             jobTimeRecordTemp.setTriggerTime(maxDate);
             jobTimeRecordTemp.setCreateTime(new Date());
             jobTimeRecordTemp.setUpdateTime(new Date());
 
             jobTimeService.insertJobTimeRecord(jobTimeRecordTemp);
         }else{
-            jobTimeRecordTemp.setTriggerName(TRIGGER_NAME_OF_DAY);
+            jobTimeRecordTemp.setTriggerName(CALCULATE_DATA_OF_DAY);
             jobTimeRecordTemp.setTriggerTime(maxDate);
             jobTimeRecordTemp.setUpdateTime(new Date());
 
@@ -200,7 +215,13 @@ public class FundCalculateService {
         Integer number=getNumberFromSysConfig(TYPE_OF_WEEK);
 
         //查询TriggerJob 上次执行时间
-        JobTimeRecord jobTimeRecord=jobTimeService.selectJobTimeRecord(TRIGGER_NAME_OF_WEEK);
+        JobTimeRecord jobTimeRecord=null;
+        try{
+            jobTimeRecord=jobTimeService.selectJobTimeRecord(CALCULATE_DATA_OF_WEEK);
+        }catch(Exception e){
+            logger.error("查询 计算每周的收益率以及风险率记录时间 失败");
+        }
+
         Date selectDate=new Date();
         if(jobTimeRecord==null || jobTimeRecord.getTriggerTime()==null){
             try {
@@ -259,6 +280,7 @@ public class FundCalculateService {
                         fundCalculateData.setYieldRatio(yieldRatio==null?0d:yieldRatio);//收益率
                         fundCalculateData.setRiskRatio(riskRatio==null?0d:riskRatio);//风险率
                         fundCalculateData.setSemiVariance(semiVariance==null?0d:semiVariance);//半方差
+                        fundCalculateData.setNavadj(fundNetVal1.getNavadj());//复权单位净值
 
                         try{
                             fundCalculateDataMapper.insertFundCalculateDataWeek(fundCalculateData);
@@ -284,14 +306,14 @@ public class FundCalculateService {
         if(jobTimeRecord==null){
 
             jobTimeRecordTemp.setJobName(FUND_CALCULATE_JOB);
-            jobTimeRecordTemp.setTriggerName(TRIGGER_NAME_OF_WEEK);
+            jobTimeRecordTemp.setTriggerName(CALCULATE_DATA_OF_WEEK);
             jobTimeRecordTemp.setTriggerTime(maxDate);
             jobTimeRecordTemp.setCreateTime(new Date());
             jobTimeRecordTemp.setUpdateTime(new Date());
 
             jobTimeService.insertJobTimeRecord(jobTimeRecordTemp);
         }else{
-            jobTimeRecordTemp.setTriggerName(TRIGGER_NAME_OF_WEEK);
+            jobTimeRecordTemp.setTriggerName(CALCULATE_DATA_OF_WEEK);
             jobTimeRecordTemp.setTriggerTime(maxDate);
             jobTimeRecordTemp.setUpdateTime(new Date());
 
@@ -310,7 +332,12 @@ public class FundCalculateService {
         Integer number=getNumberFromSysConfig(TYPE_OF_MONTH);
 
         //查询TriggerJob 上次执行时间
-        JobTimeRecord jobTimeRecord=jobTimeService.selectJobTimeRecord(TRIGGER_NAME_OF_MONTH);
+        JobTimeRecord jobTimeRecord=null;
+        try{
+            jobTimeRecord=jobTimeService.selectJobTimeRecord(CALCULATE_DATA_OF_MONTH);
+        }catch(Exception e){
+            logger.error("查询 计算每月的收益率以及风险率记录时间 失败");
+        }
         Date selectDate=new Date();
         if(jobTimeRecord==null || jobTimeRecord.getTriggerTime()==null){
             try {
@@ -369,6 +396,7 @@ public class FundCalculateService {
                         fundCalculateData.setYieldRatio(yieldRatio==null?0d:yieldRatio);//收益率
                         fundCalculateData.setRiskRatio(riskRatio==null?0d:riskRatio);//风险率
                         fundCalculateData.setSemiVariance(semiVariance==null?0d:semiVariance);//半方差
+                        fundCalculateData.setNavadj(fundNetVal1.getNavadj());//复权单位净值
 
                         try{
                             fundCalculateDataMapper.insertFundCalculateDataMonth(fundCalculateData);
@@ -396,14 +424,14 @@ public class FundCalculateService {
         if(jobTimeRecord==null){
 
             jobTimeRecordTemp.setJobName(FUND_CALCULATE_JOB);
-            jobTimeRecordTemp.setTriggerName(TRIGGER_NAME_OF_MONTH);
+            jobTimeRecordTemp.setTriggerName(CALCULATE_DATA_OF_MONTH);
             jobTimeRecordTemp.setTriggerTime(maxDate);
             jobTimeRecordTemp.setCreateTime(new Date());
             jobTimeRecordTemp.setUpdateTime(new Date());
 
             jobTimeService.insertJobTimeRecord(jobTimeRecordTemp);
         }else{
-            jobTimeRecordTemp.setTriggerName(TRIGGER_NAME_OF_MONTH);
+            jobTimeRecordTemp.setTriggerName(CALCULATE_DATA_OF_MONTH);
             jobTimeRecordTemp.setTriggerTime(maxDate);
             jobTimeRecordTemp.setUpdateTime(new Date());
 
@@ -421,7 +449,12 @@ public class FundCalculateService {
         //查询计算风险率所需参数（取值数量）
         Integer number=getNumberFromSysConfig(TYPE_OF_YEAR);
         //查询TriggerJob 上次执行时间
-        JobTimeRecord jobTimeRecord=jobTimeService.selectJobTimeRecord(TRIGGER_NAME_OF_MONTH);
+        JobTimeRecord jobTimeRecord=null;
+        try{
+            jobTimeRecord=jobTimeService.selectJobTimeRecord(CALCULATE_DATA_OF_YEAR);
+        }catch(Exception e){
+            logger.error("查询 计算每年的收益率以及风险率记录时间 失败");
+        }
         Date selectDate=new Date();
         if(jobTimeRecord==null || jobTimeRecord.getTriggerTime()==null){
             try {
@@ -481,6 +514,7 @@ public class FundCalculateService {
                         fundCalculateData.setYieldRatio(yieldRatio==null?0d:yieldRatio);//收益率
                         fundCalculateData.setRiskRatio(riskRatio==null?0d:riskRatio);//风险率
                         fundCalculateData.setSemiVariance(semiVariance==null?0d:semiVariance);//半方差
+                        fundCalculateData.setNavadj(fundNetVal1.getNavadj());//复权单位净值
 
                         try{
                             fundCalculateDataMapper.insertFundCalculateDataYear(fundCalculateData);
@@ -508,14 +542,14 @@ public class FundCalculateService {
         if(jobTimeRecord==null){
 
             jobTimeRecordTemp.setJobName(FUND_CALCULATE_JOB);
-            jobTimeRecordTemp.setTriggerName(TRIGGER_NAME_OF_YEAR);
+            jobTimeRecordTemp.setTriggerName(CALCULATE_DATA_OF_YEAR);
             jobTimeRecordTemp.setTriggerTime(maxDate);
             jobTimeRecordTemp.setCreateTime(new Date());
             jobTimeRecordTemp.setUpdateTime(new Date());
 
             jobTimeService.insertJobTimeRecord(jobTimeRecordTemp);
         }else{
-            jobTimeRecordTemp.setTriggerName(TRIGGER_NAME_OF_YEAR);
+            jobTimeRecordTemp.setTriggerName(CALCULATE_DATA_OF_YEAR);
             jobTimeRecordTemp.setTriggerTime(maxDate);
             jobTimeRecordTemp.setUpdateTime(new Date());
 
@@ -537,6 +571,7 @@ public class FundCalculateService {
         }
         if(number==null){
             number=20;//默认
+            logger.debug("默认查询配置数据：type="+type+"number:"+number);
         }
 
         return number;
@@ -745,18 +780,25 @@ public class FundCalculateService {
     public Double calculateRiskRatio(int i,List<FundNetVal> fundList,int number){
         List<Double> tempList=new ArrayList<>();
         //取值
+        List<Double> yieldRatioArr=new ArrayList<>();
         while(tempList.size()<number){
             FundNetVal fundNetVal=getEffectData(i,fundList);
             if(fundNetVal!=null){
                 tempList.add(fundNetVal.getNavadj());
+                if(tempList.size()>1){
+                    Double yieldRatio =calculateYieldRatio(tempList.get(tempList.size()-2),tempList.get(tempList.size()-1));
+                    yieldRatioArr.add(yieldRatio);
+                }
+
             }
             i++;
             if(i>=fundList.size()){
                 break;
             }
         }
+
         //计算风险率(样本标准差)
-        Double riskRatio=StandardDiviation(tempList.toArray(new Double[0]));
+        Double riskRatio=StandardDiviation(yieldRatioArr.toArray(new Double[0]));
 
         return riskRatio;
 
@@ -832,6 +874,7 @@ public class FundCalculateService {
         return 0d;
 
     }
+
 
 
 

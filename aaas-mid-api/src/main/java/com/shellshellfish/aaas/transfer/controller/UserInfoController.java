@@ -294,6 +294,27 @@ public class UserInfoController {
 		}	
 	}
 	
+	@ApiOperation("交易记录")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=true,value="用户uuid",defaultValue="")
+	})
+	@RequestMapping(value = "/traderecords", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult tradeLogsOfUser(@RequestParam String uuid) {
+		Map<Object, Object> result = new HashMap<Object, Object>();
+		try {
+			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid+"/traderecords", Map.class).getBody();
+			if (result == null || result.size() == 0) {
+				logger.error("系统消息获取失败");
+				return new JsonResult(JsonResult.Fail, "交易记录获取失败", "");
+			}
+			return new JsonResult(JsonResult.SUCCESS, "交易记录成功", result);
+		}catch(Exception e){
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail,str, "");
+		}	
+	}
+	
 	/**
 	 * 通用方法处理post请求带requestbody
 	 * @param JsonString

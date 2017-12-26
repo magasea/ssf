@@ -39,8 +39,8 @@ public class TransferController {
 	
 	@ApiOperation("获取预计费用,以及投资组合的每一支基金的费用")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType="query",name="groupId",dataType="String",required=true,value="groupId",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="subGroupId",dataType="String",required=true,value="subGroupId",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="groupId",dataType="String",required=true,value="groupId",defaultValue="2"),
+		@ApiImplicitParam(paramType="query",name="subGroupId",dataType="String",required=true,value="subGroupId",defaultValue="2000"),
 		@ApiImplicitParam(paramType="query",name="totalAmount",dataType="String",required=true,value="购买的总金额",defaultValue="")
 	})
 	@RequestMapping(value="/getEstPurAmount",method=RequestMethod.POST)

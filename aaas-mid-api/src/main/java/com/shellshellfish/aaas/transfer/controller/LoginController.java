@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import com.shellshellfish.aaas.model.JsonResult;
+import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -45,6 +46,8 @@ public class LoginController {
 	private RestTemplate restTemplate;
 	
 	private RestTemplate restTemplatePeach = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+	@Autowired
+	private MidApiService service;
 	
 	@ApiOperation("页面登陆")
 //	@ApiImplicitParams({
@@ -274,6 +277,27 @@ public class LoginController {
 		}
 		
 	}
+	
+	@ApiOperation("验证码验证接口")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="msgCode",dataType="String",required=true,value="手机验证码"),
+		@ApiImplicitParam(paramType="query",name="telNum",dataType="String",required=true,value="手机号码")
+	})
+	@RequestMapping(value="/verifyMsgCode",method=RequestMethod.POST)
+	@ResponseBody
+	public JsonResult verifyMSGCode(String telNum,String msgCode){
+		try{
+		String result=service.verifyMSGCode(telNum, msgCode);
+		return new JsonResult(JsonResult.SUCCESS,result,"");
+		}catch(Exception e){
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, "");
+		}
+		
+	}
+	
+	
+	
 	
 	/**
 	 * 通用方法处理post请求带requestbody

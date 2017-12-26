@@ -22,6 +22,7 @@ import com.shellshellfish.aaas.dto.FundNAVInfo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.controller.UserInfoController;
+import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
 
 public class MidApiServiceImpl implements MidApiService {
@@ -30,6 +31,9 @@ public class MidApiServiceImpl implements MidApiService {
 private RestTemplate restTemplate;	
 @Value("${shellshellfish.asset-alloction-url}")
 private String assetAlloctionUrl;
+
+@Value("${shellshellfish.user-login-url}")
+private String loginUrl;
 
 
 
@@ -329,6 +333,16 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 		}catch(Exception e){
 			throw e;
 		}	
+	}
+
+
+
+
+	@Override
+	public String verifyMSGCode(String telNum,String msgCode) throws Exception {
+			String url=loginUrl+"/api/sms/checkSmsCode?telnum="+telNum+"&verificationCode="+msgCode;
+			String result=restTemplate.getForEntity(url, String.class).getBody();
+			return "-1".equals(result)?"验证成功":"验证失败";
 	}
 
 
