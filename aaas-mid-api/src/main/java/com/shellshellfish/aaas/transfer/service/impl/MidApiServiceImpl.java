@@ -1,5 +1,7 @@
 package com.shellshellfish.aaas.transfer.service.impl;
 
+import static org.assertj.core.api.Assertions.entry;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,6 +40,9 @@ private String loginUrl;
 
 @Value("${shellshellfish.trade-order-url}")
 private String tradeOrderUrl;
+
+@Value("${shellshellfish.trade-pay-url}")
+private String tradePayUrl;
 
 
 //获取产品详情的所有数据
@@ -355,6 +360,23 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 	public Map buyProduct(FinanceProdBuyInfo prdInfo) throws Exception {
 		String url=tradeOrderUrl+"/api/trade/funds/buy";
 		Map result=restTemplate.postForEntity(url, prdInfo, Map.class).getBody();
+		return result;
+	}
+
+
+
+
+	@Override
+	public Map sellFund(String uuid, String sellNum, String tradeAcc, String fundCode) throws Exception {
+	    
+		String url = tradePayUrl+"/api/trade/funds/sellProduct?uuid="+uuid+"&sellNum="+sellNum+"&tradeAcco="+tradeAcc+"&fundCode="+fundCode;
+		Map result=restTemplate.getForEntity(url, Map.class).getBody();
+		//遍历map找是否成功交易
+		if(result.keySet().contains("status")){
+		//返回状态码表示出现错误
+			String errorMessage=result.get("message").toString();
+			throw new RuntimeException(errorMessage);
+		}
 		return result;
 	}
 

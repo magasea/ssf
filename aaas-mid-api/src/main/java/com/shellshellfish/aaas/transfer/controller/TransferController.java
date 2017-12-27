@@ -164,4 +164,35 @@ public class TransferController {
 		}
 	}
 	
+	
+	
+	@ApiOperation("产品赎回")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=true,value="客户号",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="sellNum",dataType="String",required=true,value="售出份额",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="tradeAcc",dataType="String",required=true,value="中正给的绑定银行卡后的号",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="productCode",dataType="String",required=true,value="产品号",defaultValue="")
+	})
+	@RequestMapping(value="/sellProduct",method=RequestMethod.POST)
+	@ResponseBody
+	public JsonResult sellProduct(@RequestParam String uuid,@RequestParam String sellNum,@RequestParam String tradeAcc,@RequestParam String productCode){
+		Map resultMap=new HashMap<>();
+		//首先根据产品号拿到产品下所有的基金code
+		
+		
+		
+		//然后for循环调用单只基金赎回(调用service)
+		String fundCode="000590";
+		try{
+		 Map container=service.sellFund(uuid, sellNum, tradeAcc, fundCode);
+		 resultMap.put("赎回基金:"+fundCode+" 成功", container);
+		}catch(Exception e){
+			logger.error("赎回基金:"+fundCode+" 时失败");
+			resultMap.put("赎回基金:"+fundCode+" 时发生错误",e.getMessage());
+		}
+		
+		return new JsonResult(JsonResult.SUCCESS, "赎回成功",resultMap);
+	}
+	
+	
 }

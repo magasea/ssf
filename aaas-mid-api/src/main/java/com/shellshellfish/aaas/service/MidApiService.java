@@ -57,4 +57,15 @@ public interface MidApiService {
 	 */
 	Map buyProduct(FinanceProdBuyInfo prdInfo) throws Exception;
 	
+	/**
+	 * 赎回单只基金接口
+	 * @param uuid
+	 * @param sellNum
+	 * @param tradeAcc
+	 * @param fundCode
+	 * @return
+	 * @throws Exception
+	 */
+	Map sellFund(String uuid,String sellNum,String tradeAcc,String fundCode) throws Exception;
+	
 }
