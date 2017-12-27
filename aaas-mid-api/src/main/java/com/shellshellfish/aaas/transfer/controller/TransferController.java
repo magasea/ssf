@@ -111,4 +111,28 @@ public class TransferController {
 		}
 	}
 	
+	
+	@ApiOperation("理财产品 产品详情页面")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="orderId",dataType="String",required=true,value="订单编号",defaultValue="1231230001000001513657092497")
+	})
+	@RequestMapping(value="/buyDetails",method=RequestMethod.POST)
+	@ResponseBody
+	public JsonResult buyDetails(@RequestParam String orderId){
+		Map<Object, Object> result = new HashMap<Object, Object>();
+		try{
+			result = restTemplate
+					.getForEntity(tradeOrderUrl + "/api/trade/funds/buyDetails/" + orderId , Map.class).getBody();
+			if (result == null || result.size() == 0) {
+				logger.error("资产总览获取失败");
+				return new JsonResult(JsonResult.Fail, "资产总览获取失败", JsonResult.EMPTYRESULT);
+			}
+			return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result);
+		}catch(Exception e){
+			logger.error("产品详情页面接口失败");
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail,"产品详情页面失败" , JsonResult.EMPTYRESULT);
+		}
+	}
+	
 }

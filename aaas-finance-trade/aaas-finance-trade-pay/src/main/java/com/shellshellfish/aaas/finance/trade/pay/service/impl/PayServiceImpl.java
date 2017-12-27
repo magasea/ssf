@@ -76,9 +76,17 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setPayAmount(trdOrderDetail.getFundMoneyQuantity());
       trdPayFlow.setPayStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(payDto.getUserProdId());
+      trdPayFlow.setOrderDetailId(trdOrderDetail.getOrderDetailId());
       BuyFundResult fundResult = null;
       try {
-        fundResult = fundTradeApiService.buyFund(payDto.getUserUuid(), trdAcco, payAmount,
+        String userId4Pay = null;
+        if(payDto.getUserUuid().equals("shellshellfish")){
+          logger.info("use original uuid for pay because it is a test data");
+          userId4Pay = "shellshellfish";
+        }else{
+          userId4Pay = String.valueOf(payDto.getOrderDetailList().get(0).getUserId());
+        }
+        fundResult = fundTradeApiService.buyFund(userId4Pay, trdAcco, payAmount,
             String.valueOf(trdOrderDetail.getId()),trdOrderDetail.getFundCode());
       }catch (Exception ex){
         ex.printStackTrace();
@@ -112,6 +120,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         trdPayFlow.setUpdateBy(trdOrderDetail.getUserId());
         trdPayFlow.setTradeAcco(trdAcco);
         trdPayFlow.setUserProdId(trdOrderDetail.getUserProdId());
+        trdPayFlow.setUserId(trdOrderDetail.getUserId());
         trdPayFlow.setTradeBrokeId(payDto.getTrdBrokerId());;
         TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
         com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
