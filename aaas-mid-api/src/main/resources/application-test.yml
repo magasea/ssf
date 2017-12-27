@@ -17,6 +17,7 @@ shellshellfish:
   finance-url: "http://localhost:10120"
   asset-alloction-url: "http://localhost:10020"
   trade-order-url: "http://localhost:10100"
+  api-data-manager-url: "http://localhost:10030"
 
 security:
   basic:
@@ -24,4 +25,3 @@ security:
 management:
   security:
     enabled: false
-

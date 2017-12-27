@@ -8,8 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,6 +22,7 @@ import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 
+import antlr.collections.List;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -48,6 +48,9 @@ public class TransferController {
 	
 	@Value("${shellshellfish.trade-order-url}")
 	private String tradeOrderUrl;
+	
+	@Value("${shellshellfish.api-data-manager-url}")
+	private String dataManagerUrl;
 	
 	
 	@ApiOperation("获取预计费用,以及投资组合的每一支基金的费用")
@@ -124,8 +127,23 @@ public class TransferController {
 			result = restTemplate
 					.getForEntity(tradeOrderUrl + "/api/trade/funds/buyDetails/" + orderId , Map.class).getBody();
 			if (result == null || result.size() == 0) {
-				logger.error("资产总览获取失败");
-				return new JsonResult(JsonResult.Fail, "资产总览获取失败", JsonResult.EMPTYRESULT);
+				logger.error("产品详情-result-获取失败");
+				return new JsonResult(JsonResult.Fail, "产品详情获取失败", JsonResult.EMPTYRESULT);
+			}
+			if(result.get("detailList")==null){
+				logger.error("产品详情-detailList-获取失败");
+				//return new JsonResult(JsonResult.Fail, "产品详情获取失败", JsonResult.EMPTYRESULT);
+			} else {
+				Map detail = (Map) result.get("detailList");
+				if(detail!=null || detail.size()!=0){
+					String fundCode = (String) detail.get("fundCode");
+					if(!StringUtils.isEmpty(fundCode)){
+						result = restTemplate.getForEntity(tradeOrderUrl + "/api/trade/funds/buyDetails/" + orderId , Map.class).getBody();
+					}
+				}
+//				if(detailList!=null && detailList){
+//					
+//				}
 			}
 			return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result);
 		}catch(Exception e){
