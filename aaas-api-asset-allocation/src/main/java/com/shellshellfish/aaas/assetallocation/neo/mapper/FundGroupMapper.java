@@ -49,6 +49,8 @@ public interface FundGroupMapper {
 
     List<FundGroupBuy> getFundGroupBuy(@Param("id") String id);
 
+    String getFundGroupHistoryTime(Map map);
+
     List<FundNetVal> getFundNetValue(Map map);
 
     List<FundGroupHistory> getHistory(Map map);
