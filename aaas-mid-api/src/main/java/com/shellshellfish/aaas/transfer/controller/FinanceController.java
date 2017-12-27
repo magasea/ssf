@@ -357,7 +357,22 @@ public class FinanceController {
 			} else {
 				logger.error("预期平均年化收益率获取失败2");
 			}
-
+			
+			//预期最大回撤数
+			url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt";
+			String str="{\"returnType\":\""+"1"+"\"}";
+			Map<String, Object> optResult = (Map) restTemplate.postForEntity(url,getHttpEntity(str),Map.class).getBody();
+			if(optResult!=null){
+				if(optResult.get("value")!=null){
+					double opt = Double.valueOf(optResult.get("value")+"");
+					if(opt<0){
+						opt=opt*-1;
+					}
+					opt = opt + 0.05;
+					result.put("optValue", opt);
+				}
+			}
+			
 			// 等级风险
 			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId
 					+ "/risk-controls";

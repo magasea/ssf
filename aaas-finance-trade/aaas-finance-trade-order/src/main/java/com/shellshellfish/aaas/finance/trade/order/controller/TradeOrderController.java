@@ -139,7 +139,7 @@ public class TradeOrderController {
 	@RequestMapping(value = "/funds/buyDetails/{orderId}", method = RequestMethod.GET)
 	public ResponseEntity<Map> buyDetails(
 			// @PathVariable(value = "groupId") Long uuid,
-			@RequestParam(value = "orderId") String orderId) throws Exception {
+			@PathVariable(value = "orderId") String orderId) throws Exception {
 		logger.error("method buyDetails run ..");
 		Map<String, Object> result = new HashMap<String, Object>();
 		if(StringUtils.isEmpty(orderId)){
@@ -203,6 +203,8 @@ public class TradeOrderController {
 		statusMap.put("status", "查看收益");
 		statusList.add(statusMap);
 		
+		result.put("statusList", statusList);
+		
 		//状态详情
 		List<Map<String,Object>> detailList = new ArrayList<Map<String,Object>>();
 		Map<String,Object> detailMap = new HashMap<String,Object>();
@@ -230,7 +232,7 @@ public class TradeOrderController {
 			}
 			detailList.add(detailMap);
 		}
-		result.put("statusList", detailList);
+		result.put("detailList", detailList);
 		
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
