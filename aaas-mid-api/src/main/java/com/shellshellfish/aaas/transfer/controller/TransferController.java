@@ -1,9 +1,10 @@
 package com.shellshellfish.aaas.transfer.controller;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +17,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-
 import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
-
-import antlr.collections.List;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -134,11 +132,24 @@ public class TransferController {
 				logger.error("产品详情-detailList-获取失败");
 				//return new JsonResult(JsonResult.Fail, "产品详情获取失败", JsonResult.EMPTYRESULT);
 			} else {
-				Map detail = (Map) result.get("detailList");
+				List detail = (List) result.get("detailList");
 				if(detail!=null || detail.size()!=0){
-					String fundCode = (String) detail.get("fundCode");
-					if(!StringUtils.isEmpty(fundCode)){
-						result = restTemplate.getForEntity(tradeOrderUrl + "/api/trade/funds/buyDetails/" + orderId , Map.class).getBody();
+					for(int i=0;i<detail.size();i++){
+						if(detail.get(i)!=null){
+							Map map = (Map) detail.get(i);
+							String fundCode = (String) map.get("fundCode");
+							if(!StringUtils.isEmpty(fundCode)){
+								List fundList = new ArrayList();
+								fundList = restTemplate.getForEntity(dataManagerUrl + "/api/datamanager/getFundInfos?codes=" + fundCode , List.class).getBody();
+								if(fundList==null||fundList.size()==0){
+									logger.error("基金CODE:"+fundCode+"不存在");
+								} else {
+									String fundName = (String) ((Map)fundList.get(0)).get("name");
+									map.put("fundName", fundName);
+									map.remove("fundCode");
+								}
+							}
+						}
 					}
 				}
 //				if(detailList!=null && detailList){

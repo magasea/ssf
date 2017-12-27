@@ -173,9 +173,28 @@ public class FinanceController {
 	@RequestMapping(value="/checkPrdDetails",method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getPrdDetails(String groupId,String subGroupId){
-		Map result=null;
+		Map<String,Object> result=new HashMap<String,Object>();;
 		try{
 			result=service.getPrdNPVList(groupId, subGroupId);
+		}catch(Exception e){
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}
+		Map ExpAnnReturn= getExpAnnReturn(groupId,subGroupId);
+		Map ExpMaxReturn=getExpMaxReturn(groupId,subGroupId);
+		result.put("expAnnReturn", ExpAnnReturn);
+		result.put("expMaxDrawDown", ExpMaxReturn);
+		//饼图（返回单个基金组合产品信息）
+		try{
+			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId;
+			Map productMap = restTemplate.getForEntity(url,Map.class).getBody();
+			if(productMap==null){
+				logger.info("单个基金组合产品信息为空");
+			} else {
+				if(productMap.get("assetsRatios")!=null){
+					result.put("assetsRatios", productMap.get("assetsRatios"));
+				}
+			}
 		}catch(Exception e){
 			String str=new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
