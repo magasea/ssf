@@ -13,6 +13,8 @@ import java.util.TimeZone;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import org.omg.CORBA.UserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1600,7 +1602,24 @@ public class UserInfoController {
 		Map<String, Object> result = new HashMap<String, Object>();
 		logger.info("getMyCombination method run..");
 		List<ProductsDTO> productsList = userInfoService.findProductInfos(userUuid);
-		
+		if(productsList==null||productsList.size()==0){
+			logger.info("我的智投组合暂时不存在");
+			throw new UserInfoException("404","我的智投组合暂时不存在");
+		}
+		ProductsDTO products= new ProductsDTO();
+		products = productsList.get(0);
+		result.put("title", products.getProdName());
+		result.put("createDate", products.getCreateDate());
+		//总资产
+		result.put("totalAssets", "4543.25");
+		//日收益
+		result.put("dailyIncome", "1.8");
+		//累计收益
+		result.put("totalIncome", "398");
+		//累计收益率
+		result.put("totalRevenue", "0.04");
+		//状态(0-待确认 1-已确认 -1-交易失败)
+		result.put("status", "0.04");
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 }
