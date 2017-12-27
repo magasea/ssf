@@ -105,9 +105,21 @@ public class FinanceController {
     @RequestMapping(value="/financeFrontPage",method=RequestMethod.POST)
 	@ResponseBody
 	public JsonResult financeModule(){
+		Map returnMap=new HashMap<>();
+		//BANNER LIST
+		List<String> bannerList=new ArrayList<>();
+		bannerList.add("http://47.96.164.161/1.png");
+		bannerList.add("http://47.96.164.161/2.png");
+		bannerList.add("http://47.96.164.161/3.png");
+		bannerList.add("http://47.96.164.161/4.png");
+		bannerList.add("http://47.96.164.161/5.png");
+		
+		returnMap.put("bannerList", bannerList);
+		
 		//先获取全部产品
 		String url=assetAlloctionUrl+"/api/asset-allocation/products";
 		Map result=null;//中间容器
+		
 		Object object=null;
 		List<Map<String,Object>> prdList=null; //中间容器
 		List<FinanceProductCompo> resultList=new ArrayList<FinanceProductCompo>();//结果集
@@ -115,12 +127,12 @@ public class FinanceController {
 			result=restTemplate.getForEntity(url, Map.class).getBody();
 			}catch(Exception e){
 				//获取list失败直接返回
-				result=new HashMap<>();
-				String message=e.getMessage();
+				/*result=new HashMap<>();
+				String message=e.getMessage();*/
 				return new JsonResult(JsonResult.Fail, "获取理财产品调用restTemplate方法发生错误！",JsonResult.EMPTYRESULT);
 			}
 			//如果成功获取内部值，再遍历获取每一个产品的年化收益(进入service)
-			if(result!=null){
+			if(result!=null){		
 				object=result.get("_items");
 			   if (object instanceof List){
 				   //转换成List
@@ -131,7 +143,7 @@ public class FinanceController {
 					  String groupId= (productMap.get("groupId"))==null?null:(productMap.get("groupId")).toString();
 					  String subGroupId= (productMap.get("subGroupId"))==null?null:(productMap.get("subGroupId")).toString();
 					  String prdName=productMap.get("name")==null?null:(productMap.get("name")).toString();
-				      Map productCompo=(Map) productMap.get("assetsRatios");
+				      List productCompo=(List) productMap.get("assetsRatios");
 					   //去另一接口获取历史收益率图表的数据
 					  Map histYieldRate = getCombYieldRate(groupId,subGroupId);
 					  //去另一个接口获取预期年化，预期最大回撤
@@ -142,13 +154,14 @@ public class FinanceController {
 					  resultList.add(prd);			  				                                             
 					  }
 				   }catch (Exception e){
-					   return new JsonResult(JsonResult.Fail, "获取产品的field属性失败", result);
+					   return new JsonResult(JsonResult.Fail, "获取产品的field属性失败", JsonResult.EMPTYRESULT);
 				   }
 			                             }
 			                  }else{
 			return new JsonResult(JsonResult.Fail, "没有获取到产品", JsonResult.EMPTYRESULT);
-			                  }
-			return new JsonResult(JsonResult.SUCCESS, "获取成功", resultList);
+			                  }	
+			returnMap.put("data",resultList);
+			return new JsonResult(JsonResult.SUCCESS, "获取成功", returnMap);
 	}
 
 	
@@ -541,6 +554,11 @@ public class FinanceController {
 			String url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt?returnType="+"1";
 			String str="{\"returnType\":\""+"1"+"\"}";
 			result=(Map) restTemplate.postForEntity(url,getHttpEntity(str),Map.class).getBody();
+			/*result.remove("_total");
+			result.remove("_name");
+			result.remove("_links");
+			result.remove("_serviceId");
+			result.remove("_schemaVersion");*/
 		}catch(Exception e){
 			result=new HashMap<String,Object>();
 			result.put("error", "restTemplate获取预期年化收益失败");
@@ -562,6 +580,11 @@ public class FinanceController {
 			//准备调用asset-allocation接口的方法，获取组合组合收益率(最大回撤)走势图-每天
 		String url=assetAlloctionUrl+"/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield-week";
  		result=restTemplate.getForEntity(url, Map.class,groupId,subgroupId).getBody();
+ 		result.remove("_total");
+		result.remove("_name");
+		result.remove("_links");
+		result.remove("_serviceId");
+		result.remove("_schemaVersion");
 		}catch(Exception e){
 			result=new HashMap<String,Object>();
 			result.put("error", "restTemplate获取预期组合收益率走势图失败");

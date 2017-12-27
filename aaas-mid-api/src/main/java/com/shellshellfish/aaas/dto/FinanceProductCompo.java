@@ -19,7 +19,7 @@ public class FinanceProductCompo {
 	/*预期最大回撤*/
 	private String expMaxDrawDown;
 	/*产品组合饼图数据assetRatio*/
-	private Map<String,Object> productCompo;
+	private List productCompo;
 	/*产品历史收益率*/
 	private Map<String,Object> histYieldRate;
 	
@@ -30,7 +30,7 @@ public class FinanceProductCompo {
 	
 	
 	public FinanceProductCompo(String groupId, String subGroupId, String prdName, String expAnnReturn,
-			String expMaxDrawDown, Map<String, Object> productCompo, Map<String, Object> histYieldRate) {
+			String expMaxDrawDown, List productCompo, Map<String, Object> histYieldRate) {
 		super();
 		this.groupId = groupId;
 		this.subGroupId = subGroupId;
@@ -46,10 +46,10 @@ public class FinanceProductCompo {
 	public void setExpAnnReturn(String expAnnReturn) {
 		this.expAnnReturn = expAnnReturn;
 	}
-	public Map<String, Object> getProductCompo() {
+	public List getProductCompo() {
 		return productCompo;
 	}
-	public void setProductCompo(Map<String, Object> productCompo) {
+	public void setProductCompo(List productCompo) {
 		this.productCompo = productCompo;
 	}
 	public Map<String, Object> getHistYieldRate() {
