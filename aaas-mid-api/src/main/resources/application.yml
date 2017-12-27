@@ -20,10 +20,3 @@ shellshellfish:
   api-data-manager-url: "http://localhost:10030"
   
 
-security:
-  basic:
-    enabled: false
-management:
-  security:
-    enabled: false
-  
