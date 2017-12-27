@@ -14,6 +14,7 @@ public class JsonResult {
  
  
  
+ 
  public JsonResult(String success,String message,Object object){
 	this.head=new Head(success,message);
 	switch (success) {
