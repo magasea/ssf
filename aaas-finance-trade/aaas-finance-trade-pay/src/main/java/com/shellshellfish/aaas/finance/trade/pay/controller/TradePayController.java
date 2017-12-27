@@ -41,12 +41,12 @@ public class TradePayController {
 	 * @param totalAmount
 	 * @return
 	 */
-	@ApiOperation("购买理财产品 购买页面")
+	@ApiOperation("赎回")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "uuid", defaultValue = ""),
 		@ApiImplicitParam(paramType = "query", name = "sellNum", dataType = "Integer", required = true, value = "赎回份额", defaultValue = ""),
 		@ApiImplicitParam(paramType = "query", name = "tradeAcco", dataType = "String", required = true, value = "tradeAcco", defaultValue = ""),
-	@ApiImplicitParam(paramType = "query", name = "fundCode", dataType = "String", required = true, value = "基金Code", defaultValue = "") })
+	    @ApiImplicitParam(paramType = "query", name = "fundCode", dataType = "String", required = true, value = "基金Code", defaultValue = "") })
 	@ApiResponses({ 
 		@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
 		@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
