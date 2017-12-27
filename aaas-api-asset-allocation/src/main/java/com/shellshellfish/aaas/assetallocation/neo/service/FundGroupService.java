@@ -507,8 +507,10 @@ public class FundGroupService {
         ca.add(Calendar.DATE, -1);
         String endtime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
         Map<String, String> mapStr = new HashMap<>();
-        mapStr.put("fund_group_id", id);
-        mapStr.put("fund_group_sub_id", subGroupId);
+        /*mapStr.put("fund_group_id", id);
+        mapStr.put("fund_group_sub_id", subGroupId);*/
+        mapStr.put("fund_group_id", "2");
+        mapStr.put("fund_group_sub_id", "2002");
         mapStr.put("starttime", starttime);
         mapStr.put("endtime", endtime);
         List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
@@ -562,8 +564,10 @@ public class FundGroupService {
         ca.add(Calendar.DATE, -1);
         String endTime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
         Map<String, String> mapStr = new HashMap<>();
-        mapStr.put("fund_group_id", id);
-        mapStr.put("fund_group_sub_id", subGroupId);
+        /*mapStr.put("fund_group_id", id);
+        mapStr.put("fund_group_sub_id", subGroupId);*/
+        mapStr.put("fund_group_id", "2");
+        mapStr.put("fund_group_sub_id", "2002");
         mapStr.put("starttime", startTime);
         mapStr.put("endtime", endTime);
         List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
@@ -933,10 +937,12 @@ public class FundGroupService {
     }
 
     public void getAllIdAndSubId(){
-        List<Interval> aa = fundGroupMapper.getAllIdAndSubId();
-        for (Interval a : aa){
-            getNavadj(a.getFund_group_id(),a.getId());
-            sharpeRatio(a.getFund_group_id(),a.getId());
+        for (int i = 1; i<16;i++) {
+            List<RiskIncomeInterval> aa = fundGroupMapper.getScaleMark(i+"","risk_num");
+            for (RiskIncomeInterval a : aa) {
+                getNavadj(a.getFund_group_id(), a.getId());
+                sharpeRatio(a.getFund_group_id(), a.getId());
+            }
         }
     }
 
