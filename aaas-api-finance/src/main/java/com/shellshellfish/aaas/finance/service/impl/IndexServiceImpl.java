@@ -112,6 +112,14 @@ public class IndexServiceImpl implements IndexService {
 					investmentHorizonMap2 = (List<Map<String, Object>>) obj.get("_items");
 					String groupId = (String) obj.get("productGroupId");
 					String subGroupId = (String) obj.get("productSubGroupId");
+					
+					//--------------------------------------
+					FundReturn fundReturn = assetAllocationService.selectById(groupId,subGroupId);
+					if(fundReturn==null){
+						throw new Exception("产品不存在.");
+					}
+					resultC.put("name", fundReturn.getName());
+					//--------------------------------------
 					Map<String, Object> itemMap2 = new HashMap<String, Object>();
 					double historicalYearPerformance = 0;
 					double historicalvolatility = 0;

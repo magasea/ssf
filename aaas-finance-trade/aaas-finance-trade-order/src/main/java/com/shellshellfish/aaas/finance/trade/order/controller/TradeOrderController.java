@@ -168,6 +168,15 @@ public class TradeOrderController {
 			logger.info("状态为："+trdOrder.getOrderStatus());
 			result.put("orderStatus", "交易失败");
 		}
+		if(trdOrder.getOrderType() == 1){
+			result.put("orderType", "购买");
+		} else if(trdOrder.getOrderType() == 2){
+			result.put("orderType", "分红");
+		} else {
+			logger.info("状态为："+trdOrder.getOrderType());
+			result.put("orderType", "交易失败");
+		}
+		
 		//TODO title
 		result.put("title", "稳健型-3个月组合");
 		//金额
@@ -200,8 +209,28 @@ public class TradeOrderController {
 		for(int i=0;i<trdOrderDetailList.size();i++){
 			detailMap = new HashMap<String,Object>();
 			TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(0);
-			
+			if(trdOrderDetail.getOrderDetailStatus()==0){
+				detailMap.put("status", "待确认");
+			} else if(trdOrderDetail.getOrderDetailStatus()==1){
+				detailMap.put("fundstatus", "已确认");
+			} else {
+				detailMap.put("fundstatus", "交易失败");
+			}
+			detailMap.put("fundCode", trdOrderDetail.getFundCode());
+			//基金费用
+			detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
+			detailMap.put("funddate", c.get(Calendar.YEAR)+"."+c.get(Calendar.MONTH)+"."+c.get(Calendar.DATE));
+			if(trdOrderDetail.getTradeType() == 1){
+				detailMap.put("fundTradeType", "购买");
+			} else if(trdOrderDetail.getTradeType() == 2){
+				detailMap.put("fundTradeType", "分红");
+			} else {
+				logger.info("状态为："+trdOrder.getOrderType());
+				detailMap.put("fundTradeType", "交易失败");
+			}
+			detailList.add(detailMap);
 		}
+		result.put("statusList", detailList);
 		
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
