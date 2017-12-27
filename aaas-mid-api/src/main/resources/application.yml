@@ -18,10 +18,3 @@ shellshellfish:
   asset-alloction-url: "http://localhost:10100"
   
 
-security:
-  basic:
-    enabled: false
-management:
-  security:
-    enabled: false
-  
