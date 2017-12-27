@@ -7,16 +7,28 @@ import lombok.Setter;
 @Getter
 @Setter
 public class FundsQuery {
-  String navLatestDate;
+  String navLatestDateStart;
+
+  public String getNavLatestDateStart() {
+    return navLatestDateStart;
+  }
+
+  public void setNavLatestDateStart(String navLatestDateStart) {
+    this.navLatestDateStart = navLatestDateStart;
+  }
+
+  public String getNavLatestDateEnd() {
+    return navLatestDateEnd;
+  }
+
+  public void setNavLatestDateEnd(String navLatestDateEnd) {
+    this.navLatestDateEnd = navLatestDateEnd;
+  }
+
+  String navLatestDateEnd;
   List<String> codes;
 
-  public String getNavLatestDate() {
-    return navLatestDate;
-  }
 
-  public void setNavLatestDate(String navLatestDate) {
-    this.navLatestDate = navLatestDate;
-  }
 
   public List<String> getCodes() {
     return codes;

@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.controller;
 
+import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import java.math.BigDecimal;
 import java.util.List;
 import org.slf4j.Logger;
@@ -69,8 +70,8 @@ public class TradeOrderController {
     Long userId = tradeOpService.getUserId(financeProdBuyInfo.getUuid());
     financeProdBuyInfo.setUserId(userId);
     financeProdBuyInfo.setMoney(financeProdBuyInfo.getMoney());
-    tradeOpService.buyFinanceProduct(financeProdBuyInfo);
-    return new ResponseEntity<Object>(HttpStatus.OK);
+    TrdOrder trdOrder = tradeOpService.buyFinanceProduct(financeProdBuyInfo);
+    return new ResponseEntity<Object>(trdOrder, HttpStatus.OK);
   }
   
   

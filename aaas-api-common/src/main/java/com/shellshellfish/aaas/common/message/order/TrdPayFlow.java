@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 
 
-public class TrdPayFlow {
+public class TrdPayFlow implements Serializable{
 
   private long id;
   private long orderDetailId;

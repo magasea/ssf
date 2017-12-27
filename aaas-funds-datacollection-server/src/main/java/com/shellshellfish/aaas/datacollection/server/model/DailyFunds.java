@@ -41,6 +41,17 @@ public class DailyFunds {
   @Field( value = "navaccum")
   Double navAccum = Double.MIN_VALUE;
 
+  public String getfName() {
+    return fName;
+  }
+
+  public void setfName(String fName) {
+    this.fName = fName;
+  }
+
+  @Field( value = "fname")
+  String fName;
+
   public String getId() {
     return id;
   }

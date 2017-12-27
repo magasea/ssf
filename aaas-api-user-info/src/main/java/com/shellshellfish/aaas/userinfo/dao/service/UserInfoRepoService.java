@@ -76,5 +76,7 @@ public interface UserInfoRepoService {
 
 	List<TradeLogDTO> findByUserId(Long userId) throws IllegalAccessException, InstantiationException;
 
-	ProductsDTO findByProdId(String prodId);
+	ProductsDTO findByProdId(String prodId) throws IllegalAccessException, InstantiationException;
+	
+	List<ProductsDTO>  findByUserId(String userId) throws IllegalAccessException, InstantiationException;
 }

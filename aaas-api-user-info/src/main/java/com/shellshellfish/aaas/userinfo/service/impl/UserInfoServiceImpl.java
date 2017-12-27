@@ -260,7 +260,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 	
 	@Override
-	public ProductsDTO findByProdId(String prodId) throws Exception {
+	public List<ProductsDTO> findProductInfos(String uuid) throws Exception {
+		List<ProductsDTO> products = userInfoRepoService.findByUserId(uuid);
+		return products;
+	}
+
+	@Override
+	public ProductsDTO findByProdId(String prodId) throws IllegalAccessException, InstantiationException {
 		ProductsDTO products = userInfoRepoService.findByProdId(prodId);
 		return products;
 	}
