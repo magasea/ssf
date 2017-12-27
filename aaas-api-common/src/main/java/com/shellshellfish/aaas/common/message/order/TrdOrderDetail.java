@@ -11,7 +11,7 @@ import java.io.Serializable;
 public class TrdOrderDetail implements Serializable {
 
   private long id;
-  private String orderId;
+  private Long orderDetailId;
   private String tradeApplySerial;
   private long boughtDate;
   private int tradeType;
@@ -47,12 +47,12 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public String getOrderId() {
-    return orderId;
+  public Long getOrderDetailId() {
+    return orderDetailId;
   }
 
-  public void setOrderId(String orderId) {
-    this.orderId = orderId;
+  public void setOrderDetailId(Long orderDetailId) {
+    this.orderDetailId = orderDetailId;
   }
 
   
@@ -337,7 +337,7 @@ public class TrdOrderDetail implements Serializable {
     if (updateDate != that.updateDate) {
       return false;
     }
-    if (orderId != null ? !orderId.equals(that.orderId) : that.orderId != null) {
+    if (orderDetailId != null ? !orderDetailId.equals(that.orderDetailId) : that.orderDetailId != null) {
       return false;
     }
     if (tradeApplySerial != null ? !tradeApplySerial.equals(that.tradeApplySerial)
@@ -367,7 +367,7 @@ public class TrdOrderDetail implements Serializable {
   
   public int hashCode() {
     int result = (int) (id ^ (id >>> 32));
-    result = 31 * result + (orderId != null ? orderId.hashCode() : 0);
+    result = 31 * result + (orderDetailId != null ? orderDetailId.hashCode() : 0);
     result = 31 * result + (tradeApplySerial != null ? tradeApplySerial.hashCode() : 0);
     result = 31 * result + (int) (boughtDate ^ (boughtDate >>> 32));
     result = 31 * result + tradeType;

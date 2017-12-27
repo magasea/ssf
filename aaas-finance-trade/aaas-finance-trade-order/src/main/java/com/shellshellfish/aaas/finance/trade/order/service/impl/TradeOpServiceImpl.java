@@ -191,6 +191,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     trdOrder.setUserProdId(financeProdBuyInfo.getUserProdId());
     trdOrder.setOrderStatus(TrdOrderStatusEnum.WAITCONFIRM.ordinal());
     trdOrder.setOrderId(orderId);
+    trdOrder.setUserId(financeProdBuyInfo.getUserId());
     trdOrder.setCreateBy(financeProdBuyInfo.getUserId());
     trdOrder.setPayAmount(TradeUtil.getLongNumWithMul100(financeProdBuyInfo.getMoney()));
     trdOrder.setProdCode(financeProdBuyInfo.getProdCode());
@@ -215,6 +216,8 @@ public class TradeOpServiceImpl implements TradeOpService {
       com.shellshellfish.aaas.common.message.order.TrdOrderDetail trdOrderPay =  new com
           .shellshellfish.aaas.common.message.order.TrdOrderDetail();
       BeanUtils.copyProperties(trdOrderDetail, trdOrderPay);
+      trdOrderPay.setOrderDetailId(trdOrderDetail.getId());
+      trdOrderPay.setUserId(financeProdBuyInfo.getUserId());
 //      GenericMessage<TrdOrderDetail> genericMessage = new GenericMessage<TrdOrderDetail>();
       trdOrderDetails.add(trdOrderPay);
 
