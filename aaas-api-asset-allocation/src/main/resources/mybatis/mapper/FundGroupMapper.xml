@@ -174,12 +174,12 @@
     </insert>
 
     <insert id="insertGroupNavadjBenchmark">
-        insert into fund_group_history_1 (fund_group_id,income_num,time)
+        insert into fund_group_history (fund_group_id,income_num,time)
         VALUES (#{risk_level},#{num},#{time})
     </insert>
 
     <update id="updateMaximumRetracement">
-        update fund_group_history_1 set maximum_retracement = #{retracement} where
+        update fund_group_history set maximum_retracement = #{retracement} where
         <if test="fund_group_id != null and fund_group_id != ''">
           fund_group_id = #{fund_group_id} and fund_group_sub_id = #{subGroupId}
         </if>
