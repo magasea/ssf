@@ -133,11 +133,11 @@ public class FundGroupServiceTest {
         List<ProductMakeUpInfo> a = financeProductService.getProductInfo(productBaseInfo);
     }
 
-    /*@Test
+    @Test
     public void getNavadj(){
-        allocationService.getAllIdAndSubId();
-        //allocationService.getNavadj("10","100094");
-    }*/
+        //allocationService.getAllIdAndSubId();
+        allocationService.getNavadj("10","100094");
+    }
 
     /*@Test
     public void getNavadjBenchmark(){
