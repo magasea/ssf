@@ -198,7 +198,7 @@ public class IndexServiceImpl implements IndexService {
 			result.put("error", "404 DATA NOT FOUND.");
 			return result;
 		}
-		List<Map<String, Double>> assetsRatiosList = fundReturn.getAssetsRatios();
+		List<Map<String, Object>> assetsRatiosList = fundReturn.getAssetsRatios();
 		result.put("assetsRatios", assetsRatiosList);
 
 		Map<String, Object> selfMap = new HashMap<String, Object>();

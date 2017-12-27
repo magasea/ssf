@@ -16,16 +16,16 @@ public class FundReturn {
     private String name;
     private Map<String,String> investmentPeriod;
     private Map<String,String> riskToleranceLevel;
-    private double minAnnualizedReturn;
+    /*private double minAnnualizedReturn;
     private double maxAnnualizedReturn;
     private double minRiskLevel;
-    private double maxRiskLevel;
+    private double maxRiskLevel;*/
     private Map<String,String> _links;
     private Long creationTime;
     private String _schemaVersion;
     private String _serviceId;
     @JsonUnwrapped
-    private List<Map<String,Double>> assetsRatios;
+    private List<Map<String,Object>> assetsRatios;
 
     public String getGroupId() {
         return groupId;
@@ -51,7 +51,7 @@ public class FundReturn {
         this.subGroupId = subGroupId;
     }
 
-    public double getMinAnnualizedReturn() {
+    /*public double getMinAnnualizedReturn() {
         return minAnnualizedReturn;
     }
 
@@ -81,7 +81,7 @@ public class FundReturn {
 
     public void setMaxRiskLevel(double maxRiskLevel) {
         this.maxRiskLevel = maxRiskLevel;
-    }
+    }*/
 
     public Long getCreationTime() {
         return creationTime;
@@ -130,11 +130,11 @@ public class FundReturn {
         this.investmentPeriod = investmentPeriod;
     }
 
-    public List<Map<String, Double>> getAssetsRatios() {
+    public List<Map<String, Object>> getAssetsRatios() {
         return assetsRatios;
     }
 
-    public void setAssetsRatios(List<Map<String, Double>> assetsRatios) {
+    public void setAssetsRatios(List<Map<String, Object>> assetsRatios) {
         this.assetsRatios = assetsRatios;
     }
 }
