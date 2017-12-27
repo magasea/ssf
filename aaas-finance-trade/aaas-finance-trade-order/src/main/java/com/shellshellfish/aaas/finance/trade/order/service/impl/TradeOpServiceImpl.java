@@ -209,6 +209,10 @@ public class TradeOpServiceImpl implements TradeOpService {
           .longValue());
       trdOrderDetail.setBoughtDate(TradeUtil.getUTCTime());
       trdOrderDetail.setCreateBy(financeProdBuyInfo.getUserId());
+      trdOrderDetail.setCreateDate(TradeUtil.getUTCTime());
+      trdOrderDetail.setUpdateBy(financeProdBuyInfo.getUserId());
+      trdOrderDetail.setUpdateDate(TradeUtil.getUTCTime());
+      trdOrderDetail.setUserId(financeProdBuyInfo.getUserId());
       trdOrderDetail.setFundCode(productMakeUpInfo.getFundCode());
       trdOrderDetail.setUserProdId(trdOrder.getUserProdId());
       trdOrderDetail.setTradeType(trdOrder.getOrderType());

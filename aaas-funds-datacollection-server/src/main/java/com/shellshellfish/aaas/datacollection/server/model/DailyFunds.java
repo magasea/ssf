@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
 @Setter
-@Document(collection = "dailyfunds")
+@Document(collection = "fund_yieldrate")
 public class DailyFunds {
   @Id
   @Field( value = "_id")

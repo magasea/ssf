@@ -57,7 +57,7 @@ public class BroadcastMessageConsumers {
             logger.error(ex.getMessage());
         }
         try {
-            channel.basicAck(tag, false);
+            channel.basicAck(tag, true);
         } catch (IOException e) {
             e.printStackTrace();
         }
