@@ -5,12 +5,14 @@ import java.util.Map;
 
 public class JsonResult {
 
- public static final Map EMPTYRESULT = new HashMap<>();	
+ public static final Map EMPTYRESULT = new HashMap();	
  public static final String SUCCESS="1";
  public static final String Fail="0";
  
  private Head head;
  private Object result;
+ 
+ 
  
  public JsonResult(String success,String message,Object object){
 	this.head=new Head(success,message);

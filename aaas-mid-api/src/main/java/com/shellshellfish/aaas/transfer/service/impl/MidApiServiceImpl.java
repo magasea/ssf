@@ -18,6 +18,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.dto.FundNAVInfo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
@@ -35,6 +36,8 @@ private String assetAlloctionUrl;
 @Value("${shellshellfish.user-login-url}")
 private String loginUrl;
 
+@Value("${shellshellfish.trade-order-url}")
+private String tradeOrderUrl;
 
 
 //获取产品详情的所有数据
@@ -343,6 +346,16 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 			String url=loginUrl+"/api/sms/checkSmsCode?telnum="+telNum+"&verificationCode="+msgCode;
 			String result=restTemplate.getForEntity(url, String.class).getBody();
 			return "-1".equals(result)?"验证成功":"验证失败";
+	}
+
+
+
+
+	@Override
+	public Map buyProduct(FinanceProdBuyInfo prdInfo) throws Exception {
+		String url=tradeOrderUrl+"/api/trade/funds/buy";
+		Map result=restTemplate.postForEntity(url, prdInfo, Map.class).getBody();
+		return result;
 	}
 
 

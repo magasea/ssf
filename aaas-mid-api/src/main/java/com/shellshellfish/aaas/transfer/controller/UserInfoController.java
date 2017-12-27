@@ -72,10 +72,10 @@ public class UserInfoController {
 			if(verifyReult==null||verifyReult.size()==0){
 				logger.info("获取验证码验证是否正确");
 				/*result.put("msg", "添加失败");*/
-				return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", "");
+				return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", JsonResult.EMPTYRESULT);
 			}else if(!verifyReult.get("identifyingCode").equals(verifyCode)){
 				/*result.put("msg", "添加失败");*/
-				return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", "");
+				return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", JsonResult.EMPTYRESULT);
 			}
 //			//获取uid
 //			String urlUid=userinfoUrl+"/api/userinfo/users/"+uuid;
@@ -106,7 +106,7 @@ public class UserInfoController {
 			/*Map<String, Object> map = new HashMap();
 			map.put("errorCode", "400");*/
 			String str=new ReturnedException(e).getErrorMsg();		
-			return new JsonResult(JsonResult.Fail,str,"");
+			return new JsonResult(JsonResult.Fail,str,JsonResult.EMPTYRESULT);
 		}
 	}
 	
@@ -122,7 +122,7 @@ public class UserInfoController {
 			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid +"/bankcards", List.class)
 					.getBody();
 			if(result==null){
-				return new JsonResult(JsonResult.SUCCESS, "获取银行卡为空", null);
+				return new JsonResult(JsonResult.SUCCESS, "获取银行卡为空", JsonResult.EMPTYRESULT);
 			} else {
 				return new JsonResult(JsonResult.SUCCESS, "获取银行卡成功", result);
 			}
@@ -131,7 +131,7 @@ public class UserInfoController {
 			map.put("errorCode", "400");
 			result.add(map);*/
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail, str, "");
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
 	
@@ -153,7 +153,7 @@ public class UserInfoController {
 			/*Map<String, Object> map = new HashMap();
 			map.put("errorCode", "400");*/
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail, str, "");
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
 	/**
@@ -181,7 +181,7 @@ public class UserInfoController {
 		}
 		catch(Exception e){
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail,str, "");
+			return new JsonResult(JsonResult.Fail,str, JsonResult.EMPTYRESULT);
 		}		
 	}
 	
@@ -201,7 +201,7 @@ public class UserInfoController {
 		try {
 			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid+"/investmentmessages", Map.class).getBody();
 			if(result==null||result.size()==0){
-				return new JsonResult(JsonResult.Fail, "获取不到推送信息", "");
+				return new JsonResult(JsonResult.Fail, "获取不到推送信息", JsonResult.EMPTYRESULT);
 			}
 			result.remove("_links");
 			result.put("uuid",uuid);
@@ -223,7 +223,7 @@ public class UserInfoController {
 			/*Map<String, Object> map = new HashMap<String, Object>();
 			map.put("errorCode", "400");*/
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail, str, "");
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
 	
@@ -243,7 +243,7 @@ public class UserInfoController {
 			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid+"/systemmessages", Map.class).getBody();
 			if(result==null||result.size()==0){
 				logger.info("系统消息获取失败");
-				return new JsonResult(JsonResult.Fail, "系统消息获取失败", "");
+				return new JsonResult(JsonResult.Fail, "系统消息获取失败", JsonResult.EMPTYRESULT);
 			}
 			result.remove("_links");
 			result.put("uuid",uuid);
@@ -268,7 +268,7 @@ public class UserInfoController {
 			/*Map<String, Object> map = new HashMap<String, Object>();
 			map.put("errorCode", "400");*/
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail, str, "");
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
 	
@@ -290,7 +290,7 @@ public class UserInfoController {
 			return new JsonResult(JsonResult.SUCCESS, "解绑银行卡成功", result);
 		}catch(Exception e){
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail,str, "");
+			return new JsonResult(JsonResult.Fail,str, JsonResult.EMPTYRESULT);
 		}	
 	}
 	
@@ -306,12 +306,12 @@ public class UserInfoController {
 			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid+"/traderecords", Map.class).getBody();
 			if (result == null || result.size() == 0) {
 				logger.error("系统消息获取失败");
-				return new JsonResult(JsonResult.Fail, "交易记录获取失败", "");
+				return new JsonResult(JsonResult.Fail, "交易记录获取失败", JsonResult.EMPTYRESULT);
 			}
 			return new JsonResult(JsonResult.SUCCESS, "交易记录成功", result);
 		}catch(Exception e){
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail,str, "");
+			return new JsonResult(JsonResult.Fail,str, JsonResult.EMPTYRESULT);
 		}	
 	}
 	
