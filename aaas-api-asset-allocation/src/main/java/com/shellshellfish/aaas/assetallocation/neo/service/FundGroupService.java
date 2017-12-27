@@ -82,13 +82,19 @@ public class FundGroupService {
         query.put("id", fund_group_id);
         query.put("subId", fund_group_sub_id);
         List<Interval> intervals = fundGroupMapper.getProportionOne(query);
+        long accum =0L ;
         for(Interval interval :intervals){
             if (interval.getProportion() != 0) {
                 Map<String, Object> map = new HashMap<>();
                 map.put("type", interval.getFund_type_one());
-                map.put("value", interval.getProportion());
+                long value = Math.round(interval.getProportion()*100);
+                map.put("value", value);
                 listMap.add(map);
+                accum += value;
             }
+        }
+        if (accum <100L && accum != 0L){
+            listMap.get(listMap.size()-1).put("value",Integer.parseInt(listMap.get(listMap.size()-1).get("value").toString()) + 1);
         }
         fr.set_total(listMap.size());
         fr.setName("产品类别比重");

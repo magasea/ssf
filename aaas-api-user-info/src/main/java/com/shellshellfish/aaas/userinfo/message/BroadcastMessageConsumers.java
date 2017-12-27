@@ -25,6 +25,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class BroadcastMessageConsumers {
@@ -38,6 +39,7 @@ public class BroadcastMessageConsumers {
     @Autowired
     UiProductRepo uiProductRepo;
 
+    @Transactional
     @RabbitListener(bindings = @QueueBinding(
         value = @Queue(value = "${spring.rabbitmq.topicQueuePayName}", durable = "false"),
         exchange =  @Exchange(value = "${spring.rabbitmq.topicExchangeName}", type = "topic",
