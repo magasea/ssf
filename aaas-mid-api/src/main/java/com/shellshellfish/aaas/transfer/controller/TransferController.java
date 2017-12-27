@@ -1,15 +1,15 @@
 package com.shellshellfish.aaas.transfer.controller;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,12 +17,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-
 import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -48,6 +46,9 @@ public class TransferController {
 	
 	@Value("${shellshellfish.trade-order-url}")
 	private String tradeOrderUrl;
+	
+	@Value("${shellshellfish.api-data-manager-url}")
+	private String dataManagerUrl;
 	
 	
 	@ApiOperation("获取预计费用,以及投资组合的每一支基金的费用")
@@ -108,6 +109,58 @@ public class TransferController {
 			logger.error("购买基金调用购买接口失败");
 			String str=new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail,"购买失败" , JsonResult.EMPTYRESULT);
+		}
+	}
+	
+	
+	@ApiOperation("理财产品 产品详情页面")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="orderId",dataType="String",required=true,value="订单编号",defaultValue="1231230001000001513657092497")
+	})
+	@RequestMapping(value="/buyDetails",method=RequestMethod.POST)
+	@ResponseBody
+	public JsonResult buyDetails(@RequestParam String orderId){
+		Map<Object, Object> result = new HashMap<Object, Object>();
+		try{
+			result = restTemplate
+					.getForEntity(tradeOrderUrl + "/api/trade/funds/buyDetails/" + orderId , Map.class).getBody();
+			if (result == null || result.size() == 0) {
+				logger.error("产品详情-result-获取失败");
+				return new JsonResult(JsonResult.Fail, "产品详情获取失败", JsonResult.EMPTYRESULT);
+			}
+			if(result.get("detailList")==null){
+				logger.error("产品详情-detailList-获取失败");
+				//return new JsonResult(JsonResult.Fail, "产品详情获取失败", JsonResult.EMPTYRESULT);
+			} else {
+				List detail = (List) result.get("detailList");
+				if(detail!=null || detail.size()!=0){
+					for(int i=0;i<detail.size();i++){
+						if(detail.get(i)!=null){
+							Map map = (Map) detail.get(i);
+							String fundCode = (String) map.get("fundCode");
+							if(!StringUtils.isEmpty(fundCode)){
+								List fundList = new ArrayList();
+								fundList = restTemplate.getForEntity(dataManagerUrl + "/api/datamanager/getFundInfos?codes=" + fundCode , List.class).getBody();
+								if(fundList==null||fundList.size()==0){
+									logger.error("基金CODE:"+fundCode+"不存在");
+								} else {
+									String fundName = (String) ((Map)fundList.get(0)).get("name");
+									map.put("fundName", fundName);
+									map.remove("fundCode");
+								}
+							}
+						}
+					}
+				}
+//				if(detailList!=null && detailList){
+//					
+//				}
+			}
+			return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result);
+		}catch(Exception e){
+			logger.error("产品详情页面接口失败");
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail,"产品详情页面失败" , JsonResult.EMPTYRESULT);
 		}
 	}
 	

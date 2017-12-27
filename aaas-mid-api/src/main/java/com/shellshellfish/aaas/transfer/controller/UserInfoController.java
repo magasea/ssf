@@ -315,6 +315,50 @@ public class UserInfoController {
 		}	
 	}
 	
+	@ApiOperation("我的智投组合")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=true,value="用户uuid",defaultValue="")
+	})
+	@RequestMapping(value = "/chicombination", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult chicombination(@RequestParam String uuid) {
+		Map<Object, Object> result = new HashMap<Object, Object>();
+		try {
+			result = restTemplate
+					.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/chicombination", Map.class).getBody();
+			if (result == null || result.size() == 0) {
+				logger.error("我的智投组合获取失败");
+				return new JsonResult(JsonResult.Fail, "我的智投组合获取失败", JsonResult.EMPTYRESULT);
+			}
+			return new JsonResult(JsonResult.SUCCESS, "我的智投组合成功", result);
+		} catch (Exception e) {
+			String str = new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}
+	}
+	
+	@ApiOperation("资产总览")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=true,value="用户uuid",defaultValue="")
+	})
+	@RequestMapping(value = "/asset", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult assetView(@RequestParam String uuid) {
+		Map<Object, Object> result = new HashMap<Object, Object>();
+		try {
+			result = restTemplate
+					.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/asset", Map.class).getBody();
+			if (result == null || result.size() == 0) {
+				logger.error("资产总览获取失败");
+				return new JsonResult(JsonResult.Fail, "资产总览获取失败", JsonResult.EMPTYRESULT);
+			}
+			return new JsonResult(JsonResult.SUCCESS, "资产总览成功", result);
+		} catch (Exception e) {
+			String str = new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}
+	}
+	
 	/**
 	 * 通用方法处理post请求带requestbody
 	 * @param JsonString

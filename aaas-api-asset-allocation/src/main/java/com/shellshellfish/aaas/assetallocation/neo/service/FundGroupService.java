@@ -602,10 +602,13 @@ public class FundGroupService {
 
                 fgi.setName("组合收益率走势图");
             } else {
+                List<Map<String, Object>> listFund = new ArrayList<>();
                 for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
-                    mapBasic.put(new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()), fundGroupHistory.getMaximum_retracement());
+                    mapBasic.put("time", new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()));
+                    mapBasic.put("value", fundGroupHistory.getMaximum_retracement());
+                    listFund.add(mapBasic);
                 }
-                allMap.put("retracement",mapBasic);
+                allMap.put("retracement",listFund);
                 String riskNum = fundGroupMapper.getRiskNum(fundGroupHistoryList.get(0).getFund_group_id());
                 mapStr.put("fund_group_id",riskNum);
                 mapStr.remove("fund_group_sub_id");
@@ -753,24 +756,30 @@ public class FundGroupService {
      * @param subGroupId
      */
     public void getNavadj(String group_id, String subGroupId) {
+        Date date = new Date();
+        Calendar ca = Calendar.getInstance();
         Map<String, Object> query = new HashMap<>();
         query.put("fund_group_id", group_id);
         query.put("subGroupId", subGroupId);
+        String groupStartTime = fundGroupMapper.getFundGroupHistoryTime(query);
+         if (groupStartTime == null || groupStartTime.equalsIgnoreCase("")){
+            groupStartTime = fundGroupMapper.getGroupStartTime(query);
+        }
+        //query.put("endTime", "2017-12-19");
+        query.put("endTime", new SimpleDateFormat("yyyy-MM-dd").format(date));
+        query.put("startTime", groupStartTime);
         List<FundNetVal> list = fundGroupMapper.getNavadj(query);
         for (FundNetVal fundNetVal : list){
             query.put("num",fundNetVal.getNavadj());
             query.put("time",fundNetVal.getNavLatestDate());
             fundGroupMapper.insertGroupNavadj(query);
         }
-        String groupStartTime = fundGroupMapper.getGroupStartTime(query);
-        Calendar ca = Calendar.getInstance();
         /*Date date = null;
         try {
             date = new SimpleDateFormat("yyyy-MM-dd").parse("2016-11-17");
         } catch (ParseException e) {
             e.printStackTrace();
         }*/
-        Date date = new Date();
         try {
             for (; date.getTime() > new SimpleDateFormat("yyyy-MM-dd").parse(groupStartTime).getTime(); ) {
                 query.put("endTime", new SimpleDateFormat("yyyy-MM-dd").format(date));
@@ -794,7 +803,7 @@ public class FundGroupService {
                 double maximum_retracement = 0;
                 if (temp.length>1) {
                     CalculateMaxdrawdowns cm = new CalculateMaxdrawdowns();
-                    maximum_retracement = cm.calculateMaxdrawdown(temp);
+                    maximum_retracement = cm.calculateMaxdrawdown(temp)*(-1);
                 }
                 query.put("retracement", maximum_retracement);
                 query.put("time", new SimpleDateFormat("yyyy-MM-dd").format(date));
@@ -815,26 +824,29 @@ public class FundGroupService {
      * @param risk_level
      */
     public void getNavadjBenchmark(String risk_level) {
+        Calendar ca = Calendar.getInstance();
+        Date date = new Date();
         Map<String, Object> query = new HashMap<>();
         query.put("risk_level", risk_level);
+        String groupStartTime = fundGroupMapper.getFundGroupHistoryTime(query);
+        if (groupStartTime == null || groupStartTime.equalsIgnoreCase("")){
+            groupStartTime = fundGroupMapper.getGroupStartTime(query);
+        }
+        //query.put("endTime", "2017-12-19");
+        query.put("endTime", new SimpleDateFormat("yyyy-MM-dd").format(date));
+        query.put("startTime", groupStartTime);
         List<FundNetVal> list = fundGroupMapper.getNavadjBenchmark(query);
-        int a = 0;
-        for (FundNetVal fundNetVal : list){a++;
+        for (FundNetVal fundNetVal : list){
             query.put("num",fundNetVal.getNavadj());
             query.put("time",fundNetVal.getNavLatestDate());
             fundGroupMapper.insertGroupNavadjBenchmark(query);
         }
-        Calendar ca = Calendar.getInstance();
         /*Date date = null;
         try {
             date = new SimpleDateFormat("yyyy-MM-dd").parse("2017-05-19");
         } catch (ParseException e) {
             e.printStackTrace();
         }*/
-        Date date = new Date();
-        ca.setTime(date);
-        ca.add(Calendar.YEAR, -3);
-        String groupStartTime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
         try {
             for (; date.getTime() > new SimpleDateFormat("yyyy-MM-dd").parse(groupStartTime).getTime(); ) {
                 query.put("endTime", new SimpleDateFormat("yyyy-MM-dd").format(date));
@@ -858,7 +870,7 @@ public class FundGroupService {
                 double maximum_retracement = 0;
                 if (temp.length>1) {
                     CalculateMaxdrawdowns cm = new CalculateMaxdrawdowns();
-                    maximum_retracement = cm.calculateMaxdrawdown(temp);
+                    maximum_retracement = cm.calculateMaxdrawdown(temp)*(-1);
                 }
                 query.put("retracement", maximum_retracement);
                 query.put("time", new SimpleDateFormat("yyyy-MM-dd").format(date));
@@ -946,8 +958,8 @@ public class FundGroupService {
         for (int i = 1; i<16;i++) {
             List<RiskIncomeInterval> aa = fundGroupMapper.getScaleMark(i+"","risk_num");
             for (RiskIncomeInterval a : aa) {
-                getNavadj(a.getFund_group_id(), a.getId());
-                sharpeRatio(a.getFund_group_id(), a.getId());
+                getNavadj(i+"", a.getId());
+                sharpeRatio(i+"", a.getId());
             }
         }
     }

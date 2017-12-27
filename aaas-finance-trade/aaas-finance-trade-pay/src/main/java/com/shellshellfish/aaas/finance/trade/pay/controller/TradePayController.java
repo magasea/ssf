@@ -16,6 +16,12 @@ import com.shellshellfish.aaas.finance.trade.pay.model.SellFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import com.shellshellfish.aaas.finance.trade.pay.service.impl.FundTradeZhongZhengApiService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 @RestController
 @RequestMapping("/api/trade")
 public class TradePayController {
@@ -35,17 +41,17 @@ public class TradePayController {
 	 * @param totalAmount
 	 * @return
 	 */
-//	@ApiOperation("购买理财产品 购买页面")
-//	@ApiImplicitParams({
-//		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "uuid", defaultValue = ""),
-//		@ApiImplicitParam(paramType = "query", name = "sellNum", dataType = "Integer", required = true, value = "赎回份额", defaultValue = ""),
-//		@ApiImplicitParam(paramType = "query", name = "tradeAcco", dataType = "String", required = true, value = "tradeAcco", defaultValue = ""),
-//	@ApiImplicitParam(paramType = "query", name = "fundCode", dataType = "String", required = true, value = "基金Code", defaultValue = "") })
-//	@ApiResponses({ 
-//		@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
-//		@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
-//		@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
-//		@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对") })
+	@ApiOperation("赎回")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "uuid", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "sellNum", dataType = "Integer", required = true, value = "赎回份额", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "tradeAcco", dataType = "String", required = true, value = "tradeAcco", defaultValue = ""),
+	    @ApiImplicitParam(paramType = "query", name = "fundCode", dataType = "String", required = true, value = "基金Code", defaultValue = "") })
+	@ApiResponses({ 
+		@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
+		@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
+		@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对") })
 	@RequestMapping(value = "/funds/sellProduct", method = RequestMethod.GET)
 	public ResponseEntity<Map> sellProduct(
 			@RequestParam(value = "uuid") String uuid,

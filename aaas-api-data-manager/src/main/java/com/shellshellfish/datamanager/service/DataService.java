@@ -32,4 +32,5 @@ public interface DataService {
     
     //基金价值指标信息:日涨幅,近一年涨幅,净值,分级类型,评级
     public HashMap<String,Object> getFundValueInfo(String code);
+	List<FundCodes> getFundsBycode(String codes);
 }
