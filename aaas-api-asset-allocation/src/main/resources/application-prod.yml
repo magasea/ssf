@@ -13,6 +13,9 @@ spring:
 grpc:
   host: localhost
   port: 10021
+  daily-fund-client:
+    host: localhost
+    port: 10091
 
 application:
     swagger:
