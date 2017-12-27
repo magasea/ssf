@@ -80,7 +80,7 @@ public class LoginController {
 			 return new JsonResult(JsonResult.Fail,EasyKit.getErrorMessage(str), "");
 			}*/
 			if(result == null){
-				return new JsonResult(JsonResult.Fail,"登录信息获取为空","");
+				return new JsonResult(JsonResult.Fail,"登录信息获取为空",JsonResult.EMPTYRESULT);
 			}
 			/**********************添加的测试数据*******************************/
 			//result.put("totalAssets", "10,000,000"); //总资产
@@ -92,7 +92,7 @@ public class LoginController {
 			Map userinfoMap = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/count", Map.class)
 					.getBody();
 			if(userinfoMap == null){
-				return new JsonResult(JsonResult.Fail,"登录时，获取userinfo信息为空","");
+				return new JsonResult(JsonResult.Fail,"登录时，获取userinfo信息为空",JsonResult.EMPTYRESULT);
 			}
 			result.put("myCardTotalQty", userinfoMap.get("myCardTotalQty")); //我的银行卡数量
 			result.put("messageUnread", userinfoMap.get("messageUnread")); //未读消息数量	
@@ -114,7 +114,7 @@ public class LoginController {
 		} catch (Exception e) {
 			result = new HashMap<String, String>();
 			String errorMsg=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail,errorMsg,"");
+			return new JsonResult(JsonResult.Fail,errorMsg,JsonResult.EMPTYRESULT);
 		} 
    }
 
@@ -136,7 +136,7 @@ public class LoginController {
 			return new JsonResult(JsonResult.SUCCESS, "发送成功", result);
 		} catch (Exception e) {
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail,str, "");
+			return new JsonResult(JsonResult.Fail,str, JsonResult.EMPTYRESULT);
 		}
 		
 	}
@@ -167,7 +167,7 @@ public class LoginController {
 		    result=restTemplatePeach.postForEntity(url,getHttpEntity(str),Map.class).getBody();
 		    if(!"OK".equalsIgnoreCase((String)result.get("result"))){
 		    	//如果不能注册，直接返回失败
-		    	return new JsonResult(JsonResult.Fail, "注册失败",null);
+		    	return new JsonResult(JsonResult.Fail, "注册失败",JsonResult.EMPTYRESULT);
 		    }
 		    //不报错进入下一个接口进行密码注册(requestMapping=registrations)
 		    url=loginUrl+"/api/useraccount/registrations";
@@ -197,7 +197,7 @@ public class LoginController {
 		    }
 		} catch (Exception e) {
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail, str, "");
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
 	
@@ -229,7 +229,7 @@ public class LoginController {
 		    return new JsonResult(JsonResult.SUCCESS, "OK", result);
 		}catch(Exception e){
 			String str=new ReturnedException(e).getErrorMsg();
-			 return new JsonResult(JsonResult.Fail, str, "");
+			 return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 		
 	}
@@ -249,12 +249,12 @@ public class LoginController {
 		Map<String, Object> result=new HashMap<String, Object>();
 		try{
 			if(oldPWD.equals(newPWD)){
-				return new JsonResult(JsonResult.Fail, "新旧密码不能一致", "");
+				return new JsonResult(JsonResult.Fail, "新旧密码不能一致", JsonResult.EMPTYRESULT);
 			}
 			String url=loginUrl+"/api/useraccount/users/"+uuid;
 			result = restTemplate.getForEntity(url, Map.class).getBody();
 			if(result==null){
-				return new JsonResult(JsonResult.Fail, "用户不存在", result);
+				return new JsonResult(JsonResult.Fail, "用户不存在", JsonResult.EMPTYRESULT);
 			}
 //			Map<String, Object> res = (Map<String, Object>) result.get("result");
 //			Object pwd = res.get("passwordHash");
@@ -264,16 +264,16 @@ public class LoginController {
 //			}
 			url=loginUrl+"/api/useraccount/users/"+uuid+"/passwords/"+oldPWD+"?newpassword="+newPWD;
 			restTemplatePeach.exchange(url, HttpMethod.PATCH, null, Map.class).getBody();
-			return new JsonResult(JsonResult.SUCCESS, "更改密码正确", null);
+			return new JsonResult(JsonResult.SUCCESS, "更改密码正确", JsonResult.EMPTYRESULT);
 		} catch (HttpClientErrorException e) {
 			result = new HashMap();
 			result.put("errorCode", "400");
 			String str = e.getResponseBodyAsString();
 			System.out.println(str);
 			result.put("error", e.getResponseBodyAsString());
-			return new JsonResult(JsonResult.Fail, "修改密码失败", result);
+			return new JsonResult(JsonResult.Fail, "修改密码失败", JsonResult.EMPTYRESULT);
 		}catch(Exception e){
-			return new JsonResult(JsonResult.Fail, "Fail", result);
+			return new JsonResult(JsonResult.Fail, "Fail", JsonResult.EMPTYRESULT);
 		}
 		
 	}
@@ -288,10 +288,10 @@ public class LoginController {
 	public JsonResult verifyMSGCode(String telNum,String msgCode){
 		try{
 		String result=service.verifyMSGCode(telNum, msgCode);
-		return new JsonResult(JsonResult.SUCCESS,result,"");
+		return new JsonResult(JsonResult.SUCCESS,result,JsonResult.EMPTYRESULT);
 		}catch(Exception e){
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail, str, "");
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 		
 	}

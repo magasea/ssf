@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.LinkedMultiValueMap;
@@ -35,6 +37,8 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping("/phoneapi-ssf")
 @Api("转换相关restapi")
 public class TransferController {
+	
+   Logger logger =LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	private MidApiService service;
@@ -68,7 +72,7 @@ public class TransferController {
 	   return new JsonResult(JsonResult.SUCCESS,"获取成功",resultMap);
 	  }catch(Exception e){
 		  String str=new ReturnedException(e).getErrorMsg();
-		  return new JsonResult(JsonResult.Fail,str, "");
+		  return new JsonResult(JsonResult.Fail,str, JsonResult.EMPTYRESULT);
 	  }
 	}
 	
@@ -81,22 +85,30 @@ public class TransferController {
 	@RequestMapping(value="/subscribeFund",method=RequestMethod.POST)
 	@ResponseBody
 	public JsonResult doTransaction(@RequestParam String telNum,@RequestParam String msgCode,@RequestBody FinanceProdBuyInfo prdInfo){
+		String verify=null;
 		//首先验证验证码\
 		try{
-		String verify=service.verifyMSGCode(telNum, msgCode);
+		verify=service.verifyMSGCode(telNum, msgCode);
+		}catch(Exception e){
+			String str=new ReturnedException(e).getErrorMsg();
+		    logger.error(str);	
+		  return new JsonResult(JsonResult.Fail,"手机验证失败", JsonResult.EMPTYRESULT);
+		}
 		//验证码不通过则直接返回失败
 		if ("验证失败".equals(verify)){
 			return new JsonResult(JsonResult.Fail,"手机验证失败", JsonResult.EMPTYRESULT);
 		}
-		
-		
-		
-		
+		try{
+		//调用购买接口
+		Map buyProductSuccess=service.buyProduct(prdInfo);
+		Map resultMap=new HashMap<>();
+		resultMap.put("orderId", buyProductSuccess.get("orderId").toString());
+		return new JsonResult(JsonResult.SUCCESS, "购买成功", resultMap);
 		}catch(Exception e){
+			logger.error("购买基金调用购买接口失败");
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail, str, "");
+			return new JsonResult(JsonResult.Fail,"购买失败" , JsonResult.EMPTYRESULT);
 		}
-		return new JsonResult(JsonResult.SUCCESS, "购买成功", JsonResult.EMPTYRESULT);
 	}
 	
 }

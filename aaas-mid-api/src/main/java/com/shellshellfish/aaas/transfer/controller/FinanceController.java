@@ -73,9 +73,9 @@ public class FinanceController {
 		try {
 			if("1".equals(isTestFlag)){
 				if(StringUtils.isEmpty(uuid)){
-					return new JsonResult(JsonResult.Fail, "用户ID必须输入", "");
+					return new JsonResult(JsonResult.Fail, "用户ID必须输入",JsonResult.EMPTYRESULT );
 				} else if(StringUtils.isEmpty(testResult)){
-					return new JsonResult(JsonResult.Fail, "测评结果必须输入", "");
+					return new JsonResult(JsonResult.Fail, "测评结果必须输入", JsonResult.EMPTYRESULT);
 				}
 			}
 			MultiValueMap<String, String> requestEntity = new LinkedMultiValueMap<>();
@@ -87,7 +87,7 @@ public class FinanceController {
 					+ "&isTestFlag=" + isTestFlag + "&testResult=" + testResult, Map.class).getBody();
 			if (result == null || result.size() == 0) {
 				/*result.put("msg", "获取失败");*/
-				return new JsonResult(JsonResult.SUCCESS, "没有获取到产品", "");
+				return new JsonResult(JsonResult.SUCCESS, "没有获取到产品", JsonResult.EMPTYRESULT);
 			}
 //			requestEntity.add("productType", productType);
 			/*result.put("msg", "获取成功");*/
@@ -96,7 +96,7 @@ public class FinanceController {
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail,str,"");
+			return new JsonResult(JsonResult.Fail,str,JsonResult.EMPTYRESULT);
 		}
 	}
 
@@ -117,7 +117,7 @@ public class FinanceController {
 				//获取list失败直接返回
 				result=new HashMap<>();
 				String message=e.getMessage();
-				return new JsonResult(JsonResult.Fail, "获取理财产品调用restTemplate方法发生错误！","");
+				return new JsonResult(JsonResult.Fail, "获取理财产品调用restTemplate方法发生错误！",JsonResult.EMPTYRESULT);
 			}
 			//如果成功获取内部值，再遍历获取每一个产品的年化收益(进入service)
 			if(result!=null){
@@ -146,7 +146,7 @@ public class FinanceController {
 				   }
 			                             }
 			                  }else{
-			return new JsonResult(JsonResult.Fail, "没有获取到产品", "");
+			return new JsonResult(JsonResult.Fail, "没有获取到产品", JsonResult.EMPTYRESULT);
 			                  }
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", resultList);
 	}
@@ -165,7 +165,7 @@ public class FinanceController {
 			result=service.getPrdNPVList(groupId, subGroupId);
 		}catch(Exception e){
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail, str, "");
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 		return new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", result);
 	}
@@ -209,7 +209,7 @@ public class FinanceController {
 			logger.error("获取理财产品调用restTemplate方法发生错误",e);
 			String message = e.getMessage();
 			result.put("错误原因", message + ",获取理财产品调用restTemplate方法发生错误！");
-			return new JsonResult(JsonResult.Fail, "获取理财List数据失败", "");
+			return new JsonResult(JsonResult.Fail, "获取理财List数据失败", JsonResult.EMPTYRESULT);
 		}
 		
 		//收益率走势图
@@ -309,7 +309,7 @@ public class FinanceController {
 			/*String message = e.getMessage();
 			result.put("错误原因", message + ",未来收益走势图数据发生错误！"); */
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail, "未来收益走势图数据失败", "");
+			return new JsonResult(JsonResult.Fail, "未来收益走势图数据失败", JsonResult.EMPTYRESULT);
 		}
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 	}
@@ -486,7 +486,7 @@ public class FinanceController {
 			logger.error("风险控制数据发生错误", e);
 			String message = e.getMessage();
 			result.put("错误原因", message + ",风险控制数据发生错误！");
-			return new JsonResult(JsonResult.Fail, "风险控制数据失败", "");
+			return new JsonResult(JsonResult.Fail, "风险控制数据失败", JsonResult.EMPTYRESULT);
 		}
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 	}
@@ -660,7 +660,7 @@ public class FinanceController {
 		return new JsonResult(JsonResult.SUCCESS, "请求成功",service.getOptAdjustment(riskLevel, invstTerm));
 		}catch(Exception e){
 		String str=new ReturnedException(e).getErrorMsg();
-	    return new JsonResult(JsonResult.Fail, str,"");
+	    return new JsonResult(JsonResult.Fail, str,JsonResult.EMPTYRESULT);
 		}
 		
 	}
@@ -677,7 +677,7 @@ public class FinanceController {
 
 		if (result.isEmpty()) {
 			result.put("msg", "获取失败");
-			return new JsonResult(JsonResult.Fail, "获取失败", result);
+			return new JsonResult(JsonResult.Fail, "获取失败", JsonResult.EMPTYRESULT);
 		}
 
 		result.put("msg", "获取成功");
