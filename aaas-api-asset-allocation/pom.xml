@@ -196,13 +196,13 @@
             <groupId>com.matlab</groupId>
             <artifactId>matlab-javabuilder-linux</artifactId>
             <version>0.0.1</version>
-            <classifier>${os.detected.classifier}</classifier>
+            <!--<classifier>${os.detected.classifier}</classifier>-->
         </dependency>
         <dependency>
             <groupId>com.matlab</groupId>
             <artifactId>matlab-javabuilder-ws</artifactId>
             <version>0.0.1</version>
-            <classifier>${os.detected.classifier}</classifier>
+            <!--<classifier>${os.detected.classifier}</classifier>-->
         </dependency>
     </dependencies>
 
