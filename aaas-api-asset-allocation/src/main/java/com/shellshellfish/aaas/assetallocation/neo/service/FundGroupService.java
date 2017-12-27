@@ -958,8 +958,8 @@ public class FundGroupService {
         for (int i = 1; i<16;i++) {
             List<RiskIncomeInterval> aa = fundGroupMapper.getScaleMark(i+"","risk_num");
             for (RiskIncomeInterval a : aa) {
-                getNavadj(a.getFund_group_id(), a.getId());
-                sharpeRatio(a.getFund_group_id(), a.getId());
+                getNavadj(i+"", a.getId());
+                sharpeRatio(i+"", a.getId());
             }
         }
     }
