@@ -1604,22 +1604,111 @@ public class UserInfoController {
 		List<ProductsDTO> productsList = userInfoService.findProductInfos(userUuid);
 		if(productsList==null||productsList.size()==0){
 			logger.info("我的智投组合暂时不存在");
-			throw new UserInfoException("404","我的智投组合暂时不存在");
+			return new ResponseEntity<>(result, HttpStatus.OK);
 		}
+		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+		Map<String, Object> resultMap = new HashMap<String, Object>();
 		ProductsDTO products= new ProductsDTO();
-		products = productsList.get(0);
-		result.put("title", products.getProdName());
-		result.put("createDate", products.getCreateDate());
-		//总资产
-		result.put("totalAssets", "4543.25");
-		//日收益
-		result.put("dailyIncome", "1.8");
-		//累计收益
-		result.put("totalIncome", "398");
-		//累计收益率
-		result.put("totalRevenue", "0.04");
-		//状态(0-待确认 1-已确认 -1-交易失败)
-		result.put("status", "0.04");
+		for(int i = 0; i< productsList.size();i++){
+			products = productsList.get(i);
+			resultMap = new HashMap<String, Object>();
+			resultMap.put("title", products.getProdName());
+			resultMap.put("createDate", products.getCreateDate());
+			//总资产
+			resultMap.put("totalAssets", "4543.25");
+			//日收益
+			resultMap.put("dailyIncome", "1.8");
+			//累计收益
+			resultMap.put("totalIncome", "398");
+			//累计收益率
+			resultMap.put("totalRevenue", "0.04");
+			//状态(0-待确认 1-已确认 -1-交易失败)
+			if(products.getStatus() == 0){
+				resultMap.put("status", "待确认");
+			} else if(products.getStatus() == 1){
+				resultMap.put("status", "已确认");
+			} else {
+				resultMap.put("status", "交易失败");
+			}
+			//智投组合产品ID
+			resultMap.put("prodId",products.getProdId());
+			resultList.add(resultMap);
+		}
+		result.put("result", resultList);
+		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
+	
+	@ApiOperation("交易结果 购买")
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+		@ApiResponse(code=400,message="请求参数没填好"),
+		@ApiResponse(code=401,message="未授权用户"),        				
+		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue=""),
+		@ApiImplicitParam(paramType="path",name="prodId",dataType="String",required=true,value="产品ID",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="buyfee",dataType="String",required=true,value="产品ID",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="bankName",dataType="String",required=true,value="银行名称",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="bankCard",dataType="String",required=true,value="银行卡号",defaultValue=""),
+	})
+	@RequestMapping(value = "/users/{userUuid}/orders/{prodId}/records", method = RequestMethod.GET)
+	public ResponseEntity<Map> getRecords(
+			@PathVariable String userUuid,
+			@PathVariable String prodId,
+			@RequestParam String buyfee,
+			@RequestParam String bankName,
+			@RequestParam String bankCard
+			) throws Exception {
+		Map<String, Object> result = new HashMap<String, Object>();
+		Calendar c = Calendar.getInstance();
+		int month = c.get(Calendar.MONTH);
+		//TODO 可能需要从基金详情中获取
+		c.add(5, 7);
+		int date = c.get(Calendar.DATE);
+		result.put("date", month+"."+date);
+		
+		result.put("buyfee", buyfee);
+		result.put("bankInfo", bankName+"("+bankCard+")");
+		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
+	
+	@ApiOperation("交易结果 赎回")
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+		@ApiResponse(code=400,message="请求参数没填好"),
+		@ApiResponse(code=401,message="未授权用户"),        				
+		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue=""),
+		@ApiImplicitParam(paramType="path",name="prodId",dataType="String",required=true,value="产品ID",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="buyfee",dataType="String",required=true,value="产品ID",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="bankName",dataType="String",required=true,value="银行名称",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="bankCard",dataType="String",required=true,value="银行卡号",defaultValue=""),
+	})
+	@RequestMapping(value = "/users/{userUuid}/orders/{prodId}/sell-records", method = RequestMethod.GET)
+	public ResponseEntity<Map> getSellRecords(
+			@PathVariable String userUuid,
+			@PathVariable String prodId,
+			@RequestParam String buyfee,
+			@RequestParam String bankName,
+			@RequestParam String bankCard
+			) throws Exception {
+		Map<String, Object> result = new HashMap<String, Object>();
+		Calendar c = Calendar.getInstance();
+		int month = c.get(Calendar.MONTH);
+		// TODO 可能需要从基金详情中获取
+		c.add(5, 7);
+		int date = c.get(Calendar.DATE);
+		result.put("date1", month + "." + date);
+		c.add(5, 1);
+		date = c.get(Calendar.DATE);
+		result.put("date2", month + "." + date);
+		result.put("buyfee", buyfee);
+		result.put("bankInfo", bankName + "(" + bankCard + ")");
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 }

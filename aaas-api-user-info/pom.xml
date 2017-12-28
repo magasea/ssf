@@ -229,6 +229,10 @@
 									<directory>../proto/finance/</directory>
 									<filtering>true</filtering>
 								</resource>
+								<resource>
+									<directory>../proto/trade/</directory>
+									<filtering>true</filtering>
+								</resource>
 							</resources>
 						</configuration>
 					</execution>

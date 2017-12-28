@@ -28,11 +28,15 @@ public class FundYearIndicator {
 	@Field("navaccumreturnp")
 	private String navaccumreturnp; //区间累计单位净值增长率
 	
+	@Field("navreturnrankingp")//同类基金区间收益排名
+	private String navreturnrankingp;
+	
 	@Field("navunit")
 	private String navunit; //单位净值
 	
 	@Field("navaccum")
 	private String navaccum; //累计单位净值
+	
 	
 	public String getStdate() {
 	    return stdate;
@@ -92,4 +96,11 @@ public class FundYearIndicator {
 	    this.navaccumreturnp = navaccumreturnp;
 	}
 
+	public String getNavreturnrankingp() {
+	    return navreturnrankingp;
+	}
+
+	public void setNavreturnrankingp(String navreturnrankingp) {
+	    this.navreturnrankingp = navreturnrankingp;
+	}
 }

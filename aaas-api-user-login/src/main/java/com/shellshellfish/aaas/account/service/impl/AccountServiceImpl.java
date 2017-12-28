@@ -233,12 +233,21 @@ public class AccountServiceImpl implements AccountService {
 	  	return redisService.doSmsVerification(vbody);
 	}
 
+//	@Override
+//	public UserDTO doLogout(LoginBodyDTO loginBody) {
+//		String cellphone = loginBody.getTelnum();
+//		String password = loginBody.getPassword();
+//		redisService.doLogout(cellphone, password);
+//		return null;
+//	}
+	
 	@Override
-	public UserDTO doLogout(LoginBodyDTO loginBody) {
-		String cellphone = loginBody.getTelnum();
-		String password = loginBody.getPassword();
-		redisService.doLogout(cellphone, password);
-		return null;
+	public boolean doLogout(String uuid, String token) {
+		User user = userRepository.findByUuid(uuid);
+		if(user!=null){
+			return true;
+		}
+		return false;
 	}
 	
 	@Override

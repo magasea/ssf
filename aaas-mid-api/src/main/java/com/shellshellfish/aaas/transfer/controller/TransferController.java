@@ -2,9 +2,10 @@ package com.shellshellfish.aaas.transfer.controller;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -93,11 +95,11 @@ public class TransferController {
 		}catch(Exception e){
 			String str=new ReturnedException(e).getErrorMsg();
 		    logger.error(str);	
-		  return new JsonResult(JsonResult.Fail,"手机验证失败", JsonResult.EMPTYRESULT);
+		  return new JsonResult(JsonResult.Fail,"手机验证失败，申购失败", JsonResult.EMPTYRESULT);
 		}
 		//验证码不通过则直接返回失败
 		if ("验证失败".equals(verify)){
-			return new JsonResult(JsonResult.Fail,"手机验证失败", JsonResult.EMPTYRESULT);
+			return new JsonResult(JsonResult.Fail,"手机验证失败，申购失败", JsonResult.EMPTYRESULT);
 		}
 		try{
 		//调用购买接口
@@ -168,6 +170,8 @@ public class TransferController {
 	
 	@ApiOperation("产品赎回")
 	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="telNum",dataType="String",required=true,value="手机号",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="verifyCode",dataType="String",required=true,value="验证码",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=true,value="客户号",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="sellNum",dataType="String",required=true,value="售出份额",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="tradeAcc",dataType="String",required=true,value="中正给的绑定银行卡后的号",defaultValue=""),
@@ -175,9 +179,30 @@ public class TransferController {
 	})
 	@RequestMapping(value="/sellProduct",method=RequestMethod.POST)
 	@ResponseBody
-	public JsonResult sellProduct(@RequestParam String uuid,@RequestParam String sellNum,@RequestParam String tradeAcc,@RequestParam String productCode){
+	public JsonResult sellProduct(@RequestParam String telNum,@RequestParam String verifyCode,@RequestParam String uuid,@RequestParam String sellNum,@RequestParam String tradeAcc,@RequestParam String productCode){
+		//首先调用手机验证码
+		String verify=null;
+		try{
+			verify=service.verifyMSGCode(telNum, verifyCode);
+			}catch(Exception e){
+				String str=new ReturnedException(e).getErrorMsg();
+			    logger.error(str);	
+			  return new JsonResult(JsonResult.Fail,"手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
+			}
+		//验证码不通过则直接返回失败
+				if ("验证失败".equals(verify)){
+					return new JsonResult(JsonResult.Fail,"手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
+				}
+				
+		
+				
+		
+		
 		Map resultMap=new HashMap<>();
 		List resultList=new ArrayList<>();
+		
+		
+		
 		//首先根据产品号拿到产品下所有的基金code
 		
 		
@@ -194,6 +219,27 @@ public class TransferController {
 		
 		return new JsonResult(JsonResult.SUCCESS, "赎回成功",resultMap);
 	}
+	
+	@ApiOperation("赎回页面")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="groupId",dataType="String",required=true,value="groupID",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="subGroupId",dataType="String",required=true,value="subGroupId",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="totalAmount",dataType="String",required=true,value="总金额",defaultValue="")
+	})
+	@RequestMapping(value="/sellFundPage",method=RequestMethod.POST)
+	@ResponseBody
+	public JsonResult sellFundPage(String groupId,String subGroupId,String totalAmount){
+		Map result=null;
+		try{
+		result=service.sellFundPage(groupId, subGroupId, totalAmount);
+		return new JsonResult(JsonResult.SUCCESS,"调用成功",result);
+		}catch(Exception e){
+			logger.error("赎回页面接口调用失败");
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}	
+	}
+	
 	
 	
 }

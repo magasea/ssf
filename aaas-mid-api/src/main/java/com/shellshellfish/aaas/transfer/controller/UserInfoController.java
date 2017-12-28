@@ -12,6 +12,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -353,6 +354,70 @@ public class UserInfoController {
 				return new JsonResult(JsonResult.Fail, "资产总览获取失败", JsonResult.EMPTYRESULT);
 			}
 			return new JsonResult(JsonResult.SUCCESS, "资产总览成功", result);
+		} catch (Exception e) {
+			String str = new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}
+	}
+	
+	@ApiOperation("交易结果 购买")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=true,value="用户uuid",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="prodId",dataType="String",required=true,value="产品ID",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="buyfee",dataType="String",required=true,value="产品ID",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="bankName",dataType="String",required=true,value="银行名称",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="bankCard",dataType="String",required=true,value="银行卡号",defaultValue=""),
+	})
+	@RequestMapping(value = "/traderesult", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult getRecords(
+			@RequestParam String uuid,
+			@RequestParam String prodId,
+			@RequestParam String buyfee,
+			@RequestParam String bankName,
+			@RequestParam String bankCard
+			) {
+		Map<Object, Object> result = new HashMap<Object, Object>();
+		try {
+			String url = userinfoUrl + "/api/userinfo/users/" + uuid + "/orders/"+prodId+"/records?buyfee=" + buyfee + "&bankName=" + bankName+"&bankCard="+bankCard;
+			result = restTemplate.getForEntity(url, Map.class).getBody();
+			if (result == null || result.size() == 0) {
+				logger.error("交易结果获取失败");
+				return new JsonResult(JsonResult.Fail, "交易结果获取失败", JsonResult.EMPTYRESULT);
+			}
+			return new JsonResult(JsonResult.SUCCESS, "交易结果成功", result);
+		} catch (Exception e) {
+			String str = new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}
+	}
+	
+	@ApiOperation("交易结果 赎回")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=true,value="用户uuid",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="prodId",dataType="String",required=true,value="产品ID",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="buyfee",dataType="String",required=true,value="产品ID",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="bankName",dataType="String",required=true,value="银行名称",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="bankCard",dataType="String",required=true,value="银行卡号",defaultValue=""),
+	})
+	@RequestMapping(value = "/sellresult", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult getSellRecords(
+			@RequestParam String uuid,
+			@RequestParam String prodId,
+			@RequestParam String buyfee,
+			@RequestParam String bankName,
+			@RequestParam String bankCard
+			) {
+		Map<Object, Object> result = new HashMap<Object, Object>();
+		try {
+			String url = userinfoUrl + "/api/userinfo/users/" + uuid + "/orders/"+prodId+"/sell-records?buyfee=" + buyfee + "&bankName=" + bankName+"&bankCard="+bankCard;
+			result = restTemplate.getForEntity(url, Map.class).getBody();
+			if (result == null || result.size() == 0) {
+				logger.error("交易结果获取失败");
+				return new JsonResult(JsonResult.Fail, "交易结果获取失败", JsonResult.EMPTYRESULT);
+			}
+			return new JsonResult(JsonResult.SUCCESS, "交易结果成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
