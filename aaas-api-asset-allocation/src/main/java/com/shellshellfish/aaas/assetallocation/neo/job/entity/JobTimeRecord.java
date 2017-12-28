@@ -14,6 +14,7 @@ public class JobTimeRecord {
     private Date triggerTime;//job处理数据的时间记录
     private Date createTime;//记录创建时间
     private Date updateTime;//记录更新时间
+    private Integer status;//执行状态
 
     public Integer getId() {
         return id;
@@ -63,6 +64,14 @@ public class JobTimeRecord {
         this.updateTime = updateTime;
     }
 
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "JobTimeRecord{" +
@@ -72,6 +81,7 @@ public class JobTimeRecord {
                 ", triggerTime=" + triggerTime +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
+                ", status=" + status +
                 '}';
     }
 }

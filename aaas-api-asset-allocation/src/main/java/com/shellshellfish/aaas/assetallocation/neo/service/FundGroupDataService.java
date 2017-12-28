@@ -84,9 +84,13 @@ public class FundGroupDataService {
                     Integer groupId = entry.getKey();//组合id
                     List<String> codeList = entry.getValue();//组合中所含基金代码
                     //计算组合数据并入库
-                    flag=insertFundGroupDatas(groupId,codeList,todayDate);
-                    if(!flag){
-                        return flag;
+                    try{
+                        flag=insertFundGroupDatas(groupId,codeList,todayDate);
+                        if(!flag){
+                            return flag;
+                        }
+                    }catch (Exception e){
+                        logger.error("计算组合数据失败:",e);
                     }
 
                 }

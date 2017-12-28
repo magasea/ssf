@@ -94,7 +94,7 @@ public class DailyFundService {
             dailyFundsList = fundInfoService.getDailyFunds(builder.build());
 
         }catch(Exception e){
-            logger.error("调用每日接口获取数据失败：code="+code+",startDate="+startDate+",todayDate="+endDate);
+            logger.error("调用每日接口获取数据失败：code="+code+",startDate="+startDate+",todayDate="+endDate,e);
         }
 
         if(dailyFundsList!=null && dailyFundsList.size()>0){
@@ -179,7 +179,7 @@ public class DailyFundService {
                 }
                 logger.debug("Succeed: Insert into fund_net_val by call getFundDataOfDay!");
             }catch(Exception e){
-                logger.error("Failed: Insert into fund_net_val by call getFundDataOfDay!");
+                logger.error("Failed: Insert into fund_net_val by call getFundDataOfDay!",e);
             }
         }
 

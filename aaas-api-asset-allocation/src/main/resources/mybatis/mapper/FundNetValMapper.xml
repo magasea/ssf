@@ -61,7 +61,7 @@
     <select id="getAllDataByCodeAndDate"  resultMap="FundNetValMap">
         SELECT
         *
-        FROM fund_net_value fnv
+        FROM fund_net_value_copy fnv
         WHERE NAVLATESTDATE>=#{selectDate}
         AND fnv.code IN
         <foreach collection="codeList" index="index" item="item" open="(" separator="," close=")">
