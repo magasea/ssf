@@ -15,46 +15,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <profiles>
-        <profile>
-            <id>platform-windows</id>
-            <activation>
-                <os>
-                    <family>windows</family>
-                </os>
-                <property>
-                    <name>matlab.builder</name>
-                    <value>matlab-javabuilder-ws</value>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>com.matlab</groupId>
-                    <artifactId>matlab-javabuilder-ws</artifactId>
-                    <version>0.0.1</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>platform-linux</id>
-            <activation>
-                <os>
-                    <family>linux</family>
-                </os>
-                <property>
-                    <name>matlab.builder</name>
-                    <value>matlab-javabuilder-linux</value>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>com.matlab</groupId>
-                    <artifactId>matlab-javabuilder-linux</artifactId>
-                    <version>0.0.1</version>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
+
     <properties>
         <java.version>1.8</java.version>
         <h2.version>1.4.187</h2.version>
@@ -194,15 +155,9 @@
         </dependency>
         <dependency>
             <groupId>com.matlab</groupId>
-            <artifactId>matlab-javabuilder-linux</artifactId>
+            <artifactId>matlab-javabuilder</artifactId>
             <version>0.0.1</version>
-            <!--<classifier>${os.detected.classifier}</classifier>-->
-        </dependency>
-        <dependency>
-            <groupId>com.matlab</groupId>
-            <artifactId>matlab-javabuilder-ws</artifactId>
-            <version>0.0.1</version>
-            <!--<classifier>${os.detected.classifier}</classifier>-->
+            <classifier>${os.detected.classifier}</classifier>
         </dependency>
     </dependencies>
 
@@ -228,12 +183,12 @@
             </extension>
         </extensions>
         <plugins>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <classifier>${os.detected.classifier}</classifier>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+                <!--<artifactId>maven-jar-plugin</artifactId>-->
+                <!--<configuration>-->
+                    <!--<classifier>${os.detected.classifier}</classifier>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.0.2</version>

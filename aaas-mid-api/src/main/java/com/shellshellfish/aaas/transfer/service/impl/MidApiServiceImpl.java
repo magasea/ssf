@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.transfer.service.impl;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,6 +21,7 @@ import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.dto.FundNAVInfo;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
+
 public class MidApiServiceImpl implements MidApiService {
 	Logger logger = LoggerFactory.getLogger(MidApiServiceImpl.class);
 @Autowired
