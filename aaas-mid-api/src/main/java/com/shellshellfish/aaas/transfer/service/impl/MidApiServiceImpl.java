@@ -373,5 +373,15 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 
 
 
+
+	@Override
+	public Map sellFundPage(String groupId, String subGroupId, String totalAmount) throws Exception {
+		String url=tradeOrderUrl+"api/trade/funds/sellProduct?groupId="+groupId+"&subGroupId="+subGroupId+"&totalAmount="+totalAmount;
+		Map result=restTemplate.getForEntity(url, Map.class).getBody();
+		return result;
+	}
+
+
+
 	
 }

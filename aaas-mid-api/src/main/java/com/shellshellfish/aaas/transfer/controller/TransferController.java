@@ -2,9 +2,10 @@ package com.shellshellfish.aaas.transfer.controller;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -217,6 +219,27 @@ public class TransferController {
 		
 		return new JsonResult(JsonResult.SUCCESS, "赎回成功",resultMap);
 	}
+	
+	@ApiOperation("赎回页面")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="groupId",dataType="String",required=true,value="groupID",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="subGroupId",dataType="String",required=true,value="subGroupId",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="totalAmount",dataType="String",required=true,value="总金额",defaultValue="")
+	})
+	@RequestMapping(value="/sellFundPage",method=RequestMethod.POST)
+	@ResponseBody
+	public JsonResult sellFundPage(String groupId,String subGroupId,String totalAmount){
+		Map result=null;
+		try{
+		result=service.sellFundPage(groupId, subGroupId, totalAmount);
+		return new JsonResult(JsonResult.SUCCESS,"调用成功",result);
+		}catch(Exception e){
+			logger.error("赎回页面接口调用失败");
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}	
+	}
+	
 	
 	
 }

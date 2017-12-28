@@ -64,7 +64,7 @@ public class TradeOrderController {
    * @param financeProdBuyInfo
    * @return
    */
-  @ApiOperation("购买理财产品 页面")
+  @ApiOperation("理财购买")
   @ApiResponses({
       @ApiResponse(code=200,message="OK"),
       @ApiResponse(code=400,message="请求参数没填好"),
