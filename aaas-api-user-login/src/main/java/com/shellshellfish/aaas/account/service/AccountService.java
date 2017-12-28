@@ -18,8 +18,9 @@ public interface AccountService {
 	boolean addBankCard(String arg[]);
 	String sendSmsMessage(String phone);
 	boolean doSmsVerification(VerificationBodyDTO vbody);
-	UserDTO doLogout(LoginBodyDTO loginBody);
+	//UserDTO doLogout(LoginBodyDTO loginBody);
 	UserDTO getUserInfo(String uid) throws IllegalAccessException, InstantiationException;
 	String getSmsMessage(String cellphone);
 	void updateUser(String uuid, String password, String newPassword) throws IllegalAccessException, InstantiationException;
+	boolean doLogout(String uuid, String token);
 }
