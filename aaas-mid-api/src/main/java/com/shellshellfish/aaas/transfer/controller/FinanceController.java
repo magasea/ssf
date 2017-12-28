@@ -173,7 +173,7 @@ public class FinanceController {
 	@RequestMapping(value="/checkPrdDetails",method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getPrdDetails(String groupId,String subGroupId){
-		Map<String,Object> result=new HashMap<String,Object>();;
+		Map<String,Object> result=new HashMap<String,Object>();
 		try{
 			result=service.getPrdNPVList(groupId, subGroupId);
 		}catch(Exception e){
