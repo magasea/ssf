@@ -562,7 +562,7 @@ public class FinanceController {
 		Map result=null;
 		try{
 			String url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt";
-			String str="{\"returnType\":\""+"1"+"\"}";
+			String str="{\"returnType\":\""+"2"+"\"}";
 			result=(Map) restTemplate.postForEntity(url,getHttpEntity(str),Map.class).getBody();
 		}catch(Exception e){
 			result=new HashMap<String,Object>();
