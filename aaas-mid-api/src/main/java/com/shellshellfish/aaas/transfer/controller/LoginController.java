@@ -296,6 +296,26 @@ public class LoginController {
 		
 	}
 	
+	@ApiOperation("用户退出")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=true,value="用户UUID"),
+		@ApiImplicitParam(paramType="query",name="token",dataType="String",required=true,value="用户token")
+	})
+	@RequestMapping(value="/logout",method=RequestMethod.POST)
+	@ResponseBody
+	public JsonResult logout(String uuid,String token){
+		Map<String, Object> result=new HashMap<String, Object>();
+		try{
+			String url=loginUrl+"/api/useraccount/logout?uuid="+uuid+"&token="+token;
+			result = restTemplate.getForEntity(url, Map.class).getBody();
+			return new JsonResult(JsonResult.SUCCESS, "用户退出成功", JsonResult.EMPTYRESULT);
+		}catch(Exception e){
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}
+		
+	}
+	
 	
 	
 	

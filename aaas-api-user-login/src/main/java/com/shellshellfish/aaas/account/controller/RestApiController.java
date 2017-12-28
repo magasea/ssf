@@ -670,7 +670,6 @@ public class RestApiController {
 	}
 	
 	@ApiOperation("用户退出")
-	@ApiImplicitParam(name="loginBody", value ="用户数据 手机号码/密码",required=true,paramType="body",dataType="LoginBody")
 	@ApiResponses({
 		@ApiResponse(code=100,message="密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合"),
         @ApiResponse(code=101,message="手机号格式不对"),
@@ -681,37 +680,20 @@ public class RestApiController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
         
     })
-	@RequestMapping(value = "/logout", method = RequestMethod.POST)
-	public ResponseEntity<String> logout(@Valid @RequestBody LoginBodyDTO loginBody){
-			String telnum = loginBody.getTelnum();
-			String password = loginBody.getPassword();
-			if(telnum.length()!=11) {
-				throw new UserException("100","电话长度必须是11位的数字");
-			}
-		    Pattern p = Pattern.compile(  
-		            "^(?![A-Za-z]+$)(?![A-Z\\d]+$)(?![A-Z\\W]+$)(?![a-z\\d]+$)(?![a-z\\W]+$)(?![\\d\\W]+$)\\S{8,20}$");  
-		    Matcher m = p.matcher(password);  
-		    if (m.find()) { //need pwd check  
-		        //int kk=1;  
-		    } else {
-		    	throw new UserException("101","密码长度至少8位,至多20位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合");
-		    }
-		    
-		    String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
-			Pattern telPattern = Pattern.compile(telRegExp);
-			Matcher telMatcher = telPattern.matcher(telnum);
-			if (!telMatcher.find()) {
-				throw new UserException("102", "手机号格式不对");
-			}
-		   
-	         //passwd:abccd4djsN-999
-		    //CellPhone:13611442221
-	        
-	      //  User targetuser = userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
-			accountService.doLogout(loginBody);
-		    
-	        return new ResponseEntity<String>("/login",HttpStatus.NO_CONTENT);//未授权用户
-	       	
+	@RequestMapping(value = "/logout", method = RequestMethod.GET)
+	public ResponseEntity<Map> logout(
+			@RequestParam(value = "uuid") String uuid,
+			@RequestParam(value = "token") String token){
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		boolean result = accountService.doLogout(uuid,token);
+	    if(result){
+	    	resultMap.put("status", "退出成功");
+	    	resultMap.put("token", "");
+	    } else {
+	    	resultMap.put("status", "退出失败");
+	    	resultMap.put("token", "-");
+	    }
+        return new ResponseEntity<Map>(resultMap,HttpStatus.OK);//未授权用户
     }
 	
 	@RequestMapping(value = "/users/{uidid}", method = RequestMethod.GET)
