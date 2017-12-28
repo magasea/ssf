@@ -109,18 +109,6 @@
         </foreach>
     </insert>
 
-    <insert id="insertBenchmarkDailyDataToFundNetVal" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
-        INSERT INTO fund_net_value_copy (CODE,NAVLATESTDATE,UNITNAV,NAVACCUM,NAVADJ,YIELDOF7DAYS,MILLION_REVENUE)
-        <foreach collection="list" item="dailyData" index="index" separator="union all">
-            ( SELECT
-            #{dailyData.code},#{dailyData.navLatestDate},#{dailyData.navUnit},#{dailyData.navAccum},
-            #{dailyData.close},#{dailyData.yieldOf7Days},#{dailyData.millionRevenue}
-            FROM dual
-            )
-        </foreach>
-    </insert>
-
-
     <insert id="insertBasicDataToFundBasic" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
         INSERT INTO fund_basic_copy (code,fname,fund_type_one,fund_type_two,fund_scale,bm_index_chgpct)
         VALUES (

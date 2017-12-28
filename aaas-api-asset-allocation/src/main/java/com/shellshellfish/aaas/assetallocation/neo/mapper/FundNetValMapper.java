@@ -37,9 +37,6 @@ public interface FundNetValMapper {
     //将通过rpc获取到的每日基金数据插入 fund_net_value
     Integer insertDailyDataToFundNetVal(List<Dailyfunds> dailyfundsList);
 
-    //将通过rpc获取到的 基准 每日基金数据插入 fund_net_value
-    Integer insertBenchmarkDailyDataToFundNetVal(List<Dailyfunds> dailyfundsList);
-
     //将通过rpc获取到的每日基金基础数据插入 fund_basic
     Integer insertBasicDataToFundBasic(Dailyfunds dailyfunds);
 

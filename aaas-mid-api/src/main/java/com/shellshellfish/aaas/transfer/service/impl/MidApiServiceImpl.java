@@ -1,9 +1,6 @@
 package com.shellshellfish.aaas.transfer.service.impl;
 
-import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
-import com.shellshellfish.aaas.dto.FundNAVInfo;
-import com.shellshellfish.aaas.service.MidApiService;
-import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,6 +17,10 @@ import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
+import com.shellshellfish.aaas.dto.FundNAVInfo;
+import com.shellshellfish.aaas.service.MidApiService;
+import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
 
 public class MidApiServiceImpl implements MidApiService {
 	Logger logger = LoggerFactory.getLogger(MidApiServiceImpl.class);
@@ -264,12 +265,9 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 		try{
 		 fundCode=map.get("fund_code").toString(); //获取产品代码code
 		 name=map.get("name").toString();//产品名称
-		 fundType=map.get("基金类型").toString();//基金类型
-		/************************************************/
-		avgIncreRate=map.get(fundType).toString();
-		/************************************************/
+		 fundType=map.get("fund_type_two").toString();//基金类型
 		}catch(Exception e){
-			logger.error("获取map中的参数出错");
+			logger.error("获取map中的参数出错,"+e.getMessage());
 		}
 		List NPVIncrement=null;
 		try{
