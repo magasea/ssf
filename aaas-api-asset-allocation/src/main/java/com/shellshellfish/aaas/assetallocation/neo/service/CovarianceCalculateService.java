@@ -164,8 +164,8 @@ public class CovarianceCalculateService {
     /*
      * 计算基金两两组合之间的协方差(周期：周)insert into table:fund_covariance_week
      */
-    public  void calculateCovarianceOfWeek(){
-
+    public Boolean calculateCovarianceOfWeek(){
+        Boolean flag=true;
         CovarianceModel covarianceModel=new CovarianceModel();//组合对象
 
         //查询TriggerJob 上次执行时间
@@ -231,7 +231,16 @@ public class CovarianceCalculateService {
                         covarianceModel.setCovariance(cov);
 
                         //插入基金组合周协方差数据
-                        covarianceMapper.insertCovarianceOfWeek(covarianceModel);
+                        try{
+                            Integer tag=covarianceMapper.insertCovarianceOfWeek(covarianceModel);
+                            if(tag==null){
+                                flag=false;
+                                break;
+                            }
+                        }catch(Exception e){
+                            logger.error("插入基金周协方差计算数据失败：fundCalculateData="+ covarianceModel.toString());
+                        }
+
 
                     }
 
@@ -261,6 +270,8 @@ public class CovarianceCalculateService {
 
             jobTimeService.updateJobTimeRecord(jobTimeRecordTemp);
         }
+
+        return flag;
 
     }
 
