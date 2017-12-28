@@ -177,6 +177,7 @@ public class TransferController {
 	@ResponseBody
 	public JsonResult sellProduct(@RequestParam String uuid,@RequestParam String sellNum,@RequestParam String tradeAcc,@RequestParam String productCode){
 		Map resultMap=new HashMap<>();
+		List resultList=new ArrayList<>();
 		//首先根据产品号拿到产品下所有的基金code
 		
 		
