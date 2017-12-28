@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.dto.FinanceProductCompo;
 
 /**
@@ -47,5 +48,24 @@ public interface MidApiService {
 	 * @return
 	 */
 	Map<String,Object> getOptAdjustment(String riskLevel,String invstTerm) throws Exception;
+	
+	/**
+	 * 购买基金
+	 * @param prdInfo
+	 * @return
+	 * @throws Exception
+	 */
+	Map buyProduct(FinanceProdBuyInfo prdInfo) throws Exception;
+	
+	/**
+	 * 赎回单只基金接口
+	 * @param uuid
+	 * @param sellNum
+	 * @param tradeAcc
+	 * @param fundCode
+	 * @return
+	 * @throws Exception
+	 */
+	Map sellFund(String uuid,String sellNum,String tradeAcc,String fundCode) throws Exception;
 	
 }

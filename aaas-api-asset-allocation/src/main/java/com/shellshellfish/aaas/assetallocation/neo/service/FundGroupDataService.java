@@ -34,10 +34,8 @@ public class FundGroupDataService {
 
     private SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
 
-
-    @Test
-    public void insertFundData(){
-
+    public Boolean insertFundGroupData(){
+        Boolean flag=true;
        //查询 fund_group_basic （基金组合基本表）中有效组合的code
         List<FundCombination> groupIdList=fundGroupMapper.findAllGroupId();
 
@@ -86,20 +84,23 @@ public class FundGroupDataService {
                     Integer groupId = entry.getKey();//组合id
                     List<String> codeList = entry.getValue();//组合中所含基金代码
                     //计算组合数据并入库
-                    insertFundGroupData(groupId,codeList,todayDate);
-
+                    flag=insertFundGroupDatas(groupId,codeList,todayDate);
+                    if(!flag){
+                        return flag;
+                    }
 
                 }
 
             }
         }
 
+        return flag;
     }
 
 
     //调用 MVO 得出组合数据并入库
-    public void insertFundGroupData( Integer groupId,List<String> codeList,String todayDate ){
-
+    public Boolean insertFundGroupDatas( Integer groupId,List<String> codeList,String todayDate ){
+        Boolean flag=true;
         Double [] ExpReturn=null;
         Double[][] ExpCovariance=null;
 
@@ -123,7 +124,7 @@ public class FundGroupDataService {
             logger.debug("MVO方法所需参数矩阵查询成功！");
         }else{
             logger.error("MVO方法所需参数矩阵查询失败！");
-            return;
+            return false;
         }
 
         //调用 MVO 获取 组合收益、风险、权重
@@ -175,15 +176,21 @@ public class FundGroupDataService {
 
                     fundCombinationList.add(fundCombination);
                     //将组合数据插入fund_group_details
-                    fundGroupMapper.insertIntoFundGroupDetails(fundCombination.getSubGroupDetails());
-
+                    Integer tag=fundGroupMapper.insertIntoFundGroupDetails(fundCombination.getSubGroupDetails());
+                    if(tag==null){
+                        flag=false;
+                        return flag;
+                    }
                 }
 
                 //将组合数据插入fund_group_sub
-                fundGroupMapper.insertIntoFundGroupSub(fundCombinationList);
+                Integer tag=fundGroupMapper.insertIntoFundGroupSub(fundCombinationList);
+                if(tag==null){
+                    flag=false;
+                }
             }
 
-
+            return flag;
         }
 
 

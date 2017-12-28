@@ -15,6 +15,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
+
     <properties>
         <java.version>1.8</java.version>
         <h2.version>1.4.187</h2.version>
@@ -137,11 +138,7 @@
             <artifactId>commons-math3</artifactId>
             <version>3.6.1</version>
         </dependency>
-        <dependency>
-            <groupId>com.matlab</groupId>
-            <artifactId>matlab-javabuilder-ws</artifactId>
-            <version>0.0.1</version>
-        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -155,6 +152,12 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
             <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.matlab</groupId>
+            <artifactId>matlab-javabuilder</artifactId>
+            <version>0.0.1</version>
+            <classifier>${os.detected.classifier}</classifier>
         </dependency>
     </dependencies>
 
@@ -180,6 +183,12 @@
             </extension>
         </extensions>
         <plugins>
+            <!--<plugin>-->
+                <!--<artifactId>maven-jar-plugin</artifactId>-->
+                <!--<configuration>-->
+                    <!--<classifier>${os.detected.classifier}</classifier>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.0.2</version>

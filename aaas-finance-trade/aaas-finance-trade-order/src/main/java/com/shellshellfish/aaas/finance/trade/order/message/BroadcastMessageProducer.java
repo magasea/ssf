@@ -28,11 +28,6 @@ public class BroadcastMessageProducer {
     @Value("${spring.rabbitmq.topicOrder}")
     String topicOrder;
 
-//    @Autowired
-//    public BroadcastMessageProducer(RabbitTemplate rabbitTemplate) {
-//        this.rabbitTemplate = rabbitTemplate;
-//    }
-
 
 
 

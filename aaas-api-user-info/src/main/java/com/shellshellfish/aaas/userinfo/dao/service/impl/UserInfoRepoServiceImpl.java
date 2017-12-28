@@ -138,7 +138,9 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		// BigInteger userIdLocal = BigInteger.valueOf(userId);
 		UiAsset uiAsset = userInfoAssetsRepository.findByUserId(userId);
 		UserInfoAssectsBriefDTO asset = new UserInfoAssectsBriefDTO();
-		BeanUtils.copyProperties(uiAsset, asset);
+		if(uiAsset != null){
+			BeanUtils.copyProperties(uiAsset, asset);
+		}
 		return asset;
 	}
 
@@ -488,14 +490,37 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	@Override
 	public ProductsDTO findByProdId(String prodId) {
 		if(StringUtils.isEmpty(prodId)){
-			throw new UserInfoException("404", "智投组合产品ID不能为空");
+			throw new UserInfoException("404", "智投组合产品id不能为空");
 		}
 		UiProducts productsData = uiProductRepo.findByProdId(Long.valueOf(prodId));
 		if (productsData == null) {
-			throw new UserInfoException("404", "智投组合产品:" + prodId + "为空");
+			throw new UserInfoException("404", "智投组合产品："+prodId+"为空");
 		}
 		ProductsDTO product = new ProductsDTO();
 		BeanUtils.copyProperties(productsData, product);
 		return product;
 	}
+
+	@Override
+	public List<ProductsDTO> findByUserId(String uuid) throws IllegalAccessException, InstantiationException {
+		if(StringUtils.isEmpty(uuid)){
+			throw new UserInfoException("404", "用户uuid不能为空");
+		}
+		Long userId = null;
+		try {
+			userId = getUserIdFromUUID(uuid);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		List<UiProducts> productsData = uiProductRepo.findByUserId(userId);
+		if (productsData == null||productsData.size()==0) {
+			throw new UserInfoException("404", "用户："+userId+"为空");
+		}
+		
+		List<ProductsDTO> productsList = MyBeanUtils.convertList(productsData,ProductsDTO.class);
+		
+		return productsList;
+	}
+	
 }

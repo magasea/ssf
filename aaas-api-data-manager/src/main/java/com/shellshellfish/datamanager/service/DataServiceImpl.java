@@ -464,5 +464,11 @@ public class DataServiceImpl implements DataService {
 		hnmap.put("rate", "4");//评级
 		return hnmap;
 	}
+
+	@Override
+	public List<FundCodes> getFundsBycode(String codes) {
+		List<FundCodes> fundList = mongoFundCodesRepository.findByCode(codes);
+		return fundList;
+	}
 	
 }

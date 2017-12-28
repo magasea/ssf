@@ -290,6 +290,11 @@ public class RestApiController {
 			return new ResponseEntity<HashMap<String,Object>>(valmap,HttpStatus.OK);
 
 	 }
-		
-
+	 
+	//获取基金名称信息	
+	@RequestMapping(value = "/getFundInfos", method = RequestMethod.GET)
+	public ResponseEntity<List<FundCodes>> getFundInfos(@RequestParam(value = "codes") String codes) {
+		List<FundCodes> fundslst = dataService.getFundsBycode(codes);
+		return new ResponseEntity<List<FundCodes>>(fundslst, HttpStatus.OK);
+	}
 }

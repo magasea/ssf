@@ -11,35 +11,46 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
 @Setter
-@Document(collection = "dailyfunds")
+@Document(collection = "fund_yieldrate")
 public class DailyFunds {
   @Id
-  @Field(value = "_id")
+  @Field( value = "_id")
   String id;
   @Indexed(name ="navlatestdate", direction = IndexDirection.DESCENDING)
-  @Field( value = "navlatestdate")
+  @Field( value= "navlatestdate")
   Long navLatestDate;
-  @Field( value = "fundscale")
+  @Field( value= "fundscale")
   Float fundsScale = Float.MIN_VALUE;;
   @Indexed(name ="code", direction = IndexDirection.DESCENDING)
-  @Field( value = "code")
+  @Field( value= "code")
   String code;
-  @Column(name="navadj")
-  Double navAdj = Double.MIN_VALUE;
-  @Field( value = "querydate")
+  @Field( value="navadj")
+  Double navAdj;
+  @Field( value= "querydate")
   String queryDate;
-  @Field( value = "bmindexchgpct")
+  @Field( value= "bmindexchgpct")
   Float bmIndexChgPct = Float.MIN_VALUE;;
   @Column( name="yeildof7days", columnDefinition="float default "+Float.MIN_VALUE)
   Float  yieldOf7Days = Float.MIN_VALUE;
-  @Field( value = "update")
+  @Field( value= "update")
   String update;
   @Column( name="10kunityield", columnDefinition="double default "+Double.MIN_VALUE)
   Double millionRevenue = Double.MIN_VALUE;
-  @Field( value = "navunit")
+  @Field( value= "navunit")
   Double navUnit = Double.MIN_VALUE;
-  @Field( value = "navaccum")
+  @Field( value= "navaccum")
   Double navAccum = Double.MIN_VALUE;
+
+  public String getfName() {
+    return fName;
+  }
+
+  public void setfName(String fName) {
+    this.fName = fName;
+  }
+
+  @Field( value= "fname")
+  String fName;
 
   public String getId() {
     return id;

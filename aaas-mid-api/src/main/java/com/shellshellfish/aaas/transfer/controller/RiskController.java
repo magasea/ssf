@@ -93,7 +93,7 @@ public class RiskController {
 			result.put("errorCode", "400");
 			result.put("error", "");*/
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail, str, "");
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
 	
@@ -149,14 +149,14 @@ public class RiskController {
 				// res.put("isTestFlag","F");
 				// return new JsonResult(JsonResult.SUCCESS, "风险测评成功", result);
 			} else {
-				return new JsonResult(JsonResult.Fail, "风险测评失败", null);
+				return new JsonResult(JsonResult.Fail, "风险测评失败", JsonResult.EMPTYRESULT);
 			}
 			return new JsonResult(JsonResult.SUCCESS, "风险测评成功", result);
 		} catch (Exception e) {
 			result = new HashMap<>();
 			result.put("errorCode", "400");
 			result.put("error", "");
-			return new JsonResult(JsonResult.Fail, "风险测评失败", result);
+			return new JsonResult(JsonResult.Fail, "风险测评失败", JsonResult.EMPTYRESULT);
 		}
 	}
 	

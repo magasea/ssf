@@ -6,24 +6,19 @@ import com.shellshellfish.aaas.datacollect.DailyFundsQuery.Builder;
 import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc;
 import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc.DataCollectionServiceBlockingStub;
 import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc.DataCollectionServiceStub;
-
 import com.shellshellfish.aaas.datacollection.client.model.DailyFunds;
 import com.shellshellfish.aaas.datacollection.client.model.vo.FundsQuery;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.StatusRuntimeException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 @Service
 public class DataCollectionServiceImpl implements DataCollectionService {
@@ -58,7 +53,8 @@ public class DataCollectionServiceImpl implements DataCollectionService {
   @Override
   public List<DailyFunds> getDailyFunds(FundsQuery fundsQuery) throws Exception {
     Builder queryBuilder = DailyFundsQuery.newBuilder();
-    queryBuilder.setNavLatestDate(fundsQuery.getNavLatestDate());
+    queryBuilder.setNavLatestDateStart(fundsQuery.getNavLatestDateStart());
+    queryBuilder.setNavLatestDateEnd(fundsQuery.getNavLatestDateEnd());
 
     for(String code: fundsQuery.getCodes()){
       queryBuilder.addCodes( code);

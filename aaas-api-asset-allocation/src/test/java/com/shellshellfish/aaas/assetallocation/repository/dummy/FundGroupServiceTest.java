@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-@ActiveProfiles("test")
+@ActiveProfiles("dev")
 public class FundGroupServiceTest {
 
     @Autowired
@@ -133,11 +133,11 @@ public class FundGroupServiceTest {
         List<ProductMakeUpInfo> a = financeProductService.getProductInfo(productBaseInfo);
     }
 
-    /*@Test
+    @Test
     public void getNavadj(){
-        allocationService.getAllIdAndSubId();
-        //allocationService.getNavadj("10","100094");
-    }*/
+        //allocationService.getAllIdAndSubId();
+        //allocationService.getNavadj("2","2002");
+    }
 
     /*@Test
     public void getNavadjBenchmark(){

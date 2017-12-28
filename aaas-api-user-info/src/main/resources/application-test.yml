@@ -36,7 +36,7 @@ spring:
   rabbitmq:
     username: ssf
     password: shellshellfish
-    host: 192.168.1.10
+    host: 192.168.1.22
     port: 5672
     virtual-host: aaas
     topicQueuePayName: com.ssf.topic.queue.pay
@@ -44,6 +44,7 @@ spring:
     topicExchangeName: com.ssf.topic.exchange
     topicPay: shellshellfish.pay
     topicOrder: shellshellfish.order
+    topicUserinfo: shellshellfish.userinfo
 datasource:
   sampleapp:
     url: jdbc:mysql://192.168.1.10:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8

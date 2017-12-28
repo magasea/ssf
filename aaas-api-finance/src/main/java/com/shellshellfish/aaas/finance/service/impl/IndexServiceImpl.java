@@ -112,6 +112,14 @@ public class IndexServiceImpl implements IndexService {
 					investmentHorizonMap2 = (List<Map<String, Object>>) obj.get("_items");
 					String groupId = (String) obj.get("productGroupId");
 					String subGroupId = (String) obj.get("productSubGroupId");
+					
+					//--------------------------------------
+					FundReturn fundReturn = assetAllocationService.selectById(groupId,subGroupId);
+					if(fundReturn==null){
+						throw new Exception("产品不存在.");
+					}
+					resultC.put("name", fundReturn.getName());
+					//--------------------------------------
 					Map<String, Object> itemMap2 = new HashMap<String, Object>();
 					double historicalYearPerformance = 0;
 					double historicalvolatility = 0;
@@ -149,10 +157,10 @@ public class IndexServiceImpl implements IndexService {
 		}
 		
 		List<String> banner_list = new ArrayList<>();
-		banner_list.add("/phoneapi-ssf/finance-home/image/page-1.jpg");
-		banner_list.add("/phoneapi-ssf/finance-home/image/page-2.jpg");
-		banner_list.add("/phoneapi-ssf/finance-home/image/page-3.jpg");
-		banner_list.add("/phoneapi-ssf/finance-home/image/page-4.jpg");
+		banner_list.add("http://47.96.164.161/1.png");
+		banner_list.add("http://47.96.164.161/2.png");
+		banner_list.add("http://47.96.164.161/3.png");
+		banner_list.add("http://47.96.164.161/4.png");
 		result.put("banner_list", banner_list);
 		
 		result.put("name", "理财产品 首页");
@@ -190,7 +198,7 @@ public class IndexServiceImpl implements IndexService {
 			result.put("error", "404 DATA NOT FOUND.");
 			return result;
 		}
-		List<Map<String, Double>> assetsRatiosList = fundReturn.getAssetsRatios();
+		List<Map<String, Object>> assetsRatiosList = fundReturn.getAssetsRatios();
 		result.put("assetsRatios", assetsRatiosList);
 
 		Map<String, Object> selfMap = new HashMap<String, Object>();
