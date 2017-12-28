@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.userinfo.service;
 
 
+import com.shellshellfish.aaas.userinfo.model.dto.ProdDtlSellPageDTO;
 import java.util.List;
 import java.util.Map;
 import org.springframework.data.domain.Page;
@@ -62,5 +63,8 @@ public interface UserInfoService {
 	List<ProductsDTO> findProductInfos(String uuid) throws Exception;
 
 	ProductsDTO findByProdId(String prodId) throws IllegalAccessException, InstantiationException;
+
+  Boolean sellProduct(ProdDtlSellPageDTO prodDtlSellPageDTO);
+
 
 }

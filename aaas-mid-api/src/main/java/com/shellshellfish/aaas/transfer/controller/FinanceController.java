@@ -173,7 +173,7 @@ public class FinanceController {
 	@RequestMapping(value="/checkPrdDetails",method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getPrdDetails(String groupId,String subGroupId){
-		Map<String,Object> result=new HashMap<String,Object>();;
+		Map<String,Object> result=new HashMap<String,Object>();
 		try{
 			result=service.getPrdNPVList(groupId, subGroupId);
 		}catch(Exception e){
@@ -561,9 +561,9 @@ public class FinanceController {
 	protected Map<String,Object> getExpMaxReturn(String groupId,String subGroupId){
 		Map result=null;
 		try{
-			String url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt";
-			String str="{\"returnType\":\""+"2"+"\"}";
-			result=(Map) restTemplate.postForEntity(url,getHttpEntity(str),Map.class).getBody();
+			String url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt?returntype="+"2";
+//			String str="{\"returnType\":\""+"2"+"\"}";
+			result=(Map) restTemplate.postForEntity(url,null,Map.class).getBody();
 		}catch(Exception e){
 			result=new HashMap<String,Object>();
 			result.put("error", "restTemplate获取预期最大回撤失败");
@@ -585,7 +585,7 @@ public class FinanceController {
 	protected Map<String,Object> getExpAnnReturn(String groupId,String subGroupId){
 		Map result=null;
 		try{
-			String url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt?returnType="+"1";
+			String url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt?returntype="+"1";
 			String str="{\"returnType\":\""+"1"+"\"}";
 			result=(Map) restTemplate.postForEntity(url,getHttpEntity(str),Map.class).getBody();
 			/*result.remove("_total");

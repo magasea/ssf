@@ -1,6 +1,5 @@
-package com.shellshellfish.aaas.finance.trade.model;
+package com.shellshellfish.aaas.userinfo.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 

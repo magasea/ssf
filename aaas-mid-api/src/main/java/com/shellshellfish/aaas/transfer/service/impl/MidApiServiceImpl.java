@@ -265,12 +265,9 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 		try{
 		 fundCode=map.get("fund_code").toString(); //获取产品代码code
 		 name=map.get("name").toString();//产品名称
-		 fundType=map.get("基金类型").toString();//基金类型
-		/************************************************/
-		avgIncreRate=map.get(fundType).toString();
-		/************************************************/
+		 fundType=map.get("fund_type_two").toString();//基金类型
 		}catch(Exception e){
-			logger.error("获取map中的参数出错");
+			logger.error("获取map中的参数出错,"+e.getMessage());
 		}
 		List NPVIncrement=null;
 		try{
@@ -371,6 +368,16 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 			String errorMessage=result.get("message").toString();
 			throw new RuntimeException(errorMessage);
 		}
+		return result;
+	}
+
+
+
+
+	@Override
+	public Map sellFundPage(String groupId, String subGroupId, String totalAmount) throws Exception {
+		String url=tradeOrderUrl+"api/trade/funds/sellProduct?groupId="+groupId+"&subGroupId="+subGroupId+"&totalAmount="+totalAmount;
+		Map result=restTemplate.getForEntity(url, Map.class).getBody();
 		return result;
 	}
 

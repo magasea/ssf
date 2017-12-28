@@ -1,12 +1,11 @@
-package com.shellshellfish.aaas.finance.trade.service.impl;
+package com.shellshellfish.aaas.userinfo.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shellshellfish.aaas.finance.trade.model.FundIncome;
-import com.shellshellfish.aaas.finance.trade.model.*;
-import com.shellshellfish.aaas.finance.trade.service.FundTradeApiService;
+import com.shellshellfish.aaas.userinfo.model.*;
+import com.shellshellfish.aaas.userinfo.service.FundTradeApiService;
 import org.apache.commons.codec.digest.UnixCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -275,8 +274,37 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
-    public String getAllConfirmList(String userUuid) throws JsonProcessingException {
+    public List<ConfirmResult> getConfirmResults(JSONObject jsonObject, Integer status) {
+        List<ConfirmResult> confirmResults = new ArrayList<>();
+        if (status.equals(1)) {
+            JSONArray jsonArray = jsonObject.getJSONArray("data");
+            for(int i = 0; i < jsonArray.size(); i++) {
+                ConfirmResult confirmResult = jsonArray.getObject(0, ConfirmResult.class);
+                confirmResults.add(confirmResult);
+            }
+        } else {
+            String errno = jsonObject.getString("errno");
+            String msg = jsonObject.getString("msg");
+            // throw new Exception(errno + ":" + msg);
+        }
+        return confirmResults;
+    }
+
+    @Override
+    public List<ConfirmResult> getConfirmResults(String userUuid, String fundCode) throws JsonProcessingException {
+        String json = getAllConfirmList(userUuid, fundCode);
+
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        Integer status = jsonObject.getInteger("status");
+        return getConfirmResults(jsonObject, status);
+    }
+
+    @Override
+    public String getAllConfirmList(String userUuid, String fundCode) throws JsonProcessingException {
         Map<String, Object> info = init(userUuid);
+        if (!StringUtils.isEmpty(fundCode)) {
+            info.put("fundcode", fundCode);
+        }
 
         postInit(info);
         String url = "https://onetest.51fa.la/v2/internet/fundapi/get_confirm_list";
@@ -397,6 +425,26 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
+    public FundInfo getFundInfoAsEntity(String fundCode) throws Exception {
+        fundCode = trimSuffix(fundCode);
+
+        Map<String, Object> info = init();
+        info.put("fundcode", fundCode);
+
+        postInit(info);
+
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_fund_info";
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info(json);
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        if (!jsonObject.getInteger("status").equals(1)) {
+            throw new Exception(jsonObject.getString("msg"));
+        }
+
+        JSONArray jsonArray = jsonObject.getJSONArray("data");
+        return jsonArray.getObject(0, FundInfo.class);
+    }
+
     public String getFundInfo(String fundCode) throws Exception {
         fundCode = trimSuffix(fundCode);
 

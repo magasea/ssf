@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 /**
  * Created by chenwei on 2017- 十二月 - 25
  */
@@ -21,4 +23,8 @@ public interface UiProductDetailRepo extends PagingAndSortingRepository<UiProduc
   int updateByParam(@Param("fundQuantity") Long fundQuantity, @Param("updateDate") Long
       updateDate, @Param("updateBy") Long updateBy,  @Param("userProdId") Long userProdId, @Param
       ("fundCode") String fundCode);
+
+
+
+  List<UiProductDetail> findAllByProdId(Long prodId);
 }

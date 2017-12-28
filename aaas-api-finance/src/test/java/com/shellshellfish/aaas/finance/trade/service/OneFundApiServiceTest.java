@@ -3,9 +3,9 @@ package com.shellshellfish.aaas.finance.trade.service;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shellshellfish.aaas.finance.trade.model.FundIncome;
 import com.shellshellfish.aaas.finance.trade.model.*;
 import com.shellshellfish.aaas.finance.trade.service.impl.OneFundApiService;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-@Ignore
+//@Ignore
 public class OneFundApiServiceTest {
     private static final Logger logger = LoggerFactory.getLogger(OneFundApiService.class);
 
@@ -254,6 +254,27 @@ public class OneFundApiServiceTest {
     public void testGetFundNotice() throws Exception {
         List<FundNotice> fundNotices = oneFundApiService.getFundNotices("000614");
         logger.info("{}", new ObjectMapper().writeValueAsString(fundNotices));
+    }
+
+    @Test
+    public void testGetBonusList() throws Exception {
+        List<BonusInfo> bonusInfoList = oneFundApiService.getBonusList("shellshellfish","002163", "20170101");
+        logger.info(new ObjectMapper().writeValueAsString(bonusInfoList));
+    }
+
+    @Test
+    public void testGetFundShare() throws Exception {
+        FundShare fundShare = oneFundApiService.getFundShare("shellshellfish", "002163");
+        logger.info(new ObjectMapper().writeValueAsString(fundShare));
+    }
+
+    @Test
+    public void testGetFundIncome() throws Exception {
+        long  start = System.currentTimeMillis();
+        FundIncome fundIncome = oneFundApiService.getFundIncome("shellshellfish", "002163");
+        long end = System.currentTimeMillis();
+        logger.info("{}", end - start);
+        logger.info(new ObjectMapper().writeValueAsString(fundIncome));
     }
 
     @Test
