@@ -1604,22 +1604,37 @@ public class UserInfoController {
 		List<ProductsDTO> productsList = userInfoService.findProductInfos(userUuid);
 		if(productsList==null||productsList.size()==0){
 			logger.info("我的智投组合暂时不存在");
-			throw new UserInfoException("404","我的智投组合暂时不存在");
+			return new ResponseEntity<>(result, HttpStatus.OK);
 		}
+		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+		Map<String, Object> resultMap = new HashMap<String, Object>();
 		ProductsDTO products= new ProductsDTO();
-		products = productsList.get(0);
-		result.put("title", products.getProdName());
-		result.put("createDate", products.getCreateDate());
-		//总资产
-		result.put("totalAssets", "4543.25");
-		//日收益
-		result.put("dailyIncome", "1.8");
-		//累计收益
-		result.put("totalIncome", "398");
-		//累计收益率
-		result.put("totalRevenue", "0.04");
-		//状态(0-待确认 1-已确认 -1-交易失败)
-		result.put("status", "0.04");
+		for(int i = 0; i< productsList.size();i++){
+			products = productsList.get(i);
+			resultMap = new HashMap<String, Object>();
+			resultMap.put("title", products.getProdName());
+			resultMap.put("createDate", products.getCreateDate());
+			//总资产
+			resultMap.put("totalAssets", "4543.25");
+			//日收益
+			resultMap.put("dailyIncome", "1.8");
+			//累计收益
+			resultMap.put("totalIncome", "398");
+			//累计收益率
+			resultMap.put("totalRevenue", "0.04");
+			//状态(0-待确认 1-已确认 -1-交易失败)
+			if(products.getStatus() == 0){
+				resultMap.put("status", "待确认");
+			} else if(products.getStatus() == 1){
+				resultMap.put("status", "已确认");
+			} else {
+				resultMap.put("status", "交易失败");
+			}
+			//智投组合产品ID
+			resultMap.put("prodId",products.getProdId());
+			resultList.add(resultMap);
+		}
+		result.put("result", resultList);
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 }

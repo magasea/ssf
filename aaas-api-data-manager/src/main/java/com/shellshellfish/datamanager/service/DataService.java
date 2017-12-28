@@ -31,6 +31,10 @@ public interface DataService {
     public HashMap<String,Object> getHistoryNetvalue(String code,String type,String date);
     
     //基金价值指标信息:日涨幅,近一年涨幅,净值,分级类型,评级
+<<<<<<< HEAD
+    public HashMap<String,Object> getFundValueInfo(String code,String date);
+=======
     public HashMap<String,Object> getFundValueInfo(String code);
 	List<FundCodes> getFundsBycode(String codes);
+>>>>>>> 796844c813281713312a8317df4102e00057be0f
 }
