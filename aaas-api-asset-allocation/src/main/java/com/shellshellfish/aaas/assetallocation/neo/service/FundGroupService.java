@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.shellshellfish.aaas.assetallocation.neo.util.MVO;
+import com.shellshellfish.aaas.assetallocation.neo.util.TransformUtil;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -520,14 +521,18 @@ public class FundGroupService {
         mapStr.put("starttime", starttime);
         mapStr.put("endtime", endtime);
         List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
+        Map maxMinValueMap = new HashMap();
         if (fundGroupHistoryList.size() != 0) {
             if (returnType.equalsIgnoreCase("income")) {
+            	List maxMinValueList = new ArrayList();
                 for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
                     Map<String, Object> map = new HashMap<>();
                     map.put("time",new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()));
                     map.put("value", fundGroupHistory.getIncome_num());
                     list.add(map);
+                    maxMinValueList.add(fundGroupHistory.getIncome_num());
                 }
+                maxMinValueMap = TransformUtil.getMaxMinValue(maxMinValueList);
                 fgi.setName("组合收益率走势图");
             } else {
                 for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
@@ -542,6 +547,7 @@ public class FundGroupService {
             fgi.set_links(_links);
             fgi.set_schemaVersion("0.1.1");
             fgi.set_serviceId("资产配置");
+            fgi.setMaxMinMap(maxMinValueMap);
         }
         return fgi;
     }
@@ -577,6 +583,10 @@ public class FundGroupService {
         mapStr.put("starttime", startTime);
         mapStr.put("endtime", endTime);
         List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
+        Map maxMinValueMap = new HashMap();
+        Map maxMinBenchmarkMap = new HashMap();
+        List maxMinValueList = new ArrayList();
+        List maxMinBenchmarkList = new ArrayList();
         if (fundGroupHistoryList.size() != 0) {
             if (returnType.equalsIgnoreCase("income")) {
                 List<Map<String, Object>> listFund = new ArrayList<>();
@@ -584,7 +594,10 @@ public class FundGroupService {
                     mapBasic.put("time", new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()));
                     mapBasic.put("value", fundGroupHistory.getIncome_num());
                     listFund.add(mapBasic);
+                    maxMinValueList.add(fundGroupHistory.getIncome_num());
                 }
+                maxMinValueMap = TransformUtil.getMaxMinValue(maxMinValueList);
+                
                 allMap.put("income",listFund);
                 String riskNum = fundGroupMapper.getRiskNum(fundGroupHistoryList.get(0).getFund_group_id());
                 mapStr.put("fund_group_id",riskNum);
@@ -596,7 +609,9 @@ public class FundGroupService {
                     mapBenchmark.put("time", new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()));
                     mapBenchmark.put("value", fundGroupHistory.getIncome_num());
                     listBenchmark.add(mapBenchmark);
+                    maxMinBenchmarkList.add(fundGroupHistory.getIncome_num());
                 }
+                maxMinBenchmarkMap = TransformUtil.getMaxMinValue(maxMinBenchmarkList);
                 allMap.put("incomeBenchmark",listBenchmark);
                 list.add(allMap);
 
@@ -607,7 +622,9 @@ public class FundGroupService {
                     mapBasic.put("time", new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()));
                     mapBasic.put("value", fundGroupHistory.getMaximum_retracement());
                     listFund.add(mapBasic);
+                    maxMinValueList.add(fundGroupHistory.getMaximum_retracement());
                 }
+                maxMinValueMap = TransformUtil.getMaxMinValue(maxMinValueList);
                 allMap.put("retracement",listFund);
                 String riskNum = fundGroupMapper.getRiskNum(fundGroupHistoryList.get(0).getFund_group_id());
                 mapStr.put("fund_group_id",riskNum);
@@ -619,7 +636,9 @@ public class FundGroupService {
                     mapBenchmark.put("time", new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()));
                     mapBenchmark.put("value", fundGroupHistory.getIncome_num());
                     listBenchmark.add(mapBenchmark);
+                    maxMinBenchmarkList.add(fundGroupHistory.getIncome_num());
                 }
+                maxMinBenchmarkMap = TransformUtil.getMaxMinValue(maxMinBenchmarkList);
                 allMap.put("incomeBenchmark",listBenchmark);
                 list.add(allMap);
                 fgi.setName("组合最大回撤走势图");
@@ -629,6 +648,8 @@ public class FundGroupService {
             fgi.set_links(_links);
             fgi.set_schemaVersion("0.1.1");
             fgi.set_serviceId("资产配置");
+            fgi.setMaxMinMap(maxMinValueMap);
+            fgi.setMaxMinBenchmarkMap(maxMinBenchmarkMap);
         }
         return fgi;
     }
@@ -723,23 +744,52 @@ public class FundGroupService {
         query.put("subGroupId", "1");
         List<FundGroupExpectedIncome> fgeiList = fundGroupMapper.getExpectedIncome(query);
         if (fgeiList.size() != 0) {
+        	Map expectedIncomeSizeMap  = new HashMap();
+        	Map highPercentMaxIncomeSizeMap  = new HashMap();
+        	Map highPercentMinIncomeSizeMap  = new HashMap();
+        	Map lowPercentMaxIncomeSizeMap  = new HashMap();
+        	Map lowPercentMinIncomeSizeMap  = new HashMap();
+        	List expectedIncomeSizeList = new ArrayList();
+        	List highPercentMaxIncomeSizeList = new ArrayList();
+        	List highPercentMinIncomeSizeList = new ArrayList();
+        	List lowPercentMaxIncomeSizeList = new ArrayList();
+        	List lowPercentMinIncomeSizeList = new ArrayList();
             for (FundGroupExpectedIncome fgei : fgeiList) {
                 Map<String, Object> map = new HashMap<>();
                 Map<String, Object> map1 = new HashMap<>();
                 map1.put("expected_income", fgei.getExpected_income());
+                //高概率最高收益
                 map1.put("high_percent_max_income", fgei.getHigh_percent_max_income());
+                //高概率最低收益
                 map1.put("high_percent_min_income", fgei.getHigh_percent_min_income());
+                //低概率最高收益
                 map1.put("low_percent_max_income", fgei.getLow_percent_max_income());
+                //低概率最低收益
                 map1.put("low_percent_min_income", fgei.getLow_percent_min_income());
                 map.put("income_mounth_time", fgei.getIncome_mounth_time());
                 map.put("_item", map1);
                 list.add(map);
+                expectedIncomeSizeList.add(fgei.getExpected_income());
+                highPercentMaxIncomeSizeList.add(fgei.getHigh_percent_max_income());
+                highPercentMinIncomeSizeList.add(fgei.getHigh_percent_min_income());
+                lowPercentMaxIncomeSizeList.add(fgei.getLow_percent_max_income());
+                lowPercentMinIncomeSizeList.add(fgei.getLow_percent_min_income());
             }
+            expectedIncomeSizeMap = TransformUtil.getMaxMinValue(expectedIncomeSizeList);
+            highPercentMaxIncomeSizeMap = TransformUtil.getMaxMinValue(highPercentMaxIncomeSizeList);
+            highPercentMinIncomeSizeMap = TransformUtil.getMaxMinValue(highPercentMinIncomeSizeList);
+            lowPercentMaxIncomeSizeMap = TransformUtil.getMaxMinValue(lowPercentMaxIncomeSizeList);
+            lowPercentMinIncomeSizeMap = TransformUtil.getMaxMinValue(lowPercentMinIncomeSizeList);
             rt.set_total(list.size());
             rt.set_items(list);
             rt.set_links(_links);
             rt.set_schemaVersion("0.1.1");
             rt.set_serviceId("资产配置");
+            rt.setExpectedIncomeSizeMap(expectedIncomeSizeMap);
+            rt.setHighPercentMaxIncomeSizeMap(highPercentMaxIncomeSizeMap);
+            rt.setHighPercentMinIncomeSizeMap(highPercentMinIncomeSizeMap);
+            rt.setLowPercentMaxIncomeSizeMap(lowPercentMaxIncomeSizeMap);
+            rt.setLowPercentMinIncomeSizeMap(lowPercentMinIncomeSizeMap);
         }
         return rt;
     }
