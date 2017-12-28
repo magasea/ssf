@@ -97,4 +97,5 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
         }
         return new DistributionResult(totalPoundage, totalDiscountSaving, fundAmountList);
     }
+
 }

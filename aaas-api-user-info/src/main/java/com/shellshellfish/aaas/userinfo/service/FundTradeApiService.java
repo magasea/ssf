@@ -1,8 +1,8 @@
-package com.shellshellfish.aaas.finance.trade.service;
+package com.shellshellfish.aaas.userinfo.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.shellshellfish.aaas.finance.trade.model.FundIncome;
-import com.shellshellfish.aaas.finance.trade.model.*;
+import com.shellshellfish.aaas.userinfo.model.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -28,7 +28,13 @@ public interface FundTradeApiService {
 
     ConfirmResult getConfirmResultByOutsideOrderNo(String userUuid, String outsideOrderNo) throws JsonProcessingException;
 
-    String getAllConfirmList(String userUuid) throws JsonProcessingException;
+    List<ConfirmResult> getConfirmResults(JSONObject jsonObject, Integer status);
+
+    List<ConfirmResult> getConfirmResults(String userUuid, String fundCode) throws JsonProcessingException;
+
+    //String getAllConfirmList(String userUuid) throws JsonProcessingException;
+
+    String getAllConfirmList(String userUuid, String fundCode) throws JsonProcessingException;
 
     FundNotice getLatestFundNotice(String fundCode) throws Exception;
 
@@ -42,7 +48,7 @@ public interface FundTradeApiService {
 
     String getUserRiskList(String userUuid) throws JsonProcessingException;
 
-    String getFundInfo(String fundCode) throws Exception;
+    FundInfo getFundInfoAsEntity(String fundCode) throws Exception;
 
     List<String> getAllFundsInfo() throws Exception;
 

@@ -184,8 +184,11 @@
 		</dependency>
 		<!-- junit surefire test-->
 		<!-- https://mvnrepository.com/artifact/junit/junit -->
-
-
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>RELEASE</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
