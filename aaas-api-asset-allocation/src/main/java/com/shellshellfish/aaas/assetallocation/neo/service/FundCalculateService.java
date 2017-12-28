@@ -209,8 +209,8 @@ public class FundCalculateService {
     /*
      * 计算每周的收益率以及风险率,insert into table:fund_calculate_data_week
      */
-    public void calculateDataOfWeek(){
-
+    public Boolean calculateDataOfWeek(){
+        Boolean flag=true;
         //查询计算风险率所需参数（取值数量）
         Integer number=getNumberFromSysConfig(TYPE_OF_WEEK);
 
@@ -283,7 +283,12 @@ public class FundCalculateService {
                         fundCalculateData.setNavadj(fundNetVal1.getNavadj());//复权单位净值
 
                         try{
-                            fundCalculateDataMapper.insertFundCalculateDataWeek(fundCalculateData);
+                            Integer tag=fundCalculateDataMapper.insertFundCalculateDataWeek(fundCalculateData);
+                            if(tag==null){
+                                flag=false;
+                                break;
+                            }
+
                         }catch(Exception e){
                             logger.error("插入基金周计算数据失败：fundCalculateData="+ fundCalculateData.toString());
                             e.printStackTrace();
@@ -320,6 +325,8 @@ public class FundCalculateService {
             jobTimeService.updateJobTimeRecord(jobTimeRecordTemp);
         }
 
+
+        return flag;
     }
 
 

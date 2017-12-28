@@ -789,9 +789,9 @@ public class FundGroupService {
                 list = fundGroupMapper.getNavadj(query);
                 double[] temp = new double[list.size()];
                 for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).getNavadj() == null){
+                    if (list.get(i).getNavadj() == null  || list.get(i).getNavadj() ==0){
                         for (int k = 0;;k++){
-                            if (list.get(k).getNavadj() != null){
+                            if (list.get(k).getNavadj() != null  && list.get(k).getNavadj() !=0){
                                 temp[i] = list.get(k).getNavadj();
                                 break;
                             }
@@ -856,9 +856,9 @@ public class FundGroupService {
                 list = fundGroupMapper.getNavadjBenchmark(query);
                 double[] temp = new double[list.size()];
                 for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).getNavadj() == null){
+                    if (list.get(i).getNavadj() == null || list.get(i).getNavadj() ==0){
                         for (int k = 0;;k++){
-                            if (list.get(k).getNavadj() != null){
+                            if (list.get(k).getNavadj() != null && list.get(k).getNavadj() !=0){
                                 temp[i] = list.get(k).getNavadj();
                                 break;
                             }
@@ -962,6 +962,7 @@ public class FundGroupService {
                 sharpeRatio(i+"", a.getId());
             }
         }
+        contribution();
     }
 
     public int deleteData(String tableName){
