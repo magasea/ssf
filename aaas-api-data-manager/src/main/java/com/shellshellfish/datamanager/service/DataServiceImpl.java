@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.shellshellfish.datamanager.commons.DataConvertUtils;
+import com.shellshellfish.datamanager.commons.DateUtil;
 import com.shellshellfish.datamanager.model.DailyFunds;
 import com.shellshellfish.datamanager.model.FundCodes;
 import com.shellshellfish.datamanager.model.FundCompanys;
@@ -369,7 +370,6 @@ public class DataServiceImpl implements DataService {
 			 String qd=sdf.format(new Date(list.get(i).getQuerydate()*1000));
 			 String navunit=list.get(i).getNavunit();
 			 String navaccum=list.get(i).getNavaccum();
-			 // String hitemstr="date"+index+"|||"+"unit net"+index+"|||"+"accum"+index+"|||"+"day scale"+index; //还需要一个年化收益率
 			 dmap[i].put("date",qd);
 			 dmap[i].put("navunit",navunit);
 			 dmap[i].put("navaccum",navaccum);
@@ -397,7 +397,30 @@ public class DataServiceImpl implements DataService {
 	
 	//日涨幅,近一年涨幅,净值,分级类型,评级
 	
-	public HashMap<String,Object> getFundValueInfo(String code){
+	public HashMap<String,Object> getFundValueInfo(String code,String date){
+		Date stdate=null;
+		Date enddate=null;
+		long sttime=0L;
+		long endtime=0L;
+		
+		try
+		{
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			stdate = sdf.parse(date);
+			sttime=stdate.getTime()/1000; //seconds
+			
+			Date yesdate=DateUtil.addDays(stdate, -1);//昨天日期 
+            endtime=yesdate.getTime()/1000; //seconds
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+			return null;
+		}	
+		
+		List<FundYearIndicator> lst=mongoFundYearIndicatorRepository.getHistoryNetByCodeAndQuerydate(code,sttime);
+		
+		
 		HashMap<String,Object> hnmap=new HashMap<String,Object>();
 		hnmap.put("code", code); //代码
 		HashMap<String,Object> dmap=new HashMap<String,Object>();

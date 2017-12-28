@@ -25,4 +25,7 @@ public interface MongoFundYearIndicatorRepository extends
 	List<FundYearIndicator> getHistoryNetByCodeAndQuerydate(String code,long fromtime,long totime);
     
 
+    @Query("{\"code\":?0,\"querydate\" : ?1}")
+	List<FundYearIndicator> getHistoryNetByCodeAndQuerydate(String code,long time);
+    
 }

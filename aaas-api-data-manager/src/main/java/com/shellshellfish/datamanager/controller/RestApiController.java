@@ -262,7 +262,7 @@ public class RestApiController {
         @ApiResponse(code=400,message="请求参数没填好")
         
     })
-	//code:基金代码
+	//历史净值
 	//type: 1: 3month,2: 6month,3: 1year,4: 3year
 	@RequestMapping(value = "/getHistoryNetvalue", method = RequestMethod.GET)
 	public ResponseEntity<HashMap<String,Object>> getHistoryNetvalue(
@@ -280,9 +280,13 @@ public class RestApiController {
 	 //基金价值指标
 	 @RequestMapping(value = "/getFundValueInfo", method = RequestMethod.GET)
 	 public ResponseEntity<HashMap<String,Object>> getFundValueInfo(
-			@RequestParam(value = "code") String code){
+			 @NotNull(message="代码不能为空") @RequestParam(value = "code") String code,
+			 @RequestParam(value = "date" ,required = false) String date){
 			
-			HashMap valmap=dataService.getFundValueInfo(code);
+		    if (date==null)
+		    	date=new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+		    	
+		    HashMap valmap=dataService.getFundValueInfo(code,date);
 			return new ResponseEntity<HashMap<String,Object>>(valmap,HttpStatus.OK);
 
 	 }
