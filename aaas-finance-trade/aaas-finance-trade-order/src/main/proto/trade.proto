@@ -8,6 +8,8 @@ option objc_class_prefix = "TRD";
 service TradeService {
     rpc GetTradeInfo (TradeInfoQuery) returns (TradeInfoCollection) {
     }
+    rpc SellProd(SellProdInfo) returns (SellProdResult){
+    }
 }
 
 message TradeInfoQuery {
@@ -33,4 +35,32 @@ message TradeInfo {
   int64 prod_id = 10 ;//理财产品ID',
   string fund_code = 11 ;//该理财产品中的基金编号',
   int64 fund_quantity = 12 ;//该理财产品中的基金份额',
+}
+
+message SellFundInfo{
+  string fund_code = 1; //基金编号
+  int64 sell_fund_quantity = 2; //基金卖出数量 精确到百分之一的整型
+  int64 sell_fund_money = 3; //基金卖出金额，精确到百分之一的整型
+}
+
+message SellProdInfo {
+  string user_id = 1; //用户ID
+  int32 order_type = 2; //操作类型 1-购买 2-分红 3-赎回
+  int64 user_prod_id = 3;//用户产品ID
+  repeated SellFundInfo sellFundInfo = 4; //卖出各个基金的明细
+}
+
+message SellProdResult{
+  string user_id = 1; //用户ID
+  int32 order_type = 2; //操作类型 1-购买 2-分红 3-赎回
+  int64 user_prod_id = 3;//用户产品ID
+  repeated SellProdResultDetail sellProdResultDetail = 4; //卖出各个基金的明细
+}
+
+message SellProdResultDetail{
+  string fund_code = 1; //基金编号
+  int64 sell_fund_quantity = 2; //基金卖出数量 精确到百分之一的整型
+  int64 sell_fund_money = 3; //基金卖出金额，精确到百分之一的整型
+  int32 sell_result = 4; //1-交易成功 -1-交易失败 ... 其他交易失败编码
+  string err_msg = 5; //交易失败描述
 }
