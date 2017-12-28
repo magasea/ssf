@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import com.shellshellfish.aaas.userinfo.model.dto.ProdDtlSellPageDTO;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -270,4 +271,12 @@ public class UserInfoServiceImpl implements UserInfoService {
 		ProductsDTO products = userInfoRepoService.findByProdId(prodId);
 		return products;
 	}
+
+  @Override
+  public Boolean sellProduct(ProdDtlSellPageDTO prodDtlSellPageDTO) {
+
+    return null;
+  }
+
+
 }
