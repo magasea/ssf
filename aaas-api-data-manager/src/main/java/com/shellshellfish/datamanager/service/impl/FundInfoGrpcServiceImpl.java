@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 /**
  * Created by chenwei on 2017- 十二月 - 29
  */
-
+@Service
 public class FundInfoGrpcServiceImpl extends FundsInfoServiceGrpc.FundsInfoServiceImplBase implements FundInfoGrpcService {
 
   @Autowired

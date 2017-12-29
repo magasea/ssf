@@ -18,4 +18,5 @@ public interface UiProductRepo extends PagingAndSortingRepository<UiProducts, Lo
 	List<UiProducts> findByUserId(Long userId);
 
 	List<UiProducts> findAll();
+
 }

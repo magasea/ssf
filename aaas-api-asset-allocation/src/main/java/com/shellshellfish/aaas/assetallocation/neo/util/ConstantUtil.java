@@ -33,4 +33,16 @@ public interface ConstantUtil {
     String ADJUSTED_FACTOR_TRIGGER="adjustedFactorTrigger";
 
     Integer SUB_GROUP_COUNT=100; // 调用 MVO 输出点的个数
+
+    String JOB_SCHEDULE_NAME="timedTask";
+    String INSERT_DAILYFUND_JOBSCHEDULE="insertDailyFundJobSchedule";
+    String CALCULATE_YIELDANDRISKOFWEEK_JOBSCHEDULE="calculateYieldAndRiskOfWeekJobSchedule";
+    String CALCULATE_COVARIANCEOFWEEK_JOBSCHEDULE="calculateCovarianceOfWeekJobSchedule";
+
+    String INSERT_FUNDGROUPDATA_JOBSCHEDULE="insertFundGroupDataJobSchedule";
+    String GET_ALLIDANDSUBID_JOBSCHEDULE="getAllIdAndSubIdJobSchedule";
+
+    Integer SUCCESSFUL_STATUS=1;
+    Integer FAILURED_STATUS=-1;
+
 }

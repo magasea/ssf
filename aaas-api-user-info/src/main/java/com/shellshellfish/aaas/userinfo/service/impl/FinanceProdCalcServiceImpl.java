@@ -40,7 +40,7 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
         BigDecimal totalDailyAsset = BigDecimal.ZERO;
         List<UiProducts> userProducts = uiProductRepo.findAll();
         for(UiProducts prod: userProducts) {
-            List<UiProductDetail> prodDetails = uiProductDetailRepo.findAllByProdId(prod.getId());
+            List<UiProductDetail> prodDetails = uiProductDetailRepo.findAllByUserProdId(prod.getId());
             for(UiProductDetail detail: prodDetails) {
                 String fundCode = detail.getFundCode();
                 BigDecimal asset = calcDailyAsset(userUuid, fundCode);

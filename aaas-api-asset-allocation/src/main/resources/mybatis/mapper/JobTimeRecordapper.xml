@@ -26,16 +26,17 @@
     <insert id="insertJobTimeRecord" parameterType="com.shellshellfish.aaas.assetallocation.neo.job.entity.JobTimeRecord" >
         INSERT INTO
         job_time_record
-        (job_name,trigger_name,trigger_time,created_time,update_time)
+        (job_name,trigger_name,trigger_time,created_time,update_time,status)
         VALUES
-        (#{jobName},#{triggerName},#{triggerTime},#{createTime},#{updateTime})
+        (#{jobName},#{triggerName},#{triggerTime},#{createTime},#{updateTime},#{status})
     </insert>
 
     <update id="updateJobTimeRecord" parameterType="com.shellshellfish.aaas.assetallocation.neo.job.entity.JobTimeRecord" >
         UPDATE
         job_time_record
         SET trigger_time=#{triggerTime},
-            update_time=#{updateTime}
+            update_time=#{updateTime},
+            status=#{status}
         WHERE trigger_name=#{triggerName}
     </update>
 </mapper>

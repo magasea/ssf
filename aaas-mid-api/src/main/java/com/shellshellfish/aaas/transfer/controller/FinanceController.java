@@ -2,6 +2,8 @@ package com.shellshellfish.aaas.transfer.controller;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -251,14 +253,30 @@ public class FinanceController {
 		incomeResult = restTemplate.getForEntity(url, Map.class).getBody();
 		// 如果成功获取内部值，再遍历获取每一个产品的年化收益(进入service)
 		Object obj = null;
+		Object maxMinMap = null;
+		Object maxMinBenchmarkMap = null;
 		if (incomeResult != null) {
 			logger.info("历史业绩-第一部分数据获取成功");
 			obj = incomeResult.get("_items");
+			maxMinMap = incomeResult.get("maxMinMap");
+			maxMinBenchmarkMap = incomeResult.get("maxMinBenchmarkMap");
 			if (obj != null) {
 				logger.info("obj获取成功");
 				result.put("portfolioYield",obj);
 			} else {
 				logger.info("object获取失败");
+			}
+			if (maxMinMap != null) {
+				logger.info("maxMinIncomeMap获取成功");
+				result.put("maxMinMap",maxMinMap);
+			} else {
+				logger.info("maxMinMap获取失败");
+			}
+			if (maxMinBenchmarkMap != null) {
+				logger.info("maxMinBenchmarkMap获取成功");
+				result.put("maxMinIncomeBenchmarkMap",maxMinBenchmarkMap);
+			} else {
+				logger.info("Income获取失败");
 			}
 		} else {
 			logger.error("获取收益率失败");
@@ -270,14 +288,30 @@ public class FinanceController {
 		incomeResult1 = restTemplate.getForEntity(url, Map.class).getBody();
 		// 如果成功获取内部值，再遍历获取每一个产品的年化收益(进入service)
 		Object obj1 = null;
+		Object maxMinMap2 = null;
+		Object maxMinBenchmarkMap2 = null;
 		if (incomeResult1 != null) {
 			logger.info("历史业绩-第一部分数据获取成功");
 			obj1 = incomeResult1.get("_items");
+			maxMinMap2 = incomeResult1.get("maxMinMap");
+			maxMinBenchmarkMap2 = incomeResult.get("maxMinBenchmarkMap");
 			if (obj1 != null) {
 				logger.info("obj1获取成功");
 				result.put("maxRetreat",obj1);
 			} else {
 				logger.info("object获取失败");
+			}
+			if (maxMinMap2 != null) {
+				logger.info("maxMinIncomeMap获取成功");
+				result.put("maxMinRetreatMap",maxMinMap2);
+			} else {
+				logger.info("maxMinMap2获取失败");
+			}
+			if (maxMinBenchmarkMap2 != null) {
+				logger.info("maxMinBenchmarkMap获取成功");
+				result.put("maxMinRetreatBenchmarkMap",maxMinBenchmarkMap2);
+			} else {
+				logger.info("Income获取失败");
 			}
 		} else {
 			logger.error("获取收益率失败");
@@ -324,6 +358,11 @@ public class FinanceController {
 			expectedIncomeMap = restTemplate.getForEntity(url, Map.class).getBody();
 			if(expectedIncomeMap!=null&&!expectedIncomeMap.isEmpty()){
 				logger.info("未来收益走势图数据获取成功");
+				Object expectedIncomeSizeMap = expectedIncomeMap.get("expectedIncomeSizeMap");
+				Object highPercentMaxIncomeSizeMap = expectedIncomeMap.get("highPercentMaxIncomeSizeMap");
+				Object highPercentMinIncomeSizeMap = expectedIncomeMap.get("highPercentMinIncomeSizeMap");
+				Object lowPercentMaxIncomeSizeMap = expectedIncomeMap.get("lowPercentMaxIncomeSizeMap");
+				Object lowPercentMinIncomeSizeMap = expectedIncomeMap.get("lowPercentMinIncomeSizeMap");
 				Object obj2 = expectedIncomeMap.get("_items");
 				if (obj2 != null) {
 					logger.info("未来收益走势图数据获取成功2");
@@ -331,6 +370,41 @@ public class FinanceController {
 					result.put("expectedIncome", obj2);
 				} else {
 					logger.error("未来收益走势图数据获取失败");
+				}
+				if (expectedIncomeSizeMap != null) {
+					logger.info("expectedIncomeSizeMap:未来收益走势图数据获取成功");
+					//prdList = (List<Map<String, Object>>) obj2;
+					result.put("expectedIncomeSizeMap", expectedIncomeSizeMap);
+				} else {
+					logger.error("expectedIncomeSizeMap:未来收益走势图数据获取失败");
+				}
+				if (highPercentMaxIncomeSizeMap != null) {
+					logger.info("highPercentMaxIncomeSizeMap:未来收益走势图数据获取成功");
+					//prdList = (List<Map<String, Object>>) obj2;
+					result.put("highPercentMaxIncomeSizeMap", highPercentMaxIncomeSizeMap);
+				} else {
+					logger.error("highPercentMaxIncomeSizeMap:未来收益走势图数据获取失败");
+				}
+				if (highPercentMinIncomeSizeMap != null) {
+					logger.info("highPercentMinIncomeSizeMap:未来收益走势图数据获取成功");
+					//prdList = (List<Map<String, Object>>) obj2;
+					result.put("highPercentMinIncomeSizeMap", highPercentMinIncomeSizeMap);
+				} else {
+					logger.error("highPercentMinIncomeSizeMap:未来收益走势图数据获取失败");
+				}
+				if (lowPercentMaxIncomeSizeMap != null) {
+					logger.info("lowPercentMaxIncomeSizeMap:未来收益走势图数据获取成功");
+					//prdList = (List<Map<String, Object>>) obj2;
+					result.put("lowPercentMaxIncomeSizeMap", lowPercentMaxIncomeSizeMap);
+				} else {
+					logger.error("lowPercentMaxIncomeSizeMap:未来收益走势图数据获取失败");
+				}
+				if (lowPercentMinIncomeSizeMap != null) {
+					logger.info("lowPercentMinIncomeSizeMap:未来收益走势图数据获取成功");
+					//prdList = (List<Map<String, Object>>) obj2;
+					result.put("lowPercentMinIncomeSizeMap", lowPercentMinIncomeSizeMap);
+				} else {
+					logger.error("lowPercentMinIncomeSizeMap:未来收益走势图数据获取失败");
 				}
 			} else {
 				logger.error("未来收益走势图数据获取失败2");
@@ -365,6 +439,8 @@ public class FinanceController {
 			if (portfolioYieldWeekMap != null && !portfolioYieldWeekMap.isEmpty()) {
 				logger.info("最大回撤走势图获取成功");
 				Object obj = portfolioYieldWeekMap.get("_items");
+				Object maxMinMap = portfolioYieldWeekMap.get("maxMinMap");
+				Object maxMinBenchmarkMap = portfolioYieldWeekMap.get("maxMinBenchmarkMap");
 				String value = "";
 				if (obj != null) {
 					logger.info("最大回撤走势图获取成功2");
@@ -372,6 +448,20 @@ public class FinanceController {
 					result.put("portfolioYieldWeek", obj);
 				} else {
 					logger.error("最大回撤走势图获取失败");
+				}
+				if (maxMinMap != null) {
+					logger.info("maxMinMap:最大回撤走势图获取成功");
+					// value = obj.toString();
+					result.put("maxMinMap", maxMinMap);
+				} else {
+					logger.error("maxMinMap:最大回撤走势图获取失败");
+				}
+				if (maxMinBenchmarkMap != null) {
+					logger.info("maxMinBenchmarkMap:最大回撤走势图获取成功");
+					// value = obj.toString();
+					result.put("maxMinBenchmarkMap", maxMinBenchmarkMap);
+				} else {
+					logger.error("maxMinBenchmarkMap:最大回撤走势图获取失败");
 				}
 			} else {
 				logger.error("预期平均年化收益率获取失败2");
@@ -477,7 +567,8 @@ public class FinanceController {
 					} else {
 						logger.error("配置收益贡献时间获取失败");
 					}
-					result.put("configurationBenefitContribution", obj);
+					List<Map<String, Object>> list = getMaxToMinComparator(value);
+					result.put("configurationBenefitContribution", list);
 					result.put("categoryQuantity", category);
 					result.put("configurationTime", configTime);
 				} else {
@@ -619,6 +710,18 @@ public class FinanceController {
 		result.remove("_links");
 		result.remove("_serviceId");
 		result.remove("_schemaVersion");
+		if(result.get("_items")!= null){
+			List item = (List) result.get("_items");
+			if(item!=null&&!item.isEmpty()){
+				for(int i=0;i<item.size();i++){
+					Map map = (Map) item.get(i);
+					if(map.containsKey("incomeBenchmark")){
+						map.remove("incomeBenchmark");
+					}
+				}
+			}
+			item.remove("incomeBenchmark");
+		}
 		}catch(Exception e){
 			result=new HashMap<String,Object>();
 			result.put("error", "restTemplate获取预期组合收益率走势图失败");
@@ -740,6 +843,25 @@ public class FinanceController {
 		result.put("msg", "获取成功");
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 	}
-
-
+	
+	public static List<Map<String, Object>> getMaxToMinComparator(List<Map<String, Object>> list) {
+//        List<Map<String, Object>> reuslt = new ArrayList<Map<String, Object>>();
+        //排序前 
+        for (Map<String, Object> map : list) {
+            System.out.println(map.get("value"));
+        }
+        Collections.sort(list, new Comparator<Map<String, Object>>() {
+            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                Double name1 = Double.valueOf(o1.get("value").toString()) ;//name1是从你list里面拿出来的一个 
+                Double name2 = Double.valueOf(o2.get("value").toString()) ; //name1是从你list里面拿出来的第二个name
+                return name2.compareTo(name1);
+            }
+        });
+        //排序后 
+        System.out.println("-------------------");
+        for (Map<String, Object> map : list) {
+            System.out.println(map.get("value"));
+        }
+        return list;
+    }
 }

@@ -92,7 +92,7 @@ public class DailyFundService {
             dailyFundsList = fundInfoService.getDailyFunds(builder.build());
 
         }catch(Exception e){
-            logger.error("调用每日接口获取数据失败：code="+code+",startDate="+startDate+",todayDate="+endDate);
+            logger.error("调用每日接口获取数据失败：code="+code+",startDate="+startDate+",todayDate="+endDate,e);
         }
 
         if(dailyFundsList!=null && dailyFundsList.size()>0){
@@ -107,8 +107,8 @@ public class DailyFundService {
                     dailyfunds.setFname(dailyFundsList.get(0).getFname());//基金简称
                     dailyfunds.setFundTypeOne(dailyFundsList.get(dailyFundsList.size()-1).getFirstInvestType());//一级分类
                     dailyfunds.setFundTypeTwo(dailyFundsList.get(dailyFundsList.size()-1).getSecondInvestType());//二级分类
-                    dailyfunds.setFundScale(dailyFundsList.get(dailyFundsList.size()-1).getFundScale());//基金规模
-                    dailyfunds.setBmIndexChgPct(dailyFundsList.get(dailyFundsList.size()-1).getBmIndexChgPct());//标的指数涨跌幅
+//                    dailyfunds.setFundScale(dailyFundsList.get(dailyFundsList.size()-1).getFundScale());//基金规模
+//                    dailyfunds.setBmIndexChgPct(dailyFundsList.get(dailyFundsList.size()-1).getBmIndexChgPct());//标的指数涨跌幅
 
                     fundNetValMapper.insertBasicDataToFundBasic(dailyfunds);
                     logger.debug("Succeed: Insert into fund_basic by call getFundDataOfDay!");
@@ -136,10 +136,10 @@ public class DailyFundService {
 
                     dailyfunds.setCode(dailyFunds.getCode());
                     dailyfunds.setNavUnit(Double.parseDouble(dailyFunds.getClose()));//将 收盘价 存入 复权单位净值
-                    dailyfunds.setNavAccum(dailyFunds.getNavAccum());
-                    dailyfunds.setNavAdj(dailyFunds.getNavAdj());
-                    dailyfunds.setYieldOf7Days(dailyFunds.getYieldOf7Days());
-                    dailyfunds.setMillionRevenue(dailyFunds.getMillionRevenue());
+                    dailyfunds.setNavAccum(dailyFunds.getNavaccum());
+                    dailyfunds.setNavAdj(dailyFunds.getNavadj());
+//                    dailyfunds.setYieldOf7Days(dailyFunds.getYieldOf7Days());
+//                    dailyfunds.setMillionRevenue(dailyFunds.getMillionRevenue());
 
                     dailyFundsDetailList.add(dailyfunds);
                 }
@@ -158,11 +158,11 @@ public class DailyFundService {
                     }
 
                     dailyfunds.setCode(dailyFunds.getCode());
-                    dailyfunds.setNavUnit(dailyFunds.getNavUnit());
-                    dailyfunds.setNavAccum(dailyFunds.getNavAccum());
-                    dailyfunds.setNavAdj(dailyFunds.getNavAdj());
-                    dailyfunds.setYieldOf7Days(dailyFunds.getYieldOf7Days());
-                    dailyfunds.setMillionRevenue(dailyFunds.getMillionRevenue());
+                    dailyfunds.setNavUnit(dailyFunds.getNavunit());
+                    dailyfunds.setNavAccum(dailyFunds.getNavaccum());
+                    dailyfunds.setNavAdj(dailyFunds.getNavadj());
+//                    dailyfunds.setYieldOf7Days(dailyFunds.getYieldOf7Days());
+//                    dailyfunds.setMillionRevenue(dailyFunds.getMillionRevenue());
 
                     dailyFundsDetailList.add(dailyfunds);
 
@@ -177,7 +177,7 @@ public class DailyFundService {
                 }
                 logger.debug("Succeed: Insert into fund_net_val by call getFundDataOfDay!");
             }catch(Exception e){
-                logger.error("Failed: Insert into fund_net_val by call getFundDataOfDay!");
+                logger.error("Failed: Insert into fund_net_val by call getFundDataOfDay!",e);
             }
         }
 

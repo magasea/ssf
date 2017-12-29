@@ -238,7 +238,7 @@ public class CovarianceCalculateService {
                                 break;
                             }
                         }catch(Exception e){
-                            logger.error("插入基金周协方差计算数据失败：fundCalculateData="+ covarianceModel.toString());
+                            logger.error("插入基金周协方差计算数据失败：fundCalculateData="+ covarianceModel.toString(),e);
                         }
 
 

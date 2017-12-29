@@ -64,7 +64,7 @@ public class RestApiController {
 		return new DataServiceImpl();
 	}
 	
-	
+	/*
 	@RequestMapping(value = "/saveAllfundCodestoDB", method = RequestMethod.GET)
 	public ResponseEntity<HttpStatus> saveAllfundCodestoDB(
 			//@Valid @NotNull(message="电话不能为空") @Max(value=20) @Min(value=1) @RequestParam(value = "id") Integer bankid
@@ -121,7 +121,7 @@ public class RestApiController {
 		    
 	        return new ResponseEntity<HttpStatus>(HttpStatus.OK);	
     }
-	
+	*/
 	
 	@RequestMapping(value = "/getAllFundCodes", method = RequestMethod.GET)
 	public ResponseEntity<List<FundCodes>> getAllFundCodes(){
@@ -141,6 +141,7 @@ public class RestApiController {
     }
 	
 	//最大回撤区间函数:(得到此区间内所有复权单位净值)
+	/*
 	@RequestMapping(value = "/getMaxfallPeriod", method = RequestMethod.GET)
 	public ResponseEntity<List<IndicatorPoint>> getMaxFallPeriod(
 			@RequestParam(value = "code") String code,
@@ -181,7 +182,7 @@ public class RestApiController {
 		List<IndicatorPoint> lst=dataService.getMaxfallPeriod(code, sttime, endtime);
 		return new ResponseEntity<List<IndicatorPoint>>(lst,HttpStatus.OK);
 	   
-	}
+	}*/
 	
 	//基金经理
 	@ApiOperation("基金经理信息")
@@ -283,11 +284,6 @@ public class RestApiController {
 			return new ResponseEntity<HashMap<String,Object>>(valmap,HttpStatus.OK);
 
 	 }
-	 
-	//获取基金名称信息	
-	@RequestMapping(value = "/getFundInfos", method = RequestMethod.GET)
-	public ResponseEntity<List<FundCodes>> getFundInfos(@RequestParam(value = "codes") String codes) {
-		List<FundCodes> fundslst = dataService.getFundsBycode(codes);
-		return new ResponseEntity<List<FundCodes>>(fundslst, HttpStatus.OK);
-	}
+		
+
 }

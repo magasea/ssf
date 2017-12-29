@@ -163,7 +163,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         ()+ prodSellDTO.getTrdAcco());
     String userUuid = prodSellDTO.getUserUuid();
 
-    fundTradeApiService.sellFund(userUuid, sellNum, outsideOrderNo, tradeAcco, fundCode);
+//    fundTradeApiService.sellFund(userUuid, sellNum, outsideOrderNo, tradeAcco, fundCode);
     return false;
   }
 

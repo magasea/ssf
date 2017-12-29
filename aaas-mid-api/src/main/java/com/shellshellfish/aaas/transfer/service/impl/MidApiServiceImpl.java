@@ -279,11 +279,13 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 		info.setName(name);
 		info.setFundType(fundType);
 		info.setAvgIncreRate(avgIncreRate);
-		if("1".equals(flag)){
+		if("1".equals(flag)){//净值增长值
 		info.setNPVIncrement(NPVIncrement);
+		info.setIncrementMinMaxValueMap(NPVIncrement);
 		}
-		if("2".equals(flag)){
+		if("2".equals(flag)){//净值增长率
 		info.setNPVIncreRate(NPVIncrement);
+		info.setIncrementRateMinMaxValueMap(NPVIncrement);
 			}
 		return info;
 	}

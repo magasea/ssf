@@ -55,7 +55,7 @@ public class BroadcastMessageConsumers {
     )
     public void receiveMessage(ProdSellDTO prodSellDTO) {
         try {
-            PayDto payDto = payService.payOrder(message);
+            boolean payDto = payService.sellProd(prodSellDTO);
         }catch (Exception ex){
             ex.printStackTrace();
             logger.error(ex.getMessage());

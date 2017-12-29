@@ -1,5 +1,9 @@
 package com.shellshellfish.aaas.transfer.utils;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -35,5 +39,30 @@ public class EasyKit {
 	}
 	
 	
+	
+	
+   public static Map<String, Object> getMaxMinValue(List param) {		
+	   Map<String, Object> result = new HashMap<String, Object>(); //结果集
+			if (param != null && param.size() > 0) {
+				//对数据进行解刨
+				 List valueList=parseValueFromValue$TimeMap(param);
+					result.put("maxValue", Collections.max(valueList));
+					result.put("minValue", Collections.min(valueList));
+			}else{
+				throw new RuntimeException("List为空值，无法解析time-value组合");
+			}
+			return result;
+	}
+
+   public static List parseValueFromValue$TimeMap(List param){
+	   List resultList=new ArrayList<>();
+	   for (Object obj:param){
+		   Map timeValue=(Map)obj;
+		   Double value=Double.parseDouble(timeValue.get("value").toString());
+		   resultList.add(value);
+	   }
+	   return resultList;
+   }
+
 	
 }

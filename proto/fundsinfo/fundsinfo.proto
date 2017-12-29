@@ -3,8 +3,8 @@ syntax = "proto3";
 
 option java_multiple_files = true;
 option java_package = "com.shellshellfish.aaas.datamanager";
-option java_outer_classname = "dataManager";
-option objc_class_prefix = "DM";
+option java_outer_classname = "FundsInfoServic";
+option objc_class_prefix = "FIS";
 
 service FundsInfoService {
     rpc GetFundsPrice (FundCodes) returns (FundInfos) {

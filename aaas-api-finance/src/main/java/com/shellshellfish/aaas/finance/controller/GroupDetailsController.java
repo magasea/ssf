@@ -2,26 +2,23 @@ package com.shellshellfish.aaas.finance.controller;
 
 import com.shellshellfish.aaas.finance.model.dto.HistoryList;
 import com.shellshellfish.aaas.finance.service.GroupDetailsService;
-import com.shellshellfish.aaas.finance.service.impl.GroupDetailsServiceImpl;
+import com.shellshellfish.aaas.finance.trade.model.FundIncome;
 import com.shellshellfish.aaas.finance.trade.service.impl.OneFundApiService;
-import io.swagger.annotations.*;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @Author pierre
@@ -54,7 +51,7 @@ public class GroupDetailsController {
 
 		Map params = new HashMap();
 		params.put("name", name);
-		return groupDetailsService.connectDataManager(fundManagerUrl,params);
+		return groupDetailsService.connectDataManager(fundManagerUrl, params);
 
 	}
 
@@ -99,7 +96,6 @@ public class GroupDetailsController {
 	}
 
 
-
 	@ApiOperation("组合详情 历史净值")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "code", dataType = "String", required = true, value = "code", defaultValue = "000001.OF")
@@ -111,7 +107,7 @@ public class GroupDetailsController {
 		Map params = new HashMap();
 		params.put("code", code);
 		params.put("period", period);
-		return groupDetailsService.getHistoryList(getFundInfoUrl,params);
+		return groupDetailsService.getHistoryList(getFundInfoUrl, params);
 	}
 
 
@@ -126,6 +122,22 @@ public class GroupDetailsController {
 		Map params = new HashMap();
 		params.put("code", fundCode);
 		return groupDetailsService.connectDataManager(getFundInfoUrl, params);
+	}
+
+	@ApiOperation("获取基金日收益")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "query", name = "userUuid", dataType = "String", required = true, value = "用户UUID", defaultValue = "shellshellfish"),
+			@ApiImplicitParam(paramType = "query", name = "fundCode", dataType = "String", required = true, value = "基金编码", defaultValue = "002163")
+	})
+	@RequestMapping(value = "/getFundIncome", method = {RequestMethod.GET})
+	public FundIncome getFundIncome(@RequestParam() @NotNull String userUuid, @RequestParam() @NotNull String fundCode) {
+
+		try {
+			return oneFundApiService.getFundIncome(userUuid,fundCode);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return null;
 	}
 
 

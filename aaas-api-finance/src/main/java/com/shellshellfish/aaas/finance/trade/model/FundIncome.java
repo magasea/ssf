@@ -1,76 +1,90 @@
 package com.shellshellfish.aaas.finance.trade.model;
 
 public class FundIncome {
-    private String identityno;
-    private String fundcode;
-    private String sharetype;
-    private String incomes;
-    private String share;
-    private String datetime;
-    private String netvalue;
-    private String nettime;
+	private String identityno;
+	private String fundcode;
+	private String sharetype;
+	private String incomes;
+	private String share;
+	private String datetime;
+	private String netvalue;
+	private String nettime;
 
-    public String getIdentityno() {
-        return identityno;
-    }
+	public String getIdentityno() {
+		return identityno;
+	}
 
-    public void setIdentityno(String identityno) {
-        this.identityno = identityno;
-    }
+	public void setIdentityno(String identityno) {
+		this.identityno = identityno;
+	}
 
-    public String getFundcode() {
-        return fundcode;
-    }
+	public String getFundcode() {
+		return fundcode;
+	}
 
-    public void setFundcode(String fundcode) {
-        this.fundcode = fundcode;
-    }
+	public void setFundcode(String fundcode) {
+		this.fundcode = fundcode;
+	}
 
-    public String getSharetype() {
-        return sharetype;
-    }
+	public String getSharetype() {
+		return sharetype;
+	}
 
-    public void setSharetype(String sharetype) {
-        this.sharetype = sharetype;
-    }
+	public void setSharetype(String sharetype) {
+		this.sharetype = sharetype;
+	}
 
-    public String getIncomes() {
-        return incomes;
-    }
+	public String getIncomes() {
+		return incomes;
+	}
 
-    public void setIncomes(String incomes) {
-        this.incomes = incomes;
-    }
+	public void setIncomes(String incomes) {
+		this.incomes = incomes;
+	}
 
-    public String getShare() {
-        return share;
-    }
+	public String getShare() {
+		return share;
+	}
 
-    public void setShare(String share) {
-        this.share = share;
-    }
+	public void setShare(String share) {
+		this.share = share;
+	}
 
-    public String getDatetime() {
-        return datetime;
-    }
+	public String getDatetime() {
+		return datetime;
+	}
 
-    public void setDatetime(String datetime) {
-        this.datetime = datetime;
-    }
+	public void setDatetime(String datetime) {
+		this.datetime = datetime;
+	}
 
-    public String getNetvalue() {
-        return netvalue;
-    }
+	public String getNetvalue() {
+		return netvalue;
+	}
 
-    public void setNetvalue(String netvalue) {
-        this.netvalue = netvalue;
-    }
+	public void setNetvalue(String netvalue) {
+		this.netvalue = netvalue;
+	}
 
-    public String getNettime() {
-        return nettime;
-    }
+	public String getNettime() {
+		return nettime;
+	}
 
-    public void setNettime(String nettime) {
-        this.nettime = nettime;
-    }
+	public void setNettime(String nettime) {
+		this.nettime = nettime;
+	}
+
+	@Override
+	public String toString() {
+		return "FundIncome{" +
+				"identityno='" + identityno + '\'' +
+				", fundcode='" + fundcode + '\'' +
+				", sharetype='" + sharetype + '\'' +
+				", incomes='" + incomes + '\'' +
+				", share='" + share + '\'' +
+				", datetime='" + datetime + '\'' +
+				", netvalue='" + netvalue + '\'' +
+				", nettime='" + nettime + '\'' +
+				'}';
+	}
 }

@@ -1,6 +1,5 @@
 package com.shellshellfish.aaas.userinfo.repositories.mysql;
 
-import com.shellshellfish.aaas.userinfo.model.dao.UiAsset;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,5 +25,5 @@ public interface UiProductDetailRepo extends PagingAndSortingRepository<UiProduc
 
 
 
-  List<UiProductDetail> findAllByProdId(Long prodId);
+  List<UiProductDetail> findAllByUserProdId(Long userProdId);
 }
