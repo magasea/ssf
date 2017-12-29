@@ -5,9 +5,36 @@ import java.util.Date;
 
 public class DailyAmount {
     private String date;
+    private String userUuid;
+    private String fundCode;
+    private BigDecimal asset;
     private BigDecimal bonus;
     private BigDecimal buyAmount;
     private BigDecimal sellAmount;
+
+    public String getUserUuid() {
+        return userUuid;
+    }
+
+    public void setUserUuid(String userUuid) {
+        this.userUuid = userUuid;
+    }
+
+    public BigDecimal getAsset() {
+        return asset;
+    }
+
+    public void setAsset(BigDecimal asset) {
+        this.asset = asset;
+    }
+
+    public String getFundCode() {
+        return fundCode;
+    }
+
+    public void setFundCode(String fundCode) {
+        this.fundCode = fundCode;
+    }
 
     public String getDate() {
         return date;
