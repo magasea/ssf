@@ -878,6 +878,12 @@ public class FundGroupService {
      * @param risk_level
      */
     public void getNavadjBenchmark(String risk_level) {
+        /*Date date = null;
+        try {
+            date = new SimpleDateFormat("yyyy-MM-dd").parse("2017-05-19");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }*/
         Calendar ca = Calendar.getInstance();
         Date date = new Date();
         Map<String, Object> query = new HashMap<>();
@@ -888,7 +894,6 @@ public class FundGroupService {
             ca.add(Calendar.YEAR, -3);
             groupStartTime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
         }
-        //query.put("endTime", "2017-12-19");
         query.put("endTime", new SimpleDateFormat("yyyy-MM-dd").format(date));
         query.put("startTime", groupStartTime);
         List<FundNetVal> list = fundGroupMapper.getNavadjBenchmark(query);
@@ -897,12 +902,6 @@ public class FundGroupService {
             query.put("time",fundNetVal.getNavLatestDate());
             fundGroupMapper.insertGroupNavadjBenchmark(query);
         }
-        /*Date date = null;
-        try {
-            date = new SimpleDateFormat("yyyy-MM-dd").parse("2017-05-19");
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }*/
         try {
             for (; date.getTime() > new SimpleDateFormat("yyyy-MM-dd").parse(groupStartTime).getTime(); ) {
                 query.put("endTime", new SimpleDateFormat("yyyy-MM-dd").format(date));
