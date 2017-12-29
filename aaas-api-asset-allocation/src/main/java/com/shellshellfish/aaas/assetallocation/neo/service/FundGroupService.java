@@ -884,7 +884,9 @@ public class FundGroupService {
         query.put("risk_level", risk_level);
         String groupStartTime = fundGroupMapper.getFundGroupHistoryTime(query);
         if (groupStartTime == null || groupStartTime.equalsIgnoreCase("")){
-            groupStartTime = fundGroupMapper.getGroupStartTime(query);
+            ca.setTime(date);
+            ca.add(Calendar.YEAR, -3);
+            groupStartTime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
         }
         //query.put("endTime", "2017-12-19");
         query.put("endTime", new SimpleDateFormat("yyyy-MM-dd").format(date));
