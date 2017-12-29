@@ -1,5 +1,6 @@
-package com.shellshellfish.datamanager.service;
+package com.shellshellfish.datamanager.service.impl;
 
+import com.shellshellfish.datamanager.service.DataService;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;

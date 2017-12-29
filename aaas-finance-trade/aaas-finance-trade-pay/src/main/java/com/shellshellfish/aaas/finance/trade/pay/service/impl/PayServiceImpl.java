@@ -4,10 +4,10 @@ import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdPayFlowStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayDto;
+import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
-import com.shellshellfish.aaas.common.utils.DateUtil;
+import com.shellshellfish.aaas.common.utils.SSFDateUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.finance.trade.pay.BindBankCardQuery;
 import com.shellshellfish.aaas.finance.trade.pay.BindBankCardResult;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceImplBase;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
@@ -70,7 +70,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundMoneyQuantity());
       //TODO: replace userId with userUuid
       TrdPayFlow trdPayFlow = new TrdPayFlow();
-      trdPayFlow.setCreateDate(DateUtil.getCurrentDateInLong());
+      trdPayFlow.setCreateDate(SSFDateUtils.getCurrentDateInLong());
       trdPayFlow.setCreateBy(0L);
 
       trdPayFlow.setPayAmount(trdOrderDetail.getFundMoneyQuantity());
@@ -155,6 +155,16 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       e.printStackTrace();
       return null;
     }
+  }
+
+  @Override
+  public boolean sellProd(ProdSellDTO prodSellDTO) throws Exception {
+    logger.info("sell prod with: userId:" + prodSellDTO.getUserId()+ "" + prodSellDTO.getUserUuid
+        ()+ prodSellDTO.getTrdAcco());
+    String userUuid = prodSellDTO.getUserUuid();
+
+    fundTradeApiService.sellFund(userUuid, sellNum, outsideOrderNo, tradeAcco, fundCode);
+    return false;
   }
 
   @Override

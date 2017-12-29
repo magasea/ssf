@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.finance.trade.order.model.vo;
+package com.shellshellfish.aaas.common.message.order;
 
 import java.util.List;
 
@@ -6,14 +6,34 @@ import java.util.List;
  * Created by chenwei on 2017- 十二月 - 28
  */
 
-public class ProdSellPageDTO {
+public class ProdSellDTO {
 
   private long userProId;
   private long prodId;
   private long groupId;
   private long userId;
+  private Long sellNum;
   private String userUuid;
-  List<ProdDtlSellPageDTO> prodDtlSellPageDTOList;
+
+  public String getTrdAcco() {
+    return trdAcco;
+  }
+
+  public void setTrdAcco(String trdAcco) {
+    this.trdAcco = trdAcco;
+  }
+
+  public List<ProdDtlSellDTO> getProdDtlSellDTOList() {
+    return prodDtlSellDTOList;
+  }
+
+  public void setProdDtlSellDTOList(
+      List<ProdDtlSellDTO> prodDtlSellDTOList) {
+    this.prodDtlSellDTOList = prodDtlSellDTOList;
+  }
+
+  private String trdAcco;
+  List<ProdDtlSellDTO> prodDtlSellDTOList;
 
   public long getUserProId() {
     return userProId;
@@ -55,12 +75,11 @@ public class ProdSellPageDTO {
     this.userUuid = userUuid;
   }
 
-  public List<ProdDtlSellPageDTO> getProdDtlSellPageDTOList() {
-    return prodDtlSellPageDTOList;
+  public Long getSellNum() {
+    return sellNum;
   }
 
-  public void setProdDtlSellPageDTOList(
-      List<ProdDtlSellPageDTO> prodDtlSellPageDTOList) {
-    this.prodDtlSellPageDTOList = prodDtlSellPageDTOList;
+  public void setSellNum(Long sellNum) {
+    this.sellNum = sellNum;
   }
 }

@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.userinfo.model.dto;
+package com.shellshellfish.aaas.finance.trade.order.model.vo;
 
 import java.util.List;
 

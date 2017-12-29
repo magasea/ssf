@@ -30,6 +30,12 @@ public class GrpcFinanceProdClientConfig {
   @Value("${grpc.pay_client.port}")
   int payPort;
 
+  @Value("${grpc.datamanager_client.host}")
+  String dmHost;
+
+  @Value("${grpc.datamanager_client.port}")
+  int dmPort;
+
   @Bean
   ManagedChannelBuilder<?> grpcFINChannelBuilder(){
     return ManagedChannelBuilder.forAddress(finHost, finPort);
@@ -38,6 +44,11 @@ public class GrpcFinanceProdClientConfig {
   @Bean
   ManagedChannelBuilder<?> grpcPayChannelBuilder(){
     return ManagedChannelBuilder.forAddress(payHost, payPort);
+  }
+
+  @Bean
+  ManagedChannelBuilder<?> grpcDMChannelBuilder(){
+    return ManagedChannelBuilder.forAddress(dmHost, dmPort);
   }
 
   @Value("${grpc.userinfo_client.host}")
@@ -69,6 +80,13 @@ public class GrpcFinanceProdClientConfig {
   @PostConstruct
   ManagedChannel managedPayChannel(){
     ManagedChannel managedChannel = grpcPayChannelBuilder().usePlaintext(true).build();
+    return managedChannel;
+  }
+
+  @Bean
+  @PostConstruct
+  ManagedChannel managedDMChannel(){
+    ManagedChannel managedChannel = grpcDMChannelBuilder().usePlaintext(true).build();
     return managedChannel;
   }
 

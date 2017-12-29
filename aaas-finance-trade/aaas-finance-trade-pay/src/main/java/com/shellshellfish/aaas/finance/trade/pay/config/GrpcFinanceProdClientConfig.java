@@ -17,20 +17,20 @@ public class GrpcFinanceProdClientConfig extends GRpcServerBuilderConfigurer {
 
 
   @Value("${grpc.finance_prod_client.host}")
-  String host;
+  String FPhost;
 
   @Value("${grpc.finance_prod_client.port}")
-  int port;
+  int FPport;
 
   @Bean
-  ManagedChannelBuilder<?> grpcChannelBuilder(){
-    return ManagedChannelBuilder.forAddress(host, port);
+  ManagedChannelBuilder<?> grpcFPChannelBuilder(){
+    return ManagedChannelBuilder.forAddress(FPhost, FPport);
   }
 
   @Bean
   @PostConstruct
   ManagedChannel managedChannel(){
-    ManagedChannel managedChannel = grpcChannelBuilder().usePlaintext(true).build();
+    ManagedChannel managedChannel = grpcFPChannelBuilder().usePlaintext(true).build();
     return managedChannel;
   }
 }

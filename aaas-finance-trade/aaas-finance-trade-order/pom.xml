@@ -182,20 +182,19 @@
 							<outputDirectory>src/main/proto</outputDirectory>
 							<resources>
 								<resource>
-									<directory>../../proto/trade/</directory>
-									<filtering>true</filtering>
+									<directory>../../proto/pay/</directory>
 								</resource>
 								<resource>
-								<directory>../../proto/finance/</directory>
-								<filtering>true</filtering>
-							</resource>
+									<directory>../../proto/trade/</directory>
+								</resource>
 								<resource>
-									<directory>../../proto/pay/</directory>
-									<filtering>true</filtering>
+									<directory>../../proto/finance/</directory>
 								</resource>
 								<resource>
 									<directory>../../proto/userinfo/</directory>
-									<filtering>true</filtering>
+								</resource>
+								<resource>
+									<directory>../../proto/fundsinfo/</directory>
 								</resource>
 							</resources>
 						</configuration>

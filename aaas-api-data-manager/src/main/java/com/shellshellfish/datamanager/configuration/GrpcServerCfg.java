@@ -1,6 +1,7 @@
-package com.shellshellfish.aaas.assetallocation.configuration;
+package com.shellshellfish.datamanager.configuration;
 
-import com.shellshellfish.aaas.assetallocation.service.impl.FinanceProductServiceImpl;
+
+import com.shellshellfish.datamanager.service.impl.FundInfoGrpcServiceImpl;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
@@ -21,38 +22,19 @@ public class GrpcServerCfg {
   @Value("${grpc.port}")
   int port;
 
-  @Value("${grpc.daily-fund-client.host}")
-  String dailyHost;
-
-  @Value("${grpc.daily-fund-client.port}")
-  int dailyPort;
-
-  @Bean
-  ManagedChannelBuilder<?> grpcDFChannelBuilder(){
-    return ManagedChannelBuilder.forAddress(dailyHost, dailyPort);
-  }
-
-  @Bean
-  @PostConstruct
-  ManagedChannel managedDFChannel(){
-    ManagedChannel managedChannel = grpcDFChannelBuilder().usePlaintext(true).build();
-    return managedChannel;
-  }
-
-
   @Bean
   ServerBuilder serverBuilder(){
     return ServerBuilder.forPort(port);
   }
 
   @Bean
-  FinanceProductServiceImpl financeProductService(){
-    return new FinanceProductServiceImpl();
+  FundInfoGrpcServiceImpl fundInfoGrpcService(){
+    return new FundInfoGrpcServiceImpl();
   }
 
   @Bean
   Server server(){
-    return serverBuilder().addService(financeProductService()).build();
+    return serverBuilder().addService(fundInfoGrpcService()).build();
   }
 
 }

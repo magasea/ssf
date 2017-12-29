@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.finance.trade.pay.service;
 
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayDto;
+import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import java.util.concurrent.ExecutionException;
@@ -26,5 +27,12 @@ public interface PayService {
    * @return
    */
   String bindCard(BindBankCard bindBankCard) throws ExecutionException, InterruptedException;
+
+  /**
+   * 根据Order模块消息传来的TrdOrderPay生成支付流水完成支付
+   * @param prodSellDTO
+   * @return
+   */
+  boolean sellProd(ProdSellDTO prodSellDTO) throws Exception;
 
 }

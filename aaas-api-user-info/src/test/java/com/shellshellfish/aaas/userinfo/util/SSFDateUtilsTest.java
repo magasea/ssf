@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 
-public class DateUtilTest {
+public class SSFDateUtilsTest {
 
   @Test
   public void getDateStrFromLong() throws Exception {

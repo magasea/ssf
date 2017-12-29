@@ -8,6 +8,9 @@ logging:
     org.springframework.data: debug
 spring:
   rabbitmq:
+    listener:
+      simple:
+        acknowledge-mode: auto
     username: ssf
     password: shellshellfish
     host: 192.168.1.22

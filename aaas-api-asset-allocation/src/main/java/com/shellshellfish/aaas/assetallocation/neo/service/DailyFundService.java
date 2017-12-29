@@ -5,11 +5,9 @@ import com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
 import com.shellshellfish.aaas.assetallocation.service.FundInfoService;
-import com.shellshellfish.aaas.common.utils.DateUtil;
-import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.common.utils.SSFDateUtils;
 import com.shellshellfish.aaas.datacollect.DailyFunds;
 import com.shellshellfish.aaas.datacollect.DailyFundsQuery;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,7 +128,7 @@ public class DailyFundService {
 
                     //每日数据日期格式转换
                     try {
-                        dailyfunds.setNavLatestDate(sdf.parse(DateUtil.getDateStrFromLong(dailyFunds.getNavLatestDate())));
+                        dailyfunds.setNavLatestDate(sdf.parse(SSFDateUtils.getDateStrFromLong(dailyFunds.getNavLatestDate())));
                     } catch (ParseException e) {
                         logger.error("日期数据转换失败");
                         e.printStackTrace();
@@ -153,7 +151,7 @@ public class DailyFundService {
 
                     //每日数据日期格式转换
                     try {
-                        dailyfunds.setNavLatestDate(sdf.parse(DateUtil.getDateStrFromLong(dailyFunds.getNavLatestDate())));
+                        dailyfunds.setNavLatestDate(sdf.parse(SSFDateUtils.getDateStrFromLong(dailyFunds.getNavLatestDate())));
                     } catch (ParseException e) {
                         logger.error("日期数据转换失败");
                         e.printStackTrace();

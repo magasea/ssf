@@ -14,7 +14,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class DateUtil {
+public class SSFDateUtils {
     public static Long getDateLongValOneDayBefore(String dateStr) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date inputDate = sdf.parse(dateStr);

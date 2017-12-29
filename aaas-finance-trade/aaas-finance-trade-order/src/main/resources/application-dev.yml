@@ -8,6 +8,9 @@ logging:
     org.springframework.data: debug
 spring:
   rabbitmq:
+    listener:
+      simple:
+        acknowledge-mode: auto
     username: ssf
     password: shellshellfish
     host: 192.168.1.22
@@ -53,6 +56,9 @@ grpc:
   pay_client:
     host: localhost
     port: 10021
+  datamanager_client:
+    host: localhost
+    port: 10031
   order_server:
     host: localhost
     port: 10051

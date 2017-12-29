@@ -1,17 +1,12 @@
-package com.shellshellfish.aaas.finance.trade.order.model.vo;
+package com.shellshellfish.aaas.common.message.order;
 
 import java.math.BigDecimal;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 /**
  * Created by chenwei on 2017- 十二月 - 25
  */
 
-public class ProdDtlSellPageDTO {
+public class ProdDtlSellDTO {
 
   private long id;
   private long userProdId;

@@ -1,11 +1,6 @@
 package com.shellshellfish.aaas.userinfo.service;
 
 
-import com.shellshellfish.aaas.userinfo.model.dto.ProdDtlSellPageDTO;
-import java.util.List;
-import java.util.Map;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
@@ -17,6 +12,10 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import java.util.List;
+import java.util.Map;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface UserInfoService {
 	UserBaseInfoDTO getUserInfoBase(String userUuid) throws Exception;
@@ -64,7 +63,7 @@ public interface UserInfoService {
 
 	ProductsDTO findByProdId(String prodId) throws IllegalAccessException, InstantiationException;
 
-  Boolean sellProduct(ProdDtlSellPageDTO prodDtlSellPageDTO);
+
 
 
 }

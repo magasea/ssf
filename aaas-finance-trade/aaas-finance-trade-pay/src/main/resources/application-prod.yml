@@ -9,6 +9,9 @@ logging:
     org.springframework.data.mongodb.core.MongoTemplate: DEBUG
 spring:
   rabbitmq:
+    listener:
+      simple:
+        acknowledge-mode: auto
     username: ssf
     password: shellshellfish
     host: localhost
