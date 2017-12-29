@@ -68,7 +68,6 @@ public class UserInfoController {
 	public static final Logger logger = LoggerFactory.getLogger(UserInfoController.class);
 	
 	public static String URL_HEAD="/api/userinfo";
-	
 	@Autowired
 	UserInfoService userInfoService;
 
@@ -1632,6 +1631,7 @@ public class UserInfoController {
 			}
 			//智投组合产品ID
 			resultMap.put("prodId",products.getProdId());
+			resultMap.put("updateDate",DateUtil.getDateType(products.getUpdateDate()));
 			resultList.add(resultMap);
 		}
 		result.put("result", resultList);

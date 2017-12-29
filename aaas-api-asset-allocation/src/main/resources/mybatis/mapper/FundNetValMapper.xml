@@ -61,7 +61,7 @@
     <select id="getAllDataByCodeAndDate"  resultMap="FundNetValMap">
         SELECT
         *
-        FROM fund_net_value_copy fnv
+        FROM fund_net_value fnv
         WHERE NAVLATESTDATE>=#{selectDate}
         AND fnv.code IN
         <foreach collection="codeList" index="index" item="item" open="(" separator="," close=")">
@@ -94,12 +94,12 @@
     <select id="getMaxNavDateByCode"  resultType="java.util.Date">
         SELECT
         MAX(NAVLATESTDATE)
-        FROM fund_net_value_copy
+        FROM fund_net_value
         WHERE code=#{code}
     </select>
 
     <insert id="insertDailyDataToFundNetVal" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
-        INSERT INTO fund_net_value_copy (CODE,NAVLATESTDATE,UNITNAV,NAVACCUM,NAVADJ,YIELDOF7DAYS,MILLION_REVENUE)
+        INSERT INTO fund_net_value (CODE,NAVLATESTDATE,UNITNAV,NAVACCUM,NAVADJ,YIELDOF7DAYS,MILLION_REVENUE)
         <foreach collection="list" item="dailyData" index="index" separator="union all">
             ( SELECT
             #{dailyData.code},#{dailyData.navLatestDate},#{dailyData.navUnit},#{dailyData.navAccum},
@@ -110,7 +110,7 @@
     </insert>
 
     <insert id="insertBasicDataToFundBasic" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
-        INSERT INTO fund_basic_copy (code,fname,fund_type_one,fund_type_two,fund_scale,bm_index_chgpct)
+        INSERT INTO fund_basic (code,fname,fund_type_one,fund_type_two,fund_scale,bm_index_chgpct)
         VALUES (
         #{code},#{fname},#{fundTypeOne},#{fundTypeTwo},#{fundScale},#{bmIndexChgPct}
         )
@@ -120,7 +120,7 @@
     <select id="findBasicDataByCode"  resultType="java.lang.String">
         SELECT
         code
-        FROM fund_basic_copy
+        FROM fund_basic
         WHERE code=#{code}
     </select>
 

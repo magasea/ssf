@@ -68,3 +68,12 @@ grpc:
   userinfo:
     host: localhost
     port: 10061
+  data-manager-rpc:
+    host: localhost
+    port: 10031
+  finance-trade-order-rpc:
+    host: localhost
+    port: 10101
+
+
+aaas-api-finance-url: http://localhost:10120
