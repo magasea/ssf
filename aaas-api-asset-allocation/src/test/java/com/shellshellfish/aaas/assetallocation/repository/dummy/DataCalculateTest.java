@@ -41,7 +41,7 @@ public class DataCalculateTest {
 
     @Test
    public void test1(){
-        fundGroupDataService.insertFundData();
+        fundGroupDataService.insertFundGroupData();
    }
 
 

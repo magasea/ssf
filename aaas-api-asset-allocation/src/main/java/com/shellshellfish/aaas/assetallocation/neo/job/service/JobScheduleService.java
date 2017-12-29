@@ -1,19 +1,19 @@
 package com.shellshellfish.aaas.assetallocation.neo.job.service;
 
-import com.shellshellfish.aaas.assetallocation.neo.service.CovarianceCalculateService;
-import com.shellshellfish.aaas.assetallocation.neo.service.DailyFundService;
-import com.shellshellfish.aaas.assetallocation.neo.service.FundCalculateService;
-import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupDataService;
+import com.shellshellfish.aaas.assetallocation.neo.job.entity.JobTimeRecord;
+import com.shellshellfish.aaas.assetallocation.neo.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.text.ParseException;
+
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
+
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.*;
+
 
 /**
  * Author: yongquan.xiong
@@ -34,107 +34,175 @@ public class JobScheduleService {
     private CovarianceCalculateService cvarianceCalculateService;
     @Autowired
     private FundGroupDataService fundGroupDataService;
+    @Autowired
+    private FundGroupService fundGroupService;
+    @Autowired
+    private JobTimeService jobTimeService;
 
     /*
      * 调用每日接口
      */
-//    @Scheduled(fixedDelay = 5000)
+//    @Scheduled(cron = "0 0 1 * * ?")    //每天凌晨1点执行执行
     public void insertDailyFundJobSchedule(){
 
         logger.info("调用每日接口获取数据定时任务启动..."+sdf.format(new Date()));
         Boolean flag=false;
+        Integer status=SUCCESSFUL_STATUS;
         try{
             flag=dailyFundService.insertDailyFund();
         }catch(Exception e){
-            logger.info("调用每日接口获取数据定时任务启动失败..."+sdf.format(new Date()));
+            logger.error("调用每日接口获取数据定时任务启动失败..."+sdf.format(new Date()),e);
         }
 
         if(flag){
             logger.info("调用每日接口获取数据定时任务启动成功..."+sdf.format(new Date()));
         }else {
+            status=FAILURED_STATUS;
             logger.info("调用每日接口获取数据定时任务启动失败..."+sdf.format(new Date()));
         }
+        //记录 定时任务执行的状态
+        JobScheduleRecord(INSERT_DAILYFUND_JOBSCHEDULE,status);
 
     }
 
 
     /*
-     * 计算每周相关数据
+     * 计算每周收益率以及风险率数据
      */
-//    @Scheduled(fixedDelay = 5000)
-    public void calculateDataOfWeekJobSchedule(){
+//    @Scheduled(cron = "0 0 5 L * ?")       //每月最后一天 上午 5 点执行
+    public void calculateYieldAndRiskOfWeekJobSchedule(){
 
-        logger.info("计算每周相关数据定时任务启动..."+sdf.format(new Date()));
-
-        //计算每周风险率以及收益率等数据
-        Boolean flag1=false;
-        try{
-             flag1=fundCalculateService.calculateDataOfWeek();
-        }catch(Exception e){
-            logger.info("计算每周收益率以及风险率数据 定时任务启动失败..."+sdf.format(new Date()));
-        }
-
-        if(flag1){
-            logger.info("计算每周收益率以及风险率数据 定时任务启动成功..."+sdf.format(new Date()));
-        }else {
-            logger.info("计算每周收益率以及风险率数据 定时任务启动失败..."+sdf.format(new Date()));
-        }
-
-
-        //计算每周协方差等数据
-        Boolean flag2=false;
-        try{
-            flag2=cvarianceCalculateService.calculateCovarianceOfWeek();
-        }catch(Exception e){
-            logger.info("计算每周协方差等数据 定时任务启动失败..."+sdf.format(new Date()));
-        }
-
-        if(flag2){
-            logger.info("计算每周协方差等数据 定时任务启动成功..."+sdf.format(new Date()));
-        }else {
-            logger.info("计算每周协方差等数据 定时任务启动失败..."+sdf.format(new Date()));
-        }
-
-    }
-
-
-    /*
-     * 计算组合数据
-     */
-//    @Scheduled(fixedDelay = 5000)
-    public void insertFundGroupDataJobSchedule(){
-
-        logger.info("计算组合数据定时任务启动..."+sdf.format(new Date()));
-
-        //计算组合数据
+        logger.info("计算每周收益率以及风险率数据定时任务启动..."+sdf.format(new Date()));
         Boolean flag=false;
+        Integer status=SUCCESSFUL_STATUS;
+        //计算每周风险率以及收益率等数据
         try{
-            flag=fundGroupDataService.insertFundGroupData();
+             flag=fundCalculateService.calculateDataOfWeek();
         }catch(Exception e){
-            logger.info("计算组合数据 定时任务启动失败..."+sdf.format(new Date()));
+            logger.error("计算每周收益率以及风险率数据 定时任务启动失败..."+sdf.format(new Date()),e);
         }
 
         if(flag){
-            logger.info("计算组合数据 定时任务启动成功..."+sdf.format(new Date()));
+            logger.info("计算每周收益率以及风险率数据 定时任务启动成功..."+sdf.format(new Date()));
         }else {
-            logger.info("计算组合数据 定时任务启动失败..."+sdf.format(new Date()));
+            status=FAILURED_STATUS;
+            logger.info("计算每周收益率以及风险率数据 定时任务启动失败..."+sdf.format(new Date()));
+        }
+        //记录 定时任务执行的状态
+        JobScheduleRecord(CALCULATE_YIELDANDRISKOFWEEK_JOBSCHEDULE,status);
+    }
+
+
+
+    /*
+     * 计算每周协方差数据
+     */
+//    @Scheduled(cron = "0 0 6 L * ?")       //每月最后一天 上午 6 点执行
+    public void calculateCovarianceOfWeekJobSchedule(){
+
+        logger.info("计算每周协方差数据定时任务启动..."+sdf.format(new Date()));
+        Boolean flag=false;
+        Integer status=SUCCESSFUL_STATUS;
+        //计算每周协方差等数据
+        try{
+            flag=cvarianceCalculateService.calculateCovarianceOfWeek();
+        }catch(Exception e){
+            logger.error("计算每周协方差等数据 定时任务启动失败..."+sdf.format(new Date()),e);
         }
 
+        if(flag){
+            logger.info("计算每周协方差等数据 定时任务启动成功..."+sdf.format(new Date()));
+        }else {
+            status=FAILURED_STATUS;
+            logger.info("计算每周协方差等数据 定时任务启动失败..."+sdf.format(new Date()));
+        }
+        //记录 定时任务执行的状态
+        JobScheduleRecord(CALCULATE_COVARIANCEOFWEEK_JOBSCHEDULE,status);
+
+    }
+
+
+
+    /*
+     * 计算组合数据(产品组合风险率、收益率、权重)
+     */
+//    @Scheduled(cron = "0 0 22 * * ?")        //每月最后一天 晚上 10 点执行
+    public void insertFundGroupDataJobSchedule(){
+
+        logger.info("计算组合数据(产品组合风险率、收益率、权重)定时任务启动..."+sdf.format(new Date()));
+        Boolean flag=false;
+        Integer status=SUCCESSFUL_STATUS;
+        //计算组合数据
+        try{
+            flag=fundGroupDataService.insertFundGroupData();
+        }catch(Exception e){
+            logger.error("计算组合数据(产品组合风险率、收益率、权重) 定时任务启动失败..."+sdf.format(new Date()),e);
+        }
+
+        if(flag){
+            logger.info("计算组合数据(产品组合风险率、收益率、权重) 定时任务启动成功..."+sdf.format(new Date()));
+        }else {
+            status=FAILURED_STATUS;
+            logger.info("计算组合数据(产品组合风险率、收益率、权重) 定时任务启动失败..."+sdf.format(new Date()));
+        }
+        //记录 定时任务执行的状态
+        JobScheduleRecord(INSERT_FUNDGROUPDATA_JOBSCHEDULE,status);
     }
 
 
+    /*
+     * 计算 单位收益净值、最大回撤、夏普比率、基金收益贡献比
+     */
+//    @Scheduled(cron = "0 0 5 * * ?")        //每天 凌晨 5 点执行
+    public void getAllIdAndSubIdJobSchedule(){
 
+        logger.info("计算 单位收益净值、最大回撤、夏普比率、基金收益贡献比 定时任务启动..."+sdf.format(new Date()));
 
-//    @Scheduled(fixedDelay = 5000)
-    public void DailyJobSchedule(){
+        Boolean flag=true;
+        Integer status=SUCCESSFUL_STATUS;
+        try{
+            fundGroupService.getAllIdAndSubId();
+        }catch(Exception e){
+            flag=false;
+            logger.error("计算 单位收益净值、最大回撤、夏普比率、基金收益贡献比 定时任务启动失败..."+sdf.format(new Date()),e);
+        }
 
-        SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        java.util.Date date = new Date(1513699200 * 1000);
-        String str = sdf.format(date);
-        System.out.println(str);
-
+        if(flag){
+            logger.info("计算 单位收益净值、最大回撤、夏普比率、基金收益贡献比 定时任务启动成功..."+sdf.format(new Date()));
+        }else {
+            status=FAILURED_STATUS;
+            logger.info("计算 单位收益净值、最大回撤、夏普比率、基金收益贡献比 定时任务启动失败..."+sdf.format(new Date()));
+        }
+        //记录 定时任务执行的状态
+        JobScheduleRecord(GET_ALLIDANDSUBID_JOBSCHEDULE,status);
 
     }
+
+
+    //记录定时任务执行的状态
+    public void JobScheduleRecord(String triggerName,Integer status){
+        //查询TriggerJob 上次执行时间
+        JobTimeRecord jobTimeRecord=jobTimeService.selectJobTimeRecord(triggerName);
+        JobTimeRecord jobTimeRecordTemp=new JobTimeRecord();
+        if(jobTimeRecord==null){
+
+            jobTimeRecordTemp.setJobName(JOB_SCHEDULE_NAME);
+            jobTimeRecordTemp.setTriggerName(triggerName);
+            jobTimeRecordTemp.setStatus(status);
+            jobTimeRecordTemp.setCreateTime(new Date());
+            jobTimeRecordTemp.setUpdateTime(new Date());
+
+            jobTimeService.insertJobTimeRecord(jobTimeRecordTemp);
+        }else{
+            jobTimeRecordTemp.setTriggerName(triggerName);
+            jobTimeRecordTemp.setStatus(status);
+            jobTimeRecordTemp.setUpdateTime(new Date());
+
+            jobTimeService.updateJobTimeRecord(jobTimeRecordTemp);
+        }
+    }
+
+
 
 
 }

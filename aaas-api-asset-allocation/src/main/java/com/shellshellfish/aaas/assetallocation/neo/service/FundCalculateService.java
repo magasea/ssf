@@ -219,7 +219,7 @@ public class FundCalculateService {
         try{
             jobTimeRecord=jobTimeService.selectJobTimeRecord(CALCULATE_DATA_OF_WEEK);
         }catch(Exception e){
-            logger.error("查询 计算每周的收益率以及风险率记录时间 失败");
+            logger.error("查询 计算每周的收益率以及风险率记录时间 失败",e);
         }
 
         Date selectDate=new Date();
