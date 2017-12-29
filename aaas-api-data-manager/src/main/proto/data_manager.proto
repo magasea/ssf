@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.shellshellfish.aaas.datamanager";
+option objc_class_prefix = "DM";
+
+
+service DayIndicatorService {
+    rpc findByCode (DayIndicatorQuery) returns (DayIndicatorCollection) {
+    }
+}
+
+message DayIndicatorQuery {
+    string code = 1;
+}
+
+message DayIndicatorCollection {
+    repeated DayIndicatorRpc dayIndicator = 1;
+}
+
+message DayIndicatorRpc {
+    string id = 1;
+    string avgprice = 2;
+    string discountrate = 3;
+    string low = 4;
+    string differrange = 5;
+    string open = 6;
+    string update = 7;
+    string high = 8;
+    string amplitude = 9;
+    string turn = 10;
+    string close = 11;
+    string amount = 12;
+    string differ = 13;
+    string code = 14;
+    string querydate = 15;
+    string volume = 16;
+    string discount = 17;
+    string preclose = 18;
+}
+
+
+service YearIndicatorService {
+    rpc getHistoryNetByCodeAndQuerydate (YearIndicatorQuery) returns (YearIndicatorRpc) {
+    }
+}
+
+message YearIndicatorQuery {
+    string code = 1;
+    int64 queryDate = 2;
+}
+
+message YearIndicatorRpc {
+    string id = 1;
+    string stdate = 2;
+    string enddate = 3;
+    string code = 4;
+    int64 querydate = 5;
+    string navaccumreturnp = 6;
+    string navreturnrankingp = 7;
+    double navunit = 8;
+    double navaccum = 9;
+}

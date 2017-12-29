@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.finance.controller;
 
 import com.shellshellfish.aaas.finance.FinanceApp;
+import com.shellshellfish.aaas.finance.trade.model.FundIncome;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,33 +23,44 @@ import java.util.List;
 public class GroupDetailsControllerTest {
 
 	@Autowired
-	GroupDetailsController  groupDetailsController;
+	GroupDetailsController groupDetailsController;
 
 
 	@Test
-	public void getFundManagerTest(){
+	public void getFundManagerTest() {
 		String testManagerName = "董阳阳";
-		String result =groupDetailsController.getFundManager(testManagerName);
+		String result = groupDetailsController.getFundManager(testManagerName);
 		Assert.assertNotNull(result);
 
 	}
 
 	@Test
-	public void getFundInfoTest(){
+	public void getFundInfoTest() {
 		String testManagerName = "000001.OF";
-		String result =groupDetailsController.getFundInfo(testManagerName);
+		String result = groupDetailsController.getFundInfo(testManagerName);
 		Assert.assertNotNull(result);
 	}
+
 	@Test
-	public void getFundCompanyTest(){
+	public void getFundCompanyTest() {
 		String testManagerName = "天弘基金管理有限公司";
-		String result =groupDetailsController.getFundCompany(testManagerName);
+		String result = groupDetailsController.getFundCompany(testManagerName);
 		Assert.assertNotNull(result);
 	}
+
 	@Test
-	public void getFundNoticesTest(){
+	public void getFundNoticesTest() {
 		String testManagerName = "000001.OF";
-		List result =groupDetailsController.getFundNotices(testManagerName);
+		List result = groupDetailsController.getFundNotices(testManagerName);
+		Assert.assertNotNull(result);
+	}
+
+	@Test
+	public void getFundIncomeTest() {
+		String fundcode = "002163";
+		String userUuid = "shellshellfish";
+		FundIncome result = groupDetailsController.getFundIncome(userUuid, fundcode);
+		System.out.println(result);
 		Assert.assertNotNull(result);
 	}
 
