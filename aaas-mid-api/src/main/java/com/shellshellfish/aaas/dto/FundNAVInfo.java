@@ -6,6 +6,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
+import com.shellshellfish.aaas.transfer.utils.EasyKit;
+
 /**
  * 记录查询详情的所有信息
  * @author developer4
@@ -24,11 +26,51 @@ public class FundNAVInfo {
 	private List<Map> NPVIncreRate;
 	/*基金类型*/
 	private String fundType;
+	/*净值增长最小最大值*/
+	private Map incrementMinMaxValueMap;
+
+	/*净值增长率最小最大值*/
+	private Map incrementRateMinMaxValueMap;
 	
 	
+	
+	
+	
+	
+	public Map getIncrementMinMaxValueMap() {
+		return incrementMinMaxValueMap;
+	}
+
+	public void setIncrementMinMaxValueMap(Object NPVIncrement) {
+		if(NPVIncrement instanceof List){
+		List NPVIncrementList=(List)NPVIncrement;
+		this.incrementMinMaxValueMap=EasyKit.getMaxMinValue(NPVIncrementList);
+		}else if(NPVIncrement instanceof Map){
+			this.incrementMinMaxValueMap=(Map)NPVIncrement;
+		}
+	}
 
 	
-	
+
+
+	public Map getIncrementRateMinMaxValueMap() {
+		return incrementRateMinMaxValueMap;
+	}
+
+
+
+	public void setIncrementRateMinMaxValueMap(Object NPVIncreRate) {
+		
+		if(NPVIncreRate instanceof List){
+			List NPVIncreRateList=(List)NPVIncreRate;
+			this.incrementRateMinMaxValueMap=EasyKit.getMaxMinValue(NPVIncreRateList);
+			}else if(NPVIncreRate instanceof Map){
+				this.incrementRateMinMaxValueMap=(Map)NPVIncreRate;
+			}
+	}
+
+
+
 	public String getAvgIncreRate() {
 		return avgIncreRate;
 	}
@@ -101,14 +143,17 @@ public class FundNAVInfo {
 
 
 
+	
+	
+	
 	@Override
 	public String toString() {
 		return "FundNAVInfo [avgIncreRate=" + avgIncreRate + ", name=" + name + ", fundCode=" + fundCode
-				+ ", NPVIncrement=" + NPVIncrement + ", NPVIncreRate=" + NPVIncreRate + ", fundType=" + fundType + "]";
+				+ ", NPVIncrement=" + NPVIncrement + ", NPVIncreRate=" + NPVIncreRate + ", fundType=" + fundType
+				+ ", incrementMinMaxValueMap=" + incrementMinMaxValueMap + ", incrementRateMinMaxValueMap="
+				+ incrementRateMinMaxValueMap + "]";
 	}
-	
-	
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -150,7 +195,7 @@ public class FundNAVInfo {
 			Field[] fieldB=infoB.getClass().getDeclaredFields();
 		 for(int i=0;i<fieldA.length;i++){
 			 for(int j=0;j<fieldB.length;j++){
-				 if(fieldA[i].getName().equals(fieldB[i].getName())){
+				 if(fieldA[i].getName().equals(fieldB[j].getName())){
 					 String fieldName=fieldA[i].getName();
 					 try {
 						Method getMethod=FundNAVInfo.class.getDeclaredMethod("get"+fieldName.substring(0, 1).toUpperCase()+fieldName.substring(1));//获取get方法
