@@ -1,6 +1,5 @@
 package com.shellshellfish.aaas.userinfo.repositories.mysql;
 
-import com.shellshellfish.aaas.userinfo.model.dao.UiAsset;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

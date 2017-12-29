@@ -36,7 +36,7 @@ public class FundYearIndicator {
 	
 	@Field("navaccum")
 	private double navaccum; //累计单位净值
-	
+
 	@Field("navadj")
 	private double navadj; //复权单位净值
 	

@@ -54,7 +54,7 @@ grpc:
     port: 10021
   order_server:
     host: localhost
-    port: 10051
+    port: 10101
   userinfo_client:
     host: localhost
     port: 10061

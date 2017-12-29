@@ -68,7 +68,6 @@ public class UserInfoController {
 	public static final Logger logger = LoggerFactory.getLogger(UserInfoController.class);
 	
 	public static String URL_HEAD="/api/userinfo";
-	
 	@Autowired
 	UserInfoService userInfoService;
 
