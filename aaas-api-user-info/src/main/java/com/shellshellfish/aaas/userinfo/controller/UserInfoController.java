@@ -1632,6 +1632,7 @@ public class UserInfoController {
 			}
 			//智投组合产品ID
 			resultMap.put("prodId",products.getProdId());
+			resultMap.put("updateDate",DateUtil.getDateType(products.getUpdateDate()));
 			resultList.add(resultMap);
 		}
 		result.put("result", resultList);
