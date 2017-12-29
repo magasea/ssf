@@ -13,44 +13,33 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Setter
 @Document(collection = "fund_yieldrate")
 public class DailyFunds {
+
+
   @Id
   @Field( value = "_id")
   String id;
-  @Indexed(name ="navlatestdate", direction = IndexDirection.DESCENDING)
-  @Field( value= "navlatestdate")
-  Long navLatestDate;
-  @Field( value= "fundscale")
-  Float fundsScale = Float.MIN_VALUE;;
   @Indexed(name ="code", direction = IndexDirection.DESCENDING)
-  @Field( value= "code")
+  @Field( value = "code")
   String code;
-  @Field( value="navadj")
-  Double navAdj;
-  @Field( value= "querydate")
-  String queryDate;
-  @Field( value= "bmindexchgpct")
-  Float bmIndexChgPct = Float.MIN_VALUE;;
-  @Column( name="yeildof7days", columnDefinition="float default "+Float.MIN_VALUE)
-  Float  yieldOf7Days = Float.MIN_VALUE;
-  @Field( value= "update")
-  String update;
-  @Column( name="10kunityield", columnDefinition="double default "+Double.MIN_VALUE)
-  Double millionRevenue = Double.MIN_VALUE;
-  @Field( value= "navunit")
-  Double navUnit = Double.MIN_VALUE;
-  @Field( value= "navaccum")
-  Double navAccum = Double.MIN_VALUE;
-
-  public String getfName() {
-    return fName;
-  }
-
-  public void setfName(String fName) {
-    this.fName = fName;
-  }
-
-  @Field( value= "fname")
-  String fName;
+  @Field( value = "navaccum")
+  Double navaccum = Double.MIN_VALUE;
+  @Field( value = "navadj")
+  Double navadj = Double.MIN_VALUE;
+  @Field( value = "navlatestdate")
+  Long navLatestDate;
+  @Field( value = "navreturnrankingp")
+  String navreturnrankingp;
+  @Field( value = "navreturnrankingpctp")
+  String navreturnrankingpctp;
+  @Field( value = "navsimiavgreturnp")
+  Double navsimiavgreturnp = Double.MIN_VALUE;
+  @Field( value = "navunit")
+  Double navunit = Double.MIN_VALUE;
+  @Indexed(name ="querydate", direction = IndexDirection.DESCENDING)
+  @Field( value = "querydate")
+  Long querydate;
+  @Field( value = "update")
+  Long update;
 
   public String getId() {
     return id;
@@ -58,22 +47,6 @@ public class DailyFunds {
 
   public void setId(String id) {
     this.id = id;
-  }
-
-  public Long getNavLatestDate() {
-    return navLatestDate;
-  }
-
-  public void setNavLatestDate(Long navLatestDate) {
-    this.navLatestDate = navLatestDate;
-  }
-
-  public Float getFundsScale() {
-    return fundsScale;
-  }
-
-  public void setFundsScale(Float fundsScale) {
-    this.fundsScale = fundsScale;
   }
 
   public String getCode() {
@@ -84,69 +57,75 @@ public class DailyFunds {
     this.code = code;
   }
 
-  public Double getNavAdj() {
-    return navAdj;
+  public Double getNavaccum() {
+    return navaccum;
   }
 
-  public void setNavAdj(Double navAdj) {
-    this.navAdj = navAdj;
+  public void setNavaccum(Double navaccum) {
+    this.navaccum = navaccum;
   }
 
-  public String getQueryDate() {
-    return queryDate;
+  public Double getNavadj() {
+    return navadj;
   }
 
-  public void setQueryDate(String queryDate) {
-    this.queryDate = queryDate;
+  public void setNavadj(Double navadj) {
+    this.navadj = navadj;
   }
 
-  public Float getBmIndexChgPct() {
-    return bmIndexChgPct;
+  public Long getNavLatestDate() {
+    return navLatestDate;
   }
 
-  public void setBmIndexChgPct(Float bmIndexChgPct) {
-    this.bmIndexChgPct = bmIndexChgPct;
+  public void setNavLatestDate(Long navLatestDate) {
+    this.navLatestDate = navLatestDate;
   }
 
-  public Float getYieldOf7Days() {
-    return yieldOf7Days;
+  public String getNavreturnrankingp() {
+    return navreturnrankingp;
   }
 
-  public void setYieldOf7Days(Float yieldOf7Days) {
-    this.yieldOf7Days = yieldOf7Days;
+  public void setNavreturnrankingp(String navreturnrankingp) {
+    this.navreturnrankingp = navreturnrankingp;
   }
 
-  public String getUpdate() {
+  public String getNavreturnrankingpctp() {
+    return navreturnrankingpctp;
+  }
+
+  public void setNavreturnrankingpctp(String navreturnrankingpctp) {
+    this.navreturnrankingpctp = navreturnrankingpctp;
+  }
+
+  public Double getNavsimiavgreturnp() {
+    return navsimiavgreturnp;
+  }
+
+  public void setNavsimiavgreturnp(Double navsimiavgreturnp) {
+    this.navsimiavgreturnp = navsimiavgreturnp;
+  }
+
+  public Double getNavunit() {
+    return navunit;
+  }
+
+  public void setNavunit(Double navunit) {
+    this.navunit = navunit;
+  }
+
+  public Long getQuerydate() {
+    return querydate;
+  }
+
+  public void setQuerydate(Long querydate) {
+    this.querydate = querydate;
+  }
+
+  public Long getUpdate() {
     return update;
   }
 
-  public void setUpdate(String update) {
+  public void setUpdate(Long update) {
     this.update = update;
   }
-
-  public Double getMillionRevenue() {
-    return millionRevenue;
-  }
-
-  public void setMillionRevenue(Double millionRevenue) {
-    this.millionRevenue = millionRevenue;
-  }
-
-  public Double getNavUnit() {
-    return navUnit;
-  }
-
-  public void setNavUnit(Double navUnit) {
-    this.navUnit = navUnit;
-  }
-
-  public Double getNavAccum() {
-    return navAccum;
-  }
-
-  public void setNavAccum(Double navAccum) {
-    this.navAccum = navAccum;
-  }
-
-
 }

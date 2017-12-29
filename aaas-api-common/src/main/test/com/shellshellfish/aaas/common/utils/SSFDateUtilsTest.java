@@ -10,6 +10,12 @@ import org.junit.Test;
 public class DateUtilTest {
 
   @Test
+  public void getYestdayDateInLong() throws Exception {
+    System.out.println(DateUtil.getYestdayDateInLong());
+    System.out.println(DateUtil.getDateLongValOneDayBefore("2017-12-29"));
+  }
+
+  @Test
   public void getDateLongVal() throws Exception {
     System.out.println( DateUtil.getDateStrFromLong(1513785600L));
     System.out.println( DateUtil.getDateStrFromLong(1514217600L));
