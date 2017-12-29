@@ -58,6 +58,7 @@ public class TradeOrderController {
 
 
 
+
   /**
    * 购买理财产品 页面
    *
@@ -266,4 +267,6 @@ public class TradeOrderController {
 		
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
+
+
 }

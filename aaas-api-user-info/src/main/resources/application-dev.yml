@@ -37,6 +37,9 @@ spring:
       port: 27017
 
   rabbitmq:
+    listener:
+      simple:
+        acknowledge-mode: auto
       username: ssf
       password: shellshellfish
       host: 192.168.1.22
@@ -73,3 +76,12 @@ grpc:
   userinfo:
     host: localhost
     port: 10061
+  data-manager-rpc:
+    host: localhost
+    port: 10031
+  finance-trade-order-rpc:
+    host: localhost
+    port: 10101
+
+
+aaas-api-finance-url: http://localhost:10120

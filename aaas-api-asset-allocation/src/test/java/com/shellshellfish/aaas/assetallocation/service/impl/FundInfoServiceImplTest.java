@@ -27,8 +27,8 @@ public class FundInfoServiceImplTest {
   public void getDailyFunds() throws Exception {
     DailyFundsQuery.Builder builder = DailyFundsQuery.newBuilder();
     builder.setNavLatestDateStart("2017-11-30");
-    builder.setNavLatestDateEnd("2017-12-02");
-    builder.addCodes("002692.OF");
+    builder.setNavLatestDateEnd("2017-12-30");
+    builder.addCodes("000312.OF");
     List<DailyFunds> dailyFundsList = fundInfoService.getDailyFunds(builder.build());
     for(DailyFunds dailyFunds: dailyFundsList){
       System.out.println(dailyFunds.getFname());

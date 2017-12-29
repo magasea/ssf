@@ -5,17 +5,12 @@ import com.shellshellfish.aaas.assetallocation.neo.service.DailyFundService;
 import com.shellshellfish.aaas.assetallocation.neo.service.FundCalculateService;
 import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupDataService;
 import com.shellshellfish.aaas.assetallocation.neo.util.CalculateMaxdrawdowns;
-import com.shellshellfish.aaas.common.utils.DateUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Author: yongquan.xiong

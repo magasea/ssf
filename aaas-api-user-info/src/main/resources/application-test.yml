@@ -8,23 +8,6 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.springframework.data: debug
 
----
-spring:
-  profiles: local, default
-datasource:
-  sampleapp:
-    url: jdbc:h2:~/test
-    username: SA
-    password:
-    driverClassName: org.h2.Driver
-    defaultSchema:
-    maxPoolSize: 10
-    hibernate:
-      hbm2ddl.method: create-drop
-      show_sql: true
-      format_sql: true
-      dialect: org.hibernate.dialect.H2Dialect
----
 
 spring:
 
@@ -34,6 +17,9 @@ spring:
       host: 192.168.1.10
       port: 27017
   rabbitmq:
+    listener:
+      simple:
+        acknowledge-mode: auto
     username: ssf
     password: shellshellfish
     host: 192.168.1.22
@@ -67,4 +53,13 @@ datasource:
 grpc:
   userinfo:
     host: localhost
-    port: 10041
+    port: 10061
+  data-manager-rpc:
+    host: localhost
+    port: 10031
+  finance-trade-order-rpc:
+    host: localhost
+    port: 10101
+
+
+aaas-api-finance-url: http://localhost:10120

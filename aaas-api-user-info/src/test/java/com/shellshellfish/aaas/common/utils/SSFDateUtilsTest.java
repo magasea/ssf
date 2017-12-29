@@ -7,7 +7,7 @@ import org.junit.Test;
 /**
  * Created by chenwei on 2017- 十二月 - 26
  */
-public class DateUtilTest {
+public class SSFDateUtilsTest {
 
   @Test
   public void getDateLongVal() throws Exception {

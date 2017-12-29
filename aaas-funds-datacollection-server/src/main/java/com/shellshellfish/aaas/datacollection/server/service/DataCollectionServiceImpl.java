@@ -64,7 +64,7 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase {
     for(DailyFunds dailyFunds: dailyFundsList){
       BeanUtils.copyProperties(dailyFunds, builderDailyFunds, DataCollectorUtil
           .getNullPropertyNames(dailyFunds));
-      builderDailyFunds.setFname(dailyFunds.getfName());
+
       Query query = new Query();
       query.addCriteria(Criteria.where("code").is(dailyFunds.getCode()));
       List<FundResources> fundResources = mongoTemplate.find(query, FundResources.class,
@@ -72,6 +72,7 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase {
       if( CollectionUtils.isEmpty(fundResources)){
         logger.error("cannot find fundTypeOne for code:" + dailyFunds.getCode());
       }else{
+        builderDailyFunds.setFname(fundResources.get(0).getFname());
         builderDailyFunds.setFirstInvestType(fundResources.get(0).getFirstinvesttype());
         builderDailyFunds.setSecondInvestType(fundResources.get(0).getSecondinvesttype());
       }

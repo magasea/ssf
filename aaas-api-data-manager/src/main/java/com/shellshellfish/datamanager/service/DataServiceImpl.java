@@ -337,7 +337,7 @@ public class DataServiceImpl implements DataService {
 		try
 		{
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			//settingdate="2017-12-28";
+			
 			enddate = sdf.parse(settingdate);
 			endtime=enddate.getTime()/1000; //seconds
 			
@@ -376,37 +376,32 @@ public class DataServiceImpl implements DataService {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 		
 		
-		
-	    for (int i=0;i<list.size();i++) {
-			  dmap[i]=new HashMap<String,String>();
-			  String qd=sdf.format(new Date(list.get(i).getQuerydate()*1000));
-			  String sdayup="0.00";
-			  double dayup=0.0;
-			  try {
-					  double navunit=Double.parseDouble(list.get(i).getNavunit());
-					  double navaccum=Double.parseDouble(list.get(i).getNavaccum());
-					  dmap[i].put("date",qd);
-					  dmap[i].put("navunit",navunit);
-					  dmap[i].put("navaccum",navaccum);
-					  sdayup="0.00";
-					  double d1=navunit;
-					      
-					  if (i!=list.size()-1) {
-					    	  double d2=Double.parseDouble(list.get(i+1).getNavunit());
-					    	  dayup= (d1-d2)/d2*100; 
-					    	  sdayup=String.format("%.2f", dayup);
-					  }
-			  }catch (NumberFormatException e)
-			
-			  {
-				    e.getMessage();
-				    dayup=0;
-			  }
-		     dmap[i].put("dayup",sdayup+"%");
-	    }
-	
-
-	    hnmap.put("historylist",dmap);
+		for (int i=0;i<list.size();i++) {
+			 dmap[i]=new HashMap<String,String>();
+			 String qd=sdf.format(new Date(list.get(i).getQuerydate()*1000));
+			 double navunit=list.get(i).getNavunit();
+			 double navaccum=list.get(i).getNavaccum();
+			 dmap[i].put("date",qd);
+			 dmap[i].put("navunit",navunit);
+			 dmap[i].put("navaccum",navaccum);
+			 double dayup=0.0;
+			 String sdayup="0.00";
+			 try {
+			      double d1=navunit;
+			      
+			      if (i!=list.size()-1) {
+			    	  double d2=list.get(i+1).getNavunit();
+			    	  dayup= (d1-d2)/d2*100; 
+			    	  sdayup=String.format("%.2f", dayup);
+			      }
+			 }catch (NumberFormatException e)
+			 {
+				 e.getMessage();
+				 dayup=0;
+			 }
+			 dmap[i].put("dayup",sdayup+"%");
+		}
+		hnmap.put("historylist",dmap);
 		return hnmap;
 				
 	}
@@ -448,60 +443,47 @@ public class DataServiceImpl implements DataService {
 		double curdayval=0;
 		double yesval=0;
 	
-		String dayup="0.0%";
-		String weekup="0.0%";
-		String monthup="0.0%";
-		String threemonthup="0.0%";
-		String sixmonthup="0.0%";
-		String oneyearup="0.0%";
-		String threeyearup="0.0%";
-		String thisyearup="0.0%";
-		try {
-			if (lst!=null && lst.size()==1) {
-			    
-				curdayval=Double.parseDouble(lst.get(0).getNavadj());
-				dayup=getUprate(code,curdayval,stdate,1); //a day ago
-				weekup=getUprate(code,curdayval,stdate,2); //a week ago
-				monthup=getUprate(code,curdayval,stdate,3); //a month ago
-				threemonthup=getUprate(code,curdayval,stdate,4); //3 month ago
-				sixmonthup=getUprate(code,curdayval,stdate,5); //6 month ago
-				thisyearup=getUprate(code,curdayval,stdate,8); //this year ago
-				oneyearup=getUprate(code,curdayval,stdate,6); //1 year ago
-				threeyearup=getUprate(code,curdayval,stdate,7); //3 year ago
-				
-			}
-		}catch (NumberFormatException e) {
-			e.getMessage();
+		double dayup=0;
+		double weekup=0;
+		double monthup=0;
+		double threemonthup=0;
+		double sixmonthup=0;
+		double oneyearup=0;
+		double threeyearup=0;
+		double thisyearup=0;
+		if (lst!=null && lst.size()==1) {
+		    curdayval=lst.get(0).getNavadj();
+			dayup=getUprate(code,curdayval,stdate,1); //a day ago
+			weekup=getUprate(code,curdayval,stdate,2); //a week ago
+			monthup=getUprate(code,curdayval,stdate,3); //a month ago
+			threemonthup=getUprate(code,curdayval,stdate,4); //3 month ago
+			sixmonthup=getUprate(code,curdayval,stdate,5); //6 month ago
+			oneyearup=getUprate(code,curdayval,stdate,6); //1 year ago
+			threeyearup=getUprate(code,curdayval,stdate,7); //3 year ago
+			thisyearup=getUprate(code,curdayval,stdate,8); //this year ago
 		}
-		dmap[0]=new HashMap<String,String>();
+		
 		dmap[0].put("time","日涨幅");
 		dmap[0].put("val",dayup);
 		
-		dmap[1]=new HashMap<String,String>();
 		dmap[1].put("time","近一周");
 		dmap[1].put("val",weekup);
 		
-		dmap[2]=new HashMap<String,String>();
 		dmap[2].put("time","近一月");
 		dmap[2].put("val",monthup);
 		
-		dmap[3]=new HashMap<String,String>();
 		dmap[3].put("time","近三月");
 		dmap[3].put("val",threemonthup);
 		
-		dmap[4]=new HashMap<String,String>();
 		dmap[4].put("time","近六月");
 		dmap[4].put("val",sixmonthup);
 		
-		dmap[5]=new HashMap<String,String>();
 		dmap[5].put("time","近一年");
 		dmap[5].put("val",oneyearup);
 		
-		dmap[6]=new HashMap<String,String>();
 		dmap[6].put("time","近三年");
 		dmap[6].put("val",threeyearup);
 		
-		dmap[7]=new HashMap<String,String>();
 		dmap[7].put("time","今年来");
 		dmap[7].put("val",thisyearup);
 		
@@ -510,7 +492,7 @@ public class DataServiceImpl implements DataService {
 		return hnmap;
 	}
 	
-	public String getUprate(String code,double curval,Date curdate,int type) {
+	public double getUprate(String code,double curval,Date curdate,int type) {
 		Date befdate=null;
 		if (type==1)
 		   befdate=DateUtil.addDays(curdate, -1);//昨天日期
@@ -528,12 +510,12 @@ public class DataServiceImpl implements DataService {
 			befdate=DateUtil.addDays(curdate, -365*3);//前三年
 		else if (type==8) {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			String thisyear=sdf.format(curdate).substring(0,4);
+			String thisyear=sdf.format(curdate).substring(0,3);
 			try {
 			    befdate=sdf.parse(thisyear+"-01-01");
 			}catch (ParseException e) {
 				e.printStackTrace();
-				return "0.0%";
+				return 0;
 			}
 			
 		}
@@ -544,13 +526,13 @@ public class DataServiceImpl implements DataService {
 		double yesval=0;
 		List<FundYearIndicator> yeslst=mongoFundYearIndicatorRepository.getHistoryNetByCodeAndQuerydate(code,endtime);
 		if (yeslst!=null && yeslst.size()==1) {
-			yesval=Double.parseDouble(yeslst.get(0).getNavadj());
+			yesval=yeslst.get(0).getNavadj();
 		}
 		double up=0;
 		if (yesval!=0)
-			up=((curval-yesval)/yesval)*100;
-		return String.format("%.2f", up)+"%";
-	    
+			up=(curval-yesval)/yesval;
+		
+	    return up;
 	}
 	
 	

@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.common.utils;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
@@ -11,8 +12,9 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
-public class DateUtil {
+public class SSFDateUtils {
     public static Long getDateLongValOneDayBefore(String dateStr) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date inputDate = sdf.parse(dateStr);
@@ -69,6 +71,21 @@ public class DateUtil {
         return nowInUtc.toNanoOfDay();
     }
 
+
+    public static Long getYestdayDateInLong(){
+
+        StringBuilder sb = new StringBuilder();
+
+        Calendar today  = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+//        Calendar today  = Calendar.getInstance();
+        today.add(Calendar.DATE, -1);
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+
+        return today.getTimeInMillis()/1000L;
+    }
 
 
 }
