@@ -42,7 +42,7 @@ public class JobScheduleService {
     /*
      * 调用每日接口
      */
-//    @Scheduled(cron = "0 0 1 * * ?")    //每天凌晨1点执行执行
+//    @Scheduled(cron = "0 0 1 * * ?")    //每天凌晨1点执行
     public void insertDailyFundJobSchedule(){
 
         logger.info("调用每日接口获取数据定时任务启动..."+sdf.format(new Date()));
@@ -124,7 +124,7 @@ public class JobScheduleService {
 
 
     /*
-     * 计算组合数据(产品组合风险率、收益率、权重)
+     * 计算产品组合数据(产品组合风险率、收益率、权重)
      */
 //    @Scheduled(cron = "0 0 22 * * ?")        //每月最后一天 晚上 10 点执行
     public void insertFundGroupDataJobSchedule(){

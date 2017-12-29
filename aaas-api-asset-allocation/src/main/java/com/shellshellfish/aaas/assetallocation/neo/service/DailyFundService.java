@@ -82,7 +82,7 @@ public class DailyFundService {
      * 调用每日接口获取数据并入库
      */
     public Boolean insertDailyData(String code,String startDate,String endDate){
-        Boolean flag=false; //判断方法是否执行成功(默认 否)
+        Boolean flag=true; //判断方法是否执行成功(默认 否)
         List<DailyFunds> dailyFundsList=new ArrayList<>();
         try{
             DailyFundsQuery.Builder builder = DailyFundsQuery.newBuilder();
@@ -169,16 +169,19 @@ public class DailyFundService {
                 }
             }
 
-            //数据插入 fund_net_val
-            try{
-                Integer tag=fundNetValMapper.insertDailyDataToFundNetVal(dailyFundsDetailList);
-                if(tag>=0){
-                    flag=true;
+            if(dailyFundsDetailList!=null && dailyFundsDetailList.size()>0){
+                //数据插入 fund_net_val
+                try{
+                    Integer tag=fundNetValMapper.insertDailyDataToFundNetVal(dailyFundsDetailList);
+                    if(tag==null){
+                        flag=false;
+                    }
+                    logger.debug("Succeed: Insert into fund_net_val by call getFundDataOfDay!");
+                }catch(Exception e){
+                    logger.error("Failed: Insert into fund_net_val by call getFundDataOfDay!",e);
                 }
-                logger.debug("Succeed: Insert into fund_net_val by call getFundDataOfDay!");
-            }catch(Exception e){
-                logger.error("Failed: Insert into fund_net_val by call getFundDataOfDay!",e);
             }
+
         }
 
         return flag;
