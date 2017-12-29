@@ -32,13 +32,13 @@ public class FundYearIndicator {
 	private String navreturnrankingp;
 	
 	@Field("navunit")
-	private double navunit; //单位净值
+	private String navunit; //单位净值
 	
 	@Field("navaccum")
-	private double navaccum; //累计单位净值
+	private String navaccum; //累计单位净值
 	
 	@Field("navadj")
-	private double navadj; //复权单位净值
+	private String navadj; //复权单位净值
 	
 	public String getStdate() {
 	    return stdate;
@@ -52,27 +52,27 @@ public class FundYearIndicator {
 	    return enddate;
 	}
 
-	public double getNavunit() {
+	public String getNavunit() {
 	    return navunit;
 	}
 
-	public void setNavunit(double navunit) {
+	public void setNavunit(String navunit) {
 	    this.navunit =navunit;
 	}
 	
-	public double getNavaccum() {
+	public String getNavaccum() {
 	    return navaccum;
 	}
 
-	public void setNavaccum(double navaccum) {
+	public void setNavaccum(String navaccum) {
 	    this.navaccum =navaccum;
 	}
 
-	public double getNavadj() {
+	public String getNavadj() {
 	    return navadj;
 	}
 
-	public void setNavadj(double navadj) {
+	public void setNavadj(String navadj) {
 	    this.navadj =navadj;
 	}
 
