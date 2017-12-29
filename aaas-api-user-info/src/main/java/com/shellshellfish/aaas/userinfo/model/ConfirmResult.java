@@ -369,6 +369,7 @@ public class ConfirmResult {
         this.fixflag = fixflag;
     }
 
+    private String identityno;
     private String tradeacco;
     private String fundacco;
     private String fundcode;
@@ -410,6 +411,24 @@ public class ConfirmResult {
     private String occurbankacco;
     private String bankSerial;
     private String outsideorderno;
+
+    public String getIdentityno() {
+        return identityno;
+    }
+
+    public void setIdentityno(String identityno) {
+        this.identityno = identityno;
+    }
+
+    public String getConfirmdate() {
+        return confirmdate;
+    }
+
+    public void setConfirmdate(String confirmdate) {
+        this.confirmdate = confirmdate;
+    }
+
+    private String confirmdate;
     private String tradeconfirmshare;
     private String tradeconfirmsum;
     private String xyh;
