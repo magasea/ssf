@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.transfer.controller;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -566,7 +567,8 @@ public class FinanceController {
 					} else {
 						logger.error("配置收益贡献时间获取失败");
 					}
-					result.put("configurationBenefitContribution", obj);
+					List<Map<String, Object>> list = getMaxToMinComparator(value);
+					result.put("configurationBenefitContribution", list);
 					result.put("categoryQuantity", category);
 					result.put("configurationTime", configTime);
 				} else {
@@ -841,4 +843,25 @@ public class FinanceController {
 		result.put("msg", "获取成功");
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 	}
+	
+	public static List<Map<String, Object>> getMaxToMinComparator(List<Map<String, Object>> list) {
+//        List<Map<String, Object>> reuslt = new ArrayList<Map<String, Object>>();
+        //排序前 
+        for (Map<String, Object> map : list) {
+            System.out.println(map.get("value"));
+        }
+        Collections.sort(list, new Comparator<Map<String, Object>>() {
+            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                Double name1 = Double.valueOf(o1.get("value").toString()) ;//name1是从你list里面拿出来的一个 
+                Double name2 = Double.valueOf(o2.get("value").toString()) ; //name1是从你list里面拿出来的第二个name
+                return name2.compareTo(name1);
+            }
+        });
+        //排序后 
+        System.out.println("-------------------");
+        for (Map<String, Object> map : list) {
+            System.out.println(map.get("value"));
+        }
+        return list;
+    }
 }

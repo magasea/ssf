@@ -638,9 +638,9 @@ public class FundGroupService {
                 for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
                     Map<String, Object> mapBenchmark = new HashMap<>();
                     mapBenchmark.put("time", new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()));
-                    mapBenchmark.put("value", fundGroupHistory.getIncome_num());
+                    mapBenchmark.put("value", fundGroupHistory.getMaximum_retracement());
                     listBenchmark.add(mapBenchmark);
-                    maxMinBenchmarkList.add(fundGroupHistory.getIncome_num());
+                    maxMinBenchmarkList.add(fundGroupHistory.getMaximum_retracement());
                 }
                 maxMinBenchmarkMap = TransformUtil.getMaxMinValue(maxMinBenchmarkList);
                 allMap.put("incomeBenchmark",listBenchmark);
