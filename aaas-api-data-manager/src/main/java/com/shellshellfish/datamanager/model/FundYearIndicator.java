@@ -35,13 +35,8 @@ public class FundYearIndicator {
 	private String navunit; //单位净值
 	
 	@Field("navaccum")
-<<<<<<< HEAD
 	private String navaccum; //累计单位净值
 	
-=======
-	private double navaccum; //累计单位净值
-
->>>>>>> b23297b816bd2fd402afe3c4af0b004ed0a096ec
 	@Field("navadj")
 	private String navadj; //复权单位净值
 	
