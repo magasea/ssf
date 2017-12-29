@@ -1017,6 +1017,9 @@ public class FundGroupService {
             }
         }
         contribution();
+        for (int i = 1; i < 6; i++) {
+            getNavadjBenchmark("C" + i);
+        }
     }
 
     public int deleteData(String tableName){
