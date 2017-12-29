@@ -257,7 +257,7 @@
     </select>
 
     <insert id="insertIntoFundGroupDetails" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCombination">
-        insert into fund_group_details_copy (fund_code,fund_group_id,fund_group_sub_id,proportion)
+        insert into fund_group_details (fund_code,fund_group_id,fund_group_sub_id,proportion)
         <foreach collection="list" item="details" index="index" separator="union all">
             ( SELECT
             #{details.code},#{details.groupId},#{details.subGroupId},#{details.proportion}
@@ -268,7 +268,7 @@
 
 
     <insert id="insertIntoFundGroupSub" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCombination">
-        insert into fund_group_sub_copy (id,fund_group_id,risk_num,income_num,
+        insert into fund_group_sub (id,fund_group_id,risk_num,income_num,
         expected_annualized_return,simulate_historical_year_performance,
         expected_max_retracement,simulate_historical_volatility)
         <foreach collection="list" item="details" index="index" separator="union all">
@@ -284,20 +284,20 @@
 
     <insert id="transIntoFundGroupDetailsHistory" >
         INSERT INTO fund_group_details_history
-        SELECT * from fund_group_details_copy
+        SELECT * from fund_group_details
     </insert>
 
     <insert id="transIntoFundGroupSubHistory" >
         INSERT INTO fund_group_sub_history
-        SELECT * from fund_group_sub_copy
+        SELECT * from fund_group_sub
     </insert>
 
     <delete id="deleteFundGroupDetails">
-        DELETE FROM fund_group_details_copy
+        DELETE FROM fund_group_details
     </delete>
 
     <delete id="deleteFundGroupSub">
-        DELETE FROM fund_group_sub_copy
+        DELETE FROM fund_group_sub
     </delete>
 
 
