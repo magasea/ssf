@@ -66,6 +66,7 @@ public class DataServiceImpl implements DataService {
 	@Autowired
 	private MongoTemplate mongoTemplate;
 	
+	/*
 	public boolean saveDailytoDBforday(String codelist,String querydate) {
 		return callpython("./getdaily.sh"+" "+codelist+" "+querydate);
 	}
@@ -76,8 +77,8 @@ public class DataServiceImpl implements DataService {
 	
 	public boolean saveAllfundCodestoDB() {
 		return callpython("./getallfundcodes.sh");
-	}
-	
+	}*/
+	/*
 	public boolean callpython (String command){
 		BufferedReader bf;
         bf= null;  
@@ -120,22 +121,28 @@ public class DataServiceImpl implements DataService {
         }  
         return false;
 
-	}
+	}*/
 	
 	public List<FundCodes>  getAllFundCodes(){
 		//List<FundCodes> ftl=mongoFundCodesRepository.findByCodeAndDate("000001.OF","2017-11-12");
 		return mongoFundCodesRepository.findAll();
 	}
 	
+	//基金概况
 	public List<DailyFunds>  getDailyFundsBycode(String[] codelist){
 		//String[] abc= new String[] {"000001.OF","000003.OF"};
+		for (int i=0;i<codelist.length;i++) {
+			if (!codelist[i].contains("OF") && !codelist[i].contains("SH") && !codelist[i].contains("SZ"))
+				codelist[i]=codelist[i]+".OF";
+		}
+		
 		Criteria criteria = Criteria.where("code").in(codelist);
 		Query query = new Query(criteria);
 		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC,"querydate")); 
 		List<DailyFunds> list = mongoTemplate.find(query, DailyFunds.class);
 		
 		if (list==null || list.size()==0)
-			return null;
+			return new ArrayList<DailyFunds>();
 		
 		List<DailyFunds> toplst= new ArrayList<DailyFunds>();
 		toplst.add(list.get(0));
@@ -161,7 +168,7 @@ public class DataServiceImpl implements DataService {
 		HashMap<String,Object> fmmap=null;
 		List<FundManagers> lst= mongoFundManagersRepository.findByManagername(name);
 		if (lst==null || lst.size()==0)
-			return null;
+			return new HashMap<String,Object>();
 		else {
 			fmmap=new HashMap<String,Object>();
 			fmmap.put("manager", lst.get(0).getMnager());
@@ -312,6 +319,10 @@ public class DataServiceImpl implements DataService {
 	
     //历史净值
 	public HashMap<String,Object> getHistoryNetvalue(String code,String type,String settingdate){
+		
+		if (!code.contains("OF") && !code.contains("SH") && !code.contains("SZ"))
+			code=code+".OF";
+		
 		HashMap<String,Object> hnmap=new HashMap<String,Object>();
 		hnmap.put("code", code);
 		hnmap.put("period", type);
@@ -350,7 +361,7 @@ public class DataServiceImpl implements DataService {
 		catch (Exception e)
 		{
 			System.out.println(e.getMessage());
-			return null;
+			return new HashMap<String,Object>();
 		}	
 		
 		Criteria criteria = Criteria.where("code").is(code).and("querydate").gte(sttime).lte(endtime);
@@ -359,7 +370,7 @@ public class DataServiceImpl implements DataService {
 		List<FundYearIndicator> list = mongoTemplate.find(query, FundYearIndicator.class);
 		
 		if (list==null || list.size()==0)
-			return null;
+			return new HashMap<String,Object>();
 		
 		HashMap[] dmap=new HashMap[list.size()];
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
@@ -368,18 +379,18 @@ public class DataServiceImpl implements DataService {
 		for (int i=0;i<list.size();i++) {
 			 dmap[i]=new HashMap<String,String>();
 			 String qd=sdf.format(new Date(list.get(i).getQuerydate()*1000));
-			 String navunit=list.get(i).getNavunit();
-			 String navaccum=list.get(i).getNavaccum();
+			 double navunit=list.get(i).getNavunit();
+			 double navaccum=list.get(i).getNavaccum();
 			 dmap[i].put("date",qd);
 			 dmap[i].put("navunit",navunit);
 			 dmap[i].put("navaccum",navaccum);
 			 double dayup=0.0;
 			 String sdayup="0.00";
 			 try {
-			      double d1=Double.parseDouble(navunit);
+			      double d1=navunit;
 			      
 			      if (i!=list.size()-1) {
-			    	  double d2=Double.parseDouble(list.get(i+1).getNavunit());
+			    	  double d2=list.get(i+1).getNavunit();
 			    	  dayup= (d1-d2)/d2*100; 
 			    	  sdayup=String.format("%.2f", dayup);
 			      }
@@ -403,14 +414,24 @@ public class DataServiceImpl implements DataService {
 		long sttime=0L;
 		long endtime=0L;
 		
+		if (!code.contains("OF") && !code.contains("SH") && !code.contains("SZ"))
+			code=code+".OF";
+		
+		HashMap<String,Object> hnmap=new HashMap<String,Object>();
+		hnmap.put("code", code);
+		hnmap.put("net", "3.5");//净值
+		hnmap.put("classtype", "2");//分级类型
+		hnmap.put("rate", "4");//评级
+		
+		HashMap[] dmap=new HashMap[8];
+		
 		try
 		{
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			stdate = sdf.parse(date);
 			sttime=stdate.getTime()/1000; //seconds
 			
-			Date yesdate=DateUtil.addDays(stdate, -1);//昨天日期 
-            endtime=yesdate.getTime()/1000; //seconds
+			
 		}
 		catch (Exception e)
 		{
@@ -419,56 +440,101 @@ public class DataServiceImpl implements DataService {
 		}	
 		
 		List<FundYearIndicator> lst=mongoFundYearIndicatorRepository.getHistoryNetByCodeAndQuerydate(code,sttime);
+		double curdayval=0;
+		double yesval=0;
+	
+		double dayup=0;
+		double weekup=0;
+		double monthup=0;
+		double threemonthup=0;
+		double sixmonthup=0;
+		double oneyearup=0;
+		double threeyearup=0;
+		double thisyearup=0;
+		if (lst!=null && lst.size()==1) {
+		    curdayval=lst.get(0).getNavadj();
+			dayup=getUprate(code,curdayval,stdate,1); //a day ago
+			weekup=getUprate(code,curdayval,stdate,2); //a week ago
+			monthup=getUprate(code,curdayval,stdate,3); //a month ago
+			threemonthup=getUprate(code,curdayval,stdate,4); //3 month ago
+			sixmonthup=getUprate(code,curdayval,stdate,5); //6 month ago
+			oneyearup=getUprate(code,curdayval,stdate,6); //1 year ago
+			threeyearup=getUprate(code,curdayval,stdate,7); //3 year ago
+			thisyearup=getUprate(code,curdayval,stdate,8); //this year ago
+		}
 		
+		dmap[0].put("time","日涨幅");
+		dmap[0].put("val",dayup);
 		
-		HashMap<String,Object> hnmap=new HashMap<String,Object>();
-		hnmap.put("code", code); //代码
-		HashMap<String,Object> dmap=new HashMap<String,Object>();
+		dmap[1].put("time","近一周");
+		dmap[1].put("val",weekup);
 		
-		dmap.put("value", "3%");
-		dmap.put("grade", "100/150");
-		hnmap.put("dayscale",dmap); //日涨幅
+		dmap[2].put("time","近一月");
+		dmap[2].put("val",monthup);
 		
-		HashMap<String,Object> y1map=new HashMap<String,Object>();
-		y1map.put("value", "10%");
-		y1map.put("grade", "120/150");
-		hnmap.put("y1scale", y1map);//年涨幅
+		dmap[3].put("time","近三月");
+		dmap[3].put("val",threemonthup);
 		
-		HashMap<String,Object> y3map=new HashMap<String,Object>();
-		y3map.put("value", "14%");
-		y3map.put("grade", "20/150");
-		hnmap.put("y3scale", y3map);//年涨幅
+		dmap[4].put("time","近六月");
+		dmap[4].put("val",sixmonthup);
 		
-		HashMap<String,Object> weekmap=new HashMap<String,Object>();
-		weekmap.put("value", "-4%");
-		weekmap.put("grade", "140/150");
-		hnmap.put("weekscale", weekmap);//周涨幅
+		dmap[5].put("time","近一年");
+		dmap[5].put("val",oneyearup);
 		
-		HashMap<String,Object> m1map=new HashMap<String,Object>();
-		m1map.put("value", "7%");
-		m1map.put("grade", "70/150");
-		hnmap.put("m1scale", m1map);//1个月涨幅
+		dmap[6].put("time","近三年");
+		dmap[6].put("val",threeyearup);
 		
-		HashMap<String,Object> m3map=new HashMap<String,Object>();
-		m3map.put("value", "1%");
-		m3map.put("grade", "50/150");
-		hnmap.put("m3scale", m3map);//3个月涨幅
+		dmap[7].put("time","今年来");
+		dmap[7].put("val",thisyearup);
 		
-		HashMap<String,Object> m6map=new HashMap<String,Object>();
-		m6map.put("value", "-5%");
-		m6map.put("grade", "90/150");
-		hnmap.put("m6scale", m6map);//6个月涨幅
+		hnmap.put("uplist",dmap);
 		
-		hnmap.put("net", "3.5");//净值
-		hnmap.put("classtype", "2");//分级类型
-		hnmap.put("rate", "4");//评级
 		return hnmap;
 	}
-
-	@Override
-	public List<FundCodes> getFundsBycode(String codes) {
-		List<FundCodes> fundList = mongoFundCodesRepository.findByCode(codes);
-		return fundList;
+	
+	public double getUprate(String code,double curval,Date curdate,int type) {
+		Date befdate=null;
+		if (type==1)
+		   befdate=DateUtil.addDays(curdate, -1);//昨天日期
+		else if (type==2)
+		   befdate=DateUtil.addDays(curdate, -7);//前一周 
+		else if (type==3)
+			befdate=DateUtil.addDays(curdate, -30);//前一月
+		else if (type==4)
+			befdate=DateUtil.addDays(curdate, -90);//前三月
+		else if (type==5)
+			befdate=DateUtil.addDays(curdate, -180);//前六月
+		else if (type==6)
+			befdate=DateUtil.addDays(curdate, -365);//前一年
+		else if (type==7)
+			befdate=DateUtil.addDays(curdate, -365*3);//前三年
+		else if (type==8) {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			String thisyear=sdf.format(curdate).substring(0,3);
+			try {
+			    befdate=sdf.parse(thisyear+"-01-01");
+			}catch (ParseException e) {
+				e.printStackTrace();
+				return 0;
+			}
+			
+		}
+		    
+		
+        long endtime=befdate.getTime()/1000; //seconds
+		
+		double yesval=0;
+		List<FundYearIndicator> yeslst=mongoFundYearIndicatorRepository.getHistoryNetByCodeAndQuerydate(code,endtime);
+		if (yeslst!=null && yeslst.size()==1) {
+			yesval=yeslst.get(0).getNavadj();
+		}
+		double up=0;
+		if (yesval!=0)
+			up=(curval-yesval)/yesval;
+		
+	    return up;
 	}
+	
+	
 	
 }

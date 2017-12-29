@@ -13,13 +13,15 @@ import com.shellshellfish.datamanager.model.IndicatorPoint;
 
 public interface DataService {
 	//from choice to mongodb
-	boolean saveDailytoDBforday(String codelist,String querydate);
-	boolean saveDailytoDBfordays(String codelist,String fromdate,String todate);
-    boolean saveAllfundCodestoDB();
+	//boolean saveDailytoDBforday(String codelist,String querydate);
+	//boolean saveDailytoDBfordays(String codelist,String fromdate,String todate);
+    //boolean saveAllfundCodestoDB();
 	//from choice to mongodb
     
+	//基金代码列表
     public List<FundCodes>  getAllFundCodes();
-    //日指标
+    
+    //基金概况,日指标
     public List<DailyFunds>  getDailyFundsBycode(String[] codelist);
     
     public List<IndicatorPoint>  getMaxfallPeriod(String code,long fromtime,long totime);
@@ -31,8 +33,6 @@ public interface DataService {
     public HashMap<String,Object> getHistoryNetvalue(String code,String type,String date);
     
     //基金价值指标信息:日涨幅,近一年涨幅,净值,分级类型,评级
-
     public HashMap<String,Object> getFundValueInfo(String code,String date);
-	List<FundCodes> getFundsBycode(String codes);
-
+    
 }
