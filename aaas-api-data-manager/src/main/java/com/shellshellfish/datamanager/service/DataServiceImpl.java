@@ -23,6 +23,8 @@ import com.shellshellfish.datamanager.model.DailyFunds;
 import com.shellshellfish.datamanager.model.FundCodes;
 import com.shellshellfish.datamanager.model.FundCompanys;
 import com.shellshellfish.datamanager.model.FundManagers;
+import com.shellshellfish.datamanager.model.FundRate;
+import com.shellshellfish.datamanager.model.FundResources;
 import com.shellshellfish.datamanager.model.FundYearIndicator;
 import com.shellshellfish.datamanager.model.FundYeildRate;
 import com.shellshellfish.datamanager.model.IndicatorPoint;
@@ -424,9 +426,9 @@ public class DataServiceImpl implements DataService {
 		
 		HashMap<String,Object> hnmap=new HashMap<String,Object>();
 		hnmap.put("code", code);
-		hnmap.put("net", "3.5");//净值
-		hnmap.put("classtype", "2");//分级类型
-		hnmap.put("rate", "4");//评级
+		//hnmap.put("net", "3.5");//净值
+		hnmap.put("classtype", getClassType(code));//分级类型
+		hnmap.put("rate", getRate(code));//评级
 		
 		HashMap[] dmap=new HashMap[8];
 		
@@ -460,6 +462,7 @@ public class DataServiceImpl implements DataService {
 			if (lst!=null && lst.size()==1) {
 			    
 				curdayval=Double.parseDouble(lst.get(0).getNavadj());
+				hnmap.put("net", curdayval);//当天净值
 				dayup=getUprate(code,curdayval,stdate,1); //a day ago
 				weekup=getUprate(code,curdayval,stdate,2); //a week ago
 				monthup=getUprate(code,curdayval,stdate,3); //a month ago
@@ -554,5 +557,40 @@ public class DataServiceImpl implements DataService {
 	}
 	
 	
+	public String getClassType(String code) {
+		
+		Criteria criteria = Criteria.where("code").is(code);
+		Query query = new Query(criteria);
+		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC,"queryenddate"));
+		List<FundResources> list = mongoTemplate.find(query, FundResources.class);
+
+		String ret="";
+		if (list!=null && list.size()==1) {
+			ret=list.get(0).getRisklevel();
+		}
+		
+		ret=ret.toLowerCase();
+		if (ret.equals("r1") || ret.equals("r2"))
+			return "低风险";
+		else if (ret.equals("r3"))
+		    return "中风险";
+		else if (ret.equals("r4") || ret.equals("r5"))
+			return "高风险";
+			
+		return "";
+	}
+
+	public String getRate(String code) {
+		Criteria criteria = Criteria.where("code").is(code);
+		Query query = new Query(criteria);
+		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC,"querydate"));
+		List<FundRate> list = mongoTemplate.find(query, FundRate.class);
+        String rate="";
+        if (list!=null && list.size()==1) {
+			rate=list.get(0).getShstockstar3ycomrat();
+		}
+        
+		return rate;
+	}
 	
 }
