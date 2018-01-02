@@ -59,7 +59,7 @@ public class GroupDetailsController {
 
 	@ApiOperation("组合详情 基金公司")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "name", dataType = "String", required = true, value = "name", defaultValue = "董阳阳")
+			@ApiImplicitParam(paramType = "query", name = "name", dataType = "String", required = true, value = "name", defaultValue = "天弘基金管理有限公司")
 	})
 	@RequestMapping(value = "/getFundCompany", method = {RequestMethod.GET})
 	public FundCompany getFundCompany(@RequestParam() @NotNull String name) {
