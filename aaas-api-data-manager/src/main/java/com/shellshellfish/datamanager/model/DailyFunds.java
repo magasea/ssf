@@ -31,7 +31,7 @@ public class DailyFunds {
 	@Field("navadj")
 	private String navadj;  //复权单位净值
 	@Field("navlatestdate")
-	private long navlatestdate; //最新净值日期
+	private String navlatestdate; //最新净值日期
 	@Field("fundscale")
 	private String fundscale; //基金规模
 	@Field("navunit")
@@ -92,11 +92,11 @@ public class DailyFunds {
 	}
 	
 
-	public long getNavlatestdate() {
+	public String getNavlatestdate() {
 	    return navlatestdate;
 	}
 
-	public void setNavlatestdate(long navlatestdate) {
+	public void setNavlatestdate(String navlatestdate) {
 	    this.navlatestdate = navlatestdate;
 	}
 	
