@@ -20,7 +20,7 @@ public class BroadcastMessageProducerTest {
   @Test
   public void sendMessages() throws Exception {
     PayDto payDto = new PayDto();
-    broadcastMessageProducer.sendMessages(payDto);
+    broadcastMessageProducer.sendPayMessages(payDto);
   }
 
 }
