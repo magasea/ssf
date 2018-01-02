@@ -49,7 +49,7 @@ public class TransferController {
 	@Value("${shellshellfish.trade-order-url}")
 	private String tradeOrderUrl;
 	
-	@Value("${shellshellfish.api-data-manager-url}")
+	@Value("${shellshellfish.data-manager-url}")
 	private String dataManagerUrl;
 	
 	
