@@ -8,7 +8,7 @@ import java.util.List;
 
 public class ProdSellDTO {
 
-  private long userProId;
+  private long userProdId;
   private long prodId;
   private long groupId;
   private long userId;
@@ -35,12 +35,12 @@ public class ProdSellDTO {
   private String trdAcco;
   List<ProdDtlSellDTO> prodDtlSellDTOList;
 
-  public long getUserProId() {
-    return userProId;
+  public long getUserProdId() {
+    return userProdId;
   }
 
-  public void setUserProId(long userProId) {
-    this.userProId = userProId;
+  public void setUserProdId(long userProdId) {
+    this.userProdId = userProdId;
   }
 
   public long getProdId() {

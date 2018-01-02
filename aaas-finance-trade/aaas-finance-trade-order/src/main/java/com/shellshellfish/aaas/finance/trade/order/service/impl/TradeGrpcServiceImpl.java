@@ -91,7 +91,7 @@ public class TradeGrpcServiceImpl implements TradeSellService {
       prodDtlSellDTOList.add(prodDtlSellDTO);
     }
     prodSellDTO.setProdDtlSellDTOList(prodDtlSellDTOList);
-    broadcastMessageProducer.sendPayMessages(prodSellDTO);
+    broadcastMessageProducer.sendSellMessages(prodSellDTO);
     return null;
   }
 }

@@ -49,9 +49,9 @@ public class BroadcastMessageConsumers {
 
     @RabbitListener( containerFactory = "jsaFactory",bindings = @QueueBinding(
         value = @Queue(value = RabbitMQConstants.QUEUE_PAY_BASE+ "-"+ RabbitMQConstants
-            .OPERATION_TYPE_BUY_PROD, durable = "false"),
+            .OPERATION_TYPE_SEL_PROD, durable = "false"),
         exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
-            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_PAY)
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_SELL)
     )
     public void receiveMessage(ProdSellDTO prodSellDTO) {
         try {
@@ -62,4 +62,5 @@ public class BroadcastMessageConsumers {
         }
 
     }
+
 }
