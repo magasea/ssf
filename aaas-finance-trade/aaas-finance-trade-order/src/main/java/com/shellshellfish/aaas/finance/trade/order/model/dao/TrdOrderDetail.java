@@ -19,7 +19,7 @@ public class TrdOrderDetail {
   private long id;
   private String orderId;
   private String tradeApplySerial;
-  private long boughtDate;
+  private Long boughtDate;
   private int tradeType;
   private long payAmount;
   private long payFee;
@@ -73,14 +73,15 @@ public class TrdOrderDetail {
     this.tradeApplySerial = tradeApplySerial;
   }
 
+  
   @Basic
   @Column(name = "bought_date")
-  public long getBoughtDate() {
-    return boughtDate;
+  public Long getBoughtDate() {
+	return boughtDate;
   }
 
-  public void setBoughtDate(long boughtDate) {
-    this.boughtDate = boughtDate;
+  public void setBoughtDate(Long boughtDate) {
+	this.boughtDate = boughtDate;
   }
 
   @Basic

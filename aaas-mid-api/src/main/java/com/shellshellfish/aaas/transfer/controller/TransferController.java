@@ -142,7 +142,7 @@ public class TransferController {
 							String fundCode = (String) map.get("fundCode");
 							if(!StringUtils.isEmpty(fundCode)){
 								List fundList = new ArrayList();
-								fundList = restTemplate.getForEntity(dataManagerUrl + "/api/datamanager/getFundInfos?codes=" + fundCode , List.class).getBody();
+								fundList = restTemplate.getForEntity(dataManagerUrl + "/api/datamanager/getFundInfo?codes=" + fundCode , List.class).getBody();
 								if(fundList==null||fundList.size()==0){
 									logger.error("基金CODE:"+fundCode+"不存在");
 								} else {
