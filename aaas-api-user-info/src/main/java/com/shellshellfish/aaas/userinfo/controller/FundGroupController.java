@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -37,7 +38,19 @@ public class FundGroupController {
 	@RequestMapping(value = "/getMyProductDetail", method = RequestMethod.POST)
 	@ResponseBody
 	public Map getProductDetail(@RequestParam @NotNull String uuid, @RequestParam @NotNull Long prodId) {
-		return fundGroupService.getGroupDetails(uuid, prodId);
+		Map result = fundGroupService.getGroupDetails(uuid, prodId);
+		Map accumulationIncomes = new HashMap();
+		accumulationIncomes.put("2011-01-09", 1.0);
+		accumulationIncomes.put("2011-01-10", 1.0);
+		accumulationIncomes.put("2011-01-11", 1.0);
+		accumulationIncomes.put("2011-01-12", 1.0);
+		accumulationIncomes.put("2011-01-13", 1.0);
+		accumulationIncomes.put("2011-01-14", 1.0);
+		accumulationIncomes.put("2011-01-15", 1.0);
+		accumulationIncomes.put("2011-01-16", 1.0);
+
+		result.put("accumulationIncomes", accumulationIncomes);
+		return result;
 	}
 
 }
