@@ -43,7 +43,7 @@ public class BroadcastMessageProducer {
         System.out.println("Send msg = " + payDto);
     }
 
-    public void sendPayMessages(ProdSellDTO prodSellDTO) {
+    public void sendSellMessages(ProdSellDTO prodSellDTO) {
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
             .ROUTING_KEY_SELL, prodSellDTO);
     }

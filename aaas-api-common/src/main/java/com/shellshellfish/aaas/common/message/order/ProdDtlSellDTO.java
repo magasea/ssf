@@ -14,6 +14,7 @@ public class ProdDtlSellDTO {
   private String fundName;
   private int fundShare;
   private int fundQuantity;
+  private long orderDetailId;
   private BigDecimal targetSellAmount;
 
 
@@ -70,7 +71,11 @@ public class ProdDtlSellDTO {
     this.fundQuantity = fundQuantity;
   }
 
+  public long getOrderDetailId() {
+    return orderDetailId;
+  }
 
-
-
+  public void setOrderDetailId(long orderDetailId) {
+    this.orderDetailId = orderDetailId;
+  }
 }

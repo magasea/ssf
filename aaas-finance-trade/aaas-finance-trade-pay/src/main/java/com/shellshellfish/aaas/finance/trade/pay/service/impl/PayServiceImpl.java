@@ -4,6 +4,7 @@ import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdPayFlowStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayDto;
+import com.shellshellfish.aaas.common.message.order.ProdDtlSellDTO;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import com.shellshellfish.aaas.common.utils.SSFDateUtils;
@@ -162,6 +163,22 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     logger.info("sell prod with: userId:" + prodSellDTO.getUserId()+ "" + prodSellDTO.getUserUuid
         ()+ prodSellDTO.getTrdAcco());
     String userUuid = prodSellDTO.getUserUuid();
+    if(CollectionUtils.isEmpty(prodSellDTO.getProdDtlSellDTOList())){
+      logger.error("empty sellProd list");
+      return false;
+    }
+
+    for(ProdDtlSellDTO prodDtlSellDTO: prodSellDTO.getProdDtlSellDTOList()){
+      int sellNum = prodDtlSellDTO.getFundQuantity();
+      String code = prodDtlSellDTO.getFundCode();
+      String tradeAcco = prodSellDTO.getTrdAcco();
+      String outsideOrderNo = Long.toString(prodDtlSellDTO.getOrderDetailId());
+
+      logger.info("sell prod with fundCode :"+code
+          +"sell fund quantity:"+ sellNum + " sell  account:"+ tradeAcco + " outsideOrderNo:" +
+          outsideOrderNo);
+      fundTradeApiService.sellFund(userUuid, sellNum, outsideOrderNo, tradeAcco, code);
+    }
 
 //    fundTradeApiService.sellFund(userUuid, sellNum, outsideOrderNo, tradeAcco, fundCode);
     return false;

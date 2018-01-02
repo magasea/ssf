@@ -12,4 +12,6 @@ public interface TrdOrderRepository extends PagingAndSortingRepository<TrdOrder,
 	List<TrdOrder> findTrdOrdersByUserId(Long userId);
 
 	TrdOrder findByOrderId(String orderId);
+
+	List<TrdOrder> findByUserProdId(Long userProdId);
 }

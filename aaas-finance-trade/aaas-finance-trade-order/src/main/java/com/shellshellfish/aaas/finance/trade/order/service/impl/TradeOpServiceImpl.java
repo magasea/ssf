@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
@@ -11,7 +12,6 @@ import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProdu
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
-import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdTradeBankDic;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokderRepository;
@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -189,7 +188,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     trdOrder.setOrderType(financeProdBuyInfo.getOrderType());
     trdOrder.setProdId(financeProdBuyInfo.getProdId());
     trdOrder.setUserProdId(financeProdBuyInfo.getUserProdId());
-    trdOrder.setOrderStatus(TrdOrderStatusEnum.WAITCONFIRM.ordinal());
+    trdOrder.setOrderStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.ordinal());
     trdOrder.setOrderId(orderId);
     trdOrder.setUserId(financeProdBuyInfo.getUserId());
     trdOrder.setCreateBy(financeProdBuyInfo.getUserId());
