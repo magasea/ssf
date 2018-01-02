@@ -31,14 +31,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 /**
  * Created by chenwei on 2017- 十二月 - 29
  */
-
+@Service
 public class TradeSellServiceImpl implements TradeSellService {
-  Logger logger = LoggerFactory.getLogger(TradeGrpcServiceImpl.class);
+  Logger logger = LoggerFactory.getLogger(TradeSellServiceImpl.class);
 
   @Autowired
   ManagedChannel managedDMChannel;
@@ -63,7 +64,7 @@ public class TradeSellServiceImpl implements TradeSellService {
   }
 
   @Override
-  public Boolean sellProduct(ProdSellPageDTO prodSellPageDTO)
+  public TrdOrder sellProduct(ProdSellPageDTO prodSellPageDTO)
       throws ExecutionException, InterruptedException {
     //first : get price of funds , this
     com.shellshellfish.aaas.datamanager.FundCodes.Builder requestBuilder = com.shellshellfish
@@ -92,15 +93,14 @@ public class TradeSellServiceImpl implements TradeSellService {
     ProdSellDTO prodSellDTO = new ProdSellDTO();
     BeanUtils.copyProperties(prodSellPageDTO, prodSellDTO);
     prodSellDTO.setProdDtlSellDTOList(prodDtlSellDTOList);
-    boolean result = generateOrderInfo4Sell(prodSellDTO);
-    if(!result){
+    TrdOrder result = generateOrderInfo4Sell(prodSellDTO);
+    if(result == null){
       logger.error("failed to generate order info for sell information");
-      return false;
     }
     broadcastMessageProducer.sendSellMessages(prodSellDTO);
-    return true;
+    return result;
   }
-  private boolean generateOrderInfo4Sell(ProdSellDTO prodSellDTO){
+  private TrdOrder generateOrderInfo4Sell(ProdSellDTO prodSellDTO){
     TrdOrder trdOrder = new TrdOrder();
     try {
       List<TrdBrokerUser> trdBrokerUsers = trdBrokerUserRepository
@@ -109,7 +109,7 @@ public class TradeSellServiceImpl implements TradeSellService {
       List<TrdOrder> trdOrders = trdOrderRepository.findByUserProdId(prodSellDTO.getUserProdId());
       if (CollectionUtils.isEmpty(trdOrders)) {
         logger.error("failed to find corresponding order for sell by userProdId:");
-        return false;
+        return null;
       }
       String orderId = TradeUtil.generateOrderId(Integer.valueOf(trdOrders.get(0).getBankCardNum()
           .substring(0, 6)), trdBrokerId);
@@ -144,11 +144,11 @@ public class TradeSellServiceImpl implements TradeSellService {
         trdOrderDetailRepository.save(trdOrderDetail);
         prodDtlSellDTO.setOrderDetailId(trdOrderDetail.getId());
       }
+      return trdOrder;
     }catch (Exception ex){
       ex.printStackTrace();
       logger.error(ex.getMessage());
-      return false;
+      return null;
     }
-    return true;
   }
 }
