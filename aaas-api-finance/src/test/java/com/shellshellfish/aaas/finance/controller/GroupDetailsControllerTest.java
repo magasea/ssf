@@ -1,6 +1,8 @@
 package com.shellshellfish.aaas.finance.controller;
 
 import com.shellshellfish.aaas.finance.FinanceApp;
+import com.shellshellfish.aaas.finance.model.dto.FundCompany;
+import com.shellshellfish.aaas.finance.model.dto.FundManager;
 import com.shellshellfish.aaas.finance.trade.model.FundIncome;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,7 +31,7 @@ public class GroupDetailsControllerTest {
 	@Test
 	public void getFundManagerTest() {
 		String testManagerName = "董阳阳";
-		String result = groupDetailsController.getFundManager(testManagerName);
+		FundManager result = groupDetailsController.getFundManager(testManagerName);
 		Assert.assertNotNull(result);
 
 	}
@@ -44,7 +46,7 @@ public class GroupDetailsControllerTest {
 	@Test
 	public void getFundCompanyTest() {
 		String testManagerName = "天弘基金管理有限公司";
-		String result = groupDetailsController.getFundCompany(testManagerName);
+		FundCompany result = groupDetailsController.getFundCompany(testManagerName);
 		Assert.assertNotNull(result);
 	}
 
