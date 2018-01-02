@@ -8,19 +8,20 @@ import java.util.List;
 
 public class ProdSellPageDTO {
 
-  private long userProId;
+  private long userProdId;
   private long prodId;
+
   private long groupId;
   private long userId;
   private String userUuid;
   List<ProdDtlSellPageDTO> prodDtlSellPageDTOList;
 
-  public long getUserProId() {
-    return userProId;
+  public long getUserProdId() {
+    return userProdId;
   }
 
-  public void setUserProId(long userProId) {
-    this.userProId = userProId;
+  public void setUserProId(long userProdId) {
+    this.userProdId = userProdId;
   }
 
   public long getProdId() {

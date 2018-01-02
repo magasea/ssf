@@ -21,7 +21,7 @@ public interface TrdOrderDetailRepository extends PagingAndSortingRepository<Trd
       updateDate, @Param("updateBy") Long updateBy,  @Param("id") Long id, @Param
       ("orderDetailStatus") int orderDetailStatus);
 
-  List<TrdOrderDetail> findTrdOrderDetailsByOrderId(String orderId);
+  List<TrdOrderDetail> findAllByOrderId(String orderId);
 
 //  TrdOrderDetail updateByParam(Map param);
 }

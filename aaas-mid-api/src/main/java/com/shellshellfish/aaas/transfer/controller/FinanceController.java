@@ -864,4 +864,118 @@ public class FinanceController {
         }
         return list;
     }
+	
+	
+	@ApiOperation("1.我选好了")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "2"),
+			@ApiImplicitParam(paramType = "query", name = "riskPointValue", dataType = "String", required = true, value = "风险率", defaultValue = "0.0104149"),
+			@ApiImplicitParam(paramType = "query", name = "incomePointValue", dataType = "String", required = true, value = "收益率", defaultValue = "0.0441455")
+	})
+	@RequestMapping(value = "/optimizations", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult Optimizations(@RequestParam String groupId, @RequestParam String riskPointValue, @RequestParam String incomePointValue) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		try {
+			MultiValueMap<String, String> requestEntity = new LinkedMultiValueMap<>();
+			requestEntity.add("riskValue", riskPointValue);
+			requestEntity.add("returnValue", incomePointValue);
+			result = restTemplate
+					.postForEntity(assetAlloctionUrl + "/api/asset-allocation/product-groups/"+groupId+"/optimizations", requestEntity, Map.class)
+					.getBody();
+			if (result == null || result.size() == 0) {
+				result.put("msg", "获取失败");
+				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+			}
+			
+			result.remove("_links");
+			result.remove("_links");
+			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+		} catch (Exception e) {
+			Map<String, Object> map = new HashMap();
+			map.put("errorCode", "400");
+			return new JsonResult(JsonResult.Fail, "获取失败", map);
+		}
+	}
+	
+	@ApiOperation("2.获取（预期收益率调整）有多少个点")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "2"),
+	})
+	@RequestMapping(value = "/inComeSlidebarPoints", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult inComeSlidebarPoints(@RequestParam String groupId) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		try {
+			result = restTemplate
+					.getForEntity(assetAlloctionUrl + "/api/asset-allocation/product-groups/"+groupId+"/slidebar-points?slidebarType=income_num", Map.class)
+					.getBody();
+			if (result == null || result.size() == 0) {
+				result.put("msg", "获取失败");
+				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+			}
+
+			result.remove("_links");
+			result.remove("_links");
+			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+		} catch (Exception e) {
+			Map<String, Object> map = new HashMap();
+			map.put("errorCode", "400");
+			return new JsonResult(JsonResult.Fail, "获取失败", map);
+		}
+	}
+	
+	@ApiOperation("3.获取（风险率调整）有多少个点")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "2"),
+	})
+	@RequestMapping(value = "/riskSlidebarPoints", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult riskSlidebarPoints(@RequestParam String groupId) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		try {
+			result = restTemplate
+					.getForEntity(assetAlloctionUrl + "/api/asset-allocation/product-groups/"+groupId+"/slidebar-points?slidebarType=risk_num", Map.class)
+					.getBody();
+			if (result == null || result.size() == 0) {
+				result.put("msg", "获取失败");
+				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+			}
+
+			result.remove("_links");
+			result.remove("_links");
+			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+		} catch (Exception e) {
+			Map<String, Object> map = new HashMap();
+			map.put("errorCode", "400");
+			return new JsonResult(JsonResult.Fail, "获取失败", map);
+		}
+	}
+	
+	@ApiOperation("3.获取（最优组合）")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "2"),
+	})
+	@RequestMapping(value = "/effectiveFrontierPoints", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult effectiveFrontierPoints(@RequestParam String groupId) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		try {
+			result = restTemplate
+					.getForEntity(assetAlloctionUrl + "/api/asset-allocation/products/"+groupId+"/effective-frontier-points", Map.class)
+					.getBody();
+			if (result == null || result.size() == 0) {
+				result.put("msg", "获取失败");
+				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+			}
+
+			result.remove("_links");
+			result.remove("_links");
+			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+		} catch (Exception e) {
+			Map<String, Object> map = new HashMap();
+			map.put("errorCode", "400");
+			return new JsonResult(JsonResult.Fail, "获取失败", map);
+		}
+	}
 }

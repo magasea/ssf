@@ -38,7 +38,8 @@ public class OrderServiceImpl  extends FinanceProductServiceImplBase implements 
 
 	@Override
 	public List<TrdOrderDetail> findOrderDetailByOrderId(String orderId) {
-		List<TrdOrderDetail> trdOrderDetails = trdOrderDetailRepository.findTrdOrderDetailsByOrderId(orderId);
+		//List<TrdOrderDetail> trdOrderDetails = trdOrderDetailRepository.findTrdOrderDetailsByOrderId(orderId);
+		List<TrdOrderDetail> trdOrderDetails = trdOrderDetailRepository.findAllByOrderId(orderId);
 		return trdOrderDetails;
 	}
 }

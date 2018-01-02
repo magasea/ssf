@@ -1,6 +1,8 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
@@ -11,7 +13,6 @@ import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProdu
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
-import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdTradeBankDic;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokderRepository;
@@ -41,7 +42,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -186,10 +186,10 @@ public class TradeOpServiceImpl implements TradeOpService {
     trdOrder.setBankCardNum(financeProdBuyInfo.getBankAcc());
     trdOrder.setOrderDate(TradeUtil.getUTCTime());
     trdOrder.setCreateDate(TradeUtil.getUTCTime());
-    trdOrder.setOrderType(financeProdBuyInfo.getOrderType());
+    trdOrder.setOrderType(TrdOrderOpTypeEnum.BUY.getOperation());
     trdOrder.setProdId(financeProdBuyInfo.getProdId());
     trdOrder.setUserProdId(financeProdBuyInfo.getUserProdId());
-    trdOrder.setOrderStatus(TrdOrderStatusEnum.WAITCONFIRM.ordinal());
+    trdOrder.setOrderStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.ordinal());
     trdOrder.setOrderId(orderId);
     trdOrder.setUserId(financeProdBuyInfo.getUserId());
     trdOrder.setCreateBy(financeProdBuyInfo.getUserId());
@@ -207,7 +207,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       trdOrderDetail.setFundMoneyQuantity(fundRatio.multiply(financeProdBuyInfo.getMoney())
           .multiply(BigDecimal.valueOf(100)).toBigInteger()
           .longValue());
-      trdOrderDetail.setBoughtDate(TradeUtil.getUTCTime());
+      trdOrderDetail.setBuysellDate(TradeUtil.getUTCTime());
       trdOrderDetail.setCreateBy(financeProdBuyInfo.getUserId());
       trdOrderDetail.setCreateDate(TradeUtil.getUTCTime());
       trdOrderDetail.setUpdateBy(financeProdBuyInfo.getUserId());
@@ -216,6 +216,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       trdOrderDetail.setFundCode(productMakeUpInfo.getFundCode());
       trdOrderDetail.setUserProdId(trdOrder.getUserProdId());
       trdOrderDetail.setTradeType(trdOrder.getOrderType());
+      trdOrderDetail.setFundShare(productMakeUpInfo.getFundShare());
       trdOrderDetail = trdOrderDetailRepository.save(trdOrderDetail);
       com.shellshellfish.aaas.common.message.order.TrdOrderDetail trdOrderPay =  new com
           .shellshellfish.aaas.common.message.order.TrdOrderDetail();
