@@ -27,6 +27,7 @@ public class TrdOrderDetail {
   private long fundMoneyQuantity;
   private long fundNum;
   private long fundNumConfirmed;
+  private int fundShare;
   private long buyFee;
   private long buyDiscount;
   private int orderDetailStatus;
@@ -40,7 +41,6 @@ public class TrdOrderDetail {
   private String prodCode;
   private Long prodId;
   private String errMsg;
-  private Long boughtDate;
 
   @Id
   @Column(name = "id")
@@ -173,6 +173,16 @@ public class TrdOrderDetail {
   }
 
   @Basic
+  @Column(name = "fund_share")
+  public int getFundShare() {
+    return fundShare;
+  }
+
+  public void setFundShare(int fundShare) {
+    this.fundShare = fundShare;
+  }
+
+  @Basic
   @Column(name = "buy_fee")
   public long getBuyFee() {
     return buyFee;
@@ -302,16 +312,6 @@ public class TrdOrderDetail {
     this.errMsg = errMsg;
   }
 
-  @Basic
-  @Column(name = "bought_date")
-  public Long getBoughtDate() {
-    return boughtDate;
-  }
-
-  public void setBoughtDate(Long boughtDate) {
-    this.boughtDate = boughtDate;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -351,6 +351,9 @@ public class TrdOrderDetail {
       return false;
     }
     if (fundNumConfirmed != that.fundNumConfirmed) {
+      return false;
+    }
+    if (fundShare != that.fundShare) {
       return false;
     }
     if (buyFee != that.buyFee) {
@@ -403,9 +406,6 @@ public class TrdOrderDetail {
     if (errMsg != null ? !errMsg.equals(that.errMsg) : that.errMsg != null) {
       return false;
     }
-    if (boughtDate != null ? !boughtDate.equals(that.boughtDate) : that.boughtDate != null) {
-      return false;
-    }
 
     return true;
   }
@@ -425,6 +425,7 @@ public class TrdOrderDetail {
     result = 31 * result + (int) (fundMoneyQuantity ^ (fundMoneyQuantity >>> 32));
     result = 31 * result + (int) (fundNum ^ (fundNum >>> 32));
     result = 31 * result + (int) (fundNumConfirmed ^ (fundNumConfirmed >>> 32));
+    result = 31 * result + fundShare;
     result = 31 * result + (int) (buyFee ^ (buyFee >>> 32));
     result = 31 * result + (int) (buyDiscount ^ (buyDiscount >>> 32));
     result = 31 * result + orderDetailStatus;
@@ -438,7 +439,6 @@ public class TrdOrderDetail {
     result = 31 * result + (prodCode != null ? prodCode.hashCode() : 0);
     result = 31 * result + (prodId != null ? prodId.hashCode() : 0);
     result = 31 * result + (errMsg != null ? errMsg.hashCode() : 0);
-    result = 31 * result + (boughtDate != null ? boughtDate.hashCode() : 0);
     return result;
   }
 }

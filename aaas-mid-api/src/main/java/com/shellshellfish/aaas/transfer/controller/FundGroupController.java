@@ -35,13 +35,15 @@ public class FundGroupController {
 
 	@ApiOperation("我的智投组合详情")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = "1")})
-	@RequestMapping(value = "/getProductDetail", method = RequestMethod.POST)
+			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = "shellshellfish"),
+			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = "41")})
+	@RequestMapping(value = "/getMyProductDetail", method = RequestMethod.POST)
 	@ResponseBody
-	public String getProductDetail(@RequestParam String prodId) {
+	public String getProductDetail(@RequestParam String uuid,@RequestParam String prodId) {
 
-		String methodUrl = "/api/userinfo/getProductDetail";
-		Map<String, String> params = new HashMap(1);
+		String methodUrl = "/api/userinfo/getMyProductDetail";
+		Map<String, String> params = new HashMap(2);
+		params.put("uuid", uuid);
 		params.put("prodId", prodId);
 		ResponseEntity<String> entity = restTemplate.postForEntity(URLutils.prepareParameters(userinfoUrl + methodUrl, params),HttpEntity.EMPTY, String.class,params);
 		if (HttpStatus.OK.equals(entity.getStatusCode())) {
