@@ -756,7 +756,7 @@ public class FinanceController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "产品组ID", defaultValue = "6"),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "子产品组ID", defaultValue = "111111") })
-	//@RequestMapping(value = "/contributions", method = RequestMethod.POST)
+	@RequestMapping(value = "/contributions", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult contributions(@RequestParam String groupId, @RequestParam String subGroupId) {
 

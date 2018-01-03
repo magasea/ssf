@@ -22,6 +22,11 @@ public interface PayService {
   TrdPayFlow notifyPay(TrdPayFlow trdPayFlow);
 
   /**
+   * 根据赎回情况发出消息，将赎回信息广播
+   */
+  TrdPayFlow notifySell(TrdPayFlow trdPayFlow);
+
+  /**
    * 绑银行卡产生tradAcco
    * @param bindBankCard
    * @return

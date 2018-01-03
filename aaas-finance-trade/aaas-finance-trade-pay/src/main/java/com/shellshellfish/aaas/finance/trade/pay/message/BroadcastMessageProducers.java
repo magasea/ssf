@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.pay.message;
 
 
+import com.shellshellfish.aaas.common.constants.RabbitMQConstants;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +34,8 @@ public class BroadcastMessageProducers {
 
     public void sendMessage(TrdPayFlow trdPayFlow) {
         logger.info("send message: " + trdPayFlow.getOrderDetailId());
-        rabbitTemplate.convertAndSend(exchange, topicOrder, trdPayFlow);
-        rabbitTemplate.convertAndSend(exchange, topicUserinfo, trdPayFlow);
+        rabbitTemplate.convertAndSend(exchange, RabbitMQConstants.ROUTING_KEY_ORDER, trdPayFlow);
+        rabbitTemplate.convertAndSend(exchange, RabbitMQConstants.ROUTING_KEY_USERINFO, trdPayFlow);
     }
 
 }

@@ -13,6 +13,7 @@ public class ProdSellDTO  implements Serializable{
   private long prodId;
   private long groupId;
   private long userId;
+  private long trdBrokerId;
   //精确到分的整型
   private Long sellTargetMoney;
   private String userUuid;
@@ -83,5 +84,13 @@ public class ProdSellDTO  implements Serializable{
 
   public void setSellTargetMoney(Long sellTargetMoney) {
     this.sellTargetMoney = sellTargetMoney;
+  }
+
+  public long getTrdBrokerId() {
+    return trdBrokerId;
+  }
+
+  public void setTrdBrokerId(long trdBrokerId) {
+    this.trdBrokerId = trdBrokerId;
   }
 }

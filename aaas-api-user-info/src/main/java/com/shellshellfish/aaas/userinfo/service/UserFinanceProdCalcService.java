@@ -13,9 +13,11 @@ public interface UserFinanceProdCalcService {
 
     void calcIntervalAmount(String userUuid, Long prodId, String fundCode, String startDate) throws Exception;
 
-    void initDailyAmount(String userUuid, String date, String fundCode);
+    void initDailyAmount(String userUuid, Long prodId, String date, String fundCode);
 
     BigDecimal calcYieldRate(String userUuid, Long prodId, String startDate, String endDate);
+
+    BigDecimal calcYieldRate(String userUuid, String startDate, String endDate);
 
     void dailyCalculation() throws Exception;
 
