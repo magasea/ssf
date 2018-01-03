@@ -55,7 +55,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
             List<UiProductDetail> prodDetails = uiProductDetailRepo.findAllByUserProdId(prod.getId());
             for(UiProductDetail detail: prodDetails) {
                 String fundCode = detail.getFundCode();
-                initDailyAmount(userUuid, getTodayAsString(), fundCode);
+                initDailyAmount(userUuid, prod.getProdId(), getTodayAsString(), fundCode);
                 BigDecimal asset = calcDailyAsset(userUuid, prod.getProdId(), fundCode, getTodayAsString());
                 totalDailyAsset.add(asset);
             }
@@ -158,11 +158,11 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     }
 
     @Override
-    public void initDailyAmount(String userUuid, String date, String fundCode) {
+    public void initDailyAmount(String userUuid, Long prodId, String date, String fundCode) {
         DailyAmount dailyAmount = new DailyAmount();
         dailyAmount.setUserUuid(userUuid);
         dailyAmount.setDate(date);
-        dailyAmount.setProdId(-1L);
+        dailyAmount.setProdId(prodId);
         dailyAmount.setFundCode(fundCode);
         dailyAmount.setAsset(BigDecimal.ZERO);
         dailyAmount.setBonus(BigDecimal.ZERO);
@@ -214,13 +214,48 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         return result;
     }
 
+    @Override
+    public BigDecimal calcYieldRate(String userUuid, String startDate, String endDate) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("userUuid").is(userUuid))
+                .addCriteria(Criteria.where("date").gte(startDate).lte(endDate));
+
+        List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
+        BigDecimal assetOfEndDay = BigDecimal.ZERO;
+        BigDecimal assetOfStartDay = BigDecimal.ZERO;
+        BigDecimal intervalAmount = BigDecimal.ZERO;
+        for(DailyAmount dailyAmount: dailyAmountList) {
+            if (dailyAmount.getDate().equals(startDate) && dailyAmount.getAsset() != null) {
+                assetOfStartDay = assetOfStartDay.add(dailyAmount.getAsset());
+            } else if (dailyAmount.getDate().equals(endDate) && dailyAmount.getAsset() != null) {
+                assetOfEndDay = assetOfEndDay.add(dailyAmount.getAsset());
+            }
+
+            if (dailyAmount.getBonus() != null) {
+                intervalAmount = intervalAmount.add(dailyAmount.getBonus());
+            }
+            if (dailyAmount.getSellAmount() != null) {
+                intervalAmount = intervalAmount.add(dailyAmount.getSellAmount());
+            }
+            if (dailyAmount.getBuyAmount() != null) {
+                intervalAmount = intervalAmount.subtract(dailyAmount.getBuyAmount());
+            }
+        }
+
+        BigDecimal result = BigDecimal.ZERO;
+        if (assetOfStartDay.compareTo(BigDecimal.ZERO) != 0) {
+            result = assetOfEndDay.subtract(assetOfStartDay).add(intervalAmount).divide(assetOfStartDay, MathContext.DECIMAL128);
+        }
+
+        return result;
+    }
+
     @Scheduled(cron = "0 0 3 * * ?", zone= "Asia/Shanghai")
     @Override
     public void dailyCalculation() throws Exception {
         logger.info("daily calculation every morning: {}", new Date());
 
         dailyCalculation(getYesterdayAsString());
-
     }
 
     @Override
@@ -235,7 +270,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
                 List<UiProductDetail> prodDetails = uiProductDetailRepo.findAllByUserProdId(prod.getId());
                 for(UiProductDetail detail: prodDetails) {
                     String fundCode = detail.getFundCode();
-                    initDailyAmount(user.getUuid(), date, fundCode);
+                    initDailyAmount(user.getUuid(), prod.getProdId(), date, fundCode);
                     BigDecimal asset = calcDailyAsset(user.getUuid(), prod.getProdId(), fundCode, date);
                     calcIntervalAmount(user.getUuid(), prod.getProdId(), fundCode, date);
                 }
