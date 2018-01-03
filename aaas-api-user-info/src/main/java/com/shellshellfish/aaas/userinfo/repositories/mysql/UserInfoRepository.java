@@ -18,4 +18,6 @@ public interface UserInfoRepository extends PagingAndSortingRepository<UiUser, L
   public UiUser findByUuid(String uuid);
   
   List<UiUser> findByCellPhone(String cellphone);
+
+  List<UiUser> findAll();
 }

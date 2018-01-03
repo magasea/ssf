@@ -276,7 +276,7 @@ public class OneFundApiService implements FundTradeApiService {
     @Override
     public List<ConfirmResult> getConfirmResults(JSONObject jsonObject, Integer status) {
         List<ConfirmResult> confirmResults = new ArrayList<>();
-        if (status.equals(1)) {
+        if (status.equals(1) && jsonObject.getString("errno").equals("0000")) {
             JSONArray jsonArray = jsonObject.getJSONArray("data");
             for(int i = 0; i < jsonArray.size(); i++) {
                 ConfirmResult confirmResult = jsonArray.getObject(0, ConfirmResult.class);
@@ -301,6 +301,7 @@ public class OneFundApiService implements FundTradeApiService {
 
     @Override
     public String getAllConfirmList(String userUuid, String fundCode) throws JsonProcessingException {
+        fundCode = trimSuffix(fundCode);
         Map<String, Object> info = init(userUuid);
         if (!StringUtils.isEmpty(fundCode)) {
             info.put("fundcode", fundCode);
@@ -730,6 +731,11 @@ public class OneFundApiService implements FundTradeApiService {
         Integer status = jsonObject.getInteger("status");
         if (!status.equals(1)){
             throw new Exception(jsonObject.getString("msg"));
+        }
+
+        String errno= jsonObject.getString("errno");
+        if (!errno.equals("0000")) {
+            return null;
         }
 
         JSONArray jsonArray = jsonObject.getJSONArray("data");

@@ -3,8 +3,10 @@ package com.shellshellfish.aaas.userinfo.service.impl;
 import com.shellshellfish.aaas.userinfo.model.*;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProducts;
+import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.FundTradeApiService;
 import org.slf4j.Logger;
@@ -16,15 +18,13 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcService {
@@ -44,6 +44,9 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     @Qualifier("secondaryMongoTemplate")
     private MongoTemplate mongoTemplate;
 
+    @Autowired
+    private UserInfoRepository userInfoRepository;
+
     @Override
     public BigDecimal calcTotalDailyAsset(String userUuid) throws Exception {
         BigDecimal totalDailyAsset = BigDecimal.ZERO;
@@ -52,7 +55,8 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
             List<UiProductDetail> prodDetails = uiProductDetailRepo.findAllByUserProdId(prod.getId());
             for(UiProductDetail detail: prodDetails) {
                 String fundCode = detail.getFundCode();
-                BigDecimal asset = calcDailyAsset(userUuid, fundCode, getTodayAsString());
+                initDailyAmount(userUuid, getTodayAsString(), fundCode);
+                BigDecimal asset = calcDailyAsset(userUuid, prod.getProdId(), fundCode, getTodayAsString());
                 totalDailyAsset.add(asset);
             }
         }
@@ -60,8 +64,11 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     }
 
     @Override
-    public BigDecimal calcDailyAsset(String userUuid, String fundCode, String date) throws Exception {
+    public BigDecimal calcDailyAsset(String userUuid, Long prodId, String fundCode, String date) throws Exception {
         FundShare fundShare = fundTradeApiService.getFundShare(userUuid, fundCode);
+        if (fundShare == null) {
+            return BigDecimal.ZERO;
+        }
         FundInfo fundInfo = fundTradeApiService.getFundInfoAsEntity(fundCode);
         BigDecimal share = new BigDecimal(fundShare.getUsableremainshare());
         BigDecimal netValue = new BigDecimal(fundInfo.getPernetvalue());
@@ -74,13 +81,14 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         Query query = new Query();
         query.addCriteria(Criteria.where("userUuid").is(userUuid))
                 .addCriteria(Criteria.where("date").is(today))
-                .addCriteria(Criteria.where("fundCode").is(fundCode));
+                .addCriteria(Criteria.where("fundCode").is(fundCode))
+                .addCriteria(Criteria.where("prodId").is(prodId));
 
         Update update = new Update();
         update.set("userUuid", userUuid);
+        update.set("prodId", prodId);
         update.set("fundCode", fundCode);
         update.set("asset", fundAsset);
-
 
         FindAndModifyOptions findAndModifyOptions = new FindAndModifyOptions();
         findAndModifyOptions.upsert(true);
@@ -96,8 +104,15 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         return simpleDateFormat.format(cal.getTime());
     }
 
+    private String getYesterdayAsString() {
+        final Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+        return simpleDateFormat.format(cal.getTime());
+    }
+
     @Override
-    public void calcIntervalAmount(String userUuid, String fundCode, String startDate) throws Exception {
+    public void calcIntervalAmount(String userUuid, Long prodId, String fundCode, String startDate) throws Exception {
         List<BonusInfo> bonusInfoList = fundTradeApiService.getBonusList(userUuid, fundCode, startDate);
         Map<String, BigDecimal> bonusMap = new HashMap<>();
         FindAndModifyOptions findAndModifyOptions = new FindAndModifyOptions();
@@ -107,10 +122,12 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
             Query query = new Query();
             query.addCriteria(Criteria.where("userUuid").is(userUuid))
                     .addCriteria(Criteria.where("date").is(info.getConfirmdate()))
-                    .addCriteria(Criteria.where("fundCode").is(fundCode));
+                    .addCriteria(Criteria.where("fundCode").is(fundCode))
+                    .addCriteria(Criteria.where("prodId").is(prodId));
 
             Update update = new Update();
             update.set("userUuid", userUuid);
+            update.set("prodId", prodId);
             update.set("fundCode", fundCode);
             update.set("bonus", info.getFactbonussum());
             DailyAmount dailyAmount = mongoTemplate.findAndModify(query, update, findAndModifyOptions, DailyAmount.class);
@@ -122,10 +139,12 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
             Query query = new Query();
             query.addCriteria(Criteria.where("userUuid").is(userUuid))
                     .addCriteria(Criteria.where("date").is(result.getConfirmdate()))
-                    .addCriteria(Criteria.where("fundCode").is(fundCode));
+                    .addCriteria(Criteria.where("fundCode").is(fundCode))
+                    .addCriteria(Criteria.where("prodId").is(prodId));
 
             Update update = new Update();
             update.set("userUuid", userUuid);
+            update.set("prodId", prodId);
             update.set("fundCode", fundCode);
             if (result.getBusinflagStr().equals("申购确认")) {
                 update.set("buyAmount", result.getTradeconfirmsum());
@@ -143,6 +162,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         DailyAmount dailyAmount = new DailyAmount();
         dailyAmount.setUserUuid(userUuid);
         dailyAmount.setDate(date);
+        dailyAmount.setProdId(-1L);
         dailyAmount.setFundCode(fundCode);
         dailyAmount.setAsset(BigDecimal.ZERO);
         dailyAmount.setBonus(BigDecimal.ZERO);
@@ -158,10 +178,11 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
      * @return
      */
     @Override
-    public BigDecimal calcYieldRate(String userUuid, String startDate, String endDate){
+    public BigDecimal calcYieldRate(String userUuid, Long prodId, String startDate, String endDate){
         Query query = new Query();
         query.addCriteria(Criteria.where("userUuid").is(userUuid))
-                .addCriteria(Criteria.where("date").gte(startDate).lte(endDate));
+                .addCriteria(Criteria.where("date").gte(startDate).lte(endDate))
+                .addCriteria(Criteria.where("prodId").is(prodId));
 
         List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
         BigDecimal assetOfEndDay = BigDecimal.ZERO;
@@ -185,14 +206,40 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
             }
         }
 
-        BigDecimal result = assetOfEndDay.subtract(assetOfStartDay).add(intervalAmount).divide(assetOfStartDay, MathContext.DECIMAL128);
+        BigDecimal result = BigDecimal.ZERO;
+        if (assetOfStartDay.compareTo(BigDecimal.ZERO) != 0) {
+             result = assetOfEndDay.subtract(assetOfStartDay).add(intervalAmount).divide(assetOfStartDay, MathContext.DECIMAL128);
+        }
 
         return result;
     }
 
+    @Scheduled(cron = "0 0 3 * * ?", zone= "Asia/Shanghai")
+    @Override
+    public void dailyCalculation() throws Exception {
+        logger.info("daily calculation every morning: {}", new Date());
+
+        dailyCalculation(getYesterdayAsString());
+
+    }
 
     @Override
-    public BigDecimal calcTotalAssetOfFinanceProduct() {
-        return null;
+    public void dailyCalculation(String date) throws Exception {
+        List<UiUser> users = userInfoRepository.findAll();
+        UiUser uiUser = new UiUser();
+        uiUser.setUuid("shellshellfish");
+        users.add(uiUser);
+        for(UiUser user : users) {
+            List<UiProducts> userProducts = uiProductRepo.findByUserId(user.getId());
+            for(UiProducts prod: userProducts) {
+                List<UiProductDetail> prodDetails = uiProductDetailRepo.findAllByUserProdId(prod.getId());
+                for(UiProductDetail detail: prodDetails) {
+                    String fundCode = detail.getFundCode();
+                    initDailyAmount(user.getUuid(), date, fundCode);
+                    BigDecimal asset = calcDailyAsset(user.getUuid(), prod.getProdId(), fundCode, date);
+                    calcIntervalAmount(user.getUuid(), prod.getProdId(), fundCode, date);
+                }
+            }
+        }
     }
 }
