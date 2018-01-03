@@ -78,4 +78,11 @@ public interface MidApiService {
 	 */
 	Map sellFundPage(String groupId,String subGroupId,String totalAmount) throws Exception;
 	
+	/**
+	 * 赎回基金确认
+	 * @return
+	 * @throws Exception
+	 */
+	Map sellFund() throws Exception;
+	
 }

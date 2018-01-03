@@ -98,4 +98,14 @@ public class FinanceProdBuyInfo {
   public void setUserProdId(Long userProdId) {
     this.userProdId = userProdId;
   }
+
+@Override
+public String toString() {
+	return "FinanceProdBuyInfo [money=" + money + ", prodId=" + prodId + ", userProdId=" + userProdId + ", prodCode="
+			+ prodCode + ", groupId=" + groupId + ", userId=" + userId + ", uuid=" + uuid + ", bankAcc=" + bankAcc
+			+ ", orderId=" + orderId + ", orderType=" + orderType + "]";
+}
+  
+  
+  
 }
