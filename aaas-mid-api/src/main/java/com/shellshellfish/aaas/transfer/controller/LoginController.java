@@ -86,7 +86,6 @@ public class LoginController {
 			//result.put("totalAssets", "10,000,000"); //总资产
 			//result.put("dailyReturn", "3.8%"); //日收益率
 			//result.put("totalRevenue", "10,000"); //累计收益
-			result.put("myInvstTotalQty", "3"); //我的智投组合数量
 			String uuid = (String) result.get("uuid");
 			
 			Map userinfoMap = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/count", Map.class)
@@ -94,6 +93,7 @@ public class LoginController {
 			if(userinfoMap == null){
 				return new JsonResult(JsonResult.Fail,"登录时，获取userinfo信息为空",JsonResult.EMPTYRESULT);
 			}
+			result.put("myInvstTotalQty", userinfoMap.get("myInvstTotalQty")); //我的智投组合数量
 			result.put("myCardTotalQty", userinfoMap.get("myCardTotalQty")); //我的银行卡数量
 			result.put("messageUnread", userinfoMap.get("messageUnread")); //未读消息数量	
 			result.put("totalAssets", userinfoMap.get("totalAssets")); //总资产
