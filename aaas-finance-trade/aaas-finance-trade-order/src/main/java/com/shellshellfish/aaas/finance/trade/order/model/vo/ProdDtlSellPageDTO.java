@@ -19,6 +19,7 @@ public class ProdDtlSellPageDTO {
   private String fundName;
   private int fundShare;
   private int fundQuantity;
+  //金额：比如1.01元
   private BigDecimal targetSellAmount;
 
 

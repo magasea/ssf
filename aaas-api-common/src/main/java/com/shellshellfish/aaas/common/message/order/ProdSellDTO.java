@@ -1,18 +1,20 @@
 package com.shellshellfish.aaas.common.message.order;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by chenwei on 2017- 十二月 - 28
  */
 
-public class ProdSellDTO {
+public class ProdSellDTO  implements Serializable{
 
   private long userProdId;
   private long prodId;
   private long groupId;
   private long userId;
-  private Long sellNum;
+  //精确到分的整型
+  private Long sellTargetMoney;
   private String userUuid;
 
   public String getTrdAcco() {
@@ -75,11 +77,11 @@ public class ProdSellDTO {
     this.userUuid = userUuid;
   }
 
-  public Long getSellNum() {
-    return sellNum;
+  public Long getSellTargetMoney() {
+    return sellTargetMoney;
   }
 
-  public void setSellNum(Long sellNum) {
-    this.sellNum = sellNum;
+  public void setSellTargetMoney(Long sellTargetMoney) {
+    this.sellTargetMoney = sellTargetMoney;
   }
 }

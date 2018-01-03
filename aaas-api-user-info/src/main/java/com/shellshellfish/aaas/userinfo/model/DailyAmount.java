@@ -1,11 +1,14 @@
 package com.shellshellfish.aaas.userinfo.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.math.BigDecimal;
-import java.util.Date;
 
 public class DailyAmount {
     private String date;
     private String userUuid;
+    private Long prodId;
     private String fundCode;
     private BigDecimal asset;
     private BigDecimal bonus;
@@ -18,6 +21,14 @@ public class DailyAmount {
 
     public void setUserUuid(String userUuid) {
         this.userUuid = userUuid;
+    }
+
+    public Long getProdId() {
+        return prodId;
+    }
+
+    public void setProdId(Long prodId) {
+        this.prodId = prodId;
     }
 
     public BigDecimal getAsset() {

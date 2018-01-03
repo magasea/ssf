@@ -1,12 +1,13 @@
 package com.shellshellfish.aaas.common.message.order;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
  * Created by chenwei on 2017- 十二月 - 25
  */
 
-public class ProdDtlSellDTO {
+public class ProdDtlSellDTO implements Serializable {
 
   private long id;
   private long userProdId;

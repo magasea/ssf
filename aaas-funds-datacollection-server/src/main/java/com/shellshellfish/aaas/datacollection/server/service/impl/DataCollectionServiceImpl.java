@@ -1,21 +1,32 @@
-package com.shellshellfish.aaas.datacollection.server.service;
+package com.shellshellfish.aaas.datacollection.server.service.impl;
 
 
 import com.shellshellfish.aaas.common.utils.DataCollectorUtil;
+import com.shellshellfish.aaas.common.utils.MathUtil;
+import com.shellshellfish.aaas.common.utils.SSFDateUtils;
 import com.shellshellfish.aaas.datacollect.DailyFunds.Builder;
 import com.shellshellfish.aaas.datacollect.DailyFundsCollection;
 import com.shellshellfish.aaas.datacollect.DailyFundsQuery;
 import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc.DataCollectionServiceImplBase;
+import com.shellshellfish.aaas.datacollect.FundInfo;
+import com.shellshellfish.aaas.datacollect.FundInfos;
 import com.shellshellfish.aaas.datacollection.server.model.DailyFunds;
 import com.shellshellfish.aaas.datacollection.server.model.DayIndicator;
 import com.shellshellfish.aaas.datacollection.server.model.FundResources;
+import com.shellshellfish.aaas.datacollection.server.model.FundYeildRate;
 import com.shellshellfish.aaas.datacollection.server.repositories.DailyFundsRepository;
 
+import com.shellshellfish.aaas.datacollection.server.repositories.MongoFundYeildRateRepository;
+import com.shellshellfish.aaas.datacollection.server.service.DataCollectionService;
+import com.shellshellfish.aaas.datacollection.server.service.FundInfoService;
 import com.shellshellfish.aaas.datacollection.server.util.DateUtil;
 import io.grpc.stub.StreamObserver;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +36,11 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.CollectionUtils;
+import org.thymeleaf.util.DateUtils;
 
 
-public class DataCollectionServiceImpl extends DataCollectionServiceImplBase {
+public class DataCollectionServiceImpl extends DataCollectionServiceImplBase implements
+    DataCollectionService{
 
 
   Logger logger = LoggerFactory.getLogger(DataCollectionServiceImpl.class);
@@ -40,6 +53,30 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase {
 
   @Autowired
   MongoTemplate mongoTemplate;
+
+  @Autowired
+  MongoFundYeildRateRepository mongoFundYeildRateRepository;
+
+  @Override
+  public List<FundYeildRate> getLastFundYeildRates(List<String> fundCodes) {
+    Long yestDay = SSFDateUtils.getYestdayDateInLong();
+    return  mongoFundYeildRateRepository.findByQuerydateAndCodeIsIn(yestDay/1000L, fundCodes);
+  }
+
+  @Override
+  public List<FundYeildRate> getLastFundYeildRates4Test(List<String> fundCodes) {
+    return mongoFundYeildRateRepository.findByCodeIsIn(fundCodes);
+  }
+
+  @Override
+  public void getFundsPrice(com.shellshellfish.aaas.datacollect.FundCodes request,
+      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.datacollect.FundInfos> responseObserver){
+    List<String> codes = request.getFundCodeList();
+    FundInfos fundPrices = getPriceOfCodes(codes);
+    responseObserver.onNext(fundPrices);
+    responseObserver.onCompleted();
+
+  }
 
   @Override
   public void getFundDataOfDay(DailyFundsQuery request, StreamObserver<DailyFundsCollection>
@@ -92,4 +129,54 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase {
     responseObserver.onCompleted();
   }
 
+
+  public FundInfos getPriceOfCodes(List<String> codes) {
+    List<FundYeildRate> fundYeildRateList =  getLastFundYeildRates4Test(codes);
+    List<FundYeildRate> filteredFunds = filter(fundYeildRateList);
+    FundInfos.Builder builder = FundInfos.newBuilder();
+    FundInfo.Builder builderFI = FundInfo.newBuilder();
+    for(FundYeildRate fundYeildRate: filteredFunds){
+
+      builderFI.setNavunit(
+          Math.toIntExact(MathUtil.getLongPriceFromDoubleOrig(fundYeildRate.getNavunit())));
+      builderFI.setFundCode(fundYeildRate.getCode());
+      builder.addFundInfo(builderFI);
+    }
+    return builder.build();
+  }
+
+  private List<FundYeildRate> filter(List<FundYeildRate> fundYeildRateList) {
+    Map<String, FundYeildRate> fundYeildRateHashMap = new HashMap<>();
+    for(FundYeildRate fundYeildRate: fundYeildRateList){
+      if(!fundYeildRateHashMap.containsKey(fundYeildRate.getCode())){
+        if(fundYeildRate.getNavunit() != null && fundYeildRate.getNavunit() != Double.MIN_VALUE){
+          fundYeildRateHashMap.put(fundYeildRate.getCode(), fundYeildRate);
+        }else{
+          if(fundYeildRateHashMap.get(fundYeildRate.getCode()).getQuerydate() < fundYeildRate
+              .getQuerydate() && fundYeildRate.getNavunit() != Double.MIN_VALUE ){
+            fundYeildRateHashMap.put(fundYeildRate.getCode(), fundYeildRate);
+          }
+        }
+      }
+    }
+    List<FundYeildRate> fundYeildRates = new ArrayList<>();
+    for(Entry<String, FundYeildRate> entry: fundYeildRateHashMap.entrySet()){
+      fundYeildRates.add(entry.getValue());
+    }
+    return fundYeildRates;
+  }
+
+  @Override
+  public List<String> CollectItemsSyn(List<String> collectDatas) throws Exception {
+    return null;
+  }
+
+  @Override
+  public List<String> CollectItemsAsyn(List<String> collectDatas) throws Exception {
+    return null;
+  }
+
+
+
 }
+

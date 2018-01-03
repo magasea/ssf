@@ -1373,7 +1373,13 @@ public class UserInfoController {
 		} else {
 			resultMap.put("myCardTotalQty", 0);
 		}
-		
+		//我的智投组合数量
+		List<ProductsDTO> productsList = userInfoService.findProductInfos(userUuid);
+		if(productsList==null||productsList.size()==0){
+			resultMap.put("myInvstTotalQty", 0);
+		} else {
+			resultMap.put("myInvstTotalQty", productsList.size());
+		}
 		UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
 		//总资产
 		BigDecimal totalAssets = new BigDecimal("0");

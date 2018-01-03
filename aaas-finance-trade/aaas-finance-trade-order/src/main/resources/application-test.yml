@@ -54,10 +54,13 @@ grpc:
     port: 10021
   pay_client:
     host: localhost
-    port: 10021
+    port: 10110
   order_server:
     host: localhost
     port: 10101
+  datacollection_client:
+    host: localhost
+    port: 10091
   userinfo_client:
     host: localhost
     port: 10061

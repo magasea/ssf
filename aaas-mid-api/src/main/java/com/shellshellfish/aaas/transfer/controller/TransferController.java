@@ -190,10 +190,12 @@ public class TransferController {
 			  return new JsonResult(JsonResult.Fail,"手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
 			}
 		//验证码不通过则直接返回失败
-				if ("验证失败".equals(verify)){
+			if ("验证失败".equals(verify)){
 					return new JsonResult(JsonResult.Fail,"手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
-				}
-				
+			}
+		    
+			
+			
 		
 				
 		
@@ -201,21 +203,7 @@ public class TransferController {
 		Map resultMap=new HashMap<>();
 		List resultList=new ArrayList<>();
 		
-		
-		
-		//首先根据产品号拿到产品下所有的基金code
-		
-		
-		
-		//然后for循环调用单只基金赎回(调用service)
-		String fundCode="000590";
-		try{
-		 Map container=service.sellFund(uuid, sellNum, tradeAcc, fundCode);
-		 resultMap.put("赎回基金:"+fundCode+" 成功", container);
-		}catch(Exception e){
-			logger.error("赎回基金:"+fundCode+" 时失败");
-			resultMap.put("赎回基金:"+fundCode+" 时发生错误",e.getMessage());
-		}
+
 		
 		return new JsonResult(JsonResult.SUCCESS, "赎回成功",resultMap);
 	}

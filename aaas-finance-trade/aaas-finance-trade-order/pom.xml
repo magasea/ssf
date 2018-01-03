@@ -191,10 +191,13 @@
 									<directory>../../proto/finance/</directory>
 								</resource>
 								<resource>
+									<directory>../../proto/order/</directory>
+								</resource>
+								<resource>
 									<directory>../../proto/userinfo/</directory>
 								</resource>
 								<resource>
-									<directory>../../proto/fundsinfo/</directory>
+									<directory>../../proto/datacollection/</directory>
 								</resource>
 							</resources>
 						</configuration>

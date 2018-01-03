@@ -29,7 +29,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @ComponentScan
-@EntityScan("com.shellshellfish.aaas.finance.trade.model.dao")
+@EntityScan("com.shellshellfish.aaas.finance.trade.pay.model.dao")
 @EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.finance.trade.pay.repositories")
 @EnableTransactionManagement
 
