@@ -1,6 +1,8 @@
 package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.shellshellfish.aaas.common.enums.SystemUserEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
 import com.shellshellfish.aaas.finance.trade.pay.model.ApplyResult;
@@ -38,7 +40,9 @@ public class CheckFundsBuyJobService {
         logger.info("The sample job has begun...");
         Instant.now().getEpochSecond();
         try {
-            List<TrdPayFlow> trdPayFlows = trdPayFlowRepository.findAllByFundSumConfirmedIsNull();
+            List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
+                .findAllByFundSumConfirmedIsAndPayTypeIs(0L, TrdOrderOpTypeEnum.BUY.getOperation
+                    ());
             if(!CollectionUtils.isEmpty(trdPayFlows)){
                 for(TrdPayFlow trdPayFlow: trdPayFlows){
                     // TODO: replace userId with userUuid
@@ -47,7 +51,7 @@ public class CheckFundsBuyJobService {
                     if( null!= applyResult && !StringUtils.isEmpty(applyResult.getApplyshare())){
                         com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
                             new com.shellshellfish.aaas.common.message.order.TrdPayFlow();
-                        trdPayFlowMsg.setUpdateBy(1L);
+                        trdPayFlowMsg.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
                         trdPayFlowMsg.setUpdateDate(Instant.now().getEpochSecond());
                         trdPayFlowMsg.setBuyDiscount(TradeUtil.getLongNumWithMul100(applyResult
                             .getCommisiondiscount()));

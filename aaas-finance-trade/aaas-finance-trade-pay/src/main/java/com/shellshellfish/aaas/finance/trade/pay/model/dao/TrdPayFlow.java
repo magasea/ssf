@@ -3,6 +3,8 @@ package com.shellshellfish.aaas.finance.trade.pay.model.dao;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -36,11 +38,12 @@ public class TrdPayFlow {
   private long createDate;
   private long updateBy;
   private long updateDate;
-  private String prodCode;
   private String errMsg;
+  private String errCode;
 
   @Id
   @Column(name = "id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   public long getId() {
     return id;
   }
@@ -259,15 +262,7 @@ public class TrdPayFlow {
     this.updateDate = updateDate;
   }
 
-  @Basic
-  @Column(name = "prod_code")
-  public String getProdCode() {
-    return prodCode;
-  }
 
-  public void setProdCode(String prodCode) {
-    this.prodCode = prodCode;
-  }
 
   @Basic
   @Column(name = "err_msg")
@@ -357,38 +352,18 @@ public class TrdPayFlow {
     if (payAmount != null ? !payAmount.equals(that.payAmount) : that.payAmount != null) {
       return false;
     }
-    if (prodCode != null ? !prodCode.equals(that.prodCode) : that.prodCode != null) {
-      return false;
-    }
+
 
     return true;
   }
 
-  @Override
-  public int hashCode() {
-    int result = (int) (id ^ (id >>> 32));
-    result = 31 * result + (int) (orderDetailId ^ (orderDetailId >>> 32));
-    result = 31 * result + (tradeAcco != null ? tradeAcco.hashCode() : 0);
-    result = 31 * result + (int) (tradeBrokeId ^ (tradeBrokeId >>> 32));
-    result = 31 * result + (applySerial != null ? applySerial.hashCode() : 0);
-    result = 31 * result + (outsideOrderno != null ? outsideOrderno.hashCode() : 0);
-    result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
-    result = 31 * result + (int) (userProdId ^ (userProdId >>> 32));
-    result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
-    result = 31 * result + payStatus;
-    result = 31 * result + (int) (payDate ^ (payDate >>> 32));
-    result = 31 * result + payType;
-    result = 31 * result + (payAmount != null ? payAmount.hashCode() : 0);
-    result = 31 * result + (int) (fundSum ^ (fundSum >>> 32));
-    result = 31 * result + (int) (fundSumConfirmed ^ (fundSumConfirmed >>> 32));
-    result = 31 * result + (int) (buyFee ^ (buyFee >>> 32));
-    result = 31 * result + (int) (buyDiscount ^ (buyDiscount >>> 32));
-    result = 31 * result + (int) (userId ^ (userId >>> 32));
-    result = 31 * result + (int) (createBy ^ (createBy >>> 32));
-    result = 31 * result + (int) (createDate ^ (createDate >>> 32));
-    result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
-    result = 31 * result + (int) (updateDate ^ (updateDate >>> 32));
-    result = 31 * result + (prodCode != null ? prodCode.hashCode() : 0);
-    return result;
+  public String getErrCode() {
+    return errCode;
   }
+
+  public void setErrCode(String errCode) {
+    this.errCode = errCode;
+  }
+
+
 }

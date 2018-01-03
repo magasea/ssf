@@ -25,11 +25,11 @@ spring:
     topicPay: shellshellfish.pay
     topicOrder: shellshellfish.order
     topicUserinfo: shellshellfish.userinfo
-    data:
-        mongodb:
-            host: localhost
-            port: 27017
-            database: zhongzheng
+  data:
+    mongodb:
+        host: localhost
+        port: 27017
+        database: zhongzheng
 
 
 datasource:

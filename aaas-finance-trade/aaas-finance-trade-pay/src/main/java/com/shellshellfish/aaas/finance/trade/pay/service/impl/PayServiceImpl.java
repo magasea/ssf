@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdPayFlowStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
@@ -14,6 +15,7 @@ import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcService
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
 import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.OpenAccountResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.SellFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
@@ -78,6 +80,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setPayStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(payDto.getUserProdId());
       trdPayFlow.setOrderDetailId(trdOrderDetail.getOrderDetailId());
+      trdPayFlow.setPayType(TrdOrderOpTypeEnum.BUY.getOperation());
       BuyFundResult fundResult = null;
       try {
         String userId4Pay = null;
@@ -122,7 +125,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         trdPayFlow.setTradeAcco(trdAcco);
         trdPayFlow.setUserProdId(trdOrderDetail.getUserProdId());
         trdPayFlow.setUserId(trdOrderDetail.getUserId());
-        trdPayFlow.setTradeBrokeId(payDto.getTrdBrokerId());;
+        trdPayFlow.setTradeBrokeId(payDto.getTrdBrokerId());
         TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
         com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
             .shellshellfish.aaas.common.message.order.TrdPayFlow();
@@ -142,6 +145,12 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
     broadcastMessageProducers.sendMessage(trdPayFlow);
     return trdPayFlow;
+  }
+
+  @Override
+  public com.shellshellfish.aaas.common.message.order.TrdPayFlow notifySell(
+      com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlow) {
+    return null;
   }
 
   @Override
@@ -177,7 +186,33 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       logger.info("sell prod with fundCode :"+code
           +"sell fund quantity:"+ sellNum + " sell  account:"+ tradeAcco + " outsideOrderNo:" +
           outsideOrderNo);
-      fundTradeApiService.sellFund(userUuid, sellNum, outsideOrderNo, tradeAcco, code);
+      TrdPayFlow trdPayFlow = new TrdPayFlow();
+      trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
+      trdPayFlow.setCreateBy(0L);
+      trdPayFlow.setPayStatus(TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus());
+      trdPayFlow.setUserProdId(prodSellDTO.getUserProdId());
+      trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
+      SellFundResult sellFundResult = fundTradeApiService.sellFund(userUuid, sellNum,
+          outsideOrderNo, tradeAcco, code);
+      if(null != sellFundResult){
+        trdPayFlow.setApplySerial(sellFundResult.getApplySerial());
+        trdPayFlow.setPayStatus(TrdPayFlowStatusEnum.CONFIRMSUCCESS.getStatus());
+        trdPayFlow.setPayType(TrdOrderOpTypeEnum.SELL.getOperation());
+        trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
+        trdPayFlow.setFundCode(prodDtlSellDTO.getFundCode());
+        trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
+        trdPayFlow.setCreateBy(prodSellDTO.getUserId());
+        trdPayFlow.setUpdateBy(prodSellDTO.getUserId());
+        trdPayFlow.setTradeAcco(prodSellDTO.getTrdAcco());
+        trdPayFlow.setUserProdId(prodSellDTO.getUserProdId());
+        trdPayFlow.setUserId(prodSellDTO.getUserId());
+        trdPayFlow.setTradeBrokeId(prodSellDTO.getTrdBrokerId());
+        TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
+        com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
+            .shellshellfish.aaas.common.message.order.TrdPayFlow();
+        BeanUtils.copyProperties(trdPayFlowResult, trdPayFlowMsg);
+        notifyPay(trdPayFlowMsg);
+      }
     }
 
 //    fundTradeApiService.sellFund(userUuid, sellNum, outsideOrderNo, tradeAcco, fundCode);

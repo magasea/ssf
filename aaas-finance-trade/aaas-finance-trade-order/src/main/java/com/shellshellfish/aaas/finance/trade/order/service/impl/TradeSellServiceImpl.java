@@ -143,6 +143,7 @@ public class TradeSellServiceImpl implements TradeSellService {
       prodSellDTO.setUserProdId(trdOrders.get(0).getUserProdId());
       prodSellDTO.setProdId(trdOrders.get(0).getProdId());
       prodSellDTO.setTrdAcco(trdBrokerUsers.get(0).getTradeAcco());
+      prodSellDTO.setTrdBrokerId(trdBrokerUsers.get(0).getTradeBrokerId());
       trdOrderRepository.save(trdOrder);
       TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
       for( ProdDtlSellDTO prodDtlSellDTO: prodSellDTO.getProdDtlSellDTOList()){
