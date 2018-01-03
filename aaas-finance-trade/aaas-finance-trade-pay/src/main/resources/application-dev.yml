@@ -34,7 +34,7 @@ spring:
     mongodb:
       host: 192.168.1.10
       port: 27017
-      database: trade
+      database: zhongzheng
 
 
 datasource:
