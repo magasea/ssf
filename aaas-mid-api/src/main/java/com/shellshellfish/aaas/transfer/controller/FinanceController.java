@@ -756,7 +756,7 @@ public class FinanceController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "产品组ID", defaultValue = "6"),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "子产品组ID", defaultValue = "111111") })
-	//@RequestMapping(value = "/contributions", method = RequestMethod.POST)
+	@RequestMapping(value = "/contributions", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult contributions(@RequestParam String groupId, @RequestParam String subGroupId) {
 
@@ -807,16 +807,15 @@ public class FinanceController {
 
 
 	
-	@ApiOperation("调整方案")
+	@ApiOperation("需求调整")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType="query",name="riskLevel",dataType="String",required = true,value="风险承受级别",defaultValue="C1"),
-		@ApiImplicitParam(paramType="query",name="invstTerm",dataType="String",required = true,value="投资期限",defaultValue="1")
+		@ApiImplicitParam(paramType="query",name="invstTerm",dataType="String",required = true,value="投资期限",defaultValue="1"),
+		@ApiImplicitParam(paramType="query",name="riskLevel",dataType="String",required = true,value="风险承受级别",defaultValue="C1")
 	})
 	@RequestMapping(value="/optAdjustment",method=RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getOptAdjustment(String riskLevel,String invstTerm){
+	public JsonResult getOptAdjustment(String invstTerm,String riskLevel){
 		try{
-
 		return new JsonResult(JsonResult.SUCCESS, "请求成功",service.getOptAdjustment(riskLevel, invstTerm));
 		}catch(Exception e){
 		String str=new ReturnedException(e).getErrorMsg();

@@ -27,9 +27,9 @@ spring:
     topicUserinfo: shellshellfish.userinfo
   data:
     mongodb:
-        host: localhost
-        port: 27017
-        database: zhongzheng
+      host: localhost
+      port: 27017
+      database: zhongzheng
 
 
 datasource:
@@ -55,7 +55,6 @@ grpc:
   finance_prod_client:
     host: localhost
     port: 10021
-grpc:
   host: localhost
   port: 10111
 using:
