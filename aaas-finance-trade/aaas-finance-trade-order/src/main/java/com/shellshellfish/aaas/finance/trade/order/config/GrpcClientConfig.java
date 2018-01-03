@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class GrpcFinanceProdClientConfig {
+public class GrpcClientConfig {
 
 
 
@@ -33,11 +33,11 @@ public class GrpcFinanceProdClientConfig {
   @Value("${grpc.pay_client.port}")
   int payPort;
 
-  @Value("${grpc.datamanager_client.host}")
-  String dmHost;
+  @Value("${grpc.datacollection_client.host}")
+  String dcHost;
 
-  @Value("${grpc.datamanager_client.port}")
-  int dmPort;
+  @Value("${grpc.datacollection_client.port}")
+  int dcPort;
 
   @Bean
   ManagedChannelBuilder<?> grpcFINChannelBuilder(){
@@ -50,8 +50,8 @@ public class GrpcFinanceProdClientConfig {
   }
 
   @Bean
-  ManagedChannelBuilder<?> grpcDMChannelBuilder(){
-    return ManagedChannelBuilder.forAddress(dmHost, dmPort);
+  ManagedChannelBuilder<?> grpcDCChannelBuilder(){
+    return ManagedChannelBuilder.forAddress(dcHost, dcPort);
   }
 
   @Value("${grpc.userinfo_client.host}")
@@ -88,8 +88,8 @@ public class GrpcFinanceProdClientConfig {
 
   @Bean
   @PostConstruct
-  ManagedChannel managedDMChannel(){
-    ManagedChannel managedChannel = grpcDMChannelBuilder().usePlaintext(true).build();
+  ManagedChannel managedDCChannel(){
+    ManagedChannel managedChannel = grpcDCChannelBuilder().usePlaintext(true).build();
     return managedChannel;
   }
 
@@ -101,8 +101,7 @@ public class GrpcFinanceProdClientConfig {
     return ServerBuilder.forPort(orderServerPort);
   }
 
-  @Bean
-  OrderService orderService(){return new OrderServiceImpl();}
+
 
 
   @Autowired
@@ -110,7 +109,7 @@ public class GrpcFinanceProdClientConfig {
 
   @Bean
   Server server(){
-    return serverBuilder().addService((BindableService) orderService()).addService(trdOrderService).build();
+    return serverBuilder().addService(trdOrderService).build();
   }
 
 }

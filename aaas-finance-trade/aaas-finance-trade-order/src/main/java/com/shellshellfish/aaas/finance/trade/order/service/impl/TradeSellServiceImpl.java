@@ -1,16 +1,17 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.message.order.ProdDtlSellDTO;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.datamanager.FundInfo;
-import com.shellshellfish.aaas.datamanager.FundsInfoServiceGrpc;
-import com.shellshellfish.aaas.datamanager.FundsInfoServiceGrpc.FundsInfoServiceFutureStub;
+import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc;
+import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc.DataCollectionServiceFutureStub;
+import com.shellshellfish.aaas.datacollect.FundCodes;
+import com.shellshellfish.aaas.datacollect.FundInfo;
 import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProducer;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
-import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderTypeEnum;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.ProdDtlSellPageDTO;
@@ -42,9 +43,9 @@ public class TradeSellServiceImpl implements TradeSellService {
   Logger logger = LoggerFactory.getLogger(TradeSellServiceImpl.class);
 
   @Autowired
-  ManagedChannel managedDMChannel;
+  ManagedChannel managedDCChannel;
 
-  FundsInfoServiceFutureStub fundsInfoFutureStub;
+  DataCollectionServiceFutureStub dataCollectionServiceFutureStub;
 
   @Autowired
   TrdBrokerUserRepository trdBrokerUserRepository;
@@ -60,20 +61,19 @@ public class TradeSellServiceImpl implements TradeSellService {
 
   @PostConstruct
   void init(){
-    fundsInfoFutureStub = FundsInfoServiceGrpc.newFutureStub(managedDMChannel);
+    dataCollectionServiceFutureStub = DataCollectionServiceGrpc.newFutureStub(managedDCChannel);
   }
 
   @Override
   public TrdOrder sellProduct(ProdSellPageDTO prodSellPageDTO)
       throws ExecutionException, InterruptedException {
     //first : get price of funds , this
-    com.shellshellfish.aaas.datamanager.FundCodes.Builder requestBuilder = com.shellshellfish
-        .aaas.datamanager.FundCodes.newBuilder();
+    FundCodes.Builder requestBuilder = FundCodes.newBuilder();
     for(ProdDtlSellPageDTO prodDtlSellPageDTO: prodSellPageDTO.getProdDtlSellPageDTOList()){
       requestBuilder.addFundCode(prodDtlSellPageDTO.getFundCode());
     }
 
-    List<FundInfo> fundInfoList =fundsInfoFutureStub.getFundsPrice
+    List<FundInfo> fundInfoList =dataCollectionServiceFutureStub.getFundsPrice
         (requestBuilder.build()).get().getFundInfoList();
     fundInfoList.get(0).getNavunit();
     Map<String, Integer> fundNavunits = new HashMap<>();

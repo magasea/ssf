@@ -1,5 +1,7 @@
 package com.shellshellfish.aaas.finance.controller;
 
+import com.shellshellfish.aaas.finance.model.dto.FundCompany;
+import com.shellshellfish.aaas.finance.model.dto.FundManager;
 import com.shellshellfish.aaas.finance.model.dto.HistoryList;
 import com.shellshellfish.aaas.finance.service.GroupDetailsService;
 import com.shellshellfish.aaas.finance.trade.model.FundIncome;
@@ -45,27 +47,27 @@ public class GroupDetailsController {
 			@ApiImplicitParam(paramType = "query", name = "name", dataType = "String", required = true, value = "name", defaultValue = "董阳阳")
 	})
 	@RequestMapping(value = "/getFundManager", method = {RequestMethod.GET})
-	public String getFundManager(@RequestParam() @NotNull String name) {
+	public FundManager getFundManager(@RequestParam() @NotNull String name) {
 
 		String fundManagerUrl = "/api/datamanager/getFundManager";
 
 		Map params = new HashMap();
 		params.put("name", name);
-		return groupDetailsService.connectDataManager(fundManagerUrl, params);
+		return groupDetailsService.getFundManager(fundManagerUrl, params);
 
 	}
 
 	@ApiOperation("组合详情 基金公司")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "name", dataType = "String", required = true, value = "name", defaultValue = "董阳阳")
+			@ApiImplicitParam(paramType = "query", name = "name", dataType = "String", required = true, value = "name", defaultValue = "天弘基金管理有限公司")
 	})
 	@RequestMapping(value = "/getFundCompany", method = {RequestMethod.GET})
-	public String getFundCompany(@RequestParam() @NotNull String name) {
+	public FundCompany getFundCompany(@RequestParam() @NotNull String name) {
 
 		String detailFundCompanyUrl = "/api/datamanager/getFundCompany";
 		Map params = new HashMap();
 		params.put("name", name);
-		return groupDetailsService.connectDataManager(detailFundCompanyUrl, params);
+		return groupDetailsService.getFundCompany(detailFundCompanyUrl, params);
 	}
 
 	@ApiOperation("组合详情 基金概况")

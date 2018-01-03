@@ -42,7 +42,7 @@ public class FundDetailedController {
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "2001"),
 			@ApiImplicitParam(paramType = "query", name = "codes", dataType = "String", required = true, value = "codes", defaultValue = "000001.OF")
 	})
-	@RequestMapping(value = "/getFundDetails", method = RequestMethod.GET)
+	@RequestMapping(value = "/getFundDetails", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getFundInfoByCodes(@RequestParam String groupId, @RequestParam String subGroupId, @RequestParam String codes) {
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -85,7 +85,7 @@ public class FundDetailedController {
 			@ApiImplicitParam(paramType = "query", name = "type", dataType = "String", required = true, value = "类型(1: 3month,2: 6month,3: 1year,4: 3year);", defaultValue = "1"),
 			@ApiImplicitParam(paramType = "query", name = "data", dataType = "String", required = true, value = "日期", defaultValue = "2018-12-28")
 	})
-	@RequestMapping(value = "/getHistoryNetvalue", method = RequestMethod.GET)
+	@RequestMapping(value = "/getHistoryNetvalue", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getHistoryNetvalue(@RequestParam String code, @RequestParam String type, @RequestParam String data) {
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -114,7 +114,7 @@ public class FundDetailedController {
 			@ApiImplicitParam(paramType = "query", name = "code", dataType = "String", required = true, value = "code", defaultValue = "000001.OF")
 	})
 	@ApiIgnore
-	@RequestMapping(value = "/getFundTradeNotices", method = RequestMethod.GET)
+	@RequestMapping(value = "/getFundTradeNotices", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getFundTradeNotices(@RequestParam String code) {
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -140,7 +140,7 @@ public class FundDetailedController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "code", dataType = "String", required = true, value = "code", defaultValue = "000001.OF")
 	})
-	@RequestMapping(value = "/getFundInfo", method = RequestMethod.GET)
+	@RequestMapping(value = "/getFundInfo", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getFundInfo(@RequestParam String code) {
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -167,7 +167,7 @@ public class FundDetailedController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "name", dataType = "String", required = true, value = "基金经理名称", defaultValue = "董阳阳")
 	})
-	@RequestMapping(value = "/getFundManager", method = RequestMethod.GET)
+	@RequestMapping(value = "/getFundManager", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getFundManager(@RequestParam String name) {
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -193,7 +193,7 @@ public class FundDetailedController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "name", dataType = "String", required = true, value = "基金公司名称", defaultValue = "天弘基金管理有限公司")
 	})
-	@RequestMapping(value = "/getFundCompany", method = RequestMethod.GET)
+	@RequestMapping(value = "/getFundCompany", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getFundCompany(@RequestParam String name) {
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -219,7 +219,7 @@ public class FundDetailedController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "code", dataType = "String", required = true, value = "code", defaultValue = "000001.OF")
 	})
-	@RequestMapping(value = "/getFundNotices", method = RequestMethod.GET)
+	@RequestMapping(value = "/getFundNotices", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getFundNotices(@RequestParam String code) {
 		Map<String, Object> result = new HashMap<String, Object>();

@@ -9,7 +9,9 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRe
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProductServiceGrpc.FinanceProductServiceImplBase;
+import org.springframework.stereotype.Service;
 
+@Service
 public class OrderServiceImpl  extends FinanceProductServiceImplBase implements OrderService{
 
   @Autowired

@@ -8,6 +8,8 @@ option objc_class_prefix = "DCP";
 service DataCollectionService {
     rpc GetFundDataOfDay (DailyFundsQuery) returns (DailyFundsCollection) {
     }
+    rpc GetFundsPrice (FundCodes) returns (FundInfos) {
+    }
 }
 
 message DailyFundsQuery {
@@ -36,4 +38,19 @@ message DailyFunds {
   string first_invest_type = 13;//基金一级分类
   string second_invest_type = 14;//基金二级分类
   string close = 15;//日行情收盘价
+}
+
+
+//获取当前基金信息
+message FundCodes {
+  repeated string fund_code = 1;//基金code,
+}
+
+message FundInfos{
+  repeated FundInfo fund_info = 1;//基金信息
+}
+
+message FundInfo {
+  string fund_code = 1;//基金code
+  int32 navunit = 2 ;//基金单位净值
 }
