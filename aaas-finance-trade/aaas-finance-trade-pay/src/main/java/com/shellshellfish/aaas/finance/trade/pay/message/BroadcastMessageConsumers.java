@@ -35,8 +35,7 @@ public class BroadcastMessageConsumers {
         exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
             durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_PAY)
     )
-    public void receiveMessage(PayDto message, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG)
-        long tag) {
+    public void receiveMessage(PayDto message) {
         try {
             PayDto payDto = payService.payOrder(message);
         }catch (Exception ex){

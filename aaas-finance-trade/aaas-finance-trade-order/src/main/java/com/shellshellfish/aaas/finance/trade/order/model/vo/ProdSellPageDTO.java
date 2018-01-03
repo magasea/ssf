@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.model.vo;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -14,6 +15,16 @@ public class ProdSellPageDTO {
   private long groupId;
   private long userId;
   private String userUuid;
+
+  public BigDecimal getSellTargetMoney() {
+    return sellTargetMoney;
+  }
+
+  public void setSellTargetMoney(BigDecimal sellTargetMoney) {
+    this.sellTargetMoney = sellTargetMoney;
+  }
+
+  private BigDecimal sellTargetMoney;
   List<ProdDtlSellPageDTO> prodDtlSellPageDTOList;
 
   public long getUserProdId() {

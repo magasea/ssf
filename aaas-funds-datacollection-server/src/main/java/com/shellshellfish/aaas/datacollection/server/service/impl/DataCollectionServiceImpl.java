@@ -54,6 +54,7 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
   @Autowired
   MongoTemplate mongoTemplate;
 
+  @Autowired
   MongoFundYeildRateRepository mongoFundYeildRateRepository;
 
   @Override

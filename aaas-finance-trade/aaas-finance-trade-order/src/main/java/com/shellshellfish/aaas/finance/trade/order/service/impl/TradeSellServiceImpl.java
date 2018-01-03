@@ -22,6 +22,7 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderReposito
 import com.shellshellfish.aaas.finance.trade.order.service.TradeSellService;
 import io.grpc.ManagedChannel;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +65,9 @@ public class TradeSellServiceImpl implements TradeSellService {
     dataCollectionServiceFutureStub = DataCollectionServiceGrpc.newFutureStub(managedDCChannel);
   }
 
+
+
+
   @Override
   public TrdOrder sellProduct(ProdSellPageDTO prodSellPageDTO)
       throws ExecutionException, InterruptedException {
@@ -85,13 +89,22 @@ public class TradeSellServiceImpl implements TradeSellService {
       ProdDtlSellDTO prodDtlSellDTOTgt = new ProdDtlSellDTO();
       BeanUtils.copyProperties(prodDtlSellDTO, prodDtlSellDTOTgt);
       //Todo:此次需要加单元测试验证正确性
-      int quantity = prodDtlSellDTO.getTargetSellAmount().divide(BigDecimal.valueOf(fundNavunits.get
-          (prodDtlSellDTO.getFundCode())).divide(BigDecimal.valueOf(100L))).intValue();
-      prodDtlSellDTOTgt.setFundQuantity(quantity);
+//      BigDecimal quantity = prodDtlSellDTO.getTargetSellAmount().multiply(BigDecimal.valueOf(100)).divide
+//          (BigDecimal.valueOf(fundNavunits.get(prodDtlSellDTO.getFundCode())));
+      BigDecimal sellTargetMoneyInCents = prodDtlSellDTO.getTargetSellAmount().multiply
+          (BigDecimal.valueOf(100));
+      if(fundNavunits.containsKey(prodDtlSellDTO.getFundCode())){
+        Integer fundPriceInCents = fundNavunits.get(prodDtlSellDTO.getFundCode());
+        BigDecimal quantity = sellTargetMoneyInCents.divide(BigDecimal.valueOf(fundPriceInCents),2, RoundingMode.HALF_UP);
+        prodDtlSellDTOTgt.setFundQuantity(quantity.intValue());
+      }else{
+        prodDtlSellDTOTgt.setFundQuantity(0);
+      }
       prodDtlSellDTOList.add(prodDtlSellDTOTgt);
     }
     ProdSellDTO prodSellDTO = new ProdSellDTO();
     BeanUtils.copyProperties(prodSellPageDTO, prodSellDTO);
+
     prodSellDTO.setProdDtlSellDTOList(prodDtlSellDTOList);
     TrdOrder result = generateOrderInfo4Sell(prodSellDTO);
     if(result == null){
@@ -106,6 +119,9 @@ public class TradeSellServiceImpl implements TradeSellService {
       List<TrdBrokerUser> trdBrokerUsers = trdBrokerUserRepository
           .findByUserId(prodSellDTO.getUserId());
       int trdBrokerId = trdBrokerUsers.get(0).getTradeBrokerId().intValue();
+      String bankcardNum = trdBrokerUsers.get(0).getBankCardNum();
+      prodSellDTO.setTrdAcco(trdBrokerUsers.get(0).getTradeAcco());
+
       List<TrdOrder> trdOrders = trdOrderRepository.findByUserProdId(prodSellDTO.getUserProdId());
       if (CollectionUtils.isEmpty(trdOrders)) {
         logger.error("failed to find corresponding order for sell by userProdId:");
@@ -120,12 +136,17 @@ public class TradeSellServiceImpl implements TradeSellService {
       trdOrder.setCreateBy(prodSellDTO.getUserId());
       trdOrder.setCreateDate(TradeUtil.getUTCTime());
       trdOrder.setUpdateBy(prodSellDTO.getUserId());
-      trdOrder.setPayAmount(prodSellDTO.getSellNum());
+//      trdOrder.setPayAmount(prodSellDTO.getSellTargetMoney());
       trdOrder.setOrderStatus(TrdOrderStatusEnum.WAITSELL.ordinal());
+      trdOrder.setBankCardNum(bankcardNum);
+      trdOrder.setProdCode(trdOrders.get(0).getProdCode());
+      prodSellDTO.setUserProdId(trdOrders.get(0).getUserProdId());
+      prodSellDTO.setProdId(trdOrders.get(0).getProdId());
+      prodSellDTO.setTrdAcco(trdBrokerUsers.get(0).getTradeAcco());
       trdOrderRepository.save(trdOrder);
+      TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
       for( ProdDtlSellDTO prodDtlSellDTO: prodSellDTO.getProdDtlSellDTOList()){
         //生成赎回子订单信息
-        TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
         trdOrderDetail.setUserId(prodSellDTO.getUserId());
         trdOrderDetail.setCreateDate(TradeUtil.getUTCTime());
         trdOrderDetail.setUserProdId(prodSellDTO.getUserProdId());
@@ -143,6 +164,7 @@ public class TradeSellServiceImpl implements TradeSellService {
         trdOrderDetail.setOrderDetailStatus(TrdOrderStatusEnum.WAITSELL.getStatus());
         trdOrderDetailRepository.save(trdOrderDetail);
         prodDtlSellDTO.setOrderDetailId(trdOrderDetail.getId());
+        trdOrderDetail = new TrdOrderDetail();
       }
       return trdOrder;
     }catch (Exception ex){

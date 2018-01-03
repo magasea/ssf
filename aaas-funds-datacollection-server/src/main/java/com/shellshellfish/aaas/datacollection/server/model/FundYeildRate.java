@@ -31,7 +31,7 @@ public class FundYeildRate {
 	@Field("navunit")
 	Double navunit;
 	@Field("querydate")
-	@Indexed(direction = IndexDirection.ASCENDING)
+	@Indexed(name = "querydate", direction = IndexDirection.DESCENDING)
 	Long querydate;
 	@Field("update")
 	Long update;
