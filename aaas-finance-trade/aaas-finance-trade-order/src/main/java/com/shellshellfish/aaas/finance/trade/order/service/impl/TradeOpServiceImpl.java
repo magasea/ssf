@@ -201,6 +201,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     for(ProductMakeUpInfo productMakeUpInfo: productMakeUpInfos){
       TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
       trdOrderDetail.setOrderId(trdOrder.getOrderId());
+      trdOrderDetail.setUserId(trdOrder.getUserId());
       //规定基金占比用百分比并且精确万分之一
       BigDecimal fundRatio = BigDecimal.valueOf(productMakeUpInfo.getFundShare()).divide
           (BigDecimal.valueOf(10000));
