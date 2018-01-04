@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +41,10 @@ public class FundGroupController {
 	@RequestMapping(value = "/getMyProductDetail", method = RequestMethod.POST)
 	@ResponseBody
 	public Map getProductDetail(@RequestParam @NotNull String uuid, @RequestParam @NotNull Long prodId) {
+		Date date = new Date();
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		String dateNow = df.format(new Date());
+		
 		Map result = fundGroupService.getGroupDetails(uuid, prodId);
 		Map accumulationIncomes = new HashMap();
 		accumulationIncomes.put("2011-01-09", 1.0);
@@ -52,5 +59,4 @@ public class FundGroupController {
 		result.put("accumulationIncomes", accumulationIncomes);
 		return result;
 	}
-
 }

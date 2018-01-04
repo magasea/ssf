@@ -51,12 +51,12 @@ public class UserFinanceProdCalcServiceImplTest {
 
     @Before
     public void setUp() {
-        final Calendar cal = Calendar.getInstance();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
-        String today = simpleDateFormat.format(cal.getTime());
-        fundCodeList.forEach(fundCode -> {
-                userFinanceProdCalcService.initDailyAmount("shellshellfish", today, fundCode);
-        });
+//        final Calendar cal = Calendar.getInstance();
+//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+//        String today = simpleDateFormat.format(cal.getTime());
+//        fundCodeList.forEach(fundCode -> {
+//                userFinanceProdCalcService.initDailyAmount("shellshellfish", today, fundCode);
+//        });
 
     }
 
@@ -128,10 +128,19 @@ public class UserFinanceProdCalcServiceImplTest {
      //   testCalcIntervalAmount();
 
         long start = System.currentTimeMillis();
-        BigDecimal yieldRate = userFinanceProdCalcService.calcYieldRate("shellshellfish", 2000L,"20171222", "20171229");
+        BigDecimal yieldRate = userFinanceProdCalcService.calcYieldRate("shellshellfish", 2000L,"20171222", "20171226");
         long end = System.currentTimeMillis();
         logger.info("duration: {}", end - start);
         logger.info("yieldRate: {}", yieldRate);
+    }
+
+    @Test
+    public void testTotalAssetYieldRate() {
+        long start = System.currentTimeMillis();
+        BigDecimal yieldRate = userFinanceProdCalcService.calcYieldRate("shellshellfish","20171222", "20171226");
+        long end = System.currentTimeMillis();
+        logger.info("duration: {}", end - start);
+        logger.info("total asset yieldRate: {}", yieldRate);
     }
 
     @Test
@@ -141,7 +150,7 @@ public class UserFinanceProdCalcServiceImplTest {
             if (dailyAmount.getAsset() != null && dailyAmount.getAsset().compareTo(BigDecimal.ZERO) != 0) {
                 int noise = new Random().nextInt(10);
                 if (noise < 3 || noise > 7) {
-                    noise = - noise;
+                   noise = - noise;
                 }
                 BigDecimal  percent = BigDecimal.valueOf((100-noise)/100d);
                 BigDecimal  amount = dailyAmount.getAsset().multiply(percent);
