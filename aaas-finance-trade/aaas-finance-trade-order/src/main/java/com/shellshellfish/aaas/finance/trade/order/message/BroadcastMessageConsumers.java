@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.order.message;
 
 
+import com.shellshellfish.aaas.common.constants.RabbitMQConstants;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 
@@ -41,9 +42,10 @@ public class BroadcastMessageConsumers {
 
 
     @RabbitListener(bindings = @QueueBinding(
-        value = @Queue(value = "${spring.rabbitmq.topicQueuePayName}", durable = "false"),
-        exchange =  @Exchange(value = "${spring.rabbitmq.topicExchangeName}", type = "topic",
-            durable = "true"),  key = "${spring.rabbitmq.topicOrder}")
+        value = @Queue(value = RabbitMQConstants.QUEUE_ORDER_BASE + RabbitMQConstants.OPERATION_TYPE_UPDATE_ORDER, durable =
+            "false"),
+        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_ORDER )
     )
 
     @Transactional
