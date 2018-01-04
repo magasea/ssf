@@ -55,19 +55,21 @@ public class FundGroupController {
 			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "Long", required = true, value = "产品ID", defaultValue = "41")})
 	@RequestMapping(value = "/getMyProductDetail", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<List> getProductDetail(@RequestParam @NotNull String uuid, @RequestParam @NotNull Long prodId) {
+	public ResponseEntity<Map> getProductDetail(@RequestParam @NotNull String uuid, @RequestParam @NotNull Long prodId) {
 		List resultList=new ArrayList();
 		String[] datesSelected=new String[6];
+		Map result = fundGroupService.getGroupDetails(uuid, prodId);
 		//遍历赋值
 		for(int i=0;i<datesSelected.length;i++){
 			Map dateValueMap=new HashMap<>();
-			datesSelected[i]=DateUtil.getSystemDatesAgo(new Date(),i);
+			datesSelected[i]=DateUtil.getSystemDatesAgo(new Date(),-i);
 			dateValueMap.put("time",datesSelected[i]);
 		//调用对应的service
 		BigDecimal rate=userFinanceProdCalcService.calcYieldRate(uuid, prodId, datesSelected[i]	, datesSelected[i]);
 		dateValueMap.put("value",rate);
 		resultList.add(dateValueMap);
 		}
-		return new ResponseEntity<List>(resultList,HttpStatus.OK);
+		result.put("accumulationIncomes",resultList);
+		return new ResponseEntity<Map>(result,HttpStatus.OK);
 	}
 }

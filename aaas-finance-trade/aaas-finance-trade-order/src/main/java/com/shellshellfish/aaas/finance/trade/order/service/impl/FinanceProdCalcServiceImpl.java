@@ -40,7 +40,11 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
             }
         }
         logger.info("{}", minAmountList);
-        return Collections.max(minAmountList);
+        if(minAmountList==null||minAmountList.size()==0){
+        	return new BigDecimal(0);
+        } else {
+        	return Collections.max(minAmountList);
+        }
     }
 
     @Override
@@ -57,7 +61,11 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
             }
         }
         logger.info("{}", maxAmountList);
-        return Collections.min(maxAmountList);
+        if(maxAmountList==null||maxAmountList.size()==0){
+        	return new BigDecimal(0);
+        } else {
+        	return Collections.min(maxAmountList);
+        }
     }
 
     @Override
@@ -106,13 +114,13 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
 	public Boolean getMaxMinResult(List<ProductMakeUpInfo> productMakeUpInfoList, BigDecimal totalAmount)
 			throws Exception {
 		BigDecimal min = this.getMinBuyAmount(productMakeUpInfoList);
-		if(totalAmount.compareTo(min) == -1){
-			throw new Exception("低于最小金额数");
+		if(!min.equals(new BigDecimal(0))&&totalAmount.compareTo(min) == -1){
+			throw new Exception("低于最小金额数:"+min);
 			//return false;
 		}
 		BigDecimal max = this.getMaxBuyAmount(productMakeUpInfoList);
-		if(totalAmount.compareTo(max) == 1){
-			throw new Exception("大于最小金额数");
+		if(!max.equals(new BigDecimal(0))&&totalAmount.compareTo(max) == 1){
+			throw new Exception("大于最小金额数:"+max);
 			//return false;
 		}
 		return true;

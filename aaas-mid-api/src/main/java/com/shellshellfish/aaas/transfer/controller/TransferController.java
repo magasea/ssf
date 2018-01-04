@@ -193,7 +193,8 @@ public class TransferController {
 			if ("验证失败".equals(verify)){
 					return new JsonResult(JsonResult.Fail,"手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
 			}
-		//调用赎回口    
+		//调用赎回口
+			
 			
 			
 		
