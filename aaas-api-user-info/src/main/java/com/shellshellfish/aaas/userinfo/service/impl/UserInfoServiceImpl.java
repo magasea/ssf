@@ -1,5 +1,9 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
+import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
+import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
+import com.shellshellfish.aaas.finance.trade.pay.ZhongZhengQueryByOrderDetailId;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
@@ -20,8 +24,11 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
+import io.grpc.ManagedChannel;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -38,6 +45,16 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Autowired
     UserInfoRepoService userInfoRepoService;
+
+  PayRpcServiceFutureStub payRpcServiceFutureStub;
+
+  @Autowired
+  ManagedChannel managedPayChannel;
+
+  @PostConstruct
+  void init(){
+    payRpcServiceFutureStub = PayRpcServiceGrpc.newFutureStub(managedPayChannel);
+  }
 
     @Override
     public UserBaseInfoDTO getUserInfoBase(String userUuid) throws Exception{
@@ -270,7 +287,26 @@ public class UserInfoServiceImpl implements UserInfoService {
 		return products;
 	}
 
+  @Override
+  public ApplyResult queryTrdResultByOrderDetailId(Long userId, Long orderDetailId) {
+    ZhongZhengQueryByOrderDetailId.Builder requestBuilder = ZhongZhengQueryByOrderDetailId
+        .newBuilder();
 
+    try {
+      com.shellshellfish.aaas.finance.trade.pay.ApplyResult result = payRpcServiceFutureStub.queryZhongzhengTradeInfoByOrderDetailId
+          (requestBuilder.build()).get();
+      ApplyResult applyResult = new ApplyResult();
+      BeanUtils.copyProperties(result, applyResult);
+      return applyResult;
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+      logger.error(e.getMessage());
+      return null;
+    }
+    return null;
+  }
 
 
 }

@@ -10,6 +10,11 @@ option objc_class_prefix = "PRS";
 service PayRpcService {
     rpc BindBankCard (BindBankCardQuery) returns (BindBankCardResult) {
     }
+    rpc QueryZhongzhengTradeInfoBySerial(ZhongZhengQueryBySerial) returns(ApplyResult){
+    }
+    rpc QueryZhongzhengTradeInfoByOrderDetailId(ZhongZhengQueryByOrderDetailId) returns(ApplyResult)
+    {
+    }
 }
 //绑定银行卡
 message BindBankCardQuery{
@@ -26,4 +31,67 @@ message BindBankCardQuery{
 //绑定银行卡的结果
 message BindBankCardResult{
   string tradeacco = 1;//交易账户号
+}
+
+//中证接口查询入参
+message ZhongZhengQueryBySerial{
+  int64 user_id = 1;//用户ID
+  string apply_serial = 2;//外部流水号
+}
+
+//中证接口查询入参
+message ZhongZhengQueryByOrderDetailId{
+  int64 user_id = 1;//用户ID
+  int64 order_detail_id = 2;//订单号
+}
+
+//中证交易查询接口返回结果
+message ApplyResult{
+  string identityno = 1;//
+  string tradeacco = 2;//
+  string fundacco = 3;//
+  string fundcode = 4;//
+  string fundname = 5;//
+  string callingcode = 6;//
+  string branchno = 7;//
+  string applyserial = 8;//
+  string sharetype = 9;//
+  string applydate = 10;//
+  string applytime = 11;//
+  string applyshare = 12;//
+  string applysum = 13;//
+  string balancecoin = 14;//
+  string targetfundcode = 15;//
+  string targetfundname = 16;//
+  string targetsharetype = 17;//
+  string oppfundcode = 18;//
+  string oppsaler = 19;//
+  string opptrusteebranch = 20;//
+  string mintredeem = 21;//
+  string commisiondiscount = 22;//
+  string melonmethod = 23;//
+  string freezemethod = 24;//
+  string originalapplyserial = 25;//
+  string confirmflag = 26;//
+  string confirmstat = 27;//
+  string capitalmode = 28;//
+  string comefrom = 29;//
+  string kkstat = 30;//
+  string enddiscount = 31;//
+  string otherdiscount = 32;//
+  string oriapplydate = 33;//
+  string trademethod = 34;//
+  string accepttime = 35;//
+  string riskmatch = 36;//
+  string bankacco = 37;//
+  string bankname = 38;//
+  string businflagStr = 39;//
+  string occurbankacco = 40;//
+  string bankSerial = 41;//
+  string outsideorderno = 42;//
+  string tradeconfirmshare = 43;//
+  string tradeconfirmsum = 44;//
+  string xyh = 45;//
+  string poundage = 46;//
+  string fixflag = 47;//
 }

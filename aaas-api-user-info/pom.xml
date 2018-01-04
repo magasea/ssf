@@ -237,6 +237,10 @@
 									<directory>../proto/order/</directory>
 									<filtering>true</filtering>
 								</resource>
+								<resource>
+									<directory>../proto/pay/</directory>
+									<filtering>true</filtering>
+								</resource>
 							</resources>
 						</configuration>
 					</execution>

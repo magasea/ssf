@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdPayFlowStatusEnum;
@@ -13,6 +14,7 @@ import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.BindBankCardResult;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceImplBase;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
+import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.OpenAccountResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.SellFundResult;
@@ -218,6 +220,79 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 //    fundTradeApiService.sellFund(userUuid, sellNum, outsideOrderNo, tradeAcco, fundCode);
     return false;
   }
+
+  /**
+   */
+  @Override
+  public void queryZhongzhengTradeInfoBySerial(com.shellshellfish.aaas.finance.trade.pay.ZhongZhengQueryBySerial request,
+      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.pay.ApplyResult> responseObserver) {
+    String applySerial = request.getApplySerial();
+    Long userId = request.getUserId();
+    ApplyResult applyResult = queryOrder(userId, applySerial);
+    if(applyResult == null){
+      logger.error("failed to queryZhongzhengTradeInfoBySerial by applySerial:" + applySerial +" "
+          + "userId:"+  userId);
+      applyResult = new ApplyResult();
+    }
+    com.shellshellfish.aaas.finance.trade.pay.ApplyResult.Builder resultBuilder = com
+        .shellshellfish.aaas.finance.trade.pay.ApplyResult.newBuilder();
+    BeanUtils.copyProperties(applyResult, resultBuilder);
+    responseObserver.onNext(resultBuilder.build());
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public void queryZhongzhengTradeInfoByOrderDetailId(com.shellshellfish.aaas.finance.trade.pay.ZhongZhengQueryByOrderDetailId request,
+      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.pay.ApplyResult> responseObserver) {
+    Long orderDetailId = request.getOrderDetailId();
+    Long userId = request.getUserId();
+    ApplyResult applyResult = queryOrder(userId, orderDetailId);
+    if(applyResult == null){
+      logger.error("failed to queryZhongzhengTradeInfoBySerial by orderDetailId:" + orderDetailId
+          + "userId:"+  userId);
+      applyResult = new ApplyResult();
+    }
+    com.shellshellfish.aaas.finance.trade.pay.ApplyResult.Builder resultBuilder = com
+        .shellshellfish.aaas.finance.trade.pay.ApplyResult.newBuilder();
+    BeanUtils.copyProperties(applyResult, resultBuilder);
+    responseObserver.onNext(resultBuilder.build());
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public ApplyResult queryOrder(Long userId, String applySerial) {
+    String tradeUserId = userId.toString();
+    if(userId == 5605){//这个用户之前是用"shellshellfish来绑定中证账户的"
+      tradeUserId = "shellshellfish";
+    }
+    ApplyResult applyResult = null;
+    try {
+      applyResult = fundTradeApiService.getApplyResultByApplySerial(tradeUserId, applySerial);
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+      logger.error(e.getMessage());
+    }
+    return applyResult;
+  }
+
+  @Override
+  public ApplyResult queryOrder(Long userId, Long orderDetailId) {
+    String tradeUserId = userId.toString();
+    if(userId == 5605){//这个用户之前是用"shellshellfish来绑定中证账户的"
+      tradeUserId = "shellshellfish";
+    }
+    ApplyResult applyResult = null;
+    try {
+      applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo(tradeUserId, orderDetailId
+          .toString());
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+      logger.error(e.getMessage());
+    }
+    return applyResult;
+
+  }
+
 
   @Override
   public void bindBankCard(com.shellshellfish.aaas.finance.trade.pay.BindBankCardQuery bindBankCardQuery,
