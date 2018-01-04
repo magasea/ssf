@@ -38,9 +38,6 @@ public class GrpcPayConfig {
     return managedChannel;
   }
 
-  @Value("${grpc.order_server.port}")
-  int orderServerPort;
-
 
 
 }
