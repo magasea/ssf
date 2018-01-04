@@ -263,6 +263,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         List<UiUser> users = userInfoRepository.findAll();
         UiUser uiUser = new UiUser();
         uiUser.setUuid("shellshellfish");
+        users.clear();
         users.add(uiUser);
         for(UiUser user : users) {
             List<UiProducts> userProducts = uiProductRepo.findByUserId(user.getId());
