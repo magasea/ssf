@@ -110,7 +110,7 @@ public class TransferController {
 		}catch(Exception e){
 			logger.error("购买基金调用购买接口失败");
 			String str=new ReturnedException(e).getErrorMsg();
-			return new JsonResult(JsonResult.Fail,"购买失败" , JsonResult.EMPTYRESULT);
+			return new JsonResult(JsonResult.Fail,str , JsonResult.EMPTYRESULT);
 		}
 	}
 	
@@ -193,7 +193,7 @@ public class TransferController {
 			if ("验证失败".equals(verify)){
 					return new JsonResult(JsonResult.Fail,"手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
 			}
-		    
+		//调用赎回口    
 			
 			
 		
