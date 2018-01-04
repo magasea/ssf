@@ -16,4 +16,6 @@ public interface FinanceProdCalcService {
     DistributionResult getPoundageOfBuyFund(BigDecimal amount, List<ProductMakeUpInfo> productMakeUpInfoList) throws Exception;
 
     DistributionResult getPoundageOfSellFund(BigDecimal totalAmount, List<ProductMakeUpInfo> productMakeUpInfoList) throws Exception;
+    
+    Boolean getMaxMinResult(List<ProductMakeUpInfo> productMakeUpInfoList,BigDecimal totalAmount) throws Exception;
 }

@@ -22,4 +22,6 @@ public interface UserFinanceProdCalcService {
     void dailyCalculation() throws Exception;
 
     void dailyCalculation(String date) throws Exception;
+
+	BigDecimal getAssert(String userUuid, Long prodId) throws Exception;
 }

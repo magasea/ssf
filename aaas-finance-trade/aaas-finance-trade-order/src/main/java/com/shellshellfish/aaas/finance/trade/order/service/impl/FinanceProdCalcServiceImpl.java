@@ -98,4 +98,20 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
         return new DistributionResult(totalPoundage, totalDiscountSaving, fundAmountList);
     }
 
+	@Override
+	public Boolean getMaxMinResult(List<ProductMakeUpInfo> productMakeUpInfoList, BigDecimal totalAmount)
+			throws Exception {
+		BigDecimal min = this.getMinBuyAmount(productMakeUpInfoList);
+		if(totalAmount.compareTo(min) == -1){
+			throw new Exception("低于最小金额数");
+			//return false;
+		}
+		BigDecimal max = this.getMaxBuyAmount(productMakeUpInfoList);
+		if(totalAmount.compareTo(max) == 1){
+			throw new Exception("大于最小金额数");
+			//return false;
+		}
+		return true;
+	}
+
 }
