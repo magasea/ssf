@@ -107,12 +107,12 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
 			throws Exception {
 		BigDecimal min = this.getMinBuyAmount(productMakeUpInfoList);
 		if(totalAmount.compareTo(min) == -1){
-			throw new Exception("低于最小金额数");
+			throw new Exception("低于最小金额数:"+min);
 			//return false;
 		}
 		BigDecimal max = this.getMaxBuyAmount(productMakeUpInfoList);
 		if(totalAmount.compareTo(max) == 1){
-			throw new Exception("大于最小金额数");
+			throw new Exception("大于最小金额数:"+max);
 			//return false;
 		}
 		return true;
