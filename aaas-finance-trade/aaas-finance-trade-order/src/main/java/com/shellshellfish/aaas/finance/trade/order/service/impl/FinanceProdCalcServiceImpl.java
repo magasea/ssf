@@ -34,7 +34,9 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
             if (results != null && results.size() > 0) {
                 TradeLimitResult tradeLimitResult = results.get(0);
                 Double minValue = Double.parseDouble(tradeLimitResult.getMinValue());
-                minAmountList.add(BigDecimal.valueOf(minValue/(info.getFundShare()/10000d)));
+                if(info.getFundShare()!=0){
+                	minAmountList.add(BigDecimal.valueOf(minValue/(info.getFundShare()/10000d)));
+                }
             }
         }
         logger.info("{}", minAmountList);
@@ -49,7 +51,9 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
             if (results != null && results.size() > 0) {
                 TradeLimitResult tradeLimitResult = results.get(0);
                 Double maxValue = Double.parseDouble(tradeLimitResult.getMaxValue());
-                maxAmountList.add(BigDecimal.valueOf(maxValue/(info.getFundShare()/10000d)));
+                if(info.getFundShare()!=0){
+                	maxAmountList.add(BigDecimal.valueOf(maxValue/(info.getFundShare()/10000d)));
+                }
             }
         }
         logger.info("{}", maxAmountList);

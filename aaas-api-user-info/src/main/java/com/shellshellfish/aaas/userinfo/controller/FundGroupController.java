@@ -59,9 +59,4 @@ public class FundGroupController {
 		result.put("accumulationIncomes", accumulationIncomes);
 		return result;
 	}
-	public static void main(String[] args) {
-		Date date = new Date();
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-		System.out.println(df.format(new Date()));
-	}
 }
