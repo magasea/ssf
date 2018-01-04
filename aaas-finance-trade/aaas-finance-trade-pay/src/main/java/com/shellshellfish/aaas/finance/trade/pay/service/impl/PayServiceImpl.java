@@ -71,6 +71,18 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     List<TrdOrderDetail> orderDetailList = payDto.getOrderDetailList();
     for(TrdOrderDetail trdOrderDetail: orderDetailList){
       logger.info("payOrder fundCode:"+trdOrderDetail.getFundCode());
+      if(null == trdOrderDetail.getOrderDetailId()){
+        logger.error("input pay request is not correct: OrderDetailId is:"+trdOrderDetail.getOrderDetailId());
+        continue;
+      }else{
+        if(
+        trdPayFlowRepository.findAllByOrderDetailId(trdOrderDetail.getOrderDetailId()).size() > 0){
+          logger.error("repay request for :"+ trdOrderDetail.getOrderDetailId() + " we will "
+              + "ignore it ");
+          continue;
+        }
+      }
+      trdOrderDetail.getOrderDetailId();
       //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
       BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundMoneyQuantity());
       //TODO: replace userId with userUuid

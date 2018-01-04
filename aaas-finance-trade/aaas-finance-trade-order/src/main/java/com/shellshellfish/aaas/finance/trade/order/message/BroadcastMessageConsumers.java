@@ -29,10 +29,12 @@ public class BroadcastMessageConsumers {
     @Autowired
     TradeOpService tradeOpService;
 
-
+    @Autowired
+    TrdOrderDetailRepository trdOrderDetailRepository;
 
     @Value("${spring.rabbitmq.topicOrder}")
     String topicOrder;
+
 
 
     @RabbitListener(bindings = @QueueBinding(
@@ -41,8 +43,6 @@ public class BroadcastMessageConsumers {
         exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
             durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_ORDER )
     )
-
-
     public void receiveMessage(TrdPayFlow trdPayFlow) throws Exception {
         try{
             logger.info("Received fanout 1 message: " + trdPayFlow);
@@ -54,6 +54,8 @@ public class BroadcastMessageConsumers {
             Long updateBy =  SystemUserEnum.SYSTEM_USER_ENUM.getUserId();
             Long updateDate = TradeUtil.getUTCTime();
             int orderDetailStatus = trdPayFlow.getPayStatus();
+//            trdOrderDetailRepository.updateByParam(tradeApplySerial,orderDetailStatus,
+//                updateDate, updateBy,  id);
             tradeOpService.updateByParam(tradeApplySerial, updateDate, updateBy,  id, orderDetailStatus);
         }catch (Exception ex){
             ex.printStackTrace();

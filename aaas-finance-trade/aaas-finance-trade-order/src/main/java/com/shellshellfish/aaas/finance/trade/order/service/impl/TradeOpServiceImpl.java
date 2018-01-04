@@ -244,10 +244,11 @@ public class TradeOpServiceImpl implements TradeOpService {
   }
 
   @Override
-  @Transactional( propagation = Propagation.REQUIRED, transactionManager = "transactionManager")
+  @Transactional
   public void updateByParam(String tradeApplySerial, Long updateDate, Long updateBy, Long id,
       int orderDetailStatus) {
-    trdOrderDetailRepository.updateByParam(tradeApplySerial, updateDate, updateBy,  id, orderDetailStatus);
+    trdOrderDetailRepository.updateByParam(tradeApplySerial,orderDetailStatus, updateDate,
+        updateBy,  id );
   }
 
 }
