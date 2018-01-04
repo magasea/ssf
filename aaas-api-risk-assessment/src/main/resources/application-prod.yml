@@ -11,7 +11,9 @@ spring:
     jackson:
       serialization:
         fail-on-empty-beans: false
-
+    jpa:
+      hibernate:
+        ddl-auto: update
     data:
         mongodb:
             host: localhost

@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.userinfo.message;
 
 
 import com.rabbitmq.client.Channel;
+import com.shellshellfish.aaas.common.constants.RabbitMQConstants;
 import com.shellshellfish.aaas.common.message.order.TrdLog;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
@@ -41,9 +42,10 @@ public class BroadcastMessageConsumers {
 
     @Transactional
     @RabbitListener(bindings = @QueueBinding(
-        value = @Queue(value = "${spring.rabbitmq.topicQueuePayName}", durable = "false"),
-        exchange =  @Exchange(value = "${spring.rabbitmq.topicExchangeName}", type = "topic",
-            durable = "true"),  key = "${spring.rabbitmq.topicUserinfo}")
+        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants.OPERATION_TYPE_UPDATE_UIPROD,
+            durable = "false"),
+        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO)
     )
     public void receiveMessage(TrdPayFlow trdPayFlow, Channel channel, @Header(AmqpHeaders
         .DELIVERY_TAG) long tag) throws Exception {

@@ -17,7 +17,9 @@ spring:
             host: 192.168.1.10
             port: 27017
             database: test
-
+    jpa:
+      hibernate:
+        ddl-auto: update
 server:
     port: 10050
     

@@ -46,8 +46,15 @@ public class CheckFundsBuyJobService {
             if(!CollectionUtils.isEmpty(trdPayFlows)){
                 for(TrdPayFlow trdPayFlow: trdPayFlows){
                     // TODO: replace userId with userUuid
+                    String userId = null;
+                    if(trdPayFlow.getUserId() == 5605){
+                        //这个用户是用uuid调的中证接口,以后走正式流程后都用userId来查中证接口
+                        userId = "shellshellfish";
+                    }else{
+                        userId = Long.toString(trdPayFlow.getUserId());
+                    }
                     ApplyResult applyResult =fundTradeApiService.getApplyResultByOutsideOrderNo
-                        (Long.toString(trdPayFlow.getUserId()), ""+trdPayFlow.getOrderDetailId());
+                        (userId, ""+trdPayFlow.getOrderDetailId());
                     if( null!= applyResult && !StringUtils.isEmpty(applyResult.getApplyshare())){
                         com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
                             new com.shellshellfish.aaas.common.message.order.TrdPayFlow();
