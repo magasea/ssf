@@ -151,6 +151,11 @@ public class TradeOrderController {
 		productBaseInfo.setProdId(groupId);
 		productBaseInfo.setGroupId(subGroupId);
 		List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
+		//最大金额最小金额判断
+		boolean result = financeProdCalcService.getMaxMinResult(productList, totalAmount);
+		if(!result){
+			throw new Exception("输入金额数不在最大最小限制内，请重新输入");
+		}
 		DistributionResult distributionResult = financeProdCalcService.getPoundageOfBuyFund(totalAmount, productList);
 		return new ResponseEntity<DistributionResult>(distributionResult, HttpStatus.OK);
 	} 

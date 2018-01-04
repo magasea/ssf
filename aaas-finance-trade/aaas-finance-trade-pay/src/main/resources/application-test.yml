@@ -29,7 +29,6 @@ spring:
     topicExchangeName: com-ssf-topic-exchange
     topicPay: shellshellfish.pay
     topicOrder: shellshellfish.order
-    topicUserinfo: shellshellfish.userinfo
   data:
     mongodb:
       host: 192.168.1.10
@@ -60,7 +59,6 @@ grpc:
   finance_prod_client:
     host: localhost
     port: 10030
-
 using:
   spring:
     schedulerFactory: true
