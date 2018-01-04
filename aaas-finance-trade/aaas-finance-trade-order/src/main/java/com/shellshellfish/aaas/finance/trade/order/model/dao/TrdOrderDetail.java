@@ -40,8 +40,6 @@ public class TrdOrderDetail {
   private long updateDate;
   private String bankCardNum;
   private Long fundQuantity;
-  private Integer orderStatus;
-  private String prodCode;
   private Long prodId;
   private String errMsg;
 
@@ -276,25 +274,8 @@ public class TrdOrderDetail {
     this.fundQuantity = fundQuantity;
   }
 
-  @Basic
-  @Column(name = "order_status")
-  public Integer getOrderStatus() {
-    return orderStatus;
-  }
 
-  public void setOrderStatus(Integer orderStatus) {
-    this.orderStatus = orderStatus;
-  }
 
-  @Basic
-  @Column(name = "prod_code")
-  public String getProdCode() {
-    return prodCode;
-  }
-
-  public void setProdCode(String prodCode) {
-    this.prodCode = prodCode;
-  }
 
   @Basic
   @Column(name = "prod_id")
@@ -398,12 +379,7 @@ public class TrdOrderDetail {
         : that.fundQuantity != null) {
       return false;
     }
-    if (orderStatus != null ? !orderStatus.equals(that.orderStatus) : that.orderStatus != null) {
-      return false;
-    }
-    if (prodCode != null ? !prodCode.equals(that.prodCode) : that.prodCode != null) {
-      return false;
-    }
+
     if (prodId != null ? !prodId.equals(that.prodId) : that.prodId != null) {
       return false;
     }
@@ -439,8 +415,6 @@ public class TrdOrderDetail {
     result = 31 * result + (int) (updateDate ^ (updateDate >>> 32));
     result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
     result = 31 * result + (fundQuantity != null ? fundQuantity.hashCode() : 0);
-    result = 31 * result + (orderStatus != null ? orderStatus.hashCode() : 0);
-    result = 31 * result + (prodCode != null ? prodCode.hashCode() : 0);
     result = 31 * result + (prodId != null ? prodId.hashCode() : 0);
     result = 31 * result + (errMsg != null ? errMsg.hashCode() : 0);
     return result;

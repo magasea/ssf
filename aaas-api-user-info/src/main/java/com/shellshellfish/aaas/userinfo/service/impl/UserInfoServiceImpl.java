@@ -1,5 +1,9 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
+import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
+import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
+import com.shellshellfish.aaas.finance.trade.pay.ZhongZhengQueryByOrderDetailId;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
@@ -17,11 +21,20 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
+import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
+import io.grpc.ManagedChannel;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -38,6 +51,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Autowired
     UserInfoRepoService userInfoRepoService;
+    
+    @Autowired
+	UserFinanceProdCalcService userFinanceProdCalcService;
+
+  PayRpcServiceFutureStub payRpcServiceFutureStub;
+
+  @Autowired
+  ManagedChannel managedPayChannel;
+
+  @PostConstruct
+  void init(){
+    payRpcServiceFutureStub = PayRpcServiceGrpc.newFutureStub(managedPayChannel);
+  }
 
     @Override
     public UserBaseInfoDTO getUserInfoBase(String userUuid) throws Exception{
@@ -270,7 +296,75 @@ public class UserInfoServiceImpl implements UserInfoService {
 		return products;
 	}
 
+  @Override
+  public ApplyResult queryTrdResultByOrderDetailId(Long userId, Long orderDetailId) {
+    ZhongZhengQueryByOrderDetailId.Builder requestBuilder = ZhongZhengQueryByOrderDetailId
+        .newBuilder();
 
+    try {
+      com.shellshellfish.aaas.finance.trade.pay.ApplyResult result = payRpcServiceFutureStub.queryZhongzhengTradeInfoByOrderDetailId
+          (requestBuilder.build()).get();
+      ApplyResult applyResult = new ApplyResult();
+      BeanUtils.copyProperties(result, applyResult);
+      return applyResult;
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+      logger.error(e.getMessage());
+      return null;
+    }
+    return null;
+  }
 
+	@Override
+	public Map<String, Object> getTrendYield(String userUuid){
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		List<Map<String,Object>> trendYieldList = new ArrayList<Map<String,Object>>();
+		Map<String,Object> trendYieldMap = new HashMap();
+		String day1 = DateUtil.getSystemDatesAgo(-1);
+		String day2 = DateUtil.getSystemDatesAgo(-2);
+		BigDecimal rate1 = userFinanceProdCalcService.calcYieldRate(userUuid, day2, day1);
 
+		trendYieldMap.put("date",day1);
+		trendYieldMap.put("value",rate1);
+		trendYieldList.add(trendYieldMap);
+		
+		String day3 = DateUtil.getSystemDatesAgo(-3);
+		BigDecimal rate2 = userFinanceProdCalcService.calcYieldRate(userUuid, day3, day2);
+		trendYieldMap = new HashMap<String, Object>();
+		trendYieldMap.put("date",day2);
+		trendYieldMap.put("value",rate2);
+		trendYieldList.add(trendYieldMap);
+		
+		String day4 = DateUtil.getSystemDatesAgo(-4);
+		BigDecimal rate3 = userFinanceProdCalcService.calcYieldRate(userUuid, day4, day3);
+		trendYieldMap = new HashMap<String, Object>();
+		trendYieldMap.put("date",day3);
+		trendYieldMap.put("value",rate3);
+		trendYieldList.add(trendYieldMap);
+		
+		String day5 = DateUtil.getSystemDatesAgo(-5);
+		BigDecimal rate4 = userFinanceProdCalcService.calcYieldRate(userUuid, day5, day4);
+		trendYieldMap = new HashMap<String, Object>();
+		trendYieldMap.put("date",day4);
+		trendYieldMap.put("value",rate4);
+		trendYieldList.add(trendYieldMap);
+		
+		String day6 = DateUtil.getSystemDatesAgo(-6);
+		BigDecimal rate5 = userFinanceProdCalcService.calcYieldRate(userUuid, day6, day5);
+		trendYieldMap = new HashMap<String, Object>();
+		trendYieldMap.put("date",day5);
+		trendYieldMap.put("value",rate5);
+		trendYieldList.add(trendYieldMap);
+		
+		String day7 = DateUtil.getSystemDatesAgo(-7);
+		BigDecimal rate6 = userFinanceProdCalcService.calcYieldRate(userUuid, day7, day6);
+		trendYieldMap = new HashMap<String, Object>();
+		trendYieldMap.put("date",day6);
+		trendYieldMap.put("value",rate6);
+		trendYieldList.add(trendYieldMap);
+		resultMap.put("trendYield", trendYieldList);
+		return resultMap;
+	}
 }

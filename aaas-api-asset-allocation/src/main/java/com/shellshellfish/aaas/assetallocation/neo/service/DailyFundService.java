@@ -128,7 +128,7 @@ public class DailyFundService {
 
                     //每日数据日期格式转换
                     try {
-                        dailyfunds.setNavLatestDate(sdf.parse(SSFDateUtils.getDateStrFromLong(dailyFunds.getNavLatestDate())));
+                        dailyfunds.setNavLatestDate(sdf.parse(SSFDateUtils.getDateStrFromLong(dailyFunds.getQuerydate()/*getNavLatestDate*/)));
                     } catch (ParseException e) {
                         logger.error("日期数据转换失败");
                         e.printStackTrace();
@@ -151,7 +151,7 @@ public class DailyFundService {
 
                     //每日数据日期格式转换
                     try {
-                        dailyfunds.setNavLatestDate(sdf.parse(SSFDateUtils.getDateStrFromLong(dailyFunds.getNavLatestDate())));
+                        dailyfunds.setNavLatestDate(sdf.parse(SSFDateUtils.getDateStrFromLong(dailyFunds.getQuerydate()/*.getNavLatestDate()*/)));
                     } catch (ParseException e) {
                         logger.error("日期数据转换失败");
                         e.printStackTrace();

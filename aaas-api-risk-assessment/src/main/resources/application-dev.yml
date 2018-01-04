@@ -7,7 +7,9 @@ spring:
             
             application:
         name: ssf-risk-assessment
-
+    jpa:
+      hibernate:
+        ddl-auto: update
     jackson:
       serialization:
         fail-on-empty-beans: false

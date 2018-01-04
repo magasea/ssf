@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.finance.trade.pay.model;
+package com.shellshellfish.aaas.common.grpc.trade.pay;
 
 public class ApplyResult {
     private String identityno;

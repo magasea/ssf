@@ -16,7 +16,9 @@ spring:
       database: test1
       host: 192.168.1.10
       port: 27017
-
+  jpa:
+    hibernate:
+      ddl-auto: update
   rabbitmq:
      listener:
        simple:
@@ -63,6 +65,9 @@ grpc:
   finance-trade-order-rpc:
     host: localhost
     port: 10101
+  finance-trade-pay-rpc:
+    host: localhost
+    port: 10111
 
 
 aaas-api-finance-url: http://localhost:10120

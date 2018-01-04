@@ -93,10 +93,28 @@ public class DateUtil {
 		return day2 - day1;
 
 	}
-
-	public static void main(String[] args) {
-
-		System.out.println(getDiscrepantDays(new Date(getDateOneDayBefore(new Date())),new Date()));
-
+	
+	/**
+	 * 获取指定某个日期之前几天的日期String，以yyyyMMdd格式返回
+	 * @param start
+	 * @param day
+	 * @return
+	 */
+	public static String getSystemDatesAgo(int day) {
+		Date date = new Date();
+		Calendar c = Calendar.getInstance();
+		c.setTime(date);
+		c.add(Calendar.DAY_OF_MONTH, day);
+		date = c.getTime();
+		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
+		String dateNow = df.format(date);
+		return dateNow;
 	}
+	
+
+//	public static void main(String[] args) {
+//
+//		System.out.println(getDiscrepantDays(new Date(getDateOneDayBefore(new Date())),new Date()));
+//
+//	}
 }

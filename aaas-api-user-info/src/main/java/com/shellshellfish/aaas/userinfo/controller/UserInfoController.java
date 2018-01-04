@@ -10,11 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.omg.CORBA.UserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
@@ -50,11 +51,13 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPersonalMsgBodyDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 import com.shellshellfish.aaas.userinfo.utils.PageWrapper;
 import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
+
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -70,7 +73,9 @@ public class UserInfoController {
 	public static String URL_HEAD="/api/userinfo";
 	@Autowired
 	UserInfoService userInfoService;
-
+	
+	@Autowired
+	UserFinanceProdCalcService userFinanceProdCalcService;
 	/**
 	 * 我的 初始页面
 	 * @param id
@@ -1417,93 +1422,64 @@ public class UserInfoController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
 	})
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue="")
+		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="totalAssets",dataType="BigDecimal",required=true,value="总资产",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="dailyReturn",dataType="BigDecimal",required=true,value="日收益",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="totalRevenue",dataType="BigDecimal",required=true,value="累计收益",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="totalRevenueRate",dataType="Double",required=true,value="累计收益率",defaultValue="")
 	})
 	@RequestMapping(value = "/users/{userUuid}/asset", method = RequestMethod.GET)
 	public ResponseEntity<Map> assetView(
-			@Valid @NotNull(message = "userUuid不能为空") @PathVariable("userUuid") String userUuid
+			@Valid @NotNull(message = "userUuid不能为空") @PathVariable("userUuid") String userUuid,
+			@RequestParam("totalAssets") BigDecimal totalAssets,
+			@RequestParam("dailyReturn") BigDecimal dailyReturn,
+			@RequestParam("totalRevenue") BigDecimal totalRevenue,
+			@RequestParam("totalRevenueRate") Double totalRevenueRate
 			) throws Exception{
 		Map<String, Object> resultMap = new HashMap<String, Object>();
-		UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
+		//UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
 		//总资产
-		BigDecimal totalAssets = new BigDecimal("0");
-		if(userInfoAssectsBrief.getTotalAssets()!=null){
-			totalAssets = userInfoAssectsBrief.getTotalAssets();
-		}
 		resultMap.put("totalAssets", totalAssets);
 		//日收益
-		BigDecimal dailyReturn = new BigDecimal("0");
-		if(userInfoAssectsBrief.getDailyProfit()!=null){
-			dailyReturn = userInfoAssectsBrief.getDailyProfit();
-		}
 		resultMap.put("dailyReturn", dailyReturn);
 		//累计收益
-		BigDecimal totalRevenue = new BigDecimal("0");
-		if(userInfoAssectsBrief.getTotalProfit()!=null){
-			totalRevenue = userInfoAssectsBrief.getTotalProfit();
-		}
 		resultMap.put("totalRevenue", totalRevenue);
 		// 累计收益率
-		if(totalAssets == new BigDecimal(0)){
-			resultMap.put("totalRevenue", "0");
-		} else {
-			BigDecimal totalRevenueRate = totalRevenue.divide(totalAssets);
-			resultMap.put("totalRevenue", totalRevenueRate);
-		}
+		resultMap.put("totalRevenueRate", totalRevenueRate);
 		//收益走势图
-		List<Map<String,Object>> trendYieldList = new ArrayList<Map<String,Object>>();
 		Map<String,Object> trendYieldMap = new HashMap();
-		trendYieldMap.put("date","12.25");
-		trendYieldMap.put("value","-0.09");
-		trendYieldList.add(trendYieldMap);
-		trendYieldMap = new HashMap();
-		trendYieldMap.put("date","12.26");
-		trendYieldMap.put("value","0.00");
-		trendYieldList.add(trendYieldMap);
-		trendYieldMap = new HashMap();
-		trendYieldMap.put("date","12.27");
-		trendYieldMap.put("value","0.20");
-		trendYieldList.add(trendYieldMap);
-		trendYieldMap = new HashMap();
-		trendYieldMap.put("date","12.28");
-		trendYieldMap.put("value","0.30");
-		trendYieldList.add(trendYieldMap);
-		trendYieldMap = new HashMap();
-		trendYieldMap.put("date","12.29");
-		trendYieldMap.put("value","0.40");
-		trendYieldList.add(trendYieldMap);
-		trendYieldMap = new HashMap();
-		trendYieldMap.put("date","12.30");
-		trendYieldMap.put("value","0.50");
-		trendYieldList.add(trendYieldMap);
-		resultMap.put("trendYield", trendYieldList);
-		//理财收益月报
-		List<Map<String,Object>> finaniceReportList = new ArrayList<Map<String,Object>>();
-		Map<String,Object> finaniceReportMap = new HashMap();
-		finaniceReportMap.put("month","06");
-		finaniceReportMap.put("value","30.18");
-		finaniceReportList.add(finaniceReportMap);
-		finaniceReportMap = new HashMap();
-		finaniceReportMap.put("month","07");
-		finaniceReportMap.put("value","-16.32");
-		finaniceReportList.add(finaniceReportMap);
-		finaniceReportMap = new HashMap();
-		finaniceReportMap.put("month","08");
-		finaniceReportMap.put("value","26.64");
-		finaniceReportList.add(finaniceReportMap);
-		finaniceReportMap = new HashMap();
-		finaniceReportMap.put("month","09");
-		finaniceReportMap.put("value","22.10");
-		finaniceReportList.add(finaniceReportMap);
-		finaniceReportMap = new HashMap();
-		finaniceReportMap.put("month","10");
-		finaniceReportMap.put("value","46.22");
-		finaniceReportList.add(finaniceReportMap);
-		finaniceReportMap = new HashMap();
-		finaniceReportMap.put("month","11");
-		finaniceReportMap.put("value","26.66");
-		finaniceReportList.add(finaniceReportMap);
-		resultMap.put("finaniceReport", finaniceReportList);
+//		trendYieldMap.put("date","12.25");
+//		trendYieldMap.put("value","-0.09");
+//		trendYieldList.add(trendYieldMap);
+//		trendYieldMap = new HashMap();
+//		trendYieldMap.put("date","12.26");
+//		trendYieldMap.put("value","0.00");
+//		trendYieldList.add(trendYieldMap);
+//		trendYieldMap = new HashMap();
+//		trendYieldMap.put("date","12.27");
+//		trendYieldMap.put("value","0.20");
+//		trendYieldList.add(trendYieldMap);
+//		trendYieldMap = new HashMap();
+//		trendYieldMap.put("date","12.28");
+//		trendYieldMap.put("value","0.30");
+//		trendYieldList.add(trendYieldMap);
+//		trendYieldMap = new HashMap();
+//		trendYieldMap.put("date","12.29");
+//		trendYieldMap.put("value","0.40");
+//		trendYieldList.add(trendYieldMap);
+//		trendYieldMap = new HashMap();
+//		trendYieldMap.put("date","12.30");
+//		trendYieldMap.put("value","0.50");
+//		trendYieldList.add(trendYieldMap);
+//		resultMap.put("trendYield", trendYieldList);
+		trendYieldMap = userInfoService.getTrendYield(userUuid);
+		if(trendYieldMap!=null&&trendYieldMap.size()>0){
+			resultMap.put("trendYield", trendYieldMap.get("trendYield"));
+		} else {
+			resultMap.put("trendYield", new ArrayList<Map<String,Object>>());
+		}
+		//每日收益
+		
 		return new ResponseEntity<Map>(resultMap, HttpStatus.OK);
 	}
 	
@@ -1715,6 +1691,35 @@ public class UserInfoController {
 		result.put("date2", month + "." + date);
 		result.put("buyfee", buyfee);
 		result.put("bankInfo", bankName + "(" + bankCard + ")");
+		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
+	
+	@ApiOperation("赎回时金额验证")
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+		@ApiResponse(code=400,message="请求参数没填好"),
+		@ApiResponse(code=401,message="未授权用户"),        				
+		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue=""),
+		@ApiImplicitParam(paramType="path",name="prodId",dataType="String",required=true,value="产品ID",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="totalAmount",dataType="BigDecimal",required=true,value="购买金额",defaultValue="")
+	})
+	@RequestMapping(value = "/users/{userUuid}/orders/{prodId}/checks", method = RequestMethod.GET)
+	public ResponseEntity<Map> getCheckResult(
+			@PathVariable String userUuid,
+			@PathVariable String prodId,
+			@RequestParam(value = "totalAmount") BigDecimal totalAmount
+			) throws Exception {
+		BigDecimal asserts = userFinanceProdCalcService.getAssert(userUuid, Long.valueOf(prodId));
+		
+		if(totalAmount.compareTo(asserts)==1){
+			throw new Exception("金额输入过大，请重新输入");
+		}
+		Map<String,Object> result = new HashMap<String,Object>();
+		result.put("status", "OK");
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 }

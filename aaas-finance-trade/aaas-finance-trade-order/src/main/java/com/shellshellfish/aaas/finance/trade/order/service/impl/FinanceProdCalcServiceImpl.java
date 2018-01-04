@@ -34,11 +34,17 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
             if (results != null && results.size() > 0) {
                 TradeLimitResult tradeLimitResult = results.get(0);
                 Double minValue = Double.parseDouble(tradeLimitResult.getMinValue());
-                minAmountList.add(BigDecimal.valueOf(minValue/(info.getFundShare()/10000d)));
+                if(info.getFundShare()!=0){
+                	minAmountList.add(BigDecimal.valueOf(minValue/(info.getFundShare()/10000d)));
+                }
             }
         }
         logger.info("{}", minAmountList);
-        return Collections.max(minAmountList);
+        if(minAmountList==null||minAmountList.size()==0){
+        	return new BigDecimal(0);
+        } else {
+        	return Collections.max(minAmountList);
+        }
     }
 
     @Override
@@ -49,11 +55,17 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
             if (results != null && results.size() > 0) {
                 TradeLimitResult tradeLimitResult = results.get(0);
                 Double maxValue = Double.parseDouble(tradeLimitResult.getMaxValue());
-                maxAmountList.add(BigDecimal.valueOf(maxValue/(info.getFundShare()/10000d)));
+                if(info.getFundShare()!=0){
+                	maxAmountList.add(BigDecimal.valueOf(maxValue/(info.getFundShare()/10000d)));
+                }
             }
         }
         logger.info("{}", maxAmountList);
-        return Collections.min(maxAmountList);
+        if(maxAmountList==null||maxAmountList.size()==0){
+        	return new BigDecimal(0);
+        } else {
+        	return Collections.min(maxAmountList);
+        }
     }
 
     @Override
@@ -97,5 +109,21 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
         }
         return new DistributionResult(totalPoundage, totalDiscountSaving, fundAmountList);
     }
+
+	@Override
+	public Boolean getMaxMinResult(List<ProductMakeUpInfo> productMakeUpInfoList, BigDecimal totalAmount)
+			throws Exception {
+		BigDecimal min = this.getMinBuyAmount(productMakeUpInfoList);
+		if(!min.equals(new BigDecimal(0))&&totalAmount.compareTo(min) == -1){
+			throw new Exception("低于最小金额数:"+min);
+			//return false;
+		}
+		BigDecimal max = this.getMaxBuyAmount(productMakeUpInfoList);
+		if(!max.equals(new BigDecimal(0))&&totalAmount.compareTo(max) == 1){
+			throw new Exception("大于最小金额数:"+max);
+			//return false;
+		}
+		return true;
+	}
 
 }

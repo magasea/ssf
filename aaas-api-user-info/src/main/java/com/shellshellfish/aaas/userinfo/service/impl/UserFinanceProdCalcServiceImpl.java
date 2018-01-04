@@ -278,4 +278,19 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
             }
         }
     }
+    
+    @Override
+    public BigDecimal getAssert(String userUuid, Long prodId) throws Exception {
+        BigDecimal fundAsset = new BigDecimal(0);
+        logger.info("dailyAmount:{}", fundAsset);
+        Query query = new Query();
+        query.addCriteria(Criteria.where("userUuid").is(userUuid))
+                .addCriteria(Criteria.where("prodId").is(prodId));
+
+        List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
+        if(dailyAmountList!=null&&dailyAmountList.size()>0){
+        	fundAsset = dailyAmountList.get(0).getAsset(); 
+        }
+        return fundAsset;
+    }
 }

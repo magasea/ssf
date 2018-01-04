@@ -29,10 +29,9 @@ import org.springframework.transaction.jta.JtaTransactionManager;
 
 @Configuration
 @ComponentScan
-@EntityScan("com.shellshellfish.aaas.finance.trade.model.dao")
+@EntityScan("com.shellshellfish.aaas.finance.trade.order.model")
 @EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.finance.trade.order.repositories")
 @EnableTransactionManagement
-
 public class JpaConfiguration {
 
 	@Autowired
@@ -108,21 +107,21 @@ public class JpaConfiguration {
 		return properties;
 	}
 
-//	@Bean
-//	@Autowired
-//	public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-//		JpaTransactionManager txManager = new JpaTransactionManager();
-//		txManager.setEntityManagerFactory(emf);
-//		return txManager;
-//	}
-
-
 	@Bean
-	public DataSourceTransactionManager transactionManager() {
-		DataSourceTransactionManager txManager = new DataSourceTransactionManager();
-		txManager.setDataSource(dataSource());
+	@Autowired
+	public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+		JpaTransactionManager txManager = new JpaTransactionManager();
+		txManager.setEntityManagerFactory(emf);
 		return txManager;
 	}
+
+//
+//	@Bean
+//	public DataSourceTransactionManager transactionManager() {
+//		DataSourceTransactionManager txManager = new DataSourceTransactionManager();
+//		txManager.setDataSource(dataSource());
+//		return txManager;
+//	}
 
 //	@Bean
 //	public PlatformTransactionManager transactionManager(){

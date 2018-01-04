@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.*;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import org.apache.commons.codec.digest.UnixCrypt;

@@ -243,4 +243,12 @@ public class TradeOpServiceImpl implements TradeOpService {
     return userId.getUserId();
   }
 
+  @Override
+  @Transactional
+  public void updateByParam(String tradeApplySerial, Long updateDate, Long updateBy, Long id,
+      int orderDetailStatus) {
+    trdOrderDetailRepository.updateByParam(tradeApplySerial,orderDetailStatus, updateDate,
+        updateBy,  id );
+  }
+
 }

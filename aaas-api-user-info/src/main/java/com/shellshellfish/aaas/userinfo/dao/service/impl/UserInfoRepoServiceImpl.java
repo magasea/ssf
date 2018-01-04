@@ -474,13 +474,14 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+		List<ProductsDTO> productsList = new ArrayList<>();
 		List<UiProducts> productsData = uiProductRepo.findByUserId(userId);
 		if (productsData == null||productsData.size()==0) {
-			throw new UserInfoException("404", "用户："+userId+"为空");
+			//throw new UserInfoException("404", "用户："+userId+"为空");
+		} else {
+			productsList = MyBeanUtils.convertList(productsData,ProductsDTO.class);
 		}
 		
-		List<ProductsDTO> productsList = MyBeanUtils.convertList(productsData,ProductsDTO.class);
 		
 		return productsList;
 	}

@@ -10,7 +10,9 @@ logging:
 
 
 spring:
-
+  jpa:
+    hibernate:
+      ddl-auto: update
   data:
     mongodb:
       database: test1
@@ -60,6 +62,9 @@ grpc:
   finance-trade-order-rpc:
     host: localhost
     port: 10101
+  finance-trade-pay-rpc:
+    host: localhost
+    port: 10111
 
 
 aaas-api-finance-url: http://localhost:10120

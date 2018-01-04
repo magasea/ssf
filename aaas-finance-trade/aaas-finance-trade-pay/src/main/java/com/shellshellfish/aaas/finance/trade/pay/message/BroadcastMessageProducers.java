@@ -17,25 +17,14 @@ public class BroadcastMessageProducers {
     RabbitTemplate rabbitTemplate;
 
 
-    @Value("${spring.rabbitmq.topicPay}")
-    String topicPay;
 
-    @Value("${spring.rabbitmq.topicUserinfo}")
-    String topicUserinfo;
-
-    @Value("${spring.rabbitmq.topicOrder}")
-    String topicOrder;
-
-    @Value("${spring.rabbitmq.topicQueuePayName}")
-    String topicQueuePayName;
-
-    @Value("${spring.rabbitmq.topicExchangeName}")
-    String exchange;
 
     public void sendMessage(TrdPayFlow trdPayFlow) {
         logger.info("send message: " + trdPayFlow.getOrderDetailId());
-        rabbitTemplate.convertAndSend(exchange, RabbitMQConstants.ROUTING_KEY_ORDER, trdPayFlow);
-        rabbitTemplate.convertAndSend(exchange, RabbitMQConstants.ROUTING_KEY_USERINFO, trdPayFlow);
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_ORDER,
+            trdPayFlow);
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_USERINFO,
+            trdPayFlow);
     }
 
 }
