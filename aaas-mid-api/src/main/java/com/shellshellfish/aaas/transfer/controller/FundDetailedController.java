@@ -3,7 +3,7 @@ package com.shellshellfish.aaas.transfer.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-
 import com.shellshellfish.aaas.model.JsonResult;
+import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -40,11 +40,12 @@ public class FundDetailedController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "2"),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "2001"),
-			@ApiImplicitParam(paramType = "query", name = "codes", dataType = "String", required = true, value = "codes", defaultValue = "000001.OF")
+			@ApiImplicitParam(paramType = "query", name = "codes", dataType = "String", required = true, value = "基金编码", defaultValue = "000248.OF"),
+			@ApiImplicitParam(paramType = "query", name = "date", dataType = "String", required = false, value = "日期", defaultValue = "2017-12-22")
 	})
 	@RequestMapping(value = "/getFundDetails", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getFundInfoByCodes(@RequestParam String groupId, @RequestParam String subGroupId, @RequestParam String codes) {
+	public JsonResult getFundInfoByCodes(@RequestParam String groupId, @RequestParam String subGroupId, @RequestParam String codes, @RequestParam(required = false, defaultValue="") String date) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			//近一年涨幅, 当日涨幅, 当日净值,获取历史页面
@@ -55,18 +56,20 @@ public class FundDetailedController {
 				result.put("msg", "获取失败");
 				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 			}
-//			//获取类型 风险等级	评级
-//			Map<String, Object> dataResult = restTemplate
-//					.getForEntity(dataManagerUrl + "/api/datamanager/getFundValueInfo?code=" + codes, Map.class)
-//					.getBody();
-//			if (result == null || result.size() == 0) {
-//				result.put("msg", "获取失败");
-//				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
-//			}
-//			//加入到返回值
-//			result.put("rate", dataResult.get("rate"));
-//			result.put("classtype", dataResult.get("classtype"));
-//			result.put("net", dataResult.get("net"));
+			
+			//获取类型 风险等级	评级
+			String param = StringUtils.isNotBlank(date) ? "&date=" + date : "";
+			Map<String, Object> dataResult = restTemplate
+					.getForEntity(dataManagerUrl + "/api/datamanager/getFundValueInfo?code=" + codes + param, Map.class)
+					.getBody();
+			if (result == null || result.size() == 0) {
+				result.put("msg", "获取失败");
+				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+			}
+			//加入到返回值
+			result.put("rate", dataResult.get("rate"));
+			result.put("classtype", dataResult.get("classtype"));
+			result.put("net", dataResult.get("net") == null ? 0 : dataResult.get("net"));
 			
 			result.remove("_links");
 			result.remove("_links");
@@ -95,7 +98,8 @@ public class FundDetailedController {
 					.getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
-				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+				return new JsonResult(JsonResult.Fail,"获取失败",JsonResult.EMPTYRESULT);
+//				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 			}
 			
 			result.remove("_links");
@@ -104,7 +108,9 @@ public class FundDetailedController {
 		} catch (Exception e) {
 			Map<String, Object> map = new HashMap();
 			map.put("errorCode", "400");
-			return new JsonResult(JsonResult.Fail, "获取失败", map);
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail,str,JsonResult.EMPTYRESULT);
+//			return new JsonResult(JsonResult.Fail, "获取失败", map);
 		}
 	}
 	
@@ -173,7 +179,7 @@ public class FundDetailedController {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			result = restTemplate
-					.getForEntity(dataManagerUrl + "/api/datamanager/getFundManager?name=" + name, Map.class)
+					.getForEntity(financeUrl + "/api/ssf-finance/getFundManager?name=" + name, Map.class)
 					.getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
@@ -199,7 +205,7 @@ public class FundDetailedController {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			result = restTemplate
-					.getForEntity(dataManagerUrl + "/api/datamanager/getFundCompany?name=" + name, Map.class)
+					.getForEntity(financeUrl + "/api/ssf-finance/getFundCompany?name=" + name, Map.class)
 					.getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
