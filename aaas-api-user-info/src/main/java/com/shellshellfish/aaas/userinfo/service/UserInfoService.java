@@ -63,6 +63,8 @@ public interface UserInfoService {
 
 	ProductsDTO findByProdId(String prodId) throws IllegalAccessException, InstantiationException;
 
+	Map<String, Object> getTrendYield(String uuid);
+
 
 
 

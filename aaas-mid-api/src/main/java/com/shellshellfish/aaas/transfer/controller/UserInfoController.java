@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.transfer.controller;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -340,15 +341,25 @@ public class UserInfoController {
 	
 	@ApiOperation("资产总览")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=true,value="用户uuid",defaultValue="")
+		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=true,value="用户uuid",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="totalAssets",dataType="BigDecimal",required=true,value="总资产",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="dailyReturn",dataType="BigDecimal",required=true,value="日收益",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="totalRevenue",dataType="BigDecimal",required=true,value="累计收益",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="totalRevenueRate",dataType="Double",required=true,value="累计收益率",defaultValue="")
 	})
 	@RequestMapping(value = "/asset", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult assetView(@RequestParam String uuid) {
+	public JsonResult assetView(@RequestParam String uuid,
+			@RequestParam("totalAssets") BigDecimal totalAssets,
+			@RequestParam("dailyReturn") BigDecimal dailyReturn,
+			@RequestParam("totalRevenue") BigDecimal totalRevenue,
+			@RequestParam("totalRevenueRate") Double totalRevenueRate) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
-			result = restTemplate
-					.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/asset", Map.class).getBody();
+			result = restTemplate.getForEntity(
+					userinfoUrl + "/api/userinfo/users/" + uuid + "/asset?totalAssets=" + totalAssets + "&dailyReturn="
+							+ dailyReturn + "&totalRevenue=" + totalRevenue + "&totalRevenueRate=" + totalRevenueRate,
+					Map.class).getBody();
 			if (result == null || result.size() == 0) {
 				logger.error("资产总览获取失败");
 				return new JsonResult(JsonResult.Fail, "资产总览获取失败", JsonResult.EMPTYRESULT);
