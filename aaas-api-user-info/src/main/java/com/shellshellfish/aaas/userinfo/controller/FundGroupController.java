@@ -60,11 +60,10 @@ public class FundGroupController {
 		 int days=6; //计算6天的值
 		Map result = fundGroupService.getGroupDetails(uuid, prodId);
 		//遍历赋值
-		Date today=new Date();
 		for(int i=0;i<days;i++){
 			Map dateValueMap=new HashMap<>();
-			String selectDate=DateUtil.getSystemDatesAgo(today,-i);
-		    String dayBeforeSelectDate=DateUtil.getSystemDatesAgo(today,-i-1);
+			String selectDate=DateUtil.getSystemDatesAgo(-i);
+		    String dayBeforeSelectDate=DateUtil.getSystemDatesAgo(-i-1);
 			dateValueMap.put("time",selectDate);
 		//调用对应的service
 		BigDecimal rate=userFinanceProdCalcService.calcYieldRate(uuid, prodId, dayBeforeSelectDate, selectDate);
