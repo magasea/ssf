@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.pay.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.*;
 
 import java.math.BigDecimal;

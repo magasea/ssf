@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
@@ -38,6 +39,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Autowired
     UserInfoRepoService userInfoRepoService;
+
+
 
     @Override
     public UserBaseInfoDTO getUserInfoBase(String userUuid) throws Exception{
@@ -270,7 +273,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 		return products;
 	}
 
-
+  @Override
+  public ApplyResult queryTrdResultByOrderDetailId(Long userId, Long orderDetailId) {
+    return null;
+  }
 
 
 }

@@ -5,7 +5,7 @@ import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
-import com.shellshellfish.aaas.finance.trade.pay.model.ApplyResult;
+import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
 
 import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;

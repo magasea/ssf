@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.userinfo.service;
 
 
+import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
@@ -63,7 +64,6 @@ public interface UserInfoService {
 
 	ProductsDTO findByProdId(String prodId) throws IllegalAccessException, InstantiationException;
 
-
-
+	ApplyResult queryTrdResultByOrderDetailId(Long userId, Long orderDetailId);
 
 }
