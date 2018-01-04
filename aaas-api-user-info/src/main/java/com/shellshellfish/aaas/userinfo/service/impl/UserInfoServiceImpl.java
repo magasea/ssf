@@ -21,10 +21,16 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
+import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
 import io.grpc.ManagedChannel;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -45,6 +51,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Autowired
     UserInfoRepoService userInfoRepoService;
+    
+    @Autowired
+	UserFinanceProdCalcService userFinanceProdCalcService;
 
   PayRpcServiceFutureStub payRpcServiceFutureStub;
 
@@ -308,5 +317,53 @@ public class UserInfoServiceImpl implements UserInfoService {
     return null;
   }
 
-
+	@Override
+	public Map<String, Object> getTrendYield(String userUuid){
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		List<Map<String,Object>> trendYieldList = new ArrayList<Map<String,Object>>();
+		Map<String,Object> trendYieldMap = new HashMap();
+		String day1 = DateUtil.getSystemDatesAgo(new Date(), -1);
+		BigDecimal rate1 = userFinanceProdCalcService.calcYieldRate(userUuid, day1, day1);
+		if(!rate1.equals(BigDecimal.ZERO)){
+			trendYieldMap.put("date",day1);
+			trendYieldMap.put("value",rate1);
+			trendYieldList.add(trendYieldMap);
+			String day2 = DateUtil.getSystemDatesAgo(new Date(), -2);
+			BigDecimal rate2 = userFinanceProdCalcService.calcYieldRate(userUuid, day2, day2);
+			if(!rate2.equals(BigDecimal.ZERO)){
+				trendYieldMap = new HashMap();
+				trendYieldMap.put("date",day2);
+				trendYieldMap.put("value",rate2);
+				trendYieldList.add(trendYieldMap);
+				String day3 = DateUtil.getSystemDatesAgo(new Date(), -3);
+				BigDecimal rate3 = userFinanceProdCalcService.calcYieldRate(userUuid, day3, day3);
+				if(!rate3.equals(BigDecimal.ZERO)){
+					trendYieldMap = new HashMap();
+					trendYieldMap.put("date",day3);
+					trendYieldMap.put("value",rate3);
+					trendYieldList.add(trendYieldMap);
+					String day4 = DateUtil.getSystemDatesAgo(new Date(), -4);
+					BigDecimal rate4 = userFinanceProdCalcService.calcYieldRate(userUuid, day4, day4);
+					if(!rate4.equals(BigDecimal.ZERO)){
+						trendYieldMap = new HashMap();
+						trendYieldMap.put("date",day4);
+						trendYieldMap.put("value",rate4);
+						trendYieldList.add(trendYieldMap);
+						String day5 = DateUtil.getSystemDatesAgo(new Date(), -5);
+						BigDecimal rate5 = userFinanceProdCalcService.calcYieldRate(userUuid, day5, day5);
+						if(!rate5.equals(BigDecimal.ZERO)){
+							trendYieldMap = new HashMap();
+							trendYieldMap.put("date",day5);
+							trendYieldMap.put("value",rate5);
+							trendYieldList.add(trendYieldMap);
+							String day6 = DateUtil.getSystemDatesAgo(new Date(), -6);
+							BigDecimal rate6 = userFinanceProdCalcService.calcYieldRate(userUuid, day6, day6);
+						}
+					}
+				}
+			}
+		}
+		resultMap.put("trendYield", trendYieldList);
+		return resultMap;
+	}
 }
