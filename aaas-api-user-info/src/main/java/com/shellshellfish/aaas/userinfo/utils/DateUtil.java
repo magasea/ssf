@@ -104,7 +104,7 @@ public class DateUtil {
 		Date date = new Date();
 		Calendar c = Calendar.getInstance();
 		c.setTime(date);
-		c.add(Calendar.DAY_OF_MONTH, -day);
+		c.add(Calendar.DAY_OF_MONTH, day);
 		date = c.getTime();
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
 		String dateNow = df.format(date);
