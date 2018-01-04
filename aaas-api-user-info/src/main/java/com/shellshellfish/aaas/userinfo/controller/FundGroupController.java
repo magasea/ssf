@@ -62,7 +62,7 @@ public class FundGroupController {
 		//遍历赋值
 		for(int i=0;i<datesSelected.length;i++){
 			Map dateValueMap=new HashMap<>();
-			datesSelected[i]=DateUtil.getSystemDatesAgo(new Date(),-i);
+			datesSelected[i]=DateUtil.getSystemDatesAgo(-i);
 			dateValueMap.put("time",datesSelected[i]);
 		//调用对应的service
 		BigDecimal rate=userFinanceProdCalcService.calcYieldRate(uuid, prodId, datesSelected[i]	, datesSelected[i]);
