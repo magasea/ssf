@@ -1,0 +1,134 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "fund info",
+  "description": "基金概况",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "msg": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fname": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "update": {
+          "type": "number"
+        },
+        "querydate": {
+          "type": "number"
+        },
+        "navadj": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "navlatestdate": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fundscale": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "navunit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "navaccum": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "yieldof7days": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tenkunityield": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "bmindexchgpct": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "custodianbank": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "founddate": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "code",
+        "fname",
+        "update",
+        "navlatestdate",
+        "fundscale",
+        "navunit",
+        "navaccum",
+        "yieldof7days",
+        "tenkunityield",
+        "bmindexchgpct",
+        "custodianbank",
+        "founddate"
+      ]
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

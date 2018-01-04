@@ -14,7 +14,7 @@ import java.util.Map;
 public interface GroupDetailsService {
 
 
-	List<HistoryList> getHistoryList(String methodUrl, Map params);
+	String getHistoryList(String methodUrl, Map params);
 
 	FundManager getFundManager(String methodUrl, Map params);
 

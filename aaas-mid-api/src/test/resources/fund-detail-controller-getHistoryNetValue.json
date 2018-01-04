@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Net value of history",
+  "description": "历史净值",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "msg": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "period": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "historylist": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "date": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "navaccum": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "dayup": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "navunit": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "date",
+              "navaccum",
+              "dayup",
+              "navunit",
+              "hello"
+            ]
+          }
+        }
+      },
+      "required": [
+        "historylist"
+      ]
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

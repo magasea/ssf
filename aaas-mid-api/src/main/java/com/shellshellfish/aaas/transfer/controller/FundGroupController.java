@@ -1,9 +1,7 @@
 package com.shellshellfish.aaas.transfer.controller;
 
-import com.alibaba.fastjson.JSONArray;
 import com.shellshellfish.aaas.common.utils.URLutils;
 import com.shellshellfish.aaas.model.JsonResult;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -42,18 +40,27 @@ public class FundGroupController {
 			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = "41")})
 	@RequestMapping(value = "/getMyProductDetail", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getProductDetail(@RequestParam String uuid,@RequestParam String prodId) {
+	public JsonResult getProductDetail(@RequestParam String uuid, @RequestParam String prodId) {
+
+		Map result = null;
 
 		String methodUrl = "/api/userinfo/getMyProductDetail";
 		Map<String, String> params = new HashMap(2);
+
 		params.put("uuid", uuid);
 		params.put("prodId", prodId);
-		ResponseEntity<Map> entity = restTemplate.postForEntity(URLutils.prepareParameters(userinfoUrl + methodUrl, params),HttpEntity.EMPTY, Map.class,params);
+
+		ResponseEntity<Map> entity = restTemplate.postForEntity(URLutils.prepareParameters(userinfoUrl + methodUrl, params), HttpEntity.EMPTY, Map.class, params);
 		if (HttpStatus.OK.equals(entity.getStatusCode())) {
-			return new JsonResult(JsonResult.SUCCESS, "获取成功", entity.getBody());
+			result = entity.getBody();
+		} else {
+			logger.error("error code : {} ; error message :{}", entity.getStatusCode(), entity.getBody());
+			return new JsonResult(JsonResult.Fail, "获取失败", JsonResult.EMPTYRESULT);
 		}
-		logger.error("errorCode:" + entity.getStatusCode() + "\nbody:" + entity.getBody());
-		return new JsonResult(JsonResult.Fail,"获取失败",JsonResult.EMPTYRESULT);
+
+
+		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 	}
+
 
 }

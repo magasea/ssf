@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "fund manager",
+  "description": "基金经理",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "msg": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "managerName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "workingdays": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "avgearningrate": {
+          "type": "number"
+        },
+        "jobDetails": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fundName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "tenure": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "returns": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "fundName",
+              "tenure",
+              "returns"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

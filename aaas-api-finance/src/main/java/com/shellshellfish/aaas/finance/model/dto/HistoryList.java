@@ -27,11 +27,11 @@ public class HistoryList {
 	public HistoryList() {
 	}
 
-	public HistoryList(String[] params) {
-		this.date = params[0];
-		this.unitNetWorth = params[1];
-		this.accumulativeNetValue = params[2];
-		this.dayGains = params[3];
+	public HistoryList(String date, String unitNetWorth, String accumulativeNetValue, String dayGains) {
+		this.date = date;
+		this.unitNetWorth = unitNetWorth;
+		this.accumulativeNetValue = accumulativeNetValue;
+		this.dayGains = dayGains;
 	}
 
 	public String getDate() {
