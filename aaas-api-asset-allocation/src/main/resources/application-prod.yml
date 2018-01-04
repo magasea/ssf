@@ -10,6 +10,9 @@ spring:
         password: 1qaz@WSX
         url: jdbc:mysql://localhost:3306/choice?useUnicode=true&characterEncoding=utf-8
         username: sa
+    jpa:
+      hibernate:
+        ddl-auto: update
 grpc:
   host: localhost
   port: 10021

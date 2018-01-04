@@ -276,15 +276,6 @@ public class TrdOrderDetail {
     this.fundQuantity = fundQuantity;
   }
 
-  @Basic
-  @Column(name = "order_status")
-  public Integer getOrderStatus() {
-    return orderStatus;
-  }
-
-  public void setOrderStatus(Integer orderStatus) {
-    this.orderStatus = orderStatus;
-  }
 
   @Basic
   @Column(name = "prod_code")

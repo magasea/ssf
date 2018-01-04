@@ -9,6 +9,9 @@ logging:
     org.springframework.data: debug
 
 spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
   data:
     mongodb:
       database: test1

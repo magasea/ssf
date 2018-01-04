@@ -10,7 +10,9 @@ logging:
 
 
 spring:
-
+  jpa:
+    hibernate:
+      ddl-auto: update
   data:
     mongodb:
       database: test1
