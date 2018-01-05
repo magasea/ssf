@@ -211,7 +211,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       if(null != sellFundResult){
         trdPayFlow.setApplySerial(sellFundResult.getApplySerial());
         trdPayFlow.setPayStatus(TrdPayFlowStatusEnum.CONFIRMSUCCESS.getStatus());
-        trdPayFlow.setPayType(TrdOrderOpTypeEnum.SELL.getOperation());
+        trdPayFlow.setPayType(TrdOrderOpTypeEnum.REDEEM.getOperation());
         trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
         trdPayFlow.setFundCode(prodDtlSellDTO.getFundCode());
         trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());

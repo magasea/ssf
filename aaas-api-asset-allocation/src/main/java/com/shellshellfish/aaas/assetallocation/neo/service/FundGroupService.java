@@ -506,7 +506,8 @@ public class FundGroupService {
         List<Map<String, Object>> list = new ArrayList<>();
         Calendar ca = Calendar.getInstance();
         Map<String, String> _links = new HashMap<>();
-        Date enddate = new Date();
+        //Date endDate = new Date();
+        Date enddate = new SimpleDateFormat("yyyy-MM-dd").parse("2017-11-25");
         ca.setTime(enddate);
         ca.add(Calendar.MONTH, mouth);
         String starttime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
@@ -525,12 +526,12 @@ public class FundGroupService {
         if (fundGroupHistoryList.size() != 0) {
         	List maxMinValueList = new ArrayList();
             if (returnType.equalsIgnoreCase("income")) {
-                for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
+                for (int i = 1;i< fundGroupHistoryList.size();i++) {
                     Map<String, Object> map = new HashMap<>();
-                    map.put("time",new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()));
-                    map.put("value", fundGroupHistory.getIncome_num());
+                    map.put("time",new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistoryList.get(i).getTime()));
+                    map.put("value", (fundGroupHistoryList.get(i).getIncome_num()-fundGroupHistoryList.get(i-1).getIncome_num())/fundGroupHistoryList.get(i-1).getIncome_num());
                     list.add(map);
-                    maxMinValueList.add(fundGroupHistory.getIncome_num());
+                    maxMinValueList.add((fundGroupHistoryList.get(i).getIncome_num()-fundGroupHistoryList.get(i-1).getIncome_num())/fundGroupHistoryList.get(i-1).getIncome_num());
                 }
                 maxMinValueMap = TransformUtil.getMaxMinValue(maxMinValueList);
                 fgi.setName("组合收益率走势图");
@@ -572,7 +573,7 @@ public class FundGroupService {
         //Date endDate = new Date();
         Date endDate = new SimpleDateFormat("yyyy-MM-dd").parse("2017-11-25");
         ca.setTime(endDate);
-        ca.add(Calendar.DATE, -7);
+        ca.add(Calendar.DATE, -8);
         String startTime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
         ca.setTime(endDate);
         ca.add(Calendar.DATE, -1);
@@ -592,12 +593,12 @@ public class FundGroupService {
         if (fundGroupHistoryList.size() != 0) {
             if (returnType.equalsIgnoreCase("income")) {
                 List<Map<String, Object>> listFund = new ArrayList<>();
-                for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
+                for (int i = 1;i< fundGroupHistoryList.size();i++) {
                     Map<String, Object> mapBasic = new HashMap<>();
-                    mapBasic.put("time", new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()));
-                    mapBasic.put("value", fundGroupHistory.getIncome_num());
+                    mapBasic.put("time", new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistoryList.get(i).getTime()));
+                    mapBasic.put("value", (fundGroupHistoryList.get(i).getIncome_num()-fundGroupHistoryList.get(i-1).getIncome_num())/fundGroupHistoryList.get(i-1).getIncome_num());
                     listFund.add(mapBasic);
-                    maxMinValueList.add(fundGroupHistory.getIncome_num());
+                    maxMinValueList.add((fundGroupHistoryList.get(i).getIncome_num()-fundGroupHistoryList.get(i-1).getIncome_num())/fundGroupHistoryList.get(i-1).getIncome_num());
                 }
                 maxMinValueMap = TransformUtil.getMaxMinValue(maxMinValueList);
                 
@@ -607,12 +608,12 @@ public class FundGroupService {
                 mapStr.remove("fund_group_sub_id");
                 fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
                 List<Map<String, Object>> listBenchmark = new ArrayList<>();
-                for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
+                for (int i = 1;i< fundGroupHistoryList.size();i++) {
                     Map<String, Object> mapBenchmark = new HashMap<>();
-                    mapBenchmark.put("time", new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistory.getTime()));
-                    mapBenchmark.put("value", fundGroupHistory.getIncome_num());
+                    mapBenchmark.put("time", new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistoryList.get(i).getTime()));
+                    mapBenchmark.put("value",(fundGroupHistoryList.get(i).getIncome_num()-fundGroupHistoryList.get(i-1).getIncome_num())/fundGroupHistoryList.get(i-1).getIncome_num());
                     listBenchmark.add(mapBenchmark);
-                    maxMinBenchmarkList.add(fundGroupHistory.getIncome_num());
+                    maxMinBenchmarkList.add((fundGroupHistoryList.get(i).getIncome_num()-fundGroupHistoryList.get(i-1).getIncome_num())/fundGroupHistoryList.get(i-1).getIncome_num());
                 }
                 maxMinBenchmarkMap = TransformUtil.getMaxMinValue(maxMinBenchmarkList);
                 allMap.put("incomeBenchmark",listBenchmark);

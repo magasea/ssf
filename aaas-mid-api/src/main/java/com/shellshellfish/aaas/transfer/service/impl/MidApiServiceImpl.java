@@ -17,7 +17,10 @@ import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+
+import com.alibaba.fastjson.JSONObject;
 import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
+import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
 import com.shellshellfish.aaas.dto.FundNAVInfo;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
@@ -387,10 +390,24 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 
 
 	@Override
-	public Map sellFund() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public Map sellFund(String userProdId, String prodId, String groupId, String userUuid,
+			List<FinanceProdSellInfo> infoList) throws Exception {
+		String url=tradeOrderUrl+"/api/trade/funds/sell";
+		Map map= new HashMap();
+		map.put("userProdId", userProdId);
+		map.put("prodId", prodId);
+		map.put("groupId", groupId);
+		map.put("userUuid", userUuid);
+		map.put("prodDtlSellPageDTOList", infoList);
+		String str=JSONObject.toJSONString(map);
+		Map result=restTemplate.postForEntity(url, getHttpEntity(str), Map.class).getBody();
+		return result;
 	}
+
+
+
+
+
 
 
 

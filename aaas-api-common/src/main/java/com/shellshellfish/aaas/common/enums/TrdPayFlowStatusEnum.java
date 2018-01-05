@@ -27,4 +27,24 @@ public enum TrdPayFlowStatusEnum {
     this.comment = comment;
   }
 
+  public static String getComment(int status){
+
+    for (TrdPayFlowStatusEnum enumItem : TrdPayFlowStatusEnum.values()) {
+      if (enumItem.getStatus() == status) {
+        return enumItem.getComment();
+      }
+    }
+    return null;
+  }
+
+
+  public static TrdPayFlowStatusEnum getByStatus(int status){
+    for (TrdPayFlowStatusEnum enumItem : TrdPayFlowStatusEnum.values()) {
+      if (enumItem.getStatus() == status) {
+        return enumItem;
+      }
+    }
+    return null;
+  }
+
 }
