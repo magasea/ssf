@@ -92,7 +92,7 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
                   (navLatestDateStart)/1000),
           Criteria.where("navlatestdate").lte(DateUtil.getDateLongVal
               (navLatestDateEnd)/1000)));
-      dailyFundsList  = mongoTemplate.find(query, DailyFunds.class, "dailyfunds");
+      dailyFundsList  = mongoTemplate.find(query, DailyFunds.class, "fund_yieldrate");
     } catch (ParseException e) {
       e.printStackTrace();
     }

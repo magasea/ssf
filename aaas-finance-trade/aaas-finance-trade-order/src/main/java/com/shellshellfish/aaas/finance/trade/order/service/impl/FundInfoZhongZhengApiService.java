@@ -331,14 +331,14 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
     }
 
     @Override
-    public BigDecimal calcPoundageByTotalAmount(BigDecimal totalAmount, BigDecimal rate, BigDecimal discount) {
+    public BigDecimal calcPoundageByGrossAmount(BigDecimal totalAmount, BigDecimal rate, BigDecimal discount) {
         // return totalAmount * rate * discount / (1 + rate * discount);
         BigDecimal temp = rate.multiply(discount);
         return totalAmount.multiply(temp).divide(temp.add(BigDecimal.ONE));
     }
 
     @Override
-    public BigDecimal calcPoundageSaving(BigDecimal amount, BigDecimal rate, BigDecimal discount){
+    public BigDecimal calcPoundageWithDiscount(BigDecimal amount, BigDecimal rate, BigDecimal discount){
         return amount.multiply(rate).multiply(discount);
     }
 

@@ -69,15 +69,15 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
     }
 
     @Override
-    public DistributionResult getPoundageOfBuyFund(BigDecimal netAmount, List<ProductMakeUpInfo> productMakeUpInfoList) throws Exception {
+    public DistributionResult getPoundageOfBuyFund(BigDecimal grossAmount, List<ProductMakeUpInfo> productMakeUpInfoList) throws Exception {
         BigDecimal totalPoundage = BigDecimal.ZERO;
         BigDecimal totalDiscountSaving = BigDecimal.ZERO;
         List<FundAmount> fundAmountList = new ArrayList<>();
         for(ProductMakeUpInfo info: productMakeUpInfoList) {
-            BigDecimal amount = netAmount.multiply(BigDecimal.valueOf(info.getFundShare()).divide(BigDecimal.valueOf(10000d)));
+            BigDecimal amount = grossAmount.multiply(BigDecimal.valueOf(info.getFundShare()).divide(BigDecimal.valueOf(10000d)));
             BigDecimal rate = fundInfoService.getRateOfBuyFund(info.getFundCode(), BUY_FUND.getCode());
             BigDecimal discount = fundInfoService.getDiscount(info.getFundCode(), BUY_FUND.getCode());
-            BigDecimal poundage = fundInfoService.calcPoundageSaving(amount, rate, discount);
+            BigDecimal poundage = fundInfoService.calcPoundageByGrossAmount(amount, rate, discount);
             BigDecimal discountSaving =  fundInfoService.calcDiscountSaving(amount, rate, discount);
 
             totalPoundage = totalPoundage.add(poundage);
@@ -98,8 +98,8 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
             BigDecimal amount = netAmount.multiply(BigDecimal.valueOf(info.getFundShare()).divide(BigDecimal.valueOf(10000d)));
             BigDecimal rate = fundInfoService.getRateOfSellFund(info.getFundCode(), SELL_FUND.getCode());
             BigDecimal discount = fundInfoService.getDiscount(info.getFundCode(), SELL_FUND.getCode());
-            BigDecimal poundage = fundInfoService.calcPoundageSaving(amount, rate, discount);
-            BigDecimal discountSaving =  fundInfoService.calcPoundageSaving(amount, rate, discount);
+            BigDecimal poundage = fundInfoService.calcPoundageWithDiscount(amount, rate, discount);
+            BigDecimal discountSaving =  fundInfoService.calcPoundageWithDiscount(amount, rate, discount);
 
             totalPoundage = totalPoundage.add(poundage);
             totalDiscountSaving = totalDiscountSaving.add(discountSaving);
