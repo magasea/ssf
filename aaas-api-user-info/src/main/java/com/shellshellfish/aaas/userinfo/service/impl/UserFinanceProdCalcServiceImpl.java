@@ -171,6 +171,46 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         mongoTemplate.save(dailyAmount);
     }
 
+    /** to be refactored to remove duplicate code
+     *
+     * @param userUuid
+     * @param prodId
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    @Override
+    public BigDecimal calcYieldValue(String userUuid, Long prodId, String startDate, String endDate) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("userUuid").is(userUuid))
+                .addCriteria(Criteria.where("date").gte(startDate).lte(endDate))
+                .addCriteria(Criteria.where("prodId").is(prodId));
+
+        List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
+        BigDecimal assetOfEndDay = BigDecimal.ZERO;
+        BigDecimal assetOfStartDay = BigDecimal.ZERO;
+        BigDecimal intervalAmount = BigDecimal.ZERO;
+        for(DailyAmount dailyAmount: dailyAmountList) {
+            if (dailyAmount.getDate().equals(startDate) && dailyAmount.getAsset() != null) {
+                assetOfStartDay = assetOfStartDay.add(dailyAmount.getAsset());
+            } else if (dailyAmount.getDate().equals(endDate) && dailyAmount.getAsset() != null) {
+                assetOfEndDay = assetOfEndDay.add(dailyAmount.getAsset());
+            }
+
+            if (dailyAmount.getBonus() != null) {
+                intervalAmount = intervalAmount.add(dailyAmount.getBonus());
+            }
+            if (dailyAmount.getSellAmount() != null) {
+                intervalAmount = intervalAmount.add(dailyAmount.getSellAmount());
+            }
+            if (dailyAmount.getBuyAmount() != null) {
+                intervalAmount = intervalAmount.subtract(dailyAmount.getBuyAmount());
+            }
+        }
+
+        return assetOfEndDay.subtract(assetOfStartDay).add(intervalAmount);
+    }
+
     /**
      *
      * @param startDate yyyyMMdd
@@ -212,6 +252,37 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         }
 
         return result;
+    }
+
+    @Override
+    public BigDecimal calcYieldValue(String userUuid, String startDate, String endDate) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("userUuid").is(userUuid))
+                .addCriteria(Criteria.where("date").gte(startDate).lte(endDate));
+
+        List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
+        BigDecimal assetOfEndDay = BigDecimal.ZERO;
+        BigDecimal assetOfStartDay = BigDecimal.ZERO;
+        BigDecimal intervalAmount = BigDecimal.ZERO;
+        for(DailyAmount dailyAmount: dailyAmountList) {
+            if (dailyAmount.getDate().equals(startDate) && dailyAmount.getAsset() != null) {
+                assetOfStartDay = assetOfStartDay.add(dailyAmount.getAsset());
+            } else if (dailyAmount.getDate().equals(endDate) && dailyAmount.getAsset() != null) {
+                assetOfEndDay = assetOfEndDay.add(dailyAmount.getAsset());
+            }
+
+            if (dailyAmount.getBonus() != null) {
+                intervalAmount = intervalAmount.add(dailyAmount.getBonus());
+            }
+            if (dailyAmount.getSellAmount() != null) {
+                intervalAmount = intervalAmount.add(dailyAmount.getSellAmount());
+            }
+            if (dailyAmount.getBuyAmount() != null) {
+                intervalAmount = intervalAmount.subtract(dailyAmount.getBuyAmount());
+            }
+        }
+
+        return assetOfEndDay.subtract(assetOfStartDay).add(intervalAmount);
     }
 
     @Override

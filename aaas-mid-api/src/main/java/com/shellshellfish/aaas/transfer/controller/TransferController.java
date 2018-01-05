@@ -75,6 +75,8 @@ public class TransferController {
 	   resultMap.put("originalCost", totalOffDiscount);
 	   return new JsonResult(JsonResult.SUCCESS,"获取成功",resultMap);
 	  }catch(Exception e){
+		  logger.error(e.getMessage());
+		  e.printStackTrace();
 		  String str=new ReturnedException(e).getErrorMsg();
 		  return new JsonResult(JsonResult.Fail,str, JsonResult.EMPTYRESULT);
 	  }
@@ -110,6 +112,7 @@ public class TransferController {
 		return new JsonResult(JsonResult.SUCCESS, "购买成功", resultMap);
 		}catch(Exception e){
 			logger.error("购买基金调用购买接口失败");
+			e.printStackTrace();
 			String str=new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail,str , JsonResult.EMPTYRESULT);
 		}
@@ -162,6 +165,7 @@ public class TransferController {
 			return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result);
 		}catch(Exception e){
 			logger.error("产品详情页面接口失败");
+			e.printStackTrace();
 			String str=new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail,"产品详情页面失败" , JsonResult.EMPTYRESULT);
 		}
@@ -201,11 +205,11 @@ public class TransferController {
 		  try{
 			 result=service.sellFund(userProdId, prodId, groupId,userUuid,infoList);
 		     }catch(Exception e){
-		    	 logger.error("调用赎回接口发生错误");
+		    	logger.error("调用赎回接口发生错误");
 			   e.printStackTrace();
 			   return new JsonResult(JsonResult.Fail,"赎回失败", JsonResult.EMPTYRESULT);
 		     }
-		return new JsonResult(JsonResult.SUCCESS, "赎回成功",result);
+		return new JsonResult(JsonResult.SUCCESS, "赎回成功",result); 
 	}
 	
 	
@@ -224,6 +228,7 @@ public class TransferController {
 		return new JsonResult(JsonResult.SUCCESS,"调用成功",result);
 		}catch(Exception e){
 			logger.error("赎回页面接口调用失败");
+			e.printStackTrace();
 			String str=new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}	

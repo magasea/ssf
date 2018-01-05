@@ -137,10 +137,21 @@ public class UserFinanceProdCalcServiceImplTest {
     @Test
     public void testTotalAssetYieldRate() {
         long start = System.currentTimeMillis();
-        BigDecimal yieldRate = userFinanceProdCalcService.calcYieldRate("shellshellfish","20180102", "20180103");
+        BigDecimal yieldRate = userFinanceProdCalcService.calcYieldRate("shellshellfish","20171226", "20180104");
         long end = System.currentTimeMillis();
         logger.info("duration: {}", end - start);
         logger.info("total asset yieldRate: {}", yieldRate);
+    }
+
+    @Test
+    public void testTotalAssetYieldValue(){
+        long start = System.currentTimeMillis();
+        BigDecimal yieldValue1 = userFinanceProdCalcService.calcYieldValue("shellshellfish","20171226", "20171231");
+        BigDecimal yieldValue2 = userFinanceProdCalcService.calcYieldValue("shellshellfish","20171231", "20180104");
+        BigDecimal yieldValue3 = userFinanceProdCalcService.calcYieldValue("shellshellfish","20171226", "20180104");
+        long end = System.currentTimeMillis();
+        logger.info("duration: {}", end - start);
+        logger.info("total asset yieldValue1: {}, yieldValue2: {}, yieldValue3: {}", yieldValue1, yieldValue2, yieldValue3);
     }
 
     @Test
@@ -148,7 +159,7 @@ public class UserFinanceProdCalcServiceImplTest {
         List<DailyAmount> dailyAmountList = mongoTemplate.findAll(DailyAmount.class);
         for(DailyAmount dailyAmount : dailyAmountList) {
             if (dailyAmount.getAsset() != null && dailyAmount.getAsset().compareTo(BigDecimal.ZERO) != 0) {
-                int noise = new Random().nextInt(10);
+                double noise = new Random().nextInt(10);
                 if (noise < 3 || noise > 7) {
                    noise = - noise;
                 }

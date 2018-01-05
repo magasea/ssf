@@ -15,7 +15,11 @@ public interface UserFinanceProdCalcService {
 
     void initDailyAmount(String userUuid, Long prodId, String date, String fundCode);
 
+    BigDecimal calcYieldValue(String userUuid, Long prodId, String startDate, String endDate);
+
     BigDecimal calcYieldRate(String userUuid, Long prodId, String startDate, String endDate);
+
+    BigDecimal calcYieldValue(String userUuid, String startDate, String endDate);
 
     BigDecimal calcYieldRate(String userUuid, String startDate, String endDate);
 

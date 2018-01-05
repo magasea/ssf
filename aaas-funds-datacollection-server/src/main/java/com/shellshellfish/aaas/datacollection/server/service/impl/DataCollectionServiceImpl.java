@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.datacollection.server.service.impl;
 
 
+import autovalue.shaded.org.apache.commons.lang.StringUtils;
 import com.shellshellfish.aaas.common.utils.DataCollectorUtil;
 import com.shellshellfish.aaas.common.utils.MathUtil;
 import com.shellshellfish.aaas.common.utils.SSFDateUtils;
@@ -12,6 +13,7 @@ import com.shellshellfish.aaas.datacollect.FundInfo;
 import com.shellshellfish.aaas.datacollect.FundInfos;
 import com.shellshellfish.aaas.datacollection.server.model.DailyFunds;
 import com.shellshellfish.aaas.datacollection.server.model.DayIndicator;
+import com.shellshellfish.aaas.datacollection.server.model.FundBaseClose;
 import com.shellshellfish.aaas.datacollection.server.model.FundResources;
 import com.shellshellfish.aaas.datacollection.server.model.FundYeildRate;
 import com.shellshellfish.aaas.datacollection.server.repositories.DailyFundsRepository;
@@ -84,18 +86,31 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
     String navLatestDateStart = request.getNavLatestDateStart();
     String navLatestDateEnd = request.getNavLatestDateEnd();
     List<String> codes = request.getCodesList();
-    List<DailyFunds> dailyFundsList = null;
-    try {
-      Query query = new Query();
-      query.addCriteria(Criteria.where("code").in(codes).andOperator(
-          Criteria.where("navlatestdate").gt(DateUtil.getDateLongVal
-                  (navLatestDateStart)/1000),
-          Criteria.where("navlatestdate").lte(DateUtil.getDateLongVal
-              (navLatestDateEnd)/1000)));
-      dailyFundsList  = mongoTemplate.find(query, DailyFunds.class, "fund_yieldrate");
-    } catch (ParseException e) {
-      e.printStackTrace();
+    List<DailyFunds> dailyFundsList = new ArrayList<>();
+    List<DailyFunds> partialFundsList = null;
+    List<String> baseIndexs = new ArrayList<>();
+    for(String code : codes){
+      try {
+
+        Query query = new Query();
+        query.addCriteria(Criteria.where("code").is(code).andOperator(
+            Criteria.where("navlatestdate").gt(DateUtil.getDateLongVal
+                (navLatestDateStart)/1000),
+            Criteria.where("navlatestdate").lte(DateUtil.getDateLongVal
+                (navLatestDateEnd)/1000)));
+        partialFundsList  = mongoTemplate.find(query, DailyFunds.class, "fund_yieldrate");
+      } catch (ParseException e) {
+        e.printStackTrace();
+      }
+      if (!CollectionUtils.isEmpty(partialFundsList)){
+        //it is normal funds
+        dailyFundsList.addAll(partialFundsList);
+      }else{
+        //it is baseIdx code
+        baseIndexs.add(code);
+      }
     }
+
     List<com.shellshellfish.aaas.datacollect.DailyFunds> dailyFundsListProto = new ArrayList<>();
     Builder builderDailyFunds = com.shellshellfish.aaas.datacollect.DailyFunds.newBuilder();
     for(DailyFunds dailyFunds: dailyFundsList){
@@ -122,6 +137,78 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
       }
       dailyFundsListProto.add(builderDailyFunds.build());
       builderDailyFunds.clear();
+    }
+    //check if the codes is of base codes
+    List<FundBaseClose> fundbasecloses = null;
+    if(!CollectionUtils.isEmpty(baseIndexs)){
+      try{
+        Query query = new Query();
+//      String dateStart = DateUtil.getDateStrFromLong(Long.parseLong(navLatestDateStart));
+//      String dateEnd = DateUtil.getDateStrFromLong(Long.parseLong(navLatestDateEnd));
+        query.addCriteria(Criteria.where("datestamp").gt(DateUtil.getDateLongVal
+            (navLatestDateStart)/1000).and("date").lte(navLatestDateEnd));
+        fundbasecloses = mongoTemplate.find(query, FundBaseClose.class,
+            "fundbaseclose");
+      }catch (Exception ex){
+        ex.printStackTrace();
+        logger.error("failed to convert date str to long date");
+      }
+
+      if(CollectionUtils.isEmpty(fundbasecloses)){
+        logger.error("cannot find baseIdx for dateStart:"+ navLatestDateStart + " dateEnd:" + navLatestDateEnd);
+      }else{
+        //为了适应这个奇葩的表结构 fundbaseclose，只好写这个奇葩的hardcode赋值
+        builderDailyFunds.clear();
+        for(FundBaseClose fundBaseClose: fundbasecloses){
+          builderDailyFunds.setCode("GDAXIGI");
+          Double nvadj = MathUtil.getDoubleValueFromStrWitDefaultOpt(fundBaseClose.getGdaxigi());
+          builderDailyFunds.setNavadj(nvadj);
+          try {
+            builderDailyFunds.setNavLatestDate(DateUtil.getDateLongVal(fundBaseClose.getDate()));
+          } catch (ParseException e) {
+            e.printStackTrace();
+            logger.error("failed to parse date str:" + fundBaseClose.getDate());
+          }
+          dailyFundsListProto.add(builderDailyFunds.build());
+          dailyFundsListProto.clear();
+
+          builderDailyFunds.setCode("000905SH");
+          nvadj = MathUtil.getDoubleValueFromStrWitDefaultOpt(fundBaseClose.getSh00905());
+          builderDailyFunds.setNavadj(nvadj);
+          try {
+            builderDailyFunds.setNavLatestDate(DateUtil.getDateLongVal(fundBaseClose.getDate()));
+          } catch (ParseException e) {
+            e.printStackTrace();
+            logger.error("failed to parse date str:" + fundBaseClose.getDate());
+          }
+          dailyFundsListProto.add(builderDailyFunds.build());
+
+          dailyFundsListProto.clear();
+          builderDailyFunds.setCode("H11001CSI");
+          nvadj = MathUtil.getDoubleValueFromStrWitDefaultOpt(fundBaseClose.getH11001csi());
+          builderDailyFunds.setNavadj(nvadj);
+          try {
+            builderDailyFunds.setNavLatestDate(DateUtil.getDateLongVal(fundBaseClose.getDate()));
+          } catch (ParseException e) {
+            e.printStackTrace();
+            logger.error("failed to parse date str:" + fundBaseClose.getDate());
+          }
+          dailyFundsListProto.add(builderDailyFunds.build());
+
+          dailyFundsListProto.clear();
+          builderDailyFunds.setCode("000300SH");
+          nvadj = MathUtil.getDoubleValueFromStrWitDefaultOpt(fundBaseClose.getSh000300());
+          builderDailyFunds.setNavadj(Double.valueOf(nvadj));
+          try {
+            builderDailyFunds.setNavLatestDate(DateUtil.getDateLongVal(fundBaseClose.getDate()));
+          } catch (ParseException e) {
+            e.printStackTrace();
+            logger.error("failed to parse date str:" + fundBaseClose.getDate());
+          }
+          dailyFundsListProto.add(builderDailyFunds.build());
+        }
+
+      }
     }
     final DailyFundsCollection.Builder builder = DailyFundsCollection.newBuilder()
         .addAllDailyFunds(dailyFundsListProto);

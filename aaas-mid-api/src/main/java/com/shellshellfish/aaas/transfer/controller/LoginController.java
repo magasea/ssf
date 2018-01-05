@@ -102,8 +102,10 @@ public class LoginController {
 			result.put("myCardTotalQty", userinfoMap.get("myCardTotalQty")); //我的银行卡数量
 			result.put("messageUnread", userinfoMap.get("messageUnread")); //未读消息数量	
 			result.put("totalAssets", userinfoMap.get("totalAssets")); //总资产
-			result.put("dailyReturn", userinfoMap.get("dailyReturn")); //日收益率
-			result.put("totalRevenue", userinfoMap.get("totalRevenue")); //累计收益
+			result.put("dailyReturn", userinfoMap.get("dailyReturn")); //日收益
+			result.put("dailyReturnRate", userinfoMap.get("dailyIncomeRate")); //日收益率
+			result.put("totalRevenue", userinfoMap.get("totalIncome")); //累计收益
+			result.put("totalIncomeRate", userinfoMap.get("totalIncomeRate")); //累计收益率
 			/**********************添加的测试数据*******************************/
 			//移除不需要的数据
 			result.remove("_links");
