@@ -28,7 +28,7 @@ public class FundInfoServiceImplTest {
     DailyFundsQuery.Builder builder = DailyFundsQuery.newBuilder();
     builder.setNavLatestDateStart("2017-11-30");
     builder.setNavLatestDateEnd("2017-12-30");
-    builder.addCodes("000312.OF");
+    builder.addCodes("000300SH");
     List<DailyFunds> dailyFundsList = fundInfoService.getDailyFunds(builder.build());
     for(DailyFunds dailyFunds: dailyFundsList){
       System.out.println(dailyFunds.getFname());
