@@ -1385,25 +1385,33 @@ public class UserInfoController {
 		} else {
 			resultMap.put("myInvstTotalQty", productsList.size());
 		}
-		UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
-		//总资产
-		BigDecimal totalAssets = new BigDecimal("0");
-		if(userInfoAssectsBrief.getTotalAssets()!=null){
-			totalAssets = userInfoAssectsBrief.getTotalAssets();
+		//UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
+		// 总资产
+		Map<String, Object> totalAssetsMap = userInfoService.getTotalAssets(userUuid);
+		if(totalAssetsMap.size()>0){
+			resultMap.put("totalAssets", totalAssetsMap.get("assert"));
+			// 日收益
+			resultMap.put("dailyReturn", totalAssetsMap.get("dailyIncome"));
+			// 日收益率
+			resultMap.put("dailyIncomeRate", totalAssetsMap.get("dailyIncomeRate"));
+			// 累计收益率
+			resultMap.put("totalIncomeRate", totalAssetsMap.get("totalIncomeRate"));
+			// 累计收益
+			resultMap.put("totalIncome", totalAssetsMap.get("totalIncome"));
+		} else {
+			resultMap.put("totalAssets", 0);
+			resultMap.put("dailyReturn", 0);
+			resultMap.put("dailyIncomeRate", 0);
+			resultMap.put("totalIncomeRate", "0");
+			resultMap.put("totalIncome", "0");
 		}
-		resultMap.put("totalAssets", totalAssets);
-		//日收益
-		BigDecimal dailyReturn = new BigDecimal("0");
-		if(userInfoAssectsBrief.getDailyProfit()!=null){
-			dailyReturn = userInfoAssectsBrief.getDailyProfit();
-		}
-		resultMap.put("dailyReturn", dailyReturn);
+		
 		//累计收益
-		BigDecimal totalRevenue = new BigDecimal("0");
-		if(userInfoAssectsBrief.getTotalProfit()!=null){
-			totalRevenue = userInfoAssectsBrief.getTotalProfit();
-		}
-		resultMap.put("totalRevenue", totalRevenue);
+//		BigDecimal totalRevenue = new BigDecimal("0");
+//		if(userInfoAssectsBrief.getTotalProfit()!=null){
+//			totalRevenue = userInfoAssectsBrief.getTotalProfit();
+//		}
+		resultMap.put("totalRevenue", "0");
 		
 		return new ResponseEntity<Map>(resultMap, HttpStatus.OK);
 	}
@@ -1596,13 +1604,22 @@ public class UserInfoController {
 			resultMap.put("title", products.getProdName());
 			resultMap.put("createDate", products.getCreateDate());
 			//总资产
-			resultMap.put("totalAssets", "4543.25");
-			//日收益
-			resultMap.put("dailyIncome", "1.8");
-			//累计收益
-			resultMap.put("totalIncome", "398");
-			//累计收益率
-			resultMap.put("totalRevenue", "0.04");
+			Map<String, Object> totalAssetsMap = userInfoService.getChicombinationAssets(userUuid,products);
+			if(totalAssetsMap.size()>0){
+				resultMap.put("totalAssets", totalAssetsMap.get("assert"));
+				//日收益
+				resultMap.put("dailyIncome", totalAssetsMap.get("dailyIncome"));
+				//累计收益率
+				resultMap.put("totalIncomeRate", totalAssetsMap.get("totalIncomeRate"));
+				//累计收益
+				resultMap.put("totalIncome", totalAssetsMap.get("totalIncome"));
+			} else {
+				resultMap.put("totalAssets", 0);
+				resultMap.put("dailyIncome", 0);
+				resultMap.put("totalIncomeRate", 0);
+				resultMap.put("totalIncome", 0);
+			}
+			
 			//状态(0-待确认 1-已确认 -1-交易失败)
 			if(products.getStatus() == 0){
 				resultMap.put("status", "待确认");
@@ -1613,7 +1630,10 @@ public class UserInfoController {
 			}
 			//智投组合产品ID
 			resultMap.put("prodId",products.getProdId());
+			//买入日期
 			resultMap.put("updateDate",DateUtil.getDateType(products.getUpdateDate()));
+			
+			
 			resultList.add(resultMap);
 		}
 		result.put("result", resultList);

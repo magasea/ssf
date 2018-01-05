@@ -333,6 +333,8 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 		    String hisAnnualPerformanceSimuresult= resultMap.get("hisAnnualPerformanceSimu").toString();
 	    	//计算模拟历史收益
 	       resultMap.put("historicReturn",CalculatorFunctions.getHistoricReturn("10000", hisAnnualPerformanceSimuresult));
+	       resultMap.put("groupId",container.get("productGroupId"));
+	       resultMap.put("subGroupId",container.get("productSubGroupId"));
 			return resultMap;
 		}catch(Exception e){
 			throw e;
