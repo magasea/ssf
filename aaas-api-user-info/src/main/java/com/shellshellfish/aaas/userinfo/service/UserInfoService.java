@@ -67,4 +67,8 @@ public interface UserInfoService {
 	
 	Map<String, Object> getTrendYield(String uuid);
 
+	Map<String, Object> getTotalAssets(String uuid) throws Exception;
+
+	Map<String, Object> getChicombinationAssets(String uuid, long prodId);
+
 }

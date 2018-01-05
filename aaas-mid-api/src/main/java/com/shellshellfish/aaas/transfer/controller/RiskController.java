@@ -156,7 +156,8 @@ public class RiskController {
 			result = new HashMap<>();
 			result.put("errorCode", "400");
 			result.put("error", "");
-			return new JsonResult(JsonResult.Fail, "风险测评失败", JsonResult.EMPTYRESULT);
+			String str = new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
 	
