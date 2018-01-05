@@ -2,6 +2,9 @@ package com.shellshellfish.aaas.transfer.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -33,6 +36,8 @@ import io.swagger.annotations.ApiResponses;
 @RequestMapping("/phoneapi-ssf")
 @Api("转换相关restapi")
 public class LoginController {
+
+	private  static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
 	@Value("${shellshellfish.user-login-url}")
 	private String loginUrl;
@@ -84,7 +89,7 @@ public class LoginController {
 			}
 			/**********************添加的测试数据*******************************/
 			//result.put("totalAssets", "10,000,000"); //总资产
-			//result.put("dailyReturn", "3.8%"); //日收益率
+			//result.put("dailyReturn`", "3.8%"); //日收益率
 			//result.put("totalRevenue", "10,000"); //累计收益
 			String uuid = (String) result.get("uuid");
 			
@@ -112,10 +117,10 @@ public class LoginController {
 		    result.put("testResult", resultCount.get("testResult"));
 		    return new JsonResult(JsonResult.SUCCESS,"登陆成功",result);
 		} catch (Exception e) {
-			result = new HashMap<String, String>();
+			logger.error(e.getMessage());
 			String errorMsg=new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail,errorMsg,JsonResult.EMPTYRESULT);
-		} 
+		}
    }
 
 	@ApiOperation("发送验证码")
@@ -196,6 +201,7 @@ public class LoginController {
 		    	return new JsonResult(JsonResult.Fail, "注册时，设置是否测评失败", null);
 		    }
 		} catch (Exception e) {
+			logger.error(e.getMessage());
 			String str=new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
