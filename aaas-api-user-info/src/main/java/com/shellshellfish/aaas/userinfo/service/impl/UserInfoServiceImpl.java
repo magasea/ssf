@@ -6,6 +6,7 @@ import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcService
 import com.shellshellfish.aaas.finance.trade.pay.ZhongZhengQueryByOrderDetailId;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
+import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
@@ -29,7 +30,7 @@ import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
 import io.grpc.ManagedChannel;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +40,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -49,21 +54,25 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     Logger logger = LoggerFactory.getLogger(UserInfoServiceImpl.class);
 
-    @Autowired
-    UserInfoRepoService userInfoRepoService;
-    
-    @Autowired
+	@Autowired
+	UserInfoRepoService userInfoRepoService;
+
+	@Autowired
 	UserFinanceProdCalcService userFinanceProdCalcService;
+	
+	@Autowired
+    @Qualifier("secondaryMongoTemplate")
+    private MongoTemplate mongoTemplate;
 
-  PayRpcServiceFutureStub payRpcServiceFutureStub;
+	PayRpcServiceFutureStub payRpcServiceFutureStub;
 
-  @Autowired
-  ManagedChannel managedPayChannel;
+	@Autowired
+	ManagedChannel managedPayChannel;
 
-  @PostConstruct
-  void init(){
-    payRpcServiceFutureStub = PayRpcServiceGrpc.newFutureStub(managedPayChannel);
-  }
+	@PostConstruct
+	void init() {
+		payRpcServiceFutureStub = PayRpcServiceGrpc.newFutureStub(managedPayChannel);
+	}
 
     @Override
     public UserBaseInfoDTO getUserInfoBase(String userUuid) throws Exception{
@@ -365,6 +374,112 @@ public class UserInfoServiceImpl implements UserInfoService {
 		trendYieldMap.put("value",rate6);
 		trendYieldList.add(trendYieldMap);
 		resultMap.put("trendYield", trendYieldList);
+		return resultMap;
+	}
+	
+	@Override
+	public Map<String, Object> getTotalAssets(String uuid) throws Exception{
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		String yesterday = DateUtil.getSystemDatesAgo(-1);
+		String beforeYesterday = DateUtil.getSystemDatesAgo(-2);
+		Query query = new Query();
+        query.addCriteria(Criteria.where("userUuid").is(uuid))
+                .addCriteria(Criteria.where("date").is(yesterday));
+
+        List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
+        if(dailyAmountList!=null&&dailyAmountList.size()>0){
+        	BigDecimal asserts = new BigDecimal(0);
+        	for(int i=0;i<dailyAmountList.size();i++){
+        		DailyAmount dailyAmount = dailyAmountList.get(i);
+        		if(dailyAmount.getAsset()!=null){
+        			asserts =  asserts.add(dailyAmount.getAsset());
+        		}
+        	}
+        	resultMap.put("assert", asserts);
+        	
+    		Query query2 = new Query();
+            query2.addCriteria(Criteria.where("userUuid").is(uuid))
+                    .addCriteria(Criteria.where("date").is(beforeYesterday));
+            List<DailyAmount> dailyAmountList2 = mongoTemplate.find(query, DailyAmount.class);
+            if(dailyAmountList2!=null&&dailyAmountList2.size()>0){
+        		BigDecimal asserts2 = new BigDecimal(0);
+        		for(int i=0;i<dailyAmountList.size();i++){
+        			DailyAmount dailyIncome = dailyAmountList2.get(i);
+            		if(dailyIncome.getAsset()!=null){
+            			asserts2 =  asserts2.add(dailyIncome.getAsset());
+            		}
+            	}
+        		resultMap.put("dailyIncome", asserts.subtract(asserts2));
+            }
+        } else {
+        	resultMap.put("assert", 0);
+        	resultMap.put("dailyIncome", 0);
+        }
+        //日收益率
+        BigDecimal dailyIncomeRate = userFinanceProdCalcService.calcYieldRate(uuid, beforeYesterday+"", yesterday+"");
+        resultMap.put("dailyIncomeRate", dailyIncomeRate);
+        //累计收益率
+        List<ProductsDTO> productsList = this.findProductInfos(uuid);
+        if(productsList!=null&&productsList.size()>0){
+        	List<Long> dateList = new ArrayList<Long>();
+			for(int i=0;i<productsList.size();i++){
+				ProductsDTO products = productsList.get(i);
+				dateList.add(products.getUpdateDate());
+				System.out.println("--"+products.getUpdateDate());
+				//System.out.println("--"+DateUtil.getDateStrFromLong(products.getUpdateDate()));
+			}
+			Long minDate = Collections.min(dateList);
+			String startDate = DateUtil.getDateStrFromLong(minDate).replace("-","");
+			BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, startDate, yesterday);
+			resultMap.put("incomeRate", incomeRate);
+		} else {
+			resultMap.put("incomeRate", 0);
+		}
+        
+		return resultMap;
+	}
+	
+	@Override
+	public Map<String, Object> getChicombinationAssets(String uuid,long prodId){
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		String yesterday = DateUtil.getSystemDatesAgo(-1);
+		String beforeYesterday = DateUtil.getSystemDatesAgo(-2);
+		Query query = new Query();
+		query.addCriteria(Criteria.where("userUuid").is(uuid))
+		.addCriteria(Criteria.where("prodId").is(prodId))
+		.addCriteria(Criteria.where("date").is(yesterday));
+		
+		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
+		if(dailyAmountList!=null&&dailyAmountList.size()>0){
+			BigDecimal asserts = new BigDecimal(0);
+        	for(int i=0;i<dailyAmountList.size();i++){
+        		DailyAmount dailyAmount = dailyAmountList.get(i);
+        		if(dailyAmount.getAsset()!=null){
+        			asserts =  asserts.add(dailyAmount.getAsset());
+        		}
+        	}
+			resultMap.put("assert", asserts);
+			
+			Query query2 = new Query();
+			query2.addCriteria(Criteria.where("userUuid").is(uuid))
+			.addCriteria(Criteria.where("prodId").is(prodId))
+			.addCriteria(Criteria.where("date").is(beforeYesterday));
+			List<DailyAmount> dailyAmountList2 = mongoTemplate.find(query, DailyAmount.class);
+			if(dailyAmountList2!=null&&dailyAmountList2.size()>0){
+				BigDecimal asserts2 = new BigDecimal(0);
+        		for(int i=0;i<dailyAmountList.size();i++){
+        			DailyAmount dailyIncome = dailyAmountList2.get(i);
+            		if(dailyIncome.getAsset()!=null){
+            			asserts2 =  asserts2.add(dailyIncome.getAsset());
+            		}
+            	}
+        		resultMap.put("dailyIncome", asserts.subtract(asserts2));
+			}
+		} else {
+        	resultMap.put("assert", 0);
+        	resultMap.put("dailyIncome", 0);
+        }
+		
 		return resultMap;
 	}
 }
