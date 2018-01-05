@@ -117,8 +117,6 @@ public class TradeOrderController {
 		}
 //		Long userId = tradeOpService.getUserId(financeProdBuyInfo.getUuid());
 //		financeProdBuyInfo.setUserId(userId);
-
-
 		TrdOrder trdOrder = tradeSellService.sellProduct(prodSellPageDTO);
 		return new ResponseEntity<Object>(trdOrder, HttpStatus.OK);
 	}

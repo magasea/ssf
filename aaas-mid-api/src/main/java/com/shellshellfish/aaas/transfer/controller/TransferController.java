@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
+import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
@@ -74,6 +75,8 @@ public class TransferController {
 	   resultMap.put("originalCost", totalOffDiscount);
 	   return new JsonResult(JsonResult.SUCCESS,"获取成功",resultMap);
 	  }catch(Exception e){
+		  logger.error(e.getMessage());
+		  e.printStackTrace();
 		  String str=new ReturnedException(e).getErrorMsg();
 		  return new JsonResult(JsonResult.Fail,str, JsonResult.EMPTYRESULT);
 	  }
@@ -109,6 +112,7 @@ public class TransferController {
 		return new JsonResult(JsonResult.SUCCESS, "购买成功", resultMap);
 		}catch(Exception e){
 			logger.error("购买基金调用购买接口失败");
+			e.printStackTrace();
 			String str=new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail,str , JsonResult.EMPTYRESULT);
 		}
@@ -161,6 +165,7 @@ public class TransferController {
 			return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result);
 		}catch(Exception e){
 			logger.error("产品详情页面接口失败");
+			e.printStackTrace();
 			String str=new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail,"产品详情页面失败" , JsonResult.EMPTYRESULT);
 		}
@@ -172,14 +177,16 @@ public class TransferController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="query",name="telNum",dataType="String",required=true,value="手机号",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="verifyCode",dataType="String",required=true,value="验证码",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=true,value="客户号",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="sellNum",dataType="String",required=true,value="售出份额",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="tradeAcc",dataType="String",required=true,value="中正给的绑定银行卡后的号",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="productCode",dataType="String",required=true,value="产品号",defaultValue="")
+		@ApiImplicitParam(paramType="query",name="userProdId",dataType="String",required=true,value="",defaultValue="46"),
+		@ApiImplicitParam(paramType="query",name="prodId",dataType="String",required=true,value="产品的prodId",defaultValue="2"),
+		@ApiImplicitParam(paramType="query",name="groupId",dataType="String",required=true,value="产品的groupId",defaultValue="2000"),	
+		@ApiImplicitParam(paramType="query",name="userUuid",dataType="String",required=true,value="客户uuid",defaultValue="shellshellfish"),
 	})
 	@RequestMapping(value="/sellProduct",method=RequestMethod.POST)
 	@ResponseBody
-	public JsonResult sellProduct(@RequestParam String telNum,@RequestParam String verifyCode,@RequestParam String uuid,@RequestParam String sellNum,@RequestParam String tradeAcc,@RequestParam String productCode){
+	public JsonResult sellProduct(@RequestParam String telNum,@RequestParam String verifyCode,
+			@RequestParam String userProdId,@RequestParam String prodId,@RequestParam String groupId,@RequestParam String userUuid,
+			@RequestBody List<FinanceProdSellInfo> infoList){
 		//首先调用手机验证码
 		String verify=null;
 		try{
@@ -188,26 +195,23 @@ public class TransferController {
 				String str=new ReturnedException(e).getErrorMsg();
 			    logger.error(str);	
 			  return new JsonResult(JsonResult.Fail,"手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
-			}
+		        }
 		//验证码不通过则直接返回失败
 			if ("验证失败".equals(verify)){
 					return new JsonResult(JsonResult.Fail,"手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
 			}
 		//调用赎回口
-			
-			
-			
-		
-				
-		
-		
-		Map resultMap=new HashMap<>();
-		List resultList=new ArrayList<>();
-		
-
-		
-		return new JsonResult(JsonResult.SUCCESS, "赎回成功",resultMap);
+			Map result=null;
+		  try{
+			 result=service.sellFund(userProdId, prodId, groupId,userUuid,infoList);
+		     }catch(Exception e){
+		    	logger.error("调用赎回接口发生错误");
+			   e.printStackTrace();
+			   return new JsonResult(JsonResult.Fail,"赎回失败", JsonResult.EMPTYRESULT);
+		     }
+		return new JsonResult(JsonResult.SUCCESS, "赎回成功",result); 
 	}
+	
 	
 	@ApiOperation("赎回页面")
 	@ApiImplicitParams({
@@ -224,6 +228,7 @@ public class TransferController {
 		return new JsonResult(JsonResult.SUCCESS,"调用成功",result);
 		}catch(Exception e){
 			logger.error("赎回页面接口调用失败");
+			e.printStackTrace();
 			String str=new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}	

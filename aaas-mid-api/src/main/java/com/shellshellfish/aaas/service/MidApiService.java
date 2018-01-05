@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
+import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
 import com.shellshellfish.aaas.dto.FinanceProductCompo;
 
 /**
@@ -58,11 +59,11 @@ public interface MidApiService {
 	Map buyProduct(FinanceProdBuyInfo prdInfo) throws Exception;
 	
 	/**
-	 * 赎回单只基金接口
-	 * @param uuid
-	 * @param sellNum
-	 * @param tradeAcc
-	 * @param fundCode
+	 * 赎回单只基金接口(这个作废不要用)
+	 * @param uuid   客户的uuid
+	 * @param sellNum  份额
+	 * @param tradeAcc  交易的中正给的账户号
+	 * @param fundCode  基金代码
 	 * @return
 	 * @throws Exception
 	 */
@@ -83,6 +84,6 @@ public interface MidApiService {
 	 * @return
 	 * @throws Exception
 	 */
-	Map sellFund() throws Exception;
+	Map sellFund(String userProdId,String prodId,String groupId,String userId,List<FinanceProdSellInfo> infoList) throws Exception;
 	
 }
