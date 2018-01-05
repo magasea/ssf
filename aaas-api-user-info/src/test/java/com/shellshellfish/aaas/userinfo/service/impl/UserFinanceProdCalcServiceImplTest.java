@@ -108,8 +108,8 @@ public class UserFinanceProdCalcServiceImplTest {
     @Test
     public void testDailyCalculation() throws Exception {
         long start = System.currentTimeMillis();
-        List<String> days = Arrays.asList("20171222", "20171223", "20171224", "20171225", "20171226", "20171227", "20171228", "20171229", "20171230", "20171231",
-                                          "20170101", "20170102", "20170103");
+        List<String> days = Arrays.asList(//"20171222", "20171223", "20171224", "20171225", "20171226", "20171227", "20171228", "20171229", "20171230", "20171231",
+                                          "20180101", "20180102", "20180103");
         days.forEach(day -> {
             try {
                 userFinanceProdCalcService.dailyCalculation(day);
@@ -137,7 +137,7 @@ public class UserFinanceProdCalcServiceImplTest {
     @Test
     public void testTotalAssetYieldRate() {
         long start = System.currentTimeMillis();
-        BigDecimal yieldRate = userFinanceProdCalcService.calcYieldRate("shellshellfish","20171222", "20171226");
+        BigDecimal yieldRate = userFinanceProdCalcService.calcYieldRate("shellshellfish","20180102", "20180103");
         long end = System.currentTimeMillis();
         logger.info("duration: {}", end - start);
         logger.info("total asset yieldRate: {}", yieldRate);
@@ -152,6 +152,7 @@ public class UserFinanceProdCalcServiceImplTest {
                 if (noise < 3 || noise > 7) {
                    noise = - noise;
                 }
+                noise /= 10;
                 BigDecimal  percent = BigDecimal.valueOf((100-noise)/100d);
                 BigDecimal  amount = dailyAmount.getAsset().multiply(percent);
                 dailyAmount.setAsset(amount);

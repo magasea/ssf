@@ -57,15 +57,16 @@ public class FundGroupController {
 	@ResponseBody
 	public ResponseEntity<Map> getProductDetail(@RequestParam @NotNull String uuid, @RequestParam @NotNull Long prodId) {
 		List resultList=new ArrayList();
-		String[] datesSelected=new String[6];
+		 int days=6; //计算6天的值
 		Map result = fundGroupService.getGroupDetails(uuid, prodId);
 		//遍历赋值
-		for(int i=0;i<datesSelected.length;i++){
+		for(int i=0;i<days;i++){
 			Map dateValueMap=new HashMap<>();
-			datesSelected[i]=DateUtil.getSystemDatesAgo(new Date(),-i);
-			dateValueMap.put("time",datesSelected[i]);
+			String selectDate=DateUtil.getSystemDatesAgo(-i);
+		    String dayBeforeSelectDate=DateUtil.getSystemDatesAgo(-i-1);
+			dateValueMap.put("time",selectDate);
 		//调用对应的service
-		BigDecimal rate=userFinanceProdCalcService.calcYieldRate(uuid, prodId, datesSelected[i]	, datesSelected[i]);
+		BigDecimal rate=userFinanceProdCalcService.calcYieldRate(uuid, prodId, dayBeforeSelectDate, selectDate);
 		dateValueMap.put("value",rate);
 		resultList.add(dateValueMap);
 		}

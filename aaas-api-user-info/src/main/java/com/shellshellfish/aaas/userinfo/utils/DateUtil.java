@@ -100,7 +100,7 @@ public class DateUtil {
 	 * @param day
 	 * @return
 	 */
-	public static String getSystemDatesAgo(Date start, int day) {
+	public static String getSystemDatesAgo(int day) {
 		Date date = new Date();
 		Calendar c = Calendar.getInstance();
 		c.setTime(date);
