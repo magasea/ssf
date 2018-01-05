@@ -153,7 +153,7 @@ public class TradeSellServiceImpl implements TradeSellService {
         trdOrderDetail.setUserProdId(prodSellDTO.getUserProdId());
         trdOrderDetail.setFundNum(prodDtlSellDTO.getFundQuantity());
         trdOrderDetail.setCreateBy(prodSellDTO.getUserId());
-        trdOrderDetail.setTradeType(TrdOrderOpTypeEnum.SELL.getOperation());
+        trdOrderDetail.setTradeType(TrdOrderOpTypeEnum.REDEEM.getOperation());
         trdOrderDetail.setUpdateBy(prodSellDTO.getUserId());
         trdOrderDetail.setUpdateDate(TradeUtil.getUTCTime());
         trdOrderDetail.setBuysellDate(TradeUtil.getUTCTime());
