@@ -31,7 +31,7 @@ public class FundInfoServiceImplTest {
     builder.addCodes("000300SH");
     List<DailyFunds> dailyFundsList = fundInfoService.getDailyFunds(builder.build());
     for(DailyFunds dailyFunds: dailyFundsList){
-      System.out.println(dailyFunds.getFname());
+      System.out.println(dailyFunds.getNavadj());
     }
   }
 
