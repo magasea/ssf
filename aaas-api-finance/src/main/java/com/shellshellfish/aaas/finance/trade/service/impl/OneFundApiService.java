@@ -24,6 +24,9 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ *  to be refactored to remove duplicate code, put this class to common or use grpc
+ */
 @Service
 public class OneFundApiService implements FundTradeApiService {
 
