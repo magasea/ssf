@@ -24,6 +24,7 @@ public class RabbitMQConstants {
   public final static String OPERATION_TYPE_BUY_PROD = "buy_prod";
   public final static String OPERATION_TYPE_SEL_PROD = "sell_prod";
   public final static String OPERATION_TYPE_UPDATE_UIPROD = "update_uiprod";
+  public final static String OPERATION_TYPE_UPDATE_UITRDLOG = "update_uitrdlog";
   public final static String OPERATION_TYPE_UPDATE_ORDER = "update_order";
   public final static String EXCHANGE_NAME = "aaas_ex";
 

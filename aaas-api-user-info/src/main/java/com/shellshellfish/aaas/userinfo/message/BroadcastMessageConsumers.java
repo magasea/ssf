@@ -6,6 +6,7 @@ import com.shellshellfish.aaas.common.constants.RabbitMQConstants;
 import com.shellshellfish.aaas.common.message.order.TrdLog;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProducts;
 import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
@@ -40,6 +41,9 @@ public class BroadcastMessageConsumers {
     @Autowired
     UiProductRepo uiProductRepo;
 
+    @Autowired
+    MongoUserTrdLogMsgRepo mongoUserTrdLogMsgRepo;
+
     @Transactional
     @RabbitListener(bindings = @QueueBinding(
         value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants.OPERATION_TYPE_UPDATE_UIPROD,
@@ -67,4 +71,38 @@ public class BroadcastMessageConsumers {
         
     }
 
+
+    @Transactional
+    @RabbitListener(bindings = @QueueBinding(
+        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
+            .OPERATION_TYPE_UPDATE_UITRDLOG, durable = "false"),
+        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO)
+    )
+    public void receiveTradeMessage(TrdPayFlow trdPayFlow, Channel channel, @Header(AmqpHeaders
+        .DELIVERY_TAG) long tag) throws Exception {
+        logger.info("Received fanout 1 message: " + trdPayFlow);
+        //update ui_products 和 ui_product_details
+        MongoUiTrdLog  mongoUiTrdLog = new MongoUiTrdLog();
+        try{
+            mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow.getPayAmount()));
+            mongoUiTrdLog.setOperations(trdPayFlow.getPayType());
+            mongoUiTrdLog.setUserProdId(trdPayFlow.getUserProdId());
+            mongoUiTrdLog.setUserId(trdPayFlow.getUserId());
+            mongoUiTrdLog.setTradeStatus(trdPayFlow.getPayStatus());
+            mongoUiTrdLog.setLastModifiedDate(TradeUtil.getUTCTime());
+            mongoUiTrdLog.setTradeDate(trdPayFlow.getPayDate());
+            mongoUserTrdLogMsgRepo.save(mongoUiTrdLog);
+        }catch (Exception ex){
+            ex.printStackTrace();
+            logger.error(ex.getMessage());
+        }
+        try {
+            channel.basicAck(tag, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        latch.countDown();
+
+    }
 }

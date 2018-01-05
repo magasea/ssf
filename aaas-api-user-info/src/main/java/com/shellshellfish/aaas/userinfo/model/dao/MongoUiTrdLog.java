@@ -2,57 +2,57 @@ package com.shellshellfish.aaas.userinfo.model.dao;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
  * The persistent class for the ui_trd_log database table.
  *
  */
-@Entity
-@Table(name="ui_trd_log")
-public class UiTrdLog implements Serializable {
+@Document(collection = "ui_trdlog")
+public class MongoUiTrdLog implements Serializable {
   private static final long serialVersionUID = 1L;
 
   @Id
-  @GeneratedValue(strategy=GenerationType.IDENTITY)
   private Long id;
 
   private BigDecimal amount;
 
-  @Column(name="created_by")
+  @Field( value = "created_by")
   private String createdBy;
 
-  @Column(name="created_date")
+  @Field( value = "created_date")
   private Long createdDate;
 
-  @Column(name="last_modified_by")
+  @Field( value = "last_modified_by")
   private String lastModifiedBy;
 
-  @Column(name="last_modified_date")
+  @Field( value = "last_modified_date")
   private Long lastModifiedDate;
 
   private int operations;
 
-  @Column(name="user_prod_id")
+  @Field( value = "user_prod_id")
   private Long userProdId;
 
 
-  @Column(name="trade_date")
+  @Field( value = "trade_date")
   private Long tradeDate;
 
-  @Column(name="trade_status")
+  @Field( value = "trade_status")
   private int tradeStatus;
 
-  @Column(name="user_id")
+  @Field( value = "user_id")
   private Long userId;
 
-  public UiTrdLog() {
+  public MongoUiTrdLog() {
   }
 
   public Long getId() {

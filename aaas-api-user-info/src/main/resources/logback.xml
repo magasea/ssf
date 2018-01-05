@@ -1,6 +1,6 @@
 <configuration scan="true" scanPeriod="10 seconds" debug="true">
 	<property resource="logback.properties" />
-	
+
 	<contextName>${context.name}</contextName>                         <!-- 本项目的名字 -->
    
 	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
@@ -99,14 +99,14 @@
 	</root>
 	
 	
-	
+
 	<!-- 跟踪客户端行为 -->
 	<appender name="tio-client-trace-log-appender" class="ch.qos.logback.classic.sift.SiftingAppender">
 		<discriminator>
 			<Key>tio_client</Key>
 			<DefaultValue>unknown</DefaultValue>
 		</discriminator>
-		
+
 		<sift>
 			<appender name="${tio_client}" class="ch.qos.logback.core.rolling.RollingFileAppender">
 				<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -120,7 +120,7 @@
 			</appender>
 		</sift>
 	</appender>
-	
+
 	<logger name="tio-client-trace-log" additivity="false">
 		<level value="info"/>
 		<appender-ref ref="tio-client-trace-log-appender"/>
