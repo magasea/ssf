@@ -325,45 +325,45 @@ public class UserInfoServiceImpl implements UserInfoService {
 		String day1 = DateUtil.getSystemDatesAgo(-1);
 		String day2 = DateUtil.getSystemDatesAgo(-2);
 		BigDecimal rate1 = userFinanceProdCalcService.calcYieldRate(userUuid, day2, day1);
-		if(!rate1.equals(BigDecimal.ZERO)){
-			trendYieldMap.put("date",day1);
-			trendYieldMap.put("value",rate1);
-			trendYieldList.add(trendYieldMap);
-			String day3 = DateUtil.getSystemDatesAgo(-3);
-			BigDecimal rate2 = userFinanceProdCalcService.calcYieldRate(userUuid, day3, day2);
-			if(!rate2.equals(BigDecimal.ZERO)){
-				trendYieldMap = new HashMap();
-				trendYieldMap.put("date",day2);
-				trendYieldMap.put("value",rate2);
-				trendYieldList.add(trendYieldMap);
-				String day4 = DateUtil.getSystemDatesAgo(-4);
-				BigDecimal rate3 = userFinanceProdCalcService.calcYieldRate(userUuid, day4, day3);
-				if(!rate3.equals(BigDecimal.ZERO)){
-					trendYieldMap = new HashMap();
-					trendYieldMap.put("date",day3);
-					trendYieldMap.put("value",rate3);
-					trendYieldList.add(trendYieldMap);
-					String day5 = DateUtil.getSystemDatesAgo(-5);
-					BigDecimal rate4 = userFinanceProdCalcService.calcYieldRate(userUuid, day5, day4);
-					if(!rate4.equals(BigDecimal.ZERO)){
-						trendYieldMap = new HashMap();
-						trendYieldMap.put("date",day4);
-						trendYieldMap.put("value",rate4);
-						trendYieldList.add(trendYieldMap);
-						String day6 = DateUtil.getSystemDatesAgo(-6);
-						BigDecimal rate5 = userFinanceProdCalcService.calcYieldRate(userUuid, day6, day5);
-						if(!rate5.equals(BigDecimal.ZERO)){
-							trendYieldMap = new HashMap();
-							trendYieldMap.put("date",day5);
-							trendYieldMap.put("value",rate5);
-							trendYieldList.add(trendYieldMap);
-							String day7 = DateUtil.getSystemDatesAgo(-7);
-							BigDecimal rate6 = userFinanceProdCalcService.calcYieldRate(userUuid, day7, day6);
-						}
-					}
-				}
-			}
-		}
+
+		trendYieldMap.put("date",day1);
+		trendYieldMap.put("value",rate1);
+		trendYieldList.add(trendYieldMap);
+		
+		String day3 = DateUtil.getSystemDatesAgo(-3);
+		BigDecimal rate2 = userFinanceProdCalcService.calcYieldRate(userUuid, day3, day2);
+		trendYieldMap = new HashMap<String, Object>();
+		trendYieldMap.put("date",day2);
+		trendYieldMap.put("value",rate2);
+		trendYieldList.add(trendYieldMap);
+		
+		String day4 = DateUtil.getSystemDatesAgo(-4);
+		BigDecimal rate3 = userFinanceProdCalcService.calcYieldRate(userUuid, day4, day3);
+		trendYieldMap = new HashMap<String, Object>();
+		trendYieldMap.put("date",day3);
+		trendYieldMap.put("value",rate3);
+		trendYieldList.add(trendYieldMap);
+		
+		String day5 = DateUtil.getSystemDatesAgo(-5);
+		BigDecimal rate4 = userFinanceProdCalcService.calcYieldRate(userUuid, day5, day4);
+		trendYieldMap = new HashMap<String, Object>();
+		trendYieldMap.put("date",day4);
+		trendYieldMap.put("value",rate4);
+		trendYieldList.add(trendYieldMap);
+		
+		String day6 = DateUtil.getSystemDatesAgo(-6);
+		BigDecimal rate5 = userFinanceProdCalcService.calcYieldRate(userUuid, day6, day5);
+		trendYieldMap = new HashMap<String, Object>();
+		trendYieldMap.put("date",day5);
+		trendYieldMap.put("value",rate5);
+		trendYieldList.add(trendYieldMap);
+		
+		String day7 = DateUtil.getSystemDatesAgo(-7);
+		BigDecimal rate6 = userFinanceProdCalcService.calcYieldRate(userUuid, day7, day6);
+		trendYieldMap = new HashMap<String, Object>();
+		trendYieldMap.put("date",day6);
+		trendYieldMap.put("value",rate6);
+		trendYieldList.add(trendYieldMap);
 		resultMap.put("trendYield", trendYieldList);
 		return resultMap;
 	}

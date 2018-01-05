@@ -34,9 +34,9 @@ public interface FundInfoApiService {
 
     BigDecimal getRateOfSellFund(String fundCode, String businFlag) throws Exception;
 
-    BigDecimal calcPoundageByTotalAmount(BigDecimal totalAmount, BigDecimal rate, BigDecimal discount);
+    BigDecimal calcPoundageByGrossAmount(BigDecimal totalAmount, BigDecimal rate, BigDecimal discount);
 
-    BigDecimal calcPoundageSaving(BigDecimal amount, BigDecimal rate, BigDecimal discount);
+    BigDecimal calcPoundageWithDiscount(BigDecimal amount, BigDecimal rate, BigDecimal discount);
 
     BigDecimal calcDiscountSaving(BigDecimal amount, BigDecimal rate, BigDecimal discount);
 
