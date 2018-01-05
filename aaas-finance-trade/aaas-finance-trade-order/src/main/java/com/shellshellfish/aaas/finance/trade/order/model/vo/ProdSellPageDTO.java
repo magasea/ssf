@@ -9,7 +9,9 @@ import java.util.List;
 
 public class ProdSellPageDTO {
 
-  private long userProdId;
+
+
+private long userProdId;
   private long prodId;
 
   private long groupId;
@@ -75,4 +77,8 @@ public class ProdSellPageDTO {
       List<ProdDtlSellPageDTO> prodDtlSellPageDTOList) {
     this.prodDtlSellPageDTOList = prodDtlSellPageDTOList;
   }
+  
+  public void setUserProdId(long userProdId) {
+		this.userProdId = userProdId;
+	}
 }

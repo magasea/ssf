@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
+import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
@@ -172,14 +173,16 @@ public class TransferController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="query",name="telNum",dataType="String",required=true,value="手机号",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="verifyCode",dataType="String",required=true,value="验证码",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="uuid",dataType="String",required=true,value="客户号",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="sellNum",dataType="String",required=true,value="售出份额",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="tradeAcc",dataType="String",required=true,value="中正给的绑定银行卡后的号",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="productCode",dataType="String",required=true,value="产品号",defaultValue="")
+		@ApiImplicitParam(paramType="query",name="userProdId",dataType="String",required=true,value="",defaultValue="46"),
+		@ApiImplicitParam(paramType="query",name="prodId",dataType="String",required=true,value="产品的prodId",defaultValue="2"),
+		@ApiImplicitParam(paramType="query",name="groupId",dataType="String",required=true,value="产品的groupId",defaultValue="2000"),	
+		@ApiImplicitParam(paramType="query",name="userUuid",dataType="String",required=true,value="客户uuid",defaultValue="shellshellfish"),
 	})
 	@RequestMapping(value="/sellProduct",method=RequestMethod.POST)
 	@ResponseBody
-	public JsonResult sellProduct(@RequestParam String telNum,@RequestParam String verifyCode,@RequestParam String uuid,@RequestParam String sellNum,@RequestParam String tradeAcc,@RequestParam String productCode){
+	public JsonResult sellProduct(@RequestParam String telNum,@RequestParam String verifyCode,
+			@RequestParam String userProdId,@RequestParam String prodId,@RequestParam String groupId,@RequestParam String userUuid,
+			@RequestBody List<FinanceProdSellInfo> infoList){
 		//首先调用手机验证码
 		String verify=null;
 		try{
@@ -188,26 +191,23 @@ public class TransferController {
 				String str=new ReturnedException(e).getErrorMsg();
 			    logger.error(str);	
 			  return new JsonResult(JsonResult.Fail,"手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
-			}
+		        }
 		//验证码不通过则直接返回失败
 			if ("验证失败".equals(verify)){
 					return new JsonResult(JsonResult.Fail,"手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
 			}
 		//调用赎回口
-			
-			
-			
-		
-				
-		
-		
-		Map resultMap=new HashMap<>();
-		List resultList=new ArrayList<>();
-		
-
-		
-		return new JsonResult(JsonResult.SUCCESS, "赎回成功",resultMap);
+			Map result=null;
+		  try{
+			 result=service.sellFund(userProdId, prodId, groupId,userUuid,infoList);
+		     }catch(Exception e){
+		    	 logger.error("调用赎回接口发生错误");
+			   e.printStackTrace();
+			   return new JsonResult(JsonResult.Fail,"赎回失败", JsonResult.EMPTYRESULT);
+		     }
+		return new JsonResult(JsonResult.SUCCESS, "赎回成功",result);
 	}
+	
 	
 	@ApiOperation("赎回页面")
 	@ApiImplicitParams({
