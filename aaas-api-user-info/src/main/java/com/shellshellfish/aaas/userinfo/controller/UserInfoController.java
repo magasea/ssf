@@ -1386,21 +1386,24 @@ public class UserInfoController {
 			resultMap.put("myInvstTotalQty", productsList.size());
 		}
 		//UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
-		//总资产
+		// 总资产
 		Map<String, Object> totalAssetsMap = userInfoService.getTotalAssets(userUuid);
 		if(totalAssetsMap.size()>0){
 			resultMap.put("totalAssets", totalAssetsMap.get("assert"));
-			//日收益
+			// 日收益
 			resultMap.put("dailyReturn", totalAssetsMap.get("dailyIncome"));
-			//日收益率
+			// 日收益率
 			resultMap.put("dailyIncomeRate", totalAssetsMap.get("dailyIncomeRate"));
-			//累计收益率
-			resultMap.put("incomeRate", totalAssetsMap.get("incomeRate"));
+			// 累计收益率
+			resultMap.put("totalIncomeRate", totalAssetsMap.get("totalIncomeRate"));
+			// 累计收益
+			resultMap.put("totalIncome", totalAssetsMap.get("totalIncome"));
 		} else {
 			resultMap.put("totalAssets", 0);
 			resultMap.put("dailyReturn", 0);
 			resultMap.put("dailyIncomeRate", 0);
-			resultMap.put("incomeRate", "0");
+			resultMap.put("totalIncomeRate", "0");
+			resultMap.put("totalIncome", "0");
 		}
 		
 		//累计收益
@@ -1601,20 +1604,22 @@ public class UserInfoController {
 			resultMap.put("title", products.getProdName());
 			resultMap.put("createDate", products.getCreateDate());
 			//总资产
-			Map<String, Object> totalAssetsMap = userInfoService.getChicombinationAssets(userUuid,products.getProdId());
+			Map<String, Object> totalAssetsMap = userInfoService.getChicombinationAssets(userUuid,products);
 			if(totalAssetsMap.size()>0){
 				resultMap.put("totalAssets", totalAssetsMap.get("assert"));
 				//日收益
 				resultMap.put("dailyIncome", totalAssetsMap.get("dailyIncome"));
+				//累计收益率
+				resultMap.put("totalIncomeRate", totalAssetsMap.get("totalIncomeRate"));
+				//累计收益
+				resultMap.put("totalIncome", totalAssetsMap.get("totalIncome"));
 			} else {
 				resultMap.put("totalAssets", 0);
 				resultMap.put("dailyIncome", 0);
+				resultMap.put("totalIncomeRate", 0);
+				resultMap.put("totalIncome", 0);
 			}
 			
-			//累计收益
-			resultMap.put("totalIncome", "398");
-			//累计收益率
-			resultMap.put("totalIncomeRate", "0.04");
 			//状态(0-待确认 1-已确认 -1-交易失败)
 			if(products.getStatus() == 0){
 				resultMap.put("status", "待确认");
@@ -1627,6 +1632,8 @@ public class UserInfoController {
 			resultMap.put("prodId",products.getProdId());
 			//买入日期
 			resultMap.put("updateDate",DateUtil.getDateType(products.getUpdateDate()));
+			
+			
 			resultList.add(resultMap);
 		}
 		result.put("result", resultList);

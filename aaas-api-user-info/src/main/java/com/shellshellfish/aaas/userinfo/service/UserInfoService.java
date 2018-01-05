@@ -69,6 +69,6 @@ public interface UserInfoService {
 
 	Map<String, Object> getTotalAssets(String uuid) throws Exception;
 
-	Map<String, Object> getChicombinationAssets(String uuid, long prodId);
+	Map<String, Object> getChicombinationAssets(String uuid, ProductsDTO productsDTO);
 
 }

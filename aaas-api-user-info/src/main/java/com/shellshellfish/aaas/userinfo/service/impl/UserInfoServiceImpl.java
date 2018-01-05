@@ -431,22 +431,25 @@ public class UserInfoServiceImpl implements UserInfoService {
 			Long minDate = Collections.min(dateList);
 			String startDate = DateUtil.getDateStrFromLong(minDate).replace("-","");
 			BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, startDate, yesterday);
-			resultMap.put("incomeRate", incomeRate);
+			BigDecimal income = userFinanceProdCalcService.calcYieldValue(uuid, startDate, yesterday);
+			resultMap.put("totalIncomeRate", incomeRate);
+			resultMap.put("totalIncome", income);
 		} else {
-			resultMap.put("incomeRate", 0);
+			resultMap.put("totalIncomeRate", 0);
+			resultMap.put("totalIncome", 0);
 		}
         
 		return resultMap;
 	}
 	
 	@Override
-	public Map<String, Object> getChicombinationAssets(String uuid,long prodId){
+	public Map<String, Object> getChicombinationAssets(String uuid,ProductsDTO products){
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		String yesterday = DateUtil.getSystemDatesAgo(-1);
 		String beforeYesterday = DateUtil.getSystemDatesAgo(-2);
 		Query query = new Query();
 		query.addCriteria(Criteria.where("userUuid").is(uuid))
-		.addCriteria(Criteria.where("prodId").is(prodId))
+		.addCriteria(Criteria.where("prodId").is(products.getProdId()))
 		.addCriteria(Criteria.where("date").is(yesterday));
 		
 		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
@@ -462,7 +465,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 			
 			Query query2 = new Query();
 			query2.addCriteria(Criteria.where("userUuid").is(uuid))
-			.addCriteria(Criteria.where("prodId").is(prodId))
+			.addCriteria(Criteria.where("prodId").is(products.getProdId()))
 			.addCriteria(Criteria.where("date").is(beforeYesterday));
 			List<DailyAmount> dailyAmountList2 = mongoTemplate.find(query, DailyAmount.class);
 			if(dailyAmountList2!=null&&dailyAmountList2.size()>0){
@@ -479,6 +482,14 @@ public class UserInfoServiceImpl implements UserInfoService {
         	resultMap.put("assert", 0);
         	resultMap.put("dailyIncome", 0);
         }
+		
+		//累计收益率
+		BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), yesterday);
+		resultMap.put("totalIncomeRate", incomeRate);
+		
+		//累计收益
+		BigDecimal income = userFinanceProdCalcService.calcYieldValue(uuid, DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), yesterday);
+		resultMap.put("totalIncome", income);
 		
 		return resultMap;
 	}
