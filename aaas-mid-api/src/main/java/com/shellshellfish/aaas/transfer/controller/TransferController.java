@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,17 +16,22 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import springfox.documentation.spring.web.json.Json;
 
 /**
  * 交易用
@@ -64,24 +68,36 @@ public class TransferController {
 	@ResponseBody
 	public JsonResult getEstPurAmount(String groupId,String subGroupId,String totalAmount){
 	  Map resultMap=null;
-	  try{
-	   String url=tradeOrderUrl+"/api/trade/funds/buyProduct?groupId="+groupId+"&subGroupId="+subGroupId+"&totalAmount="+totalAmount; 
-	   resultMap= restTemplate.getForEntity(url,Map.class).getBody();
-	   BigDecimal poundage=BigDecimal.valueOf(Double.parseDouble(resultMap.get("poundage").toString()));
-	   BigDecimal discount=BigDecimal.valueOf(Double.parseDouble( resultMap.get("discountSaving").toString()));
-//	   BigDecimal total=poundage.add(BigDecimal.valueOf(Double.parseDouble((totalAmount))));
-	   BigDecimal total=poundage;
-	   BigDecimal totalOffDiscount=total.add(discount);
-	   resultMap.put("total", total);
-	   resultMap.put("originalCost", totalOffDiscount);
-	   resultMap.put("discount", discount);
-	   return new JsonResult(JsonResult.SUCCESS,"获取成功",resultMap);
-	  }catch(Exception e){
-		  logger.error(e.getMessage());
-		  e.printStackTrace();
-		  String str=new ReturnedException(e).getErrorMsg();
-		  return new JsonResult(JsonResult.Fail,str, JsonResult.EMPTYRESULT);
-	  }
+		try {
+			String url = tradeOrderUrl + "/api/trade/funds/buyProduct?groupId=" + groupId + "&subGroupId=" + subGroupId
+					+ "&totalAmount=" + totalAmount;
+			resultMap = restTemplate.getForEntity(url, Map.class).getBody();
+			BigDecimal poundage = BigDecimal.valueOf(Double.parseDouble(resultMap.get("poundage").toString()));
+			BigDecimal discount = BigDecimal.valueOf(Double.parseDouble(resultMap.get("discountSaving").toString()));
+			// BigDecimal
+			// total=poundage.add(BigDecimal.valueOf(Double.parseDouble((totalAmount))));
+			BigDecimal total = poundage;
+			BigDecimal totalOffDiscount = total.add(discount);
+			resultMap.put("total", total);
+			resultMap.put("originalCost", totalOffDiscount);
+			resultMap.put("discount", discount);
+			return new JsonResult(JsonResult.SUCCESS, "获取成功", resultMap);
+		} catch (HttpClientErrorException e) {
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		} catch (HttpServerErrorException e) {
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			JSONObject  myJson = JSONObject.parseObject(str);
+			String error = myJson.getString("message");
+			return new JsonResult(JsonResult.Fail, error, JsonResult.EMPTYRESULT);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+			String str = new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}
 	}
 	
 	
