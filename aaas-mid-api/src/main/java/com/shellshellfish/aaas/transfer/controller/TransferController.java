@@ -69,10 +69,12 @@ public class TransferController {
 	   resultMap= restTemplate.getForEntity(url,Map.class).getBody();
 	   BigDecimal poundage=BigDecimal.valueOf(Double.parseDouble(resultMap.get("poundage").toString()));
 	   BigDecimal discount=BigDecimal.valueOf(Double.parseDouble( resultMap.get("discountSaving").toString()));
-	   BigDecimal total=poundage.add(BigDecimal.valueOf(Double.parseDouble((totalAmount))));
+//	   BigDecimal total=poundage.add(BigDecimal.valueOf(Double.parseDouble((totalAmount))));
+	   BigDecimal total=poundage;
 	   BigDecimal totalOffDiscount=total.add(discount);
 	   resultMap.put("total", total);
 	   resultMap.put("originalCost", totalOffDiscount);
+	   resultMap.put("discount", discount);
 	   return new JsonResult(JsonResult.SUCCESS,"获取成功",resultMap);
 	  }catch(Exception e){
 		  logger.error(e.getMessage());

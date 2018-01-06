@@ -78,7 +78,7 @@ public class UserInfoRepoServiceImplTest {
       uiTradesLog.setUserId(3L);
       uiTradesLog.setAmount(UserInfoUtils.getRandomDecimalInRange(1, 1000000));
       uiTradesLog.setOperations(UserInfoUtils.getRandomNumberInRange(1,4));
-      uiTradesLog.setProdId(BigInteger.valueOf(UserInfoUtils.getRandomNumberInRange(1,100) ));
+      uiTradesLog.setUserProdId(Long.valueOf(UserInfoUtils.getRandomNumberInRange(1,100) ));
       uiTradesLog.setTradeDate(UserInfoUtils.getCurrentUTCTime());
       uiTradesLog.setTradeStatus(UserInfoUtils.getRandomNumberInRange(1,3));
       uiTradesLogs.add(uiTradesLog);

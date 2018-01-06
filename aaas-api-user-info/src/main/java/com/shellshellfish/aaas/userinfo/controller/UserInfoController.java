@@ -413,7 +413,7 @@ public class UserInfoController {
 		});
 		
 		BankCardDTO bankIsExist  =  userInfoService.getUserInfoBankCard(bankcardDetailVo.getCardNumber());
-		if(bankIsExist != null){
+		if(bankIsExist != null && bankIsExist.getCardNumber()!=null){
 			throw new UserInfoException("404","银行卡号已经存在，请重新输入");
 		}
 		BankCardDTO bankCard = userInfoService.createBankcard(params);

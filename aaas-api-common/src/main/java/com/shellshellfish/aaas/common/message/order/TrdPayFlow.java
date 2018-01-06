@@ -3,13 +3,10 @@ package com.shellshellfish.aaas.common.message.order;
 import java.io.Serializable;
 
 /**
- * Created by chenwei on 2017- 十二月 - 25
+ * Created by chenwei on 2018- 一月 - 05
  */
 
-
-
-
-public class TrdPayFlow implements Serializable{
+public class TrdPayFlow  implements Serializable{
 
   private long id;
   private long orderDetailId;
@@ -33,8 +30,10 @@ public class TrdPayFlow implements Serializable{
   private long createDate;
   private long updateBy;
   private long updateDate;
-  private String prodCode;
   private String errMsg;
+  private String errCode;
+  private Integer trdbkerStatusCode;
+  private String trdbkerStatusName;
 
   
   
@@ -258,22 +257,42 @@ public class TrdPayFlow implements Serializable{
 
   
   
-  public String getProdCode() {
-    return prodCode;
-  }
-
-  public void setProdCode(String prodCode) {
-    this.prodCode = prodCode;
-  }
-
-  
-  
   public String getErrMsg() {
     return errMsg;
   }
 
   public void setErrMsg(String errMsg) {
     this.errMsg = errMsg;
+  }
+
+  
+  
+  public String getErrCode() {
+    return errCode;
+  }
+
+  public void setErrCode(String errCode) {
+    this.errCode = errCode;
+  }
+
+  
+  
+  public Integer getTrdbkerStatusCode() {
+    return trdbkerStatusCode;
+  }
+
+  public void setTrdbkerStatusCode(Integer trdbkerStatusCode) {
+    this.trdbkerStatusCode = trdbkerStatusCode;
+  }
+
+  
+  
+  public String getTrdbkerStatusName() {
+    return trdbkerStatusName;
+  }
+
+  public void setTrdbkerStatusName(String trdbkerStatusName) {
+    this.trdbkerStatusName = trdbkerStatusName;
   }
 
   
@@ -354,7 +373,18 @@ public class TrdPayFlow implements Serializable{
     if (payAmount != null ? !payAmount.equals(that.payAmount) : that.payAmount != null) {
       return false;
     }
-    if (prodCode != null ? !prodCode.equals(that.prodCode) : that.prodCode != null) {
+    if (errMsg != null ? !errMsg.equals(that.errMsg) : that.errMsg != null) {
+      return false;
+    }
+    if (errCode != null ? !errCode.equals(that.errCode) : that.errCode != null) {
+      return false;
+    }
+    if (trdbkerStatusCode != null ? !trdbkerStatusCode.equals(that.trdbkerStatusCode)
+        : that.trdbkerStatusCode != null) {
+      return false;
+    }
+    if (trdbkerStatusName != null ? !trdbkerStatusName.equals(that.trdbkerStatusName)
+        : that.trdbkerStatusName != null) {
       return false;
     }
 
@@ -385,7 +415,10 @@ public class TrdPayFlow implements Serializable{
     result = 31 * result + (int) (createDate ^ (createDate >>> 32));
     result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
     result = 31 * result + (int) (updateDate ^ (updateDate >>> 32));
-    result = 31 * result + (prodCode != null ? prodCode.hashCode() : 0);
+    result = 31 * result + (errMsg != null ? errMsg.hashCode() : 0);
+    result = 31 * result + (errCode != null ? errCode.hashCode() : 0);
+    result = 31 * result + (trdbkerStatusCode != null ? trdbkerStatusCode.hashCode() : 0);
+    result = 31 * result + (trdbkerStatusName != null ? trdbkerStatusName.hashCode() : 0);
     return result;
   }
 }

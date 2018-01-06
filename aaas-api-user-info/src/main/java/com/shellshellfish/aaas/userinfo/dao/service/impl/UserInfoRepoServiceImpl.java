@@ -125,7 +125,9 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	public BankCardDTO getUserInfoBankCard(String cardNumber) {
 		UiBankcard uiBankcard = userInfoBankCardsRepository.findUiBankcardByCardNumberIs(cardNumber);
 		BankCardDTO bankcard = new BankCardDTO();
-		BeanUtils.copyProperties(uiBankcard, bankcard);
+		if(uiBankcard!=null){
+			BeanUtils.copyProperties(uiBankcard, bankcard);
+		}
 		return bankcard;
 	}
 
