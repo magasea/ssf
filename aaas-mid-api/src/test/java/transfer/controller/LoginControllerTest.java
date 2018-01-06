@@ -1,18 +1,30 @@
 package transfer.controller;
 
+import com.alibaba.fastjson.JSONObject;
+import com.shellshellfish.aaas.common.utils.RandomPhoneNumUtil;
 import com.shellshellfish.aaas.transfer.TransferServiceApplication;
+import com.shellshellfish.aaas.transfer.controller.LoginController;
 import io.restassured.RestAssured;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 
 /**
  * @Author pierre
@@ -22,6 +34,7 @@ import static org.hamcrest.Matchers.*;
 @SpringBootTest(classes = TransferServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
 @EnableAutoConfiguration
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class LoginControllerTest {
 
 	private String REQUEST_VERIFY_CODE = "/phoneapi-ssf/requestVerifyCode";
@@ -38,133 +51,188 @@ public class LoginControllerTest {
 
 	private String VERIFY_MSG_CODE = "/phoneapi-ssf/verifyMsgCode";
 
+	private static final String REQUEST_IS_SUCCESS = "1";
+
+	private static final int DEFAULT_PASSWORD_LENGTH = 10;
+
+
+	//注册 登录所用的手机号  初始值随机生成
+	private static String registration_login_phone_number = null;
+
+	// 注册 登录共用密码  初始值随机生成
+	private static String registration_login_password = null;
+
+	// 注册成功用户uuid
+	private static String registration_login_user_uuid = null;
+
+	private static String login_user_token = null;
+
+
+	@Autowired
+	LoginController loginController;
+
 
 	@LocalServerPort
 	public int port;
+
+	@BeforeClass
+	public static void prepareParameter() {
+		registration_login_phone_number = RandomPhoneNumUtil.generatePhoneNumber();
+		registration_login_password = RandomStringUtils.randomAlphanumeric(DEFAULT_PASSWORD_LENGTH);
+	}
+
 
 	@Before
 	public void setup() {
 		RestAssured.port = port;
 	}
 
-
+	/**
+	 * registration
+	 **/
 	@Test
-	public void requestVerifyCodeTest() {
-		String TEL_NO = "15665487542";
+	public void a_registrationTest() {
 
+
+		String verifyCode = getVerifyCode(registration_login_phone_number);
 		given().filter(new LogFilter())
-				.param("telNum", TEL_NO)
-				.post(REQUEST_VERIFY_CODE)
-				.then()
-				.log().all()
-				.body("head.status", equalTo("1"))
-				.body("result.identifyingCode", notNullValue());
-
-	}
-
-
-	@Test
-	public void forgetPswTest() {
-		String TEL_NO = "13512345679";
-		String PASSWORD = "zaq12wsx!";
-		String VERIFY_CODE = "zaq12wsx!";
-
-		given().filter(new LogFilter())
-				.param("telNum", TEL_NO)
-				.param("password", PASSWORD)
-				.param("verifyCode", VERIFY_CODE)
-				.post(FORGET_PASSWORD)
-				.then()
-				.log().all()
-				.body("head.status", equalTo("1"))
-				.body("result", notNullValue());
-
-	}
-
-	@Test
-	public void registrationTest() {
-		String TEL_NO = "13512345679";
-		String PASSWORD = "zaq12wsx!";
-		String VERIFY_CODE = "zaq12wsx!";
-
-		given().filter(new LogFilter())
-				.param("telNum", TEL_NO)
-				.param("password", PASSWORD)
-				.param("verifyCode", VERIFY_CODE)
+				.param("telNum", registration_login_phone_number)
+				.param("password", registration_login_password)
+				.param("verifyCode", verifyCode)
 				.post(REGISTRATION)
 				.then()
 				.log().all()
-				.body("head.status", equalTo("1"))
-				.body("result", notNullValue());
-
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
+				.body("result", notNullValue())
+				.using();
 	}
 
+	/**
+	 * login
+	 **/
 	@Test
-	public void logoutTest() {
-		String UUID = "13512345679";
-		String TOKEN = "zaq12wsx!";
-
+	public void b_userLoginTest() {
 		given().filter(new LogFilter())
-				.param("uuid", UUID)
-				.param("token", TOKEN)
-				.post(LOGIN_OUT)
-				.then()
-				.log().all()
-				.body("head.status", equalTo("1"))
-				.body("result", notNullValue());
-
-	}
-
-	@Test
-	public void resetPswTest() {
-		String UUID = "13512345679";
-		String OLD_PASSWORD = "zaq12wsx!";
-		String NEW_PASSWORD = "zaq12wsx!";
-
-		given().filter(new LogFilter())
-				.param("uuid", UUID)
-				.param("newPWD", NEW_PASSWORD)
-				.param("oldPWD", OLD_PASSWORD)
-				.post(RESET_PASSWORD)
-				.then()
-				.log().all()
-				.body("head.status", equalTo("1"))
-				.body("result", notNullValue());
-
-	}
-
-
-	@Test
-	public void userLoginTest() {
-		String TEL_NO = "13512345679";
-		String PASSWORD = "zaq12wsx!";
-
-		given().filter(new LogFilter())
-				.param("telNum", TEL_NO)
-				.param("password", PASSWORD)
+				.param("telNum", registration_login_phone_number)
+				.param("password", registration_login_password)
 				.post(USER_LOGIN)
 				.then()
 				.log().all()
-				.body("head.status", equalTo("1"))
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue());
+
+
+		String body = given().filter(new LogFilter())
+				.param("telNum", registration_login_phone_number)
+				.param("password", registration_login_password)
+				.post(USER_LOGIN)
+				.asString();
+
+		JSONObject bodyJson = JSONObject.parseObject(body);
+		JSONObject result = bodyJson.getJSONObject("result");
+		if (result != null && result.size() > 0) {
+			login_user_token = result.getString("token");
+			registration_login_user_uuid = result.getString("uuid");
+		}
+
+	}
+
+
+//	@Test
+	public void c_forgetPswTest() {
+		String password = RandomStringUtils.randomAlphanumeric(DEFAULT_PASSWORD_LENGTH);
+		String verifyCode = getVerifyCode(registration_login_phone_number);
+
+		given().filter(new LogFilter())
+				.param("telNum", registration_login_phone_number)
+				.param("password", password)
+				.param("verifyCode", verifyCode)
+				.post(FORGET_PASSWORD)
+				.then()
+				.log().all()
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
+				.body("result", notNullValue());
+
+		registration_login_password = password;
+
+	}
+
+
+	@Test
+	public void d_resetPswTest() {
+		String newPWD = RandomStringUtils.randomAlphanumeric(DEFAULT_PASSWORD_LENGTH);
+
+		given().filter(new LogFilter())
+				.param("uuid", registration_login_user_uuid)
+				.param("newPWD", newPWD)
+				.param("oldPWD", registration_login_password)
+				.post(RESET_PASSWORD)
+				.then()
+				.log().all()
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
+				.body("result", notNullValue());
+
+		registration_login_password = newPWD;
+
+	}
+
+
+	@Test
+	public void e_logoutTest() {
+
+		given().filter(new LogFilter())
+				.param("uuid", registration_login_user_uuid)
+				.param("token", login_user_token)
+				.post(LOGIN_OUT)
+				.then()
+				.log().all()
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
+				.body("result", notNullValue());
+
+	}
+
+	@Test
+	public void requestVerifyCodeTest() {
+		String telNum = RandomPhoneNumUtil.generatePhoneNumber();
+
+		given().filter(new LogFilter())
+				.param("telNum", telNum)
+				.post(REQUEST_VERIFY_CODE)
+				.then()
+				.log().all()
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
+				.body("result.identifyingCode", notNullValue());
 
 	}
 
 	@Test
 	public void verifyMsgCodeTest() {
-		String TEL_NO = "13512345679";
-		String MSG_CODE = "zaq12wsx!";
+		String telNum = RandomPhoneNumUtil.generatePhoneNumber();
+		String msgCode = getVerifyCode(telNum);
 
 		given().filter(new LogFilter())
-				.param("telNum", TEL_NO)
-				.param("msgCode", MSG_CODE)
+				.param("telNum", telNum)
+				.param("msgCode", msgCode)
 				.post(VERIFY_MSG_CODE)
 				.then()
 				.log().all()
-				.body("head.status", equalTo("1"))
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue());
 
 	}
 
+	/**
+	 * send and get verify code
+	 *
+	 * @param phone_number
+	 * @return
+	 */
+	private String getVerifyCode(String phone_number) {
+		Map<String, String> result = (HashMap) loginController.sendVerifyCode(phone_number).getResult();
+		return result.get("identifyingCode");
+	}
+
 }
+
+
 
