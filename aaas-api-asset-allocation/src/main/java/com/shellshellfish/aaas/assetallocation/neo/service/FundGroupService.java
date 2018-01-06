@@ -541,6 +541,7 @@ public class FundGroupService {
 					map.put("time", SSFDateUtils.dateFormat.format(fundGroupHistoryList.get(i).getTime()));
 					double earningRate = (fundGroupHistoryList.get(i).getIncome_num() - fundGroupHistoryList.get(0).getIncome_num()) / fundGroupHistoryList.get(0).getIncome_num();
 					map.put("value", earningRate);
+					list.add(map);
 					maxMinValueList.add(earningRate);
 				}
 				maxMinValueMap = TransformUtil.getMaxMinValue(maxMinValueList);
