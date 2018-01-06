@@ -526,14 +526,15 @@ public class FundGroupService {
         List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
         Map maxMinValueMap = new HashMap();
         if (fundGroupHistoryList.size() != 0) {
-        	List maxMinValueList = new ArrayList();
+        	List<Double> maxMinValueList = new ArrayList<Double>();
             if (returnType.equalsIgnoreCase("income")) {
-                for (int i = 1;i< fundGroupHistoryList.size();i++) {
+                for (int i = 0;i< fundGroupHistoryList.size();i++) {
                     Map<String, Object> map = new HashMap<>();
                     map.put("time",new SimpleDateFormat("yyyy-MM-dd").format(fundGroupHistoryList.get(i).getTime()));
-                    map.put("value", (fundGroupHistoryList.get(i).getIncome_num()-fundGroupHistoryList.get(i-1).getIncome_num())/fundGroupHistoryList.get(i-1).getIncome_num());
+                    double earningRate = (fundGroupHistoryList.get(i).getIncome_num()-fundGroupHistoryList.get(0).getIncome_num())/fundGroupHistoryList.get(0).getIncome_num(); 
+                    map.put("value", earningRate);
                     list.add(map);
-                    maxMinValueList.add((fundGroupHistoryList.get(i).getIncome_num()-fundGroupHistoryList.get(i-1).getIncome_num())/fundGroupHistoryList.get(i-1).getIncome_num());
+                    maxMinValueList.add(earningRate);
                 }
                 maxMinValueMap = TransformUtil.getMaxMinValue(maxMinValueList);
                 fgi.setName("组合收益率走势图");
