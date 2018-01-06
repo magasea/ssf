@@ -6,16 +6,14 @@ import com.shellshellfish.aaas.transfer.TransferServiceApplication;
 import com.shellshellfish.aaas.transfer.controller.LoginController;
 import io.restassured.RestAssured;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -51,6 +49,8 @@ public class LoginControllerTest {
 
 	private String VERIFY_MSG_CODE = "/phoneapi-ssf/verifyMsgCode";
 
+	private static String CLEAN_USER = "/phoneapi-ssf/test/clean/user/{uuid}";
+
 	private static final String REQUEST_IS_SUCCESS = "1";
 
 	private static final int DEFAULT_PASSWORD_LENGTH = 10;
@@ -70,6 +70,9 @@ public class LoginControllerTest {
 
 	@Autowired
 	LoginController loginController;
+
+	@Autowired
+	TestRestTemplate restTemplate;
 
 
 	@LocalServerPort
@@ -138,7 +141,7 @@ public class LoginControllerTest {
 	}
 
 
-//	@Test
+	//	@Test
 	public void c_forgetPswTest() {
 		String password = RandomStringUtils.randomAlphanumeric(DEFAULT_PASSWORD_LENGTH);
 		String verifyCode = getVerifyCode(registration_login_phone_number);
@@ -232,6 +235,10 @@ public class LoginControllerTest {
 		return result.get("identifyingCode");
 	}
 
+	@AfterClass
+	public static void cleanUser() {
+		given().delete(CLEAN_USER, registration_login_user_uuid);
+	}
 }
 
 

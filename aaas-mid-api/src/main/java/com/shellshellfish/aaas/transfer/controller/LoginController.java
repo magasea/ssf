@@ -224,20 +224,11 @@ public class LoginController {
 		Map result = null;
 		try {
 			String url = loginUrl + "/api/useraccount/registrations";
-
-			/*String str="{\"telnum\":\""+telNum+"\",\"identifyingcode\":\""+verifyCode+"\"}";*/
-//			MultiValueMap<String, String> entity=new LinkedMultiValueMap<>();
-//			entity.add("telnum", telNum);
-//			entity.add("identifyingcode", verifyCode);
-//			HttpEntity<?> reqEntity=new HttpEntity<>(entity);
-//			
-//			result  = restTemplatePeach.exchange(url, HttpMethod.PATCH,reqEntity, Map.class).getBody();
-
-			url = loginUrl + "/api/useraccount/registrations";
 			String str = "{\"telnum\":\"" + telNum + "\",\"identifyingcode\":\"" + verifyCode + "\",\"password\":\"" + password + "\",\"pwdconfirm\":\"" + password + "\"}";
 			result = restTemplatePeach.exchange(url, HttpMethod.PATCH, getHttpEntity(str), Map.class).getBody();
 			return new JsonResult(JsonResult.SUCCESS, "OK", result);
 		} catch (Exception e) {
+			logger.error(e.getMessage());
 			String str = new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
