@@ -41,7 +41,7 @@ public class FundGroupService {
 				Map<String, String> query = new HashMap<>();
 				query.put("fund_group_id", interval.getFund_group_id());
 				List<RiskIncomeInterval> riskIncomeIntervalList = fundGroupMapper.getPerformanceVolatility(query);
-				RiskIncomeInterval riskIncomeInterval = riskIncomeIntervalList.get(riskIncomeIntervalList.size() / 2);
+				RiskIncomeInterval riskIncomeInterval = riskIncomeIntervalList.get(riskIncomeIntervalList.size() / 2-1);
 				query.put("id", riskIncomeInterval.getFund_group_id());
 				query.put("subId", riskIncomeInterval.getId());
 				List<Interval> intervals = fundGroupMapper.getProportion(query);
@@ -590,10 +590,10 @@ public class FundGroupService {
 		ca.add(Calendar.DATE, -1);
 		String endTime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
 		Map<String, String> mapStr = new HashMap<>();
-        /*mapStr.put("fund_group_id", id);
-        mapStr.put("fund_group_sub_id", subGroupId);*/
-		mapStr.put("fund_group_id", "2");
-		mapStr.put("fund_group_sub_id", "2002");
+        mapStr.put("fund_group_id", id);
+        mapStr.put("fund_group_sub_id", subGroupId);
+//		mapStr.put("fund_group_id", "2");
+//		mapStr.put("fund_group_sub_id", "2002");
 		mapStr.put("starttime", startTime);
 		mapStr.put("endtime", endTime);
 		List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
