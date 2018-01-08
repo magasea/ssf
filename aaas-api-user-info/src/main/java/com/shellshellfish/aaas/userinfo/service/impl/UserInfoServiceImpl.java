@@ -311,6 +311,8 @@ public class UserInfoServiceImpl implements UserInfoService {
         .newBuilder();
 
     try {
+      requestBuilder.setUserId(userId);
+	  requestBuilder.setOrderDetailId(orderDetailId);
       com.shellshellfish.aaas.finance.trade.pay.ApplyResult result = payRpcServiceFutureStub.queryZhongzhengTradeInfoByOrderDetailId
           (requestBuilder.build()).get();
       ApplyResult applyResult = new ApplyResult();

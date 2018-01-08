@@ -10,11 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +29,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
 import com.shellshellfish.aaas.userinfo.aop.AopPageResources;
+import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
@@ -73,6 +72,9 @@ public class UserInfoController {
 	public static String URL_HEAD="/api/userinfo";
 	@Autowired
 	UserInfoService userInfoService;
+	
+	@Autowired
+	UserInfoRepoService userInfoRepoService;
 	
 	@Autowired
 	UserFinanceProdCalcService userFinanceProdCalcService;
@@ -1741,5 +1743,31 @@ public class UserInfoController {
 		Map<String,Object> result = new HashMap<String,Object>();
 		result.put("status", "OK");
 		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
+	
+	
+	@ApiOperation("交易详情状态")
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+		@ApiResponse(code=400,message="请求参数没填好"),
+		@ApiResponse(code=401,message="未授权用户"),        				
+		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue=""),
+		@ApiImplicitParam(paramType="path",name="prodId",dataType="String",required=true,value="产品ID",defaultValue="")
+	})
+	@RequestMapping(value = "/users/{userUuid}/orders/{prodId}/status", method = RequestMethod.GET)
+	public ResponseEntity<Map> getUserStatus(
+			@PathVariable String userUuid,
+			@PathVariable String prodId
+			) throws Exception {
+		Long userId =  userInfoRepoService.getUserIdFromUUID(userUuid);
+		ApplyResult result = userInfoService.queryTrdResultByOrderDetailId(userId, Long.valueOf(prodId));
+		
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		resultMap.put("result", result);
+		return new ResponseEntity<>(resultMap, HttpStatus.OK);
 	}
 }
