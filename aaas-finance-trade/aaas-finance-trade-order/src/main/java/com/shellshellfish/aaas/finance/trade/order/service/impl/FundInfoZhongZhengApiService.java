@@ -334,7 +334,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
     public BigDecimal calcPoundageByGrossAmount(BigDecimal totalAmount, BigDecimal rate, BigDecimal discount) {
         // return totalAmount * rate * discount / (1 + rate * discount);
         BigDecimal temp = rate.multiply(discount);
-        return totalAmount.multiply(temp).divide(temp.add(BigDecimal.ONE));
+        return totalAmount.multiply(temp).divide(temp.add(BigDecimal.ONE),6);
     }
 
     @Override

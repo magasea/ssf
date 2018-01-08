@@ -185,19 +185,23 @@ public class AccountServiceImpl implements AccountService {
 		if(!registrationBodyDTO.getPassword().equals(registrationBodyDTO.getPwdconfirm())){
 			throw new UserException("101", "两次密码不一致");
 		}
+		List<User> userList = userRepository.findByCellPhone(cellphone);
+		if(userList!=null&&userList.size()>0){
+			user = userList.get(0);
+		} else {
+			user.setCellPhone(cellphone);
+			user.setUuid(UUID.randomUUID().toString());
+		}
 		user.setPasswordHash(MD5.getMD5(registrationBodyDTO.getPassword()));
 		Date date = new Date();
 		Timestamp nowdate = new Timestamp(date.getTime());
 		user.setLastModifiedDate(nowdate);
-		user.setCellPhone(cellphone);
-		user.setUuid(UUID.randomUUID().toString());
-		userRepository.save(user);
-		List<User> userList = userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
-		User userResult = userList.get(0);
+		User user1 = userRepository.save(user);
+//		List<User> userList = userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
+//		User userResult = userList.get(0);
 		UserDTO userDto = new UserDTO();
-		BeanUtils.copyProperties(userResult, userDto);
+		BeanUtils.copyProperties(user1, userDto);
 		return userDto;
-		
 	}
 	
 	@Override
