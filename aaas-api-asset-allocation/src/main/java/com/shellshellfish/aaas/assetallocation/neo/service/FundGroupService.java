@@ -356,9 +356,9 @@ public class FundGroupService {
 		}
 		List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getPerformanceVolatility(map);
 		if (riskIncomeIntervals.size() > 0) {
-//            RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(riskIncomeIntervals.size() / 2-1);
+            RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(riskIncomeIntervals.size() / 2-1);
 			//TODO 固定第5个点的值（DH）
-			RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(5);
+			//RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(5);
 			aReturn.setName("模拟数据");
 			aReturn.setProductGroupId(riskIncomeInterval.getFund_group_id());
 			aReturn.setProductSubGroupId(riskIncomeInterval.getId());
