@@ -39,9 +39,10 @@ public class SSFDateUtils {
         Calendar cal = Calendar.getInstance();
         cal.setTime(inputDate);
         cal.add(Calendar.DATE, -1); //minus number would decrement the days
-         cal.getTime();
+        cal.getTime();
         return cal.getTime().getTime();
     }
+
 
     public static Long getDateLongVal(Date inputDate){
         Calendar cal = Calendar.getInstance();

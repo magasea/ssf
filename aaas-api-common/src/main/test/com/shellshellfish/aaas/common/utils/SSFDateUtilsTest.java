@@ -10,7 +10,12 @@ public class SSFDateUtilsTest {
   @Test
   public void getYestdayDateInLong() throws Exception {
     System.out.println(SSFDateUtils.getYestdayDateInLong());
-    System.out.println(SSFDateUtils.getDateLongValOneDayBefore("2017-12-29"));
+//    System.out.println(SSFDateUtils.getDateLongValOneDayBefore("2017-12-29"));
+    System.out.println(SSFDateUtils.getDateLongValOneDayBefore("2017-11-25"));
+    System.out.println(SSFDateUtils.getDateLongValOneDayBefore("2017-11-24"));
+    System.out.println(SSFDateUtils.getDateLongValOneDayBefore("2017-11-23"));
+    System.out.println(SSFDateUtils.getDateLongValOneDayBefore("2017-11-22"));
+    System.out.println(SSFDateUtils.getDateLongValOneDayBefore("2017-11-21"));
   }
 
   @Test
