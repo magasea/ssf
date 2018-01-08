@@ -421,7 +421,7 @@ public class FundGroupService {
 		}
 		List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getPerformanceVolatility(query);
 		if (riskIncomeIntervals.size() > 0) {
-			RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(riskIncomeIntervals.size() / 2);
+			RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(riskIncomeIntervals.size() / 2-1);
 			aReturn.setName("模拟数据");
 			aReturn.setProductGroupId(riskIncomeInterval.getFund_group_id());
 			aReturn.setProductSubGroupId(riskIncomeInterval.getId());
