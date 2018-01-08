@@ -4,6 +4,8 @@ import com.shellshellfish.aaas.finance.trade.pay.service.impl.PayServiceImpl;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.ServerBuilder;
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
 import javax.annotation.PostConstruct;
 import org.lognet.springboot.grpc.GRpcServerBuilderConfigurer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +47,7 @@ public class GrpcConfig extends GRpcServerBuilderConfigurer {
   PayServiceImpl payServiceImpl;
 
   @Bean
-  ServerBuilder serverBuilder(){
-    return ServerBuilder.forPort(payServerPort).addService(payServiceImpl);
+  Server server(){
+    return ServerBuilder.forPort(payServerPort).addService(payServiceImpl).build();
   }
 }
