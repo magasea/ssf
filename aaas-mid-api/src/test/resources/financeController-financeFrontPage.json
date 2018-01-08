@@ -1,0 +1,240 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "financeFrontPage",
+  "description": "理财页面",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "msg": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "bannerList": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "groupId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "subGroupId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "prdName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "expAnnReturn": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "expMaxDrawDown": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "productCompo": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "value": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "histYieldRate": {
+                "type": "object",
+                "properties": {
+                  "_items": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "name": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "maxMinMap": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "maxMinBenchmarkMap": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "expectedIncomeSizeMap": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "highPercentMaxIncomeSizeMap": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "highPercentMinIncomeSizeMap": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "lowPercentMaxIncomeSizeMap": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "lowPercentMinIncomeSizeMap": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "_links": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "maxMinMap": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "maxMinBenchmarkMap": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "expectedIncomeSizeMap": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "highPercentMaxIncomeSizeMap": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "highPercentMinIncomeSizeMap": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "lowPercentMaxIncomeSizeMap": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "lowPercentMinIncomeSizeMap": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "_schemaVersion": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "_serviceId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "msg": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "groupId",
+              "subGroupId",
+              "prdName",
+              "expAnnReturn",
+              "expMaxDrawDown",
+              "productCompo",
+              "histYieldRate"
+            ]
+          }
+        }
+      },
+      "required": [
+        "data",
+        "bannerList"
+      ]
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

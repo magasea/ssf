@@ -60,7 +60,7 @@ public class IndexServiceImpl implements IndexService {
 
 		Map<String, Object> selfMap = new HashMap<String, Object>();
 		selfMap.put("href", "/api/ssf-finance/product-groups/homepage");
-		selfMap.put("describedBy", "/api/ssf-finance/product-groups/homepage.json");
+		selfMap.put("describedBy", "/api/ssf-finance/r-groups/homepage.json");
 		linksMap.put("self", selfMap);
 		
 		ReturnType resultType = assetAllocationService.getPerformanceVolatilityHomePage();

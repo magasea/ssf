@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "getExpAnnualAndMaxReturn",
+  "description": "查询产品的历史收益率和最大回撤",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "msg": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "expAnnRate": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "expMaxReturn": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "expAnnRate",
+        "expMaxReturn"
+      ]
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

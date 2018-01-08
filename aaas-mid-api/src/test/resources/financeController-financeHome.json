@@ -1,0 +1,265 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "financeHome",
+  "description": "理财首页",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "msg": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "uuid": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "banner_list": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "productTypeList": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "investmentHorizonCode": {
+                "type": "string"
+              },
+              "investmentHorizon": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "investmentHorizonCode",
+              "investmentHorizon"
+            ]
+          }
+        },
+        "C5": {
+          "type": "object",
+          "properties": {
+            "income6month": {
+              "type": "object",
+              "properties": {
+                "_total": {
+                  "type": "integer"
+                },
+                "_items": {
+                  "type": [
+                    "null",
+                    "object"
+                  ]
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "_links": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "maxMinMap": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "maxMinBenchmarkMap": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "expectedIncomeSizeMap": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "highPercentMaxIncomeSizeMap": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "highPercentMinIncomeSizeMap": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "lowPercentMaxIncomeSizeMap": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "lowPercentMinIncomeSizeMap": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "_schemaVersion": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "_serviceId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "_total",
+                "_items",
+                "name",
+                "_links",
+                "maxMinMap",
+                "maxMinBenchmarkMap",
+                "expectedIncomeSizeMap",
+                "highPercentMaxIncomeSizeMap",
+                "highPercentMinIncomeSizeMap",
+                "lowPercentMaxIncomeSizeMap",
+                "lowPercentMinIncomeSizeMap",
+                "_schemaVersion",
+                "_serviceId"
+              ]
+            },
+            "groupId": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "subGroupId": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "historicalYearPerformance": {
+              "type": "number"
+            },
+            "product_list": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "value": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "historicalvolatility": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "income6month",
+            "groupId",
+            "subGroupId",
+            "name",
+            "historicalYearPerformance",
+            "product_list",
+            "historicalvolatility"
+          ]
+        },
+        "historicReturn": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "hisAnnualPerformanceSimu": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "histAnnualVolaSimu": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "maxDeficit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "groupId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "subGroupId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "uuid",
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "banner_list",
+        "name",
+        "productTypeList"
+      ]
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

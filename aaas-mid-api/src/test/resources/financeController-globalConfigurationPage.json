@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "globalConfigurationPage",
+  "description": "全球配置",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "msg": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "categoryQuantity": {
+          "type": "number"
+        },
+        "configurationTime": {
+          "type": "string"
+        },
+        "configurationBenefitContribution": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "id": {
+                "type": "number"
+              },
+              "time": {
+                "time": "string"
+              },
+              "value": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "name",
+              "id",
+              "time",
+              "value"
+            ]
+          }
+        },
+        "riskNotifications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "id": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "name",
+              "id"
+            ]
+          }
+        },
+        "levelRiskControl": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "id": {
+                "type": "number"
+              },
+              "time": {
+                "time": "string"
+              },
+              "benchmark": {
+                "type": "number"
+              },
+              "level2RiskControl": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "name",
+              "id",
+              "time",
+              "benchmark",
+              "level2RiskControl"
+            ]
+          }
+        }
+      },
+      "required": [
+        "categoryQuantity",
+        "configurationTime",
+        "configurationBenefitContribution",
+        "riskNotifications",
+        "levelRiskControl"
+      ]
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}
