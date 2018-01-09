@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.message.order.PayDto;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
@@ -9,8 +10,16 @@ import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
+import com.shellshellfish.aaas.finance.trade.pay.OrderDetailPayReq;
+import com.shellshellfish.aaas.finance.trade.pay.OrderPayReq;
+import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
+import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
+import io.grpc.ManagedChannel;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -34,7 +43,15 @@ public class CheckFundsOrderJobService {
     @Autowired
     TradeOpService tradeOpService;
 
+    PayRpcServiceFutureStub payRpcServiceFutureStub;
 
+    @Autowired
+    ManagedChannel managedPayChannel;
+
+    @PostConstruct
+    void init() {
+        payRpcServiceFutureStub = PayRpcServiceGrpc.newFutureStub(managedPayChannel);
+    }
 
     /**
      * 定时检查是否有订单状态为等待支付超过1个小时是的话发起支付
@@ -44,22 +61,25 @@ public class CheckFundsOrderJobService {
         List<TrdOrder> trdOrderList =  trdOrderRepository.findTrdOrdersByOrderStatusIsNot
             (TrdOrderStatusEnum.WAITPAY.getStatus());
 
+        List<TrdOrder> trdOrderListWaitSell = trdOrderRepository.findTrdOrdersByOrderStatusIsNot
+            (TrdOrderStatusEnum.WAITSELL.getStatus());
         if(!CollectionUtils.isEmpty(trdOrderList)){
             logger.error("there is some order need to pay by scheduler");
-        }else{
-            return;
+            for(TrdOrder trdOrder: trdOrderList){
+                processOrderInJob(trdOrder);
+            }
+        }else if(!CollectionUtils.isEmpty(trdOrderListWaitSell)){
+            logger.error("there is some order need to pay by scheduler");
+            for(TrdOrder trdOrder: trdOrderListWaitSell){
+                processOrderInJob(trdOrder);
+            }
         }
-        for(TrdOrder trdOrder: trdOrderList){
-            processOrderInJob(trdOrder);
-        }
-
     }
 
     private void processOrderInJob(TrdOrder trdOrder) {
         PayDto payDto = new PayDto();
         List<TrdOrderDetail> orderDetailList = new ArrayList<>();
         payDto.setUserProdId(trdOrder.getUserProdId());
-//        payDto.setTrdBrokerId();
         String userUUID = tradeOpService.getUserUUIDByUserId(trdOrder.getUserId());
         payDto.setUserUuid(userUUID);
         TrdBrokerUser trdBrokerUser = tradeOpService.getBrokerUserByUserIdAndBandCard(trdOrder
@@ -68,19 +88,68 @@ public class CheckFundsOrderJobService {
         payDto.setTrdAccount(trdBrokerUser.getTradeAcco());
         List<com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail>
             orderDetailsInDB = trdOrderDetailRepository.findAllByOrderId(trdOrder.getOrderId());
+        boolean allFinished = true;
+        boolean needCancel = true;
         for(com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail trdOrderDetailDb: orderDetailsInDB){
+            if((trdOrderDetailDb.getOrderDetailStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus
+                ()) && allFinished){
+                allFinished = true;
+            }
+            if((trdOrderDetailDb.getOrderDetailStatus() != TrdOrderStatusEnum.CONFIRMED
+                .getStatus()) && needCancel){
+                needCancel = true;
+            }else{
+
+            }
             if(trdOrderDetailDb.getOrderDetailStatus() == TrdOrderStatusEnum.WAITPAY.getStatus() ||
                 trdOrderDetailDb.getOrderDetailStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()){
-                if(trdOrderDetailDb.getCreateDate() > TradeUtil.getUTCTimeHoursBefore(6) ){
+                if(trdOrderDetailDb.getCreateDate() < TradeUtil.getUTCTimeTodayStartTime(
+                    ZoneId.systemDefault().getId()) ){
                     logger.error("this orderDetail in DB with orderDetail id:"+ trdOrderDetailDb
                         .getId() +" is out of time to retry, just let it go");
+                    allFinished = false;
                     continue;
                 }
                 TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
                 BeanUtils.copyProperties(trdOrderDetailDb, trdOrderDetail);
                 orderDetailList.add(trdOrderDetail);
+                allFinished = false;
             }
         }
-        payDto.setOrderDetailList(orderDetailList);
+        if(allFinished){
+            logger.info("this order's all orderDetail is finished, need update order status");
+            trdOrderRepository.updateOrderStatus(TrdOrderStatusEnum.CONFIRMED.getStatus(),
+                TradeUtil.getUTCTime(), SystemUserEnum.SYSTEM_USER_ENUM.getUserId(), trdOrder
+                    .getId());
+            return;
+        }else{
+            //需要进行再让交易系统发起交易
+            payDto.setOrderDetailList(orderDetailList);
+            OrderPayReq.Builder reqBuilder = OrderPayReq.newBuilder();
+            BeanUtils.copyProperties(payDto, reqBuilder);
+            if(CollectionUtils.isEmpty(payDto.getOrderDetailList()) ||  payDto.getOrderDetailList()
+                .size() <= 0){
+                logger.info("this job find no orderDetail list to be handled by grpc");
+                return;
+            }else{
+                OrderDetailPayReq.Builder ordDetailReqBuilder = OrderDetailPayReq.newBuilder();
+                for(TrdOrderDetail trdOrderDetail: payDto.getOrderDetailList()){
+                    BeanUtils.copyProperties(trdOrderDetail, ordDetailReqBuilder);
+                    reqBuilder.addOrderDetailPayReq(ordDetailReqBuilder.build());
+                    ordDetailReqBuilder.clear();
+                }
+            }
+            try {
+                payRpcServiceFutureStub.orderJob2Pay(reqBuilder.build()).get().getResult();
+            } catch (InterruptedException e) {
+                logger.error("failed to handling payRpcServiceFutureStub.orderJob2Pay：" + e.getMessage());
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                logger.error("failed to handling payRpcServiceFutureStub.orderJob2Pay：" + e.getMessage());
+                e.printStackTrace();
+            }
+
+        }
+
     }
 }

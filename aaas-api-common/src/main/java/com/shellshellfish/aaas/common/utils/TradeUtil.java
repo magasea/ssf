@@ -52,6 +52,17 @@ public class TradeUtil {
     return utcDateTime.toInstant().toEpochMilli();
   }
 
+  public static Long getUTCTimeTodayStartTime(String zoneId){
+    long utcDateStartTimeOffset = ZonedDateTime.now(ZoneId.of(zoneId)).toOffsetDateTime().toInstant
+        ().toEpochMilli();
+    System.out.println("utcDateStartTime：" + utcDateStartTimeOffset);
+    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("UTC"));
+    long currentUTCtime = utcDateTime.toInstant().toEpochMilli();
+    System.out.println("currentUTCtime：" + currentUTCtime);
+
+    return currentUTCtime - utcDateStartTimeOffset;
+  }
+
   public static void main(String[] argv){
     TimeZone timeZone = TimeZone.getTimeZone("UTC");
     Calendar calendar = Calendar.getInstance(timeZone);
