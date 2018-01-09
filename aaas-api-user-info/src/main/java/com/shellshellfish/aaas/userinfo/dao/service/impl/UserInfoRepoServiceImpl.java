@@ -1,5 +1,7 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
+import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
+
 import com.mongodb.WriteResult;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
@@ -237,13 +239,13 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	}
 
 	@Override
-	public Page<UiTrdLog> findByUserId(Pageable pageable, Long userId) {
+	public Page<UiTrdLog> findTradeLogDtoByUserId(Pageable pageable, Long userId) {
 		Page<UiTrdLog> uiTrdLogPage = userTradeLogRepository.findByUserId(pageable, userId);
 		return uiTrdLogPage;
 	}
 	
 	@Override
-	public List<TradeLogDTO> findByUserId(Long userId) throws IllegalAccessException, InstantiationException {
+	public List<TradeLogDTO> findTradeLogDtoByUserId(Long userId) throws IllegalAccessException, InstantiationException {
 		List<UiTrdLog> uiTrdLogList = userTradeLogRepository.findByUserId(userId);
 		List<TradeLogDTO> trdLogsDtoList = MyBeanUtils.convertList(uiTrdLogList, TradeLogDTO.class);
 		return trdLogsDtoList;
@@ -466,7 +468,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	}
 
 	@Override
-	public List<ProductsDTO> findByUserId(String uuid) throws IllegalAccessException, InstantiationException {
+	public List<ProductsDTO> findTradeLogDtoByUserId(String uuid) throws IllegalAccessException, InstantiationException {
 		if(StringUtils.isEmpty(uuid)){
 			throw new UserInfoException("404", "用户uuid不能为空");
 		}
@@ -487,5 +489,30 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		
 		return productsList;
 	}
-	
+
+	@Override
+	public void getUerUUIDByUserId(com.shellshellfish.aaas.userinfo.grpc.UserId request,
+			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserUUID> responseObserver) {
+			String userUUID = findUserUUIDByUserId(request.getUserId());
+			if(StringUtils.isEmpty(userUUID)){
+				logger.error("cause the userId:" + request.getUserId() + " cannot find corresponding "
+						+ "uiuser, use -1 to return");
+				userUUID = "-1";
+			}
+			UserUUID.Builder builder = UserUUID.newBuilder();
+			builder.setUserUUID(userUUID);
+			responseObserver.onNext(builder.build());
+			responseObserver.onCompleted();
+	}
+
+	@Override
+	public String findUserUUIDByUserId(Long userId) {
+		UiUser uiUser =  userInfoRepository.findById(userId);
+		if(null != uiUser){
+			return uiUser.getUuid();
+		}else{
+			logger.error("failed to find user by userId:" + userId);
+			return null;
+		}
+	}
 }

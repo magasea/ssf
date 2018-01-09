@@ -26,10 +26,12 @@ import io.grpc.stub.StreamObserver;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -160,35 +162,44 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
       }else{
         //为了适应这个奇葩的表结构 fundbaseclose，只好写这个奇葩的hardcode赋值
         builderDailyFunds.clear();
+        Set checkCodesSet = new HashSet();
+        checkCodesSet.addAll(fundbasecloses);
+        Double nvadj = null;
         for(FundBaseClose fundBaseClose: fundbasecloses){
-          builderDailyFunds.setCode("GDAXIGI");
-          Double nvadj = MathUtil.getDoubleValueFromStrWitDefaultOpt(fundBaseClose.getGdaxigi());
-          builderDailyFunds.setNavadj(nvadj);
-          builderDailyFunds.setNavLatestDate(fundBaseClose.getDateStamp());
-          dailyFundsListProto.add(builderDailyFunds.build());
-          builderDailyFunds.clear();
+          if(checkCodesSet.contains("GDAXIGI")){
+            builderDailyFunds.setCode("GDAXIGI");
+            nvadj = MathUtil.getDoubleValueFromStrWitDefaultOpt(fundBaseClose.getGdaxigi());
+            builderDailyFunds.setNavadj(nvadj);
+            builderDailyFunds.setNavLatestDate(fundBaseClose.getDateStamp());
+            dailyFundsListProto.add(builderDailyFunds.build());
+            builderDailyFunds.clear();
+          }
 
-          builderDailyFunds.setCode("000905SH");
-          nvadj = MathUtil.getDoubleValueFromStrWitDefaultOpt(fundBaseClose.getSh00905());
-          builderDailyFunds.setNavadj(nvadj);
-          builderDailyFunds.setNavLatestDate(fundBaseClose.getDateStamp());
-          dailyFundsListProto.add(builderDailyFunds.build());
+          if(checkCodesSet.contains("000905SH")) {
+            builderDailyFunds.setCode("000905SH");
+            nvadj = MathUtil.getDoubleValueFromStrWitDefaultOpt(fundBaseClose.getSh00905());
+            builderDailyFunds.setNavadj(nvadj);
+            builderDailyFunds.setNavLatestDate(fundBaseClose.getDateStamp());
+            dailyFundsListProto.add(builderDailyFunds.build());
+            builderDailyFunds.clear();
+          }
+          if(checkCodesSet.contains("H11001CSI")) {
+            builderDailyFunds.setCode("H11001CSI");
+            nvadj = MathUtil.getDoubleValueFromStrWitDefaultOpt(fundBaseClose.getH11001csi());
+            builderDailyFunds.setNavadj(nvadj);
+            builderDailyFunds.setNavLatestDate(fundBaseClose.getDateStamp());
+            dailyFundsListProto.add(builderDailyFunds.build());
+            builderDailyFunds.clear();
+          }
+          if(checkCodesSet.contains("000300SH")) {
 
-          builderDailyFunds.clear();
-          builderDailyFunds.setCode("H11001CSI");
-          nvadj = MathUtil.getDoubleValueFromStrWitDefaultOpt(fundBaseClose.getH11001csi());
-          builderDailyFunds.setNavadj(nvadj);
-          builderDailyFunds.setNavLatestDate(fundBaseClose.getDateStamp());
-          dailyFundsListProto.add(builderDailyFunds.build());
-
-          builderDailyFunds.clear();
-          builderDailyFunds.setCode("000300SH");
-          nvadj = MathUtil.getDoubleValueFromStrWitDefaultOpt(fundBaseClose.getSh000300());
-          builderDailyFunds.setNavadj(nvadj);
-          builderDailyFunds.setNavLatestDate(fundBaseClose.getDateStamp());
-          dailyFundsListProto.add(builderDailyFunds.build());
+            builderDailyFunds.setCode("000300SH");
+            nvadj = MathUtil.getDoubleValueFromStrWitDefaultOpt(fundBaseClose.getSh000300());
+            builderDailyFunds.setNavadj(nvadj);
+            builderDailyFunds.setNavLatestDate(fundBaseClose.getDateStamp());
+            dailyFundsListProto.add(builderDailyFunds.build());
+          }
         }
-
       }
     }
     final DailyFundsCollection.Builder builder = DailyFundsCollection.newBuilder()

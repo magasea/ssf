@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.order.service;
 
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
+import com.shellshellfish.aaas.common.message.order.PayDto;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -14,4 +15,8 @@ public interface PayService {
    * @return
    */
   String bindCard(BindBankCard bindBankCard) throws ExecutionException, InterruptedException;
+
+
+
+  int order2PayJob(PayDto payDto);
 }

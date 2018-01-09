@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.userinfo.dao.service;
 
 import com.shellshellfish.aaas.userinfo.model.dao.UiSysMsg;
+import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,7 +54,7 @@ public interface UserInfoRepoService {
 
 	UserPersonMsgDTO addUiPersonMsg(UiPersonMsg uiPersonMsg);
 
-	Page<UiTrdLog> findByUserId(Pageable pageable, Long userId);
+	Page<UiTrdLog> findTradeLogDtoByUserId(Pageable pageable, Long userId);
 
 	Iterable<TradeLogDTO> addUiTrdLog(List<UiTrdLog> trdLogs) throws IllegalAccessException, InstantiationException;
 
@@ -74,9 +75,11 @@ public interface UserInfoRepoService {
 	public UserSysMsgDTO addUiSysMsg(UiSysMsg uiSysMsg) throws IllegalAccessException,
 			InstantiationException;
 
-	List<TradeLogDTO> findByUserId(Long userId) throws IllegalAccessException, InstantiationException;
+	List<TradeLogDTO> findTradeLogDtoByUserId(Long userId) throws IllegalAccessException, InstantiationException;
 
 	ProductsDTO findByProdId(String prodId) throws IllegalAccessException, InstantiationException;
 	
-	List<ProductsDTO>  findByUserId(String userId) throws IllegalAccessException, InstantiationException;
+	List<ProductsDTO> findTradeLogDtoByUserId(String userId) throws IllegalAccessException, InstantiationException;
+
+	String findUserUUIDByUserId(Long userId);
 }

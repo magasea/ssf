@@ -10,10 +10,24 @@ option objc_class_prefix = "PRS";
 service PayRpcService {
     rpc BindBankCard (BindBankCardQuery) returns (BindBankCardResult) {
     }
+    /**
+    * 中证接口查询，输入流水号和用户id或者流水号和外部订单号查询交易状态
+    */
     rpc QueryZhongzhengTradeInfoBySerial(ZhongZhengQueryBySerial) returns(ApplyResult){
     }
+    /**
+    * 中证接口查询，输入流水号和用户id或者流水号和外部订单号查询交易状态
+    */
     rpc QueryZhongzhengTradeInfoByOrderDetailId(ZhongZhengQueryByOrderDetailId) returns(ApplyResult)
     {
+    }
+    /**
+    * 订单状态是待支付，所以调用pay模块，1. 检查是否已经支付(看子订单对应有没有apply_serial)
+    * 2. 检查交易状态
+    * 如果交易1.不满足 就重新发起支付，如果交易失败而且需要交易的基金数量大于0，那么再次发起交易
+    */
+    rpc OrderJob2Pay(OrderPayReq) returns(OrderPayResult){
+
     }
 }
 //绑定银行卡
@@ -94,4 +108,45 @@ message ApplyResult{
   string xyh = 45;//
   string poundage = 46;//
   string fixflag = 47;//
+}
+
+//发起交易请求参数， 尽量和RabbitMq的传参一致
+message OrderPayReq {
+  string trdAccount = 1;//交易账户
+  int32 trdBrokerId = 2;//交易平台ID
+  int64 userProdId = 3;//用户已购理财产品ID
+  string userUuid = 4;//用户UUID
+  repeated OrderDetailPayReq orderDetailPayReq = 5;//子订单信息串
+}
+
+//子订单信息
+message OrderDetailPayReq {
+  int64 id = 1;
+  int64 orderDetailId = 2;
+  string tradeApplySerial = 3;
+  int64 boughtDate = 4;
+  int32 tradeType = 5;
+  int64 payAmount = 6;
+  int64 payFee = 7;
+  int64 userId = 8;
+  int64 userProdId = 9;
+  string fundCode = 10;
+  int64 fundMoneyQuantity  = 11;
+  int64 fundNum = 12;
+  int64 fundNumConfirmed = 13;
+  int64 buyFee = 14;
+  int64 buyDiscount = 15;
+  int32 orderDetailStatus = 16;
+  int64 createBy = 17;
+  int64 createDate = 18;
+  int64 updateBy = 19;
+  int64 updateDate = 20;
+  string bankCardNum = 21;
+  int64 fundQuantity = 22;
+  int32 orderStatus = 23;
+  string prodCode = 24;
+}
+//订单支付结果
+message OrderPayResult{
+  int32 result = 2; //1 - 成功；-1 
 }

@@ -35,28 +35,28 @@ import com.shellshellfish.aaas.account.utils.MyBeanUtils;
 public class AccountServiceImpl implements AccountService {
 
 	@Autowired
-	private UserRepository userRepository;
+    private UserRepository userRepository;
 
 	@Autowired
 	private SmsVerificationRepositoryCustom smsVerificationRepositoryCustom;
-
+	
 	@Autowired
 	private BankCardRepository bankCardRepository;
-
+	
 	@Autowired
 	private SmsVerificationRepository smsVerificationRepository;
-
+	
 //	@Autowired
 //	private AssetRepository assetRepository;
-
+	
 	@Autowired
-	private RedisService redisService;
-
+    private RedisService redisService;
+	
 	@Autowired
-	private AliSms alisms;
+    private AliSms alisms;
 
 	@Override
-	public List<User> isRegisteredUser(LoginBodyDTO loginBodyDTO) throws RuntimeException {
+	public List<User> isRegisteredUser(LoginBodyDTO loginBodyDTO) throws RuntimeException{
 //		String password = redisService.doGetPwd(cellphone, passwordhash);
 //		if(password!=null){
 //			return true;
@@ -64,7 +64,7 @@ public class AccountServiceImpl implements AccountService {
 		String cellphone = loginBodyDTO.getTelnum();
 		String passwordhash = loginBodyDTO.getPassword();
 		List<User> userListPhone = userRepository.findByCellPhone(cellphone);
-		if (userListPhone == null || userListPhone.size() == 0) {
+		if(userListPhone==null||userListPhone.size()==0){
 			throw new UserException("101", "登录用户账号不正确");
 		}
 		List<User> userList = userRepository.findByCellPhoneAndPasswordHash(cellphone, passwordhash);
@@ -77,9 +77,9 @@ public class AccountServiceImpl implements AccountService {
 			throw new UserException("101", "登录用户密码不正确");
 		}
 	}
-
+	
 	@Override
-	public String isSettingPWD(PwdSettingBodyDTO pwdSettingBody) throws RuntimeException {
+	public String isSettingPWD(PwdSettingBodyDTO pwdSettingBody) throws RuntimeException{
 		String telnum = pwdSettingBody.getTelnum();
 		String pwdsetting = pwdSettingBody.getPassword();
 		String pwdconfirm = pwdSettingBody.getPwdconfirm();
@@ -109,7 +109,7 @@ public class AccountServiceImpl implements AccountService {
 				Timestamp nowdate = new Timestamp(date.getTime());
 				user.setLastModifiedDate(nowdate);
 				userRepository.save(user);
-				String userId = user.getId() + "";
+				String userId = user.getId()+"";
 				return userId;
 			} else {
 				throw new UserException("102", "密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合");
@@ -120,7 +120,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public boolean addBankCard(String arg[]) throws RuntimeException {
+	public boolean addBankCard(String arg[]) throws RuntimeException{
 		// 手机号telnum, bkcardnum, bkname, name
 		String telnum = arg[0];
 		// 用户名
@@ -148,7 +148,7 @@ public class AccountServiceImpl implements AccountService {
 
 		return true;
 	}
-
+	
 	@Override
 	public List<UserDTO> isRegisterredTel(RegistrationBodyDTO registrationBody) throws RuntimeException {
 		String cellphone = registrationBody.getTelnum();
@@ -160,7 +160,7 @@ public class AccountServiceImpl implements AccountService {
 		}
 		List<User> result = userRepository.findByCellPhone(cellphone);
 		List<UserDTO> userDtoList = null;
-		if (result != null && result.size() > 0) {
+		if(result!=null&&result.size()>0){
 			userDtoList = new ArrayList<UserDTO>();
 			try {
 				userDtoList = MyBeanUtils.convertList(result, UserDTO.class);
@@ -168,69 +168,73 @@ public class AccountServiceImpl implements AccountService {
 				e.printStackTrace();
 			}
 		}
-
-		return userDtoList;
+		
+		return userDtoList;		
 	}
-
+	
 	@Override
 	public UserDTO isSmsVerified(UpdateRegistrationBodyDTO registrationBodyDTO) throws RuntimeException {
 		String cellphone = registrationBodyDTO.getTelnum();
 		String verfiedcode = registrationBodyDTO.getIdentifyingcode();
-		List<Object[]> reslst = smsVerificationRepositoryCustom.getSmsVerification(cellphone, verfiedcode);
+		List<Object[]> reslst=smsVerificationRepositoryCustom.getSmsVerification(cellphone, verfiedcode);
 		//List<SmsVerification> reslst=smsVerificationRepository.findByCellPhoneAndSmsCode(cellphone, verfiedcode);
-		if (reslst == null || reslst.size() == 0) {
+		if (reslst==null||reslst.size()==0){
 			throw new UserException("101", "验证码不正确，请重新输入");
 		}
 		User user = new User();
-		if (!registrationBodyDTO.getPassword().equals(registrationBodyDTO.getPwdconfirm())) {
+		if(!registrationBodyDTO.getPassword().equals(registrationBodyDTO.getPwdconfirm())){
 			throw new UserException("101", "两次密码不一致");
+		}
+		List<User> userList = userRepository.findByCellPhone(cellphone);
+		if(userList!=null&&userList.size()>0){
+			user = userList.get(0);
+		} else {
+			user.setCellPhone(cellphone);
+			user.setUuid(UUID.randomUUID().toString());
 		}
 		user.setPasswordHash(MD5.getMD5(registrationBodyDTO.getPassword()));
 		Date date = new Date();
 		Timestamp nowdate = new Timestamp(date.getTime());
 		user.setLastModifiedDate(nowdate);
-		user.setCellPhone(cellphone);
-		user.setUuid(UUID.randomUUID().toString());
-		userRepository.save(user);
-		List<User> userList = userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(), user.getPasswordHash());
-		User userResult = userList.get(0);
+		User user1 = userRepository.save(user);
+//		List<User> userList = userRepository.findByCellPhoneAndPasswordHash(user.getCellPhone(),user.getPasswordHash());
+//		User userResult = userList.get(0);
 		UserDTO userDto = new UserDTO();
-		BeanUtils.copyProperties(userResult, userDto);
+		BeanUtils.copyProperties(user1, userDto);
 		return userDto;
-
 	}
-
+	
 	@Override
 	public String sendSmsMessage(String telnum) throws RuntimeException {
-
-		VerificationBodyDTO vcodebody = alisms.sendVerificationSms(telnum);
-		if (vcodebody == null)
+		
+		VerificationBodyDTO vcodebody=alisms.sendVerificationSms(telnum);
+		if (vcodebody==null)
 			return "";
-
+		
 		//save to redis server
 		//Boolean result = redisService.saveVeribody(vcodebody);
 		SmsVerification sms = smsVerificationRepository.findByCellPhone(telnum);
 		SmsVerification smsVerification = new SmsVerification();
-		if (sms != null) {
+		if(sms!=null){
 			smsVerification.setId(sms.getId());
 		}
 		smsVerification.setCellPhone(telnum);
 		Date date = new Date();
 //		smsVerification.setCreatedDate(nowdate);
 //		smsVerification.setExpireTime(nowdate);
-		Timestamp nowdate = new Timestamp(date.getTime());
-		Timestamp expdate = new Timestamp(date.getTime() + 600000); //1 minute
-
+		Timestamp nowdate = new Timestamp(date.getTime()); 
+		Timestamp expdate = new Timestamp(date.getTime()+ 600000); //1 minute
+		
 		smsVerification.setCreatedDate(nowdate);
 		smsVerification.setExpireTime(expdate);
 		smsVerification.setSmsCode(vcodebody.getIdentifyingcode());
 		smsVerificationRepository.save(smsVerification);
 		return vcodebody.getIdentifyingcode();
 	}
-
+	
 	@Override
 	public boolean doSmsVerification(VerificationBodyDTO vbody) throws RuntimeException {
-		return redisService.doSmsVerification(vbody);
+	  	return redisService.doSmsVerification(vbody);
 	}
 
 //	@Override
@@ -240,21 +244,21 @@ public class AccountServiceImpl implements AccountService {
 //		redisService.doLogout(cellphone, password);
 //		return null;
 //	}
-
+	
 	@Override
 	public boolean doLogout(String uuid, String token) {
 		User user = userRepository.findByUuid(uuid);
-		if (user != null) {
+		if(user!=null){
 			return true;
 		}
 		return false;
 	}
-
+	
 	@Override
 	public UserDTO getUserInfo(String uuid) throws IllegalAccessException, InstantiationException {
 		User user = userRepository.findByUuid(uuid);
 		UserDTO userDTO = new UserDTO();
-		if (user != null) {
+		if(user!=null){
 			BeanUtils.copyProperties(user, userDTO);
 		}
 		return userDTO;
@@ -264,7 +268,7 @@ public class AccountServiceImpl implements AccountService {
 	public String getSmsMessage(String cellphone) {
 		SmsVerification sms = smsVerificationRepository.findByCellPhone(cellphone);
 		String smsCode = "";
-		if (sms != null) {
+		if(sms!=null){
 			smsCode = sms.getSmsCode();
 		}
 		return smsCode;
@@ -274,10 +278,10 @@ public class AccountServiceImpl implements AccountService {
 	public void updateUser(String uuid, String password, String newPassword) throws IllegalAccessException, InstantiationException {
 		UserDTO userDto = this.getUserInfo(uuid);
 		User user = new User();
-		if (userDto == null) {
+		if(userDto == null){
 			throw new UserException("404", "用户不存在");
 		} else {
-			if (!password.equals(userDto.getPasswordHash())) {
+			if(!password.equals(userDto.getPasswordHash())){
 				throw new UserException("404", "用户与原密码不一致，请重新输入");
 			}
 			userDto.setPasswordHash(newPassword);

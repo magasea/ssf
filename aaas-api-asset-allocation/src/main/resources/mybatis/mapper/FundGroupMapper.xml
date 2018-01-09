@@ -101,6 +101,9 @@
         <if test="fund_group_id != null and fund_group_id !=''">
             and  b.fund_group_id = #{fund_group_id}
         </if>
+        <if test="fund_group_sub_id != null and fund_group_sub_id != ''">
+          and fund_group_sub_id=#{fund_group_sub_id}
+        </if>
         ORDER BY b.simulate_historical_year_performance
     </select>
 

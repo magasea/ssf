@@ -553,7 +553,7 @@ public class FinanceController {
 				Object obj = configurationBenefitContributionMap.get("_items");
 				Object category = configurationBenefitContributionMap.get("_total");
 				List<Map<String, Object>> value = new ArrayList<Map<String, Object>>();
-				if (obj != null||category!=null) {
+				if (obj != null && category != null) {
 					logger.info("配置收益贡献获取成功2");
 					value = (List<Map<String, Object>>) obj;
 					Map<String,Object> configMap = value.get(0);
