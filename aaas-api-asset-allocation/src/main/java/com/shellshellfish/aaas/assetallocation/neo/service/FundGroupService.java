@@ -685,7 +685,14 @@ public class FundGroupService {
         Map<String, String> query = new HashMap<>();
         query.put("id", id);
         query.put("subId", subGroupId);
-        List<Interval> interval = fundGroupMapper.getProportion(query);
+        List<Interval> intervalList = fundGroupMapper.getProportion(query);
+        List<Interval> intervals = new ArrayList<>();
+        for (Interval tmpInterval : intervalList) {
+            if (tmpInterval.getProportion() > 0d) {
+                intervals.add(tmpInterval);
+            }
+        }
+
         List<Interval> intervalCode = fundGroupMapper.getFundCode(query);
         if (intervalCode.size() != 0) {
             for (Interval interval1 : intervalCode) {
@@ -696,7 +703,7 @@ public class FundGroupService {
                 query1.put("endtTime", endTime);
                 List<FundNetVal> fundNetValues = fundGroupMapper.getFundNetValue(query1);
                 List<Map<String, Object>> listFund = new ArrayList<>();
-                for(Interval interval2:interval){
+                for(Interval interval2:intervals){
                     if(interval1.getFund_type_two().equalsIgnoreCase(interval2.getFund_type_two())){
                         map.put("type_value",interval2.getProportion());
                         break;
