@@ -441,11 +441,12 @@ public class UserInfoController {
 	
 	@ApiOperation("理财产品 产品详情页面")
 	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="orderId",dataType="String",required=true,value="订单编号",defaultValue="1231230001000001513657092497")
 	})
 	@RequestMapping(value="/buyDetails",method=RequestMethod.POST)
 	@ResponseBody
-	public JsonResult buyDetails(@RequestParam String orderId){
+	public JsonResult buyDetails(@RequestParam String userUuid,@RequestParam String orderId){
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try{
 			result = restTemplate
@@ -470,7 +471,7 @@ public class UserInfoController {
 								if(fundList==null||fundList.size()==0){
 									logger.error("基金CODE:"+fundCode+"不存在");
 								} else {
-									String fundName = (String) ((Map)fundList.get(0)).get("name");
+									String fundName = (String) ((Map)fundList.get(0)).get("fname");
 									map.put("fundName", fundName);
 									map.remove("fundCode");
 								}

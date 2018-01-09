@@ -169,8 +169,8 @@ public class FinanceController {
 	
 	@ApiOperation("理财产品查看详情页面")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "6"),
-		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "111111"),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "4"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "4009"),
 	})
 	@RequestMapping(value="/checkPrdDetails",method = RequestMethod.POST)
 	@ResponseBody
@@ -206,8 +206,8 @@ public class FinanceController {
 
 	@ApiOperation("历史业绩")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "6"),
-		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "100058"),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "4"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "4009"),
 	})
 	@RequestMapping(value = "/historicalPerformancePage", method = RequestMethod.POST)
 	@ResponseBody
@@ -323,8 +323,8 @@ public class FinanceController {
 	@ApiOperation("未来预期page")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID", defaultValue = "1"),
-		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "6"),
-		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "100058"),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "4"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "4009"),
 	})
 	@RequestMapping(value = "/futureExpectationPage", method = RequestMethod.POST)
 	@ResponseBody
@@ -423,8 +423,8 @@ public class FinanceController {
 	@ApiOperation("风险控制")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = "1"),
-		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "6"),
-		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "100058"),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "4"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "4009"),
 	})
 	@RequestMapping(value = "/riskMangementPage", method = RequestMethod.POST)
 	@ResponseBody
@@ -536,8 +536,8 @@ public class FinanceController {
 	@ApiOperation("全球配置")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID", defaultValue = "1"),
-		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "6"),
-		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "100058"),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "4"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "4009"),
 	})
 	@RequestMapping(value = "/globalConfigurationPage", method = RequestMethod.POST)
 	@ResponseBody
@@ -631,8 +631,8 @@ public class FinanceController {
 	
 	@ApiOperation("查询产品的历史收益率和最大回撤")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "6"),
-		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "111111")
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "4"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "4009")
 	})
 	@RequestMapping(value="/getExpAnnualAndMaxReturn",method=RequestMethod.POST)
 	@ResponseBody
@@ -754,8 +754,8 @@ public class FinanceController {
 
 	@ApiOperation("2.配置收益贡献")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "产品组ID", defaultValue = "6"),
-			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "子产品组ID", defaultValue = "111111") })
+			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "产品组ID", defaultValue = "4"),
+			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "子产品组ID", defaultValue = "4009") })
 	@RequestMapping(value = "/contributions", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult contributions(@RequestParam String groupId, @RequestParam String subGroupId) {
@@ -768,8 +768,8 @@ public class FinanceController {
 
 	@ApiOperation("3.组合收益率(最大回撤)走势图-每天")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "产品组ID", defaultValue = "6"),
-			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "子产品组ID", defaultValue = "111111") })
+			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "产品组ID", defaultValue = "4"),
+			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "子产品组ID", defaultValue = "4009") })
 	//@RequestMapping(value = "/portfolioYield", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult portfolioYield(@RequestParam String groupId, @RequestParam String subGroupId) {
@@ -781,8 +781,8 @@ public class FinanceController {
 
 	@ApiOperation("4.组合收益率(最大回撤)走势图-每天(一周以来)")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "产品组ID", defaultValue = "6"),
-			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "子产品组ID", defaultValue = "111111") })
+			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "产品组ID", defaultValue = "4"),
+			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "子产品组ID", defaultValue = "4009") })
 	//@RequestMapping(value = "/portfolioYieldWeek", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult portfolioYieldWeek(@RequestParam String groupId, @RequestParam String subGroupId) {
@@ -867,9 +867,9 @@ public class FinanceController {
 	
 	@ApiOperation("1.我选好了")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "2"),
-			@ApiImplicitParam(paramType = "query", name = "riskPointValue", dataType = "String", required = true, value = "风险率", defaultValue = "0.0104149"),
-			@ApiImplicitParam(paramType = "query", name = "incomePointValue", dataType = "String", required = true, value = "收益率", defaultValue = "0.0441455")
+			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "1"),
+			@ApiImplicitParam(paramType = "query", name = "riskPointValue", dataType = "String", required = false, value = "风险率", defaultValue = "0.0213"),
+			@ApiImplicitParam(paramType = "query", name = "incomePointValue", dataType = "String", required = false, value = "收益率", defaultValue = "0.0451")
 	})
 	@RequestMapping(value = "/optimizations", method = RequestMethod.POST)
 	@ResponseBody
@@ -891,9 +891,8 @@ public class FinanceController {
 			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
-			Map<String, Object> map = new HashMap();
-			map.put("errorCode", "400");
-			return new JsonResult(JsonResult.Fail, "获取失败", map);
+			String str=new ReturnedException(e).getErrorMsg();
+		    return new JsonResult(JsonResult.Fail, str,JsonResult.EMPTYRESULT);
 		}
 	}
 	
@@ -918,9 +917,8 @@ public class FinanceController {
 			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
-			Map<String, Object> map = new HashMap();
-			map.put("errorCode", "400");
-			return new JsonResult(JsonResult.Fail, "获取失败", map);
+			String str=new ReturnedException(e).getErrorMsg();
+		    return new JsonResult(JsonResult.Fail, str,JsonResult.EMPTYRESULT);
 		}
 	}
 	
@@ -945,9 +943,8 @@ public class FinanceController {
 			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
-			Map<String, Object> map = new HashMap();
-			map.put("errorCode", "400");
-			return new JsonResult(JsonResult.Fail, "获取失败", map);
+			String str=new ReturnedException(e).getErrorMsg();
+		    return new JsonResult(JsonResult.Fail, str,JsonResult.EMPTYRESULT);
 		}
 	}
 	
@@ -972,9 +969,8 @@ public class FinanceController {
 			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
-			Map<String, Object> map = new HashMap();
-			map.put("errorCode", "400");
-			return new JsonResult(JsonResult.Fail, "获取失败", map);
+			String str=new ReturnedException(e).getErrorMsg();
+		    return new JsonResult(JsonResult.Fail, str,JsonResult.EMPTYRESULT);
 		}
 	}
 }
