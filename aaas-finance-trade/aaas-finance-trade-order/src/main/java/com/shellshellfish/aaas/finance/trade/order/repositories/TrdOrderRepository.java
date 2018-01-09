@@ -1,8 +1,11 @@
 package com.shellshellfish.aaas.finance.trade.order.repositories;
 
 import java.util.List;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
+import org.springframework.data.repository.query.Param;
 
 public interface TrdOrderRepository extends PagingAndSortingRepository<TrdOrder, Long> {
 
@@ -14,4 +17,12 @@ public interface TrdOrderRepository extends PagingAndSortingRepository<TrdOrder,
 	TrdOrder findByOrderId(String orderId);
 
 	List<TrdOrder> findByUserProdId(Long userProdId);
+
+	List<TrdOrder> findTrdOrdersByOrderStatusIsNot(int orderStatus);
+	@Modifying(clearAutomatically = true)
+	@Query("UPDATE TrdOrder SET order_status = :orderStatus, update_date = :updateDate, update_by "
+			+ "= :updateBy WHERE id = :orderId")
+	TrdOrder updateOrderStatus(@Param("orderStatus") int orderStatus, @Param("updateDate") long
+			updateDate, @Param("updateBy") Long updateBy, @Param("orderId") Long orderId );
+
 }

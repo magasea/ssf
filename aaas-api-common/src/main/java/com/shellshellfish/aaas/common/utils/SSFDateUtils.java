@@ -1,20 +1,14 @@
 package com.shellshellfish.aaas.common.utils;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
 public class SSFDateUtils {
+
     public static Long getDateLongValOneDayBefore(String dateStr) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date inputDate = sdf.parse(dateStr);
@@ -39,9 +33,10 @@ public class SSFDateUtils {
         Calendar cal = Calendar.getInstance();
         cal.setTime(inputDate);
         cal.add(Calendar.DATE, -1); //minus number would decrement the days
-         cal.getTime();
+        cal.getTime();
         return cal.getTime().getTime();
     }
+
 
     public static Long getDateLongVal(Date inputDate){
         Calendar cal = Calendar.getInstance();
@@ -72,20 +67,47 @@ public class SSFDateUtils {
     }
 
 
-    public static Long getYestdayDateInLong(){
 
-        StringBuilder sb = new StringBuilder();
+	public static final String DATE_FORMAT = "yyyy-MM-dd";
 
-        Calendar today  = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+	public static final SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+
+
+
+
+	public static Date getDateOneDayBefore() {
+
+		return getDateOneDayBefore(new Date());
+	}
+
+	public static Date getDateOneDayBefore(Date baseDate) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(baseDate);
+		cal.add(Calendar.DATE, -1);
+		cal.getTime();
+		return cal.getTime();
+	}
+
+
+
+
+	public static Long getYestdayDateInLong() {
+
+		StringBuilder sb = new StringBuilder();
+
+		Calendar today = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 //        Calendar today  = Calendar.getInstance();
-        today.add(Calendar.DATE, -1);
-        today.set(Calendar.HOUR_OF_DAY, 0);
-        today.set(Calendar.MINUTE, 0);
-        today.set(Calendar.SECOND, 0);
-        today.set(Calendar.MILLISECOND, 0);
+		today.add(Calendar.DATE, -1);
+		today.set(Calendar.HOUR_OF_DAY, 0);
+		today.set(Calendar.MINUTE, 0);
+		today.set(Calendar.SECOND, 0);
+		today.set(Calendar.MILLISECOND, 0);
 
-        return today.getTimeInMillis()/1000L;
-    }
+		return today.getTimeInMillis() / 1000L;
+	}
 
+	public static void main(String[] args) {
+		System.out.println(getDateOneDayBefore());
+	}
 
 }

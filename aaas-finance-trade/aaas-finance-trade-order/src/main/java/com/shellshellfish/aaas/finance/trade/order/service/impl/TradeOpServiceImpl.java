@@ -23,6 +23,8 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.TrdTradeBankDicR
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdInfoService;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
+import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
+import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoCollection;
 import com.shellshellfish.aaas.userinfo.grpc.FinanceProdInfosQuery;
@@ -72,6 +74,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 
   UserInfoServiceFutureStub userInfoServiceFutureStub;
 
+  PayRpcServiceFutureStub payRpcServiceFutureStub;
 
   @Autowired
   TrdBrokerUserRepository trdBrokerUserRepository;
@@ -85,6 +88,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 
 
 
+
   @PostConstruct
   public void init(){
     userInfoServiceFutureStub = UserInfoServiceGrpc.newFutureStub(managedUIChannel);
@@ -93,6 +97,10 @@ public class TradeOpServiceImpl implements TradeOpService {
   public void shutdown() throws InterruptedException {
     managedUIChannel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
   }
+
+
+
+
 
   @Override
   @Transactional( propagation = Propagation.REQUIRED, transactionManager = "transactionManager")
@@ -250,5 +258,31 @@ public class TradeOpServiceImpl implements TradeOpService {
     trdOrderDetailRepository.updateByParam(tradeApplySerial,orderDetailStatus, updateDate,
         updateBy,  id );
   }
+
+  @Override
+  public String getUserUUIDByUserId(Long userId){
+    com.shellshellfish.aaas.userinfo.grpc.UserId.Builder builder = com.shellshellfish.aaas
+        .userinfo.grpc.UserId.newBuilder();
+    builder.setUserId(userId);
+    try {
+      return userInfoServiceFutureStub.getUerUUIDByUserId(builder.build()).get().getUserUUID();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      return null;
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  @Override
+  public TrdBrokerUser getBrokerUserByUserIdAndBandCard(Long userId, String bankCardNum) {
+    TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndAndBankCardNum
+        (userId,bankCardNum);
+    return trdBrokerUser;
+  }
+
+
+
 
 }

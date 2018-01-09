@@ -4,6 +4,10 @@ import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdPayFlowStatusEnum;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -18,10 +22,47 @@ public class TradeUtil {
   }
 
   public static Long getUTCTime(){
-    TimeZone timeZone = TimeZone.getTimeZone("UTC");
-    Calendar calendar = Calendar.getInstance(timeZone);
-    return calendar.getTimeInMillis();
+//    TimeZone timeZone = TimeZone.getTimeZone("UTC");
+//    Calendar calendar = Calendar.getInstance(timeZone);
+//    return calendar.getTimeInMillis();
+
+    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("UTC"));
+    return utcDateTime.toInstant().toEpochMilli();
   }
+
+  public static Long getUTCTime1HourBefore(){
+
+    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now().plusHours(-1), ZoneId.of
+        ("UTC"));
+    return utcDateTime.toInstant().toEpochMilli();
+
+  }
+
+  public static Long getUTCTimeHoursBefore(int hours){
+    int absHours = Math.abs(hours);
+    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now().plusHours(-absHours), ZoneId.of
+        ("UTC"));
+    return utcDateTime.toInstant().toEpochMilli();
+
+  }
+
+  public static Long getUTCTime1DayBefore(){
+    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now().plusDays(-1), ZoneId.of
+        ("UTC"));
+    return utcDateTime.toInstant().toEpochMilli();
+  }
+
+  public static Long getUTCTimeTodayStartTime(String zoneId){
+    long utcDateStartTimeOffset = ZonedDateTime.now(ZoneId.of(zoneId)).toOffsetDateTime().toInstant
+        ().toEpochMilli();
+    System.out.println("utcDateStartTime：" + utcDateStartTimeOffset);
+    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("UTC"));
+    long currentUTCtime = utcDateTime.toInstant().toEpochMilli();
+    System.out.println("currentUTCtime：" + currentUTCtime);
+
+    return currentUTCtime - utcDateStartTimeOffset;
+  }
+
   public static void main(String[] argv){
     TimeZone timeZone = TimeZone.getTimeZone("UTC");
     Calendar calendar = Calendar.getInstance(timeZone);

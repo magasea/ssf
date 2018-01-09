@@ -10,6 +10,9 @@ import java.util.List;
 public class PayDto implements Serializable{
   String trdAccount;
   int trdBrokerId;
+  Long userProdId;
+  String userUuid;
+  List<TrdOrderDetail> orderDetailList;
 
   public Long getUserProdId() {
     return userProdId;
@@ -18,8 +21,6 @@ public class PayDto implements Serializable{
   public void setUserProdId(Long userProdId) {
     this.userProdId = userProdId;
   }
-
-  Long userProdId;
 
   public int getTrdBrokerId() {
     return trdBrokerId;
@@ -36,9 +37,6 @@ public class PayDto implements Serializable{
   public void setUserUuid(String userUuid) {
     this.userUuid = userUuid;
   }
-
-  String userUuid;
-  List<TrdOrderDetail> orderDetailList;
 
   public String getTrdAccount() {
     return trdAccount;

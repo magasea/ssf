@@ -22,8 +22,5 @@ public interface UiProductDetailRepo extends PagingAndSortingRepository<UiProduc
   int updateByParam(@Param("fundQuantity") Long fundQuantity, @Param("updateDate") Long
       updateDate, @Param("updateBy") Long updateBy,  @Param("userProdId") Long userProdId, @Param
       ("fundCode") String fundCode);
-
-
-
   List<UiProductDetail> findAllByUserProdId(Long userProdId);
 }

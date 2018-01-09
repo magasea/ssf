@@ -1,8 +1,12 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
+import com.shellshellfish.aaas.common.message.order.PayDto;
+import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.pay.BindBankCardQuery;
+import com.shellshellfish.aaas.finance.trade.pay.OrderDetailPayReq;
+import com.shellshellfish.aaas.finance.trade.pay.OrderPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceBlockingStub;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
@@ -28,6 +32,7 @@ public class PayServiceImpl implements PayService {
 
 
 
+
   @Autowired
   ManagedChannel managedPayChannel;
 
@@ -49,4 +54,33 @@ public class PayServiceImpl implements PayService {
     BeanUtils.copyProperties(bindBankCard, builder);
     return payRpcFutureStub.bindBankCard(builder.build()).get().getTradeacco();
   }
+
+
+  @Override
+  public int order2PayJob(PayDto payDto) {
+    OrderPayReq.Builder bdOfReq = OrderPayReq.newBuilder();
+    bdOfReq.setTrdBrokerId(payDto.getTrdBrokerId());
+    bdOfReq.setUserProdId(payDto.getUserProdId());
+    bdOfReq.setTrdAccount(payDto.getTrdAccount());
+    bdOfReq.setUserUuid(payDto.getUserUuid());
+    OrderDetailPayReq.Builder ordDetailReqBuilder = OrderDetailPayReq.newBuilder();
+    for(TrdOrderDetail trdOrderDetail: payDto.getOrderDetailList()){
+      BeanUtils.copyProperties(trdOrderDetail, ordDetailReqBuilder);
+      bdOfReq.addOrderDetailPayReq(ordDetailReqBuilder);
+      ordDetailReqBuilder.clear();
+    }
+
+    try {
+      return payRpcFutureStub.orderJob2Pay(bdOfReq.build()).get().getResult();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      logger.error(e.getMessage());
+      return -1;
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+      logger.error(e.getMessage());
+      return -1;
+    }
+  }
+
 }

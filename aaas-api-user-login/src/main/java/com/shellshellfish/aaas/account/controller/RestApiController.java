@@ -162,10 +162,10 @@ public class RestApiController {
 			){
 		Map<String,Object> result = new HashMap();
 		UserDTO user = accountService.isSmsVerified(updateregistrationBody);
-		if (user!=null&&user.getId()!=0){
+		if (user != null && !StringUtils.isEmpty(user.getUuid())) {
 			result.put("status", "OK");
 			result.put("uuid", user.getUuid());
-			//result.put("uid", uid);
+			// result.put("uid", uid);
 			return new ResponseEntity<Map>(result, HttpStatus.OK);
 		}
 		result.put("status", "Failed");
