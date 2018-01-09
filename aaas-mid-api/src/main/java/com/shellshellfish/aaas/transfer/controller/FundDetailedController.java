@@ -187,17 +187,17 @@ public class FundDetailedController {
 		}
 	}
 	
-	@ApiOperation("基金公司")
+	@ApiOperation("基金公司ByName")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "name", dataType = "String", required = true, value = "基金公司名称", defaultValue = "天弘基金管理有限公司")
 	})
-	@RequestMapping(value = "/getFundCompany", method = RequestMethod.POST)
+	@RequestMapping(value = "/getFundCompanyDetailInfo", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getFundCompany(@RequestParam String name) {
+	public JsonResult getFundCompanyDetailInfo(@RequestParam String name) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			result = restTemplate
-					.getForEntity(financeUrl + "/api/ssf-finance/getFundCompany?name=" + name, Map.class)
+					.getForEntity(dataManagerUrl + "/api/datamanager/getFundCompanyDetailInfo?name=" + name, Map.class)
 					.getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
@@ -209,6 +209,31 @@ public class FundDetailedController {
 		} catch (Exception e) {
 			String str=new ReturnedException(e).getErrorMsg();
 		    return new JsonResult(JsonResult.Fail, str,JsonResult.EMPTYRESULT);
+		}
+		
+	}
+	@ApiOperation("基金公司ByCode")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "code", dataType = "String", required = true, value = "基金公司名称", defaultValue = "000009.OF")
+	})
+	@RequestMapping(value = "/getFundCompany", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult getFundCompany(@RequestParam String code) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		try {
+			result = restTemplate
+					.getForEntity(dataManagerUrl + "/api/datamanager/getFundCompany?code=" + code, Map.class)
+					.getBody();
+			if (result == null || result.size() == 0) {
+				result.put("msg", "获取失败");
+				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+			}
+			result.remove("_links");
+			result.remove("_links");
+			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+		} catch (Exception e) {
+			String str=new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str,JsonResult.EMPTYRESULT);
 		}
 	}
 	

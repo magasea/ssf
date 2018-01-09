@@ -320,7 +320,7 @@ public class FundGroupService {
 				_items.put("content", null);
 			} else if (i == 3) {
 				_items.put("id", 4);
-				_items.put("name", "具备相关钩子的专业知识");
+				_items.put("name", "具备相关投资的专业知识");
 				_items.put("content", null);
 			}
 			list.add(_items);
