@@ -53,4 +53,14 @@ public interface PayService {
    */
 
   ApplyResult queryOrder(Long userId, Long orderDetailId);
+
+  /**
+   * 根据order状态为未完成，找到orderDetail表中没有apply_serial 且fund_quantity > 0 且
+   * order_detail_status 为WAITPAY(0）
+   * 把对应信息找到拼凑成PayDto 让pay 模块再试一次，试的时候要检查，orderDetailId 是否在pay_flow这表里出现
+   * 如果已经出现，只有
+   * @param payDto
+   * @return
+   */
+  PayDto payOrderByJob(PayDto payDto) throws Exception;
 }

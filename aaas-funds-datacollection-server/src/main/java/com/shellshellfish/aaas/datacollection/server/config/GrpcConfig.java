@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EntityScan("com.shellshellfish.aaas.datacollection.server.model")
 @EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.datacollection.server"
     + ".repositories")
-public class DataCollectionServerConfig extends GRpcServerBuilderConfigurer {
+public class GrpcConfig extends GRpcServerBuilderConfigurer {
 
 
 

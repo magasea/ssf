@@ -29,20 +29,7 @@ public class MessageRabbitConfig {
     @Value("${spring.rabbitmq.virtual-host}")
     String rabbitVH;
 
-    @Value("${spring.rabbitmq.topicQueuePayName}")
-    String topicQueuePayName;
 
-    @Value("${spring.rabbitmq.topicQueueOrderName}")
-    String topicQueueOrderName;
-
-    @Value("${spring.rabbitmq.topicExchangeName}")
-    String topicExchangeName;
-
-    @Value("${spring.rabbitmq.topicPay}")
-    String topicPay;
-
-    @Value("${spring.rabbitmq.topicOrder}")
-    String topicOrder;
 
     @Bean
     public ConnectionFactory connectionFactory(){
@@ -64,15 +51,6 @@ public class MessageRabbitConfig {
         return factory;
     }
 
-    @Bean
-    TopicExchange exchange() {
-        return new TopicExchange(topicExchangeName);
-    }
-
-//    @Bean
-//    Binding binding(Queue queue, TopicExchange exchange) {
-//        return BindingBuilder.bind(queue).to(exchange).with(topicOrder);
-//    }
 
     @Bean
     public SimpleRabbitListenerContainerFactory jsaFactory(ConnectionFactory connectionFactory,
@@ -80,15 +58,10 @@ public class MessageRabbitConfig {
         SimpleRabbitListenerContainerFactory factory =
             new SimpleRabbitListenerContainerFactory();
         configurer.configure(factory, connectionFactory);
-//        factory.setMessageConverter(jsonMessageConverter());
         return factory;
     }
 
 
-//    @Bean
-//    public MessageConverter jsonMessageConverter(){
-//        return new Jackson2JsonMessageConverter();
-//    }
 
     @Bean
     public RabbitTemplate rabbitTemplate() {
@@ -97,60 +70,4 @@ public class MessageRabbitConfig {
         return rabbitTemplate;
     }
 
-
-
-    @Bean
-    Queue queue() {
-        return new Queue(topicQueueOrderName, false);
-    }
-
-//	@Bean
-//	TopicExchange exchange() {
-//		return new TopicExchange("com.ssf.topic.exchange");
-//	}
-
-//	@Bean
-//	Binding binding(Queue queue, TopicExchange exchange) {
-//		return BindingBuilder.bind(queue).to(exchange).with(topicQueueOrderName);
-//	}
-
-
-
-
-//    @Bean
-//    public List<Declarable> topicBindings() {
-////		Queue topicQueue1 = new Queue(topicQueuePayName, false);
-//
-//
-//        TopicExchange topicExchange = new TopicExchange(topicExchangeName);
-//
-//        return Arrays.asList(
-//           queue(),
-//            topicExchange,
-//            BindingBuilder.bind(queue()).to(topicExchange).with(topicPay)
-//        );
-//    }
-
-
-//	@Bean
-//	TopicExchange exchange() {
-//		return new TopicExchange("com.ssf.topic.exchange");
-//	}
-
-
-
-//    @Bean
-//    SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
-//        MessageListenerAdapter listenerAdapter) {
-//        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-//        container.setConnectionFactory(connectionFactory);
-//        container.setQueueNames(topicQueueOrderName);
-//        container.setMessageListener(listenerAdapter);
-//        return container;
-//    }
-//
-//    @Bean
-//    MessageListenerAdapter listenerAdapter(BroadcastMessageConsumers receiver) {
-//        return new MessageListenerAdapter(receiver, "receiveMessage");
-//    }
 }

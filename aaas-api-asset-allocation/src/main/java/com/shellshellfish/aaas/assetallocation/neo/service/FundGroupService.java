@@ -41,7 +41,7 @@ public class FundGroupService {
 				Map<String, String> query = new HashMap<>();
 				query.put("fund_group_id", interval.getFund_group_id());
 				List<RiskIncomeInterval> riskIncomeIntervalList = fundGroupMapper.getPerformanceVolatility(query);
-				RiskIncomeInterval riskIncomeInterval = riskIncomeIntervalList.get(riskIncomeIntervalList.size() / 2);
+				RiskIncomeInterval riskIncomeInterval = riskIncomeIntervalList.get(riskIncomeIntervalList.size() / 2-1);
 				query.put("id", riskIncomeInterval.getFund_group_id());
 				query.put("subId", riskIncomeInterval.getId());
 				List<Interval> intervals = fundGroupMapper.getProportion(query);
@@ -356,9 +356,9 @@ public class FundGroupService {
 		}
 		List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getPerformanceVolatility(map);
 		if (riskIncomeIntervals.size() > 0) {
-//            RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(riskIncomeIntervals.size() / 2-1);
+            RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(riskIncomeIntervals.size() / 2-1);
 			//TODO 固定第5个点的值（DH）
-			RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(5);
+			//RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(5);
 			aReturn.setName("模拟数据");
 			aReturn.setProductGroupId(riskIncomeInterval.getFund_group_id());
 			aReturn.setProductSubGroupId(riskIncomeInterval.getId());
@@ -421,7 +421,7 @@ public class FundGroupService {
 		}
 		List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getPerformanceVolatility(query);
 		if (riskIncomeIntervals.size() > 0) {
-			RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(riskIncomeIntervals.size() / 2);
+			RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(riskIncomeIntervals.size() / 2-1);
 			aReturn.setName("模拟数据");
 			aReturn.setProductGroupId(riskIncomeInterval.getFund_group_id());
 			aReturn.setProductSubGroupId(riskIncomeInterval.getId());
@@ -534,14 +534,15 @@ public class FundGroupService {
 		List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
 		Map maxMinValueMap;
 		if (fundGroupHistoryList.size() != 0) {
-			List maxMinValueList = new ArrayList();
+			List<Double> maxMinValueList = new ArrayList<Double>();
 			if (returnType.equalsIgnoreCase("income")) {
-				for (int i = 1; i < fundGroupHistoryList.size(); i++) {
+				for (int i = 0; i < fundGroupHistoryList.size(); i++) {
 					Map<String, Object> map = new HashMap<>();
 					map.put("time", SSFDateUtils.dateFormat.format(fundGroupHistoryList.get(i).getTime()));
-					map.put("value", (fundGroupHistoryList.get(i).getIncome_num() - fundGroupHistoryList.get(i - 1).getIncome_num()) / fundGroupHistoryList.get(i - 1).getIncome_num());
+					double earningRate = (fundGroupHistoryList.get(i).getIncome_num() - fundGroupHistoryList.get(0).getIncome_num()) / fundGroupHistoryList.get(0).getIncome_num();
+					map.put("value", earningRate);
 					list.add(map);
-					maxMinValueList.add((fundGroupHistoryList.get(i).getIncome_num() - fundGroupHistoryList.get(i - 1).getIncome_num()) / fundGroupHistoryList.get(i - 1).getIncome_num());
+					maxMinValueList.add(earningRate);
 				}
 				maxMinValueMap = TransformUtil.getMaxMinValue(maxMinValueList);
 				fgi.setName("组合收益率走势图");
@@ -589,10 +590,10 @@ public class FundGroupService {
 		ca.add(Calendar.DATE, -1);
 		String endTime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
 		Map<String, String> mapStr = new HashMap<>();
-        /*mapStr.put("fund_group_id", id);
-        mapStr.put("fund_group_sub_id", subGroupId);*/
-		mapStr.put("fund_group_id", "2");
-		mapStr.put("fund_group_sub_id", "2002");
+        mapStr.put("fund_group_id", id);
+        mapStr.put("fund_group_sub_id", subGroupId);
+//		mapStr.put("fund_group_id", "2");
+//		mapStr.put("fund_group_sub_id", "2002");
 		mapStr.put("starttime", startTime);
 		mapStr.put("endtime", endTime);
 		List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);

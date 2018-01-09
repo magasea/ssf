@@ -57,6 +57,8 @@ datasource:
       dialect: org.hibernate.dialect.MySQLDialect
 
 grpc:
+  host: localhost
+  port: 10111
   finance_prod_client:
     host: localhost
     port: 10030
@@ -75,5 +77,5 @@ org:
         threadsInheritContextClassLoaderOfInitializingThread: true
 cron:
   frequency:
-  #每天17：30分开始
+    #每天17：30分开始
     jobwithcrontrigger: 0 45 17 ? * * *

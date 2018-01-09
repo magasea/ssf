@@ -226,7 +226,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public Page<TradeLogDTO> findByUserId(String userUuid, Pageable pageable) throws Exception {
     	Long userId = getUserIdFromUUID(userUuid);
-        Page<UiTrdLog> tradeLogsPage = userInfoRepoService.findByUserId(pageable, userId);
+        Page<UiTrdLog> tradeLogsPage = userInfoRepoService.findTradeLogDtoByUserId(pageable, userId);
         Page<TradeLogDTO> tradeLogResult = MyBeanUtils.convertPageDTO(pageable, tradeLogsPage, TradeLogDTO.class);
         return tradeLogResult;
     }
@@ -289,13 +289,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Override
 	public List<TradeLogDTO> findByUserId(String uuid) throws Exception {
 		Long userId = getUserIdFromUUID(uuid);
-		List<TradeLogDTO> uiTrdLogList = userInfoRepoService.findByUserId(userId);
+		List<TradeLogDTO> uiTrdLogList = userInfoRepoService.findTradeLogDtoByUserId(userId);
 		return uiTrdLogList;
 	}
 	
 	@Override
 	public List<ProductsDTO> findProductInfos(String uuid) throws Exception {
-		List<ProductsDTO> products = userInfoRepoService.findByUserId(uuid);
+		List<ProductsDTO> products = userInfoRepoService.findTradeLogDtoByUserId(uuid);
 		return products;
 	}
 
@@ -310,7 +310,12 @@ public class UserInfoServiceImpl implements UserInfoService {
     ZhongZhengQueryByOrderDetailId.Builder requestBuilder = ZhongZhengQueryByOrderDetailId
         .newBuilder();
 
+    requestBuilder.setOrderDetailId(orderDetailId);
+    requestBuilder.setUserId(userId);
+
     try {
+      requestBuilder.setUserId(userId);
+	  requestBuilder.setOrderDetailId(orderDetailId);
       com.shellshellfish.aaas.finance.trade.pay.ApplyResult result = payRpcServiceFutureStub.queryZhongzhengTradeInfoByOrderDetailId
           (requestBuilder.build()).get();
       ApplyResult applyResult = new ApplyResult();
