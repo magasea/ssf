@@ -217,6 +217,7 @@ public class FinanceController {
 		String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/historicalPer-formance?fund_group_id=" + groupId
 				+ "&subGroupId=" + subGroupId;
 		Map<String,Object> result = new HashMap<String,Object>();// 中间容器
+		Map<String,Object> title = new HashMap<String,Object>();
 		Object object = null;
 		List<Map<String, Object>> prdList = null; // 中间容器
 		List<FinanceProductCompo> resultList = new ArrayList<FinanceProductCompo>();// 结果集
@@ -226,6 +227,7 @@ public class FinanceController {
 			if (result != null) {
 				object = result.get("_items");
 				if (object != null) {
+					title.put("header1",productName);
 					logger.info("object获取成功");
 					result.put("historicalPerformance",object);
 					result.remove("_items");
@@ -318,6 +320,7 @@ public class FinanceController {
 			logger.error("获取收益率失败");
 			return new JsonResult(JsonResult.SUCCESS, "获取收益率失败", result);
 		}
+		result.put("title", title);
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 	}
 	
@@ -432,6 +435,7 @@ public class FinanceController {
 	@ResponseBody
 	public JsonResult getRiskManagement(@RequestParam String uuid, @RequestParam String groupId, @RequestParam String subGroupId, @RequestParam String productName) {
 		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String,Object> title = new HashMap<String,Object>();
 		// 最大回撤走势图
 		Map<String, Object> portfolioYieldWeekMap = new HashMap<String, Object>();
 		try {
@@ -468,7 +472,7 @@ public class FinanceController {
 			} else {
 				logger.error("预期平均年化收益率获取失败2");
 			}
-			
+			title.put("header1",productName);
 			//预期最大回撤数
 			url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt";
 			String str="{\"returnType\":\""+"1"+"\"}";
@@ -524,7 +528,7 @@ public class FinanceController {
 			} else {
 				logger.info("风险控制手段与通知失败2");
 			}
-			
+			result.put("title", title);
 		} catch (Exception e) {
 			// 获取list失败直接返回
 			logger.error("风险控制数据发生错误", e);
