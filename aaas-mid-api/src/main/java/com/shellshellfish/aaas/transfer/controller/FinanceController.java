@@ -212,7 +212,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/historicalPerformancePage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getHistoricalPerformance(@RequestParam String groupId, @RequestParam String subGroupId,@RequestParam String productName) {
+	public JsonResult getHistoricalPerformance(@RequestParam(required=false) String groupId, @RequestParam(required=false) String subGroupId,@RequestParam(required=false) String productName) {
 		// 先获取全部产品
 		String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/historicalPer-formance?fund_group_id=" + groupId
 				+ "&subGroupId=" + subGroupId;
@@ -332,7 +332,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/futureExpectationPage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getFutureExpectation(@RequestParam String groupId, @RequestParam String subGroupId) {
+	public JsonResult getFutureExpectation(@RequestParam(required=false) String groupId, @RequestParam String subGroupId) {
 		Map<String,Object> result = new HashMap<String,Object>();
 		// 预期平均年化收益率
 		Map<String,Object> optMap = new HashMap<String,Object>();
@@ -433,7 +433,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/riskMangementPage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getRiskManagement(@RequestParam String uuid, @RequestParam String groupId, @RequestParam String subGroupId, @RequestParam String productName) {
+	public JsonResult getRiskManagement(@RequestParam String uuid, @RequestParam String groupId, @RequestParam String subGroupId, @RequestParam(required=false) String productName) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String,Object> title = new HashMap<String,Object>();
 		// 最大回撤走势图
@@ -547,7 +547,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/globalConfigurationPage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getGlobalConfiguration(@RequestParam String uuid,@RequestParam String groupId, @RequestParam String subGroupId) {
+	public JsonResult getGlobalConfiguration(@RequestParam(required=false) String uuid,@RequestParam String groupId, @RequestParam String subGroupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		// 配置收益贡献
 		Map<String, Object> configurationBenefitContributionMap = new HashMap<String, Object>();

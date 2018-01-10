@@ -43,7 +43,7 @@ public class FundDetailedController {
 	})
 	@RequestMapping(value = "/getFundDetails", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getFundInfoByCodes(@RequestParam String code, @RequestParam(required = false, defaultValue="") String date) {
+	public JsonResult getFundInfoByCodes(@RequestParam String code, @RequestParam(required = false) String date) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			//近一年涨幅, 当日涨幅, 当日净值,获取历史页面
@@ -82,15 +82,15 @@ public class FundDetailedController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "code", dataType = "String", required = true, value = "基金代码", defaultValue = "000614.OF"),
 			@ApiImplicitParam(paramType = "query", name = "type", dataType = "String", required = true, value = "类型(1: 3month,2: 6month,3: 1year,4: 3year);", defaultValue = "1"),
-			@ApiImplicitParam(paramType = "query", name = "data", dataType = "String", required = true, value = "日期", defaultValue = "2018-12-28")
+			@ApiImplicitParam(paramType = "query", name = "date", dataType = "String", required = false, value = "日期", defaultValue = "2017-12-28")
 	})
 	@RequestMapping(value = "/getHistoryNetvalue", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getHistoryNetvalue(@RequestParam String code, @RequestParam String type, @RequestParam String data) {
+	public JsonResult getHistoryNetvalue(@RequestParam String code, @RequestParam String type, @RequestParam(required=false) String date) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			result = restTemplate
-					.getForEntity(dataManagerUrl + "/api/datamanager/getHistoryNetvalue?code="+code+"&type="+ type + "&data=" + data, Map.class)
+					.getForEntity(dataManagerUrl + "/api/datamanager/getHistoryNetvalue?code="+code+"&type="+ type + "&date=" + date, Map.class)
 					.getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
