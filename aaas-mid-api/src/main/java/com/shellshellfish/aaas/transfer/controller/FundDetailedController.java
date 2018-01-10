@@ -47,8 +47,9 @@ public class FundDetailedController {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			//近一年涨幅, 当日涨幅, 当日净值,获取历史页面
+			String param = StringUtils.isNotBlank(date) ? "&date=" + date : "";
 			result = restTemplate
-					.getForEntity(financeUrl + "/api/ssf-finance/getFundValueInfo?fundCode=" + code, Map.class)
+					.getForEntity(financeUrl + "/api/ssf-finance/getFundValueInfo?fundCode=" + code + param, Map.class)
 					.getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
@@ -56,7 +57,6 @@ public class FundDetailedController {
 			}
 			
 			//获取类型 风险等级	评级
-			String param = StringUtils.isNotBlank(date) ? "&date=" + date : "";
 			Map<String, Object> dataResult = restTemplate
 					.getForEntity(dataManagerUrl + "/api/datamanager/getFundValueInfo?code=" + code + param, Map.class)
 					.getBody();
