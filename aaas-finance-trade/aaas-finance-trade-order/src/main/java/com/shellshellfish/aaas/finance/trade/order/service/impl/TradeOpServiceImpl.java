@@ -46,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 @Service
@@ -150,7 +151,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     int trdBrokerId = trdBrokerUsers.get(0).getTradeBrokerId().intValue();
     String bankCardNum = financeProdBuyInfo.getBankAcc();
     String trdAcco = trdBrokerUsers.get(0).getTradeAcco();
-    if(StringUtils.isEmpty(trdAcco)){
+    if(CollectionUtils.isEmpty(trdBrokerUsers) || StringUtils.isEmpty(trdAcco)){
         //Todo: get userBankCardInfo to make tradAcco
       logger.info("trdBrokerUsers.get(0).getTradeAcco() is empty, 坑货出现，需要生成交易账号再交易");
       UserIdOrUUIDQuery.Builder builder = UserIdOrUUIDQuery.newBuilder();
