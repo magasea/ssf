@@ -125,8 +125,20 @@ public class TransferController {
 		Map resultMap=new HashMap<>();
 		resultMap.put("orderId", buyProductSuccess.get("orderId").toString());
 		return new JsonResult(JsonResult.SUCCESS, "购买成功", resultMap);
-		}catch(Exception e){
-			logger.error("购买基金调用购买接口失败");
+		} catch (HttpClientErrorException e) {
+			logger.error("购买基金调用购买接口失败"+e.getMessage());
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		} catch (HttpServerErrorException e) {
+			logger.error("购买基金调用购买接口失败"+e.getMessage());
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			JSONObject  myJson = JSONObject.parseObject(str);
+			String error = myJson.getString("message");
+			return new JsonResult(JsonResult.Fail, error, JsonResult.EMPTYRESULT);
+		} catch(Exception e){
+			logger.error("购买基金调用购买接口失败"+e.getMessage());
 			e.printStackTrace();
 			String str=new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail,str , JsonResult.EMPTYRESULT);
