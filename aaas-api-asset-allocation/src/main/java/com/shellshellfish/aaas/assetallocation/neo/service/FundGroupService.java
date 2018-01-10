@@ -536,7 +536,8 @@ public class FundGroupService {
                     double earningRate = (fundGroupHistoryList.get(i).getIncome_num()-fundGroupHistoryList.get(0).getIncome_num())/fundGroupHistoryList.get(0).getIncome_num();
                     map.put("value", earningRate);
                     list.add(map);
-                    maxMinValueList.add(earningRate);                }
+                    maxMinValueList.add(earningRate);
+                }
                 maxMinValueMap = TransformUtil.getMaxMinValue(maxMinValueList);
                 fgi.setName("组合收益率走势图");
             } else {
