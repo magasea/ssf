@@ -686,30 +686,31 @@ public class FundGroupService {
         Map<String, String> query = new HashMap<>();
         query.put("id", id);
         query.put("subId", subGroupId);
-        List<Interval> intervalList = fundGroupMapper.getProportion(query);
-        if (CollectionUtils.isEmpty(intervalList)) {
+        List<Interval> intervalProportionList = fundGroupMapper.getProportion(query);
+        if (CollectionUtils.isEmpty(intervalProportionList)) {
             return fgi;
         }
 
-        List<Interval> intervals = new ArrayList<>();
-        for (Interval tmpInterval : intervalList) {
+        List<Interval> intervalProportions = new ArrayList<>();
+        for (Interval tmpInterval : intervalProportionList) {
             if (tmpInterval.getProportion() > 0d) {
-                intervals.add(tmpInterval);
+                intervalProportions.add(tmpInterval);
             }
         }
 
-        List<Interval> intervalCode = fundGroupMapper.getFundCode(query);
-        if (CollectionUtils.isEmpty(intervalCode)) {
+        List<Interval> intervalCodes = fundGroupMapper.getFundCode(query);
+        if (CollectionUtils.isEmpty(intervalCodes)) {
             return fgi;
         }
 
         List<Map<String, Object>> list = new ArrayList<>();
         Map<String, String> _links = new HashMap<>();
-        for (Interval interval1 : intervalCode) {
+        for (Interval intervalCode : intervalCodes) {
             Map<String, Object> map = new HashMap<>();
-            for(Interval interval2:intervals){
-                if(interval1.getFund_type_two().equalsIgnoreCase(interval2.getFund_type_two())){
-                    map.put("type_value", interval2.getProportion());
+            for(Interval intervalProportion : intervalProportions){
+                if(intervalCode.getFund_type_two().equalsIgnoreCase(intervalProportion.getFund_type_two())
+                        && intervalCode.getFund_id().equals(intervalProportion.getFund_id())){
+                    map.put("type_value", intervalProportion.getProportion());
                     break;
                 }
             }
@@ -720,7 +721,7 @@ public class FundGroupService {
             }
 
             Map<String, String> query1 = new HashMap<>();
-            query1.put("fund_code", interval1.getFund_id());
+            query1.put("fund_code", intervalCode.getFund_id());
             query1.put("startTime", startTime);
             query1.put("endtTime", endTime);
             List<FundNetVal> fundNetValues = fundGroupMapper.getFundNetValue(query1);
@@ -743,9 +744,9 @@ public class FundGroupService {
                 }
             }
             map.put("navadj", listFund);
-            map.put("fund_type_two", interval1.getFund_type_two());
-            map.put("fund_code", interval1.getFund_id());
-            map.put("name", interval1.getFname());
+            map.put("fund_type_two", intervalCode.getFund_type_two());
+            map.put("fund_code", intervalCode.getFund_id());
+            map.put("name", intervalCode.getFname());
             list.add(map);
         }
         fgi.set_total(list.size());
