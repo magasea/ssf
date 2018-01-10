@@ -148,7 +148,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     PayDto payDto = new PayDto();
     List<TrdBrokerUser> trdBrokerUsers = trdBrokerUserRepository.findByUserId(financeProdBuyInfo.getUserId());
 
-    int trdBrokerId = trdBrokerUsers.get(0).getTradeBrokerId().intValue();
+    int trdBrokerId = -1 ;
     String bankCardNum = null;
     String trdAcco = null;
     if(!CollectionUtils.isEmpty(trdBrokerUsers)){
@@ -286,5 +286,12 @@ public class TradeOpServiceImpl implements TradeOpService {
     TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndAndBankCardNum
         (userId,bankCardNum);
     return trdBrokerUser;
+  }
+
+  @Override
+  public TrdOrder buyFinanceProductWithPreprocess(FinanceProdBuyInfo financeProdInfo)
+      throws Exception {
+
+    return null;
   }
 }

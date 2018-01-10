@@ -73,3 +73,8 @@ cron:
   frequency:
   #每天17：30分开始
     jobwithcrontrigger: 0 45 17 ? * * *
+
+#--- multithread
+multithread:
+  pool:
+    size: 8
