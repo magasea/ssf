@@ -54,7 +54,7 @@ public class FundDetailedController {
 //			if (result == null || result.size() == 0) {
 //				result.put("msg", "获取失败");
 //				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
-//			} 
+//			}
 			
 			//获取类型 风险等级	评级
 			result = restTemplate
