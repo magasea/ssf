@@ -2,6 +2,7 @@ package transfer.controller;
 
 import com.shellshellfish.aaas.transfer.TransferServiceApplication;
 import io.restassured.RestAssured;
+import io.restassured.filter.log.ResponseLoggingFilter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +23,7 @@ import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInC
 @SpringBootTest(classes = TransferServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
 @EnableAutoConfiguration
-public class FundDetailedControllerTest {
+public class FundDetailedControllerIT {
 
 	private String GET_FUND_COMPANY = "/phoneapi-ssf/getFundCompany";
 	private String GET_FUND_DETAILS = "/phoneapi-ssf/getFundDetails";
@@ -56,7 +57,7 @@ public class FundDetailedControllerTest {
 
 		given()
 				.param("name", name)
-				.filter(new LogFilter())
+				.filter(new ResponseLoggingFilter())
 				.when()
 				.post(GET_FUND_COMPANY)
 				.then().log().all()
@@ -73,7 +74,7 @@ public class FundDetailedControllerTest {
 				.param("groupId", groupId)
 				.param("subGroupId", subGroupId)
 				.param("codes", codes)
-				.filter(new LogFilter())
+				.filter(new ResponseLoggingFilter())
 				.when()
 				.post(GET_FUND_DETAILS)
 				.then().log().all()
@@ -87,7 +88,7 @@ public class FundDetailedControllerTest {
 
 		given()
 				.param("code", code)
-				.filter(new LogFilter())
+				.filter(new ResponseLoggingFilter())
 				.when()
 				.post(GET_FUND_INFO)
 				.then().log().all()
@@ -101,7 +102,7 @@ public class FundDetailedControllerTest {
 
 		given()
 				.param("name", name)
-				.filter(new LogFilter())
+				.filter(new ResponseLoggingFilter())
 				.when()
 				.post(GET_FUND_MANAGER)
 				.then().log().all()
@@ -115,7 +116,7 @@ public class FundDetailedControllerTest {
 
 		given()
 				.param("code", code)
-				.filter(new LogFilter())
+				.filter(new ResponseLoggingFilter())
 				.when()
 				.post(GET_FUND_NOTICES)
 				.then().log().all()
@@ -133,7 +134,7 @@ public class FundDetailedControllerTest {
 				.param("code", code)
 				.param("type", type)
 				.param("data", data)
-				.filter(new LogFilter())
+				.filter(new ResponseLoggingFilter())
 				.when()
 				.post(GET_HISTORY_NET_VALUE)
 				.then().log().all()

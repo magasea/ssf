@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "surveyTemplatesLatest",
+  "description": "风险测评试题",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "msg": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ordinal": {
+                "type": "integer"
+              },
+              "title": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "weight": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "optionItems": {
+                "type": "array",
+                "item": {
+                  "type": "object",
+                  "properties": {
+                    "ordinal": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "score": {
+                      "type": "integer"
+                    },
+                    "text": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "ordinal",
+                    "name",
+                    "score",
+                    "score"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "ordinal",
+              "title",
+              "optionItems",
+              "weight"
+            ]
+          }
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "_serviceId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "title",
+        "questions",
+        "version",
+        "_serviceId"
+      ]
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

@@ -2,6 +2,7 @@ package transfer.controller;
 
 import com.shellshellfish.aaas.transfer.TransferServiceApplication;
 import io.restassured.RestAssured;
+import io.restassured.filter.log.ResponseLoggingFilter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,7 +61,7 @@ public class TestDemo {
 
 		given()
 				.param("groupId", groupId)
-				.param("subGroupId", subGroupId).filter(new LogFilter())
+				.param("subGroupId", subGroupId).filter(new ResponseLoggingFilter())
 		.when().
 				post("/phoneapi-ssf/contributions")
 		.then().log().all()

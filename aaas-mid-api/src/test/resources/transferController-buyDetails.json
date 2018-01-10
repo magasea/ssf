@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "buyDetails",
+  "description": "理财产品 产品详情",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "msg": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "payfee": {
+          "type": "number"
+        },
+        "orderType": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "number"
+        },
+        "statusList": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "date": {
+                "type": ["string", "null"]
+              },
+              "time": {
+                "type": ["string", "null"]
+              },
+              "status": {
+                "type": ["string", "null"]
+              }
+            },
+            "required": [
+              "date",
+              "time",
+              "status"
+            ]
+          }
+        },
+        "detailList": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "funddate": {
+                "type": ["string", "null"]
+              },
+              "fundTradeType": {
+                "type": ["string", "null"]
+              },
+              "fundbuyFee": {
+                "type": "number"
+              },
+              "status": {
+                "type": ["string", "null"]
+              },
+              "fundName": {
+                "type": ["string", "null"]
+              }
+            },
+            "required": [
+              "fundTradeType",
+              "fundbuyFee",
+              "status",
+              "fundName"
+            ]
+          }
+        },
+        "orderStatus": {
+          "type": ["string", "null"]
+        },
+        "title": {
+          "type": ["string", "null"]
+        }
+      },
+      "required": [
+        "payfee",
+        "orderType",
+        "amount",
+        "statusList",
+        "detailList",
+        "orderStatus",
+        "title"
+      ]
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

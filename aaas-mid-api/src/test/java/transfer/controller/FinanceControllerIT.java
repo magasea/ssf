@@ -2,6 +2,7 @@ package transfer.controller;
 
 import com.shellshellfish.aaas.transfer.TransferServiceApplication;
 import io.restassured.RestAssured;
+import io.restassured.filter.log.ResponseLoggingFilter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +25,7 @@ import static org.hamcrest.Matchers.notNullValue;
 @SpringBootTest(classes = TransferServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
 @EnableAutoConfiguration
-public class FinanceControllerTest {
+public class FinanceControllerIT {
 
 	private static final String FINANCE_HOME = "/phoneapi-ssf/finance-home";
 
@@ -103,7 +104,7 @@ public class FinanceControllerTest {
 		String isTestFlag = "0";
 		String testResult = "平衡型";
 
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("uuid", uuid)
 				.param("isTestFlag", isTestFlag)
 				.param("testResult", testResult)
@@ -122,7 +123,7 @@ public class FinanceControllerTest {
 		String subGroupId = "111111";
 
 
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("groupId", groupId)
 				.param("subGroupId", subGroupId)
 				.post(CONTRIBUTIONS)
@@ -139,7 +140,7 @@ public class FinanceControllerTest {
 		String groupId = "2";
 		String subGroupId = "2000";
 
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("groupId", groupId)
 				.param("subGroupId", subGroupId)
 				.post(CHECK_PRD_DETAILS)
@@ -155,7 +156,7 @@ public class FinanceControllerTest {
 	public void effectiveFrontierPointsTest() {
 		String groupId = "2";
 
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("groupId", groupId)
 				.post(EFFECTIVE_FRONTIER_POINTS)
 				.then()
@@ -169,7 +170,7 @@ public class FinanceControllerTest {
 	@Test
 	public void financeFrontPageTest() {
 
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.post(FINANCE_FRONT_PAGE)
 				.then()
 				.log().all()
@@ -185,7 +186,7 @@ public class FinanceControllerTest {
 		String uuid = "1";
 		String groupId = "6";
 		String subGroupId = "111111";
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("uuid", uuid)
 				.param("groupId", groupId)
 				.param("subGroupId", subGroupId)
@@ -203,7 +204,7 @@ public class FinanceControllerTest {
 
 		String groupId = "6";
 		String subGroupId = "111111";
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("groupId", groupId)
 				.param("subGroupId", subGroupId)
 				.post(GET_EXPANNUAL_AND_MAX_RETURN)
@@ -222,7 +223,7 @@ public class FinanceControllerTest {
 		String uuid = "1";
 		String groupId = "2";
 		String subGroupId = "2000";
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("uuid", uuid)
 				.param("groupId", groupId)
 				.param("subGroupId", subGroupId)
@@ -240,7 +241,7 @@ public class FinanceControllerTest {
 
 		String groupId = "6";
 		String subGroupId = "111111";
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("groupId", groupId)
 				.param("subGroupId", subGroupId)
 				.post(HISTORICAL_PERFORMANCE_PAGE)
@@ -256,7 +257,7 @@ public class FinanceControllerTest {
 	public void incomeSlidebarPointsTest() {
 
 		String groupId = "6";
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("groupId", groupId)
 				.post(INCOME_SLIDEBAR_POINTS)
 				.then()
@@ -271,7 +272,7 @@ public class FinanceControllerTest {
 	public void optAdjustmentTest() {
 
 		String groupId = "6";
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("groupId", groupId)
 				.post(OPT_ADJUSTMENT)
 				.then()
@@ -289,7 +290,7 @@ public class FinanceControllerTest {
 		String groupId = "2";
 		String riskPointValue = "0.0088";
 		String incomePointValue = "0.0411";
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("groupId", groupId)
 				.param("riskPointValue", riskPointValue)
 				.param("incomePointValue", incomePointValue)
@@ -308,7 +309,7 @@ public class FinanceControllerTest {
 		String uuid = "1";
 		String groupId = "6";
 		String subGroupId = "100058";
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("uuid", uuid)
 				.param("groupId", groupId)
 				.param("subGroupId", subGroupId)
@@ -325,7 +326,7 @@ public class FinanceControllerTest {
 	public void riskSlidebarPoints() {
 
 		String groupId = "6";
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("groupId", groupId)
 				.post(RISK_SLIDEBAR_POINTS)
 				.then()

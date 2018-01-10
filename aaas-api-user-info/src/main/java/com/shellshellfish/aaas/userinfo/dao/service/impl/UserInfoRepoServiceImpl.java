@@ -102,7 +102,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		// BigInteger userIdLocal = BigInteger.valueOf(userId);
 		UiAsset uiAsset = userInfoAssetsRepository.findByUserId(userId);
 		UserInfoAssectsBriefDTO asset = new UserInfoAssectsBriefDTO();
-		if(uiAsset != null){
+		if (uiAsset != null) {
 			BeanUtils.copyProperties(uiAsset, asset);
 		}
 		return asset;
@@ -127,7 +127,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	public BankCardDTO getUserInfoBankCard(String cardNumber) {
 		UiBankcard uiBankcard = userInfoBankCardsRepository.findUiBankcardByCardNumberIs(cardNumber);
 		BankCardDTO bankcard = new BankCardDTO();
-		if(uiBankcard!=null){
+		if (uiBankcard != null) {
 			BeanUtils.copyProperties(uiBankcard, bankcard);
 		}
 		return bankcard;
@@ -243,18 +243,19 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		Page<UiTrdLog> uiTrdLogPage = userTradeLogRepository.findByUserId(pageable, userId);
 		return uiTrdLogPage;
 	}
-	
+
 	@Override
 	public List<TradeLogDTO> findTradeLogDtoByUserId(Long userId) throws IllegalAccessException, InstantiationException {
 		List<UiTrdLog> uiTrdLogList = userTradeLogRepository.findByUserId(userId);
 		List<TradeLogDTO> trdLogsDtoList = MyBeanUtils.convertList(uiTrdLogList, TradeLogDTO.class);
 		return trdLogsDtoList;
 	}
-	
+
 	@Override
 	public Iterable<TradeLogDTO> addUiTrdLog(List<UiTrdLog> trdLogs)
 			throws IllegalAccessException, InstantiationException {
 		userTradeLogRepository.save(trdLogs);
+		// FIXME
 		List<TradeLogDTO> trdLogsDtoList = MyBeanUtils.convertList(trdLogs, TradeLogDTO.class);
 		return trdLogsDtoList;
 	}
@@ -307,7 +308,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		}
 		List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserIdAndCardNumber(userId, cardNumber);
 		if (bankcardList == null || bankcardList.size() == 0) {
-			throw new UserInfoException("404","解绑的银行卡不存在");
+			throw new UserInfoException("404", "解绑的银行卡不存在");
 		}
 		UiBankcard bankcard = bankcardList.get(0);
 		userInfoBankCardsRepository.delete(bankcard.getId());
@@ -366,12 +367,10 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	}
 
 
-
-
 	/**
 	 */
 	public void getUserBankInfo(com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery request,
-			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserBankInfo> responseObserver) {
+								io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserBankInfo> responseObserver) {
 		Long userId = request.getUserId();
 		List<BankCardDTO> bankCardDTOS = null;
 		try {
@@ -381,7 +380,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		}
-		if( bankCardDTOS.size() >= 0 ){
+		if (bankCardDTOS.size() >= 0) {
 			logger.error("failed to find bankCards by userId:" + userId);
 		}
 		UserBankInfo.Builder builder = UserBankInfo.newBuilder();
@@ -390,7 +389,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		builder.setUserPid(bankCardDTOS.get(0).getUserPid());
 		builder.setUuid(request.getUuid());
 		builder.setCellphone(bankCardDTOS.get(0).getCellphone());
-		for(int idx = 0; idx < bankCardDTOS.size(); idx++){
+		for (int idx = 0; idx < bankCardDTOS.size(); idx++) {
 			builder.setCardNumbers(idx, bankCardDTOS.get(idx).getCardNumber());
 		}
 		responseObserver.onNext(builder.build());
@@ -401,24 +400,24 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	/**
 	 */
 	public void genUserProdsFromOrder(com.shellshellfish.aaas.userinfo.grpc.FinanceProdInfosQuery request,
-			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserProdId> responseObserver) {
+									  io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserProdId> responseObserver) {
 		UserProdId.Builder respBuilder = UserProdId.newBuilder();
 		List<com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo> financeProdInfoList =
 				request.getProdListList();
-		if(CollectionUtils.isEmpty(financeProdInfoList)){
+		if (CollectionUtils.isEmpty(financeProdInfoList)) {
 			logger.error("FinanceProdInfoCollection is empty! will return -1");
 			respBuilder.setUserProdId(-1L);
 			responseObserver.onNext(respBuilder.build());
 			responseObserver.onCompleted();
 			return;
 		}
-		try{
+		try {
 			List<com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo> financeProdInfosValue =
 					financeProdInfoList;
 			FinanceProdInfo financeProdInfoFirst = financeProdInfosValue.get(0);
 			logger.info("financeProdInfoFirst is:" + financeProdInfoFirst + " prodName:"
-					+ " "+financeProdInfoFirst.getProdName() + "groupId:"+financeProdInfoFirst.getGroupId() +
-					"prodId:" +financeProdInfoFirst.getProdId()  );
+					+ " " + financeProdInfoFirst.getProdName() + "groupId:" + financeProdInfoFirst.getGroupId() +
+					"prodId:" + financeProdInfoFirst.getProdId());
 			UiProducts uiProducts = new UiProducts();
 			uiProducts.setCreateBy(request.getUserId());
 			BeanUtils.copyProperties(financeProdInfoFirst, uiProducts);
@@ -429,7 +428,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			UiProducts saveResult = uiProductRepo.save(uiProducts);
 			Long userProdId = saveResult.getId();
 			logger.info("saved UiProducts with result id:" + userProdId);
-			for(FinanceProdInfo financeProdInfo: financeProdInfosValue){
+			for (FinanceProdInfo financeProdInfo : financeProdInfosValue) {
 				UiProductDetail uiProductDetail = new UiProductDetail();
 				BeanUtils.copyProperties(financeProdInfo, uiProductDetail);
 				uiProductDetail.setCreateBy(request.getUserId());
@@ -443,7 +442,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			responseObserver.onNext(respBuilder.build());
 			responseObserver.onCompleted();
 			return;
-		}catch (Exception ex){
+		} catch (Exception ex) {
 			logger.error(ex.getMessage());
 			respBuilder.setUserProdId(-1L);
 			responseObserver.onNext(respBuilder.build());
@@ -455,12 +454,12 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public ProductsDTO findByProdId(String prodId) {
-		if(StringUtils.isEmpty(prodId)){
+		if (StringUtils.isEmpty(prodId)) {
 			throw new UserInfoException("404", "智投组合产品id不能为空");
 		}
 		UiProducts productsData = uiProductRepo.findByProdId(Long.valueOf(prodId));
 		if (productsData == null) {
-			throw new UserInfoException("404", "智投组合产品："+prodId+"为空");
+			throw new UserInfoException("404", "智投组合产品：" + prodId + "为空");
 		}
 		ProductsDTO product = new ProductsDTO();
 		BeanUtils.copyProperties(productsData, product);
@@ -469,7 +468,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public List<ProductsDTO> findTradeLogDtoByUserId(String uuid) throws IllegalAccessException, InstantiationException {
-		if(StringUtils.isEmpty(uuid)){
+		if (StringUtils.isEmpty(uuid)) {
 			throw new UserInfoException("404", "用户uuid不能为空");
 		}
 		Long userId = null;
@@ -480,37 +479,37 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		}
 		List<ProductsDTO> productsList = new ArrayList<>();
 		List<UiProducts> productsData = uiProductRepo.findByUserId(userId);
-		if (productsData == null||productsData.size()==0) {
+		if (productsData == null || productsData.size() == 0) {
 			//throw new UserInfoException("404", "用户："+userId+"为空");
 		} else {
-			productsList = MyBeanUtils.convertList(productsData,ProductsDTO.class);
+			productsList = MyBeanUtils.convertList(productsData, ProductsDTO.class);
 		}
-		
-		
+
+
 		return productsList;
 	}
 
 	@Override
 	public void getUerUUIDByUserId(com.shellshellfish.aaas.userinfo.grpc.UserId request,
-			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserUUID> responseObserver) {
-			String userUUID = findUserUUIDByUserId(request.getUserId());
-			if(StringUtils.isEmpty(userUUID)){
-				logger.error("cause the userId:" + request.getUserId() + " cannot find corresponding "
-						+ "uiuser, use -1 to return");
-				userUUID = "-1";
-			}
-			UserUUID.Builder builder = UserUUID.newBuilder();
-			builder.setUserUUID(userUUID);
-			responseObserver.onNext(builder.build());
-			responseObserver.onCompleted();
+								   io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserUUID> responseObserver) {
+		String userUUID = findUserUUIDByUserId(request.getUserId());
+		if (StringUtils.isEmpty(userUUID)) {
+			logger.error("cause the userId:" + request.getUserId() + " cannot find corresponding "
+					+ "uiuser, use -1 to return");
+			userUUID = "-1";
+		}
+		UserUUID.Builder builder = UserUUID.newBuilder();
+		builder.setUserUUID(userUUID);
+		responseObserver.onNext(builder.build());
+		responseObserver.onCompleted();
 	}
 
 	@Override
 	public String findUserUUIDByUserId(Long userId) {
-		UiUser uiUser =  userInfoRepository.findById(userId);
-		if(null != uiUser){
+		UiUser uiUser = userInfoRepository.findById(userId);
+		if (null != uiUser) {
 			return uiUser.getUuid();
-		}else{
+		} else {
 			logger.error("failed to find user by userId:" + userId);
 			return null;
 		}

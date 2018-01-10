@@ -2,6 +2,7 @@ package transfer.controller;
 
 import com.shellshellfish.aaas.transfer.TransferServiceApplication;
 import io.restassured.RestAssured;
+import io.restassured.filter.log.ResponseLoggingFilter;
 import io.swagger.annotations.ApiImplicitParam;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +24,7 @@ import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInC
 @SpringBootTest(classes = TransferServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
 @EnableAutoConfiguration
-public class FundGroupControllerTest {
+public class FundGroupControllerIT {
 
 	private String GET_MY_PRODUCT_DETAIL = "/phoneapi-ssf/getMyProductDetail";
 
@@ -47,7 +48,7 @@ public class FundGroupControllerTest {
 		given()
 				.param("uuid", uuid)
 				.param("prodId", prodId)
-				.filter(new LogFilter())
+				.filter(new ResponseLoggingFilter())
 				.when()
 				.post(GET_MY_PRODUCT_DETAIL)
 				.then().log().all()

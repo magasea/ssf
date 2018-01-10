@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.common.utils.RandomPhoneNumUtil;
 import com.shellshellfish.aaas.transfer.TransferServiceApplication;
 import com.shellshellfish.aaas.transfer.controller.LoginController;
 import io.restassured.RestAssured;
+import io.restassured.filter.log.ResponseLoggingFilter;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -33,7 +34,7 @@ import static org.hamcrest.Matchers.notNullValue;
 @ActiveProfiles("test")
 @EnableAutoConfiguration
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class LoginControllerTest {
+public class LoginControllerIT {
 
 	private String REQUEST_VERIFY_CODE = "/phoneapi-ssf/requestVerifyCode";
 
@@ -98,7 +99,7 @@ public class LoginControllerTest {
 
 
 		String verifyCode = getVerifyCode(registration_login_phone_number);
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("telNum", registration_login_phone_number)
 				.param("password", registration_login_password)
 				.param("verifyCode", verifyCode)
@@ -115,7 +116,7 @@ public class LoginControllerTest {
 	 **/
 	@Test
 	public void b_userLoginTest() {
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("telNum", registration_login_phone_number)
 				.param("password", registration_login_password)
 				.post(USER_LOGIN)
@@ -125,7 +126,7 @@ public class LoginControllerTest {
 				.body("result", notNullValue());
 
 
-		String body = given().filter(new LogFilter())
+		String body = given().filter(new ResponseLoggingFilter())
 				.param("telNum", registration_login_phone_number)
 				.param("password", registration_login_password)
 				.post(USER_LOGIN)
@@ -146,7 +147,7 @@ public class LoginControllerTest {
 		String password = RandomStringUtils.randomAlphanumeric(DEFAULT_PASSWORD_LENGTH);
 		String verifyCode = getVerifyCode(registration_login_phone_number);
 
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("telNum", registration_login_phone_number)
 				.param("password", password)
 				.param("verifyCode", verifyCode)
@@ -165,7 +166,7 @@ public class LoginControllerTest {
 	public void d_resetPswTest() {
 		String newPWD = RandomStringUtils.randomAlphanumeric(DEFAULT_PASSWORD_LENGTH);
 
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("uuid", registration_login_user_uuid)
 				.param("newPWD", newPWD)
 				.param("oldPWD", registration_login_password)
@@ -183,7 +184,7 @@ public class LoginControllerTest {
 	@Test
 	public void e_logoutTest() {
 
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("uuid", registration_login_user_uuid)
 				.param("token", login_user_token)
 				.post(LOGIN_OUT)
@@ -198,7 +199,7 @@ public class LoginControllerTest {
 	public void requestVerifyCodeTest() {
 		String telNum = RandomPhoneNumUtil.generatePhoneNumber();
 
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("telNum", telNum)
 				.post(REQUEST_VERIFY_CODE)
 				.then()
@@ -213,7 +214,7 @@ public class LoginControllerTest {
 		String telNum = RandomPhoneNumUtil.generatePhoneNumber();
 		String msgCode = getVerifyCode(telNum);
 
-		given().filter(new LogFilter())
+		given().filter(new ResponseLoggingFilter())
 				.param("telNum", telNum)
 				.param("msgCode", msgCode)
 				.post(VERIFY_MSG_CODE)

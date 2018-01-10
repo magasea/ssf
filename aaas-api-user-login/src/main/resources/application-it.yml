@@ -1,12 +1,8 @@
-spring:
-  jpa:
-    hibernate:
-      ddl-auto: update
 datasource:
   sampleapp:
-    url: jdbc:mysql://192.168.1.10:3306/ssflogin?useUnicode=true&characterEncoding=utf-8
-    username: sa
-    password: 1qaz@WSX
+    url: jdbc:mysql://192.168.1.249:3306/ssflogin?useUnicode=true&characterEncoding=utf-8
+    username: ssf01
+    password: R489cfRKfEY7LNM9
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema:
     maxPoolSize: 20
@@ -15,8 +11,9 @@ datasource:
       show_sql: true
       format_sql: true
       dialect: org.hibernate.dialect.MySQLDialect
+
 grpc:
-  host: 192.168.1.10
+  host: localhost
   port: 10071
 ali:
     accessKeyId: LTAIpZL9r6q0kkPV
@@ -24,7 +21,7 @@ ali:
 app:
     debug: true
 redis:
-    host: 192.168.1.10
+    host: localhost
     port: 6379
     pwd: redis123
 sms:

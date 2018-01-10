@@ -1,0 +1,25 @@
+server:
+  port: 10030
+  contextPath: /
+
+spring:
+  profiles: it
+  data:
+      mongodb:
+        database: funds
+        host: 192.168.1.249
+        port: 27017
+datasource:
+  sampleapp:
+    url: jdbc:mysql://192.168.1.249:3306/ssftrdorder?useUnicode=true&characterEncoding=utf-8
+    username: ssf01
+    password: R489cfRKfEY7LNM9
+    driverClassName: com.mysql.jdbc.Driver
+    defaultSchema:
+    maxPoolSize: 20
+    hibernate:
+      hbm2ddl.method: update
+      show_sql: true
+      format_sql: true
+      dialect: org.hibernate.dialect.MySQLDialect
+

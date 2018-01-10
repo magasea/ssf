@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "/phoneapi-ssf/getEstPurAmoun",
+  "description": "获取预计费用,以及投资组合的每一支基金的费用",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "msg": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "poundage": {
+          "type": "number"
+        },
+        "discountSaving": {
+          "type": "number"
+        },
+        "total": {
+          "type": "number"
+        },
+        "originalCost": {
+          "type": "number"
+        },
+        "discount": {
+          "type": "number"
+        },
+        "fundAmountList": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fundCode": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "fundName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "grossAmount": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "fundCode",
+              "fundName",
+              "grossAmount"
+            ]
+          }
+        }
+      },
+      "required": [
+        "poundage",
+        "discountSaving",
+        "fundAmountList",
+        "total",
+        "originalCost",
+        "discount"
+      ]
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

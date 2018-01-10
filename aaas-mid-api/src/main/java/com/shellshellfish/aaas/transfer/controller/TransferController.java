@@ -225,7 +225,7 @@ public class TransferController {
 			 result=service.sellFund(userProdId, prodId, groupId,userUuid,infoList);
 		     }catch(Exception e){
 		    	logger.error("调用赎回接口发生错误");
-			   e.printStackTrace();
+				logger.error(e.getMessage());
 			   return new JsonResult(JsonResult.Fail,"赎回失败", JsonResult.EMPTYRESULT);
 		     }
 		return new JsonResult(JsonResult.SUCCESS, "赎回成功",result); 
