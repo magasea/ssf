@@ -710,7 +710,7 @@ public class FundGroupService {
                         break;
                     }
                 }
-                if (Double.parseDouble(map.get("type_value").toString()) != 0) {
+                if (map.get("type_value")!=null && Double.parseDouble(map.get("type_value").toString()) != 0) {
                     for (int i = 1; i < fundNetValues.size(); i++) {
                         Map<String, Object> fundMap = new HashMap<>();
                         if (returnType.equalsIgnoreCase("1")) {
