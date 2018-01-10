@@ -31,7 +31,7 @@ datasource:
   sampleapp:
     url: jdbc:mysql://192.168.1.10:3306/ssftrdorder?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
     username: sa
-    password: 1qaz@WSX
+    password: N4eTVr89lX9BaPcx
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema: ssftrdorder
     maxPoolSize: 20

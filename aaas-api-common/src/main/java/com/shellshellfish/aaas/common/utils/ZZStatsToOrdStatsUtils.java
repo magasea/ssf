@@ -1,9 +1,12 @@
 package com.shellshellfish.aaas.common.utils;
 
+import static com.shellshellfish.aaas.common.enums.ZZKKStatusEnum.KKSUCCESS;
+
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
-import com.shellshellfish.aaas.common.enums.TrdPayFlowStatusEnum;
+import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
 import com.shellshellfish.aaas.common.enums.ZZBizOpEnum;
+import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +18,7 @@ public class ZZStatsToOrdStatsUtils {
 
   static Logger logger = LoggerFactory.getLogger(ZZStatsToOrdStatsUtils.class);
 
-  public static TrdOrderStatusEnum getOrdDtlStatFromZZStats(TrdPayFlowStatusEnum inputEnum,
+  public static TrdOrderStatusEnum getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum inputEnum,
       TrdOrderOpTypeEnum trdOrderOpTypeEnum){
     switch (inputEnum){
       case NOTHANDLED:
@@ -41,15 +44,15 @@ public class ZZStatsToOrdStatsUtils {
 
   public static TrdOrderStatusEnum getOrdDtlStatFromZZStats(String inputEnumVal,
       TrdOrderOpTypeEnum trdOrderOpTypeEnum){
-    TrdPayFlowStatusEnum trdPayFlowStatusEnum = null;
+    TrdZZCheckStatusEnum trdZZCheckStatusEnum = null;
     try{
-      trdPayFlowStatusEnum = TrdPayFlowStatusEnum.valueOf(inputEnumVal);
+      trdZZCheckStatusEnum = TrdZZCheckStatusEnum.valueOf(inputEnumVal);
     }catch (Exception ex){
       ex.printStackTrace();
       logger.error(ex.getMessage());
     }
 
-    switch (trdPayFlowStatusEnum){
+    switch (trdZZCheckStatusEnum){
       case NOTHANDLED:
         if(trdOrderOpTypeEnum == TrdOrderOpTypeEnum.BUY){
           return TrdOrderStatusEnum.PAYWAITCONFIRM;
@@ -87,5 +90,22 @@ public class ZZStatsToOrdStatsUtils {
       }
 
     }
+
+    public static TrdOrderStatusEnum getOrdStatByZZKKStatus(ZZKKStatusEnum zzkkStatusEnum,
+        TrdOrderOpTypeEnum trdOrderOpTypeEnum){
+        if(zzkkStatusEnum == ZZKKStatusEnum.KKSUCCESS || zzkkStatusEnum == ZZKKStatusEnum.WAITCONFIRM){
+          if(trdOrderOpTypeEnum == TrdOrderOpTypeEnum.BUY){
+            return TrdOrderStatusEnum.PAYWAITCONFIRM;
+          }else if(trdOrderOpTypeEnum == TrdOrderOpTypeEnum.REDEEM){
+            return TrdOrderStatusEnum.SELLWAITCONFIRM;
+          }
+        }else {
+          return TrdOrderStatusEnum.FAILED;
+        }
+        throw new IllegalArgumentException("zzkkStatusEnum:" + zzkkStatusEnum.getStatus() +
+            "trdOrderOpTypeEnum:" + trdOrderOpTypeEnum.getOperation());
+    }
+
+
 
 }

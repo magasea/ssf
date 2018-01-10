@@ -7,6 +7,15 @@ package com.shellshellfish.aaas.common.enums;
 public enum ZZKKStatusEnum {
   NOTSTART(0,"未发起"), KKFAILED(1, "扣款失败"), KKSUCCESS(2, "扣款成功 "), WAITCONFIRM(3, "已发起，待确认");
   private int status;
+
+  public String getComment() {
+    return comment;
+  }
+
+  public void setComment(String comment) {
+    this.comment = comment;
+  }
+
   private String comment;
 
   public int getStatus() {
@@ -17,27 +26,24 @@ public enum ZZKKStatusEnum {
     this.status = status;
   }
 
-  public String getComment() {
-    return comment;
-  }
 
-  public void setComment(String comment) {
-    this.comment = comment;
-  }
+
 
   ZZKKStatusEnum(int status, String comment){
     this.status = status;
     this.comment = comment;
   }
 
-  public static String getComment(int status){
+
+
+  public static ZZKKStatusEnum getByStatus(int status){
 
     for (ZZKKStatusEnum enumItem : ZZKKStatusEnum.values()) {
       if (enumItem.getStatus() == status) {
-        return enumItem.getComment();
+        return enumItem;
       }
     }
-    return null;
+    throw new IllegalArgumentException("status:" + status + " is not suitable for ZZKKStatusEnum");
   }
 
 
@@ -47,6 +53,6 @@ public enum ZZKKStatusEnum {
         return enumItem;
       }
     }
-    return null;
+    throw new IllegalArgumentException("status:" + comment + " is not suitable for ZZKKStatusEnum");
   }
 }

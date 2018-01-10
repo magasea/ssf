@@ -3,10 +3,12 @@ package com.shellshellfish.aaas.common.message.order;
 import java.io.Serializable;
 
 /**
- * Created by chenwei on 2018- 一月 - 05
+ * Created by chenwei on 2018- 一月 - 10
  */
 
-public class TrdPayFlow  implements Serializable{
+
+
+public class TrdPayFlow implements Serializable{
 
   private long id;
   private long orderDetailId;
@@ -17,10 +19,10 @@ public class TrdPayFlow  implements Serializable{
   private String bankCardNum;
   private long userProdId;
   private String fundCode;
-  private int payStatus;
-  private long payDate;
-  private int payType;
-  private Long payAmount;
+  private int trdStatus;
+  private long trdDate;
+  private int trdType;
+  private Long trdMoneyAmount;
   private long fundSum;
   private long fundSumConfirmed;
   private long buyFee;
@@ -127,42 +129,42 @@ public class TrdPayFlow  implements Serializable{
 
   
   
-  public int getPayStatus() {
-    return payStatus;
+  public int getTrdStatus() {
+    return trdStatus;
   }
 
-  public void setPayStatus(int payStatus) {
-    this.payStatus = payStatus;
-  }
-
-  
-  
-  public long getPayDate() {
-    return payDate;
-  }
-
-  public void setPayDate(long payDate) {
-    this.payDate = payDate;
+  public void setTrdStatus(int trdStatus) {
+    this.trdStatus = trdStatus;
   }
 
   
   
-  public int getPayType() {
-    return payType;
+  public long getTrdDate() {
+    return trdDate;
   }
 
-  public void setPayType(int payType) {
-    this.payType = payType;
+  public void setTrdDate(long trdDate) {
+    this.trdDate = trdDate;
   }
 
   
   
-  public Long getPayAmount() {
-    return payAmount;
+  public int getTrdType() {
+    return trdType;
   }
 
-  public void setPayAmount(Long payAmount) {
-    this.payAmount = payAmount;
+  public void setTrdType(int trdType) {
+    this.trdType = trdType;
+  }
+
+  
+  
+  public Long getTrdMoneyAmount() {
+    return trdMoneyAmount;
+  }
+
+  public void setTrdMoneyAmount(Long trdMoneyAmount) {
+    this.trdMoneyAmount = trdMoneyAmount;
   }
 
   
@@ -318,13 +320,13 @@ public class TrdPayFlow  implements Serializable{
     if (userProdId != that.userProdId) {
       return false;
     }
-    if (payStatus != that.payStatus) {
+    if (trdStatus != that.trdStatus) {
       return false;
     }
-    if (payDate != that.payDate) {
+    if (trdDate != that.trdDate) {
       return false;
     }
-    if (payType != that.payType) {
+    if (trdType != that.trdType) {
       return false;
     }
     if (fundSum != that.fundSum) {
@@ -370,7 +372,8 @@ public class TrdPayFlow  implements Serializable{
     if (fundCode != null ? !fundCode.equals(that.fundCode) : that.fundCode != null) {
       return false;
     }
-    if (payAmount != null ? !payAmount.equals(that.payAmount) : that.payAmount != null) {
+    if (trdMoneyAmount != null ? !trdMoneyAmount.equals(that.trdMoneyAmount)
+        : that.trdMoneyAmount != null) {
       return false;
     }
     if (errMsg != null ? !errMsg.equals(that.errMsg) : that.errMsg != null) {
@@ -402,10 +405,10 @@ public class TrdPayFlow  implements Serializable{
     result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
     result = 31 * result + (int) (userProdId ^ (userProdId >>> 32));
     result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
-    result = 31 * result + payStatus;
-    result = 31 * result + (int) (payDate ^ (payDate >>> 32));
-    result = 31 * result + payType;
-    result = 31 * result + (payAmount != null ? payAmount.hashCode() : 0);
+    result = 31 * result + trdStatus;
+    result = 31 * result + (int) (trdDate ^ (trdDate >>> 32));
+    result = 31 * result + trdType;
+    result = 31 * result + (trdMoneyAmount != null ? trdMoneyAmount.hashCode() : 0);
     result = 31 * result + (int) (fundSum ^ (fundSum >>> 32));
     result = 31 * result + (int) (fundSumConfirmed ^ (fundSumConfirmed >>> 32));
     result = 31 * result + (int) (buyFee ^ (buyFee >>> 32));

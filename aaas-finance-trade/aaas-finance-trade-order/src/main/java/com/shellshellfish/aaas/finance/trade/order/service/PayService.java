@@ -1,7 +1,10 @@
 package com.shellshellfish.aaas.finance.trade.order.service;
 
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayDto;
+import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -16,7 +19,18 @@ public interface PayService {
    */
   String bindCard(BindBankCard bindBankCard) throws ExecutionException, InterruptedException;
 
-
-
+  /**
+   * 定时任务检查处于等待支付状态或者等待赎回状态的订单去发起中证接口调用
+   * @param payDto
+   * @return
+   */
   int order2PayJob(PayDto payDto);
+
+  /**
+   * 用订单去发起中证接口调用
+   * @param payDto
+   * @return PayDto
+   */
+  TrdOrderStatusEnum order2Pay(PayDto payDto);
+
 }

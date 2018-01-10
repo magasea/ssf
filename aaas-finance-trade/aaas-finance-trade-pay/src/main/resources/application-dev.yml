@@ -41,7 +41,7 @@ datasource:
   sampleapp:
     url: jdbc:mysql://192.168.1.10:3306/ssftrdpay?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8
     username: sa
-    password: 1qaz@WSX
+    password: N4eTVr89lX9BaPcx
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema: ssftrdpay
     maxPoolSize: 20
@@ -79,3 +79,8 @@ cron:
   frequency:
     #每天17：30分开始
     jobwithcrontrigger: 0 45 17 ? * * *
+
+#--- multithread
+multithread:
+  pool:
+    size: 8

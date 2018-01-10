@@ -9,6 +9,7 @@ import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderRepository;
+import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
 import com.shellshellfish.aaas.finance.trade.pay.OrderDetailPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.OrderPayReq;
@@ -43,15 +44,8 @@ public class CheckFundsOrderJobService {
     @Autowired
     TradeOpService tradeOpService;
 
-    PayRpcServiceFutureStub payRpcServiceFutureStub;
-
     @Autowired
-    ManagedChannel managedPayChannel;
-
-    @PostConstruct
-    void init() {
-        payRpcServiceFutureStub = PayRpcServiceGrpc.newFutureStub(managedPayChannel);
-    }
+    PayService payService;
 
     /**
      * 定时检查是否有订单状态为等待支付超过1个小时是的话发起支付
@@ -125,29 +119,31 @@ public class CheckFundsOrderJobService {
         }else{
             //需要进行再让交易系统发起交易
             payDto.setOrderDetailList(orderDetailList);
-            OrderPayReq.Builder reqBuilder = OrderPayReq.newBuilder();
-            BeanUtils.copyProperties(payDto, reqBuilder);
+//            OrderPayReq.Builder reqBuilder = OrderPayReq.newBuilder();
+//            BeanUtils.copyProperties(payDto, reqBuilder);
             if(CollectionUtils.isEmpty(payDto.getOrderDetailList()) ||  payDto.getOrderDetailList()
                 .size() <= 0){
                 logger.info("this job find no orderDetail list to be handled by grpc");
                 return;
             }else{
-                OrderDetailPayReq.Builder ordDetailReqBuilder = OrderDetailPayReq.newBuilder();
-                for(TrdOrderDetail trdOrderDetail: payDto.getOrderDetailList()){
-                    BeanUtils.copyProperties(trdOrderDetail, ordDetailReqBuilder);
-                    reqBuilder.addOrderDetailPayReq(ordDetailReqBuilder.build());
-                    ordDetailReqBuilder.clear();
-                }
+                payService.order2PayJob(payDto);
+
+//                OrderDetailPayReq.Builder ordDetailReqBuilder = OrderDetailPayReq.newBuilder();
+//                for(TrdOrderDetail trdOrderDetail: payDto.getOrderDetailList()){
+//                    BeanUtils.copyProperties(trdOrderDetail, ordDetailReqBuilder);
+//                    reqBuilder.addOrderDetailPayReq(ordDetailReqBuilder.build());
+//                    ordDetailReqBuilder.clear();
+//                }
             }
-            try {
-                payRpcServiceFutureStub.orderJob2Pay(reqBuilder.build()).get().getResult();
-            } catch (InterruptedException e) {
-                logger.error("failed to handling payRpcServiceFutureStub.orderJob2Pay：" + e.getMessage());
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                logger.error("failed to handling payRpcServiceFutureStub.orderJob2Pay：" + e.getMessage());
-                e.printStackTrace();
-            }
+//            try {
+//                payRpcServiceFutureStub.order2Pay(reqBuilder.build()).get().getResult();
+//            } catch (InterruptedException e) {
+//                logger.error("failed to handling payRpcServiceFutureStub.orderJob2Pay：" + e.getMessage());
+//                e.printStackTrace();
+//            } catch (ExecutionException e) {
+//                logger.error("failed to handling payRpcServiceFutureStub.orderJob2Pay：" + e.getMessage());
+//                e.printStackTrace();
+//            }
 
         }
 

@@ -86,7 +86,7 @@ public class TradeOpServiceImpl implements TradeOpService {
   @Autowired
   ManagedChannel managedUIChannel;
 
-
+  boolean useMsgToBuy = false;
 
 
   @PostConstruct
@@ -97,10 +97,6 @@ public class TradeOpServiceImpl implements TradeOpService {
   public void shutdown() throws InterruptedException {
     managedUIChannel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
   }
-
-
-
-
 
   @Override
   @Transactional( propagation = Propagation.REQUIRED, transactionManager = "transactionManager")
@@ -238,7 +234,13 @@ public class TradeOpServiceImpl implements TradeOpService {
     }
     payDto.setOrderDetailList(trdOrderDetails);
     payDto.setTrdBrokerId(trdBrokerId);
-    broadcastMessageProducer.sendPayMessages(payDto);
+    if(useMsgToBuy){
+      logger.info("use message queue to send payDto");
+      broadcastMessageProducer.sendPayMessages(payDto);
+    }else{
+      logger.info("use grpc to send payDto");
+      payService.order2Pay(payDto);
+    }
     return trdOrder;
   }
 
@@ -281,8 +283,4 @@ public class TradeOpServiceImpl implements TradeOpService {
         (userId,bankCardNum);
     return trdBrokerUser;
   }
-
-
-
-
 }
