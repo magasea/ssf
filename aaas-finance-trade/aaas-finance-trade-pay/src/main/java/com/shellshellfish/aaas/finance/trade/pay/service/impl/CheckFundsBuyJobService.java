@@ -41,7 +41,7 @@ public class CheckFundsBuyJobService {
         Instant.now().getEpochSecond();
 
             List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-                .findAllByFundSumConfirmedIsAndPayTypeIs(0L, TrdOrderOpTypeEnum.BUY.getOperation
+                .findAllByFundSumConfirmedIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.BUY.getOperation
                     ());
             if(!CollectionUtils.isEmpty(trdPayFlows)) {
                 for (TrdPayFlow trdPayFlow : trdPayFlows) {
