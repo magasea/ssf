@@ -24,8 +24,8 @@ import org.springframework.stereotype.Service;
 public class MultiThreadTaskHandler {
   Logger logger = LoggerFactory.getLogger(MultiThreadTaskHandler.class);
 
-  @Value("$multithread.pool.size}")
-  int poolSize;
+  @Value("${multithread.pool.size}")
+  private int poolSize;
 
   public List<TrdOrderDetail> processBuyOrders(List<ZZBuyFund> zzBuyFunds){
     ExecutorService executorService = Executors.newFixedThreadPool(poolSize);
