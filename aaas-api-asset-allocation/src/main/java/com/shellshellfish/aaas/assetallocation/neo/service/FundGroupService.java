@@ -685,6 +685,7 @@ public class FundGroupService {
         Map<String, String> query = new HashMap<>();
         query.put("id", id);
         query.put("subId", subGroupId);
+
         List<Interval> intervalList = fundGroupMapper.getProportion(query);
         List<Interval> intervals = new ArrayList<>();
         for (Interval tmpInterval : intervalList) {
