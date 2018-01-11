@@ -152,16 +152,18 @@ public class GroupDetailsServiceImpl implements GroupDetailsService {
 		company.setScale(originJson.getString("scale"));
 
 		JSONArray fundlist = originJson.getJSONArray("fundlist");
+		List<FundCompany.FundDetail> fundDetailList = null;
+		if (fundlist != null && fundlist.size() > 0) {
+			fundDetailList = new ArrayList<>(fundlist.size());
+			for (int i = 0; i < fundlist.size(); i++) {
+				String funditem = fundlist.getJSONObject(i).getString("funditem");
+				String[] params = funditem.replace("|||", ",").split(",");
+				if (params == null || params.length != 3) {
+					continue;
+				}
 
-		List<FundCompany.FundDetail> fundDetailList = new ArrayList<>(fundlist.size());
-		for (int i = 0; i < fundlist.size(); i++) {
-			String funditem = fundlist.getJSONObject(i).getString("funditem");
-			String[] params = funditem.replace("|||", ",").split(",");
-			if (params == null || params.length != 3) {
-				continue;
+				fundDetailList.add(company.new FundDetail(params[0], params[1], params[2]));
 			}
-
-			fundDetailList.add(company.new FundDetail(params[0], params[1], params[2]));
 		}
 		company.setFundDetails(fundDetailList);
 		return company;

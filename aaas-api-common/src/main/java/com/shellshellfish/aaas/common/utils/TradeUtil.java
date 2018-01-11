@@ -1,10 +1,8 @@
 package com.shellshellfish.aaas.common.utils;
 
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
-import com.shellshellfish.aaas.common.enums.TrdPayFlowStatusEnum;
+import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -50,6 +48,17 @@ public class TradeUtil {
     ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now().plusDays(-1), ZoneId.of
         ("UTC"));
     return utcDateTime.toInstant().toEpochMilli();
+  }
+
+  public static Long getUTCTimeTodayStartTime(String zoneId){
+    long utcDateStartTimeOffset = ZonedDateTime.now(ZoneId.of(zoneId)).toOffsetDateTime().toInstant
+        ().toEpochMilli();
+    System.out.println("utcDateStartTime：" + utcDateStartTimeOffset);
+    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("UTC"));
+    long currentUTCtime = utcDateTime.toInstant().toEpochMilli();
+    System.out.println("currentUTCtime：" + currentUTCtime);
+
+    return currentUTCtime - utcDateStartTimeOffset;
   }
 
   public static void main(String[] argv){
@@ -102,10 +111,10 @@ public class TradeUtil {
   }
 
   public static int getPayFlowStatus(String kkstat){
-    if(kkstat.equals(TrdPayFlowStatusEnum.CONFIRMSUCCESS) || kkstat.equals(TrdPayFlowStatusEnum.REALTIMECONFIRMSUCESS)){
+    if(kkstat.equals(TrdZZCheckStatusEnum.CONFIRMSUCCESS) || kkstat.equals(TrdZZCheckStatusEnum.REALTIMECONFIRMSUCESS)){
       return TrdOrderStatusEnum.CONFIRMED.getStatus();
-    }else if(kkstat.equals(TrdPayFlowStatusEnum.CONFIRMFAILED) || kkstat.equals
-        (TrdPayFlowStatusEnum.NOTHANDLED)){
+    }else if(kkstat.equals(TrdZZCheckStatusEnum.CONFIRMFAILED) || kkstat.equals
+        (TrdZZCheckStatusEnum.NOTHANDLED)){
       return TrdOrderStatusEnum.FAILED.getStatus();
     }else{
       return TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus();

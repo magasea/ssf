@@ -306,4 +306,40 @@ public class TradeOrderController {
 	}
 
 
+	/**
+	 * 购买理财产品 页面
+	 *
+	 * @param financeProdBuyInfo
+	 * @return
+	 */
+	@ApiOperation("理财购买")
+	@ApiResponses({
+			@ApiResponse(code=200,message="OK"),
+			@ApiResponse(code=400,message="请求参数没填好"),
+			@ApiResponse(code=401,message="未授权用户"),
+			@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+			@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
+	})
+	@RequestMapping(value = "/funds/buywithpreprocess", method = RequestMethod.POST)
+	public ResponseEntity<?> buyFinanceProdWithPreprocess(@RequestBody FinanceProdBuyInfo
+			financeProdBuyInfo)
+			throws Exception {
+		Long userId = null ;
+		if( null == financeProdBuyInfo.getUserId()){
+			logger.info("input userId is empty, need retrieve userId");
+			userId = tradeOpService.getUserId(financeProdBuyInfo.getUuid());
+			financeProdBuyInfo.setUserId(userId);
+		}
+		if(null == userId){
+			logger.error("cannot find userId for user:"+ financeProdBuyInfo.getUuid());
+			return new ResponseEntity<Object>("cannot find userId for user:"+ financeProdBuyInfo
+					.getUuid(), HttpStatus.NOT_ACCEPTABLE);
+		}
+		financeProdBuyInfo.setUserId(userId);
+		financeProdBuyInfo.setMoney(financeProdBuyInfo.getMoney());
+		TrdOrder trdOrder = tradeOpService.buyFinanceProduct(financeProdBuyInfo);
+		return new ResponseEntity<Object>(trdOrder, HttpStatus.OK);
+	}
+
+
 }

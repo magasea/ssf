@@ -1,10 +1,8 @@
 package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
-import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
-import com.shellshellfish.aaas.common.enums.TrdPayFlowStatusEnum;
+import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
 import com.shellshellfish.aaas.common.utils.ZZStatsToOrdStatsUtils;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
@@ -43,7 +41,7 @@ public class CheckFundsBuyJobService {
         Instant.now().getEpochSecond();
 
             List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-                .findAllByFundSumConfirmedIsAndPayTypeIs(0L, TrdOrderOpTypeEnum.BUY.getOperation
+                .findAllByFundSumConfirmedIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.BUY.getOperation
                     ());
             if(!CollectionUtils.isEmpty(trdPayFlows)) {
                 for (TrdPayFlow trdPayFlow : trdPayFlows) {
@@ -73,11 +71,11 @@ public class CheckFundsBuyJobService {
                                 .valueOf(applyResult.getCallingcode()));
 //                            TrdOrderStatusEnum trdOrderStatusEnum = ZZStatsToOrdStatsUtils
 //                                .getOrdDtlStatFromZZStats
-//                                (TrdPayFlowStatusEnum
+//                                (TrdZZCheckStatusEnum
 //                                .getByStatus(Integer.valueOf(applyResult.getConfirmflag())),
 //                                opTypeEnum);
-                            trdPayFlowMsg.setPayStatus(ZZStatsToOrdStatsUtils
-                                .getOrdDtlStatFromZZStats(TrdPayFlowStatusEnum.getByStatus(
+                            trdPayFlowMsg.setTrdStatus(ZZStatsToOrdStatsUtils
+                                .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
                                     Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum).getStatus());
                             trdPayFlowMsg.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
                                 .getPoundage()));

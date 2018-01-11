@@ -61,12 +61,25 @@ public class GroupDetailsController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "name", dataType = "String", required = true, value = "name", defaultValue = "天弘基金管理有限公司")
 	})
-	@RequestMapping(value = "/getFundCompany", method = {RequestMethod.GET})
+	@RequestMapping(value = "/getFundCompanyDetailInfo", method = {RequestMethod.GET})
 	public FundCompany getFundCompany(@RequestParam() @NotNull String name) {
 
-		String detailFundCompanyUrl = "/api/datamanager/getFundCompany";
+		String detailFundCompanyUrl = "/api/datamanager/getFundCompanyDetailInfo";
 		Map params = new HashMap();
 		params.put("name", name);
+		return groupDetailsService.getFundCompany(detailFundCompanyUrl, params);
+	}
+	
+	@ApiOperation("组合详情 基金公司byCode")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "code", dataType = "String", required = true, value = "code", defaultValue = "000009.OF")
+	})
+	@RequestMapping(value = "/getFundCompany", method = {RequestMethod.GET})
+	public FundCompany getFundCompanyByCode(@RequestParam() @NotNull String code) {
+		
+		String detailFundCompanyUrl = "/api/datamanager/getFundCompany";
+		Map params = new HashMap();
+		params.put("code", code);
 		return groupDetailsService.getFundCompany(detailFundCompanyUrl, params);
 	}
 

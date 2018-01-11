@@ -46,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 @Service
@@ -86,7 +87,7 @@ public class TradeOpServiceImpl implements TradeOpService {
   @Autowired
   ManagedChannel managedUIChannel;
 
-
+  boolean useMsgToBuy = false;
 
 
   @PostConstruct
@@ -97,10 +98,6 @@ public class TradeOpServiceImpl implements TradeOpService {
   public void shutdown() throws InterruptedException {
     managedUIChannel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
   }
-
-
-
-
 
   @Override
   @Transactional( propagation = Propagation.REQUIRED, transactionManager = "transactionManager")
@@ -151,10 +148,14 @@ public class TradeOpServiceImpl implements TradeOpService {
     PayDto payDto = new PayDto();
     List<TrdBrokerUser> trdBrokerUsers = trdBrokerUserRepository.findByUserId(financeProdBuyInfo.getUserId());
 
-    int trdBrokerId = trdBrokerUsers.get(0).getTradeBrokerId().intValue();
-    String bankCardNum = financeProdBuyInfo.getBankAcc();
-    String trdAcco = trdBrokerUsers.get(0).getTradeAcco();
-    if(StringUtils.isEmpty(trdAcco)){
+    int trdBrokerId = -1 ;
+    String bankCardNum = null;
+    String trdAcco = null;
+    if(!CollectionUtils.isEmpty(trdBrokerUsers)){
+       trdBrokerId = trdBrokerUsers.get(0).getTradeBrokerId().intValue();
+       bankCardNum = financeProdBuyInfo.getBankAcc();
+       trdAcco = trdBrokerUsers.get(0).getTradeAcco();
+    }else if(CollectionUtils.isEmpty(trdBrokerUsers) || StringUtils.isEmpty(trdAcco)){
         //Todo: get userBankCardInfo to make tradAcco
       logger.info("trdBrokerUsers.get(0).getTradeAcco() is empty, 坑货出现，需要生成交易账号再交易");
       UserIdOrUUIDQuery.Builder builder = UserIdOrUUIDQuery.newBuilder();
@@ -204,7 +205,6 @@ public class TradeOpServiceImpl implements TradeOpService {
     trdOrder.setPayAmount(TradeUtil.getLongNumWithMul100(financeProdBuyInfo.getMoney()));
     trdOrder.setProdCode(financeProdBuyInfo.getProdCode());
     trdOrderRepository.save(trdOrder);
-
     //generate sub order for each funds
     for(ProductMakeUpInfo productMakeUpInfo: productMakeUpInfos){
       TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
@@ -238,7 +238,13 @@ public class TradeOpServiceImpl implements TradeOpService {
     }
     payDto.setOrderDetailList(trdOrderDetails);
     payDto.setTrdBrokerId(trdBrokerId);
-    broadcastMessageProducer.sendPayMessages(payDto);
+    if(useMsgToBuy){
+      logger.info("use message queue to send payDto");
+      broadcastMessageProducer.sendPayMessages(payDto);
+    }else{
+      logger.info("use grpc to send payDto");
+      payService.order2Pay(payDto);
+    }
     return trdOrder;
   }
 
@@ -282,7 +288,10 @@ public class TradeOpServiceImpl implements TradeOpService {
     return trdBrokerUser;
   }
 
+  @Override
+  public TrdOrder buyFinanceProductWithPreprocess(FinanceProdBuyInfo financeProdInfo)
+      throws Exception {
 
-
-
+    return null;
+  }
 }

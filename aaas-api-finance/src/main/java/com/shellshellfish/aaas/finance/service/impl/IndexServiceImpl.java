@@ -2,6 +2,8 @@ package com.shellshellfish.aaas.finance.service.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +69,7 @@ public class IndexServiceImpl implements IndexService {
 		List<Map<String, Object>> items = resultType.get_items();
 		Map<String, Object> itemMap = new HashMap<String, Object>();
 		Map<String, Object> investmentHorizonMap = new HashMap<String, Object>();
-		List<Object> riskList = new ArrayList<Object>();
+		List<Map<String, Object>> riskList = new ArrayList<Map<String, Object>>();
 		List<Map<String,Object>> investmentHorizonMap2 = new ArrayList<Map<String,Object>>();
 		Map<String,Object> obj = null;
 		if (items != null && items.size() > 0) {
@@ -76,30 +78,35 @@ public class IndexServiceImpl implements IndexService {
 				for (Object key : itemMap.keySet()) {
 					investmentHorizonMap = new HashMap<String, Object>();
 					if ("C1".equals(key)) {
+						investmentHorizonMap.put("id", 1);
 						investmentHorizonMap.put("investmentHorizon", CONSERV);
 						investmentHorizonMap.put("investmentHorizonCode", "C1");
 						if("1".equals(isTestFlag)&&!CONSERV.equals(testResult)){
 							continue;
 						}
 					} else if ("C2".equals(key)) {
+						investmentHorizonMap.put("id", 2);
 						investmentHorizonMap.put("investmentHorizon", STABLE);
 						investmentHorizonMap.put("investmentHorizonCode", "C2");
 						if("1".equals(isTestFlag)&&!STABLE.equals(testResult)){
 							continue;
 						}
 					} else if ("C3".equals(key)) {
+						investmentHorizonMap.put("id", 3);
 						investmentHorizonMap.put("investmentHorizon", BALANCE);
 						investmentHorizonMap.put("investmentHorizonCode", "C3");
 						if("1".equals(isTestFlag)&&!BALANCE.equals(testResult)){
 							continue;
 						}
 					} else if ("C4".equals(key)) {
+						investmentHorizonMap.put("id", 4);
 						investmentHorizonMap.put("investmentHorizon", INPROVING);
 						investmentHorizonMap.put("investmentHorizonCode", "C4");
 						if("1".equals(isTestFlag)&&!INPROVING.equals(testResult)){
 							continue;
 						}
 					} else if ("C5".equals(key)) {
+						investmentHorizonMap.put("id", 5);
 						investmentHorizonMap.put("investmentHorizon", AGGRESSIVE);
 						investmentHorizonMap.put("investmentHorizonCode", "C5");
 						if("1".equals(isTestFlag)&&!AGGRESSIVE.equals(testResult)){
@@ -150,6 +157,16 @@ public class IndexServiceImpl implements IndexService {
 					
 					result.put(key+"", resultC);
 				}
+				
+				Collections.sort(riskList, new Comparator<Map<String, Object>>() {
+		            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+		                int map1value = (Integer) o1.get("id");
+		                int map2value = (Integer) o2.get("id");
+		                return map1value - map2value;
+		            }
+		        });
+				
+				
 				result.put("productTypeList", riskList);
 			}
 		} else {

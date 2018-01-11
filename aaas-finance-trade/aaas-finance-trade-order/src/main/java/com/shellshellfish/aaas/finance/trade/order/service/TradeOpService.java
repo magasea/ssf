@@ -21,6 +21,17 @@ public interface TradeOpService {
 
   TrdBrokerUser getBrokerUserByUserIdAndBandCard(Long userId, String bankCardNum);
 
-
+  /**
+   * 第一步先购买货币基金，用同步方式调用
+   * 在这时候把parent order 生成 对应交易流水生成
+   * 返回给用户购买成功与否的结果
+   * 第二步
+   * 在定时任务里面发现份额确认后，触发正常购买http 但是调用的是中证赎回申购接口
+   * @param financeProdInfo
+   * @return
+   * @throws Exception
+   */
+  TrdOrder buyFinanceProductWithPreprocess(FinanceProdBuyInfo financeProdInfo)
+      throws Exception;
 
 }

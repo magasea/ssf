@@ -85,13 +85,13 @@ public class BroadcastMessageConsumers {
         //update ui_products 和 ui_product_details
         MongoUiTrdLog  mongoUiTrdLog = new MongoUiTrdLog();
         try{
-            mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow.getPayAmount()));
-            mongoUiTrdLog.setOperations(trdPayFlow.getPayType());
+            mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow.getTrdMoneyAmount()));
+            mongoUiTrdLog.setOperations(trdPayFlow.getTrdType());
             mongoUiTrdLog.setUserProdId(trdPayFlow.getUserProdId());
             mongoUiTrdLog.setUserId(trdPayFlow.getUserId());
-            mongoUiTrdLog.setTradeStatus(trdPayFlow.getPayStatus());
+            mongoUiTrdLog.setTradeStatus(trdPayFlow.getTrdStatus());
             mongoUiTrdLog.setLastModifiedDate(TradeUtil.getUTCTime());
-            mongoUiTrdLog.setTradeDate(trdPayFlow.getPayDate());
+            mongoUiTrdLog.setTradeDate(trdPayFlow.getTrdDate());
             mongoUserTrdLogMsgRepo.save(mongoUiTrdLog);
         }catch (Exception ex){
             ex.printStackTrace();

@@ -20,6 +20,18 @@ import org.junit.Test;
 public class TradeUtilTest {
 
   @Test
+  public void getUTCTimeTodayStartTime() throws Exception {
+    System.out.println(ZoneId.systemDefault().getId());
+    long currentZoneDayStartTime = TradeUtil.getUTCTimeTodayStartTime(ZoneId.systemDefault().getId
+        ());
+    long currentUtcDayTime = TradeUtil.getUTCTime();
+    long offset = currentUtcDayTime - currentZoneDayStartTime;
+    System.out.println("currentZoneDayTime - currentZoneDayStartTime = " +
+        offset );
+
+  }
+
+  @Test
   public void getUTCTime() throws Exception {
     System.out.println(TradeUtil.getUTCTime());
   }

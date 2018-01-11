@@ -42,7 +42,9 @@ public class UiTrdLog implements Serializable {
   @Column(name="user_prod_id")
   private Long userProdId;
 
-
+  @Column(name="prod_id")
+  private Long prodId;
+  
   @Column(name="trade_date")
   private Long tradeDate;
 
@@ -143,4 +145,12 @@ public class UiTrdLog implements Serializable {
     this.userId = userId;
   }
 
+  public Long getProdId() {
+	return prodId;
+  }
+
+  public void setProdId(Long prodId) {
+	this.prodId = prodId;
+  }
+  
 }

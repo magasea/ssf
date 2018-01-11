@@ -29,6 +29,15 @@ service PayRpcService {
     rpc OrderJob2Pay(OrderPayReq) returns(OrderPayResult){
 
     }
+
+    /**
+    * 老板要求直接生成订单包含调中证接口
+    *
+    *
+    */
+    rpc Order2Pay(OrderPayReq) returns(OrderPayResult){
+
+    }
 }
 //绑定银行卡
 message BindBankCardQuery{
@@ -116,7 +125,8 @@ message OrderPayReq {
   int32 trdBrokerId = 2;//交易平台ID
   int64 userProdId = 3;//用户已购理财产品ID
   string userUuid = 4;//用户UUID
-  repeated OrderDetailPayReq orderDetailPayReq = 5;//子订单信息串
+  int64 userId = 5; //用户UserId
+  repeated OrderDetailPayReq orderDetailPayReq = 6;//子订单信息串
 }
 
 //子订单信息
@@ -146,7 +156,37 @@ message OrderDetailPayReq {
   int32 orderStatus = 23;
   string prodCode = 24;
 }
+
 //订单支付结果
 message OrderPayResult{
-  int32 result = 2; //1 - 成功；-1 
+  int32 result = 1; // 1- 成功；2-失败
+  repeated OrderPayResultDetail orderPayResultDetail = 2;//支付详情
+}
+
+//订单支付结果详情 结构按照TrdOrderDetail来, 改变的就是applySerial 和 orderStatus, 和update系列
+message OrderPayResultDetail{
+  int64 id = 1;
+  int64 orderDetailId = 2;
+  string tradeApplySerial = 3;
+  int64 boughtDate = 4;
+  int32 tradeType = 5;
+  int64 payAmount = 6;
+  int64 payFee = 7;
+  int64 userId = 8;
+  int64 userProdId = 9;
+  string fundCode = 10;
+  int64 fundMoneyQuantity  = 11;
+  int64 fundNum = 12;
+  int64 fundNumConfirmed = 13;
+  int64 buyFee = 14;
+  int64 buyDiscount = 15;
+  int32 orderDetailStatus = 16;
+  int64 createBy = 17;
+  int64 createDate = 18;
+  int64 updateBy = 19;
+  int64 updateDate = 20;
+  string bankCardNum = 21;
+  int64 fundQuantity = 22;
+  int32 orderStatus = 23;
+  string prodCode = 24;
 }
