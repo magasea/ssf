@@ -42,6 +42,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankcardDetailBodyDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfoDTO;
@@ -50,6 +51,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPersonalMsgBodyDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import com.shellshellfish.aaas.userinfo.service.UiProductService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
@@ -78,6 +80,9 @@ public class UserInfoController {
 	
 	@Autowired
 	UserFinanceProdCalcService userFinanceProdCalcService;
+	
+	@Autowired
+	UiProductService uiProductService;
 	/**
 	 * 我的 初始页面
 	 * @param id
@@ -1383,7 +1388,8 @@ public class UserInfoController {
 //		if(userInfoAssectsBrief.getTotalProfit()!=null){
 //			totalRevenue = userInfoAssectsBrief.getTotalProfit();
 //		}
-		resultMap.put("totalRevenue", "0");
+		//TODO 暂无作用，暂存
+		//resultMap.put("totalRevenue", "0");
 		
 		return new ResponseEntity<Map>(resultMap, HttpStatus.OK);
 	}
@@ -1595,6 +1601,12 @@ public class UserInfoController {
 			//状态(0-待确认 1-已确认 -1-交易失败)
 			if(products.getStatus() == 0){
 				resultMap.put("status", "待确认");
+				List<UiProductDetailDTO> productDetailsList = uiProductService.getProductDetailsByProdId(products.getProdId());
+				if(productDetailsList!=null&&productDetailsList.size()>0){
+					resultMap.put("count", productDetailsList.size());
+				} else {
+					resultMap.put("count", 0);
+				}
 			} else if(products.getStatus() == 1){
 				resultMap.put("status", "已确认");
 			} else {
@@ -1604,7 +1616,6 @@ public class UserInfoController {
 			resultMap.put("prodId",products.getProdId());
 			//买入日期
 			resultMap.put("updateDate",DateUtil.getDateType(products.getUpdateDate()));
-			
 			
 			resultList.add(resultMap);
 		}
