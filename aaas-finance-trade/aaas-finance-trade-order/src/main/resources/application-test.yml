@@ -54,7 +54,7 @@ grpc:
     port: 10021
   pay_client:
     host: localhost
-    port: 10110
+    port: 10111
   order_server:
     host: localhost
     port: 10101
