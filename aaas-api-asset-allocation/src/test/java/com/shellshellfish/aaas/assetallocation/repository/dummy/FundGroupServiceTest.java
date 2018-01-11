@@ -95,8 +95,8 @@ public class FundGroupServiceTest {
     }
 
     @Test
-    public void getinterval() {
-        FundReturn fundReturn = allocationService.getinterval("1", "0.13", "0.15");
+    public void getInterval() {
+        FundReturn fundReturn = allocationService.getInterval("1", "0.13", "0.15");
     }
 
     @Test
@@ -106,7 +106,7 @@ public class FundGroupServiceTest {
 
     @Test
     public void getmeansAndNoticesRetrun() {
-        ReturnType revenueContributionReturn = allocationService.getmeansAndNoticesRetrun();
+        ReturnType revenueContributionReturn = allocationService.getMeansAndNoticesReturn();
     }
 
     @Test
