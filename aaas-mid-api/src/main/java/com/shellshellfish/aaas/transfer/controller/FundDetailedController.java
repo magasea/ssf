@@ -1,9 +1,12 @@
 package com.shellshellfish.aaas.transfer.controller;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -25,7 +29,13 @@ import springfox.documentation.annotations.ApiIgnore;
 @RequestMapping("/phoneapi-ssf")
 @Api("基金详情restapi")
 public class FundDetailedController {
-
+	
+	Logger logger = LoggerFactory.getLogger(UserInfoController.class);
+	
+	private final static String TRADENOTICE = "交易流程，费率";
+	
+	private final static String FUNDNOTICE = "招募说明书、分红通知";
+	
 	@Value("${shellshellfish.finance-url}")
 	private String financeUrl;
 
@@ -61,6 +71,7 @@ public class FundDetailedController {
 					.getForEntity(dataManagerUrl + "/api/datamanager/getFundValueInfo?code=" + code + param, Map.class)
 					.getBody();
 			if (result == null || result.size() == 0) {
+				logger.error("获取类型 风险等级	评级为空");
 				result.put("msg", "获取失败");
 				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 			}
@@ -68,6 +79,33 @@ public class FundDetailedController {
 //			result.put("rate", dataResult.get("rate"));
 //			result.put("classtype", dataResult.get("classtype"));
 //			result.put("net", dataResult.get("net") == null ? 0 : dataResult.get("net"));
+			
+			//获取基金经理、基金公司
+			Map<String, Object> companyResult = new HashMap<String, Object>();
+			companyResult = restTemplate
+					.getForEntity(dataManagerUrl + "/api/datamanager/getFundInfoBycode?code=" + code, Map.class)
+					.getBody();
+			if (companyResult == null || companyResult.size() == 0) {
+				logger.error("获取基金经理、基金公司为空");
+				result.put("msg", "获取失败");
+				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+			} else {
+				// 基金经理
+				result.put("manager", companyResult.get("manager"));
+				// 基金公司
+				result.put("fundcompany", companyResult.get("fundcompany"));
+				// 基金概况
+				Object createdate = companyResult.get("createdate");
+				int years = 0;
+				if(createdate!=null){
+					years = CalculatorFunctions.getAgeFromBirthTime(createdate+"");
+				}
+				result.put("fundsurvey", "成立"+years+"年，"+companyResult.get("scale")+"亿");
+			}
+			// 交易须知
+			result.put("tradenotice", TRADENOTICE);
+			// 基金公告
+			result.put("fundnotice", FUNDNOTICE);
 			
 			result.remove("_links");
 			result.remove("_links");
@@ -138,23 +176,22 @@ public class FundDetailedController {
 	
 	@ApiOperation("基金概况")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "code", dataType = "String", required = true, value = "code", defaultValue = "000001.OF")
+			@ApiImplicitParam(paramType = "query", name = "code", dataType = "String", required = true, value = "code", defaultValue = "000216.OF")
 	})
-	@RequestMapping(value = "/getFundInfo", method = RequestMethod.POST)
+	@RequestMapping(value = "/getFundInfoBycode", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getFundInfo(@RequestParam String code) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
-			List<Object> list = restTemplate
-					.getForEntity(dataManagerUrl + "/api/datamanager/getFundInfo?codes=" + code, List.class)
+			result = restTemplate
+					.getForEntity(dataManagerUrl + "/api/datamanager/getFundInfoBycode?code=" + code, Map.class)
 					.getBody();
-			if (list.size() == 0) {
-				result.put("msg", "获取失败");
-				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+			if (result==null||result.size() == 0) {
+				logger.error("基金概况获取为空");
+				result.put("msg", "基金概况获取为空");
+				return new JsonResult(JsonResult.Fail, "基金概况获取为空", JsonResult.EMPTYRESULT);
 			}
-			result.remove("_links");
-			result.remove("_links");
-			return new JsonResult(JsonResult.SUCCESS, "获取成功", list.get(0));
+			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
 			String str=new ReturnedException(e).getErrorMsg();
 		    return new JsonResult(JsonResult.Fail, str,JsonResult.EMPTYRESULT);
@@ -216,7 +253,7 @@ public class FundDetailedController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "query", name = "code", dataType = "String", required = true, value = "基金公司名称", defaultValue = "000009.OF")
 	})
-	@RequestMapping(value = "/getFundCompany", method = RequestMethod.POST)
+	//@RequestMapping(value = "/getFundCompany", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getFundCompany(@RequestParam String code) {
 		Map<String, Object> result = new HashMap<String, Object>();

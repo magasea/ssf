@@ -13,14 +13,16 @@ public class TradeLogDTO {
 
 	private int operations;
 
-	private BigInteger prodId;
+	private Long prodId;
+	
+	private Long userProdId;
 
 	private Long tradeDate;
 
 	private int tradeStatus;
 
 	@JsonIgnore
-	private BigInteger userId;
+	private Long userId;
 
 	public String getId() {
 		return id;
@@ -46,11 +48,11 @@ public class TradeLogDTO {
 		this.operations = operations;
 	}
 
-	public BigInteger getProdId() {
+	public Long getProdId() {
 		return prodId;
 	}
 
-	public void setProdId(BigInteger prodId) {
+	public void setProdId(Long prodId) {
 		this.prodId = prodId;
 	}
 
@@ -70,12 +72,20 @@ public class TradeLogDTO {
 		this.tradeStatus = tradeStatus;
 	}
 
-	public BigInteger getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(BigInteger userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
+	}
+	
+	public Long getUserProdId() {
+		return this.userProdId;
+	}
+
+	public void setUserProdId(Long userProdId) {
+		this.userProdId = userProdId;
 	}
 
 }

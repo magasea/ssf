@@ -111,11 +111,11 @@ public class UiProducts {
   @Basic
   @Column(name = "update_by")
   public long getUpdateBy() {
-    return updateBy;
+	return updateBy;
   }
 
   public void setUpdateBy(long updateBy) {
-    this.updateBy = updateBy;
+	this.updateBy = updateBy;
   }
 
   @Basic
