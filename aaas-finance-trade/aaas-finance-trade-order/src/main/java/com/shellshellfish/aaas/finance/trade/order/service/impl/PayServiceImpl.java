@@ -1,9 +1,11 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayDto;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
+import com.shellshellfish.aaas.common.utils.DataCollectorUtil;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.pay.BindBankCardQuery;
 import com.shellshellfish.aaas.finance.trade.pay.OrderDetailPayReq;
@@ -55,7 +57,8 @@ public class PayServiceImpl implements PayService {
       //ToDo:
     logger.info("bindCard:" + bindBankCard);
     BindBankCardQuery.Builder builder = BindBankCardQuery.newBuilder();
-    BeanUtils.copyProperties(bindBankCard, builder);
+    BeanUtils.copyProperties(bindBankCard, builder, DataCollectorUtil.getNullPropertyNames(bindBankCard));
+    builder.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
     return payRpcFutureStub.bindBankCard(builder.build()).get().getTradeacco();
   }
 
@@ -96,7 +99,8 @@ public class PayServiceImpl implements PayService {
     bdOfReq.setUserUuid(payDto.getUserUuid());
     OrderDetailPayReq.Builder ordDetailReqBuilder = OrderDetailPayReq.newBuilder();
     for(TrdOrderDetail trdOrderDetail: payDto.getOrderDetailList()){
-      BeanUtils.copyProperties(trdOrderDetail, ordDetailReqBuilder);
+      BeanUtils.copyProperties(trdOrderDetail, ordDetailReqBuilder, DataCollectorUtil
+          .getNullPropertyNames(trdOrderDetail));
       bdOfReq.addOrderDetailPayReq(ordDetailReqBuilder);
       ordDetailReqBuilder.clear();
     }

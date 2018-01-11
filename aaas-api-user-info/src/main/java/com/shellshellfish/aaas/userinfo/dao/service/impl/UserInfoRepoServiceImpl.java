@@ -373,6 +373,23 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	public void getUserBankInfo(com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery request,
 			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserBankInfo> responseObserver) {
 		Long userId = request.getUserId();
+		String userUUID = request.getUuid();
+		if(userId <= 0){
+			logger.error("userId is not valid:" + userId);
+			if(StringUtils.isEmpty(userUUID)){
+				logger.error("userId and userUUID both is not valid:" + userId + " "+ userUUID);
+				//Todo: 是否直接返回？
+				return;
+			}else{
+				try {
+					userId = getUserIdFromUUID(userUUID);
+				} catch (Exception e) {
+					e.printStackTrace();
+					logger.error("failed to retrieve userId by userUUID:" + userUUID);
+					return;
+				}
+			}
+		}
 		List<BankCardDTO> bankCardDTOS = null;
 		try {
 			bankCardDTOS = getUserInfoBankCards(userId);
@@ -381,8 +398,9 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		}
-		if( bankCardDTOS.size() >= 0 ){
+		if( bankCardDTOS.size() <= 0 ){
 			logger.error("failed to find bankCards by userId:" + userId);
+			return;
 		}
 		UserBankInfo.Builder builder = UserBankInfo.newBuilder();
 		builder.setUserId(userId);
@@ -391,7 +409,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		builder.setUuid(request.getUuid());
 		builder.setCellphone(bankCardDTOS.get(0).getCellphone());
 		for(int idx = 0; idx < bankCardDTOS.size(); idx++){
-			builder.setCardNumbers(idx, bankCardDTOS.get(idx).getCardNumber());
+			builder.addCardNumbers(bankCardDTOS.get(idx).getCardNumber());
 		}
 		responseObserver.onNext(builder.build());
 		responseObserver.onCompleted();

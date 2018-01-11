@@ -400,6 +400,11 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     BindBankCard bindBankCard = new BindBankCard();
     BeanUtils.copyProperties(bindBankCardQuery, bindBankCard);
     String trdAcco = bindCard(bindBankCard);
+    if(StringUtils.isEmpty(trdAcco)){
+      logger.error("failed to bind card with UserName:"+ bindBankCard.getUserName() + " pid:"+
+          bindBankCard.getUserPid() + "bankCode:"+ bindBankCard.getBankCode() +
+          "userId:" +bindBankCard.getUserId());
+    }
     BindBankCardResult.Builder builder = BindBankCardResult.newBuilder();
     builder.setTradeacco(trdAcco);
     responseObserver.onNext(builder.build());

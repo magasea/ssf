@@ -93,6 +93,7 @@ public class TradeOpServiceImpl implements TradeOpService {
   @PostConstruct
   public void init(){
     userInfoServiceFutureStub = UserInfoServiceGrpc.newFutureStub(managedUIChannel);
+
   }
 
   public void shutdown() throws InterruptedException {
@@ -142,7 +143,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 
 
   TrdOrder genOrderFromBuyInfoAndProdMakeUpInfo(FinanceProdBuyInfo financeProdBuyInfo,
-      List<ProductMakeUpInfo> productMakeUpInfos) throws ExecutionException, InterruptedException {
+      List<ProductMakeUpInfo> productMakeUpInfos) throws Exception {
     //generate order
 //    TrdTradeBroker trdTradeBroker = trdBrokderRepository.findOne(1L);
     PayDto payDto = new PayDto();
@@ -160,6 +161,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       logger.info("trdBrokerUsers.get(0).getTradeAcco() is empty, 坑货出现，需要生成交易账号再交易");
       UserIdOrUUIDQuery.Builder builder = UserIdOrUUIDQuery.newBuilder();
       builder.setUuid(financeProdBuyInfo.getUuid());
+      builder.setUserId(financeProdBuyInfo.getUserId());
 
       com.shellshellfish.aaas.userinfo.grpc.UserBankInfo userBankInfo =
           userInfoServiceFutureStub.getUserBankInfo(builder.build()).get();
@@ -168,14 +170,21 @@ public class TradeOpServiceImpl implements TradeOpService {
       TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndAndBankCardNum
           (userBankInfo.getUserId(),financeProdBuyInfo.getBankAcc());
       bindBankCard.setBankCardNum(financeProdBuyInfo.getBankAcc());
+      String bankName = BankUtil.getNameOfBank(financeProdBuyInfo.getBankAcc());
+      bankName = bankName.split("银行")[0] + "银行";
       TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository.findByBankNameAndTraderBrokerId
-          (BankUtil.getNameOfBank(financeProdBuyInfo.getBankAcc()), TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
-
+          (bankName, TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
+      if(null == trdTradeBankDic){
+        logger.error("this bank name:"+bankName+" with brokerId"+ TradeBrokerIdEnum
+            .ZhongZhenCaifu.getTradeBrokerId()+" is not in table:");
+        throw new Exception("this bank name:"+bankName
+            + " with brokerId"+ TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId()+" is not in table:");
+      }
       bindBankCard.setBankCode(trdTradeBankDic.getBankCode());
       bindBankCard.setCellphone(userBankInfo.getCellphone());
       bindBankCard.setBankCardNum(financeProdBuyInfo.getBankAcc());
-      bindBankCard.setTradeBrokerId(trdBrokerUser.getTradeBrokerId());
-      bindBankCard.setUserId(trdBrokerUser.getUserId());
+      bindBankCard.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
+      bindBankCard.setUserId(financeProdBuyInfo.getUserId());
       bindBankCard.setUserName(userBankInfo.getUserName());
       bindBankCard.setUserPid(userBankInfo.getUserPid());
       trdAcco = payService.bindCard(bindBankCard);
