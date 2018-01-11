@@ -10,6 +10,7 @@ public class UserSysMsgDTO {
 	String content;
 	String id;
 	String date;
+	Long createdDate;
 
 	public String getSource() {
 		return source;
@@ -41,6 +42,14 @@ public class UserSysMsgDTO {
 
 	public void setDate(String date) {
 		this.date = date;
+	}
+
+	public Long getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Long createdDate) {
+		this.createdDate = createdDate;
 	}
 
 }

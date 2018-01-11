@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.transfer.utils;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -79,4 +80,11 @@ public class CalculatorFunctions {
         String birthTimeString = format.format(date);  
         return getAgeFromBirthTime(birthTimeString);  
     } 
+    
+    public static String getDateType(Long inputTime) {
+		Date date = new Date(inputTime + 60000 * 60 * 24);
+		DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		String result = format.format(date);
+		return result;
+	}
 }

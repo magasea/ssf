@@ -1,6 +1,6 @@
 package com.shellshellfish.aaas.transfer.controller;
 
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +18,6 @@ import org.springframework.web.client.RestTemplate;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -209,7 +208,7 @@ public class FundDetailedController {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			result = restTemplate
-					.getForEntity(financeUrl + "/api/ssf-finance/getFundManager?name=" + name, Map.class)
+					.getForEntity(dataManagerUrl + "/api/datamanager/getFundManager?name=" + name, Map.class)
 					.getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
