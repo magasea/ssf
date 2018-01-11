@@ -88,7 +88,7 @@
                 "properties": {
                   "_items": {
                     "type": [
-                      "string",
+                      "array",
                       "null"
                     ]
                   },
@@ -99,46 +99,25 @@
                     ]
                   },
                   "maxMinMap": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                    "type": ["object","null"]
                   },
                   "maxMinBenchmarkMap": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                    "type": ["object","null"]
                   },
                   "expectedIncomeSizeMap": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                    "type": ["object","null"]
                   },
                   "highPercentMaxIncomeSizeMap": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                    "type": ["object","null"]
                   },
                   "highPercentMinIncomeSizeMap": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                    "type": ["object","null"]
                   },
                   "lowPercentMaxIncomeSizeMap": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                    "type": ["object","null"]
                   },
                   "lowPercentMinIncomeSizeMap": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                    "type": ["object","null"]
                   }
                 }
               },
@@ -150,51 +129,30 @@
               },
               "_links": {
                 "type": [
-                  "string",
+                  "array",
                   "null"
                 ]
               },
               "maxMinMap": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": ["object","null"]
               },
               "maxMinBenchmarkMap": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": ["object","null"]
               },
               "expectedIncomeSizeMap": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": ["object","null"]
               },
               "highPercentMaxIncomeSizeMap": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": ["object","null"]
               },
               "highPercentMinIncomeSizeMap": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": ["object","null"]
               },
               "lowPercentMaxIncomeSizeMap": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": ["object","null"]
               },
               "lowPercentMinIncomeSizeMap": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": ["object","null"]
               },
               "_schemaVersion": {
                 "type": [

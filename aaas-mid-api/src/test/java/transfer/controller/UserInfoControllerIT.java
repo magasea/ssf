@@ -28,7 +28,7 @@ import static org.hamcrest.Matchers.*;
  * 17-12-19
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TransferServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = TransferServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @EnableAutoConfiguration
 public class UserInfoControllerIT {
@@ -183,10 +183,10 @@ public class UserInfoControllerIT {
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result.userBaseInfo.id", notNullValue())
 				.body("result.userBaseInfo.cellPhone", notNullValue())
-				.body("result.userBaseInfo", hasItem("birthAge"))
-				.body("result.userBaseInfo", hasItem("occupation"))
-				.body("result.userBaseInfo", hasItem("passwordhash"))
-				.body("result.userBaseInfo", hasItem("riskLevel"));
+				.body("result.userBaseInfo", hasKey("birthAge"))
+				.body("result.userBaseInfo", hasKey("occupation"))
+				.body("result.userBaseInfo", hasKey("passwordhash"))
+				.body("result.userBaseInfo", hasKey("riskLevel"));
 	}
 
 	@Test

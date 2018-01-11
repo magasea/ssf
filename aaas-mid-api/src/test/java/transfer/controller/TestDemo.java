@@ -24,7 +24,7 @@ import static org.hamcrest.Matchers.notNullValue;
  */
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TransferServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = TransferServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @EnableAutoConfiguration
 public class TestDemo {

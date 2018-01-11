@@ -68,10 +68,7 @@
                   "type": "integer"
                 },
                 "_items": {
-                  "type": [
-                    "null",
-                    "object"
-                  ]
+                  "type": "array"
                 },
                 "name": {
                   "type": [
@@ -80,52 +77,28 @@
                   ]
                 },
                 "_links": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["object","null"]
                 },
                 "maxMinMap": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["object","null"]
                 },
                 "maxMinBenchmarkMap": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["object","null"]
                 },
                 "expectedIncomeSizeMap": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["object","null"]
                 },
                 "highPercentMaxIncomeSizeMap": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["object","null"]
                 },
                 "highPercentMinIncomeSizeMap": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["object","null"]
                 },
                 "lowPercentMaxIncomeSizeMap": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["object","null"]
                 },
                 "lowPercentMinIncomeSizeMap": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["object","null"]
                 },
                 "_schemaVersion": {
                   "type": [

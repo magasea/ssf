@@ -30,11 +30,11 @@ import static org.hamcrest.Matchers.notNullValue;
  * 17-12-19
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TransferServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = TransferServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @EnableAutoConfiguration
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class LoginControllerIT {
+public class A_LoginControllerIT {
 
 	private String REQUEST_VERIFY_CODE = "/phoneapi-ssf/requestVerifyCode";
 
@@ -143,6 +143,7 @@ public class LoginControllerIT {
 
 
 	//	@Test
+	//FIXME
 	public void c_forgetPswTest() {
 		String password = RandomStringUtils.randomAlphanumeric(DEFAULT_PASSWORD_LENGTH);
 		String verifyCode = getVerifyCode(registration_login_phone_number);
