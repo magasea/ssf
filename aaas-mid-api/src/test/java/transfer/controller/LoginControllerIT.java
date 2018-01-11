@@ -34,7 +34,7 @@ import static org.hamcrest.Matchers.notNullValue;
 @ActiveProfiles("test")
 @EnableAutoConfiguration
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class A_LoginControllerIT {
+public class LoginControllerIT {
 
 	private String REQUEST_VERIFY_CODE = "/phoneapi-ssf/requestVerifyCode";
 

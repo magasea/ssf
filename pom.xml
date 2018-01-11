@@ -25,7 +25,7 @@
         <module>aaas-api-gateway</module>
         <module>aaas-mid-api</module>
         <module>aaas-mid-apii</module>
-		    <module>aaas-api-data-manager</module>
+        <module>aaas-api-data-manager</module>
         <module>aaas-funds-datacollection-server</module>
     </modules>
 
