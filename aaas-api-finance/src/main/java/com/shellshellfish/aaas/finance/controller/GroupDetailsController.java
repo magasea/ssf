@@ -111,17 +111,28 @@ public class GroupDetailsController {
 	}
 
 
+	/**
+	 *
+	 * @param code
+	 * @param period   1: 3month,2: 6month,3: 1year,4: 3year
+	 * @param date
+	 * @return
+	 */
+
 	@ApiOperation("组合详情 历史净值")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "code", dataType = "String", required = true, value = "code", defaultValue = "000001.OF")
+			@ApiImplicitParam(paramType = "query", name = "code", dataType = "String", required = true, value = "基金代码", defaultValue = "000216.OF"),
+			@ApiImplicitParam(paramType = "query", name = "period", dataType = "String", required = true, value = "时间区间   1: 3month,2: 6month,3: 1year,4: 3year", defaultValue = "2"),
+			@ApiImplicitParam(paramType = "query", name = "date", dataType = "String", required = true, value = "起始日期", defaultValue = "2017-12-26")
 	})
 	@RequestMapping(value = "/getHistoryNetvalue", method = {RequestMethod.GET})
-	public List<HistoryList> getHistoryNetvalue(@RequestParam() @NotNull String code, @RequestParam(defaultValue = "1") String period) {
+	public String getHistoryNetvalue(@RequestParam() @NotNull String code, @RequestParam(defaultValue = "1") String period,@RequestParam() String date) {
 		String getFundInfoUrl = "/api/datamanager/getHistoryNetvalue";
 
 		Map params = new HashMap();
 		params.put("code", code);
-		params.put("period", period);
+		params.put("type", period);
+		params.put("date", date);
 		return groupDetailsService.getHistoryList(getFundInfoUrl, params);
 	}
 

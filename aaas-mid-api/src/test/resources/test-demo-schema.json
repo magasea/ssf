@@ -1,112 +1,112 @@
-{
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "testJsonSchema",
-  "description": "测试JsonSchema",
-  "type": "object",
-  "properties": {
-    "head": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": [
-            "string",
-            "null"
-          ]
+  {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "testJsonSchema",
+    "description": "测试JsonSchema",
+    "type": "object",
+    "properties": {
+      "head": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "msg": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         },
-        "msg": {
-          "type": [
-            "string",
-            "null"
-          ]
-        }
+        "title": "返回头信息"
       },
-      "title": "返回头信息"
-    },
-    "result": {
-      "type": "object",
-      "properties": {
-        "_total": {
-          "type": "number"
-        },
-        "_items": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "name": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "_links": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "maxMinMap": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "maxMinBenchmarkMap": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "expectedIncomeSizeMap": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "highPercentMaxIncomeSizeMap": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "highPercentMinIncomeSizeMap": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "lowPercentMaxIncomeSizeMap": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "lowPercentMinIncomeSizeMap": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "_schemaVersion": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "_serviceId": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "msg": {
-          "type": [
-            "string",
-            "null"
-          ]
+      "result": {
+        "type": "object",
+        "properties": {
+          "_total": {
+            "type": "number"
+          },
+          "_items": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "_links": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "maxMinMap": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "maxMinBenchmarkMap": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "expectedIncomeSizeMap": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "highPercentMaxIncomeSizeMap": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "highPercentMinIncomeSizeMap": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "lowPercentMaxIncomeSizeMap": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "lowPercentMinIncomeSizeMap": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "_schemaVersion": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "_serviceId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "msg": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         }
       }
     }
   }
-}

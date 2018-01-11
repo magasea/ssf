@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "futureExpectationPage",
+  "description": "未来预期",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "msg": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "expectedIncomeSizeMap": {
+          "type": "object",
+          "properties": {
+            "minValue": {
+              "type": "number"
+            },
+            "maxValue": {
+              "type": "number"
+            }
+          }
+        },
+        "highPercentMinIncomeSizeMap": {
+          "type": "object",
+          "properties": {
+            "minValue": {
+              "type": "number"
+            },
+            "maxValue": {
+              "type": "number"
+            }
+          }
+        },
+        "lowPercentMaxIncomeSizeMap": {
+          "type": "object",
+          "properties": {
+            "minValue": {
+              "type": "number"
+            },
+            "maxValue": {
+              "type": "number"
+            }
+          }
+        },
+        "lowPercentMinIncomeSizeMap": {
+          "type": "object",
+          "properties": {
+            "minValue": {
+              "type": "number"
+            },
+            "maxValue": {
+              "type": "number"
+            }
+          }
+        },
+        "highPercentMaxIncomeSizeMap": {
+          "type": "object",
+          "properties": {
+            "minValue": {
+              "type": "number"
+            },
+            "maxValue": {
+              "type": "number"
+            }
+          }
+        },
+        "expectedIncome": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "income_mounth_time": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "_item": {
+                "type": "object",
+                "properties": {
+                  "high_percent_max_income": {
+                    "type": "number"
+                  },
+                  "low_percent_max_income": {
+                    "type": "number"
+                  },
+                  "expected_income": {
+                    "type": "number"
+                  },
+                  "high_percent_min_income": {
+                    "type": "number"
+                  },
+                  "low_percent_min_income": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "expectedIncomeSizeMap",
+        "highPercentMinIncomeSizeMap",
+        "lowPercentMaxIncomeSizeMap",
+        "lowPercentMinIncomeSizeMap",
+        "expectedIncome",
+        "highPercentMaxIncomeSizeMap"
+      ]
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

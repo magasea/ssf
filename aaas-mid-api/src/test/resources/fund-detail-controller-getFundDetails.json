@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "fund Deails ",
+  "description": "基金详情",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "msg": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "DifferRange": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "NAVUNIT": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "DifferRangeY": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "mgr": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tradeInformationMap": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "histrory": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "updownRange": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "samerankinglist": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "timePeriod": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "updownRange",
+              "samerankinglist",
+              "timePeriod"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

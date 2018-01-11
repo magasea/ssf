@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "fund notices",
+  "description": "基金公告",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "msg": {
+          "type": "string"
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "notices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fundCode": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "title": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "txtContent": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "declareDate": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "acceRoute": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "hello": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "fundCode",
+              "title",
+              "txtContent",
+              "declareDate",
+              "acceRoute"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

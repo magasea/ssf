@@ -47,13 +47,10 @@ public class GroupDetailsServiceImpl implements GroupDetailsService {
 	 * @return
 	 */
 	@Override
-	public List<HistoryList> getHistoryList(String methodUrl, Map params) {
-		String origin = connectDataManager(methodUrl, params);
-		if (origin != null) {
-			return prepareHistoryList(origin);
-		}
+	public String getHistoryList(String methodUrl, Map params) {
 
-		return null;
+		return  connectDataManager(methodUrl, params);
+
 	}
 
 	/**
@@ -91,54 +88,6 @@ public class GroupDetailsServiceImpl implements GroupDetailsService {
 		return null;
 	}
 
-
-	/**
-	 * <Strong>
-	 * <p>
-	 * ### 各位，请注意，以下都是坑！！！ ###
-	 * </Strong>
-	 * <p>
-	 * <p>
-	 * 拆分历史净值数据拼接成HistoryList
-	 * 格式如下：
-	 * {
-	 * "period": "1",
-	 * "code": "000001.OF",
-	 * "historylist": [
-	 * {
-	 * "historydetail": "date1|||unit net1|||accum1|||day scale1"
-	 * }
-	 * ]
-	 * }
-	 *
-	 * @param
-	 * @return
-	 */
-	private List prepareHistoryList(String origin) {
-
-		JSONObject originJson = JSONObject.parseObject(origin);
-		if (originJson.size() == 0)
-			return null;
-
-		JSONArray originHistoryList = originJson.getJSONArray("historylist");
-
-		if (originHistoryList == null || originHistoryList.isEmpty()) {
-			return null;
-		}
-
-		List<HistoryList> historyList = new ArrayList<>(originHistoryList.size());
-		for (int i = 0; i < originHistoryList.size(); i++) {
-			String originParams = originHistoryList.getJSONObject(i).getString(" ");
-			String[] params = originParams.replace("|||", ",").split(",");
-			if (params == null || params.length != 4) {
-				continue;
-			}
-
-			historyList.add(new HistoryList(params));
-
-		}
-		return historyList;
-	}
 
 	/**
 	 * 拆分基金经理的数据

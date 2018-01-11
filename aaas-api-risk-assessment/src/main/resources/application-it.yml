@@ -1,0 +1,39 @@
+spring:
+    devtools:
+        restart:
+            enabled: true
+        livereload:
+            enabled: false 
+            
+            application:
+        name: ssf-risk-assessment
+
+    jackson:
+      serialization:
+        fail-on-empty-beans: false
+
+    data:
+        mongodb:
+            host: 192.168.1.249
+            port: 27017
+            database: test
+    jpa:
+      hibernate:
+        ddl-auto: update
+server:
+    port: 10050
+    
+    
+application:
+    swagger:
+        title: SSF Platform API
+        description: Shell shell fish API documentation
+        version: 0.1.X
+        termsOfServiceUrl:
+        contactName:
+        contactUrl:
+        contactEmail:
+        license:
+        licenseUrl:
+
+    

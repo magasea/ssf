@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "fund company",
+  "description": "基金公司",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "msg": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "identityno": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fundcode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sharetype": {
+          "type": "number"
+        },
+        "incomes": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "share": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "datetime": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "netvalue": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "nettime": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "sharetype",
+        "identityno",
+        "fundcode",
+        "incomes",
+        "share",
+        "datetime",
+        "netvalue",
+        "nettime"
+      ]
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

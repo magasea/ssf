@@ -1,0 +1,181 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "inComeSlidebarPoints",
+  "description": "预期收益率",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "msg": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer"
+        },
+        "expMaxDrawDown": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "value": {
+              "type": "number"
+            }
+          }
+        },
+        "expAnnReturn": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "value": {
+              "type": "number"
+            }
+          }
+        },
+        "assetsRatios": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "value": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "type",
+              "value"
+            ]
+          }
+        },
+        "list": {
+          "type": "array",
+          "item": {
+            "type": "object",
+            "properties": {
+              "avgIncreRate": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "fundCode": {
+                "type": "string"
+              },
+              "fundType": {
+                "type": "string"
+              },
+              "incrementMinMaxValueMap": {
+                "type": "object",
+                "properties": {
+                  "minValue": {
+                    "type": "number"
+                  },
+                  "maxValue": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "minValue",
+                  "maxValue"
+                ]
+              },
+              "incrementRateMinMaxValueMap": {
+                "type": "object",
+                "properties": {
+                  "minValue": {
+                    "type": "number"
+                  },
+                  "maxValue": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "minValue",
+                  "maxValue"
+                ]
+              },
+              "npvincrement": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "time": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "time",
+                    "value"
+                  ]
+                }
+              },
+              "npvincreRate": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "time": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "time",
+                    "value"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "avgIncreRate",
+              "name",
+              "fundCode",
+              "fundType",
+              "incrementMinMaxValueMap",
+              "incrementRateMinMaxValueMap",
+              "npvincrement",
+              "npvincreRate"
+            ]
+          }
+        }
+      },
+      "required": [
+        "total",
+        "expMaxDrawDown",
+        "assetsRatios",
+        "expAnnReturn",
+        "list"
+      ]
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

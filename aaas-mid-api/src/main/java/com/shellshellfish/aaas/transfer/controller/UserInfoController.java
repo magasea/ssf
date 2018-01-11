@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -260,7 +262,12 @@ public class UserInfoController {
 					Map item = (Map) items.get(i);
 					Map<String,Object> listMap = new HashMap<String,Object>();
 					listMap.put("content", item.get("content"));
-					listMap.put("date", item.get("date"));
+					if(item.get("createdDate")!=null){
+						Long date = (Long) item.get("createdDate");
+						listMap.put("date", CalculatorFunctions.getDateType(date));
+					} else {
+						listMap.put("date", "");
+					}
 					list.add(listMap);
 				}
 				logger.info("系统消息获取成功");

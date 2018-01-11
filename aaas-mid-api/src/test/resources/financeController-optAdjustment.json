@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "optAdjustment",
+  "description": "需求调整",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "msg": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "confInterval": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "historicReturn": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "hisAnnualPerformanceSimu": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "histAnnualVolaSimu": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "maxDeficit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "groupId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "subGroupId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "confInterval",
+        "historicReturn",
+        "hisAnnualPerformanceSimu",
+        "histAnnualVolaSimu",
+        "maxDeficit",
+        "groupId",
+        "subGroupId"
+      ]
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

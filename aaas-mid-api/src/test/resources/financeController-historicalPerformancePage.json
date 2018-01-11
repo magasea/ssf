@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "historicalPerformancePage",
+  "description": "历史业绩",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "msg": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "productGroupId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "productSubGroupId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "_links": {
+          "type": "object"
+        },
+        "historicalPerformance": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "id": {
+                "type": "number"
+              },
+              "value": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "name",
+              "id",
+              "value"
+            ]
+          }
+        }
+      },
+      "required": [
+        "productGroupId",
+        "productSubGroupId",
+        "_links",
+        "historicalPerformance"
+      ]
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

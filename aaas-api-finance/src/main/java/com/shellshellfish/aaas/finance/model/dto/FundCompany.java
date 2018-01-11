@@ -86,7 +86,7 @@ public class FundCompany {
 			Markup = markup;
 		}
 
-		public FundDetail(String fundName, String fundType, String markup) {
+		public  FundDetail(String fundName, String fundType, String markup) {
 			this.fundName = fundName;
 			this.fundType = fundType;
 			Markup = markup;

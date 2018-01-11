@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "My Production Details",
+  "description": "我的产品详情",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "msg": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "investDate": {
+          "type": "number"
+        },
+        "fundIncomes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fundName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "todayIncome": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "fundCode": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "fundName",
+              "todayIncome",
+              "fundCode"
+            ]
+          }
+        }
+      },
+      "required": [
+        "accumulationIncomes",
+        "fundIncomes",
+        "investDate"
+      ]
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

@@ -367,8 +367,8 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
 		rsmap.put("name", "loginhome");
 		//rsmap.put("uid", uid);
 		rsmap.put("uuid", uuid);
-		rsmap.put("token ", token);
-		rsmap.put("token ", token);
+		rsmap.put("token", token);
+		rsmap.put("token", token);
 		
 		HashMap<String, Object> linkitemmap = new HashMap<String, Object>();
 		HashMap<String, Object> selfitemmap = new HashMap<String, Object>();

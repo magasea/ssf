@@ -100,7 +100,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		// BigInteger userIdLocal = BigInteger.valueOf(userId);
 		UiAsset uiAsset = userInfoAssetsRepository.findByUserId(userId);
 		UserInfoAssectsBriefDTO asset = new UserInfoAssectsBriefDTO();
-		if(uiAsset != null){
+		if (uiAsset != null) {
 			BeanUtils.copyProperties(uiAsset, asset);
 		}
 		return asset;
@@ -125,7 +125,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	public BankCardDTO getUserInfoBankCard(String cardNumber) {
 		UiBankcard uiBankcard = userInfoBankCardsRepository.findUiBankcardByCardNumberIs(cardNumber);
 		BankCardDTO bankcard = new BankCardDTO();
-		if(uiBankcard!=null){
+		if (uiBankcard != null) {
 			BeanUtils.copyProperties(uiBankcard, bankcard);
 		}
 		return bankcard;
@@ -241,18 +241,19 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		Page<UiTrdLog> uiTrdLogPage = userTradeLogRepository.findByUserId(pageable, userId);
 		return uiTrdLogPage;
 	}
-	
+
 	@Override
 	public List<TradeLogDTO> findTradeLogDtoByUserId(Long userId) throws IllegalAccessException, InstantiationException {
 		List<UiTrdLog> uiTrdLogList = userTradeLogRepository.findByUserId(userId);
 		List<TradeLogDTO> trdLogsDtoList = MyBeanUtils.convertList(uiTrdLogList, TradeLogDTO.class);
 		return trdLogsDtoList;
 	}
-	
+
 	@Override
 	public Iterable<TradeLogDTO> addUiTrdLog(List<UiTrdLog> trdLogs)
 			throws IllegalAccessException, InstantiationException {
 		userTradeLogRepository.save(trdLogs);
+		// FIXME
 		List<TradeLogDTO> trdLogsDtoList = MyBeanUtils.convertList(trdLogs, TradeLogDTO.class);
 		return trdLogsDtoList;
 	}
@@ -305,7 +306,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		}
 		List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserIdAndCardNumber(userId, cardNumber);
 		if (bankcardList == null || bankcardList.size() == 0) {
-			throw new UserInfoException("404","解绑的银行卡不存在");
+			throw new UserInfoException("404", "解绑的银行卡不存在");
 		}
 		UiBankcard bankcard = bankcardList.get(0);
 		userInfoBankCardsRepository.delete(bankcard.getId());
@@ -364,12 +365,10 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	}
 
 
-
-
 	/**
 	 */
 	public void getUserBankInfo(com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery request,
-			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserBankInfo> responseObserver) {
+								io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserBankInfo> responseObserver) {
 		Long userId = request.getUserId();
 		String userUUID = request.getUuid();
 		if(userId <= 0){

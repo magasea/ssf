@@ -1,7 +1,3 @@
----
-server:
-  port: 10070
-  contextPath: /
 spring:
   jpa:
     hibernate:
