@@ -7,9 +7,9 @@ mybatis:
 spring:
     datasource:
         driverClassName: com.mysql.jdbc.Driver
-        password: N4eTVr89lX9BaPcx
+        password: t5MqqozQDNramNHh
         url: jdbc:mysql://localhost:3306/choice?useUnicode=true&characterEncoding=utf-8
-        username: sa
+        username: ssf08
     jpa:
       hibernate:
         ddl-auto: update

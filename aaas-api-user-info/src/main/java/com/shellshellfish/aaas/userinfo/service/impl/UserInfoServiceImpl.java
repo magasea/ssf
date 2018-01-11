@@ -26,7 +26,7 @@ import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
-import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import io.grpc.ManagedChannel;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -235,7 +235,6 @@ public class UserInfoServiceImpl implements UserInfoService {
     public List<UserInfoFriendRuleDTO> getUserInfoFriendRules(Long bankId)
         throws InstantiationException, IllegalAccessException,RuntimeException {
     	List<UserInfoFriendRuleDTO> userInfoFriendRules = userInfoRepoService.getUiFriendRule(bankId);
-//      List<UserInfoFriendRule> userInfoFriendRules = new ArrayList<>();
     	return userInfoFriendRules;
     }
 
