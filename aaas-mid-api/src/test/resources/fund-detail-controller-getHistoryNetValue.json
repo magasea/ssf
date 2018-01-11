@@ -26,16 +26,10 @@
       "type": "object",
       "properties": {
         "period": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "code": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "historylist": {
           "type": "array",
@@ -43,36 +37,23 @@
             "type": "object",
             "properties": {
               "date": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": "string"
               },
               "navaccum": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": "number"
               },
               "dayup": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": "string"
               },
               "navunit": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": "number"
               }
             },
             "required": [
               "date",
               "navaccum",
               "dayup",
-              "navunit",
-              "hello"
+              "navunit"
             ]
           }
         }

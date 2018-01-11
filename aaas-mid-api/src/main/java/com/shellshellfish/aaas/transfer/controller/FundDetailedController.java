@@ -110,6 +110,7 @@ public class FundDetailedController {
 			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
+			logger.error(e.getMessage());
 			String str=new ReturnedException(e).getErrorMsg();
 		    return new JsonResult(JsonResult.Fail, str,JsonResult.EMPTYRESULT);
 		}
