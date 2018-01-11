@@ -1,7 +1,5 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
-import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
-
 import com.mongodb.WriteResult;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
@@ -19,7 +17,7 @@ import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserProdMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserSysMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.*;
 import com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl;
-import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

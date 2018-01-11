@@ -1,5 +1,6 @@
-package com.shellshellfish.aaas.userinfo.utils;
+package com.shellshellfish.aaas.common.utils;
 
+import com.shellshellfish.aaas.common.utils.DataCollectorUtil;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class MyBeanUtils {
 		List<B> targetList = new ArrayList<>();
 		for (A item : sourceList) {
 			B targetItem = targetClass.newInstance();
-			BeanUtils.copyProperties(item, targetItem);
+			BeanUtils.copyProperties(item, targetItem, DataCollectorUtil.getNullPropertyNames(item));
 			targetList.add(targetItem);
 		}
 		return targetList;
@@ -32,7 +33,7 @@ public class MyBeanUtils {
 	}
 
 	public static <A, B> Object mapEntityIntoDTO(A targetItemA, B targetItemB) {
-		BeanUtils.copyProperties(targetItemA, targetItemB);
+		BeanUtils.copyProperties(targetItemA, targetItemB, DataCollectorUtil.getNullPropertyNames(targetItemA));
 		return targetItemB;
 	}
 }

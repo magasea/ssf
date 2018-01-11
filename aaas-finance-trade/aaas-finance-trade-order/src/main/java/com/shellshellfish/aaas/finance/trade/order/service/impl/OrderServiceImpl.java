@@ -25,9 +25,11 @@ public class OrderServiceImpl  extends FinanceProductServiceImplBase implements 
     List<TrdOrderDetail> trdOrderDetails = new ArrayList<>();
     List<TrdOrder> trdOrders = trdOrderRepository.findTrdOrdersByUserId(userId);
     for(TrdOrder trdOrder: trdOrders){
-
+      List<TrdOrderDetail> trdOrderDetailList = trdOrderDetailRepository.findAllByOrderId(trdOrder
+          .getOrderId());
+      trdOrderDetails.addAll(trdOrderDetailList);
     }
-    return null;
+    return trdOrderDetails;
   }
   
   

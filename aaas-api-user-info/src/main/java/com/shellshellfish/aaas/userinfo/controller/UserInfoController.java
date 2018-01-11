@@ -883,39 +883,9 @@ public class UserInfoController {
 		return new ResponseEntity<>(pageWrapper,HttpStatus.OK);
 	}
 
-//	@ApiImplicitParams({
-//		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="userUuid",defaultValue=""),
-//		@ApiImplicitParam(paramType="query",name="bankId",dataType="Long",required=true,value="银行ID",defaultValue="")
-//    })
-//	@ApiResponses({
-//		@ApiResponse(code=200,message="OK"),
-//        @ApiResponse(code=400,message="请求参数没填好"),
-//        @ApiResponse(code=401,message="未授权用户"),
-//		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
-//		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
-//    })
-//	@RequestMapping(value = "/userinfo/companyinfo/{userUuid}", method = RequestMethod.GET)
-//	public ResponseEntity<?> getCompanyInfo(@PathVariable String userUuid, @RequestParam( required = false) Long bankId)
-//			throws Exception {
-//
-//		UserInfoCompanyInfo userInfoCompanyInfo = userInfoService.getCompanyInfo(userUuid, bankId);
-//		Map<String, Object> result = new HashMap<>();
-//		Map<String, Object> selfmap = new HashMap<>();
-//		Map<String, Object> links = new HashMap<>();
-//		result.put("_items", userInfoCompanyInfo);
-//		result.put("_page","");
-//
-//		selfmap.put("href", "/api/userinfo/companyinfo/{userUuid}" );
-//		selfmap.put("describedBy","schema//api/userinfo/companyinfo.json/{userUuid}");
-//		links.put("self", selfmap );
-//		result.put("_links", links);
-//		return new ResponseEntity<Object>(result , HttpStatus.OK);
-//	}
-	
 	/**
 	 * 邀请规则
-	 * @param userUuid
-	 * @param bankId
+	 * @param bankid
 	 * @return
 	 * @throws Exception
 	 */
