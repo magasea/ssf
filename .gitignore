@@ -56,3 +56,4 @@ dist/
 nbdist/
 .nb-gradle/
 
+data-manager/
