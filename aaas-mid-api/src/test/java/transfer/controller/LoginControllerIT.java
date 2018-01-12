@@ -142,8 +142,7 @@ public class LoginControllerIT {
 	}
 
 
-	//	@Test
-	//FIXME
+	@Test
 	public void c_forgetPswTest() {
 		String password = RandomStringUtils.randomAlphanumeric(DEFAULT_PASSWORD_LENGTH);
 		String verifyCode = getVerifyCode(registration_login_phone_number);
