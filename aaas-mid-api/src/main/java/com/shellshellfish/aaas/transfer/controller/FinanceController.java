@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.transfer.controller;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +28,8 @@ import com.shellshellfish.aaas.dto.FinanceProductCompo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+import com.shellshellfish.aaas.transfer.utils.EasyKit;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -194,6 +197,22 @@ public class FinanceController {
 				logger.info("单个基金组合产品信息为空");
 			} else {
 				if(productMap.get("assetsRatios")!=null){
+					List<Map> assetList = (List<Map>) productMap.get("assetsRatios");
+					Double count = 0D;
+					Double value = 0D;
+					for(int i=0;i<assetList.size();i++) {
+						Map<String, Object> assetMap = assetList.get(i);
+						if(assetMap.get("value")!=null){
+							if(i == assetList.size()-1){
+								value = 100D - count; 
+							}else {
+								value = (Double) assetMap.get("value");
+								value = EasyKit.getDecimal(new BigDecimal(value));
+								count = count + value;
+							}
+							assetMap.put("value", value);
+						}
+					}
 					result.put("assetsRatios", productMap.get("assetsRatios"));
 				}
 			}
@@ -661,6 +680,14 @@ public class FinanceController {
 			String url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt?returntype="+"2";
 //			String str="{\"returnType\":\""+"2"+"\"}";
 			result=(Map) restTemplate.postForEntity(url,null,Map.class).getBody();
+			
+			if(result.get("value")!=null){
+				Double value = (Double)result.get("value");
+				if(!StringUtils.isEmpty(value)){
+					value = EasyKit.getDecimal(new BigDecimal(value));
+					result.put("value", value);
+				}
+			}
 		}catch(Exception e){
 			result=new HashMap<String,Object>();
 			result.put("error", "restTemplate获取预期最大回撤失败");
@@ -680,7 +707,7 @@ public class FinanceController {
 	 * @return
 	 */
 	protected Map<String,Object> getExpAnnReturn(String groupId,String subGroupId){
-		Map result=null;
+		Map<String, Object> result=new HashMap<>();
 		try{
 			String url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt?returntype="+"1";
 			String str="{\"returnType\":\""+"1"+"\"}";
@@ -690,6 +717,13 @@ public class FinanceController {
 			result.remove("_links");
 			result.remove("_serviceId");
 			result.remove("_schemaVersion");*/
+			if(result.get("value")!=null){
+				Double value = (Double)result.get("value");
+				if(!StringUtils.isEmpty(value)){
+					value = EasyKit.getDecimal(new BigDecimal(value));
+					result.put("value", value);
+				}
+			}
 		}catch(Exception e){
 			result=new HashMap<String,Object>();
 			result.put("error", "restTemplate获取预期年化收益失败");
