@@ -31,7 +31,7 @@ public interface TradeOpService {
    * @return
    * @throws Exception
    */
-  TrdOrder buyFinanceProductWithPreprocess(FinanceProdBuyInfo financeProdInfo)
+  TrdOrder buyFinanceProductWithPreOrder(FinanceProdBuyInfo financeProdInfo)
       throws Exception;
 
 }

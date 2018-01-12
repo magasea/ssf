@@ -163,7 +163,7 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
         //为了适应这个奇葩的表结构 fundbaseclose，只好写这个奇葩的hardcode赋值
         builderDailyFunds.clear();
         Set checkCodesSet = new HashSet();
-        checkCodesSet.addAll(fundbasecloses);
+        checkCodesSet.addAll(baseIndexs);
         Double nvadj = null;
         for(FundBaseClose fundBaseClose: fundbasecloses){
           if(checkCodesSet.contains("GDAXIGI")){

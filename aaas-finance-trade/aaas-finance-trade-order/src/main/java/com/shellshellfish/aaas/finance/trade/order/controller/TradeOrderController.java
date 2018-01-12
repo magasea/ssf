@@ -320,8 +320,8 @@ public class TradeOrderController {
 			@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
 			@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")
 	})
-	@RequestMapping(value = "/funds/buywithpreprocess", method = RequestMethod.POST)
-	public ResponseEntity<?> buyFinanceProdWithPreprocess(@RequestBody FinanceProdBuyInfo
+	@RequestMapping(value = "/funds/buywithpreorder", method = RequestMethod.POST)
+	public ResponseEntity<?> buyFinanceProdWithPreOrder(@RequestBody FinanceProdBuyInfo
 			financeProdBuyInfo)
 			throws Exception {
 		Long userId = null ;
@@ -337,7 +337,7 @@ public class TradeOrderController {
 		}
 		financeProdBuyInfo.setUserId(userId);
 		financeProdBuyInfo.setMoney(financeProdBuyInfo.getMoney());
-		TrdOrder trdOrder = tradeOpService.buyFinanceProduct(financeProdBuyInfo);
+		TrdOrder trdOrder = tradeOpService.buyFinanceProductWithPreOrder(financeProdBuyInfo);
 		return new ResponseEntity<Object>(trdOrder, HttpStatus.OK);
 	}
 

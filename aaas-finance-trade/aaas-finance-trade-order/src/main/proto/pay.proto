@@ -1,6 +1,5 @@
 syntax = "proto3";
-import "google/protobuf/any.proto";
-import "google/protobuf/empty.proto";
+
 
 option java_multiple_files = true;
 option java_package = "com.shellshellfish.aaas.finance.trade.pay";
@@ -27,16 +26,17 @@ service PayRpcService {
     * 如果交易1.不满足 就重新发起支付，如果交易失败而且需要交易的基金数量大于0，那么再次发起交易
     */
     rpc OrderJob2Pay(OrderPayReq) returns(OrderPayResult){
-
     }
-
     /**
     * 老板要求直接生成订单包含调中证接口
-    *
-    *
     */
     rpc Order2Pay(OrderPayReq) returns(OrderPayResult){
-
+    }
+    
+    /**
+    * 老板要求直接生成购买货币基金的预订单包含调中证接口
+    */
+    rpc PreOrder2Pay(PreOrderPayReq) returns(PreOrderPayResult){
     }
 }
 //绑定银行卡
@@ -189,4 +189,21 @@ message OrderPayResultDetail{
   int64 fundQuantity = 22;
   int32 orderStatus = 23;
   string prodCode = 24;
+}
+//预订单支付请求 
+message PreOrderPayReq{
+  int64 pre_order_id = 1;
+  string bank_card_num = 2;
+  int32 order_type = 3; //preorder
+  int64 pay_amount = 4;
+  string fund_code = 5;//基金代码
+  int64 pay_fee = 6;
+  int64 user_id = 7;
+  int64 prod_id = 8;
+}
+//预订单支付结果
+message PreOrderPayResult{
+  int64 pre_order_id = 1; //预订单ID
+  string apply_serial = 2; //交易流水号
+  string err_msg = 3; // 错误消息
 }

@@ -7,6 +7,8 @@ import com.shellshellfish.aaas.common.enums.OrderJobPayRltEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
+import com.shellshellfish.aaas.common.enums.ZZBizOpEnum;
+import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayDto;
 import com.shellshellfish.aaas.common.message.order.ProdDtlSellDTO;
@@ -14,11 +16,14 @@ import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import com.shellshellfish.aaas.common.utils.SSFDateUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.common.utils.ZZStatsToOrdStatsUtils;
 import com.shellshellfish.aaas.finance.trade.pay.BindBankCardResult;
 import com.shellshellfish.aaas.finance.trade.pay.OrderDetailPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.OrderPayResult;
 import com.shellshellfish.aaas.finance.trade.pay.OrderPayResultDetail;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceImplBase;
+import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
+import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
@@ -536,6 +541,81 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       throw new Exception("meet errors in pay api services");
     }
     return payDto;
+  }
+
+  /**
+   * <pre>
+   **
+   * 老板要求直接生成购买货币基金的预订单包含调中证接口
+   * </pre>
+   */
+  @Override
+  public void preOrder2Pay(com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq request,
+      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult> responseObserver) {
+    PreOrderPayResult preOrderPayResult = preOrder2Pay(request);
+    responseObserver.onNext(preOrderPayResult);
+    responseObserver.onCompleted();
+  }
+
+
+  @Override
+  public PreOrderPayResult preOrder2Pay(PreOrderPayReq request) {
+    PreOrderPayResult.Builder poprBuilder = PreOrderPayResult.newBuilder();
+    poprBuilder.setPreOrderId(request.getUserId());
+
+    BuyFundResult buyFundResult;
+    try {
+        buyFundResult = fundTradeApiService.buyFund(""+request.getUserId(), request.getTradeAccount()
+          , TradeUtil.getBigDecimalNumWithDiv100(request.getPayAmount()), ""+request
+              .getPreOrderId(), request.getFundCode());
+      poprBuilder.setApplySerial(buyFundResult.getApplySerial());
+      //把交易流水入库
+      int kkStat = Integer.parseInt(buyFundResult.getKkstat());
+      String kkStatName = ZZKKStatusEnum.getByStatus(kkStat).getComment();
+      logger.info("preOrderId:"+ request.getPreOrderId() +" kkStat:"+ kkStat + " "
+          + "kkStatName:" + kkStatName);
+      TrdOrderStatusEnum trdOrderStatusEnum = ZZStatsToOrdStatsUtils.getOrdStatByZZKKStatus(ZZKKStatusEnum
+          .getByStatus((kkStat)), TrdOrderOpTypeEnum.BUY);
+
+      com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow trdPayFlow = new com
+          .shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow();
+//      BeanUtils.copyProperties(request.getTrdOrderDetail(), trdPayFlow);
+      trdPayFlow.setUpdateBy(request.getUserId());
+      trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
+      trdPayFlow.setTrdType(TrdOrderOpTypeEnum.PREORDER.getOperation());
+      trdPayFlow.setTrdDate(TradeUtil.getUTCTime());
+      trdPayFlow.setUserId(request.getUserId());
+      trdPayFlow.setApplySerial(buyFundResult.getApplySerial());
+      trdPayFlow.setCreateBy(request.getUserId());
+      trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
+//      trdPayFlow.setUserProdId(request.getTrdOrderDetail().getUserProdId());
+      trdPayFlow.setTradeAcco(request.getTradeAccount());
+      trdPayFlow.setFundCode(request.getFundCode());
+      trdPayFlow.setOrderDetailId(request.getPreOrderId());
+      trdPayFlow.setBankCardNum(request.getBankCardNum());
+      trdPayFlow.setOutsideOrderno(buyFundResult.getOutsideOrderNo());
+      trdPayFlow.setTrdbkerStatusName(kkStatName);
+      trdPayFlow.setTrdbkerStatusCode(kkStat);
+      trdPayFlow.setTradeBrokeId(request.getTrdBrokerId());
+      //注意外面接口用BigDecimal表示金额，入库都用long精确到分
+      trdPayFlow.setTrdMoneyAmount(request.getPayAmount());
+      trdPayFlow.setTrdStatus(trdOrderStatusEnum.getStatus());
+      trdPayFlowRepository.save(trdPayFlow);
+      com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
+          .shellshellfish.aaas.common.message.order.TrdPayFlow();
+      BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
+//      notifyPayMsg( trdPayFlowMsg);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      logger.error(e.getMessage());
+      poprBuilder.setErrMsg(e.getMessage());
+    } catch (Exception e) {
+      e.printStackTrace();
+      logger.error(e.getMessage());
+      poprBuilder.setErrMsg(e.getMessage());
+    }
+    return poprBuilder.build();
+
   }
 
 

@@ -4,6 +4,8 @@ import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayDto;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
+import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
+import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -32,5 +34,13 @@ public interface PayService {
    * @return PayDto
    */
   TrdOrderStatusEnum order2Pay(PayDto payDto);
+
+
+  /**
+   * 用预订单去发起中证接口调用
+   * @param preOrderPayReq
+   * @return
+   */
+  PreOrderPayResult preOrder2Pay(PreOrderPayReq preOrderPayReq);
 
 }
