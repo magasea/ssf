@@ -117,7 +117,7 @@ public class FinanceController {
 		bannerList.add("http://47.96.164.161/2.png");
 		bannerList.add("http://47.96.164.161/3.png");
 		bannerList.add("http://47.96.164.161/4.png");
-		bannerList.add("http://47.96.164.161/5.png");
+//		bannerList.add("http://47.96.164.161/5.png");
 		
 		returnMap.put("bannerList", bannerList);
 		
