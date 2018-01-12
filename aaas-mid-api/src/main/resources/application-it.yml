@@ -9,6 +9,13 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.springframework.data: debug
+
+spring:
+  http:
+    encoding:
+     charset: UTF-8
+     enabled: true
+     force: true
     
 shellshellfish:
   user-login-url: "http://localhost:10070"

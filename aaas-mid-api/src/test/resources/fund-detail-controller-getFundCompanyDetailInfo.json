@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "fund manager",
-  "description": "基金经理",
+  "title": "基金公司",
+  "description": "getFundCompanyDetailInfo",
   "type": "object",
   "properties": {
     "head": {
@@ -19,47 +19,55 @@
     "result": {
       "type": "object",
       "properties": {
-        "manager": {
+        "fundscale": {
           "type": "string"
         },
-        "workingdays": {
+        "scale": {
           "type": "string"
         },
-        "avgearningrate": {
-          "type": "number"
+        "createdate": {
+          "type": "string"
+        },
+        "fundcompany": {
+          "type": "string"
         },
         "fundnum": {
           "type": "integer"
         },
-        "joblist": {
+        "fundlist": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
+              "fundtype": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string"
+              },
               "fundname": {
                 "type": "string"
               },
-              "startdate": {
+              "accumnet": {
                 "type": "string"
-              },
-              "earingrate": {
-                "type": "number"
               }
             },
             "required": [
+              "fundtype",
+              "code",
               "fundname",
-              "startdate",
-              "earingrate"
+              "accumnet"
             ]
           }
         }
       },
       "required": [
-        "manager",
-        "workingdays",
-        "fundnum",
-        "joblist",
-        "avgearningrate"
+        "fundscale",
+        "scale",
+        "createdate",
+        "fundlist",
+        "fundcompany",
+        "fundnum"
       ]
     }
   },

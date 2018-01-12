@@ -239,7 +239,7 @@ public class FundDetailedController {
 					.getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
-				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+				return new JsonResult(JsonResult.Fail, "获取成功", result);
 			}
 			result.remove("_links");
 			result.remove("_links");
