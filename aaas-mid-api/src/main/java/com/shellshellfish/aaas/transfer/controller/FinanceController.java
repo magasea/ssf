@@ -354,7 +354,7 @@ public class FinanceController {
 		Map<String,Object> result = new HashMap<String,Object>();
 		// 预期平均年化收益率
 		Map<String,Object> optMap = new HashMap<String,Object>();
-		String url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt?returnType=1";
+		String url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt?returntype=1";
 		optMap= restTemplate.postForEntity(url,null,Map.class).getBody();
 		if (optMap != null && !optMap.isEmpty()) {
 			logger.info("预期平均年化收益率获取成功");
@@ -363,7 +363,8 @@ public class FinanceController {
 			if (obj != null) {
 				logger.info("预期平均年化收益率获取成功2");
 				value = obj.toString();
-				result.put("averageAnnualRate", value);
+				Double doubleValue = EasyKit.getDecimal(new BigDecimal(value));
+				result.put("averageAnnualRate", doubleValue);
 			} else {
 				logger.error("预期平均年化收益率获取失败");
 			}
@@ -379,6 +380,22 @@ public class FinanceController {
 			Map<String,Object> expectedIncomeMap = new HashMap<String,Object>();
 			expectedIncomeMap = restTemplate.getForEntity(url, Map.class).getBody();
 			if(expectedIncomeMap!=null&&!expectedIncomeMap.isEmpty()){
+				List<Map<String,Object>> expectedIncomeList = (List<Map<String, Object>>) expectedIncomeMap.get("_items"); 
+				if(expectedIncomeList!=null&&expectedIncomeList.size()>0){
+					for (int i = 0; i < expectedIncomeList.size(); i++) {
+						Map incomeMap = expectedIncomeList.get(i);
+						if (incomeMap.get("_item") != null) {
+							Map<String, Object> itemMap = (Map<String, Object>) incomeMap.get("_item");
+							if(itemMap!=null&&itemMap.size()>0)
+							for(String key : itemMap.keySet()){
+								Double value = (Double) itemMap.get(key);
+								Double doubleValue = EasyKit.getDecimal(new BigDecimal(value));
+								itemMap.put(key, doubleValue);
+							}
+						}
+					}
+				}
+				
 				logger.info("未来收益走势图数据获取成功");
 				Object expectedIncomeSizeMap = expectedIncomeMap.get("expectedIncomeSizeMap");
 				Object highPercentMaxIncomeSizeMap = expectedIncomeMap.get("highPercentMaxIncomeSizeMap");
@@ -396,6 +413,12 @@ public class FinanceController {
 				if (expectedIncomeSizeMap != null) {
 					logger.info("expectedIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
+					Double min = (Double) ((Map)expectedIncomeSizeMap).get("minValue");
+					Double max = (Double) ((Map)expectedIncomeSizeMap).get("maxValue");
+					Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+					Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+					((Map)expectedIncomeSizeMap).put("minValue", minValue);
+					((Map)expectedIncomeSizeMap).put("maxValue", maxValue);
 					result.put("expectedIncomeSizeMap", expectedIncomeSizeMap);
 				} else {
 					logger.error("expectedIncomeSizeMap:未来收益走势图数据获取失败");
@@ -403,6 +426,12 @@ public class FinanceController {
 				if (highPercentMaxIncomeSizeMap != null) {
 					logger.info("highPercentMaxIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
+					Double min = (Double) ((Map)highPercentMaxIncomeSizeMap).get("minValue");
+					Double max = (Double) ((Map)highPercentMaxIncomeSizeMap).get("maxValue");
+					Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+					Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+					((Map)highPercentMaxIncomeSizeMap).put("minValue", minValue);
+					((Map)highPercentMaxIncomeSizeMap).put("maxValue", maxValue);
 					result.put("highPercentMaxIncomeSizeMap", highPercentMaxIncomeSizeMap);
 				} else {
 					logger.error("highPercentMaxIncomeSizeMap:未来收益走势图数据获取失败");
@@ -410,6 +439,12 @@ public class FinanceController {
 				if (highPercentMinIncomeSizeMap != null) {
 					logger.info("highPercentMinIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
+					Double min = (Double) ((Map)highPercentMinIncomeSizeMap).get("minValue");
+					Double max = (Double) ((Map)highPercentMinIncomeSizeMap).get("maxValue");
+					Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+					Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+					((Map)highPercentMinIncomeSizeMap).put("minValue", minValue);
+					((Map)highPercentMinIncomeSizeMap).put("maxValue", maxValue);
 					result.put("highPercentMinIncomeSizeMap", highPercentMinIncomeSizeMap);
 				} else {
 					logger.error("highPercentMinIncomeSizeMap:未来收益走势图数据获取失败");
@@ -417,6 +452,12 @@ public class FinanceController {
 				if (lowPercentMaxIncomeSizeMap != null) {
 					logger.info("lowPercentMaxIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
+					Double min = (Double) ((Map)lowPercentMaxIncomeSizeMap).get("minValue");
+					Double max = (Double) ((Map)lowPercentMaxIncomeSizeMap).get("maxValue");
+					Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+					Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+					((Map)lowPercentMaxIncomeSizeMap).put("minValue", minValue);
+					((Map)lowPercentMaxIncomeSizeMap).put("maxValue", maxValue);
 					result.put("lowPercentMaxIncomeSizeMap", lowPercentMaxIncomeSizeMap);
 				} else {
 					logger.error("lowPercentMaxIncomeSizeMap:未来收益走势图数据获取失败");
@@ -424,6 +465,12 @@ public class FinanceController {
 				if (lowPercentMinIncomeSizeMap != null) {
 					logger.info("lowPercentMinIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
+					Double min = (Double) ((Map)lowPercentMinIncomeSizeMap).get("minValue");
+					Double max = (Double) ((Map)lowPercentMinIncomeSizeMap).get("maxValue");
+					Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+					Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+					((Map)lowPercentMinIncomeSizeMap).put("minValue", minValue);
+					((Map)lowPercentMinIncomeSizeMap).put("maxValue", maxValue);
 					result.put("lowPercentMinIncomeSizeMap", lowPercentMinIncomeSizeMap);
 				} else {
 					logger.error("lowPercentMinIncomeSizeMap:未来收益走势图数据获取失败");
@@ -602,48 +649,6 @@ public class FinanceController {
 			} else {
 				logger.error("配置收益贡献获取失败2");
 			}
-			
-			// 等级风险
-			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId
-					+ "/risk-controls";
-			Map<String, Object> riskMap = new HashMap<String, Object>();
-			riskMap = restTemplate.getForEntity(url, Map.class).getBody();
-			if (riskMap != null && !riskMap.isEmpty()) {
-				logger.info("等级风险数据获取成功");
-				Object obj2 = riskMap.get("_items");
-				if (obj2 != null) {
-					logger.info("等级风险数据获取成功2");
-					// prdList = (List<Map<String, Object>>) obj2;
-					result.put("levelRiskControl", obj2);
-				} else {
-					logger.info("等级风险数据获取失败");
-				}
-			} else {
-				logger.info("等级风险数据获取失败2");
-			}
-			
-			// 风险控制手段与通知
-			url = assetAlloctionUrl + "/api/asset-allocation/products/" + uuid + "/risk-notifications";
-			Map<String, Object> riskNotificationsMap = new HashMap<String, Object>();
-			riskNotificationsMap = restTemplate.getForEntity(url, Map.class).getBody();
-			if (riskNotificationsMap != null && !riskNotificationsMap.isEmpty()) {
-				logger.info("风险控制手段与通知数据获取成功");
-				Object obj2 = riskNotificationsMap.get("_items");
-				if (obj2 != null) {
-					logger.info("风险控制手段与通知获取成功2");
-					List<Map<String, Object>> prdList = (List<Map<String, Object>>) obj2;
-					for(int i=0;i<prdList.size();i++){
-						Map<String, Object> prdMap = prdList.get(i);
-						prdMap.remove("content");
-					}
-					result.put("riskNotifications", prdList);
-				} else {
-					logger.info("风险控制手段与通知失败");
-				}
-			} else {
-				logger.info("风险控制手段与通知失败2");
-			}
-			
 		} catch (Exception e) {
 			// 获取list失败直接返回
 			logger.error("风险控制数据发生错误", e);
@@ -887,6 +892,11 @@ public class FinanceController {
 //        List<Map<String, Object>> reuslt = new ArrayList<Map<String, Object>>();
         //排序前 
         for (Map<String, Object> map : list) {
+        	if(map.get("value")!=null){
+        		Double doubleValue = (Double) map.get("value");
+        		doubleValue = EasyKit.getDecimal(new BigDecimal(doubleValue));
+        		map.put("value", doubleValue);
+        	}
             System.out.println(map.get("value"));
         }
         Collections.sort(list, new Comparator<Map<String, Object>>() {
