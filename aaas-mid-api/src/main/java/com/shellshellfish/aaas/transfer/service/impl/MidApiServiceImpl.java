@@ -361,19 +361,31 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 			map.add("riskLevel", riskLevel);
 			map.add("investmentPeriod", invstTerm);
 			container=restTemplate.postForEntity(url,map,Map.class).getBody();
+			String hisAnnualPerformanceSimuresult = "";
 		    try{
 		    	List list=(List)container.get("_items");
 		    	for(Object item: list){
 		    		Map itemMap=(Map)item;
 		    		String name=itemMap.get("name").toString();
 		    		String value=itemMap.get("value").toString();
-		    		//存入数据表
-		    		resultMap.put(relationMap.get(name).toString(), value);
+		    		if(!StringUtils.isEmpty(value)){
+		    			Double doubleValue = 0D;
+		    			if("模拟历史年化业绩".equals(name)){
+		    				hisAnnualPerformanceSimuresult = value;
+		    			} else if("最大亏损额".equals(name)){
+		    				//存入数据表
+			    			resultMap.put(relationMap.get(name).toString(), value);
+			    			continue;
+		    			}
+		    			doubleValue = EasyKit.getDecimal(new BigDecimal(value));
+		    			//存入数据表
+		    			resultMap.put(relationMap.get(name).toString(), doubleValue);
+		    			
+		    		}
 		    	}
 		    }catch(Exception e){
 		       throw new Exception("获取调整方案Map的Field值失败，可能Map为空");
 		    }
-		    String hisAnnualPerformanceSimuresult= resultMap.get("hisAnnualPerformanceSimu").toString();
 	    	//计算模拟历史收益
 	       resultMap.put("historicReturn",CalculatorFunctions.getHistoricReturn("10000", hisAnnualPerformanceSimuresult));
 	       resultMap.put("groupId",container.get("productGroupId"));
