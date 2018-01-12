@@ -60,12 +60,16 @@ public class EasyKit {
 		return resultList;
 	}
 
-	public static BigDecimal getDecimal(BigDecimal bigDecimal) {
-		BigDecimal decimal = null;
+	public static Double getDecimal(BigDecimal bigDecimal) {
+		Double decimal = null;
 		if(bigDecimal!=null){
 			bigDecimal = bigDecimal.multiply(new BigDecimal("100"));
-			decimal = bigDecimal.setScale(2, BigDecimal.ROUND_UP);
+			decimal = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 		}
 		return decimal;
 	}
+	
+//	public static void main(String[] args) {
+//		System.out.println(getDecimal(new BigDecimal("0.00011049437537826574")));
+//	}
 }
