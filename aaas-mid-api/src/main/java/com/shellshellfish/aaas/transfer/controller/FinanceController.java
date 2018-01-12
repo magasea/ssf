@@ -493,16 +493,17 @@ public class FinanceController {
 			}
 			title.put("header1",productName);
 			//预期最大回撤数
-			url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt";
-			String str="{\"returnType\":\""+"1"+"\"}";
-			Map<String, Object> optResult = (Map) restTemplate.postForEntity(url,getHttpEntity(str),Map.class).getBody();
+			url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt?returntype=2";
+			Map<String, Object> optResult = (Map) restTemplate.postForEntity(url,null,Map.class).getBody();
 			if(optResult!=null){
 				if(optResult.get("value")!=null){
 					double opt = Double.valueOf(optResult.get("value")+"");
-					if(opt<0){
-						opt=opt*-1;
+					if(opt<=0){
+						opt = opt - 0.05;
+						logger.info("预期最大回撤数获取成功");
+					} else {
+						logger.error("预期最大回撤数获取失败，应为负数，而不是为："+opt);
 					}
-					opt = opt + 0.05;
 					result.put("optValue", opt);
 				}
 			}
