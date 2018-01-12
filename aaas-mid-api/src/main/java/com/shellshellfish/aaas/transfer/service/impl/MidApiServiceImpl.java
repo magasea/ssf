@@ -1,12 +1,15 @@
 package com.shellshellfish.aaas.transfer.service.impl;
 
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +27,7 @@ import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
 import com.shellshellfish.aaas.dto.FundNAVInfo;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
+import com.shellshellfish.aaas.transfer.utils.EasyKit;
 
 public class MidApiServiceImpl implements MidApiService {
 	Logger logger = LoggerFactory.getLogger(MidApiServiceImpl.class);
@@ -109,15 +113,28 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 			logger.error("解析转换_items为List失败",e.getMessage());
 			return null;
 		}
+		int count = 0;
+		Double total = 0D;
 		for(Object prd :prdList){
+			count++;
 			//创建对象
 			Map mapItem=null;
 			if(!(prd instanceof Map)){
 			logger.error("_item List转换为Map失败","数据获取失败");
 				return null;
 			}
-			mapItem=(Map)prd;	
+			mapItem=(Map)prd;
 			FundNAVInfo infoA=mapToFundNAVInfo(mapItem,"1");//增长值
+			if (count == prdList.size()) {
+				Double last = (new Double(100))-total;
+				last = (new BigDecimal("100")).subtract(new BigDecimal(total)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+				infoA.setAvgIncreRate(last + "");
+			} else {
+				String rate = infoA.getAvgIncreRate();
+				if (!StringUtils.isEmpty(rate)) {
+					total = total + Double.parseDouble(rate);
+				}
+			}
 			resultList.add(infoA);
 		}
 		return resultList;
@@ -160,7 +177,10 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 				logger.error("解析转换_items为List失败",e.getMessage());
 				return null;
 			}
+			int count = 0;
+			Double total = 0D;
 			for(Object prd :prdList){
+				count++;
 				//创建对象
 				Map mapItem=null;
 				if(!(prd instanceof Map)){
@@ -169,6 +189,16 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 				}
 				mapItem=(Map)prd;	
 				FundNAVInfo infoA=mapToFundNAVInfo(mapItem,"2");
+				if (count == prdList.size()) {
+					Double last = (new Double(100))-total;
+					last = (new BigDecimal("100")).subtract(new BigDecimal(total)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+					infoA.setAvgIncreRate(last + "");
+				} else {
+					String rate = infoA.getAvgIncreRate();
+					if (!StringUtils.isEmpty(rate)) {
+						total = total + Double.parseDouble(rate);
+					}
+				}
 				resultList.add(infoA);
 			}
 			return resultList;
@@ -269,13 +299,25 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 		 fundCode=map.get("fund_code").toString(); //获取产品代码code
 		 name=map.get("name").toString();//产品名称
 		 avgIncreRate=map.get("type_value").toString();
+		 if(!StringUtils.isEmpty(avgIncreRate)){
+			 avgIncreRate = EasyKit.getDecimal(new BigDecimal(avgIncreRate))+"";
+		 }
 		 fundType=map.get("fund_type_two").toString();//基金类型
 		}catch(Exception e){
 			logger.error("获取map中的参数出错,"+e.getMessage());
 		}
-		List NPVIncrement=null;
+		List npvIncrement=null;
 		try{
-		 NPVIncrement=(List)map.get("navadj");//净值增长值
+		 npvIncrement=(List)map.get("navadj");//净值增长值
+		 if(npvIncrement!=null&&npvIncrement.size()>0){
+			 for(int i=0;i<npvIncrement.size();i++){
+				 Map<String,Object> obj = (Map<String, Object>) npvIncrement.get(i);
+				 if(obj.get("value")!=null){
+					 Double decimal = EasyKit.getDecimal(new BigDecimal(obj.get("value")+""));
+					 obj.put("value", decimal);
+				 }
+			 }
+		 }
 		}catch(Exception e){
 			logger.error("净值增长值或净值增长率转换为List时出错");
 		}
@@ -284,12 +326,12 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 		info.setFundType(fundType);
 		info.setAvgIncreRate(avgIncreRate);
 		if("1".equals(flag)){//净值增长值
-		info.setNPVIncrement(NPVIncrement);
-		info.setIncrementMinMaxValueMap(NPVIncrement);
+		info.setNPVIncrement(npvIncrement);
+		info.setIncrementMinMaxValueMap(npvIncrement);
 		}
 		if("2".equals(flag)){//净值增长率
-		info.setNPVIncreRate(NPVIncrement);
-		info.setIncrementRateMinMaxValueMap(NPVIncrement);
+		info.setNPVIncreRate(npvIncrement);
+		info.setIncrementRateMinMaxValueMap(npvIncrement);
 			}
 		return info;
 	}
@@ -319,19 +361,31 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 			map.add("riskLevel", riskLevel);
 			map.add("investmentPeriod", invstTerm);
 			container=restTemplate.postForEntity(url,map,Map.class).getBody();
+			String hisAnnualPerformanceSimuresult = "";
 		    try{
 		    	List list=(List)container.get("_items");
 		    	for(Object item: list){
 		    		Map itemMap=(Map)item;
 		    		String name=itemMap.get("name").toString();
 		    		String value=itemMap.get("value").toString();
-		    		//存入数据表
-		    		resultMap.put(relationMap.get(name).toString(), value);
+		    		if(!StringUtils.isEmpty(value)){
+		    			Double doubleValue = 0D;
+		    			if("模拟历史年化业绩".equals(name)){
+		    				hisAnnualPerformanceSimuresult = value;
+		    			} else if("最大亏损额".equals(name)){
+		    				//存入数据表
+			    			resultMap.put(relationMap.get(name).toString(), value);
+			    			continue;
+		    			}
+		    			doubleValue = EasyKit.getDecimal(new BigDecimal(value));
+		    			//存入数据表
+		    			resultMap.put(relationMap.get(name).toString(), doubleValue);
+		    			
+		    		}
 		    	}
 		    }catch(Exception e){
 		       throw new Exception("获取调整方案Map的Field值失败，可能Map为空");
 		    }
-		    String hisAnnualPerformanceSimuresult= resultMap.get("hisAnnualPerformanceSimu").toString();
 	    	//计算模拟历史收益
 	       resultMap.put("historicReturn",CalculatorFunctions.getHistoricReturn("10000", hisAnnualPerformanceSimuresult));
 	       resultMap.put("groupId",container.get("productGroupId"));

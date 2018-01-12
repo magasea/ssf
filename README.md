@@ -79,4 +79,39 @@
  - 所有项目测试的profile 用application-test.yml
  - 所有项目上线的profile 用application-prod.yml
  
+ 
+### 项目资源
+* 1 发布平台
+
+** jenkins
+
+http://192.168.1.15:7015/ (主)
+http://192.168.1.10:7015/（备用）
+(账户名/密码请查收邮件，务必更改密码。)
+阿里云内测数据库账户密码：
+1、ID: sa   AD:47.96.179.8 端口:3306 密码：N4eTVr89lX9BaPcx   
+拥有权限1：select,insert,update,create,index,References 。
+对应数据库包括： ssffinance     ssflogin  ssftrdorder   ssftrdpay   ssfuser  
+拥有权限2： select  对应数据库  choice 
+2、ID: ssf08    AD:47.96.179.8  密码： t5MqqozQDNramNHh   
+拥有权限为：select,insert,update,create,index,References    
+对应数据库 ： choice
+(阿里云填写数据库地址统一为：localhost)
+闪尖联调数据库账户密码：
+1、ID: sa   AD:47.96.164.161 端口:3306 密码：N4eTVr89lX9BaPcx   
+拥有权限1：select,insert,update,create,index,References 。
+对应数据库包括： ssffinance     ssflogin  ssftrdorder   ssftrdpay   ssfuser  
+拥有权限2： select  对应数据库  choice 
+2、ID: ssf08    AD:47.96.164.161  密码： t5MqqozQDNramNHh   
+拥有权限为：select,insert,update,create,index,References    
+对应数据库 ： choice
+(阿里云填写数据库地址统一为：localhost)
+内网开发数据库
+1、ID: sa   AD:192.168.1.10 端口:3306 密码：N4eTVr89lX9BaPcx
+拥有权限1：select,insert,update,create,index,References 。
+对应数据库包括： ssffinance     ssflogin  ssftrdorder   ssftrdpay   ssfuser  
+拥有权限2： select  对应数据库  choice 
+2、ID: ssf08    AD:192.168.1.10  密码： t5MqqozQDNramNHh   
+ 拥有权限为：select,insert,update,create,index,References    
+对应数据库 ： choice
   

@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.transfer.controller;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +28,8 @@ import com.shellshellfish.aaas.dto.FinanceProductCompo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+import com.shellshellfish.aaas.transfer.utils.EasyKit;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -114,7 +117,6 @@ public class FinanceController {
 		bannerList.add("http://47.96.164.161/2.png");
 		bannerList.add("http://47.96.164.161/3.png");
 		bannerList.add("http://47.96.164.161/4.png");
-		bannerList.add("http://47.96.164.161/5.png");
 		
 		returnMap.put("bannerList", bannerList);
 		
@@ -194,6 +196,22 @@ public class FinanceController {
 				logger.info("单个基金组合产品信息为空");
 			} else {
 				if(productMap.get("assetsRatios")!=null){
+					List<Map> assetList = (List<Map>) productMap.get("assetsRatios");
+					Double count = 0D;
+					Double value = 0D;
+					for(int i=0;i<assetList.size();i++) {
+						Map<String, Object> assetMap = assetList.get(i);
+						if(assetMap.get("value")!=null){
+							if(i == assetList.size()-1){
+								value = 100D - count; 
+							}else {
+								value = (Double) assetMap.get("value");
+								value = EasyKit.getDecimal(new BigDecimal(value));
+								count = count + value;
+							}
+							assetMap.put("value", value);
+						}
+					}
 					result.put("assetsRatios", productMap.get("assetsRatios"));
 				}
 			}
@@ -474,16 +492,17 @@ public class FinanceController {
 			}
 			title.put("header1",productName);
 			//预期最大回撤数
-			url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt";
-			String str="{\"returnType\":\""+"1"+"\"}";
-			Map<String, Object> optResult = (Map) restTemplate.postForEntity(url,getHttpEntity(str),Map.class).getBody();
+			url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt?returntype=2";
+			Map<String, Object> optResult = (Map) restTemplate.postForEntity(url,null,Map.class).getBody();
 			if(optResult!=null){
 				if(optResult.get("value")!=null){
 					double opt = Double.valueOf(optResult.get("value")+"");
-					if(opt<0){
-						opt=opt*-1;
+					if(opt<=0){
+						opt = opt - 0.05;
+						logger.info("预期最大回撤数获取成功");
+					} else {
+						logger.error("预期最大回撤数获取失败，应为负数，而不是为："+opt);
 					}
-					opt = opt + 0.05;
 					result.put("optValue", opt);
 				}
 			}
@@ -661,6 +680,14 @@ public class FinanceController {
 			String url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt?returntype="+"2";
 //			String str="{\"returnType\":\""+"2"+"\"}";
 			result=(Map) restTemplate.postForEntity(url,null,Map.class).getBody();
+			
+			if(result.get("value")!=null){
+				Double value = (Double)result.get("value");
+				if(!StringUtils.isEmpty(value)){
+					value = EasyKit.getDecimal(new BigDecimal(value));
+					result.put("value", value);
+				}
+			}
 		}catch(Exception e){
 			result=new HashMap<String,Object>();
 			result.put("error", "restTemplate获取预期最大回撤失败");
@@ -680,7 +707,7 @@ public class FinanceController {
 	 * @return
 	 */
 	protected Map<String,Object> getExpAnnReturn(String groupId,String subGroupId){
-		Map result=null;
+		Map<String, Object> result=new HashMap<>();
 		try{
 			String url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt?returntype="+"1";
 			String str="{\"returnType\":\""+"1"+"\"}";
@@ -690,6 +717,13 @@ public class FinanceController {
 			result.remove("_links");
 			result.remove("_serviceId");
 			result.remove("_schemaVersion");*/
+			if(result.get("value")!=null){
+				Double value = (Double)result.get("value");
+				if(!StringUtils.isEmpty(value)){
+					value = EasyKit.getDecimal(new BigDecimal(value));
+					result.put("value", value);
+				}
+			}
 		}catch(Exception e){
 			result=new HashMap<String,Object>();
 			result.put("error", "restTemplate获取预期年化收益失败");
