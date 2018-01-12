@@ -2,23 +2,30 @@
 server:
   port: 10130
 grpc:
-  host: localhost
+  host: 192.168.1.249
   port: 10131
 logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.springframework.data: debug
+
+spring:
+  http:
+    encoding:
+     charset: UTF-8
+     enabled: true
+     force: true
     
 shellshellfish:
-  user-login-url: "http://localhost:10070"
-  risk-assessment-url: "http://localhost:10050"
-  userinfo-url: "http://localhost:10060"
-  finance-url: "http://localhost:10120"
-  asset-alloction-url: "http://localhost:10020"
-  trade-order-url: "http://localhost:10100"
-  trade-pay-url: "http://localhost:10110"
-  data-manager-url: "http://localhost:10030"
+  user-login-url: "http://192.168.1.249:10070"
+  risk-assessment-url: "http://192.168.1.249:10050"
+  userinfo-url: "http://192.168.1.249:10060"
+  finance-url: "http://192.168.1.249:10120"
+  asset-alloction-url: "http://192.168.1.249:10020"
+  trade-order-url: "http://192.168.1.249:10100"
+  trade-pay-url: "http://192.168.1.249:10110"
+  data-manager-url: "http://192.168.1.249:10030"
   
 
 

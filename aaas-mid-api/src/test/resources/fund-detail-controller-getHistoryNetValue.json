@@ -8,16 +8,10 @@
       "type": "object",
       "properties": {
         "status": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "msg": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         }
       },
       "title": "返回头信息"
@@ -25,17 +19,35 @@
     "result": {
       "type": "object",
       "properties": {
+        "baselinehistorylist": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "date": {
+                "type": "string"
+              },
+              "dayup": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "date",
+              "dayup"
+            ]
+          }
+        },
         "period": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "code": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
+        },
+        "basename": {
+          "type": "string"
+        },
+        "fundname": {
+          "type": "string"
         },
         "historylist": {
           "type": "array",
@@ -43,42 +55,34 @@
             "type": "object",
             "properties": {
               "date": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": "string"
               },
               "navaccum": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": "number"
               },
               "dayup": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": "string"
               },
               "navunit": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": "number"
               }
             },
             "required": [
               "date",
               "navaccum",
               "dayup",
-              "navunit",
-              "hello"
+              "navunit"
             ]
           }
         }
       },
       "required": [
-        "historylist"
+        "historylist",
+        "fundname",
+        "baselinehistorylist",
+        "period",
+        "code",
+        "basename"
       ]
     }
   },
