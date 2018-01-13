@@ -25,7 +25,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
 import com.shellshellfish.aaas.dto.FundNAVInfo;
+import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
+import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
 import com.shellshellfish.aaas.transfer.utils.EasyKit;
 
@@ -390,7 +392,30 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 	       resultMap.put("historicReturn",CalculatorFunctions.getHistoricReturn("10000", hisAnnualPerformanceSimuresult));
 	       resultMap.put("groupId",container.get("productGroupId"));
 	       resultMap.put("subGroupId",container.get("productSubGroupId"));
-			return resultMap;
+	       
+	       //产品名称
+	       if(container!=null){
+	    	   try{
+	    		   String groupId = (String) container.get("productGroupId");
+	    		   String subGroupId = (String) container.get("productSubGroupId");
+	    		   url  = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId;
+	    		   Map productMap = restTemplate.getForEntity(url,Map.class).getBody();
+	    		   if(productMap==null){
+	    			   logger.info("单个基金组合产品信息为空");
+	    		   } else {
+	    			   if(productMap.get("name")!=null){
+	    				   resultMap.put("productName", productMap.get("name"));
+	    			   } else {
+	    				   resultMap.put("productName", productMap.get(""));
+	    			   }
+	    		   }
+	    	   }catch(Exception e){
+	    		   String str=new ReturnedException(e).getErrorMsg();
+	    		   throw e;
+	    	   }
+	       }
+	       
+	       return resultMap;
 		}catch(Exception e){
 			throw e;
 		}	
