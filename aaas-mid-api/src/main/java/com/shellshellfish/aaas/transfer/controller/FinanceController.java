@@ -516,6 +516,33 @@ public class FinanceController {
 				if (obj != null) {
 					logger.info("最大回撤走势图获取成功2");
 					// value = obj.toString();
+					List list = (List)obj;
+					for(int i=0;i<list.size();i++){
+						Map map = (Map)list.get(i);
+						if(map!=null&&map.size()>0){
+							if(map.get("retracement")!=null){
+								List retracementList = (List) map.get("retracement"); 
+								if(retracementList!=null&&retracementList.size()>0){
+									for(int j=0;j<retracementList.size();j++){
+										Map retracementMap = (Map) retracementList.get(j);
+										Double doubleValue = (Double) retracementMap.get("value");
+										doubleValue = EasyKit.getDecimal(new BigDecimal(doubleValue));
+										retracementMap.put("value", doubleValue);
+									}
+								}
+								List incomeBenchmarkList = (List) map.get("incomeBenchmark"); 
+								if(incomeBenchmarkList!=null&&incomeBenchmarkList.size()>0){
+									for(int j=0;j<incomeBenchmarkList.size();j++){
+										Map incomeBenchmarkMap = (Map) incomeBenchmarkList.get(j);
+										Double doubleValue = (Double) incomeBenchmarkMap.get("value");
+										doubleValue = EasyKit.getDecimal(new BigDecimal(doubleValue));
+										incomeBenchmarkMap.put("value", doubleValue);
+									}
+								}
+							}
+						}
+					}
+					
 					result.put("portfolioYieldWeek", obj);
 				} else {
 					logger.error("最大回撤走势图获取失败");
@@ -523,6 +550,12 @@ public class FinanceController {
 				if (maxMinMap != null) {
 					logger.info("maxMinMap:最大回撤走势图获取成功");
 					// value = obj.toString();
+					Double min = (Double) ((Map)maxMinMap).get("minValue");
+					Double max = (Double) ((Map)maxMinMap).get("maxValue");
+					Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+					Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+					((Map)maxMinMap).put("minValue", minValue);
+					((Map)maxMinMap).put("maxValue", maxValue);
 					result.put("maxMinMap", maxMinMap);
 				} else {
 					logger.error("maxMinMap:最大回撤走势图获取失败");
@@ -530,6 +563,12 @@ public class FinanceController {
 				if (maxMinBenchmarkMap != null) {
 					logger.info("maxMinBenchmarkMap:最大回撤走势图获取成功");
 					// value = obj.toString();
+					Double min = (Double) ((Map)maxMinBenchmarkMap).get("minValue");
+					Double max = (Double) ((Map)maxMinBenchmarkMap).get("maxValue");
+					Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+					Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+					((Map)maxMinBenchmarkMap).put("minValue", minValue);
+					((Map)maxMinBenchmarkMap).put("maxValue", maxValue);
 					result.put("maxMinBenchmarkMap", maxMinBenchmarkMap);
 				} else {
 					logger.error("maxMinBenchmarkMap:最大回撤走势图获取失败");
@@ -546,6 +585,7 @@ public class FinanceController {
 					double opt = Double.valueOf(optResult.get("value")+"");
 					if(opt<=0){
 						opt = opt - 0.05;
+						opt = EasyKit.getDecimal(new BigDecimal(opt));
 						logger.info("预期最大回撤数获取成功");
 					} else {
 						logger.error("预期最大回撤数获取失败，应为负数，而不是为："+opt);
@@ -563,6 +603,21 @@ public class FinanceController {
 				logger.info("等级风险数据获取成功");
 				Object obj2 = riskMap.get("_items");
 				if (obj2 != null) {
+					List riskList = (List)obj2;
+					for(int i=0;i<riskList.size();i++){
+						Map risk2Map = (Map) riskList.get(i);
+						if(risk2Map.get("benchmark")!=null){
+							Double benchmark = (Double) risk2Map.get("benchmark");
+							benchmark = EasyKit.getDecimal(new BigDecimal(benchmark));
+							risk2Map.put("benchmark", benchmark);
+						}
+						if(risk2Map.get("level2RiskControl")!=null){
+							Double level2RiskControl = (Double) risk2Map.get("level2RiskControl");
+							level2RiskControl = EasyKit.getDecimal(new BigDecimal(level2RiskControl));
+							risk2Map.put("level2RiskControl", level2RiskControl);
+						}
+						
+					}
 					logger.info("等级风险数据获取成功2");
 					// prdList = (List<Map<String, Object>>) obj2;
 					result.put("levelRiskControl", obj2);
