@@ -17,7 +17,7 @@ public class FinanceProductCompo {
 	/*预期年化收益*/
 	private String expAnnReturn; 
 	/*预期最大回撤*/
-	private String expMaxDrawDown;
+	private String expMaxDrawDown="";
 	/*产品组合饼图数据assetRatio*/
 	private List productCompo;
 	/*产品历史收益率*/
@@ -37,6 +37,17 @@ public class FinanceProductCompo {
 		this.prdName = prdName;
 		this.expAnnReturn = expAnnReturn;
 		this.expMaxDrawDown = expMaxDrawDown;
+		this.productCompo = productCompo;
+		this.histYieldRate = histYieldRate;
+	}
+	
+	public FinanceProductCompo(String groupId, String subGroupId, String prdName, String expAnnReturn,
+			List productCompo, Map<String, Object> histYieldRate) {
+		super();
+		this.groupId = groupId;
+		this.subGroupId = subGroupId;
+		this.prdName = prdName;
+		this.expAnnReturn = expAnnReturn;
 		this.productCompo = productCompo;
 		this.histYieldRate = histYieldRate;
 	}

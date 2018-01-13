@@ -1,6 +1,9 @@
 package com.shellshellfish.aaas.transfer.controller;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -93,6 +96,45 @@ public class FinanceController {
 			if (result == null || result.size() == 0) {
 				/*result.put("msg", "获取失败");*/
 				return new JsonResult(JsonResult.SUCCESS, "没有获取到产品", JsonResult.EMPTYRESULT);
+			} else {
+				for (Object obj : result.values()) {
+					if (obj != null && obj instanceof Map) {
+						Map objMap = (Map)obj;
+						if(objMap.containsKey("income6month")){
+							// 历史年化收益率和历史波动率
+							Double historicalYearPerformance = (Double) objMap.get("historicalYearPerformance");
+							historicalYearPerformance = EasyKit.getDecimal(new BigDecimal(historicalYearPerformance));
+							objMap.put("historicalYearPerformance",historicalYearPerformance);
+							Double historicalvolatility = (Double) objMap.get("historicalvolatility");
+							historicalvolatility = EasyKit.getDecimal(new BigDecimal(historicalvolatility));
+							objMap.put("historicalvolatility",historicalvolatility);
+							//历史收益率
+							if(objMap.get("income6month")!=null){
+								Map income6monthMap = (Map) objMap.get("income6month");
+								if(income6monthMap.get("_items")!=null){
+									List itemList = (List) income6monthMap.get("_items");
+									for(int i=0;i<itemList.size();i++){
+										Map itemMap = (Map) itemList.get(i);
+										Double value = (Double) itemMap.get("value");
+										value = EasyKit.getDecimal(new BigDecimal(value));
+										itemMap.put("value", value);
+									}
+								}
+								
+								if(income6monthMap.get("maxMinMap")!=null){
+									Map maxminMap = (Map)income6monthMap.get("maxMinMap");
+									Double min = (Double) maxminMap.get("minValue");
+									Double max = (Double) maxminMap.get("maxValue");
+									Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+									Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+									maxminMap.put("minValue", minValue);
+									maxminMap.put("maxValue", maxValue);
+									income6monthMap.put("maxMinMap",maxminMap);
+								}
+							}
+						}
+					}
+				}
 			}
 //			requestEntity.add("productType", productType);
 			/*result.put("msg", "获取成功");*/
@@ -148,13 +190,33 @@ public class FinanceController {
 					  String subGroupId= (productMap.get("subGroupId"))==null?null:(productMap.get("subGroupId")).toString();
 					  String prdName=productMap.get("name")==null?null:(productMap.get("name")).toString();
 				      List productCompo=(List) productMap.get("assetsRatios");
+				      if(productCompo!=null&&productCompo.size()>0){
+				    	  Double count = 0D;
+				    	  Double value = 0D;
+				    	  for(int i=0;i<productCompo.size();i++){
+				    		  Map pMap = (Map) productCompo.get(i);
+				    		  if(pMap.get("value")!=null){
+				    			  if(i == productCompo.size()-1){
+				    				  value = 100D - count;
+				    				  BigDecimal bigValue = new BigDecimal(value);
+									  value = bigValue.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+				    			  } else {
+				    				  value = (Double)pMap.get("value");
+				    				  value = EasyKit.getDecimal(new BigDecimal(value));
+				    				  count = count + value;
+				    			  }
+				    			  pMap.put("value", value);
+				    		  }
+				    	  }
+				      }
+				      
 					   //去另一接口获取历史收益率图表的数据
 					  Map histYieldRate = getCombYieldRate(groupId,subGroupId);
 					  //去另一个接口获取预期年化，预期最大回撤
 					  Map ExpAnnReturn= getExpAnnReturn(groupId,subGroupId);
-					  Map ExpMaxReturn=getExpMaxReturn(groupId,subGroupId);
+					  //Map ExpMaxReturn=getExpMaxReturn(groupId,subGroupId);
 					  //将结果封装进实体类
-					  FinanceProductCompo prd=new FinanceProductCompo(groupId, subGroupId, prdName, ExpMaxReturn.size()>0?ExpAnnReturn.get("value").toString():null, ExpMaxReturn.size()>0?ExpAnnReturn.get("value").toString():null, productCompo, histYieldRate);
+					  FinanceProductCompo prd=new FinanceProductCompo(groupId, subGroupId, prdName, ExpAnnReturn.size()>0?ExpAnnReturn.get("value").toString():null, productCompo, histYieldRate);
 					  resultList.add(prd);			  				                                             
 					  }
 				   }catch (Exception e){
@@ -203,7 +265,9 @@ public class FinanceController {
 						Map<String, Object> assetMap = assetList.get(i);
 						if(assetMap.get("value")!=null){
 							if(i == assetList.size()-1){
-								value = 100D - count; 
+								value = 100D - count;
+								BigDecimal bigValue = new BigDecimal(value);
+								value = bigValue.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 							}else {
 								value = (Double) assetMap.get("value");
 								value = EasyKit.getDecimal(new BigDecimal(value));
@@ -818,9 +882,41 @@ public class FinanceController {
 					if(map.containsKey("incomeBenchmark")){
 						map.remove("incomeBenchmark");
 					}
+					if(map.containsKey("income")){
+						List<Map> incomeList = (List<Map>) map.get("income");
+						if(incomeList!=null&&incomeList.size()>0){
+							for(int j = 0;j< incomeList.size();j++){
+								Map incomeMap = incomeList.get(j);
+								Double value = (Double) incomeMap.get("value");
+								value = EasyKit.getDecimal(new BigDecimal(value));
+								incomeMap.put("value", value);
+							}
+						}
+					}
 				}
 			}
 			item.remove("incomeBenchmark");
+			
+			if(result.get("maxMinMap")!=null){
+				Map maxminMap = (Map)result.get("maxMinMap");
+				Double min = (Double) maxminMap.get("minValue");
+				Double max = (Double) maxminMap.get("maxValue");
+				Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+				Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+				maxminMap.put("minValue", minValue);
+				maxminMap.put("maxValue", maxValue);
+				result.put("maxMinMap",maxminMap);
+			}
+			if(result.get("maxMinBenchmarkMap")!=null){
+				Map maxminMap = (Map)result.get("maxMinBenchmarkMap");
+				Double min = (Double) maxminMap.get("minValue");
+				Double max = (Double) maxminMap.get("maxValue");
+				Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+				Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+				maxminMap.put("minValue", minValue);
+				maxminMap.put("maxValue", maxValue);
+				result.put("maxMinBenchmarkMap",maxminMap);
+			}
 		}
 		}catch(Exception e){
 			result=new HashMap<String,Object>();
