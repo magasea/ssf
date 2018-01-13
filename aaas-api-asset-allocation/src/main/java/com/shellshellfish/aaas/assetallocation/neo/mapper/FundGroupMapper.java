@@ -25,6 +25,8 @@ public interface FundGroupMapper {
 
     List<Interval> getProportion(Map map);
 
+    List<Interval> getFnameAndProportion(Map map);
+
     List<Interval> getFundCode(Map map);
 
     List<FundGroupDetails> efficientFrontier(Map map);
@@ -47,6 +49,10 @@ public interface FundGroupMapper {
 
     List<RiskIncomeInterval> getScaleMark(@Param("id") String id,@Param("slidebarType") String slidebarType);
 
+    List<RiskIncomeInterval> getScaleMarkFromChoose(@Param("id") String id,
+                                                    @Param("slidebarType") String slidebarType,
+                                                    @Param("standardType") String standardType);
+
     List<FundGroupBuy> getFundGroupBuy(@Param("id") String id);
 
     String getFundGroupHistoryTime(Map map);
@@ -54,6 +60,8 @@ public interface FundGroupMapper {
     List<FundNetVal> getFundNetValue(Map map);
 
     List<FundGroupHistory> getHistory(Map map);
+
+    List<FundGroupHistory> getHistoryAll(Map map);
 
     List<FundNetVal> getSharpeRatio(Map map);
 

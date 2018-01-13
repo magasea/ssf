@@ -17,8 +17,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.junit.Assert.assertTrue;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 @ActiveProfiles("dev")
@@ -121,8 +119,11 @@ public class FundGroupServiceTest {
 
     @Test
     public void getFundGroupIncome() throws ParseException {
-        ReturnType d = allocationService.getFundGroupIncome("1","1",-1,"income");
+        ReturnType d = allocationService.getFundGroupIncome("14","140049",-1,"income");
         System.out.println(d);
+
+        ReturnType e = allocationService.getFundGroupIncomeAll("14", "140049", "income");
+        System.out.println(e);
     }
 
     @Test

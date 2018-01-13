@@ -50,6 +50,19 @@ public class FundGroupController {
     }
 
     /**
+     * 组合内基金名称及其百分比
+     * @param groupId
+     * @param subGroupId
+     * @return
+     */
+    @ApiOperation("组合内基金名称及其百分比")
+    @RequestMapping(value = "/api/asset-allocation/products/{groupId}/sub-groups/{subGroupId}/fname-proportion", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ReturnType getFnameAndProportion(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId) {
+        ReturnType fr = fundGroupService.getFnameAndProportion(groupId, subGroupId);
+        return fr;
+    }
+
+    /**
      * 返回首页五个产品
      * @return
      */
@@ -186,6 +199,19 @@ public class FundGroupController {
     }
 
     /**
+     * 分段数据  已选好的数据
+     * @param id
+     * @param slidebarType  (risk_num    风险率, income_num  收益率)
+     * @return
+     */
+    @ApiOperation("已选好的滑动条分段数据")
+    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/slidebar-points-from-choose", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ReturnType getScaleMarkFromChoose(@PathVariable("groupId") String id, String slidebarType){
+        ReturnType smk = fundGroupService.getScaleMarkFromChoose(id, slidebarType);
+        return smk;
+    }
+
+    /**
      * 组合收益率(最大回撤)走势图     (几个月以来每天)
      *
      * @param id
@@ -199,6 +225,22 @@ public class FundGroupController {
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ReturnType getFundGroupIncome(@PathVariable("groupId") String id, @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="-1") int mouth, @RequestParam(defaultValue="income") String returnType) throws ParseException {
         ReturnType smk = fundGroupService.getFundGroupIncome(id, subGroupId, mouth, returnType);
+        return smk;
+    }
+
+    /**
+     * 组合收益率(最大回撤)走势图     (自组合基金成立以来的每天)
+     *
+     * @param id
+     * @param subGroupId
+     * @param returnType      查询类型（income：收益率，其他的：最大回撤）
+     * @return
+     * @throws ParseException
+     */
+    @ApiOperation("组合收益率(最大回撤)走势图-自组合基金成立以来的每天")
+    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield-all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ReturnType getFundGroupIncomeAll(@PathVariable("groupId") String id, @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="income") String returnType) throws ParseException {
+        ReturnType smk = fundGroupService.getFundGroupIncomeAll(id, subGroupId, returnType);
         return smk;
     }
 

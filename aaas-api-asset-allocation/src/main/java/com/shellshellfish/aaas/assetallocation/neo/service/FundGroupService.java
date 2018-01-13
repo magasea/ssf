@@ -1,5 +1,7 @@
 package com.shellshellfish.aaas.assetallocation.neo.service;
 
+import com.shellshellfish.aaas.assetallocation.neo.enmu.SlidebarTypeEnmu;
+import com.shellshellfish.aaas.assetallocation.neo.enmu.StandardTypeEnmu;
 import com.shellshellfish.aaas.assetallocation.neo.entity.*;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
@@ -105,6 +107,52 @@ public class FundGroupService {
         fr.set_links(_links);
         fr.set_schemaVersion("0.1.1");
         fr.set_serviceId("资产配置");
+        return fr;
+    }
+
+    /**
+     * @param groupId
+     * @param subGroupId
+     * @return
+     */
+    public ReturnType getFnameAndProportion(String groupId, String subGroupId) {
+        Map<String, String> query = new HashMap<>();
+        query.put("id", groupId);
+        query.put("subId", subGroupId);
+        List<Interval> intervals = fundGroupMapper.getFnameAndProportion(query);
+
+        ReturnType fr = new ReturnType();
+        if (CollectionUtils.isEmpty(intervals)) {
+            return fr;
+        }
+
+        List<Interval> intervalProportions = new ArrayList<>();
+        for (Interval tmpInterval : intervals) {
+            if (tmpInterval.getProportion() > 0d) {
+                intervalProportions.add(tmpInterval);
+            }
+        }
+
+        List<Map<String, Object>> list = new ArrayList<>();
+        Map<String, String> _links = new HashMap<>();
+        for(Interval interval : intervalProportions){
+            if (interval.getProportion() != 0d) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("fund_type_one", interval.getFund_type_one());
+                map.put("fund_type_two", interval.getFund_type_two());
+                map.put("fund_code", interval.getFund_id());
+                map.put("name", interval.getFname());
+                map.put("value", interval.getProportion());
+                list.add(map);
+            }
+        }
+        fr.set_total(list.size());
+        fr.setName("组合内基金名称及其百分比");
+        fr.set_items(list);
+        fr.set_links(_links);
+        fr.set_schemaVersion("0.1.1");
+        fr.set_serviceId("资产配置");
+
         return fr;
     }
 
@@ -507,6 +555,78 @@ public class FundGroupService {
     }
 
     /**
+     * 滑动条分段数据  从fund_group_sub_choose 表中获取数据
+     *
+     * @param id
+     * @param slidebarType (risk_num    风险率, income_num  收益率)
+     * @return
+     */
+    public ReturnType getScaleMarkFromChoose(String id, String slidebarType) {
+        ReturnType smk = new ReturnType();
+
+        if (StringUtils.isEmpty(slidebarType)) {
+            return smk;
+        }
+
+        String standtardType = StandardTypeEnmu.getStandardTypeBySlidebarType(slidebarType);
+        List<RiskIncomeInterval> riskIncomeIntervalList =
+                fundGroupMapper.getScaleMarkFromChoose(id, slidebarType, standtardType);
+        if (CollectionUtils.isEmpty(riskIncomeIntervalList)) {
+            return smk;
+        }
+
+        List<Map<String, Object>> list = new ArrayList<>();
+        Map<String, String> _links = new HashMap<>();
+        smk.setName(SlidebarTypeEnmu.getNameByType(slidebarType));
+        if (slidebarType.equalsIgnoreCase(SlidebarTypeEnmu.INCOME_NUM.getName())) {
+            int i = 0;
+            for (RiskIncomeInterval rii : riskIncomeIntervalList) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", ++i);
+                map.put("value", rii.getIncome_num());
+                list.add(map);
+            }
+        } else if (slidebarType.equalsIgnoreCase(SlidebarTypeEnmu.RISK_NUM.getName())) {
+            int i = 0;
+            for (RiskIncomeInterval rii : riskIncomeIntervalList) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", ++i);
+                map.put("value", rii.getRisk_num());
+                list.add(map);
+            }
+        }
+        smk.set_items(list);
+        smk.set_total(list.size());
+        smk.set_links(_links);
+        smk.set_schemaVersion("0.1.1");
+        smk.set_serviceId("资产配置");
+
+        return smk;
+    }
+
+    /**
+     * 组合收益率(最大回撤)走势图   自组合基金成立以来的每天
+     *
+     * @param id
+     * @param subGroupId
+     * @return
+     * @throws ParseException
+     */
+    public ReturnType getFundGroupIncomeAll(String id, String subGroupId, String returnType) throws ParseException {
+        Calendar ca = Calendar.getInstance();
+        ca.add(Calendar.DATE, -1);
+        String endtime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
+        Map<String, String> mapStr = new HashMap<>();
+        mapStr.put("fund_group_id", id);
+        mapStr.put("fund_group_sub_id", subGroupId);
+        mapStr.put("endtime", endtime);
+        List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistoryAll(mapStr);
+
+        ReturnType fgi = this.getFundGroupIncomeFromListAndType(fundGroupHistoryList, returnType);
+        return fgi;
+    }
+
+    /**
      * 组合收益率(最大回撤)走势图
      *
      * @param id
@@ -516,11 +636,7 @@ public class FundGroupService {
      * @throws ParseException
      */
     public ReturnType getFundGroupIncome(String id, String subGroupId, int mouth, String returnType) throws ParseException {
-        ReturnType fgi = new ReturnType();
-        List<Map<String, Object>> list = new ArrayList<>();
         Calendar ca = Calendar.getInstance();
-        Map<String, String> _links = new HashMap<>();
-        //Date endDate = new Date();
         Date enddate = new SimpleDateFormat("yyyy-MM-dd").parse("2017-11-25");
         ca.setTime(enddate);
         ca.add(Calendar.MONTH, mouth);
@@ -534,10 +650,19 @@ public class FundGroupService {
         mapStr.put("starttime", starttime);
         mapStr.put("endtime", endtime);
         List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
+
+        ReturnType fgi = this.getFundGroupIncomeFromListAndType(fundGroupHistoryList, returnType);
+        return fgi;
+    }
+
+    private ReturnType getFundGroupIncomeFromListAndType(List<FundGroupHistory> fundGroupHistoryList, String returnType) {
+        ReturnType fgi = new ReturnType();
         if (CollectionUtils.isEmpty(fundGroupHistoryList)) {
             return fgi;
         }
 
+        List<Map<String, Object>> list = new ArrayList<>();
+        Map<String, String> _links = new HashMap<>();
         Map maxMinValueMap = new HashMap();
         List<Double> maxMinValueList = new ArrayList<Double>();
         if (returnType.equalsIgnoreCase("income")) {
