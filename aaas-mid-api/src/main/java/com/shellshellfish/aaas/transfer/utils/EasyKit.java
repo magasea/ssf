@@ -23,6 +23,8 @@ import com.alibaba.fastjson.JSONObject;
 public class EasyKit {
 
 	private static final Logger log = LoggerFactory.getLogger(EasyKit.class);
+	
+	public static final String PERCENT = "%";
 
 	public static String getErrorMessage(String jsonArray) {
 		if (jsonArray == null || jsonArray.length() == 0) {
@@ -66,6 +68,15 @@ public class EasyKit {
 		if(bigDecimal!=null){
 			bigDecimal = bigDecimal.multiply(new BigDecimal("100"));
 			decimal = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+		}
+		return decimal;
+	}
+	
+	public static Double getDecimalNum(BigDecimal bigDecimal) {
+		Double decimal = null;
+		if(bigDecimal!=null){
+			bigDecimal = bigDecimal.multiply(new BigDecimal("100"));
+			decimal = bigDecimal.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();
 		}
 		return decimal;
 	}
