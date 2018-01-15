@@ -119,9 +119,6 @@ public class FundGroupServiceTest {
 
     @Test
     public void getFundGroupIncome() throws ParseException {
-        ReturnType d = allocationService.getFundGroupIncome("14","140049",-1,"income");
-        System.out.println(d);
-
         ReturnType e = allocationService.getFundGroupIncomeAll("14", "140049", "income");
         System.out.println(e);
     }
@@ -137,7 +134,9 @@ public class FundGroupServiceTest {
     @Test
     public void getNavadj(){
         //allocationService.getAllIdAndSubId();
-        //allocationService.getNavadj("2","2002");
+        allocationService.getNavadj("1","1000");
+        //allocationService.maximumLosses("1","1000");
+        //allocationService.getNavadjBenchmark("C1");
     }
 
     /*@Test

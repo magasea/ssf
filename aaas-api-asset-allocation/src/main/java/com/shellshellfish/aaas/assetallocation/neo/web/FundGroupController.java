@@ -239,7 +239,7 @@ public class FundGroupController {
      */
     @ApiOperation("组合收益率(最大回撤)走势图-自组合基金成立以来的每天")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield-all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType getFundGroupIncomeAll(@PathVariable("groupId") String id, @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="income") String returnType) throws ParseException {
+    public ReturnType getFundGroupIncomeAll(@PathVariable("groupId") String id, @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="income") String returnType) {
         ReturnType smk = fundGroupService.getFundGroupIncomeAll(id, subGroupId, returnType);
         return smk;
     }
@@ -295,17 +295,5 @@ public class FundGroupController {
     public List<String> findAllGroupCode(){
         return fundGroupService.findAllGroupCode();
     }
-
-    /*@ApiOperation("计算所有基金组合或基准复权单位净值，最大回撤和夏普比率")
-    @RequestMapping(value = "/api/asset-allocation/product-groups/getAllIdAndSubId", method = RequestMethod.GET)
-    public void getAllIdAndSubId(){
-        fundGroupService.deleteData("fund_group_history");
-        fundGroupService.getAllIdAndSubId();
-        fundGroupService.getNavadjBenchmark("C1");
-        fundGroupService.getNavadjBenchmark("C2");
-        fundGroupService.getNavadjBenchmark("C3");
-        fundGroupService.getNavadjBenchmark("C4");
-        fundGroupService.getNavadjBenchmark("C5");
-    }*/
 
 }

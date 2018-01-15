@@ -47,7 +47,7 @@ public interface FundGroupMapper {
 
     List<RiskController> getRiskController(Map map);
 
-    List<RiskIncomeInterval> getScaleMark(@Param("id") String id,@Param("slidebarType") String slidebarType);
+    List<RiskIncomeInterval> getScaleMark(Map map);
 
     List<RiskIncomeInterval> getScaleMarkFromChoose(@Param("id") String id,
                                                     @Param("slidebarType") String slidebarType,
@@ -73,6 +73,8 @@ public interface FundGroupMapper {
 
     List<FundNetVal> getNavadjBenchmark(Map map);
 
+    List<FundGroupHistory> selectMaximumRetracement(Map map);
+
     int insertGroupNavadj(Map map);
 
     int insertGroupNavadjBenchmark(Map map);
@@ -96,6 +98,8 @@ public interface FundGroupMapper {
     int deleteData(@Param("tableName") String tableName);
 
     int updateContribution(Map map);
+
+    int updateMaximumLosses(Map map);
 
     //查询 fund_group_basic 中全部 code
     List<String> findAllGroupCode();

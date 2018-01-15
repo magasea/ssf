@@ -38,7 +38,7 @@ public class CalculatePortvrisks {
             if(result!=null && result[0]!=null){
                 portvrisk=Double.parseDouble(result[0].toString());
             }
-
+            matLab.dispose();
         } catch (MWException e) {
             logger.error("Failed to calculatePortvrisk!");
             e.printStackTrace();

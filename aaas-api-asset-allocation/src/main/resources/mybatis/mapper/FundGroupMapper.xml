@@ -125,7 +125,11 @@
     </select>
     
     <select id="getScaleMark" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.RiskIncomeInterval">
-        select id,risk_num,income_num from fund_group_sub where fund_group_id=#{id} order by #{slidebarType}
+        select id,risk_num,income_num from fund_group_sub where fund_group_id=#{id}
+        <if test="subGroupId != null and subGroupId != ''">
+           and id=#{subGroupId}
+        </if>
+        order by #{slidebarType}
     </select>
 
     <select id="getScaleMarkFromChoose" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.RiskIncomeInterval">
@@ -135,8 +139,7 @@
 
     <select id="getFundNetValue" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
         select a.fund_type_two,b.navadj,b.navlatestdate navlatestDate from fund_basic a,
-        fund_net_value b  where a.code=b.code and a.code=#{fund_code} and b.NAVLATESTDATE
-        BETWEEN #{startTime} and #{endtTime}
+        fund_net_value b  where a.code=b.code and a.code=#{fund_code} order by b.navlatestdate
     </select>
 
     <select id="getFundGroupBuy" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupBuy">
@@ -144,19 +147,15 @@
     </select>
 
     <select id="getFundGroupHistoryTime" resultType="String">
-        select time from fund_group_history_1 where fund_group_id = #{fund_group_id}
-        <if test="fund_group_sub_id != null and fund_group_sub_id != ''">
-            and fund_group_sub_id=#{fund_group_sub_id}
+        select time from fund_group_history where fund_group_id = #{fund_group_id}
+        <if test="subGroupId != null and subGroupId != ''">
+            and fund_group_sub_id=#{subGroupId}
         </if>
         order by time DESC LIMIT 1
     </select>
 
     <select id="getHistory" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupHistory">
-        select * from fund_group_history where fund_group_id = #{fund_group_id}
-        <if test="fund_group_sub_id != null and fund_group_sub_id != ''">
-          and fund_group_sub_id=#{fund_group_sub_id}
-        </if>
-        and time BETWEEN #{starttime} and #{endtime}
+        select * from fund_group_history where fund_group_id = #{fund_group_id} and time >= #{time}
     </select>
 
     <select id="getHistoryAll" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupHistory">
@@ -164,7 +163,6 @@
         <if test="fund_group_sub_id != null and fund_group_sub_id != ''">
             and fund_group_sub_id=#{fund_group_sub_id}
         </if>
-        and (time &lt; #{endtime} or time = #{endtime})
     </select>
 
     <select id="getSharpeRatio" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
@@ -183,34 +181,34 @@
 
     <select id="getNavadj" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
         select sum(a.navadj*b.proportion) navadj,a.navlatestdate from fund_net_value a,fund_group_details b
-        where a.code=b.fund_code and fund_group_id = #{fund_group_id} and fund_group_sub_id = #{subGroupId}
+        where a.code=b.fund_code and fund_group_id = #{fund_group_id} and fund_group_sub_id = #{subGroupId} and navlatestdate >= #{startTime}
         <if test="endTime != null and endTime != '' ">
-          and navlatestdate > #{startTime} and navlatestdate &lt; #{endTime}
+          and navlatestdate &lt; #{endTime}
         </if>
         group by a.navlatestdate
     </select>
 
     <select id="getNavadjBenchmark" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
         select sum(a.navadj*b.proportion) navadj,a.navlatestdate from fund_net_value a,fund_group_benchmark b
-        where a.code=b.fund_code and risk_level= #{risk_level}
+        where a.code=b.fund_code and risk_level= #{risk_level} and navlatestdate >= #{startTime}
         <if test="endTime != null and endTime != '' ">
-          and navlatestdate > #{startTime} and navlatestdate &lt; #{endTime}
+          and navlatestdate &lt; #{endTime}
         </if>
         group by a.navlatestdate
     </select>
 
     <insert id="insertGroupNavadj">
-        insert into fund_group_history_1 (fund_group_sub_id,fund_group_id,income_num,time)
+        insert into fund_group_history (fund_group_sub_id,fund_group_id,income_num,time)
         VALUES (#{subGroupId},#{fund_group_id},#{num},#{time})
     </insert>
 
     <insert id="insertGroupNavadjBenchmark">
-        insert into fund_group_history_1 (fund_group_id,income_num,time)
+        insert into fund_group_history (fund_group_id,income_num,time)
         VALUES (#{risk_level},#{num},#{time})
     </insert>
 
     <update id="updateMaximumRetracement">
-        update fund_group_history_1 set maximum_retracement = #{retracement} where
+        update fund_group_history set maximum_retracement = #{retracement} where
         <if test="fund_group_id != null and fund_group_id != ''">
           fund_group_id = #{fund_group_id} and fund_group_sub_id = #{subGroupId}
         </if>
@@ -251,6 +249,10 @@
     <select id="getRiskNum" resultType="String">
         select cust_risk from strategy where fund_group_id = #{id}
     </select>
+    
+    <select id="selectMaximumRetracement" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupHistory">
+        select * from fund_group_history where fund_group_id = #{id} and fund_group_sub_id = #{subId}
+    </select>
 
     <delete id="deleteData">
         TRUNCATE TABLE ${tableName}
@@ -260,6 +262,9 @@
         update fund_group_details set revenue_contribution = #{contribution} where fund_group_sub_id= #{subGroupId} and fund_code= #{code}
     </update>
 
+    <update id="updateMaximumLosses">
+        update fund_group_sub set maximum_losses = #{maximum_losses} where fund_group_id = #{id} and id=#{subGroupId}
+    </update>
 
     <!--add by yongquan.xiong-->
     <select id="findAllGroupCode"  resultType="java.lang.String">
