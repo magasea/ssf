@@ -132,17 +132,17 @@ public class FinanceController {
 								}
 							}
 						}
-						if(objMap.containsKey("product_list")){
-							List productList = (List) objMap.get("product_list");
-							if(productList!=null&&productList.size()>0){
-								for(int i = 0;i<productList.size();i++){
-									Map productMap = (Map) productList.get(i);
-									if(productMap!=null){
-										productMap.put("value", productMap.get("value")+EasyKit.PERCENT);
-									}
-								}
-							}
-						}
+//						if(objMap.containsKey("product_list")){
+//							List productList = (List) objMap.get("product_list");
+//							if(productList!=null&&productList.size()>0){
+//								for(int i = 0;i<productList.size();i++){
+//									Map productMap = (Map) productList.get(i);
+//									if(productMap!=null){
+//										productMap.put("value", productMap.get("value")+EasyKit.PERCENT);
+//									}
+//								}
+//							}
+//						}
 					}
 				}
 			}
@@ -215,9 +215,9 @@ public class FinanceController {
 				    				  count = count + value;
 				    			  }
 				    			  if(value!=null){
-				    				  pMap.put("value", value+EasyKit.PERCENT);
+				    				  pMap.put("value", value);
 				    			  } else {
-				    				  pMap.put("value", "0.00"+EasyKit.PERCENT);
+				    				  pMap.put("value", "0.00");
 				    			  }
 				    		  }
 				    	  }
@@ -290,9 +290,9 @@ public class FinanceController {
 								count = count + value;
 							}
 							if (value != null) {
-								assetMap.put("value", value + EasyKit.PERCENT);
+								assetMap.put("value", value);
 							} else {
-								assetMap.put("value", "0.00"+EasyKit.PERCENT);
+								assetMap.put("value", "0.00");
 							}
 						}
 					}
@@ -975,7 +975,7 @@ public class FinanceController {
 				Double value = (Double)result.get("value");
 				if(!StringUtils.isEmpty(value)){
 					value = EasyKit.getDecimal(new BigDecimal(value));
-					result.put("value", value);
+					result.put("value", value+EasyKit.PERCENT);
 				}
 			}
 		}catch(Exception e){
