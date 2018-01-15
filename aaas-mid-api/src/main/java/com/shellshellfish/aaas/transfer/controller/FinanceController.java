@@ -975,7 +975,7 @@ public class FinanceController {
 				Double value = (Double)result.get("value");
 				if(!StringUtils.isEmpty(value)){
 					value = EasyKit.getDecimal(new BigDecimal(value));
-					result.put("value", value+EasyKit.PERCENT);
+					result.put("value", value);
 				}
 			}
 		}catch(Exception e){
