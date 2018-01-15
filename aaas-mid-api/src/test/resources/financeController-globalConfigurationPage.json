@@ -37,10 +37,10 @@
                 "type": "number"
               },
               "time": {
-                "time": "string"
+                "type": "string"
               },
               "value": {
-                "type": "number"
+                "type": "string"
               }
             },
             "required": [
@@ -81,7 +81,7 @@
                 "type": "number"
               },
               "time": {
-                "time": "string"
+                "type": "string"
               },
               "benchmark": {
                 "type": "number"
@@ -103,9 +103,7 @@
       "required": [
         "categoryQuantity",
         "configurationTime",
-        "configurationBenefitContribution",
-        "riskNotifications",
-        "levelRiskControl"
+        "configurationBenefitContribution"
       ]
     }
   },

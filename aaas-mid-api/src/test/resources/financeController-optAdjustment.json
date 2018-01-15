@@ -26,16 +26,16 @@
       "type": "object",
       "properties": {
         "confInterval": {
-          "type": "number"
+          "type": "string"
         },
         "historicReturn": {
           "type": "string"
         },
         "hisAnnualPerformanceSimu": {
-          "type": "number"
+          "type": "string"
         },
         "histAnnualVolaSimu": {
-          "type": "number"
+          "type": "string"
         },
         "maxDeficit": {
           "type": "string"
