@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
-@Document(collection = "getUiSysMsg")
+@Document(collection = "ui_sysmsg")
 public class UiSysMsg {
 	private static final long serialVersionUID = 1L;
 

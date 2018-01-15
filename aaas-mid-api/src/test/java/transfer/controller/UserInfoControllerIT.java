@@ -209,22 +209,31 @@ public class UserInfoControllerIT {
 				.body("result.bankcardSecurity[0]", notNullValue());
 	}
 
-	//	@Test
-	//TODO
+	@Test
 	public void sellresultTest() {
-		String userUuid = "3a0bc5f0-c491-4718-a6c2-dc716ae308f9";
-		String orderId = "1231230001000001513604604626";
+		String uuid = "1";
+		String prodId = "1";
+		String buyfee = "1";
+		String bankName = "1";
+		String bankCard = "1";
 
 
 		given()
-				.param("orderId", orderId)
-				.param("userUuid", userUuid)
+				.param("uuid", uuid)
+				.param("prodId", prodId)
+				.param("buyfee", buyfee)
+				.param("bankName", bankName)
+				.param("bankCard", bankCard)
 				.filter(new ResponseLoggingFilter())
 				.when()
 				.post(SELL_RESULT)
 				.then().log().all()
 				.assertThat()
-				.body("head.status", equalTo(REQUEST_IS_SUCCESS));
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
+				.body("result.bankInfo", notNullValue())
+				.body("result.buyfee", notNullValue())
+				.body("result.date2", notNullValue())
+				.body("result.date1", notNullValue());
 	}
 
 	@Test
@@ -245,7 +254,8 @@ public class UserInfoControllerIT {
 				.body("result.uuid", notNullValue());
 	}
 
-	@Test
+	//	@Test
+	//TODO  此处用到RabbitMQ
 	public void traderecordsTest() {
 		String uuid = "3a0bc5f0-c491-4718-a6c2-dc716ae308f9";
 
@@ -260,7 +270,7 @@ public class UserInfoControllerIT {
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS));
 	}
 
-//	@Test   TODO
+	@Test
 	public void tradeResultTest() {
 
 		String uuid = "1";

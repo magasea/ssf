@@ -216,13 +216,12 @@ public class FinanceControllerIT {
 				.using();
 	}
 
-	// TODO
 	@Test
 	public void globalConfigurationPageTest() {
 
 		String uuid = "1";
-		String groupId = "2";
-		String subGroupId = "2000";
+		String groupId = "4";
+		String subGroupId = "4009";
 		given().filter(new ResponseLoggingFilter())
 				.param("uuid", uuid)
 				.param("groupId", groupId)
@@ -232,8 +231,7 @@ public class FinanceControllerIT {
 				.log().all()
 				.body(matchesJsonSchemaInClasspath(GLOBAL_CONFIGURATION_PAGE_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body("result", notNullValue())
-				.using();
+				.body("result", notNullValue());
 	}
 
 	@Test
@@ -271,9 +269,11 @@ public class FinanceControllerIT {
 	@Test
 	public void optAdjustmentTest() {
 
-		String groupId = "6";
+		String invstTerm = "1";
+		String riskLevel = "C1";
 		given().filter(new ResponseLoggingFilter())
-				.param("groupId", groupId)
+				.queryParam("invstTerm", invstTerm)
+				.queryParam("riskLevel", riskLevel)
 				.post(OPT_ADJUSTMENT)
 				.then()
 				.log().all()
@@ -283,7 +283,6 @@ public class FinanceControllerIT {
 				.using();
 	}
 
-	//TODO
 	@Test
 	public void optimizationsTest() {
 
