@@ -132,13 +132,22 @@ public class FinanceController {
 									income6monthMap.put("maxMinMap",maxminMap);
 								}
 							}
+						} else if(objMap.containsKey("product_list")){
+							List productList = (List) objMap.get("product_list");
+							if(productList!=null&&productList.size()>0){
+								for(int i = 0;i<productList.size();i++){
+									Map productMap = (Map) productList.get(i);
+									if(productMap!=null){
+										productMap.put("value", productMap.get("value")+"%");
+									}
+								}
+							}
 						}
 					}
 				}
 			}
 //			requestEntity.add("productType", productType);
 			/*result.put("msg", "获取成功");*/
-			result.remove("_links");
 			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
