@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+
 import com.shellshellfish.aaas.dto.FinanceProductCompo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
@@ -93,10 +95,59 @@ public class FinanceController {
 			if (result == null || result.size() == 0) {
 				/*result.put("msg", "获取失败");*/
 				return new JsonResult(JsonResult.SUCCESS, "没有获取到产品", JsonResult.EMPTYRESULT);
+			} else {
+				for (Object obj : result.values()) {
+					if (obj != null && obj instanceof Map) {
+						Map objMap = (Map)obj;
+						if(objMap.containsKey("income6month")){
+							// 历史年化收益率和历史波动率
+							Double historicalYearPerformance = (Double) objMap.get("historicalYearPerformance");
+							historicalYearPerformance = EasyKit.getDecimal(new BigDecimal(historicalYearPerformance));
+							objMap.put("historicalYearPerformance",historicalYearPerformance+EasyKit.PERCENT);
+							Double historicalvolatility = (Double) objMap.get("historicalvolatility");
+							historicalvolatility = EasyKit.getDecimal(new BigDecimal(historicalvolatility));
+							objMap.put("historicalvolatility",historicalvolatility+EasyKit.PERCENT);
+							//历史收益率
+							if(objMap.get("income6month")!=null){
+								Map income6monthMap = (Map) objMap.get("income6month");
+								if(income6monthMap.get("_items")!=null){
+									List itemList = (List) income6monthMap.get("_items");
+									for(int i=0;i<itemList.size();i++){
+										Map itemMap = (Map) itemList.get(i);
+										Double value = (Double) itemMap.get("value");
+										value = EasyKit.getDecimal(new BigDecimal(value));
+										itemMap.put("value", value);
+									}
+								}
+								
+								if(income6monthMap.get("maxMinMap")!=null){
+									Map maxminMap = (Map)income6monthMap.get("maxMinMap");
+									Double min = (Double) maxminMap.get("minValue");
+									Double max = (Double) maxminMap.get("maxValue");
+									Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+									Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+									maxminMap.put("minValue", minValue);
+									maxminMap.put("maxValue", maxValue);
+									income6monthMap.put("maxMinMap",maxminMap);
+								}
+							}
+						}
+//						if(objMap.containsKey("product_list")){
+//							List productList = (List) objMap.get("product_list");
+//							if(productList!=null&&productList.size()>0){
+//								for(int i = 0;i<productList.size();i++){
+//									Map productMap = (Map) productList.get(i);
+//									if(productMap!=null){
+//										productMap.put("value", productMap.get("value")+EasyKit.PERCENT);
+//									}
+//								}
+//							}
+//						}
+					}
+				}
 			}
 //			requestEntity.add("productType", productType);
 			/*result.put("msg", "获取成功");*/
-			result.remove("_links");
 			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
@@ -148,13 +199,40 @@ public class FinanceController {
 					  String subGroupId= (productMap.get("subGroupId"))==null?null:(productMap.get("subGroupId")).toString();
 					  String prdName=productMap.get("name")==null?null:(productMap.get("name")).toString();
 				      List productCompo=(List) productMap.get("assetsRatios");
+				      if(productCompo!=null&&productCompo.size()>0){
+				    	  Double count = 0D;
+				    	  Double value = 0D;
+				    	  for(int i=0;i<productCompo.size();i++){
+				    		  Map pMap = (Map) productCompo.get(i);
+				    		  if(pMap.get("value")!=null){
+				    			  if(i == productCompo.size()-1){
+				    				  value = 100D - count;
+				    				  BigDecimal bigValue = new BigDecimal(value);
+									  value = bigValue.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+				    			  } else {
+				    				  value = (Double)pMap.get("value");
+				    				  value = EasyKit.getDecimal(new BigDecimal(value));
+				    				  count = count + value;
+				    			  }
+				    			  if(value!=null){
+				    				  pMap.put("value", value);
+				    			  } else {
+				    				  pMap.put("value", "0.00");
+				    			  }
+				    		  }
+				    	  }
+				      }
+				      
 					   //去另一接口获取历史收益率图表的数据
 					  Map histYieldRate = getCombYieldRate(groupId,subGroupId);
 					  //去另一个接口获取预期年化，预期最大回撤
-					  Map ExpAnnReturn= getExpAnnReturn(groupId,subGroupId);
-					  Map ExpMaxReturn=getExpMaxReturn(groupId,subGroupId);
+					  Map expAnnReturn= getExpAnnReturn(groupId,subGroupId);
+					  if(expAnnReturn.containsKey("value")){
+						  expAnnReturn.put("value", expAnnReturn.get("value")+EasyKit.PERCENT);
+					  }
+					  //Map ExpMaxReturn=getExpMaxReturn(groupId,subGroupId);
 					  //将结果封装进实体类
-					  FinanceProductCompo prd=new FinanceProductCompo(groupId, subGroupId, prdName, ExpMaxReturn.size()>0?ExpAnnReturn.get("value").toString():null, ExpMaxReturn.size()>0?ExpAnnReturn.get("value").toString():null, productCompo, histYieldRate);
+					  FinanceProductCompo prd=new FinanceProductCompo(groupId, subGroupId, prdName, expAnnReturn.size()>0?expAnnReturn.get("value").toString():null, productCompo, histYieldRate);
 					  resultList.add(prd);			  				                                             
 					  }
 				   }catch (Exception e){
@@ -184,10 +262,10 @@ public class FinanceController {
 			String str=new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
-		Map ExpAnnReturn= getExpAnnReturn(groupId,subGroupId);
-		Map ExpMaxReturn=getExpMaxReturn(groupId,subGroupId);
-		result.put("expAnnReturn", ExpAnnReturn);
-		result.put("expMaxDrawDown", ExpMaxReturn);
+		Map expAnnReturn= getExpAnnReturn(groupId,subGroupId);
+		Map expMaxReturn=getExpMaxReturn(groupId,subGroupId);
+		result.put("expAnnReturn", expAnnReturn);
+		result.put("expMaxDrawDown", expMaxReturn);
 		//饼图（返回单个基金组合产品信息）
 		try{
 			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId;
@@ -203,13 +281,19 @@ public class FinanceController {
 						Map<String, Object> assetMap = assetList.get(i);
 						if(assetMap.get("value")!=null){
 							if(i == assetList.size()-1){
-								value = 100D - count; 
+								value = 100D - count;
+								BigDecimal bigValue = new BigDecimal(value);
+								value = bigValue.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 							}else {
 								value = (Double) assetMap.get("value");
 								value = EasyKit.getDecimal(new BigDecimal(value));
 								count = count + value;
 							}
-							assetMap.put("value", value);
+							if (value != null) {
+								assetMap.put("value", value);
+							} else {
+								assetMap.put("value", "0.00");
+							}
 						}
 					}
 					result.put("assetsRatios", productMap.get("assetsRatios"));
@@ -247,6 +331,21 @@ public class FinanceController {
 				if (object != null) {
 					title.put("header1",productName);
 					logger.info("object获取成功");
+					List<Map> perfomaceList = (List<Map>)object;
+					for(int i=0;i<perfomaceList.size();i++){
+						Map performanceMap = perfomaceList.get(i);
+						if(performanceMap.containsKey("value")){
+							Double performance = (Double)performanceMap.get("value");
+							int id = (int)performanceMap.get("id");
+							if(id < 4){
+								performance = EasyKit.getDecimal(new BigDecimal(performance));
+								performanceMap.put("value", performance+EasyKit.PERCENT);
+							} else {
+								performance = EasyKit.getDecimalNum(new BigDecimal(performance));
+								performanceMap.put("value", performance);
+							}
+						}
+					}
 					result.put("historicalPerformance",object);
 					result.remove("_items");
 					result.remove("name");
@@ -283,11 +382,53 @@ public class FinanceController {
 			maxMinBenchmarkMap = incomeResult.get("maxMinBenchmarkMap");
 			if (obj != null) {
 				logger.info("obj获取成功");
+				List<Map> objList = (List<Map>)obj;
+				for(int i=0;i<objList.size();i++){
+					Map objMap = objList.get(i);
+					List income = new ArrayList();
+					if(objMap.containsKey("income")&&objMap.get("income")!=null){
+						income = (List<Map>) objMap.get("income");
+						if(income!=null&&income.size()>0){
+							for(int j = 0;j<income.size();j++){
+								Map incomeMap = (Map) income.get(j);
+								if(incomeMap.get("value")!=null){
+									Double incomeValue = (Double) incomeMap.get("value");
+									incomeValue = EasyKit.getDecimal(new BigDecimal(incomeValue));
+									incomeMap.put("value", incomeValue);
+								} else {
+									incomeMap.put("value", "0.00"+EasyKit.PERCENT);
+								}
+							}
+						}
+					}
+					if(objMap.containsKey("incomeBenchmark")&&objMap.get("incomeBenchmark")!=null){
+						income = (List<Map>) objMap.get("incomeBenchmark");
+						if(income!=null&&income.size()>0){
+							for(int j = 0;j<income.size();j++){
+								Map incomeMap = (Map) income.get(j);
+								if(incomeMap.get("value")!=null){
+									Double incomeValue = (Double) incomeMap.get("value");
+									incomeValue = EasyKit.getDecimal(new BigDecimal(incomeValue));
+									incomeMap.put("value", incomeValue);
+								} else {
+									incomeMap.put("value", "0.00"+EasyKit.PERCENT);
+								}
+							}
+						}
+					}
+					
+				}
 				result.put("portfolioYield",obj);
 			} else {
 				logger.info("object获取失败");
 			}
 			if (maxMinMap != null) {
+				Double min = (Double) ((Map)maxMinMap).get("minValue");
+				Double max = (Double) ((Map)maxMinMap).get("maxValue");
+				Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+				Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+				((Map)maxMinMap).put("minValue", minValue);
+				((Map)maxMinMap).put("maxValue", maxValue);
 				logger.info("maxMinIncomeMap获取成功");
 				result.put("maxMinMap",maxMinMap);
 			} else {
@@ -295,6 +436,12 @@ public class FinanceController {
 			}
 			if (maxMinBenchmarkMap != null) {
 				logger.info("maxMinBenchmarkMap获取成功");
+				Double min = (Double) ((Map)maxMinBenchmarkMap).get("minValue");
+				Double max = (Double) ((Map)maxMinBenchmarkMap).get("maxValue");
+				Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+				Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+				((Map)maxMinBenchmarkMap).put("minValue", minValue);
+				((Map)maxMinBenchmarkMap).put("maxValue", maxValue);
 				result.put("maxMinIncomeBenchmarkMap",maxMinBenchmarkMap);
 			} else {
 				logger.info("Income获取失败");
@@ -315,8 +462,43 @@ public class FinanceController {
 			logger.info("历史业绩-第一部分数据获取成功");
 			obj1 = incomeResult1.get("_items");
 			maxMinMap2 = incomeResult1.get("maxMinMap");
-			maxMinBenchmarkMap2 = incomeResult.get("maxMinBenchmarkMap");
+			maxMinBenchmarkMap2 = incomeResult1.get("maxMinBenchmarkMap");
 			if (obj1 != null) {
+				List<Map> maxRetreatList = (List<Map>)obj1;
+				for(int i=0;i<maxRetreatList.size();i++){
+					Map maxRetreatMap = maxRetreatList.get(i);
+					if(maxRetreatMap.containsKey("retracement")&&maxRetreatMap.get("retracement")!=null){
+						List<Map> maxRetreatList2 = (List<Map>) maxRetreatMap.get("retracement");
+						if(maxRetreatList2!=null&&maxRetreatList2.size()>0){
+							for(int j = 0;j<maxRetreatList2.size();j++){
+								Map retracementMap = (Map) maxRetreatList2.get(j);
+								if(retracementMap.get("value")!=null){
+									Double incomeValue = (Double) retracementMap.get("value");
+									incomeValue = EasyKit.getDecimal(new BigDecimal(incomeValue));
+									retracementMap.put("value", incomeValue);
+								} else {
+									retracementMap.put("value", "0.00"+EasyKit.PERCENT);
+								}
+							}
+						}
+					}
+					if(maxRetreatMap.containsKey("incomeBenchmark")&&maxRetreatMap.get("incomeBenchmark")!=null){
+						List<Map> incomeBenchmarkList2 = (List<Map>) maxRetreatMap.get("incomeBenchmark");
+						if(incomeBenchmarkList2!=null&&incomeBenchmarkList2.size()>0){
+							for(int j = 0;j<incomeBenchmarkList2.size();j++){
+								Map retracementMap = (Map) incomeBenchmarkList2.get(j);
+								if(retracementMap.get("value")!=null){
+									Double incomeValue = (Double) retracementMap.get("value");
+									incomeValue = EasyKit.getDecimal(new BigDecimal(incomeValue));
+									retracementMap.put("value", incomeValue);
+								} else {
+									retracementMap.put("value", "0.00"+EasyKit.PERCENT);
+								}
+							}
+						}
+					}
+				}
+				
 				logger.info("obj1获取成功");
 				result.put("maxRetreat",obj1);
 			} else {
@@ -324,12 +506,24 @@ public class FinanceController {
 			}
 			if (maxMinMap2 != null) {
 				logger.info("maxMinIncomeMap获取成功");
+				Double min = (Double) ((Map)maxMinMap2).get("minValue");
+				Double max = (Double) ((Map)maxMinMap2).get("maxValue");
+				Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+				Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+				((Map)maxMinMap2).put("minValue", minValue);
+				((Map)maxMinMap2).put("maxValue", maxValue);
 				result.put("maxMinRetreatMap",maxMinMap2);
 			} else {
 				logger.info("maxMinMap2获取失败");
 			}
 			if (maxMinBenchmarkMap2 != null) {
 				logger.info("maxMinBenchmarkMap获取成功");
+				Double min = (Double) ((Map)maxMinBenchmarkMap2).get("minValue");
+				Double max = (Double) ((Map)maxMinBenchmarkMap2).get("maxValue");
+				Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+				Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+				((Map)maxMinBenchmarkMap2).put("minValue", minValue);
+				((Map)maxMinBenchmarkMap2).put("maxValue", maxValue);
 				result.put("maxMinRetreatBenchmarkMap",maxMinBenchmarkMap2);
 			} else {
 				logger.info("Income获取失败");
@@ -354,7 +548,7 @@ public class FinanceController {
 		Map<String,Object> result = new HashMap<String,Object>();
 		// 预期平均年化收益率
 		Map<String,Object> optMap = new HashMap<String,Object>();
-		String url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt?returnType=1";
+		String url=assetAlloctionUrl+"/api/asset-allocation/product-groups/"+groupId+"/sub-groups/"+subGroupId+"/opt?returntype=1";
 		optMap= restTemplate.postForEntity(url,null,Map.class).getBody();
 		if (optMap != null && !optMap.isEmpty()) {
 			logger.info("预期平均年化收益率获取成功");
@@ -363,7 +557,8 @@ public class FinanceController {
 			if (obj != null) {
 				logger.info("预期平均年化收益率获取成功2");
 				value = obj.toString();
-				result.put("averageAnnualRate", value);
+				Double doubleValue = EasyKit.getDecimal(new BigDecimal(value));
+				result.put("averageAnnualRate", doubleValue+EasyKit.PERCENT);
 			} else {
 				logger.error("预期平均年化收益率获取失败");
 			}
@@ -379,6 +574,22 @@ public class FinanceController {
 			Map<String,Object> expectedIncomeMap = new HashMap<String,Object>();
 			expectedIncomeMap = restTemplate.getForEntity(url, Map.class).getBody();
 			if(expectedIncomeMap!=null&&!expectedIncomeMap.isEmpty()){
+				List<Map<String,Object>> expectedIncomeList = (List<Map<String, Object>>) expectedIncomeMap.get("_items"); 
+				if(expectedIncomeList!=null&&expectedIncomeList.size()>0){
+					for (int i = 0; i < expectedIncomeList.size(); i++) {
+						Map incomeMap = expectedIncomeList.get(i);
+						if (incomeMap.get("_item") != null) {
+							Map<String, Object> itemMap = (Map<String, Object>) incomeMap.get("_item");
+							if(itemMap!=null&&itemMap.size()>0)
+							for(String key : itemMap.keySet()){
+								Double value = (Double) itemMap.get(key);
+								Double doubleValue = EasyKit.getDecimal(new BigDecimal(value));
+								itemMap.put(key, doubleValue);
+							}
+						}
+					}
+				}
+				
 				logger.info("未来收益走势图数据获取成功");
 				Object expectedIncomeSizeMap = expectedIncomeMap.get("expectedIncomeSizeMap");
 				Object highPercentMaxIncomeSizeMap = expectedIncomeMap.get("highPercentMaxIncomeSizeMap");
@@ -396,6 +607,12 @@ public class FinanceController {
 				if (expectedIncomeSizeMap != null) {
 					logger.info("expectedIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
+					Double min = (Double) ((Map)expectedIncomeSizeMap).get("minValue");
+					Double max = (Double) ((Map)expectedIncomeSizeMap).get("maxValue");
+					Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+					Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+					((Map)expectedIncomeSizeMap).put("minValue", minValue);
+					((Map)expectedIncomeSizeMap).put("maxValue", maxValue);
 					result.put("expectedIncomeSizeMap", expectedIncomeSizeMap);
 				} else {
 					logger.error("expectedIncomeSizeMap:未来收益走势图数据获取失败");
@@ -403,6 +620,12 @@ public class FinanceController {
 				if (highPercentMaxIncomeSizeMap != null) {
 					logger.info("highPercentMaxIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
+					Double min = (Double) ((Map)highPercentMaxIncomeSizeMap).get("minValue");
+					Double max = (Double) ((Map)highPercentMaxIncomeSizeMap).get("maxValue");
+					Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+					Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+					((Map)highPercentMaxIncomeSizeMap).put("minValue", minValue);
+					((Map)highPercentMaxIncomeSizeMap).put("maxValue", maxValue);
 					result.put("highPercentMaxIncomeSizeMap", highPercentMaxIncomeSizeMap);
 				} else {
 					logger.error("highPercentMaxIncomeSizeMap:未来收益走势图数据获取失败");
@@ -410,6 +633,12 @@ public class FinanceController {
 				if (highPercentMinIncomeSizeMap != null) {
 					logger.info("highPercentMinIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
+					Double min = (Double) ((Map)highPercentMinIncomeSizeMap).get("minValue");
+					Double max = (Double) ((Map)highPercentMinIncomeSizeMap).get("maxValue");
+					Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+					Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+					((Map)highPercentMinIncomeSizeMap).put("minValue", minValue);
+					((Map)highPercentMinIncomeSizeMap).put("maxValue", maxValue);
 					result.put("highPercentMinIncomeSizeMap", highPercentMinIncomeSizeMap);
 				} else {
 					logger.error("highPercentMinIncomeSizeMap:未来收益走势图数据获取失败");
@@ -417,6 +646,12 @@ public class FinanceController {
 				if (lowPercentMaxIncomeSizeMap != null) {
 					logger.info("lowPercentMaxIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
+					Double min = (Double) ((Map)lowPercentMaxIncomeSizeMap).get("minValue");
+					Double max = (Double) ((Map)lowPercentMaxIncomeSizeMap).get("maxValue");
+					Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+					Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+					((Map)lowPercentMaxIncomeSizeMap).put("minValue", minValue);
+					((Map)lowPercentMaxIncomeSizeMap).put("maxValue", maxValue);
 					result.put("lowPercentMaxIncomeSizeMap", lowPercentMaxIncomeSizeMap);
 				} else {
 					logger.error("lowPercentMaxIncomeSizeMap:未来收益走势图数据获取失败");
@@ -424,6 +659,12 @@ public class FinanceController {
 				if (lowPercentMinIncomeSizeMap != null) {
 					logger.info("lowPercentMinIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
+					Double min = (Double) ((Map)lowPercentMinIncomeSizeMap).get("minValue");
+					Double max = (Double) ((Map)lowPercentMinIncomeSizeMap).get("maxValue");
+					Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+					Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+					((Map)lowPercentMinIncomeSizeMap).put("minValue", minValue);
+					((Map)lowPercentMinIncomeSizeMap).put("maxValue", maxValue);
 					result.put("lowPercentMinIncomeSizeMap", lowPercentMinIncomeSizeMap);
 				} else {
 					logger.error("lowPercentMinIncomeSizeMap:未来收益走势图数据获取失败");
@@ -469,6 +710,33 @@ public class FinanceController {
 				if (obj != null) {
 					logger.info("最大回撤走势图获取成功2");
 					// value = obj.toString();
+					List list = (List)obj;
+					for(int i=0;i<list.size();i++){
+						Map map = (Map)list.get(i);
+						if(map!=null&&map.size()>0){
+							if(map.get("retracement")!=null){
+								List retracementList = (List) map.get("retracement"); 
+								if(retracementList!=null&&retracementList.size()>0){
+									for(int j=0;j<retracementList.size();j++){
+										Map retracementMap = (Map) retracementList.get(j);
+										Double doubleValue = (Double) retracementMap.get("value");
+										doubleValue = EasyKit.getDecimal(new BigDecimal(doubleValue));
+										retracementMap.put("value", doubleValue);
+									}
+								}
+								List incomeBenchmarkList = (List) map.get("incomeBenchmark"); 
+								if(incomeBenchmarkList!=null&&incomeBenchmarkList.size()>0){
+									for(int j=0;j<incomeBenchmarkList.size();j++){
+										Map incomeBenchmarkMap = (Map) incomeBenchmarkList.get(j);
+										Double doubleValue = (Double) incomeBenchmarkMap.get("value");
+										doubleValue = EasyKit.getDecimal(new BigDecimal(doubleValue));
+										incomeBenchmarkMap.put("value", doubleValue);
+									}
+								}
+							}
+						}
+					}
+					
 					result.put("portfolioYieldWeek", obj);
 				} else {
 					logger.error("最大回撤走势图获取失败");
@@ -476,6 +744,12 @@ public class FinanceController {
 				if (maxMinMap != null) {
 					logger.info("maxMinMap:最大回撤走势图获取成功");
 					// value = obj.toString();
+					Double min = (Double) ((Map)maxMinMap).get("minValue");
+					Double max = (Double) ((Map)maxMinMap).get("maxValue");
+					Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+					Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+					((Map)maxMinMap).put("minValue", minValue);
+					((Map)maxMinMap).put("maxValue", maxValue);
 					result.put("maxMinMap", maxMinMap);
 				} else {
 					logger.error("maxMinMap:最大回撤走势图获取失败");
@@ -483,6 +757,12 @@ public class FinanceController {
 				if (maxMinBenchmarkMap != null) {
 					logger.info("maxMinBenchmarkMap:最大回撤走势图获取成功");
 					// value = obj.toString();
+					Double min = (Double) ((Map)maxMinBenchmarkMap).get("minValue");
+					Double max = (Double) ((Map)maxMinBenchmarkMap).get("maxValue");
+					Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+					Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+					((Map)maxMinBenchmarkMap).put("minValue", minValue);
+					((Map)maxMinBenchmarkMap).put("maxValue", maxValue);
 					result.put("maxMinBenchmarkMap", maxMinBenchmarkMap);
 				} else {
 					logger.error("maxMinBenchmarkMap:最大回撤走势图获取失败");
@@ -499,6 +779,7 @@ public class FinanceController {
 					double opt = Double.valueOf(optResult.get("value")+"");
 					if(opt<=0){
 						opt = opt - 0.05;
+						opt = EasyKit.getDecimal(new BigDecimal(opt));
 						logger.info("预期最大回撤数获取成功");
 					} else {
 						logger.error("预期最大回撤数获取失败，应为负数，而不是为："+opt);
@@ -516,6 +797,21 @@ public class FinanceController {
 				logger.info("等级风险数据获取成功");
 				Object obj2 = riskMap.get("_items");
 				if (obj2 != null) {
+					List riskList = (List)obj2;
+					for(int i=0;i<riskList.size();i++){
+						Map risk2Map = (Map) riskList.get(i);
+						if(risk2Map.get("benchmark")!=null){
+							Double benchmark = (Double) risk2Map.get("benchmark");
+							benchmark = EasyKit.getDecimal(new BigDecimal(benchmark));
+							risk2Map.put("benchmark", benchmark+EasyKit.PERCENT);
+						}
+						if(risk2Map.get("level2RiskControl")!=null){
+							Double level2RiskControl = (Double) risk2Map.get("level2RiskControl");
+							level2RiskControl = EasyKit.getDecimal(new BigDecimal(level2RiskControl));
+							risk2Map.put("level2RiskControl", level2RiskControl+EasyKit.PERCENT);
+						}
+						
+					}
 					logger.info("等级风险数据获取成功2");
 					// prdList = (List<Map<String, Object>>) obj2;
 					result.put("levelRiskControl", obj2);
@@ -602,48 +898,6 @@ public class FinanceController {
 			} else {
 				logger.error("配置收益贡献获取失败2");
 			}
-			
-			// 等级风险
-			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId
-					+ "/risk-controls";
-			Map<String, Object> riskMap = new HashMap<String, Object>();
-			riskMap = restTemplate.getForEntity(url, Map.class).getBody();
-			if (riskMap != null && !riskMap.isEmpty()) {
-				logger.info("等级风险数据获取成功");
-				Object obj2 = riskMap.get("_items");
-				if (obj2 != null) {
-					logger.info("等级风险数据获取成功2");
-					// prdList = (List<Map<String, Object>>) obj2;
-					result.put("levelRiskControl", obj2);
-				} else {
-					logger.info("等级风险数据获取失败");
-				}
-			} else {
-				logger.info("等级风险数据获取失败2");
-			}
-			
-			// 风险控制手段与通知
-			url = assetAlloctionUrl + "/api/asset-allocation/products/" + uuid + "/risk-notifications";
-			Map<String, Object> riskNotificationsMap = new HashMap<String, Object>();
-			riskNotificationsMap = restTemplate.getForEntity(url, Map.class).getBody();
-			if (riskNotificationsMap != null && !riskNotificationsMap.isEmpty()) {
-				logger.info("风险控制手段与通知数据获取成功");
-				Object obj2 = riskNotificationsMap.get("_items");
-				if (obj2 != null) {
-					logger.info("风险控制手段与通知获取成功2");
-					List<Map<String, Object>> prdList = (List<Map<String, Object>>) obj2;
-					for(int i=0;i<prdList.size();i++){
-						Map<String, Object> prdMap = prdList.get(i);
-						prdMap.remove("content");
-					}
-					result.put("riskNotifications", prdList);
-				} else {
-					logger.info("风险控制手段与通知失败");
-				}
-			} else {
-				logger.info("风险控制手段与通知失败2");
-			}
-			
 		} catch (Exception e) {
 			// 获取list失败直接返回
 			logger.error("风险控制数据发生错误", e);
@@ -685,7 +939,7 @@ public class FinanceController {
 				Double value = (Double)result.get("value");
 				if(!StringUtils.isEmpty(value)){
 					value = EasyKit.getDecimal(new BigDecimal(value));
-					result.put("value", value);
+					result.put("value", value+EasyKit.PERCENT);
 				}
 			}
 		}catch(Exception e){
@@ -721,7 +975,7 @@ public class FinanceController {
 				Double value = (Double)result.get("value");
 				if(!StringUtils.isEmpty(value)){
 					value = EasyKit.getDecimal(new BigDecimal(value));
-					result.put("value", value);
+					result.put("value", value+EasyKit.PERCENT);
 				}
 			}
 		}catch(Exception e){
@@ -758,9 +1012,41 @@ public class FinanceController {
 					if(map.containsKey("incomeBenchmark")){
 						map.remove("incomeBenchmark");
 					}
+					if(map.containsKey("income")){
+						List<Map> incomeList = (List<Map>) map.get("income");
+						if(incomeList!=null&&incomeList.size()>0){
+							for(int j = 0;j< incomeList.size();j++){
+								Map incomeMap = incomeList.get(j);
+								Double value = (Double) incomeMap.get("value");
+								value = EasyKit.getDecimal(new BigDecimal(value));
+								incomeMap.put("value", value);
+							}
+						}
+					}
 				}
 			}
 			item.remove("incomeBenchmark");
+			
+			if(result.get("maxMinMap")!=null){
+				Map maxminMap = (Map)result.get("maxMinMap");
+				Double min = (Double) maxminMap.get("minValue");
+				Double max = (Double) maxminMap.get("maxValue");
+				Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+				Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+				maxminMap.put("minValue", minValue);
+				maxminMap.put("maxValue", maxValue);
+				result.put("maxMinMap",maxminMap);
+			}
+			if(result.get("maxMinBenchmarkMap")!=null){
+				Map maxminMap = (Map)result.get("maxMinBenchmarkMap");
+				Double min = (Double) maxminMap.get("minValue");
+				Double max = (Double) maxminMap.get("maxValue");
+				Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+				Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+				maxminMap.put("minValue", minValue);
+				maxminMap.put("maxValue", maxValue);
+				result.put("maxMinBenchmarkMap",maxminMap);
+			}
 		}
 		}catch(Exception e){
 			result=new HashMap<String,Object>();
@@ -887,6 +1173,11 @@ public class FinanceController {
 //        List<Map<String, Object>> reuslt = new ArrayList<Map<String, Object>>();
         //排序前 
         for (Map<String, Object> map : list) {
+        	if(map.get("value")!=null){
+        		Double doubleValue = (Double) map.get("value");
+        		doubleValue = EasyKit.getDecimal(new BigDecimal(doubleValue));
+        		map.put("value", doubleValue);
+        	}
             System.out.println(map.get("value"));
         }
         Collections.sort(list, new Comparator<Map<String, Object>>() {
@@ -900,6 +1191,7 @@ public class FinanceController {
         System.out.println("-------------------");
         for (Map<String, Object> map : list) {
             System.out.println(map.get("value"));
+            map.put("value",map.get("value")+EasyKit.PERCENT);
         }
         return list;
     }

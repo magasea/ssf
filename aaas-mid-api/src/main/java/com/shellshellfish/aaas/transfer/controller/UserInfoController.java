@@ -473,12 +473,12 @@ public class UserInfoController {
 							Map map = (Map) detail.get(i);
 							String fundCode = (String) map.get("fundCode");
 							if(!StringUtils.isEmpty(fundCode)){
-								List fundList = new ArrayList();
-								fundList = restTemplate.getForEntity(dataManagerUrl + "/api/datamanager/getFundInfo?codes=" + fundCode , List.class).getBody();
-								if(fundList==null||fundList.size()==0){
+								Map fundMap = new HashMap();
+								fundMap = restTemplate.getForEntity(dataManagerUrl + "/api/datamanager/getFundInfoBycode?code=" + fundCode , Map.class).getBody();
+								if(fundMap==null||fundMap.size()==0){
 									logger.error("基金CODE:"+fundCode+"不存在");
 								} else {
-									String fundName = (String) ((Map)fundList.get(0)).get("fname");
+									String fundName = (String) (fundMap.get("fundname"));
 									map.put("fundName", fundName);
 									map.remove("fundCode");
 								}

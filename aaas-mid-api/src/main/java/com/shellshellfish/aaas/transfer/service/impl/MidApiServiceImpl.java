@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,12 +19,12 @@ import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
 import com.alibaba.fastjson.JSONObject;
 import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
 import com.shellshellfish.aaas.dto.FundNAVInfo;
 import com.shellshellfish.aaas.service.MidApiService;
+import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
 import com.shellshellfish.aaas.transfer.utils.EasyKit;
 
@@ -125,16 +124,16 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 			}
 			mapItem=(Map)prd;
 			FundNAVInfo infoA=mapToFundNAVInfo(mapItem,"1");//增长值
-			if (count == prdList.size()) {
-				Double last = (new Double(100))-total;
-				last = (new BigDecimal("100")).subtract(new BigDecimal(total)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-				infoA.setAvgIncreRate(last + "");
-			} else {
-				String rate = infoA.getAvgIncreRate();
-				if (!StringUtils.isEmpty(rate)) {
-					total = total + Double.parseDouble(rate);
-				}
-			}
+//			if (count == prdList.size()) {
+//				Double last = (new Double(100))-total;
+//				last = (new BigDecimal("100")).subtract(new BigDecimal(total)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+//				infoA.setAvgIncreRate(last + EasyKit.PERCENT);
+//			} else {
+//				String rate = infoA.getAvgIncreRate();
+//				if (!StringUtils.isEmpty(rate)) {
+//					total = total + Double.parseDouble(rate.replace(EasyKit.PERCENT, ""));
+//				}
+//			}
 			resultList.add(infoA);
 		}
 		return resultList;
@@ -192,11 +191,11 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 				if (count == prdList.size()) {
 					Double last = (new Double(100))-total;
 					last = (new BigDecimal("100")).subtract(new BigDecimal(total)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-					infoA.setAvgIncreRate(last + "");
+					infoA.setAvgIncreRate(last + EasyKit.PERCENT);
 				} else {
 					String rate = infoA.getAvgIncreRate();
 					if (!StringUtils.isEmpty(rate)) {
-						total = total + Double.parseDouble(rate);
+						total = total + Double.parseDouble(rate.replace(EasyKit.PERCENT, ""));
 					}
 				}
 				resultList.add(infoA);
@@ -309,12 +308,19 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 		List npvIncrement=null;
 		try{
 		 npvIncrement=(List)map.get("navadj");//净值增长值
+		
 		 if(npvIncrement!=null&&npvIncrement.size()>0){
 			 for(int i=0;i<npvIncrement.size();i++){
 				 Map<String,Object> obj = (Map<String, Object>) npvIncrement.get(i);
 				 if(obj.get("value")!=null){
-					 Double decimal = EasyKit.getDecimal(new BigDecimal(obj.get("value")+""));
-					 obj.put("value", decimal);
+					 BigDecimal value = new BigDecimal(0);
+					 if("2".equals(flag)){
+						 Double decimal = EasyKit.getDecimal(new BigDecimal(obj.get("value")+""));
+						 obj.put("value", decimal);
+					 } else {
+						 value = new BigDecimal(obj.get("value")+"");
+						 obj.put("value", value.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue());
+					 }
 				 }
 			 }
 		 }
@@ -324,7 +330,7 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 		info.setFundCode(fundCode);
 		info.setName(name);
 		info.setFundType(fundType);
-		info.setAvgIncreRate(avgIncreRate);
+		info.setAvgIncreRate(avgIncreRate+EasyKit.PERCENT);
 		if("1".equals(flag)){//净值增长值
 		info.setNPVIncrement(npvIncrement);
 		info.setIncrementMinMaxValueMap(npvIncrement);
@@ -379,7 +385,7 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 		    			}
 		    			doubleValue = EasyKit.getDecimal(new BigDecimal(value));
 		    			//存入数据表
-		    			resultMap.put(relationMap.get(name).toString(), doubleValue);
+		    			resultMap.put(relationMap.get(name).toString(), doubleValue+EasyKit.PERCENT);
 		    			
 		    		}
 		    	}
@@ -390,7 +396,30 @@ public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) thro
 	       resultMap.put("historicReturn",CalculatorFunctions.getHistoricReturn("10000", hisAnnualPerformanceSimuresult));
 	       resultMap.put("groupId",container.get("productGroupId"));
 	       resultMap.put("subGroupId",container.get("productSubGroupId"));
-			return resultMap;
+	       
+	       //产品名称
+	       if(container!=null){
+	    	   try{
+	    		   String groupId = (String) container.get("productGroupId");
+	    		   String subGroupId = (String) container.get("productSubGroupId");
+	    		   url  = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId;
+	    		   Map productMap = restTemplate.getForEntity(url,Map.class).getBody();
+	    		   if(productMap==null){
+	    			   logger.info("单个基金组合产品信息为空");
+	    		   } else {
+	    			   if(productMap.get("name")!=null){
+	    				   resultMap.put("productName", productMap.get("name"));
+	    			   } else {
+	    				   resultMap.put("productName", productMap.get(""));
+	    			   }
+	    		   }
+	    	   }catch(Exception e){
+	    		   String str=new ReturnedException(e).getErrorMsg();
+	    		   throw e;
+	    	   }
+	       }
+	       
+	       return resultMap;
 		}catch(Exception e){
 			throw e;
 		}	
