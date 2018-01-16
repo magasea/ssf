@@ -425,8 +425,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         com.shellshellfish.aaas.common.message.order.TrdOrderDetail trdOrderDetail = new com
             .shellshellfish.aaas.common.message.order.TrdOrderDetail();
         trdOrderDetail.setOrderStatus(TrdOrderStatusEnum.CONVERTWAITCONFIRM.getStatus());
-        trdOrderDetail.setFundNum(TradeUtil.getBigDecimalNumWithDiv100(productMakeUpInfo
-            .getFundShare()).multiply(trdPreOrders.get(0).getFundShareConfirmed()));
+        trdOrderDetail.setFundNum(TradeUtil.getBigDecimalNumWithDiv10000(productMakeUpInfo.getFundShare()).multiply(trdPreOrders.get(0).getFundShareConfirmed()));
       }
     }
 

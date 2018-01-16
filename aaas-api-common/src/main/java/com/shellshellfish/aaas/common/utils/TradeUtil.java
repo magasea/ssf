@@ -111,6 +111,19 @@ public class TradeUtil {
 
   }
 
+  public static BigDecimal getBigDecimalNumWithDiv10000(Long originNum){
+
+
+    return new BigDecimal(originNum).divide(BigDecimal.valueOf(10000));
+
+  }
+
+  public static BigDecimal getBigDecimalNumWithDiv10000(Integer originNum){
+
+
+    return new BigDecimal(originNum).divide(BigDecimal.valueOf(10000));
+
+  }
   public static int getPayFlowStatus(String kkstat){
     if(kkstat.equals(TrdZZCheckStatusEnum.CONFIRMSUCCESS) || kkstat.equals(TrdZZCheckStatusEnum.REALTIMECONFIRMSUCESS)){
       return TrdOrderStatusEnum.CONFIRMED.getStatus();
