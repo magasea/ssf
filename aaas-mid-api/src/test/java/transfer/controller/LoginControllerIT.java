@@ -31,7 +31,7 @@ import static org.hamcrest.Matchers.notNullValue;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TransferServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
+@ActiveProfiles("it")
 @EnableAutoConfiguration
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class LoginControllerIT {
@@ -142,8 +142,7 @@ public class LoginControllerIT {
 	}
 
 
-	//	@Test
-	//FIXME
+	@Test
 	public void c_forgetPswTest() {
 		String password = RandomStringUtils.randomAlphanumeric(DEFAULT_PASSWORD_LENGTH);
 		String verifyCode = getVerifyCode(registration_login_phone_number);

@@ -12,8 +12,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
+
 import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.hamcrest.Matchers.equalTo;
 
 /**
  * @Author pierre
@@ -21,25 +26,26 @@ import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInC
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TransferServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
+@ActiveProfiles("it")
 @EnableAutoConfiguration
 public class FundDetailedControllerIT {
 
-	private String GET_FUND_COMPANY = "/phoneapi-ssf/getFundCompany";
+	private String GET_FUND_COMPANY_DETAIL_INFO = "/phoneapi-ssf/getFundCompanyDetailInfo";
 	private String GET_FUND_DETAILS = "/phoneapi-ssf/getFundDetails";
-	private String GET_FUND_INFO = "/phoneapi-ssf/getFundInfo";
+	private String GET_FUND_INFO_BY_CODE = "/phoneapi-ssf/getFundInfoBycode";
 	private String GET_FUND_MANAGER = "/phoneapi-ssf/getFundManager";
 	private String GET_FUND_NOTICES = "/phoneapi-ssf/getFundNotices";
 	private String GET_HISTORY_NET_VALUE = "/phoneapi-ssf/getHistoryNetvalue";
 
 
-	private String GET_FUND_COMPANY_SCHEMA_NAME = "fund-detail-controller-getFundCompany.json";
+	private String GET_FUND_COMPANY_DETAIL_INFO_SCHEMA_NAME = "fund-detail-controller-getFundCompanyDetailInfo.json";
 	private String GET_FUND_DETAILS_SCHEMA_NAME = "fund-detail-controller-getFundDetails.json";
-	private String GET_FUND_INFO_SCHEMA_NAME = "fund-detail-controller-getFundInfo.json";
+	private String GET_FUND_INFO_BY_CODE_SCHEMA_NAME = "fund-detail-controller-getFundInfoBycode.json";
 	private String GET_FUND_MANAGER_SCHEMA_NAME = "fund-detail-controller-getFundIManager.json";
 	private String GET_FUND_NOTICES_SCHEMA_NAME = "fund-detail-controller-getFundNotices.json";
 	private String GET_HISTORY_NET_VALUE_SCHEMA_NAME = "fund-detail-controller-getHistoryNetValue.json";
 
+	private static final String REQUEST_IS_SUCCESS = "1";
 
 	@LocalServerPort
 	public int port;
@@ -50,67 +56,67 @@ public class FundDetailedControllerIT {
 	}
 
 
-	//	@Test
-//FIXME
+	@Test
 	public void getFundCompanyTest() {
 		String name = "天弘基金管理有限公司";
 
 		given()
-				.param("name", name)
+				.queryParam("name", name)
 				.filter(new ResponseLoggingFilter())
 				.when()
-				.post(GET_FUND_COMPANY)
+				.post(GET_FUND_COMPANY_DETAIL_INFO)
 				.then().log().all()
 				.assertThat()
-				.body(matchesJsonSchemaInClasspath(GET_FUND_COMPANY_SCHEMA_NAME));
+				.body(matchesJsonSchemaInClasspath(GET_FUND_COMPANY_DETAIL_INFO_SCHEMA_NAME));
 	}
 
-	//	@Test
-	//FIXME
+	@Test
 	public void getFundDetailsTest() {
-		String groupId = "2";
-		String subGroupId = "2001";
-		String codes = "000001.OF";
+		String code = "000216.OF";
+		String date = "2017-12-22";
 
 		given()
-				.param("groupId", groupId)
-				.param("subGroupId", subGroupId)
-				.param("codes", codes)
+				.param("code", code)
+				.param("date", date)
 				.filter(new ResponseLoggingFilter())
 				.when()
 				.post(GET_FUND_DETAILS)
 				.then().log().all()
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.assertThat()
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body(matchesJsonSchemaInClasspath(GET_FUND_DETAILS_SCHEMA_NAME));
 	}
 
 	@Test
-	public void getFundInfoTest() {
+	public void getFundInfoBycodeTest() {
 
-		String code = "000001.OF";
+		String code = "000614.OF";
 
 		given()
 				.param("code", code)
 				.filter(new ResponseLoggingFilter())
 				.when()
-				.post(GET_FUND_INFO)
+				.post(GET_FUND_INFO_BY_CODE)
 				.then().log().all()
 				.assertThat()
-				.body(matchesJsonSchemaInClasspath(GET_FUND_INFO_SCHEMA_NAME));
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
+				.body(matchesJsonSchemaInClasspath(GET_FUND_INFO_BY_CODE_SCHEMA_NAME));
 	}
 
 	@Test
-	public void getFundManagerTest() {
+	public void getFundManagerTest() throws UnsupportedEncodingException {
 
 		String name = "董阳阳";
 
 		given()
-				.param("name", name)
+				.queryParam("name", name)
 				.filter(new ResponseLoggingFilter())
 				.when()
 				.post(GET_FUND_MANAGER)
 				.then().log().all()
 				.assertThat()
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body(matchesJsonSchemaInClasspath(GET_FUND_MANAGER_SCHEMA_NAME));
 	}
 
@@ -126,26 +132,27 @@ public class FundDetailedControllerIT {
 				.post(GET_FUND_NOTICES)
 				.then().log().all()
 				.assertThat()
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body(matchesJsonSchemaInClasspath(GET_FUND_NOTICES_SCHEMA_NAME));
 	}
 
-	//	@Test
-	//FIXME
+	@Test
 	public void getHistoryNetvalueTest() {
 
-		String code = "000216.OF";
-		String type = "2";
-		String data = "2017-12-26";
+		String code = "000614.OF";
+		String type = "1";
+		String date = "2017-12-28";
 
 		given()
 				.param("code", code)
 				.param("type", type)
-				.param("data", data)
+				.param("date", date)
 				.filter(new ResponseLoggingFilter())
 				.when()
 				.post(GET_HISTORY_NET_VALUE)
 				.then().log().all()
 				.assertThat()
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body(matchesJsonSchemaInClasspath(GET_HISTORY_NET_VALUE_SCHEMA_NAME));
 	}
 

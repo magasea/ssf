@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "fund info",
+  "description": "基金概况",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "msg": {
+          "type": "string"
+        }
+      },
+      "title": "返回头信息"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "custobank": {
+          "type": "string"
+        },
+        "fundtype": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "manager": {
+          "type": "string"
+        },
+        "fundscale": {
+          "type": "string"
+        },
+        "scale": {
+          "type": "string"
+        },
+        "createdate": {
+          "type": "string"
+        },
+        "fundname": {
+          "type": "string"
+        },
+        "fundcompany": {
+          "type": "string"
+        },
+        "fundnum": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "custobank",
+        "fundtype",
+        "code",
+        "manager",
+        "manager",
+        "fundscale",
+        "scale",
+        "createdate",
+        "fundname",
+        "fundcompany",
+        "fundnum"
+      ]
+    }
+  },
+  "required": [
+    "head",
+    "result"
+  ]
+}

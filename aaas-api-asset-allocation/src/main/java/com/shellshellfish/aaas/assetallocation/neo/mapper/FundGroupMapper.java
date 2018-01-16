@@ -29,7 +29,7 @@ public interface FundGroupMapper {
 
     List<FundGroupDetails> efficientFrontier(Map map);
 
-    List<Interval> getinterval(Map map);
+    List<Interval> getInterval(Map map);
 
     int updateStatus(Map map);
 

@@ -1,7 +1,9 @@
 package com.shellshellfish.aaas.datacollection.server;
 
 import io.grpc.Server;
+
 import java.io.IOException;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,6 +12,8 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
+import javax.sql.DataSource;
+
 @SpringBootApplication
 @EnableMongoRepositories("com.shellshellfish.aaas.datacollection.server.repositories")
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class,
@@ -17,7 +21,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 public class DataServerServiceApplication {
 
 	private static Server server;
-	
+
 	public static void main(String[] args) throws IOException, InterruptedException {
 		ConfigurableApplicationContext configurableApplicationContext = SpringApplication.run
 				(DataServerServiceApplication.class, args);

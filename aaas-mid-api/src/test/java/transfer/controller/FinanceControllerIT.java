@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.notNullValue;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TransferServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
+@ActiveProfiles("it")
 @EnableAutoConfiguration
 public class FinanceControllerIT {
 
@@ -287,9 +287,9 @@ public class FinanceControllerIT {
 	@Test
 	public void optimizationsTest() {
 
-		String groupId = "2";
-		String riskPointValue = "0.0088";
-		String incomePointValue = "0.0411";
+		String groupId = "1";
+		String riskPointValue = "0.0213";
+		String incomePointValue = "0.0451";
 		given().filter(new ResponseLoggingFilter())
 				.param("groupId", groupId)
 				.param("riskPointValue", riskPointValue)

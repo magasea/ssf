@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.*;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TransferServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
+@ActiveProfiles("it")
 @EnableAutoConfiguration
 public class UserInfoControllerIT {
 
@@ -245,8 +245,7 @@ public class UserInfoControllerIT {
 				.body("result.uuid", notNullValue());
 	}
 
-	//	@Test
-	//TODO
+	@Test
 	public void traderecordsTest() {
 		String uuid = "3a0bc5f0-c491-4718-a6c2-dc716ae308f9";
 
@@ -261,7 +260,7 @@ public class UserInfoControllerIT {
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS));
 	}
 
-	@Test
+//	@Test   TODO
 	public void tradeResultTest() {
 
 		String uuid = "1";

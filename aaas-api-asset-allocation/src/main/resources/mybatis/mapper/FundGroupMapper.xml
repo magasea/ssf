@@ -39,7 +39,7 @@
         where a.id = b.fund_group_id and b.fund_code = c.code and a.id = d.fund_group_id and b.fund_group_sub_id = e.id
         and a.id = #{id} and b.fund_group_sub_id = #{subGroupId}
     </select>
-    <select id="getinterval" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
+    <select id="getInterval" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
         select * from fund_group_sub d,straegy a,fund_group b,fund_basic e,fund_group_details c
         where a.fund_group_id = b.id and b.id = c.fund_group_id and c.fund_code = e.code and
         c.fund_group_id=d.fund_group_id and d.id=c.fund_group_sub_id and

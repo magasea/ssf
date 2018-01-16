@@ -8,16 +8,10 @@
       "type": "object",
       "properties": {
         "status": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "msg": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         }
       },
       "title": "返回头信息"
@@ -25,68 +19,84 @@
     "result": {
       "type": "object",
       "properties": {
-        "DifferRange": {
-          "type": [
-            "string",
-            "null"
-          ]
+        "investtype": {
+          "type": "string"
         },
-        "NAVUNIT": {
-          "type": [
-            "string",
-            "null"
-          ]
+        "code": {
+          "type": "string"
         },
-        "DifferRangeY": {
-          "type": [
-            "string",
-            "null"
-          ]
+        "rate": {
+          "type": "string"
         },
-        "mgr": {
-          "type": [
-            "string",
-            "null"
-          ]
+        "navreturnrankingp": {
+          "type": "string"
         },
-        "tradeInformationMap": {
-          "type": [
-            "string",
-            "null"
-          ]
+        "dayIncrease": {
+          "type": "string"
         },
-        "histrory": {
+        "classtype": {
+          "type": "string"
+        },
+        "yearIncrease": {
+          "type": "string"
+        },
+        "net": {
+          "type": "number"
+        },
+        "manager": {
+          "type": "string"
+        },
+        "fundcompany": {
+          "type": "string"
+        },
+        "fundsurvey": {
+          "type": "string"
+        },
+        "tradenotice": {
+          "type": "string"
+        },
+        "fundnotice": {
+          "type": "string"
+        },
+        "uplist": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
-              "updownRange": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+              "val": {
+                "type": "string"
               },
-              "samerankinglist": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+              "time": {
+                "type": "string"
               },
-              "timePeriod": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+              "type": {
+                "type": "string"
               }
             },
             "required": [
-              "updownRange",
-              "samerankinglist",
-              "timePeriod"
+              "val",
+              "time",
+              "type"
             ]
           }
         }
-      }
+      },
+      "required": [
+        "investtype",
+        "code",
+        "rate",
+        "navreturnrankingp",
+        "dayIncrease",
+        "classtype",
+        "yearIncrease",
+        "uplist",
+        "net",
+        "manager",
+        "fundcompany",
+        "fundsurvey",
+        "tradenotice",
+        "fundnotice"
+      ]
     }
   },
   "required": [
