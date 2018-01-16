@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.transfer.controller;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +26,8 @@ import org.springframework.web.client.RestTemplate;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+import com.shellshellfish.aaas.transfer.utils.EasyKit;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -89,7 +92,7 @@ public class LoginController {
 			}
 			/**********************添加的测试数据*******************************/
 			//result.put("totalAssets", "10,000,000"); //总资产
-			//result.put("dailyReturn`", "3.8%"); //日收益率
+			//result.put("dailyReturn", "3.8%"); //日收益率
 			//result.put("totalRevenue", "10,000"); //累计收益
 			String uuid = (String) result.get("uuid");
 
@@ -103,7 +106,17 @@ public class LoginController {
 			result.put("messageUnread", userinfoMap.get("messageUnread")); //未读消息数量	
 			result.put("totalAssets", userinfoMap.get("totalAssets")); //总资产
 			result.put("dailyReturn", userinfoMap.get("dailyReturn")); //日收益
-			result.put("dailyReturnRate", userinfoMap.get("dailyIncomeRate")); //日收益率
+			if(userinfoMap.get("dailyIncomeRate")!=null){
+				String dailyIncomeRate = userinfoMap.get("dailyIncomeRate")+"";
+				if("0".equals(dailyIncomeRate)){
+					result.put("dailyReturnRate", "0.00%");
+				} else {
+					dailyIncomeRate = EasyKit.getDecimal(new BigDecimal(dailyIncomeRate))+"";
+					result.put("dailyReturnRate", dailyIncomeRate+EasyKit.PERCENT); //日收益率
+				}
+			} else {
+				result.put("dailyReturnRate", "0.00%"); //日收益率
+			}
 			result.put("totalRevenue", userinfoMap.get("totalIncome")); //累计收益
 			result.put("totalIncomeRate", userinfoMap.get("totalIncomeRate")); //累计收益率
 			/**********************添加的测试数据*******************************/
