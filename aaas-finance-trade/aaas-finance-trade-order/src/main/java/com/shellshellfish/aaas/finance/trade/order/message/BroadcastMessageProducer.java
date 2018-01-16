@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.finance.trade.order.message;
 
 import com.shellshellfish.aaas.common.constants.RabbitMQConstants;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
+import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,12 @@ public class BroadcastMessageProducer {
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_PAY,
             payOrderDto);
         System.out.println("Send msg = " + payOrderDto);
+    }
+
+    public void sendPayMessages(PayPreOrderDto payPreOrderDto){
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_PAY,
+            payPreOrderDto);
+        System.out.println("Send msg = " + payPreOrderDto);
     }
 
     public void sendSellMessages(ProdSellDTO prodSellDTO) {
