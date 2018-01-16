@@ -8,16 +8,10 @@
       "type": "object",
       "properties": {
         "status": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "msg": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         }
       },
       "title": "返回头信息"
@@ -26,7 +20,7 @@
       "type": "object",
       "properties": {
         "categoryQuantity": {
-          "type": "number"
+          "type": "integer"
         },
         "configurationTime": {
           "type": "string"
@@ -43,10 +37,10 @@
                 "type": "number"
               },
               "time": {
-                "time": "string"
+                "type": "string"
               },
               "value": {
-                "type": "number"
+                "type": "string"
               }
             },
             "required": [
@@ -87,7 +81,7 @@
                 "type": "number"
               },
               "time": {
-                "time": "string"
+                "type": "string"
               },
               "benchmark": {
                 "type": "number"
@@ -109,9 +103,7 @@
       "required": [
         "categoryQuantity",
         "configurationTime",
-        "configurationBenefitContribution",
-        "riskNotifications",
-        "levelRiskControl"
+        "configurationBenefitContribution"
       ]
     }
   },

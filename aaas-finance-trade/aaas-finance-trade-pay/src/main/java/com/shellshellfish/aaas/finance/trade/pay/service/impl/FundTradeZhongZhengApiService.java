@@ -540,6 +540,33 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
     }
 
     @Override
+    public List<UserBank> getUserBank(String userId, String fundCode) throws Exception {
+        fundCode = trimSuffix(fundCode);
+
+        Map<String, Object> info = init(userId);
+        info.put("fundcode", fundCode);
+        postInit(info);
+
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_user_bank_list";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        JSONObject jsonObject = (JSONObject) JSONObject.parse(json);
+        Integer status = jsonObject.getInteger("status");
+        if (!status.equals(1)){
+            throw new Exception(jsonObject.getString("msg"));
+        }
+
+        List<UserBank> userBanks = new ArrayList<>();
+        JSONArray jsonArray = jsonObject.getJSONArray("data");
+        for(int i = 0; i < jsonArray.size(); i++) {
+            userBanks.add(jsonArray.getObject(i, UserBank.class));
+        }
+        return userBanks;
+    }
+
+    @Override
     public void writeAllTradeRateToMongoDb() throws Exception {
         List<String> funds = getAllFundsInfo();
         for(String fund:funds) {
@@ -571,6 +598,10 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
     private Map<String, Object> init() throws JsonProcessingException {
         return init("shellshellfish");
+    }
+
+    private Map<String, Object> init(Long userId) throws JsonProcessingException {
+        return init("" + userId);
     }
 
     private Map<String, Object> init(String userUuid) throws JsonProcessingException {
