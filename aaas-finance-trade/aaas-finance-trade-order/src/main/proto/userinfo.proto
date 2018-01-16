@@ -56,9 +56,10 @@ message UserProdId{
 
 message UpdateUserProdReqs{
   int64 user_id = 1; //用户id
-  int64 prod_id = 2; //产品id
-  int64 group_id = 3; //类别id
-  repeated UpdateUserProdReq updateUserProdReq = 4; //更新的基金占比数列
+  int64 user_prod_id = 2; //用戶产品id
+  int64 prod_id = 3;//理財產品ID
+  int64 group_id = 4;//类别ID
+  repeated UpdateUserProdReq updateUserProdReq = 5; //更新的基金占比数列
 }
 
 message UpdateUserProdReq{

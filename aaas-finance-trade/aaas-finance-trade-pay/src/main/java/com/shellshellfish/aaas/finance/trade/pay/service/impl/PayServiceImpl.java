@@ -1,16 +1,13 @@
 package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
-import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shellshellfish.aaas.common.enums.OrderJobPayRltEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
-import com.shellshellfish.aaas.common.enums.ZZBizOpEnum;
 import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
-import com.shellshellfish.aaas.common.message.order.PayDto;
+import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.ProdDtlSellDTO;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
@@ -66,19 +63,19 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
 
   @Override
-  public PayDto payOrder(PayDto payDto) throws Exception {
+  public PayOrderDto payOrder(PayOrderDto payOrderDto) throws Exception {
 
-    List<TrdOrderDetail> orderDetailList = payDto.getOrderDetailList();
-    PayDto payDtoResult = null;
-    List<TrdPayFlow> trdPayFlows =  trdPayFlowRepository.findAllByUserProdId(payDto.getUserProdId());
+    List<TrdOrderDetail> orderDetailList = payOrderDto.getOrderDetailList();
+    PayOrderDto payOrderDtoResult = null;
+    List<TrdPayFlow> trdPayFlows =  trdPayFlowRepository.findAllByUserProdId(payOrderDto.getUserProdId());
     if(CollectionUtils.isEmpty(trdPayFlows)){
       //说明是新的订单
-      payDtoResult = payNewOrder(payDto);
+      payOrderDtoResult = payNewOrder(payOrderDto);
     }else{
       //Todo
       //说明是重复请求
     }
-    return payDtoResult;
+    return payOrderDtoResult;
   }
 
   private com.shellshellfish.aaas.common.message.order.TrdPayFlow payNewOrderDetail(TrdOrderDetail trdOrderDetail, String trdAcco, Long
@@ -156,10 +153,10 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     return trdPayFlowMsg;
   }
 
-  private PayDto payNewOrder(PayDto payDto) throws Exception{
+  private PayOrderDto payNewOrder(PayOrderDto payOrderDto) throws Exception{
     List<Exception > errs = new ArrayList<>();
-    String trdAcco = payDto.getTrdAccount();
-    List<TrdOrderDetail> orderDetailList = payDto.getOrderDetailList();
+    String trdAcco = payOrderDto.getTrdAccount();
+    List<TrdOrderDetail> orderDetailList = payOrderDto.getOrderDetailList();
     for(TrdOrderDetail trdOrderDetail: orderDetailList){
       logger.info("payOrder fundCode:"+trdOrderDetail.getFundCode());
       if(null == trdOrderDetail.getOrderDetailId()){
@@ -183,17 +180,17 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
       trdPayFlow.setTrdMoneyAmount(trdOrderDetail.getFundMoneyQuantity());
       trdPayFlow.setTrdStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
-      trdPayFlow.setUserProdId(payDto.getUserProdId());
+      trdPayFlow.setUserProdId(payOrderDto.getUserProdId());
       trdPayFlow.setOrderDetailId(trdOrderDetail.getOrderDetailId());
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.BUY.getOperation());
       BuyFundResult fundResult = null;
       try {
         String userId4Pay = null;
-        if(payDto.getUserUuid().equals("shellshellfish")){
+        if(payOrderDto.getUserUuid().equals("shellshellfish")){
           logger.info("use original uuid for pay because it is a test data");
           userId4Pay = "shellshellfish";
         }else{
-          userId4Pay = String.valueOf(payDto.getOrderDetailList().get(0).getUserId());
+          userId4Pay = String.valueOf(payOrderDto.getOrderDetailList().get(0).getUserId());
         }
         fundResult = fundTradeApiService.buyFund(userId4Pay, trdAcco, payAmount,
             String.valueOf(trdOrderDetail.getId()),trdOrderDetail.getFundCode());
@@ -230,7 +227,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         trdPayFlow.setTradeAcco(trdAcco);
         trdPayFlow.setUserProdId(trdOrderDetail.getUserProdId());
         trdPayFlow.setUserId(trdOrderDetail.getUserId());
-        trdPayFlow.setTradeBrokeId(payDto.getTrdBrokerId());
+        trdPayFlow.setTradeBrokeId(payOrderDto.getTrdBrokerId());
         TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
         com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
             .shellshellfish.aaas.common.message.order.TrdPayFlow();
@@ -241,7 +238,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     if(errs.size() > 0){
       throw new Exception("meet errors in pay api services");
     }
-    return payDto;
+    return payOrderDto;
   }
 
   @Override
@@ -427,14 +424,14 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
    */
   public void orderJob2Pay(com.shellshellfish.aaas.finance.trade.pay.OrderPayReq request,
       io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.pay.OrderPayResult> responseObserver) {
-    PayDto payDto = new PayDto();
-    BeanUtils.copyProperties(request, payDto);
+    PayOrderDto payOrderDto = new PayOrderDto();
+    BeanUtils.copyProperties(request, payOrderDto);
     List<com.shellshellfish.aaas.finance.trade.pay.OrderDetailPayReq> orderDetailPayReqs = request
     .getOrderDetailPayReqList();
     OrderPayResult.Builder resultBdr = OrderPayResult.newBuilder();
     List<TrdOrderDetail> trdOrderDetails = new ArrayList<>();
     if(CollectionUtils.isEmpty(orderDetailPayReqs)){
-      logger.error("the input orderDetailPay list is empty: for userProdId" + payDto.getUserProdId
+      logger.error("the input orderDetailPay list is empty: for userProdId" + payOrderDto.getUserProdId
           ());
       resultBdr.setResult(OrderJobPayRltEnum.FAILED.ordinal());
       responseObserver.onNext(resultBdr.build());
@@ -446,9 +443,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       BeanUtils.copyProperties(orderDetailPayReq, trdOrderDetail);
       trdOrderDetails.add(trdOrderDetail);
     }
-    payDto.setOrderDetailList(trdOrderDetails);
+    payOrderDto.setOrderDetailList(trdOrderDetails);
     try{
-      payOrderByJob(payDto);
+      payOrderByJob(payOrderDto);
     }catch (Exception ex){
       ex.printStackTrace();
       logger.error("got error when payOrderByJob" + ex.getMessage());
@@ -462,7 +459,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   }
 
   @Override
-  public PayDto payOrderByJob(PayDto payDto) throws Exception {
+  public PayOrderDto payOrderByJob(PayOrderDto payOrderDto) throws Exception {
     /**
      * 比较需要支付的trdOrderDetailId 和payflow里面的trdOrderDetailId
      *  如果有，那么看状态是否是支付失败，支付失败的话再次发起支付
@@ -471,12 +468,12 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
      */
 
     List<Exception > errs = new ArrayList<>();
-    String trdAcco = payDto.getTrdAccount();
-    Long userProdId = payDto.getUserProdId();
-    String userUUID = payDto.getUserUuid();
-    int trdBrokerId = payDto.getTrdBrokerId();
+    String trdAcco = payOrderDto.getTrdAccount();
+    Long userProdId = payOrderDto.getUserProdId();
+    String userUUID = payOrderDto.getUserUuid();
+    int trdBrokerId = payOrderDto.getTrdBrokerId();
 
-    List<TrdOrderDetail> orderDetailList = payDto.getOrderDetailList();
+    List<TrdOrderDetail> orderDetailList = payOrderDto.getOrderDetailList();
     logger.info("总共有:" + orderDetailList.size() + " 个orderDetail需要处理");
     for(TrdOrderDetail trdOrderDetail: orderDetailList){
       logger.info("开始处理 trdOrderDetail with orderDetailId:" + trdOrderDetail.getOrderDetailId());
@@ -540,7 +537,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     if(errs.size() > 0){
       throw new Exception("meet errors in pay api services");
     }
-    return payDto;
+    return payOrderDto;
   }
 
   /**

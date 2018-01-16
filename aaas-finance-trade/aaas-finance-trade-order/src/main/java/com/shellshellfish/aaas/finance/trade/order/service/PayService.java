@@ -2,11 +2,9 @@ package com.shellshellfish.aaas.finance.trade.order.service;
 
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
-import com.shellshellfish.aaas.common.message.order.PayDto;
-import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
+import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -23,17 +21,17 @@ public interface PayService {
 
   /**
    * 定时任务检查处于等待支付状态或者等待赎回状态的订单去发起中证接口调用
-   * @param payDto
+   * @param payOrderDto
    * @return
    */
-  int order2PayJob(PayDto payDto);
+  int order2PayJob(PayOrderDto payOrderDto);
 
   /**
    * 用订单去发起中证接口调用
-   * @param payDto
-   * @return PayDto
+   * @param payOrderDto
+   * @return PayOrderDto
    */
-  TrdOrderStatusEnum order2Pay(PayDto payDto);
+  TrdOrderStatusEnum order2Pay(PayOrderDto payOrderDto);
 
 
   /**

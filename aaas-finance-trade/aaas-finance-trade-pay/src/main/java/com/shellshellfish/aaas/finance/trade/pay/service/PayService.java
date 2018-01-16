@@ -1,9 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.pay.service;
 
-import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
-
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
-import com.shellshellfish.aaas.common.message.order.PayDto;
+import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
@@ -15,10 +13,10 @@ public interface PayService {
 
   /**
    * 根据Order模块消息传来的TrdOrderPay生成支付流水完成支付
-   * @param payDto
+   * @param payOrderDto
    * @return
    */
-  PayDto payOrder(PayDto payDto) throws Exception;
+  PayOrderDto payOrder(PayOrderDto payOrderDto) throws Exception;
 
   /**
    * 根据支付情况发出消息，将支付信息广播
@@ -63,10 +61,10 @@ public interface PayService {
    * order_detail_status 为WAITPAY(0）
    * 把对应信息找到拼凑成PayDto 让pay 模块再试一次，试的时候要检查，orderDetailId 是否在pay_flow这表里出现
    * 如果已经出现，只有
-   * @param payDto
+   * @param payOrderDto
    * @return
    */
-  PayDto payOrderByJob(PayDto payDto) throws Exception;
+  PayOrderDto payOrderByJob(PayOrderDto payOrderDto) throws Exception;
 
 
   /**

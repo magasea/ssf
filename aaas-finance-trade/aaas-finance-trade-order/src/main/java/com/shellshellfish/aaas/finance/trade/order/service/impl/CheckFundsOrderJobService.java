@@ -2,7 +2,7 @@ package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
-import com.shellshellfish.aaas.common.message.order.PayDto;
+import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
@@ -11,21 +11,13 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRe
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
-import com.shellshellfish.aaas.finance.trade.pay.OrderDetailPayReq;
-import com.shellshellfish.aaas.finance.trade.pay.OrderPayReq;
-import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
-import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
-import io.grpc.ManagedChannel;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -71,15 +63,15 @@ public class CheckFundsOrderJobService {
     }
 
     private void processOrderInJob(TrdOrder trdOrder) {
-        PayDto payDto = new PayDto();
+        PayOrderDto payOrderDto = new PayOrderDto();
         List<TrdOrderDetail> orderDetailList = new ArrayList<>();
-        payDto.setUserProdId(trdOrder.getUserProdId());
+        payOrderDto.setUserProdId(trdOrder.getUserProdId());
         String userUUID = tradeOpService.getUserUUIDByUserId(trdOrder.getUserId());
-        payDto.setUserUuid(userUUID);
+        payOrderDto.setUserUuid(userUUID);
         TrdBrokerUser trdBrokerUser = tradeOpService.getBrokerUserByUserIdAndBandCard(trdOrder
             .getUserId(), trdOrder.getBankCardNum());
-        payDto.setTrdBrokerId(trdBrokerUser.getTradeBrokerId().intValue());
-        payDto.setTrdAccount(trdBrokerUser.getTradeAcco());
+        payOrderDto.setTrdBrokerId(trdBrokerUser.getTradeBrokerId().intValue());
+        payOrderDto.setTrdAccount(trdBrokerUser.getTradeAcco());
         List<com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail>
             orderDetailsInDB = trdOrderDetailRepository.findAllByOrderId(trdOrder.getOrderId());
         boolean allFinished = true;
@@ -118,18 +110,18 @@ public class CheckFundsOrderJobService {
             return;
         }else{
             //需要进行再让交易系统发起交易
-            payDto.setOrderDetailList(orderDetailList);
+            payOrderDto.setOrderDetailList(orderDetailList);
 //            OrderPayReq.Builder reqBuilder = OrderPayReq.newBuilder();
-//            BeanUtils.copyProperties(payDto, reqBuilder);
-            if(CollectionUtils.isEmpty(payDto.getOrderDetailList()) ||  payDto.getOrderDetailList()
+//            BeanUtils.copyProperties(payOrderDto, reqBuilder);
+            if(CollectionUtils.isEmpty(payOrderDto.getOrderDetailList()) ||  payOrderDto.getOrderDetailList()
                 .size() <= 0){
                 logger.info("this job find no orderDetail list to be handled by grpc");
                 return;
             }else{
-                payService.order2PayJob(payDto);
+                payService.order2PayJob(payOrderDto);
 
 //                OrderDetailPayReq.Builder ordDetailReqBuilder = OrderDetailPayReq.newBuilder();
-//                for(TrdOrderDetail trdOrderDetail: payDto.getOrderDetailList()){
+//                for(TrdOrderDetail trdOrderDetail: payOrderDto.getOrderDetailList()){
 //                    BeanUtils.copyProperties(trdOrderDetail, ordDetailReqBuilder);
 //                    reqBuilder.addOrderDetailPayReq(ordDetailReqBuilder.build());
 //                    ordDetailReqBuilder.clear();

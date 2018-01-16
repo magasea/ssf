@@ -6,7 +6,7 @@ import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
-import com.shellshellfish.aaas.common.message.order.PayDto;
+import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
@@ -39,7 +39,6 @@ import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc.UserInfoServiceFutureStub;
 import io.grpc.ManagedChannel;
-import io.swagger.models.auth.In;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,7 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -158,7 +156,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       List<ProductMakeUpInfo> productMakeUpInfos) throws Exception {
     //generate order
 //    TrdTradeBroker trdTradeBroker = trdBrokderRepository.findOne(1L);
-    PayDto payDto = new PayDto();
+    PayOrderDto payOrderDto = new PayOrderDto();
     Map brokerWithTradeAcco = getOrMakeTradeAcco(financeProdBuyInfo);
     if(CollectionUtils.isEmpty(brokerWithTradeAcco)){
       logger.error("Failed to make trade account for user:"+ financeProdBuyInfo.getUserId());
@@ -172,9 +170,9 @@ public class TradeOpServiceImpl implements TradeOpService {
 
     String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdBuyInfo.getBankAcc()
             .substring(0,6)),trdBrokerId);
-    payDto.setTrdAccount(trdAcco);
-    payDto.setUserUuid(financeProdBuyInfo.getUuid());
-    payDto.setUserProdId(financeProdBuyInfo.getUserProdId());
+    payOrderDto.setTrdAccount(trdAcco);
+    payOrderDto.setUserUuid(financeProdBuyInfo.getUuid());
+    payOrderDto.setUserProdId(financeProdBuyInfo.getUserProdId());
     List<com.shellshellfish.aaas.common.message.order.TrdOrderDetail> trdOrderDetails =  new
         ArrayList<com.shellshellfish.aaas.common.message.order.TrdOrderDetail>();
 
@@ -223,9 +221,9 @@ public class TradeOpServiceImpl implements TradeOpService {
       trdOrderDetails.add(trdOrderPay);
 
     }
-    payDto.setOrderDetailList(trdOrderDetails);
-    payDto.setTrdBrokerId(trdBrokerId);
-    sendOutOrder(payDto);
+    payOrderDto.setOrderDetailList(trdOrderDetails);
+    payOrderDto.setTrdBrokerId(trdBrokerId);
+    sendOutOrder(payOrderDto);
     return trdOrder;
   }
 
@@ -282,13 +280,13 @@ public class TradeOpServiceImpl implements TradeOpService {
   }
 
 
-  private void sendOutOrder(PayDto payDto){
+  private void sendOutOrder(PayOrderDto payOrderDto){
     if(useMsgToBuy){
-      logger.info("use message queue to send payDto");
-      broadcastMessageProducer.sendPayMessages(payDto);
+      logger.info("use message queue to send payOrderDto");
+      broadcastMessageProducer.sendPayMessages(payOrderDto);
     }else{
-      logger.info("use grpc to send payDto");
-      payService.order2Pay(payDto);
+      logger.info("use grpc to send payOrderDto");
+      payService.order2Pay(payOrderDto);
     }
   }
 
@@ -387,8 +385,19 @@ public class TradeOpServiceImpl implements TradeOpService {
   }
 
   @Override
-  public TrdOrder buyPreOrderProduct(TrdPayFlow trdPayFlow) {
+  public TrdOrder buyPreOrderProduct(TrdPayFlow trdPayFlow) throws Exception {
     Long preOrderId = trdPayFlow.getOrderDetailId();
+    logger.info("now start to order the preOrderId:"+preOrderId+" product");
+    TrdOrder trdOrder = trdOrderRepository.findByPreOrderId(preOrderId);
+    if(trdOrder == null){
+      logger.error("Failed to precess preOrder order process, because there is no history "
+          + "information there in trdOrderRepository with preOrderId:"+ preOrderId);
+      throw new Exception("Failed to precess preOrder order process, because there is no history "
+          + "information there in trdOrderRepository with preOrderId:"+ preOrderId);
+    }else{
+      //用事先保存的prod_id 和group_id去查询产品配比，然后去更新用户productDetail, 并且真正发起order
+
+    }
 
     return null;
   }
@@ -403,7 +412,7 @@ public class TradeOpServiceImpl implements TradeOpService {
    */
   private TrdOrder genOrderFromBuyInfoAndProdMakeUpInfo(FinanceProdBuyInfo financeProdInfo,
       List<ProductMakeUpInfo> productMakeUpInfos, long preOrderId) throws Exception {
-    PayDto payDto = new PayDto();
+    PayOrderDto payOrderDto = new PayOrderDto();
     Map brokerWithTradeAcco = getOrMakeTradeAcco(financeProdInfo);
     if(CollectionUtils.isEmpty(brokerWithTradeAcco)){
       logger.error("Failed to make trade account for user:"+ financeProdInfo.getUserId());
@@ -417,9 +426,9 @@ public class TradeOpServiceImpl implements TradeOpService {
 
     String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdInfo.getBankAcc()
         .substring(0,6)),trdBrokerId);
-    payDto.setTrdAccount(trdAcco);
-    payDto.setUserUuid(financeProdInfo.getUuid());
-    payDto.setUserProdId(financeProdInfo.getUserProdId());
+    payOrderDto.setTrdAccount(trdAcco);
+    payOrderDto.setUserUuid(financeProdInfo.getUuid());
+    payOrderDto.setUserProdId(financeProdInfo.getUserProdId());
     List<com.shellshellfish.aaas.common.message.order.TrdOrderDetail> trdOrderDetails =  new
         ArrayList<com.shellshellfish.aaas.common.message.order.TrdOrderDetail>();
 

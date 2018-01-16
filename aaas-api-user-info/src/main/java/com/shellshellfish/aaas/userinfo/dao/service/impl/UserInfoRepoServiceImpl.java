@@ -1,5 +1,7 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
+import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
+
 import com.mongodb.WriteResult;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
@@ -528,6 +530,51 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		}else{
 			logger.error("failed to find user by userId:" + userId);
 			return null;
+		}
+	}
+
+
+	/**
+	 */
+	@Override
+	public void updateUserProd(com.shellshellfish.aaas.userinfo.grpc.UpdateUserProdReqs request,
+			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserProdId> responseObserver) {
+//		request
+//		uiProductRepo.findByProdId(request.getProdId())
+		UiProducts uiProducts = uiProductRepo.findByProdId(request.getUserProdId());
+		if(null == uiProducts){
+			logger.error("the userProdId:"+request.getUserProdId()+" intended to be updated by preOrder process "
+					+ "is not fund, now need to save new uiProduct");
+			uiProducts = new UiProducts();
+			uiProducts.setStatus(TrdOrderStatusEnum.CONVERTWAITCONFIRM.getStatus());
+			uiProducts.setProdId(request.getProdId());
+			uiProducts.setGroupId(request.getGroupId());
+			uiProducts.setCreateDate(TradeUtil.getUTCTime());
+			uiProducts.setUpdateDate(TradeUtil.getUTCTime());
+			uiProducts.setCreateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+			uiProducts.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+			uiProductRepo.save(uiProducts);
+			long userProdId = uiProducts.getId();
+			logger.info("the preorder recreate the product with userProdId:"+ userProdId);
+			for(UpdateUserProdReq updateUserProdReq: request.getUpdateUserProdReqList()){
+				UiProductDetail uiProductDetail = new UiProductDetail();
+				uiProductDetail.setUserProdId(userProdId);
+				uiProductDetail.setFundCode(updateUserProdReq.getFundCode());
+				uiProductDetail.setFundShare(updateUserProdReq.getFundShare());
+				uiProductDetail.setCreateDate(TradeUtil.getUTCTime());
+				uiProductDetail.setCreateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+				uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
+				uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+				uiProductDetailRepo.save(uiProductDetail);
+			}
+		}else{
+			uiProductRepo.updateUiProductsById(SystemUserEnum.SYSTEM_USER_ENUM.getUserId(), TradeUtil
+					.getUTCTime(), request.getUserProdId());
+			for(UpdateUserProdReq updateUserProdReq: request.getUpdateUserProdReqList()){
+				uiProductDetailRepo.updateFundShareByParam(updateUserProdReq.getFundShare(),TradeUtil
+								.getUTCTime(), SystemUserEnum.SYSTEM_USER_ENUM.getUserId(), updateUserProdReq
+								.getUserProdId(), updateUserProdReq.getFundCode());
+			}
 		}
 	}
 }
