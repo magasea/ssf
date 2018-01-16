@@ -7,6 +7,7 @@ import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
+import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
@@ -396,7 +397,25 @@ public class TradeOpServiceImpl implements TradeOpService {
           + "information there in trdOrderRepository with preOrderId:"+ preOrderId);
     }else{
       //用事先保存的prod_id 和group_id去查询产品配比，然后去更新用户productDetail, 并且真正发起order
-
+      Long prodId = trdOrder.getProdId();
+      Long groupId = trdOrder.getGroupId();
+      List<ProductMakeUpInfo> productMakeUpInfos = financeProdInfoService.getFinanceProdMakeUpInfo
+          (prodId, groupId);
+      Long preOrderFundNumber = trdPayFlow.getFundSumConfirmed();
+      logger.info("preOrderFundNumber : " + preOrderFundNumber);
+      PayPreOrderDto payPreOrderDto = new PayPreOrderDto();
+      payPreOrderDto.setOriginFundCode(trdPayFlow.getFundCode());
+      payPreOrderDto.setTrdBrokerId(trdPayFlow.getTradeBrokeId().intValue());
+      payPreOrderDto.setTrdAccount(trdPayFlow.getTradeAcco());
+      payPreOrderDto.setUserProdId(trdPayFlow.getUserProdId());
+      payPreOrderDto.setUserUuid(""+trdOrder.getUserId());
+      List<com.shellshellfish.aaas.common.message.order.TrdOrderDetail> trdOrderDetails = new
+          ArrayList<>();
+      for(ProductMakeUpInfo productMakeUpInfo: productMakeUpInfos){
+        com.shellshellfish.aaas.common.message.order.TrdOrderDetail trdOrderDetail = new com
+            .shellshellfish.aaas.common.message.order.TrdOrderDetail();
+        trdOrderDetail.setOrderStatus(TrdOrderStatusEnum.CONVERTWAITCONFIRM.getStatus());
+      }
     }
 
     return null;

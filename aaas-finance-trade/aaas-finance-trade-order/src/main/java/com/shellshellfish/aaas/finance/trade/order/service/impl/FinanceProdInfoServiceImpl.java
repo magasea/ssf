@@ -76,4 +76,21 @@ public class FinanceProdInfoServiceImpl implements FinanceProdInfoService {
     return fmfiBuilder.build();
   }
 
+  @Override
+  public List<ProductMakeUpInfo> getFinanceProdMakeUpInfo(Long prodId, Long groupId)
+      throws ExecutionException, InterruptedException {
+    FinanceProdInfoQuery.Builder builder = FinanceProdInfoQuery.newBuilder();
+    builder.setProdId(prodId);
+    builder.setGroupId(groupId);
+    List<com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo> financeProdInfoList =
+        financeProductServiceFutureStub.getFinanceProdInfo(builder.build()).get().getFinanceProdInfoList();
+    List<ProductMakeUpInfo> productMakeUpInfoList = new ArrayList<>();
+    for(FinanceProdInfo prodInfoItem: financeProdInfoList){
+      ProductMakeUpInfo productMakeUpInfo = new ProductMakeUpInfo();
+      BeanUtils.copyProperties(prodInfoItem, productMakeUpInfo);
+      productMakeUpInfoList.add(productMakeUpInfo);
+    }
+    return productMakeUpInfoList;
+  }
+
 }
