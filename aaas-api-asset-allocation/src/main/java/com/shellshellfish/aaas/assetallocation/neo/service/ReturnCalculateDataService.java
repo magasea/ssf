@@ -156,12 +156,16 @@ public class ReturnCalculateDataService {
                         covarianceModel.setNavDate(startDate);
                         //根据code组合查找基金数据
                         List<CovarianceModel> tempCovarianceModelList=fundNetValMapper.getDataByCodeAndDate(covarianceModel);
+                        //过滤数据
+                        List<CovarianceModel> covarianceModelList=covarianceCalculateService.filterData(tempCovarianceModelList, TYPE_OF_WEEK);
+
+
                         //计算协方差 组成 矩阵
                         List<Double> yieldRatioArrA=new ArrayList<>();
                         List<Double> yieldRatioArrB=new ArrayList<>();
                         List<Double> listA=new ArrayList<>();
                         List<Double> listB=new ArrayList<>();
-                        for(CovarianceModel tempCovarianceModel: tempCovarianceModelList){
+                        for(CovarianceModel tempCovarianceModel: covarianceModelList){
                             if(tempCovarianceModel.getNavadjA()!=null && tempCovarianceModel.getNavadjB()!=null){
                                 listA.add(tempCovarianceModel.getNavadjA().doubleValue());
                                 listB.add(tempCovarianceModel.getNavadjB().doubleValue());

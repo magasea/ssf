@@ -147,7 +147,13 @@
     </select>
 
     <select id="getFundGroupHistoryTime" resultType="String">
-        select time from fund_group_history where fund_group_id = #{fund_group_id}
+        select time from fund_group_history where
+        <if test="risk_level != null and risk_level != ''">
+            fund_group_id=#{risk_level}
+        </if>
+        <if test="fund_group_id != null and fund_group_id != ''">
+            fund_group_id=#{fund_group_id}
+        </if>
         <if test="subGroupId != null and subGroupId != ''">
             and fund_group_sub_id=#{subGroupId}
         </if>

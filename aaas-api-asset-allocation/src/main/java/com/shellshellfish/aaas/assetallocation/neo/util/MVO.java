@@ -43,7 +43,7 @@ public class MVO {
             list.add(weights);
             list.add(weights1);
             list.add(weights2);
-            ml.dispose();
+//            ml.dispose();
         }
         catch (Exception e) {
             e.printStackTrace();

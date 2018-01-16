@@ -136,7 +136,7 @@ public class FundGroupServiceTest {
         //allocationService.getAllIdAndSubId();
         //allocationService.getNavadj("1","1000");
         //allocationService.maximumLosses("1","1000");
-        //allocationService.getNavadjBenchmark("C1");
+        allocationService.getNavadjBenchmark("C1");
 //        allocationService.updateExpectedMaxRetracement("1","1000");
     }
 
