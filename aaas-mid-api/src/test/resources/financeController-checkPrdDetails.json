@@ -35,7 +35,7 @@
               "type": "string"
             },
             "value": {
-              "type": "number"
+              "type": "string"
             }
           }
         },
@@ -46,7 +46,7 @@
               "type": "string"
             },
             "value": {
-              "type": "number"
+              "type": "string"
             }
           }
         },
@@ -70,7 +70,7 @@
         },
         "list": {
           "type": "array",
-          "item": {
+          "items": {
             "type": "object",
             "properties": {
               "avgIncreRate": {

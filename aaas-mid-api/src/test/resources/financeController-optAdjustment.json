@@ -26,46 +26,25 @@
       "type": "object",
       "properties": {
         "confInterval": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "historicReturn": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "hisAnnualPerformanceSimu": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "histAnnualVolaSimu": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "maxDeficit": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "groupId": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "subGroupId": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         }
       },
       "required": [

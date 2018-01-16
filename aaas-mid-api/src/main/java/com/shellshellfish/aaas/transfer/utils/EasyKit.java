@@ -96,8 +96,4 @@ public class EasyKit {
 			return result.toString();
 		}
 	}
-	
-//	public static void main(String[] args) {
-//		System.out.println(getStringValue(new BigDecimal("0.00001049437537826574")));
-//	}
 }

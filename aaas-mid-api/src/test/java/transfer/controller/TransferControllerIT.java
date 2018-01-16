@@ -28,14 +28,12 @@ import static org.hamcrest.Matchers.notNullValue;
 public class TransferControllerIT {
 
 
-	private String BUY_DETAILS = "/phoneapi-ssf/buyDetails";
 	private String GET_EST_PUR_AMOUNT = "/phoneapi-ssf/getEstPurAmount";
 	private String SELL_FUND_PAGE = "/phoneapi-ssf/sellFundPage";
 	private String SELL_PRODUCT = "/phoneapi-ssf/sellProduct";
 	private String SUBSCRIBE_FUND = "/phoneapi-ssf/subscribeFund";
 
 
-	private String BUY_DETAILS_JSON_SCHEMA = "transferController-buyDetails.json";
 	private String GET_EST_PUR_AMOUNT_JSON_SCHEMA = "transferController-getEstPurAmount.json";
 	private String SELL_FUND_PAGE_JSON_SCHEMA = "transferController-sellFundPage.json";
 	private String SELL_PRODUCT_JSON_SCHEMA = "";
@@ -52,24 +50,6 @@ public class TransferControllerIT {
 		RestAssured.port = port;
 	}
 
-
-	@Test
-	public void surveyresultsTest() {
-		String userUuid = "3a0bc5f0-c491-4718-a6c2-dc716ae308f9";
-		String orderId = "1231230001000001513604604626";
-
-
-		given()
-				.param("orderId", orderId)
-				.param("userUuid", userUuid)
-				.filter(new ResponseLoggingFilter())
-				.when()
-				.post(BUY_DETAILS)
-				.then().log().all()
-				.assertThat()
-				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body(matchesJsonSchemaInClasspath(BUY_DETAILS_JSON_SCHEMA));
-	}
 
 	@Test
 	public void getEstPurAmountTest() {
@@ -123,11 +103,11 @@ public class TransferControllerIT {
 				.param("userUuid", userUuid)
 				.filter(new ResponseLoggingFilter())
 				.when()
-				.post(BUY_DETAILS)
+				.post(SELL_PRODUCT)
 				.then().log().all()
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body(matchesJsonSchemaInClasspath(BUY_DETAILS_JSON_SCHEMA));
+				.body(matchesJsonSchemaInClasspath(SELL_PRODUCT_JSON_SCHEMA));
 	}
 
 	//	@Test
@@ -142,11 +122,11 @@ public class TransferControllerIT {
 				.param("userUuid", userUuid)
 				.filter(new ResponseLoggingFilter())
 				.when()
-				.post(BUY_DETAILS)
+				.post(SUBSCRIBE_FUND)
 				.then().log().all()
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body(matchesJsonSchemaInClasspath(BUY_DETAILS_JSON_SCHEMA));
+				.body(matchesJsonSchemaInClasspath(SUBSCRIBE_FUND_JSON_SCHEMA));
 	}
 
 

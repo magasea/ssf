@@ -55,6 +55,7 @@ public interface FundTradeApiService {
     BigDecimal calcDiscountPoundage(BigDecimal amount, BigDecimal rate, BigDecimal discount);
 
     List<UserBank> getUserBank(String fundCode) throws Exception;
+    List<UserBank> getUserBank(String userId,  String fundCode) throws Exception;
 
     void writeAllTradeRateToMongoDb() throws Exception;
 
