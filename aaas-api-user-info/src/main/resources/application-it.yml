@@ -67,3 +67,6 @@ grpc:
 
 
 aaas-api-finance-url: http://localhost:10120
+
+# 每日收益计算 多线程
+daily-finance-calculate-thread: 8
