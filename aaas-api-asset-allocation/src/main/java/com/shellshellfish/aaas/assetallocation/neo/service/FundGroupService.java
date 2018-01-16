@@ -1248,8 +1248,19 @@ public class FundGroupService {
     /**
      * 计算预期最大回撤值/模拟波动率
      */
-    public void updateExpectedMaxRetracement(){
-
+    public void updateExpectedMaxRetracement(String fund_group_id, String subGroupId){
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", fund_group_id);
+        map.put("subId", subGroupId);
+        List<FundGroupHistory> maximumRetracement = fundGroupMapper.selectMaximumRetracement(map);
+        double retracement = 0d;
+        for (FundGroupHistory fundGroupHistory : maximumRetracement) {
+            if (retracement > fundGroupHistory.getMaximum_retracement()){
+                retracement = fundGroupHistory.getMaximum_retracement();
+            }
+        }
+        map.put("expected_max_retracement",retracement);
+        fundGroupMapper.updateExpectedMaximumRetracement(map);
     }
 
     public int deleteData(String tableName){

@@ -101,6 +101,8 @@ public interface FundGroupMapper {
 
     int updateMaximumLosses(Map map);
 
+    int updateExpectedMaximumRetracement(Map map);
+
     //查询 fund_group_basic 中全部 code
     List<String> findAllGroupCode();
 
