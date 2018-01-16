@@ -8,6 +8,7 @@ import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
 import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
+import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
 import com.shellshellfish.aaas.common.message.order.ProdDtlSellDTO;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
@@ -24,6 +25,7 @@ import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.FundConvertResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.OpenAccountResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.SellFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.ZZBuyFund;
@@ -613,6 +615,79 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     }
     return poprBuilder.build();
 
+  }
+
+  @Override
+  public PayPreOrderDto payPreOrder(PayPreOrderDto payPreOrderDto) throws Exception {
+    List<Exception > errs = new ArrayList<>();
+    String trdAcco = payPreOrderDto.getTrdAccount();
+    List<TrdOrderDetail> orderDetailList = payPreOrderDto.getOrderDetailList();
+    for(TrdOrderDetail trdOrderDetail: orderDetailList){
+      logger.info("payOrder fundCode:"+trdOrderDetail.getFundCode());
+      if(null == trdOrderDetail.getOrderDetailId()){
+        logger.error("input pay request is not correct: OrderDetailId is:"+trdOrderDetail.getOrderDetailId());
+        continue;
+      }else{
+        if(
+            trdPayFlowRepository.findAllByOrderDetailId(trdOrderDetail.getOrderDetailId()).size() > 0){
+          logger.error("repay request for :"+ trdOrderDetail.getOrderDetailId() + " we will "
+              + "ignore it ");
+          continue;
+        }
+      }
+      trdOrderDetail.getOrderDetailId();
+      //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
+      BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundMoneyQuantity());
+      //TODO: replace userId with userUuid
+      TrdPayFlow trdPayFlow = new TrdPayFlow();
+      trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
+      trdPayFlow.setCreateBy(0L);
+
+      trdPayFlow.setTrdMoneyAmount(trdOrderDetail.getFundMoneyQuantity());
+      trdPayFlow.setTrdStatus(TrdOrderStatusEnum.CONVERTWAITCONFIRM.getStatus());
+      trdPayFlow.setUserProdId(payPreOrderDto.getUserProdId());
+      trdPayFlow.setOrderDetailId(trdOrderDetail.getOrderDetailId());
+      trdPayFlow.setTrdType(TrdOrderOpTypeEnum.FUNDCONVERT.getOperation());
+      FundConvertResult fundResult = null;
+      try {
+        String userId4Pay = null;
+        if(payPreOrderDto.getUserUuid().equals("shellshellfish")){
+          logger.info("use original uuid for pay because it is a test data");
+          userId4Pay = "shellshellfish";
+        }else{
+          userId4Pay = String.valueOf(payPreOrderDto.getUserUuid());
+        }
+        fundResult = fundTradeApiService.fundConvert(userId4Pay , TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail
+                .getFundNum()), ""+ trdOrderDetail.getId(), trdAcco,payPreOrderDto.getOriginFundCode(), trdOrderDetail.getFundCode());
+      }catch (Exception ex){
+        ex.printStackTrace();
+        logger.error(ex.getMessage());
+        errs.add(ex);
+      }
+
+      if(null != fundResult){
+        trdPayFlow.setApplySerial(fundResult.getApplySerial());
+        trdPayFlow.setTrdStatus(TrdOrderStatusEnum.CONVERTWAITCONFIRM.getStatus());
+        trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
+        trdPayFlow.setFundCode(trdOrderDetail.getFundCode());
+        trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
+        trdPayFlow.setCreateBy(trdOrderDetail.getUserId());
+        trdPayFlow.setUpdateBy(trdOrderDetail.getUserId());
+        trdPayFlow.setTradeAcco(trdAcco);
+        trdPayFlow.setUserProdId(trdOrderDetail.getUserProdId());
+        trdPayFlow.setUserId(trdOrderDetail.getUserId());
+        trdPayFlow.setTradeBrokeId(payPreOrderDto.getTrdBrokerId());
+        TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
+        com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
+            .shellshellfish.aaas.common.message.order.TrdPayFlow();
+        BeanUtils.copyProperties(trdPayFlowResult, trdPayFlowMsg);
+        notifyPay(trdPayFlowMsg);
+      }
+    }
+    if(errs.size() > 0){
+      throw new Exception("meet errors in pay api services");
+    }
+    return payPreOrderDto;
   }
 
 

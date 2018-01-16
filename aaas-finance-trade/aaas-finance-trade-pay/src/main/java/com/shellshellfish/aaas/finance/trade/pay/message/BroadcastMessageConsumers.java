@@ -4,6 +4,7 @@ package com.shellshellfish.aaas.finance.trade.pay.message;
 
 import com.shellshellfish.aaas.common.constants.RabbitMQConstants;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
+import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import org.slf4j.Logger;
@@ -56,5 +57,23 @@ public class BroadcastMessageConsumers {
         }
 
     }
+
+
+    @RabbitListener( containerFactory = "jsaFactory",bindings = @QueueBinding(
+        value = @Queue(value = RabbitMQConstants.QUEUE_PAY_BASE+ "-"+ RabbitMQConstants
+            .OPERATION_TYPE_BUY_PREORDER_PROD, durable = "false"),
+        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_PAY)
+    )
+    public void receiveMessage(PayPreOrderDto message) {
+        try {
+            PayPreOrderDto payPreOrderDto = payService.payPreOrder(message);
+        }catch (Exception ex){
+            ex.printStackTrace();
+            logger.error(ex.getMessage());
+        }
+
+    }
+
 
 }

@@ -292,6 +292,13 @@ public class TradeOpServiceImpl implements TradeOpService {
   }
 
 
+  private void sendOutOrder(PayPreOrderDto payPreOrderDto){
+
+    logger.info("use message queue to send payPreOrderDto");
+    broadcastMessageProducer.sendPayMessages(payPreOrderDto);
+
+  }
+
   @Override
   public Long getUserId(String userUuid) throws ExecutionException, InterruptedException {
     UserIdQuery.Builder builder = UserIdQuery.newBuilder();
@@ -410,6 +417,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       payPreOrderDto.setTrdBrokerId(trdPayFlow.getTradeBrokeId().intValue());
       payPreOrderDto.setTrdAccount(trdPayFlow.getTradeAcco());
       payPreOrderDto.setUserProdId(trdPayFlow.getUserProdId());
+
       payPreOrderDto.setUserUuid(""+trdOrder.getUserId());
       List<com.shellshellfish.aaas.common.message.order.TrdOrderDetail> trdOrderDetails = new
           ArrayList<>();
@@ -425,8 +433,18 @@ public class TradeOpServiceImpl implements TradeOpService {
         com.shellshellfish.aaas.common.message.order.TrdOrderDetail trdOrderDetail = new com
             .shellshellfish.aaas.common.message.order.TrdOrderDetail();
         trdOrderDetail.setOrderStatus(TrdOrderStatusEnum.CONVERTWAITCONFIRM.getStatus());
-        trdOrderDetail.setFundNum(TradeUtil.getBigDecimalNumWithDiv10000(productMakeUpInfo.getFundShare()).multiply(trdPreOrders.get(0).getFundShareConfirmed()));
+
+        Long result = TradeUtil.getBigDecimalNumWithDiv10000(productMakeUpInfo.getFundShare())
+            .multiply(BigDecimal.valueOf(trdPreOrders.get(0).getFundShareConfirmed())).longValue();
+        logger.info("origin total fund share:"+ trdPreOrders.get(0).getFundShareConfirmed() + " multipul "
+            + "with:" + productMakeUpInfo.getFundShare() +" and got result:"+result);
+        trdOrderDetail.setFundNum(result);
+        trdOrderDetail.setId(trdOrderDetailOrigin.getId());
+        trdOrderDetail.setFundCode(productMakeUpInfo.getFundCode());
+        trdOrderDetail.setUserId(trdPayFlow.getUserId());
+        trdOrderDetails.add(trdOrderDetail);
       }
+      payPreOrderDto.setOrderDetailList(trdOrderDetails);
     }
 
     return null;
@@ -506,7 +524,6 @@ public class TradeOpServiceImpl implements TradeOpService {
       trdOrderPay.setUserId(financeProdInfo.getUserId());
 //      GenericMessage<TrdOrderDetail> genericMessage = new GenericMessage<TrdOrderDetail>();
       trdOrderDetails.add(trdOrderPay);
-
     }
 
     return trdOrder;

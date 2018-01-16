@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.finance.trade.pay.service;
 
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
+import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
@@ -73,4 +74,6 @@ public interface PayService {
    * @return
    */
   PreOrderPayResult preOrder2Pay(PreOrderPayReq preOrderPayReq);
+
+  PayPreOrderDto payPreOrder(PayPreOrderDto message) throws Exception;
 }

@@ -143,6 +143,41 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
     }
 
     @Override
+    public FundConvertResult fundConvert(String userUuid, BigDecimal applyShare, String
+        outsideOrderNo,  String tradeAcco, String fundCode, String targetFundCode) throws Exception {
+
+        fundCode = trimSuffix(fundCode);
+
+        Map<String, Object> info = init(userUuid);
+
+        info.put("tradeacco", tradeAcco);
+        info.put("applyshare", applyShare);
+        info.put("outsideorderno", outsideOrderNo);
+        info.put("fundcode", fundCode);
+        info.put("targetfundcode",targetFundCode);
+        //info.put("platform_openid", "88048");
+
+        postInit(info);
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/fund_convert";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        FundConvertResult fundConvertResult = null;
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        Integer status = jsonObject.getInteger("status");
+        if (status.equals(1)) {
+            fundConvertResult = jsonObject.getObject("data", FundConvertResult.class);
+        } else {
+            String errno = jsonObject.getString("errno");
+            String msg = jsonObject.getString("msg");
+            throw new Exception(errno + ":" + msg);
+        }
+
+        return null;
+    }
+
+    @Override
     public CancelTradeResult cancelTrade(String userUuid, String applySerial) throws Exception {
         Map<String, Object> info = init(userUuid);
 
