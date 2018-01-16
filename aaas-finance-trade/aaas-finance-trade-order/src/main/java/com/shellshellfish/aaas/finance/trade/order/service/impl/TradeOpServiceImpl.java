@@ -390,7 +390,9 @@ public class TradeOpServiceImpl implements TradeOpService {
     Long preOrderId = trdPayFlow.getOrderDetailId();
     logger.info("now start to order the preOrderId:"+preOrderId+" product");
     TrdOrder trdOrder = trdOrderRepository.findByPreOrderId(preOrderId);
-    if(trdOrder == null){
+    List<TrdPreOrder> trdPreOrders = trdPreOrderRepository.findAllById(preOrderId);
+
+    if(trdOrder == null || trdPreOrders.size() <= 0){
       logger.error("Failed to precess preOrder order process, because there is no history "
           + "information there in trdOrderRepository with preOrderId:"+ preOrderId);
       throw new Exception("Failed to precess preOrder order process, because there is no history "
@@ -411,10 +413,20 @@ public class TradeOpServiceImpl implements TradeOpService {
       payPreOrderDto.setUserUuid(""+trdOrder.getUserId());
       List<com.shellshellfish.aaas.common.message.order.TrdOrderDetail> trdOrderDetails = new
           ArrayList<>();
+      List<TrdOrderDetail> trdOrderDetailFromDb = trdOrderDetailRepository.findAllByOrderId
+          (trdOrder.getOrderId());
+      Map<String, TrdOrderDetail> trdOrderDetailMap = new HashMap<>();
+      for(TrdOrderDetail trdOrderDetail: trdOrderDetailFromDb){
+        trdOrderDetailMap.put(trdOrderDetail.getFundCode(), trdOrderDetail);
+      }
       for(ProductMakeUpInfo productMakeUpInfo: productMakeUpInfos){
+        TrdOrderDetail trdOrderDetailOrigin = trdOrderDetailMap.get(productMakeUpInfo.getFundCode
+            ());
         com.shellshellfish.aaas.common.message.order.TrdOrderDetail trdOrderDetail = new com
             .shellshellfish.aaas.common.message.order.TrdOrderDetail();
         trdOrderDetail.setOrderStatus(TrdOrderStatusEnum.CONVERTWAITCONFIRM.getStatus());
+        trdOrderDetail.setFundNum(TradeUtil.getBigDecimalNumWithDiv100(productMakeUpInfo
+            .getFundShare()).multiply(trdPreOrders.get(0).getFundShareConfirmed()));
       }
     }
 

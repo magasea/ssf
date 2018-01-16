@@ -26,6 +26,6 @@ public interface UiProductRepo extends PagingAndSortingRepository<UiProducts, Lo
 	@Query("UPDATE UiProducts SET update_by = :updateBy, update_date = :updateDate, "
 			+ "update_by = :updateBy WHERE id = :userProdId")
 	int updateUiProductsById(@Param("updateBy") Long updateBy, @Param("updateDate") Long
-			updateDate, @Param("id") Long id);
+			updateDate, @Param("userProdId") Long userProdId);
 
 }
