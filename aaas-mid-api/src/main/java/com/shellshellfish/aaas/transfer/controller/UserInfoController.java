@@ -23,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
+import com.shellshellfish.aaas.transfer.utils.EasyKit;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -356,7 +357,7 @@ public class UserInfoController {
 		@ApiImplicitParam(paramType="query",name="totalAssets",dataType="BigDecimal",required=true,value="总资产",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="dailyReturn",dataType="BigDecimal",required=true,value="日收益",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="totalRevenue",dataType="BigDecimal",required=true,value="累计收益",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="totalRevenueRate",dataType="Double",required=true,value="累计收益率",defaultValue="")
+		@ApiImplicitParam(paramType="query",name="totalRevenueRate",dataType="String",required=true,value="累计收益率",defaultValue="")
 	})
 	@RequestMapping(value = "/asset", method = RequestMethod.POST)
 	@ResponseBody
@@ -364,7 +365,7 @@ public class UserInfoController {
 			@RequestParam("totalAssets") BigDecimal totalAssets,
 			@RequestParam("dailyReturn") BigDecimal dailyReturn,
 			@RequestParam("totalRevenue") BigDecimal totalRevenue,
-			@RequestParam("totalRevenueRate") Double totalRevenueRate) {
+			@RequestParam("totalRevenueRate") String totalRevenueRate) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
 			result = restTemplate.getForEntity(
@@ -374,6 +375,24 @@ public class UserInfoController {
 			if (result == null || result.size() == 0) {
 				logger.error("资产总览获取失败");
 				return new JsonResult(JsonResult.Fail, "资产总览获取失败", JsonResult.EMPTYRESULT);
+			} else {
+				if(result.get("trendYield")!=null){
+					List trendYieldList = (List) result.get("trendYield");
+					for(int i = 0;i<trendYieldList.size();i++){
+						Map trendYieldMap = (Map) trendYieldList.get(i);
+						if(trendYieldMap.get("value")!=null){
+							String trendYield = trendYieldMap.get("value")+"";
+							if("0".equals(trendYield)){
+								trendYieldMap.put("value", "0.00%");
+							} else {
+								trendYield = EasyKit.getDecimal(new BigDecimal(trendYield))+"";
+								trendYieldMap.put("value", trendYield+EasyKit.PERCENT);
+							}
+						} else {
+							trendYieldMap.put("value", "0.00%");
+						}
+					}
+				}
 			}
 			return new JsonResult(JsonResult.SUCCESS, "资产总览成功", result);
 		} catch (Exception e) {
