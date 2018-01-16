@@ -1,14 +1,11 @@
 package com.shellshellfish.aaas.finance.trade.order.message;
 
 import com.shellshellfish.aaas.common.constants.RabbitMQConstants;
-import com.shellshellfish.aaas.common.message.order.PayDto;
+import com.shellshellfish.aaas.common.message.order.PayOrderDto;
+import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
-import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
-import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -38,9 +35,16 @@ public class BroadcastMessageProducer {
 
 
 
-    public void sendPayMessages(PayDto payDto){
-        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_PAY, payDto);
-        System.out.println("Send msg = " + payDto);
+    public void sendPayMessages(PayOrderDto payOrderDto){
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_PAY,
+            payOrderDto);
+        System.out.println("Send msg = " + payOrderDto);
+    }
+
+    public void sendPayMessages(PayPreOrderDto payPreOrderDto){
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_PAY,
+            payPreOrderDto);
+        System.out.println("Send msg = " + payPreOrderDto);
     }
 
     public void sendSellMessages(ProdSellDTO prodSellDTO) {

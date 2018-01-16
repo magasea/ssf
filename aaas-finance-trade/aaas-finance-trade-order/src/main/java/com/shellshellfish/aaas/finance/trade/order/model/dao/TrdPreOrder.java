@@ -13,12 +13,10 @@ import javax.persistence.Table;
  */
 
 @Entity
-@Table(name = "trd_order", schema = "ssftrdorder", catalog = "")
-public class TrdOrder {
+@Table(name = "trd_pre_order", schema = "ssftrdorder", catalog = "")
+public class TrdPreOrder {
 
   private long id;
-  private String orderId;
-  private long preOrderId;
   private String bankCardNum;
   private String prodCode;
   private int orderStatus;
@@ -28,12 +26,15 @@ public class TrdOrder {
   private Long payFee;
   private long userId;
   private long prodId;
-  private long groupId;
-  private long userProdId;
+  private String fundCode;
+  private long fundShareConfirmed;
+  private String errMsg;
   private long createBy;
   private long createDate;
   private long updateBy;
   private long updateDate;
+
+
 
   @Id
   @Column(name = "id")
@@ -44,26 +45,6 @@ public class TrdOrder {
 
   public void setId(long id) {
     this.id = id;
-  }
-
-  @Basic
-  @Column(name = "order_id")
-  public String getOrderId() {
-    return orderId;
-  }
-
-  public void setOrderId(String orderId) {
-    this.orderId = orderId;
-  }
-
-  @Basic
-  @Column(name = "pre_order_id")
-  public long getPreOrderId() {
-    return preOrderId;
-  }
-
-  public void setPreOrderId(long preOrderId) {
-    this.preOrderId = preOrderId;
   }
 
   @Basic
@@ -157,23 +138,23 @@ public class TrdOrder {
   }
 
   @Basic
-  @Column(name = "group_id")
-  public long getGroupId() {
-    return groupId;
+  @Column(name = "fund_code")
+  public String getFundCode() {
+    return fundCode;
   }
 
-  public void setGroupId(long groupId) {
-    this.groupId = groupId;
+  public void setFundCode(String fundCode) {
+    this.fundCode = fundCode;
   }
 
   @Basic
-  @Column(name = "user_prod_id")
-  public long getUserProdId() {
-    return userProdId;
+  @Column(name = "fund_share_confirmed")
+  public long getFundShareConfirmed() {
+    return fundShareConfirmed;
   }
 
-  public void setUserProdId(long userProdId) {
-    this.userProdId = userProdId;
+  public void setFundShareConfirmed(long fundShareConfirmed) {
+    this.fundShareConfirmed = fundShareConfirmed;
   }
 
   @Basic
@@ -225,72 +206,72 @@ public class TrdOrder {
       return false;
     }
 
-    TrdOrder trdOrder = (TrdOrder) o;
+    TrdPreOrder that = (TrdPreOrder) o;
 
-    if (id != trdOrder.id) {
+    if (id != that.id) {
       return false;
     }
-    if (preOrderId != trdOrder.preOrderId) {
+    if (orderStatus != that.orderStatus) {
       return false;
     }
-    if (orderStatus != trdOrder.orderStatus) {
+    if (orderDate != that.orderDate) {
       return false;
     }
-    if (orderDate != trdOrder.orderDate) {
+    if (orderType != that.orderType) {
       return false;
     }
-    if (orderType != trdOrder.orderType) {
+    if (payAmount != that.payAmount) {
       return false;
     }
-    if (payAmount != trdOrder.payAmount) {
+    if (userId != that.userId) {
       return false;
     }
-    if (userId != trdOrder.userId) {
+    if (prodId != that.prodId) {
       return false;
     }
-    if (prodId != trdOrder.prodId) {
+    if (fundShareConfirmed != that.fundShareConfirmed) {
       return false;
     }
-    if (groupId != trdOrder.groupId) {
+    if (createBy != that.createBy) {
       return false;
     }
-    if (userProdId != trdOrder.userProdId) {
+    if (createDate != that.createDate) {
       return false;
     }
-    if (createBy != trdOrder.createBy) {
+    if (updateBy != that.updateBy) {
       return false;
     }
-    if (createDate != trdOrder.createDate) {
+    if (updateDate != that.updateDate) {
       return false;
     }
-    if (updateBy != trdOrder.updateBy) {
+    if (bankCardNum != null ? !bankCardNum.equals(that.bankCardNum) : that.bankCardNum != null) {
       return false;
     }
-    if (updateDate != trdOrder.updateDate) {
+    if (prodCode != null ? !prodCode.equals(that.prodCode) : that.prodCode != null) {
+      return false;
+
+    }
+    if (payFee != null ? !payFee.equals(that.payFee) : that.payFee != null) {
       return false;
     }
-    if (orderId != null ? !orderId.equals(trdOrder.orderId) : trdOrder.orderId != null) {
-      return false;
-    }
-    if (bankCardNum != null ? !bankCardNum.equals(trdOrder.bankCardNum)
-        : trdOrder.bankCardNum != null) {
-      return false;
-    }
-    if (prodCode != null ? !prodCode.equals(trdOrder.prodCode) : trdOrder.prodCode != null) {
-      return false;
-    }
-    if (payFee != null ? !payFee.equals(trdOrder.payFee) : trdOrder.payFee != null) {
+    if (fundCode != null ? !fundCode.equals(that.fundCode) : that.fundCode != null) {
       return false;
     }
 
     return true;
   }
 
+  public String getErrMsg() {
+    return errMsg;
+  }
+
+  public void setErrMsg(String errMsg) {
+    this.errMsg = errMsg;
+  }
+
   @Override
   public int hashCode() {
     int result = (int) (id ^ (id >>> 32));
-    result = 31 * result + (orderId != null ? orderId.hashCode() : 0);
-    result = 31 * result + (int) (preOrderId ^ (preOrderId >>> 32));
     result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
     result = 31 * result + (prodCode != null ? prodCode.hashCode() : 0);
     result = 31 * result + orderStatus;
@@ -300,8 +281,8 @@ public class TrdOrder {
     result = 31 * result + (payFee != null ? payFee.hashCode() : 0);
     result = 31 * result + (int) (userId ^ (userId >>> 32));
     result = 31 * result + (int) (prodId ^ (prodId >>> 32));
-    result = 31 * result + (int) (groupId ^ (groupId >>> 32));
-    result = 31 * result + (int) (userProdId ^ (userProdId >>> 32));
+    result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
+    result = 31 * result + (int) (fundShareConfirmed ^ (fundShareConfirmed >>> 32));
     result = 31 * result + (int) (createBy ^ (createBy >>> 32));
     result = 31 * result + (int) (createDate ^ (createDate >>> 32));
     result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));

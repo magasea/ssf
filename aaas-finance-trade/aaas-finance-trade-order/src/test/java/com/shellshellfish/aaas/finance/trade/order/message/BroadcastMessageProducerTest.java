@@ -1,7 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.message;
 
-import com.shellshellfish.aaas.common.message.order.PayDto;
-import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
+import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +18,8 @@ public class BroadcastMessageProducerTest {
 
   @Test
   public void sendMessages() throws Exception {
-    PayDto payDto = new PayDto();
-    broadcastMessageProducer.sendPayMessages(payDto);
+    PayOrderDto payOrderDto = new PayOrderDto();
+    broadcastMessageProducer.sendPayMessages(payOrderDto);
   }
 
 }

@@ -1,9 +1,10 @@
 package com.shellshellfish.aaas.finance.trade.pay.model;
 
-public class SellFundResult {
+public class FundConvertResult {
     private String applySerial;
     private String acceptDate;
     private String requestDate;
+    private String resubDate;
     private String outsideOrderNo;
 
     public String getApplySerial() {
@@ -30,7 +31,13 @@ public class SellFundResult {
         this.requestDate = requestDate;
     }
 
+    public String getResubDate() {
+        return resubDate;
+    }
 
+    public void setResubDate(String resubDate) {
+        this.resubDate = resubDate;
+    }
 
     public String getOutsideOrderNo() {
         return outsideOrderNo;

@@ -14,6 +14,7 @@ service UserInfoService {
     rpc GenUserProdsFromOrder(FinanceProdInfosQuery) returns (UserProdId){}
 
     rpc GetUerUUIDByUserId (UserId) returns (UserUUID){}
+    rpc UpdateUserProd(UpdateUserProdReqs) returns(UserProdId){}
 }
 
 message UserIdQuery {
@@ -50,6 +51,19 @@ message FinanceProdInfosQuery{
   repeated FinanceProdInfo prodList = 2; //产品成分List
 }
 message UserProdId{
-  int64 user_prod_id = 1;//用户理财产品ID
+  int64 user_prod_id = 1;//用户理财产品ID 如果为-1 表示对应的操作失败
 }
 
+message UpdateUserProdReqs{
+  int64 user_id = 1; //用户id
+  int64 user_prod_id = 2; //用戶产品id
+  int64 prod_id = 3;//理財產品ID
+  int64 group_id = 4;//类别ID
+  repeated UpdateUserProdReq updateUserProdReq = 5; //更新的基金占比数列
+}
+
+message UpdateUserProdReq{
+  int32 fund_share = 1;//基金占比
+  int64 user_prod_id = 2; //用户理财产品id
+  string fund_code = 3; //基金code
+}

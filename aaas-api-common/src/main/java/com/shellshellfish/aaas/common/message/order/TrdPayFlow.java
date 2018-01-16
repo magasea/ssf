@@ -69,7 +69,7 @@ public class TrdPayFlow implements Serializable{
 
   
   
-  public long getTradeBrokeId() {
+  public Long getTradeBrokeId() {
     return tradeBrokeId;
   }
 

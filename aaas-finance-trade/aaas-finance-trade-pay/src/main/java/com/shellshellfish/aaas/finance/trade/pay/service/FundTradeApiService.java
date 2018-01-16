@@ -15,6 +15,9 @@ public interface FundTradeApiService {
 
     SellFundResult sellFund(String userUuid, Integer sellNum, String outsideOrderNo, String tradeAcco, String fundCode) throws Exception;
 
+    FundConvertResult fundConvert(String userUuid, BigDecimal applyShare, String outsideOrderNo,
+        String tradeAcco,String fundCode, String targetFundCode ) throws Exception;
+
     CancelTradeResult cancelTrade(String userUuid, String applySerial) throws Exception;
 
     ApplyResult getApplyResultByApplySerial(String userUuid, String applySerial) throws JsonProcessingException;
