@@ -1,8 +1,10 @@
 package com.shellshellfish.aaas.userinfo.service;
 
+import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface UserFinanceProdCalcService {
 
@@ -26,6 +28,8 @@ public interface UserFinanceProdCalcService {
     void dailyCalculation() throws Exception;
 
     void dailyCalculation(String date) throws Exception;
+
+    void dailyCalculation(String date, List<UiUser> uiUsers) throws Exception;
 
 	BigDecimal getAssert(String userUuid, Long prodId) throws Exception;
 }
