@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +23,8 @@ import com.alibaba.fastjson.JSONObject;
 public class EasyKit {
 
 	private static final Logger log = LoggerFactory.getLogger(EasyKit.class);
+	
+	public static final String PERCENT = "%";
 
 	public static String getErrorMessage(String jsonArray) {
 		if (jsonArray == null || jsonArray.length() == 0) {
@@ -69,7 +72,32 @@ public class EasyKit {
 		return decimal;
 	}
 	
+	public static Double getDecimalNum(BigDecimal bigDecimal) {
+		Double decimal = null;
+		if(bigDecimal!=null){
+			bigDecimal = bigDecimal.multiply(new BigDecimal("100"));
+			decimal = bigDecimal.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();
+		}
+		return decimal;
+	}
+	
+	public static String getStringValue(BigDecimal bigDecimal) {
+		Double decimal = null;
+		StringBuffer result = new StringBuffer();
+		if(bigDecimal!=null){
+			bigDecimal = bigDecimal.multiply(new BigDecimal("100"));
+			decimal = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+			result.append(decimal);
+			result.append("%");
+		}
+		if(StringUtils.isEmpty(result)){
+			return "0.0%";
+		} else {
+			return result.toString();
+		}
+	}
+	
 //	public static void main(String[] args) {
-//		System.out.println(getDecimal(new BigDecimal("0.00011049437537826574")));
+//		System.out.println(getStringValue(new BigDecimal("0.00001049437537826574")));
 //	}
 }
