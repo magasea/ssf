@@ -47,7 +47,7 @@ public class DailyFundService {
         //查询 fund_group_basic ，获取需要调用每日接口抓取数据的 code
         List<String> codeList=fundGroupMapper.findAllGroupCode();
 
-        //查询 fund_group_basic ，获取 需要收盘价的 code
+        //查询 fund_group_basic ，获取 基准 code
         benchmarkCode=fundGroupMapper.findBenchmarkCode();
 
         for(int i=0;i<codeList.size();i++){
@@ -89,7 +89,7 @@ public class DailyFundService {
             builder.setNavLatestDateStart(startDate);
             builder.setNavLatestDateEnd(endDate);
             builder.addCodes(code);
-            dailyFundsList = fundInfoService.getDailyFunds(builder.build());
+            dailyFundsList = fundInfoService.getDailyFunds(builder.build());//grpc
 
         }catch(Exception e){
             logger.error("调用每日接口获取数据失败：code="+code+",startDate="+startDate+",todayDate="+endDate,e);
@@ -101,7 +101,7 @@ public class DailyFundService {
             try{
                 //先判断是否已经有该 code 的基本数据
                 String basicCode=fundNetValMapper.findBasicDataByCode(code);
-                if(!code.equals(basicCode)){
+                if((benchmarkCode!=null && !benchmarkCode.contains(code))  && !code.equals(basicCode) ){
                     Dailyfunds dailyfunds=new Dailyfunds();
                     dailyfunds.setCode(dailyFundsList.get(0).getCode());//基金代码
                     dailyfunds.setFname(dailyFundsList.get(0).getFname());//基金简称
@@ -126,18 +126,19 @@ public class DailyFundService {
                 for(DailyFunds dailyFunds: dailyFundsList){
                     Dailyfunds dailyfunds=new Dailyfunds();
 
-                    //每日数据日期格式转换
+                    //每日数据日期格式转换(取 NavLatestDate)
                     try {
-                        dailyfunds.setNavLatestDate(sdf.parse(SSFDateUtils.getDateStrFromLong(dailyFunds.getQuerydate()/*getNavLatestDate*/)));
+                        dailyfunds.setNavLatestDate(sdf.parse(SSFDateUtils.getDateStrFromLong(dailyFunds./*getQuerydate()*/getNavLatestDate())));
                     } catch (ParseException e) {
                         logger.error("日期数据转换失败");
                         e.printStackTrace();
                     }
 
                     dailyfunds.setCode(dailyFunds.getCode());
-                    dailyfunds.setNavUnit(Double.parseDouble(dailyFunds.getClose()));//将 收盘价 存入 复权单位净值
+                    dailyfunds.setNavUnit(dailyFunds.getNavunit());
                     dailyfunds.setNavAccum(dailyFunds.getNavaccum());
                     dailyfunds.setNavAdj(dailyFunds.getNavadj());
+                    dailyfunds.setCreateDate(new Date());
 //                    dailyfunds.setYieldOf7Days(dailyFunds.getYieldOf7Days());
 //                    dailyfunds.setMillionRevenue(dailyFunds.getMillionRevenue());
 
@@ -149,9 +150,9 @@ public class DailyFundService {
                 for(DailyFunds dailyFunds: dailyFundsList){
                     Dailyfunds dailyfunds=new Dailyfunds();
 
-                    //每日数据日期格式转换
+                    //每日数据日期格式转换(取 Querydate)
                     try {
-                        dailyfunds.setNavLatestDate(sdf.parse(SSFDateUtils.getDateStrFromLong(dailyFunds.getQuerydate()/*.getNavLatestDate()*/)));
+                        dailyfunds.setNavLatestDate(sdf.parse(SSFDateUtils.getDateStrFromLong(dailyFunds.getQuerydate()/*getNavLatestDate()*/)));
                     } catch (ParseException e) {
                         logger.error("日期数据转换失败");
                         e.printStackTrace();
@@ -161,6 +162,7 @@ public class DailyFundService {
                     dailyfunds.setNavUnit(dailyFunds.getNavunit());
                     dailyfunds.setNavAccum(dailyFunds.getNavaccum());
                     dailyfunds.setNavAdj(dailyFunds.getNavadj());
+                    dailyfunds.setCreateDate(new Date());
 //                    dailyfunds.setYieldOf7Days(dailyFunds.getYieldOf7Days());
 //                    dailyfunds.setMillionRevenue(dailyFunds.getMillionRevenue());
 

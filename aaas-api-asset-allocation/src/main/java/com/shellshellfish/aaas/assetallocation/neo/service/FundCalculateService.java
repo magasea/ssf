@@ -281,6 +281,7 @@ public class FundCalculateService {
                         fundCalculateData.setRiskRatio(riskRatio==null?0d:riskRatio);//风险率
                         fundCalculateData.setSemiVariance(semiVariance==null?0d:semiVariance);//半方差
                         fundCalculateData.setNavadj(fundNetVal1.getNavadj());//复权单位净值
+                        fundCalculateData.setCreateDate(new Date());//数据产生时间
 
                         try{
                             Integer tag=fundCalculateDataMapper.insertFundCalculateDataWeek(fundCalculateData);

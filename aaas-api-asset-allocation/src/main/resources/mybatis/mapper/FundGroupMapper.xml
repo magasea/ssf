@@ -249,7 +249,7 @@
     <select id="getRiskNum" resultType="String">
         select cust_risk from strategy where fund_group_id = #{id}
     </select>
-    
+
     <select id="selectMaximumRetracement" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupHistory">
         select maximum_retracement from fund_group_history where fund_group_id = #{id} and fund_group_sub_id = #{subId}
     </select>
@@ -280,7 +280,7 @@
     </select>
 
     <select id="findBenchmarkCode"  resultType="java.lang.String">
-        SELECT code FROM fund_group_basic WHERE identifier ='1' AND is_valid='1'
+        SELECT code FROM fund_group_basic WHERE group_id ='0' AND is_valid='1'
     </select>
 
     <select id="findAllGroupId"  resultMap="fundGroupMap">
@@ -288,10 +288,10 @@
     </select>
 
     <insert id="insertIntoFundGroupDetails" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCombination">
-        insert into fund_group_details (fund_code,fund_group_id,fund_group_sub_id,proportion)
+        insert into fund_group_details (fund_code,fund_group_id,fund_group_sub_id,proportion,create_time)
         <foreach collection="list" item="details" index="index" separator="union all">
             ( SELECT
-            #{details.code},#{details.groupId},#{details.subGroupId},#{details.proportion}
+            #{details.code},#{details.groupId},#{details.subGroupId},#{details.proportion},#{details.createDate}
             FROM dual
             )
         </foreach>
@@ -301,12 +301,12 @@
     <insert id="insertIntoFundGroupSub" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCombination">
         insert into fund_group_sub (id,fund_group_id,risk_num,income_num,
         expected_annualized_return,simulate_historical_year_performance,
-        expected_max_retracement,simulate_historical_volatility)
+        simulate_historical_volatility,create_time,interval_last_mod_time)
         <foreach collection="list" item="details" index="index" separator="union all">
             ( SELECT
             #{details.subGroupId},#{details.groupId},#{details.subGroupRisk},#{details.subGroupYield},
             #{details.expectedAnnualizedReturn},#{details.simulateHistoricalYearPerformance},
-            #{details.expectedMaxRetracement},#{details.simulateHistoricalVolatility}
+            #{details.simulateHistoricalVolatility}, #{details.createDate}, #{details.combinationDate}
             FROM dual
             )
         </foreach>

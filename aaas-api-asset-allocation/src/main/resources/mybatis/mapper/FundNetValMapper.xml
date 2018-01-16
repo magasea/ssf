@@ -124,4 +124,15 @@
         WHERE code=#{code}
     </select>
 
+    <select id="getMinNavDateByCodeList"  resultType="java.util.Date">
+        SELECT MAX(a.minDate) FROM
+        ( SELECT MIN(NAVLATESTDATE) minDate
+        FROM fund_net_value
+        WHERE CODE IN
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        GROUP BY code ) as a
+    </select>
+
 </mapper>

@@ -42,7 +42,7 @@ public class JobScheduleService {
     /*
      * 调用每日接口
      */
-//    @Scheduled(cron = "0 0 1 * * ?")    //每天凌晨1点执行
+    @Scheduled(cron = "0 0 1 * * ?")    //每天凌晨1点执行
     public void insertDailyFundJobSchedule(){
 
         logger.info("调用每日接口获取数据定时任务启动..."+sdf.format(new Date()));
@@ -69,7 +69,7 @@ public class JobScheduleService {
     /*
      * 计算每周收益率以及风险率数据
      */
-//    @Scheduled(cron = "0 0 5 L * ?")       //每月最后一天 上午 5 点执行
+//    @Scheduled(cron = "0 0 2 28 * ?")       //每月 28 号  凌晨 2 点执行
     public void calculateYieldAndRiskOfWeekJobSchedule(){
 
         logger.info("计算每周收益率以及风险率数据定时任务启动..."+sdf.format(new Date()));
@@ -93,40 +93,10 @@ public class JobScheduleService {
     }
 
 
-
-    /*
-     * 计算每周协方差数据
-     */
-//    @Scheduled(cron = "0 0 6 L * ?")       //每月最后一天 上午 6 点执行
-    public void calculateCovarianceOfWeekJobSchedule(){
-
-        logger.info("计算每周协方差数据定时任务启动..."+sdf.format(new Date()));
-        Boolean flag=false;
-        Integer status=SUCCESSFUL_STATUS;
-        //计算每周协方差等数据
-        try{
-            flag=cvarianceCalculateService.calculateCovarianceOfWeek();
-        }catch(Exception e){
-            logger.error("计算每周协方差等数据 定时任务启动失败..."+sdf.format(new Date()),e);
-        }
-
-        if(flag){
-            logger.info("计算每周协方差等数据 定时任务启动成功..."+sdf.format(new Date()));
-        }else {
-            status=FAILURED_STATUS;
-            logger.info("计算每周协方差等数据 定时任务启动失败..."+sdf.format(new Date()));
-        }
-        //记录 定时任务执行的状态
-        JobScheduleRecord(CALCULATE_COVARIANCEOFWEEK_JOBSCHEDULE,status);
-
-    }
-
-
-
     /*
      * 计算产品组合数据(产品组合风险率、收益率、权重)
      */
-//    @Scheduled(cron = "0 0 22 * * ?")        //每月最后一天 晚上 10 点执行
+//    @Scheduled(cron = "0 0 22 28 * ?")        //每月 28 号  晚上 10 点执行
     public void insertFundGroupDataJobSchedule(){
 
         logger.info("计算组合数据(产品组合风险率、收益率、权重)定时任务启动..."+sdf.format(new Date()));

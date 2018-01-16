@@ -53,7 +53,7 @@
         SELECT
         yield_ratio
         FROM ${tableName}
-        WHERE code='${code}' AND '${selectDate}'>=nav_date limit 1
+        WHERE code='${code}' AND nav_date >='${selectDate}'
     </select>
 
     <select id="findRiskRatio"  resultType="java.lang.Double" statementType="STATEMENT">

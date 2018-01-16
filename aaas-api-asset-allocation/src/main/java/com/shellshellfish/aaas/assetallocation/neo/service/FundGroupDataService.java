@@ -107,6 +107,7 @@ public class FundGroupDataService {
         Boolean flag=true;
         Double [] ExpReturn=null;
         Double[][] ExpCovariance=null;
+        Date combinationDate=null;
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
@@ -125,6 +126,7 @@ public class FundGroupDataService {
         if(SUCCEED_STATUS.equals(covarianceModel.getStatus())){//成功，数据有效)
             ExpReturn=covarianceModel.getYieldRatioArr();
             ExpCovariance=covarianceModel.getCovarianceArr();
+            combinationDate=covarianceModel.getNavDate();
             logger.debug("MVO方法所需参数矩阵查询成功！");
         }else{
             logger.error("MVO方法所需参数矩阵查询失败！");
@@ -132,7 +134,7 @@ public class FundGroupDataService {
         }
 
         //调用 MVO 获取 组合收益、风险、权重
-        List<float [][]> result= MVO.efficientFrontier(ExpReturn,ExpCovariance,SUB_GROUP_COUNT);
+        List<float [][]> result= MVO.efficientFrontier(ExpReturn,ExpCovariance,SUB_GROUP_COUNT,LOW_BOUND,UP_BOUND);
 
         if(result!=null && result.size()==3){
             float[][] riskArr=result.get(0);//子组合风险数组
@@ -160,21 +162,23 @@ public class FundGroupDataService {
                         fundGroupDetails.setSubGroupId(((Integer)(groupId*100)).toString()+((Integer)i).toString());//子组合Id
                         fundGroupDetails.setCode(codeList.get(j));//基金代码
                         fundGroupDetails.setProportion(weightArr[j][i]);//权重
+                        fundGroupDetails.setCreateDate(new Date());//数据产生时间
                         subGroupDetails.add(fundGroupDetails);//
                     }
                     FundCombination fundCombination=new FundCombination();
                     fundCombination.setGroupId(groupId);//组合Id
                     fundCombination.setSubGroupId(((Integer)(groupId*100)).toString()+((Integer)i).toString());//子组合Id
-                    fundCombination.setSubGroupRisk(riskVal*52);//子组合风险
+                    fundCombination.setSubGroupRisk((float)(riskVal*Math.sqrt(52)));//子组合风险
 
-                    fundCombination.setExpectedMaxRetracement(riskVal*(-52));//预期最大回撤
-                    fundCombination.setSimulateHistoricalVolatility(riskVal*52);//模拟历史年化波动率
+//                    fundCombination.setExpectedMaxRetracement(riskVal*(-52));//预期最大回撤
+                    fundCombination.setSimulateHistoricalVolatility((float)(riskVal*Math.sqrt(52)));//模拟历史年化波动率
 
                     fundCombination.setSubGroupYield(yieldVal*52);//子组合收益
 
                     fundCombination.setExpectedAnnualizedReturn(yieldVal*52);//预期年化收益
                     fundCombination.setSimulateHistoricalYearPerformance(yieldVal*52);//模拟历史年化业绩
-
+                    fundCombination.setCreateDate(new Date());//数据产生时间
+                    fundCombination.setCombinationDate(combinationDate);//组合成立日
 
                     fundCombination.setSubGroupDetails(subGroupDetails);//子组合详情
 

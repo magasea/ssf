@@ -13,31 +13,26 @@ import org.springframework.data.mongodb.core.mapping.Field;
  */
 @Getter
 @Setter
-@Document(collection = "fundbaseclose")
+@Document(collection = "fundbaseclose_origin")
 public class FundBaseClose {
   @Id
   @Field( value = "_id")
   String id;
 
   //yyyy-MM-dd
-  @Indexed(name ="date", direction = IndexDirection.DESCENDING)
-  @Field( value =  "date")
-  String date;
+//  @Indexed(name ="update", direction = IndexDirection.DESCENDING)
+  @Field( value =  "update")
+  Long update;
 
-  @Field( value = "000300SH" )
-  String sh000300;
+  @Field( value = "Close" )
+  Double close;
 
-  @Field( value = "H11001CSI" )
-  String h11001csi;
+  @Field( value = "code" )
+  String code;
 
-  @Field( value = "000905SH")
-  String sh00905;
-
-  @Field( value = "GDAXIGI")
-  String gdaxigi;
-
-  @Field(value = "datestamp")
-  Long dateStamp;
+  @Indexed(name ="querydate", direction = IndexDirection.DESCENDING)
+  @Field( value = "querydate")
+  Long querydate;
 
   public String getId() {
     return id;
@@ -47,51 +42,35 @@ public class FundBaseClose {
     this.id = id;
   }
 
-  public String getDate() {
-    return date;
+  public Long getUpdate() {
+    return update;
   }
 
-  public void setDate(String date) {
-    this.date = date;
+  public void setUpdate(Long update) {
+    this.update = update;
   }
 
-  public String getSh000300() {
-    return sh000300;
+  public Double getClose() {
+    return close;
   }
 
-  public void setSh000300(String sh000300) {
-    this.sh000300 = sh000300;
+  public void setClose(Double close) {
+    this.close = close;
   }
 
-  public String getH11001csi() {
-    return h11001csi;
+  public String getCode() {
+    return code;
   }
 
-  public void setH11001csi(String h11001csi) {
-    this.h11001csi = h11001csi;
+  public void setCode(String code) {
+    this.code = code;
   }
 
-  public String getSh00905() {
-    return sh00905;
+  public Long getQuerydate() {
+    return querydate;
   }
 
-  public void setSh00905(String sh00905) {
-    this.sh00905 = sh00905;
-  }
-
-  public String getGdaxigi() {
-    return gdaxigi;
-  }
-
-  public void setGdaxigi(String gdaxigi) {
-    this.gdaxigi = gdaxigi;
-  }
-
-  public Long getDateStamp() {
-    return dateStamp;
-  }
-
-  public void setDateStamp(Long dateStamp) {
-    this.dateStamp = dateStamp;
+  public void setQuerydate(Long querydate) {
+    this.querydate = querydate;
   }
 }

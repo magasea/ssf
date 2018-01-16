@@ -28,12 +28,13 @@ public interface ConstantUtil {
 
     String SUCCEED_STATUS ="succeed";
     String FAILUED_STATUS ="failued";
-    String NULL_STATUS ="null";
+    String NULL_STATUS ="nullVal";
 
     String ADJUSTED_FACTOR_TRIGGER="adjustedFactorTrigger";
 
     Integer SUB_GROUP_COUNT=100; // 调用 MVO 输出点的个数
-
+    Double LOW_BOUND=0.05; // 调用 MVO 权重 下限
+    Double UP_BOUND=0.95; // 调用 MVO 权重 上限
     String JOB_SCHEDULE_NAME="timedTask";
     String INSERT_DAILYFUND_JOBSCHEDULE="insertDailyFundJobSchedule";
     String CALCULATE_YIELDANDRISKOFWEEK_JOBSCHEDULE="calculateYieldAndRiskOfWeekJobSchedule";

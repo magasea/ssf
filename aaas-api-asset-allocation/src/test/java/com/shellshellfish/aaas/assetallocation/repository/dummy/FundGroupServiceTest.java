@@ -63,7 +63,7 @@ public class FundGroupServiceTest {
                 {0.0022,  0.0028,  0.0070,  0.0050,  0.0573}};
         for (int i = 0;i<10000;i++){
             System.out.println(i);
-            MVO.efficientFrontier(ExpReturn, ExpCovariance, 10);
+//            MVO.efficientFrontier(ExpReturn, ExpCovariance, 10,LOW_BOUND,UP_BOUND);
         }
     }
 
@@ -119,8 +119,8 @@ public class FundGroupServiceTest {
 
     @Test
     public void getFundGroupIncome() throws ParseException {
-        ReturnType e = allocationService.getFundGroupIncomeAll("14", "140049", "income");
-        System.out.println(e);
+//        ReturnType e = allocationService.getFundGroupIncomeAll("14", "140049", "income");
+//        System.out.println(e);
     }
 
     @Test
@@ -137,7 +137,7 @@ public class FundGroupServiceTest {
         //allocationService.getNavadj("1","1000");
         //allocationService.maximumLosses("1","1000");
         //allocationService.getNavadjBenchmark("C1");
-        allocationService.updateExpectedMaxRetracement("1","1000");
+//        allocationService.updateExpectedMaxRetracement("1","1000");
     }
 
     /*@Test

@@ -20,12 +20,20 @@ public class MVO {
      * @param count 有效前沿线生成的点数
      * @return
      */
-    public static List<float [][]> efficientFrontier(Double [] ExpReturn, Double[][] ExpCovariance, int count){
+    public static List<float [][]> efficientFrontier(Double [] ExpReturn, Double[][] ExpCovariance, int count,Double lb,Double ub){
         Object[] resust = null;
         List<float [][]> list = new ArrayList<>();
         try{
+
+            double[] lowBound=new double[ExpReturn.length];
+            double[] upBound=new double[ExpReturn.length];
+            for(int i=0;i<lowBound.length;i++){
+                lowBound[i]=lb;
+                upBound[i]=ub;
+            }
+
             MATLAB ml = new MATLAB();
-            resust = ml.efficientFrontier(3,ExpReturn,ExpCovariance,count);
+            resust = ml.efficientFrontier(3,ExpReturn,ExpCovariance,count,lowBound,upBound);
             MWNumericArray temp = (MWNumericArray)resust[0];
             float [][] weights=(float[][])temp.toFloatArray();
             MWNumericArray temp1 = (MWNumericArray)resust[1];
