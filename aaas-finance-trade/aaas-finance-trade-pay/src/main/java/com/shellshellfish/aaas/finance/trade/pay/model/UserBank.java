@@ -4,7 +4,16 @@ public class UserBank {
     private String bankName;
     private String tradeAcco;
     private String bankSerial;
+    private String bankAcco;
     private String capitalMode;
+
+    public String getBankAcco() {
+        return bankAcco;
+    }
+
+    public void setBankAcco(String bankAcco) {
+        this.bankAcco = bankAcco;
+    }
 
     public String getBankName() {
         return bankName;

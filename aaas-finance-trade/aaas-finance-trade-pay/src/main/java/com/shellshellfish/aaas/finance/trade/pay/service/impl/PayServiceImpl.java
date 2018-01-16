@@ -28,6 +28,7 @@ import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.FundConvertResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.OpenAccountResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.SellFundResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.UserBank;
 import com.shellshellfish.aaas.finance.trade.pay.model.ZZBuyFund;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;
@@ -267,6 +268,27 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       return openAccountResult.getTradeAcco();
     } catch (Exception e) {
       e.printStackTrace();
+      if(e.getMessage().contains("该商户下已有其他openid绑定该身份证") || e.getMessage().contains("此卡已存在")){
+        //尝试用当前的userId去获取tradeAccount
+        try {
+          List<UserBank> userBanks =  fundTradeApiService.getUserBank(""+bindBankCard.getUserId(),
+              "001120");
+          if(CollectionUtils.isEmpty(userBanks)){
+            logger.error("failed to find userBanks by userId:"+ bindBankCard.getUserId() + " and "
+                + "fundCode: 001120");
+          }else{
+            for(UserBank userBank: userBanks){
+              if(bindBankCard.getBankCardNum().equals(userBank.getBankAcco())){
+                logger.info("found tradeAcco by userId:" + bindBankCard.getUserId() + " "
+                    + "tradeAcco:" + userBank.getTradeAcco());
+                return userBank.getTradeAcco();
+              }
+            }
+          }
+        } catch (Exception e1) {
+          e1.printStackTrace();
+        }
+      }
       return null;
     }
   }
