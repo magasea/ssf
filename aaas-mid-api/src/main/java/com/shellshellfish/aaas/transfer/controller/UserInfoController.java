@@ -97,7 +97,7 @@ public class UserInfoController {
 			String str="{\"cardNumber\":\""+bankCard+"\",\"cardUserName\":\""+name+"\",\"cardCellphone\":\""+mobile+"\",\"cardUserPid\":\""+idcard+"\",\"cardUuId\":\""+uuid+"\"}";
 			logger.info("urlUid=="+str);
 			logger.info("str=="+str);
-			result=restTemplate.postForEntity(url,getHttpEntity(str),Map.class).getBody();
+			result=restTemplate.postForEntity(url,getHttpEntitySecond(str),Map.class).getBody();
 			if(result==null){
 				logger.info("添加银行卡失败");
 				return new JsonResult(JsonResult.Fail, "添加银行卡失败", result);
@@ -527,6 +527,13 @@ public class UserInfoController {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.parseMediaType("application/json;UTF-8"));
 		headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+		HttpEntity<String> strEntity = new HttpEntity<String>(JsonString,headers);
+		return strEntity;
+	}
+	protected HttpEntity<String> getHttpEntitySecond(String JsonString){
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.parseMediaType("application/json;charset=UTF-8"));
+		headers.add("Accept", "application/json;charset=UTF-8");
 		HttpEntity<String> strEntity = new HttpEntity<String>(JsonString,headers);
 		return strEntity;
 	}

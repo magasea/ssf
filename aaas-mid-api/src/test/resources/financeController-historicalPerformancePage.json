@@ -55,7 +55,7 @@
                 "type": "number"
               },
               "value": {
-                "type": "number"
+                "type": ["string","number"]
               }
             },
             "required": [
