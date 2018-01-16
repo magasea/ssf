@@ -228,7 +228,7 @@ public class FinanceController {
 					  //去另一个接口获取预期年化，预期最大回撤
 					  Map expAnnReturn= getExpAnnReturn(groupId,subGroupId);
 					  if(expAnnReturn.containsKey("value")){
-						  expAnnReturn.put("value", expAnnReturn.get("value")+EasyKit.PERCENT);
+						  expAnnReturn.put("value", expAnnReturn.get("value"));
 					  }
 					  //Map ExpMaxReturn=getExpMaxReturn(groupId,subGroupId);
 					  //将结果封装进实体类
