@@ -25,4 +25,6 @@ public interface TrdBrokerUserRepository extends PagingAndSortingRepository<TrdB
   int updateTradeAcco(@Param("trdAcco") String trdAcco, @Param("updateDate") Long
       updateDate, @Param("updateBy") Long updateBy,  @Param("userId") Long userId);
 
+  @Override
+  TrdBrokerUser save(TrdBrokerUser trdBrokerUser);
 }

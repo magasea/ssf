@@ -260,7 +260,8 @@ public class TrdPreOrder {
 
     return true;
   }
-
+  @Basic
+  @Column(name = "err_msg")
   public String getErrMsg() {
     return errMsg;
   }
