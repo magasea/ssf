@@ -200,6 +200,8 @@ message PreOrderPayReq{
   int64 pay_fee = 6;
   int64 user_id = 7;
   int64 prod_id = 8;
+  int32 trd_broker_id = 9; //交易平台ID
+  string trade_account = 10; //交易账户
 }
 //预订单支付结果
 message PreOrderPayResult{

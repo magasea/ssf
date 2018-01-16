@@ -7,6 +7,7 @@ import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayDto;
+import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProducer;
@@ -51,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -367,15 +369,28 @@ public class TradeOpServiceImpl implements TradeOpService {
     logger.info("get fundCode:"+ fundCode+ " for groupId:" + financeProdInfo.getGroupId() + " "
         + "prodId:" + financeProdInfo.getProdId());
     PreOrderPayResult preOrderPayResult = genPreOrderFromFundCodeAndBuyInfo(financeProdInfo, fundCode);
+    if(!StringUtils.isEmpty(preOrderPayResult.getApplySerial())){
+      //说明该申购能够正常结束， 所以可以去生成初始化的产品申购流程足迹
+      // 生成order 和 orderDetail 状态为等待支付
+      //在用户理财产品系统里面生成用户的理财产品, 这是日后《我的理财产品》模块的依据
+      Long userProdId =  genUserProduct(financeProdInfo, productMakeUpInfos);
+      financeProdInfo.setUserProdId(userProdId);
+      //这时候真正的订单已经生成
+      TrdOrder trdOrder =  genOrderFromBuyInfoAndProdMakeUpInfo(financeProdInfo,
+          productMakeUpInfos, preOrderPayResult.getPreOrderId() );
+      return trdOrder;
+    }else{
+      throw new Exception("申购失败："+ preOrderPayResult.getErrMsg());
+    }
 
-    //在用户理财产品系统里面生成用户的理财产品, 这是日后《我的理财产品》模块的依据
-    Long userProdId =  genUserProduct(financeProdInfo, productMakeUpInfos);
-    financeProdInfo.setUserProdId(userProdId);
-    //这时候真正的订单已经生成
-    TrdOrder trdOrder =  genOrderFromBuyInfoAndProdMakeUpInfo(financeProdInfo,
-        productMakeUpInfos, preOrderPayResult.getPreOrderId() );
 
+  }
 
+  @Override
+  public TrdOrder buyPreOrderProduct(TrdPayFlow trdPayFlow) {
+    Long preOrderId = trdPayFlow.getOrderDetailId();
+
+    return null;
   }
 
   /**
@@ -386,7 +401,6 @@ public class TradeOpServiceImpl implements TradeOpService {
    * @param preOrderId
    * @return
    */
-
   private TrdOrder genOrderFromBuyInfoAndProdMakeUpInfo(FinanceProdBuyInfo financeProdInfo,
       List<ProductMakeUpInfo> productMakeUpInfos, long preOrderId) throws Exception {
     PayDto payDto = new PayDto();
@@ -493,7 +507,15 @@ public class TradeOpServiceImpl implements TradeOpService {
     poprBuilder.setUserId(userId);
     poprBuilder.setFundCode(fundCode);
     PreOrderPayResult result = payService.preOrder2Pay(poprBuilder.build());
-
+    if(StringUtils.isEmpty(result.getApplySerial())){
+      //说明中证支付接口调用失败没有生产流水号
+      logger.error("failed to preOrder for :" + fundCode + "with error:" + result.getErrMsg());
+      trdPreOrderRepository.updateByParam(TrdOrderStatusEnum.FAILED.getStatus(),result.getErrMsg(),TradeUtil
+          .getUTCTime(),userId, trdPreOrder.getId());
+    }else{
+      trdPreOrderRepository.updateByParam(TrdOrderStatusEnum.WAITPAY.getStatus(),result.getErrMsg(),
+          TradeUtil.getUTCTime(),userId, trdPreOrder.getId());
+    }
     return result;
   }
 
@@ -501,4 +523,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     //Todo: add code
     return null;
   }
+
+
+
 }

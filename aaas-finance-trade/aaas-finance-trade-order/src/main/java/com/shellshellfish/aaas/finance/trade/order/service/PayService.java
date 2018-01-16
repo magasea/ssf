@@ -41,6 +41,7 @@ public interface PayService {
    * @param preOrderPayReq
    * @return
    */
-  PreOrderPayResult preOrder2Pay(PreOrderPayReq preOrderPayReq);
+  PreOrderPayResult preOrder2Pay(PreOrderPayReq preOrderPayReq)
+      throws ExecutionException, InterruptedException;
 
 }

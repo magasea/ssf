@@ -16,9 +16,10 @@ public interface TrdPreOrderRepository extends PagingAndSortingRepository<TrdPre
 
   @Modifying(clearAutomatically = true)
   @Query("UPDATE TrdPreOrder SET order_status = "
-      + ":orderStatus ,  update_date = :updateDate, update_by = :updateBy WHERE id = :id")
-  void updateByParam(@Param("orderStatus") int orderStatus, @Param("updateDate") Long
-      updateDate, @Param("updateBy") Long updateBy, @Param("id") Long id);
+      + ":orderStatus , err_msg = :errMsg,  update_date = :updateDate, update_by = :updateBy "
+      + "WHERE id = :id")
+  void updateByParam(@Param("orderStatus") int orderStatus,@Param("errMsg") String errMsg, @Param
+      ("updateDate") Long updateDate, @Param("updateBy") Long updateBy, @Param("id") Long id);
 
   List<TrdOrderDetail> findAllByOrderId(String orderId);
 

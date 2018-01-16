@@ -138,8 +138,11 @@ public class PayServiceImpl implements PayService {
   }
 
   @Override
-  public PreOrderPayResult preOrder2Pay(PreOrderPayReq preOrderPayReq) {
-    return null;
+  public PreOrderPayResult preOrder2Pay(PreOrderPayReq preOrderPayReq)
+      throws ExecutionException, InterruptedException {
+    PreOrderPayResult preOrderPayResult  = payRpcFutureStub.preOrder2Pay(preOrderPayReq).get();
+
+    return preOrderPayResult;
   }
 
 

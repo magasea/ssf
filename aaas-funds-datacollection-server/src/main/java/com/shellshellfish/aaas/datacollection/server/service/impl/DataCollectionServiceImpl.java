@@ -142,22 +142,28 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
     }
     //check if the codes is of base codes
     List<FundBaseClose> fundbasecloses = null;
+    List<FundBaseClose> fundbaseclosesAll = new ArrayList<>();
     if(!CollectionUtils.isEmpty(baseIndexs)){
-      try{
-        Query query = new Query();
+      for(String code: baseIndexs){
+        try{
+          Query query = new Query();
 //      String dateStart = DateUtil.getDateStrFromLong(Long.parseLong(navLatestDateStart));
 //      String dateEnd = DateUtil.getDateStrFromLong(Long.parseLong(navLatestDateEnd));
-        query.addCriteria(Criteria.where("datestamp").gt(0L).andOperator( Criteria.where
-            ("datestamp").gt((DateUtil.getDateLongVal(navLatestDateStart)/1000)), Criteria.where("datestamp")
-                .lte(DateUtil.getDateLongVal(navLatestDateEnd)/1000)));
-        fundbasecloses = mongoTemplate.find(query, FundBaseClose.class,
-            "fundbaseclose");
-      }catch (Exception ex){
-        ex.printStackTrace();
-        logger.error("failed to convert date str to long date");
+          query.addCriteria(Criteria.where("code").is(code).andOperator( Criteria.where
+              ("querydate").gt((DateUtil.getDateLongVal(navLatestDateStart)/1000)), Criteria.where
+              ("querydate").lte(DateUtil.getDateLongVal(navLatestDateEnd)/1000)));
+          fundbasecloses = mongoTemplate.find(query, FundBaseClose.class,"fundbaseclose_origin");
+          if(!CollectionUtils.isEmpty(fundbasecloses)){
+            fundbaseclosesAll.addAll(fundbasecloses);
+          }
+        }catch (Exception ex){
+          ex.printStackTrace();
+          logger.error("failed to convert date str to long date");
+        }
       }
 
-      if(CollectionUtils.isEmpty(fundbasecloses)){
+
+      if(CollectionUtils.isEmpty(fundbaseclosesAll)){
         logger.error("cannot find baseIdx for dateStart:"+ navLatestDateStart + " dateEnd:" + navLatestDateEnd);
       }else{
         //为了适应这个奇葩的表结构 fundbaseclose，只好写这个奇葩的hardcode赋值
@@ -165,40 +171,13 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
         Set checkCodesSet = new HashSet();
         checkCodesSet.addAll(baseIndexs);
         Double nvadj = null;
-        for(FundBaseClose fundBaseClose: fundbasecloses){
-          if(checkCodesSet.contains("GDAXIGI")){
-            builderDailyFunds.setCode("GDAXIGI");
-            nvadj = MathUtil.getDoubleValueFromStrWitDefaultOpt(fundBaseClose.getGdaxigi());
-            builderDailyFunds.setNavadj(nvadj);
-            builderDailyFunds.setNavLatestDate(fundBaseClose.getDateStamp());
-            dailyFundsListProto.add(builderDailyFunds.build());
-            builderDailyFunds.clear();
-          }
-
-          if(checkCodesSet.contains("000905SH")) {
-            builderDailyFunds.setCode("000905SH");
-            nvadj = MathUtil.getDoubleValueFromStrWitDefaultOpt(fundBaseClose.getSh00905());
-            builderDailyFunds.setNavadj(nvadj);
-            builderDailyFunds.setNavLatestDate(fundBaseClose.getDateStamp());
-            dailyFundsListProto.add(builderDailyFunds.build());
-            builderDailyFunds.clear();
-          }
-          if(checkCodesSet.contains("H11001CSI")) {
-            builderDailyFunds.setCode("H11001CSI");
-            nvadj = MathUtil.getDoubleValueFromStrWitDefaultOpt(fundBaseClose.getH11001csi());
-            builderDailyFunds.setNavadj(nvadj);
-            builderDailyFunds.setNavLatestDate(fundBaseClose.getDateStamp());
-            dailyFundsListProto.add(builderDailyFunds.build());
-            builderDailyFunds.clear();
-          }
-          if(checkCodesSet.contains("000300SH")) {
-
-            builderDailyFunds.setCode("000300SH");
-            nvadj = MathUtil.getDoubleValueFromStrWitDefaultOpt(fundBaseClose.getSh000300());
-            builderDailyFunds.setNavadj(nvadj);
-            builderDailyFunds.setNavLatestDate(fundBaseClose.getDateStamp());
-            dailyFundsListProto.add(builderDailyFunds.build());
-          }
+        for(FundBaseClose fundBaseClose: fundbaseclosesAll){
+          builderDailyFunds.setCode(fundBaseClose.getCode());
+          nvadj = fundBaseClose.getClose();
+          builderDailyFunds.setNavadj(nvadj);
+          builderDailyFunds.setNavLatestDate(fundBaseClose.getQuerydate());
+          dailyFundsListProto.add(builderDailyFunds.build());
+          builderDailyFunds.clear();
         }
       }
     }

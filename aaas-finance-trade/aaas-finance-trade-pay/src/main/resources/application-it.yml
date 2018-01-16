@@ -75,8 +75,10 @@ org:
         threadsInheritContextClassLoaderOfInitializingThread: true
 cron:
   frequency:
-  #每天17：30分开始
-    jobwithcrontrigger: 0 45 17 ? * * *
+    #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
+    #     0	0	5,17,22	?	*	*	*
+    jobwithcrontrigger: 0 0 5,17,22 ? * * *
+    jobpreorderpayflowcheck: 0 0 5,17,22 ? * * *
 
 multithread:
   pool:

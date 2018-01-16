@@ -27,4 +27,12 @@ public class BroadcastMessageProducers {
             trdPayFlow);
     }
 
+    public void sendPreOrderMessage(TrdPayFlow trdPayFlow) {
+        logger.info("send preOrder message: " + trdPayFlow.getOrderDetailId());
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
+                .ROUTING_KEY_PREORDER, trdPayFlow);
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_USERINFO,
+            trdPayFlow);
+    }
+
 }

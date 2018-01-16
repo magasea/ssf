@@ -28,10 +28,13 @@ public class TrdPreOrder {
   private long prodId;
   private String fundCode;
   private long fundShareConfirmed;
+  private String errMsg;
   private long createBy;
   private long createDate;
   private long updateBy;
   private long updateDate;
+
+
 
   @Id
   @Column(name = "id")
@@ -246,6 +249,7 @@ public class TrdPreOrder {
     }
     if (prodCode != null ? !prodCode.equals(that.prodCode) : that.prodCode != null) {
       return false;
+
     }
     if (payFee != null ? !payFee.equals(that.payFee) : that.payFee != null) {
       return false;
@@ -255,6 +259,14 @@ public class TrdPreOrder {
     }
 
     return true;
+  }
+
+  public String getErrMsg() {
+    return errMsg;
+  }
+
+  public void setErrMsg(String errMsg) {
+    this.errMsg = errMsg;
   }
 
   @Override
