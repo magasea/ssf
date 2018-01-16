@@ -8,6 +8,12 @@
   <artifactId>aaas-finance-trade</artifactId>
   <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
+  <parent>
+    <groupId>com.shellshellfish</groupId>
+    <artifactId>aaas</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <!-- lookup parent from repository -->
+  </parent>
   <modules>
     <module>aaas-finance-trade-order</module>
     <module>aaas-finance-trade-pay</module>

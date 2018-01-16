@@ -1,5 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
+
 import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
@@ -14,6 +16,8 @@ import com.shellshellfish.aaas.finance.trade.pay.OrderPayResultDetail;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceBlockingStub;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
+import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
+import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
 import io.grpc.ManagedChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -132,5 +136,15 @@ public class PayServiceImpl implements PayService {
     }
 
   }
+
+  @Override
+  public PreOrderPayResult preOrder2Pay(PreOrderPayReq preOrderPayReq)
+      throws ExecutionException, InterruptedException {
+    PreOrderPayResult preOrderPayResult  = payRpcFutureStub.preOrder2Pay(preOrderPayReq).get();
+
+    return preOrderPayResult;
+  }
+
+
 
 }

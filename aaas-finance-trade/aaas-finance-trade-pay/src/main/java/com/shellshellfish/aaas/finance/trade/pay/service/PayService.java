@@ -1,10 +1,14 @@
 package com.shellshellfish.aaas.finance.trade.pay.service;
 
+import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
+
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayDto;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
+import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
+import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
 import java.util.concurrent.ExecutionException;
 
 public interface PayService {
@@ -63,4 +67,12 @@ public interface PayService {
    * @return
    */
   PayDto payOrderByJob(PayDto payDto) throws Exception;
+
+
+  /**
+   * 用预订单去发起中证接口调用
+   * @param preOrderPayReq
+   * @return
+   */
+  PreOrderPayResult preOrder2Pay(PreOrderPayReq preOrderPayReq);
 }

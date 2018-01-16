@@ -16,7 +16,8 @@ import javax.sql.DataSource;
 
 @SpringBootApplication
 @EnableMongoRepositories("com.shellshellfish.aaas.datacollection.server.repositories")
-@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class})
+@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class,
+		HibernateJpaAutoConfiguration.class})
 public class DataServerServiceApplication {
 
 	private static Server server;

@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.finance.trade.order.service;
 
 
 import com.shellshellfish.aaas.common.message.order.PayDto;
+import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
@@ -31,7 +32,12 @@ public interface TradeOpService {
    * @return
    * @throws Exception
    */
-  TrdOrder buyFinanceProductWithPreprocess(FinanceProdBuyInfo financeProdInfo)
+  TrdOrder buyFinanceProductWithPreOrder(FinanceProdBuyInfo financeProdInfo)
       throws Exception;
 
+  /**
+   * 如果货币基金份额确认， 那么触发正常的购买流程
+   *  根据购买的货币基金份额，按照产品中各个基金的比例，换算成各个基金的转换份额
+   */
+   TrdOrder buyPreOrderProduct(TrdPayFlow trdPayFlow);
 }

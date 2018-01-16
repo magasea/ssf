@@ -63,4 +63,21 @@ public class BroadcastMessageConsumers {
         }
     }
 
+
+    @RabbitListener(bindings = @QueueBinding(
+        value = @Queue(value = RabbitMQConstants.QUEUE_ORDER_BASE + RabbitMQConstants.OPERATION_TYPE_HANDLE_PREORDER, durable =
+            "false"),
+        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_PREORDER )
+    )
+    public void receivePreOrderMessage(TrdPayFlow trdPayFlow) throws Exception {
+        try{
+            logger.info("receivePreOrderMessage 1 message: with fundCode:" + trdPayFlow.getFundCode
+                () + " with preOrderId:" + trdPayFlow.getOrderDetailId());
+            tradeOpService.buyPreOrderProduct(trdPayFlow);
+        }catch (Exception ex){
+            ex.printStackTrace();
+            logger.error(ex.getMessage());
+        }
+    }
 }
