@@ -1,173 +1,233 @@
 package com.shellshellfish.aaas.userinfo.model.dao;
 
-import java.io.Serializable;
-import javax.persistence.*;
-import java.util.Date;
-import java.math.BigInteger;
-
+import java.sql.Date;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
- * The persistent class for the ui_bankcard database table.
+ * Created by chenwei on 2018- 一月 - 17
  */
+
 @Entity
-@Table(name = "ui_bankcard")
-@NamedQuery(name = "UiBankcard.findAll", query = "SELECT u FROM UiBankcard u")
-public class UiBankcard implements Serializable {
-	private static final long serialVersionUID = 1L;
+@Table(name = "ui_bankcard", schema = "ssfuser", catalog = "")
+public class UiBankcard {
 
-	@Id
-	@SequenceGenerator(name = "UI_BANKCARD_ID_GENERATOR")
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "UI_BANKCARD_ID_GENERATOR")
-	private Long id;
+  private long id;
+  private long userId;
+  private String userName;
+  private String userPid;
+  private String cellphone;
+  private String bankName;
+  private String cardNumber;
+  private Date expireDate;
+  private int cardStatus;
+  private Long createdBy;
+  private Long createdDate;
+  private Long updateBy;
+  private Long updateDate;
 
-	@Column(name = "bank_name")
-	private String bankName;
+  @Id
+  @Column(name = "id")
+  public long getId() {
+    return id;
+  }
 
-	@Column(name = "card_number")
-	private String cardNumber;
+  public void setId(long id) {
+    this.id = id;
+  }
 
-	private String cellphone;
+  @Basic
+  @Column(name = "user_id")
+  public long getUserId() {
+    return userId;
+  }
 
-	@Column(name = "created_by")
-	private String createdBy;
+  public void setUserId(long userId) {
+    this.userId = userId;
+  }
 
-	@Column(name = "created_date")
-	private BigInteger createdDate;
+  @Basic
+  @Column(name = "user_name")
+  public String getUserName() {
+    return userName;
+  }
 
-	@Temporal(TemporalType.DATE)
-	@Column(name = "expire_date")
-	private Date expireDate;
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
 
-	@Column(name = "last_modified_by")
-	private String lastModifiedBy;
+  @Basic
+  @Column(name = "user_pid")
+  public String getUserPid() {
+    return userPid;
+  }
 
-	@Column(name = "last_modified_date")
-	private BigInteger lastModifiedDate;
+  public void setUserPid(String userPid) {
+    this.userPid = userPid;
+  }
 
-	@Column(name = "user_id")
-	private Long userId;
+  @Basic
+  @Column(name = "cellphone")
+  public String getCellphone() {
+    return cellphone;
+  }
 
-	@Column(name = "user_name")
-	private String userName;
+  public void setCellphone(String cellphone) {
+    this.cellphone = cellphone;
+  }
 
-	@Column(name = "user_pid")
-	private String userPid;
+  @Basic
+  @Column(name = "bank_name")
+  public String getBankName() {
+    return bankName;
+  }
 
-	public UiBankcard() {
-	}
+  public void setBankName(String bankName) {
+    this.bankName = bankName;
+  }
 
-	public Long getId() {
-		return this.id;
-	}
+  @Basic
+  @Column(name = "card_number")
+  public String getCardNumber() {
+    return cardNumber;
+  }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+  public void setCardNumber(String cardNumber) {
+    this.cardNumber = cardNumber;
+  }
 
-	public String getBankName() {
-		return this.bankName;
-	}
+  @Basic
+  @Column(name = "expire_date")
+  public Date getExpireDate() {
+    return expireDate;
+  }
 
-	public void setBankName(String bankName) {
-		this.bankName = bankName;
-	}
+  public void setExpireDate(Date expireDate) {
+    this.expireDate = expireDate;
+  }
 
-	public String getCardNumber() {
-		return this.cardNumber;
-	}
+  @Basic
+  @Column(name = "card_status")
+  public int getCardStatus() {
+    return cardStatus;
+  }
 
-	public void setCardNumber(String cardNumber) {
-		this.cardNumber = cardNumber;
-	}
+  public void setCardStatus(int cardStatus) {
+    this.cardStatus = cardStatus;
+  }
 
-	public String getCellphone() {
-		return this.cellphone;
-	}
+  @Basic
+  @Column(name = "created_by")
+  public Long getCreatedBy() {
+    return createdBy;
+  }
 
-	public void setCellphone(String cellphone) {
-		this.cellphone = cellphone;
-	}
+  public void setCreatedBy(Long createdBy) {
+    this.createdBy = createdBy;
+  }
 
-	public String getCreatedBy() {
-		return this.createdBy;
-	}
+  @Basic
+  @Column(name = "created_date")
+  public Long getCreatedDate() {
+    return createdDate;
+  }
 
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
-	}
+  public void setCreatedDate(Long createdDate) {
+    this.createdDate = createdDate;
+  }
 
-	public BigInteger getCreatedDate() {
-		return this.createdDate;
-	}
+  @Basic
+  @Column(name = "update_by")
+  public Long getUpdateBy() {
+    return updateBy;
+  }
 
-	public void setCreatedDate(BigInteger createdDate) {
-		this.createdDate = createdDate;
-	}
+  public void setUpdateBy(Long updateBy) {
+    this.updateBy = updateBy;
+  }
 
-	public Date getExpireDate() {
-		return this.expireDate;
-	}
+  @Basic
+  @Column(name = "update_date")
+  public Long getUpdateDate() {
+    return updateDate;
+  }
 
-	public void setExpireDate(Date expireDate) {
-		this.expireDate = expireDate;
-	}
+  public void setUpdateDate(Long updateDate) {
+    this.updateDate = updateDate;
+  }
 
-	public String getLastModifiedBy() {
-		return this.lastModifiedBy;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
-	public void setLastModifiedBy(String lastModifiedBy) {
-		this.lastModifiedBy = lastModifiedBy;
-	}
+    UiBankcard that = (UiBankcard) o;
 
-	public BigInteger getLastModifiedDate() {
-		return this.lastModifiedDate;
-	}
+    if (id != that.id) {
+      return false;
+    }
+    if (userId != that.userId) {
+      return false;
+    }
+    if (cardStatus != that.cardStatus) {
+      return false;
+    }
+    if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
+      return false;
+    }
+    if (userPid != null ? !userPid.equals(that.userPid) : that.userPid != null) {
+      return false;
+    }
+    if (cellphone != null ? !cellphone.equals(that.cellphone) : that.cellphone != null) {
+      return false;
+    }
+    if (bankName != null ? !bankName.equals(that.bankName) : that.bankName != null) {
+      return false;
+    }
+    if (cardNumber != null ? !cardNumber.equals(that.cardNumber) : that.cardNumber != null) {
+      return false;
+    }
+    if (expireDate != null ? !expireDate.equals(that.expireDate) : that.expireDate != null) {
+      return false;
+    }
+    if (createdBy != null ? !createdBy.equals(that.createdBy) : that.createdBy != null) {
+      return false;
+    }
+    if (createdDate != null ? !createdDate.equals(that.createdDate) : that.createdDate != null) {
+      return false;
+    }
+    if (updateBy != null ? !updateBy.equals(that.updateBy) : that.updateBy != null) {
+      return false;
+    }
+    if (updateDate != null ? !updateDate.equals(that.updateDate) : that.updateDate != null) {
+      return false;
+    }
 
-	public void setLastModifiedDate(BigInteger lastModifiedDate) {
-		this.lastModifiedDate = lastModifiedDate;
-	}
+    return true;
+  }
 
-	public Long getUserId() {
-		return this.userId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
-
-	public String getUserName() {
-		return this.userName;
-	}
-
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
-
-	public String getUserPid() {
-		return this.userPid;
-	}
-
-	public void setUserPid(String userPid) {
-		this.userPid = userPid;
-	}
-
-
-	@Override
-	public String toString() {
-		return "UiBankcard{" +
-				"id=" + id +
-				", bankName='" + bankName + '\'' +
-				", cardNumber='" + cardNumber + '\'' +
-				", cellphone='" + cellphone + '\'' +
-				", createdBy='" + createdBy + '\'' +
-				", createdDate=" + createdDate +
-				", expireDate=" + expireDate +
-				", lastModifiedBy='" + lastModifiedBy + '\'' +
-				", lastModifiedDate=" + lastModifiedDate +
-				", userId=" + userId +
-				", userName='" + userName + '\'' +
-				", userPid='" + userPid + '\'' +
-				'}';
-	}
+  @Override
+  public int hashCode() {
+    int result = (int) (id ^ (id >>> 32));
+    result = 31 * result + (int) (userId ^ (userId >>> 32));
+    result = 31 * result + (userName != null ? userName.hashCode() : 0);
+    result = 31 * result + (userPid != null ? userPid.hashCode() : 0);
+    result = 31 * result + (cellphone != null ? cellphone.hashCode() : 0);
+    result = 31 * result + (bankName != null ? bankName.hashCode() : 0);
+    result = 31 * result + (cardNumber != null ? cardNumber.hashCode() : 0);
+    result = 31 * result + (expireDate != null ? expireDate.hashCode() : 0);
+    result = 31 * result + cardStatus;
+    result = 31 * result + (createdBy != null ? createdBy.hashCode() : 0);
+    result = 31 * result + (createdDate != null ? createdDate.hashCode() : 0);
+    result = 31 * result + (updateBy != null ? updateBy.hashCode() : 0);
+    result = 31 * result + (updateDate != null ? updateDate.hashCode() : 0);
+    return result;
+  }
 }

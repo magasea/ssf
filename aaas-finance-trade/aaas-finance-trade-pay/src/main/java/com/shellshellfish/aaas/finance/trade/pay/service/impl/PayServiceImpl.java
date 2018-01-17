@@ -82,7 +82,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   }
 
   private com.shellshellfish.aaas.common.message.order.TrdPayFlow payNewOrderDetail(TrdOrderDetail trdOrderDetail, String trdAcco, Long
-      userProdId, String userUUID, int trdBrokerId ) throws Exception {
+      userProdId, String userUUID, int trdBrokerId, String userPid ) throws Exception {
     List<Exception > errs = new ArrayList<>();
       logger.info("payOrder fundCode:"+trdOrderDetail.getFundCode());
 
@@ -103,13 +103,13 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
         .shellshellfish.aaas.common.message.order.TrdPayFlow();
       try {
-        String userId4Pay = null;
-        if(!StringUtils.isEmpty(userUUID) && userUUID.equals("shellshellfish")){
-          logger.info("use original uuid for pay because it is a test data");
-          userId4Pay = "shellshellfish";
-        }else{
-          userId4Pay = String.valueOf(trdOrderDetail.getUserId());
-        }
+        String userId4Pay = TradeUtil.getZZOpenId(userPid);
+//        if(!StringUtils.isEmpty(userUUID) && userUUID.equals("shellshellfish")){
+//          logger.info("use original uuid for pay because it is a test data");
+//          userId4Pay = "shellshellfish";
+//        }else{
+//          userId4Pay = String.valueOf(trdOrderDetail.getUserId());
+//        }
         fundResult = fundTradeApiService.buyFund(userId4Pay, trdAcco, payAmount,
             String.valueOf(trdOrderDetail.getId()),trdOrderDetail.getFundCode());
       }catch (Exception ex){
@@ -188,13 +188,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.BUY.getOperation());
       BuyFundResult fundResult = null;
       try {
-        String userId4Pay = null;
-        if(payOrderDto.getUserUuid().equals("shellshellfish")){
-          logger.info("use original uuid for pay because it is a test data");
-          userId4Pay = "shellshellfish";
-        }else{
-          userId4Pay = String.valueOf(payOrderDto.getOrderDetailList().get(0).getUserId());
-        }
+        String userId4Pay = TradeUtil.getZZOpenId(payOrderDto.getUserPid());
+
+
         fundResult = fundTradeApiService.buyFund(userId4Pay, trdAcco, payAmount,
             String.valueOf(trdOrderDetail.getId()),trdOrderDetail.getFundCode());
       }catch (Exception ex){
@@ -469,6 +465,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     }
     payOrderDto.setOrderDetailList(trdOrderDetails);
     try{
+      payOrderDto.setUserPid(request.getUserPid());
       payOrderByJob(payOrderDto);
     }catch (Exception ex){
       ex.printStackTrace();
@@ -502,6 +499,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     for(TrdOrderDetail trdOrderDetail: orderDetailList){
       logger.info("开始处理 trdOrderDetail with orderDetailId:" + trdOrderDetail.getOrderDetailId());
       logger.info("payOrder fundCode:"+trdOrderDetail.getFundCode());
+
       if(null == trdOrderDetail.getOrderDetailId()){
         logger.error("input pay request is not correct: OrderDetailId is:"+trdOrderDetail.getOrderDetailId());
         continue;
@@ -556,7 +554,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
         }
       }
-      payNewOrderDetail(trdOrderDetail, trdAcco, userProdId, userUUID, trdBrokerId);
+      payNewOrderDetail(trdOrderDetail, trdAcco, userProdId, userUUID, trdBrokerId, payOrderDto.setUserPid(););
     }
     if(errs.size() > 0){
       throw new Exception("meet errors in pay api services");
@@ -729,6 +727,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       ZZBuyFund zzBuyFund = new ZZBuyFund();
       zzBuyFund.setTradeAcco(request.getTrdAccount());
       zzBuyFund.setUserId(request.getUserId());
+      zzBuyFund.setUserPid(request.getUserPid());
       zzBuyFund.setApplySum(BigDecimal.valueOf(orderDetailPayReq.getPayAmount()).divide
           (BigDecimal.valueOf(100)));
       zzBuyFund.setFundCode(orderDetailPayReq.getFundCode());

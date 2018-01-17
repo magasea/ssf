@@ -21,7 +21,7 @@ public class TradeUtilTest {
 
   @Test
   public void getZZOpenId() throws Exception {
-    String origin = "612727198301116032" + "shellshellfish";
+    String origin = "612727198301116032";
     System.out.println(TradeUtil.getZZOpenId(origin));
   }
 

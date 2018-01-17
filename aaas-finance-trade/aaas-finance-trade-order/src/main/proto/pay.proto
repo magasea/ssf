@@ -126,7 +126,7 @@ message OrderPayReq {
   int64 userProdId = 3;//用户已购理财产品ID
   string userUuid = 4;//用户UUID
   int64 userId = 5; //用户UserId
-  string userPid = 6; //用户身份证ID
+  string user_pid = 6; //用户PID
   repeated OrderDetailPayReq orderDetailPayReq = 7;//子订单信息串
 }
 

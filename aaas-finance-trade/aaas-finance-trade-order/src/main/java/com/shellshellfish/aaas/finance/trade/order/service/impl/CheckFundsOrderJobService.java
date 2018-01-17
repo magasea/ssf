@@ -1,10 +1,13 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import com.shellshellfish.aaas.common.message.order.OrderStatusChangeDTO;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProducer;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRepository;
@@ -39,15 +42,18 @@ public class CheckFundsOrderJobService {
     @Autowired
     PayService payService;
 
+    @Autowired
+    BroadcastMessageProducer broadcastMessageProducer;
+
     /**
      * 定时检查是否有订单状态为等待支付超过1个小时是的话发起支付
      */
     public void executeSampleJob() {
 
-        List<TrdOrder> trdOrderList =  trdOrderRepository.findTrdOrdersByOrderStatusIsNot
+        List<TrdOrder> trdOrderList =  trdOrderRepository.findTrdOrdersByOrderStatusIs
             (TrdOrderStatusEnum.WAITPAY.getStatus());
 
-        List<TrdOrder> trdOrderListWaitSell = trdOrderRepository.findTrdOrdersByOrderStatusIsNot
+        List<TrdOrder> trdOrderListWaitSell = trdOrderRepository.findTrdOrdersByOrderStatusIs
             (TrdOrderStatusEnum.WAITSELL.getStatus());
         if(!CollectionUtils.isEmpty(trdOrderList)){
             logger.error("there is some order need to pay by scheduler");
@@ -75,25 +81,37 @@ public class CheckFundsOrderJobService {
         List<com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail>
             orderDetailsInDB = trdOrderDetailRepository.findAllByOrderId(trdOrder.getOrderId());
         boolean allFinished = true;
+        boolean allPayOrSelled = true;
         boolean needCancel = true;
+
         for(com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail trdOrderDetailDb: orderDetailsInDB){
+            //先忽略那种 本来就没有分别份额的基金，这种基金交易状态是失败也很正常
+            if(trdOrderDetailDb.getFundShare() == 0){
+                logger.info("this suborder will be ignored for:" + trdOrderDetailDb.getId());
+                continue;
+            }
             if((trdOrderDetailDb.getOrderDetailStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus
                 ()) && allFinished){
                 allFinished = true;
             }
-            if((trdOrderDetailDb.getOrderDetailStatus() != TrdOrderStatusEnum.CONFIRMED
+            if((trdOrderDetailDb.getOrderDetailStatus() == TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus
+                ()||trdOrderDetailDb.getOrderDetailStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM
+                .getStatus()|| trdOrderDetailDb.getOrderDetailStatus() == TrdOrderStatusEnum
+                .CONFIRMED.getStatus()) && allPayOrSelled){
+                allPayOrSelled = true;
+            }
+            if((trdOrderDetailDb.getOrderDetailStatus() == TrdOrderStatusEnum.FAILED
                 .getStatus()) && needCancel){
                 needCancel = true;
-            }else{
-
             }
             if(trdOrderDetailDb.getOrderDetailStatus() == TrdOrderStatusEnum.WAITPAY.getStatus() ||
                 trdOrderDetailDb.getOrderDetailStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()){
                 if(trdOrderDetailDb.getCreateDate() < TradeUtil.getUTCTimeTodayStartTime(
-                    ZoneId.systemDefault().getId()) ){
+                    ZoneId.systemDefault().getId())){
                     logger.error("this orderDetail in DB with orderDetail id:"+ trdOrderDetailDb
                         .getId() +" is out of time to retry, just let it go");
                     allFinished = false;
+                    needCancel = true;
                     continue;
                 }
                 TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
@@ -108,7 +126,31 @@ public class CheckFundsOrderJobService {
                 TradeUtil.getUTCTime(), SystemUserEnum.SYSTEM_USER_ENUM.getUserId(), trdOrder
                     .getId());
             return;
-        }else{
+        }else if(allPayOrSelled && trdOrder.getOrderType() == TrdOrderOpTypeEnum.BUY.getOperation()){
+
+            trdOrderRepository.updateOrderStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus(),
+                TradeUtil.getUTCTime(), SystemUserEnum.SYSTEM_USER_ENUM.getUserId(), trdOrder
+                    .getId());
+            OrderStatusChangeDTO orderStatusChangeDTO = new OrderStatusChangeDTO();
+            orderStatusChangeDTO.setOrderDate(trdOrder.getOrderDate());
+            orderStatusChangeDTO.setOrderStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
+            orderStatusChangeDTO.setOrderType(TrdOrderOpTypeEnum.BUY.getOperation());
+            orderStatusChangeDTO.setUserId(trdOrder.getUserId());
+
+            broadcastMessageProducer.sendOrderStatusChangeMessages(orderStatusChangeDTO);
+        }else if(allPayOrSelled && trdOrder.getOrderType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+            trdOrderRepository.updateOrderStatus(TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus(),
+                TradeUtil.getUTCTime(), SystemUserEnum.SYSTEM_USER_ENUM.getUserId(), trdOrder
+                    .getId());
+            OrderStatusChangeDTO orderStatusChangeDTO = new OrderStatusChangeDTO();
+            orderStatusChangeDTO.setOrderDate(trdOrder.getOrderDate());
+            orderStatusChangeDTO.setOrderStatus(TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus());
+            orderStatusChangeDTO.setOrderType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+            orderStatusChangeDTO.setUserId(trdOrder.getUserId());
+
+            broadcastMessageProducer.sendOrderStatusChangeMessages(orderStatusChangeDTO);
+        }
+        else{
             //需要进行再让交易系统发起交易
             payOrderDto.setOrderDetailList(orderDetailList);
 //            OrderPayReq.Builder reqBuilder = OrderPayReq.newBuilder();
