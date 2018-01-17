@@ -554,7 +554,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
         }
       }
-      payNewOrderDetail(trdOrderDetail, trdAcco, userProdId, userUUID, trdBrokerId, payOrderDto.setUserPid(););
+      payNewOrderDetail(trdOrderDetail, trdAcco, userProdId, userUUID, trdBrokerId, payOrderDto.getUserPid());
     }
     if(errs.size() > 0){
       throw new Exception("meet errors in pay api services");
