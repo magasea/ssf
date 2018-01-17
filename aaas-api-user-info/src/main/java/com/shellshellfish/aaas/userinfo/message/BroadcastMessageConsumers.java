@@ -15,6 +15,7 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +86,12 @@ public class BroadcastMessageConsumers {
         //update ui_products 和 ui_product_details
         MongoUiTrdLog  mongoUiTrdLog = new MongoUiTrdLog();
         try{
-            mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow.getTrdMoneyAmount()));
+            if(null == trdPayFlow.getTrdMoneyAmount()){
+                mongoUiTrdLog.setAmount(BigDecimal.valueOf(0));
+            }else {
+                mongoUiTrdLog.setAmount(
+                    TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow.getTrdMoneyAmount()));
+            }
             mongoUiTrdLog.setOperations(trdPayFlow.getTrdType());
             mongoUiTrdLog.setUserProdId(trdPayFlow.getUserProdId());
             mongoUiTrdLog.setUserId(trdPayFlow.getUserId());

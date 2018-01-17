@@ -199,9 +199,10 @@ message PreOrderPayReq{
   string fund_code = 5;//基金代码
   int64 pay_fee = 6;
   int64 user_id = 7;
-  int64 prod_id = 8;
-  int32 trd_broker_id = 9; //交易平台ID
-  string trade_account = 10; //交易账户
+  string user_pid = 8; //用户身份证件编码
+  int64 prod_id = 9;
+  int32 trd_broker_id = 10; //交易平台ID
+  string trade_account = 11; //交易账户
 }
 //预订单支付结果
 message PreOrderPayResult{

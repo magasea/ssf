@@ -18,6 +18,16 @@ public class ProdSellDTO  implements Serializable{
   private Long sellTargetMoney;
   private String userUuid;
 
+  public String getUserPid() {
+    return userPid;
+  }
+
+  public void setUserPid(String userPid) {
+    this.userPid = userPid;
+  }
+
+  private String userPid;
+
   public String getTrdAcco() {
     return trdAcco;
   }

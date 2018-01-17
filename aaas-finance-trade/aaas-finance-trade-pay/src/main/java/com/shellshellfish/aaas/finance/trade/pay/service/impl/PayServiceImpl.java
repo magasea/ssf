@@ -261,9 +261,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   @Override
   public String bindCard(BindBankCard bindBankCard) {
     try {
-      OpenAccountResult openAccountResult = fundTradeApiService.openAccount("" +bindBankCard
-              .getUserId(), bindBankCard.getUserName(),bindBankCard.getCellphone(), bindBankCard
-              .getUserPid(), bindBankCard.getBankCardNum(),
+      OpenAccountResult openAccountResult = fundTradeApiService.openAccount("" +TradeUtil
+              .getZZOpenId(bindBankCard.getUserPid()), bindBankCard.getUserName(),bindBankCard
+                      .getCellphone(), bindBankCard.getUserPid(), bindBankCard.getBankCardNum(),
           bindBankCard.getBankCode());
       return openAccountResult.getTradeAcco();
     } catch (Exception e) {
@@ -271,8 +271,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       if(e.getMessage().contains("该商户下已有其他openid绑定该身份证") || e.getMessage().contains("此卡已存在")){
         //尝试用当前的userId去获取tradeAccount
         try {
-          List<UserBank> userBanks =  fundTradeApiService.getUserBank(""+bindBankCard.getUserId(),
-              "001120");
+          List<UserBank> userBanks =  fundTradeApiService.getUserBank(""+ TradeUtil.getZZOpenId(bindBankCard
+                  .getUserPid()),"001120");
           if(CollectionUtils.isEmpty(userBanks)){
             logger.error("failed to find userBanks by userId:"+ bindBankCard.getUserId() + " and "
                 + "fundCode: 001120");
@@ -586,7 +586,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
     BuyFundResult buyFundResult;
     try {
-        buyFundResult = fundTradeApiService.buyFund(""+request.getUserId(), request.getTradeAccount()
+        buyFundResult = fundTradeApiService.buyFund(TradeUtil.getZZOpenId(request.getUserPid()), request
+                .getTradeAccount()
           , TradeUtil.getBigDecimalNumWithDiv100(request.getPayAmount()), ""+request
               .getPreOrderId(), request.getFundCode());
       poprBuilder.setApplySerial(buyFundResult.getApplySerial());
@@ -672,13 +673,13 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.FUNDCONVERT.getOperation());
       FundConvertResult fundResult = null;
       try {
-        String userId4Pay = null;
-        if(payPreOrderDto.getUserUuid().equals("shellshellfish")){
-          logger.info("use original uuid for pay because it is a test data");
-          userId4Pay = "shellshellfish";
-        }else{
-          userId4Pay = String.valueOf(payPreOrderDto.getUserUuid());
-        }
+        String userId4Pay = TradeUtil.getZZOpenId(payPreOrderDto.getUserPid());
+//        if(payPreOrderDto.getUserUuid().equals("shellshellfish")){
+//          logger.info("use original uuid for pay because it is a test data");
+//          userId4Pay = "shellshellfish";
+//        }else{
+//          userId4Pay = String.valueOf(payPreOrderDto.getUserUuid());
+//        }
         fundResult = fundTradeApiService.fundConvert(userId4Pay , TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail
                 .getFundNum()), ""+ trdOrderDetail.getId(), trdAcco,payPreOrderDto.getOriginFundCode(), trdOrderDetail.getFundCode());
       }catch (Exception ex){
