@@ -14,7 +14,8 @@ public class TradeUtil {
     Long utcTime = getUTCTime();
     System.out.println(utcTime);
     StringBuilder sb = new StringBuilder();
-    sb.append(String.format("%04d", bankId)).append(String.format("%04d", tradeBrokerId)).append
+    sb.append(String.format("%04d", bankId)).append(String.format("%04d",
+        tradeBrokerId)).append
         (String.format("%018d", utcTime));
     return sb.toString();
   }
@@ -94,6 +95,7 @@ public class TradeUtil {
 
   }
 
+
   /**
    *
    * @param originNum
@@ -110,6 +112,19 @@ public class TradeUtil {
 
   }
 
+  public static BigDecimal getBigDecimalNumWithDiv10000(Long originNum){
+
+
+    return new BigDecimal(originNum).divide(BigDecimal.valueOf(10000));
+
+  }
+
+  public static BigDecimal getBigDecimalNumWithDiv10000(Integer originNum){
+
+
+    return new BigDecimal(originNum).divide(BigDecimal.valueOf(10000));
+
+  }
   public static int getPayFlowStatus(String kkstat){
     if(kkstat.equals(TrdZZCheckStatusEnum.CONFIRMSUCCESS) || kkstat.equals(TrdZZCheckStatusEnum.REALTIMECONFIRMSUCESS)){
       return TrdOrderStatusEnum.CONFIRMED.getStatus();

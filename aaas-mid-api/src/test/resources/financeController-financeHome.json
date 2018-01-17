@@ -148,7 +148,7 @@
               ]
             },
             "historicalYearPerformance": {
-              "type": "number"
+              "type": "string"
             },
             "product_list": {
               "type": "array",
@@ -168,7 +168,7 @@
               }
             },
             "historicalvolatility": {
-              "type": "number"
+              "type": "string"
             }
           },
           "required": [

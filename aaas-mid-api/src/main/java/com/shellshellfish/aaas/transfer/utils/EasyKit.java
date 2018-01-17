@@ -75,7 +75,7 @@ public class EasyKit {
 	public static Double getDecimalNum(BigDecimal bigDecimal) {
 		Double decimal = null;
 		if(bigDecimal!=null){
-			bigDecimal = bigDecimal.multiply(new BigDecimal("100"));
+			//bigDecimal = bigDecimal.multiply(new BigDecimal("100"));
 			decimal = bigDecimal.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();
 		}
 		return decimal;
@@ -96,8 +96,4 @@ public class EasyKit {
 			return result.toString();
 		}
 	}
-	
-//	public static void main(String[] args) {
-//		System.out.println(getStringValue(new BigDecimal("0.00001049437537826574")));
-//	}
 }

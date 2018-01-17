@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
@@ -98,5 +99,73 @@ public class CheckFundsBuyJobService {
                     }
                 }
             }
+    }
+
+    public void executePreOrderStatus(){
+        logger.info("The sample job has begun...");
+        Instant.now().getEpochSecond();
+
+        List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
+            .findAllByFundSumConfirmedIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.PREORDER.getOperation
+                ());
+        if(!CollectionUtils.isEmpty(trdPayFlows)) {
+            for (TrdPayFlow trdPayFlow : trdPayFlows) {
+                try {
+                    com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
+                    updateTrdPayFlowAndMakeMsg(trdPayFlow);
+                    if(null != trdPayFlowMsg){
+                        broadcastMessageProducers.sendMessage(trdPayFlowMsg);
+                    }
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                    logger.error(e.getMessage());
+                }
+            }
+        }
+    }
+
+
+    private com.shellshellfish.aaas.common.message.order.TrdPayFlow updateTrdPayFlowAndMakeMsg
+        (TrdPayFlow trdPayFlow) throws JsonProcessingException {
+        // TODO: replace userId with userUuid
+        String userId = null;
+        if (trdPayFlow.getUserId() == 5605) {
+            //这个用户是用uuid调的中证接口,以后走正式流程后都用userId来查中证接口
+            userId = "shellshellfish";
+        } else {
+            userId = Long.toString(trdPayFlow.getUserId());
+        }
+        ApplyResult applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo(userId, "" + trdPayFlow.getOrderDetailId());
+        if (null != applyResult && !StringUtils
+            .isEmpty(applyResult.getApplyshare())) {
+            com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
+                new com.shellshellfish.aaas.common.message.order.TrdPayFlow();
+            trdPayFlowMsg.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+            trdPayFlowMsg.setUpdateDate(Instant.now().getEpochSecond());
+            trdPayFlowMsg.setBuyDiscount(TradeUtil.getLongNumWithMul100(applyResult
+                .getCommisiondiscount()));
+            trdPayFlowMsg.setId(Long.valueOf(applyResult.getOutsideorderno()));
+            trdPayFlowMsg.setApplySerial(applyResult.getApplyserial());
+            TrdOrderOpTypeEnum opTypeEnum = ZZStatsToOrdStatsUtils
+                .getTrdOrdOpTypeFromCallingCode(Integer
+                    .valueOf(applyResult.getCallingcode()));
+            trdPayFlowMsg.setTrdStatus(ZZStatsToOrdStatsUtils
+                .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
+                    Integer.valueOf(applyResult.getConfirmflag())), opTypeEnum).getStatus());
+            trdPayFlowMsg.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
+                .getPoundage()));
+            if (!StringUtils.isEmpty(applyResult.getTradeconfirmshare())) {
+                trdPayFlowMsg.setFundSumConfirmed(TradeUtil.getLongNumWithMul100
+                    (applyResult.getTradeconfirmshare()));
+            }
+            trdPayFlowMsg.setOutsideOrderno(applyResult.getOutsideorderno());
+            trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
+            trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+            BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
+            trdPayFlowRepository.save(trdPayFlow);
+            return trdPayFlowMsg;
+        }
+        return null;
+
     }
 }

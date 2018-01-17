@@ -20,12 +20,15 @@ public class RabbitMQConstants {
   public final static String ROUTING_KEY_PAY = "routing.pay";
   public final static String ROUTING_KEY_SELL = "routing.sell";
   public final static String ROUTING_KEY_ORDER = "routing.order";
+  public final static String ROUTING_KEY_PREORDER = "routing.preorder";
   public final static String ROUTING_KEY_USERINFO = "routing.userinfo";
   public final static String OPERATION_TYPE_BUY_PROD = "buy_prod";
+  public final static String OPERATION_TYPE_BUY_PREORDER_PROD = "buy_preorder_prod";
   public final static String OPERATION_TYPE_SEL_PROD = "sell_prod";
   public final static String OPERATION_TYPE_UPDATE_UIPROD = "update_uiprod";
   public final static String OPERATION_TYPE_UPDATE_UITRDLOG = "update_uitrdlog";
   public final static String OPERATION_TYPE_UPDATE_ORDER = "update_order";
+  public final static String OPERATION_TYPE_HANDLE_PREORDER = "handle_preorder";
   public final static String EXCHANGE_NAME = "aaas_ex";
 
 

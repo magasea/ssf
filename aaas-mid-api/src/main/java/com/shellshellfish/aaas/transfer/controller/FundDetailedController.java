@@ -1,10 +1,8 @@
 package com.shellshellfish.aaas.transfer.controller;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,6 +88,8 @@ public class FundDetailedController {
 				result.put("msg", "获取失败");
 				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 			} else {
+				// 基金名称
+				result.put("fundname", companyResult.get("fundname"));
 				// 基金经理
 				result.put("manager", companyResult.get("manager"));
 				// 基金公司

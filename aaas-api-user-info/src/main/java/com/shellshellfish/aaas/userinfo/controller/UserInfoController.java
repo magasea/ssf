@@ -1412,7 +1412,7 @@ public class UserInfoController {
 		@ApiImplicitParam(paramType="query",name="totalAssets",dataType="BigDecimal",required=true,value="总资产",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="dailyReturn",dataType="BigDecimal",required=true,value="日收益",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="totalRevenue",dataType="BigDecimal",required=true,value="累计收益",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="totalRevenueRate",dataType="Double",required=true,value="累计收益率",defaultValue="")
+		@ApiImplicitParam(paramType="query",name="totalRevenueRate",dataType="String",required=true,value="累计收益率",defaultValue="")
 	})
 	@RequestMapping(value = "/users/{userUuid}/asset", method = RequestMethod.GET)
 	public ResponseEntity<Map> assetView(
@@ -1420,7 +1420,7 @@ public class UserInfoController {
 			@RequestParam("totalAssets") BigDecimal totalAssets,
 			@RequestParam("dailyReturn") BigDecimal dailyReturn,
 			@RequestParam("totalRevenue") BigDecimal totalRevenue,
-			@RequestParam("totalRevenueRate") Double totalRevenueRate
+			@RequestParam("totalRevenueRate") String totalRevenueRate
 			) throws Exception{
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		//UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);

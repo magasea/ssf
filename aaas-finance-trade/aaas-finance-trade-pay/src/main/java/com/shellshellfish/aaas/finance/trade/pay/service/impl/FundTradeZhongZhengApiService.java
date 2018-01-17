@@ -143,6 +143,41 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
     }
 
     @Override
+    public FundConvertResult fundConvert(String userUuid, BigDecimal applyShare, String
+        outsideOrderNo,  String tradeAcco, String fundCode, String targetFundCode) throws Exception {
+
+        fundCode = trimSuffix(fundCode);
+
+        Map<String, Object> info = init(userUuid);
+
+        info.put("tradeacco", tradeAcco);
+        info.put("applyshare", applyShare);
+        info.put("outsideorderno", outsideOrderNo);
+        info.put("fundcode", fundCode);
+        info.put("targetfundcode",targetFundCode);
+        //info.put("platform_openid", "88048");
+
+        postInit(info);
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/fund_convert";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        FundConvertResult fundConvertResult = null;
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        Integer status = jsonObject.getInteger("status");
+        if (status.equals(1)) {
+            fundConvertResult = jsonObject.getObject("data", FundConvertResult.class);
+        } else {
+            String errno = jsonObject.getString("errno");
+            String msg = jsonObject.getString("msg");
+            throw new Exception(errno + ":" + msg);
+        }
+
+        return null;
+    }
+
+    @Override
     public CancelTradeResult cancelTrade(String userUuid, String applySerial) throws Exception {
         Map<String, Object> info = init(userUuid);
 
@@ -505,6 +540,33 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
     }
 
     @Override
+    public List<UserBank> getUserBank(String userId, String fundCode) throws Exception {
+        fundCode = trimSuffix(fundCode);
+
+        Map<String, Object> info = init(userId);
+        info.put("fundcode", fundCode);
+        postInit(info);
+
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_user_bank_list";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        JSONObject jsonObject = (JSONObject) JSONObject.parse(json);
+        Integer status = jsonObject.getInteger("status");
+        if (!status.equals(1)){
+            throw new Exception(jsonObject.getString("msg"));
+        }
+
+        List<UserBank> userBanks = new ArrayList<>();
+        JSONArray jsonArray = jsonObject.getJSONArray("data");
+        for(int i = 0; i < jsonArray.size(); i++) {
+            userBanks.add(jsonArray.getObject(i, UserBank.class));
+        }
+        return userBanks;
+    }
+
+    @Override
     public void writeAllTradeRateToMongoDb() throws Exception {
         List<String> funds = getAllFundsInfo();
         for(String fund:funds) {
@@ -536,6 +598,10 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
     private Map<String, Object> init() throws JsonProcessingException {
         return init("shellshellfish");
+    }
+
+    private Map<String, Object> init(Long userId) throws JsonProcessingException {
+        return init("" + userId);
     }
 
     private Map<String, Object> init(String userUuid) throws JsonProcessingException {

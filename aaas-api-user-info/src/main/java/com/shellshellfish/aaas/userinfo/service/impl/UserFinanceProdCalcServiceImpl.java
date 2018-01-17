@@ -1,6 +1,11 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
-import com.shellshellfish.aaas.userinfo.model.*;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.userinfo.model.BonusInfo;
+import com.shellshellfish.aaas.userinfo.model.ConfirmResult;
+import com.shellshellfish.aaas.userinfo.model.DailyAmount;
+import com.shellshellfish.aaas.userinfo.model.FundInfo;
+import com.shellshellfish.aaas.userinfo.model.FundShare;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProducts;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
@@ -13,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -24,7 +30,12 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcService {
@@ -43,6 +54,9 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     @Autowired
     @Qualifier("secondaryMongoTemplate")
     private MongoTemplate mongoTemplate;
+
+    @Value("${daily-finance-calculate-thread:10}")
+    private int threadNum;
 
     @Autowired
     private UserInfoRepository userInfoRepository;
@@ -106,7 +120,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
     private String getYesterdayAsString() {
         final Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, -1);
+        cal.setTimeInMillis(TradeUtil.getUTCTime1DayBefore());
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
         return simpleDateFormat.format(cal.getTime());
     }
@@ -114,7 +128,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     @Override
     public void calcIntervalAmount(String userUuid, Long prodId, String fundCode, String startDate) throws Exception {
         List<BonusInfo> bonusInfoList = fundTradeApiService.getBonusList(userUuid, fundCode, startDate);
-        Map<String, BigDecimal> bonusMap = new HashMap<>();
         FindAndModifyOptions findAndModifyOptions = new FindAndModifyOptions();
         findAndModifyOptions.upsert(true);
 
@@ -146,9 +159,9 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
             update.set("userUuid", userUuid);
             update.set("prodId", prodId);
             update.set("fundCode", fundCode);
-            if (result.getBusinflagStr().equals("申购确认")) {
+            if ("022".equals(result.getCallingcode())) {
                 update.set("buyAmount", result.getTradeconfirmsum());
-            } else if (result.getBusinflagStr().equals("赎回确认")) {
+            } else if ("024".equals(result.getCallingcode())) {
                 update.set("sellAmount", result.getTradeconfirmsum());
             }
 
@@ -330,23 +343,49 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     }
 
     @Override
-    public void dailyCalculation(String date) throws Exception {
-        List<UiUser> users = userInfoRepository.findAll();
-        UiUser uiUser = new UiUser();
-        uiUser.setUuid("shellshellfish");
-        users.clear();
-        users.add(uiUser);
-        for(UiUser user : users) {
+    public void dailyCalculation(String date, List<UiUser> uiUsers) throws Exception {
+        for(UiUser user : uiUsers) {
             List<UiProducts> userProducts = uiProductRepo.findByUserId(user.getId());
             for(UiProducts prod: userProducts) {
                 List<UiProductDetail> prodDetails = uiProductDetailRepo.findAllByUserProdId(prod.getId());
                 for(UiProductDetail detail: prodDetails) {
                     String fundCode = detail.getFundCode();
                     initDailyAmount(user.getUuid(), prod.getProdId(), date, fundCode);
-                    BigDecimal asset = calcDailyAsset(user.getUuid(), prod.getProdId(), fundCode, date);
+                    calcDailyAsset(user.getUuid(), prod.getProdId(), fundCode, date);
                     calcIntervalAmount(user.getUuid(), prod.getProdId(), fundCode, date);
                 }
             }
+        }
+    }
+
+    @Override
+    public void dailyCalculation(String date) throws Exception {
+        final List<UiUser> users = userInfoRepository.findAll();
+        if(users.isEmpty()){
+            logger.info("user list is empty.");
+            return;
+        }
+        int size = users.size();
+
+        if(size == 1) {
+            dailyCalculation(date, users);
+        }else{
+            int countDown;
+            if(size % threadNum == 0){
+                countDown = size / threadNum;
+            }else{
+                countDown = size / threadNum +1;
+            }
+            ExecutorService threadPool = Executors.newCachedThreadPool();
+            CountDownLatch countDownLatch = new CountDownLatch(countDown);
+            for(int i = 0;i<countDown;i++){
+                int fromIndex = i*threadNum;
+                int toIndex = (i+1)*threadNum <= size ? (i+1)*threadNum : size;
+                threadPool.submit(new FinanceProdCalculate(this,date,
+                        users.subList(fromIndex,toIndex),countDownLatch));
+            }
+            countDownLatch.await();
+            logger.info("all thread process over.");
         }
     }
     

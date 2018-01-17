@@ -3,17 +3,17 @@ package com.shellshellfish.aaas.finance.trade.order.service.impl;
 import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
-import com.shellshellfish.aaas.common.message.order.PayDto;
+import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import com.shellshellfish.aaas.common.utils.DataCollectorUtil;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.pay.BindBankCardQuery;
 import com.shellshellfish.aaas.finance.trade.pay.OrderDetailPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.OrderPayReq;
-import com.shellshellfish.aaas.finance.trade.pay.OrderPayResultDetail;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
-import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceBlockingStub;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
+import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
+import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
 import io.grpc.ManagedChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,14 +64,14 @@ public class PayServiceImpl implements PayService {
 
 
   @Override
-  public int order2PayJob(PayDto payDto) {
+  public int order2PayJob(PayOrderDto payOrderDto) {
     OrderPayReq.Builder bdOfReq = OrderPayReq.newBuilder();
-    bdOfReq.setTrdBrokerId(payDto.getTrdBrokerId());
-    bdOfReq.setUserProdId(payDto.getUserProdId());
-    bdOfReq.setTrdAccount(payDto.getTrdAccount());
-    bdOfReq.setUserUuid(payDto.getUserUuid());
+    bdOfReq.setTrdBrokerId(payOrderDto.getTrdBrokerId());
+    bdOfReq.setUserProdId(payOrderDto.getUserProdId());
+    bdOfReq.setTrdAccount(payOrderDto.getTrdAccount());
+    bdOfReq.setUserUuid(payOrderDto.getUserUuid());
     OrderDetailPayReq.Builder ordDetailReqBuilder = OrderDetailPayReq.newBuilder();
-    for(TrdOrderDetail trdOrderDetail: payDto.getOrderDetailList()){
+    for(TrdOrderDetail trdOrderDetail: payOrderDto.getOrderDetailList()){
       BeanUtils.copyProperties(trdOrderDetail, ordDetailReqBuilder);
       bdOfReq.addOrderDetailPayReq(ordDetailReqBuilder);
       ordDetailReqBuilder.clear();
@@ -91,14 +91,14 @@ public class PayServiceImpl implements PayService {
   }
 
   @Override
-  public TrdOrderStatusEnum order2Pay(PayDto payDto) {
+  public TrdOrderStatusEnum order2Pay(PayOrderDto payOrderDto) {
     OrderPayReq.Builder bdOfReq = OrderPayReq.newBuilder();
-    bdOfReq.setTrdBrokerId(payDto.getTrdBrokerId());
-    bdOfReq.setUserProdId(payDto.getUserProdId());
-    bdOfReq.setTrdAccount(payDto.getTrdAccount());
-    bdOfReq.setUserUuid(payDto.getUserUuid());
+    bdOfReq.setTrdBrokerId(payOrderDto.getTrdBrokerId());
+    bdOfReq.setUserProdId(payOrderDto.getUserProdId());
+    bdOfReq.setTrdAccount(payOrderDto.getTrdAccount());
+    bdOfReq.setUserUuid(payOrderDto.getUserUuid());
     OrderDetailPayReq.Builder ordDetailReqBuilder = OrderDetailPayReq.newBuilder();
-    for(TrdOrderDetail trdOrderDetail: payDto.getOrderDetailList()){
+    for(TrdOrderDetail trdOrderDetail: payOrderDto.getOrderDetailList()){
       BeanUtils.copyProperties(trdOrderDetail, ordDetailReqBuilder, DataCollectorUtil
           .getNullPropertyNames(trdOrderDetail));
       bdOfReq.addOrderDetailPayReq(ordDetailReqBuilder);
@@ -132,5 +132,15 @@ public class PayServiceImpl implements PayService {
     }
 
   }
+
+  @Override
+  public PreOrderPayResult preOrder2Pay(PreOrderPayReq preOrderPayReq)
+      throws ExecutionException, InterruptedException {
+    PreOrderPayResult preOrderPayResult  = payRpcFutureStub.preOrder2Pay(preOrderPayReq).get();
+
+    return preOrderPayResult;
+  }
+
+
 
 }

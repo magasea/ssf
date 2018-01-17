@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdInfoService;
+import com.shellshellfish.aaas.trade.finance.prod.FinanceMoneyFundInfo;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoQuery;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProductServiceGrpc;
@@ -57,6 +58,32 @@ public class FinanceProdInfoServiceImpl implements FinanceProdInfoService {
     BeanUtils.copyProperties(productBaseInfo, builder);
     List<com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo> financeProdInfoList =
     financeProductServiceFutureStub.getFinanceProdInfo(builder.build()).get().getFinanceProdInfoList();
+    List<ProductMakeUpInfo> productMakeUpInfoList = new ArrayList<>();
+    for(FinanceProdInfo prodInfoItem: financeProdInfoList){
+      ProductMakeUpInfo productMakeUpInfo = new ProductMakeUpInfo();
+      BeanUtils.copyProperties(prodInfoItem, productMakeUpInfo);
+      productMakeUpInfoList.add(productMakeUpInfo);
+    }
+    return productMakeUpInfoList;
+  }
+
+  @Override
+  public FinanceMoneyFundInfo getMoneyFund(FinanceProdInfoQuery request) {
+    //Todo: 需要在对端实现真实逻辑
+    FinanceMoneyFundInfo.Builder fmfiBuilder = FinanceMoneyFundInfo.newBuilder();
+    fmfiBuilder.setFundCode("001987.OF");
+    fmfiBuilder.setFundName("东方金元宝货币");
+    return fmfiBuilder.build();
+  }
+
+  @Override
+  public List<ProductMakeUpInfo> getFinanceProdMakeUpInfo(Long prodId, Long groupId)
+      throws ExecutionException, InterruptedException {
+    FinanceProdInfoQuery.Builder builder = FinanceProdInfoQuery.newBuilder();
+    builder.setProdId(prodId);
+    builder.setGroupId(groupId);
+    List<com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo> financeProdInfoList =
+        financeProductServiceFutureStub.getFinanceProdInfo(builder.build()).get().getFinanceProdInfoList();
     List<ProductMakeUpInfo> productMakeUpInfoList = new ArrayList<>();
     for(FinanceProdInfo prodInfoItem: financeProdInfoList){
       ProductMakeUpInfo productMakeUpInfo = new ProductMakeUpInfo();

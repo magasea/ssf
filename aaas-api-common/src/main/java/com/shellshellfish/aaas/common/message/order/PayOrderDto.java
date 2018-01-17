@@ -7,7 +7,7 @@ import java.util.List;
  * Created by chenwei on 2017- 十二月 - 20
  */
 
-public class PayDto implements Serializable{
+public class PayOrderDto implements Serializable{
   String trdAccount;
   int trdBrokerId;
   Long userProdId;

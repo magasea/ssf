@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Created by chenwei on 2017- 十二月 - 25
+ * Created by chenwei on 2018- 一月 - 12
  */
 
 @Entity
@@ -18,6 +18,7 @@ public class TrdOrder {
 
   private long id;
   private String orderId;
+  private long preOrderId;
   private String bankCardNum;
   private String prodCode;
   private int orderStatus;
@@ -27,22 +28,12 @@ public class TrdOrder {
   private Long payFee;
   private long userId;
   private long prodId;
+  private long groupId;
   private long userProdId;
   private long createBy;
   private long createDate;
   private long updateBy;
   private long updateDate;
-  private Long buyDiscount;
-  private Long buyFee;
-  private Long boughtDate;
-  private Integer tradeType;
-  private String fundCode;
-  private Long fundNum;
-  private Long fundNumConfirmed;
-  private Long fundQuantity;
-  private Integer orderDetailStatus;
-  private String tradeApplySerial;
-  private String errMsg;
 
   @Id
   @Column(name = "id")
@@ -63,6 +54,16 @@ public class TrdOrder {
 
   public void setOrderId(String orderId) {
     this.orderId = orderId;
+  }
+
+  @Basic
+  @Column(name = "pre_order_id")
+  public long getPreOrderId() {
+    return preOrderId;
+  }
+
+  public void setPreOrderId(long preOrderId) {
+    this.preOrderId = preOrderId;
   }
 
   @Basic
@@ -156,6 +157,16 @@ public class TrdOrder {
   }
 
   @Basic
+  @Column(name = "group_id")
+  public long getGroupId() {
+    return groupId;
+  }
+
+  public void setGroupId(long groupId) {
+    this.groupId = groupId;
+  }
+
+  @Basic
   @Column(name = "user_prod_id")
   public long getUserProdId() {
     return userProdId;
@@ -205,9 +216,96 @@ public class TrdOrder {
     this.updateDate = updateDate;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
+    TrdOrder trdOrder = (TrdOrder) o;
 
+    if (id != trdOrder.id) {
+      return false;
+    }
+    if (preOrderId != trdOrder.preOrderId) {
+      return false;
+    }
+    if (orderStatus != trdOrder.orderStatus) {
+      return false;
+    }
+    if (orderDate != trdOrder.orderDate) {
+      return false;
+    }
+    if (orderType != trdOrder.orderType) {
+      return false;
+    }
+    if (payAmount != trdOrder.payAmount) {
+      return false;
+    }
+    if (userId != trdOrder.userId) {
+      return false;
+    }
+    if (prodId != trdOrder.prodId) {
+      return false;
+    }
+    if (groupId != trdOrder.groupId) {
+      return false;
+    }
+    if (userProdId != trdOrder.userProdId) {
+      return false;
+    }
+    if (createBy != trdOrder.createBy) {
+      return false;
+    }
+    if (createDate != trdOrder.createDate) {
+      return false;
+    }
+    if (updateBy != trdOrder.updateBy) {
+      return false;
+    }
+    if (updateDate != trdOrder.updateDate) {
+      return false;
+    }
+    if (orderId != null ? !orderId.equals(trdOrder.orderId) : trdOrder.orderId != null) {
+      return false;
+    }
+    if (bankCardNum != null ? !bankCardNum.equals(trdOrder.bankCardNum)
+        : trdOrder.bankCardNum != null) {
+      return false;
+    }
+    if (prodCode != null ? !prodCode.equals(trdOrder.prodCode) : trdOrder.prodCode != null) {
+      return false;
+    }
+    if (payFee != null ? !payFee.equals(trdOrder.payFee) : trdOrder.payFee != null) {
+      return false;
+    }
 
+    return true;
+  }
 
-
+  @Override
+  public int hashCode() {
+    int result = (int) (id ^ (id >>> 32));
+    result = 31 * result + (orderId != null ? orderId.hashCode() : 0);
+    result = 31 * result + (int) (preOrderId ^ (preOrderId >>> 32));
+    result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
+    result = 31 * result + (prodCode != null ? prodCode.hashCode() : 0);
+    result = 31 * result + orderStatus;
+    result = 31 * result + (int) (orderDate ^ (orderDate >>> 32));
+    result = 31 * result + orderType;
+    result = 31 * result + (int) (payAmount ^ (payAmount >>> 32));
+    result = 31 * result + (payFee != null ? payFee.hashCode() : 0);
+    result = 31 * result + (int) (userId ^ (userId >>> 32));
+    result = 31 * result + (int) (prodId ^ (prodId >>> 32));
+    result = 31 * result + (int) (groupId ^ (groupId >>> 32));
+    result = 31 * result + (int) (userProdId ^ (userProdId >>> 32));
+    result = 31 * result + (int) (createBy ^ (createBy >>> 32));
+    result = 31 * result + (int) (createDate ^ (createDate >>> 32));
+    result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
+    result = 31 * result + (int) (updateDate ^ (updateDate >>> 32));
+    return result;
+  }
 }

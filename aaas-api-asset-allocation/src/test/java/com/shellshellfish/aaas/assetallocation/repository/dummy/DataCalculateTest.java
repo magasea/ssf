@@ -42,7 +42,7 @@ public class DataCalculateTest {
 
     @Test
     public void test2(){
-         fundCalculateService.calculateDataOfWeek();
+        fundCalculateService.calculateDataOfWeek();
     }
 
     @Test
@@ -54,12 +54,12 @@ public class DataCalculateTest {
     @Test
     public void test4(){
 
-        String code="000905.SH";
-        String startDate="2017-12-20";
-        String endDate="2017-12-26";
+       String code="000905SH";
+       String startDate="2017-12-20";
+       String endDate="2018-01-12";
 
-//        dailyFundService.insertDailyData(code,startDate,endDate);
-        dailyFundService.insertDailyFund();
+        dailyFundService.insertDailyData(code,startDate,endDate);
+//        dailyFundService.insertDailyFund();
 
     }
 

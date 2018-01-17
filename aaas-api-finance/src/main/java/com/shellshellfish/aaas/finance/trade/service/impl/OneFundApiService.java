@@ -791,6 +791,7 @@ public class OneFundApiService implements FundTradeApiService {
             String fundCode = jsonObject.getString("fundcode");
             logger.info("fundCode:{}", fundCode);
             String tradeLimitInfo = getTradeLimitAsRawString(fundCode, "022");
+            System.out.println("tradelimit:"+tradeLimitInfo);
             mongoTemplate.save(tradeLimitInfo, "limitInfo");
             tradeLimitInfo = getTradeLimitAsRawString(fundCode, "024");
             mongoTemplate.save(tradeLimitInfo, "limitInfo");
