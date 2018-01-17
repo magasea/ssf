@@ -18,10 +18,12 @@ public interface UiProductDetailRepo extends PagingAndSortingRepository<UiProduc
 
   @Modifying
   @Query("UPDATE UiProductDetail SET fund_quantity = :fundQuantity, update_date = :updateDate, "
-      + "update_by = :updateBy WHERE user_prod_id = :userProdId and fund_code = :fundCode")
+      + "update_by = :updateBy, status = :status  WHERE user_prod_id = :userProdId and fund_code "
+      + "= :fundCode")
   int updateByParam(@Param("fundQuantity") Long fundQuantity, @Param("updateDate") Long
       updateDate, @Param("updateBy") Long updateBy,  @Param("userProdId") Long userProdId, @Param
-      ("fundCode") String fundCode);
+      ("fundCode") String fundCode, @Param("status") int status);
+
   List<UiProductDetail> findAllByUserProdId(Long userProdId);
 
 

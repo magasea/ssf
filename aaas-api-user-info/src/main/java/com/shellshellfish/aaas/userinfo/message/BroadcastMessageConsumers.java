@@ -53,7 +53,8 @@ public class BroadcastMessageConsumers {
         //update ui_products 和 ui_product_details
         try{
             uiProductDetailRepo.updateByParam(trdPayFlow.getFundSum(), TradeUtil.getUTCTime(),
-                trdPayFlow.getUserId(),trdPayFlow.getUserProdId() ,trdPayFlow.getFundCode());
+                trdPayFlow.getUserId(),trdPayFlow.getUserProdId() ,trdPayFlow.getFundCode(),
+                trdPayFlow.getTrdStatus());
         }catch (Exception ex){
             ex.printStackTrace();
             logger.error(ex.getMessage());
