@@ -285,7 +285,7 @@ public class TradeOpServiceImpl implements TradeOpService {
             + " with brokerId"+ TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId()+" is not in table:");
       }
       userPid = bindBankCard.getUserPid();
-      bindBankCard.setBankCode(trdTradeBankDic.getBankCode());
+      bindBankCard.setBankCode(trdTradeBankDic.getBankCode().trim());
       bindBankCard.setCellphone(userBankInfo.getCellphone());
       bindBankCard.setBankCardNum(financeProdBuyInfo.getBankAcc());
       bindBankCard.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
@@ -506,7 +506,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     String trdAcco = null;
     trdBrokerId = (int) brokerWithTradeAcco.keySet().toArray()[0];
     String trdAccoOrig = (String) brokerWithTradeAcco.get(Integer.valueOf(trdBrokerId));
-    String items[] = trdAccoOrig.split("|");
+    String items[] = trdAccoOrig.split("\\|");
     trdAcco = items[0];
     payOrderDto.setUserPid(items[1]);
     String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdInfo.getBankAcc()
