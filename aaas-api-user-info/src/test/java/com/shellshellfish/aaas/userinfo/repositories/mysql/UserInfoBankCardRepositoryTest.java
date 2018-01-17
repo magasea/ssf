@@ -34,7 +34,7 @@ public class UserInfoBankCardRepositoryTest {
 		UiBankcard bankcardDemo = new UiBankcard();
 		bankcardDemo.setCardNumber(bankNo);
 		bankcardDemo.setBankName("mytestBanName");
-		bankcardDemo.setCreatedBy("pierre");
+		//bankcardDemo.setCreatedBy("pierre");
 		userInfoBankCardsRepository.save(bankcardDemo);
 		UiBankcard bankcard = userInfoBankCardsRepository.findUiBankcardByCardNumberIs(bankNo);
 
