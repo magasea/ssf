@@ -62,7 +62,7 @@ public class ZZTaskBuyFunds implements Callable<TrdOrderDetail> {
     trdOrderDetail.setPayAmount(TradeUtil.getLongNumWithMul100(request.getApplySum()));
     trdOrderDetail.setId(Long.valueOf(request.getOutsideOrderNo()));
     try {
-        buyFundResult = fundTradeApiService.buyFund(""TradeUtil.getZZOpenId(request.getUserPid()
+        buyFundResult = fundTradeApiService.buyFund(""+TradeUtil.getZZOpenId(request.getUserPid()
         ), request.getTradeAcco(), request.getApplySum(), request.getOutsideOrderNo(), request.getFundCode());
         //把交易流水入库
       int kkStat = Integer.parseInt(buyFundResult.getKkstat());

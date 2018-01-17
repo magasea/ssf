@@ -17,6 +17,7 @@ import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserAssectsRepos
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserPersonMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserProdMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserSysMsgRepo;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserTrdLogMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.*;
 import com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
@@ -84,6 +85,9 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Autowired
 	MongoUserProdMsgRepo mongoUserProdMsgRepo;
+	
+	@Autowired
+	MongoUserTrdLogMsgRepo mongoUserTrdLogMsgRepo;
 
 	@Autowired
 	MongoTemplate mongoTemplate;
@@ -207,6 +211,13 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		List<UiSysMsg> uiSysMsgList = mongoUserSysMsgRepo.findAllByOrderByDateDesc();
 		List<UserSysMsgDTO> uiSysMsgDtoList = MyBeanUtils.convertList(uiSysMsgList, UserSysMsgDTO.class);
 		return uiSysMsgDtoList;
+	}
+	
+	@Override
+	public List<MongoUiTrdLogDTO> findByUserIdAndProdId(Long userId,Long userProdId) throws IllegalAccessException, InstantiationException {
+		List<MongoUiTrdLog> mongoUiTrdLogList = mongoUserTrdLogMsgRepo.findAllByUserIdAndUserProdId();
+		List<MongoUiTrdLogDTO> mongoUiTrdLogDtoList = MyBeanUtils.convertList(mongoUiTrdLogList, MongoUiTrdLogDTO.class);
+		return mongoUiTrdLogDtoList;
 	}
 
 	@Override

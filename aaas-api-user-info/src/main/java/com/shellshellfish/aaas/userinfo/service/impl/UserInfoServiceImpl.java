@@ -13,6 +13,7 @@ import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
@@ -494,6 +495,16 @@ public class UserInfoServiceImpl implements UserInfoService {
 		//累计收益
 		BigDecimal income = userFinanceProdCalcService.calcYieldValue(uuid, DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), yesterday);
 		resultMap.put("totalIncome", income);
+		
+		return resultMap;
+	}
+	
+	@Override
+	public Map<String, Object> getTradeLogStatus(String uuid,Long userProdId) throws Exception{
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		Long userId = getUserIdFromUUID(uuid);
+		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService.findByUserIdAndProdId(userId,userProdId);
+		
 		
 		return resultMap;
 	}

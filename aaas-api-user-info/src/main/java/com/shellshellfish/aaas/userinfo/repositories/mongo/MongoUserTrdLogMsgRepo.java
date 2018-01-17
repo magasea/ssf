@@ -10,4 +10,6 @@ public interface MongoUserTrdLogMsgRepo extends MongoRepository<MongoUiTrdLog, L
 
   @Override
   MongoUiTrdLog save(MongoUiTrdLog uiTrdLog);
+
+  List<MongoUiTrdLog> findAllByUserIdAndUserProdId();
 }

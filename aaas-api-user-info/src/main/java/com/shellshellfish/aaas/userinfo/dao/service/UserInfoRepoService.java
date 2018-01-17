@@ -12,6 +12,7 @@ import com.shellshellfish.aaas.userinfo.model.dao.UiPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
@@ -82,4 +83,6 @@ public interface UserInfoRepoService {
 	List<ProductsDTO> findTradeLogDtoByUserId(String userId) throws IllegalAccessException, InstantiationException;
 
 	String findUserUUIDByUserId(Long userId);
+
+	List<MongoUiTrdLogDTO> findByUserIdAndProdId(Long userId,Long userProdId) throws IllegalAccessException, InstantiationException;
 }
