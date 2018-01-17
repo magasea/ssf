@@ -425,7 +425,7 @@ public class UserInfoController {
 		}
 		BankCardDTO bankCard = userInfoService.createBankcard(params);
 		if (bankCard == null) {
-			logger.info("addBankCardWithDetailInfo method 添加失败..");
+			logger.error("addBankCardWithDetailInfo method 添加失败..");
 //			return new ResponseEntity<Object>(
 //					URL_HEAD + "/users/" + userUuid + "/bankcardpage?cardNumber=" + bankcardDetailVo.getCardNumber(),
 //					HttpStatus.NO_CONTENT);
@@ -1736,19 +1736,17 @@ public class UserInfoController {
 		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
 	})
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue=""),
-		@ApiImplicitParam(paramType="path",name="prodId",dataType="String",required=true,value="产品ID",defaultValue="")
+		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid"),
+		@ApiImplicitParam(paramType="path",name="prodId",dataType="String",required=true,value="产品ID")
 	})
 	@RequestMapping(value = "/users/{userUuid}/orders/{prodId}/status", method = RequestMethod.GET)
 	public ResponseEntity<Map> getUserStatus(
 			@PathVariable String userUuid,
 			@PathVariable String prodId
 			) throws Exception {
-		Long userId =  userInfoRepoService.getUserIdFromUUID(userUuid);
-		ApplyResult result = userInfoService.queryTrdResultByOrderDetailId(userId, Long.valueOf(prodId));
-		
 		Map<String,Object> resultMap = new HashMap<String,Object>();
-		resultMap.put("result", result);
+		resultMap = userInfoService.getTradeLogStatus(userUuid,Long.parseLong(prodId));
+		resultMap.put("result", resultMap);
 		return new ResponseEntity<>(resultMap, HttpStatus.OK);
 	}
 }
