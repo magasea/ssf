@@ -716,7 +716,7 @@ public class FundGroupService {
      */
     public ReturnType getFundGroupIncome(String id, String subGroupId, int mouth, String returnType) throws ParseException {
         Calendar ca = Calendar.getInstance();
-        Date enddate = new SimpleDateFormat("yyyy-MM-dd").parse("2017-11-25");
+        Date enddate = new Date();
         ca.setTime(enddate);
         ca.add(Calendar.MONTH, mouth);
         String starttime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
@@ -728,7 +728,7 @@ public class FundGroupService {
         mapStr.put("fund_group_sub_id", subGroupId);
         mapStr.put("starttime", starttime);
         mapStr.put("endtime", endtime);
-        List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
+        List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistoryOne(mapStr);
 
         ReturnType fgi = this.getFundGroupIncomeFromListAndType(fundGroupHistoryList, returnType);
         return fgi;
@@ -790,7 +790,7 @@ public class FundGroupService {
         Calendar ca = Calendar.getInstance();
         Map<String, String> _links = new HashMap<>();
         Map<String, Object> allMap = new HashMap<>();
-        Date endDate = new SimpleDateFormat("yyyy-MM-dd").parse("2017-11-25");
+        Date endDate = new Date();
         ca.setTime(endDate);
         ca.add(Calendar.DATE, -8);
         String startTime = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
@@ -802,7 +802,7 @@ public class FundGroupService {
         mapStr.put("fund_group_sub_id", subGroupId);
         mapStr.put("starttime", startTime);
         mapStr.put("endtime", endTime);
-        List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
+        List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistoryOne(mapStr);
         if (CollectionUtils.isEmpty(fundGroupHistoryList)) {
             return fgi;
         }
@@ -826,7 +826,7 @@ public class FundGroupService {
             String riskNum = fundGroupMapper.getRiskNum(fundGroupHistoryList.get(0).getFund_group_id());
             mapStr.put("fund_group_id",riskNum);
             mapStr.remove("fund_group_sub_id");
-            fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
+            fundGroupHistoryList = fundGroupMapper.getHistoryOne(mapStr);
             List<Map<String, Object>> listBenchmark = new ArrayList<>();
             for (int i = 1;i< fundGroupHistoryList.size();i++) {
                 Map<String, Object> mapBenchmark = new HashMap<>();
@@ -854,7 +854,7 @@ public class FundGroupService {
             String riskNum = fundGroupMapper.getRiskNum(fundGroupHistoryList.get(0).getFund_group_id());
             mapStr.put("fund_group_id",riskNum);
             mapStr.remove("fund_group_sub_id");
-            fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
+            fundGroupHistoryList = fundGroupMapper.getHistoryOne(mapStr);
             List<Map<String, Object>> listBenchmark = new ArrayList<>();
             for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
                 Map<String, Object> mapBenchmark = new HashMap<>();

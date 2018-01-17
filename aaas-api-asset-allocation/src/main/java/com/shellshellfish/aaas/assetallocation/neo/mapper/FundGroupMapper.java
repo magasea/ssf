@@ -61,6 +61,8 @@ public interface FundGroupMapper {
 
     List<FundGroupHistory> getHistory(Map map);
 
+    List<FundGroupHistory> getHistoryOne(Map map);
+
     List<FundGroupHistory> getHistoryAll(Map map);
 
     List<FundNetVal> getSharpeRatio(Map map);
