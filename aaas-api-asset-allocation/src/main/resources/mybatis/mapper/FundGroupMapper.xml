@@ -164,6 +164,14 @@
         select * from fund_group_history_1 where fund_group_id = #{fund_group_id} and time >= #{time}
     </select>
 
+    <select id="getHistoryOne" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupHistory">
+        select * from fund_group_history where fund_group_id = #{fund_group_id}
+        <if test="fund_group_sub_id != null and fund_group_sub_id != ''">
+            and fund_group_sub_id=#{fund_group_sub_id}
+        </if>
+        and time BETWEEN #{starttime} and #{endtime}
+    </select>
+
     <select id="getHistoryAll" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupHistory">
         select * from fund_group_history_1 where fund_group_id = #{fund_group_id}
         <if test="fund_group_sub_id != null and fund_group_sub_id != ''">
