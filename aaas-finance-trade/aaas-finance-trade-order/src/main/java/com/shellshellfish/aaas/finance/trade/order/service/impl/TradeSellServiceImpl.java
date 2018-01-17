@@ -20,6 +20,8 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokerUserRep
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeSellService;
+import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery;
 import io.grpc.ManagedChannel;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -60,6 +62,9 @@ public class TradeSellServiceImpl implements TradeSellService {
   @Autowired
   TrdOrderDetailRepository trdOrderDetailRepository;
 
+  @Autowired
+  UserInfoService userInfoService;
+
   @PostConstruct
   void init(){
     dataCollectionServiceFutureStub = DataCollectionServiceGrpc.newFutureStub(managedDCChannel);
@@ -76,6 +81,11 @@ public class TradeSellServiceImpl implements TradeSellService {
     for(ProdDtlSellPageDTO prodDtlSellPageDTO: prodSellPageDTO.getProdDtlSellPageDTOList()){
       requestBuilder.addFundCode(prodDtlSellPageDTO.getFundCode());
     }
+
+
+    com.shellshellfish.aaas.userinfo.grpc.UserBankInfo userBankInfo =
+        userInfoService.getUserBankInfo(prodSellPageDTO.getUserId());
+
 
     List<FundInfo> fundInfoList =dataCollectionServiceFutureStub.getFundsPrice
         (requestBuilder.build()).get().getFundInfoList();
@@ -110,6 +120,7 @@ public class TradeSellServiceImpl implements TradeSellService {
     if(result == null){
       logger.error("failed to generate order info for sell information");
     }
+    prodSellDTO.setUserPid(userBankInfo.getUserPid());
     broadcastMessageProducer.sendSellMessages(prodSellDTO);
     return result;
   }

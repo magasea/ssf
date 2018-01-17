@@ -42,7 +42,7 @@ message UserBankInfo{
   string userName = 3;
   string userPid = 4;
   string cellphone = 5;
-  repeated string cardNumbers = 6;
+  repeated CardInfo cardNumbers = 6;
 }
 
 
@@ -66,4 +66,8 @@ message UpdateUserProdReq{
   int32 fund_share = 1;//基金占比
   int64 user_prod_id = 2; //用户理财产品id
   string fund_code = 3; //基金code
+}
+message CardInfo{
+  string user_pid = 1; //身份证
+  string card_numbers = 2; //银行卡号
 }

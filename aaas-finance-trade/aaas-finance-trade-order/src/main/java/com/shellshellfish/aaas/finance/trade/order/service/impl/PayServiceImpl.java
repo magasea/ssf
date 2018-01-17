@@ -97,6 +97,7 @@ public class PayServiceImpl implements PayService {
     bdOfReq.setUserProdId(payOrderDto.getUserProdId());
     bdOfReq.setTrdAccount(payOrderDto.getTrdAccount());
     bdOfReq.setUserUuid(payOrderDto.getUserUuid());
+    bdOfReq.setUserPid(payOrderDto.getUserPid());
     OrderDetailPayReq.Builder ordDetailReqBuilder = OrderDetailPayReq.newBuilder();
     for(TrdOrderDetail trdOrderDetail: payOrderDto.getOrderDetailList()){
       BeanUtils.copyProperties(trdOrderDetail, ordDetailReqBuilder, DataCollectorUtil

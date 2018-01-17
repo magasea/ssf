@@ -71,4 +71,6 @@ public interface UserInfoService {
 
 	Map<String, Object> getChicombinationAssets(String uuid, ProductsDTO productsDTO);
 
+	Map<String, Object> getTradeLogStatus(String uuid, Long userProdId) throws Exception;
+
 }

@@ -97,6 +97,8 @@ public class UserInfoController {
 			String str="{\"cardNumber\":\""+bankCard+"\",\"cardUserName\":\""+name+"\",\"cardCellphone\":\""+mobile+"\",\"cardUserPid\":\""+idcard+"\",\"cardUuId\":\""+uuid+"\"}";
 			logger.info("urlUid=="+str);
 			logger.info("str=="+str);
+			//TODO 先开户（com.shellshellfish.aaas.finance.trade.pay.service.impl.FundTradeZhongZhengApiService.openAccount(String, String, String, String, String, String)）
+			//TODO 再添加银行卡
 			result=restTemplate.postForEntity(url,getHttpEntitySecond(str),Map.class).getBody();
 			if(result==null){
 				logger.info("添加银行卡失败");
@@ -383,13 +385,13 @@ public class UserInfoController {
 						if(trendYieldMap.get("value")!=null){
 							String trendYield = trendYieldMap.get("value")+"";
 							if("0".equals(trendYield)){
-								trendYieldMap.put("value", "0.00%");
+								trendYieldMap.put("value", "0");
 							} else {
 								trendYield = EasyKit.getDecimal(new BigDecimal(trendYield))+"";
-								trendYieldMap.put("value", trendYield+EasyKit.PERCENT);
+								trendYieldMap.put("value", trendYield);
 							}
 						} else {
-							trendYieldMap.put("value", "0.00%");
+							trendYieldMap.put("value", "0");
 						}
 					}
 				}

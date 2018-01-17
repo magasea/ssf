@@ -17,6 +17,7 @@ import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserAssectsRepos
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserPersonMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserProdMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserSysMsgRepo;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserTrdLogMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.*;
 import com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
@@ -84,6 +85,9 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Autowired
 	MongoUserProdMsgRepo mongoUserProdMsgRepo;
+	
+	@Autowired
+	MongoUserTrdLogMsgRepo mongoUserTrdLogMsgRepo;
 
 	@Autowired
 	MongoTemplate mongoTemplate;
@@ -207,6 +211,13 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		List<UiSysMsg> uiSysMsgList = mongoUserSysMsgRepo.findAllByOrderByDateDesc();
 		List<UserSysMsgDTO> uiSysMsgDtoList = MyBeanUtils.convertList(uiSysMsgList, UserSysMsgDTO.class);
 		return uiSysMsgDtoList;
+	}
+	
+	@Override
+	public List<MongoUiTrdLogDTO> findByUserIdAndProdId(Long userId,Long userProdId) throws IllegalAccessException, InstantiationException {
+		List<MongoUiTrdLog> mongoUiTrdLogList = mongoUserTrdLogMsgRepo.findAllByUserIdAndUserProdId();
+		List<MongoUiTrdLogDTO> mongoUiTrdLogDtoList = MyBeanUtils.convertList(mongoUiTrdLogList, MongoUiTrdLogDTO.class);
+		return mongoUiTrdLogDtoList;
 	}
 
 	@Override
@@ -404,11 +415,16 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		UserBankInfo.Builder builder = UserBankInfo.newBuilder();
 		builder.setUserId(userId);
 		builder.setUserName(bankCardDTOS.get(0).getUserName());
-		builder.setUserPid(bankCardDTOS.get(0).getUserPid());
+
 		builder.setUuid(request.getUuid());
 		builder.setCellphone(bankCardDTOS.get(0).getCellphone());
+		CardInfo.Builder ciBuilder = CardInfo.newBuilder();
+
 		for(int idx = 0; idx < bankCardDTOS.size(); idx++){
-			builder.addCardNumbers(bankCardDTOS.get(idx).getCardNumber());
+			ciBuilder.setCardNumbers(bankCardDTOS.get(idx).getCardNumber());
+			ciBuilder.setUserPid(bankCardDTOS.get(idx).getUserPid());
+			builder.addCardNumbers(ciBuilder);
+			ciBuilder.clear();
 		}
 		responseObserver.onNext(builder.build());
 		responseObserver.onCompleted();
@@ -443,6 +459,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			uiProducts.setUpdateBy(request.getUserId());
 			uiProducts.setUpdateDate(TradeUtil.getUTCTime());
 			uiProducts.setStatus(TrdOrderStatusEnum.WAITPAY.getStatus());
+			uiProducts.setUserId(request.getUserId());
 			UiProducts saveResult = uiProductRepo.save(uiProducts);
 			Long userProdId = saveResult.getId();
 			logger.info("saved UiProducts with result id:" + userProdId);

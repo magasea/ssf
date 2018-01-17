@@ -12,7 +12,20 @@ public class PayOrderDto implements Serializable{
   int trdBrokerId;
   Long userProdId;
   String userUuid;
+
+
+
+  String userPid;
   List<TrdOrderDetail> orderDetailList;
+
+
+  public String getUserPid() {
+    return userPid;
+  }
+
+  public void setUserPid(String userPid) {
+    this.userPid = userPid;
+  }
 
   public Long getUserProdId() {
     return userProdId;
