@@ -20,7 +20,7 @@ public interface TrdOrderRepository extends PagingAndSortingRepository<TrdOrder,
 
 	List<TrdOrder> findByUserProdId(Long userProdId);
 
-	List<TrdOrder> findTrdOrdersByOrderStatusIsNot(int orderStatus);
+	List<TrdOrder> findTrdOrdersByOrderStatusIs(int orderStatus);
 	@Modifying(clearAutomatically = true)
 	@Query("UPDATE TrdOrder SET order_status = :orderStatus, update_date = :updateDate, update_by "
 			+ "= :updateBy WHERE id = :orderId")

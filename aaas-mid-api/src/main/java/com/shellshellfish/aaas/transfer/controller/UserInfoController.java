@@ -383,13 +383,13 @@ public class UserInfoController {
 						if(trendYieldMap.get("value")!=null){
 							String trendYield = trendYieldMap.get("value")+"";
 							if("0".equals(trendYield)){
-								trendYieldMap.put("value", "0.00%");
+								trendYieldMap.put("value", "0");
 							} else {
 								trendYield = EasyKit.getDecimal(new BigDecimal(trendYield))+"";
-								trendYieldMap.put("value", trendYield+EasyKit.PERCENT);
+								trendYieldMap.put("value", trendYield);
 							}
 						} else {
-							trendYieldMap.put("value", "0.00%");
+							trendYieldMap.put("value", "0");
 						}
 					}
 				}

@@ -13,7 +13,16 @@ public class PayPreOrderDto implements Serializable{
   Long userProdId;
   String userUuid;
   String originFundCode;
+  String userPid;
   List<TrdOrderDetail> orderDetailList;
+
+  public String getUserPid() {
+    return userPid;
+  }
+
+  public void setUserPid(String userPid) {
+    this.userPid = userPid;
+  }
 
   public String getOriginFundCode() {
     return originFundCode;

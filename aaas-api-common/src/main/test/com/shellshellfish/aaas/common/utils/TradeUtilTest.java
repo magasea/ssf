@@ -20,6 +20,12 @@ import org.junit.Test;
 public class TradeUtilTest {
 
   @Test
+  public void getZZOpenId() throws Exception {
+    String origin = "612727198301116032";
+    System.out.println(TradeUtil.getZZOpenId(origin));
+  }
+
+  @Test
   public void getUTCTimeTodayStartTime() throws Exception {
     System.out.println(ZoneId.systemDefault().getId());
     long currentZoneDayStartTime = TradeUtil.getUTCTimeTodayStartTime(ZoneId.systemDefault().getId

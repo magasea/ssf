@@ -7,16 +7,43 @@ import java.util.List;
  * Created by chenwei on 2017- 十二月 - 20
  */
 
-public class PayOrderDto implements Serializable{
+public class OrderStatusChangeDTO implements Serializable{
   String trdAccount;
   int trdBrokerId;
   Long userProdId;
   String userUuid;
-
-
-
+  int orderStatus;
   String userPid;
-  List<TrdOrderDetail> orderDetailList;
+  Long userId;
+
+  public Long getOrderDate() {
+    return orderDate;
+  }
+
+  public void setOrderDate(Long orderDate) {
+    this.orderDate = orderDate;
+  }
+
+  Long orderDate;
+
+  public Long getUserId() {
+    return userId;
+  }
+
+  public void setUserId(Long userId) {
+    this.userId = userId;
+  }
+
+  public int getOrderType() {
+    return orderType;
+  }
+
+  public void setOrderType(int orderType) {
+    this.orderType = orderType;
+  }
+
+  int orderType;
+
 
 
   public String getUserPid() {
@@ -59,12 +86,12 @@ public class PayOrderDto implements Serializable{
     this.trdAccount = trdAccount;
   }
 
-  public List<TrdOrderDetail> getOrderDetailList() {
-    return orderDetailList;
+  public int getOrderStatus() {
+    return orderStatus;
   }
 
-  public void setOrderDetailList(
-      List<TrdOrderDetail> orderDetailList) {
-    this.orderDetailList = orderDetailList;
+  public void setOrderStatus(int orderStatus) {
+    this.orderStatus = orderStatus;
   }
+
 }
