@@ -136,7 +136,7 @@ public class TradeOpServiceImpl implements TradeOpService {
   }
 
   private Long genUserProduct(FinanceProdBuyInfo financeProdBuyInfo,
-      List<ProductMakeUpInfo> productMakeUpInfos) throws ExecutionException, InterruptedException {
+      List<ProductMakeUpInfo> productMakeUpInfos) throws Exception {
     FinanceProdInfosQuery.Builder requestBuilder = FinanceProdInfosQuery.newBuilder();
     requestBuilder.setUserId(financeProdBuyInfo.getUserId());
 
@@ -151,6 +151,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         .build()).get().getUserProdId();
     if(userProdId == -1L){
       logger.error("userProdId is not greater than 0, means some error happened" + userProdId);
+      throw new Exception("Failed to create userProd and userProdDetail");
     }
     return userProdId;
   }

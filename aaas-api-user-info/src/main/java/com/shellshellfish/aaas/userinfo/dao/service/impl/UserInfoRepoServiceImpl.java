@@ -443,6 +443,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			uiProducts.setUpdateBy(request.getUserId());
 			uiProducts.setUpdateDate(TradeUtil.getUTCTime());
 			uiProducts.setStatus(TrdOrderStatusEnum.WAITPAY.getStatus());
+			uiProducts.setUserId(request.getUserId());
 			UiProducts saveResult = uiProductRepo.save(uiProducts);
 			Long userProdId = saveResult.getId();
 			logger.info("saved UiProducts with result id:" + userProdId);
