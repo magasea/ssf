@@ -39,4 +39,7 @@ public interface TradeOpService {
    *  根据购买的货币基金份额，按照产品中各个基金的比例，换算成各个基金的转换份额
    */
    TrdOrder buyPreOrderProduct(TrdPayFlow trdPayFlow) throws Exception;
+
+
+
 }

@@ -15,6 +15,16 @@ public class ZZBuyFund {
   BigDecimal applySum;
   String outsideOrderNo;
   String fundCode;
+
+  public String getUserPid() {
+    return userPid;
+  }
+
+  public void setUserPid(String userPid) {
+    this.userPid = userPid;
+  }
+
+  String userPid;
   TrdOrderDetail trdOrderDetail;
 
   public int getTrdBrokerId() {

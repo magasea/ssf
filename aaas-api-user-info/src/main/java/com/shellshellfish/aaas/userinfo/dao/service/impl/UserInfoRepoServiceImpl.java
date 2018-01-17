@@ -404,11 +404,16 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		UserBankInfo.Builder builder = UserBankInfo.newBuilder();
 		builder.setUserId(userId);
 		builder.setUserName(bankCardDTOS.get(0).getUserName());
-		builder.setUserPid(bankCardDTOS.get(0).getUserPid());
+
 		builder.setUuid(request.getUuid());
 		builder.setCellphone(bankCardDTOS.get(0).getCellphone());
+		CardInfo.Builder ciBuilder = CardInfo.newBuilder();
+
 		for(int idx = 0; idx < bankCardDTOS.size(); idx++){
-			builder.addCardNumbers(bankCardDTOS.get(idx).getCardNumber());
+			ciBuilder.setCardNumbers(bankCardDTOS.get(idx).getCardNumber());
+			ciBuilder.setUserPid(bankCardDTOS.get(idx).getUserPid());
+			builder.addCardNumbers(ciBuilder);
+			ciBuilder.clear();
 		}
 		responseObserver.onNext(builder.build());
 		responseObserver.onCompleted();

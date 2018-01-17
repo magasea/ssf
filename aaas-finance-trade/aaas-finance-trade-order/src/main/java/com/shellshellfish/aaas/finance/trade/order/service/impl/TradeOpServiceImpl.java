@@ -35,6 +35,7 @@ import com.shellshellfish.aaas.trade.finance.prod.FinanceMoneyFundInfo;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoCollection;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoQuery;
+import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.FinanceProdInfosQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery;
@@ -173,7 +174,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     String trdAcco = null;
     trdBrokerId = (int) brokerWithTradeAcco.keySet().toArray()[0];
     String trdAccoOrig = (String) brokerWithTradeAcco.get(Integer.valueOf(trdBrokerId));
-    String items[] = trdAccoOrig.split("|");
+    String items[] = trdAccoOrig.split("\\|");
     trdAcco = items[0];
     payOrderDto.setUserPid(items[1]);
     String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdBuyInfo.getBankAcc()
@@ -245,6 +246,21 @@ public class TradeOpServiceImpl implements TradeOpService {
     String bankCardNum = null;
     String trdAcco = null;
     String userPid = null;
+    UserBankInfo userBankInfo = userInfoService.getUserBankInfo(financeProdBuyInfo.getUserId());
+    for(CardInfo cardInfo:userBankInfo.getCardNumbersList()){
+      if(cardInfo.getCardNumbers().equals(financeProdBuyInfo.getBankAcc())){
+        userPid = cardInfo.getUserPid();
+        break;
+      }
+    }
+
+
+    if(StringUtils.isEmpty(userPid)){
+      logger.error("this user: "+financeProdBuyInfo.getUserId()+" personal id is not in "
+          + "ui_bankcard" );
+      throw new Exception("this user: "+financeProdBuyInfo.getUserId()+" personal id is not in "
+          + "ui_bankcard");
+    }
     if(!CollectionUtils.isEmpty(trdBrokerUsers)){
       trdBrokerId = trdBrokerUsers.get(0).getTradeBrokerId().intValue();
       bankCardNum = financeProdBuyInfo.getBankAcc();
@@ -252,12 +268,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     }else if(CollectionUtils.isEmpty(trdBrokerUsers) || StringUtils.isEmpty(trdAcco)){
       //Todo: get userBankCardInfo to make tradAcco
       logger.info("trdBrokerUsers.get(0).getTradeAcco() is empty, 坑货出现，需要生成交易账号再交易");
-      UserIdOrUUIDQuery.Builder builder = UserIdOrUUIDQuery.newBuilder();
-      builder.setUuid(financeProdBuyInfo.getUuid());
-      builder.setUserId(financeProdBuyInfo.getUserId());
 
-      com.shellshellfish.aaas.userinfo.grpc.UserBankInfo userBankInfo =
-          userInfoServiceFutureStub.getUserBankInfo(builder.build()).get();
 
       BindBankCard bindBankCard = new BindBankCard();
       TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndAndBankCardNum
