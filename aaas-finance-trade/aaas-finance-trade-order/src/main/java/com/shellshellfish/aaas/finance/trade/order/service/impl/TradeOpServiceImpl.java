@@ -27,6 +27,7 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.TrdTradeBankDicR
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdInfoService;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
+import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
@@ -34,7 +35,9 @@ import com.shellshellfish.aaas.trade.finance.prod.FinanceMoneyFundInfo;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoCollection;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoQuery;
+import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.FinanceProdInfosQuery;
+import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
@@ -92,6 +95,8 @@ public class TradeOpServiceImpl implements TradeOpService {
   @Autowired
   TrdPreOrderRepository trdPreOrderRepository;
 
+  @Autowired
+  UserInfoService userInfoService;
 
   @Autowired
   PayService payService;
@@ -132,7 +137,7 @@ public class TradeOpServiceImpl implements TradeOpService {
   }
 
   private Long genUserProduct(FinanceProdBuyInfo financeProdBuyInfo,
-      List<ProductMakeUpInfo> productMakeUpInfos) throws ExecutionException, InterruptedException {
+      List<ProductMakeUpInfo> productMakeUpInfos) throws Exception {
     FinanceProdInfosQuery.Builder requestBuilder = FinanceProdInfosQuery.newBuilder();
     requestBuilder.setUserId(financeProdBuyInfo.getUserId());
 
@@ -147,6 +152,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         .build()).get().getUserProdId();
     if(userProdId == -1L){
       logger.error("userProdId is not greater than 0, means some error happened" + userProdId);
+      throw new Exception("Failed to create userProd and userProdDetail");
     }
     return userProdId;
   }
@@ -167,8 +173,10 @@ public class TradeOpServiceImpl implements TradeOpService {
     int trdBrokerId = -1;
     String trdAcco = null;
     trdBrokerId = (int) brokerWithTradeAcco.keySet().toArray()[0];
-    trdAcco = (String) brokerWithTradeAcco.get(Integer.valueOf(trdBrokerId));
-
+    String trdAccoOrig = (String) brokerWithTradeAcco.get(Integer.valueOf(trdBrokerId));
+    String items[] = trdAccoOrig.split("\\|");
+    trdAcco = items[0];
+    payOrderDto.setUserPid(items[1]);
     String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdBuyInfo.getBankAcc()
             .substring(0,6)),trdBrokerId);
     payOrderDto.setTrdAccount(trdAcco);
@@ -224,6 +232,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     }
     payOrderDto.setOrderDetailList(trdOrderDetails);
     payOrderDto.setTrdBrokerId(trdBrokerId);
+
     sendOutOrder(payOrderDto);
     return trdOrder;
   }
@@ -236,6 +245,22 @@ public class TradeOpServiceImpl implements TradeOpService {
     int trdBrokerId = -1 ;
     String bankCardNum = null;
     String trdAcco = null;
+    String userPid = null;
+    UserBankInfo userBankInfo = userInfoService.getUserBankInfo(financeProdBuyInfo.getUserId());
+    for(CardInfo cardInfo:userBankInfo.getCardNumbersList()){
+      if(cardInfo.getCardNumbers().equals(financeProdBuyInfo.getBankAcc())){
+        userPid = cardInfo.getUserPid();
+        break;
+      }
+    }
+
+
+    if(StringUtils.isEmpty(userPid)){
+      logger.error("this user: "+financeProdBuyInfo.getUserId()+" personal id is not in "
+          + "ui_bankcard" );
+      throw new Exception("this user: "+financeProdBuyInfo.getUserId()+" personal id is not in "
+          + "ui_bankcard");
+    }
     if(!CollectionUtils.isEmpty(trdBrokerUsers)){
       trdBrokerId = trdBrokerUsers.get(0).getTradeBrokerId().intValue();
       bankCardNum = financeProdBuyInfo.getBankAcc();
@@ -243,12 +268,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     }else if(CollectionUtils.isEmpty(trdBrokerUsers) || StringUtils.isEmpty(trdAcco)){
       //Todo: get userBankCardInfo to make tradAcco
       logger.info("trdBrokerUsers.get(0).getTradeAcco() is empty, 坑货出现，需要生成交易账号再交易");
-      UserIdOrUUIDQuery.Builder builder = UserIdOrUUIDQuery.newBuilder();
-      builder.setUuid(financeProdBuyInfo.getUuid());
-      builder.setUserId(financeProdBuyInfo.getUserId());
 
-      com.shellshellfish.aaas.userinfo.grpc.UserBankInfo userBankInfo =
-          userInfoServiceFutureStub.getUserBankInfo(builder.build()).get();
 
       BindBankCard bindBankCard = new BindBankCard();
       TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndAndBankCardNum
@@ -264,7 +284,8 @@ public class TradeOpServiceImpl implements TradeOpService {
         throw new Exception("this bank name:"+bankName
             + " with brokerId"+ TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId()+" is not in table:");
       }
-      bindBankCard.setBankCode(trdTradeBankDic.getBankCode());
+      userPid = bindBankCard.getUserPid();
+      bindBankCard.setBankCode(trdTradeBankDic.getBankCode().trim());
       bindBankCard.setCellphone(userBankInfo.getCellphone());
       bindBankCard.setBankCardNum(financeProdBuyInfo.getBankAcc());
       bindBankCard.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
@@ -282,11 +303,14 @@ public class TradeOpServiceImpl implements TradeOpService {
       trdBrokerUserNew.setUpdateBy(financeProdBuyInfo.getUserId());
       trdBrokerUserNew.setUpdateDate(TradeUtil.getUTCTime());
       trdBrokerUserRepository.save(trdBrokerUserNew);
+
 //      trdBrokerUserRepository.updateTradeAcco(trdAcco, TradeUtil.getUTCTime(), bindBankCard
 //          .getUserId(),  bindBankCard.getUserId());
 
     }
-    result.put(trdBrokerId, trdAcco);
+
+    //因为要提取用户身份证号码，所以这里拼接回去，要优化吗？
+    result.put(trdBrokerId, trdAcco+"|"+userPid);
     return result;
   }
 
@@ -427,7 +451,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       payPreOrderDto.setTrdBrokerId(trdPayFlow.getTradeBrokeId().intValue());
       payPreOrderDto.setTrdAccount(trdPayFlow.getTradeAcco());
       payPreOrderDto.setUserProdId(trdPayFlow.getUserProdId());
-
+      payPreOrderDto.setUserPid(userInfoService.getUserBankInfo(trdOrder.getUserId()).getUserPid());
       payPreOrderDto.setUserUuid(""+trdOrder.getUserId());
       List<com.shellshellfish.aaas.common.message.order.TrdOrderDetail> trdOrderDetails = new
           ArrayList<>();
@@ -455,9 +479,10 @@ public class TradeOpServiceImpl implements TradeOpService {
         trdOrderDetails.add(trdOrderDetail);
       }
       payPreOrderDto.setOrderDetailList(trdOrderDetails);
+      broadcastMessageProducer.sendPayMessages(payPreOrderDto);
     }
 
-    return null;
+    return trdOrder;
   }
 
   /**
@@ -480,8 +505,10 @@ public class TradeOpServiceImpl implements TradeOpService {
     int trdBrokerId = -1;
     String trdAcco = null;
     trdBrokerId = (int) brokerWithTradeAcco.keySet().toArray()[0];
-    trdAcco = (String) brokerWithTradeAcco.get(Integer.valueOf(trdBrokerId));
-
+    String trdAccoOrig = (String) brokerWithTradeAcco.get(Integer.valueOf(trdBrokerId));
+    String items[] = trdAccoOrig.split("\\|");
+    trdAcco = items[0];
+    payOrderDto.setUserPid(items[1]);
     String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdInfo.getBankAcc()
         .substring(0,6)),trdBrokerId);
     payOrderDto.setTrdAccount(trdAcco);
@@ -563,7 +590,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     }
     trdPreOrder.setUserId(userId);
     trdPreOrderRepository.save(trdPreOrder);
-
+    UserBankInfo userBankInfo =  userInfoService.getUserBankInfo(userId);
     PreOrderPayReq.Builder poprBuilder = PreOrderPayReq.newBuilder();
 
     poprBuilder.setBankCardNum(financeProdInfo.getBankAcc());
@@ -572,6 +599,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     poprBuilder.setProdId(financeProdInfo.getProdId());
     poprBuilder.setUserId(userId);
     poprBuilder.setFundCode(fundCode);
+    poprBuilder.setUserPid(userBankInfo.getUserPid());
     PreOrderPayResult result = payService.preOrder2Pay(poprBuilder.build());
     if(StringUtils.isEmpty(result.getApplySerial())){
       //说明中证支付接口调用失败没有生产流水号

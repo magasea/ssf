@@ -597,7 +597,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
     }
 
     private Map<String, Object> init() throws JsonProcessingException {
-        return init("shellshellfish");
+        return init("3d8f5e7713d365a122f2107c41385635145daffc5f14297c03997180c5cd9ee5");
     }
 
     private Map<String, Object> init(Long userId) throws JsonProcessingException {

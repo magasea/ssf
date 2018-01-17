@@ -1,15 +1,19 @@
-package com.shellshellfish.aaas.common.message.order;
+package com.shellshellfish.aaas.model;
 
-import java.io.Serializable;
 import java.sql.Date;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * Created by chenwei on 2018- 一月 - 17
  */
 
-
-
-public class UiBankcard  implements Serializable{
+@Entity
+@Table(name = "ui_bankcard", schema = "ssfuser", catalog = "")
+public class UiBankcard {
 
   private long id;
   private long userId;
@@ -25,8 +29,8 @@ public class UiBankcard  implements Serializable{
   private Long updateBy;
   private Long updateDate;
 
-  
-  
+  @Id
+  @Column(name = "id")
   public long getId() {
     return id;
   }
@@ -35,8 +39,8 @@ public class UiBankcard  implements Serializable{
     this.id = id;
   }
 
-  
-  
+  @Basic
+  @Column(name = "user_id")
   public long getUserId() {
     return userId;
   }
@@ -45,8 +49,8 @@ public class UiBankcard  implements Serializable{
     this.userId = userId;
   }
 
-  
-  
+  @Basic
+  @Column(name = "user_name")
   public String getUserName() {
     return userName;
   }
@@ -55,8 +59,8 @@ public class UiBankcard  implements Serializable{
     this.userName = userName;
   }
 
-  
-  
+  @Basic
+  @Column(name = "user_pid")
   public String getUserPid() {
     return userPid;
   }
@@ -65,8 +69,8 @@ public class UiBankcard  implements Serializable{
     this.userPid = userPid;
   }
 
-  
-  
+  @Basic
+  @Column(name = "cellphone")
   public String getCellphone() {
     return cellphone;
   }
@@ -75,8 +79,8 @@ public class UiBankcard  implements Serializable{
     this.cellphone = cellphone;
   }
 
-  
-  
+  @Basic
+  @Column(name = "bank_name")
   public String getBankName() {
     return bankName;
   }
@@ -85,8 +89,8 @@ public class UiBankcard  implements Serializable{
     this.bankName = bankName;
   }
 
-  
-  
+  @Basic
+  @Column(name = "card_number")
   public String getCardNumber() {
     return cardNumber;
   }
@@ -95,8 +99,8 @@ public class UiBankcard  implements Serializable{
     this.cardNumber = cardNumber;
   }
 
-  
-  
+  @Basic
+  @Column(name = "expire_date")
   public Date getExpireDate() {
     return expireDate;
   }
@@ -105,8 +109,8 @@ public class UiBankcard  implements Serializable{
     this.expireDate = expireDate;
   }
 
-  
-  
+  @Basic
+  @Column(name = "card_status")
   public int getCardStatus() {
     return cardStatus;
   }
@@ -115,8 +119,8 @@ public class UiBankcard  implements Serializable{
     this.cardStatus = cardStatus;
   }
 
-  
-  
+  @Basic
+  @Column(name = "created_by")
   public Long getCreatedBy() {
     return createdBy;
   }
@@ -125,8 +129,8 @@ public class UiBankcard  implements Serializable{
     this.createdBy = createdBy;
   }
 
-  
-  
+  @Basic
+  @Column(name = "created_date")
   public Long getCreatedDate() {
     return createdDate;
   }
@@ -135,8 +139,8 @@ public class UiBankcard  implements Serializable{
     this.createdDate = createdDate;
   }
 
-  
-  
+  @Basic
+  @Column(name = "update_by")
   public Long getUpdateBy() {
     return updateBy;
   }
@@ -145,8 +149,8 @@ public class UiBankcard  implements Serializable{
     this.updateBy = updateBy;
   }
 
-  
-  
+  @Basic
+  @Column(name = "update_date")
   public Long getUpdateDate() {
     return updateDate;
   }
@@ -155,7 +159,7 @@ public class UiBankcard  implements Serializable{
     this.updateDate = updateDate;
   }
 
-  
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -209,7 +213,7 @@ public class UiBankcard  implements Serializable{
     return true;
   }
 
-  
+  @Override
   public int hashCode() {
     int result = (int) (id ^ (id >>> 32));
     result = 31 * result + (int) (userId ^ (userId >>> 32));

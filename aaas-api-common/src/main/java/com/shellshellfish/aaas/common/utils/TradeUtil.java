@@ -1,13 +1,16 @@
 package com.shellshellfish.aaas.common.utils;
 
+import com.google.common.hash.Hashing;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.TimeZone;
+
 
 public class TradeUtil {
   public static String generateOrderId(int bankId, int tradeBrokerId ){
@@ -134,6 +137,18 @@ public class TradeUtil {
     }else{
       return TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus();
     }
+  }
+
+  public static String getSHA256encoding(String originStr){
+    String sha256hex = Hashing.sha256()
+        .hashString(originStr, StandardCharsets.UTF_8)
+        .toString();
+    return sha256hex;
+  }
+
+  public static String getZZOpenId(String personId){
+    String sha256hex = getSHA256encoding(personId+"shellshellfish");
+    return sha256hex;
   }
 
 
