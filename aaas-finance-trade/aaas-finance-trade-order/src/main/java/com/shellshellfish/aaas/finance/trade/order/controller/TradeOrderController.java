@@ -294,6 +294,8 @@ public class TradeOrderController {
 				detailMap.put("fundTradeType", "购买");
 			} else if(trdOrderDetail.getTradeType() == 2){
 				detailMap.put("fundTradeType", "分红");
+			} else if(trdOrderDetail.getTradeType() == 9){
+				detailMap.put("fundTradeType", "部分确认");
 			} else {
 				logger.info("状态为："+trdOrder.getOrderType());
 				detailMap.put("fundTradeType", "交易失败");
