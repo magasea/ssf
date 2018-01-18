@@ -85,7 +85,7 @@ public class DailyFundService {
             builder.addCodes(code);
             dailyFundsList = fundInfoService.getDailyFunds(builder.build()); // grpc
         } catch(Exception e) {
-            logger.error("调用每日接口获取数据失败：code=" + code + ",startDate=" + startDate + ",todayDate=" + endDate, e);
+            logger.error("调用每日接口获取数据失败：code=" + code + ", startDate=" + startDate + ", endDate=" + endDate, e);
         }
 
         if (CollectionUtils.isEmpty(dailyFundsList)) {
