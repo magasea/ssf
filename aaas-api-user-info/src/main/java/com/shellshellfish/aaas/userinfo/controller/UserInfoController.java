@@ -1744,9 +1744,10 @@ public class UserInfoController {
 			@PathVariable String userUuid,
 			@PathVariable String prodId
 			) throws Exception {
-		Map<String,Object> resultMap = new HashMap<String,Object>();
+		Map<String,Object> result = new HashMap<String,Object>();
+		List<Map<String, Object>> resultMap = new ArrayList();
 		resultMap = userInfoService.getTradeLogStatus(userUuid,Long.parseLong(prodId));
-		resultMap.put("result", resultMap);
-		return new ResponseEntity<>(resultMap, HttpStatus.OK);
+		result.put("result", resultMap);
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 }

@@ -124,7 +124,7 @@ public class TransferController {
 		Map buyProductSuccess=service.buyProduct(prdInfo);
 		Map resultMap=new HashMap<>();
 		resultMap.put("orderId", buyProductSuccess.get("orderId").toString());
-		return new JsonResult(JsonResult.SUCCESS, "购买成功", resultMap);
+		return new JsonResult(JsonResult.SUCCESS, "申请中...", resultMap);
 		} catch (HttpClientErrorException e) {
 			logger.error("购买基金调用购买接口失败"+e.getMessage());
 			String str = e.getResponseBodyAsString();

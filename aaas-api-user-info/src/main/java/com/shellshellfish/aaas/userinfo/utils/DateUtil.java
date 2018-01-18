@@ -112,9 +112,9 @@ public class DateUtil {
 	}
 	
 
-//	public static void main(String[] args) {
-//
-//		System.out.println(getDiscrepantDays(new Date(getDateOneDayBefore(new Date())),new Date()));
-//
-//	}
+	public static void main(String[] args) {
+
+//		System.out.println(getDateType(1516056310549L));
+
+	}
 }
