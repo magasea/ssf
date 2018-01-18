@@ -25,8 +25,8 @@ public class FundTradeZhongZhengApiServiceTest {
 
   @Test
   public void commitRisk() throws Exception {
-    String openId = TradeUtil.getZZOpenId("352230198703172130");
-    fundTradeApiService.commitRisk(openId, 3);
+    String openId = TradeUtil.getZZOpenId("362522198709220031");
+    fundTradeApiService.commitRisk(openId, 4);
   }
 
 }
