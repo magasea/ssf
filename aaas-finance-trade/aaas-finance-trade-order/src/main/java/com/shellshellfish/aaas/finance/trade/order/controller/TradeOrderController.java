@@ -248,6 +248,10 @@ public class TradeOrderController {
 		//TODO title
 		result.put("title", "稳健型-3个月组合");
 		//金额
+		long amount = trdOrder.getPayAmount();
+		if(amount!=0){
+			amount = amount/100L;
+		}
 		result.put("amount", trdOrder.getPayAmount());
 		//手续费
 		result.put("payfee", trdOrder.getPayFee());
