@@ -252,7 +252,7 @@ public class TradeOrderController {
 		if(amount!=0){
 			amount = amount/100L;
 		}
-		result.put("amount", trdOrder.getPayAmount());
+		result.put("amount", amount);
 		//手续费
 		result.put("payfee", trdOrder.getPayFee());
 		Calendar c = Calendar.getInstance();
@@ -287,7 +287,9 @@ public class TradeOrderController {
 				detailMap.put("status", "待确认");
 			} else if(trdOrderDetail.getOrderDetailStatus()==1){
 				detailMap.put("fundstatus", "已确认");
-			} else {
+			} else if(trdOrderDetail.getTradeType() == 9){
+				detailMap.put("fundTradeType", "部分确认");
+			}  else {
 				detailMap.put("fundstatus", "交易失败");
 			}
 			detailMap.put("fundCode", trdOrderDetail.getFundCode());
