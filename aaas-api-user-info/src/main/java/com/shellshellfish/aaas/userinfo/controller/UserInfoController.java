@@ -528,6 +528,7 @@ public class UserInfoController {
 			for(int i=0;i<bankCards.size();i++){
 				Map<String,Object> map = new HashMap();
 				BankCardDTO bankCard = bankCards.get(i);
+				map.put("cellphone",bankCard.getCellphone());
 				map.put("bankName",bankCard.getBankName());
 				map.put("bankType","储蓄卡");
 				map.put("bankcardSecurity",getBankcardNumber(bankCard.getCardNumber()));
@@ -1737,16 +1738,17 @@ public class UserInfoController {
 	})
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid"),
-		@ApiImplicitParam(paramType="path",name="prodId",dataType="String",required=true,value="产品ID")
+		@ApiImplicitParam(paramType="path",name="prodId",dataType="Long",required=true,value="产品ID")
 	})
 	@RequestMapping(value = "/users/{userUuid}/orders/{prodId}/status", method = RequestMethod.GET)
 	public ResponseEntity<Map> getUserStatus(
 			@PathVariable String userUuid,
-			@PathVariable String prodId
+			@PathVariable Long prodId
 			) throws Exception {
-		Map<String,Object> resultMap = new HashMap<String,Object>();
-		resultMap = userInfoService.getTradeLogStatus(userUuid,Long.parseLong(prodId));
-		resultMap.put("result", resultMap);
-		return new ResponseEntity<>(resultMap, HttpStatus.OK);
+		Map<String,Object> result = new HashMap<String,Object>();
+		List<Map<String, Object>> resultMap = new ArrayList();
+		resultMap = userInfoService.getTradeLogStatus(userUuid, prodId);
+		result.put("result", resultMap);
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 }

@@ -1,7 +1,6 @@
 package com.shellshellfish.aaas.transfer.controller;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,6 +23,8 @@ import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+import com.shellshellfish.aaas.transfer.utils.EasyKit;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -75,6 +75,29 @@ public class TransferController {
 			// total=poundage.add(BigDecimal.valueOf(Double.parseDouble((totalAmount))));
 			BigDecimal total = poundage;
 			BigDecimal totalOffDiscount = total.add(discount);
+			if(total!=null){
+				total = total.setScale(4, BigDecimal.ROUND_HALF_UP);
+			}
+			if(totalOffDiscount!=null){
+				totalOffDiscount = totalOffDiscount.setScale(4, BigDecimal.ROUND_HALF_UP);
+			}
+			if(discount!=null){
+				discount = discount.setScale(4, BigDecimal.ROUND_HALF_UP);
+			}
+			if(resultMap.get("fundAmountList")!=null){
+				List<Map> resultList = (List<Map>) resultMap.get("fundAmountList");
+				if(resultList!=null&&resultList.size()>0){
+					for(int i=0;i<resultList.size();i++){
+						Map map = resultList.get(i);
+						if(map.get("grossAmount")!=null){
+							BigDecimal grossAmount = new BigDecimal(map.get("grossAmount")+"");
+							map.put("grossAmount", grossAmount.setScale(4, BigDecimal.ROUND_HALF_UP));
+						}
+					}
+				}
+			}
+			resultMap.put("poundage", total);
+			resultMap.put("discountSaving", discount);
 			resultMap.put("total", total);
 			resultMap.put("originalCost", totalOffDiscount);
 			resultMap.put("discount", discount);
@@ -124,7 +147,7 @@ public class TransferController {
 		Map buyProductSuccess=service.buyProduct(prdInfo);
 		Map resultMap=new HashMap<>();
 		resultMap.put("orderId", buyProductSuccess.get("orderId").toString());
-		return new JsonResult(JsonResult.SUCCESS, "购买成功", resultMap);
+		return new JsonResult(JsonResult.SUCCESS, "订单已受理，申购中...", resultMap);
 		} catch (HttpClientErrorException e) {
 			logger.error("购买基金调用购买接口失败"+e.getMessage());
 			String str = e.getResponseBodyAsString();
