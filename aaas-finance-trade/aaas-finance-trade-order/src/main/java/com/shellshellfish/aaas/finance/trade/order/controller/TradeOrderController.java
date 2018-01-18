@@ -340,6 +340,38 @@ public class TradeOrderController {
 		TrdOrder trdOrder = tradeOpService.buyFinanceProductWithPreOrder(financeProdBuyInfo);
 		return new ResponseEntity<Object>(trdOrder, HttpStatus.OK);
 	}
-
+	
+	/**
+	 * 获取最大值最小值
+	 *
+	 * @param totalAmount
+	 * @return
+	 */
+	@ApiOperation("获取购买的最大值最小值")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = true, value = "groupId", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "Long", required = true, value = "subGroupId", defaultValue = "")
+		})
+	@ApiResponses({ 
+		@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
+		@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
+		@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对") })
+	@RequestMapping(value = "/funds/maxminValue", method = RequestMethod.GET)
+	public ResponseEntity<Map> getMaxMinValue(
+			@RequestParam(value = "groupId") Long groupId,
+			@RequestParam(value = "subGroupId") Long subGroupId)
+					throws Exception {
+		Map<String, Object> result = new HashMap<String, Object>();
+		ProductBaseInfo productBaseInfo = new ProductBaseInfo();
+		productBaseInfo.setProdId(groupId);
+		productBaseInfo.setGroupId(subGroupId);
+		List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
+		BigDecimal min = financeProdCalcService.getMinBuyAmount(productList);
+		BigDecimal max = financeProdCalcService.getMaxBuyAmount(productList);
+		result.put("min", min);
+		result.put("max", max);
+		return new ResponseEntity<Map>(result, HttpStatus.OK);
+	} 
 
 }
