@@ -502,7 +502,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Override
 	public List<Map<String, Object>> getTradeLogStatus(String uuid,Long userProdId) throws Exception{
 		Map<String, Object> resultMap = new HashMap<String, Object>();
+		Map<String, Object> resultBak = new HashMap<String, Object>();
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> resultListBak = new ArrayList<Map<String, Object>>();
 		Map<String, Map<String, Object>> resultList = new HashMap<String, Map<String, Object>>();
 		Long userId = getUserIdFromUUID(uuid);
 		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService.findByUserIdAndProdId(userId,userProdId);
@@ -514,7 +516,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				if(trdLog.getLastModifiedDate()!=0){
 					lastModifiedDate = trdLog.getLastModifiedDate() + "";
 				}
-				if(resultMap.containsKey(status)){
+				if(resultMap.containsValue(status)){
 					if(Long.parseLong(resultMap.get("lastModified")+"")<Long.parseLong(lastModifiedDate)){
 						resultMap.put("lastModified", lastModifiedDate);
 						resultMap.put("time", DateUtil.getDateType(trdLog.getLastModifiedDate()));
@@ -525,7 +527,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 					resultMap.put("lastModified", lastModifiedDate);
 					resultMap.put("time", DateUtil.getDateType(trdLog.getLastModifiedDate()));
 					resultMap.put("status", status+"");
-					resultList.put(status+"", resultMap);
+					resultListBak.add(resultMap);
 				}
 			}
 			if(resultList!=null&&resultList.size()>0){
