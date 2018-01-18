@@ -15,6 +15,7 @@ service UserInfoService {
 
     rpc GetUerUUIDByUserId (UserId) returns (UserUUID){}
     rpc UpdateUserProd(UpdateUserProdReqs) returns(UserProdId){}
+    rpc GetUserInfo (UserId) returns (UserInfo){}
 }
 
 message UserIdQuery {
@@ -70,4 +71,15 @@ message UpdateUserProdReq{
 message CardInfo{
   string user_pid = 1; //身份证
   string card_numbers = 2; //银行卡号
+}
+
+message UserInfo{
+  int64 id = 1;
+  string uuid = 2;
+  string cellPhone = 3;
+  string birthAge = 4;
+  string occupation = 5;
+  int32 activated = 6;
+  int32 isTestFlag = 7;
+  int32 riskLevel = 8;
 }

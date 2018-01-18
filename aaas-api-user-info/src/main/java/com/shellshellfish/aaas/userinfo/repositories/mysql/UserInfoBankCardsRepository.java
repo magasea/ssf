@@ -30,6 +30,6 @@ public interface UserInfoBankCardsRepository extends
 
 	@Modifying(clearAutomatically = true)
 	@Query("UPDATE UiBankcard SET status = "
-			+ ":status WHERE userId = :id and cardNumber = :cardNumber")
+			+ "-1 WHERE userId = :userId and cardNumber = :cardNumber")
 	void setBankCardInvalid(String cardNumber, Long userId);
 }

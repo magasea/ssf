@@ -61,8 +61,10 @@ grpc:
   port: 10111
   finance_prod_client:
     host: localhost
-    port: 10030
-
+    port: 10031
+  userinfo_client:
+    host: localhost
+    port: 10061
 using:
   spring:
     schedulerFactory: true

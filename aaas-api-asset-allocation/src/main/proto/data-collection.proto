@@ -31,7 +31,7 @@ message DailyFunds {
   string navreturnrankingp = 6;//单位回报排名
   string navreturnrankingpctp = 7;//单位回报百分比排名
   double navsimiavgreturnp = 8;//
-  double navunit = 9;//累计单位净值
+  double navunit = 9;//单位净值
   int64 querydate = 10; //更新日期
   int64 update = 11; //更新日期
   string fname = 12;//基金名称
