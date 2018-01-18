@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+
 import com.alibaba.fastjson.JSONObject;
 import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
-import com.shellshellfish.aaas.transfer.utils.EasyKit;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -165,6 +166,47 @@ public class TransferController {
 			e.printStackTrace();
 			String str=new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail,str , JsonResult.EMPTYRESULT);
+		}
+	}
+	
+	@ApiOperation("获取购买的最大值最小值")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="groupId",dataType="String",required=true,value="groupId",defaultValue="12"),
+		@ApiImplicitParam(paramType="query",name="subGroupId",dataType="String",required=true,value="subGroupId",defaultValue="12049")
+	})
+	@RequestMapping(value="/maxminValue",method=RequestMethod.POST)
+	@ResponseBody
+	public JsonResult getMaxminValue(String groupId,String subGroupId){
+		Map resultMap=null;
+		try {
+			String url = tradeOrderUrl + "/api/trade/funds/maxminValue?groupId=" + groupId + "&subGroupId=" + subGroupId;
+			resultMap = restTemplate.getForEntity(url, Map.class).getBody();
+			if(resultMap.get("min")!=null){
+				Double min = (Double)resultMap.get("min");
+				BigDecimal minValue = new BigDecimal(min);
+				resultMap.put("min", minValue.setScale(2, BigDecimal.ROUND_HALF_UP));
+			}
+			if(resultMap.get("min")!=null){
+				Double max = (Double)resultMap.get("max");
+				BigDecimal maxValue = new BigDecimal(max);
+				resultMap.put("max", maxValue.setScale(2, BigDecimal.ROUND_HALF_UP));
+			}
+			return new JsonResult(JsonResult.SUCCESS, "获取成功", resultMap);
+		} catch (HttpClientErrorException e) {
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		} catch (HttpServerErrorException e) {
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			JSONObject  myJson = JSONObject.parseObject(str);
+			String error = myJson.getString("message");
+			return new JsonResult(JsonResult.Fail, error, JsonResult.EMPTYRESULT);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+			String str = new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
 	
