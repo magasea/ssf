@@ -4,6 +4,8 @@ import java.sql.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -23,7 +25,7 @@ public class UiBankcard {
   private String bankName;
   private String cardNumber;
   private Date expireDate;
-  private int cardStatus;
+  private int status;
   private Long createdBy;
   private Long createdDate;
   private Long updateBy;
@@ -31,6 +33,7 @@ public class UiBankcard {
 
   @Id
   @Column(name = "id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   public long getId() {
     return id;
   }
@@ -110,13 +113,13 @@ public class UiBankcard {
   }
 
   @Basic
-  @Column(name = "card_status")
-  public int getCardStatus() {
-    return cardStatus;
+  @Column(name = "status")
+  public int getStatus() {
+    return status;
   }
 
-  public void setCardStatus(int cardStatus) {
-    this.cardStatus = cardStatus;
+  public void setStatus(int status) {
+    this.status = status;
   }
 
   @Basic
@@ -176,7 +179,7 @@ public class UiBankcard {
     if (userId != that.userId) {
       return false;
     }
-    if (cardStatus != that.cardStatus) {
+    if (status != that.status) {
       return false;
     }
     if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
@@ -223,7 +226,7 @@ public class UiBankcard {
     result = 31 * result + (bankName != null ? bankName.hashCode() : 0);
     result = 31 * result + (cardNumber != null ? cardNumber.hashCode() : 0);
     result = 31 * result + (expireDate != null ? expireDate.hashCode() : 0);
-    result = 31 * result + cardStatus;
+    result = 31 * result + status;
     result = 31 * result + (createdBy != null ? createdBy.hashCode() : 0);
     result = 31 * result + (createdDate != null ? createdDate.hashCode() : 0);
     result = 31 * result + (updateBy != null ? updateBy.hashCode() : 0);

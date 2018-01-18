@@ -197,7 +197,6 @@ public class TradeOpServiceImpl implements TradeOpService {
     trdOrder.setUserId(financeProdBuyInfo.getUserId());
     trdOrder.setCreateBy(financeProdBuyInfo.getUserId());
     trdOrder.setPayAmount(TradeUtil.getLongNumWithMul100(financeProdBuyInfo.getMoney()));
-    trdOrder.setProdCode(financeProdBuyInfo.getProdCode());
     trdOrderRepository.save(trdOrder);
     //generate sub order for each funds
     for(ProductMakeUpInfo productMakeUpInfo: productMakeUpInfos){
@@ -530,7 +529,6 @@ public class TradeOpServiceImpl implements TradeOpService {
     trdOrder.setPreOrderId(preOrderId);
     trdOrder.setCreateBy(financeProdInfo.getUserId());
     trdOrder.setPayAmount(TradeUtil.getLongNumWithMul100(financeProdInfo.getMoney()));
-    trdOrder.setProdCode(financeProdInfo.getProdCode());
     trdOrderRepository.save(trdOrder);
     //generate sub order for each funds
     for(ProductMakeUpInfo productMakeUpInfo: productMakeUpInfos){

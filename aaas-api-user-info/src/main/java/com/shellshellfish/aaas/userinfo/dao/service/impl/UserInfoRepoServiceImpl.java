@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.userinfo.dao.service.impl;
 import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
 
 import com.mongodb.WriteResult;
+import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
@@ -115,7 +116,8 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	@Override
 	public List<BankCardDTO> getUserInfoBankCards(Long userId) throws IllegalAccessException, InstantiationException {
 		// BigInteger userIdLocal = BigInteger.valueOf(userId);
-		List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserId(userId);
+		List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserIdAndStatusIs
+				(userId, BankCardStatusEnum.VALID.getStatus());
 		List<BankCardDTO> bankcardDtoList = MyBeanUtils.convertList(bankcardList, BankCardDTO.class);
 		return bankcardDtoList;
 	}
@@ -129,10 +131,11 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public BankCardDTO getUserInfoBankCard(String cardNumber) {
-		UiBankcard uiBankcard = userInfoBankCardsRepository.findUiBankcardByCardNumberIs(cardNumber);
+		List<UiBankcard> uiBankcards = userInfoBankCardsRepository.findUiBankcardByCardNumberIs
+				(cardNumber);
 		BankCardDTO bankcard = new BankCardDTO();
-		if (uiBankcard != null) {
-			BeanUtils.copyProperties(uiBankcard, bankcard);
+		if (!CollectionUtils.isEmpty(uiBankcards)) {
+			BeanUtils.copyProperties(uiBankcards.get(0), bankcard);
 		}
 		return bankcard;
 	}
@@ -140,10 +143,23 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	@Override
 	public BankCardDTO addUserBankcard(UiBankcard uiBankcard) throws Exception {
 		logger.info("reservice149");
-		userInfoBankCardsRepository.save(uiBankcard);
-		logger.info("reservice151");
+		List<UiBankcard> uiBankcards = userInfoBankCardsRepository.findAllByUserIdAndCardNumber
+				(uiBankcard.getUserId(), uiBankcard.getCardNumber());
+		if(!CollectionUtils.isEmpty(uiBankcards)){
+			logger.info("update bankcard status to 1 for userId:" + uiBankcard.getUserId() + " and "
+					+ "bankCardNumber:" + uiBankcard.getCardNumber());
+			if(uiBankcards.size() > 1){
+				logger.error("there is more than 1 same cardNumber for for userId:" + uiBankcard.getUserId
+						() + " and bankCardNumber:" + uiBankcard.getCardNumber());
+				throw new Exception("duplicated card number for :" + uiBankcard.getCardNumber());
+			}else{
+				uiBankcards.get(0).setStatus(1);
+				userInfoBankCardsRepository.save(uiBankcards.get(0));
+			}
+		}else{
+			userInfoBankCardsRepository.save(uiBankcard);
+		}
 		BankCardDTO bankcard = new BankCardDTO();
-		logger.info("reservice153");
 		BeanUtils.copyProperties(uiBankcard, bankcard);
 		return bankcard;
 	}
@@ -318,11 +334,11 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			e.printStackTrace();
 		}
 		List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserIdAndCardNumber(userId, cardNumber);
-		if (bankcardList == null || bankcardList.size() == 0) {
+		if (CollectionUtils.isEmpty(bankcardList)) {
 			throw new UserInfoException("404", "解绑的银行卡不存在");
 		}
-		UiBankcard bankcard = bankcardList.get(0);
-		userInfoBankCardsRepository.delete(bankcard.getId());
+		//用状态来控制银行卡
+		userInfoBankCardsRepository.setBankCardInvalid(cardNumber, userId);
 		return true;
 	}
 

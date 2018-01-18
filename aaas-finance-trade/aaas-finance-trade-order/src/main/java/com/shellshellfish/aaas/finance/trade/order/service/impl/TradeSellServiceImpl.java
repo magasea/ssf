@@ -150,7 +150,6 @@ public class TradeSellServiceImpl implements TradeSellService {
 //      trdOrder.setPayAmount(prodSellDTO.getSellTargetMoney());
       trdOrder.setOrderStatus(TrdOrderStatusEnum.WAITSELL.ordinal());
       trdOrder.setBankCardNum(bankcardNum);
-      trdOrder.setProdCode(trdOrders.get(0).getProdCode());
       prodSellDTO.setUserProdId(trdOrders.get(0).getUserProdId());
       prodSellDTO.setProdId(trdOrders.get(0).getProdId());
       prodSellDTO.setTrdAcco(trdBrokerUsers.get(0).getTradeAcco());
