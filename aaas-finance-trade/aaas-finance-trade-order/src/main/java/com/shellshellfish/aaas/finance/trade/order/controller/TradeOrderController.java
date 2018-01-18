@@ -263,19 +263,19 @@ public class TradeOrderController {
 		List<Map<String,Object>> statusList = new ArrayList<Map<String,Object>>();
 		Map<String,Object> statusMap = new HashMap<String,Object>();
 		statusMap.put("time", c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE));
-		statusMap.put("date", c.get(Calendar.YEAR)+"."+c.get(Calendar.MONTH)+"."+c.get(Calendar.DATE));
+		statusMap.put("date", c.get(Calendar.YEAR)+"."+(c.get(Calendar.MONTH)+1)+"."+c.get(Calendar.DATE));
 		statusMap.put("status", "申请已受理");
 		statusList.add(statusMap);
 		
 		statusMap = new HashMap<String,Object>();
 		statusMap.put("time", c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE));
-		statusMap.put("date", c.get(Calendar.YEAR)+"."+c.get(Calendar.MONTH)+"."+(c.get(Calendar.DATE)+2));
+		statusMap.put("date", c.get(Calendar.YEAR)+"."+(c.get(Calendar.MONTH)+1)+"."+(c.get(Calendar.DATE)+2));
 		statusMap.put("status", "份额确认，开始计算收益");
 		statusList.add(statusMap);
 		
 		statusMap = new HashMap<String,Object>();
 		statusMap.put("time", c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE));
-		statusMap.put("date", c.get(Calendar.YEAR)+"."+c.get(Calendar.MONTH)+"."+(c.get(Calendar.DATE)+3));
+		statusMap.put("date", c.get(Calendar.YEAR)+"."+(c.get(Calendar.MONTH)+1)+"."+(c.get(Calendar.DATE)+3));
 		statusMap.put("status", "查看收益");
 		statusList.add(statusMap);
 		
@@ -299,7 +299,7 @@ public class TradeOrderController {
 			detailMap.put("fundCode", trdOrderDetail.getFundCode());
 			//基金费用
 			detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
-			detailMap.put("funddate", c.get(Calendar.YEAR)+"."+c.get(Calendar.MONTH)+"."+c.get(Calendar.DATE));
+			detailMap.put("funddate", c.get(Calendar.YEAR)+"."+(c.get(Calendar.MONTH)+1)+"."+c.get(Calendar.DATE));
 			if(trdOrderDetail.getTradeType() == 1){
 				detailMap.put("fundTradeType", "购买");
 			} else if(trdOrderDetail.getTradeType() == 2){
