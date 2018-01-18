@@ -248,26 +248,34 @@ public class TradeOrderController {
 		//TODO title
 		result.put("title", "稳健型-3个月组合");
 		//金额
-		result.put("amount", trdOrder.getPayAmount());
+		long amount = trdOrder.getPayAmount();
+		if(amount!=0){
+			amount = amount/100L;
+		}
+		result.put("amount", amount);
 		//手续费
-		result.put("payfee", trdOrder.getPayFee());
+		if(trdOrder.getPayFee()==null){
+			result.put("payfee", "");
+		} else {
+			result.put("payfee", trdOrder.getPayFee());
+		}
 		Calendar c = Calendar.getInstance();
 		List<Map<String,Object>> statusList = new ArrayList<Map<String,Object>>();
 		Map<String,Object> statusMap = new HashMap<String,Object>();
 		statusMap.put("time", c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE));
-		statusMap.put("date", c.get(Calendar.YEAR)+"."+c.get(Calendar.MONTH)+"."+c.get(Calendar.DATE));
+		statusMap.put("date", c.get(Calendar.YEAR)+"."+(c.get(Calendar.MONTH)+1)+"."+c.get(Calendar.DATE));
 		statusMap.put("status", "申请已受理");
 		statusList.add(statusMap);
 		
 		statusMap = new HashMap<String,Object>();
 		statusMap.put("time", c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE));
-		statusMap.put("date", c.get(Calendar.YEAR)+"."+c.get(Calendar.MONTH)+"."+(c.get(Calendar.DATE)+2));
+		statusMap.put("date", c.get(Calendar.YEAR)+"."+(c.get(Calendar.MONTH)+1)+"."+(c.get(Calendar.DATE)+2));
 		statusMap.put("status", "份额确认，开始计算收益");
 		statusList.add(statusMap);
 		
 		statusMap = new HashMap<String,Object>();
 		statusMap.put("time", c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE));
-		statusMap.put("date", c.get(Calendar.YEAR)+"."+c.get(Calendar.MONTH)+"."+(c.get(Calendar.DATE)+3));
+		statusMap.put("date", c.get(Calendar.YEAR)+"."+(c.get(Calendar.MONTH)+1)+"."+(c.get(Calendar.DATE)+3));
 		statusMap.put("status", "查看收益");
 		statusList.add(statusMap);
 		
@@ -278,22 +286,26 @@ public class TradeOrderController {
 		Map<String,Object> detailMap = new HashMap<String,Object>();
 		for(int i=0;i<trdOrderDetailList.size();i++){
 			detailMap = new HashMap<String,Object>();
-			TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(0);
-			if(trdOrderDetail.getOrderDetailStatus()==0){
+			TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
+			if(trdOrderDetail.getOrderDetailStatus() == 0){
 				detailMap.put("status", "待确认");
-			} else if(trdOrderDetail.getOrderDetailStatus()==1){
+			} else if(trdOrderDetail.getOrderDetailStatus() == 1){
 				detailMap.put("fundstatus", "已确认");
-			} else {
+			} else if(trdOrderDetail.getOrderDetailStatus() == 9){
+				detailMap.put("fundstatus", "部分确认");
+			}  else {
 				detailMap.put("fundstatus", "交易失败");
 			}
 			detailMap.put("fundCode", trdOrderDetail.getFundCode());
 			//基金费用
 			detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
-			detailMap.put("funddate", c.get(Calendar.YEAR)+"."+c.get(Calendar.MONTH)+"."+c.get(Calendar.DATE));
+			detailMap.put("funddate", c.get(Calendar.YEAR)+"."+(c.get(Calendar.MONTH)+1)+"."+c.get(Calendar.DATE));
 			if(trdOrderDetail.getTradeType() == 1){
 				detailMap.put("fundTradeType", "购买");
 			} else if(trdOrderDetail.getTradeType() == 2){
 				detailMap.put("fundTradeType", "分红");
+			} else if(trdOrderDetail.getTradeType() == 9){
+				detailMap.put("fundTradeType", "部分确认");
 			} else {
 				logger.info("状态为："+trdOrder.getOrderType());
 				detailMap.put("fundTradeType", "交易失败");
@@ -340,6 +352,38 @@ public class TradeOrderController {
 		TrdOrder trdOrder = tradeOpService.buyFinanceProductWithPreOrder(financeProdBuyInfo);
 		return new ResponseEntity<Object>(trdOrder, HttpStatus.OK);
 	}
-
+	
+	/**
+	 * 获取最大值最小值
+	 *
+	 * @param totalAmount
+	 * @return
+	 */
+	@ApiOperation("获取购买的最大值最小值")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = true, value = "groupId", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "Long", required = true, value = "subGroupId", defaultValue = "")
+		})
+	@ApiResponses({ 
+		@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
+		@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
+		@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对") })
+	@RequestMapping(value = "/funds/maxminValue", method = RequestMethod.GET)
+	public ResponseEntity<Map> getMaxMinValue(
+			@RequestParam(value = "groupId") Long groupId,
+			@RequestParam(value = "subGroupId") Long subGroupId)
+					throws Exception {
+		Map<String, Object> result = new HashMap<String, Object>();
+		ProductBaseInfo productBaseInfo = new ProductBaseInfo();
+		productBaseInfo.setProdId(groupId);
+		productBaseInfo.setGroupId(subGroupId);
+		List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
+		BigDecimal min = financeProdCalcService.getMinBuyAmount(productList);
+		BigDecimal max = financeProdCalcService.getMaxBuyAmount(productList);
+		result.put("min", min);
+		result.put("max", max);
+		return new ResponseEntity<Map>(result, HttpStatus.OK);
+	} 
 
 }
