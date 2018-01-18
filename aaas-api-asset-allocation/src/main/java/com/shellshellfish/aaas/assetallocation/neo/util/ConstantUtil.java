@@ -48,4 +48,6 @@ public interface ConstantUtil {
 
     String LATEST_START_DATE_STR_FOR_DAILY_DATA = "2010-01-01"; // 最近净值日期
 
+    int DEFAULT_TYPE_DAY_NUMBER = 20; // 默认周期类型时, 计算风险率时取值数量
+
 }

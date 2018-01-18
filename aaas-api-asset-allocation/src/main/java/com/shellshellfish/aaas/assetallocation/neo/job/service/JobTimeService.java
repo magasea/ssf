@@ -35,23 +35,16 @@ public class JobTimeService {
      * 根据triggerName插入上次执行时间triggerTime
      */
     public Integer insertJobTimeRecord(JobTimeRecord jobTimeRecord){
-
-        Integer integer=jobTimeRecordMapper.insertJobTimeRecord(jobTimeRecord);
-
-        return integer;
-
+        Integer effectRow = jobTimeRecordMapper.insertJobTimeRecord(jobTimeRecord);
+        return effectRow;
     }
 
     /*
      * 根据triggerName更新上次执行时间triggerTime
      */
     public Integer updateJobTimeRecord(JobTimeRecord jobTimeRecord){
-
-
-        Integer integer=jobTimeRecordMapper.updateJobTimeRecord(jobTimeRecord);
-
-        return integer;
-
+        Integer effectRow = jobTimeRecordMapper.updateJobTimeRecord(jobTimeRecord);
+        return effectRow;
     }
 
 
