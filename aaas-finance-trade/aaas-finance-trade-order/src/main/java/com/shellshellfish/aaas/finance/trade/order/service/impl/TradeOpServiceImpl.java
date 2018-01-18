@@ -282,14 +282,14 @@ public class TradeOpServiceImpl implements TradeOpService {
         throw new Exception("this bank name:"+bankName
             + " with brokerId"+ TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId()+" is not in table:");
       }
-      userPid = bindBankCard.getUserPid();
+//      userPid = bindBankCard.getUserPid();
       bindBankCard.setBankCode(trdTradeBankDic.getBankCode().trim());
       bindBankCard.setCellphone(userBankInfo.getCellphone());
       bindBankCard.setBankCardNum(financeProdBuyInfo.getBankAcc());
       bindBankCard.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
       bindBankCard.setUserId(financeProdBuyInfo.getUserId());
       bindBankCard.setUserName(userBankInfo.getUserName());
-      bindBankCard.setUserPid(userBankInfo.getUserPid());
+      bindBankCard.setUserPid(userPid);
       trdAcco = payService.bindCard(bindBankCard);
       TrdBrokerUser trdBrokerUserNew = new TrdBrokerUser();
       trdBrokerUserNew.setBankCardNum(bindBankCard.getBankCardNum());
