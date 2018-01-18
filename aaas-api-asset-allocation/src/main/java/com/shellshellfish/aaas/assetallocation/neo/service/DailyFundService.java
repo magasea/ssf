@@ -60,9 +60,9 @@ public class DailyFundService {
             //根据 code 查询fund_net_val 中已有数据的最近净值日期
             Date navLatestDate = fundNetValMapper.getMaxNavDateByCode(code);
             String latestStartDateStr = (navLatestDate != null) ? sdf.format(navLatestDate) : ConstantUtil.LATEST_START_DATE_STR_FOR_DAILY_DATA;
-            String currentDate = sdf.format(new Date());
+            String currentDateStr = sdf.format(new Date());
             //rpc 调用获取每日数据
-            doSuccess = this.insertDailyData(code, latestStartDateStr, currentDate);
+            doSuccess = this.insertDailyData(code, latestStartDateStr, currentDateStr);
             if (!doSuccess) {
                 break;
             }
