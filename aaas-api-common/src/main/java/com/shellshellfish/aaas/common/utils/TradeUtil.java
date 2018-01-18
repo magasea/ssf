@@ -13,20 +13,25 @@ import java.util.TimeZone;
 
 
 public class TradeUtil {
-  public static String generateOrderId(int bankId, int tradeBrokerId ){
+  private static String generateOrderId(Long bankId, int tradeBrokerId ){
     Long utcTime = getUTCTime();
     System.out.println(utcTime);
     StringBuilder sb = new StringBuilder();
-    sb.append(String.format("%04d", bankId)).append(String.format("%04d",
-        tradeBrokerId)).append
-        (String.format("%018d", utcTime));
+    sb.append(bankId).append(String.format("%04d", tradeBrokerId)).append(String.format("%018d", utcTime));
+    return sb.toString();
+  }
+
+  public static String generateOrderIdByBankCardNum(String bankCardNum, int tradeBrokerId){
+    Long utcTime = getUTCTime();
+    System.out.println(utcTime);
+    Long disOrderedBankCardId = Long.valueOf(bankCardNum.substring(bankCardNum.length() -4 )+
+        bankCardNum.substring(0, 3));
+    StringBuilder sb = new StringBuilder();
+    sb.append(disOrderedBankCardId).append(String.format("%04d", tradeBrokerId)).append(String.format("%018d", utcTime));
     return sb.toString();
   }
 
   public static Long getUTCTime(){
-//    TimeZone timeZone = TimeZone.getTimeZone("UTC");
-//    Calendar calendar = Calendar.getInstance(timeZone);
-//    return calendar.getTimeInMillis();
 
     ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("UTC"));
     return utcDateTime.toInstant().toEpochMilli();

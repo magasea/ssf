@@ -177,8 +177,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     String items[] = trdAccoOrig.split("\\|");
     trdAcco = items[0];
     payOrderDto.setUserPid(items[1]);
-    String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdBuyInfo.getBankAcc()
-            .substring(0,6)),trdBrokerId);
+    String orderId = TradeUtil.generateOrderIdByBankCardNum(financeProdBuyInfo.getBankAcc(), trdBrokerId);
     payOrderDto.setTrdAccount(trdAcco);
     payOrderDto.setUserUuid(financeProdBuyInfo.getUuid());
     payOrderDto.setUserProdId(financeProdBuyInfo.getUserProdId());
@@ -508,8 +507,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     String items[] = trdAccoOrig.split("\\|");
     trdAcco = items[0];
     payOrderDto.setUserPid(items[1]);
-    String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdInfo.getBankAcc()
-        .substring(0,6)),trdBrokerId);
+    String orderId = TradeUtil.generateOrderIdByBankCardNum(financeProdInfo.getBankAcc(),trdBrokerId);
     payOrderDto.setTrdAccount(trdAcco);
     payOrderDto.setUserUuid(financeProdInfo.getUuid());
     payOrderDto.setUserProdId(financeProdInfo.getUserProdId());
