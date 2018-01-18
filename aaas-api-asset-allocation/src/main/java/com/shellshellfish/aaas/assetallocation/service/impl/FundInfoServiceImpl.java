@@ -35,11 +35,7 @@ public class FundInfoServiceImpl implements FundInfoService {
   public List<DailyFunds> getDailyFunds(DailyFundsQuery fundsQuery) throws Exception {
 
     List<com.shellshellfish.aaas.datacollect.DailyFunds> dailyFundsList =
-    dataCollectionServiceFutureStub.getFundDataOfDay(fundsQuery).get().getDailyFundsList();
-    //ToDo;
-//    for(DailyFunds dailyFunds: dailyFundsList){
-//
-//    }
+            dataCollectionServiceFutureStub.getFundDataOfDay(fundsQuery).get().getDailyFundsList();
     return dailyFundsList;
   }
 }

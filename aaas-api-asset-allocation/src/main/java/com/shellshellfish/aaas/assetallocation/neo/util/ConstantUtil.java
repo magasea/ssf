@@ -46,4 +46,6 @@ public interface ConstantUtil {
     Integer SUCCESSFUL_STATUS=1;
     Integer FAILURED_STATUS=-1;
 
+    String LATEST_START_DATE_STR_FOR_DAILY_DATA = "2010-01-01"; // 最近净值日期
+
 }
