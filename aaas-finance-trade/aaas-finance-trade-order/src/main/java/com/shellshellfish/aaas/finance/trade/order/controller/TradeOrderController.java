@@ -283,11 +283,11 @@ public class TradeOrderController {
 		for(int i=0;i<trdOrderDetailList.size();i++){
 			detailMap = new HashMap<String,Object>();
 			TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
-			if(trdOrderDetail.getOrderDetailStatus()==0){
+			if(trdOrderDetail.getOrderDetailStatus() == 0){
 				detailMap.put("status", "待确认");
-			} else if(trdOrderDetail.getOrderDetailStatus()==1){
+			} else if(trdOrderDetail.getOrderDetailStatus() == 1){
 				detailMap.put("fundstatus", "已确认");
-			} else if(trdOrderDetail.getTradeType() == 9){
+			} else if(trdOrderDetail.getOrderDetailStatus() == 9){
 				detailMap.put("fundTradeType", "部分确认");
 			}  else {
 				detailMap.put("fundstatus", "交易失败");
