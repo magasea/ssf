@@ -278,7 +278,7 @@ public class TradeOrderController {
 		Map<String,Object> detailMap = new HashMap<String,Object>();
 		for(int i=0;i<trdOrderDetailList.size();i++){
 			detailMap = new HashMap<String,Object>();
-			TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(0);
+			TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
 			if(trdOrderDetail.getOrderDetailStatus()==0){
 				detailMap.put("status", "待确认");
 			} else if(trdOrderDetail.getOrderDetailStatus()==1){
