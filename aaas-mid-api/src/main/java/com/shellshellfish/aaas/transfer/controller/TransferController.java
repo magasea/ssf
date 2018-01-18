@@ -76,13 +76,13 @@ public class TransferController {
 			BigDecimal total = poundage;
 			BigDecimal totalOffDiscount = total.add(discount);
 			if(total!=null){
-				total = total.setScale(4, BigDecimal.ROUND_HALF_UP);
+				total = total.setScale(2, BigDecimal.ROUND_HALF_UP);
 			}
 			if(totalOffDiscount!=null){
-				totalOffDiscount = totalOffDiscount.setScale(4, BigDecimal.ROUND_HALF_UP);
+				totalOffDiscount = totalOffDiscount.setScale(2, BigDecimal.ROUND_HALF_UP);
 			}
 			if(discount!=null){
-				discount = discount.setScale(4, BigDecimal.ROUND_HALF_UP);
+				discount = discount.setScale(2, BigDecimal.ROUND_HALF_UP);
 			}
 			if(resultMap.get("fundAmountList")!=null){
 				List<Map> resultList = (List<Map>) resultMap.get("fundAmountList");
@@ -91,7 +91,7 @@ public class TransferController {
 						Map map = resultList.get(i);
 						if(map.get("grossAmount")!=null){
 							BigDecimal grossAmount = new BigDecimal(map.get("grossAmount")+"");
-							map.put("grossAmount", grossAmount.setScale(4, BigDecimal.ROUND_HALF_UP));
+							map.put("grossAmount", grossAmount.setScale(2, BigDecimal.ROUND_HALF_UP));
 						}
 					}
 				}
