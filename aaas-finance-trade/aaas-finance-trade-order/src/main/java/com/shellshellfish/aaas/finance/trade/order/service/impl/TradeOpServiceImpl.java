@@ -38,7 +38,6 @@ import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoQuery;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.FinanceProdInfosQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
-import com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc.UserInfoServiceFutureStub;
@@ -327,7 +326,7 @@ public class TradeOpServiceImpl implements TradeOpService {
   private void sendOutOrder(PayPreOrderDto payPreOrderDto){
 
     logger.info("use message queue to send payPreOrderDto");
-    broadcastMessageProducer.sendPayMessages(payPreOrderDto);
+//    broadcastMessageProducer.sendPayMessages(payPreOrderDto);
 
   }
 
@@ -477,7 +476,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         trdOrderDetails.add(trdOrderDetail);
       }
       payPreOrderDto.setOrderDetailList(trdOrderDetails);
-      broadcastMessageProducer.sendPayMessages(payPreOrderDto);
+//      broadcastMessageProducer.sendPayMessages(payPreOrderDto);
     }
 
     return trdOrder;

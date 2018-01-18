@@ -43,11 +43,11 @@ public class BroadcastMessageProducer {
         System.out.println("Send msg = " + payOrderDto);
     }
 
-    public void sendPayMessages(PayPreOrderDto payPreOrderDto){
-        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_PAY,
-            payPreOrderDto);
-        System.out.println("Send msg = " + payPreOrderDto);
-    }
+//    public void sendPayMessages(PayPreOrderDto payPreOrderDto){
+//        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_PAY,
+//            payPreOrderDto);
+//        System.out.println("Send msg = " + payPreOrderDto);
+//    }
 
     public void sendSellMessages(ProdSellDTO prodSellDTO) {
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
