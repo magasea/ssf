@@ -254,7 +254,11 @@ public class TradeOrderController {
 		}
 		result.put("amount", amount);
 		//手续费
-		result.put("payfee", trdOrder.getPayFee());
+		if(trdOrder.getPayFee()==null){
+			result.put("payfee", "");
+		} else {
+			result.put("payfee", trdOrder.getPayFee());
+		}
 		Calendar c = Calendar.getInstance();
 		List<Map<String,Object>> statusList = new ArrayList<Map<String,Object>>();
 		Map<String,Object> statusMap = new HashMap<String,Object>();
@@ -288,7 +292,7 @@ public class TradeOrderController {
 			} else if(trdOrderDetail.getOrderDetailStatus() == 1){
 				detailMap.put("fundstatus", "已确认");
 			} else if(trdOrderDetail.getOrderDetailStatus() == 9){
-				detailMap.put("fundTradeType", "部分确认");
+				detailMap.put("fundstatus", "部分确认");
 			}  else {
 				detailMap.put("fundstatus", "交易失败");
 			}
