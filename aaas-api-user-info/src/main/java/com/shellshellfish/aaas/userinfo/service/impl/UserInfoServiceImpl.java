@@ -500,12 +500,42 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 	
 	@Override
-	public Map<String, Object> getTradeLogStatus(String uuid,Long userProdId) throws Exception{
+	public List<Map<String, Object>> getTradeLogStatus(String uuid,Long userProdId) throws Exception{
 		Map<String, Object> resultMap = new HashMap<String, Object>();
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+		Map<String, Map<String, Object>> resultList = new HashMap<String, Map<String, Object>>();
 		Long userId = getUserIdFromUUID(uuid);
 		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService.findByUserIdAndProdId(userId,userProdId);
-		
-		
-		return resultMap;
+		if(trdLogList!=null&&trdLogList.size()>0){
+			for(int i = 0;i < trdLogList.size();i++){
+				MongoUiTrdLogDTO trdLog = trdLogList.get(i);
+				int status = trdLog.getTradeStatus();
+				String lastModifiedDate = "0";
+				if(trdLog.getLastModifiedDate()!=0){
+					lastModifiedDate = trdLog.getLastModifiedDate() + "";
+				}
+				if(resultMap.containsKey(status)){
+					if(Long.parseLong(resultMap.get("lastModified")+"")<Long.parseLong(lastModifiedDate)){
+						resultMap.put("lastModified", lastModifiedDate);
+						resultMap.put("time", DateUtil.getDateType(trdLog.getLastModifiedDate()));
+						resultMap.put("status", status+"");
+						resultList.put(status+"", resultMap);
+					}
+				} else {
+					resultMap.put("lastModified", lastModifiedDate);
+					resultMap.put("time", DateUtil.getDateType(trdLog.getLastModifiedDate()));
+					resultMap.put("status", status+"");
+					resultList.put(status+"", resultMap);
+				}
+			}
+			if(resultList!=null&&resultList.size()>0){
+				for(Map map:resultList.values()){
+					map.remove("lastModified");
+					map.remove("lastModified");
+					result.add(map);
+				}
+			}
+		}
+		return result;
 	}
 }
