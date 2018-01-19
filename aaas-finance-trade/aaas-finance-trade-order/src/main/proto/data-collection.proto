@@ -10,7 +10,7 @@ service DataCollectionService {
     }
     rpc GetFundsPrice (FundCodes) returns (FundInfos) {
     }
-    rpc getGrowthRateOfMonetaryFundsList (MonetaryFundsQueryItem) returns (GrowthRateOfMonetaryFundsCollection) {
+    rpc getGrowthRateOfMonetaryFundsList (MonetaryFundsQueryItem) returns (GrowthRateOfMonetaryFundCollection) {
     }
 }
 
@@ -42,7 +42,6 @@ message DailyFunds {
   string close = 15;//日行情收盘价
 }
 
-
 //获取当前基金信息
 message FundCodes {
     repeated string fund_code = 1; //基金code,
@@ -62,12 +61,12 @@ message MonetaryFundsQueryItem {
     int64 startDate = 2;
     int64 endDate = 3;
 }
-message GrowthRateOfMonetaryFundsCollection {
-    repeated GrowthRateOfMonetaryFunds growthRateOfMonetaryFunds = 1;
+message GrowthRateOfMonetaryFundCollection {
+    repeated GrowthRateOfMonetaryFund growthRateOfMonetaryFunds = 1;
 }
 
 
-message GrowthRateOfMonetaryFunds {
+message GrowthRateOfMonetaryFund {
     int64 queryDate = 1;
     string code = 2;
     double tenKiloUnitYield = 3;

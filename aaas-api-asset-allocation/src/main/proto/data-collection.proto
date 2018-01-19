@@ -10,7 +10,7 @@ service DataCollectionService {
     }
     rpc GetFundsPrice (FundCodes) returns (FundInfos) {
     }
-    rpc getGrowthRateOfMonetaryFundsList (MonetaryFundsQueryItem) returns (GrowthRateOfMonetaryFundsCollection) {
+    rpc getGrowthRateOfMonetaryFundsList (MonetaryFundsQueryItem) returns (GrowthRateOfMonetaryFundCollection) {
     }
 }
 
@@ -61,12 +61,12 @@ message MonetaryFundsQueryItem {
     int64 startDate = 2;
     int64 endDate = 3;
 }
-message GrowthRateOfMonetaryFundsCollection {
-    repeated GrowthRateOfMonetaryFunds growthRateOfMonetaryFunds = 1;
+message GrowthRateOfMonetaryFundCollection {
+    repeated GrowthRateOfMonetaryFund growthRateOfMonetaryFunds = 1;
 }
 
 
-message GrowthRateOfMonetaryFunds {
+message GrowthRateOfMonetaryFund {
     int64 queryDate = 1;
     string code = 2;
     double tenKiloUnitYield = 3;
