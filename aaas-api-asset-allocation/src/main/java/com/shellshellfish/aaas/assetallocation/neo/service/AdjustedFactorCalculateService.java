@@ -116,26 +116,8 @@ public class AdjustedFactorCalculateService {
         }
 
         //记录本次TriggerJob查询到的最大净值日期
-        Date maxDate =fundNetValMapper.getMaxNavDateByDate(selectDate);
-        JobTimeRecord jobTimeRecordTemp=new JobTimeRecord();
-
-        if(jobTimeRecord==null){
-
-            jobTimeRecordTemp.setJobName(FUND_CALCULATE_JOB);
-            jobTimeRecordTemp.setTriggerName(ADJUSTED_FACTOR_TRIGGER);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setCreateTime(new Date());
-            jobTimeRecordTemp.setUpdateTime(new Date());
-
-            jobTimeService.insertJobTimeRecord(jobTimeRecordTemp);
-        }else{
-            jobTimeRecordTemp.setTriggerName(ADJUSTED_FACTOR_TRIGGER);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setUpdateTime(new Date());
-
-            jobTimeService.updateJobTimeRecord(jobTimeRecordTemp);
-        }
-
+        Date maxDate = fundNetValMapper.getMaxNavDateByDate(selectDate);
+        jobTimeService.saveOrUpdateJobTimeRecord(jobTimeRecord, FUND_CALCULATE_JOB, ADJUSTED_FACTOR_TRIGGER, maxDate, SUCCESSFUL_STATUS);
     }
 
 

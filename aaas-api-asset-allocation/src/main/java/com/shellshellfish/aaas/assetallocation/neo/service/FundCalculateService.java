@@ -8,6 +8,7 @@ import com.shellshellfish.aaas.assetallocation.neo.mapper.FundCalculateDataMappe
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
 import com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil;
+import com.shellshellfish.aaas.assetallocation.neo.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -184,27 +185,7 @@ public class FundCalculateService {
 
         //记录本次TriggerJob查询到的最大净值日期
         Date maxDate =fundNetValMapper.getMaxNavDateByDate(selectDate);
-
-        JobTimeRecord jobTimeRecordTemp=new JobTimeRecord();
-
-        if(jobTimeRecord==null){
-
-            jobTimeRecordTemp.setJobName(FUND_CALCULATE_JOB);
-            jobTimeRecordTemp.setTriggerName(CALCULATE_DATA_OF_DAY);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setCreateTime(new Date());
-            jobTimeRecordTemp.setUpdateTime(new Date());
-
-            jobTimeService.insertJobTimeRecord(jobTimeRecordTemp);
-        }else{
-            jobTimeRecordTemp.setTriggerName(CALCULATE_DATA_OF_DAY);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setUpdateTime(new Date());
-
-            jobTimeService.updateJobTimeRecord(jobTimeRecordTemp);
-        }
-
-
+        jobTimeService.saveOrUpdateJobTimeRecord(jobTimeRecord, FUND_CALCULATE_JOB, CALCULATE_DATA_OF_DAY, maxDate, SUCCESSFUL_STATUS);
     }
 
 
@@ -226,11 +207,7 @@ public class FundCalculateService {
 
         Date triggerTime = null;
         if (jobTimeRecord == null || jobTimeRecord.getTriggerTime() == null) {
-            try {
-                triggerTime = sdf.parse(START_QUERY_DATE);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            triggerTime = DateUtil.getDateFromFormatStr(START_QUERY_DATE);
         } else {
             triggerTime = jobTimeRecord.getTriggerTime();
         }
@@ -304,25 +281,10 @@ public class FundCalculateService {
 
         //记录本次TriggerJob查询到的最大净值日期
         Date maxDate = fundNetValMapper.getMaxNavDateByDate(triggerTime);
-        JobTimeRecord jobTimeRecordTemp = new JobTimeRecord();
-        if (jobTimeRecord == null) {
-            jobTimeRecordTemp.setJobName(FUND_CALCULATE_JOB);
-            jobTimeRecordTemp.setTriggerName(CALCULATE_DATA_OF_WEEK);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setCreateTime(new Date());
-            jobTimeRecordTemp.setUpdateTime(new Date());
-            jobTimeService.insertJobTimeRecord(jobTimeRecordTemp);
-        } else {
-            jobTimeRecordTemp.setTriggerName(CALCULATE_DATA_OF_WEEK);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setUpdateTime(new Date());
-
-            jobTimeService.updateJobTimeRecord(jobTimeRecordTemp);
-        }
+        jobTimeService.saveOrUpdateJobTimeRecord(jobTimeRecord, FUND_CALCULATE_JOB, CALCULATE_DATA_OF_WEEK, maxDate, SUCCESSFUL_STATUS);
 
         return doSuccess;
     }
-
 
     /*
      * 计算每月的收益率以及风险率,insert into table:fund_calculate_data_month
@@ -420,25 +382,7 @@ public class FundCalculateService {
 
         //记录本次TriggerJob查询到的最大净值日期
         Date maxDate =fundNetValMapper.getMaxNavDateByDate(selectDate);
-        JobTimeRecord jobTimeRecordTemp=new JobTimeRecord();
-
-        if(jobTimeRecord==null){
-
-            jobTimeRecordTemp.setJobName(FUND_CALCULATE_JOB);
-            jobTimeRecordTemp.setTriggerName(CALCULATE_DATA_OF_MONTH);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setCreateTime(new Date());
-            jobTimeRecordTemp.setUpdateTime(new Date());
-
-            jobTimeService.insertJobTimeRecord(jobTimeRecordTemp);
-        }else{
-            jobTimeRecordTemp.setTriggerName(CALCULATE_DATA_OF_MONTH);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setUpdateTime(new Date());
-
-            jobTimeService.updateJobTimeRecord(jobTimeRecordTemp);
-        }
-
+        jobTimeService.saveOrUpdateJobTimeRecord(jobTimeRecord, FUND_CALCULATE_JOB, CALCULATE_DATA_OF_MONTH, maxDate, SUCCESSFUL_STATUS);
     }
 
 
@@ -538,25 +482,7 @@ public class FundCalculateService {
 
         //记录本次TriggerJob查询到的最大净值日期
         Date maxDate =fundNetValMapper.getMaxNavDateByDate(selectDate);
-        JobTimeRecord jobTimeRecordTemp=new JobTimeRecord();
-
-        if(jobTimeRecord==null){
-
-            jobTimeRecordTemp.setJobName(FUND_CALCULATE_JOB);
-            jobTimeRecordTemp.setTriggerName(CALCULATE_DATA_OF_YEAR);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setCreateTime(new Date());
-            jobTimeRecordTemp.setUpdateTime(new Date());
-
-            jobTimeService.insertJobTimeRecord(jobTimeRecordTemp);
-        }else{
-            jobTimeRecordTemp.setTriggerName(CALCULATE_DATA_OF_YEAR);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setUpdateTime(new Date());
-
-            jobTimeService.updateJobTimeRecord(jobTimeRecordTemp);
-        }
-
+        jobTimeService.saveOrUpdateJobTimeRecord(jobTimeRecord, FUND_CALCULATE_JOB, CALCULATE_DATA_OF_YEAR, maxDate, SUCCESSFUL_STATUS);
     }
 
 
