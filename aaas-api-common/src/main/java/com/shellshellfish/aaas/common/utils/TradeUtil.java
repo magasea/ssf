@@ -142,7 +142,7 @@ public class TradeUtil {
   }
 
   public static BigDecimal getBigDecimalNumWithDiv100(Long originNum){
-    return new BigDecimal(originNum).divide(BigDecimal.valueOf(100));
+    return MathUtil.round(BigDecimal.valueOf(originNum).divide(BigDecimal.valueOf(100)),2,true);
   }
 
   public static BigDecimal getBigDecimalNumWithDiv10000(Long originNum){

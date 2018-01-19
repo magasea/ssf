@@ -15,6 +15,7 @@ import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
 import com.shellshellfish.aaas.common.message.order.ProdDtlSellDTO;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
+import com.shellshellfish.aaas.common.utils.MathUtil;
 import com.shellshellfish.aaas.common.utils.SSFDateUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.utils.ZZRiskToSSFRiskUtils;
@@ -774,8 +775,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       zzBuyFund.setTradeAcco(request.getTrdAccount());
       zzBuyFund.setUserId(request.getUserId());
       zzBuyFund.setUserPid(request.getUserPid());
-      zzBuyFund.setApplySum(BigDecimal.valueOf(orderDetailPayReq.getPayAmount()).divide
-          (BigDecimal.valueOf(100)));
+      zzBuyFund.setApplySum(TradeUtil.getBigDecimalNumWithDiv100(orderDetailPayReq.getPayAmount()));
       zzBuyFund.setFundCode(orderDetailPayReq.getFundCode());
       zzBuyFund.setOutsideOrderNo(""+orderDetailPayReq.getId());
       zzBuyFunds.add(zzBuyFund);
