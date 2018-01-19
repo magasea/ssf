@@ -533,28 +533,27 @@ public class FundGroupService {
      */
     public ReturnType getScaleMark(String id, String slidebarType) {
         ReturnType smk = new ReturnType();
-        List<Map<String, Object>> list = new ArrayList<>();
-        Map<String, String> _links = new HashMap<>();
+
         Map<String, Object> map = new HashMap<>();
         map.put("slidebarType", slidebarType);
         map.put("id", id);
-
         List<RiskIncomeInterval> riskIncomeIntervalList = fundGroupMapper.getScaleMark(map);
         if (CollectionUtils.isEmpty(riskIncomeIntervalList)
                 || StringUtils.isEmpty(slidebarType)) {
             return smk;
         }
 
-        if (slidebarType.equalsIgnoreCase("risk_num")) {
-            smk.setName("风险率");
+        List<Map<String, Object>> list = new ArrayList<>();
+        Map<String, String> _links = new HashMap<>();
+        smk.setName(SlidebarTypeEnmu.getNameByType(slidebarType));
+        if (slidebarType.equalsIgnoreCase(SlidebarTypeEnmu.RISK_NUM.getName())) {
             for (int i = 0; i < 10; i++) {
                 Map<String, Object> maps = new HashMap<>();
                 maps.put("id", i + 1);
                 maps.put("value", riskIncomeIntervalList.get(10*i+9).getRisk_num());
                 list.add(maps);
             }
-        } else if (slidebarType.equalsIgnoreCase("income_num")){
-            smk.setName("收益率");
+        } else if (slidebarType.equalsIgnoreCase(SlidebarTypeEnmu.INCOME_NUM.getName())){
             for (int i = 0; i < 10; i++) {
                 Map<String, Object> maps = new HashMap<>();
                 maps.put("id", i + 1);
