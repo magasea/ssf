@@ -68,7 +68,7 @@ public class ZZStatsToOrdStatsUtils {
       case PARTCONFIRMED:
         return TrdOrderStatusEnum.PARTIALCONFIRMED;
       default:
-        logger.error("input is not correct enum");
+        logger.error("input is not correct enums");
         return TrdOrderStatusEnum.FAILED;
     }
   }
@@ -85,7 +85,7 @@ public class ZZStatsToOrdStatsUtils {
         return TrdOrderOpTypeEnum.REDEEM;
       }
       else{
-        logger.error("cannot find corresponding enum for callingCode:"+ callingCode);
+        logger.error("cannot find corresponding enums for callingCode:"+ callingCode);
         return TrdOrderOpTypeEnum.UNDEFINED;
       }
 
