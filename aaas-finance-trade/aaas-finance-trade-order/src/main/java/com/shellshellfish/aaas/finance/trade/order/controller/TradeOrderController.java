@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.controller;
 
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 
@@ -262,20 +263,21 @@ public class TradeOrderController {
 		Calendar c = Calendar.getInstance();
 		List<Map<String,Object>> statusList = new ArrayList<Map<String,Object>>();
 		Map<String,Object> statusMap = new HashMap<String,Object>();
-		statusMap.put("time", c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE));
-		statusMap.put("date", c.get(Calendar.YEAR)+"."+(c.get(Calendar.MONTH)+1)+"."+c.get(Calendar.DATE));
+		String[] timeAndDate = TradeUtil.getTplusNDayOfWork(trdOrder.getCreateDate(),1).split("T");
+		statusMap.put("time", timeAndDate[1]);
+		statusMap.put("date", timeAndDate[0]);
 		statusMap.put("status", "申请已受理");
 		statusList.add(statusMap);
-		
+		timeAndDate = TradeUtil.getTplusNDayOfWork(trdOrder.getCreateDate(),2).split("T");
 		statusMap = new HashMap<String,Object>();
-		statusMap.put("time", c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE));
-		statusMap.put("date", c.get(Calendar.YEAR)+"."+(c.get(Calendar.MONTH)+1)+"."+(c.get(Calendar.DATE)+2));
+		statusMap.put("time", timeAndDate[1]);
+		statusMap.put("date", timeAndDate[0]);
 		statusMap.put("status", "份额确认，开始计算收益");
 		statusList.add(statusMap);
-		
+		timeAndDate = TradeUtil.getTplusNDayOfWork(trdOrder.getCreateDate(),3).split("T");
 		statusMap = new HashMap<String,Object>();
-		statusMap.put("time", c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE));
-		statusMap.put("date", c.get(Calendar.YEAR)+"."+(c.get(Calendar.MONTH)+1)+"."+(c.get(Calendar.DATE)+3));
+		statusMap.put("time", timeAndDate[1]);
+		statusMap.put("date", timeAndDate[0]);
 		statusMap.put("status", "查看收益");
 		statusList.add(statusMap);
 		

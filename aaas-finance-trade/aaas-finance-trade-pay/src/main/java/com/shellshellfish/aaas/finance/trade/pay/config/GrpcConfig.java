@@ -29,28 +29,15 @@ public class GrpcConfig extends GRpcServerBuilderConfigurer {
   int FPport;
 
 
-  @Value("${grpc.userinfo_client.host}")
-  String UIhost;
-
-  @Value("${grpc.userinfo_client.port}")
-  int UIport;
 
   @Bean
   ManagedChannelBuilder<?> grpcFPChannelBuilder(){
     return ManagedChannelBuilder.forAddress(FPhost, FPport);
   }
 
-  @Bean
-  ManagedChannelBuilder<?> grpcUIChannelBuilder(){
-    return ManagedChannelBuilder.forAddress(UIhost, UIport);
-  }
 
-  @Bean
-  @PostConstruct
-  ManagedChannel managedUIChannel(){
-    ManagedChannel managedUIChannel = grpcUIChannelBuilder().usePlaintext(true).build();
-    return managedUIChannel;
-  }
+
+
 
   @Bean
   @PostConstruct

@@ -55,13 +55,6 @@ public class UserInfoServiceImpl implements UserInfoService {
     return null;
   }
 
-  @Override
-  public UserInfo getUserInfoByUserId(Long userId) throws ExecutionException, InterruptedException {
-    UserId.Builder uiBuilder = UserId.newBuilder();
-    uiBuilder.setUserId(userId);
-    return userInfoServiceFutureStub.getUserInfo(uiBuilder.build()).get();
-
-  }
 
 
 }

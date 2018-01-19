@@ -13,8 +13,6 @@ public class PayOrderDto implements Serializable{
   Long userProdId;
   String userUuid;
 
-
-
   String userPid;
   List<TrdOrderDetail> orderDetailList;
 
