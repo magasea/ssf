@@ -263,7 +263,7 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
 			CoinFundYieldRate coinFundYieldRate = originList.get(i);
 			growthRateOfMonetaryFundsBuilder.setCode(coinFundYieldRate.getCode());
 			growthRateOfMonetaryFundsBuilder.setQueryDate(coinFundYieldRate.getQuerydate());
-//			growthRateOfMonetaryFundsBuilder.setQueryDateStr(coinFundYieldRate.getQueryDateStr());
+			growthRateOfMonetaryFundsBuilder.setQueryDateStr(coinFundYieldRate.getQueryDateStr());
 			growthRateOfMonetaryFundsBuilder.setTenKiloUnitYield(coinFundYieldRate.getTenKiloUnitYield());
 			growthRateOfMonetaryFundsBuilder.setYieldof7Days(coinFundYieldRate.getYieldoOf7Days());
 			growthRateOfMonetaryFundsBuilder.setUpdate(coinFundYieldRate.getUpdate());
