@@ -497,10 +497,16 @@ public class MidApiServiceImpl implements MidApiService {
 		params.put("endDate", String.valueOf(endDate));
 
 		MonetaryFund[] originResult = restTemplate.postForObject(URLutils.prepareParameters(userInfoUrl + methodUrl, params), null, MonetaryFund[].class);
-		List<MonetaryFund> result = Arrays.asList(originResult);
 
-		info.setTenKiloUnitYield(result);
+		if (originResult == null || originResult.length <= 0) {
+			logger.error("没有查找到基金‘{code:{},name:{}}’的七日年化收益和万份收益", fundCode, info.getName());
+			return;
+		}
+
+		List<MonetaryFund> result = Arrays.asList(originResult);
 		info.setYieldof7days(result);
+		info.setTenKiloUnitYield(result);
+
 
 	}
 
