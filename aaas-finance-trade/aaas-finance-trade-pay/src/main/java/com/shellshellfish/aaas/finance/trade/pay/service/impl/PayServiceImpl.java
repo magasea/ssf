@@ -298,9 +298,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       }
     }
     //风险评估再设置一下
-    UserInfo userInfo = userInfoService.getUserInfoByUserId(bindBankCard.getUserId());
+//    UserInfo userInfo = userInfoService.getUserInfoByUserId(bindBankCard.getUserId());
     ZZRiskAbilityEnum zzRiskAbilityEnum = ZZRiskToSSFRiskUtils.getZZRiskAbilityFromSSFRisk(
-        UserRiskLevelEnum.get(userInfo.getRiskLevel()));
+        UserRiskLevelEnum.get(bindBankCard.getRiskLevel()));
     logger.info("now set the user:"+ bindBankCard.getUserPid() + " risk level:" +
         zzRiskAbilityEnum.getRiskLevel());
     fundTradeApiService.commitRisk(TradeUtil.getZZOpenId(bindBankCard.getUserPid()),
