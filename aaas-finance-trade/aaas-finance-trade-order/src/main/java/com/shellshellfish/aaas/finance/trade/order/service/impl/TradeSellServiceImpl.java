@@ -138,8 +138,8 @@ public class TradeSellServiceImpl implements TradeSellService {
         logger.error("failed to find corresponding order for sell by userProdId:");
         return null;
       }
-      String orderId = TradeUtil.generateOrderId(Integer.valueOf(trdOrders.get(0).getBankCardNum()
-          .substring(0, 6)), trdBrokerId);
+      String orderId = TradeUtil.generateOrderIdByBankCardNum(trdOrders.get(0).getBankCardNum()
+          , trdBrokerId);
       trdOrder.setUserId(prodSellDTO.getUserId());
       trdOrder.setOrderId(orderId);
       trdOrder.setOrderType(TrdOrderTypeEnum.SELL.ordinal());

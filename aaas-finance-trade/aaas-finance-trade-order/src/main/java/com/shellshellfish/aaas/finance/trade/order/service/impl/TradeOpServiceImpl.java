@@ -38,7 +38,6 @@ import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoQuery;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.FinanceProdInfosQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
-import com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc.UserInfoServiceFutureStub;
@@ -177,8 +176,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     String items[] = trdAccoOrig.split("\\|");
     trdAcco = items[0];
     payOrderDto.setUserPid(items[1]);
-    String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdBuyInfo.getBankAcc()
-            .substring(0,6)),trdBrokerId);
+    String orderId = TradeUtil.generateOrderIdByBankCardNum(financeProdBuyInfo.getBankAcc(), trdBrokerId);
     payOrderDto.setTrdAccount(trdAcco);
     payOrderDto.setUserUuid(financeProdBuyInfo.getUuid());
     payOrderDto.setUserProdId(financeProdBuyInfo.getUserProdId());
@@ -283,14 +281,14 @@ public class TradeOpServiceImpl implements TradeOpService {
         throw new Exception("this bank name:"+bankName
             + " with brokerId"+ TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId()+" is not in table:");
       }
-      userPid = bindBankCard.getUserPid();
+//      userPid = bindBankCard.getUserPid();
       bindBankCard.setBankCode(trdTradeBankDic.getBankCode().trim());
       bindBankCard.setCellphone(userBankInfo.getCellphone());
       bindBankCard.setBankCardNum(financeProdBuyInfo.getBankAcc());
       bindBankCard.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
       bindBankCard.setUserId(financeProdBuyInfo.getUserId());
       bindBankCard.setUserName(userBankInfo.getUserName());
-      bindBankCard.setUserPid(userBankInfo.getUserPid());
+      bindBankCard.setUserPid(userPid);
       trdAcco = payService.bindCard(bindBankCard);
       TrdBrokerUser trdBrokerUserNew = new TrdBrokerUser();
       trdBrokerUserNew.setBankCardNum(bindBankCard.getBankCardNum());
@@ -328,7 +326,7 @@ public class TradeOpServiceImpl implements TradeOpService {
   private void sendOutOrder(PayPreOrderDto payPreOrderDto){
 
     logger.info("use message queue to send payPreOrderDto");
-    broadcastMessageProducer.sendPayMessages(payPreOrderDto);
+//    broadcastMessageProducer.sendPayMessages(payPreOrderDto);
 
   }
 
@@ -478,7 +476,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         trdOrderDetails.add(trdOrderDetail);
       }
       payPreOrderDto.setOrderDetailList(trdOrderDetails);
-      broadcastMessageProducer.sendPayMessages(payPreOrderDto);
+//      broadcastMessageProducer.sendPayMessages(payPreOrderDto);
     }
 
     return trdOrder;
@@ -508,8 +506,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     String items[] = trdAccoOrig.split("\\|");
     trdAcco = items[0];
     payOrderDto.setUserPid(items[1]);
-    String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdInfo.getBankAcc()
-        .substring(0,6)),trdBrokerId);
+    String orderId = TradeUtil.generateOrderIdByBankCardNum(financeProdInfo.getBankAcc(),trdBrokerId);
     payOrderDto.setTrdAccount(trdAcco);
     payOrderDto.setUserUuid(financeProdInfo.getUuid());
     payOrderDto.setUserProdId(financeProdInfo.getUserProdId());

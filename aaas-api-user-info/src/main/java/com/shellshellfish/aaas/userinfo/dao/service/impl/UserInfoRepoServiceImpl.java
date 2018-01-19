@@ -154,6 +154,8 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 				throw new Exception("duplicated card number for :" + uiBankcard.getCardNumber());
 			}else{
 				uiBankcards.get(0).setStatus(1);
+				uiBankcards.get(0).setUserPid(uiBankcard.getUserPid());
+				uiBankcards.get(0).setCellphone(uiBankcard.getCellphone());
 				userInfoBankCardsRepository.save(uiBankcards.get(0));
 			}
 		}else{
@@ -609,5 +611,17 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 								.getUserProdId(), updateUserProdReq.getFundCode());
 			}
 		}
+	}
+
+	/**
+	 */
+	@Override
+	public void getUserInfo(com.shellshellfish.aaas.userinfo.grpc.UserId request,
+			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserInfo> responseObserver) {
+		UiUser uiUser = userInfoRepository.findById(request.getUserId());
+		UserInfo.Builder uiBuilder = UserInfo.newBuilder();
+		MyBeanUtils.mapEntityIntoDTO(uiUser, uiBuilder);
+		responseObserver.onNext(uiBuilder.build());
+		responseObserver.onCompleted();
 	}
 }

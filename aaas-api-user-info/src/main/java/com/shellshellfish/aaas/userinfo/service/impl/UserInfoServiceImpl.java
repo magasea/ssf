@@ -501,41 +501,36 @@ public class UserInfoServiceImpl implements UserInfoService {
 	
 	@Override
 	public List<Map<String, Object>> getTradeLogStatus(String uuid,Long userProdId) throws Exception{
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		Map<String, Object> resultBak = new HashMap<String, Object>();
-		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
-		List<Map<String, Object>> resultListBak = new ArrayList<Map<String, Object>>();
-		Map<String, Map<String, Object>> resultList = new HashMap<String, Map<String, Object>>();
 		Long userId = getUserIdFromUUID(uuid);
 		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService.findByUserIdAndProdId(userId,userProdId);
+		Map<String, Map<String, Object>> resultMap = new HashMap<String, Map<String, Object>>();
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		if(trdLogList!=null&&trdLogList.size()>0){
 			for(int i = 0;i < trdLogList.size();i++){
+				Map<String, Object> resultMap2 = new HashMap<String, Object>();
 				MongoUiTrdLogDTO trdLog = trdLogList.get(i);
 				int status = trdLog.getTradeStatus();
 				String lastModifiedDate = "0";
 				if(trdLog.getLastModifiedDate()!=0){
 					lastModifiedDate = trdLog.getLastModifiedDate() + "";
 				}
-				if(resultMap.containsValue(status)){
-					if(Long.parseLong(resultMap.get("lastModified")+"")<Long.parseLong(lastModifiedDate)){
-						resultMap.put("lastModified", lastModifiedDate);
-						resultMap.put("time", DateUtil.getDateType(trdLog.getLastModifiedDate()));
-						resultMap.put("status", status+"");
-						resultList.put(status+"", resultMap);
+				if(resultMap.containsKey("A" + status)){
+					resultMap2 = resultMap.get("A" + status);
+					if(Long.parseLong(resultMap2.get("lastModified") + "")<Long.parseLong(lastModifiedDate)){
+						resultMap2.put("lastModified", lastModifiedDate);
+						resultMap2.put("time", DateUtil.getDateType(trdLog.getLastModifiedDate()));
+						resultMap2.put("status", status+"");
+						resultMap.put("A"+status, resultMap2);
 					}
 				} else {
-					resultMap.put("lastModified", lastModifiedDate);
-					resultMap.put("time", DateUtil.getDateType(trdLog.getLastModifiedDate()));
-					resultMap.put("status", status+"");
-					resultListBak.add(resultMap);
+					resultMap2.put("lastModified", lastModifiedDate);
+					resultMap2.put("time", DateUtil.getDateType(trdLog.getLastModifiedDate()));
+					resultMap2.put("status", status + "");
+					resultMap.put("A" + status, resultMap2);
 				}
 			}
-			if(resultList!=null&&resultList.size()>0){
-				for(Map map:resultList.values()){
-					map.remove("lastModified");
-					map.remove("lastModified");
-					result.add(map);
-				}
+			for (Map map : resultMap.values()) {
+				result.add(map);
 			}
 		}
 		return result;

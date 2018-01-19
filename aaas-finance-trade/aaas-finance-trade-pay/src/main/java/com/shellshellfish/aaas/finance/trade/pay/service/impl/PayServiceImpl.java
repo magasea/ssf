@@ -1,11 +1,14 @@
 package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.OrderJobPayRltEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
+import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
+import com.shellshellfish.aaas.common.enums.ZZRiskAbilityEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
@@ -14,6 +17,7 @@ import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import com.shellshellfish.aaas.common.utils.SSFDateUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.common.utils.ZZRiskToSSFRiskUtils;
 import com.shellshellfish.aaas.common.utils.ZZStatsToOrdStatsUtils;
 import com.shellshellfish.aaas.finance.trade.pay.BindBankCardResult;
 import com.shellshellfish.aaas.finance.trade.pay.OrderDetailPayReq;
@@ -34,9 +38,13 @@ import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
+import com.shellshellfish.aaas.finance.trade.pay.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
+import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -59,7 +67,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   @Autowired
   TrdPayFlowRepository trdPayFlowRepository;
 
-
+  @Autowired
+  UserInfoService userInfoService;
 
   @Autowired
   MultiThreadTaskHandler multiThreadTaskHandler;
@@ -255,13 +264,15 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   }
 
   @Override
-  public String bindCard(BindBankCard bindBankCard) {
+  public String bindCard(BindBankCard bindBankCard)
+      throws ExecutionException, InterruptedException, JsonProcessingException {
+    String tradeAcco = null;
     try {
       OpenAccountResult openAccountResult = fundTradeApiService.openAccount("" +TradeUtil
               .getZZOpenId(bindBankCard.getUserPid()), bindBankCard.getUserName(),bindBankCard
                       .getCellphone(), bindBankCard.getUserPid(), bindBankCard.getBankCardNum(),
           bindBankCard.getBankCode());
-      return openAccountResult.getTradeAcco();
+      tradeAcco =  openAccountResult.getTradeAcco();
     } catch (Exception e) {
       e.printStackTrace();
       if(e.getMessage().contains("该商户下已有其他openid绑定该身份证") || e.getMessage().contains("此卡已存在")){
@@ -277,7 +288,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
               if(bindBankCard.getBankCardNum().equals(userBank.getBankAcco())){
                 logger.info("found tradeAcco by userId:" + bindBankCard.getUserId() + " "
                     + "tradeAcco:" + userBank.getTradeAcco());
-                return userBank.getTradeAcco();
+                tradeAcco =  userBank.getTradeAcco();
               }
             }
           }
@@ -285,8 +296,16 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           e1.printStackTrace();
         }
       }
-      return null;
     }
+    //风险评估再设置一下
+    UserInfo userInfo = userInfoService.getUserInfoByUserId(bindBankCard.getUserId());
+    ZZRiskAbilityEnum zzRiskAbilityEnum = ZZRiskToSSFRiskUtils.getZZRiskAbilityFromSSFRisk(
+        UserRiskLevelEnum.get(userInfo.getRiskLevel()));
+    logger.info("now set the user:"+ bindBankCard.getUserPid() + " risk level:" +
+        zzRiskAbilityEnum.getRiskLevel());
+    fundTradeApiService.commitRisk(TradeUtil.getZZOpenId(bindBankCard.getUserPid()),
+        zzRiskAbilityEnum.getRiskLevel());
+    return tradeAcco;
   }
 
   @Override
@@ -366,7 +385,16 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.pay.ApplyResult> responseObserver) {
     Long orderDetailId = request.getOrderDetailId();
     Long userId = request.getUserId();
-    ApplyResult applyResult = queryOrder(userId, orderDetailId);
+    ApplyResult applyResult = null;
+    try {
+      applyResult = queryOrder(userId, orderDetailId);
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+      logger.error(e.getMessage());
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      logger.error(e.getMessage());
+    }
     if(applyResult == null){
       logger.error("failed to queryZhongzhengTradeInfoBySerial by orderDetailId:" + orderDetailId
           + "userId:"+  userId);
@@ -396,14 +424,17 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   }
 
   @Override
-  public ApplyResult queryOrder(Long userId, Long orderDetailId) {
+  public ApplyResult queryOrder(Long userId, Long orderDetailId)
+      throws ExecutionException, InterruptedException {
     String tradeUserId = userId.toString();
-    if(userId == 5605){//这个用户之前是用"shellshellfish来绑定中证账户的"
-      tradeUserId = "shellshellfish";
-    }
+    //ToDo: 怎么知道订单是用哪个银行卡买的
+    UserBankInfo userBankInfo =  userInfoService.getUserBankInfo(userId);
+    String userPid = userBankInfo.getCardNumbersList().get(0).getUserPid();
+    String openId = TradeUtil.getZZOpenId(userPid);
+
     ApplyResult applyResult = null;
     try {
-      applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo(tradeUserId, orderDetailId
+      applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo(openId, orderDetailId
           .toString());
     } catch (JsonProcessingException e) {
       e.printStackTrace();
@@ -418,11 +449,26 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
   @Override
   public void bindBankCard(com.shellshellfish.aaas.finance.trade.pay.BindBankCardQuery bindBankCardQuery,
-      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.pay.BindBankCardResult> responseObserver){
+      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.pay.BindBankCardResult> responseObserver) {
     BindBankCard bindBankCard = new BindBankCard();
     BeanUtils.copyProperties(bindBankCardQuery, bindBankCard);
-    String trdAcco = bindCard(bindBankCard);
-    if(StringUtils.isEmpty(trdAcco)){
+    String trdAcco = null;
+    try {
+      trdAcco = bindCard(bindBankCard);
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+      logger.error(e.getMessage());
+
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+
+      logger.error(e.getMessage());
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+
+      logger.error(e.getMessage());
+    }
+    if(StringUtils.isEmpty(trdAcco) || trdAcco.equals("-1")){
       logger.error("failed to bind card with UserName:"+ bindBankCard.getUserName() + " pid:"+
           bindBankCard.getUserPid() + "bankCode:"+ bindBankCard.getBankCode() +
           "userId:" +bindBankCard.getUserId());

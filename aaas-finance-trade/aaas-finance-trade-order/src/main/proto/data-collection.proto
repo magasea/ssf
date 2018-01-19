@@ -25,22 +25,23 @@ message DailyFundsCollection {
 }
 
 message DailyFunds {
-    string id = 1;
-    string code = 2; //基金代码
-    double navaccum = 3; //累计净值
-    double navadj = 4; //净ADJ
-    int64 nav_latest_date = 5; //最新净值日期
-    string navreturnrankingp = 6; //单位回报排名
-    string navreturnrankingpctp = 7; //单位回报百分比排名
-    double navsimiavgreturnp = 8; //
-    double navunit = 9; //累计单位净值
-    int64 querydate = 10; //更新日期
-    int64 update = 11; //更新日期
-    string fname = 12; //基金名称
-    string first_invest_type = 13; //基金一级分类
-    string second_invest_type = 14; //基金二级分类
-    string close = 15; //日行情收盘价
+  string id = 1;
+  string code = 2;//基金代码
+  double navaccum = 3; //累计净值
+  double navadj = 4;//净ADJ
+  int64 nav_latest_date = 5;//最新净值日期
+  string navreturnrankingp = 6;//单位回报排名
+  string navreturnrankingpctp = 7;//单位回报百分比排名
+  double navsimiavgreturnp = 8;//
+  double navunit = 9;//单位净值
+  int64 querydate = 10; //更新日期
+  int64 update = 11; //更新日期
+  string fname = 12;//基金名称
+  string first_invest_type = 13;//基金一级分类
+  string second_invest_type = 14;//基金二级分类
+  string close = 15;//日行情收盘价
 }
+
 
 //获取当前基金信息
 message FundCodes {
