@@ -4,8 +4,10 @@ package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 import com.shellshellfish.aaas.finance.trade.pay.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
+import com.shellshellfish.aaas.userinfo.grpc.UserId;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery.Builder;
+import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc.UserInfoServiceFutureStub;
 import io.grpc.ManagedChannel;
@@ -52,5 +54,14 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
     return null;
   }
+
+  @Override
+  public UserInfo getUserInfoByUserId(Long userId) throws ExecutionException, InterruptedException {
+    UserId.Builder uiBuilder = UserId.newBuilder();
+    uiBuilder.setUserId(userId);
+    return userInfoServiceFutureStub.getUserInfo(uiBuilder.build()).get();
+
+  }
+
 
 }

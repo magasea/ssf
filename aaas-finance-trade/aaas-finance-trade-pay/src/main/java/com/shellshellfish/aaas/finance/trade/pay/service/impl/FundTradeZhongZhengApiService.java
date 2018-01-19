@@ -288,6 +288,20 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         return json;
     }
 
+
+    @Override
+    public String commitRisk(String userUuid, int riskLevel) throws JsonProcessingException {
+        Map<String, Object> info = init(userUuid);
+        info.put("risk_ability", riskLevel);
+        postInit(info);
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/commit_risk";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        return json;
+    }
+
     @Override
     public String commitFakeAnswer(String userUuid) throws JsonProcessingException {
         Map<String, Object> info = init(userUuid);

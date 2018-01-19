@@ -30,6 +30,8 @@ public interface FundTradeApiService {
 
     String commitRisk(String userUuid) throws JsonProcessingException;
 
+    String commitRisk(String userUuid, int riskLevel) throws JsonProcessingException;
+
     String commitFakeAnswer(String userUuid) throws JsonProcessingException;
 
     String getUserRiskList(String userUuid) throws JsonProcessingException;

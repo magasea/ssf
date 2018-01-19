@@ -1,15 +1,14 @@
 package com.shellshellfish.aaas.transfer.controller;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,12 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+
 import com.alibaba.fastjson.JSONObject;
 import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -75,6 +76,29 @@ public class TransferController {
 			// total=poundage.add(BigDecimal.valueOf(Double.parseDouble((totalAmount))));
 			BigDecimal total = poundage;
 			BigDecimal totalOffDiscount = total.add(discount);
+			if(total!=null){
+				total = total.setScale(2, BigDecimal.ROUND_HALF_UP);
+			}
+			if(totalOffDiscount!=null){
+				totalOffDiscount = totalOffDiscount.setScale(2, BigDecimal.ROUND_HALF_UP);
+			}
+			if(discount!=null){
+				discount = discount.setScale(2, BigDecimal.ROUND_HALF_UP);
+			}
+			if(resultMap.get("fundAmountList")!=null){
+				List<Map> resultList = (List<Map>) resultMap.get("fundAmountList");
+				if(resultList!=null&&resultList.size()>0){
+					for(int i=0;i<resultList.size();i++){
+						Map map = resultList.get(i);
+						if(map.get("grossAmount")!=null){
+							BigDecimal grossAmount = new BigDecimal(map.get("grossAmount")+"");
+							map.put("grossAmount", grossAmount.setScale(2, BigDecimal.ROUND_HALF_UP));
+						}
+					}
+				}
+			}
+			resultMap.put("poundage", total);
+			resultMap.put("discountSaving", discount);
 			resultMap.put("total", total);
 			resultMap.put("originalCost", totalOffDiscount);
 			resultMap.put("discount", discount);
@@ -124,7 +148,7 @@ public class TransferController {
 		Map buyProductSuccess=service.buyProduct(prdInfo);
 		Map resultMap=new HashMap<>();
 		resultMap.put("orderId", buyProductSuccess.get("orderId").toString());
-		return new JsonResult(JsonResult.SUCCESS, "购买成功", resultMap);
+		return new JsonResult(JsonResult.SUCCESS, "订单已受理，申购中...", resultMap);
 		} catch (HttpClientErrorException e) {
 			logger.error("购买基金调用购买接口失败"+e.getMessage());
 			String str = e.getResponseBodyAsString();
@@ -142,6 +166,47 @@ public class TransferController {
 			e.printStackTrace();
 			String str=new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail,str , JsonResult.EMPTYRESULT);
+		}
+	}
+	
+	@ApiOperation("获取购买的最大值最小值")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="query",name="groupId",dataType="String",required=true,value="groupId",defaultValue="12"),
+		@ApiImplicitParam(paramType="query",name="subGroupId",dataType="String",required=true,value="subGroupId",defaultValue="12049")
+	})
+	@RequestMapping(value="/maxminValue",method=RequestMethod.POST)
+	@ResponseBody
+	public JsonResult getMaxminValue(String groupId,String subGroupId){
+		Map resultMap=null;
+		try {
+			String url = tradeOrderUrl + "/api/trade/funds/maxminValue?groupId=" + groupId + "&subGroupId=" + subGroupId;
+			resultMap = restTemplate.getForEntity(url, Map.class).getBody();
+			if(resultMap.get("min")!=null){
+				Double min = (Double)resultMap.get("min");
+				BigDecimal minValue = new BigDecimal(min);
+				resultMap.put("min", minValue.setScale(2, BigDecimal.ROUND_HALF_UP));
+			}
+			if(resultMap.get("min")!=null){
+				Double max = (Double)resultMap.get("max");
+				BigDecimal maxValue = new BigDecimal(max);
+				resultMap.put("max", maxValue.setScale(2, BigDecimal.ROUND_HALF_UP));
+			}
+			return new JsonResult(JsonResult.SUCCESS, "获取成功", resultMap);
+		} catch (HttpClientErrorException e) {
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		} catch (HttpServerErrorException e) {
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			JSONObject  myJson = JSONObject.parseObject(str);
+			String error = myJson.getString("message");
+			return new JsonResult(JsonResult.Fail, error, JsonResult.EMPTYRESULT);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+			String str = new ReturnedException(e).getErrorMsg();
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
 	

@@ -544,7 +544,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/futureExpectationPage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getFutureExpectation(@RequestParam(required=false) String groupId, @RequestParam String subGroupId) {
+	public JsonResult getFutureExpectation(@RequestParam(required=false) String uuid,@RequestParam String groupId, @RequestParam String subGroupId) {
 		Map<String,Object> result = new HashMap<String,Object>();
 		// 预期平均年化收益率
 		Map<String,Object> optMap = new HashMap<String,Object>();
@@ -685,14 +685,14 @@ public class FinanceController {
 	
 	@ApiOperation("风险控制")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = "1"),
+		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID", defaultValue = "1"),
 		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "4"),
 		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "4009"),
 		@ApiImplicitParam(paramType = "query", name = "productName", dataType = "String", required = false, value = "productName", defaultValue = "贝贝鱼1号“御•安守”组合")
 	})
 	@RequestMapping(value = "/riskMangementPage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getRiskManagement(@RequestParam String uuid, @RequestParam String groupId, @RequestParam String subGroupId, @RequestParam(required=false) String productName) {
+	public JsonResult getRiskManagement(@RequestParam(required=false) String uuid,@RequestParam String groupId, @RequestParam String subGroupId, @RequestParam(required=false) String productName) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String,Object> title = new HashMap<String,Object>();
 		// 最大回撤走势图

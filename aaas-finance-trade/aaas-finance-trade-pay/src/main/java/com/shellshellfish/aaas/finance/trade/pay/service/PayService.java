@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.pay.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
@@ -34,7 +35,8 @@ public interface PayService {
    * @param bindBankCard
    * @return
    */
-  String bindCard(BindBankCard bindBankCard) throws ExecutionException, InterruptedException;
+  String bindCard(BindBankCard bindBankCard)
+      throws ExecutionException, InterruptedException, JsonProcessingException;
 
   /**
    * 根据Order模块消息传来的TrdOrderPay生成支付流水完成支付
@@ -55,7 +57,8 @@ public interface PayService {
    *
    */
 
-  ApplyResult queryOrder(Long userId, Long orderDetailId);
+  ApplyResult queryOrder(Long userId, Long orderDetailId)
+      throws ExecutionException, InterruptedException;
 
   /**
    * 根据order状态为未完成，找到orderDetail表中没有apply_serial 且fund_quantity > 0 且

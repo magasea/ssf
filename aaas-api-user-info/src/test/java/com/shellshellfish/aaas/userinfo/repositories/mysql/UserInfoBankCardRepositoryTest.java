@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.userinfo.repositories.mysql;
 
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +35,10 @@ public class UserInfoBankCardRepositoryTest {
 		UiBankcard bankcardDemo = new UiBankcard();
 		bankcardDemo.setCardNumber(bankNo);
 		bankcardDemo.setBankName("mytestBanName");
-		bankcardDemo.setCreatedBy("pierre");
+		//bankcardDemo.setCreatedBy("pierre");
 		userInfoBankCardsRepository.save(bankcardDemo);
-		UiBankcard bankcard = userInfoBankCardsRepository.findUiBankcardByCardNumberIs(bankNo);
+		List<UiBankcard> bankcards = userInfoBankCardsRepository.findUiBankcardByCardNumberIs(bankNo);
 
-		System.out.println(bankcard);
+		System.out.println(bankcards);
 	}
 }
