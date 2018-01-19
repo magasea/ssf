@@ -69,9 +69,8 @@ public class DataCalculateTest {
 
     @Test
     public void calculateMaxdrawdownTest(){
-        CalculateMaxdrawdowns calculateMaxdrawdowns = new CalculateMaxdrawdowns();
         double[] netValueArr = {0.0,1.0,2.0,3,10,7};
-        Double maxdrawdown = calculateMaxdrawdowns.calculateMaxdrawdown(netValueArr);
+        Double maxdrawdown = CalculateMaxdrawdowns.calculateMaxdrawdown(netValueArr);
         System.out.println(maxdrawdown);
     }
 

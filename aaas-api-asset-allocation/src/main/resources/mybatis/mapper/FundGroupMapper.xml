@@ -125,7 +125,7 @@
     </select>
     
     <select id="getScaleMark" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.RiskIncomeInterval">
-        select id,risk_num,income_num from fund_group_sub where fund_group_id=#{id}
+        select id,risk_num,income_num from fund_group_sub where fund_group_id=#{fundGroupId}
         <if test="subGroupId != null and subGroupId != ''">
            and id=#{subGroupId}
         </if>

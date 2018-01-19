@@ -20,32 +20,30 @@ public class MVO {
      * @param count 有效前沿线生成的点数
      * @return
      */
-    public static List<float [][]> efficientFrontier(Double [] ExpReturn, Double[][] ExpCovariance, int count,Double lb,Double ub){
+    public static List<float [][]> efficientFrontier(Double [] ExpReturn, Double[][] ExpCovariance, int count, Double lb, Double ub) {
         Object[] resust = null;
         List<float [][]> list = new ArrayList<>();
         try{
-
-            double[] lowBound=new double[ExpReturn.length];
-            double[] upBound=new double[ExpReturn.length];
-            for(int i=0;i<lowBound.length;i++){
-                lowBound[i]=lb;
-                upBound[i]=ub;
+            double[] lowBound = new double[ExpReturn.length];
+            double[] upBound = new double[ExpReturn.length];
+            for (int i = 0; i < lowBound.length; i++) {
+                lowBound[i] = lb;
+                upBound[i] = ub;
             }
 
             MATLAB ml = new MATLAB();
-            resust = ml.efficientFrontier(3,ExpReturn,ExpCovariance,count,lowBound,upBound);
+            resust = ml.efficientFrontier(3, ExpReturn, ExpCovariance, count, lowBound, upBound);
             MWNumericArray temp = (MWNumericArray)resust[0];
-            float [][] weights=(float[][])temp.toFloatArray();
+            float [][] weights = (float[][])temp.toFloatArray();
             MWNumericArray temp1 = (MWNumericArray)resust[1];
-            float [][] weights1=(float[][])temp1.toFloatArray();
+            float [][] weights1 = (float[][])temp1.toFloatArray();
             MWNumericArray temp2 = (MWNumericArray)resust[2];
-            float [][] weights2=(float[][])temp2.toFloatArray();
+            float [][] weights2 = (float[][])temp2.toFloatArray();
             list.add(weights);
             list.add(weights1);
             list.add(weights2);
 //            ml.dispose();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return list;
@@ -62,16 +60,15 @@ public class MVO {
         Object[] resust = null;
         try{
             MATLAB ml = new MATLAB();
-            resust = ml.riskAndIncome(2,ExpReturn,ExpCovariance,PortWts);
+            resust = ml.riskAndIncome(2, ExpReturn, ExpCovariance, PortWts);
             MWNumericArray temp = (MWNumericArray)resust[0];
-            float [][] weights=(float[][])temp.toFloatArray();
+            float [][] weights = (float[][])temp.toFloatArray();
             MWNumericArray temp1 = (MWNumericArray)resust[1];
-            float [][] weights1=(float[][])temp1.toFloatArray();
-            resust[0]=weights;
-            resust[1]=weights1;
+            float [][] weights1 = (float[][])temp1.toFloatArray();
+            resust[0] = weights;
+            resust[1] = weights1;
             ml.dispose();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return resust;
@@ -83,11 +80,11 @@ public class MVO {
      * @param cash 0.0013
      * @return
      */
-    public static Object sharpeRatio(Double[] asset ,Double cash){
+    public static Object sharpeRatio(Double[] asset, Double cash) {
         Object result = null;
         try {
             MATLAB ml = new MATLAB();
-            result = ml.sharpeRatio(1,asset,cash)[0];
+            result = ml.sharpeRatio(1, asset, cash)[0];
             ml.dispose();
         } catch (MWException e) {
             e.printStackTrace();

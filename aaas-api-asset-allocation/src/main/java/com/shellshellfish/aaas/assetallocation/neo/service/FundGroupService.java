@@ -293,13 +293,13 @@ public class FundGroupService {
      *
      * @return
      */
-    public ReturnType efficientFrontier(String id) {
+    public ReturnType efficientFrontier(String fundGroupId) {
         ReturnType aReturn = new ReturnType();
         Map<String, String> _links = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
         Map<String, Object> map = new HashMap<>();
         map.put("slidebarType", "risk_num");
-        map.put("id", id);
+        map.put("fundGroupId", fundGroupId);
         List<RiskIncomeInterval> riskIncomeIntervalList = fundGroupMapper.getScaleMark(map);
         if (riskIncomeIntervalList.size()!=0) {
             for (int i = 0; i < 100;i++){
@@ -527,16 +527,16 @@ public class FundGroupService {
     /**
      * 滑动条分段数据
      *
-     * @param id
+     * @param fundGroupId
      * @param slidebarType (risk_num    风险率,income_num  收益率)
      * @return
      */
-    public ReturnType getScaleMark(String id, String slidebarType) {
+    public ReturnType getScaleMark(String fundGroupId, String slidebarType) {
         ReturnType smk = new ReturnType();
 
         Map<String, Object> map = new HashMap<>();
         map.put("slidebarType", slidebarType);
-        map.put("id", id);
+        map.put("fundGroupId", fundGroupId);
         List<RiskIncomeInterval> riskIncomeIntervalList = fundGroupMapper.getScaleMark(map);
         if (CollectionUtils.isEmpty(riskIncomeIntervalList)
                 || StringUtils.isEmpty(slidebarType)) {
@@ -1177,8 +1177,7 @@ public class FundGroupService {
         }
         double maximum_retracement = 0;
         if (temp.length>1) {
-            CalculateMaxdrawdowns cm = new CalculateMaxdrawdowns();
-            maximum_retracement = cm.calculateMaxdrawdown(temp)*(-1);
+            maximum_retracement = CalculateMaxdrawdowns.calculateMaxdrawdown(temp) * (-1);
         }
         return maximum_retracement;
     }
@@ -1212,33 +1211,32 @@ public class FundGroupService {
     }
 
     /**
-     * 更新最大亏损额
-     * @param fund_group_id
+     * 更新 基金组合 的最大亏损额
+     * @param fundGroupId
      * @param subGroupId
      */
-    public void maximumLosses(String fund_group_id, String subGroupId) {
+    public void maximumLosses(String fundGroupId, String subGroupId) {
         Map<String, Object> query = new HashMap<>();
         query.put("slidebarType", "risk_num");
         query.put("subGroupId", subGroupId);
-        query.put("id", fund_group_id);
+        query.put("fundGroupId", fundGroupId);
         List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getScaleMark(query);
-        CalculatePortvrisks calculatePortvrisks = new CalculatePortvrisks();
-        Double maximumLosses = calculatePortvrisks.calculatePortvrisk(riskIncomeIntervals.get(0).getIncome_num(),riskIncomeIntervals.get(0).getRisk_num(),0.975,10000);
+        Double maximumLosses = CalculatePortvrisks.calculatePortvrisk(riskIncomeIntervals.get(0).getIncome_num(),riskIncomeIntervals.get(0).getRisk_num(),0.975,10000);
         query.put("maximum_losses", maximumLosses);
         fundGroupMapper.updateMaximumLosses(query);
     }
 
     /**
-     * 更新所有基金组合的最大亏损额
+     * 更新 所有基金组合 的最大亏损额
      */
     public void updateAllMaximumLosses() {
-        for (int i = 1; i <= ConstantUtil.FUND_GROUP_COUNT; i++) {
+        for (int fundGroupId = 1; fundGroupId <= ConstantUtil.FUND_GROUP_COUNT; fundGroupId++) {
             Map<String, Object> map = new HashMap<>();
             map.put("slidebarType", "risk_num");
-            map.put("id", i);
+            map.put("fundGroupId", fundGroupId);
             List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getScaleMark(map);
             for (RiskIncomeInterval riskIncomeInterval : riskIncomeIntervals) {
-                this.maximumLosses(i + "", riskIncomeInterval.getId());
+                this.maximumLosses(fundGroupId + "", riskIncomeInterval.getId());
             }
         }
     }
@@ -1275,20 +1273,20 @@ public class FundGroupService {
     }
 
     public void getAllIdAndSubId(){
-        for (int i = 1; i <= ConstantUtil.FUND_GROUP_COUNT; i++) {
+        for (int fundGroupId = 1; fundGroupId <= ConstantUtil.FUND_GROUP_COUNT; fundGroupId++) {
             Map<String, Object> map = new HashMap<>();
             map.put("slidebarType", "risk_num");
-            map.put("id", i);
+            map.put("fundGroupId", fundGroupId);
             List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getScaleMark(map);
             for (RiskIncomeInterval riskIncomeInterval : riskIncomeIntervals) {
-                getNavadj(i+"", riskIncomeInterval.getId());
-                updateExpectedMaxRetracement(i+"", riskIncomeInterval.getId());
-                sharpeRatio(i+"", riskIncomeInterval.getId());
+                getNavadj(fundGroupId+"", riskIncomeInterval.getId());
+                updateExpectedMaxRetracement(fundGroupId+"", riskIncomeInterval.getId());
+                sharpeRatio(fundGroupId+"", riskIncomeInterval.getId());
             }
         }
         contribution();
-        for (int i = 1; i <= RISK_LEVEL_COUNT; i++) {
-            getNavadjBenchmark("C" + i);
+        for (int index = 1; index <= RISK_LEVEL_COUNT; index++) {
+            getNavadjBenchmark("C" + index);
         }
     }
 
