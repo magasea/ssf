@@ -65,6 +65,9 @@ grpc:
   finance-trade-pay-rpc:
     host: localhost
     port: 10111
+  datacollection-server-rpc:
+    host: localhost
+    port: 10091
 
 
 aaas-api-finance-url: http://localhost:10120

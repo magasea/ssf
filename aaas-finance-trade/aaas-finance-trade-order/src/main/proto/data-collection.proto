@@ -10,47 +10,67 @@ service DataCollectionService {
     }
     rpc GetFundsPrice (FundCodes) returns (FundInfos) {
     }
+    rpc getGrowthRateOfMonetaryFundsList (MonetaryFundsQueryItem) returns (GrowthRateOfMonetaryFundsCollection) {
+    }
 }
 
 message DailyFundsQuery {
-  repeated string codes = 1;
-  string nav_latest_date_start = 2;
-  string nav_latest_date_end = 3;
+    repeated string codes = 1;
+    string nav_latest_date_start = 2;
+    string nav_latest_date_end = 3;
 }
 
-message DailyFundsCollection{
-  repeated DailyFunds dailyFunds = 1;
+message DailyFundsCollection {
+    repeated DailyFunds dailyFunds = 1;
 }
 
 message DailyFunds {
-  string id = 1;
-  string code = 2;//基金代码
-  double navaccum = 3; //累计净值
-  double navadj = 4;//净ADJ
-  int64 nav_latest_date = 5;//最新净值日期
-  string navreturnrankingp = 6;//单位回报排名
-  string navreturnrankingpctp = 7;//单位回报百分比排名
-  double navsimiavgreturnp = 8;//
-  double navunit = 9;//累计单位净值
-  int64 querydate = 10; //更新日期
-  int64 update = 11; //更新日期
-  string fname = 12;//基金名称
-  string first_invest_type = 13;//基金一级分类
-  string second_invest_type = 14;//基金二级分类
-  string close = 15;//日行情收盘价
+    string id = 1;
+    string code = 2; //基金代码
+    double navaccum = 3; //累计净值
+    double navadj = 4; //净ADJ
+    int64 nav_latest_date = 5; //最新净值日期
+    string navreturnrankingp = 6; //单位回报排名
+    string navreturnrankingpctp = 7; //单位回报百分比排名
+    double navsimiavgreturnp = 8; //
+    double navunit = 9; //累计单位净值
+    int64 querydate = 10; //更新日期
+    int64 update = 11; //更新日期
+    string fname = 12; //基金名称
+    string first_invest_type = 13; //基金一级分类
+    string second_invest_type = 14; //基金二级分类
+    string close = 15; //日行情收盘价
 }
-
 
 //获取当前基金信息
 message FundCodes {
-  repeated string fund_code = 1;//基金code,
+    repeated string fund_code = 1; //基金code,
 }
 
-message FundInfos{
-  repeated FundInfo fund_info = 1;//基金信息
+message FundInfos {
+    repeated FundInfo fund_info = 1; //基金信息
 }
 
 message FundInfo {
-  string fund_code = 1;//基金code
-  int32 navunit = 2 ;//基金单位净值
+    string fund_code = 1; //基金code
+    int32 navunit = 2; //基金单位净值
+}
+
+message MonetaryFundsQueryItem {
+    string code = 1;
+    int64 startDate = 2;
+    int64 endDate = 3;
+}
+message GrowthRateOfMonetaryFundsCollection {
+    repeated GrowthRateOfMonetaryFunds growthRateOfMonetaryFunds = 1;
+}
+
+
+message GrowthRateOfMonetaryFunds {
+    int64 queryDate = 1;
+    string code = 2;
+    double tenKiloUnitYield = 3;
+    int64 update = 4;
+    string queryDateStr = 5;
+    double yieldof7days = 6;
 }
