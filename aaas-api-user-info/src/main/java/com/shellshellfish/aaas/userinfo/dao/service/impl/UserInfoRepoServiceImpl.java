@@ -34,6 +34,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -131,8 +132,8 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public BankCardDTO getUserInfoBankCard(String cardNumber) {
-		List<UiBankcard> uiBankcards = userInfoBankCardsRepository.findUiBankcardByCardNumberIs
-				(cardNumber);
+		List<UiBankcard> uiBankcards = userInfoBankCardsRepository.findUiBankcardByCardNumberIsAndStatusIsNot
+				(cardNumber, -1);
 		BankCardDTO bankcard = new BankCardDTO();
 		if (!CollectionUtils.isEmpty(uiBankcards)) {
 			BeanUtils.copyProperties(uiBankcards.get(0), bankcard);
@@ -328,6 +329,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	}
 
 	@Override
+	@Transactional
 	public Boolean deleteBankCard(String userUuid, String cardNumber) {
 		Long userId = null;
 		try {
@@ -340,7 +342,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			throw new UserInfoException("404", "解绑的银行卡不存在");
 		}
 		//用状态来控制银行卡
-		userInfoBankCardsRepository.setBankCardInvalid(cardNumber, userId);
+		userInfoBankCardsRepository.setBankCardInvalid(userId, cardNumber);
 		return true;
 	}
 
