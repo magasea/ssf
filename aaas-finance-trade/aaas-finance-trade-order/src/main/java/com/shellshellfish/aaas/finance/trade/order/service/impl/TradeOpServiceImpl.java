@@ -39,6 +39,7 @@ import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.FinanceProdInfosQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
+import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc.UserInfoServiceFutureStub;
 import io.grpc.ManagedChannel;
@@ -282,6 +283,8 @@ public class TradeOpServiceImpl implements TradeOpService {
             + " with brokerId"+ TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId()+" is not in table:");
       }
 //      userPid = bindBankCard.getUserPid();
+      UserInfo userInfo = userInfoService.getUserInfoByUserId(financeProdBuyInfo.getUserId());
+
       bindBankCard.setBankCode(trdTradeBankDic.getBankCode().trim());
       bindBankCard.setCellphone(userBankInfo.getCellphone());
       bindBankCard.setBankCardNum(financeProdBuyInfo.getBankAcc());
@@ -289,6 +292,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       bindBankCard.setUserId(financeProdBuyInfo.getUserId());
       bindBankCard.setUserName(userBankInfo.getUserName());
       bindBankCard.setUserPid(userPid);
+      bindBankCard.setRiskLevel(userInfo.getRiskLevel());
       trdAcco = payService.bindCard(bindBankCard);
       TrdBrokerUser trdBrokerUserNew = new TrdBrokerUser();
       trdBrokerUserNew.setBankCardNum(bindBankCard.getBankCardNum());
@@ -323,12 +327,12 @@ public class TradeOpServiceImpl implements TradeOpService {
   }
 
 
-  private void sendOutOrder(PayPreOrderDto payPreOrderDto){
-
-    logger.info("use message queue to send payPreOrderDto");
-//    broadcastMessageProducer.sendPayMessages(payPreOrderDto);
-
-  }
+//  private void sendOutOrder(PayPreOrderDto payPreOrderDto){
+//
+//    logger.info("use message queue to send payPreOrderDto");
+////    broadcastMessageProducer.sendPayMessages(payPreOrderDto);
+//
+//  }
 
   @Override
   public Long getUserId(String userUuid) throws ExecutionException, InterruptedException {

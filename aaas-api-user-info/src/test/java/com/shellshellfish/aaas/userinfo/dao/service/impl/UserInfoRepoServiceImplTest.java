@@ -45,8 +45,8 @@ public class UserInfoRepoServiceImplTest {
 
   @Test
   public void addUserBankcard() throws Exception {
-    List<UiBankcard> uiBankcards = userInfoBankCardsRepository.findUiBankcardByCardNumberIs
-        ("6222081001023607157");
+    List<UiBankcard> uiBankcards = userInfoBankCardsRepository.findUiBankcardByCardNumberIsAndStatusIsNot
+        ("6222081001023607157", -1);
     if(!CollectionUtils.isEmpty(uiBankcards)){
       System.out.println(uiBankcards.size());
       uiBankcards.get(0).setStatus(-1);

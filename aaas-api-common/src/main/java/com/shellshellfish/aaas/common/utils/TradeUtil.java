@@ -5,10 +5,16 @@ import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.DateTimeException;
+import java.time.DayOfWeek;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
+import java.util.Map;
 import java.util.TimeZone;
 
 
@@ -31,39 +37,64 @@ public class TradeUtil {
     return sb.toString();
   }
 
-  public static Long getUTCTime(){
+  public static String getReadableDateTime(Long utcTime){
 
-    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("UTC"));
+    ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(utcTime), ZoneId.systemDefault
+        ());
+    return     zonedDateTime.toLocalDateTime().toString();
+  }
+
+  public static Long getUTCTime(){
+    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneId.systemDefault());
     return utcDateTime.toInstant().toEpochMilli();
   }
 
   public static Long getUTCTime1HourBefore(){
 
-    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now().plusHours(-1), ZoneId.of
-        ("UTC"));
+    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now().plusHours(-1), ZoneId.systemDefault());
     return utcDateTime.toInstant().toEpochMilli();
 
   }
 
   public static Long getUTCTimeHoursBefore(int hours){
     int absHours = Math.abs(hours);
-    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now().plusHours(-absHours), ZoneId.of
-        ("UTC"));
+    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now().plusHours(-absHours), ZoneId.systemDefault());
     return utcDateTime.toInstant().toEpochMilli();
-
   }
 
   public static Long getUTCTime1DayBefore(){
-    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now().plusDays(-1), ZoneId.of
-        ("UTC"));
+    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now().plusDays(-1), ZoneId.systemDefault());
     return utcDateTime.toInstant().toEpochMilli();
+  }
+
+  public static Long getUTCTimeNDayAfter(int nDays){
+    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now().plusDays(nDays), ZoneId.systemDefault());
+    return utcDateTime.toInstant().toEpochMilli();
+  }
+
+  public static Long getUTCTimeNDayAfter(Long startUtcTime,int nDays){
+    ZonedDateTime zonedDateTime =
+    ZonedDateTime.ofInstant(Instant.ofEpochMilli(startUtcTime), ZoneId.systemDefault
+        ());
+    ZonedDateTime utcDateTime = ZonedDateTime.of(zonedDateTime.plusDays(nDays).toLocalDateTime(), ZoneId
+    .systemDefault());
+    return utcDateTime.toInstant().toEpochMilli();
+  }
+
+  public static ZonedDateTime getUTCDateNDayAfter(Long startUtcTime,int nDays){
+    ZonedDateTime zonedDateTime =
+        ZonedDateTime.ofInstant(Instant.ofEpochMilli(startUtcTime), ZoneId.systemDefault
+            ());
+    ZonedDateTime utcDateTime = ZonedDateTime.of(zonedDateTime.plusDays(nDays).toLocalDateTime(), ZoneId
+        .systemDefault());
+    return utcDateTime;
   }
 
   public static Long getUTCTimeTodayStartTime(String zoneId){
     long utcDateStartTimeOffset = ZonedDateTime.now(ZoneId.of(zoneId)).toOffsetDateTime().toInstant
         ().toEpochMilli();
     System.out.println("utcDateStartTime：" + utcDateStartTimeOffset);
-    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("UTC"));
+    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneId.systemDefault());
     long currentUTCtime = utcDateTime.toInstant().toEpochMilli();
     System.out.println("currentUTCtime：" + currentUTCtime);
 
@@ -97,10 +128,7 @@ public class TradeUtil {
    * @return
    */
   public static Long getLongNumWithMul100(BigDecimal originNum){
-
-
     return  originNum.multiply(BigDecimal.valueOf(100)).longValue();
-
   }
 
 
@@ -114,17 +142,11 @@ public class TradeUtil {
   }
 
   public static BigDecimal getBigDecimalNumWithDiv100(Long originNum){
-
-
-    return new BigDecimal(originNum).divide(BigDecimal.valueOf(100));
-
+    return MathUtil.round(BigDecimal.valueOf(originNum).divide(BigDecimal.valueOf(100)),2,true);
   }
 
   public static BigDecimal getBigDecimalNumWithDiv10000(Long originNum){
-
-
     return new BigDecimal(originNum).divide(BigDecimal.valueOf(10000));
-
   }
 
   public static BigDecimal getBigDecimalNumWithDiv10000(Integer originNum){
@@ -157,6 +179,44 @@ public class TradeUtil {
   }
 
 
+  /**
+   * 获得某一年的周末判断静态map
+   * @param startTime
+   * @return
+   */
+  public static String getTplusNDayOfWork(Long startTime, int n){
+
+
+
+
+    ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(startTime), ZoneId.systemDefault
+        ());
+    Long actualDaysPlus ;
+
+    LocalDateTime localDateTimeLimit = LocalDateTime.of(zonedDateTime.toLocalDate(), LocalTime.of
+        (15, 0));
+    if(zonedDateTime.toLocalDateTime().toInstant(ZoneOffset.UTC).getEpochSecond() > localDateTimeLimit
+        .toInstant(ZoneOffset.UTC).getEpochSecond()){
+      System.out.println("need add extra 1 day because it is after 15:00");
+      actualDaysPlus = getActualNumberOfDaysToAdd(n+1, zonedDateTime.toLocalDate().getDayOfWeek()
+          .getValue());
+    }else{
+      actualDaysPlus = getActualNumberOfDaysToAdd( n, zonedDateTime.toLocalDate().getDayOfWeek()
+          .getValue());
+    }
+    ZonedDateTime utcDateTime = ZonedDateTime.of(zonedDateTime.plusDays(actualDaysPlus).toLocalDateTime(), ZoneId
+        .systemDefault());
+    return utcDateTime.toLocalDateTime().toString();
+
+  }
+
+  public static long getActualNumberOfDaysToAdd(long workdays, int dayOfWeek) {
+    if (dayOfWeek < 6) { // date is a workday
+      return workdays + (workdays + dayOfWeek - 1) / 5 * 2;
+    } else { // date is a weekend
+      return workdays + (workdays - 1) / 5 * 2 + (7 - dayOfWeek);
+    }
+  }
 
 
 }

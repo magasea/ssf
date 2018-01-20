@@ -49,6 +49,7 @@ message BindBankCardQuery{
   string bankCode = 6;//银行在交易系统的编码
   string tradeBrokerName = 7;//交易系统名称
   int64 tradeBrokerId = 8;//交易系统Id
+  int32 riskLevel = 9;//用户贝贝鱼的风险评测值
 }
 
 //绑定银行卡的结果

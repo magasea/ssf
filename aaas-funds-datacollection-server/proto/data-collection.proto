@@ -10,6 +10,8 @@ service DataCollectionService {
     }
     rpc CollectItems (ItemCollection) returns (ItemCollectionResponse) {
     }
+    rpc getGrowthRateOfMonetaryFundsList (MonetaryFundsQueryItem) returns ( GrowthRateOfMonetaryFundsList) {
+    }
 }
 message ItemQuery {
     int64 id = 1;
@@ -23,14 +25,33 @@ message ResponseItem {
     string name = 2;
 }
 
-message ItemCollectionResponse{
+message ItemCollectionResponse {
     repeated CollectionItem items = 1;
 }
 
-message ItemCollection{
-  repeated CollectionItem items = 1;
+message ItemCollection {
+    repeated CollectionItem items = 1;
 }
 
 message CollectionItem {
     string name = 1;
+}
+
+message MonetaryFundsQueryItem {
+    string code = 1;
+    int64 startDate = 2;
+    int64 endDate = 3;
+}
+message GrowthRateOfMonetaryFundsList {
+    repeated GrowthRateOfMonetaryFunds growthRateOfMonetaryFunds = 1;
+}
+
+
+message GrowthRateOfMonetaryFunds {
+    string queryDate = 1;
+    string code = 2;
+    string tenKiloUnitYield = 3;
+    string update = 4;
+    string queryDateStr = 5;
+    string yieldof7days = 6;
 }

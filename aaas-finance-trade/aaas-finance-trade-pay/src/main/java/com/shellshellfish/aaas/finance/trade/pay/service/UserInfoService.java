@@ -12,5 +12,5 @@ public interface UserInfoService {
   String getUserPidForHisTrade(Long userId, String bankCardNum)
       throws ExecutionException, InterruptedException;
 
-  UserInfo getUserInfoByUserId(Long userId) throws ExecutionException, InterruptedException;
+
 }
