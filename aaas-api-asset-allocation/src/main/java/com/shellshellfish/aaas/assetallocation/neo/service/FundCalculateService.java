@@ -41,7 +41,7 @@ public class FundCalculateService {
     @Autowired
     private FundGroupMapper fundGroupMapper;
 
-    private static final Logger logger= LoggerFactory.getLogger(FundCalculateService.class);
+    private static final Logger logger = LoggerFactory.getLogger(FundCalculateService.class);
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -54,36 +54,35 @@ public class FundCalculateService {
     /*
      * 根据时间查询净值表中复权单位净值数据
      */
-    public Map<String,List<FundNetVal>> selectFundNetValueByDate( Date selectDate){
-
-        List<FundNetVal> fundNetValArrList=new ArrayList<>();
+    public Map<String, List<FundNetVal>> selectFundNetValueByDate(Date selectDate) {
+        List<FundNetVal> fundNetValList = null;
         //查询产品组合中 code
-        List<String> codeList=fundGroupMapper.findGroupCode();
-        HashMap<String,Object> codeMap=new HashMap<>();
-        codeMap.put("codeList",codeList);
-        codeMap.put("selectDate",selectDate);
+        List<String> codeList = fundGroupMapper.findGroupCode();
+        HashMap<String,Object> codeMap = new HashMap<>();
+        codeMap.put("codeList", codeList);
+        codeMap.put("selectDate", selectDate);
         try {
-            fundNetValArrList =fundNetValMapper.getAllDataByCodeAndDate(codeMap);
-        }catch (Exception e){
+            fundNetValList = fundNetValMapper.getAllDataByCodeAndDate(codeMap);
+        } catch (Exception e) {
             logger.error("查询净值数据失败!");
             e.printStackTrace();
         }
-
         //根据基金代码分组(按净值日期倒序排列)
-        Map<String,List<FundNetVal>>  fundListMap=new HashMap<>();
-        if(fundNetValArrList!=null){
-            for(FundNetVal fundNetVal:fundNetValArrList){
-                List<FundNetVal> list=fundListMap.get(fundNetVal.getCode());
-                if(list==null){
-                    List<FundNetVal> tempList=new ArrayList<>();
-                    tempList.add(fundNetVal);
-                    fundListMap.put(fundNetVal.getCode(),tempList);
-                }else{
-                    list.add(fundNetVal);
-                    fundListMap.put(fundNetVal.getCode(),list);
-                }
-            }
+        Map<String, List<FundNetVal>> fundListMap = new HashMap<>();
+        if (CollectionUtils.isEmpty(fundNetValList)) {
+            return fundListMap;
+        }
 
+        for (FundNetVal fundNetVal : fundNetValList) {
+            List<FundNetVal> fundNetVals = fundListMap.get(fundNetVal.getCode());
+            if (fundNetVals == null) {
+                List<FundNetVal> tempList = new ArrayList<>();
+                tempList.add(fundNetVal);
+                fundListMap.put(fundNetVal.getCode(), tempList);
+            } else {
+                fundNetVals.add(fundNetVal);
+                fundListMap.put(fundNetVal.getCode(), fundNetVals);
+            }
         }
 
         return fundListMap;
@@ -93,98 +92,89 @@ public class FundCalculateService {
     /*
      * 计算每日的收益率以及风险率,insert into table:fund_calculate_data_day
      */
-    public void calculateDataOfData(){
-
+    public void calculateDataOfData() {
         //查询计算风险率所需参数（取值数量）
-        Integer number=getNumberFromSysConfig(TYPE_OF_DAY);
+        Integer number = getNumberFromSysConfig(TYPE_OF_DAY);
         //查询TriggerJob 上次执行时间
-        JobTimeRecord jobTimeRecord=null;
-        try{
-            jobTimeRecord=jobTimeService.selectJobTimeRecord(CALCULATE_DATA_OF_DAY);
-        }catch(Exception e){
+        JobTimeRecord jobTimeRecord = null;
+        try {
+            jobTimeRecord = jobTimeService.selectJobTimeRecord(CALCULATE_DATA_OF_DAY);
+        } catch(Exception e) {
             logger.error("查询 计算每日的收益率以及风险率记录时间 失败");
         }
 
-        Date selectDate=new Date();
-        if(jobTimeRecord==null || jobTimeRecord.getTriggerTime()==null){
-            try {
-                selectDate=sdf.parse(START_QUERY_DATE);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }else{
-            selectDate=jobTimeRecord.getTriggerTime();
+        Date selectDate = new Date();
+        if (jobTimeRecord == null || jobTimeRecord.getTriggerTime() == null) {
+            selectDate = DateUtil.getDateFromFormatStr(START_QUERY_DATE);
+        } else {
+            selectDate = jobTimeRecord.getTriggerTime();
         }
         //查询净值数据
-        Map<String,List<FundNetVal>>  fundListMap=selectFundNetValueByDate(selectDate);
-        if(fundListMap!=null && fundListMap.size()>0){
-
-            Iterator<Map.Entry<String,List<FundNetVal>>> entries = fundListMap.entrySet().iterator();
-
+        Map<String, List<FundNetVal>> fundListMap = selectFundNetValueByDate(selectDate);
+        if (!CollectionUtils.isEmpty(fundListMap)) {
+            Iterator<Map.Entry<String, List<FundNetVal>>> entries = fundListMap.entrySet().iterator();
             while (entries.hasNext()) {
+                Map.Entry<String, List<FundNetVal>> entry = entries.next();
+                String code = entry.getKey();
+                List<FundNetVal> fundList = entry.getValue();
+                Double navadj1; //当天复权单位净值
+                Double navadj2; //前一天复权单位净值
+                Double yieldRatio = 0d; //收益率
+                Double riskRatio = 0d; //风险率
+                Double semiVariance = 0d; //半方差
 
-                Map.Entry<String,List<FundNetVal>> entry = entries.next();
+                if (CollectionUtils.isEmpty(fundList)) {
+                    continue;
+                }
 
-                String code=entry.getKey();
-                List<FundNetVal> fundList=entry.getValue();
-                Double navadj1;//当天复权单位净值
-                Double navadj2;//前一天复权单位净值
-                Double yieldRatio=0d;//收益率
-                Double riskRatio=0d;//风险率
-                Double semiVariance=0d;//半方差
-
-                for(int i=0;i<fundList.size()-1;i++){
-                    try{
-                        int tempNum=i;
+                for(int i = 0; i < fundList.size() - 1; i++) {
+                    try {
+                        int tempNum = i;
                         //取该天数据（没有则往之前时间递推）
-                        FundNetVal fundNetVal1=getEffectData(tempNum,fundList);
+                        FundNetVal fundNetVal1 = getEffectData(tempNum, fundList);
                         //取该天前一天数据（没有则往之前时间递推）
-                        FundNetVal fundNetVal2=getEffectData(++tempNum,fundList);
-
+                        FundNetVal fundNetVal2 = getEffectData(++tempNum, fundList);
                         //计算收益率
-                        if(fundNetVal1!=null && fundNetVal2!=null){
-                            navadj1=fundNetVal1.getNavadj();
-                            navadj2=fundNetVal2.getNavadj();
+                        if (fundNetVal1 != null && fundNetVal2 != null) {
+                            navadj1 = fundNetVal1.getNavadj();
+                            navadj2 = fundNetVal2.getNavadj();
                             //调用计算收益率方法
-                            yieldRatio = calculateYieldRatio(navadj1,navadj2);
-
+                            yieldRatio = calculateYieldRatio(navadj1, navadj2);
                         }
 
                         //计算风险率
-                        riskRatio=calculateRiskRatio(i,fundList,number);
+                        riskRatio = calculateRiskRatio(i, fundList, number);
 
                         //计算半方差
-                        semiVariance=calculateSemiVariance(i,fundList,number);
+                        semiVariance = calculateSemiVariance(i, fundList, number);
 
-                        FundCalculateData fundCalculateData =new FundCalculateData();
-                        fundCalculateData.setCode(code);//基金代码
-                        fundCalculateData.setNavDate(fundNetVal1.getNavLatestDate());//净值日期
-                        fundCalculateData.setYieldRatio(yieldRatio==null?0d:yieldRatio);//收益率
-                        fundCalculateData.setRiskRatio(riskRatio==null?0d:riskRatio);//风险率
-                        fundCalculateData.setSemiVariance(semiVariance==null?0d:semiVariance);//半方差
-                        fundCalculateData.setNavadj(fundNetVal1.getNavadj());//复权单位净值
-
-                        try{
+                        FundCalculateData fundCalculateData = new FundCalculateData();
+                        fundCalculateData.setCode(code); //基金代码
+                        fundCalculateData.setNavDate(fundNetVal1.getNavLatestDate()); //净值日期
+                        fundCalculateData.setYieldRatio(yieldRatio == null ? 0d : yieldRatio); //收益率
+                        fundCalculateData.setRiskRatio(riskRatio == null ? 0d: riskRatio); //风险率
+                        fundCalculateData.setSemiVariance(semiVariance == null ? 0d : semiVariance); //半方差
+                        fundCalculateData.setNavadj(fundNetVal1.getNavadj()); //复权单位净值
+                        try {
                             fundCalculateDataMapper.insertFundCalculateDataDay(fundCalculateData);
-                        }catch(Exception e){
-                            logger.error("插入基金日计算数据失败：fundCalculateData="+ fundCalculateData.toString());
+                        } catch (Exception e) {
+                            logger.error("插入基金日计算数据失败：fundCalculateData=" + fundCalculateData.toString());
                             e.printStackTrace();
                         }
 
-
-                    }catch(Exception e){
+                    } catch (Exception e) {
                         logger.error("计算基金日收益率以及风险率失败：code="+code);
                         e.printStackTrace();
                     }
 
-
                 }
 
             }
+
         }
 
         //记录本次TriggerJob查询到的最大净值日期
-        Date maxDate =fundNetValMapper.getMaxNavDateByDate(selectDate);
+        Date maxDate = fundNetValMapper.getMaxNavDateByDate(selectDate);
         jobTimeService.saveOrUpdateJobTimeRecord(jobTimeRecord, FUND_CALCULATE_JOB, CALCULATE_DATA_OF_DAY, maxDate, SUCCESSFUL_STATUS);
     }
 
