@@ -23,4 +23,8 @@ public class DateUtil {
         return null;
     }
 
+    public static String formatDate(Date date) {
+        return sdf.format(date);
+    }
+
 }

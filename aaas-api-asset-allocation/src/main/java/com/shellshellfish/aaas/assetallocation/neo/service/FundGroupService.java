@@ -1056,6 +1056,7 @@ public class FundGroupService {
      * @param subGroupId
      */
     public void getNavadj(String group_id, String subGroupId) {
+        logger.info("getNavadj begin");
         Date date = new Date();
         Calendar ca = Calendar.getInstance();
         Map<String, Object> query = new HashMap<>();
@@ -1063,16 +1064,16 @@ public class FundGroupService {
         query.put("subGroupId", subGroupId);
         String endTime = null;
         String groupStartTime = fundGroupMapper.getFundGroupHistoryTime(query);
-         if (groupStartTime == null || groupStartTime.equalsIgnoreCase("")){
+        if (StringUtils.isEmpty(groupStartTime)) {
             groupStartTime = fundGroupMapper.getGroupStartTime(query);
             endTime = groupStartTime;
         }
         query.put("startTime", groupStartTime);
         List<FundNetVal> list = fundGroupMapper.getNavadj(query);
-        for (int i = 0; i< list.size();i++){
-            query.put("num",list.get(i).getNavadj());
-            query.put("time",list.get(i).getNavLatestDate());
-            if (endTime == null){
+        for (int i = 0; i < list.size(); i++) {
+            query.put("num", list.get(i).getNavadj());
+            query.put("time", list.get(i).getNavLatestDate());
+            if (endTime == null) {
                 if (i != 0) {
                     fundGroupMapper.insertGroupNavadj(query);
                 }
@@ -1080,26 +1081,28 @@ public class FundGroupService {
                 fundGroupMapper.insertGroupNavadj(query);
             }
         }
+
         try {
             if (endTime == null){
                 endTime = fundGroupMapper.getGroupStartTime(query);
             }
             query.put("startTime", endTime);
-            for (; date.getTime() > new SimpleDateFormat("yyyy-MM-dd").parse(groupStartTime).getTime(); ) {
-                query.put("endTime", new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime()));
+            for ( ; date.getTime() > DateUtil.getDateFromFormatStr(groupStartTime).getTime(); ) {
+                query.put("endTime", DateUtil.formatDate(ca.getTime()));
                 list = fundGroupMapper.getNavadj(query);
                 double maximum_retracement = getNavadjList(list);
                 query.put("retracement", maximum_retracement);
-                query.put("time", new SimpleDateFormat("yyyy-MM-dd").format(date));
+                query.put("time", DateUtil.formatDate(date));
                 fundGroupMapper.updateMaximumRetracement(query);
                 ca.setTime(date);
                 ca.add(Calendar.DATE,-1);
                 date = ca.getTime();
             }
-        } catch (ParseException e) {
+        } catch (Exception e) {
             logger.error("getNavadj:"+ e.getMessage());
             e.printStackTrace();
         }
+        logger.info("getNavadj end");
     }
 
     /**
@@ -1161,22 +1164,22 @@ public class FundGroupService {
      * @param list
      * @return
      */
-    public double getNavadjList(List<FundNetVal> list){
+    public double getNavadjList(List<FundNetVal> list) {
         double[] temp = new double[list.size()];
         for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getNavadj() == null  || list.get(i).getNavadj() ==0){
-                for (int k = 0;;k++){
-                    if (list.get(k).getNavadj() != null  && list.get(k).getNavadj() !=0){
+            if (list.get(i).getNavadj() == null  || list.get(i).getNavadj() ==0) {
+                for (int k = 0; ; k++) {
+                    if (list.get(k).getNavadj() != null  && list.get(k).getNavadj() !=0) {
                         temp[i] = list.get(k).getNavadj();
                         break;
                     }
                 }
-            }else {
+            } else {
                 temp[i] = list.get(i).getNavadj();
             }
         }
         double maximum_retracement = 0;
-        if (temp.length>1) {
+        if (temp.length > 1) {
             maximum_retracement = CalculateMaxdrawdowns.calculateMaxdrawdown(temp) * (-1);
         }
         return maximum_retracement;
@@ -1190,6 +1193,7 @@ public class FundGroupService {
      * @return
      */
     public int sharpeRatio(String group_id, String subGroupId) {
+        logger.info("sharpeRatio begin");
         int effectRow = -1;
         Double cash = 0.0135;
         Map<String, String> query = new HashMap<>();
@@ -1207,6 +1211,7 @@ public class FundGroupService {
             update.put("sharpeRatio", sharpeRatio);
             effectRow = fundGroupMapper.updateSharpeRatio(update);
         }
+        logger.info("sharpeRatio end");
         return effectRow;
     }
 
@@ -1273,9 +1278,10 @@ public class FundGroupService {
     }
 
     public void getAllIdAndSubId(){
+        logger.info("getAllIdAndSubId begin");
         for (int fundGroupId = 1; fundGroupId <= ConstantUtil.FUND_GROUP_COUNT; fundGroupId++) {
             Map<String, Object> map = new HashMap<>();
-            map.put("slidebarType", "risk_num");
+            map.put("slidebarType", SlidebarTypeEnmu.RISK_NUM.getName());
             map.put("fundGroupId", fundGroupId);
             List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getScaleMark(map);
             for (RiskIncomeInterval riskIncomeInterval : riskIncomeIntervals) {
@@ -1288,24 +1294,27 @@ public class FundGroupService {
         for (int index = 1; index <= RISK_LEVEL_COUNT; index++) {
             getNavadjBenchmark("C" + index);
         }
+        logger.info("getAllIdAndSubId end");
     }
 
     /**
      * 计算预期最大回撤值/模拟波动率
      */
-    public void updateExpectedMaxRetracement(String fund_group_id, String subGroupId){
+    public void updateExpectedMaxRetracement(String fund_group_id, String subGroupId) {
+        logger.info("updateExpectedMaxRetracement begin");
         Map<String, Object> map = new HashMap<>();
         map.put("id", fund_group_id);
         map.put("subId", subGroupId);
         List<FundGroupHistory> maximumRetracement = fundGroupMapper.selectMaximumRetracement(map);
         double retracement = 0d;
         for (FundGroupHistory fundGroupHistory : maximumRetracement) {
-            if (retracement > fundGroupHistory.getMaximum_retracement()){
+            if (retracement > fundGroupHistory.getMaximum_retracement()) {
                 retracement = fundGroupHistory.getMaximum_retracement();
             }
         }
-        map.put("expected_max_retracement",retracement);
+        map.put("expected_max_retracement", retracement);
         fundGroupMapper.updateExpectedMaximumRetracement(map);
+        logger.info("updateExpectedMaxRetracement end");
     }
 
     public int deleteData(String tableName){
