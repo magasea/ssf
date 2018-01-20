@@ -34,44 +34,44 @@ public class DataCalculateTest {
     @Autowired
     private DailyFundService dailyFundService;
 
+    // 测试每日接口
+    /*
+     * 获取基金每日数据并insert into：fund_net_value 以及 fund_basic
+     *
+     */
     @Test
-   public void test1(){
-        fundGroupDataService.insertFundGroupData();
-   }
+    public void insertDailyFundTest(){
+//        String code="000905SH";
+//        String startDate="2017-12-20";
+//        String endDate="2018-01-12";
+//        dailyFundService.insertDailyData(code,startDate,endDate);
 
+        dailyFundService.insertDailyFund();
+    }
 
+    /*
+     * 计算每周的收益率以及风险率,insert into table:fund_calculate_data_week
+     */
     @Test
-    public void test2(){
+    public void calculateDataOfWeekTest(){
         fundCalculateService.calculateDataOfWeek();
     }
 
     @Test
-    public void test3(){
+    public void insertFundGroupDataTest(){
+        fundGroupDataService.insertFundGroupData();
+    }
+
+    @Test
+    public void calculateCovarianceOfWeekTest(){
         covarianceCalculateService.calculateCovarianceOfWeek();
     }
 
-    //测试每日接口
     @Test
-    public void test4(){
-
-       String code="000905SH";
-       String startDate="2017-12-20";
-       String endDate="2018-01-12";
-
-        dailyFundService.insertDailyData(code,startDate,endDate);
-//        dailyFundService.insertDailyFund();
-
+    public void calculateMaxdrawdownTest(){
+        double[] netValueArr = {0.0,1.0,2.0,3,10,7};
+        Double maxdrawdown = CalculateMaxdrawdowns.calculateMaxdrawdown(netValueArr);
+        System.out.println(maxdrawdown);
     }
-
-    @Test
-    public void test5(){
-        CalculateMaxdrawdowns calculateMaxdrawdowns=new CalculateMaxdrawdowns();
-        double[] temp={0.0,1.0,2.0,3,10,7};
-        Double value=calculateMaxdrawdowns.calculateMaxdrawdown(temp);
-
-        System.out.println(value);
-
-    }
-
 
 }

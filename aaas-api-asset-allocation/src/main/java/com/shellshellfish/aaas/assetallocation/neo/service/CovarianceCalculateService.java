@@ -136,27 +136,8 @@ public class CovarianceCalculateService {
         }
 
         //记录本次TriggerJob查询到的最大净值日期
-        Date maxDate =fundNetValMapper.getMaxNavDateByDate(selectDate);
-
-        JobTimeRecord jobTimeRecordTemp=new JobTimeRecord();
-
-        if(jobTimeRecord==null){
-
-            jobTimeRecordTemp.setJobName(FUND_CALCULATE_JOB);
-            jobTimeRecordTemp.setTriggerName(CALCULATE_COVARIANCE_OF_DAY);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setCreateTime(new Date());
-            jobTimeRecordTemp.setUpdateTime(new Date());
-
-            jobTimeService.insertJobTimeRecord(jobTimeRecordTemp);
-        }else{
-            jobTimeRecordTemp.setTriggerName(CALCULATE_COVARIANCE_OF_DAY);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setUpdateTime(new Date());
-
-            jobTimeService.updateJobTimeRecord(jobTimeRecordTemp);
-        }
-
+        Date maxDate = fundNetValMapper.getMaxNavDateByDate(selectDate);
+        jobTimeService.saveOrUpdateJobTimeRecord(jobTimeRecord, FUND_CALCULATE_JOB, CALCULATE_COVARIANCE_OF_DAY, maxDate, SUCCESSFUL_STATUS);
     }
 
 
@@ -250,29 +231,10 @@ public class CovarianceCalculateService {
         }
 
         //记录本次TriggerJob查询到的最大净值日期
-        Date maxDate =fundNetValMapper.getMaxNavDateByDate(selectDate);
-
-        JobTimeRecord jobTimeRecordTemp=new JobTimeRecord();
-
-        if(jobTimeRecord==null){
-
-            jobTimeRecordTemp.setJobName(FUND_CALCULATE_JOB);
-            jobTimeRecordTemp.setTriggerName(CALCULATE_COVARIANCE_OF_WEEK);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setCreateTime(new Date());
-            jobTimeRecordTemp.setUpdateTime(new Date());
-
-            jobTimeService.insertJobTimeRecord(jobTimeRecordTemp);
-        }else{
-            jobTimeRecordTemp.setTriggerName(CALCULATE_COVARIANCE_OF_WEEK);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setUpdateTime(new Date());
-
-            jobTimeService.updateJobTimeRecord(jobTimeRecordTemp);
-        }
+        Date maxDate = fundNetValMapper.getMaxNavDateByDate(selectDate);
+        jobTimeService.saveOrUpdateJobTimeRecord(jobTimeRecord, FUND_CALCULATE_JOB, CALCULATE_COVARIANCE_OF_WEEK, maxDate, SUCCESSFUL_STATUS);
 
         return flag;
-
     }
 
 
@@ -356,27 +318,8 @@ public class CovarianceCalculateService {
         }
 
         //记录本次TriggerJob查询到的最大净值日期
-        Date maxDate =fundNetValMapper.getMaxNavDateByDate(selectDate);
-
-        JobTimeRecord jobTimeRecordTemp=new JobTimeRecord();
-
-        if(jobTimeRecord==null){
-
-            jobTimeRecordTemp.setJobName(FUND_CALCULATE_JOB);
-            jobTimeRecordTemp.setTriggerName(CALCULATE_COVARIANCE_OF_MONTH);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setCreateTime(new Date());
-            jobTimeRecordTemp.setUpdateTime(new Date());
-
-            jobTimeService.insertJobTimeRecord(jobTimeRecordTemp);
-        }else{
-            jobTimeRecordTemp.setTriggerName(CALCULATE_COVARIANCE_OF_MONTH);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setUpdateTime(new Date());
-
-            jobTimeService.updateJobTimeRecord(jobTimeRecordTemp);
-        }
-
+        Date maxDate = fundNetValMapper.getMaxNavDateByDate(selectDate);
+        jobTimeService.saveOrUpdateJobTimeRecord(jobTimeRecord, FUND_CALCULATE_JOB, CALCULATE_COVARIANCE_OF_MONTH, maxDate, SUCCESSFUL_STATUS);
     }
 
 
@@ -461,27 +404,8 @@ public class CovarianceCalculateService {
         }
 
         //记录本次TriggerJob查询到的最大净值日期
-        Date maxDate =fundNetValMapper.getMaxNavDateByDate(selectDate);
-
-        JobTimeRecord jobTimeRecordTemp=new JobTimeRecord();
-
-        if(jobTimeRecord==null){
-
-            jobTimeRecordTemp.setJobName(FUND_CALCULATE_JOB);
-            jobTimeRecordTemp.setTriggerName(CALCULATE_COVARIANCE_OF_YEAR);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setCreateTime(new Date());
-            jobTimeRecordTemp.setUpdateTime(new Date());
-
-            jobTimeService.insertJobTimeRecord(jobTimeRecordTemp);
-        }else{
-            jobTimeRecordTemp.setTriggerName(CALCULATE_COVARIANCE_OF_YEAR);
-            jobTimeRecordTemp.setTriggerTime(maxDate);
-            jobTimeRecordTemp.setUpdateTime(new Date());
-
-            jobTimeService.updateJobTimeRecord(jobTimeRecordTemp);
-        }
-
+        Date maxDate = fundNetValMapper.getMaxNavDateByDate(selectDate);
+        jobTimeService.saveOrUpdateJobTimeRecord(jobTimeRecord, FUND_CALCULATE_JOB, CALCULATE_COVARIANCE_OF_YEAR, maxDate, SUCCESSFUL_STATUS);
     }
 
 

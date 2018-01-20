@@ -13,31 +13,27 @@ import org.slf4j.LoggerFactory;
  */
 public class CalculateMaxdrawdowns {
 
-    private static final Logger logger= LoggerFactory.getLogger(CalculateMaxdrawdowns.class);
+    private static final Logger logger = LoggerFactory.getLogger(CalculateMaxdrawdowns.class);
 
     /*
      * @Desc:计算最大回撤率
      * @Param:
      *        netValueArr:净值数据
      */
-    public Double calculateMaxdrawdown( double[] netValueArr){
-        Object[] result=null;
-        Double maxdrawdownValue=null;
+    public static Double calculateMaxdrawdown(double[] netValueArr) {
+        Object[] result = null;
+        Double maxdrawdownValue = null;
         try {
-            MATLAB matLab= new MATLAB();
-            result=matLab.calculateMaxdrawdown(1,netValueArr);
+            MATLAB matLab = new MATLAB();
+            result = matLab.calculateMaxdrawdown(1,netValueArr);
             matLab.dispose();
-            if(result!=null && result[0]!=null){
-
-                maxdrawdownValue=Double.parseDouble(result[0].toString());
-
+            if (result != null && result[0] != null) {
+                maxdrawdownValue = Double.parseDouble(result[0].toString());
             }
-
         } catch (MWException e) {
             logger.error("Failed to calculateMaxdrawdown!");
             e.printStackTrace();
         }
-
         return maxdrawdownValue;
     }
 }

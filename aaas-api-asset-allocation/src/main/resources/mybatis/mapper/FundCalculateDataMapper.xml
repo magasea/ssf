@@ -13,6 +13,7 @@
         <result property="navDate" column="nav_date" />
         <result property="semiVariance" column="semi_variance" />
         <result property="navadj" column="navadj" />
+        <result property="createDate" column="create_time" />
 
     </resultMap>
 
@@ -20,33 +21,33 @@
     <insert id="insertFundCalculateDataDay" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCalculateData" >
         INSERT INTO
         fund_calculate_data_day
-        (code,yield_ratio,risk_ratio,nav_date,semi_variance,navadj)
+        (code,yield_ratio,risk_ratio,nav_date,semi_variance,navadj,create_time)
         VALUES
-        (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance},#{navadj})
+        (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance},#{navadj},#{createDate})
     </insert>
 
     <insert id="insertFundCalculateDataWeek" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCalculateData" >
         INSERT INTO
         fund_calculate_data_week
-        (code,yield_ratio,risk_ratio,nav_date,semi_variance,navadj)
+        (code,yield_ratio,risk_ratio,nav_date,semi_variance,navadj,create_time)
         VALUES
-        (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance},#{navadj})
+        (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance},#{navadj},#{createDate})
     </insert>
 
     <insert id="insertFundCalculateDataMonth" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCalculateData" >
         INSERT INTO
         fund_calculate_data_month
-        (code,yield_ratio,risk_ratio,nav_date,semi_variance,navadj)
+        (code,yield_ratio,risk_ratio,nav_date,semi_variance,navadj,create_time)
         VALUES
-        (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance},#{navadj})
+        (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance},#{navadj},#{createDate})
     </insert>
 
     <insert id="insertFundCalculateDataYear" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCalculateData" >
         INSERT INTO
         fund_calculate_data_year
-        (code,yield_ratio,risk_ratio,nav_date,semi_variance,navadj)
+        (code,yield_ratio,risk_ratio,nav_date,semi_variance,navadj,create_time)
         VALUES
-        (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance},#{navadj})
+        (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance},#{navadj},#{createDate})
     </insert>
 
     <select id="findYieldRatio"  resultType="java.lang.Double" statementType="STATEMENT">
