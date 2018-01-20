@@ -1201,24 +1201,29 @@ public class FundGroupService {
      */
     public int sharpeRatio(String group_id, String subGroupId) {
         logger.info("sharpeRatio begin");
+
         int effectRow = -1;
         Double cash = 0.0135;
         Map<String, String> query = new HashMap<>();
         query.put("fund_group_id", group_id);
         query.put("subGroupId", subGroupId);
         List<FundNetVal> fundNetValList = fundGroupMapper.getSharpeRatio(query);
-        if (fundNetValList.size() != 0) {
-            Double[] asset = new Double[fundNetValList.size()];
-            for (int i = 0; i < fundNetValList.size(); i++) {
-                asset[i] = fundNetValList.get(i).getNavadj();
-            }
-            double sharpeRatio = Double.parseDouble(MVO.sharpeRatio(asset, cash).toString());
-            Map<String, Object> update = new HashMap<>();
-            update.put("id", subGroupId);
-            update.put("sharpeRatio", sharpeRatio);
-            effectRow = fundGroupMapper.updateSharpeRatio(update);
+        if (CollectionUtils.isEmpty(fundNetValList)) {
+            return effectRow;
         }
+
+        Double[] asset = new Double[fundNetValList.size()];
+        for (int i = 0; i < fundNetValList.size(); i++) {
+            asset[i] = fundNetValList.get(i).getNavadj();
+        }
+        double sharpeRatio = Double.parseDouble(MVO.sharpeRatio(asset, cash).toString());
+        Map<String, Object> update = new HashMap<>();
+        update.put("id", subGroupId);
+        update.put("sharpeRatio", sharpeRatio);
+        effectRow = fundGroupMapper.updateSharpeRatio(update);
+
         logger.info("sharpeRatio end");
+
         return effectRow;
     }
 
