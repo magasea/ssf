@@ -249,7 +249,7 @@ public class FundCalculateService {
                         fundCalculateData.setNavadj(fundNetVal1.getNavadj()); //复权单位净值
                         fundCalculateData.setCreateDate(new Date()); //数据产生时间
 
-                        try{
+                        try {
                             Integer effectRow = fundCalculateDataMapper.insertFundCalculateDataWeek(fundCalculateData);
                             if (effectRow == null) {
                                 doSuccess = false;
