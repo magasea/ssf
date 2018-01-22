@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
@@ -151,6 +152,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         uiBankcard.setCellphone(params.get("cardCellphone").toString());
         uiBankcard.setUserPid(params.get("cardUserPid").toString());
         uiBankcard.setUserId(userId);
+        uiBankcard.setStatus(BankCardStatusEnum.VALID.getStatus());
         if(!StringUtils.isEmpty(params.get("cardNumber"))){
         	String bankName = BankUtil.getNameOfBank(params.get("cardNumber").toString());
         	if(!StringUtils.isEmpty(bankName)){
