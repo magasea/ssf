@@ -69,7 +69,9 @@ public class CheckFundsBuyJobService {
                             trdPayFlowMsg.setUpdateDate(Instant.now().getEpochSecond());
                             trdPayFlowMsg.setBuyDiscount(TradeUtil.getLongNumWithMul100(applyResult
                                 .getCommisiondiscount()));
-                            trdPayFlowMsg.setId(Long.valueOf(applyResult.getOutsideorderno()));
+                            trdPayFlowMsg.setOutsideOrderno(applyResult.getOutsideorderno
+                                ());
+                            trdPayFlowMsg.setId(trdPayFlow.getId());
                             trdPayFlowMsg.setApplySerial(applyResult.getApplyserial());
                             TrdOrderOpTypeEnum opTypeEnum = ZZStatsToOrdStatsUtils
                             .getTrdOrdOpTypeFromCallingCode(Integer

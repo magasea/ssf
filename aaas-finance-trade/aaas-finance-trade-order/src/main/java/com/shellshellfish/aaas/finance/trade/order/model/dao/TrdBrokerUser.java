@@ -15,7 +15,7 @@ import javax.persistence.Table;
 public class TrdBrokerUser {
 
   private long id;
-  private Long tradeBrokerId;
+  private Integer tradeBrokerId;
   private Long userId;
   private String tradeAcco;
   private Integer priority;
@@ -37,11 +37,11 @@ public class TrdBrokerUser {
 
   @Basic
   @Column(name = "trade_broker_id")
-  public Long getTradeBrokerId() {
+  public Integer getTradeBrokerId() {
     return tradeBrokerId;
   }
 
-  public void setTradeBrokerId(Long tradeBrokerId) {
+  public void setTradeBrokerId(Integer tradeBrokerId) {
     this.tradeBrokerId = tradeBrokerId;
   }
 

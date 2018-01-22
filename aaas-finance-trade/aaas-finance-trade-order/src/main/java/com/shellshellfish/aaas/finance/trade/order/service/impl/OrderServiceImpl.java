@@ -84,8 +84,7 @@ public class OrderServiceImpl  extends OrderRpcServiceGrpc.OrderRpcServiceImplBa
       logger.error("trdAcco:"+ trdAcco + " brokerId:"+brokerId + " userId:"+userId +" is not "
           + "valid");
     }
-    TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByTradeAccoAndTradeBrokerId(trdAcco,
-        brokerId);
+    TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByTradeAccoAndTradeBrokerId(trdAcco, brokerId);
     //获取银行卡cardNm后去查询userInfo里面的 userPid
     UserBankInfo userInfo = null;
     try {
