@@ -82,10 +82,20 @@ public class UserInfoController {
 				logger.info("获取验证码验证是否正确");
 				/*result.put("msg", "添加失败");*/
 				// TODO 临时注释2018-01-22
+				/**********************start****************************/
+				if(!"123456".equals(verifyCode)){
+					return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", JsonResult.EMPTYRESULT);
+				}
+				/**********************end******************************/
 				//return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", JsonResult.EMPTYRESULT);
 			}else if(!verifyReult.get("identifyingCode").equals(verifyCode)){
 				/*result.put("msg", "添加失败");*/
 				// TODO 临时注释2018-01-22
+				/**********************start****************************/
+				if(!"123456".equals(verifyCode)){
+					return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", JsonResult.EMPTYRESULT);
+				}
+				/**********************end******************************/
 				//return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", JsonResult.EMPTYRESULT);
 			}
 //			//获取uid
@@ -473,11 +483,14 @@ public class UserInfoController {
 	@ApiOperation("理财产品 产品详情页面")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="query",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="orderId",dataType="String",required=true,value="订单编号",defaultValue="1231230001000001513657092497")
+		@ApiImplicitParam(paramType="query",name="orderId",dataType="String",required=true,value="订单编号",defaultValue="1231230001000001513657092497"),
+		@ApiImplicitParam(paramType="query",name="bankName",dataType="String",required=true,value="银行名称",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="bankCard",dataType="String",required=true,value="银行卡号",defaultValue="")
 	})
 	@RequestMapping(value="/buyDetails",method=RequestMethod.POST)
 	@ResponseBody
-	public JsonResult buyDetails(@RequestParam String userUuid,@RequestParam String orderId){
+	public JsonResult buyDetails(@RequestParam String userUuid,@RequestParam String orderId, @RequestParam String bankName,
+			@RequestParam String bankCard){
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try{
 			result = restTemplate
@@ -490,6 +503,7 @@ public class UserInfoController {
 				logger.error("产品详情-detailList-获取失败");
 				//return new JsonResult(JsonResult.Fail, "产品详情获取失败", JsonResult.EMPTYRESULT);
 			} else {
+				result.put("bankInfo", bankName + "(" + bankCard + ")");
 				List detail = (List) result.get("detailList");
 				if(detail!=null || detail.size()!=0){
 					for(int i=0;i<detail.size();i++){

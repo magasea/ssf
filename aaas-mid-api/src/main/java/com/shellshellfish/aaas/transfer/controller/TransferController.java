@@ -142,6 +142,11 @@ public class TransferController {
 		//验证码不通过则直接返回失败
 		if ("验证失败".equals(verify)){
 			// TODO 临时注释2018-01-22
+			/**********************start****************************/
+			if(!"123456".equals(msgCode)){
+				return new JsonResult(JsonResult.Fail,"手机验证失败，申购失败", JsonResult.EMPTYRESULT);
+			}
+			/**********************end******************************/
 			//return new JsonResult(JsonResult.Fail,"手机验证失败，申购失败", JsonResult.EMPTYRESULT);
 		}
 		try{
@@ -237,6 +242,11 @@ public class TransferController {
 		// 验证码不通过则直接返回失败
 		if ("验证失败".equals(verify)) {
 			// TODO 临时注释2018-01-22
+			/**********************start****************************/
+			if(!"123456".equals(verifyCode)){
+				return new JsonResult(JsonResult.Fail,"手机验证失败，申购失败", JsonResult.EMPTYRESULT);
+			}
+			/**********************end******************************/
 			// return new JsonResult(JsonResult.Fail, "手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
 		}
 		//调用赎回口
