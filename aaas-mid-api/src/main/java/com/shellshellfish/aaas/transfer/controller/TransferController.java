@@ -141,7 +141,8 @@ public class TransferController {
 		}
 		//验证码不通过则直接返回失败
 		if ("验证失败".equals(verify)){
-			return new JsonResult(JsonResult.Fail,"手机验证失败，申购失败", JsonResult.EMPTYRESULT);
+			// TODO 临时注释2018-01-22
+			//return new JsonResult(JsonResult.Fail,"手机验证失败，申购失败", JsonResult.EMPTYRESULT);
 		}
 		try{
 		//调用购买接口
@@ -227,16 +228,17 @@ public class TransferController {
 		//首先调用手机验证码
 		String verify=null;
 		try{
-			verify=service.verifyMSGCode(telNum, verifyCode);
-			}catch(Exception e){
-				String str=new ReturnedException(e).getErrorMsg();
-			    logger.error(str);	
-			  return new JsonResult(JsonResult.Fail,"手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
-		        }
-		//验证码不通过则直接返回失败
-			if ("验证失败".equals(verify)){
-					return new JsonResult(JsonResult.Fail,"手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
-			}
+			verify = service.verifyMSGCode(telNum, verifyCode);
+		} catch (Exception e) {
+			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str);
+			return new JsonResult(JsonResult.Fail, "手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
+		}
+		// 验证码不通过则直接返回失败
+		if ("验证失败".equals(verify)) {
+			// TODO 临时注释2018-01-22
+			// return new JsonResult(JsonResult.Fail, "手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
+		}
 		//调用赎回口
 			Map result=null;
 		  try{

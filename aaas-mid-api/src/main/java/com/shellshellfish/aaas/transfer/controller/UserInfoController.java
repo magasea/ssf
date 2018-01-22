@@ -81,10 +81,12 @@ public class UserInfoController {
 			if(verifyReult==null||verifyReult.size()==0){
 				logger.info("获取验证码验证是否正确");
 				/*result.put("msg", "添加失败");*/
-				return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", JsonResult.EMPTYRESULT);
+				// TODO 临时注释2018-01-22
+				//return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", JsonResult.EMPTYRESULT);
 			}else if(!verifyReult.get("identifyingCode").equals(verifyCode)){
 				/*result.put("msg", "添加失败");*/
-				return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", JsonResult.EMPTYRESULT);
+				// TODO 临时注释2018-01-22
+				//return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", JsonResult.EMPTYRESULT);
 			}
 //			//获取uid
 //			String urlUid=userinfoUrl+"/api/userinfo/users/"+uuid;
@@ -345,8 +347,9 @@ public class UserInfoController {
 			if (result == null || result.size() == 0) {
 				logger.error("我的智投组合获取失败");
 				return new JsonResult(JsonResult.Fail, "我的智投组合为空", JsonResult.EMPTYRESULT);
+			} else {
+				return new JsonResult(JsonResult.SUCCESS, "我的智投组合成功", result.get("result"));
 			}
-			return new JsonResult(JsonResult.SUCCESS, "我的智投组合成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
@@ -508,8 +511,17 @@ public class UserInfoController {
 					}
 				}
 //				if(detailList!=null && detailList){
-//					
+//					statusList
 //				}
+				String prodId = "";
+				if(result.get("prodId")!=null){
+					prodId = result.get("prodId")+"";
+				}
+				String url = userinfoUrl + "/api/userinfo/users/" + userUuid + "/orders/"+prodId+"/status";
+				Map resultStatus = restTemplate.getForEntity(url, Map.class).getBody();
+				if(resultStatus!=null){
+					result.put("statusList", resultStatus.get("result"));
+				}
 			}
 			return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result);
 		}catch(Exception e){

@@ -25,6 +25,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.DistributionResult;
@@ -218,6 +221,7 @@ public class TradeOrderController {
 		TrdOrder trdOrder = orderService.getOrderByOrderId(orderId);
 		List<TrdOrderDetail> trdOrderDetailList = new ArrayList<TrdOrderDetail>();
 		if (trdOrder != null && trdOrder.getOrderId() != null) {
+			result.put("prodId", trdOrder.getProdId());
 			trdOrderDetailList = orderService.findOrderDetailByOrderId(orderId);
 		} else {
 			logger.error("购买详情不存在.");
@@ -229,23 +233,25 @@ public class TradeOrderController {
 			throw new Exception("购买详情信息数据不存在.");
 		}
 		Map<String,Object> trdOrderMap = new HashMap<String,Object>();
-		if(trdOrder.getOrderStatus() == 0){
-			result.put("orderStatus", "待确认");
-		} else if(trdOrder.getOrderStatus() == 1){
-			result.put("orderStatus", "已确认");
-		} else {
-			logger.info("状态为："+trdOrder.getOrderStatus());
-			result.put("orderStatus", "交易失败");
-		}
-		if(trdOrder.getOrderType() == 1){
-			result.put("orderType", "购买");
-		} else if(trdOrder.getOrderType() == 2){
-			result.put("orderType", "分红");
-		} else {
-			logger.info("状态为："+trdOrder.getOrderType());
-			result.put("orderType", "交易失败");
+		TrdOrderStatusEnum[] trdOrderStatusEnum = TrdOrderStatusEnum.values();
+		for(TrdOrderStatusEnum trdOrderStatus : trdOrderStatusEnum){
+			if(trdOrder.getOrderStatus() == trdOrderStatus.getStatus()){
+				result.put("orderStatus", trdOrderStatus.getComment());
+				break;
+			} else {
+				result.put("orderStatus", "");
+			}
 		}
 		
+		TrdOrderOpTypeEnum[] trdOrderOpType = TrdOrderOpTypeEnum.values();
+		for(TrdOrderOpTypeEnum trdOrderOpTypeEnum : trdOrderOpType){
+			if(trdOrder.getOrderType() == trdOrderOpTypeEnum.getOperation()){
+				result.put("orderType", trdOrderOpTypeEnum.getComment());
+				break;
+			} else {
+				result.put("orderType", "");
+			}
+		}
 		//TODO title
 		result.put("title", "稳健型-3个月组合");
 		//金额
@@ -261,42 +267,19 @@ public class TradeOrderController {
 			result.put("payfee", trdOrder.getPayFee());
 		}
 		Calendar c = Calendar.getInstance();
-		List<Map<String,Object>> statusList = new ArrayList<Map<String,Object>>();
-		Map<String,Object> statusMap = new HashMap<String,Object>();
-		String[] timeAndDate = TradeUtil.getTplusNDayOfWork(trdOrder.getCreateDate(),1).split("T");
-		statusMap.put("time", timeAndDate[1]);
-		statusMap.put("date", timeAndDate[0]);
-		statusMap.put("status", "申请已受理");
-		statusList.add(statusMap);
-		timeAndDate = TradeUtil.getTplusNDayOfWork(trdOrder.getCreateDate(),2).split("T");
-		statusMap = new HashMap<String,Object>();
-		statusMap.put("time", timeAndDate[1]);
-		statusMap.put("date", timeAndDate[0]);
-		statusMap.put("status", "份额确认，开始计算收益");
-		statusList.add(statusMap);
-		timeAndDate = TradeUtil.getTplusNDayOfWork(trdOrder.getCreateDate(),3).split("T");
-		statusMap = new HashMap<String,Object>();
-		statusMap.put("time", timeAndDate[1]);
-		statusMap.put("date", timeAndDate[0]);
-		statusMap.put("status", "查看收益");
-		statusList.add(statusMap);
-		
-		result.put("statusList", statusList);
-		
 		//状态详情
 		List<Map<String,Object>> detailList = new ArrayList<Map<String,Object>>();
 		Map<String,Object> detailMap = new HashMap<String,Object>();
 		for(int i=0;i<trdOrderDetailList.size();i++){
 			detailMap = new HashMap<String,Object>();
 			TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
-			if(trdOrderDetail.getOrderDetailStatus() == 0){
-				detailMap.put("status", "待确认");
-			} else if(trdOrderDetail.getOrderDetailStatus() == 1){
-				detailMap.put("fundstatus", "已确认");
-			} else if(trdOrderDetail.getOrderDetailStatus() == 9){
-				detailMap.put("fundstatus", "部分确认");
-			}  else {
-				detailMap.put("fundstatus", "交易失败");
+			
+			TrdOrderStatusEnum[] trdOrderStatusEnum2 = TrdOrderStatusEnum.values();
+			for(TrdOrderStatusEnum trdOrderStatus2 : trdOrderStatusEnum2){
+				if(trdOrderDetail.getOrderDetailStatus() == trdOrderStatus2.getStatus()){
+					detailMap.put("fundstatus", trdOrderStatus2.getComment());
+					break;
+				}
 			}
 			detailMap.put("fundCode", trdOrderDetail.getFundCode());
 			//基金费用
@@ -310,7 +293,7 @@ public class TradeOrderController {
 				detailMap.put("fundTradeType", "部分确认");
 			} else {
 				logger.info("状态为："+trdOrder.getOrderType());
-				detailMap.put("fundTradeType", "交易失败");
+				detailMap.put("fundTradeType", "");
 			}
 			detailList.add(detailMap);
 		}

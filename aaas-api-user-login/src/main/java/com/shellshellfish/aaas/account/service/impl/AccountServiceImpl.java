@@ -179,7 +179,8 @@ public class AccountServiceImpl implements AccountService {
 		List<Object[]> reslst=smsVerificationRepositoryCustom.getSmsVerification(cellphone, verfiedcode);
 		//List<SmsVerification> reslst=smsVerificationRepository.findByCellPhoneAndSmsCode(cellphone, verfiedcode);
 		if (reslst==null||reslst.size()==0){
-			throw new UserException("101", "验证码不正确，请重新输入");
+			// TODO 临时注释2018-01-22
+			//throw new UserException("101", "验证码不正确，请重新输入");
 		}
 		User user = new User();
 		if(!registrationBodyDTO.getPassword().equals(registrationBodyDTO.getPwdconfirm())){
