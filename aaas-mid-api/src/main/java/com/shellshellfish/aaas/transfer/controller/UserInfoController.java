@@ -521,6 +521,8 @@ public class UserInfoController {
 				Map resultStatus = restTemplate.getForEntity(url, Map.class).getBody();
 				if(resultStatus!=null){
 					result.put("statusList", resultStatus.get("result"));
+				} else {
+					result.put("statusList", new ArrayList());
 				}
 			}
 			return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result);
