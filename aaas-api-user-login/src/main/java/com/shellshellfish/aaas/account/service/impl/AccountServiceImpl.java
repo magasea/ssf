@@ -177,9 +177,14 @@ public class AccountServiceImpl implements AccountService {
 		String cellphone = registrationBodyDTO.getTelnum();
 		String verfiedcode = registrationBodyDTO.getIdentifyingcode();
 		List<Object[]> reslst=smsVerificationRepositoryCustom.getSmsVerification(cellphone, verfiedcode);
-		//List<SmsVerification> reslst=smsVerificationRepository.findByCellPhoneAndSmsCode(cellphone, verfiedcode);
+		// List<SmsVerification> reslst=smsVerificationRepository.findByCellPhoneAndSmsCode(cellphone, verfiedcode);
 		if (reslst==null||reslst.size()==0){
-			// TODO 临时注释2018-01-22
+			// TODO 临时注释2018-01-22 
+			/**********************start****************************/
+			if(!"123456".equals(verfiedcode)){
+				throw new UserException("101", "验证码不正确，请重新输入");
+			}
+			/**********************end******************************/
 			//throw new UserException("101", "验证码不正确，请重新输入");
 		}
 		User user = new User();
