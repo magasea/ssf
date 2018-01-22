@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
@@ -530,6 +531,28 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}
 			}
 			for (Map map : resultMap.values()) {
+				map.remove("lastModified");
+				if(map.get("time")!=null){
+					String dateTime = (String) map.get("time");
+					String date[] = dateTime.split(" ");
+					if(date.length==2){
+						map.put("date", date[0]);
+						map.put("time", date[1]);
+					} else if(date.length==1){
+						map.put("date", date[0]);
+						map.remove("time");
+					}
+				}
+				if(map.get("status")!=null){
+					TrdOrderStatusEnum trdOrderStatusEnum[] = TrdOrderStatusEnum.values();
+					String status = (String) map.get("status");
+					for(TrdOrderStatusEnum temp : trdOrderStatusEnum){
+						if(status.equals(temp.getStatus()+"")){
+							map.put("status", temp.getComment());
+							break;
+						}
+					}
+				}
 				result.add(map);
 			}
 		}

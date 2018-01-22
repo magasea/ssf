@@ -339,7 +339,6 @@ public class UserInfoController {
 	@ResponseBody
 	public JsonResult chicombination(@RequestParam String uuid) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
-		Map<Object, Object> resultMap = new HashMap<Object, Object>();
 		try {
 			result = restTemplate
 					.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/chicombination", Map.class).getBody();
@@ -510,8 +509,17 @@ public class UserInfoController {
 					}
 				}
 //				if(detailList!=null && detailList){
-//					
+//					statusList
 //				}
+				String prodId = "";
+				if(result.get("prodId")!=null){
+					prodId = result.get("prodId")+"";
+				}
+				String url = userinfoUrl + "/api/userinfo/users/" + userUuid + "/orders/"+prodId+"/status";
+				Map resultStatus = restTemplate.getForEntity(url, Map.class).getBody();
+				if(resultStatus!=null){
+					result.put("statusList", resultStatus.get("result"));
+				}
 			}
 			return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result);
 		}catch(Exception e){

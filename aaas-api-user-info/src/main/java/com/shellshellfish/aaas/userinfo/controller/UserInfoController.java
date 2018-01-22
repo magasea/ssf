@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
@@ -58,7 +57,6 @@ import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 import com.shellshellfish.aaas.userinfo.utils.PageWrapper;
 import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
-
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -1748,6 +1746,9 @@ public class UserInfoController {
 		Map<String,Object> result = new HashMap<String,Object>();
 		List<Map<String, Object>> resultMap = new ArrayList();
 		resultMap = userInfoService.getTradeLogStatus(userUuid, prodId);
+		if(resultMap == null){
+			resultMap = new ArrayList();
+		}
 		result.put("result", resultMap);
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
