@@ -339,14 +339,16 @@ public class UserInfoController {
 	@ResponseBody
 	public JsonResult chicombination(@RequestParam String uuid) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
+		Map<Object, Object> resultMap = new HashMap<Object, Object>();
 		try {
 			result = restTemplate
 					.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/chicombination", Map.class).getBody();
 			if (result == null || result.size() == 0) {
 				logger.error("我的智投组合获取失败");
 				return new JsonResult(JsonResult.Fail, "我的智投组合为空", JsonResult.EMPTYRESULT);
+			} else {
+				return new JsonResult(JsonResult.SUCCESS, "我的智投组合成功", result.get("result"));
 			}
-			return new JsonResult(JsonResult.SUCCESS, "我的智投组合成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
