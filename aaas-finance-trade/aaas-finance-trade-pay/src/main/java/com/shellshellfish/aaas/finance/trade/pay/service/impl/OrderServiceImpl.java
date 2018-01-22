@@ -9,11 +9,12 @@ import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import io.grpc.ManagedChannel;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by chenwei on 2018- 一月 - 22
  */
-
+@Service
 public class OrderServiceImpl implements OrderService {
 
 
