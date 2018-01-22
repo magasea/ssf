@@ -65,6 +65,9 @@ grpc:
   userinfo_client:
     host: localhost
     port: 10061
+  order_client:
+    host: localhost
+    port: 10101
 using:
   spring:
     schedulerFactory: true

@@ -428,12 +428,14 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		}
-		if( bankCardDTOS.size() <= 0 ){
-			logger.error("failed to find bankCards by userId:" + userId);
-			return;
-		}
 		UserBankInfo.Builder builder = UserBankInfo.newBuilder();
 		builder.setUserId(userId);
+
+		if( bankCardDTOS.size() <= 0 ){
+			logger.error("failed to find bankCards by userId:" + userId);
+			responseObserver.onNext(builder.build());
+			responseObserver.onCompleted();
+		}
 		builder.setUserName(bankCardDTOS.get(0).getUserName());
 
 		builder.setUuid(request.getUuid());

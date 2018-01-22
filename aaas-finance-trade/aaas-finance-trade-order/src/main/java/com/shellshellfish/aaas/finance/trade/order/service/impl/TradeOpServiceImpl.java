@@ -222,7 +222,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       com.shellshellfish.aaas.common.message.order.TrdOrderDetail trdOrderPay =  new com
           .shellshellfish.aaas.common.message.order.TrdOrderDetail();
       BeanUtils.copyProperties(trdOrderDetail, trdOrderPay);
-      trdOrderPay.setOrderDetailId(trdOrderDetail.getId());
+      trdOrderPay.setOrderId(trdOrderDetail.getOrderId());
       trdOrderPay.setUserId(financeProdBuyInfo.getUserId());
 //      GenericMessage<TrdOrderDetail> genericMessage = new GenericMessage<TrdOrderDetail>();
       trdOrderDetails.add(trdOrderPay);
@@ -264,7 +264,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       bankCardNum = financeProdBuyInfo.getBankAcc();
       trdAcco = trdBrokerUsers.get(0).getTradeAcco();
     }else if(CollectionUtils.isEmpty(trdBrokerUsers) || StringUtils.isEmpty(trdAcco)){
-      //Todo: get userBankCardInfo to make tradAcco
+
       logger.info("trdBrokerUsers.get(0).getTradeAcco() is empty, 坑货出现，需要生成交易账号再交易");
 
 
@@ -467,7 +467,7 @@ public class TradeOpServiceImpl implements TradeOpService {
             ());
         com.shellshellfish.aaas.common.message.order.TrdOrderDetail trdOrderDetail = new com
             .shellshellfish.aaas.common.message.order.TrdOrderDetail();
-        trdOrderDetail.setOrderStatus(TrdOrderStatusEnum.CONVERTWAITCONFIRM.getStatus());
+        trdOrderDetail.setOrderDetailStatus(TrdOrderStatusEnum.CONVERTWAITCONFIRM.getStatus());
 
         Long result = TradeUtil.getBigDecimalNumWithDiv10000(productMakeUpInfo.getFundShare())
             .multiply(BigDecimal.valueOf(trdPreOrders.get(0).getFundShareConfirmed())).longValue();
@@ -556,7 +556,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       com.shellshellfish.aaas.common.message.order.TrdOrderDetail trdOrderPay =  new com
           .shellshellfish.aaas.common.message.order.TrdOrderDetail();
       BeanUtils.copyProperties(trdOrderDetail, trdOrderPay);
-      trdOrderPay.setOrderDetailId(trdOrderDetail.getId());
+      trdOrderPay.setOrderId(trdOrderDetail.getOrderId());
       trdOrderPay.setUserId(financeProdInfo.getUserId());
 //      GenericMessage<TrdOrderDetail> genericMessage = new GenericMessage<TrdOrderDetail>();
       trdOrderDetails.add(trdOrderPay);

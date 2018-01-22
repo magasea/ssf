@@ -49,6 +49,7 @@ public class CheckFundsBuyJobService {
                     try {
                         // TODO: replace userId with userUuid
                         String userId = null;
+
                         if (trdPayFlow.getUserId() == 5605) {
                             //这个用户是用uuid调的中证接口,以后走正式流程后都用userId来查中证接口
                             userId = "shellshellfish";

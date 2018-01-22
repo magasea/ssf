@@ -3,7 +3,7 @@ package com.shellshellfish.aaas.common.message.order;
 import java.io.Serializable;
 
 /**
- * Created by chenwei on 2018- 一月 - 10
+ * Created by chenwei on 2018- 一月 - 22
  */
 
 

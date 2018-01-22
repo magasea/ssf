@@ -120,13 +120,12 @@ public class FinanceProductServiceImpl  extends
         ProductMakeUpInfo productMakeUpInfo = new ProductMakeUpInfo();
         productMakeUpInfo.setFundCode(interval.getFund_id());
         productMakeUpInfo.setGroupId(Long.parseLong(interval.getFund_group_id()));
-
-        Integer result = Double.valueOf(interval.getProportion()*10000).intValue();
+        Integer result = Long.valueOf(Math.round(Double.valueOf(interval.getProportion()*100000)
+            /10D)).intValue();
         logger.info("fundShare:" + interval.getProportion() + "result:"+result);
         productMakeUpInfo.setFundShare(result);
         productMakeUpInfo.setProdName(interval.getFund_group_name());
         productMakeUpInfo.setProdId(Long.parseLong(interval.getFund_group_sub_id()));
-
         productMakeUpInfo.setFundName(interval.getFname());
         productMakeUpInfos.add(productMakeUpInfo);
       }

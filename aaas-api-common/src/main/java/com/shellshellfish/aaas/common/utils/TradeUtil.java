@@ -178,6 +178,15 @@ public class TradeUtil {
     return sha256hex;
   }
 
+  /**
+   * 用orderDetail的主键id结合 orderId 构成给中证接口购买时用的outside orderNo
+   * 规则为orderId+ %08d orderDetail id
+   */
+
+  public static String getZZOutsideOrderNo(String orderId, Long orderDetailId){
+    return orderId+String.format("08d%", orderDetailId);
+  }
+
 
   /**
    * 获得某一年的周末判断静态map

@@ -71,7 +71,7 @@ public class ZZTaskBuyFunds implements Callable<TrdOrderDetail> {
           + "kkStatName:" + kkStatName);
       TrdOrderStatusEnum trdOrderStatusEnum = ZZStatsToOrdStatsUtils.getOrdStatByZZKKStatus(ZZKKStatusEnum
           .getByStatus((kkStat)), TrdOrderOpTypeEnum.BUY);
-      trdOrderDetail.setOrderStatus(TrdOrderStatusEnum.FAILED.getStatus());
+      trdOrderDetail.setOrderDetailStatus(TrdOrderStatusEnum.FAILED.getStatus());
       com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow trdPayFlow = new com
           .shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow();
       BeanUtils.copyProperties(request.getTrdOrderDetail(), trdPayFlow);
