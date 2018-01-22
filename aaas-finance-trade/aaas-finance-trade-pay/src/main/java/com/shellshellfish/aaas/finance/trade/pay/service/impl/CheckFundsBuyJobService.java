@@ -12,6 +12,7 @@ import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.finance.trade.pay.service.OrderService;
 import java.time.Instant;
 import java.util.List;
 import org.slf4j.Logger;
@@ -36,6 +37,9 @@ public class CheckFundsBuyJobService {
     @Autowired
     BroadcastMessageProducers broadcastMessageProducers;
 
+    @Autowired
+    OrderService orderService;
+
     public void executeSampleJob() {
 
         logger.info("The sample job has begun...");
@@ -48,16 +52,15 @@ public class CheckFundsBuyJobService {
                 for (TrdPayFlow trdPayFlow : trdPayFlows) {
                     try {
                         // TODO: replace userId with userUuid
-                        String userId = null;
-
-                        if (trdPayFlow.getUserId() == 5605) {
-                            //这个用户是用uuid调的中证接口,以后走正式流程后都用userId来查中证接口
-                            userId = "shellshellfish";
-                        } else {
-                            userId = Long.toString(trdPayFlow.getUserId());
+                        String userPid = orderService.getPidFromTrdAccoBrokerId(trdPayFlow);
+                        String outsideOrderno = trdPayFlow.getOutsideOrderno();
+                        if(StringUtils.isEmpty(outsideOrderno)){
+                            logger.error("if the outsideOrderno is empty, the payflow is of old "
+                                + "process with outsideOrderno as the orderDetailId");
+                            outsideOrderno = ""+trdPayFlow.getOrderDetailId();
                         }
                         ApplyResult applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo
-                            (userId, "" + trdPayFlow.getOrderDetailId());
+                            (TradeUtil.getZZOpenId(userPid), outsideOrderno);
                         if (null != applyResult && !StringUtils
                             .isEmpty(applyResult.getApplyshare())) {
                             com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
@@ -71,11 +74,6 @@ public class CheckFundsBuyJobService {
                             TrdOrderOpTypeEnum opTypeEnum = ZZStatsToOrdStatsUtils
                             .getTrdOrdOpTypeFromCallingCode(Integer
                                 .valueOf(applyResult.getCallingcode()));
-//                            TrdOrderStatusEnum trdOrderStatusEnum = ZZStatsToOrdStatsUtils
-//                                .getOrdDtlStatFromZZStats
-//                                (TrdZZCheckStatusEnum
-//                                .getByStatus(Integer.valueOf(applyResult.getConfirmflag())),
-//                                opTypeEnum);
                             trdPayFlowMsg.setTrdStatus(ZZStatsToOrdStatsUtils
                                 .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
                                     Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum).getStatus());
