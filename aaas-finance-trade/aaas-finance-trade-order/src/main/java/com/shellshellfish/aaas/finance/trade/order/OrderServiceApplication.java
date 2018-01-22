@@ -30,17 +30,17 @@ public class OrderServiceApplication {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		ConfigurableApplicationContext configurableApplicationContext = SpringApplication.run
 				(OrderServiceApplication.class, args);
-//		server = (Server) configurableApplicationContext.getBean("server");
-//		server.start();
-//		blockUntilShutdown();
+		server = (Server) configurableApplicationContext.getBean("server");
+		server.start();
+		blockUntilShutdown();
 	}
 
-//	private static void blockUntilShutdown() throws InterruptedException {
-//		if (server != null) {
-//			server.awaitTermination();
-//		}
+	private static void blockUntilShutdown() throws InterruptedException {
+		if (server != null) {
+			server.awaitTermination();
+		}
 
-//	}
+	}
 
 
 

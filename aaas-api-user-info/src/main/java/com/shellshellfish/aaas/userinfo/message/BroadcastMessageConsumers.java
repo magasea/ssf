@@ -93,6 +93,7 @@ public class BroadcastMessageConsumers {
             mongoUiTrdLog.setUserId(trdPayFlow.getUserId());
             mongoUiTrdLog.setTradeStatus(trdPayFlow.getTrdStatus());
             mongoUiTrdLog.setLastModifiedDate(TradeUtil.getUTCTime());
+            mongoUiTrdLog.setFundCode(trdPayFlow.getFundCode());
             mongoUiTrdLog.setTradeDate(trdPayFlow.getTrdDate());
             mongoUserTrdLogMsgRepo.save(mongoUiTrdLog);
         }catch (Exception ex){
@@ -122,7 +123,6 @@ public class BroadcastMessageConsumers {
         //update ui_products 和 ui_product_details
         MongoUiTrdLog  mongoUiTrdLog = new MongoUiTrdLog();
         try{
-
             mongoUiTrdLog.setOperations(orderStatusChangeDTO.getOrderType());
             mongoUiTrdLog.setUserProdId(orderStatusChangeDTO.getUserProdId());
             mongoUiTrdLog.setUserId(orderStatusChangeDTO.getUserId());

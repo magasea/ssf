@@ -293,20 +293,8 @@ public class TradeOpServiceImpl implements TradeOpService {
       bindBankCard.setUserName(userBankInfo.getUserName());
       bindBankCard.setUserPid(userPid);
       bindBankCard.setRiskLevel(userInfo.getRiskLevel());
-      trdAcco = payService.bindCard(bindBankCard);
-      TrdBrokerUser trdBrokerUserNew = new TrdBrokerUser();
-      trdBrokerUserNew.setBankCardNum(bindBankCard.getBankCardNum());
-      trdBrokerUserNew.setCreateBy(financeProdBuyInfo.getUserId());
-      trdBrokerUserNew.setCreateDate(TradeUtil.getUTCTime());
-      trdBrokerUserNew.setTradeAcco(trdAcco);
-      trdBrokerUserNew.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
-      trdBrokerUserNew.setUserId(financeProdBuyInfo.getUserId());
-      trdBrokerUserNew.setUpdateBy(financeProdBuyInfo.getUserId());
-      trdBrokerUserNew.setUpdateDate(TradeUtil.getUTCTime());
-      trdBrokerUserRepository.save(trdBrokerUserNew);
+      payService.bindCard(bindBankCard);
 
-//      trdBrokerUserRepository.updateTradeAcco(trdAcco, TradeUtil.getUTCTime(), bindBankCard
-//          .getUserId(),  bindBankCard.getUserId());
 
     }
 

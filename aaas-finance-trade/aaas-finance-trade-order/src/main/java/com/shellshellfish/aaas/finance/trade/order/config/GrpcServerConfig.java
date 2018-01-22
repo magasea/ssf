@@ -1,9 +1,12 @@
 package com.shellshellfish.aaas.finance.trade.order.config;
 
+import com.shellshellfish.aaas.finance.trade.order.service.impl.OrderServiceImpl;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -94,10 +97,12 @@ public class GrpcServerConfig {
     return ServerBuilder.forPort(orderServerPort);
   }
 
+  @Autowired
+  OrderServiceImpl orderService;
 
-//  @Bean
-//  Server server(){
-//    return serverBuilder().addService(trdOrderService).build();
-//  }
+  @Bean
+  Server server(){
+    return serverBuilder().addService(orderService).build();
+  }
 
 }

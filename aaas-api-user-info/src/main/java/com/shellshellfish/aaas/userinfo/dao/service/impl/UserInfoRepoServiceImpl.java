@@ -477,6 +477,8 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			UiProducts uiProducts = new UiProducts();
 			uiProducts.setCreateBy(request.getUserId());
 			BeanUtils.copyProperties(financeProdInfoFirst, uiProducts);
+			uiProducts.setProdId(financeProdInfoFirst.getProdId());
+			uiProducts.setGroupId(financeProdInfoFirst.getGroupId());
 			uiProducts.setCreateDate(TradeUtil.getUTCTime());
 			uiProducts.setUpdateBy(request.getUserId());
 			uiProducts.setUpdateDate(TradeUtil.getUTCTime());
