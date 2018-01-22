@@ -96,7 +96,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     List<Exception > errs = new ArrayList<>();
       logger.info("payOrder fundCode:"+trdOrderDetail.getFundCode());
 
-      trdOrderDetail.getOrderDetailId();
+//      trdOrderDetail.getOrderDetailId();
       //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
       BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundMoneyQuantity());
       //TODO: replace userId with userUuid
@@ -107,7 +107,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setTrdMoneyAmount(trdOrderDetail.getFundMoneyQuantity());
       trdPayFlow.setTrdStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(userProdId);
-      trdPayFlow.setOrderDetailId(trdOrderDetail.getOrderDetailId());
+      trdPayFlow.setOrderDetailId(trdOrderDetail.getId());
+      //注意outsideOrderNo 用主订单的OrderID+子订单ID 来拼接
+      trdPayFlow.setOutsideOrderno(trdOrderDetail.getOrderId()+""+trdOrderDetail.getId());
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.BUY.getOperation());
       BuyFundResult fundResult = null;
       com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
@@ -120,8 +122,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 //        }else{
 //          userId4Pay = String.valueOf(trdOrderDetail.getUserId());
 //        }
+        String outSideTradeNo = trdPayFlow.getOutsideOrderno();
         fundResult = fundTradeApiService.buyFund(userId4Pay, trdAcco, payAmount,
-            String.valueOf(trdOrderDetail.getId()),trdOrderDetail.getFundCode());
+            outSideTradeNo,trdOrderDetail.getFundCode());
       }catch (Exception ex){
         ex.printStackTrace();
         logger.error(ex.getMessage());
@@ -170,31 +173,37 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     List<Exception > errs = new ArrayList<>();
     String trdAcco = payOrderDto.getTrdAccount();
     List<TrdOrderDetail> orderDetailList = payOrderDto.getOrderDetailList();
+    StringBuilder sbOutsideOrderno = new StringBuilder();
     for(TrdOrderDetail trdOrderDetail: orderDetailList){
+      sbOutsideOrderno.setLength(0);
+      sbOutsideOrderno.append(trdOrderDetail.getOrderId()).append(trdOrderDetail.getId());
       logger.info("payOrder fundCode:"+trdOrderDetail.getFundCode());
-      if(null == trdOrderDetail.getOrderDetailId()){
-        logger.error("input pay request is not correct: OrderDetailId is:"+trdOrderDetail.getOrderDetailId());
+      if(null == trdOrderDetail.getOrderId()){
+        logger.error("input pay request is not correct: OrderId is:"+trdOrderDetail.getOrderId());
+        sbOutsideOrderno.setLength(0);
         continue;
       }else{
         if(
-        trdPayFlowRepository.findAllByOrderDetailId(trdOrderDetail.getOrderDetailId()).size() > 0){
-          logger.error("repay request for :"+ trdOrderDetail.getOrderDetailId() + " we will "
-              + "ignore it ");
+          //我们目前是用主订单OrderId和子订单ID拼接成OutsideOrderno
+          trdPayFlowRepository.findAllByOutsideOrderno(sbOutsideOrderno.toString()).size() > 0){
+            logger.error("repay request for outsideOrderno:"+sbOutsideOrderno+" we will ignore it ");
+          sbOutsideOrderno.setLength(0);
           continue;
         }
       }
-      trdOrderDetail.getOrderDetailId();
+
       //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
       BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundMoneyQuantity());
       //TODO: replace userId with userUuid
       TrdPayFlow trdPayFlow = new TrdPayFlow();
       trdPayFlow.setCreateDate(SSFDateUtils.getCurrentDateInLong());
       trdPayFlow.setCreateBy(0L);
-
+      //重要。。。。。
+      trdPayFlow.setOutsideOrderno(sbOutsideOrderno.toString());
       trdPayFlow.setTrdMoneyAmount(trdOrderDetail.getFundMoneyQuantity());
       trdPayFlow.setTrdStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(payOrderDto.getUserProdId());
-      trdPayFlow.setOrderDetailId(trdOrderDetail.getOrderDetailId());
+      trdPayFlow.setOrderDetailId(trdOrderDetail.getId());
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.BUY.getOperation());
       BuyFundResult fundResult = null;
       try {
@@ -202,7 +211,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
 
         fundResult = fundTradeApiService.buyFund(userId4Pay, trdAcco, payAmount,
-            String.valueOf(trdOrderDetail.getId()),trdOrderDetail.getFundCode());
+            sbOutsideOrderno.toString(),trdOrderDetail.getFundCode());
       }catch (Exception ex){
         ex.printStackTrace();
         logger.error(ex.getMessage());
@@ -243,6 +252,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         BeanUtils.copyProperties(trdPayFlowResult, trdPayFlowMsg);
         notifyPay(trdPayFlowMsg);
       }
+
     }
     if(errs.size() > 0){
       throw new Exception("meet errors in pay api services");
@@ -544,21 +554,23 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     List<TrdOrderDetail> orderDetailList = payOrderDto.getOrderDetailList();
     logger.info("总共有:" + orderDetailList.size() + " 个orderDetail需要处理");
     for(TrdOrderDetail trdOrderDetail: orderDetailList){
-      logger.info("开始处理 trdOrderDetail with orderDetailId:" + trdOrderDetail.getOrderDetailId());
+      logger.info("开始处理 trdOrderDetail with orderId:" + trdOrderDetail.getOrderId() + " "
+          + "orderDetailId:" + trdOrderDetail.getId());
       logger.info("payOrder fundCode:"+trdOrderDetail.getFundCode());
 
-      if(null == trdOrderDetail.getOrderDetailId()){
-        logger.error("input pay request is not correct: OrderDetailId is:"+trdOrderDetail.getOrderDetailId());
+      if(null == trdOrderDetail.getOrderId() || trdOrderDetail.getId() <= 0){
+        logger.error("input pay request is not correct: OrderId is:"+trdOrderDetail.getOrderId()
+            + " OrderDetailId is:" + trdOrderDetail.getId());
         continue;
       }else{
-        List<TrdPayFlow> trdPayFlows =  trdPayFlowRepository.findAllByOrderDetailId(trdOrderDetail.getOrderDetailId());
+        String outsideOrderno = trdOrderDetail.getOrderId()+ trdOrderDetail.getId();
+        List<TrdPayFlow> trdPayFlows =  trdPayFlowRepository.findAllByOutsideOrderno(outsideOrderno);
         if(!CollectionUtils.isEmpty(trdPayFlows) &&
             trdPayFlows.size() > 0){
-          logger.error("repay request for :"+ trdOrderDetail.getOrderDetailId() + " we will "
-              + "ignore it ");
+          logger.error("repay request for outsideOrderno:" + outsideOrderno);
           //开始处理已经尝试过的payflow
           if(trdPayFlows.size() >=2){
-            logger.error("this trdOrderDetail:"+trdOrderDetail.getOrderDetailId()+" is payed more"
+            logger.error("this trdOrderDetail with outsideOrderNo"+outsideOrderno +" is payed more"
                 + " than 2 times, need check logic");
             //准备去取支付成功的applyserial,如果没有，就取最后一次applySerial
             String applySerial = null;
@@ -580,7 +592,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
                 if(trdPayFlow.getTrdbkerStatusCode() == TrdZZCheckStatusEnum.CONFIRMSUCCESS
                     .getStatus() ){
                   //状态为成功， 应该是已经交易过，但是order 或者 ui prod系统没有更新应该发消息队列让对应模块去更新
-                  logger.error("trdPayFlow orderDetailId:"+ trdOrderDetail.getOrderDetailId()+"状态为成功， "
+                  logger.error("trdPayFlow with outsideOrderno:"+ outsideOrderno+"状态为成功， "
                       + "应该是已经交易过，但是order 或者 ui prod系统没有更新应该发消息队列让对应模块去更新");
                   com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
                       .shellshellfish.aaas.common.message.order.TrdPayFlow();
@@ -691,19 +703,21 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     String trdAcco = payPreOrderDto.getTrdAccount();
     List<TrdOrderDetail> orderDetailList = payPreOrderDto.getOrderDetailList();
     for(TrdOrderDetail trdOrderDetail: orderDetailList){
+      String outsideOrderno = trdOrderDetail.getOrderId()+trdOrderDetail.getId();
       logger.info("payOrder fundCode:"+trdOrderDetail.getFundCode());
-      if(null == trdOrderDetail.getOrderDetailId()){
-        logger.error("input pay request is not correct: OrderDetailId is:"+trdOrderDetail.getOrderDetailId());
+      if(null == trdOrderDetail.getOrderId() || trdOrderDetail.getId() <= 0){
+        logger.error("input pay request is not correct: orderId is:"+ trdOrderDetail.getOrderId
+            () + " orderDetailId:" + trdOrderDetail.getId());
         continue;
       }else{
+
         if(
-            trdPayFlowRepository.findAllByOrderDetailId(trdOrderDetail.getOrderDetailId()).size() > 0){
-          logger.error("repay request for :"+ trdOrderDetail.getOrderDetailId() + " we will "
-              + "ignore it ");
+            trdPayFlowRepository.findAllByOutsideOrderno(outsideOrderno).size() > 0){
+          logger.error("repay request for outsideOrderno:"+ outsideOrderno);
           continue;
         }
       }
-      trdOrderDetail.getOrderDetailId();
+
       //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
       BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundMoneyQuantity());
       //TODO: replace userId with userUuid
@@ -714,7 +728,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setTrdMoneyAmount(trdOrderDetail.getFundMoneyQuantity());
       trdPayFlow.setTrdStatus(TrdOrderStatusEnum.CONVERTWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(payPreOrderDto.getUserProdId());
-      trdPayFlow.setOrderDetailId(trdOrderDetail.getOrderDetailId());
+      trdPayFlow.setOrderDetailId(trdOrderDetail.getId());
+      trdPayFlow.setOutsideOrderno(outsideOrderno);
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.FUNDCONVERT.getOperation());
       FundConvertResult fundResult = null;
       try {

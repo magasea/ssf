@@ -12,6 +12,8 @@ public interface TrdPayFlowRepository extends PagingAndSortingRepository<TrdPayF
 
   List<TrdPayFlow> findAllByUserProdId(Long userProdId);
 
-  List<TrdPayFlow> findAllByOrderDetailId(Long orderDetailId);
+//  List<TrdPayFlow> findAllByOrderDetailId(Long orderDetailId);
+
+  List<TrdPayFlow> findAllByOutsideOrderno(String outsideOrderno);
 
 }

@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+
+option java_multiple_files = true;
+option java_package = "com.shellshellfish.aaas.finance.trade.order";
+option java_outer_classname = "orderRpcService";
+option objc_class_prefix = "ORS";
+
+service OrderRpcService {
+    //获取交易用户PID
+    rpc GetPidFromTrdAccoBrokerId(GetPIDReq) returns (UserPID){};
+}
+
+//获取交易用户PID
+message GetPIDReq{
+    int32 trd_broker_id = 1; //交易系统ID
+    string trd_acco = 2; //交易账户
+    int64 user_id = 3; //用户ID
+}
+
+//用户PID信息
+message UserPID{
+  string user_pid = 1;//用户身份证
+  int64 user_id = 2; //用户 ID
+}

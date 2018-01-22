@@ -18,7 +18,7 @@ public class QuestionDTO{
 	}
 
 	public String getTitle() {
-		return title;
+		return ordinal+". "+title;
 	}
 
 	public void setTitle(String title) {
