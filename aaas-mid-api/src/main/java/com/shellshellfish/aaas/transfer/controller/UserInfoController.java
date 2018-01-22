@@ -81,10 +81,12 @@ public class UserInfoController {
 			if(verifyReult==null||verifyReult.size()==0){
 				logger.info("获取验证码验证是否正确");
 				/*result.put("msg", "添加失败");*/
-				return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", JsonResult.EMPTYRESULT);
+				// TODO 临时注释2018-01-22
+				//return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", JsonResult.EMPTYRESULT);
 			}else if(!verifyReult.get("identifyingCode").equals(verifyCode)){
 				/*result.put("msg", "添加失败");*/
-				return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", JsonResult.EMPTYRESULT);
+				// TODO 临时注释2018-01-22
+				//return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", JsonResult.EMPTYRESULT);
 			}
 //			//获取uid
 //			String urlUid=userinfoUrl+"/api/userinfo/users/"+uuid;
