@@ -1,108 +1,112 @@
 package com.shellshellfish.aaas.finance.trade.order.config;
 
 import com.shellshellfish.aaas.finance.trade.order.service.impl.OrderServiceImpl;
+import com.shellshellfish.aaas.finance.trade.order.service.impl.TradeServiceImpl;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
+
 @Configuration
 public class GrpcServerConfig {
 
 
+	@Value("${grpc.finance_prod_client.host}")
+	String finHost;
 
+	@Value("${grpc.finance_prod_client.port}")
+	int finPort;
 
-  @Value("${grpc.finance_prod_client.host}")
-  String finHost;
+	@Value("${grpc.pay_client.host}")
+	String payHost;
 
-  @Value("${grpc.finance_prod_client.port}")
-  int finPort;
+	@Value("${grpc.pay_client.port}")
+	int payPort;
 
-  @Value("${grpc.pay_client.host}")
-  String payHost;
+	@Value("${grpc.datacollection_client.host}")
+	String dcHost;
 
-  @Value("${grpc.pay_client.port}")
-  int payPort;
+	@Value("${grpc.datacollection_client.port}")
+	int dcPort;
 
-  @Value("${grpc.datacollection_client.host}")
-  String dcHost;
+	@Bean
+	ManagedChannelBuilder<?> grpcFINChannelBuilder() {
+		return ManagedChannelBuilder.forAddress(finHost, finPort);
+	}
 
-  @Value("${grpc.datacollection_client.port}")
-  int dcPort;
+	@Bean
+	ManagedChannelBuilder<?> grpcPayChannelBuilder() {
+		return ManagedChannelBuilder.forAddress(payHost, payPort);
+	}
 
-  @Bean
-  ManagedChannelBuilder<?> grpcFINChannelBuilder(){
-    return ManagedChannelBuilder.forAddress(finHost, finPort);
-  }
+	@Bean
+	ManagedChannelBuilder<?> grpcDCChannelBuilder() {
+		return ManagedChannelBuilder.forAddress(dcHost, dcPort);
+	}
 
-  @Bean
-  ManagedChannelBuilder<?> grpcPayChannelBuilder(){
-    return ManagedChannelBuilder.forAddress(payHost, payPort);
-  }
+	@Value("${grpc.userinfo_client.host}")
+	String uiHost;
 
-  @Bean
-  ManagedChannelBuilder<?> grpcDCChannelBuilder(){
-    return ManagedChannelBuilder.forAddress(dcHost, dcPort);
-  }
+	@Value("${grpc.userinfo_client.port}")
+	int uiPort;
 
-  @Value("${grpc.userinfo_client.host}")
-  String uiHost;
+	@Bean
+	ManagedChannelBuilder<?> grpcUIChannelBuilder() {
+		return ManagedChannelBuilder.forAddress(uiHost, uiPort);
+	}
 
-  @Value("${grpc.userinfo_client.port}")
-  int uiPort;
+	@Bean
+	@PostConstruct
+	ManagedChannel managedFINChannel() {
+		ManagedChannel managedChannel = grpcFINChannelBuilder().usePlaintext(true).build();
+		return managedChannel;
+	}
 
-  @Bean
-  ManagedChannelBuilder<?> grpcUIChannelBuilder(){
-    return ManagedChannelBuilder.forAddress(uiHost, uiPort);
-  }
+	@Bean
+	@PostConstruct
+	ManagedChannel managedUIChannel() {
+		ManagedChannel managedChannel = grpcUIChannelBuilder().usePlaintext(true).build();
+		return managedChannel;
+	}
 
-  @Bean
-  @PostConstruct
-  ManagedChannel managedFINChannel(){
-    ManagedChannel managedChannel = grpcFINChannelBuilder().usePlaintext(true).build();
-    return managedChannel;
-  }
+	@Bean
+	@PostConstruct
+	ManagedChannel managedPayChannel() {
+		ManagedChannel managedChannel = grpcPayChannelBuilder().usePlaintext(true).build();
+		return managedChannel;
+	}
 
-  @Bean
-  @PostConstruct
-  ManagedChannel managedUIChannel(){
-    ManagedChannel managedChannel = grpcUIChannelBuilder().usePlaintext(true).build();
-    return managedChannel;
-  }
+	@Bean
+	@PostConstruct
+	ManagedChannel managedDCChannel() {
+		ManagedChannel managedChannel = grpcDCChannelBuilder().usePlaintext(true).build();
+		return managedChannel;
+	}
 
-  @Bean
-  @PostConstruct
-  ManagedChannel managedPayChannel(){
-    ManagedChannel managedChannel = grpcPayChannelBuilder().usePlaintext(true).build();
-    return managedChannel;
-  }
+	@Value("${grpc.order_server.port}")
+	int orderServerPort;
 
-  @Bean
-  @PostConstruct
-  ManagedChannel managedDCChannel(){
-    ManagedChannel managedChannel = grpcDCChannelBuilder().usePlaintext(true).build();
-    return managedChannel;
-  }
+	@Bean
+	ServerBuilder serverBuilder() {
+		return ServerBuilder.forPort(orderServerPort);
+	}
 
-  @Value("${grpc.order_server.port}")
-  int orderServerPort;
+	@Autowired
+	OrderServiceImpl orderService;
 
-  @Bean
-  ServerBuilder serverBuilder(){
-    return ServerBuilder.forPort(orderServerPort);
-  }
+	@Autowired
+	TradeServiceImpl tradeService;
 
-  @Autowired
-  OrderServiceImpl orderService;
+	@Bean
+	Server server() {
+		return serverBuilder().addService(orderService).addService(tradeService).build();
+	}
 
-  @Bean
-  Server server(){
-    return serverBuilder().addService(orderService).build();
-  }
 
 }

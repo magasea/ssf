@@ -334,7 +334,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         return result;
     }
 
-    @Scheduled(cron = "0 0 3 * * ?", zone= "Asia/Shanghai")
+//    @Scheduled(cron = "0 0 3 * * ?", zone= "Asia/Shanghai")
     @Override
     public void dailyCalculation() throws Exception {
         logger.info("daily calculation every morning: {}", new Date());

@@ -7,7 +7,7 @@ package com.shellshellfish.aaas.common.grpc.trade.pay;
 public class BindBankCard {
 
   Long userId;
-  String userPid;
+  String userPid;// 身份证号码
   String bankCardNum;
   String cellphone;
   String userName;
