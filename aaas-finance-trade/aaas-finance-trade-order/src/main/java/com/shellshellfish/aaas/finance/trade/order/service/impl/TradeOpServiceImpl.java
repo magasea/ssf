@@ -340,8 +340,8 @@ public class TradeOpServiceImpl implements TradeOpService {
   @Transactional
   public void updateByParam(String tradeApplySerial, Long fundNum, Long fundNumConfirmed, Long
       updateDate, Long updateBy, Long id, int orderDetailStatus) {
-    trdOrderDetailRepository.updateByParam(tradeApplySerial,orderDetailStatus, updateDate,
-        updateBy,  id );
+    trdOrderDetailRepository.updateByParam(tradeApplySerial,fundNum, fundNumConfirmed,
+        orderDetailStatus, updateDate, updateBy,  id );
   }
 
   @Override
