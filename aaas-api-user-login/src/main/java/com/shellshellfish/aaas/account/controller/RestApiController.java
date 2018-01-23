@@ -713,6 +713,9 @@ public class RestApiController {
 			@RequestParam(value = "newpassword") String newpassword
 			) throws IllegalAccessException, InstantiationException {
 		Map<String,Object> result = new HashMap<String,Object>();
+		if (newpassword.length() < 6 || newpassword.length() > 20) {
+			throw new UserException("101", "密码长度至少为6~20位，请重新输入.");
+		}
 		password = MD5.getMD5(password);
 		newpassword = MD5.getMD5(newpassword);
 		accountService.updateUser(uuid,password,newpassword);
