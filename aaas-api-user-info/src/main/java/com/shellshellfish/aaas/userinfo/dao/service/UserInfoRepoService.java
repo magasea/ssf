@@ -85,4 +85,6 @@ public interface UserInfoRepoService {
 	String findUserUUIDByUserId(Long userId);
 
 	List<MongoUiTrdLogDTO> findByUserIdAndProdId(Long userId,Long userProdId) throws IllegalAccessException, InstantiationException;
+
+	List<MongoUiTrdLogDTO> findByUserId(Long userId) throws IllegalAccessException, InstantiationException;
 }

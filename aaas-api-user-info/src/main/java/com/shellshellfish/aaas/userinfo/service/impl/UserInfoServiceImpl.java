@@ -560,4 +560,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 		}
 		return result;
 	}
+	@Override
+	public List<MongoUiTrdLogDTO> getTradeLogs(String uuid) throws Exception{
+		Long userId = getUserIdFromUUID(uuid);
+		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService.findByUserId(userId);
+		return trdLogList;
+	}
 }
