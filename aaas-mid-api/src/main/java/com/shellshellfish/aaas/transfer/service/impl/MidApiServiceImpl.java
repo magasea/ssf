@@ -331,6 +331,33 @@ public class MidApiServiceImpl implements MidApiService {
 	public Map sellFundPage(String groupId, String subGroupId, String totalAmount) throws Exception {
 		String url = tradeOrderUrl + "api/trade/funds/sellProduct?groupId=" + groupId + "&subGroupId=" + subGroupId + "&totalAmount=" + totalAmount;
 		Map result = restTemplate.getForEntity(url, Map.class).getBody();
+		if(result!=null){
+			Object poundage = result.get("poundage");
+			if(poundage!=null){
+				BigDecimal poundageValue = new BigDecimal(poundage+"");
+				poundageValue = poundageValue.setScale(2, BigDecimal.ROUND_HALF_UP);
+				result.put("poundage", poundageValue);
+			}
+			Object discountSaving = result.get("discountSaving");
+			if(discountSaving!=null){
+				BigDecimal discountSavingValue = new BigDecimal(discountSaving+"");
+				discountSavingValue = discountSavingValue.setScale(2, BigDecimal.ROUND_HALF_UP);
+				result.put("discountSaving", discountSavingValue);
+			}
+			Object fundAmountList = result.get("fundAmountList");
+			if(fundAmountList!=null){
+				List<Map> fundList = (List<Map>)fundAmountList;
+				for(int i = 0;i<fundList.size();i++){
+					Map fundMap = fundList.get(i);
+					if(fundMap.get("grossAmount")!=null){
+						BigDecimal grossAmount = new BigDecimal(fundMap.get("grossAmount")+"");
+						BigDecimal grossAmountValue = grossAmount.setScale(2, BigDecimal.ROUND_HALF_UP);
+						fundMap.put("grossAmount",grossAmountValue);
+					}
+				}
+			}
+		}
+		
 		return result;
 	}
 

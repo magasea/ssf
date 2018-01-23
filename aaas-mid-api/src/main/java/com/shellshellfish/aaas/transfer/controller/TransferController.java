@@ -270,17 +270,17 @@ public class TransferController {
 	})
 	@RequestMapping(value="/sellFundPage",method=RequestMethod.POST)
 	@ResponseBody
-	public JsonResult sellFundPage(String groupId,String subGroupId,String totalAmount){
-		Map result=null;
-		try{
-		result=service.sellFundPage(groupId, subGroupId, totalAmount);
-		return new JsonResult(JsonResult.SUCCESS,"调用成功",result);
-		}catch(Exception e){
+	public JsonResult sellFundPage(String groupId, String subGroupId, String totalAmount) {
+		Map result = null;
+		try {
+			result = service.sellFundPage(groupId, subGroupId, totalAmount);
+			return new JsonResult(JsonResult.SUCCESS, "调用成功", result);
+		} catch (Exception e) {
 			logger.error("赎回页面接口调用失败");
 			e.printStackTrace();
-			String str=new ReturnedException(e).getErrorMsg();
+			String str = new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
-		}	
+		}
 	}
 	
 	
