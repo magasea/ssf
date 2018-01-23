@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
 import com.shellshellfish.aaas.userinfo.aop.AopPageResources;
@@ -1506,14 +1507,21 @@ public class UserInfoController {
 			tradeLog = tradeLogList.get(i);
 			map.put("amount", tradeLog.getAmount());
 			int operations = tradeLog.getOperations();
-			if (operations == 1) {
-				map.put("operations", "购买");
-			} else if (operations == 2) {
-				map.put("operations", "赎回");
-			} else if (operations == 3) {
-				map.put("operations", "分红");
-			} else {
-				map.put("operations", "其他");
+//			if (operations == 1) {
+//				map.put("operations", "购买");
+//			} else if (operations == 2) {
+//				map.put("operations", "赎回");
+//			} else if (operations == 3) {
+//				map.put("operations", "分红");
+//			} else {
+//				map.put("operations", "其他");
+//			}
+			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
+			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){
+				if(operations == trdOrder3.getOperation()){
+					map.put("operations", trdOrder3.getComment());
+					break;
+				}
 			}
 			// map.put("operations",tradeLog.getOperations());
 			int tradeStatus = tradeLog.getTradeStatus();
@@ -1578,6 +1586,9 @@ public class UserInfoController {
 		for(int i = 0; i< productsList.size();i++){
 			products = productsList.get(i);
 			resultMap = new HashMap<String, Object>();
+			resultMap.put("groupId", products.getProdId());
+			resultMap.put("subGroupId", products.getGroupId());
+			
 			resultMap.put("title", products.getProdName());
 			resultMap.put("createDate", products.getCreateDate());
 			//总资产
@@ -1612,7 +1623,7 @@ public class UserInfoController {
 				resultMap.put("status", "交易失败");
 			}
 			//智投组合产品ID
-			resultMap.put("prodId",products.getProdId());
+			resultMap.put("prodId",products.getId());
 			//买入日期
 			resultMap.put("updateDate",DateUtil.getDateType(products.getUpdateDate()));
 			
