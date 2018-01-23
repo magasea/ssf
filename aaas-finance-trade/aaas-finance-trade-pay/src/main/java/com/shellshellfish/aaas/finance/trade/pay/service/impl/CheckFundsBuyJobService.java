@@ -81,6 +81,10 @@ public class CheckFundsBuyJobService {
                                     Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum).getStatus());
                             trdPayFlow.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
                                 .getPoundage()));
+                            trdPayFlow.setFundSumConfirmed(TradeUtil.getLongNumWithMul100(applyResult
+                                .getTradeconfirmshare()));
+                            trdPayFlow.setFundSum(TradeUtil.getLongNumWithMul100(applyResult
+                                .getTradeconfirmshare()));
                             if(!StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
                                 trdPayFlow.setFundSumConfirmed(TradeUtil. getLongNumWithMul100
                                     (applyResult.getTradeconfirmshare()));
