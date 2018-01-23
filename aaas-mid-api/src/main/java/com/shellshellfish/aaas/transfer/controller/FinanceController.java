@@ -164,11 +164,11 @@ public class FinanceController {
 		Map returnMap = new HashMap<>();
 		//BANNER LIST
 		List<String> bannerList = new ArrayList<>();
-		bannerList.add("http://47.96.164.161/1.png");
-		bannerList.add("http://47.96.164.161/2.png");
-		bannerList.add("http://47.96.164.161/3.png");
-		bannerList.add("http://47.96.164.161/4.png");
-
+		bannerList.add("http://47.96.164.161/APP-invest-banner01.png");
+		bannerList.add("http://47.96.164.161/APP-invest-banner02.png");
+		bannerList.add("http://47.96.164.161/APP-invest-banner03.png");
+		bannerList.add("http://47.96.164.161/APP-invest-banner04.png");
+		bannerList.add("http://47.96.164.161/APP-invest-banner05.png");
 		returnMap.put("bannerList", bannerList);
 
 		//先获取全部产品
