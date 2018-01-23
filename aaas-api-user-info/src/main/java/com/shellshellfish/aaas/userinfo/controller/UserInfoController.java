@@ -1521,6 +1521,8 @@ public class UserInfoController {
 				if(operations == trdOrder3.getOperation()){
 					map.put("operations", trdOrder3.getComment());
 					break;
+				} else {
+					map.put("operations", "");
 				}
 			}
 			// map.put("operations",tradeLog.getOperations());

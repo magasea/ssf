@@ -1,9 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.order.controller;
 
-import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
-
 import com.shellshellfish.aaas.finance.trade.order.model.vo.ProdSellPageDTO;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeSellService;
 import java.math.BigDecimal;
@@ -12,7 +10,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
@@ -36,7 +32,6 @@ import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdCalcServic
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdInfoService;
 import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
-
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -279,6 +274,8 @@ public class TradeOrderController {
 				if(trdOrderDetail.getOrderDetailStatus() == trdOrderStatus2.getStatus()){
 					detailMap.put("fundstatus", trdOrderStatus2.getComment());
 					break;
+				} else {
+					detailMap.put("fundstatus", "");
 				}
 			}
 			detailMap.put("fundCode", trdOrderDetail.getFundCode());
@@ -291,6 +288,8 @@ public class TradeOrderController {
 				if(trdOrderDetail.getTradeType() == trdOrder3.getOperation()){
 					detailMap.put("fundTradeType", trdOrder3.getComment());
 					break;
+				} else {
+					detailMap.put("fundTradeType", "");
 				}
 			}
 			detailList.add(detailMap);
