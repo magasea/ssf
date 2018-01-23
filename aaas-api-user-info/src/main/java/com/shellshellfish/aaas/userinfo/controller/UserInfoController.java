@@ -40,6 +40,7 @@ import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankcardDetailBodyDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
@@ -1495,13 +1496,13 @@ public class UserInfoController {
 			) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
 		logger.info("getTradLogsOfUser method run..");
-		List<TradeLogDTO> tradeLogList = userInfoService.findByUserId(userUuid);
+		List<MongoUiTrdLogDTO> tradeLogList = userInfoService.getTradeLogs(userUuid);
 		List<Map<String,Object>> tradeLogs = new ArrayList<Map<String,Object>>();
 		if(tradeLogList==null||tradeLogList.size()==0){
 			throw new UserInfoException("404", "交易记录为空");
 		}
 		Map<String,Object> map = null;
-		TradeLogDTO tradeLog = new TradeLogDTO();
+		MongoUiTrdLogDTO tradeLog = new MongoUiTrdLogDTO();
 		for (int i = 0; i < tradeLogList.size(); i++) {
 			map = new HashMap<String, Object>();
 			tradeLog = tradeLogList.get(i);
@@ -1536,18 +1537,24 @@ public class UserInfoController {
 			}
 			// map.put("tradeStatus",tradeLog.getTradeStatus());
 			if (tradeLog.getTradeDate() != null) {
-				map.put("tradeDate", DateUtil.getDateType(tradeLog.getTradeDate()));
+				map.put("tradeDate", DateUtil.getDateType(tradeLog.getLastModifiedDate()));
 			} else {
 				map.put("tradeDate", "");
 			}
 			// map.put("prodId",tradeLog.getProdId());
 			logger.info("理财产品findByProdId查询start");
-			ProductsDTO products = userInfoService.findByProdId(tradeLog.getProdId() + "");
-			logger.info("理财产品findByProdId查询end");
-			if (products == null) {
-				throw new UserInfoException("404", "理财产品:" + tradeLog.getProdId() + "为空");
+			if(tradeLog.getUserProdId()!=null&&tradeLog.getUserProdId()!=0){
+				ProductsDTO products = userInfoService.findByProdId(tradeLog.getUserProdId() + "");
+				logger.info("理财产品findByProdId查询end");
+				if (products == null) {
+					//throw new UserInfoException("404", "理财产品:" + tradeLog.getUserProdId() + "为空");
+					map.put("prodName", "");
+				} else {
+					map.put("prodName", products.getProdName());
+				}
+			} else {
+				map.put("prodName", "");
 			}
-			map.put("prodName", products.getProdName());
 			tradeLogs.add(map);
 		}
 		result.put("tradeLogs", tradeLogs);

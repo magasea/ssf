@@ -238,6 +238,12 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		List<MongoUiTrdLogDTO> mongoUiTrdLogDtoList = MyBeanUtils.convertList(mongoUiTrdLogList, MongoUiTrdLogDTO.class);
 		return mongoUiTrdLogDtoList;
 	}
+	@Override
+	public List<MongoUiTrdLogDTO> findByUserId(Long userId) throws IllegalAccessException, InstantiationException {
+		List<MongoUiTrdLog> mongoUiTrdLogList = mongoUserTrdLogMsgRepo.findAllByUserId(userId);
+		List<MongoUiTrdLogDTO> mongoUiTrdLogDtoList = MyBeanUtils.convertList(mongoUiTrdLogList, MongoUiTrdLogDTO.class);
+		return mongoUiTrdLogDtoList;
+	}
 
 	@Override
 	public UserSysMsgDTO addUiSysMsg(UiSysMsg uiSysMsg) throws IllegalAccessException,
@@ -517,7 +523,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		if(StringUtils.isEmpty(prodId)){
 			throw new UserInfoException("404", "智投组合产品id不能为空");
 		}
-		UiProducts productsData = uiProductRepo.findByProdId(Long.valueOf(prodId));
+		UiProducts productsData = uiProductRepo.findById(Long.valueOf(prodId));
 		if (productsData == null) {
 			throw new UserInfoException("404", "智投组合产品："+prodId+"为空");
 		}
