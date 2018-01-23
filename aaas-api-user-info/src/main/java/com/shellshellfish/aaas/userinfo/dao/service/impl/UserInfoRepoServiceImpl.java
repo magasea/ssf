@@ -435,6 +435,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			logger.error("failed to find bankCards by userId:" + userId);
 			responseObserver.onNext(builder.build());
 			responseObserver.onCompleted();
+			return;
 		}
 		builder.setUserName(bankCardDTOS.get(0).getUserName());
 

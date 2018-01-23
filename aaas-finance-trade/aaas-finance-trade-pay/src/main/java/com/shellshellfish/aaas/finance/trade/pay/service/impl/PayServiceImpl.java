@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.OrderJobPayRltEnum;
+import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
@@ -219,20 +220,10 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       }
       //ToDo: 如果有真实数据， 则删除下面if代码
       if(null == fundResult){
-        com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
-            .shellshellfish.aaas.common.message.order.TrdPayFlow();
-        trdPayFlowMsg.setTrdStatus(TrdZZCheckStatusEnum.NOTHANDLED.getStatus());
-        StringBuilder errMsg = new StringBuilder();
-        for(Exception ex: errs){
-          errMsg.append(ex.getMessage());
-          errMsg.append("|");
-        }
-        trdPayFlowMsg.setErrMsg(errMsg.toString());
-        trdPayFlowMsg.setUserId(trdOrderDetail.getUserId());
-        trdPayFlowMsg.setOrderDetailId(trdOrderDetail.getId());
-        notifyPay(trdPayFlowMsg);
-        errs.clear();
-
+        logger.error("failed to pay for:" + payOrderDto.getUserPid() + " with prodId:" +
+            payOrderDto.getUserProdId() + " with TrdMoneyAmount" + payAmount + " fundCode:"+
+            trdOrderDetail.getFundCode());
+        continue;
       }
       if(null != fundResult){
         trdPayFlow.setApplySerial(fundResult.getApplySerial());
@@ -245,7 +236,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         trdPayFlow.setTradeAcco(trdAcco);
         trdPayFlow.setUserProdId(trdOrderDetail.getUserProdId());
         trdPayFlow.setUserId(trdOrderDetail.getUserId());
-        trdPayFlow.setTradeBrokeId(payOrderDto.getTrdBrokerId());
+        trdPayFlow.setTradeBrokeId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
         TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
         com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
             .shellshellfish.aaas.common.message.order.TrdPayFlow();
