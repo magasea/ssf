@@ -77,7 +77,7 @@ public class PayServiceImpl implements PayService {
 		trdBrokerUserNew.setCreateBy(bindBankCard.getUserId());
 		trdBrokerUserNew.setCreateDate(TradeUtil.getUTCTime());
 		trdBrokerUserNew.setTradeAcco(trdAcco);
-		trdBrokerUserNew.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
+		trdBrokerUserNew.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId().intValue());
 		trdBrokerUserNew.setUserId(bindBankCard.getUserId());
 		trdBrokerUserNew.setUpdateBy(bindBankCard.getUserId());
 		trdBrokerUserNew.setUpdateDate(TradeUtil.getUTCTime());
