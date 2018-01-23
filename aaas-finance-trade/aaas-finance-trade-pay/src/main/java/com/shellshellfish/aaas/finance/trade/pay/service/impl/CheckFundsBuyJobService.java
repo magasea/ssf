@@ -65,25 +65,27 @@ public class CheckFundsBuyJobService {
                             .isEmpty(applyResult.getApplyshare())) {
                             com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
                                 new com.shellshellfish.aaas.common.message.order.TrdPayFlow();
-                            trdPayFlowMsg.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
-                            trdPayFlowMsg.setUpdateDate(Instant.now().getEpochSecond());
-                            trdPayFlowMsg.setBuyDiscount(TradeUtil.getLongNumWithMul100(applyResult
+                            trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+                            trdPayFlow.setUpdateDate(Instant.now().getEpochSecond());
+                            trdPayFlow.setBuyDiscount(TradeUtil.getLongNumWithMul100(applyResult
                                 .getCommisiondiscount()));
-                            trdPayFlowMsg.setId(Long.valueOf(applyResult.getOutsideorderno()));
-                            trdPayFlowMsg.setApplySerial(applyResult.getApplyserial());
+                            trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno
+                                ());
+                            trdPayFlow.setId(trdPayFlow.getId());
+                            trdPayFlow.setApplySerial(applyResult.getApplyserial());
                             TrdOrderOpTypeEnum opTypeEnum = ZZStatsToOrdStatsUtils
                             .getTrdOrdOpTypeFromCallingCode(Integer
                                 .valueOf(applyResult.getCallingcode()));
-                            trdPayFlowMsg.setTrdStatus(ZZStatsToOrdStatsUtils
+                            trdPayFlow.setTrdStatus(ZZStatsToOrdStatsUtils
                                 .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
                                     Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum).getStatus());
-                            trdPayFlowMsg.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
+                            trdPayFlow.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
                                 .getPoundage()));
                             if(!StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
-                                trdPayFlowMsg.setFundSumConfirmed(TradeUtil. getLongNumWithMul100
+                                trdPayFlow.setFundSumConfirmed(TradeUtil. getLongNumWithMul100
                                     (applyResult.getTradeconfirmshare()));
                             }
-                            trdPayFlowMsg.setOutsideOrderno(applyResult.getOutsideorderno());
+                            trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno());
                             trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
                             trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
                             BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
