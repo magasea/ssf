@@ -33,7 +33,6 @@ public class UserFinanceProdCalController {
 	private UserFinanceProdCalcService userFinanceProdCalcService;
 
 	@ApiOperation("每日收益计算")
-	@AopLinkResources
 	@GetMapping("/calculate")
 	public HttpStatus calculate() throws Exception {
 		final Calendar cal = Calendar.getInstance();
