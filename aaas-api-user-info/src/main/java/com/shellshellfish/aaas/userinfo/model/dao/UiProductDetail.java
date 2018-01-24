@@ -26,6 +26,7 @@ public class UiProductDetail {
   private long updateDate;
   private long createBy;
   private long createDate;
+  private Integer status;
 
   @Id
   @Column(name = "id")
@@ -127,6 +128,16 @@ public class UiProductDetail {
   public void setCreateDate(long createDate) {
     this.createDate = createDate;
   }
+  
+  @Basic
+  @Column(name = "status")
+  public Integer getStatus() {
+    return status;
+  }
+
+  public void setStatus(Integer status) {
+    this.status = status;
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -169,6 +180,9 @@ public class UiProductDetail {
     if (fundName != null ? !fundName.equals(that.fundName) : that.fundName != null) {
       return false;
     }
+    if (status != that.status) {
+    	return false;
+    }
 
     return true;
   }
@@ -185,6 +199,7 @@ public class UiProductDetail {
     result = 31 * result + (int) (updateDate ^ (updateDate >>> 32));
     result = 31 * result + (int) (createBy ^ (createBy >>> 32));
     result = 31 * result + (int) (createDate ^ (createDate >>> 32));
+    result = 31 * result + status;
     return result;
   }
 }

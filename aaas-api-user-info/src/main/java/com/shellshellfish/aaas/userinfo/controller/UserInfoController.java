@@ -1584,60 +1584,7 @@ public class UserInfoController {
 			) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
 		logger.info("getMyCombination method run..");
-		List<ProductsDTO> productsList = userInfoService.findProductInfos(userUuid);
-		if(productsList==null||productsList.size()==0){
-			logger.info("我的智投组合暂时不存在");
-			return new ResponseEntity<>(result, HttpStatus.OK);
-		}
-		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		ProductsDTO products= new ProductsDTO();
-		for(int i = 0; i< productsList.size();i++){
-			products = productsList.get(i);
-			resultMap = new HashMap<String, Object>();
-			resultMap.put("groupId", products.getProdId());
-			resultMap.put("subGroupId", products.getGroupId());
-			
-			resultMap.put("title", products.getProdName());
-			resultMap.put("createDate", products.getCreateDate());
-			//总资产
-			Map<String, Object> totalAssetsMap = userInfoService.getChicombinationAssets(userUuid,products);
-			if(totalAssetsMap.size()>0){
-				resultMap.put("totalAssets", totalAssetsMap.get("assert"));
-				//日收益
-				resultMap.put("dailyIncome", totalAssetsMap.get("dailyIncome"));
-				//累计收益率
-				resultMap.put("totalIncomeRate", totalAssetsMap.get("totalIncomeRate"));
-				//累计收益
-				resultMap.put("totalIncome", totalAssetsMap.get("totalIncome"));
-			} else {
-				resultMap.put("totalAssets", 0);
-				resultMap.put("dailyIncome", 0);
-				resultMap.put("totalIncomeRate", 0);
-				resultMap.put("totalIncome", 0);
-			}
-			
-			//状态(0-待确认 1-已确认 -1-交易失败)
-			if(products.getStatus() == 0){
-				resultMap.put("status", "待确认");
-				List<UiProductDetailDTO> productDetailsList = uiProductService.getProductDetailsByProdId(products.getProdId());
-				if(productDetailsList!=null&&productDetailsList.size()>0){
-					resultMap.put("count", productDetailsList.size());
-				} else {
-					resultMap.put("count", 0);
-				}
-			} else if(products.getStatus() == 1){
-				resultMap.put("status", "已确认");
-			} else {
-				resultMap.put("status", "交易失败");
-			}
-			//智投组合产品ID
-			resultMap.put("prodId",products.getId());
-			//买入日期
-			resultMap.put("updateDate",DateUtil.getDateType(products.getUpdateDate()));
-			
-			resultList.add(resultMap);
-		}
+		List<Map<String, Object>> resultList = userInfoService.getMyCombinations(userUuid);
 		result.put("result", resultList);
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
