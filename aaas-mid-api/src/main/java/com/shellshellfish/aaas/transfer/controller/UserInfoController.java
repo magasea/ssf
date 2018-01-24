@@ -341,8 +341,9 @@ public class UserInfoController {
 			if (result == null || result.size() == 0) {
 				logger.error("我的智投组合获取失败");
 				return new JsonResult(JsonResult.Fail, "我的智投组合为空", JsonResult.EMPTYRESULT);
+			} else {
+				return new JsonResult(JsonResult.SUCCESS, "我的智投组合成功", result.get("result"));
 			}
-			return new JsonResult(JsonResult.SUCCESS, "我的智投组合成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);

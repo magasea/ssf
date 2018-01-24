@@ -464,7 +464,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		String beforeYesterday = DateUtil.getSystemDatesAgo(-2);
 		Query query = new Query();
 		query.addCriteria(Criteria.where("userUuid").is(uuid))
-		.addCriteria(Criteria.where("prodId").is(products.getProdId()))
+		.addCriteria(Criteria.where("userProdId").is(products.getId()))
 		.addCriteria(Criteria.where("date").is(yesterday));
 		
 		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
@@ -480,7 +480,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 			
 			Query query2 = new Query();
 			query2.addCriteria(Criteria.where("userUuid").is(uuid))
-			.addCriteria(Criteria.where("prodId").is(products.getProdId()))
+			.addCriteria(Criteria.where("userProdId").is(products.getId()))
 			.addCriteria(Criteria.where("date").is(beforeYesterday));
 			List<DailyAmount> dailyAmountList2 = mongoTemplate.find(query, DailyAmount.class);
 			if(dailyAmountList2!=null&&dailyAmountList2.size()>0){
