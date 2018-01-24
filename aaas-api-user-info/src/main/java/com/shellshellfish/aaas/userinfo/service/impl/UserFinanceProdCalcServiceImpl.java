@@ -420,8 +420,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 	@Override
 	public void dailyCalculation(String date, List<UiUser> uiUsers) {
 		for (UiUser user : uiUsers) {
-			if("18817573489".equals(user.getCellPhone()))
-				continue;
 			List<UiProducts> userProducts = uiProductRepo.findByUserId(user.getId());
 			for (UiProducts prod : userProducts) {
 				List<UiProductDetail> prodDetails = uiProductDetailRepo.findAllByUserProdId(prod.getId());
