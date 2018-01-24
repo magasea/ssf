@@ -291,8 +291,8 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
-    public List<ConfirmResult> getConfirmResults(String userUuid, String fundCode) throws JsonProcessingException {
-        String json = getAllConfirmList(userUuid, fundCode);
+    public List<ConfirmResult> getConfirmResults(String userUuid, String fundCode,String startDate) throws JsonProcessingException {
+        String json = getAllConfirmList(userUuid, fundCode,startDate);
 
         JSONObject jsonObject = JSONObject.parseObject(json);
         Integer status = jsonObject.getInteger("status");
@@ -300,7 +300,7 @@ public class OneFundApiService implements FundTradeApiService {
     }
 
     @Override
-    public String getAllConfirmList(String userUuid, String fundCode) throws JsonProcessingException {
+    public String getAllConfirmList(String userUuid, String fundCode,String startDate) throws JsonProcessingException {
         fundCode = trimSuffix(fundCode);
         Map<String, Object> info = init(userUuid);
         if (!StringUtils.isEmpty(fundCode)) {
