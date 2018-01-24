@@ -5,7 +5,6 @@ import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProducer;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
-import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderTypeEnum;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokderRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRepository;

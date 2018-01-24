@@ -349,6 +349,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
           trdPayFlow.setFundSum(prodDtlSellDTO.getFundQuantity());
           trdPayFlow.setFundCode(prodDtlSellDTO.getFundCode());
+          trdPayFlow.setOutsideOrderno(outsideOrderNo);
           trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
           trdPayFlow.setCreateBy(prodSellDTO.getUserId());
           trdPayFlow.setUpdateBy(prodSellDTO.getUserId());

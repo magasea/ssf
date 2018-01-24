@@ -44,74 +44,147 @@ public class CheckFundsBuyJobService {
     public void executeSampleJob() {
 
         logger.info("The sample job has begun...");
-        Instant.now().getEpochSecond();
-
-            List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-                .findAllByFundSumConfirmedIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.BUY.getOperation
-                    ());
-            if(!CollectionUtils.isEmpty(trdPayFlows)) {
-                ApplyResult applyResult = null;
-                String userPid = null;
-                String outsideOrderno = null;
-                for (TrdPayFlow trdPayFlow : trdPayFlows) {
-                    try {
-                        // TODO: replace userId with userUuid
-                        userPid = orderService.getPidFromTrdAccoBrokerId(trdPayFlow);
-                        outsideOrderno = trdPayFlow.getOutsideOrderno();
-                        if(StringUtils.isEmpty(outsideOrderno)){
-                            logger.error("if the outsideOrderno is empty, the payflow is of old "
-                                + "process with outsideOrderno as the orderDetailId");
-                            outsideOrderno = ""+trdPayFlow.getOrderDetailId();
-                        }
-                        applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo
-                            (TradeUtil.getZZOpenId(userPid), outsideOrderno);
-                        if (null != applyResult && !StringUtils
-                            .isEmpty(applyResult.getApplyshare())) {
-                            com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
-                                new com.shellshellfish.aaas.common.message.order.TrdPayFlow();
-                            trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
-                            trdPayFlow.setUpdateDate(Instant.now().getEpochSecond());
-                            trdPayFlow.setBuyDiscount(TradeUtil.getLongNumWithMul100(applyResult
-                                .getCommisiondiscount()));
-                            trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno
-                                ());
-                            trdPayFlow.setId(trdPayFlow.getId());
-                            trdPayFlow.setApplySerial(applyResult.getApplyserial());
-                            TrdOrderOpTypeEnum opTypeEnum = ZZStatsToOrdStatsUtils
-                            .getTrdOrdOpTypeFromCallingCode(Integer
-                                .valueOf(applyResult.getCallingcode()));
-                            trdPayFlow.setTrdStatus(ZZStatsToOrdStatsUtils
-                                .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
-                                    Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum).getStatus());
-                            trdPayFlow.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
-                                .getPoundage()));
-                            if(!StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
-                                Long fundSumConfirmed = TradeUtil.getLongNumWithMul100(applyResult
-                                    .getTradeconfirmshare());
-                                trdPayFlow.setFundSumConfirmed(fundSumConfirmed);
-                                trdPayFlow.setFundSum(fundSumConfirmed);
-                            }
-                            trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno());
-                            trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
-                            trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
-                            BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
-                            trdPayFlowRepository.save(trdPayFlow);
-                            broadcastMessageProducers.sendMessage(trdPayFlowMsg);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        logger.error(e.getMessage());
-                    } finally {
-                        if(null == applyResult){
-                            logger.error("failed to retrieve applyResult with pid:" + userPid + ""
-                                + " and outsideOrdernu:"+ outsideOrderno);
-                        }
-                        logger.info("Sample job has finished...");
-                    }
-                }
-            }
+        checkBuyPayFlows();
+        checkReedemPayFlows();
+        //
     }
 
+    public void checkBuyPayFlows(){
+        //先查一遍购买未确认状态的payFlow
+
+        List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
+            .findAllByFundSumConfirmedIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.BUY.getOperation
+                ());
+
+        if(!CollectionUtils.isEmpty(trdPayFlows)) {
+            ApplyResult applyResult = null;
+            String userPid = null;
+            String outsideOrderno = null;
+            for (TrdPayFlow trdPayFlow : trdPayFlows) {
+                try {
+                    // TODO: replace userId with userUuid
+                    userPid = orderService.getPidFromTrdAccoBrokerId(trdPayFlow);
+                    outsideOrderno = trdPayFlow.getOutsideOrderno();
+                    if(StringUtils.isEmpty(outsideOrderno)){
+                        logger.error("if the outsideOrderno is empty, the payflow is of old "
+                            + "process with outsideOrderno as the orderDetailId");
+                        outsideOrderno = ""+trdPayFlow.getOrderDetailId();
+                    }
+                    applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo
+                        (TradeUtil.getZZOpenId(userPid), outsideOrderno);
+                    if (null != applyResult && !StringUtils
+                        .isEmpty(applyResult.getApplyshare())) {
+                        com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
+                            new com.shellshellfish.aaas.common.message.order.TrdPayFlow();
+                        trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+                        trdPayFlow.setUpdateDate(Instant.now().getEpochSecond());
+                        trdPayFlow.setBuyDiscount(TradeUtil.getLongNumWithMul100(applyResult
+                            .getCommisiondiscount()));
+                        trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno
+                            ());
+                        trdPayFlow.setId(trdPayFlow.getId());
+                        trdPayFlow.setApplySerial(applyResult.getApplyserial());
+                        TrdOrderOpTypeEnum opTypeEnum = ZZStatsToOrdStatsUtils
+                            .getTrdOrdOpTypeFromCallingCode(Integer
+                                .valueOf(applyResult.getCallingcode()));
+                        trdPayFlow.setTrdStatus(ZZStatsToOrdStatsUtils
+                            .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
+                                Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum).getStatus());
+                        trdPayFlow.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
+                            .getPoundage()));
+                        if(!StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
+                            Long fundSumConfirmed = TradeUtil.getLongNumWithMul100(applyResult
+                                .getTradeconfirmshare());
+                            trdPayFlow.setFundSumConfirmed(fundSumConfirmed);
+                            trdPayFlow.setFundSum(fundSumConfirmed);
+                        }
+                        trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno());
+                        trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
+                        trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+                        BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
+                        trdPayFlowRepository.save(trdPayFlow);
+                        broadcastMessageProducers.sendMessage(trdPayFlowMsg);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    logger.error(e.getMessage());
+                } finally {
+                    if(null == applyResult){
+                        logger.error("failed to retrieve applyResult with pid:" + userPid + ""
+                            + " and outsideOrdernu:"+ outsideOrderno);
+                    }
+                    logger.info("Sample job has finished...");
+                }
+            }
+        }
+    }
+    public void checkReedemPayFlows(){
+        //先查一遍赎回未确认状态的payFlow
+        List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
+            .findAllByFundSumConfirmedIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.REDEEM.getOperation
+                ());
+        if(!CollectionUtils.isEmpty(trdPayFlows)) {
+            ApplyResult applyResult = null;
+            String userPid = null;
+            String outsideOrderno = null;
+            for (TrdPayFlow trdPayFlow : trdPayFlows) {
+                try {
+                    // TODO: replace userId with userUuid
+                    userPid = orderService.getPidFromTrdAccoBrokerId(trdPayFlow);
+                    outsideOrderno = trdPayFlow.getOutsideOrderno();
+                    if(StringUtils.isEmpty(outsideOrderno)){
+                        logger.error("if the outsideOrderno is empty, the payflow is of old "
+                            + "process with outsideOrderno as the orderDetailId");
+                        outsideOrderno = ""+trdPayFlow.getOrderDetailId();
+                    }
+                    applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo
+                        (TradeUtil.getZZOpenId(userPid), outsideOrderno);
+                    if (null != applyResult && !StringUtils
+                        .isEmpty(applyResult.getApplyshare())) {
+                        com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
+                            new com.shellshellfish.aaas.common.message.order.TrdPayFlow();
+                        trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+                        trdPayFlow.setUpdateDate(Instant.now().getEpochSecond());
+                        trdPayFlow.setBuyDiscount(TradeUtil.getLongNumWithMul100(applyResult
+                            .getCommisiondiscount()));
+                        trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno
+                            ());
+                        trdPayFlow.setId(trdPayFlow.getId());
+                        trdPayFlow.setApplySerial(applyResult.getApplyserial());
+                        TrdOrderOpTypeEnum opTypeEnum = ZZStatsToOrdStatsUtils
+                            .getTrdOrdOpTypeFromCallingCode(Integer
+                                .valueOf(applyResult.getCallingcode()));
+                        trdPayFlow.setTrdStatus(ZZStatsToOrdStatsUtils
+                            .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
+                                Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum).getStatus());
+                        trdPayFlow.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
+                            .getPoundage()));
+                        if(!StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
+                            Long fundSumConfirmed = TradeUtil.getLongNumWithMul100(applyResult
+                                .getTradeconfirmshare());
+                            trdPayFlow.setFundSumConfirmed(fundSumConfirmed);
+
+                        }
+                        trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno());
+                        trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
+                        trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+                        BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
+                        trdPayFlowRepository.save(trdPayFlow);
+                        broadcastMessageProducers.sendMessage(trdPayFlowMsg);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    logger.error(e.getMessage());
+                } finally {
+                    if(null == applyResult){
+                        logger.error("failed to retrieve applyResult with pid:" + userPid + ""
+                            + " and outsideOrdernu:"+ outsideOrderno);
+                    }
+                    logger.info("Sample job has finished...");
+                }
+            }
+        }
+    }
     public void executePreOrderStatus(){
         logger.info("The sample job has begun...");
         Instant.now().getEpochSecond();

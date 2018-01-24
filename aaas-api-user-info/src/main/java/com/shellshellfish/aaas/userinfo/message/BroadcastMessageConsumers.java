@@ -166,7 +166,7 @@ public class BroadcastMessageConsumers {
         //if sell failed then update ui_product_details product number back
         if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.FAILED.getStatus() && trdPayFlow
             .getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
-            //记住 要和payService里面sellProd的做法一直，发送方也得用这个字段存储赎回基金数量
+            //记住 要和payService里面sellProd的做法一致，发送方也得用这个字段存储赎回基金数量
             Long fundQuantity = trdPayFlow.getFundSum();
             logger.info("now set the fund quantity back with userProdId:" + trdPayFlow.getUserProdId
                 () + " fundQuantity:" + fundQuantity);
@@ -179,6 +179,11 @@ public class BroadcastMessageConsumers {
             uiProductDetailRepo.updateByParamForStatus(TradeUtil.getUTCTime(),
                 SystemUserEnum.SYSTEM_USER_ENUM.getUserId(), trdPayFlow.getUserProdId(),
                 trdPayFlow.getFundCode(), trdPayFlow.getTrdStatus());
+        }else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus() && trdPayFlow
+            .getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+            uiProductDetailRepo.updateByParam(trdPayFlow.getFundSumConfirmed(),TradeUtil
+                .getUTCTime(),SystemUserEnum.SYSTEM_USER_ENUM.getUserId(),trdPayFlow
+                .getUserProdId(),trdPayFlow.getFundCode(),trdPayFlow.getTrdStatus());
         }else{
             logger.error("havent handling this kind of trdPayflow: of trdType:"+ trdPayFlow
                 .getTrdType() + " status:" + trdPayFlow.getTrdStatus());

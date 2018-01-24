@@ -89,8 +89,6 @@ public class OrderServiceImpl  extends OrderRpcServiceGrpc.OrderRpcServiceImplBa
     UserPID.Builder upidBuilder = UserPID.newBuilder();
     try {
       userInfo = userInfoService.getUserBankInfo(userId);
-
-
       for(CardInfo cardInfo: userInfo.getCardNumbersList()){
         if(trdBrokerUser.getBankCardNum().equals(cardInfo.getCardNumbers())){
           upidBuilder.setUserPid(cardInfo.getUserPid());
