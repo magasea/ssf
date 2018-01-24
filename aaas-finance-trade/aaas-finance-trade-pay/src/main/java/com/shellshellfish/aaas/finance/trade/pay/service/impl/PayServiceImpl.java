@@ -266,8 +266,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   }
 
   @Override
-  public String bindCard(BindBankCard bindBankCard)
-      throws ExecutionException, InterruptedException, JsonProcessingException {
+  public String bindCard(BindBankCard bindBankCard)throws JsonProcessingException {
     String tradeAcco = null;
     try {
       OpenAccountResult openAccountResult = fundTradeApiService.openAccount("" +TradeUtil

@@ -356,7 +356,7 @@ public class RestApiController {
 	/**
 	 * 短信验证 初始页面
 	 * 
-	 * @param telnum手机号码
+	 * @param telnum 手机号码
 	 * @return
 	 */
 	@ApiOperation("短信验证 初始页面")
@@ -386,10 +386,8 @@ public class RestApiController {
 	}
 
 	/**
-	 * 短信验证 确认
-	 * 
-	 * @param telnum
-	 * @param identifyingcode
+	 *
+	 * @param verificationBody
 	 * @return
 	 */
 	@ApiOperation("短信验证 确认按钮")
@@ -574,13 +572,11 @@ public class RestApiController {
 		HashMap<String, Object> rsmap = resourceManagerService.response("pwdsettings", tel);
 		return new ResponseEntity<Map>(rsmap, HttpStatus.OK);
 	}
-	
+
 	/**
 	 * 密码设置 确认
-	 * 
-	 * @param telnum
-	 * @param pwdsetting
-	 * @param pwdconfirm
+	 * @param id
+	 * @param pwdSettingBody
 	 * @return
 	 */
 	@ApiOperation("密码设置 确认按钮")
