@@ -256,21 +256,23 @@ public class TradeOrderController {
 				if (trdOrderDetail.getOrderDetailStatus() == trdOrderStatus2.getStatus()) {
 					detailMap.put("fundstatus", trdOrderStatus2.getComment());
 					break;
+				} else {
+					detailMap.put("fundstatus", "");
 				}
 			}
 			detailMap.put("fundCode", trdOrderDetail.getFundCode());
 			//基金费用
 			detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
-			detailMap.put("funddate", c.get(Calendar.YEAR) + "." + (c.get(Calendar.MONTH) + 1) + "." + c.get(Calendar.DATE));
-			if (trdOrderDetail.getTradeType() == 1) {
-				detailMap.put("fundTradeType", "购买");
-			} else if (trdOrderDetail.getTradeType() == 2) {
-				detailMap.put("fundTradeType", "分红");
-			} else if (trdOrderDetail.getTradeType() == 9) {
-				detailMap.put("fundTradeType", "部分确认");
-			} else {
-				logger.info("状态为：" + trdOrder.getOrderType());
-				detailMap.put("fundTradeType", "");
+			detailMap.put("funddate", c.get(Calendar.YEAR)+"."+(c.get(Calendar.MONTH)+1)+"."+c.get(Calendar.DATE));
+
+			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
+			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){
+				if(trdOrderDetail.getTradeType() == trdOrder3.getOperation()){
+					detailMap.put("fundTradeType", trdOrder3.getComment());
+					break;
+				} else {
+					detailMap.put("fundTradeType", "");
+				}
 			}
 			detailList.add(detailMap);
 		}

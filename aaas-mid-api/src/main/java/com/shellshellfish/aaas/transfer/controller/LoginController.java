@@ -282,10 +282,11 @@ public class LoginController {
 		} catch (HttpClientErrorException e) {
 			result = new HashMap();
 			result.put("errorCode", "400");
-			String str = e.getResponseBodyAsString();
+//			String str = e.getResponseBodyAsString();
+			String str = new ReturnedException(e).getErrorMsg();
 			System.out.println(str);
 			result.put("error", e.getResponseBodyAsString());
-			return new JsonResult(JsonResult.Fail, "修改密码失败", JsonResult.EMPTYRESULT);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		} catch (Exception e) {
 			return new JsonResult(JsonResult.Fail, "Fail", JsonResult.EMPTYRESULT);
 		}

@@ -15,9 +15,11 @@ public interface TrdOrderDetailRepository extends PagingAndSortingRepository<Trd
   TrdOrderDetail save(TrdOrderDetail newOrderDetail);
 
   @Modifying(clearAutomatically = true)
-  @Query("UPDATE TrdOrderDetail SET trade_apply_serial = :tradeApplySerial, order_detail_status = "
+  @Query("UPDATE TrdOrderDetail SET trade_apply_serial = :tradeApplySerial, "
+      + "fund_num = :fundNum, fund_num_confirmed = :fundNumConfirmed, order_detail_status = "
       + ":orderDetailStatus ,  update_date = :updateDate, update_by = :updateBy WHERE id = :id")
-  void updateByParam(@Param("tradeApplySerial") String tradeApplySerial, @Param
+  void updateByParam(@Param("tradeApplySerial") String tradeApplySerial, @Param("fundNum") long
+      fundNum, @Param("fundNumConfirmed") long fundNumConfirmed, @Param
       ("orderDetailStatus") int orderDetailStatus, @Param("updateDate") Long
       updateDate, @Param("updateBy") Long updateBy,  @Param("id") Long id);
 

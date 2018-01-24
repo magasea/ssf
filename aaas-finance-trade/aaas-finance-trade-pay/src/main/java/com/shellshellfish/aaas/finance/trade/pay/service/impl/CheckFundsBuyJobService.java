@@ -13,6 +13,7 @@ import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowReposito
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.service.OrderService;
+import java.sql.Struct;
 import java.time.Instant;
 import java.util.List;
 import org.slf4j.Logger;
@@ -49,17 +50,20 @@ public class CheckFundsBuyJobService {
                 .findAllByFundSumConfirmedIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.BUY.getOperation
                     ());
             if(!CollectionUtils.isEmpty(trdPayFlows)) {
+                ApplyResult applyResult = null;
+                String userPid = null;
+                String outsideOrderno = null;
                 for (TrdPayFlow trdPayFlow : trdPayFlows) {
                     try {
                         // TODO: replace userId with userUuid
-                        String userPid = orderService.getPidFromTrdAccoBrokerId(trdPayFlow);
-                        String outsideOrderno = trdPayFlow.getOutsideOrderno();
+                        userPid = orderService.getPidFromTrdAccoBrokerId(trdPayFlow);
+                        outsideOrderno = trdPayFlow.getOutsideOrderno();
                         if(StringUtils.isEmpty(outsideOrderno)){
                             logger.error("if the outsideOrderno is empty, the payflow is of old "
                                 + "process with outsideOrderno as the orderDetailId");
                             outsideOrderno = ""+trdPayFlow.getOrderDetailId();
                         }
-                        ApplyResult applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo
+                        applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo
                             (TradeUtil.getZZOpenId(userPid), outsideOrderno);
                         if (null != applyResult && !StringUtils
                             .isEmpty(applyResult.getApplyshare())) {
@@ -82,8 +86,10 @@ public class CheckFundsBuyJobService {
                             trdPayFlow.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
                                 .getPoundage()));
                             if(!StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
-                                trdPayFlow.setFundSumConfirmed(TradeUtil. getLongNumWithMul100
-                                    (applyResult.getTradeconfirmshare()));
+                                Long fundSumConfirmed = TradeUtil.getLongNumWithMul100(applyResult
+                                    .getTradeconfirmshare());
+                                trdPayFlow.setFundSumConfirmed(fundSumConfirmed);
+                                trdPayFlow.setFundSum(fundSumConfirmed);
                             }
                             trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno());
                             trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
@@ -96,6 +102,10 @@ public class CheckFundsBuyJobService {
                         e.printStackTrace();
                         logger.error(e.getMessage());
                     } finally {
+                        if(null == applyResult){
+                            logger.error("failed to retrieve applyResult with pid:" + userPid + ""
+                                + " and outsideOrdernu:"+ outsideOrderno);
+                        }
                         logger.info("Sample job has finished...");
                     }
                 }

@@ -8,6 +8,7 @@ import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankcardDetailBodyDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
@@ -1391,26 +1392,35 @@ public class UserInfoController {
 	) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
 		logger.info("getTradLogsOfUser method run..");
-		List<TradeLogDTO> tradeLogList = userInfoService.findByUserId(userUuid);
-		List<Map<String, Object>> tradeLogs = new ArrayList<Map<String, Object>>();
-		if (tradeLogList == null || tradeLogList.size() == 0) {
+		List<MongoUiTrdLogDTO> tradeLogList = userInfoService.getTradeLogs(userUuid);
+		List<Map<String,Object>> tradeLogs = new ArrayList<Map<String,Object>>();
+		if(tradeLogList==null||tradeLogList.size()==0){
 			throw new UserInfoException("404", "交易记录为空");
 		}
-		Map<String, Object> map = null;
-		TradeLogDTO tradeLog = new TradeLogDTO();
+		Map<String,Object> map = null;
+		MongoUiTrdLogDTO tradeLog = new MongoUiTrdLogDTO();
 		for (int i = 0; i < tradeLogList.size(); i++) {
 			map = new HashMap<String, Object>();
 			tradeLog = tradeLogList.get(i);
 			map.put("amount", tradeLog.getAmount());
 			int operations = tradeLog.getOperations();
-			if (operations == 1) {
-				map.put("operations", "购买");
-			} else if (operations == 2) {
-				map.put("operations", "赎回");
-			} else if (operations == 3) {
-				map.put("operations", "分红");
-			} else {
-				map.put("operations", "其他");
+//			if (operations == 1) {
+//				map.put("operations", "购买");
+//			} else if (operations == 2) {
+//				map.put("operations", "赎回");
+//			} else if (operations == 3) {
+//				map.put("operations", "分红");
+//			} else {
+//				map.put("operations", "其他");
+//			}
+			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
+			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){
+				if(operations == trdOrder3.getOperation()){
+					map.put("operations", trdOrder3.getComment());
+					break;
+				} else {
+					map.put("operations", "");
+				}
 			}
 			// map.put("operations",tradeLog.getOperations());
 			int tradeStatus = tradeLog.getTradeStatus();
@@ -1423,18 +1433,24 @@ public class UserInfoController {
 			}
 			// map.put("tradeStatus",tradeLog.getTradeStatus());
 			if (tradeLog.getTradeDate() != null) {
-				map.put("tradeDate", DateUtil.getDateType(tradeLog.getTradeDate()));
+				map.put("tradeDate", DateUtil.getDateType(tradeLog.getLastModifiedDate()));
 			} else {
 				map.put("tradeDate", "");
 			}
 			// map.put("prodId",tradeLog.getProdId());
 			logger.info("理财产品findByProdId查询start");
-			ProductsDTO products = userInfoService.findByProdId(tradeLog.getProdId() + "");
-			logger.info("理财产品findByProdId查询end");
-			if (products == null) {
-				throw new UserInfoException("404", "理财产品:" + tradeLog.getProdId() + "为空");
+			if(tradeLog.getUserProdId()!=null&&tradeLog.getUserProdId()!=0){
+				ProductsDTO products = userInfoService.findByProdId(tradeLog.getUserProdId() + "");
+				logger.info("理财产品findByProdId查询end");
+				if (products == null) {
+					//throw new UserInfoException("404", "理财产品:" + tradeLog.getUserProdId() + "为空");
+					map.put("prodName", "");
+				} else {
+					map.put("prodName", products.getProdName());
+				}
+			} else {
+				map.put("prodName", "");
 			}
-			map.put("prodName", products.getProdName());
 			tradeLogs.add(map);
 		}
 		result.put("tradeLogs", tradeLogs);
@@ -1472,6 +1488,9 @@ public class UserInfoController {
 		for (int i = 0; i < productsList.size(); i++) {
 			products = productsList.get(i);
 			resultMap = new HashMap<String, Object>();
+			resultMap.put("groupId", products.getProdId());
+			resultMap.put("subGroupId", products.getGroupId());
+
 			resultMap.put("title", products.getProdName());
 			resultMap.put("createDate", products.getCreateDate());
 			//总资产
@@ -1508,7 +1527,7 @@ public class UserInfoController {
 				resultMap.put("status", "交易失败");
 			}
 			//智投组合产品ID
-			resultMap.put("prodId", products.getProdId());
+			resultMap.put("prodId",products.getId());
 			//买入日期
 			resultMap.put("updateDate", DateUtil.getDateType(products.getUpdateDate()));
 

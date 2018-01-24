@@ -53,10 +53,12 @@ public class BroadcastMessageConsumers {
             Long buyFee = trdPayFlow.getBuyFee();
             Long updateBy =  SystemUserEnum.SYSTEM_USER_ENUM.getUserId();
             Long updateDate = TradeUtil.getUTCTime();
+            Long fundNum = trdPayFlow.getFundSum() > 0? trdPayFlow.getFundSum(): null;
+            Long fundNumConfirmed = trdPayFlow.getFundSumConfirmed() > 0 ? trdPayFlow
+                .getFundSumConfirmed(): null;
             int orderDetailStatus = trdPayFlow.getTrdStatus();
-//            trdOrderDetailRepository.updateByParam(tradeApplySerial,orderDetailStatus,
-//                updateDate, updateBy,  id);
-            tradeOpService.updateByParam(tradeApplySerial, updateDate, updateBy,  id, orderDetailStatus);
+            tradeOpService.updateByParam(tradeApplySerial, fundNum, fundNumConfirmed, updateDate,
+                updateBy,  id, orderDetailStatus);
         }catch (Exception ex){
             ex.printStackTrace();
             logger.error(ex.getMessage());

@@ -10,6 +10,7 @@ import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.utils.BankUtil;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProducer;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
@@ -185,11 +186,13 @@ public class TradeOpServiceImpl implements TradeOpService {
         ArrayList<com.shellshellfish.aaas.common.message.order.TrdOrderDetail>();
 
     TrdOrder trdOrder = new TrdOrder();
+    MyBeanUtils.mapEntityIntoDTO(financeProdBuyInfo, trdOrder);
     trdOrder.setBankCardNum(financeProdBuyInfo.getBankAcc());
     trdOrder.setOrderDate(TradeUtil.getUTCTime());
     trdOrder.setCreateDate(TradeUtil.getUTCTime());
     trdOrder.setOrderType(TrdOrderOpTypeEnum.BUY.getOperation());
     trdOrder.setProdId(financeProdBuyInfo.getProdId());
+    trdOrder.setGroupId(financeProdBuyInfo.getGroupId());
     trdOrder.setUserProdId(financeProdBuyInfo.getUserProdId());
     trdOrder.setOrderStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.ordinal());
     trdOrder.setOrderId(orderId);
@@ -294,8 +297,12 @@ public class TradeOpServiceImpl implements TradeOpService {
       bindBankCard.setUserPid(userPid);
       bindBankCard.setRiskLevel(userInfo.getRiskLevel());
 
+      payService.bindCard(bindBankCard);
       trdAcco = payService.bindCard(bindBankCard);
 
+
+//      trdBrokerUserRepository.updateTradeAcco(trdAcco, TradeUtil.getUTCTime(), bindBankCard
+//          .getUserId(),  bindBankCard.getUserId());
 
     }
 
@@ -334,10 +341,10 @@ public class TradeOpServiceImpl implements TradeOpService {
 
   @Override
   @Transactional
-  public void updateByParam(String tradeApplySerial, Long updateDate, Long updateBy, Long id,
-      int orderDetailStatus) {
-    trdOrderDetailRepository.updateByParam(tradeApplySerial,orderDetailStatus, updateDate,
-        updateBy,  id );
+  public void updateByParam(String tradeApplySerial, Long fundNum, Long fundNumConfirmed, Long
+      updateDate, Long updateBy, Long id, int orderDetailStatus) {
+    trdOrderDetailRepository.updateByParam(tradeApplySerial,fundNum, fundNumConfirmed,
+        orderDetailStatus, updateDate, updateBy,  id );
   }
 
   @Override
@@ -507,11 +514,13 @@ public class TradeOpServiceImpl implements TradeOpService {
         ArrayList<com.shellshellfish.aaas.common.message.order.TrdOrderDetail>();
 
     TrdOrder trdOrder = new TrdOrder();
+    MyBeanUtils.mapEntityIntoDTO(financeProdInfo, trdOrder);
     trdOrder.setBankCardNum(financeProdInfo.getBankAcc());
     trdOrder.setOrderDate(TradeUtil.getUTCTime());
     trdOrder.setCreateDate(TradeUtil.getUTCTime());
     trdOrder.setOrderType(TrdOrderOpTypeEnum.BUY.getOperation());
     trdOrder.setProdId(financeProdInfo.getProdId());
+    trdOrder.setGroupId(financeProdInfo.getGroupId());
     trdOrder.setUserProdId(financeProdInfo.getUserProdId());
     trdOrder.setOrderStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.ordinal());
     trdOrder.setOrderId(orderId);

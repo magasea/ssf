@@ -81,31 +81,31 @@ public class OrderServiceImpl  extends OrderRpcServiceGrpc.OrderRpcServiceImplBa
     int brokerId = request.getTrdBrokerId();
     long userId = request.getUserId();
     if(StringUtils.isEmpty(trdAcco)||brokerId <= 0 || userId <= 0){
-      logger.error("trdAcco:"+ trdAcco + " brokerId:"+brokerId + " userId:"+userId +" is not "
-          + "valid");
+      logger.error("trdAcco:"+ trdAcco + " brokerId:"+brokerId + " userId:"+userId +" is not valid");
     }
     TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByTradeAccoAndTradeBrokerId(trdAcco, brokerId);
     //获取银行卡cardNm后去查询userInfo里面的 userPid
     UserBankInfo userInfo = null;
+    UserPID.Builder upidBuilder = UserPID.newBuilder();
     try {
       userInfo = userInfoService.getUserBankInfo(userId);
-    } catch (ExecutionException e) {
-      e.printStackTrace();
-      logger.error(e.getMessage());
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-      logger.error(e.getMessage());
-    }
-    if(null == userInfo){
-      logger.error("failed to get userInfo based on userId:" + userId);
-    }
-    UserPID.Builder upidBuilder = UserPID.newBuilder();
-    for(CardInfo cardInfo: userInfo.getCardNumbersList()){
-      if(trdBrokerUser.getBankCardNum().equals(cardInfo.getCardNumbers())){
-        upidBuilder.setUserPid(cardInfo.getUserPid());
+
+
+      for(CardInfo cardInfo: userInfo.getCardNumbersList()){
+        if(trdBrokerUser.getBankCardNum().equals(cardInfo.getCardNumbers())){
+          upidBuilder.setUserPid(cardInfo.getUserPid());
+        }
       }
+      responseObserver.onNext(upidBuilder.build());
+      responseObserver.onCompleted();
+    } catch (ExecutionException |InterruptedException e ) {
+      e.printStackTrace();
+      logger.error(e.getMessage());
+      upidBuilder.setUserPid("-1");
+      responseObserver.onNext(upidBuilder.build());
+      responseObserver.onCompleted();
     }
-    responseObserver.onNext(upidBuilder.build());
-    responseObserver.onCompleted();
+
+
   }
 }

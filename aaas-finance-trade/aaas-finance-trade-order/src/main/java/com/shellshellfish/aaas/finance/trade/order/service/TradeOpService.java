@@ -14,8 +14,8 @@ public interface TradeOpService {
 
   Long getUserId(String uuid) throws ExecutionException, InterruptedException;
 
-  void updateByParam(String tradeApplySerial, Long updateDate, Long updateBy, Long id,
-      int orderDetailStatus);
+  public void updateByParam(String tradeApplySerial, Long fundNum, Long fundNumConfirmed, Long
+      updateDate, Long updateBy, Long id, int orderDetailStatus);
 
   String getUserUUIDByUserId(Long userId);
 
