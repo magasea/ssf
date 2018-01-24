@@ -410,7 +410,12 @@ public class UserInfoServiceImpl implements UserInfoService {
         			asserts =  asserts.add(dailyAmount.getAsset());
         		}
         	}
-        	resultMap.put("assert", asserts);
+        	if(asserts!=null){
+        		asserts = (asserts.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
+        		resultMap.put("assert", asserts);
+        	} else {
+        		resultMap.put("assert", 0);
+        	}
         	
     		Query query2 = new Query();
             query2.addCriteria(Criteria.where("userUuid").is(uuid))
@@ -424,7 +429,14 @@ public class UserInfoServiceImpl implements UserInfoService {
             			asserts2 =  asserts2.add(dailyIncome.getAsset());
             		}
             	}
-        		resultMap.put("dailyIncome", asserts.subtract(asserts2));
+        		if(asserts2!=null){
+        			asserts2 = (asserts2.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
+        			resultMap.put("dailyIncome", asserts.subtract(asserts2));
+        		} else {
+        			resultMap.put("dailyIncome", 0);
+        		}
+            } else {
+            	resultMap.put("dailyIncome", 0);
             }
         } else {
         	resultMap.put("assert", 0);
@@ -448,7 +460,12 @@ public class UserInfoServiceImpl implements UserInfoService {
 			BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, startDate, yesterday);
 			BigDecimal income = userFinanceProdCalcService.calcYieldValue(uuid, startDate, yesterday);
 			resultMap.put("totalIncomeRate", incomeRate);
-			resultMap.put("totalIncome", income);
+			if(income!=null){
+				income = (income.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
+				resultMap.put("totalIncome", income);
+			} else {
+				resultMap.put("totalIncome", 0);
+			}
 		} else {
 			resultMap.put("totalIncomeRate", 0);
 			resultMap.put("totalIncome", 0);
