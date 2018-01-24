@@ -628,6 +628,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}
 			}
 			resultMap.put("count", count);
+			if (count > 0) {
+				resultMap.put("title", "* 您有" + count + "支基金正在确认中");
+			}
 //			if (products.getStatus() == 0) {
 //				resultMap.put("status", "待确认");
 //				if (productDetailsList != null && productDetailsList.size() > 0) {
