@@ -1,6 +1,8 @@
 package com.shellshellfish.aaas.finance.trade.pay.controller;
 
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.service.impl.CheckFundsBuyJobService;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -47,7 +49,7 @@ public class TradePayController {
 	 */
 	@ApiOperation("赎回")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "uuid", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "userPid", dataType = "String", required = true, value = "userPid", defaultValue = ""),
 		@ApiImplicitParam(paramType = "query", name = "sellNum", dataType = "Integer", required = true, value = "赎回份额", defaultValue = ""),
 		@ApiImplicitParam(paramType = "query", name = "tradeAcco", dataType = "String", required = true, value = "tradeAcco", defaultValue = ""),
 	    @ApiImplicitParam(paramType = "query", name = "fundCode", dataType = "String", required = true, value = "基金Code", defaultValue = "") })
@@ -58,14 +60,16 @@ public class TradePayController {
 		@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对") })
 	@RequestMapping(value = "/funds/sellProduct", method = RequestMethod.GET)
 	public ResponseEntity<Map> sellProduct(
-			@RequestParam(value = "uuid") String uuid,
-			@RequestParam(value = "sellNum") Integer sellNum,
+			@RequestParam(value = "userPid") String userPid,
+			@RequestParam(value = "sellNum") BigDecimal sellNum,
 			@RequestParam(value = "tradeAcco") String tradeAcco,
 			@RequestParam(value = "fundCode") String fundCode) 
 					throws Exception {
+		String openId = TradeUtil.getZZOpenId(userPid);
 		String outsideOrderNo = UUID.randomUUID().toString();
 		Map<String,Object> result = new HashMap<String,Object>();
-		SellFundResult sellFund = fundTradeZhongZhengApiService.sellFund(uuid, sellNum, outsideOrderNo, tradeAcco, fundCode);
+		SellFundResult sellFund = fundTradeZhongZhengApiService.sellFund(openId, sellNum,
+				outsideOrderNo, tradeAcco, fundCode);
 		result.put("result", sellFund);
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}

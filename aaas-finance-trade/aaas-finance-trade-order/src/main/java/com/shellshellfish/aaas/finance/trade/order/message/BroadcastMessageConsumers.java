@@ -37,6 +37,7 @@ public class BroadcastMessageConsumers {
 
 
 
+    @Transactional
     @RabbitListener(bindings = @QueueBinding(
         value = @Queue(value = RabbitMQConstants.QUEUE_ORDER_BASE + RabbitMQConstants.OPERATION_TYPE_UPDATE_ORDER, durable =
             "false"),
@@ -57,8 +58,14 @@ public class BroadcastMessageConsumers {
             Long fundNumConfirmed = trdPayFlow.getFundSumConfirmed() > 0 ? trdPayFlow
                 .getFundSumConfirmed(): null;
             int orderDetailStatus = trdPayFlow.getTrdStatus();
-            tradeOpService.updateByParam(tradeApplySerial, fundNum, fundNumConfirmed, updateDate,
-                updateBy,  id, orderDetailStatus);
+            if(null != fundNum){
+                tradeOpService.updateByParam(tradeApplySerial, fundNum, fundNumConfirmed, updateDate,
+                    updateBy,  id, orderDetailStatus);
+            }else{
+                tradeOpService.updateByParamWithSerial(tradeApplySerial, orderDetailStatus,
+                    updateDate, updateBy,  id );
+            }
+
         }catch (Exception ex){
             ex.printStackTrace();
             logger.error(ex.getMessage());

@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Created by chenwei on 2017- 十二月 - 25
+ * Created by chenwei on 2018- 一月 - 24
  */
 
 @Entity
@@ -17,15 +17,16 @@ import javax.persistence.Table;
 public class UiProducts {
 
   private long id;
-  private long prodId;
-  private long groupId;
-  private long userId;
+  private Long groupId;
+  private Long prodId;
   private String prodName;
-  private int status;
-  private long createBy;
-  private long createDate;
-  private long updateBy;
-  private long updateDate;
+  private Integer status;
+  private Long userId;
+  private String bankCardNum;
+  private Long updateBy;
+  private Long updateDate;
+  private Long createBy;
+  private Long createDate;
 
   @Id
   @Column(name = "id")
@@ -39,33 +40,23 @@ public class UiProducts {
   }
 
   @Basic
-  @Column(name = "prod_id")
-  public long getProdId() {
-    return prodId;
-  }
-
-  public void setProdId(long prodId) {
-    this.prodId = prodId;
-  }
-
-  @Basic
   @Column(name = "group_id")
-  public long getGroupId() {
+  public Long getGroupId() {
     return groupId;
   }
 
-  public void setGroupId(long groupId) {
+  public void setGroupId(Long groupId) {
     this.groupId = groupId;
   }
 
   @Basic
-  @Column(name = "user_id")
-  public long getUserId() {
-    return userId;
+  @Column(name = "prod_id")
+  public Long getProdId() {
+    return prodId;
   }
 
-  public void setUserId(long userId) {
-    this.userId = userId;
+  public void setProdId(Long prodId) {
+    this.prodId = prodId;
   }
 
   @Basic
@@ -80,52 +71,72 @@ public class UiProducts {
 
   @Basic
   @Column(name = "status")
-  public int getStatus() {
+  public Integer getStatus() {
     return status;
   }
 
-  public void setStatus(int status) {
+  public void setStatus(Integer status) {
     this.status = status;
   }
 
   @Basic
+  @Column(name = "user_id")
+  public Long getUserId() {
+    return userId;
+  }
+
+  public void setUserId(Long userId) {
+    this.userId = userId;
+  }
+
+  @Basic
+  @Column(name = "bank_card_num")
+  public String getBankCardNum() {
+    return bankCardNum;
+  }
+
+  public void setBankCardNum(String bankCardNum) {
+    this.bankCardNum = bankCardNum;
+  }
+
+  @Basic
+  @Column(name = "update_by")
+  public Long getUpdateBy() {
+    return updateBy;
+  }
+
+  public void setUpdateBy(Long updateBy) {
+    this.updateBy = updateBy;
+  }
+
+  @Basic
+  @Column(name = "update_date")
+  public Long getUpdateDate() {
+    return updateDate;
+  }
+
+  public void setUpdateDate(Long updateDate) {
+    this.updateDate = updateDate;
+  }
+
+  @Basic
   @Column(name = "create_by")
-  public long getCreateBy() {
+  public Long getCreateBy() {
     return createBy;
   }
 
-  public void setCreateBy(long createBy) {
+  public void setCreateBy(Long createBy) {
     this.createBy = createBy;
   }
 
   @Basic
   @Column(name = "create_date")
-  public long getCreateDate() {
+  public Long getCreateDate() {
     return createDate;
   }
 
-  public void setCreateDate(long createDate) {
+  public void setCreateDate(Long createDate) {
     this.createDate = createDate;
-  }
-
-  @Basic
-  @Column(name = "update_by")
-  public long getUpdateBy() {
-	return updateBy;
-  }
-
-  public void setUpdateBy(long updateBy) {
-	this.updateBy = updateBy;
-  }
-
-  @Basic
-  @Column(name = "update_date")
-  public long getUpdateDate() {
-    return updateDate;
-  }
-
-  public void setUpdateDate(long updateDate) {
-    this.updateDate = updateDate;
   }
 
   @Override
@@ -142,31 +153,34 @@ public class UiProducts {
     if (id != that.id) {
       return false;
     }
-    if (prodId != that.prodId) {
+    if (groupId != null ? !groupId.equals(that.groupId) : that.groupId != null) {
       return false;
     }
-    if (groupId != that.groupId) {
-      return false;
-    }
-    if (userId != that.userId) {
-      return false;
-    }
-    if (status != that.status) {
-      return false;
-    }
-    if (createBy != that.createBy) {
-      return false;
-    }
-    if (createDate != that.createDate) {
-      return false;
-    }
-    if (updateBy != that.updateBy) {
-      return false;
-    }
-    if (updateDate != that.updateDate) {
+    if (prodId != null ? !prodId.equals(that.prodId) : that.prodId != null) {
       return false;
     }
     if (prodName != null ? !prodName.equals(that.prodName) : that.prodName != null) {
+      return false;
+    }
+    if (status != null ? !status.equals(that.status) : that.status != null) {
+      return false;
+    }
+    if (userId != null ? !userId.equals(that.userId) : that.userId != null) {
+      return false;
+    }
+    if (bankCardNum != null ? !bankCardNum.equals(that.bankCardNum) : that.bankCardNum != null) {
+      return false;
+    }
+    if (updateBy != null ? !updateBy.equals(that.updateBy) : that.updateBy != null) {
+      return false;
+    }
+    if (updateDate != null ? !updateDate.equals(that.updateDate) : that.updateDate != null) {
+      return false;
+    }
+    if (createBy != null ? !createBy.equals(that.createBy) : that.createBy != null) {
+      return false;
+    }
+    if (createDate != null ? !createDate.equals(that.createDate) : that.createDate != null) {
       return false;
     }
 
@@ -176,15 +190,16 @@ public class UiProducts {
   @Override
   public int hashCode() {
     int result = (int) (id ^ (id >>> 32));
-    result = 31 * result + (int) (prodId ^ (prodId >>> 32));
-    result = 31 * result + (int) (groupId ^ (groupId >>> 32));
-    result = 31 * result + (int) (userId ^ (userId >>> 32));
+    result = 31 * result + (groupId != null ? groupId.hashCode() : 0);
+    result = 31 * result + (prodId != null ? prodId.hashCode() : 0);
     result = 31 * result + (prodName != null ? prodName.hashCode() : 0);
-    result = 31 * result + status;
-    result = 31 * result + (int) (createBy ^ (createBy >>> 32));
-    result = 31 * result + (int) (createDate ^ (createDate >>> 32));
-    result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
-    result = 31 * result + (int) (updateDate ^ (updateDate >>> 32));
+    result = 31 * result + (status != null ? status.hashCode() : 0);
+    result = 31 * result + (userId != null ? userId.hashCode() : 0);
+    result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
+    result = 31 * result + (updateBy != null ? updateBy.hashCode() : 0);
+    result = 31 * result + (updateDate != null ? updateDate.hashCode() : 0);
+    result = 31 * result + (createBy != null ? createBy.hashCode() : 0);
+    result = 31 * result + (createDate != null ? createDate.hashCode() : 0);
     return result;
   }
 }
