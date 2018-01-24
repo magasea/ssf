@@ -312,7 +312,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		Query query = new Query();
 		query.addCriteria(Criteria.where("userUuid").is(userUuid))
 				.addCriteria(Criteria.where("date").gte(startDate).lte(endDate))
-				.addCriteria(Criteria.where("prodId").is(prodId));
+				.addCriteria(Criteria.where("userProdId").is(prodId));
 
 		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
 		BigDecimal assetOfEndDay = BigDecimal.ZERO;
@@ -348,7 +348,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		Query query = new Query();
 		query.addCriteria(Criteria.where("userUuid").is(userUuid))
 				.addCriteria(Criteria.where("date").gte(startDate).lte(endDate))
-				.addCriteria(Criteria.where("prodId").is(prodId));
+				.addCriteria(Criteria.where("userProdId").is(prodId));
 
 		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
 		BigDecimal assetOfEndDay = BigDecimal.ZERO;
