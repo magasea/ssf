@@ -30,11 +30,11 @@ public interface FundTradeApiService {
 
     List<ConfirmResult> getConfirmResults(JSONObject jsonObject, Integer status);
 
-    List<ConfirmResult> getConfirmResults(String userUuid, String fundCode) throws JsonProcessingException;
+    List<ConfirmResult> getConfirmResults(String userUuid, String fundCode,String Date) throws JsonProcessingException;
 
     //String getAllConfirmList(String userUuid) throws JsonProcessingException;
 
-    String getAllConfirmList(String userUuid, String fundCode) throws JsonProcessingException;
+    String getAllConfirmList(String userUuid, String fundCode, String startDate) throws JsonProcessingException;
 
     FundNotice getLatestFundNotice(String fundCode) throws Exception;
 

@@ -132,7 +132,7 @@ public class FinanceController {
 								}
 							}
 						}
-//						if(objMap.containsKey("product_list")){
+						if(objMap.containsKey("product_list")){
 //							List productList = (List) objMap.get("product_list");
 //							if(productList!=null&&productList.size()>0){
 //								for(int i = 0;i<productList.size();i++){
@@ -142,7 +142,7 @@ public class FinanceController {
 //									}
 //								}
 //							}
-//						}
+						}
 					}
 				}
 			}
