@@ -76,4 +76,6 @@ public interface UserInfoService {
 
 	List<MongoUiTrdLogDTO> getTradeLogs(String uuid) throws Exception;
 
+	List<Map<String, Object>> getMyCombinations(String uuid) throws Exception;
+
 }
