@@ -493,7 +493,12 @@ public class UserInfoServiceImpl implements UserInfoService {
         			asserts =  asserts.add(dailyAmount.getAsset());
         		}
         	}
-			resultMap.put("assert", asserts);
+			if(asserts!=null){
+        		asserts = (asserts.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
+        		resultMap.put("assert", asserts);
+        	} else {
+        		resultMap.put("assert", 0);
+        	}
 			
 			Query query2 = new Query();
 			query2.addCriteria(Criteria.where("userUuid").is(uuid))
@@ -508,7 +513,12 @@ public class UserInfoServiceImpl implements UserInfoService {
             			asserts2 =  asserts2.add(dailyIncome.getAsset());
             		}
             	}
-        		resultMap.put("dailyIncome", asserts.subtract(asserts2));
+        		if(asserts2!=null){
+        			asserts2 = (asserts2.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
+        			resultMap.put("dailyIncome", asserts.subtract(asserts2));
+        		} else {
+        			resultMap.put("dailyIncome", 0);
+        		}
 			}
 		} else {
         	resultMap.put("assert", 0);
@@ -516,11 +526,14 @@ public class UserInfoServiceImpl implements UserInfoService {
         }
 		
 		//累计收益率
-		BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), yesterday);
+		BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, products.getId(),DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), yesterday);
 		resultMap.put("totalIncomeRate", incomeRate);
 		
 		//累计收益
-		BigDecimal income = userFinanceProdCalcService.calcYieldValue(uuid, DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), yesterday);
+		BigDecimal income = userFinanceProdCalcService.calcYieldValue(uuid, products.getId(), DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), yesterday);
+		if(income!=null){
+			income = (income.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
+		}
 		resultMap.put("totalIncome", income);
 		
 		return resultMap;
