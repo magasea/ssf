@@ -111,7 +111,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
     }
 
     @Override
-    public SellFundResult sellFund(String userUuid, Integer sellNum, String outsideOrderNo, String tradeAcco, String fundCode) throws Exception {
+    public SellFundResult sellFund(String userUuid, BigDecimal sellNum, String outsideOrderNo, String
+        tradeAcco, String fundCode) throws Exception {
         fundCode = trimSuffix(fundCode);
 
         Map<String, Object> info = init(userUuid);

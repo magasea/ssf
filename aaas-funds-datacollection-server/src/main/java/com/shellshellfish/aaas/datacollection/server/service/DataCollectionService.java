@@ -25,4 +25,6 @@ public interface DataCollectionService {
 	void getGrowthRateOfMonetaryFundsList(MonetaryFundsQueryItem monetaryFundsQueryItem,
 										  StreamObserver<GrowthRateOfMonetaryFundCollection> responseObserver);
 
+	List<FundYeildRate> getLatestFundYeildRates(List<String> fundCodes, Long queryDate);
+
 }

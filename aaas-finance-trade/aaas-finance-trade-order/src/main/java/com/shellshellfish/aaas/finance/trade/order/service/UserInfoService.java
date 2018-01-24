@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.order.service;
 
 
+import com.shellshellfish.aaas.userinfo.grpc.SellProducts;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import java.util.concurrent.ExecutionException;
@@ -10,4 +11,7 @@ public interface UserInfoService {
   UserBankInfo getUserBankInfo(Long userId) throws ExecutionException, InterruptedException ;
 
   UserInfo getUserInfoByUserId(Long userId) throws ExecutionException, InterruptedException;
+
+  SellProducts checkSellProducts(SellProducts sellProducts)
+      throws ExecutionException, InterruptedException;
 }

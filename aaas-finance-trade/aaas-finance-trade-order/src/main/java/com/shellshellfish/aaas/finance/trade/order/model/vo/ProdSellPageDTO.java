@@ -17,6 +17,7 @@ private long userProdId;
   private long groupId;
   private long userId;
   private String userUuid;
+  private String userBankNum;
 
   public BigDecimal getSellTargetMoney() {
     return sellTargetMoney;
@@ -81,4 +82,12 @@ private long userProdId;
   public void setUserProdId(long userProdId) {
 		this.userProdId = userProdId;
 	}
+
+  public String getUserBankNum() {
+    return userBankNum;
+  }
+
+  public void setUserBankNum(String userBankNum) {
+    this.userBankNum = userBankNum;
+  }
 }
