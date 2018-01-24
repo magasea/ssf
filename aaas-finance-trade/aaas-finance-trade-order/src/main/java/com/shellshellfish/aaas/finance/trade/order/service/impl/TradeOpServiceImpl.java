@@ -178,6 +178,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     String items[] = trdAccoOrig.split("\\|");
     trdAcco = items[0];
     payOrderDto.setUserPid(items[1]);
+    payOrderDto.setRiskLevel(Integer.parseInt(items[2]));
     String orderId = TradeUtil.generateOrderIdByBankCardNum(financeProdBuyInfo.getBankAcc(), trdBrokerId);
     payOrderDto.setTrdAccount(trdAcco);
     payOrderDto.setUserUuid(financeProdBuyInfo.getUuid());
@@ -247,6 +248,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     String bankCardNum = null;
     String trdAcco = null;
     String userPid = null;
+    int riskLevel;
     UserBankInfo userBankInfo = userInfoService.getUserBankInfo(financeProdBuyInfo.getUserId());
     for(CardInfo cardInfo:userBankInfo.getCardNumbersList()){
       if(cardInfo.getCardNumbers().equals(financeProdBuyInfo.getBankAcc())){
@@ -254,7 +256,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         break;
       }
     }
-
+    riskLevel = userBankInfo.getRiskLevel();
 
     if(StringUtils.isEmpty(userPid)){
       logger.error("this user: "+financeProdBuyInfo.getUserId()+" personal id is not in "
@@ -263,9 +265,15 @@ public class TradeOpServiceImpl implements TradeOpService {
           + "ui_bankcard");
     }
     if(!CollectionUtils.isEmpty(trdBrokerUsers)){
+
       trdBrokerId = trdBrokerUsers.get(0).getTradeBrokerId().intValue();
       bankCardNum = financeProdBuyInfo.getBankAcc();
-      trdAcco = trdBrokerUsers.get(0).getTradeAcco();
+      for(TrdBrokerUser trdBrokerUser: trdBrokerUsers){
+        if(bankCardNum.equals(trdBrokerUser.getBankCardNum())){
+          trdBrokerId = trdBrokerUser.getTradeBrokerId();
+          trdAcco = trdBrokerUser.getTradeAcco();
+        }
+      }
     }else if(CollectionUtils.isEmpty(trdBrokerUsers) || StringUtils.isEmpty(trdAcco)){
 
       logger.info("trdBrokerUsers.get(0).getTradeAcco() is empty, 坑货出现，需要生成交易账号再交易");
@@ -275,14 +283,16 @@ public class TradeOpServiceImpl implements TradeOpService {
       TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndAndBankCardNum
           (userBankInfo.getUserId(),financeProdBuyInfo.getBankAcc());
       bindBankCard.setBankCardNum(financeProdBuyInfo.getBankAcc());
-      String bankName = BankUtil.getNameOfBank(financeProdBuyInfo.getBankAcc());
-      bankName = bankName.split("银行")[0] + "银行";
-      TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository.findByBankNameAndTraderBrokerId
-          (bankName, TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
+      String bankShortName = BankUtil.getCodeOfBank(financeProdBuyInfo.getBankAcc());
+
+
+      TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository
+          .findByBankShortNameAndTraderBrokerId(bankShortName, TradeBrokerIdEnum.ZhongZhenCaifu
+              .getTradeBrokerId().intValue());
       if(null == trdTradeBankDic){
-        logger.error("this bank name:"+bankName+" with brokerId"+ TradeBrokerIdEnum
+        logger.error("this bank name:"+bankShortName+" with brokerId"+ TradeBrokerIdEnum
             .ZhongZhenCaifu.getTradeBrokerId()+" is not in table:");
-        throw new Exception("this bank name:"+bankName
+        throw new Exception("this bank name:"+bankShortName
             + " with brokerId"+ TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId()+" is not in table:");
       }
 //      userPid = bindBankCard.getUserPid();
@@ -307,7 +317,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     }
 
     //因为要提取用户身份证号码，所以这里拼接回去，要优化吗？
-    result.put(trdBrokerId, trdAcco+"|"+userPid);
+    result.put(trdBrokerId, trdAcco+"|"+userPid+"|"+riskLevel);
     return result;
   }
 
@@ -344,6 +354,13 @@ public class TradeOpServiceImpl implements TradeOpService {
   public void updateByParam(String tradeApplySerial, Long fundNum, Long fundNumConfirmed, Long
       updateDate, Long updateBy, Long id, int orderDetailStatus) {
     trdOrderDetailRepository.updateByParam(tradeApplySerial,fundNum, fundNumConfirmed,
+        orderDetailStatus, updateDate, updateBy,  id );
+  }
+
+  @Override
+  public void updateByParamWithSerial(String tradeApplySerial, int orderDetailStatus,
+      Long updateDate, Long updateBy, Long id) {
+    trdOrderDetailRepository.updateByParamWithSerial(tradeApplySerial,
         orderDetailStatus, updateDate, updateBy,  id );
   }
 
@@ -506,6 +523,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     String items[] = trdAccoOrig.split("\\|");
     trdAcco = items[0];
     payOrderDto.setUserPid(items[1]);
+    payOrderDto.setRiskLevel(Integer.parseInt(items[2]));
     String orderId = TradeUtil.generateOrderIdByBankCardNum(financeProdInfo.getBankAcc(),trdBrokerId);
     payOrderDto.setTrdAccount(trdAcco);
     payOrderDto.setUserUuid(financeProdInfo.getUuid());

@@ -23,6 +23,8 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.*;
 import com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import io.grpc.stub.StreamObserver;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -245,6 +247,8 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		return mongoUiTrdLogDtoList;
 	}
 
+
+
 	@Override
 	public UserSysMsgDTO addUiSysMsg(UiSysMsg uiSysMsg) throws IllegalAccessException,
 			InstantiationException {
@@ -410,6 +414,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 								io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserBankInfo> responseObserver) {
 		Long userId = request.getUserId();
 		String userUUID = request.getUuid();
+		UiUser uiUser = null;
 		if(userId <= 0){
 			logger.error("userId is not valid:" + userId);
 			if(StringUtils.isEmpty(userUUID)){
@@ -418,13 +423,16 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 				return;
 			}else{
 				try {
-					userId = getUserIdFromUUID(userUUID);
+					uiUser = getUserInfoByUserUUID(userUUID);
+					userId = uiUser.getId();
 				} catch (Exception e) {
 					e.printStackTrace();
 					logger.error("failed to retrieve userId by userUUID:" + userUUID);
 					return;
 				}
 			}
+		}else{
+			uiUser = getUserInfoByUserId(userId);
 		}
 		List<BankCardDTO> bankCardDTOS = null;
 		try {
@@ -448,7 +456,11 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		builder.setUuid(request.getUuid());
 		builder.setCellphone(bankCardDTOS.get(0).getCellphone());
 		CardInfo.Builder ciBuilder = CardInfo.newBuilder();
-
+		if(null != uiUser.getRiskLevel()){
+			builder.setRiskLevel(uiUser.getRiskLevel());
+		}else{
+			builder.setRiskLevel(-1);
+		}
 		for(int idx = 0; idx < bankCardDTOS.size(); idx++){
 			ciBuilder.setCardNumbers(bankCardDTOS.get(idx).getCardNumber());
 			ciBuilder.setUserPid(bankCardDTOS.get(idx).getUserPid());
@@ -491,6 +503,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			uiProducts.setUpdateDate(TradeUtil.getUTCTime());
 			uiProducts.setStatus(TrdOrderStatusEnum.WAITPAY.getStatus());
 			uiProducts.setUserId(request.getUserId());
+			uiProducts.setBankCardNum(request.getBankCardNum());
 			UiProducts saveResult = uiProductRepo.save(uiProducts);
 			Long userProdId = saveResult.getId();
 			logger.info("saved UiProducts with result id:" + userProdId);
@@ -637,4 +650,77 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		responseObserver.onNext(uiBuilder.build());
 		responseObserver.onCompleted();
 	}
+
+	/**
+	 */
+	@Override
+	public void sellUserProducts(com.shellshellfish.aaas.userinfo.grpc.SellProducts request,
+			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.SellProducts> responseObserver) {
+		SellProducts result = updateProductQuantity(request);
+
+		responseObserver.onNext(result);
+		responseObserver.onCompleted();
+
+	}
+
+	@Override
+	@Transactional
+	public SellProducts updateProductQuantity(SellProducts request) {
+		//检查出售的每个基金在当前用户拥有的产品有足够的份额
+		UiProducts uiProducts = uiProductRepo.findById(request.getUserProductId());
+		List<UiProductDetail> uiProductDetails = uiProductDetailRepo.findAllByUserProdId(request
+				.getUserProductId());
+		Map<String, Long> currentAvailableFunds = new HashMap<>();
+		for(UiProductDetail uiProductDetail: uiProductDetails){
+			currentAvailableFunds.put(uiProductDetail.getFundCode(), Long.valueOf(uiProductDetail
+					.getFundQuantity()));
+		}
+		SellProducts.Builder spBuilder = SellProducts.newBuilder();
+		SellProductDetail.Builder spdBuilder = SellProductDetail.newBuilder();
+		boolean canDuduct = true;
+		for(SellProductDetail sellProductDetail: request.getSellProductDetailsList()){
+			logger.info("check fundCode:" + sellProductDetail.getFundCode() + " of userProdId:" +
+					request.getUserProductId());
+			spdBuilder.setFundCode(sellProductDetail.getFundCode());
+			spdBuilder.setFundQuantity(sellProductDetail.getFundQuantity());
+			if(sellProductDetail.getFundQuantity() > currentAvailableFunds.get(sellProductDetail
+					.getFundCode())){
+				spdBuilder.setResult(-1);
+				spdBuilder.setFundQuantity(currentAvailableFunds.get(sellProductDetail.getFundCode()));
+				canDuduct = false;
+			}
+			spBuilder.addSellProductDetails(spdBuilder);
+			spdBuilder.clear();
+		}
+
+		spBuilder.setUserId(request.getUserId());
+		spBuilder.setUserProductId(request.getUserProductId());
+		if(!StringUtils.isEmpty(uiProducts.getBankCardNum())){
+			spBuilder.setUserBankNum(uiProducts.getBankCardNum());
+		}
+
+
+		if(canDuduct){
+			Long fundQuantityRemain = null;
+			for(SellProductDetail sellProductDetail: request.getSellProductDetailsList()){
+				fundQuantityRemain = currentAvailableFunds.get(sellProductDetail.getFundCode()) -
+						sellProductDetail.getFundQuantity();
+				uiProductDetailRepo.updateByParam(fundQuantityRemain, TradeUtil.getUTCTime(), request
+								.getUserId(), request.getUserProductId(),sellProductDetail.getFundCode(),
+						TrdOrderStatusEnum.WAITSELL.getStatus() );
+			}
+		}
+		return spBuilder.build();
+	}
+
+	@Override
+	public UiUser getUserInfoByUserId(Long userId) {
+		return userInfoRepository.findById(userId);
+	}
+
+	@Override
+	public UiUser getUserInfoByUserUUID(String userUUID) {
+		return userInfoRepository.findByUuid(userUUID);
+	}
 }
+

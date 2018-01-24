@@ -12,7 +12,7 @@ public class PayOrderDto implements Serializable{
   int trdBrokerId;
   Long userProdId;
   String userUuid;
-
+  int riskLevel;
   String userPid;
   List<TrdOrderDetail> orderDetailList;
 
@@ -64,5 +64,13 @@ public class PayOrderDto implements Serializable{
   public void setOrderDetailList(
       List<TrdOrderDetail> orderDetailList) {
     this.orderDetailList = orderDetailList;
+  }
+
+  public int getRiskLevel() {
+    return riskLevel;
+  }
+
+  public void setRiskLevel(int riskLevel) {
+    this.riskLevel = riskLevel;
   }
 }
