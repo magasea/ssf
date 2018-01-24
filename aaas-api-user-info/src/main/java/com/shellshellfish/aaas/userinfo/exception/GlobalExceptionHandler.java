@@ -1,11 +1,6 @@
 package com.shellshellfish.aaas.userinfo.exception;
 
-import java.util.Iterator;
-import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Path.Node;
-
+import com.shellshellfish.aaas.userinfo.model.dto.ErrorDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -14,7 +9,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import com.shellshellfish.aaas.userinfo.model.dto.ErrorDTO;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import java.util.Iterator;
+import java.util.Set;
 
 
 @ControllerAdvice
@@ -28,7 +27,7 @@ public class GlobalExceptionHandler {
 	//设置此handler处理所有异常
 	@ExceptionHandler(value = Exception.class)
 	public void defaultErrorHandler(Exception e) {
-		logger.error(e.getMessage());
+		logger.error("{}:{}", e.getClass(), e.getMessage());
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
@@ -49,13 +48,6 @@ public class GlobalExceptionHandler {
 			error = new ErrorDTO[con.length];
 			for (int i = 0; i < con.length; i++) {
 				String errmsg = con[i].getMessage();
-			
-			
-			  /*
-			  Path pname=con[i].getPropertyPath();
-			  Iterator<Node> its=pname.iterator();			
-			  String paraname= getParameterName(its);
-			  */
 				error[i] = new ErrorDTO(errmsg);
 				error[i].setCode(i);
 			}
@@ -83,7 +75,6 @@ public class GlobalExceptionHandler {
 		int i = 0;
 		while (it.hasNext()) {
 			con[i++] = it.next();
-			//System.out.println(str);
 		}
 		return con;
 	}
@@ -96,20 +87,4 @@ public class GlobalExceptionHandler {
 		String ptype = e.getParameterType();
 		return new ResponseEntity<ErrorDTO>(error, HttpStatus.BAD_REQUEST);
 	}
-
-
-	public String getParameterName(Iterator<Node> its) {
-
-		Node node;
-		String name = "";
-		while (its.hasNext()) {
-			node = its.next();
-			name = name + node.getName() + ".";
-			//System.out.println(str);
-		}
-
-		return name.substring(0, name.length() - 1);
-	}
-
-
 }

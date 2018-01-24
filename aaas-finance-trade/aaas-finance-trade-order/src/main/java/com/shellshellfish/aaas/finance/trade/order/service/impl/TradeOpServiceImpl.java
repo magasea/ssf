@@ -306,6 +306,8 @@ public class TradeOpServiceImpl implements TradeOpService {
       bindBankCard.setUserName(userBankInfo.getUserName());
       bindBankCard.setUserPid(userPid);
       bindBankCard.setRiskLevel(userInfo.getRiskLevel());
+
+      payService.bindCard(bindBankCard);
       trdAcco = payService.bindCard(bindBankCard);
 
 

@@ -128,16 +128,26 @@ public class FundDetailedController {
 	public JsonResult getHistoryNetvalue(@RequestParam String code, @RequestParam String type, @RequestParam(required = false) String date) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
-			result = restTemplate
-					.getForEntity(dataManagerUrl + "/api/datamanager/getHistoryNetvalue?code=" + code + "&type=" + type + "&date=" + date, Map.class)
-					.getBody();
+			String url = "";
+			if(StringUtils.isEmpty(date)){
+				url = dataManagerUrl + "/api/datamanager/getHistoryNetvalue?code=" + code + "&type=" + type ;
+			} else {
+				url = dataManagerUrl + "/api/datamanager/getHistoryNetvalue?code=" + code + "&type=" + type + "&date=" + date;
+			}
+			result = restTemplate.getForEntity(url, Map.class).getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
 				return new JsonResult(JsonResult.Fail, "获取失败", JsonResult.EMPTYRESULT);
 //				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 			}
-
-			result.remove("_links");
+			if(result.get("basename")!=null){
+				String basename = result.get("basename") + "";
+				StringBuffer base = new StringBuffer();
+				base.append("基准（");
+				base.append(basename);
+				base.append("）");
+				result.put("basename", base);
+			}
 			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {

@@ -55,28 +55,37 @@ public class PayServiceImpl implements PayService {
     managedPayChannel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
   }
 
-  @Override
-  public String bindCard(BindBankCard bindBankCard)
-      throws ExecutionException, InterruptedException {
-      //ToDo:
-    logger.info("bindCard:" + bindBankCard);
-    BindBankCardQuery.Builder builder = BindBankCardQuery.newBuilder();
-    BeanUtils.copyProperties(bindBankCard, builder, DataCollectorUtil.getNullPropertyNames(bindBankCard));
-    builder.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
-    String trdAcco = bindCard(bindBankCard);
-    TrdBrokerUser trdBrokerUserNew = new TrdBrokerUser();
-    trdBrokerUserNew.setBankCardNum(bindBankCard.getBankCardNum());
-    trdBrokerUserNew.setCreateBy(bindBankCard.getUserId());
-    trdBrokerUserNew.setCreateDate(TradeUtil.getUTCTime());
-    trdBrokerUserNew.setTradeAcco(trdAcco);
-    trdBrokerUserNew.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId().intValue());
-    trdBrokerUserNew.setUserId(bindBankCard.getUserId());
-    trdBrokerUserNew.setUpdateBy(bindBankCard.getUserId());
-    trdBrokerUserNew.setUpdateDate(TradeUtil.getUTCTime());
-    trdBrokerUserRepository.save(trdBrokerUserNew);
+	@Override
+	public String bindCard(BindBankCard bindBankCard)
+			throws ExecutionException, InterruptedException {
+		final String errMsg = "-1";
+		logger.info("bindCard:" + bindBankCard);
+		BindBankCardQuery.Builder builder = BindBankCardQuery.newBuilder();
+		BeanUtils.copyProperties(bindBankCard, builder, DataCollectorUtil.getNullPropertyNames(bindBankCard));
+		builder.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
 
-    return payRpcFutureStub.bindBankCard(builder.build()).get().getTradeacco();
-  }
+
+		String trdAcco = payRpcFutureStub.bindBankCard(builder.build()).get().getTradeacco();
+
+		if (trdAcco == null || errMsg.equals(trdAcco))
+			return errMsg;
+
+
+		TrdBrokerUser trdBrokerUserNew = new TrdBrokerUser();
+		trdBrokerUserNew.setTradeAcco(trdAcco);
+		trdBrokerUserNew.setBankCardNum(bindBankCard.getBankCardNum());
+		trdBrokerUserNew.setCreateBy(bindBankCard.getUserId());
+		trdBrokerUserNew.setCreateDate(TradeUtil.getUTCTime());
+		trdBrokerUserNew.setTradeAcco(trdAcco);
+		trdBrokerUserNew.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId().intValue());
+		trdBrokerUserNew.setUserId(bindBankCard.getUserId());
+		trdBrokerUserNew.setUpdateBy(bindBankCard.getUserId());
+		trdBrokerUserNew.setUpdateDate(TradeUtil.getUTCTime());
+		trdBrokerUserRepository.save(trdBrokerUserNew);
+
+		return trdAcco;
+
+	}
 
 
   @Override

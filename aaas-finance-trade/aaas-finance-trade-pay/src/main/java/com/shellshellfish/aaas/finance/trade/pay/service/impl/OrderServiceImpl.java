@@ -5,11 +5,11 @@ import com.shellshellfish.aaas.finance.trade.order.OrderRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.order.UserPID;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.pay.service.OrderService;
-import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import io.grpc.ManagedChannel;
-import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 
 /**
  * Created by chenwei on 2018- 一月 - 22

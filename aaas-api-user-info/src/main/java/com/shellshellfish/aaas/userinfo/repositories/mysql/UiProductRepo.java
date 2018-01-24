@@ -17,8 +17,10 @@ public interface UiProductRepo extends PagingAndSortingRepository<UiProducts, Lo
 	UiProducts save(UiProducts uiProducts);
 
 	UiProducts findByProdId(long prodId);
-
+	
 	UiProducts findById(long id);
+	
+
 
 	List<UiProducts> findByUserId(Long userId);
 

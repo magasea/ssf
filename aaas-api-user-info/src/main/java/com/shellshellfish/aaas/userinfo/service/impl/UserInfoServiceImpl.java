@@ -18,6 +18,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfoDTO;
@@ -25,6 +26,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import com.shellshellfish.aaas.userinfo.service.UiProductService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
@@ -49,6 +51,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -62,6 +66,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Autowired
 	UserFinanceProdCalcService userFinanceProdCalcService;
+	
+	@Autowired
+	UiProductService uiProductService;
 	
 	@Autowired
     @Qualifier("secondaryMongoTemplate")
@@ -457,7 +464,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		String beforeYesterday = DateUtil.getSystemDatesAgo(-2);
 		Query query = new Query();
 		query.addCriteria(Criteria.where("userUuid").is(uuid))
-		.addCriteria(Criteria.where("prodId").is(products.getProdId()))
+		.addCriteria(Criteria.where("userProdId").is(products.getId()))
 		.addCriteria(Criteria.where("date").is(yesterday));
 		
 		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
@@ -473,7 +480,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 			
 			Query query2 = new Query();
 			query2.addCriteria(Criteria.where("userUuid").is(uuid))
-			.addCriteria(Criteria.where("prodId").is(products.getProdId()))
+			.addCriteria(Criteria.where("userProdId").is(products.getId()))
 			.addCriteria(Criteria.where("date").is(beforeYesterday));
 			List<DailyAmount> dailyAmountList2 = mongoTemplate.find(query, DailyAmount.class);
 			if(dailyAmountList2!=null&&dailyAmountList2.size()>0){
@@ -552,6 +559,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 						if(status.equals(temp.getStatus()+"")){
 							map.put("status", temp.getComment());
 							break;
+						} else {
+							map.put("status", "");
 						}
 					}
 				}
@@ -559,5 +568,88 @@ public class UserInfoServiceImpl implements UserInfoService {
 			}
 		}
 		return result;
+	}
+	
+	@Override
+	public List<MongoUiTrdLogDTO> getTradeLogs(String uuid) throws Exception{
+		Long userId = getUserIdFromUUID(uuid);
+		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService.findByUserId(userId);
+		return trdLogList;
+	}
+	
+	@Override
+	public List<Map<String, Object>> getMyCombinations(String uuid) throws Exception{
+		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+		List<ProductsDTO> productsList = this.findProductInfos(uuid);
+		if(productsList==null||productsList.size()==0){
+			logger.error("我的智投组合暂时不存在");
+			return resultList;
+		}
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		ProductsDTO products= new ProductsDTO();
+		for(int i = 0; i< productsList.size();i++){
+			products = productsList.get(i);
+			resultMap = new HashMap<String, Object>();
+			resultMap.put("groupId", products.getProdId());
+			resultMap.put("subGroupId", products.getGroupId());
+			
+			resultMap.put("title", products.getProdName());
+			resultMap.put("createDate", products.getCreateDate());
+			//总资产
+			Map<String, Object> totalAssetsMap = this.getChicombinationAssets(uuid,products);
+			if(totalAssetsMap.size()>0){
+				resultMap.put("totalAssets", totalAssetsMap.get("assert"));
+				//日收益
+				resultMap.put("dailyIncome", totalAssetsMap.get("dailyIncome"));
+				//累计收益率
+				resultMap.put("totalIncomeRate", totalAssetsMap.get("totalIncomeRate"));
+				//累计收益
+				resultMap.put("totalIncome", totalAssetsMap.get("totalIncome"));
+			} else {
+				resultMap.put("totalAssets", 0);
+				resultMap.put("dailyIncome", 0);
+				resultMap.put("totalIncomeRate", 0);
+				resultMap.put("totalIncome", 0);
+			}
+			
+			// 状态(0-待确认 1-已确认 -1-交易失败)
+			TrdOrderStatusEnum trdOrderStatusEnum[] = TrdOrderStatusEnum.values();
+			List<UiProductDetailDTO> productDetailsList = uiProductService.getProductDetailsByProdId(products.getId());
+			Integer count = 0; 
+			if (productDetailsList != null && productDetailsList.size() > 0) {
+//				Map<String, String> statusMap = new HashMap<String, String>();
+				for (int j = 0; j < productDetailsList.size(); j++) {
+					UiProductDetailDTO uiProductDetailDTO = productDetailsList.get(j);
+					if(uiProductDetailDTO.getStatus()!=null){
+						if(uiProductDetailDTO.getStatus()!=TrdOrderStatusEnum.CONFIRMED.getStatus()&&uiProductDetailDTO.getStatus()!=TrdOrderStatusEnum.FAILED.getStatus()&&uiProductDetailDTO.getStatus()!=TrdOrderStatusEnum.CANCEL.getStatus()){
+							count++;
+						}
+					}
+				}
+			}
+			resultMap.put("count", count);
+			if (count > 0) {
+				resultMap.put("title", "* 您有" + count + "支基金正在确认中");
+			}
+//			if (products.getStatus() == 0) {
+//				resultMap.put("status", "待确认");
+//				if (productDetailsList != null && productDetailsList.size() > 0) {
+//					resultMap.put("count", productDetailsList.size());
+//				} else {
+//					resultMap.put("count", 0);
+//				}
+//			} else if (products.getStatus() == 1) {
+//				resultMap.put("status", "已确认");
+//			} else {
+//				resultMap.put("status", "交易失败");
+//			}
+			// 智投组合产品ID
+			resultMap.put("prodId", products.getId());
+			// 买入日期
+			resultMap.put("updateDate", DateUtil.getDateType(products.getUpdateDate()));
+			
+			resultList.add(resultMap);
+		}
+		return resultList;
 	}
 }

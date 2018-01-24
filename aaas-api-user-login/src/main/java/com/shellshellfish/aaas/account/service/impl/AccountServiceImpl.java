@@ -176,6 +176,10 @@ public class AccountServiceImpl implements AccountService {
 	public UserDTO isSmsVerified(UpdateRegistrationBodyDTO registrationBodyDTO) throws RuntimeException {
 		String cellphone = registrationBodyDTO.getTelnum();
 		String verfiedcode = registrationBodyDTO.getIdentifyingcode();
+		String password = registrationBodyDTO.getPassword();
+		if (password.length() < 6 || password.length() > 20) {
+			throw new UserException("101", "密码长度至少为6~20位，请重新输入.");
+		}
 		List<Object[]> reslst=smsVerificationRepositoryCustom.getSmsVerification(cellphone, verfiedcode);
 		// List<SmsVerification> reslst=smsVerificationRepository.findByCellPhoneAndSmsCode(cellphone, verfiedcode);
 		if (reslst==null||reslst.size()==0){

@@ -270,8 +270,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   }
 
   @Override
-  public String bindCard(BindBankCard bindBankCard)
-      throws ExecutionException, InterruptedException, JsonProcessingException {
+  public String bindCard(BindBankCard bindBankCard)throws JsonProcessingException {
     String tradeAcco = null;
     try {
       OpenAccountResult openAccountResult = fundTradeApiService.openAccount("" +TradeUtil
@@ -468,39 +467,30 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   }
 
 
+	@Override
+	public void bindBankCard(com.shellshellfish.aaas.finance.trade.pay.BindBankCardQuery bindBankCardQuery,
+							 io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.pay.BindBankCardResult> responseObserver) {
+		final String errMsg = "-1";
 
-
-  @Override
-  public void bindBankCard(com.shellshellfish.aaas.finance.trade.pay.BindBankCardQuery bindBankCardQuery,
-      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.pay.BindBankCardResult> responseObserver) {
-    BindBankCard bindBankCard = new BindBankCard();
-    BeanUtils.copyProperties(bindBankCardQuery, bindBankCard);
-    String trdAcco = null;
-    try {
-      trdAcco = bindCard(bindBankCard);
-    } catch (ExecutionException e) {
-      e.printStackTrace();
-      logger.error(e.getMessage());
-
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-
-      logger.error(e.getMessage());
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
-
-      logger.error(e.getMessage());
-    }
-    if(StringUtils.isEmpty(trdAcco) || trdAcco.equals("-1")){
-      logger.error("failed to bind card with UserName:"+ bindBankCard.getUserName() + " pid:"+
-          bindBankCard.getUserPid() + "bankCode:"+ bindBankCard.getBankCode() +
-          "userId:" +bindBankCard.getUserId());
-    }
-    BindBankCardResult.Builder builder = BindBankCardResult.newBuilder();
-    builder.setTradeacco(trdAcco);
-    responseObserver.onNext(builder.build());
-    responseObserver.onCompleted();
-  }
+		BindBankCard bindBankCard = new BindBankCard();
+		BeanUtils.copyProperties(bindBankCardQuery, bindBankCard);
+		String trdAcco;
+		try {
+			trdAcco = bindCard(bindBankCard);
+		} catch (JsonProcessingException e) {
+			trdAcco = errMsg;
+			logger.error(e.getMessage());
+		}
+		if (StringUtils.isEmpty(trdAcco) || trdAcco.equals(errMsg)) {
+			logger.error("failed to bind card with UserName:" + bindBankCard.getUserName() + " pid:" +
+					bindBankCard.getUserPid() + "bankCode:" + bindBankCard.getBankCode() +
+					"userId:" + bindBankCard.getUserId());
+		}
+		BindBankCardResult.Builder builder = BindBankCardResult.newBuilder();
+		builder.setTradeacco(trdAcco);
+		responseObserver.onNext(builder.build());
+		responseObserver.onCompleted();
+	}
 
   @Override
   /**
