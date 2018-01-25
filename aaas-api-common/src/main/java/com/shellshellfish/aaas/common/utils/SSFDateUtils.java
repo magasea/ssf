@@ -7,6 +7,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+
+/**
+ * 该类的方法需要在 {@link InstantDateUtil} 中用java8  {@link LocalDate} 重新实现
+ *
+ * @see {@link InstantDateUtil}
+ */
+@Deprecated
 public class SSFDateUtils {
 
 	public static Long getDateLongValOneDayBefore(String dateStr) throws ParseException {
