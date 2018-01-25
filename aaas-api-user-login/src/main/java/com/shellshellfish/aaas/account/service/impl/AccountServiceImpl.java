@@ -92,7 +92,7 @@ public class AccountServiceImpl implements AccountService {
 					"^(?![A-Za-z]+$)(?![A-Z\\d]+$)(?![A-Z\\W]+$)(?![a-z\\d]+$)(?![a-z\\W]+$)(?![\\d\\W]+$)\\S{8,20}$");
 			Matcher pwdMatcher = pwdPattern.matcher(pwdconfirm);
 			if (pwdMatcher.find()) {
-				String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
+				String telRegExp = "^((1[3,5,8][0-9])|(14[5,7])|(17[0,6,7,8])|(19[7]))\\d{8}$";
 				Pattern telPattern = Pattern.compile(telRegExp);
 				Matcher telMatcher = telPattern.matcher(telnum);
 				if (!telMatcher.find()) {

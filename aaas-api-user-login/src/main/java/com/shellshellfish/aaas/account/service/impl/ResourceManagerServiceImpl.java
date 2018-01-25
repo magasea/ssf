@@ -237,7 +237,7 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
 	// for pwdsetting url
 	public HashMap<String, Object> pwdSettingDesc(String[] telnum) {
 		HashMap<String, Object> rsmap = new HashMap<String, Object>();
-		Pattern regExp = Pattern.compile("^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$");
+		Pattern regExp = Pattern.compile("^((1[3,5,8][0-9])|(14[5,7])|(17[0,6,7,8])|(19[7]))\\d{8}$");
 		Matcher m = regExp.matcher(telnum[0]);
 		if (!m.find()) {
 			rsmap.put("status", "手机号格式不正确");
@@ -274,7 +274,7 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
 		// smsverification resource
 		HashMap<String, Object> rsmap = new HashMap<String, Object>();
 		/// =====start======///
-		Pattern regExp = Pattern.compile("^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$");
+		Pattern regExp = Pattern.compile("^((1[3,5,8][0-9])|(14[5,7])|(17[0,6,7,8])|(19[7]))\\d{8}$");
 		Matcher m = regExp.matcher(telnum[0]);
 		if (!m.find()) {
 			rsmap.put("status", "手机号格式不正确");
@@ -319,7 +319,7 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
 		HashMap<String, Object> rsmap = new HashMap<String, Object>();
 
 		/// =====start======///
-		Pattern regExp = Pattern.compile("^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$");
+		Pattern regExp = Pattern.compile("^((1[3,5,8][0-9])|(14[5,7])|(17[0,6,7,8])|(19[7]))\\d{8}$");
 		Matcher m = regExp.matcher(args[1]);
 		if (!m.find()) {
 			rsmap.put("status", "手机号格式不正确");
