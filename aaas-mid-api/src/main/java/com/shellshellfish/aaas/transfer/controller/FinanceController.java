@@ -133,15 +133,22 @@ public class FinanceController {
 							}
 						}
 						if(objMap.containsKey("product_list")){
-//							List productList = (List) objMap.get("product_list");
-//							if(productList!=null&&productList.size()>0){
+							List productList = (List) objMap.get("product_list");
+							if(productList!=null&&productList.size()>0){
+								Collections.sort(productList, new Comparator<Map<String, Object>>() {
+						            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+						            	int map1value = (int) o1.get("value");
+						            	int map2value = (int) o2.get("value");
+						                return map2value-map1value;
+						            }
+						        });
 //								for(int i = 0;i<productList.size();i++){
 //									Map productMap = (Map) productList.get(i);
 //									if(productMap!=null){
 //										productMap.put("value", productMap.get("value")+EasyKit.PERCENT);
 //									}
 //								}
-//							}
+							}
 						}
 					}
 				}
