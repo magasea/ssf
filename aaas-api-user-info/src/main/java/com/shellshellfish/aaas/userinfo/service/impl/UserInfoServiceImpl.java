@@ -507,7 +507,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 			List<DailyAmount> dailyAmountList2 = mongoTemplate.find(query, DailyAmount.class);
 			if(dailyAmountList2!=null&&dailyAmountList2.size()>0){
 				BigDecimal asserts2 = new BigDecimal(0);
-        		for(int i=0;i<dailyAmountList.size();i++){
+        		for(int i=0;i<dailyAmountList2.size();i++){
         			DailyAmount dailyIncome = dailyAmountList2.get(i);
             		if(dailyIncome.getAsset()!=null){
             			asserts2 =  asserts2.add(dailyIncome.getAsset());
