@@ -30,15 +30,14 @@ public class TradeUtil {
   public static String generateOrderIdByBankCardNum(String bankCardNum, int tradeBrokerId){
     Long utcTime = getUTCTime();
     System.out.println(utcTime);
-    Long disOrderedBankCardId = Long.valueOf(bankCardNum.substring(bankCardNum.length() -4 )+
-        bankCardNum.substring(0, 3));
+    String disOrderedBankCardId = bankCardNum.substring(bankCardNum.length() -4) + bankCardNum
+        .substring(0, 3);
     StringBuilder sb = new StringBuilder();
     sb.append(disOrderedBankCardId).append(String.format("%04d", tradeBrokerId)).append(String.format("%018d", utcTime));
     return sb.toString();
   }
 
   public static String getReadableDateTime(Long utcTime){
-
     ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(utcTime), ZoneId.systemDefault
         ());
     return     zonedDateTime.toLocalDateTime().toString();
