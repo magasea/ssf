@@ -1,10 +1,12 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.userinfo.model.BonusInfo;
 import com.shellshellfish.aaas.userinfo.model.ConfirmResult;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.FundInfo;
+import com.shellshellfish.aaas.userinfo.model.FundNet;
 import com.shellshellfish.aaas.userinfo.model.FundShare;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
@@ -127,14 +129,20 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 	private BigDecimal calcDailyAsset2(String userUuid, Long prodId, Long userProdId, String fundCode,
 			String date, UiProductDetail uiProductDetail) throws Exception {
-		FundInfo fundInfo = fundTradeApiService.getFundInfoAsEntity(fundCode);
 		BigDecimal share = new BigDecimal(uiProductDetail.getFundQuantity());
 
 		if (BigDecimal.ZERO.equals(share)) {
 			return BigDecimal.ZERO;
 		}
 
-		BigDecimal netValue = new BigDecimal(fundInfo.getPernetvalue());
+		FundNet fundNet = fundTradeApiService
+				.getFundNet(fundCode, InstantDateUtil.format(date, "yyyyMMdd"));
+
+		if (fundNet == null) {
+			return BigDecimal.ZERO;
+		}
+
+		BigDecimal netValue = fundNet.getUnitNet();
 		BigDecimal rateOfSellFund = fundTradeApiService.getRate(fundCode, "024");
 
 		BigDecimal fundAsset = share.multiply(netValue)
@@ -234,8 +242,9 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 				continue;
 			}
 
-			if(!startDate.equals(info.getConfirmdate()))
+			if (!startDate.equals(info.getConfirmdate())) {
 				continue;
+			}
 
 			Query query = new Query();
 			query.addCriteria(Criteria.where("userUuid").is(userUuid))
@@ -247,7 +256,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 			Update update = new Update();
 			update.set("bonus", info.getFactbonussum());
 			DailyAmount dailyAmount = mongoTemplate
-					.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(false),
+					.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
 							DailyAmount.class);
 			logger.info(
 					"set bonus ==> dailyAmount:{}", dailyAmount);
@@ -280,7 +289,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 			}
 
 			DailyAmount dailyAmount = mongoTemplate
-					.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(false),
+					.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
 							DailyAmount.class);
 			logger.info(
 					"set buyAmount or sell Amount ==> dailyAmount:{}", dailyAmount);
@@ -450,6 +459,8 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 	}
 
 	//    @Scheduled(cron = "0 0 3 * * ?", zone= "Asia/Shanghai")
+	//   定时任务改为脚本执行
+	@Deprecated
 	@Override
 	public void dailyCalculation() throws Exception {
 		logger.info("daily calculation every morning: {}", new Date());
@@ -467,15 +478,17 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 					String fundCode = detail.getFundCode();
 					initDailyAmount(user.getUuid(), prod.getProdId(), detail.getUserProdId(), date, fundCode);
 					try {
+						//计算当日总资产
 						calcDailyAsset2(user.getUuid(), prod.getProdId(), detail.getUserProdId(), fundCode,
 								date, detail);
+
+						//获取当日分红，以及确认购买和赎回的金额
 						calcIntervalAmount2(getZZOpenId(user.getId()), user.getUuid(), prod.getProdId(),
 								detail.getUserProdId(), fundCode, date);
 					} catch (Exception e) {
 						logger.error("计算{用户:{},基金code:{},基金名称：{}}日收益出错", detail.getCreateBy(),
 								detail.getFundCode(), detail.getFundName());
 						logger.error(e.getMessage());
-						break;
 					}
 				}
 			}
