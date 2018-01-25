@@ -342,18 +342,17 @@ public class UserInfoController {
 				logger.error("我的智投组合获取失败");
 				return new JsonResult(JsonResult.Fail, "我的智投组合为空", JsonResult.EMPTYRESULT);
 			} else {
-//				if(result.get("result")!=null){
-//					List<Map<String, Object>> resultList = (List<Map<String, Object>>) result.get("result");
-//					for(int i = 0; i < resultList.size();i++){
-//						Map<String, Object> resultMap = resultList.get(i);
-//						if (resultMap.get("totalIncome") != null) {
-//							Double totalIncome = (Double) resultMap.get("totalIncome");
-//							totalIncome = (new BigDecimal(totalIncome).divide(new BigDecimal(100)))
-//									.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-//							resultMap.put("totalIncome", totalIncome);
-//						}
-//					}
-//				}
+				if(result.get("result")!=null){
+					List<Map<String, Object>> resultList = (List<Map<String, Object>>) result.get("result");
+					for (int i = 0; i < resultList.size(); i++) {
+						Map<String, Object> resultMap = resultList.get(i);
+						if (resultMap.get("totalIncomeRate") != null) {
+							String totalIncomeRate = resultMap.get("totalIncomeRate") + "";
+							totalIncomeRate = EasyKit.getDecimal(new BigDecimal(totalIncomeRate)) + "";
+							resultMap.put("totalIncomeRate", totalIncomeRate + EasyKit.PERCENT);
+						}
+					}
+				}
 				return new JsonResult(JsonResult.SUCCESS, "我的智投组合成功", result.get("result"));
 			}
 		} catch (Exception e) {
