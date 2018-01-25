@@ -145,7 +145,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public BankCardDTO addUserBankcard(UiBankcard uiBankcard) throws Exception {
-		logger.info("reservice149");
+
 		List<UiBankcard> uiBankcards = userInfoBankCardsRepository.findAllByUserIdAndCardNumber
 				(uiBankcard.getUserId(), uiBankcard.getCardNumber());
 		if(!CollectionUtils.isEmpty(uiBankcards)){
@@ -721,6 +721,22 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	@Override
 	public UiUser getUserInfoByUserUUID(String userUUID) {
 		return userInfoRepository.findByUuid(userUUID);
+	}
+
+	/**
+	 */
+	@Override
+	public void getUserInfoByUserUUID(com.shellshellfish.aaas.userinfo.grpc.UserIdQuery request,
+			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserInfo> responseObserver) {
+		UiUser uiUser = getUserInfoByUserUUID(request.getUuid());
+		UserInfo.Builder uiBuilder = UserInfo.newBuilder();
+		if(uiUser.getRiskLevel() == null || uiUser.getRiskLevel() < 0){
+			logger.error("this user haven't done risk evaluate");
+			uiUser.setRiskLevel(-1);
+		}
+		MyBeanUtils.mapEntityIntoDTO(uiUser, uiBuilder);
+		responseObserver.onNext(uiBuilder.build());
+		responseObserver.onCompleted();
 	}
 }
 

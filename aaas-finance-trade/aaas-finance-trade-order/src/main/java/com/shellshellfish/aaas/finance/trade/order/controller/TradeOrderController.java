@@ -10,6 +10,7 @@ import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.ProdSellPageDTO;
 import com.shellshellfish.aaas.finance.trade.order.service.*;
+import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,18 +63,19 @@ public class TradeOrderController {
 	@RequestMapping(value = "/funds/buy", method = RequestMethod.POST)
 	public ResponseEntity<?> buyFinanceProd(@RequestBody FinanceProdBuyInfo financeProdBuyInfo)
 			throws Exception {
+		UserInfo userInfo = tradeOpService.getUserInfoByUserUUID(financeProdBuyInfo.getUuid());;
 		if (null == financeProdBuyInfo.getUserId()) {
 			logger.info("input userId is empty, need retrieve userId");
-			Long userId = tradeOpService.getUserId(financeProdBuyInfo.getUuid());
+			Long userId = userInfo.getId();
 			financeProdBuyInfo.setUserId(userId);
 		}
-		Long userId = tradeOpService.getUserId(financeProdBuyInfo.getUuid());
-		financeProdBuyInfo.setUserId(userId);
+		if(userInfo.getRiskLevel() < 0){
+			throw new Exception("用户未做风险评测，请做完风险评测再购买理财产品");
+		}
 		financeProdBuyInfo.setMoney(financeProdBuyInfo.getMoney());
 		TrdOrder trdOrder = tradeOpService.buyFinanceProduct(financeProdBuyInfo);
 		return new ResponseEntity<Object>(trdOrder, HttpStatus.OK);
 	}
-
 
 	/**
 	 * 赎回理财产品 页面
@@ -90,7 +92,7 @@ public class TradeOrderController {
 			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")
 	})
 	@RequestMapping(value = "/funds/sell", method = RequestMethod.POST)
-	public ResponseEntity<?> buyFinanceProd(@RequestBody ProdSellPageDTO prodSellPageDTO)
+	public ResponseEntity<?> sellFinanceProd(@RequestBody ProdSellPageDTO prodSellPageDTO)
 			throws Exception {
 		if (prodSellPageDTO.getUserId() == 0L) {
 			logger.info("input userId is empty, need retrieve userId");

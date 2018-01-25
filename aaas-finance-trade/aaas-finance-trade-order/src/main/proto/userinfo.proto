@@ -16,7 +16,7 @@ service UserInfoService {
     rpc GetUerUUIDByUserId (UserId) returns (UserUUID){}
     rpc UpdateUserProd(UpdateUserProdReqs) returns(UserProdId){}
     rpc GetUserInfo (UserId) returns (UserInfo){}
-
+    rpc GetUserInfoByUserUUID (UserIdQuery) returns (UserInfo){}
     rpc SellUserProducts (SellProducts) returns (SellProducts){}
 }
 message SellProducts{

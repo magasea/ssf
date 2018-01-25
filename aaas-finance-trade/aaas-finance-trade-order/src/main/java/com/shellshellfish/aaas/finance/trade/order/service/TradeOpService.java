@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
+import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import java.util.concurrent.ExecutionException;
 import org.springframework.data.repository.query.Param;
 
@@ -14,6 +15,8 @@ public interface TradeOpService {
       throws Exception;
 
   Long getUserId(String uuid) throws ExecutionException, InterruptedException;
+
+  UserInfo getUserInfoByUserUUID(String uuid) throws ExecutionException, InterruptedException;
 
   public void updateByParam(String tradeApplySerial, Long fundNum, Long fundNumConfirmed, Long
       updateDate, Long updateBy, Long id, int orderDetailStatus);

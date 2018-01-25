@@ -128,6 +128,7 @@ public class TradeSellServiceImpl implements TradeSellService {
     BeanUtils.copyProperties(prodSellPageDTO, prodSellDTO);
     prodSellDTO.setSellTargetMoney(TradeUtil.getLongNumWithMul100(prodSellPageDTO.getSellTargetMoney()));
     prodSellDTO.setProdDtlSellDTOList(prodDtlSellDTOList);
+
     if(StringUtils.isEmpty(prodSellDTO.getUserBankNum())){
       List<TrdOrder> trdOrders = trdOrderRepository.findByUserProdId(prodSellPageDTO.getUserProdId());
       prodSellDTO.setUserBankNum(trdOrders.get(0).getBankCardNum());

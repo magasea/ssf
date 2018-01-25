@@ -39,6 +39,7 @@ import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoQuery;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.FinanceProdInfosQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
+import com.shellshellfish.aaas.userinfo.grpc.UserId;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
@@ -61,6 +62,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import sun.reflect.annotation.ExceptionProxy;
 
 @Service
 public class TradeOpServiceImpl implements TradeOpService {
@@ -141,7 +143,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       List<ProductMakeUpInfo> productMakeUpInfos) throws Exception {
     FinanceProdInfosQuery.Builder requestBuilder = FinanceProdInfosQuery.newBuilder();
     requestBuilder.setUserId(financeProdBuyInfo.getUserId());
-
+    requestBuilder.setBankCardNum(financeProdBuyInfo.getBankAcc());
     FinanceProdInfoCollection.Builder subReqBuilder = FinanceProdInfoCollection.newBuilder();
     FinanceProdInfo.Builder finProdInfoBuilder = FinanceProdInfo.newBuilder();
     for( ProductMakeUpInfo productMakeUpInfo: productMakeUpInfos){
@@ -250,6 +252,10 @@ public class TradeOpServiceImpl implements TradeOpService {
     String userPid = null;
     int riskLevel;
     UserBankInfo userBankInfo = userInfoService.getUserBankInfo(financeProdBuyInfo.getUserId());
+    if(CollectionUtils.isEmpty(userBankInfo.getCardNumbersList())){
+      logger.error("failed to find user:" + financeProdBuyInfo.getUserId() +" have binded cards");
+      throw new Exception("用户未绑卡，请绑卡后再购买理财产品");
+    }
     for(CardInfo cardInfo:userBankInfo.getCardNumbersList()){
       if(cardInfo.getCardNumbers().equals(financeProdBuyInfo.getBankAcc())){
         userPid = cardInfo.getUserPid();
@@ -261,8 +267,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     if(StringUtils.isEmpty(userPid)){
       logger.error("this user: "+financeProdBuyInfo.getUserId()+" personal id is not in "
           + "ui_bankcard" );
-      throw new Exception("this user: "+financeProdBuyInfo.getUserId()+" personal id is not in "
-          + "ui_bankcard");
+      throw new Exception("用户: "+financeProdBuyInfo.getUserId()+" 的绑卡信息有误，没有身份证号");
     }
     if(!CollectionUtils.isEmpty(trdBrokerUsers)){
 
@@ -295,9 +300,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         throw new Exception("this bank name:"+bankShortName
             + " with brokerId"+ TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId()+" is not in table:");
       }
-//      userPid = bindBankCard.getUserPid();
       UserInfo userInfo = userInfoService.getUserInfoByUserId(financeProdBuyInfo.getUserId());
-
       bindBankCard.setBankCode(trdTradeBankDic.getBankCode().trim());
       bindBankCard.setCellphone(userBankInfo.getCellphone());
       bindBankCard.setBankCardNum(financeProdBuyInfo.getBankAcc());
@@ -306,16 +309,9 @@ public class TradeOpServiceImpl implements TradeOpService {
       bindBankCard.setUserName(userBankInfo.getUserName());
       bindBankCard.setUserPid(userPid);
       bindBankCard.setRiskLevel(userInfo.getRiskLevel());
-
       payService.bindCard(bindBankCard);
       trdAcco = payService.bindCard(bindBankCard);
-
-
-//      trdBrokerUserRepository.updateTradeAcco(trdAcco, TradeUtil.getUTCTime(), bindBankCard
-//          .getUserId(),  bindBankCard.getUserId());
-
     }
-
     //因为要提取用户身份证号码，所以这里拼接回去，要优化吗？
     result.put(trdBrokerId, trdAcco+"|"+userPid+"|"+riskLevel);
     return result;
@@ -333,20 +329,24 @@ public class TradeOpServiceImpl implements TradeOpService {
   }
 
 
-//  private void sendOutOrder(PayPreOrderDto payPreOrderDto){
-//
-//    logger.info("use message queue to send payPreOrderDto");
-////    broadcastMessageProducer.sendPayMessages(payPreOrderDto);
-//
-//  }
+
 
   @Override
   public Long getUserId(String userUuid) throws ExecutionException, InterruptedException {
     UserIdQuery.Builder builder = UserIdQuery.newBuilder();
     builder.setUuid(userUuid);
-    com.shellshellfish.aaas.userinfo.grpc.UserId userId = userInfoServiceFutureStub.getUserId(builder
-        .build()).get();
+    com.shellshellfish.aaas.userinfo.grpc.UserId userId = userInfoServiceFutureStub.getUserId
+        (builder.build()).get();
     return userId.getUserId();
+  }
+
+  @Override
+  public UserInfo getUserInfoByUserUUID(String uuid) throws ExecutionException,
+      InterruptedException {
+    UserIdQuery.Builder builder = UserIdQuery.newBuilder();
+    builder.setUuid(uuid);
+    UserInfo userInfo = userInfoServiceFutureStub.getUserInfoByUserUUID(builder.build()).get();
+    return userInfo;
   }
 
   @Override
@@ -405,14 +405,12 @@ public class TradeOpServiceImpl implements TradeOpService {
     ProductBaseInfo productBaseInfo = new ProductBaseInfo();
     BeanUtils.copyProperties(financeProdInfo, productBaseInfo);
     //查询现在默认的货币基金作为preOrder
-
     List<ProductMakeUpInfo> productMakeUpInfos =  financeProdInfoService.getFinanceProdMakeUpInfo
         (productBaseInfo);
     if(productMakeUpInfos.size() <=0 ){
       logger.info("failed to get prod make up informations!");
       throw new Exception("failed to get prod make up informations!");
     }
-
     //需要先用preOrder去调中证接口去发起扣款交易
     FinanceProdInfoQuery.Builder fpqBuilder = FinanceProdInfoQuery.newBuilder();
     fpqBuilder.setGroupId(financeProdInfo.getGroupId());
