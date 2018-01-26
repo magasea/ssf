@@ -121,7 +121,7 @@ public class TradeOpServiceImpl implements TradeOpService {
   }
 
   @Override
-  @Transactional( propagation = Propagation.REQUIRED, transactionManager = "transactionManager")
+
   public TrdOrder buyFinanceProduct(FinanceProdBuyInfo financeProdBuyInfo)
       throws Exception {
     ProductBaseInfo productBaseInfo = new ProductBaseInfo();
@@ -163,8 +163,9 @@ public class TradeOpServiceImpl implements TradeOpService {
   }
 
 
-
-  TrdOrder genOrderFromBuyInfoAndProdMakeUpInfo(FinanceProdBuyInfo financeProdBuyInfo,
+  @Override
+  @Transactional( propagation = Propagation.REQUIRED, transactionManager = "transactionManager")
+  public TrdOrder genOrderFromBuyInfoAndProdMakeUpInfo(FinanceProdBuyInfo financeProdBuyInfo,
       List<ProductMakeUpInfo> productMakeUpInfos) throws Exception {
     //generate order
 //    TrdTradeBroker trdTradeBroker = trdBrokderRepository.findOne(1L);
