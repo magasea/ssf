@@ -123,13 +123,17 @@ public class TransferController {
 	@ApiOperation("申购基金")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "telNum", dataType = "String", required = true, value = "电话号码", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = false, value = "银行名称"),
+			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"),
+			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = false, value = "预计费用"),
 			@ApiImplicitParam(paramType = "query", name = "msgCode", dataType = "String", required = true, value = "验证码", defaultValue = "") })
 	@RequestMapping(value = "/subscribeFund", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult doTransaction(@RequestParam String telNum, @RequestParam String msgCode,
+	public JsonResult doTransaction(@RequestParam String telNum, @RequestParam(required = false) String bankName,
+			@RequestParam(required = false) String bankCard, @RequestParam(required = false) String buyfee, @RequestParam String msgCode,
 			@RequestBody FinanceProdBuyInfo prdInfo) {
 		String verify = null;
-		// 首先验证验证码\
+		// 首先验证验证码
 		try {
 			verify = service.verifyMSGCode(telNum, msgCode);
 		} catch (Exception e) {
@@ -153,6 +157,9 @@ public class TransferController {
 			Map buyProductSuccess = service.buyProduct(prdInfo);
 			Map resultMap = new HashMap<>();
 			resultMap.put("orderId", buyProductSuccess.get("orderId").toString());
+			resultMap.put("bankName", bankName);
+			resultMap.put("bankCard", bankCard);
+			resultMap.put("buyfee", buyfee);
 			return new JsonResult(JsonResult.SUCCESS, "订单已受理，申购中...", resultMap);
 		} catch (HttpClientErrorException e) {
 			logger.error("购买基金调用购买接口失败" + e.getMessage());
