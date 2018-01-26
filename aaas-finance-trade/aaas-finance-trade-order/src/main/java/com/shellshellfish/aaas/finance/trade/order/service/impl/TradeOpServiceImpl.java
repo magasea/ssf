@@ -121,7 +121,6 @@ public class TradeOpServiceImpl implements TradeOpService {
   }
 
   @Override
-  @Transactional( propagation = Propagation.REQUIRED, transactionManager = "transactionManager")
   public TrdOrder buyFinanceProduct(FinanceProdBuyInfo financeProdBuyInfo)
       throws Exception {
     ProductBaseInfo productBaseInfo = new ProductBaseInfo();
@@ -163,8 +162,9 @@ public class TradeOpServiceImpl implements TradeOpService {
   }
 
 
-
-  TrdOrder genOrderFromBuyInfoAndProdMakeUpInfo(FinanceProdBuyInfo financeProdBuyInfo,
+  @Override
+  @Transactional( propagation = Propagation.REQUIRED, transactionManager = "transactionManager")
+  public TrdOrder genOrderFromBuyInfoAndProdMakeUpInfo(FinanceProdBuyInfo financeProdBuyInfo,
       List<ProductMakeUpInfo> productMakeUpInfos) throws Exception {
     //generate order
 //    TrdTradeBroker trdTradeBroker = trdBrokderRepository.findOne(1L);
@@ -253,7 +253,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     String trdAcco = null;
     String userPid = null;
     int riskLevel;
-    UserBankInfo userBankInfo = userInfoService.getUserBankInfo(financeProdBuyInfo.getUserId());
+    UserBankInfo userBankInfo = userInfoService.getUserBankInfo(financeProdBuyInfo.getUuid());
     if(CollectionUtils.isEmpty(userBankInfo.getCardNumbersList())){
       logger.error("failed to find user:" + financeProdBuyInfo.getUserId() +" have binded cards");
       throw new Exception("用户未绑卡，请绑卡后再购买理财产品");

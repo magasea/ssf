@@ -64,11 +64,9 @@ public class TradeOrderController {
 	public ResponseEntity<?> buyFinanceProd(@RequestBody FinanceProdBuyInfo financeProdBuyInfo)
 			throws Exception {
 		UserInfo userInfo = tradeOpService.getUserInfoByUserUUID(financeProdBuyInfo.getUuid());;
-		if (null == financeProdBuyInfo.getUserId()) {
-			logger.info("input userId is empty, need retrieve userId");
-			Long userId = userInfo.getId();
-			financeProdBuyInfo.setUserId(userId);
-		}
+		Long userId = userInfo.getId();
+		financeProdBuyInfo.setUserId(userId);
+		
 		if(userInfo.getRiskLevel() < 0){
 			throw new Exception("用户未做风险评测，请做完风险评测再购买理财产品");
 		}

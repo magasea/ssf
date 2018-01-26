@@ -43,6 +43,16 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 
   @Override
+  public UserBankInfo getUserBankInfo(String userUUID) throws ExecutionException,
+      InterruptedException {
+    UserIdOrUUIDQuery.Builder builder = UserIdOrUUIDQuery.newBuilder();
+    builder.setUuid(userUUID);
+    com.shellshellfish.aaas.userinfo.grpc.UserBankInfo userBankInfo =
+        userInfoServiceFutureStub.getUserBankInfo(builder.build()).get();
+    return userBankInfo;
+  }
+
+  @Override
   public UserInfo getUserInfoByUserId(Long userId) throws ExecutionException, InterruptedException {
     UserId.Builder uiBuilder = UserId.newBuilder();
     uiBuilder.setUserId(userId);
