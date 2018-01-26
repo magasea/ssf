@@ -291,8 +291,9 @@ public class TradeOpServiceImpl implements TradeOpService {
           (userBankInfo.getUserId(),financeProdBuyInfo.getBankAcc());
       bindBankCard.setBankCardNum(financeProdBuyInfo.getBankAcc());
 //      String bankShortName = BankUtil.getCodeOfBank(financeProdBuyInfo.getBankAcc());
-      String bankName = BankUtil.getNameOfBank(financeProdBuyInfo.getBankAcc());
-      bankName = bankName.split("银行")[0] + "银行";
+//      String bankName = BankUtil.getNameOfBank(financeProdBuyInfo.getBankAcc());
+      String bankName = BankUtil.getZZBankNameFromOriginBankName(BankUtil.getNameOfBank
+          (financeProdBuyInfo.getBankAcc()));
       TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository.findByBankNameAndTraderBrokerId
           (bankName, TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
 
@@ -312,7 +313,6 @@ public class TradeOpServiceImpl implements TradeOpService {
       bindBankCard.setUserName(userBankInfo.getUserName());
       bindBankCard.setUserPid(userPid);
       bindBankCard.setRiskLevel(userInfo.getRiskLevel());
-      payService.bindCard(bindBankCard);
       trdAcco = payService.bindCard(bindBankCard);
     }
     //因为要提取用户身份证号码，所以这里拼接回去，要优化吗？

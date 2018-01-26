@@ -17,7 +17,10 @@ public class BankUtil {
 		String zzBankName = originBankName.split("银行")[0] + "银行";
 		if(zzBankName.equals("广东发展银行")){
 			return "广发银行";
-		}else{
+		}else if(zzBankName.equals("中国建设银行")){
+			return "建设银行";
+		}
+		else{
 			return zzBankName;
 		}
 	}
