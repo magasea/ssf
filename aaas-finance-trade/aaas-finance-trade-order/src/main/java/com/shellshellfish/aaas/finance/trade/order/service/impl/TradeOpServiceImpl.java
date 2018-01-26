@@ -129,8 +129,10 @@ public class TradeOpServiceImpl implements TradeOpService {
     List<ProductMakeUpInfo> productMakeUpInfos =  financeProdInfoService.getFinanceProdMakeUpInfo
         (productBaseInfo);
     if(productMakeUpInfos.size() <=0 ){
-      logger.info("failed to get prod make up informations!");
-      throw new Exception("failed to get prod make up informations!");
+      logger.info("没有发现产品组成信息 prodId:"+ productBaseInfo.getProdId() + " groupId:"+
+          productBaseInfo.getGroupId());
+      throw new Exception("没有发现产品组成信息 prodId:"+ productBaseInfo.getProdId() + " groupId:"+
+          productBaseInfo.getGroupId());
     }
     //在用户理财产品系统里面生成用户的理财产品, 这是日后《我的理财产品》模块的依据
     Long userProdId =  genUserProduct(financeProdBuyInfo, productMakeUpInfos);
@@ -288,16 +290,17 @@ public class TradeOpServiceImpl implements TradeOpService {
       TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndAndBankCardNum
           (userBankInfo.getUserId(),financeProdBuyInfo.getBankAcc());
       bindBankCard.setBankCardNum(financeProdBuyInfo.getBankAcc());
-      String bankShortName = BankUtil.getCodeOfBank(financeProdBuyInfo.getBankAcc());
+//      String bankShortName = BankUtil.getCodeOfBank(financeProdBuyInfo.getBankAcc());
+      String bankName = BankUtil.getNameOfBank(financeProdBuyInfo.getBankAcc());
+      bankName = bankName.split("银行")[0] + "银行";
+      TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository.findByBankNameAndTraderBrokerId
+          (bankName, TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
 
 
-      TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository
-          .findByBankShortNameAndTraderBrokerId(bankShortName, TradeBrokerIdEnum.ZhongZhenCaifu
-              .getTradeBrokerId().intValue());
       if(null == trdTradeBankDic){
-        logger.error("this bank name:"+bankShortName+" with brokerId"+ TradeBrokerIdEnum
+        logger.error("this bank name:"+bankName+" with brokerId"+ TradeBrokerIdEnum
             .ZhongZhenCaifu.getTradeBrokerId()+" is not in table:");
-        throw new Exception("this bank name:"+bankShortName
+        throw new Exception("this bank name:"+bankName
             + " with brokerId"+ TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId()+" is not in table:");
       }
       UserInfo userInfo = userInfoService.getUserInfoByUserId(financeProdBuyInfo.getUserId());

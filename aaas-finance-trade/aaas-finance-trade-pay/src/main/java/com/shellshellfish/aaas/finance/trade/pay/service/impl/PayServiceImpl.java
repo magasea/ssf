@@ -103,7 +103,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundMoneyQuantity());
       //TODO: replace userId with userUuid
       TrdPayFlow trdPayFlow = new TrdPayFlow();
-      trdPayFlow.setCreateDate(SSFDateUtils.getCurrentDateInLong());
+      trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
       trdPayFlow.setCreateBy(0L);
 
       trdPayFlow.setTrdMoneyAmount(trdOrderDetail.getFundMoneyQuantity());
@@ -201,7 +201,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundMoneyQuantity());
       //TODO: replace userId with userUuid
       TrdPayFlow trdPayFlow = new TrdPayFlow();
-      trdPayFlow.setCreateDate(SSFDateUtils.getCurrentDateInLong());
+      trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
       trdPayFlow.setCreateBy(0L);
       //重要。。。。。
       trdPayFlow.setOutsideOrderno(sbOutsideOrderno.toString());

@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.finance.trade.grpc.BindCardInfo;
@@ -39,12 +40,14 @@ public class TradeServiceImpl extends TradeServiceImplBase {
 		final String errorMsg = "-1";
 
 		String bankCardNo = bankCardInfo.getCardNo();
-		String bankCode = BankUtil.getCodeOfBank(bankCardNo);
+		String bankName = BankUtil.getNameOfBank(bankCardNo);
+		bankName = BankUtil.getZZBankNameFromOriginBankName(bankName);
+
+		TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository.findByBankNameAndTraderBrokerId
+				(bankName, TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
 
 		String tradeNo;
-		if (bankCode != null) {
-			TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository.findByBankShortName(bankCode);
-
+		if (trdTradeBankDic != null) {
 			BindBankCard bindBankCard = new BindBankCard();
 			bindBankCard.setBankCardNum(bankCardInfo.getCardNo());
 			bindBankCard.setUserId(bankCardInfo.getUserId());
