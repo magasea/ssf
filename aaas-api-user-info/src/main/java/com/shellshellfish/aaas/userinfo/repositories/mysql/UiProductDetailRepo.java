@@ -17,6 +17,8 @@ public interface UiProductDetailRepo extends PagingAndSortingRepository<UiProduc
   @Override
   UiProductDetail save(UiProductDetail uiProductDetail);
 
+  List<UiProductDetail> findAllByUserProdIdIs(Long userProdId);
+
   @Modifying
   @Transactional
   @Query("UPDATE UiProductDetail SET fund_quantity = :fundQuantity, update_date = :updateDate, "
