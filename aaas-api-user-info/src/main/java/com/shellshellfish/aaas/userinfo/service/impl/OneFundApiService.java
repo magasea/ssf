@@ -322,7 +322,7 @@ public class OneFundApiService implements FundTradeApiService {
 		Map<String, Object> info = init(userUuid);
 		if (!StringUtils.isEmpty(fundCode)) {
 			info.put("fundcode", fundCode);
-			info.put("confirmdate",confirmDate);
+			info.put("confirmdate", confirmDate);
 		}
 
 		postInit(info);
@@ -810,7 +810,7 @@ public class OneFundApiService implements FundTradeApiService {
 	 */
 	@Override
 	public FundNet getFundNet(String fundCode, LocalDate date) throws JsonProcessingException {
-		Long startIndex = ChronoUnit.DAYS.between(date, LocalDate.now()) - 1;
+		Long startIndex = ChronoUnit.DAYS.between(date, LocalDate.now());
 		List<FundNet> fundNetList = getFundNets(fundCode, startIndex.intValue(), 1);
 		if (fundNetList == null || fundNetList.size() <= 0) {
 			return null;

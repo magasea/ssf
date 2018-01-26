@@ -17,6 +17,8 @@ spring:
       database: test1
       host: localhost
       port: 27017
+      zhongzheng: "zhongzheng"
+      funds: "funds"
   rabbitmq:
     listener:
       simple:

@@ -2,9 +2,7 @@ package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.previousOperation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mongodb.MongoClient;
@@ -23,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -40,7 +37,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(value = SpringRunner.class)
 @SpringBootTest(classes = UserInfoApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-@ActiveProfiles(profiles = "local")
+@ActiveProfiles(profiles = "dev")
 public class OneFundApiServiceTest {
 
 	@Autowired
@@ -73,8 +70,13 @@ public class OneFundApiServiceTest {
 		String fundCode = "000149.OF";
 
 		try {
-			FundNet result = oneFundApiService.getFundNet(fundCode, LocalDate.now().plusDays(-2L));
-			Assert.assertNotNull(result);
+			FundNet result = oneFundApiService.getFundNet(fundCode, LocalDate.now().plusDays(-3L));
+			FundNet result2 = oneFundApiService.getFundNet(fundCode, LocalDate.now().plusDays(-4L));
+			System.out.println(result);
+			System.out.println(result2);
+			Assert.assertEquals(result.getUnitNet(), result2.getUnitNet());
+			Assert.assertEquals(result.getTradeDate(), result2.getTradeDate());
+			Assert.assertEquals("20180119", result.getTradeDate());
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}

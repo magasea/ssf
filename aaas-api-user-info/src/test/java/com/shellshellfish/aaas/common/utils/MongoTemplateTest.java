@@ -29,7 +29,7 @@ public class MongoTemplateTest {
 
 
 	@Autowired
-	@Qualifier("secondaryMongoTemplate")
+	@Qualifier("zhongZhengMongoTemplate")
 	private MongoTemplate mongoTemplate;
 
 

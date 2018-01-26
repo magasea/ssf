@@ -16,6 +16,8 @@ spring:
       database: test1
       host: 192.168.1.10
       port: 27017
+      zhongzheng: "zhongzheng"
+      funds: "funds"
   jpa:
     hibernate:
       ddl-auto: update

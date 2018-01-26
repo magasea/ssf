@@ -29,9 +29,9 @@ import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 @ComponentScan
-@EntityScan("com.shellshellfish.aaas.userinfo.model")
+@EntityScan("com.shellshellfish.aaas.userinfo.model.mysql")
 @EnableJpaRepositories(basePackages = "com.shellshellfish.aaas.userinfo.repositories.mysql")
-@EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.userinfo.repositories.mongo")
+
 @EnableTransactionManagement
 
 public class JpaConfiguration {
@@ -43,7 +43,7 @@ public class JpaConfiguration {
 	private int maxPoolSize;
 
 	/*
-	 * Populate SpringBoot DataSourceProperties object directly from application.yml 
+	 * Populate SpringBoot DataSourceProperties object directly from application.yml
 	 * based on prefix.Thanks to .yml, Hierachical data is mapped out of the box with matching-name
 	 * properties of DataSourceProperties object].
 	 */
