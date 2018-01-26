@@ -1,8 +1,30 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import javax.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
 import com.shellshellfish.aaas.finance.trade.pay.ZhongZhengQueryByOrderDetailId;
@@ -31,30 +53,7 @@ import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
-import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import io.grpc.ManagedChannel;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import javax.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
@@ -398,13 +397,51 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public Map<String, Object> getTotalAssets(String uuid) throws Exception {
+	public Map<String, Object> getTotalAssets(String uuid) throws Exception{
+		List<ProductsDTO> productsList = this.findProductInfos(uuid);
+		if(productsList==null||productsList.size()==0){
+			logger.error("我的智投组合暂时不存在");
+			return new HashMap<String,Object>();
+		}
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		BigDecimal asserts = new BigDecimal(0);
+		BigDecimal dailyIncome = new BigDecimal(0);
+		BigDecimal incomeTotal = new BigDecimal(0);
+		String endDate = "";
+		for(int i = 0; i< productsList.size();i++){
+			ProductsDTO products= productsList.get(i);
+			Map<String, Object> combinationMap = this.getCombinations(uuid, products.getId(), 2);
+			if(!endDate.equals(combinationMap.get("date"))){
+				endDate = combinationMap.get("date") == null ? "" : combinationMap.get("date") + "";
+			}
+			asserts = asserts.add(new BigDecimal(combinationMap.get("assert") + ""));
+			dailyIncome = dailyIncome.add(new BigDecimal(combinationMap.get("dailyIncome")+""));
+			
+			//累计收益率
+			BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, products.getId(),DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""),endDate);
+			resultMap.put("totalIncomeRate", incomeRate);
+			
+			//累计收益
+			BigDecimal income = userFinanceProdCalcService.calcYieldValue(uuid, products.getId(), DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), endDate);
+			if(income!=null){
+				income = (income.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
+				incomeTotal = incomeTotal.add(income);
+			}
+		}
+		
+		resultMap.put("assert", asserts);
+		resultMap.put("dailyIncome", dailyIncome);
+		resultMap.put("totalIncome", incomeTotal);
+		
+		return resultMap;
+	}
+	public Map<String, Object> getTotalAssetsBak(String uuid) throws Exception{
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		String yesterday = DateUtil.getSystemDatesAgo(-1);
 		String beforeYesterday = DateUtil.getSystemDatesAgo(-2);
 		Query query = new Query();
 		query.addCriteria(Criteria.where("userUuid").is(uuid))
-				.addCriteria(Criteria.where("date").is(yesterday));
+		.addCriteria(Criteria.where("date").is(yesterday));
 
 		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
 		if (dailyAmountList != null && dailyAmountList.size() > 0) {
@@ -416,11 +453,26 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}
 			}
 			if (asserts != null) {
+=======
+		.addCriteria(Criteria.where("date").is(yesterday));
+		
+		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
+		if(dailyAmountList!=null&&dailyAmountList.size()>0){
+			BigDecimal asserts = new BigDecimal(0);
+			for(int i=0;i<dailyAmountList.size();i++){
+				DailyAmount dailyAmount = dailyAmountList.get(i);
+				if(dailyAmount.getAsset()!=null){
+					asserts =  asserts.add(dailyAmount.getAsset());
+				}
+			}
+			if(asserts!=null){
+>>>>>>> shitong_0102
 				asserts = (asserts.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
 				resultMap.put("assert", asserts);
 			} else {
 				resultMap.put("assert", 0);
 			}
+<<<<<<< HEAD
 
 			Query query2 = new Query();
 			query2.addCriteria(Criteria.where("userUuid").is(uuid))
@@ -435,6 +487,22 @@ public class UserInfoServiceImpl implements UserInfoService {
 					}
 				}
 				if (asserts2 != null) {
+=======
+			
+			Query query2 = new Query();
+			query2.addCriteria(Criteria.where("userUuid").is(uuid))
+			.addCriteria(Criteria.where("date").is(beforeYesterday));
+			List<DailyAmount> dailyAmountList2 = mongoTemplate.find(query, DailyAmount.class);
+			if(dailyAmountList2!=null&&dailyAmountList2.size()>0){
+				BigDecimal asserts2 = new BigDecimal(0);
+				for(int i=0;i<dailyAmountList.size();i++){
+					DailyAmount dailyIncome = dailyAmountList2.get(i);
+					if(dailyIncome.getAsset()!=null){
+						asserts2 =  asserts2.add(dailyIncome.getAsset());
+					}
+				}
+				if(asserts2!=null){
+>>>>>>> shitong_0102
 					asserts2 = (asserts2.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
 					resultMap.put("dailyIncome", asserts.subtract(asserts2));
 				} else {
@@ -448,6 +516,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 			resultMap.put("dailyIncome", 0);
 		}
 		//日收益率
+<<<<<<< HEAD
 		BigDecimal dailyIncomeRate = userFinanceProdCalcService
 				.calcYieldRate(uuid, beforeYesterday + "", yesterday + "");
 		resultMap.put("dailyIncomeRate", dailyIncomeRate);
@@ -456,6 +525,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 		if (productsList != null && productsList.size() > 0) {
 			List<Long> dateList = new ArrayList<Long>();
 			for (int i = 0; i < productsList.size(); i++) {
+=======
+		BigDecimal dailyIncomeRate = userFinanceProdCalcService.calcYieldRate(uuid, beforeYesterday+"", yesterday+"");
+		resultMap.put("dailyIncomeRate", dailyIncomeRate);
+		//累计收益率
+		List<ProductsDTO> productsList = this.findProductInfos(uuid);
+		if(productsList!=null&&productsList.size()>0){
+			List<Long> dateList = new ArrayList<Long>();
+			for(int i=0;i<productsList.size();i++){
+>>>>>>> shitong_0102
 				ProductsDTO products = productsList.get(i);
 				dateList.add(products.getUpdateDate());
 				System.out.println("--" + products.getUpdateDate());
@@ -476,13 +554,18 @@ public class UserInfoServiceImpl implements UserInfoService {
 			resultMap.put("totalIncomeRate", 0);
 			resultMap.put("totalIncome", 0);
 		}
+<<<<<<< HEAD
 
+=======
+		
+>>>>>>> shitong_0102
 		return resultMap;
 	}
 
 	@Override
 	public Map<String, Object> getChicombinationAssets(String uuid, ProductsDTO products) {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
+<<<<<<< HEAD
 		String yesterday = DateUtil.getSystemDatesAgo(-1);
 		String beforeYesterday = DateUtil.getSystemDatesAgo(-2);
 		Query query = new Query();
@@ -534,12 +617,27 @@ public class UserInfoServiceImpl implements UserInfoService {
 		//累计收益率
 		BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, products.getId(),
 				DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), yesterday);
+=======
+		Map<String, Object> combinationMap = this.getCombinations(uuid, products.getId(), 2);
+		
+		String endDate = combinationMap.get("date") == null ? "" : combinationMap.get("date") + "";
+		resultMap.put("assert", combinationMap.get("assert"));
+		resultMap.put("dailyIncome", combinationMap.get("dailyIncome"));
+		
+		//累计收益率
+		BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, products.getId(),DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""),endDate);
+>>>>>>> shitong_0102
 		resultMap.put("totalIncomeRate", incomeRate);
 
 		//累计收益
+<<<<<<< HEAD
 		BigDecimal income = userFinanceProdCalcService.calcYieldValue(uuid, products.getId(),
 				DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), yesterday);
 		if (income != null) {
+=======
+		BigDecimal income = userFinanceProdCalcService.calcYieldValue(uuid, products.getId(), DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), endDate);
+		if(income!=null){
+>>>>>>> shitong_0102
 			income = (income.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
 		}
 		resultMap.put("totalIncome", income);
@@ -695,5 +793,66 @@ public class UserInfoServiceImpl implements UserInfoService {
 			resultList.add(resultMap);
 		}
 		return resultList;
+	}
+	
+	public Map<String, Object> getCombinations(String uuid, Long prodId ,int flag){
+		Map<String, Object> resultMap = new HashMap<String,Object>();
+		Query query = new Query();
+		query.addCriteria(Criteria.where("userUuid").is(uuid))
+		.addCriteria(Criteria.where("userProdId").is(prodId));
+		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC,"date"));
+		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
+		String date = "";
+		BigDecimal asserts = new BigDecimal(0);
+		BigDecimal asserts2 = new BigDecimal(0);
+		int count = 0;
+		if(dailyAmountList!=null&&dailyAmountList.size()>0){
+			for(int i=0;i<dailyAmountList.size();i++){
+				DailyAmount dailyAmount = dailyAmountList.get(i);
+				if(date.equals(dailyAmount.getDate()) || i==0){
+					if(count == 0){
+						asserts = asserts.add(dailyAmount.getAsset());
+					} else if(count == 1){
+						asserts2 = asserts2.add(dailyAmount.getAsset());
+					}
+				} else {
+					if(flag == 1){
+						if(asserts != null&&!asserts.equals(BigDecimal.ZERO)){
+							resultMap.put("date", date);
+							break;
+						}
+					} else if(flag == 2){
+						if(count ==1){
+							if(asserts2 != null&&!asserts2.equals(BigDecimal.ZERO)){
+								resultMap.put("date2", date);
+								break;
+							}
+						} else if(count == 0){
+							resultMap.put("date", date);
+							asserts2 = dailyAmount.getAsset();
+						}
+						count++;
+					}
+				}
+				date = dailyAmount.getDate();
+			}
+		}
+		if(asserts!=null){
+    		asserts = (asserts.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
+    		resultMap.put("assert", asserts);
+    	} else {
+    		resultMap.put("assert", 0);
+    	}
+		
+		if(flag == 2){
+			if(asserts2!=null){
+    			asserts2 = (asserts2.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
+    			resultMap.put("dailyIncome", asserts.subtract(asserts2));
+    		} else {
+    			resultMap.put("dailyIncome", 0);
+    		}
+			
+		}
+		return resultMap;
 	}
 }
