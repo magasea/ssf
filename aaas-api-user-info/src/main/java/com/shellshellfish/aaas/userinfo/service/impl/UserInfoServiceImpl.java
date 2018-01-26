@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -410,9 +411,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 			dailyIncome = dailyIncome.add(new BigDecimal(combinationMap.get("dailyIncome") + ""));
 
 			// 累计收益率
-			BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, products.getId(),
-					DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), endDate);
-			resultMap.put("totalIncomeRate", incomeRate);
+//			BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, products.getId(),
+//					DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), endDate);
+//			
 
 			// 累计收益
 			BigDecimal income = userFinanceProdCalcService.calcYieldValue(uuid, products.getId(),
@@ -426,7 +427,12 @@ public class UserInfoServiceImpl implements UserInfoService {
 		resultMap.put("assert", asserts);
 		resultMap.put("dailyIncome", dailyIncome);
 		resultMap.put("totalIncome", incomeTotal);
-
+		if(!asserts.equals(BigDecimal.ZERO)){
+			BigDecimal incomeRate = (incomeTotal.divide(asserts, MathContext.DECIMAL128)).setScale(2, BigDecimal.ROUND_HALF_UP);;
+			resultMap.put("totalIncomeRate", incomeRate);
+		} else {
+			resultMap.put("totalIncomeRate", "0");
+		}
 		return resultMap;
 	}
 
