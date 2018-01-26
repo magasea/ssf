@@ -14,4 +14,7 @@ public interface UserInfoService {
 
   SellProducts checkSellProducts(SellProducts sellProducts)
       throws ExecutionException, InterruptedException;
+
+  public UserBankInfo getUserBankInfo(String userUUID) throws ExecutionException,
+      InterruptedException;
 }

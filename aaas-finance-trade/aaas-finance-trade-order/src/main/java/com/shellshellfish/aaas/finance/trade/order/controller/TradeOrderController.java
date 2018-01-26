@@ -64,7 +64,7 @@ public class TradeOrderController {
 	public ResponseEntity<?> buyFinanceProd(@RequestBody FinanceProdBuyInfo financeProdBuyInfo)
 			throws Exception {
 		UserInfo userInfo = tradeOpService.getUserInfoByUserUUID(financeProdBuyInfo.getUuid());;
-		if (null == financeProdBuyInfo.getUserId()) {
+		if (null == financeProdBuyInfo.getUserId() || financeProdBuyInfo.getUserId() <= 0) {
 			logger.info("input userId is empty, need retrieve userId");
 			Long userId = userInfo.getId();
 			financeProdBuyInfo.setUserId(userId);
