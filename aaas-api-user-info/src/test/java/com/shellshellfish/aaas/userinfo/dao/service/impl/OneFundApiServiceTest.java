@@ -50,8 +50,13 @@ public class OneFundApiServiceTest {
 		String fundCode = "000149.OF";
 
 		try {
-			FundNet result = oneFundApiService.getFundNet(fundCode, LocalDate.now().plusDays(-2L));
-			Assert.assertNotNull(result);
+			FundNet result = oneFundApiService.getFundNet(fundCode, LocalDate.now().plusDays(-3L));
+			FundNet result2 = oneFundApiService.getFundNet(fundCode, LocalDate.now().plusDays(-4L));
+			System.out.println(result);
+			System.out.println(result2);
+			Assert.assertEquals(result.getUnitNet(), result2.getUnitNet());
+			Assert.assertEquals(result.getTradeDate(), result2.getTradeDate());
+			Assert.assertEquals("20180119", result.getTradeDate());
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
@@ -83,5 +88,9 @@ public class OneFundApiServiceTest {
 		}
 	}
 
-
+	public static void main(String[] args) {
+		System.out.println(LocalDate.now());
+		System.out.println(LocalDate.now().plusDays(-2));
+		System.out.println(LocalDate.now().plusDays(-2));
+	}
 }

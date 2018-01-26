@@ -1,6 +1,8 @@
 package com.shellshellfish.aaas.common.utils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
@@ -61,8 +63,50 @@ public class InstantDateUtil {
 		return DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT_PATTERN).format(date);
 	}
 
+
+	/**
+	 * Gets the number of seconds from the Java epoch of 1970-01-01T00:00:00Z. <p> The epoch second
+	 * count is a simple incrementing count of seconds where second 0 is 1970-01-01T00:00:00Z. The
+	 * nanosecond part of the day is returned by {@code getNanosOfSecond}. TimeZone:  UTC
+	 *
+	 * @param date pattern: yyyy-MM-dd
+	 * @return the seconds from the epoch of 1970-01-01T00:00:00Z
+	 */
+
+	public static Long getEpochSecondOfZero(String date) {
+		LocalDate localDate = format(date);
+		return getEpochSecondOfZero(localDate);
+	}
+
+	/**
+	 * Gets the number of seconds from the Java epoch of 1970-01-01T00:00:00Z. <p> The epoch second
+	 * count is a simple incrementing count of seconds where second 0 is 1970-01-01T00:00:00Z. The
+	 * nanosecond part of the day is returned by {@code getNanosOfSecond}. TimeZone:  UTC
+	 *
+	 * @return the seconds from the epoch of 1970-01-01T00:00:00Z
+	 */
+	public static Long getEpochSecondOfZero(String date, String pattern) {
+		LocalDate localDate = format(date, pattern);
+		return getEpochSecondOfZero(localDate);
+	}
+
+	/**
+	 * Gets the number of seconds from the Java epoch of 1970-01-01T00:00:00Z. <p> The epoch second
+	 * count is a simple incrementing count of seconds where second 0 is 1970-01-01T00:00:00Z. The
+	 * nanosecond part of the day is returned by {@code getNanosOfSecond}. TimeZone:  UTC
+	 *
+	 * @return the seconds from the epoch of 1970-01-01T00:00:00Z
+	 */
+	public static Long getEpochSecondOfZero(LocalDate date) {
+		LocalDateTime time = date.atTime(0, 0, 0);
+		return time.toInstant(ZoneOffset.UTC).getEpochSecond();
+
+	}
+
 	public static void main(String[] args) {
-		System.out.println(format(LocalDate.now(),"yyyyMMdd"));
+		LocalDate now = format("2015-01-05");
+		LocalDateTime time = now.atTime(23, 59, 59);
+		System.out.println(time.toInstant(ZoneOffset.UTC).getEpochSecond());
 	}
 
 }

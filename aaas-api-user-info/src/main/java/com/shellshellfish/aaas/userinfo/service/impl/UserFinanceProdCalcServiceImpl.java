@@ -6,42 +6,44 @@ import com.shellshellfish.aaas.userinfo.model.BonusInfo;
 import com.shellshellfish.aaas.userinfo.model.ConfirmResult;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.FundInfo;
-import com.shellshellfish.aaas.userinfo.model.FundNet;
 import com.shellshellfish.aaas.userinfo.model.FundShare;
+import com.shellshellfish.aaas.userinfo.model.dao.FundYieldRate;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProducts;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
+import com.shellshellfish.aaas.userinfo.repositories.funds.MongoFundYieldRateRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
-import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.FundTradeApiService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
+import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcService {
@@ -59,7 +61,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 	private FundTradeApiService fundTradeApiService;
 
 	@Autowired
-	@Qualifier("secondaryMongoTemplate")
+	@Qualifier("zhongZhengMongoTemplate")
 	private MongoTemplate mongoTemplate;
 
 	@Value("${daily-finance-calculate-thread:10}")
@@ -71,6 +73,9 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 	@Autowired
 	UserInfoBankCardsRepository userInfoBankCardsRepository;
+
+	@Autowired
+	MongoFundYieldRateRepository mongoFundYieldRateRepository;
 
 	@Override
 	public BigDecimal calcTotalDailyAsset(String userUuid) throws Exception {
@@ -135,14 +140,18 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 			return BigDecimal.ZERO;
 		}
 
-		FundNet fundNet = fundTradeApiService
-				.getFundNet(fundCode, InstantDateUtil.format(date, "yyyyMMdd"));
+		LocalDate localDate = InstantDateUtil.format(date, "yyyyMMdd");
+		localDate.plusDays(1);
+		FundYieldRate fundYieldRate = mongoFundYieldRateRepository
+				.findFirstByCodeAndQueryDateBefore(fundCode,
+						InstantDateUtil.getEpochSecondOfZero(localDate),
+						new Sort(new Order(Direction.DESC, "querydate")));
 
-		if (fundNet == null) {
+		if (fundYieldRate == null || fundYieldRate.getUnitNav() == null) {
 			return BigDecimal.ZERO;
 		}
 
-		BigDecimal netValue = fundNet.getUnitNet();
+		BigDecimal netValue = fundYieldRate.getUnitNav();
 		BigDecimal rateOfSellFund = fundTradeApiService.getRate(fundCode, "024");
 
 		BigDecimal fundAsset = share.multiply(netValue)
@@ -254,7 +263,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 					.addCriteria(Criteria.where("userProdId").is(userProdId));
 
 			Update update = new Update();
-			update.set("bonus", info.getFactbonussum());
+			update.set("bonus", Double.valueOf(info.getFactbonussum()));
 			DailyAmount dailyAmount = mongoTemplate
 					.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
 							DailyAmount.class);
@@ -283,9 +292,10 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 			Update update = new Update();
 			if ("022".equals(result.getCallingcode())) {
-				update.set("buyAmount", result.getTradeconfirmsum());
+				// 转换为Double 方便使用mongo 聚合函数
+				update.set("buyAmount", Double.valueOf(result.getTradeconfirmsum()));
 			} else if ("024".equals(result.getCallingcode())) {
-				update.set("sellAmount", result.getTradeconfirmsum());
+				update.set("sellAmount", Double.valueOf(result.getTradeconfirmsum()));
 			}
 
 			DailyAmount dailyAmount = mongoTemplate
