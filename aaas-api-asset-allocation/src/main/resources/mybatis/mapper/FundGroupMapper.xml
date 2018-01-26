@@ -97,17 +97,17 @@
     <select id="getPerformanceVolatility"
             resultType="com.shellshellfish.aaas.assetallocation.neo.entity.RiskIncomeInterval">
         select * from fund_group_sub b,strategy a where a.fund_group_id=b.fund_group_id
-         <if test="cust_risk != null and cust_risk !=''">
-         and  a.cust_risk = #{cust_risk}
-         </if>
-        <if test="investment_horizon != null and investment_horizon !=''">
-        and a.investment_horizon = #{investment_horizon}
+        <if test="subGroupId != null and subGroupId != ''">
+            and b.id=#{subGroupId}
         </if>
         <if test="fund_group_id != null and fund_group_id !=''">
-            and  b.fund_group_id = #{fund_group_id}
+            and b.fund_group_id = #{fund_group_id}
         </if>
-        <if test="fund_group_sub_id != null and fund_group_sub_id != ''">
-          and fund_group_sub_id=#{fund_group_sub_id}
+        <if test="cust_risk != null and cust_risk !=''">
+            and a.cust_risk = #{cust_risk}
+        </if>
+        <if test="investment_horizon != null and investment_horizon !=''">
+            and a.investment_horizon = #{investment_horizon}
         </if>
         ORDER BY b.simulate_historical_year_performance
     </select>

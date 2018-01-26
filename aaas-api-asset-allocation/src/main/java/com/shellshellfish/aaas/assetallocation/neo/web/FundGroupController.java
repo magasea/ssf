@@ -180,7 +180,7 @@ public class FundGroupController {
      */
     @ApiOperation("历史业绩")
     @RequestMapping(value = "/api/asset-allocation/product-groups/historicalPer-formance", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public PerformanceVolatilityReturn getHistoricalPerformance(@RequestParam(defaultValue="6") String fund_group_id, @RequestParam(defaultValue="111111") String subGroupId) {
+    public PerformanceVolatilityReturn getHistoricalPerformance(@RequestParam(defaultValue="6") String fund_group_id, @RequestParam(defaultValue="6000") String subGroupId) {
         PerformanceVolatilityReturn riskIncomeIntervals = fundGroupService.getHistoricalPerformance(fund_group_id, subGroupId);
         return riskIncomeIntervals;
     }
