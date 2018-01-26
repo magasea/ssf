@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.userinfo.controller;
 
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
 import com.shellshellfish.aaas.userinfo.aop.AopPageResources;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
@@ -37,6 +38,7 @@ import io.swagger.annotations.ApiResponses;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -1524,28 +1526,22 @@ public class UserInfoController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue=""),
 		@ApiImplicitParam(paramType="path",name="prodId",dataType="String",required=true,value="产品ID",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="buyfee",dataType="String",required=true,value="产品ID",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="buyfee",dataType="String",required=true,value="预计费用",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="bankName",dataType="String",required=true,value="银行名称",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="bankCard",dataType="String",required=true,value="银行卡号",defaultValue=""),
 	})
 	@RequestMapping(value = "/users/{userUuid}/orders/{prodId}/records", method = RequestMethod.GET)
-	public ResponseEntity<Map> getRecords(
-			@PathVariable String userUuid,
-			@PathVariable String prodId,
-			@RequestParam String buyfee,
-			@RequestParam String bankName,
-			@RequestParam String bankCard
-			) throws Exception {
+	public ResponseEntity<Map> getRecords(@PathVariable String userUuid, @PathVariable String prodId,
+			@RequestParam String buyfee, @RequestParam String bankName, @RequestParam String bankCard)
+			throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
-		Calendar c = Calendar.getInstance();
-		int month = c.get(Calendar.MONTH);
-		//TODO 可能需要从基金详情中获取
-		c.add(5, 7);
-		int date = c.get(Calendar.DATE);
-		result.put("date", month+"."+date);
-		
+		Instant instance = Instant.now();
+		Long instanceLong = instance.toEpochMilli();
+		String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 2);
+		result.put("date", date);
+		result.put("title", "预计" + date.substring(5).replace("-", ".") + "日可查看收益");
 		result.put("buyfee", buyfee);
-		result.put("bankInfo", bankName+"("+bankCard+")");
+		result.put("bankInfo", bankName + "(" + bankCard + ")");
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 	

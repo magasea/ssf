@@ -447,7 +447,7 @@ public class UserInfoController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户uuid", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = true, value = "产品ID", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = true, value = "预计费用", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = true, value = "银行名称", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = true, value = "银行卡号", defaultValue = ""),
 	})

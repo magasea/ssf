@@ -1,10 +1,15 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.shellshellfish.aaas.common.utils.InstantDateUtil;
+import com.mongodb.MongoClient;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.userinfo.UserInfoApp;
 import com.shellshellfish.aaas.userinfo.model.ConfirmResult;
+import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.FundNet;
 import com.shellshellfish.aaas.userinfo.service.impl.OneFundApiService;
 import java.time.LocalDate;
@@ -13,8 +18,16 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.GroupOperation;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
+import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -29,7 +42,14 @@ public class OneFundApiServiceTest {
 
 	@Autowired
 	OneFundApiService oneFundApiService;
+	@Value("${spring.data.mongodb.host}")
+	String host;
 
+	@Value("${spring.data.mongodb.port}")
+	int port;
+
+	@Value("${spring.data.mongodb.database}")
+	String database;
 
 	@Test
 	public void testGetAllNet() {
@@ -88,9 +108,46 @@ public class OneFundApiServiceTest {
 		}
 	}
 
-	public static void main(String[] args) {
-		System.out.println(LocalDate.now());
-		System.out.println(LocalDate.now().plusDays(-2));
-		System.out.println(LocalDate.now().plusDays(-2));
+	@Test
+	public void testAggregationMongo() {
+
+		MongoTemplate mongoTemplate = new MongoTemplate(new MongoClient(host, port),
+				"zhongzheng");
+		MatchOperation matchStage = match(new Criteria("asset").exists(true));
+		ProjectionOperation projectStage = project("asset");
+		Aggregation aggregation
+				= Aggregation.newAggregation( projectStage);
+
+		AggregationResults<DailyAmount> output
+				= mongoTemplate.aggregate(aggregation, "asset", DailyAmount.class);
+//		System.out.println(output.getUniqueMappedResult().getAsset());
+
+
+
+		MatchOperation match = new MatchOperation(Criteria.where("asset").exists(true));
+		GroupOperation group = Aggregation.group("userUuid").sum("asset").as("sum");
+
+		Aggregation aggregate = Aggregation.newAggregation(match, group);
+
+		AggregationResults<DailyAmount> orderAggregate = mongoTemplate.aggregate(aggregate,
+				"dailyAmount", DailyAmount.class);
+
+		if (orderAggregate != null) {
+			System.out.println("Output ====>" + orderAggregate.getRawResults().get("result"));
+			System.out.println("Output ====>" + orderAggregate.getRawResults().toMap());
+		}
+
 	}
+
+	private GroupOperation getGroupOperation() {
+		return group("asset")
+
+				.sum("asset").as("totalRevenue");
+	}
+
+	private ProjectionOperation getProjectOperation() {
+		return project("asset", "totalRevenue");
+	}
+
+
 }
