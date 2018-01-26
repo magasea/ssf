@@ -56,19 +56,15 @@ public class FundGroupDataService {
             }
         }
 
-        //将 fund_group_details 中 数据 备份到 fund_group_details_history
-        Integer tag1 = fundGroupMapper.transIntoFundGroupDetailsHistory();
-
-        //将 fund_group_sub 中 数据 备份到 fund_group_sub_history
-        Integer tag2 = fundGroupMapper.transIntoFundGroupSubHistory();
-
-        //将 fund_group_details 中 数据 删除
-        Integer tag3 = fundGroupMapper.deleteFundGroupDetails();
-
-        //将 fund_group_sub 中 数据 删除
-        Integer tag4 = fundGroupMapper.deleteFundGroupSub();
-
-        if (tag1 >= 0 && tag2 >= 0 && tag3 >= 0 && tag4 >= 0) {
+        // 将 fund_group_details 中 数据 备份到 fund_group_details_history
+        Integer transToDetailsEffectRows = fundGroupMapper.transIntoFundGroupDetailsHistory();
+        // 将 fund_group_sub 中 数据 备份到 fund_group_sub_history
+        Integer transToSubEffectRows = fundGroupMapper.transIntoFundGroupSubHistory();
+        // 将 fund_group_details 中 数据 删除
+        Integer deleteDetailsEffectRows = fundGroupMapper.deleteFundGroupDetails();
+        // 将 fund_group_sub 中 数据 删除
+        Integer deleteSubEffectRows = fundGroupMapper.deleteFundGroupSub();
+        if (transToDetailsEffectRows >= 0 && transToSubEffectRows >= 0 && deleteDetailsEffectRows >= 0 && deleteSubEffectRows >= 0) {
             //查询时间
             String todayDate = sdf.format(new Date());
             //取出code
