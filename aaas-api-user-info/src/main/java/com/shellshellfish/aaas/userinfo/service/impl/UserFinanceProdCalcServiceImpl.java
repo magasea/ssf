@@ -309,18 +309,24 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 	@Override
 	public void initDailyAmount(String userUuid, Long prodId, Long userProdId, String date,
 			String fundCode) {
-		DailyAmount dailyAmount = new DailyAmount();
-		dailyAmount.setUserUuid(userUuid);
-		dailyAmount.setDate(date);
-		dailyAmount.setProdId(prodId);
-		dailyAmount.setUserProdId(userProdId);
-		dailyAmount.setFundCode(fundCode);
-		dailyAmount.setAsset(BigDecimal.ZERO);
-		dailyAmount.setBonus(BigDecimal.ZERO);
-		dailyAmount.setBuyAmount(BigDecimal.ZERO);
-		dailyAmount.setSellAmount(BigDecimal.ZERO);
-		logger.info("insert dailyAmount ：{}", dailyAmount);
-		mongoTemplate.save(dailyAmount);
+
+		Query query = new Query();
+		query.addCriteria(Criteria.where("userUuid").is(userUuid))
+				.addCriteria(Criteria.where("date").is(date))
+				.addCriteria(Criteria.where("fundCode").is(fundCode))
+				.addCriteria(Criteria.where("prodId").is(prodId))
+				.addCriteria(Criteria.where("userProdId").is(userProdId));
+
+		Update update = new Update();
+		update.set("asset", BigDecimal.ZERO);
+		update.set("bonus", BigDecimal.ZERO);
+		update.set("buyAmount", BigDecimal.ZERO);
+		update.set("sellAmount", BigDecimal.ZERO);
+		DailyAmount dailyAmount = mongoTemplate
+				.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
+						DailyAmount.class);
+
+		logger.info("update or save  dailyAmount ：{}", dailyAmount);
 	}
 
 	/**
@@ -481,6 +487,11 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 	@Override
 	public void dailyCalculation(String date, List<UiUser> uiUsers) {
 		for (UiUser user : uiUsers) {
+
+			if ("13573143909".equals(user.getCellPhone())) {
+				continue;
+			}
+
 			List<UiProducts> userProducts = uiProductRepo.findByUserId(user.getId());
 			for (UiProducts prod : userProducts) {
 				List<UiProductDetail> prodDetails = uiProductDetailRepo.findAllByUserProdId(prod.getId());

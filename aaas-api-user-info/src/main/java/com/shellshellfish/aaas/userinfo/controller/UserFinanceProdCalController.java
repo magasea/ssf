@@ -30,8 +30,7 @@ public class UserFinanceProdCalController {
 	@ApiOperation("每日收益计算")
 	@GetMapping("/calculate")
 	public HttpStatus calculateDaily() throws Exception {
-		String today = InstantDateUtil
-				.format(LocalDate.now().plusDays(-1), DEFAULT_DATE_FORMAT_PATTERN);
+		String today = InstantDateUtil.format(LocalDate.now(), DEFAULT_DATE_FORMAT_PATTERN);
 		userFinanceProdCalcService.dailyCalculation(today);
 		return HttpStatus.OK;
 	}

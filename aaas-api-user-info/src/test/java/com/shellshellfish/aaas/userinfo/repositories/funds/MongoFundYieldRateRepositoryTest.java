@@ -1,12 +1,15 @@
 package com.shellshellfish.aaas.userinfo.repositories.funds;
 
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
+import com.shellshellfish.aaas.userinfo.UserInfoApp;
 import com.shellshellfish.aaas.userinfo.model.dao.FundYieldRate;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
@@ -18,7 +21,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @RunWith(SpringRunner.class)
 @ActiveProfiles("dev")
-@DataMongoTest
+@SpringBootTest(classes = UserInfoApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@EnableAutoConfiguration
 public class MongoFundYieldRateRepositoryTest {
 
 	@Autowired
@@ -26,14 +30,14 @@ public class MongoFundYieldRateRepositoryTest {
 
 
 	@Test
-	public void deleteByCardNumberTest() {
+	public void getFundYieldRateTest() {
 		String fundCode = "000614.OF";
 
 		FundYieldRate fundYieldRate = mongoFundYieldRateRepository
 				.findFirstByCodeAndQueryDateBefore(fundCode,
-						InstantDateUtil.getEpochSecondOfZero("20150106", "yyyyMMdd"),
+						InstantDateUtil.getEpochSecondOfZero("20180126", "yyyyMMdd"),
 						new Sort(new Order(Direction.DESC, "querydate")));
-		Assert.assertEquals(0.947D, fundYieldRate.getUnitNav());
+		Assert.assertEquals(1.297, fundYieldRate.getUnitNav().doubleValue(), 0.000);
 	}
 }
 
