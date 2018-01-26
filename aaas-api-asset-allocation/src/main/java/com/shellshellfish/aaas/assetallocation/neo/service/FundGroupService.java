@@ -1336,7 +1336,7 @@ public class FundGroupService {
         List<FundGroupHistory> maximumRetracement = fundGroupMapper.selectMaximumRetracement(map);
         double retracement = 0d;
         for (FundGroupHistory fundGroupHistory : maximumRetracement) {
-            if (retracement > fundGroupHistory.getMaximum_retracement()) {
+            if (null != fundGroupHistory && retracement > fundGroupHistory.getMaximum_retracement()) {
                 retracement = fundGroupHistory.getMaximum_retracement();
             }
         }

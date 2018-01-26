@@ -266,6 +266,7 @@
 
     <select id="selectMaximumRetracement" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupHistory">
         select maximum_retracement from fund_group_history where fund_group_id = #{id} and fund_group_sub_id = #{subId}
+        and maximum_retracement is not null
     </select>
 
     <delete id="deleteData">
