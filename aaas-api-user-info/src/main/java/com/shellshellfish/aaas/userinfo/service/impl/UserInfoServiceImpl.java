@@ -523,17 +523,37 @@ public class UserInfoServiceImpl implements UserInfoService {
 		Map<String, Object> combinationMap = this.getCombinations(uuid, products.getId(), 2);
 
 		String endDate = combinationMap.get("date") == null ? "" : combinationMap.get("date") + "";
+		String startDate = "";
 		resultMap.put("assert", combinationMap.get("assert"));
-		resultMap.put("dailyIncome", combinationMap.get("dailyIncome"));
 
+		List<UiProductDetailDTO> productDetailsList = uiProductService.getProductDetailsByProdId(products.getId());
+		int count = 0;
+		if (productDetailsList != null && productDetailsList.size() > 0) {
+			for (int i = 0; i < productDetailsList.size(); i++) {
+				UiProductDetailDTO productDetail = productDetailsList.get(i);
+				int status = 0;
+				if (productDetail.getStatus() != null) {
+					status = productDetail.getStatus();
+				}
+				if (status == TrdOrderStatusEnum.CONFIRMED.getStatus()) {
+					startDate = DateUtil.getDateStrFromLong(productDetail.getUpdateDate()).replace("-", "");
+					break;
+				}
+			}
+		}
+		if ("".equals(startDate)) {
+			resultMap.put("totalIncomeRate", 0);
+			resultMap.put("totalIncome", 0);
+			resultMap.put("dailyIncome", 0);
+			return resultMap;
+		}
+		resultMap.put("dailyIncome", combinationMap.get("dailyIncome"));
 		// 累计收益率
-		BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, products.getId(),
-				DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), endDate);
+		BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, products.getId(),startDate, endDate);
 		resultMap.put("totalIncomeRate", incomeRate);
 
 		// 累计收益
-		BigDecimal income = userFinanceProdCalcService.calcYieldValue(uuid, products.getId(),
-				DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), endDate);
+		BigDecimal income = userFinanceProdCalcService.calcYieldValue(uuid, products.getId(),startDate, endDate);
 		if (income != null) {
 			income = (income.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
 		}

@@ -486,10 +486,12 @@ public class UserInfoController {
 				Map<String,Object> map = new HashMap();
 				BankCardDTO bankCard = bankCards.get(i);
 				map.put("cellphone",bankCard.getCellphone());
-				map.put("bankName",bankCard.getBankName());
+				String bankName = bankCard.getBankName(); 
+				map.put("bankName",bankName);
 				map.put("bankType","储蓄卡");
 				map.put("bankcardSecurity",getBankcardNumber(bankCard.getCardNumber()));
 				map.put("bankcardNum",bankCard.getCardNumber());
+				map.put("bankShortName",bankName.substring(0, bankName.indexOf("·")));
 				map.put("bankCode",BankUtil.getCodeOfBank(bankCard.getCardNumber()));
 				bankList.add(map);
 			}
