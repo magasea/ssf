@@ -53,12 +53,13 @@ public class OneFundApiServiceTest {
 
 	@Test
 	public void testGetAllNet() {
-		String fundCode = "000149.OF";
+		String fundCode = "000614.OF";
 		Integer startIndex = 0;
 		Integer count = 1;
 
 		try {
 			List<FundNet> result = oneFundApiService.getFundNets(fundCode, startIndex, count);
+			System.out.println(result.get(0));
 			Assert.assertNotNull(result);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();

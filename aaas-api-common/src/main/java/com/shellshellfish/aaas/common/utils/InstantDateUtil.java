@@ -122,9 +122,6 @@ public class InstantDateUtil {
 
 	/**
 	 * 当前日期加上工作日数量
-	 * @param startTime
-	 * @param count
-	 * @return
 	 */
 
 	public static String getTplusNDayNWeekendOfWork(Long startTime, int count) {
@@ -197,7 +194,8 @@ public class InstantDateUtil {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(getTplusNDayNWeekendOfWork(Instant.now().getEpochSecond(), 5));
+		System.out.println(Instant.ofEpochSecond(
+				1516809600));
 	}
 
 }

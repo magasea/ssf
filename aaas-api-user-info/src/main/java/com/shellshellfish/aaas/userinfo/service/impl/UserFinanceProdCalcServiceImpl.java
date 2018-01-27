@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -488,14 +489,21 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 	public void dailyCalculation(String date, List<UiUser> uiUsers) {
 		for (UiUser user : uiUsers) {
 
-			if ("13573143909".equals(user.getCellPhone())) {
-				continue;
-			}
 
 			List<UiProducts> userProducts = uiProductRepo.findByUserId(user.getId());
 			for (UiProducts prod : userProducts) {
+
+				// 查询时间晚于购买时间
+				LocalDate localDate = InstantDateUtil.format(date, "yyyyMMdd");
+				localDate.plusDays(1);
+				if (localDate.atTime(0, 0, 0).toInstant(ZoneOffset.UTC).toEpochMilli() < prod
+						.getCreateDate()) {
+					continue;
+				}
+
 				List<UiProductDetail> prodDetails = uiProductDetailRepo.findAllByUserProdId(prod.getId());
 				for (UiProductDetail detail : prodDetails) {
+
 					String fundCode = detail.getFundCode();
 					initDailyAmount(user.getUuid(), prod.getProdId(), detail.getUserProdId(), date, fundCode);
 					try {
