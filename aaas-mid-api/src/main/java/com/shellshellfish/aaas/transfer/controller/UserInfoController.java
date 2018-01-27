@@ -2,6 +2,8 @@ package com.shellshellfish.aaas.transfer.controller;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -402,6 +404,14 @@ public class UserInfoController {
 							trendYieldMap.put("value", "0");
 						}
 					}
+					
+					Collections.sort(trendYieldList, new Comparator<Map<String, Object>>() {
+			            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+			                int map1value = Integer.parseInt(o1.get("date")+"");
+			                int map2value = Integer.parseInt(o2.get("date")+"");
+			                return map1value - map2value;
+			            }
+			        });
 				}
 			}
 			return new JsonResult(JsonResult.SUCCESS, "资产总览成功", result);

@@ -146,11 +146,10 @@ public class TransferController {
 			// TODO 临时注释2018-01-22
 			/********************** start ****************************/
 			if (!"123456".equals(msgCode)) {
-				return new JsonResult(JsonResult.Fail, "手机验证失败，申购失败", JsonResult.EMPTYRESULT);
+//				return new JsonResult(JsonResult.Fail, "手机验证失败，申购失败", JsonResult.EMPTYRESULT);
 			}
 			/********************** end ******************************/
-			// return new JsonResult(JsonResult.Fail,"手机验证失败，申购失败",
-			// JsonResult.EMPTYRESULT);
+			 return new JsonResult(JsonResult.Fail,"手机验证失败，申购失败", JsonResult.EMPTYRESULT);
 		}
 		try {
 			// 调用购买接口
