@@ -38,6 +38,10 @@ public class MongoFundYieldRateRepositoryTest {
 						InstantDateUtil.getEpochSecondOfZero("20180126", "yyyyMMdd"),
 						new Sort(new Order(Direction.DESC, "querydate")));
 		Assert.assertEquals(1.297, fundYieldRate.getUnitNav().doubleValue(), 0.000);
+		Assert.assertEquals(1516723200L,fundYieldRate.getQueryDate().intValue());
+		Assert.assertEquals("5a6ad56f1d41c8633c25310f",fundYieldRate.getId());
+
+
 	}
 }
 
