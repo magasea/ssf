@@ -13,7 +13,6 @@ import com.shellshellfish.aaas.userinfo.model.dto.BankcardDetailBodyDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfoDTO;
