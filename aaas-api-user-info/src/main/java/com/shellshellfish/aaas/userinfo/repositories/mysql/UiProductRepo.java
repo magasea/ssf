@@ -32,4 +32,10 @@ public interface UiProductRepo extends PagingAndSortingRepository<UiProducts, Lo
 	int updateUiProductsById(@Param("updateBy") Long updateBy, @Param("updateDate") Long
 			updateDate, @Param("userProdId") Long userProdId);
 
+	List<UiProducts> findAllByStatusIs(Integer status);
+
+//	@Modifying
+//	@Query("UPDATE UiProducts SET update_by = :updateBy, update_date = :updateDate, "
+//			+ "status = :status WHERE id = :id")
+//	void updateUiProductsStatusById(@Param("status") Integer status, @Param("id") Long id);
 }

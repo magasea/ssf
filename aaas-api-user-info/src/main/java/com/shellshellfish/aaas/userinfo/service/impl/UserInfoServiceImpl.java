@@ -1,8 +1,31 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import javax.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
 import com.shellshellfish.aaas.finance.trade.pay.ZhongZhengQueryByOrderDetailId;
@@ -31,30 +54,7 @@ import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
-import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import io.grpc.ManagedChannel;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import javax.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
@@ -88,21 +88,22 @@ public class UserInfoServiceImpl implements UserInfoService {
 	public UserBaseInfoDTO getUserInfoBase(String userUuid) throws Exception {
 		Long userId = getUserIdFromUUID(userUuid);
 		UserBaseInfoDTO userInfoDao = userInfoRepoService.getUserInfoBase(userId);
-//        UserBaseInfo userBaseInfo = new UserBaseInfo();
-//        if( null != userInfoDao) {
-//            BeanUtils.copyProperties(userInfoDao, userBaseInfo);
-//        }
+		// UserBaseInfo userBaseInfo = new UserBaseInfo();
+		// if( null != userInfoDao) {
+		// BeanUtils.copyProperties(userInfoDao, userBaseInfo);
+		// }
 		return userInfoDao;
 	}
 
 	@Override
 	public UserInfoAssectsBriefDTO getUserInfoAssectsBrief(String userUuid) throws Exception {
 		Long userId = getUserIdFromUUID(userUuid);
-		//UserInfoAssectsBrief userInfoAssectsBrief = new UserInfoAssectsBrief();
+		// UserInfoAssectsBrief userInfoAssectsBrief = new
+		// UserInfoAssectsBrief();
 		UserInfoAssectsBriefDTO userInfoAssect = userInfoRepoService.getUserInfoAssectsBrief(userId);
-//        if(null != userInfoAssect){
-//            BeanUtils.copyProperties(userInfoAssect, userInfoAssectsBrief);
-//        }
+		// if(null != userInfoAssect){
+		// BeanUtils.copyProperties(userInfoAssect, userInfoAssectsBrief);
+		// }
 		return userInfoAssect;
 	}
 
@@ -120,12 +121,12 @@ public class UserInfoServiceImpl implements UserInfoService {
 		} catch (Exception e) {
 			throw new UserInfoException("404", "该用户暂时没有绑定银行卡");
 		}
-//        List<BankCard> bankCardsDto = new ArrayList<>();
-//        for(UiBankcard uiBankcard: uiBankcards ){
-//            BankCard bankCard = new BankCard();
-//            BeanUtils.copyProperties(uiBankcard, bankCard);
-//            bankCardsDto.add(bankCard);
-//        }
+		// List<BankCard> bankCardsDto = new ArrayList<>();
+		// for(UiBankcard uiBankcard: uiBankcards ){
+		// BankCard bankCard = new BankCard();
+		// BeanUtils.copyProperties(uiBankcard, bankCard);
+		// bankCardsDto.add(bankCard);
+		// }
 		return bankcards;
 	}
 
@@ -133,20 +134,20 @@ public class UserInfoServiceImpl implements UserInfoService {
 	public List<UserPortfolioDTO> getUserPortfolios(String userUuid) throws Exception {
 		Long userId = getUserIdFromUUID(userUuid);
 		List<UserPortfolioDTO> userPortfolioDaos = userInfoRepoService.getUserPortfolios(userId);
-//        List<UserPortfolio> userPortfolios = new ArrayList<>();
-//        for(UiPortfolio userPortfolioDao: userPortfolioDaos){
-//            UserPortfolio userPortfolio = new UserPortfolio();
-//            BeanUtils.copyProperties(userPortfolioDao, userPortfolio);
-//            userPortfolios.add(userPortfolio);
-//        }
+		// List<UserPortfolio> userPortfolios = new ArrayList<>();
+		// for(UiPortfolio userPortfolioDao: userPortfolioDaos){
+		// UserPortfolio userPortfolio = new UserPortfolio();
+		// BeanUtils.copyProperties(userPortfolioDao, userPortfolio);
+		// userPortfolios.add(userPortfolio);
+		// }
 		return userPortfolioDaos;
 	}
 
 	@Override
 	public BankCardDTO getUserInfoBankCard(String cardNumber) throws RuntimeException {
 		BankCardDTO bankCard = userInfoRepoService.getUserInfoBankCard(cardNumber);
-//        BankCard bankCard = new BankCard();
-//        BeanUtils.copyProperties(uiBankcard, bankCard);
+		// BankCard bankCard = new BankCard();
+		// BeanUtils.copyProperties(uiBankcard, bankCard);
 		return bankCard;
 	}
 
@@ -171,18 +172,16 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public List<AssetDailyReptDTO> getAssetDailyRept(String userUuid, Long beginDate, Long endDate)
-			throws Exception {
+	public List<AssetDailyReptDTO> getAssetDailyRept(String userUuid, Long beginDate, Long endDate) throws Exception {
 		Long userId = getUserIdFromUUID(userUuid);
-		List<AssetDailyReptDTO> uiAssetDailyRepts = userInfoRepoService.getAssetDailyRept(userId,
-				beginDate, endDate);
-//        List<AssetDailyRept> assetDailyRepts = new ArrayList<>();
-//        for(UiAssetDailyRept uiAssetDailyRept: uiAssetDailyRepts){
-//            AssetDailyRept assetDailyRept = new AssetDailyRept();
-//            BeanUtils.copyProperties(uiAssetDailyRept, assetDailyRept);
-//            assetDailyRept.setDate(new Date(uiAssetDailyRept.getDate()));
-//            assetDailyRepts.add(assetDailyRept);
-//        }
+		List<AssetDailyReptDTO> uiAssetDailyRepts = userInfoRepoService.getAssetDailyRept(userId, beginDate, endDate);
+		// List<AssetDailyRept> assetDailyRepts = new ArrayList<>();
+		// for(UiAssetDailyRept uiAssetDailyRept: uiAssetDailyRepts){
+		// AssetDailyRept assetDailyRept = new AssetDailyRept();
+		// BeanUtils.copyProperties(uiAssetDailyRept, assetDailyRept);
+		// assetDailyRept.setDate(new Date(uiAssetDailyRept.getDate()));
+		// assetDailyRepts.add(assetDailyRept);
+		// }
 		return uiAssetDailyRepts;
 	}
 
@@ -192,23 +191,22 @@ public class UserInfoServiceImpl implements UserInfoService {
 		BeanUtils.copyProperties(assetDailyRept, uiAssetDailyRept);
 		uiAssetDailyRept.setDate(assetDailyRept.getDate().getTime());
 		AssetDailyReptDTO result = userInfoRepoService.addAssetDailyRept(uiAssetDailyRept);
-//        AssetDailyRept assetDailyReptResult = new AssetDailyRept();
-//        BeanUtils.copyProperties(result, assetDailyReptResult);
-//        Date date = new Date(result.getDate());
-//        assetDailyRept.setDate(date);
+		// AssetDailyRept assetDailyReptResult = new AssetDailyRept();
+		// BeanUtils.copyProperties(result, assetDailyReptResult);
+		// Date date = new Date(result.getDate());
+		// assetDailyRept.setDate(date);
 		return result;
 	}
 
 	@Override
-	public List<UserSysMsgDTO> getUserSysMsg(String userUuid)
-			throws IllegalAccessException, InstantiationException {
+	public List<UserSysMsgDTO> getUserSysMsg(String userUuid) throws IllegalAccessException, InstantiationException {
 		List<UserSysMsgDTO> userSysMsgs = userInfoRepoService.getUiSysMsg();
-//        List<UserSysMsg> userSysMsgs = new ArrayList<>();
-//        for(UiSysMsg uiSysMsg: uiSysMsgs){
-//            UserSysMsg userSysMsg = new UserSysMsg();
-//            BeanUtils.copyProperties(uiSysMsg, userSysMsg);
-//            userSysMsgs.add(userSysMsg);
-//        }
+		// List<UserSysMsg> userSysMsgs = new ArrayList<>();
+		// for(UiSysMsg uiSysMsg: uiSysMsgs){
+		// UserSysMsg userSysMsg = new UserSysMsg();
+		// BeanUtils.copyProperties(uiSysMsg, userSysMsg);
+		// userSysMsgs.add(userSysMsg);
+		// }
 		return userSysMsgs;
 	}
 
@@ -216,21 +214,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 	public List<UserPersonMsgDTO> getUserPersonMsg(String userUuid) throws Exception {
 		Long userId = getUserIdFromUUID(userUuid);
 		List<UserPersonMsgDTO> uiPersonMsgs = userInfoRepoService.getUiPersonMsg(userId);
-//        List<UserPersonMsg> userPersonMsgs = new ArrayList<>();
-//        for(UiPersonMsg uiPersonMsg: uiPersonMsgs){
-//            UserPersonMsg userPersonMsg = new UserPersonMsg();
-//            BeanUtils.copyProperties(uiPersonMsg, userPersonMsg);
-//            userPersonMsgs.add(userPersonMsg);
-//        }
+		// List<UserPersonMsg> userPersonMsgs = new ArrayList<>();
+		// for(UiPersonMsg uiPersonMsg: uiPersonMsgs){
+		// UserPersonMsg userPersonMsg = new UserPersonMsg();
+		// BeanUtils.copyProperties(uiPersonMsg, userPersonMsg);
+		// userPersonMsgs.add(userPersonMsg);
+		// }
 		return uiPersonMsgs;
 	}
 
 	@Override
-	public Boolean updateUserPersonMsg(String msgId, String userUuid,
-			Boolean readedStatus) throws Exception {
+	public Boolean updateUserPersonMsg(String msgId, String userUuid, Boolean readedStatus) throws Exception {
 		Long userId = getUserIdFromUUID(userUuid);
-		Boolean result = userInfoRepoService.updateUiUserPersonMsg(msgId, userId,
-				readedStatus);
+		Boolean result = userInfoRepoService.updateUiUserPersonMsg(msgId, userId, readedStatus);
 
 		return result;
 	}
@@ -239,8 +235,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 	public Page<TradeLogDTO> findByUserId(String userUuid, Pageable pageable) throws Exception {
 		Long userId = getUserIdFromUUID(userUuid);
 		Page<UiTrdLog> tradeLogsPage = userInfoRepoService.findTradeLogDtoByUserId(pageable, userId);
-		Page<TradeLogDTO> tradeLogResult = MyBeanUtils
-				.convertPageDTO(pageable, tradeLogsPage, TradeLogDTO.class);
+		Page<TradeLogDTO> tradeLogResult = MyBeanUtils.convertPageDTO(pageable, tradeLogsPage, TradeLogDTO.class);
 		return tradeLogResult;
 	}
 
@@ -264,11 +259,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	}
 
-	//TODO: this function will be adjusted by business rule
+	// TODO: this function will be adjusted by business rule
 	private Long getCompanyId(String userUuid, Long bankId) {
 		return 1L;
 	}
-
 
 	private Long getUserIdFromUUID(String userUuid) throws Exception {
 		Long userId = userInfoRepoService.getUserIdFromUUID(userUuid);
@@ -313,16 +307,14 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public ProductsDTO findByProdId(String prodId)
-			throws IllegalAccessException, InstantiationException {
+	public ProductsDTO findByProdId(String prodId) throws IllegalAccessException, InstantiationException {
 		ProductsDTO products = userInfoRepoService.findByProdId(prodId);
 		return products;
 	}
 
 	@Override
 	public ApplyResult queryTrdResultByOrderDetailId(Long userId, Long orderDetailId) {
-		ZhongZhengQueryByOrderDetailId.Builder requestBuilder = ZhongZhengQueryByOrderDetailId
-				.newBuilder();
+		ZhongZhengQueryByOrderDetailId.Builder requestBuilder = ZhongZhengQueryByOrderDetailId.newBuilder();
 
 		requestBuilder.setOrderDetailId(orderDetailId);
 		requestBuilder.setUserId(userId);
@@ -331,8 +323,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 			requestBuilder.setUserId(userId);
 			requestBuilder.setOrderDetailId(orderDetailId);
 			com.shellshellfish.aaas.finance.trade.pay.ApplyResult result = payRpcServiceFutureStub
-					.queryZhongzhengTradeInfoByOrderDetailId
-							(requestBuilder.build()).get();
+					.queryZhongzhengTradeInfoByOrderDetailId(requestBuilder.build()).get();
 			ApplyResult applyResult = new ApplyResult();
 			BeanUtils.copyProperties(result, applyResult);
 			return applyResult;
@@ -399,12 +390,58 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Override
 	public Map<String, Object> getTotalAssets(String uuid) throws Exception {
+		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+		List<ProductsDTO> productsList = this.findProductInfos(uuid);
+		if (productsList == null || productsList.size() == 0) {
+			logger.error("我的智投组合暂时不存在");
+			return new HashMap<String, Object>();
+		}
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		BigDecimal asserts = new BigDecimal(0);
+		BigDecimal dailyIncome = new BigDecimal(0);
+		BigDecimal incomeTotal = new BigDecimal(0);
+		String endDate = "";
+		for (int i = 0; i < productsList.size(); i++) {
+			ProductsDTO products = productsList.get(i);
+			Map<String, Object> combinationMap = this.getCombinations(uuid, products.getId(), 2);
+			if (!endDate.equals(combinationMap.get("date"))) {
+				endDate = combinationMap.get("date") == null ? "" : combinationMap.get("date") + "";
+			}
+			asserts = asserts.add(new BigDecimal(combinationMap.get("assert") + ""));
+			dailyIncome = dailyIncome.add(new BigDecimal(combinationMap.get("dailyIncome") + ""));
+
+			// 累计收益率
+//			BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, products.getId(),
+//					DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), endDate);
+//			
+
+			// 累计收益
+			BigDecimal income = userFinanceProdCalcService.calcYieldValue(uuid, products.getId(),
+					DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), endDate);
+			if (income != null) {
+				income = (income.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
+				incomeTotal = incomeTotal.add(income);
+			}
+		}
+
+		resultMap.put("assert", asserts);
+		resultMap.put("dailyIncome", dailyIncome);
+		resultMap.put("totalIncome", incomeTotal);
+		if(!asserts.equals(BigDecimal.ZERO)){
+			BigDecimal incomeRate = (incomeTotal.divide(asserts, MathContext.DECIMAL128)).setScale(2, BigDecimal.ROUND_HALF_UP);;
+			resultMap.put("totalIncomeRate", incomeRate);
+		} else {
+			resultMap.put("totalIncomeRate", "0");
+		}
+		return resultMap;
+	}
+
+	public Map<String, Object> getTotalAssetsBak(String uuid) throws Exception {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		String yesterday = DateUtil.getSystemDatesAgo(-1);
 		String beforeYesterday = DateUtil.getSystemDatesAgo(-2);
 		Query query = new Query();
-		query.addCriteria(Criteria.where("userUuid").is(uuid))
-				.addCriteria(Criteria.where("date").is(yesterday));
+		query.addCriteria(Criteria.where("userUuid").is(uuid)).addCriteria(Criteria.where("date").is(yesterday));
 
 		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
 		if (dailyAmountList != null && dailyAmountList.size() > 0) {
@@ -447,11 +484,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 			resultMap.put("assert", 0);
 			resultMap.put("dailyIncome", 0);
 		}
-		//日收益率
-		BigDecimal dailyIncomeRate = userFinanceProdCalcService
-				.calcYieldRate(uuid, beforeYesterday + "", yesterday + "");
+		// 日收益率
+		BigDecimal dailyIncomeRate = userFinanceProdCalcService.calcYieldRate(uuid, beforeYesterday + "",
+				yesterday + "");
 		resultMap.put("dailyIncomeRate", dailyIncomeRate);
-		//累计收益率
+		// 累计收益率
 		List<ProductsDTO> productsList = this.findProductInfos(uuid);
 		if (productsList != null && productsList.size() > 0) {
 			List<Long> dateList = new ArrayList<Long>();
@@ -459,7 +496,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				ProductsDTO products = productsList.get(i);
 				dateList.add(products.getUpdateDate());
 				System.out.println("--" + products.getUpdateDate());
-				//System.out.println("--"+DateUtil.getDateStrFromLong(products.getUpdateDate()));
+				// System.out.println("--"+DateUtil.getDateStrFromLong(products.getUpdateDate()));
 			}
 			Long minDate = Collections.min(dateList);
 			String startDate = DateUtil.getDateStrFromLong(minDate).replace("-", "");
@@ -483,62 +520,20 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Override
 	public Map<String, Object> getChicombinationAssets(String uuid, ProductsDTO products) {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
-		String yesterday = DateUtil.getSystemDatesAgo(-1);
-		String beforeYesterday = DateUtil.getSystemDatesAgo(-2);
-		Query query = new Query();
-		query.addCriteria(Criteria.where("userUuid").is(uuid))
-				.addCriteria(Criteria.where("userProdId").is(products.getId()))
-				.addCriteria(Criteria.where("date").is(yesterday));
+		Map<String, Object> combinationMap = this.getCombinations(uuid, products.getId(), 2);
 
-		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
-		if (dailyAmountList != null && dailyAmountList.size() > 0) {
-			BigDecimal asserts = new BigDecimal(0);
-			for (int i = 0; i < dailyAmountList.size(); i++) {
-				DailyAmount dailyAmount = dailyAmountList.get(i);
-				if (dailyAmount.getAsset() != null) {
-					asserts = asserts.add(dailyAmount.getAsset());
-				}
-			}
-			if (asserts != null) {
-				asserts = (asserts.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
-				resultMap.put("assert", asserts);
-			} else {
-				resultMap.put("assert", 0);
-			}
+		String endDate = combinationMap.get("date") == null ? "" : combinationMap.get("date") + "";
+		resultMap.put("assert", combinationMap.get("assert"));
+		resultMap.put("dailyIncome", combinationMap.get("dailyIncome"));
 
-			Query query2 = new Query();
-			query2.addCriteria(Criteria.where("userUuid").is(uuid))
-					.addCriteria(Criteria.where("userProdId").is(products.getId()))
-					.addCriteria(Criteria.where("date").is(beforeYesterday));
-			List<DailyAmount> dailyAmountList2 = mongoTemplate.find(query, DailyAmount.class);
-			if (dailyAmountList2 != null && dailyAmountList2.size() > 0) {
-				BigDecimal asserts2 = new BigDecimal(0);
-				for (int i = 0; i < dailyAmountList2.size(); i++) {
-					DailyAmount dailyIncome = dailyAmountList2.get(i);
-					if (dailyIncome.getAsset() != null) {
-						asserts2 = asserts2.add(dailyIncome.getAsset());
-					}
-				}
-				if (asserts2 != null) {
-					asserts2 = (asserts2.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
-					resultMap.put("dailyIncome", asserts.subtract(asserts2));
-				} else {
-					resultMap.put("dailyIncome", 0);
-				}
-			}
-		} else {
-			resultMap.put("assert", 0);
-			resultMap.put("dailyIncome", 0);
-		}
-
-		//累计收益率
+		// 累计收益率
 		BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, products.getId(),
-				DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), yesterday);
+				DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), endDate);
 		resultMap.put("totalIncomeRate", incomeRate);
 
-		//累计收益
+		// 累计收益
 		BigDecimal income = userFinanceProdCalcService.calcYieldValue(uuid, products.getId(),
-				DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), yesterday);
+				DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), endDate);
 		if (income != null) {
 			income = (income.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
 		}
@@ -548,11 +543,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public List<Map<String, Object>> getTradeLogStatus(String uuid, Long userProdId)
-			throws Exception {
+	public List<Map<String, Object>> getTradeLogStatus(String uuid, Long userProdId) throws Exception {
 		Long userId = getUserIdFromUUID(uuid);
-		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService
-				.findByUserIdAndProdId(userId, userProdId);
+		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService.findByUserIdAndProdId(userId, userProdId);
 		Map<String, Map<String, Object>> resultMap = new HashMap<String, Map<String, Object>>();
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		if (trdLogList != null && trdLogList.size() > 0) {
@@ -566,8 +559,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}
 				if (resultMap.containsKey("A" + status)) {
 					resultMap2 = resultMap.get("A" + status);
-					if (Long.parseLong(resultMap2.get("lastModified") + "") < Long
-							.parseLong(lastModifiedDate)) {
+					if (Long.parseLong(resultMap2.get("lastModified") + "") < Long.parseLong(lastModifiedDate)) {
 						resultMap2.put("lastModified", lastModifiedDate);
 						resultMap2.put("time", DateUtil.getDateType(trdLog.getLastModifiedDate()));
 						resultMap2.put("status", status + "");
@@ -636,15 +628,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 			resultMap.put("title", products.getProdName());
 			resultMap.put("createDate", products.getCreateDate());
-			//总资产
+			// 总资产
 			Map<String, Object> totalAssetsMap = this.getChicombinationAssets(uuid, products);
 			if (totalAssetsMap.size() > 0) {
 				resultMap.put("totalAssets", totalAssetsMap.get("assert"));
-				//日收益
+				// 日收益
 				resultMap.put("dailyIncome", totalAssetsMap.get("dailyIncome"));
-				//累计收益率
+				// 累计收益率
 				resultMap.put("totalIncomeRate", totalAssetsMap.get("totalIncomeRate"));
-				//累计收益
+				// 累计收益
 				resultMap.put("totalIncome", totalAssetsMap.get("totalIncome"));
 			} else {
 				resultMap.put("totalAssets", 0);
@@ -655,11 +647,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 			// 状态(0-待确认 1-已确认 -1-交易失败)
 			TrdOrderStatusEnum trdOrderStatusEnum[] = TrdOrderStatusEnum.values();
-			List<UiProductDetailDTO> productDetailsList = uiProductService
-					.getProductDetailsByProdId(products.getId());
+			List<UiProductDetailDTO> productDetailsList = uiProductService.getProductDetailsByProdId(products.getId());
 			Integer count = 0;
 			if (productDetailsList != null && productDetailsList.size() > 0) {
-//				Map<String, String> statusMap = new HashMap<String, String>();
+				// Map<String, String> statusMap = new HashMap<String,
+				// String>();
 				for (int j = 0; j < productDetailsList.size(); j++) {
 					UiProductDetailDTO uiProductDetailDTO = productDetailsList.get(j);
 					if (uiProductDetailDTO.getStatus() != null) {
@@ -675,18 +667,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 			if (count > 0) {
 				resultMap.put("title", "* 您有" + count + "支基金正在确认中");
 			}
-//			if (products.getStatus() == 0) {
-//				resultMap.put("status", "待确认");
-//				if (productDetailsList != null && productDetailsList.size() > 0) {
-//					resultMap.put("count", productDetailsList.size());
-//				} else {
-//					resultMap.put("count", 0);
-//				}
-//			} else if (products.getStatus() == 1) {
-//				resultMap.put("status", "已确认");
-//			} else {
-//				resultMap.put("status", "交易失败");
-//			}
+			// if (products.getStatus() == 0) {
+			// resultMap.put("status", "待确认");
+			// if (productDetailsList != null && productDetailsList.size() > 0)
+			// {
+			// resultMap.put("count", productDetailsList.size());
+			// } else {
+			// resultMap.put("count", 0);
+			// }
+			// } else if (products.getStatus() == 1) {
+			// resultMap.put("status", "已确认");
+			// } else {
+			// resultMap.put("status", "交易失败");
+			// }
 			// 智投组合产品ID
 			resultMap.put("prodId", products.getId());
 			// 买入日期
@@ -695,5 +688,65 @@ public class UserInfoServiceImpl implements UserInfoService {
 			resultList.add(resultMap);
 		}
 		return resultList;
+	}
+
+	public Map<String, Object> getCombinations(String uuid, Long prodId, int flag) {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		Query query = new Query();
+		query.addCriteria(Criteria.where("userUuid").is(uuid)).addCriteria(Criteria.where("userProdId").is(prodId));
+		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC, "date"));
+		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
+		String date = "";
+		BigDecimal asserts = new BigDecimal(0);
+		BigDecimal asserts2 = new BigDecimal(0);
+		int count = 0;
+		if (dailyAmountList != null && dailyAmountList.size() > 0) {
+			for (int i = 0; i < dailyAmountList.size(); i++) {
+				DailyAmount dailyAmount = dailyAmountList.get(i);
+				if (date.equals(dailyAmount.getDate()) || i == 0) {
+					if (count == 0) {
+						asserts = asserts.add(dailyAmount.getAsset());
+					} else if (count == 1) {
+						asserts2 = asserts2.add(dailyAmount.getAsset());
+					}
+				} else {
+					if (flag == 1) {
+						if (asserts != null && !asserts.equals(BigDecimal.ZERO)) {
+							resultMap.put("date", date);
+							break;
+						}
+					} else if (flag == 2) {
+						if (count == 1) {
+							if (asserts2 != null && !asserts2.equals(BigDecimal.ZERO)) {
+								resultMap.put("date2", date);
+								break;
+							}
+						} else if (count == 0) {
+							resultMap.put("date", date);
+							asserts2 = dailyAmount.getAsset();
+						}
+						count++;
+					}
+				}
+				date = dailyAmount.getDate();
+			}
+		}
+		if (asserts != null) {
+			asserts = (asserts.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
+			resultMap.put("assert", asserts);
+		} else {
+			resultMap.put("assert", 0);
+		}
+
+		if (flag == 2) {
+			if (asserts2 != null) {
+				asserts2 = (asserts2.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
+				resultMap.put("dailyIncome", asserts.subtract(asserts2));
+			} else {
+				resultMap.put("dailyIncome", 0);
+			}
+
+		}
+		return resultMap;
 	}
 }
