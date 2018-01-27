@@ -524,6 +524,11 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		}
 	}
 
+	/**
+	 * FIXME date:2018-01-27 author: pierre  threadNum 表示线程数量而不是每个线程处理的数据量
+	 * @param date
+	 * @throws Exception
+	 */
 	@Override
 	public void dailyCalculation(String date) throws Exception {
 		final List<UiUser> users = userInfoRepository.findAll();
