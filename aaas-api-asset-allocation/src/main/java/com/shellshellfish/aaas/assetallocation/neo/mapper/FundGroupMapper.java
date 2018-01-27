@@ -57,6 +57,8 @@ public interface FundGroupMapper {
 
     String getFundGroupHistoryTime(Map map);
 
+    String getFundGroupHistoryTimeByRiskLevel(Map map);
+
     List<FundNetVal> getFundNetValue(Map map);
 
     List<FundGroupHistory> getHistory(Map map);
@@ -82,6 +84,8 @@ public interface FundGroupMapper {
     int insertGroupNavadjBenchmark(Map map);
 
     int updateMaximumRetracement(Map map);
+
+    int updateMaximumRetracementByRiskLevel(Map map);
 
     String getGroupStartTime(Map map);
 

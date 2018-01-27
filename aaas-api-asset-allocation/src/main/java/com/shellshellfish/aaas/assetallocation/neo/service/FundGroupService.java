@@ -1137,7 +1137,7 @@ public class FundGroupService {
         Date date = new Date();
         Map<String, Object> query = new HashMap<>();
         query.put("risk_level", risk_level);
-        String groupStartTime = fundGroupMapper.getFundGroupHistoryTime(query);
+        String groupStartTime = fundGroupMapper.getFundGroupHistoryTimeByRiskLevel(query);
         String endTime = null;
         if (StringUtils.isEmpty(groupStartTime)) {
             ca.setTime(date);
@@ -1172,7 +1172,7 @@ public class FundGroupService {
                 double maximum_retracement = getNavadjList(list);
                 query.put("retracement", maximum_retracement);
                 query.put("time", DateUtil.formatDate(date));
-                fundGroupMapper.updateMaximumRetracement(query);
+                fundGroupMapper.updateMaximumRetracementByRiskLevel(query);
                 ca.setTime(date);
                 ca.add(Calendar.DATE,-1);
                 date = ca.getTime();
