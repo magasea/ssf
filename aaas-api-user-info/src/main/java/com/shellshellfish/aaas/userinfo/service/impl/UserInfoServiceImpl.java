@@ -390,7 +390,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Override
 	public Map<String, Object> getTotalAssets(String uuid) throws Exception {
-		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
 		List<ProductsDTO> productsList = this.findProductInfos(uuid);
 		if (productsList == null || productsList.size() == 0) {
 			logger.error("我的智投组合暂时不存在");
@@ -399,36 +398,26 @@ public class UserInfoServiceImpl implements UserInfoService {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		BigDecimal asserts = new BigDecimal(0);
 		BigDecimal dailyIncome = new BigDecimal(0);
-		BigDecimal incomeTotal = new BigDecimal(0);
-		String endDate = "";
+		BigDecimal totalIncome = new BigDecimal(0);
 		for (int i = 0; i < productsList.size(); i++) {
 			ProductsDTO products = productsList.get(i);
-			Map<String, Object> combinationMap = this.getCombinations(uuid, products.getId(), 2);
-			if (!endDate.equals(combinationMap.get("date"))) {
-				endDate = combinationMap.get("date") == null ? "" : combinationMap.get("date") + "";
+			Map<String, Object> combinationMap = this.getChicombinationAssets(uuid, products);
+			if (combinationMap.get("assert") != null) {
+				asserts = asserts.add(new BigDecimal(combinationMap.get("assert") + ""));
 			}
-			asserts = asserts.add(new BigDecimal(combinationMap.get("assert") + ""));
-			dailyIncome = dailyIncome.add(new BigDecimal(combinationMap.get("dailyIncome") + ""));
-
-			// 累计收益率
-//			BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, products.getId(),
-//					DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), endDate);
-//			
-
-			// 累计收益
-			BigDecimal income = userFinanceProdCalcService.calcYieldValue(uuid, products.getId(),
-					DateUtil.getDateStrFromLong(products.getUpdateDate()).replace("-", ""), endDate);
-			if (income != null) {
-				income = (income.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
-				incomeTotal = incomeTotal.add(income);
+			if (combinationMap.get("dailyIncome") != null) {
+				dailyIncome = dailyIncome.add(new BigDecimal(combinationMap.get("dailyIncome") + ""));
+			}
+			if (combinationMap.get("totalIncome") != null) {
+				totalIncome = totalIncome.add(new BigDecimal(combinationMap.get("totalIncome") + ""));
 			}
 		}
-
 		resultMap.put("assert", asserts);
 		resultMap.put("dailyIncome", dailyIncome);
-		resultMap.put("totalIncome", incomeTotal);
-		if(!asserts.equals(BigDecimal.ZERO)){
-			BigDecimal incomeRate = (incomeTotal.divide(asserts, MathContext.DECIMAL128)).setScale(2, BigDecimal.ROUND_HALF_UP);;
+		resultMap.put("totalIncome", totalIncome);
+		if (!asserts.equals(BigDecimal.ZERO)) {
+			BigDecimal incomeRate = (totalIncome.divide(asserts, MathContext.DECIMAL128)).setScale(2,
+					BigDecimal.ROUND_HALF_UP);
 			resultMap.put("totalIncomeRate", incomeRate);
 		} else {
 			resultMap.put("totalIncomeRate", "0");
