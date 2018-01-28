@@ -155,9 +155,9 @@ public class FundGroupController {
      */
     @ApiOperation("组合风险等级")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/risk-level", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public String getCustRiskController(@PathVariable("groupId") String groupId){
+    public ReturnType getCustRiskController(@PathVariable("groupId") String groupId){
         if (StringUtils.isEmpty(groupId)) {
-            return "";
+            return null;
         }
         return fundGroupService.getCustRiskByGroupId(groupId);
     }
