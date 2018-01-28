@@ -156,6 +156,11 @@ public class FundGroupServiceTest {
     }
 
     @Test
+    public void updateAllMaximumLossesTest() {
+        fundGroupService.updateAllMaximumLosses();
+    }
+
+    @Test
     public void getNavadjBenchmarkTest() {
         fundGroupService.getNavadjBenchmark("C1");
         fundGroupService.getNavadjBenchmark("C2");

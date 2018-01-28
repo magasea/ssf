@@ -460,17 +460,11 @@ public class FundCalculateService {
      * 查询配置参数
      */
     public Integer getNumberFromSysConfig(String type) {
-        Integer number = null;
-        try {
-            number = fundNetValMapper.getNumberFromSysConfig(type);
-        } catch (Exception e) {
-            logger.error("查询配置数据失败：type=" + type);
-        }
+        Integer number = fundNetValMapper.getNumberFromSysConfig(type);
         if (number == null) {
             number = ConstantUtil.DEFAULT_TYPE_DAY_NUMBER; // 默认周期类型时, 计算风险率时取值数量
             logger.debug("默认查询配置数据：type=" + type + "number:" + number);
         }
-
         return number;
     }
 

@@ -37,22 +37,25 @@ public class FundGroupDataService {
 
     public Boolean insertFundGroupData() {
         Boolean doSuccess = true;
+
+        HashMap<Integer, List<String>> groupCodeMap = new HashMap<>();
         //查询 fund_group_basic （基金组合基本表）中有效组合的code
         List<FundCombination> groupIdList = fundGroupMapper.findAllGroupId();
-        HashMap<Integer, List<String>> groupCodeMap = new HashMap<>();
-        for (int i = 0; i < groupIdList.size(); i++) {
+        for (FundCombination fundCombination : groupIdList) {
             // 根据groupId 分组
-            Integer groupId = groupIdList.get(i).getGroupId();
-            if (groupId != null) {
-                List<String> list = groupCodeMap.get(groupId);
-                if (list == null) {
-                    List<String> tempList = new ArrayList<>();
-                    tempList.add(groupIdList.get(i).getCode());
-                    groupCodeMap.put(groupId, tempList);
-                } else {
-                    list.add(groupIdList.get(i).getCode());
-                    groupCodeMap.put(groupId, list);
-                }
+            Integer groupId = fundCombination.getGroupId();
+            if (null == groupId) {
+                continue;
+            }
+
+            List<String> codes = groupCodeMap.get(groupId);
+            if (codes == null) {
+                List<String> tmpCodes = new ArrayList<>();
+                tmpCodes.add(fundCombination.getCode());
+                groupCodeMap.put(groupId, tmpCodes);
+            } else {
+                codes.add(fundCombination.getCode());
+                groupCodeMap.put(groupId, codes);
             }
         }
 
@@ -75,8 +78,8 @@ public class FundGroupDataService {
                     Integer groupId = entry.getKey(); // 组合id
                     List<String> codeList = entry.getValue(); // 组合中所含基金代码
                     //计算组合数据并入库
-                    try{
-                        doSuccess = insertFundGroupDatas(groupId, codeList, todayDate);
+                    try {
+                        doSuccess = this.insertFundGroupDatas(groupId, codeList, todayDate);
                         if (!doSuccess) {
                             return doSuccess;
                         }
