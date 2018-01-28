@@ -378,6 +378,15 @@ public class FundGroupService {
     }
 
     /**
+     * 根据 组合ID 获取 风险等级
+     * @param groupId
+     * @return
+     */
+    public String getCustRiskByGroupId(String groupId) {
+        return fundGroupMapper.getRiskNum(groupId);
+    }
+
+    /**
      * 风险控制手段与通知
      *
      * @return
@@ -1228,10 +1237,20 @@ public class FundGroupService {
             return effectRow;
         }
 
-        Double[] asset = new Double[fundNetValList.size()];
-        for (int i = 0; i < fundNetValList.size(); i++) {
-            asset[i] = fundNetValList.get(i).getNavadj();
+        List<FundNetVal> filteredFundNetVals = new ArrayList<>();
+        for (FundNetVal fundNetVal : fundNetValList) {
+            if (null == fundNetVal) {
+                continue;
+            }
+            filteredFundNetVals.add(fundNetVal);
         }
+
+        Double[] asset = new Double[filteredFundNetVals.size()];
+        int i = 0;
+        for (FundNetVal fundNetVal : filteredFundNetVals) {
+            asset[i++] = fundNetVal.getNavadj();
+        }
+
         double sharpeRatio = Double.parseDouble(MVO.sharpeRatio(asset, cash).toString());
         Map<String, Object> update = new HashMap<>();
         update.put("id", subGroupId);
