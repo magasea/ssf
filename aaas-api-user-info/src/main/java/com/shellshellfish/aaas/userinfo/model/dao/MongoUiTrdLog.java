@@ -52,6 +52,11 @@ public class MongoUiTrdLog implements Serializable {
   @Field( value = "user_id")
   private Long userId;
 
+
+
+  @Field( value = "fund_code")
+  private String fundCode;
+
   public MongoUiTrdLog() {
   }
 
@@ -142,5 +147,15 @@ public class MongoUiTrdLog implements Serializable {
   public void setUserId(long userId) {
     this.userId = userId;
   }
+  public void setUserId(Long userId) {
+    this.userId = userId;
+  }
 
+  public String getFundCode() {
+    return fundCode;
+  }
+
+  public void setFundCode(String fundCode) {
+    this.fundCode = fundCode;
+  }
 }

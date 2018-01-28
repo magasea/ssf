@@ -59,21 +59,21 @@ public class BroadcastMessageConsumers {
     }
 
 
-    @RabbitListener( containerFactory = "jsaFactory",bindings = @QueueBinding(
-        value = @Queue(value = RabbitMQConstants.QUEUE_PAY_BASE+ "-"+ RabbitMQConstants
-            .OPERATION_TYPE_BUY_PREORDER_PROD, durable = "false"),
-        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
-            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_PAY)
-    )
-    public void receiveMessage(PayPreOrderDto message) {
-        try {
-            PayPreOrderDto payPreOrderDto = payService.payPreOrder(message);
-        }catch (Exception ex){
-            ex.printStackTrace();
-            logger.error(ex.getMessage());
-        }
-
-    }
+//    @RabbitListener( containerFactory = "jsaFactory",bindings = @QueueBinding(
+//        value = @Queue(value = RabbitMQConstants.QUEUE_PAY_BASE+ "-"+ RabbitMQConstants
+//            .OPERATION_TYPE_BUY_PREORDER_PROD, durable = "false"),
+//        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+//            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_PAY)
+//    )
+//    public void receiveMessage(PayPreOrderDto message) {
+//        try {
+//            PayPreOrderDto payPreOrderDto = payService.payPreOrder(message);
+//        }catch (Exception ex){
+//            ex.printStackTrace();
+//            logger.error(ex.getMessage());
+//        }
+//
+//    }
 
 
 }

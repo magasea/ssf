@@ -61,8 +61,13 @@ grpc:
   port: 10111
   finance_prod_client:
     host: localhost
-    port: 10030
-
+    port: 10031
+  userinfo_client:
+    host: localhost
+    port: 10061
+  order_client:
+    host: localhost
+    port: 10101
 using:
   spring:
     schedulerFactory: true
@@ -79,8 +84,8 @@ cron:
   frequency:
     #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
     #     0	0	5,17,22	?	*	*	*
-    jobwithcrontrigger: 0 0 5,17,22 ? * * *
-    jobpreorderpayflowcheck: 0 0 5,17,22 ? * * *
+    jobwithcrontrigger: 0 0 5,13,17,22 ? * * *
+    jobpreorderpayflowcheck: 0 0 5,13,17,22 ? * * *
 
 #--- multithread
 multithread:

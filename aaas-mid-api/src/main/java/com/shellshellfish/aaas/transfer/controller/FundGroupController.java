@@ -37,10 +37,12 @@ public class FundGroupController {
 	@ApiOperation("我的智投组合详情")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = "shellshellfish"),
-			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = "41")})
+			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = "41"),
+			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "12"),
+			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "120049"),})
 	@RequestMapping(value = "/getMyProductDetail", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getProductDetail(@RequestParam String uuid, @RequestParam String prodId) {
+	public JsonResult getProductDetail(@RequestParam String uuid, @RequestParam String prodId,@RequestParam String groupId,@RequestParam String subGroupId) {
 
 		Map result = null;
 
@@ -53,6 +55,8 @@ public class FundGroupController {
 		ResponseEntity<Map> entity = restTemplate.postForEntity(URLutils.prepareParameters(userinfoUrl + methodUrl, params), HttpEntity.EMPTY, Map.class, params);
 		if (HttpStatus.OK.equals(entity.getStatusCode())) {
 			result = entity.getBody();
+			result.put("groupId", groupId);
+			result.put("subGroupId", subGroupId);
 		} else {
 			logger.error("error code : {} ; error message :{}", entity.getStatusCode(), entity.getBody());
 			return new JsonResult(JsonResult.Fail, "获取失败", JsonResult.EMPTYRESULT);

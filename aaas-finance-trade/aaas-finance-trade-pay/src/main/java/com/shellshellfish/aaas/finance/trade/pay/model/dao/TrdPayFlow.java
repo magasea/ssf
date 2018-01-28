@@ -7,7 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Created by chenwei on 2018- 一月 - 10
+ * Created by chenwei on 2018- 一月 - 22
  */
 
 @Entity
@@ -73,7 +73,7 @@ public class TrdPayFlow {
 
   @Basic
   @Column(name = "trade_broke_id")
-  public long getTradeBrokeId() {
+  public Long getTradeBrokeId() {
     return tradeBrokeId;
   }
 

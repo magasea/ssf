@@ -6,6 +6,16 @@ package com.shellshellfish.aaas.common.grpc.trade.pay;
 
 public class BindBankCard {
 
+  Long userId;
+  String userPid;// 身份证号码
+  String bankCardNum;
+  String cellphone;
+  String userName;
+  String bankCode;
+  String tradeBrokerName;
+  Long tradeBrokerId;
+  int riskLevel;
+
   public Long getUserId() {
     return userId;
   }
@@ -70,12 +80,11 @@ public class BindBankCard {
     this.tradeBrokerId = tradeBrokerId;
   }
 
-  Long userId;
-  String userPid;
-  String bankCardNum;
-  String cellphone;
-  String userName;
-  String bankCode;
-  String tradeBrokerName;
-  Long tradeBrokerId;
+  public int getRiskLevel() {
+    return riskLevel;
+  }
+
+  public void setRiskLevel(int riskLevel) {
+    this.riskLevel = riskLevel;
+  }
 }

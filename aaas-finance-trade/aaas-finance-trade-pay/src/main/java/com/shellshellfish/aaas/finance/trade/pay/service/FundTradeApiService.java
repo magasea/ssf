@@ -13,7 +13,8 @@ public interface FundTradeApiService {
 
     BuyFundResult buyFund(String userUuid, String tradeAcco, BigDecimal applySum, String outsideOrderNo, String fundCode) throws Exception;
 
-    SellFundResult sellFund(String userUuid, Integer sellNum, String outsideOrderNo, String tradeAcco, String fundCode) throws Exception;
+    SellFundResult sellFund(String userUuid, BigDecimal sellNum, String outsideOrderNo, String tradeAcco,
+        String fundCode) throws Exception;
 
     FundConvertResult fundConvert(String userUuid, BigDecimal applyShare, String outsideOrderNo,
         String tradeAcco,String fundCode, String targetFundCode ) throws Exception;
@@ -29,6 +30,8 @@ public interface FundTradeApiService {
     String getExamContent() throws JsonProcessingException;
 
     String commitRisk(String userUuid) throws JsonProcessingException;
+
+    String commitRisk(String userUuid, int riskLevel) throws JsonProcessingException;
 
     String commitFakeAnswer(String userUuid) throws JsonProcessingException;
 

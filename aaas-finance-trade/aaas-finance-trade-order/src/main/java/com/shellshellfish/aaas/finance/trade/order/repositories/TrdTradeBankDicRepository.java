@@ -6,7 +6,14 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 /**
  * Created by chenwei on 2017- 十二月 - 23
  */
-public interface TrdTradeBankDicRepository  extends PagingAndSortingRepository<TrdTradeBankDic, Long> {
+public interface TrdTradeBankDicRepository extends PagingAndSortingRepository<TrdTradeBankDic, Long> {
+
 
   TrdTradeBankDic findByBankNameAndTraderBrokerId(String bankName, Long traderBrokerId);
+
+  TrdTradeBankDic findByBankShortNameAndTraderBrokerId(String bankShortName, int traderBrokerId);
+
+
+	TrdTradeBankDic findByBankShortName(String shortName);
+
 }

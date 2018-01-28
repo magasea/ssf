@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.userinfo.dao.service.impl;
 import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
 
 import com.mongodb.WriteResult;
+import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
@@ -22,6 +23,8 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.*;
 import com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import io.grpc.stub.StreamObserver;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -33,6 +36,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -115,7 +119,8 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	@Override
 	public List<BankCardDTO> getUserInfoBankCards(Long userId) throws IllegalAccessException, InstantiationException {
 		// BigInteger userIdLocal = BigInteger.valueOf(userId);
-		List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserId(userId);
+		List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserIdAndStatusIs
+				(userId, BankCardStatusEnum.VALID.getStatus());
 		List<BankCardDTO> bankcardDtoList = MyBeanUtils.convertList(bankcardList, BankCardDTO.class);
 		return bankcardDtoList;
 	}
@@ -129,21 +134,37 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public BankCardDTO getUserInfoBankCard(String cardNumber) {
-		UiBankcard uiBankcard = userInfoBankCardsRepository.findUiBankcardByCardNumberIs(cardNumber);
+		List<UiBankcard> uiBankcards = userInfoBankCardsRepository.findUiBankcardByCardNumberIsAndStatusIsNot
+				(cardNumber, -1);
 		BankCardDTO bankcard = new BankCardDTO();
-		if (uiBankcard != null) {
-			BeanUtils.copyProperties(uiBankcard, bankcard);
+		if (!CollectionUtils.isEmpty(uiBankcards)) {
+			BeanUtils.copyProperties(uiBankcards.get(0), bankcard);
 		}
 		return bankcard;
 	}
 
 	@Override
 	public BankCardDTO addUserBankcard(UiBankcard uiBankcard) throws Exception {
-		logger.info("reservice149");
-		userInfoBankCardsRepository.save(uiBankcard);
-		logger.info("reservice151");
+
+		List<UiBankcard> uiBankcards = userInfoBankCardsRepository.findAllByUserIdAndCardNumber
+				(uiBankcard.getUserId(), uiBankcard.getCardNumber());
+		if(!CollectionUtils.isEmpty(uiBankcards)){
+			logger.info("update bankcard status to 1 for userId:" + uiBankcard.getUserId() + " and "
+					+ "bankCardNumber:" + uiBankcard.getCardNumber());
+			if(uiBankcards.size() > 1){
+				logger.error("there is more than 1 same cardNumber for for userId:" + uiBankcard.getUserId
+						() + " and bankCardNumber:" + uiBankcard.getCardNumber());
+				throw new Exception("duplicated card number for :" + uiBankcard.getCardNumber());
+			}else{
+				uiBankcards.get(0).setStatus(1);
+				uiBankcards.get(0).setUserPid(uiBankcard.getUserPid());
+				uiBankcards.get(0).setCellphone(uiBankcard.getCellphone());
+				userInfoBankCardsRepository.save(uiBankcards.get(0));
+			}
+		}else{
+			userInfoBankCardsRepository.save(uiBankcard);
+		}
 		BankCardDTO bankcard = new BankCardDTO();
-		logger.info("reservice153");
 		BeanUtils.copyProperties(uiBankcard, bankcard);
 		return bankcard;
 	}
@@ -215,10 +236,18 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	
 	@Override
 	public List<MongoUiTrdLogDTO> findByUserIdAndProdId(Long userId,Long userProdId) throws IllegalAccessException, InstantiationException {
-		List<MongoUiTrdLog> mongoUiTrdLogList = mongoUserTrdLogMsgRepo.findAllByUserIdAndUserProdId();
+		List<MongoUiTrdLog> mongoUiTrdLogList = mongoUserTrdLogMsgRepo.findAllByUserIdAndUserProdId(userId,userProdId);
 		List<MongoUiTrdLogDTO> mongoUiTrdLogDtoList = MyBeanUtils.convertList(mongoUiTrdLogList, MongoUiTrdLogDTO.class);
 		return mongoUiTrdLogDtoList;
 	}
+	@Override
+	public List<MongoUiTrdLogDTO> findByUserId(Long userId) throws IllegalAccessException, InstantiationException {
+		List<MongoUiTrdLog> mongoUiTrdLogList = mongoUserTrdLogMsgRepo.findAllByUserId(userId);
+		List<MongoUiTrdLogDTO> mongoUiTrdLogDtoList = MyBeanUtils.convertList(mongoUiTrdLogList, MongoUiTrdLogDTO.class);
+		return mongoUiTrdLogDtoList;
+	}
+
+
 
 	@Override
 	public UserSysMsgDTO addUiSysMsg(UiSysMsg uiSysMsg) throws IllegalAccessException,
@@ -310,6 +339,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	}
 
 	@Override
+	@Transactional
 	public Boolean deleteBankCard(String userUuid, String cardNumber) {
 		Long userId = null;
 		try {
@@ -318,11 +348,11 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			e.printStackTrace();
 		}
 		List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserIdAndCardNumber(userId, cardNumber);
-		if (bankcardList == null || bankcardList.size() == 0) {
+		if (CollectionUtils.isEmpty(bankcardList)) {
 			throw new UserInfoException("404", "解绑的银行卡不存在");
 		}
-		UiBankcard bankcard = bankcardList.get(0);
-		userInfoBankCardsRepository.delete(bankcard.getId());
+		//用状态来控制银行卡
+		userInfoBankCardsRepository.setBankCardInvalid(userId, cardNumber);
 		return true;
 	}
 
@@ -384,6 +414,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 								io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserBankInfo> responseObserver) {
 		Long userId = request.getUserId();
 		String userUUID = request.getUuid();
+		UiUser uiUser = null;
 		if(userId <= 0){
 			logger.error("userId is not valid:" + userId);
 			if(StringUtils.isEmpty(userUUID)){
@@ -392,13 +423,16 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 				return;
 			}else{
 				try {
-					userId = getUserIdFromUUID(userUUID);
+					uiUser = getUserInfoByUserUUID(userUUID);
+					userId = uiUser.getId();
 				} catch (Exception e) {
 					e.printStackTrace();
 					logger.error("failed to retrieve userId by userUUID:" + userUUID);
 					return;
 				}
 			}
+		}else{
+			uiUser = getUserInfoByUserId(userId);
 		}
 		List<BankCardDTO> bankCardDTOS = null;
 		try {
@@ -408,18 +442,25 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		}
-		if( bankCardDTOS.size() <= 0 ){
-			logger.error("failed to find bankCards by userId:" + userId);
-			return;
-		}
 		UserBankInfo.Builder builder = UserBankInfo.newBuilder();
 		builder.setUserId(userId);
+
+		if( bankCardDTOS.size() <= 0 ){
+			logger.error("failed to find bankCards by userId:" + userId);
+			responseObserver.onNext(builder.build());
+			responseObserver.onCompleted();
+			return;
+		}
 		builder.setUserName(bankCardDTOS.get(0).getUserName());
 
 		builder.setUuid(request.getUuid());
 		builder.setCellphone(bankCardDTOS.get(0).getCellphone());
 		CardInfo.Builder ciBuilder = CardInfo.newBuilder();
-
+		if(null != uiUser.getRiskLevel()){
+			builder.setRiskLevel(uiUser.getRiskLevel());
+		}else{
+			builder.setRiskLevel(-1);
+		}
 		for(int idx = 0; idx < bankCardDTOS.size(); idx++){
 			ciBuilder.setCardNumbers(bankCardDTOS.get(idx).getCardNumber());
 			ciBuilder.setUserPid(bankCardDTOS.get(idx).getUserPid());
@@ -455,11 +496,14 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			UiProducts uiProducts = new UiProducts();
 			uiProducts.setCreateBy(request.getUserId());
 			BeanUtils.copyProperties(financeProdInfoFirst, uiProducts);
+			uiProducts.setProdId(financeProdInfoFirst.getProdId());
+			uiProducts.setGroupId(financeProdInfoFirst.getGroupId());
 			uiProducts.setCreateDate(TradeUtil.getUTCTime());
 			uiProducts.setUpdateBy(request.getUserId());
 			uiProducts.setUpdateDate(TradeUtil.getUTCTime());
 			uiProducts.setStatus(TrdOrderStatusEnum.WAITPAY.getStatus());
 			uiProducts.setUserId(request.getUserId());
+			uiProducts.setBankCardNum(request.getBankCardNum());
 			UiProducts saveResult = uiProductRepo.save(uiProducts);
 			Long userProdId = saveResult.getId();
 			logger.info("saved UiProducts with result id:" + userProdId);
@@ -492,7 +536,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		if(StringUtils.isEmpty(prodId)){
 			throw new UserInfoException("404", "智投组合产品id不能为空");
 		}
-		UiProducts productsData = uiProductRepo.findByProdId(Long.valueOf(prodId));
+		UiProducts productsData = uiProductRepo.findById(Long.valueOf(prodId));
 		if (productsData == null) {
 			throw new UserInfoException("404", "智投组合产品："+prodId+"为空");
 		}
@@ -594,4 +638,105 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			}
 		}
 	}
+
+	/**
+	 */
+	@Override
+	public void getUserInfo(com.shellshellfish.aaas.userinfo.grpc.UserId request,
+			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserInfo> responseObserver) {
+		UiUser uiUser = userInfoRepository.findById(request.getUserId());
+		UserInfo.Builder uiBuilder = UserInfo.newBuilder();
+		MyBeanUtils.mapEntityIntoDTO(uiUser, uiBuilder);
+		responseObserver.onNext(uiBuilder.build());
+		responseObserver.onCompleted();
+	}
+
+	/**
+	 */
+	@Override
+	public void sellUserProducts(com.shellshellfish.aaas.userinfo.grpc.SellProducts request,
+			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.SellProducts> responseObserver) {
+		SellProducts result = updateProductQuantity(request);
+
+		responseObserver.onNext(result);
+		responseObserver.onCompleted();
+
+	}
+
+	@Override
+	@Transactional
+	public SellProducts updateProductQuantity(SellProducts request) {
+		//检查出售的每个基金在当前用户拥有的产品有足够的份额
+		UiProducts uiProducts = uiProductRepo.findById(request.getUserProductId());
+		List<UiProductDetail> uiProductDetails = uiProductDetailRepo.findAllByUserProdId(request
+				.getUserProductId());
+		Map<String, Long> currentAvailableFunds = new HashMap<>();
+		for(UiProductDetail uiProductDetail: uiProductDetails){
+			currentAvailableFunds.put(uiProductDetail.getFundCode(), Long.valueOf(uiProductDetail
+					.getFundQuantity()));
+		}
+		SellProducts.Builder spBuilder = SellProducts.newBuilder();
+		SellProductDetail.Builder spdBuilder = SellProductDetail.newBuilder();
+		boolean canDuduct = true;
+		for(SellProductDetail sellProductDetail: request.getSellProductDetailsList()){
+			logger.info("check fundCode:" + sellProductDetail.getFundCode() + " of userProdId:" +
+					request.getUserProductId());
+			spdBuilder.setFundCode(sellProductDetail.getFundCode());
+			spdBuilder.setFundQuantity(sellProductDetail.getFundQuantity());
+			if(sellProductDetail.getFundQuantity() > currentAvailableFunds.get(sellProductDetail
+					.getFundCode())){
+				spdBuilder.setResult(-1);
+				spdBuilder.setFundQuantity(currentAvailableFunds.get(sellProductDetail.getFundCode()));
+				canDuduct = false;
+			}
+			spBuilder.addSellProductDetails(spdBuilder);
+			spdBuilder.clear();
+		}
+
+		spBuilder.setUserId(request.getUserId());
+		spBuilder.setUserProductId(request.getUserProductId());
+		if(!StringUtils.isEmpty(uiProducts.getBankCardNum())){
+			spBuilder.setUserBankNum(uiProducts.getBankCardNum());
+		}
+
+
+		if(canDuduct){
+			Long fundQuantityRemain = null;
+			for(SellProductDetail sellProductDetail: request.getSellProductDetailsList()){
+				fundQuantityRemain = currentAvailableFunds.get(sellProductDetail.getFundCode()) -
+						sellProductDetail.getFundQuantity();
+				uiProductDetailRepo.updateByParam(fundQuantityRemain, TradeUtil.getUTCTime(), request
+								.getUserId(), request.getUserProductId(),sellProductDetail.getFundCode(),
+						TrdOrderStatusEnum.WAITSELL.getStatus() );
+			}
+		}
+		return spBuilder.build();
+	}
+
+	@Override
+	public UiUser getUserInfoByUserId(Long userId) {
+		return userInfoRepository.findById(userId);
+	}
+
+	@Override
+	public UiUser getUserInfoByUserUUID(String userUUID) {
+		return userInfoRepository.findByUuid(userUUID);
+	}
+
+	/**
+	 */
+	@Override
+	public void getUserInfoByUserUUID(com.shellshellfish.aaas.userinfo.grpc.UserIdQuery request,
+			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserInfo> responseObserver) {
+		UiUser uiUser = getUserInfoByUserUUID(request.getUuid());
+		UserInfo.Builder uiBuilder = UserInfo.newBuilder();
+		if(uiUser.getRiskLevel() == null || uiUser.getRiskLevel() < 0){
+			logger.error("this user haven't done risk evaluate");
+			uiUser.setRiskLevel(-1);
+		}
+		MyBeanUtils.mapEntityIntoDTO(uiUser, uiBuilder);
+		responseObserver.onNext(uiBuilder.build());
+		responseObserver.onCompleted();
+	}
 }
+

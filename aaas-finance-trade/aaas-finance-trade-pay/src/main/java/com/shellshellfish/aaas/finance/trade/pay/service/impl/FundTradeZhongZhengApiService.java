@@ -111,7 +111,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
     }
 
     @Override
-    public SellFundResult sellFund(String userUuid, Integer sellNum, String outsideOrderNo, String tradeAcco, String fundCode) throws Exception {
+    public SellFundResult sellFund(String userUuid, BigDecimal sellNum, String outsideOrderNo, String
+        tradeAcco, String fundCode) throws Exception {
         fundCode = trimSuffix(fundCode);
 
         Map<String, Object> info = init(userUuid);
@@ -279,6 +280,20 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
     public String commitRisk(String userUuid) throws JsonProcessingException {
         Map<String, Object> info = init(userUuid);
         info.put("risk_ability", 3);
+        postInit(info);
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/commit_risk";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        return json;
+    }
+
+
+    @Override
+    public String commitRisk(String userUuid, int riskLevel) throws JsonProcessingException {
+        Map<String, Object> info = init(userUuid);
+        info.put("risk_ability", riskLevel);
         postInit(info);
         String url = "https://onetest.51fa.la/v2/internet/fundapi/commit_risk";
 

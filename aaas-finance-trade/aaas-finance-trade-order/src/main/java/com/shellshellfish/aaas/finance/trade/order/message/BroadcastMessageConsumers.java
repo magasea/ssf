@@ -37,6 +37,7 @@ public class BroadcastMessageConsumers {
 
 
 
+    @Transactional
     @RabbitListener(bindings = @QueueBinding(
         value = @Queue(value = RabbitMQConstants.QUEUE_ORDER_BASE + RabbitMQConstants.OPERATION_TYPE_UPDATE_ORDER, durable =
             "false"),
@@ -53,10 +54,18 @@ public class BroadcastMessageConsumers {
             Long buyFee = trdPayFlow.getBuyFee();
             Long updateBy =  SystemUserEnum.SYSTEM_USER_ENUM.getUserId();
             Long updateDate = TradeUtil.getUTCTime();
+            Long fundNum = trdPayFlow.getFundSum() > 0? trdPayFlow.getFundSum(): null;
+            Long fundNumConfirmed = trdPayFlow.getFundSumConfirmed() > 0 ? trdPayFlow
+                .getFundSumConfirmed(): null;
             int orderDetailStatus = trdPayFlow.getTrdStatus();
-//            trdOrderDetailRepository.updateByParam(tradeApplySerial,orderDetailStatus,
-//                updateDate, updateBy,  id);
-            tradeOpService.updateByParam(tradeApplySerial, updateDate, updateBy,  id, orderDetailStatus);
+            if(null != fundNum){
+                tradeOpService.updateByParam(tradeApplySerial, fundNum, fundNumConfirmed, updateDate,
+                    updateBy,  id, orderDetailStatus);
+            }else{
+                tradeOpService.updateByParamWithSerial(tradeApplySerial, orderDetailStatus,
+                    updateDate, updateBy,  id );
+            }
+
         }catch (Exception ex){
             ex.printStackTrace();
             logger.error(ex.getMessage());
@@ -64,20 +73,20 @@ public class BroadcastMessageConsumers {
     }
 
 
-    @RabbitListener(bindings = @QueueBinding(
-        value = @Queue(value = RabbitMQConstants.QUEUE_ORDER_BASE + RabbitMQConstants.OPERATION_TYPE_HANDLE_PREORDER, durable =
-            "false"),
-        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
-            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_PREORDER )
-    )
-    public void receivePreOrderMessage(TrdPayFlow trdPayFlow) throws Exception {
-        try{
-            logger.info("receivePreOrderMessage 1 message: with fundCode:" + trdPayFlow.getFundCode
-                () + " with preOrderId:" + trdPayFlow.getOrderDetailId());
-            tradeOpService.buyPreOrderProduct(trdPayFlow);
-        }catch (Exception ex){
-            ex.printStackTrace();
-            logger.error(ex.getMessage());
-        }
-    }
+//    @RabbitListener(bindings = @QueueBinding(
+//        value = @Queue(value = RabbitMQConstants.QUEUE_ORDER_BASE + RabbitMQConstants.OPERATION_TYPE_HANDLE_PREORDER, durable =
+//            "false"),
+//        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+//            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_PREORDER )
+//    )
+//    public void receivePreOrderMessage(TrdPayFlow trdPayFlow) throws Exception {
+//        try{
+//            logger.info("receivePreOrderMessage 1 message: with fundCode:" + trdPayFlow.getFundCode
+//                () + " with preOrderId:" + trdPayFlow.getOrderDetailId());
+//            tradeOpService.buyPreOrderProduct(trdPayFlow);
+//        }catch (Exception ex){
+//            ex.printStackTrace();
+//            logger.error(ex.getMessage());
+//        }
+//    }
 }

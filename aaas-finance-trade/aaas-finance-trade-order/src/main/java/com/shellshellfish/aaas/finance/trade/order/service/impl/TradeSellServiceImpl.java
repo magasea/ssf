@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.message.order.ProdDtlSellDTO;
@@ -13,7 +14,6 @@ import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProdu
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
-import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderTypeEnum;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.ProdDtlSellPageDTO;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.ProdSellPageDTO;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokerUserRepository;
@@ -21,7 +21,9 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRe
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeSellService;
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
-import com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery;
+import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
+import com.shellshellfish.aaas.userinfo.grpc.SellProductDetail;
+import com.shellshellfish.aaas.userinfo.grpc.SellProducts;
 import io.grpc.ManagedChannel;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -36,7 +38,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * Created by chenwei on 2017- 十二月 - 29
@@ -74,12 +78,20 @@ public class TradeSellServiceImpl implements TradeSellService {
 
 
   @Override
+  @Transactional
   public TrdOrder sellProduct(ProdSellPageDTO prodSellPageDTO)
       throws ExecutionException, InterruptedException {
     //first : get price of funds , this
     FundCodes.Builder requestBuilder = FundCodes.newBuilder();
     for(ProdDtlSellPageDTO prodDtlSellPageDTO: prodSellPageDTO.getProdDtlSellPageDTOList()){
       requestBuilder.addFundCode(prodDtlSellPageDTO.getFundCode());
+    }
+    BigDecimal totalSell = BigDecimal.valueOf(0);
+    if(null == prodSellPageDTO.getSellTargetMoney()){
+      for(ProdDtlSellPageDTO prodDtlSellPageDTO: prodSellPageDTO.getProdDtlSellPageDTOList()){
+        totalSell = totalSell.add(prodDtlSellPageDTO.getTargetSellAmount());
+      }
+      prodSellPageDTO.setSellTargetMoney(totalSell);
     }
 
 
@@ -106,7 +118,7 @@ public class TradeSellServiceImpl implements TradeSellService {
       if(fundNavunits.containsKey(prodDtlSellDTO.getFundCode())){
         Integer fundPriceInCents = fundNavunits.get(prodDtlSellDTO.getFundCode());
         BigDecimal quantity = sellTargetMoneyInCents.divide(BigDecimal.valueOf(fundPriceInCents),2, RoundingMode.HALF_UP);
-        prodDtlSellDTOTgt.setFundQuantity(quantity.intValue());
+        prodDtlSellDTOTgt.setFundQuantity(TradeUtil.getLongNumWithMul100(quantity).intValue());
       }else{
         prodDtlSellDTOTgt.setFundQuantity(0);
       }
@@ -114,47 +126,96 @@ public class TradeSellServiceImpl implements TradeSellService {
     }
     ProdSellDTO prodSellDTO = new ProdSellDTO();
     BeanUtils.copyProperties(prodSellPageDTO, prodSellDTO);
-
+    prodSellDTO.setSellTargetMoney(TradeUtil.getLongNumWithMul100(prodSellPageDTO.getSellTargetMoney()));
     prodSellDTO.setProdDtlSellDTOList(prodDtlSellDTOList);
+
+    if(StringUtils.isEmpty(prodSellDTO.getUserBankNum())){
+      List<TrdOrder> trdOrders = trdOrderRepository.findByUserProdId(prodSellPageDTO.getUserProdId());
+      prodSellDTO.setUserBankNum(trdOrders.get(0).getBankCardNum());
+    }
     TrdOrder result = generateOrderInfo4Sell(prodSellDTO);
     if(result == null){
       logger.error("failed to generate order info for sell information");
     }
-    prodSellDTO.setUserPid(userBankInfo.getUserPid());
+    String userPid = null;
+    for(CardInfo cardInfo: userBankInfo.getCardNumbersList()){
+      if(cardInfo.getCardNumbers().equals(prodSellDTO.getUserBankNum())){
+        userPid = cardInfo.getUserPid();
+        break;
+      }
+    }
+    prodSellDTO.setUserPid(userPid);
     broadcastMessageProducer.sendSellMessages(prodSellDTO);
     return result;
   }
-  private TrdOrder generateOrderInfo4Sell(ProdSellDTO prodSellDTO){
+
+
+  private TrdOrder generateOrderInfo4Sell(ProdSellDTO prodSellDTO)
+      throws ExecutionException, InterruptedException {
     TrdOrder trdOrder = new TrdOrder();
     try {
-      List<TrdBrokerUser> trdBrokerUsers = trdBrokerUserRepository
-          .findByUserId(prodSellDTO.getUserId());
-      int trdBrokerId = trdBrokerUsers.get(0).getTradeBrokerId().intValue();
-      String bankcardNum = trdBrokerUsers.get(0).getBankCardNum();
-      prodSellDTO.setTrdAcco(trdBrokerUsers.get(0).getTradeAcco());
+      TrdBrokerUser trdBrokerUser = trdBrokerUserRepository
+          .findByUserIdAndAndBankCardNum(prodSellDTO.getUserId(), prodSellDTO.getUserBankNum());
+
+
+//
+//      String bankcardNum = trdBrokerUsers.get(0).getBankCardNum();
 
       List<TrdOrder> trdOrders = trdOrderRepository.findByUserProdId(prodSellDTO.getUserProdId());
       if (CollectionUtils.isEmpty(trdOrders)) {
         logger.error("failed to find corresponding order for sell by userProdId:");
         return null;
       }
-      String orderId = TradeUtil.generateOrderId(Integer.valueOf(trdOrders.get(0).getBankCardNum()
-          .substring(0, 6)), trdBrokerId);
+      //在生成订单前先检查一下是否够减
+      SellProducts.Builder spBuilder = SellProducts.newBuilder();
+      spBuilder.setUserId(prodSellDTO.getUserId());
+      spBuilder.setUserProductId(prodSellDTO.getUserProdId());
+      SellProductDetail.Builder spdBuilder = SellProductDetail.newBuilder();
+      for(ProdDtlSellDTO prodDtlSellDTO: prodSellDTO.getProdDtlSellDTOList()){
+        spdBuilder.clear();
+        spdBuilder.setFundQuantity(prodDtlSellDTO.getFundQuantity());
+        spdBuilder.setFundCode(prodDtlSellDTO.getFundCode());
+        spdBuilder.setResult(1);
+        spBuilder.addSellProductDetails(spdBuilder);
+      }
+      SellProducts results = userInfoService.checkSellProducts(spBuilder.build());
+      boolean isSellable = true;
+      for( SellProductDetail sellProductDetail: results.getSellProductDetailsList()){
+        if(sellProductDetail.getResult() < 0){
+          isSellable = false;
+          logger.error("cannot sell the userProdId:" + prodSellDTO.getUserProdId() + " because "
+              + "the fundCode:" + sellProductDetail.getFundCode() + " quantity is not enough");
+          throw new IllegalArgumentException("cannot sell the userProdId:" + prodSellDTO.getUserProdId() + " because "
+              + "the fundCode:" + sellProductDetail.getFundCode() + " quantity is not enough");
+        }
+      }
+      prodSellDTO.setTrdAcco(trdBrokerUser.getTradeAcco());
+      String bankCardNum = null;
+      if(StringUtils.isEmpty(results.getUserBankNum())){
+        logger.error("the user_prod_id:" + results.getUserProductId() + " haven't save "
+            + "bankCardNum");
+        bankCardNum = prodSellDTO.getUserBankNum();
+      }else{
+        bankCardNum = results.getUserBankNum();
+      }
+      String orderId = TradeUtil.generateOrderIdByBankCardNum(bankCardNum
+          , TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId().intValue());
       trdOrder.setUserId(prodSellDTO.getUserId());
       trdOrder.setOrderId(orderId);
-      trdOrder.setOrderType(TrdOrderTypeEnum.SELL.ordinal());
+      trdOrder.setOrderType(TrdOrderOpTypeEnum.REDEEM.getOperation());
       trdOrder.setUserProdId(prodSellDTO.getUserProdId());
       trdOrder.setCreateBy(prodSellDTO.getUserId());
       trdOrder.setCreateDate(TradeUtil.getUTCTime());
       trdOrder.setUpdateBy(prodSellDTO.getUserId());
 //      trdOrder.setPayAmount(prodSellDTO.getSellTargetMoney());
       trdOrder.setOrderStatus(TrdOrderStatusEnum.WAITSELL.ordinal());
-      trdOrder.setBankCardNum(bankcardNum);
-      trdOrder.setProdCode(trdOrders.get(0).getProdCode());
+      trdOrder.setBankCardNum(results.getUserBankNum());
+      trdOrder.setPayAmount(prodSellDTO.getSellTargetMoney());
       prodSellDTO.setUserProdId(trdOrders.get(0).getUserProdId());
       prodSellDTO.setProdId(trdOrders.get(0).getProdId());
-      prodSellDTO.setTrdAcco(trdBrokerUsers.get(0).getTradeAcco());
-      prodSellDTO.setTrdBrokerId(trdBrokerUsers.get(0).getTradeBrokerId());
+      prodSellDTO.setTrdAcco(trdBrokerUser.getTradeAcco());
+      prodSellDTO.setTrdBrokerId(trdBrokerUser.getTradeBrokerId());
+      prodSellDTO.setOrderId(trdOrder.getOrderId());
       trdOrderRepository.save(trdOrder);
       TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
       for( ProdDtlSellDTO prodDtlSellDTO: prodSellDTO.getProdDtlSellDTOList()){
@@ -182,7 +243,7 @@ public class TradeSellServiceImpl implements TradeSellService {
     }catch (Exception ex){
       ex.printStackTrace();
       logger.error(ex.getMessage());
-      return null;
+      throw ex;
     }
   }
 }

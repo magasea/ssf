@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.userinfo.service;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
@@ -71,6 +72,10 @@ public interface UserInfoService {
 
 	Map<String, Object> getChicombinationAssets(String uuid, ProductsDTO productsDTO);
 
-	Map<String, Object> getTradeLogStatus(String uuid, Long userProdId) throws Exception;
+	List<Map<String, Object>> getTradeLogStatus(String uuid, Long userProdId) throws Exception;
+
+	List<MongoUiTrdLogDTO> getTradeLogs(String uuid) throws Exception;
+
+	List<Map<String, Object>> getMyCombinations(String uuid) throws Exception;
 
 }

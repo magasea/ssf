@@ -14,9 +14,8 @@ import java.util.TimeZone;
 
 
 @EnableAutoConfiguration
-@EntityScan(basePackages = { "com.shellshellfish.aaas.userinfo" })
-@SpringBootApplication(scanBasePackages={"com.shellshellfish.aaas.userinfo"})// same as
-// @Configuration @EnableAutoConfiguration @ComponentScan
+@EntityScan(basePackages = {"com.shellshellfish.aaas.userinfo"})
+@SpringBootApplication(scanBasePackages = {"com.shellshellfish.aaas.userinfo"})// same as
 public class UserInfoApp {
 
 

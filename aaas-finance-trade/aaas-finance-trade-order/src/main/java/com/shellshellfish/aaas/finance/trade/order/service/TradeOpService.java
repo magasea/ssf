@@ -1,11 +1,15 @@
 package com.shellshellfish.aaas.finance.trade.order.service;
 
 
+import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
+import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+import org.springframework.data.repository.query.Param;
 
 public interface TradeOpService {
 
@@ -14,8 +18,13 @@ public interface TradeOpService {
 
   Long getUserId(String uuid) throws ExecutionException, InterruptedException;
 
-  void updateByParam(String tradeApplySerial, Long updateDate, Long updateBy, Long id,
-      int orderDetailStatus);
+  UserInfo getUserInfoByUserUUID(String uuid) throws ExecutionException, InterruptedException;
+
+  public void updateByParam(String tradeApplySerial, Long fundNum, Long fundNumConfirmed, Long
+      updateDate, Long updateBy, Long id, int orderDetailStatus);
+
+  public  void updateByParamWithSerial(String tradeApplySerial,int orderDetailStatus,  Long
+      updateDate, Long updateBy,   Long id);
 
   String getUserUUIDByUserId(Long userId);
 
@@ -41,5 +50,7 @@ public interface TradeOpService {
    TrdOrder buyPreOrderProduct(TrdPayFlow trdPayFlow) throws Exception;
 
 
+   TrdOrder genOrderFromBuyInfoAndProdMakeUpInfo(FinanceProdBuyInfo financeProdBuyInfo,
+      List<ProductMakeUpInfo> productMakeUpInfos) throws Exception;
 
 }

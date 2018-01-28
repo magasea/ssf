@@ -20,6 +20,11 @@ import org.junit.Test;
 public class TradeUtilTest {
 
   @Test
+  public void getReadableDateTime() throws Exception {
+    System.out.println(TradeUtil.getReadableDateTime(TradeUtil.getUTCTime()));
+  }
+
+  @Test
   public void getZZOpenId() throws Exception {
     String origin = "612727198301116032";
     System.out.println(TradeUtil.getZZOpenId(origin));
@@ -63,9 +68,9 @@ public class TradeUtilTest {
     System.out.println("deltaOfDay:" + deltaOfDay + " deltaOfHour:" + deltaOfHour + " "
         + "caculateDayInHour:" + cacluateDayInHour);
     Set<String> allZoneIds = ZoneId.getAvailableZoneIds();
-//    for(String zoneId: allZoneIds){
-//      System.out.println(zoneId);
-//    }
+    for(String zoneId: allZoneIds){
+      System.out.println(zoneId);
+    }
     LocalDateTime dateTime = LocalDateTime.now();
     LocalDateTime oneHourBefore = dateTime.plusHours(-1);
     LocalDateTime oneDayBefore = dateTime.plusDays(-1);
@@ -91,5 +96,11 @@ public class TradeUtilTest {
 
 
   }
+
+  @Test
+  public void getTplusNDayOfWork(){
+    System.out.println(TradeUtil.getTplusNDayOfWork(TradeUtil.getUTCTime(), 1));
+  }
+
 
 }

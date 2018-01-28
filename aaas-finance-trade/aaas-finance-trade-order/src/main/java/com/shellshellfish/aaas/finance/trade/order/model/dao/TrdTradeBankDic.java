@@ -7,7 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Created by chenwei on 2017- 十二月 - 23
+ * Created by chenwei on 2018- 一月 - 22
  */
 
 @Entity
@@ -18,6 +18,7 @@ public class TrdTradeBankDic {
   private String bankName;
   private String bankCode;
   private long traderBrokerId;
+  private String bankShortName;
   private long createBy;
   private long createDate;
   private long updateBy;
@@ -62,6 +63,16 @@ public class TrdTradeBankDic {
 
   public void setTraderBrokerId(long traderBrokerId) {
     this.traderBrokerId = traderBrokerId;
+  }
+
+  @Basic
+  @Column(name = "bank_short_name")
+  public String getBankShortName() {
+    return bankShortName;
+  }
+
+  public void setBankShortName(String bankShortName) {
+    this.bankShortName = bankShortName;
   }
 
   @Basic
@@ -149,6 +160,10 @@ public class TrdTradeBankDic {
     if (bankCode != null ? !bankCode.equals(that.bankCode) : that.bankCode != null) {
       return false;
     }
+    if (bankShortName != null ? !bankShortName.equals(that.bankShortName)
+        : that.bankShortName != null) {
+      return false;
+    }
     if (bankId != null ? !bankId.equals(that.bankId) : that.bankId != null) {
       return false;
     }
@@ -162,6 +177,7 @@ public class TrdTradeBankDic {
     result = 31 * result + (bankName != null ? bankName.hashCode() : 0);
     result = 31 * result + (bankCode != null ? bankCode.hashCode() : 0);
     result = 31 * result + (int) (traderBrokerId ^ (traderBrokerId >>> 32));
+    result = 31 * result + (bankShortName != null ? bankShortName.hashCode() : 0);
     result = 31 * result + (int) (createBy ^ (createBy >>> 32));
     result = 31 * result + (int) (createDate ^ (createDate >>> 32));
     result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
