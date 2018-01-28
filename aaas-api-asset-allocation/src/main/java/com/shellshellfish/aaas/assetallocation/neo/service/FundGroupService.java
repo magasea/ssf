@@ -299,6 +299,31 @@ public class FundGroupService {
     }
 
     /**
+     * 根据 组合ID 获取 风险等级
+     * @param groupId
+     * @return
+     */
+    public ReturnType getCustRiskByGroupId(String groupId) {
+        String riskLevel = fundGroupMapper.getRiskNum(groupId);
+
+        List<Map<String, Object>> list = new ArrayList<>();
+        Map<String, String> _links = new HashMap<>();
+        Map<String, Object> _items = new HashMap<>();
+        _items.put("riskLevel", riskLevel);
+        list.add(_items);
+
+        ReturnType rct = new ReturnType();
+        rct.set_total(1);
+        rct.setName("组合风险等级");
+        rct.set_items(list);
+        rct.set_links(_links);
+        rct.set_schemaVersion("0.1.1");
+        rct.set_serviceId("资产配置");
+
+        return rct;
+    }
+
+    /**
      * 风险控制手段与通知
      *
      * @return
