@@ -39,7 +39,6 @@ import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoQuery;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.FinanceProdInfosQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
-import com.shellshellfish.aaas.userinfo.grpc.UserId;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
@@ -62,7 +61,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import sun.reflect.annotation.ExceptionProxy;
 
 @Service
 public class TradeOpServiceImpl implements TradeOpService {
@@ -213,7 +211,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       //规定基金占比用百分比并且精确万分之一
       BigDecimal fundRatio = BigDecimal.valueOf(productMakeUpInfo.getFundShare()).divide
           (BigDecimal.valueOf(10000));
-      trdOrderDetail.setFundMoneyQuantity(fundRatio.multiply(financeProdBuyInfo.getMoney())
+      trdOrderDetail.setFundSum(fundRatio.multiply(financeProdBuyInfo.getMoney())
           .multiply(BigDecimal.valueOf(100)).toBigInteger()
           .longValue());
       trdOrderDetail.setBuysellDate(TradeUtil.getUTCTime());
@@ -354,10 +352,10 @@ public class TradeOpServiceImpl implements TradeOpService {
 
   @Override
   @Transactional
-  public void updateByParam(String tradeApplySerial, Long fundNum, Long fundNumConfirmed, Long
-      updateDate, Long updateBy, Long id, int orderDetailStatus) {
-    trdOrderDetailRepository.updateByParam(tradeApplySerial,fundNum, fundNumConfirmed,
-        orderDetailStatus, updateDate, updateBy,  id );
+  public void updateByParam(String tradeApplySerial, Long fundSum, Long fundSumConfirmed, Long
+      fundNum, Long fundNumConfirmed,  Long updateDate, Long updateBy, Long id, int orderDetailStatus) {
+    trdOrderDetailRepository.updateByParam(tradeApplySerial,fundSum, fundSumConfirmed, fundNum,
+        fundNumConfirmed, orderDetailStatus, updateDate, updateBy,  id );
   }
 
   @Override
@@ -459,8 +457,8 @@ public class TradeOpServiceImpl implements TradeOpService {
       Long groupId = trdOrder.getGroupId();
       List<ProductMakeUpInfo> productMakeUpInfos = financeProdInfoService.getFinanceProdMakeUpInfo
           (prodId, groupId);
-      Long preOrderFundNumber = trdPayFlow.getFundSumConfirmed();
-      logger.info("preOrderFundNumber : " + preOrderFundNumber);
+      Long preOrderFundShares = trdPayFlow.getTradeConfirmShare();
+      logger.info("preOrderFundNumber : " + preOrderFundShares);
       PayPreOrderDto payPreOrderDto = new PayPreOrderDto();
       payPreOrderDto.setOriginFundCode(trdPayFlow.getFundCode());
       payPreOrderDto.setTrdBrokerId(trdPayFlow.getTradeBrokeId().intValue());
@@ -556,7 +554,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       //规定基金占比用百分比并且精确万分之一
       BigDecimal fundRatio = BigDecimal.valueOf(productMakeUpInfo.getFundShare()).divide
           (BigDecimal.valueOf(10000));
-      trdOrderDetail.setFundMoneyQuantity(fundRatio.multiply(financeProdInfo.getMoney())
+      trdOrderDetail.setFundSum(fundRatio.multiply(financeProdInfo.getMoney())
           .multiply(BigDecimal.valueOf(100)).toBigInteger()
           .longValue());
       trdOrderDetail.setBuysellDate(TradeUtil.getUTCTime());

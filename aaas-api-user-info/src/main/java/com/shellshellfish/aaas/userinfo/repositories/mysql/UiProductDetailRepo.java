@@ -28,6 +28,18 @@ public interface UiProductDetailRepo extends PagingAndSortingRepository<UiProduc
       updateDate, @Param("updateBy") Long updateBy,  @Param("userProdId") Long userProdId, @Param
       ("fundCode") String fundCode, @Param("status") int status);
 
+
+
+  @Modifying
+  @Transactional
+  @Query("UPDATE UiProductDetail SET fund_quantity = fund_quantity - :fundQuantity, update_date = "
+      + ":updateDate, "
+      + "update_by = :updateBy, status = :status  WHERE user_prod_id = :userProdId and fund_code "
+      + "= :fundCode")
+  int updateByReedemConfirm(@Param("fundQuantity") Long fundQuantity, @Param("updateDate") Long
+      updateDate, @Param("updateBy") Long updateBy,  @Param("userProdId") Long userProdId, @Param
+      ("fundCode") String fundCode, @Param("status") int status);
+
   List<UiProductDetail> findAllByUserProdId(Long userProdId);
 
 
@@ -42,10 +54,11 @@ public interface UiProductDetailRepo extends PagingAndSortingRepository<UiProduc
 
   @Modifying
   @Transactional
-  @Query("UPDATE UiProductDetail SET fund_quantity = fund_quantity + :fundQuantity, update_date = "
-      + ":updateDate, update_by = :updateBy, status = :status  WHERE user_prod_id = :userProdId and fund_code "
-      + "= :fundCode")
-  int updateByAddBackQuantity(@Param("fundQuantity") Long fundQuantity, @Param("updateDate") Long
+  @Query("UPDATE UiProductDetail SET fund_quantity_trade = fund_quantity_trade + "
+      + ":fundQuantityTrade, update_date = :updateDate, update_by = :updateBy, status = :status  "
+      + "WHERE user_prod_id = :userProdId and fund_code = :fundCode")
+  int updateByAddBackQuantity(@Param("fundQuantityTrade") Long fundQuantityTrade, @Param
+      ("updateDate") Long
       updateDate, @Param("updateBy") Long updateBy,  @Param("userProdId") Long userProdId, @Param
       ("fundCode") String fundCode, @Param("status") int status);
 

@@ -20,8 +20,8 @@ public interface TradeOpService {
 
   UserInfo getUserInfoByUserUUID(String uuid) throws ExecutionException, InterruptedException;
 
-  public void updateByParam(String tradeApplySerial, Long fundNum, Long fundNumConfirmed, Long
-      updateDate, Long updateBy, Long id, int orderDetailStatus);
+  public void updateByParam(String tradeApplySerial,Long fundSum, Long fundSumConfirmed, Long
+      fundNum, Long fundNumConfirmed, Long updateDate, Long updateBy, Long id, int orderDetailStatus);
 
   public  void updateByParamWithSerial(String tradeApplySerial,int orderDetailStatus,  Long
       updateDate, Long updateBy,   Long id);

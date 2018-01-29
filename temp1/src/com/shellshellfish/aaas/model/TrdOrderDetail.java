@@ -1,14 +1,18 @@
-package com.shellshellfish.aaas.common.message.order;
+package com.shellshellfish.aaas.model;
 
-import java.io.Serializable;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * Created by chenwei on 2018- 一月 - 29
  */
 
-
-
-public class TrdOrderDetail implements Serializable {
+@Entity
+@Table(name = "trd_order_detail", schema = "ssftrdorder", catalog = "")
+public class TrdOrderDetail {
 
   private long id;
   private String orderId;
@@ -37,8 +41,8 @@ public class TrdOrderDetail implements Serializable {
   private Long fundQuantity;
   private Long prodId;
 
-  
-  
+  @Id
+  @Column(name = "id")
   public long getId() {
     return id;
   }
@@ -47,8 +51,8 @@ public class TrdOrderDetail implements Serializable {
     this.id = id;
   }
 
-  
-  
+  @Basic
+  @Column(name = "order_id")
   public String getOrderId() {
     return orderId;
   }
@@ -57,8 +61,8 @@ public class TrdOrderDetail implements Serializable {
     this.orderId = orderId;
   }
 
-  
-  
+  @Basic
+  @Column(name = "trade_apply_serial")
   public String getTradeApplySerial() {
     return tradeApplySerial;
   }
@@ -67,8 +71,8 @@ public class TrdOrderDetail implements Serializable {
     this.tradeApplySerial = tradeApplySerial;
   }
 
-  
-  
+  @Basic
+  @Column(name = "buysell_date")
   public long getBuysellDate() {
     return buysellDate;
   }
@@ -77,8 +81,8 @@ public class TrdOrderDetail implements Serializable {
     this.buysellDate = buysellDate;
   }
 
-  
-  
+  @Basic
+  @Column(name = "trade_type")
   public int getTradeType() {
     return tradeType;
   }
@@ -87,8 +91,8 @@ public class TrdOrderDetail implements Serializable {
     this.tradeType = tradeType;
   }
 
-  
-  
+  @Basic
+  @Column(name = "pay_amount")
   public long getPayAmount() {
     return payAmount;
   }
@@ -97,8 +101,8 @@ public class TrdOrderDetail implements Serializable {
     this.payAmount = payAmount;
   }
 
-  
-  
+  @Basic
+  @Column(name = "pay_fee")
   public long getPayFee() {
     return payFee;
   }
@@ -107,8 +111,8 @@ public class TrdOrderDetail implements Serializable {
     this.payFee = payFee;
   }
 
-  
-  
+  @Basic
+  @Column(name = "user_id")
   public long getUserId() {
     return userId;
   }
@@ -117,8 +121,8 @@ public class TrdOrderDetail implements Serializable {
     this.userId = userId;
   }
 
-  
-  
+  @Basic
+  @Column(name = "user_prod_id")
   public long getUserProdId() {
     return userProdId;
   }
@@ -127,8 +131,8 @@ public class TrdOrderDetail implements Serializable {
     this.userProdId = userProdId;
   }
 
-  
-  
+  @Basic
+  @Column(name = "fund_code")
   public String getFundCode() {
     return fundCode;
   }
@@ -137,8 +141,8 @@ public class TrdOrderDetail implements Serializable {
     this.fundCode = fundCode;
   }
 
-  
-  
+  @Basic
+  @Column(name = "fund_num")
   public long getFundNum() {
     return fundNum;
   }
@@ -147,8 +151,8 @@ public class TrdOrderDetail implements Serializable {
     this.fundNum = fundNum;
   }
 
-  
-  
+  @Basic
+  @Column(name = "fund_sum")
   public long getFundSum() {
     return fundSum;
   }
@@ -157,8 +161,8 @@ public class TrdOrderDetail implements Serializable {
     this.fundSum = fundSum;
   }
 
-  
-  
+  @Basic
+  @Column(name = "fund_num_confirmed")
   public Long getFundNumConfirmed() {
     return fundNumConfirmed;
   }
@@ -167,8 +171,8 @@ public class TrdOrderDetail implements Serializable {
     this.fundNumConfirmed = fundNumConfirmed;
   }
 
-  
-  
+  @Basic
+  @Column(name = "fund_sum_confirmed")
   public long getFundSumConfirmed() {
     return fundSumConfirmed;
   }
@@ -177,8 +181,8 @@ public class TrdOrderDetail implements Serializable {
     this.fundSumConfirmed = fundSumConfirmed;
   }
 
-  
-  
+  @Basic
+  @Column(name = "fund_share")
   public int getFundShare() {
     return fundShare;
   }
@@ -187,8 +191,8 @@ public class TrdOrderDetail implements Serializable {
     this.fundShare = fundShare;
   }
 
-  
-  
+  @Basic
+  @Column(name = "buy_fee")
   public long getBuyFee() {
     return buyFee;
   }
@@ -197,8 +201,8 @@ public class TrdOrderDetail implements Serializable {
     this.buyFee = buyFee;
   }
 
-  
-  
+  @Basic
+  @Column(name = "buy_discount")
   public long getBuyDiscount() {
     return buyDiscount;
   }
@@ -207,8 +211,8 @@ public class TrdOrderDetail implements Serializable {
     this.buyDiscount = buyDiscount;
   }
 
-  
-  
+  @Basic
+  @Column(name = "order_detail_status")
   public int getOrderDetailStatus() {
     return orderDetailStatus;
   }
@@ -217,8 +221,8 @@ public class TrdOrderDetail implements Serializable {
     this.orderDetailStatus = orderDetailStatus;
   }
 
-  
-  
+  @Basic
+  @Column(name = "create_by")
   public long getCreateBy() {
     return createBy;
   }
@@ -227,8 +231,8 @@ public class TrdOrderDetail implements Serializable {
     this.createBy = createBy;
   }
 
-  
-  
+  @Basic
+  @Column(name = "create_date")
   public long getCreateDate() {
     return createDate;
   }
@@ -237,8 +241,8 @@ public class TrdOrderDetail implements Serializable {
     this.createDate = createDate;
   }
 
-  
-  
+  @Basic
+  @Column(name = "update_by")
   public long getUpdateBy() {
     return updateBy;
   }
@@ -247,8 +251,8 @@ public class TrdOrderDetail implements Serializable {
     this.updateBy = updateBy;
   }
 
-  
-  
+  @Basic
+  @Column(name = "update_date")
   public long getUpdateDate() {
     return updateDate;
   }
@@ -257,8 +261,8 @@ public class TrdOrderDetail implements Serializable {
     this.updateDate = updateDate;
   }
 
-  
-  
+  @Basic
+  @Column(name = "bank_card_num")
   public String getBankCardNum() {
     return bankCardNum;
   }
@@ -267,8 +271,8 @@ public class TrdOrderDetail implements Serializable {
     this.bankCardNum = bankCardNum;
   }
 
-  
-  
+  @Basic
+  @Column(name = "err_msg")
   public String getErrMsg() {
     return errMsg;
   }
@@ -277,8 +281,8 @@ public class TrdOrderDetail implements Serializable {
     this.errMsg = errMsg;
   }
 
-  
-  
+  @Basic
+  @Column(name = "fund_quantity")
   public Long getFundQuantity() {
     return fundQuantity;
   }
@@ -287,8 +291,8 @@ public class TrdOrderDetail implements Serializable {
     this.fundQuantity = fundQuantity;
   }
 
-  
-  
+  @Basic
+  @Column(name = "prod_id")
   public Long getProdId() {
     return prodId;
   }
@@ -297,7 +301,7 @@ public class TrdOrderDetail implements Serializable {
     this.prodId = prodId;
   }
 
-  
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -393,7 +397,7 @@ public class TrdOrderDetail implements Serializable {
     return true;
   }
 
-  
+  @Override
   public int hashCode() {
     int result = (int) (id ^ (id >>> 32));
     result = 31 * result + (orderId != null ? orderId.hashCode() : 0);

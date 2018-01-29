@@ -282,15 +282,19 @@ public class TransferController {
 
 	@ApiOperation("赎回页面")
 	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "query", name = "userUuid", dataType = "String", required = true, value = "客户uuid", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupID", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "String", required = true, value = "总金额", defaultValue = "")})
 	@RequestMapping(value = "/sellFundPage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult sellFundPage(String groupId, String subGroupId, String totalAmount) {
+	public JsonResult sellFundPage(String userUuid, String groupId, String subGroupId, String totalAmount) {
 		Map result = null;
 		try {
 			result = service.sellFundPage(groupId, subGroupId, totalAmount);
+			if(result!=null){
+				result.put("userUuid", userUuid);
+			}
 			return new JsonResult(JsonResult.SUCCESS, "调用成功", result);
 		} catch (Exception e) {
 			logger.error("赎回页面接口调用失败");

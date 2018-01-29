@@ -28,7 +28,7 @@ message SellProducts{
 
 message SellProductDetail{
   string fund_code = 1;//基金代码
-  int64 fund_quantity = 2; //出售基金份额，精确到百分之一的整数
+  int64 fund_quantity_trade = 2; //出售基金份额，精确到百分之一的整数
   int32 result = 3; //-1表示不符合条件不允许，1 - 表示可以
 }
 

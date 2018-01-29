@@ -11,7 +11,6 @@ import com.shellshellfish.aaas.common.utils.ZZStatsToOrdStatsUtils;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
 import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.ZZBuyFund;
-import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import java.util.UUID;
@@ -20,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -78,7 +76,7 @@ public class ZZTaskBuyFunds implements Callable<TrdOrderDetail> {
       trdPayFlow.setUpdateBy(request.getUserId());
       trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
       trdPayFlow.setTrdType(ZZBizOpEnum.BUY.getOptVal());
-      trdPayFlow.setTrdDate(TradeUtil.getUTCTime());
+      trdPayFlow.setTrdConfirmDate(TradeUtil.getUTCTime());
       trdPayFlow.setUserId(request.getUserId());
       trdPayFlow.setApplySerial(buyFundResult.getApplySerial());
       trdPayFlow.setCreateBy(request.getUserId());
@@ -93,7 +91,7 @@ public class ZZTaskBuyFunds implements Callable<TrdOrderDetail> {
       trdPayFlow.setTrdbkerStatusCode(kkStat);
       trdPayFlow.setTradeBrokeId(request.getTrdBrokerId());
       //注意外面接口用BigDecimal表示金额，入库都用long精确到分
-      trdPayFlow.setTrdMoneyAmount(TradeUtil.getLongNumWithMul100(request.getApplySum()));
+      trdPayFlow.setTradeTargetSum(TradeUtil.getLongNumWithMul100(request.getApplySum()));
       trdPayFlow.setTrdStatus(trdOrderStatusEnum.getStatus());
       trdPayFlowRepository.save(trdPayFlow);
       com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com

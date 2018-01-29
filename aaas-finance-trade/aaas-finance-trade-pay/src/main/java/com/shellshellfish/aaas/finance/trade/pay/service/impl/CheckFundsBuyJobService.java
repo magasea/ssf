@@ -13,7 +13,6 @@ import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowReposito
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.service.OrderService;
-import java.sql.Struct;
 import java.time.Instant;
 import java.util.List;
 import org.slf4j.Logger;
@@ -53,7 +52,7 @@ public class CheckFundsBuyJobService {
         //先查一遍购买未确认状态的payFlow
 
         List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-            .findAllByFundSumConfirmedIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.BUY.getOperation
+            .findAllByTradeConfirmShareIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.BUY.getOperation
                 ());
 
         if(!CollectionUtils.isEmpty(trdPayFlows)) {
@@ -95,8 +94,8 @@ public class CheckFundsBuyJobService {
                         if(!StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
                             Long fundSumConfirmed = TradeUtil.getLongNumWithMul100(applyResult
                                 .getTradeconfirmshare());
-                            trdPayFlow.setFundSumConfirmed(fundSumConfirmed);
-                            trdPayFlow.setFundSum(fundSumConfirmed);
+                            trdPayFlow.setTradeConfirmShare(fundSumConfirmed);
+                            trdPayFlow.setTradeTargetShare(fundSumConfirmed);
                         }
                         trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno());
                         trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
@@ -121,7 +120,7 @@ public class CheckFundsBuyJobService {
     public void checkReedemPayFlows(){
         //先查一遍赎回未确认状态的payFlow
         List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-            .findAllByFundSumConfirmedIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.REDEEM.getOperation
+            .findAllByTradeConfirmShareIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.REDEEM.getOperation
                 ());
         if(!CollectionUtils.isEmpty(trdPayFlows)) {
             ApplyResult applyResult = null;
@@ -159,12 +158,23 @@ public class CheckFundsBuyJobService {
                                 Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum).getStatus());
                         trdPayFlow.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
                             .getPoundage()));
-                        if(!StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
-                            Long fundSumConfirmed = TradeUtil.getLongNumWithMul100(applyResult
-                                .getTradeconfirmshare());
-                            trdPayFlow.setFundSumConfirmed(fundSumConfirmed);
-
+                        if (!StringUtils.isEmpty(applyResult.getTradeconfirmshare())) {
+                            trdPayFlow.setTradeConfirmShare(TradeUtil.getLongNumWithMul100
+                                (applyResult.getTradeconfirmshare()));
                         }
+                        if (!StringUtils.isEmpty(applyResult.getTradeconfirmsum())) {
+                            trdPayFlow.setTradeConfirmSum(TradeUtil.getLongNumWithMul100
+                                (applyResult.getTradeconfirmsum()));
+                        }
+                        if (!StringUtils.isEmpty(applyResult.getApplyshare())) {
+                            trdPayFlow.setTradeTargetShare(TradeUtil.getLongNumWithMul100
+                                (applyResult.getApplyshare()));
+                        }
+                        if (!StringUtils.isEmpty(applyResult.getApplysum())) {
+                            trdPayFlow.setTradeTargetSum(TradeUtil.getLongNumWithMul100
+                                (applyResult.getApplysum()));
+                        }
+
                         trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno());
                         trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
                         trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
@@ -190,7 +200,7 @@ public class CheckFundsBuyJobService {
         Instant.now().getEpochSecond();
 
         List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-            .findAllByFundSumConfirmedIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.PREORDER.getOperation
+            .findAllByTradeConfirmShareIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.PREORDER.getOperation
                 ());
         if(!CollectionUtils.isEmpty(trdPayFlows)) {
             for (TrdPayFlow trdPayFlow : trdPayFlows) {
@@ -239,8 +249,20 @@ public class CheckFundsBuyJobService {
             trdPayFlowMsg.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
                 .getPoundage()));
             if (!StringUtils.isEmpty(applyResult.getTradeconfirmshare())) {
-                trdPayFlowMsg.setFundSumConfirmed(TradeUtil.getLongNumWithMul100
+                trdPayFlowMsg.setTradeConfirmShare(TradeUtil.getLongNumWithMul100
                     (applyResult.getTradeconfirmshare()));
+            }
+            if (!StringUtils.isEmpty(applyResult.getTradeconfirmsum())) {
+                trdPayFlowMsg.setTradeConfirmSum(TradeUtil.getLongNumWithMul100
+                    (applyResult.getTradeconfirmsum()));
+            }
+            if (!StringUtils.isEmpty(applyResult.getApplyshare())) {
+                trdPayFlowMsg.setTradeTargetShare(TradeUtil.getLongNumWithMul100
+                    (applyResult.getApplyshare()));
+            }
+            if (!StringUtils.isEmpty(applyResult.getApplysum())) {
+                trdPayFlowMsg.setTradeTargetSum(TradeUtil.getLongNumWithMul100
+                    (applyResult.getApplysum()));
             }
             trdPayFlowMsg.setOutsideOrderno(applyResult.getOutsideorderno());
             trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());

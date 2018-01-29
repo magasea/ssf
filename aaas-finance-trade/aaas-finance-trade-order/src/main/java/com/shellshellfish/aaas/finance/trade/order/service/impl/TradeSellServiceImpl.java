@@ -173,7 +173,7 @@ public class TradeSellServiceImpl implements TradeSellService {
       SellProductDetail.Builder spdBuilder = SellProductDetail.newBuilder();
       for(ProdDtlSellDTO prodDtlSellDTO: prodSellDTO.getProdDtlSellDTOList()){
         spdBuilder.clear();
-        spdBuilder.setFundQuantity(prodDtlSellDTO.getFundQuantity());
+        spdBuilder.setFundQuantityTrade(prodDtlSellDTO.getFundQuantity());
         spdBuilder.setFundCode(prodDtlSellDTO.getFundCode());
         spdBuilder.setResult(1);
         spBuilder.addSellProductDetails(spdBuilder);
@@ -231,7 +231,7 @@ public class TradeSellServiceImpl implements TradeSellService {
         trdOrderDetail.setBuysellDate(TradeUtil.getUTCTime());
         trdOrderDetail.setFundCode(prodDtlSellDTO.getFundCode());
         trdOrderDetail.setFundNum(prodDtlSellDTO.getFundQuantity());
-        trdOrderDetail.setFundMoneyQuantity(TradeUtil.getLongNumWithMul100(prodDtlSellDTO
+        trdOrderDetail.setFundSum(TradeUtil.getLongNumWithMul100(prodDtlSellDTO
             .getTargetSellAmount()));
         trdOrderDetail.setOrderId(orderId);
         trdOrderDetail.setOrderDetailStatus(TrdOrderStatusEnum.WAITSELL.getStatus());
