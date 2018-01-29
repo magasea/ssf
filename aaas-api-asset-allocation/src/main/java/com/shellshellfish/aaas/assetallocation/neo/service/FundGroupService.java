@@ -1145,9 +1145,12 @@ public class FundGroupService {
 
             double maximum_retracement = this.getNavadjList(list);
 
-            query.put("retracement", maximum_retracement);
-            query.put("time", DateUtil.formatDate(date));
-            fundGroupMapper.updateMaximumRetracement(query);
+            Map<String, Object> updateParam = new HashMap<>();
+            updateParam.put("fund_group_id", group_id);
+            updateParam.put("subGroupId", subGroupId);
+            updateParam.put("retracement", maximum_retracement);
+            updateParam.put("time", DateUtil.formatDate(date));
+            fundGroupMapper.updateMaximumRetracement(updateParam);
 
             ca.setTime(date);
             ca.add(Calendar.DATE,-1);

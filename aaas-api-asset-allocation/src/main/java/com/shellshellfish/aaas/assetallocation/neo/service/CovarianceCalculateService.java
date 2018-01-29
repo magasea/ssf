@@ -38,9 +38,9 @@ public class CovarianceCalculateService {
     @Autowired
     private FundGroupMapper fundGroupMapper;
 
-    private static final Logger logger= LoggerFactory.getLogger(CovarianceCalculateService.class);
+    private static final Logger logger = LoggerFactory.getLogger(CovarianceCalculateService.class);
 
-    private SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     private List<String[]> codeListOfDay=new ArrayList<>();
 
