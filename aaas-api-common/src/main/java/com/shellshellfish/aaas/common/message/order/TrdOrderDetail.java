@@ -20,6 +20,7 @@ public class TrdOrderDetail implements Serializable {
   private long userId;
   private long userProdId;
   private String fundCode;
+  private long fundMoneyQuantity;
   private long fundNum;
   private long fundSum;
   private Long fundNumConfirmed;
@@ -39,7 +40,8 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getId() {
+  
+  public Long getId() {
     return id;
   }
 
@@ -69,7 +71,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getBuysellDate() {
+  public Long getBuysellDate() {
     return buysellDate;
   }
 
@@ -89,7 +91,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getPayAmount() {
+  public Long getPayAmount() {
     return payAmount;
   }
 
@@ -99,7 +101,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getPayFee() {
+  public Long getPayFee() {
     return payFee;
   }
 
@@ -109,7 +111,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getUserId() {
+  public Long getUserId() {
     return userId;
   }
 
@@ -119,7 +121,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getUserProdId() {
+  public Long getUserProdId() {
     return userProdId;
   }
 
@@ -139,7 +141,17 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getFundNum() {
+  public Long getFundMoneyQuantity() {
+    return fundMoneyQuantity;
+  }
+
+  public void setFundMoneyQuantity(long fundMoneyQuantity) {
+    this.fundMoneyQuantity = fundMoneyQuantity;
+  }
+
+  
+  
+  public Long getFundNum() {
     return fundNum;
   }
 
@@ -149,7 +161,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getFundSum() {
+  public Long getFundSum() {
     return fundSum;
   }
 
@@ -169,7 +181,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getFundSumConfirmed() {
+  public Long getFundSumConfirmed() {
     return fundSumConfirmed;
   }
 
@@ -189,7 +201,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getBuyFee() {
+  public Long getBuyFee() {
     return buyFee;
   }
 
@@ -199,7 +211,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getBuyDiscount() {
+  public Long getBuyDiscount() {
     return buyDiscount;
   }
 
@@ -219,7 +231,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getCreateBy() {
+  public Long getCreateBy() {
     return createBy;
   }
 
@@ -229,7 +241,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getCreateDate() {
+  public Long getCreateDate() {
     return createDate;
   }
 
@@ -239,7 +251,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getUpdateBy() {
+  public Long getUpdateBy() {
     return updateBy;
   }
 
@@ -249,7 +261,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getUpdateDate() {
+  public Long getUpdateDate() {
     return updateDate;
   }
 
@@ -329,6 +341,9 @@ public class TrdOrderDetail implements Serializable {
     if (userProdId != that.userProdId) {
       return false;
     }
+    if (fundMoneyQuantity != that.fundMoneyQuantity) {
+      return false;
+    }
     if (fundNum != that.fundNum) {
       return false;
     }
@@ -405,6 +420,7 @@ public class TrdOrderDetail implements Serializable {
     result = 31 * result + (int) (userId ^ (userId >>> 32));
     result = 31 * result + (int) (userProdId ^ (userProdId >>> 32));
     result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
+    result = 31 * result + (int) (fundMoneyQuantity ^ (fundMoneyQuantity >>> 32));
     result = 31 * result + (int) (fundNum ^ (fundNum >>> 32));
     result = 31 * result + (int) (fundSum ^ (fundSum >>> 32));
     result = 31 * result + (fundNumConfirmed != null ? fundNumConfirmed.hashCode() : 0);

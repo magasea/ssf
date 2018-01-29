@@ -26,6 +26,7 @@ public class TrdOrderDetail {
   private long userId;
   private long userProdId;
   private String fundCode;
+  private long fundMoneyQuantity;
   private long fundNum;
   private long fundSum;
   private Long fundNumConfirmed;
@@ -46,7 +47,7 @@ public class TrdOrderDetail {
   @Id
   @Column(name = "id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  public long getId() {
+  public Long getId() {
     return id;
   }
 
@@ -76,7 +77,7 @@ public class TrdOrderDetail {
 
   @Basic
   @Column(name = "buysell_date")
-  public long getBuysellDate() {
+  public Long getBuysellDate() {
     return buysellDate;
   }
 
@@ -96,7 +97,7 @@ public class TrdOrderDetail {
 
   @Basic
   @Column(name = "pay_amount")
-  public long getPayAmount() {
+  public Long getPayAmount() {
     return payAmount;
   }
 
@@ -106,7 +107,7 @@ public class TrdOrderDetail {
 
   @Basic
   @Column(name = "pay_fee")
-  public long getPayFee() {
+  public Long getPayFee() {
     return payFee;
   }
 
@@ -116,7 +117,7 @@ public class TrdOrderDetail {
 
   @Basic
   @Column(name = "user_id")
-  public long getUserId() {
+  public Long getUserId() {
     return userId;
   }
 
@@ -126,7 +127,7 @@ public class TrdOrderDetail {
 
   @Basic
   @Column(name = "user_prod_id")
-  public long getUserProdId() {
+  public Long getUserProdId() {
     return userProdId;
   }
 
@@ -145,8 +146,18 @@ public class TrdOrderDetail {
   }
 
   @Basic
+  @Column(name = "fund_money_quantity")
+  public Long getFundMoneyQuantity() {
+    return fundMoneyQuantity;
+  }
+
+  public void setFundMoneyQuantity(long fundMoneyQuantity) {
+    this.fundMoneyQuantity = fundMoneyQuantity;
+  }
+
+  @Basic
   @Column(name = "fund_num")
-  public long getFundNum() {
+  public Long getFundNum() {
     return fundNum;
   }
 
@@ -156,7 +167,7 @@ public class TrdOrderDetail {
 
   @Basic
   @Column(name = "fund_sum")
-  public long getFundSum() {
+  public Long getFundSum() {
     return fundSum;
   }
 
@@ -176,7 +187,7 @@ public class TrdOrderDetail {
 
   @Basic
   @Column(name = "fund_sum_confirmed")
-  public long getFundSumConfirmed() {
+  public Long getFundSumConfirmed() {
     return fundSumConfirmed;
   }
 
@@ -196,7 +207,7 @@ public class TrdOrderDetail {
 
   @Basic
   @Column(name = "buy_fee")
-  public long getBuyFee() {
+  public Long getBuyFee() {
     return buyFee;
   }
 
@@ -206,7 +217,7 @@ public class TrdOrderDetail {
 
   @Basic
   @Column(name = "buy_discount")
-  public long getBuyDiscount() {
+  public Long getBuyDiscount() {
     return buyDiscount;
   }
 
@@ -226,7 +237,7 @@ public class TrdOrderDetail {
 
   @Basic
   @Column(name = "create_by")
-  public long getCreateBy() {
+  public Long getCreateBy() {
     return createBy;
   }
 
@@ -236,7 +247,7 @@ public class TrdOrderDetail {
 
   @Basic
   @Column(name = "create_date")
-  public long getCreateDate() {
+  public Long getCreateDate() {
     return createDate;
   }
 
@@ -246,7 +257,7 @@ public class TrdOrderDetail {
 
   @Basic
   @Column(name = "update_by")
-  public long getUpdateBy() {
+  public Long getUpdateBy() {
     return updateBy;
   }
 
@@ -256,7 +267,7 @@ public class TrdOrderDetail {
 
   @Basic
   @Column(name = "update_date")
-  public long getUpdateDate() {
+  public Long getUpdateDate() {
     return updateDate;
   }
 
@@ -336,6 +347,9 @@ public class TrdOrderDetail {
     if (userProdId != that.userProdId) {
       return false;
     }
+    if (fundMoneyQuantity != that.fundMoneyQuantity) {
+      return false;
+    }
     if (fundNum != that.fundNum) {
       return false;
     }
@@ -412,6 +426,7 @@ public class TrdOrderDetail {
     result = 31 * result + (int) (userId ^ (userId >>> 32));
     result = 31 * result + (int) (userProdId ^ (userProdId >>> 32));
     result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
+    result = 31 * result + (int) (fundMoneyQuantity ^ (fundMoneyQuantity >>> 32));
     result = 31 * result + (int) (fundNum ^ (fundNum >>> 32));
     result = 31 * result + (int) (fundSum ^ (fundSum >>> 32));
     result = 31 * result + (fundNumConfirmed != null ? fundNumConfirmed.hashCode() : 0);
