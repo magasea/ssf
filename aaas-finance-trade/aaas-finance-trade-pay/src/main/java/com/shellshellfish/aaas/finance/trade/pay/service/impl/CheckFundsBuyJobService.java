@@ -13,7 +13,6 @@ import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowReposito
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.service.OrderService;
-import java.sql.Struct;
 import java.time.Instant;
 import java.util.List;
 import org.slf4j.Logger;
@@ -95,8 +94,8 @@ public class CheckFundsBuyJobService {
                         if(!StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
                             Long fundSumConfirmed = TradeUtil.getLongNumWithMul100(applyResult
                                 .getTradeconfirmshare());
-                            trdPayFlow.setFundSumConfirmed(fundSumConfirmed);
-                            trdPayFlow.setFundSum(fundSumConfirmed);
+                            trdPayFlow.setTradeConfirmShare(fundSumConfirmed);
+                            trdPayFlow.setTradeTargetShare(fundSumConfirmed);
                         }
                         trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno());
                         trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
@@ -159,12 +158,23 @@ public class CheckFundsBuyJobService {
                                 Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum).getStatus());
                         trdPayFlow.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
                             .getPoundage()));
-                        if(!StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
-                            Long fundSumConfirmed = TradeUtil.getLongNumWithMul100(applyResult
-                                .getTradeconfirmshare());
-                            trdPayFlow.setFundSumConfirmed(fundSumConfirmed);
-
+                        if (!StringUtils.isEmpty(applyResult.getTradeconfirmshare())) {
+                            trdPayFlow.setTradeConfirmShare(TradeUtil.getLongNumWithMul100
+                                (applyResult.getTradeconfirmshare()));
                         }
+                        if (!StringUtils.isEmpty(applyResult.getTradeconfirmsum())) {
+                            trdPayFlow.setTradeConfirmSum(TradeUtil.getLongNumWithMul100
+                                (applyResult.getTradeconfirmsum()));
+                        }
+                        if (!StringUtils.isEmpty(applyResult.getApplyshare())) {
+                            trdPayFlow.setTradeTargetShare(TradeUtil.getLongNumWithMul100
+                                (applyResult.getApplyshare()));
+                        }
+                        if (!StringUtils.isEmpty(applyResult.getApplysum())) {
+                            trdPayFlow.setTradeTargetSum(TradeUtil.getLongNumWithMul100
+                                (applyResult.getApplysum()));
+                        }
+ 
                         trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno());
                         trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
                         trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
@@ -239,8 +249,20 @@ public class CheckFundsBuyJobService {
             trdPayFlowMsg.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
                 .getPoundage()));
             if (!StringUtils.isEmpty(applyResult.getTradeconfirmshare())) {
-                trdPayFlowMsg.setFundSumConfirmed(TradeUtil.getLongNumWithMul100
+                trdPayFlowMsg.setTradeConfirmShare(TradeUtil.getLongNumWithMul100
                     (applyResult.getTradeconfirmshare()));
+            }
+            if (!StringUtils.isEmpty(applyResult.getTradeconfirmsum())) {
+                trdPayFlowMsg.setTradeConfirmSum(TradeUtil.getLongNumWithMul100
+                    (applyResult.getTradeconfirmsum()));
+            }
+            if (!StringUtils.isEmpty(applyResult.getApplyshare())) {
+                trdPayFlowMsg.setTradeTargetShare(TradeUtil.getLongNumWithMul100
+                    (applyResult.getApplyshare()));
+            }
+            if (!StringUtils.isEmpty(applyResult.getApplysum())) {
+                trdPayFlowMsg.setTradeTargetSum(TradeUtil.getLongNumWithMul100
+                    (applyResult.getApplysum()));
             }
             trdPayFlowMsg.setOutsideOrderno(applyResult.getOutsideorderno());
             trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());

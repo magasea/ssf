@@ -1,7 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.OrderJobPayRltEnum;
 import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
@@ -10,15 +9,14 @@ import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
 import com.shellshellfish.aaas.common.enums.ZZRiskAbilityEnum;
+import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
 import com.shellshellfish.aaas.common.message.order.ProdDtlSellDTO;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
-import com.shellshellfish.aaas.common.utils.MathUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
-import com.shellshellfish.aaas.common.utils.SSFDateUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.utils.ZZRiskToSSFRiskUtils;
 import com.shellshellfish.aaas.common.utils.ZZStatsToOrdStatsUtils;
@@ -30,7 +28,6 @@ import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcService
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
-import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.FundConvertResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.OpenAccountResult;
@@ -43,7 +40,6 @@ import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import com.shellshellfish.aaas.finance.trade.pay.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
-import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,13 +96,14 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
 //      trdOrderDetail.getOrderDetailId();
       //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
-      BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundMoneyQuantity());
+      BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100
+          (trdOrderDetail.getFundSum());
       //TODO: replace userId with userUuid
       TrdPayFlow trdPayFlow = new TrdPayFlow();
       trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
       trdPayFlow.setCreateBy(0L);
 
-      trdPayFlow.setTrdMoneyAmount(trdOrderDetail.getFundMoneyQuantity());
+      trdPayFlow.setTradeTargetSum(trdOrderDetail.getFundSum());
       trdPayFlow.setTrdStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(userProdId);
       trdPayFlow.setOrderDetailId(trdOrderDetail.getId());
@@ -198,14 +195,14 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       }
 
       //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
-      BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundMoneyQuantity());
+      BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundSum());
       //TODO: replace userId with userUuid
       TrdPayFlow trdPayFlow = new TrdPayFlow();
       trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
       trdPayFlow.setCreateBy(0L);
       //重要。。。。。
       trdPayFlow.setOutsideOrderno(sbOutsideOrderno.toString());
-      trdPayFlow.setTrdMoneyAmount(trdOrderDetail.getFundMoneyQuantity());
+      trdPayFlow.setTradeTargetSum(trdOrderDetail.getFundSum());
       trdPayFlow.setTrdStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(payOrderDto.getUserProdId());
       trdPayFlow.setOrderDetailId(trdOrderDetail.getId());
@@ -347,7 +344,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           trdPayFlow.setTrdStatus(TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus());
           trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
           trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
-          trdPayFlow.setFundSum(prodDtlSellDTO.getFundQuantity());
+          trdPayFlow.setTradeTargetShare(prodDtlSellDTO.getFundQuantity());
           trdPayFlow.setFundCode(prodDtlSellDTO.getFundCode());
           trdPayFlow.setOutsideOrderno(outsideOrderNo);
           trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
@@ -367,7 +364,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
               .shellshellfish.aaas.common.message.order.TrdPayFlow();
           trdPayFlow.setTrdStatus(TrdOrderStatusEnum.FAILED.getStatus());
-          trdPayFlow.setFundSum(sellNum);
+          trdPayFlow.setTradeTargetShare(sellNum);
           trdPayFlow.setUserProdId(prodDtlSellDTO.getUserProdId());
           MyBeanUtils.mapEntityIntoDTO(trdPayFlow, trdPayFlowMsg);
           notifyPay(trdPayFlowMsg);
@@ -665,7 +662,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setUpdateBy(request.getUserId());
       trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.PREORDER.getOperation());
-      trdPayFlow.setTrdDate(TradeUtil.getUTCTime());
+      trdPayFlow.setTrdConfirmDate(TradeUtil.getUTCTime());
       trdPayFlow.setUserId(request.getUserId());
       trdPayFlow.setApplySerial(buyFundResult.getApplySerial());
       trdPayFlow.setCreateBy(request.getUserId());
@@ -680,7 +677,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setTrdbkerStatusCode(kkStat);
       trdPayFlow.setTradeBrokeId(request.getTrdBrokerId());
       //注意外面接口用BigDecimal表示金额，入库都用long精确到分
-      trdPayFlow.setTrdMoneyAmount(request.getPayAmount());
+      trdPayFlow.setTradeTargetSum(request.getPayAmount());
       trdPayFlow.setTrdStatus(trdOrderStatusEnum.getStatus());
       trdPayFlowRepository.save(trdPayFlow);
       com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
@@ -722,13 +719,13 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       }
 
       //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
-      BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundMoneyQuantity());
+      BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundSum());
       //TODO: replace userId with userUuid
       TrdPayFlow trdPayFlow = new TrdPayFlow();
       trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
       trdPayFlow.setCreateBy(0L);
 
-      trdPayFlow.setTrdMoneyAmount(trdOrderDetail.getFundMoneyQuantity());
+      trdPayFlow.setTradeTargetSum(trdOrderDetail.getFundSum());
       trdPayFlow.setTrdStatus(TrdOrderStatusEnum.CONVERTWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(payPreOrderDto.getUserProdId());
       trdPayFlow.setOrderDetailId(trdOrderDetail.getId());

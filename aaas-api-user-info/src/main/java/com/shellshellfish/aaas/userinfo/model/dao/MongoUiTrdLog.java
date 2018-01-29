@@ -52,10 +52,20 @@ public class MongoUiTrdLog implements Serializable {
   @Field( value = "user_id")
   private Long userId;
 
-
-
   @Field( value = "fund_code")
   private String fundCode;
+
+  @Field( value = "trade_confirm_share")
+  private Long tradeConfirmShare;
+
+  @Field( value = "trade_confirm_sum")
+  private Long tradeConfirmSum;
+
+  @Field( value = "trade_target_share")
+  private Long tradeTargetShare;
+
+  @Field( value = "trade_target_sum")
+  private Long tradeTargetSum;
 
   public MongoUiTrdLog() {
   }
@@ -157,5 +167,37 @@ public class MongoUiTrdLog implements Serializable {
 
   public void setFundCode(String fundCode) {
     this.fundCode = fundCode;
+  }
+
+  public Long getTradeConfirmShare() {
+    return tradeConfirmShare;
+  }
+
+  public void setTradeConfirmShare(Long tradeConfirmShare) {
+    this.tradeConfirmShare = tradeConfirmShare;
+  }
+
+  public Long getTradeConfirmSum() {
+    return tradeConfirmSum;
+  }
+
+  public void setTradeConfirmSum(Long tradeConfirmSum) {
+    this.tradeConfirmSum = tradeConfirmSum;
+  }
+
+  public Long getTradeTargetShare() {
+    return tradeTargetShare;
+  }
+
+  public void setTradeTargetShare(Long tradeTargetShare) {
+    this.tradeTargetShare = tradeTargetShare;
+  }
+
+  public Long getTradeTargetSum() {
+    return tradeTargetSum;
+  }
+
+  public void setTradeTargetSum(Long tradeTargetSum) {
+    this.tradeTargetSum = tradeTargetSum;
   }
 }

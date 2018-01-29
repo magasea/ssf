@@ -9,13 +9,12 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Created by chenwei on 2018- 一月 - 02
+ * Created by chenwei on 2018- 一月 - 29
  */
 
 @Entity
 @Table(name = "trd_order_detail", schema = "ssftrdorder", catalog = "")
 public class TrdOrderDetail {
-
 
   private long id;
   private String orderId;
@@ -27,9 +26,10 @@ public class TrdOrderDetail {
   private long userId;
   private long userProdId;
   private String fundCode;
-  private long fundMoneyQuantity;
   private long fundNum;
-  private long fundNumConfirmed;
+  private long fundSum;
+  private Long fundNumConfirmed;
+  private long fundSumConfirmed;
   private int fundShare;
   private long buyFee;
   private long buyDiscount;
@@ -39,13 +39,13 @@ public class TrdOrderDetail {
   private long updateBy;
   private long updateDate;
   private String bankCardNum;
+  private String errMsg;
   private Long fundQuantity;
   private Long prodId;
-  private String errMsg;
 
   @Id
   @Column(name = "id")
-  @GeneratedValue(strategy= GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   public long getId() {
     return id;
   }
@@ -145,16 +145,6 @@ public class TrdOrderDetail {
   }
 
   @Basic
-  @Column(name = "fund_money_quantity")
-  public long getFundMoneyQuantity() {
-    return fundMoneyQuantity;
-  }
-
-  public void setFundMoneyQuantity(long fundMoneyQuantity) {
-    this.fundMoneyQuantity = fundMoneyQuantity;
-  }
-
-  @Basic
   @Column(name = "fund_num")
   public long getFundNum() {
     return fundNum;
@@ -165,13 +155,33 @@ public class TrdOrderDetail {
   }
 
   @Basic
+  @Column(name = "fund_sum")
+  public long getFundSum() {
+    return fundSum;
+  }
+
+  public void setFundSum(long fundSum) {
+    this.fundSum = fundSum;
+  }
+
+  @Basic
   @Column(name = "fund_num_confirmed")
-  public long getFundNumConfirmed() {
+  public Long getFundNumConfirmed() {
     return fundNumConfirmed;
   }
 
-  public void setFundNumConfirmed(long fundNumConfirmed) {
+  public void setFundNumConfirmed(Long fundNumConfirmed) {
     this.fundNumConfirmed = fundNumConfirmed;
+  }
+
+  @Basic
+  @Column(name = "fund_sum_confirmed")
+  public long getFundSumConfirmed() {
+    return fundSumConfirmed;
+  }
+
+  public void setFundSumConfirmed(long fundSumConfirmed) {
+    this.fundSumConfirmed = fundSumConfirmed;
   }
 
   @Basic
@@ -265,6 +275,16 @@ public class TrdOrderDetail {
   }
 
   @Basic
+  @Column(name = "err_msg")
+  public String getErrMsg() {
+    return errMsg;
+  }
+
+  public void setErrMsg(String errMsg) {
+    this.errMsg = errMsg;
+  }
+
+  @Basic
   @Column(name = "fund_quantity")
   public Long getFundQuantity() {
     return fundQuantity;
@@ -274,9 +294,6 @@ public class TrdOrderDetail {
     this.fundQuantity = fundQuantity;
   }
 
-
-
-
   @Basic
   @Column(name = "prod_id")
   public Long getProdId() {
@@ -285,16 +302,6 @@ public class TrdOrderDetail {
 
   public void setProdId(Long prodId) {
     this.prodId = prodId;
-  }
-
-  @Basic
-  @Column(name = "err_msg")
-  public String getErrMsg() {
-    return errMsg;
-  }
-
-  public void setErrMsg(String errMsg) {
-    this.errMsg = errMsg;
   }
 
   @Override
@@ -329,13 +336,13 @@ public class TrdOrderDetail {
     if (userProdId != that.userProdId) {
       return false;
     }
-    if (fundMoneyQuantity != that.fundMoneyQuantity) {
-      return false;
-    }
     if (fundNum != that.fundNum) {
       return false;
     }
-    if (fundNumConfirmed != that.fundNumConfirmed) {
+    if (fundSum != that.fundSum) {
+      return false;
+    }
+    if (fundSumConfirmed != that.fundSumConfirmed) {
       return false;
     }
     if (fundShare != that.fundShare) {
@@ -372,18 +379,21 @@ public class TrdOrderDetail {
     if (fundCode != null ? !fundCode.equals(that.fundCode) : that.fundCode != null) {
       return false;
     }
+    if (fundNumConfirmed != null ? !fundNumConfirmed.equals(that.fundNumConfirmed)
+        : that.fundNumConfirmed != null) {
+      return false;
+    }
     if (bankCardNum != null ? !bankCardNum.equals(that.bankCardNum) : that.bankCardNum != null) {
+      return false;
+    }
+    if (errMsg != null ? !errMsg.equals(that.errMsg) : that.errMsg != null) {
       return false;
     }
     if (fundQuantity != null ? !fundQuantity.equals(that.fundQuantity)
         : that.fundQuantity != null) {
       return false;
     }
-
     if (prodId != null ? !prodId.equals(that.prodId) : that.prodId != null) {
-      return false;
-    }
-    if (errMsg != null ? !errMsg.equals(that.errMsg) : that.errMsg != null) {
       return false;
     }
 
@@ -402,9 +412,10 @@ public class TrdOrderDetail {
     result = 31 * result + (int) (userId ^ (userId >>> 32));
     result = 31 * result + (int) (userProdId ^ (userProdId >>> 32));
     result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
-    result = 31 * result + (int) (fundMoneyQuantity ^ (fundMoneyQuantity >>> 32));
     result = 31 * result + (int) (fundNum ^ (fundNum >>> 32));
-    result = 31 * result + (int) (fundNumConfirmed ^ (fundNumConfirmed >>> 32));
+    result = 31 * result + (int) (fundSum ^ (fundSum >>> 32));
+    result = 31 * result + (fundNumConfirmed != null ? fundNumConfirmed.hashCode() : 0);
+    result = 31 * result + (int) (fundSumConfirmed ^ (fundSumConfirmed >>> 32));
     result = 31 * result + fundShare;
     result = 31 * result + (int) (buyFee ^ (buyFee >>> 32));
     result = 31 * result + (int) (buyDiscount ^ (buyDiscount >>> 32));
@@ -414,9 +425,9 @@ public class TrdOrderDetail {
     result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
     result = 31 * result + (int) (updateDate ^ (updateDate >>> 32));
     result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
+    result = 31 * result + (errMsg != null ? errMsg.hashCode() : 0);
     result = 31 * result + (fundQuantity != null ? fundQuantity.hashCode() : 0);
     result = 31 * result + (prodId != null ? prodId.hashCode() : 0);
-    result = 31 * result + (errMsg != null ? errMsg.hashCode() : 0);
     return result;
   }
 }

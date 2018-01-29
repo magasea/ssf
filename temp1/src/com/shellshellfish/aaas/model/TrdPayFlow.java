@@ -1,14 +1,18 @@
-package com.shellshellfish.aaas.common.message.order;
+package com.shellshellfish.aaas.model;
 
-import java.io.Serializable;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * Created by chenwei on 2018- 一月 - 29
  */
 
-
-
-public class TrdPayFlow implements Serializable {
+@Entity
+@Table(name = "trd_pay_flow", schema = "ssftrdpay", catalog = "")
+public class TrdPayFlow {
 
   private long id;
   private long orderDetailId;
@@ -38,8 +42,8 @@ public class TrdPayFlow implements Serializable {
   private Integer trdbkerStatusCode;
   private String trdbkerStatusName;
 
-  
-  
+  @Id
+  @Column(name = "id")
   public long getId() {
     return id;
   }
@@ -48,8 +52,8 @@ public class TrdPayFlow implements Serializable {
     this.id = id;
   }
 
-  
-  
+  @Basic
+  @Column(name = "order_detail_id")
   public long getOrderDetailId() {
     return orderDetailId;
   }
@@ -58,8 +62,8 @@ public class TrdPayFlow implements Serializable {
     this.orderDetailId = orderDetailId;
   }
 
-  
-  
+  @Basic
+  @Column(name = "trade_acco")
   public String getTradeAcco() {
     return tradeAcco;
   }
@@ -68,9 +72,9 @@ public class TrdPayFlow implements Serializable {
     this.tradeAcco = tradeAcco;
   }
 
-  
-  
-  public Long getTradeBrokeId() {
+  @Basic
+  @Column(name = "trade_broke_id")
+  public long getTradeBrokeId() {
     return tradeBrokeId;
   }
 
@@ -78,8 +82,8 @@ public class TrdPayFlow implements Serializable {
     this.tradeBrokeId = tradeBrokeId;
   }
 
-  
-  
+  @Basic
+  @Column(name = "apply_serial")
   public String getApplySerial() {
     return applySerial;
   }
@@ -88,8 +92,8 @@ public class TrdPayFlow implements Serializable {
     this.applySerial = applySerial;
   }
 
-  
-  
+  @Basic
+  @Column(name = "outside_orderno")
   public String getOutsideOrderno() {
     return outsideOrderno;
   }
@@ -98,8 +102,8 @@ public class TrdPayFlow implements Serializable {
     this.outsideOrderno = outsideOrderno;
   }
 
-  
-  
+  @Basic
+  @Column(name = "bank_card_num")
   public String getBankCardNum() {
     return bankCardNum;
   }
@@ -108,8 +112,8 @@ public class TrdPayFlow implements Serializable {
     this.bankCardNum = bankCardNum;
   }
 
-  
-  
+  @Basic
+  @Column(name = "user_prod_id")
   public long getUserProdId() {
     return userProdId;
   }
@@ -118,8 +122,8 @@ public class TrdPayFlow implements Serializable {
     this.userProdId = userProdId;
   }
 
-  
-  
+  @Basic
+  @Column(name = "fund_code")
   public String getFundCode() {
     return fundCode;
   }
@@ -128,8 +132,8 @@ public class TrdPayFlow implements Serializable {
     this.fundCode = fundCode;
   }
 
-  
-  
+  @Basic
+  @Column(name = "trd_status")
   public int getTrdStatus() {
     return trdStatus;
   }
@@ -138,8 +142,8 @@ public class TrdPayFlow implements Serializable {
     this.trdStatus = trdStatus;
   }
 
-  
-  
+  @Basic
+  @Column(name = "trd_confirm_date")
   public long getTrdConfirmDate() {
     return trdConfirmDate;
   }
@@ -148,8 +152,8 @@ public class TrdPayFlow implements Serializable {
     this.trdConfirmDate = trdConfirmDate;
   }
 
-  
-  
+  @Basic
+  @Column(name = "trd_type")
   public int getTrdType() {
     return trdType;
   }
@@ -158,8 +162,8 @@ public class TrdPayFlow implements Serializable {
     this.trdType = trdType;
   }
 
-  
-  
+  @Basic
+  @Column(name = "trade_target_sum")
   public Long getTradeTargetSum() {
     return tradeTargetSum;
   }
@@ -168,8 +172,8 @@ public class TrdPayFlow implements Serializable {
     this.tradeTargetSum = tradeTargetSum;
   }
 
-  
-  
+  @Basic
+  @Column(name = "trade_target_share")
   public long getTradeTargetShare() {
     return tradeTargetShare;
   }
@@ -178,9 +182,9 @@ public class TrdPayFlow implements Serializable {
     this.tradeTargetShare = tradeTargetShare;
   }
 
-  
-  
-  public Long getTradeConfirmShare() {
+  @Basic
+  @Column(name = "trade_confirm_share")
+  public long getTradeConfirmShare() {
     return tradeConfirmShare;
   }
 
@@ -188,8 +192,8 @@ public class TrdPayFlow implements Serializable {
     this.tradeConfirmShare = tradeConfirmShare;
   }
 
-  
-  
+  @Basic
+  @Column(name = "trade_confirm_sum")
   public long getTradeConfirmSum() {
     return tradeConfirmSum;
   }
@@ -198,8 +202,8 @@ public class TrdPayFlow implements Serializable {
     this.tradeConfirmSum = tradeConfirmSum;
   }
 
-  
-  
+  @Basic
+  @Column(name = "buy_fee")
   public long getBuyFee() {
     return buyFee;
   }
@@ -208,8 +212,8 @@ public class TrdPayFlow implements Serializable {
     this.buyFee = buyFee;
   }
 
-  
-  
+  @Basic
+  @Column(name = "buy_discount")
   public long getBuyDiscount() {
     return buyDiscount;
   }
@@ -218,8 +222,8 @@ public class TrdPayFlow implements Serializable {
     this.buyDiscount = buyDiscount;
   }
 
-  
-  
+  @Basic
+  @Column(name = "user_id")
   public long getUserId() {
     return userId;
   }
@@ -228,8 +232,8 @@ public class TrdPayFlow implements Serializable {
     this.userId = userId;
   }
 
-  
-  
+  @Basic
+  @Column(name = "create_by")
   public long getCreateBy() {
     return createBy;
   }
@@ -238,8 +242,8 @@ public class TrdPayFlow implements Serializable {
     this.createBy = createBy;
   }
 
-  
-  
+  @Basic
+  @Column(name = "create_date")
   public long getCreateDate() {
     return createDate;
   }
@@ -248,8 +252,8 @@ public class TrdPayFlow implements Serializable {
     this.createDate = createDate;
   }
 
-  
-  
+  @Basic
+  @Column(name = "update_by")
   public long getUpdateBy() {
     return updateBy;
   }
@@ -258,8 +262,8 @@ public class TrdPayFlow implements Serializable {
     this.updateBy = updateBy;
   }
 
-  
-  
+  @Basic
+  @Column(name = "update_date")
   public long getUpdateDate() {
     return updateDate;
   }
@@ -268,8 +272,8 @@ public class TrdPayFlow implements Serializable {
     this.updateDate = updateDate;
   }
 
-  
-  
+  @Basic
+  @Column(name = "err_msg")
   public String getErrMsg() {
     return errMsg;
   }
@@ -278,8 +282,8 @@ public class TrdPayFlow implements Serializable {
     this.errMsg = errMsg;
   }
 
-  
-  
+  @Basic
+  @Column(name = "err_code")
   public String getErrCode() {
     return errCode;
   }
@@ -288,8 +292,8 @@ public class TrdPayFlow implements Serializable {
     this.errCode = errCode;
   }
 
-  
-  
+  @Basic
+  @Column(name = "trdbker_status_code")
   public Integer getTrdbkerStatusCode() {
     return trdbkerStatusCode;
   }
@@ -298,8 +302,8 @@ public class TrdPayFlow implements Serializable {
     this.trdbkerStatusCode = trdbkerStatusCode;
   }
 
-  
-  
+  @Basic
+  @Column(name = "trdbker_status_name")
   public String getTrdbkerStatusName() {
     return trdbkerStatusName;
   }
@@ -308,7 +312,7 @@ public class TrdPayFlow implements Serializable {
     this.trdbkerStatusName = trdbkerStatusName;
   }
 
-  
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -408,7 +412,7 @@ public class TrdPayFlow implements Serializable {
     return true;
   }
 
-  
+  @Override
   public int hashCode() {
     int result = (int) (id ^ (id >>> 32));
     result = 31 * result + (int) (orderDetailId ^ (orderDetailId >>> 32));

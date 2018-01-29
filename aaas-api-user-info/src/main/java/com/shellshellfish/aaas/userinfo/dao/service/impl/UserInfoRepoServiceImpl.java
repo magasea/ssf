@@ -673,7 +673,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		Map<String, Long> currentAvailableFunds = new HashMap<>();
 		for(UiProductDetail uiProductDetail: uiProductDetails){
 			currentAvailableFunds.put(uiProductDetail.getFundCode(), Long.valueOf(uiProductDetail
-					.getFundQuantity()));
+					.getFundQuantiyTrade()));
 		}
 		SellProducts.Builder spBuilder = SellProducts.newBuilder();
 		SellProductDetail.Builder spdBuilder = SellProductDetail.newBuilder();
@@ -682,11 +682,11 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			logger.info("check fundCode:" + sellProductDetail.getFundCode() + " of userProdId:" +
 					request.getUserProductId());
 			spdBuilder.setFundCode(sellProductDetail.getFundCode());
-			spdBuilder.setFundQuantity(sellProductDetail.getFundQuantity());
-			if(sellProductDetail.getFundQuantity() > currentAvailableFunds.get(sellProductDetail
+			spdBuilder.setFundQuantityTrade(sellProductDetail.getFundQuantityTrade());
+			if(sellProductDetail.getFundQuantityTrade() > currentAvailableFunds.get(sellProductDetail
 					.getFundCode())){
 				spdBuilder.setResult(-1);
-				spdBuilder.setFundQuantity(currentAvailableFunds.get(sellProductDetail.getFundCode()));
+				spdBuilder.setFundQuantityTrade(currentAvailableFunds.get(sellProductDetail.getFundCode()));
 				canDuduct = false;
 			}
 			spBuilder.addSellProductDetails(spdBuilder);
@@ -704,7 +704,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			Long fundQuantityRemain = null;
 			for(SellProductDetail sellProductDetail: request.getSellProductDetailsList()){
 				fundQuantityRemain = currentAvailableFunds.get(sellProductDetail.getFundCode()) -
-						sellProductDetail.getFundQuantity();
+						sellProductDetail.getFundQuantityTrade();
 				uiProductDetailRepo.updateByParam(fundQuantityRemain, TradeUtil.getUTCTime(), request
 								.getUserId(), request.getUserProductId(),sellProductDetail.getFundCode(),
 						TrdOrderStatusEnum.WAITSELL.getStatus() );

@@ -58,7 +58,8 @@ public class BroadcastMessageConsumers {
         if(trdPayFlow.getTrdType() == TrdOrderOpTypeEnum.BUY.getOperation()){
             logger.info("get buy update payFlow msg");
             try{
-                uiProductDetailRepo.updateByParam(trdPayFlow.getFundSum(), TradeUtil.getUTCTime(),
+                uiProductDetailRepo.updateByParam(trdPayFlow.getTradeConfirmShare(), TradeUtil
+                        .getUTCTime(),
                     trdPayFlow.getUserId(),trdPayFlow.getUserProdId() ,trdPayFlow.getFundCode(),
                     trdPayFlow.getTrdStatus());
             }catch (Exception ex){
@@ -90,19 +91,17 @@ public class BroadcastMessageConsumers {
         //update ui_products 和 ui_product_details
         MongoUiTrdLog  mongoUiTrdLog = new MongoUiTrdLog();
         try{
-            if(null == trdPayFlow.getTrdMoneyAmount()){
-                mongoUiTrdLog.setAmount(BigDecimal.valueOf(0));
-            }else {
-                mongoUiTrdLog.setAmount(
-                    TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow.getTrdMoneyAmount()));
-            }
+            mongoUiTrdLog.setTradeConfirmSum(trdPayFlow.getTradeConfirmSum());
+            mongoUiTrdLog.setTradeConfirmShare(trdPayFlow.getTradeConfirmShare());
+            mongoUiTrdLog.setTradeTargetShare(trdPayFlow.getTradeTargetShare());
+            mongoUiTrdLog.setTradeTargetSum(trdPayFlow.getTradeTargetSum());
             mongoUiTrdLog.setOperations(trdPayFlow.getTrdType());
             mongoUiTrdLog.setUserProdId(trdPayFlow.getUserProdId());
             mongoUiTrdLog.setUserId(trdPayFlow.getUserId());
             mongoUiTrdLog.setTradeStatus(trdPayFlow.getTrdStatus());
             mongoUiTrdLog.setLastModifiedDate(TradeUtil.getUTCTime());
             mongoUiTrdLog.setFundCode(trdPayFlow.getFundCode());
-            mongoUiTrdLog.setTradeDate(trdPayFlow.getTrdDate());
+            mongoUiTrdLog.setTradeDate(trdPayFlow.getUpdateDate());
             mongoUserTrdLogMsgRepo.save(mongoUiTrdLog);
         }catch (Exception ex){
             ex.printStackTrace();
@@ -167,7 +166,7 @@ public class BroadcastMessageConsumers {
         if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.FAILED.getStatus() && trdPayFlow
             .getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
             //记住 要和payService里面sellProd的做法一致，发送方也得用这个字段存储赎回基金数量
-            Long fundQuantity = trdPayFlow.getFundSum();
+            Long fundQuantity = trdPayFlow.getTradeTargetShare();
             logger.info("now set the fund quantity back with userProdId:" + trdPayFlow.getUserProdId
                 () + " fundQuantity:" + fundQuantity);
             uiProductDetailRepo.updateByAddBackQuantity(fundQuantity, TradeUtil.getUTCTime(),
@@ -181,8 +180,8 @@ public class BroadcastMessageConsumers {
                 trdPayFlow.getFundCode(), trdPayFlow.getTrdStatus());
         }else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus() && trdPayFlow
             .getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
-            uiProductDetailRepo.updateByParam(trdPayFlow.getFundSumConfirmed(),TradeUtil
-                .getUTCTime(),SystemUserEnum.SYSTEM_USER_ENUM.getUserId(),trdPayFlow
+            uiProductDetailRepo.updateByReedemConfirm(trdPayFlow.getTradeConfirmShare(),
+                TradeUtil.getUTCTime(),SystemUserEnum.SYSTEM_USER_ENUM.getUserId(),trdPayFlow
                 .getUserProdId(),trdPayFlow.getFundCode(),trdPayFlow.getTrdStatus());
         }else{
             logger.error("havent handling this kind of trdPayflow: of trdType:"+ trdPayFlow

@@ -1,10 +1,8 @@
-package com.shellshellfish.aaas.userinfo.model.dao;
+package com.shellshellfish.aaas.model;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -31,7 +29,6 @@ public class UiProductDetail {
 
   @Id
   @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
   public long getId() {
     return id;
   }

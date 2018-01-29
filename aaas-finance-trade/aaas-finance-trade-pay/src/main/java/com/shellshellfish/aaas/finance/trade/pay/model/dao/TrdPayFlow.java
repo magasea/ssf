@@ -3,11 +3,13 @@ package com.shellshellfish.aaas.finance.trade.pay.model.dao;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Created by chenwei on 2018- 一月 - 22
+ * Created by chenwei on 2018- 一月 - 29
  */
 
 @Entity
@@ -24,11 +26,12 @@ public class TrdPayFlow {
   private long userProdId;
   private String fundCode;
   private int trdStatus;
-  private long trdDate;
+  private long trdConfirmDate;
   private int trdType;
-  private Long trdMoneyAmount;
-  private long fundSum;
-  private long fundSumConfirmed;
+  private Long tradeTargetSum;
+  private long tradeTargetShare;
+  private long tradeConfirmShare;
+  private long tradeConfirmSum;
   private long buyFee;
   private long buyDiscount;
   private long userId;
@@ -43,6 +46,7 @@ public class TrdPayFlow {
 
   @Id
   @Column(name = "id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   public long getId() {
     return id;
   }
@@ -142,13 +146,13 @@ public class TrdPayFlow {
   }
 
   @Basic
-  @Column(name = "trd_date")
-  public long getTrdDate() {
-    return trdDate;
+  @Column(name = "trd_confirm_date")
+  public long getTrdConfirmDate() {
+    return trdConfirmDate;
   }
 
-  public void setTrdDate(long trdDate) {
-    this.trdDate = trdDate;
+  public void setTrdConfirmDate(long trdConfirmDate) {
+    this.trdConfirmDate = trdConfirmDate;
   }
 
   @Basic
@@ -162,33 +166,43 @@ public class TrdPayFlow {
   }
 
   @Basic
-  @Column(name = "trd_money_amount")
-  public Long getTrdMoneyAmount() {
-    return trdMoneyAmount;
+  @Column(name = "trade_target_sum")
+  public Long getTradeTargetSum() {
+    return tradeTargetSum;
   }
 
-  public void setTrdMoneyAmount(Long trdMoneyAmount) {
-    this.trdMoneyAmount = trdMoneyAmount;
-  }
-
-  @Basic
-  @Column(name = "fund_sum")
-  public long getFundSum() {
-    return fundSum;
-  }
-
-  public void setFundSum(long fundSum) {
-    this.fundSum = fundSum;
+  public void setTradeTargetSum(Long tradeTargetSum) {
+    this.tradeTargetSum = tradeTargetSum;
   }
 
   @Basic
-  @Column(name = "fund_sum_confirmed")
-  public long getFundSumConfirmed() {
-    return fundSumConfirmed;
+  @Column(name = "trade_target_share")
+  public long getTradeTargetShare() {
+    return tradeTargetShare;
   }
 
-  public void setFundSumConfirmed(long fundSumConfirmed) {
-    this.fundSumConfirmed = fundSumConfirmed;
+  public void setTradeTargetShare(long tradeTargetShare) {
+    this.tradeTargetShare = tradeTargetShare;
+  }
+
+  @Basic
+  @Column(name = "trade_confirm_share")
+  public long getTradeConfirmShare() {
+    return tradeConfirmShare;
+  }
+
+  public void setTradeConfirmShare(long tradeConfirmShare) {
+    this.tradeConfirmShare = tradeConfirmShare;
+  }
+
+  @Basic
+  @Column(name = "trade_confirm_sum")
+  public long getTradeConfirmSum() {
+    return tradeConfirmSum;
+  }
+
+  public void setTradeConfirmSum(long tradeConfirmSum) {
+    this.tradeConfirmSum = tradeConfirmSum;
   }
 
   @Basic
@@ -327,16 +341,19 @@ public class TrdPayFlow {
     if (trdStatus != that.trdStatus) {
       return false;
     }
-    if (trdDate != that.trdDate) {
+    if (trdConfirmDate != that.trdConfirmDate) {
       return false;
     }
     if (trdType != that.trdType) {
       return false;
     }
-    if (fundSum != that.fundSum) {
+    if (tradeTargetShare != that.tradeTargetShare) {
       return false;
     }
-    if (fundSumConfirmed != that.fundSumConfirmed) {
+    if (tradeConfirmShare != that.tradeConfirmShare) {
+      return false;
+    }
+    if (tradeConfirmSum != that.tradeConfirmSum) {
       return false;
     }
     if (buyFee != that.buyFee) {
@@ -376,8 +393,8 @@ public class TrdPayFlow {
     if (fundCode != null ? !fundCode.equals(that.fundCode) : that.fundCode != null) {
       return false;
     }
-    if (trdMoneyAmount != null ? !trdMoneyAmount.equals(that.trdMoneyAmount)
-        : that.trdMoneyAmount != null) {
+    if (tradeTargetSum != null ? !tradeTargetSum.equals(that.tradeTargetSum)
+        : that.tradeTargetSum != null) {
       return false;
     }
     if (errMsg != null ? !errMsg.equals(that.errMsg) : that.errMsg != null) {
@@ -410,11 +427,12 @@ public class TrdPayFlow {
     result = 31 * result + (int) (userProdId ^ (userProdId >>> 32));
     result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
     result = 31 * result + trdStatus;
-    result = 31 * result + (int) (trdDate ^ (trdDate >>> 32));
+    result = 31 * result + (int) (trdConfirmDate ^ (trdConfirmDate >>> 32));
     result = 31 * result + trdType;
-    result = 31 * result + (trdMoneyAmount != null ? trdMoneyAmount.hashCode() : 0);
-    result = 31 * result + (int) (fundSum ^ (fundSum >>> 32));
-    result = 31 * result + (int) (fundSumConfirmed ^ (fundSumConfirmed >>> 32));
+    result = 31 * result + (tradeTargetSum != null ? tradeTargetSum.hashCode() : 0);
+    result = 31 * result + (int) (tradeTargetShare ^ (tradeTargetShare >>> 32));
+    result = 31 * result + (int) (tradeConfirmShare ^ (tradeConfirmShare >>> 32));
+    result = 31 * result + (int) (tradeConfirmSum ^ (tradeConfirmSum >>> 32));
     result = 31 * result + (int) (buyFee ^ (buyFee >>> 32));
     result = 31 * result + (int) (buyDiscount ^ (buyDiscount >>> 32));
     result = 31 * result + (int) (userId ^ (userId >>> 32));
