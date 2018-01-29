@@ -354,8 +354,24 @@ public class TradeOpServiceImpl implements TradeOpService {
   @Transactional
   public void updateByParam(String tradeApplySerial, Long fundSum, Long fundSumConfirmed, Long
       fundNum, Long fundNumConfirmed,  Long updateDate, Long updateBy, Long id, int orderDetailStatus) {
-    trdOrderDetailRepository.updateByParam(tradeApplySerial,fundSum, fundSumConfirmed, fundNum,
-        fundNumConfirmed, orderDetailStatus, updateDate, updateBy,  id );
+    TrdOrderDetail trdOrderDetail = trdOrderDetailRepository.findOne(id);
+    trdOrderDetail.setUpdateDate(TradeUtil.getUTCTime());
+    trdOrderDetail.setUpdateBy(updateBy);
+    if(fundNum != null && fundNum > 0){
+      trdOrderDetail.setFundNum(fundNum);
+    }
+    if(fundSumConfirmed != null && fundSumConfirmed > 0){
+      trdOrderDetail.setFundSumConfirmed(fundSumConfirmed);
+    }
+    if(fundSum != null && fundSum > 0){
+      trdOrderDetail.setFundSum(fundSum);
+    }
+    if(fundNumConfirmed != null && fundNumConfirmed > 0){
+      trdOrderDetail.setFundNumConfirmed(fundNumConfirmed);
+    }
+    trdOrderDetail.setTradeApplySerial(tradeApplySerial);
+    trdOrderDetail.setOrderDetailStatus(orderDetailStatus);
+    trdOrderDetailRepository.save(trdOrderDetail);
   }
 
   @Override
