@@ -55,24 +55,19 @@ public class BroadcastMessageConsumers {
             Long updateBy =  SystemUserEnum.SYSTEM_USER_ENUM.getUserId();
             Long updateDate = TradeUtil.getUTCTime();
 
-            Long fundNum = trdPayFlow.getTradeTargetShare() > 0? trdPayFlow.getTradeTargetShare()
-                : null;
-            Long fundNumConfirmed = trdPayFlow.getTradeConfirmShare() > 0? trdPayFlow
-                .getTradeConfirmShare() : null;
+            Long fundNum = trdPayFlow.getTradeTargetShare();
+            Long fundNumConfirmed = trdPayFlow.getTradeConfirmShare() ;
+            Long fundSum = trdPayFlow.getTradeTargetSum();
 
-            Long fundSum = trdPayFlow.getTradeTargetSum() > 0? trdPayFlow.getTradeTargetSum():
-                null;
-            Long fundSumConfirmed = trdPayFlow.getTradeConfirmSum() > 0 ? trdPayFlow
-                .getTradeConfirmSum(): null;
+            Long fundSumConfirmed = trdPayFlow.getTradeConfirmSum();
 
             int orderDetailStatus = trdPayFlow.getTrdStatus();
-            if(null != fundNum){
-                tradeOpService.updateByParam(tradeApplySerial,fundSum, fundSumConfirmed, fundNum,
-                    fundNumConfirmed, updateDate, updateBy,  id, orderDetailStatus);
-            }else{
-                tradeOpService.updateByParamWithSerial(tradeApplySerial, orderDetailStatus,
-                    updateDate, updateBy,  id );
-            }
+
+
+
+            tradeOpService.updateByParam(tradeApplySerial,fundSum, fundSumConfirmed, fundNum,
+                fundNumConfirmed, updateDate, updateBy,  id, orderDetailStatus);
+
 
         }catch (Exception ex){
             ex.printStackTrace();

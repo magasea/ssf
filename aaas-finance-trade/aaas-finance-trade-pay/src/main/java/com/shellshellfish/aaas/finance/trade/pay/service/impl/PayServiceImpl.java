@@ -217,6 +217,11 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       }catch (Exception ex){
         ex.printStackTrace();
         logger.error(ex.getMessage());
+        if(ex.getMessage().contains("网络错误")){
+          //try it again
+          fundResult = fundTradeApiService.buyFund(userId4Pay, trdAcco, payAmount,
+              sbOutsideOrderno.toString(),trdOrderDetail.getFundCode());
+        }
         errs.add(ex);
       }
       //ToDo: 如果有真实数据， 则删除下面if代码

@@ -1,7 +1,5 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
-import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
-
 import com.mongodb.WriteResult;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
@@ -679,7 +677,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		Map<String, Long> currentAvailableFunds = new HashMap<>();
 		for(UiProductDetail uiProductDetail: uiProductDetails){
 			currentAvailableFunds.put(uiProductDetail.getFundCode(), Long.valueOf(uiProductDetail
-					.getFundQuantiyTrade()));
+					.getFundQuantityTrade()));
 		}
 		SellProducts.Builder spBuilder = SellProducts.newBuilder();
 		SellProductDetail.Builder spdBuilder = SellProductDetail.newBuilder();
@@ -711,7 +709,8 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			for(SellProductDetail sellProductDetail: request.getSellProductDetailsList()){
 				fundQuantityRemain = currentAvailableFunds.get(sellProductDetail.getFundCode()) -
 						sellProductDetail.getFundQuantityTrade();
-				uiProductDetailRepo.updateByParam(fundQuantityRemain, TradeUtil.getUTCTime(), request
+				uiProductDetailRepo.updateByParamDeductTrade(fundQuantityRemain, TradeUtil.getUTCTime(),
+						request
 								.getUserId(), request.getUserProductId(),sellProductDetail.getFundCode(),
 						TrdOrderStatusEnum.WAITSELL.getStatus() );
 			}

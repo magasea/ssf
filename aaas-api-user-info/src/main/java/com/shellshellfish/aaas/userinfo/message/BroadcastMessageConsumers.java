@@ -58,9 +58,9 @@ public class BroadcastMessageConsumers {
         if(trdPayFlow.getTrdType() == TrdOrderOpTypeEnum.BUY.getOperation()){
             logger.info("get buy update payFlow msg");
             try{
-                uiProductDetailRepo.updateByParam(trdPayFlow.getTradeConfirmShare(), TradeUtil
-                        .getUTCTime(),
-                    trdPayFlow.getUserId(),trdPayFlow.getUserProdId() ,trdPayFlow.getFundCode(),
+                uiProductDetailRepo.updateByParam(trdPayFlow.getTradeConfirmShare(),trdPayFlow
+                        .getTradeConfirmShare(), TradeUtil.getUTCTime(), trdPayFlow.getUserId(),
+                    trdPayFlow.getUserProdId() ,trdPayFlow.getFundCode(),
                     trdPayFlow.getTrdStatus());
             }catch (Exception ex){
                 ex.printStackTrace();

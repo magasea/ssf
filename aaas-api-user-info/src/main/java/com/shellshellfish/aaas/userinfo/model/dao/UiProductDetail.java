@@ -22,7 +22,7 @@ public class UiProductDetail {
   private String fundCode;
   private String fundName;
   private Integer fundQuantity;
-  private Integer fundQuantiyTrade;
+  private Integer fundQuantityTrade;
   private Integer fundShare;
   private Integer status;
   private Long updateBy;
@@ -91,13 +91,13 @@ public class UiProductDetail {
   }
 
   @Basic
-  @Column(name = "fund_quantiy_trade")
-  public Integer getFundQuantiyTrade() {
-    return fundQuantiyTrade;
+  @Column(name = "fund_quantity_trade")
+  public Integer getFundQuantityTrade() {
+    return fundQuantityTrade;
   }
 
-  public void setFundQuantiyTrade(Integer fundQuantiyTrade) {
-    this.fundQuantiyTrade = fundQuantiyTrade;
+  public void setFundQuantityTrade(Integer fundQuantityTrade) {
+    this.fundQuantityTrade = fundQuantityTrade;
   }
 
   @Basic
@@ -180,8 +180,8 @@ public class UiProductDetail {
         : that.fundQuantity != null) {
       return false;
     }
-    if (fundQuantiyTrade != null ? !fundQuantiyTrade.equals(that.fundQuantiyTrade)
-        : that.fundQuantiyTrade != null) {
+    if (fundQuantityTrade != null ? !fundQuantityTrade.equals(that.fundQuantityTrade)
+        : that.fundQuantityTrade != null) {
       return false;
     }
     if (fundShare != null ? !fundShare.equals(that.fundShare) : that.fundShare != null) {
@@ -211,7 +211,7 @@ public class UiProductDetail {
     result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
     result = 31 * result + (fundName != null ? fundName.hashCode() : 0);
     result = 31 * result + (fundQuantity != null ? fundQuantity.hashCode() : 0);
-    result = 31 * result + (fundQuantiyTrade != null ? fundQuantiyTrade.hashCode() : 0);
+    result = 31 * result + (fundQuantityTrade != null ? fundQuantityTrade.hashCode() : 0);
     result = 31 * result + (fundShare != null ? fundShare.hashCode() : 0);
     result = 31 * result + (status != null ? status.hashCode() : 0);
     result = 31 * result + (updateBy != null ? updateBy.hashCode() : 0);
