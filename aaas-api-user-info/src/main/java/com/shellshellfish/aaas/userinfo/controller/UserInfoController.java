@@ -1314,7 +1314,7 @@ public class UserInfoController {
 			resultMap.put("dailyReturn", 0);
 			resultMap.put("dailyIncomeRate", 0);
 			resultMap.put("totalIncomeRate", "0");
-			resultMap.put("totalIncome", "0");
+			resultMap.put("totalIncome", 0);
 		}
 		
 		//累计收益

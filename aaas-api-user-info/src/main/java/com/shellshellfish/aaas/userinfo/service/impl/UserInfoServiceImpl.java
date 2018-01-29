@@ -415,9 +415,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 		resultMap.put("assert", asserts);
 		resultMap.put("dailyIncome", dailyIncome);
 		resultMap.put("totalIncome", totalIncome);
-		if (!asserts.equals(BigDecimal.ZERO)) {
-			BigDecimal incomeRate = (totalIncome.divide(asserts, MathContext.DECIMAL128)).setScale(2,
-					BigDecimal.ROUND_HALF_UP);
+		if (asserts != BigDecimal.ZERO) {
+//			BigDecimal incomeRate = (totalIncome.divide(asserts, MathContext.DECIMAL128)).setScale(2,
+//					BigDecimal.ROUND_HALF_UP);
+			BigDecimal incomeRate = totalIncome.divide(asserts, 2, BigDecimal.ROUND_HALF_UP);
 			resultMap.put("totalIncomeRate", incomeRate);
 		} else {
 			resultMap.put("totalIncomeRate", "0");
@@ -514,9 +515,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 		String endDate = combinationMap.get("date") == null ? "" : combinationMap.get("date") + "";
 		String startDate = "";
 		resultMap.put("assert", combinationMap.get("assert"));
-
+		
 		List<UiProductDetailDTO> productDetailsList = uiProductService.getProductDetailsByProdId(products.getId());
-		int count = 0;
 		if (productDetailsList != null && productDetailsList.size() > 0) {
 			for (int i = 0; i < productDetailsList.size(); i++) {
 				UiProductDetailDTO productDetail = productDetailsList.get(i);
