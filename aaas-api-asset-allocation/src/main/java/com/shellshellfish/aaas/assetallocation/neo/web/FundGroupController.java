@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.assetallocation.neo.web;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.FundAllReturn;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.FundReturn;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.PerformanceVolatilityReturn;
+import com.shellshellfish.aaas.assetallocation.neo.returnType.Return;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.ReturnType;
 import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupService;
 import io.swagger.annotations.ApiOperation;
@@ -142,7 +143,7 @@ public class FundGroupController {
      */
     @ApiOperation("组合风险等级")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/risk-level", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType getCustRiskController(@PathVariable("groupId") String groupId){
+    public Return getCustRiskController(@PathVariable("groupId") String groupId){
         if (StringUtils.isEmpty(groupId)) {
             return null;
         }
