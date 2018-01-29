@@ -28,7 +28,7 @@ public class RiskServiceImpl implements RiskService {
 
 		Map<String, String> params = new HashMap<>(2);
 
-		params.put("userId", String.valueOf(uuid));
+		params.put("uuid", uuid);
 		params.put("prodId", String.valueOf(prodId));
 
 		Boolean isAppropriate = restTemplate
