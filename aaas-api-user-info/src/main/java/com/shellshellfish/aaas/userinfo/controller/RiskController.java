@@ -32,19 +32,19 @@ public class RiskController {
 
 	/**
 	 *
-	 * @param userId
+	 * @param uuid
 	 * @param prodId
 	 * @return
 	 */
 	@GetMapping("/isAppropriateRishLevel")
-	public Boolean isAppropriateRishLevel(@RequestParam @NotNull Long userId,
+	public Boolean isAppropriateRishLevel(@RequestParam @NotNull String uuid,
 			@RequestParam @NotNull Long prodId) {
 
 		Long groupId = prodId;
 
 		final String getRishLevelMethodUrl = "/api/asset-allocation/product-groups/{groupId}/risk-level";
 
-		Integer userRiskLevel = userInfoService.getUserRishLevel(userId);
+		Integer userRiskLevel = userInfoService.getUserRishLevel(uuid);
 
 		String prodRishLevel = restTemplate
 				.getForEntity(assetAlloctionUrl + getRishLevelMethodUrl, String.class, groupId).getBody();

@@ -82,6 +82,6 @@ public interface UserInfoService {
 
 	List<Map<String, Object>> getMyCombinations(String uuid) throws Exception;
 
-	Integer getUserRishLevel(Long userId);
+	Integer getUserRishLevel(String  uuid);
 
 }

@@ -5,6 +5,6 @@ package com.shellshellfish.aaas.transfer.service;
  */
 public interface RiskService {
 
-	Boolean isAppropriateRishLevel(Long userid, Long prodId);
+	Boolean isAppropriateRishLevel(String uuid, Long prodId);
 
 }
