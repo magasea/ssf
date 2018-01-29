@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.enums;
+package com.shellshellfish.aaas.common.enums;
 
 /**
  * @Author pierre
