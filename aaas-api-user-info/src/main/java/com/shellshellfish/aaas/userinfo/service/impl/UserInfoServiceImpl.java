@@ -424,10 +424,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 		resultMap.put("assert", asserts);
 		resultMap.put("dailyIncome", dailyIncome);
 		resultMap.put("totalIncome", totalIncome);
-		if (asserts != BigDecimal.ZERO) {
-//			BigDecimal incomeRate = (totalIncome.divide(asserts, MathContext.DECIMAL128)).setScale(2,
-//					BigDecimal.ROUND_HALF_UP);
-			BigDecimal incomeRate = totalIncome.divide(asserts, 2, BigDecimal.ROUND_HALF_UP);
+		if (asserts != BigDecimal.ZERO && !"0.00".equals(asserts + "")) {
+			BigDecimal incomeRate = (totalIncome.divide(asserts, MathContext.DECIMAL128)).setScale(2,
+					BigDecimal.ROUND_HALF_UP);
+//			BigDecimal incomeRate = totalIncome.divide(asserts, 2, BigDecimal.ROUND_HALF_UP);
 			resultMap.put("totalIncomeRate", incomeRate);
 		} else {
 			resultMap.put("totalIncomeRate", "0");
