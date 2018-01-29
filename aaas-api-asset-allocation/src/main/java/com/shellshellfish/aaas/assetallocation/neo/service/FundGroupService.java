@@ -1151,7 +1151,9 @@ public class FundGroupService {
             updateParam.put("subGroupId", subGroupId);
             updateParam.put("retracement", maximum_retracement);
             updateParam.put("time", DateUtil.formatDate(date));
+            logger.info("updateMaximumRetracement begin");
             fundGroupMapper.updateMaximumRetracement(updateParam);
+            logger.info("updateMaximumRetracement end");
 
             ca.setTime(date);
             ca.add(Calendar.DATE,-1);

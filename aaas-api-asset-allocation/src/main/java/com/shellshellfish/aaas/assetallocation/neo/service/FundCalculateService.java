@@ -95,15 +95,10 @@ public class FundCalculateService {
     public void calculateDataOfData() {
         //查询计算风险率所需参数（取值数量）
         Integer number = getNumberFromSysConfig(TYPE_OF_DAY);
-        //查询TriggerJob 上次执行时间
-        JobTimeRecord jobTimeRecord = null;
-        try {
-            jobTimeRecord = jobTimeService.selectJobTimeRecord(CALCULATE_DATA_OF_DAY);
-        } catch(Exception e) {
-            logger.error("查询 计算每日的收益率以及风险率记录时间 失败");
-        }
 
         Date selectDate = null;
+        //查询TriggerJob 上次执行时间
+        JobTimeRecord jobTimeRecord = jobTimeService.selectJobTimeRecord(CALCULATE_DATA_OF_DAY);
         if (jobTimeRecord == null || jobTimeRecord.getTriggerTime() == null) {
             selectDate = DateUtil.getDateFromFormatStr(START_QUERY_DATE);
         } else {
@@ -187,15 +182,9 @@ public class FundCalculateService {
         //查询计算风险率所需参数（取值数量）
         Integer number = this.getNumberFromSysConfig(TYPE_OF_WEEK);
 
-        //查询TriggerJob 上次执行时间
-        JobTimeRecord jobTimeRecord = null;
-        try {
-            jobTimeRecord = jobTimeService.selectJobTimeRecord(CALCULATE_DATA_OF_WEEK);
-        } catch(Exception e) {
-            logger.error("查询 计算每周的收益率以及风险率记录时间 失败",e);
-        }
-
         Date triggerTime = null;
+        //查询TriggerJob 上次执行时间
+        JobTimeRecord jobTimeRecord = jobTimeService.selectJobTimeRecord(CALCULATE_DATA_OF_WEEK);
         if (jobTimeRecord == null || jobTimeRecord.getTriggerTime() == null) {
             triggerTime = DateUtil.getDateFromFormatStr(START_QUERY_DATE);
         } else {
@@ -283,14 +272,9 @@ public class FundCalculateService {
         //查询计算风险率所需参数（取值数量）
         Integer number = getNumberFromSysConfig(TYPE_OF_MONTH);
 
-        //查询TriggerJob 上次执行时间
-        JobTimeRecord jobTimeRecord = null;
-        try {
-            jobTimeRecord = jobTimeService.selectJobTimeRecord(CALCULATE_DATA_OF_MONTH);
-        } catch (Exception e) {
-            logger.error("查询 计算每月的收益率以及风险率记录时间 失败");
-        }
         Date selectDate = null;
+        //查询TriggerJob 上次执行时间
+        JobTimeRecord jobTimeRecord = jobTimeService.selectJobTimeRecord(CALCULATE_DATA_OF_MONTH);
         if (jobTimeRecord == null || jobTimeRecord.getTriggerTime() == null) {
             selectDate = DateUtil.getDateFromFormatStr(START_QUERY_DATE);
         } else {
@@ -372,14 +356,10 @@ public class FundCalculateService {
     public void calculateDataOfYear() {
         //查询计算风险率所需参数（取值数量）
         Integer number = getNumberFromSysConfig(TYPE_OF_YEAR);
-        //查询TriggerJob 上次执行时间
-        JobTimeRecord jobTimeRecord = null;
-        try {
-            jobTimeRecord = jobTimeService.selectJobTimeRecord(CALCULATE_DATA_OF_YEAR);
-        } catch (Exception e) {
-            logger.error("查询 计算每年的收益率以及风险率记录时间 失败");
-        }
+
         Date selectDate = null;
+        //查询TriggerJob 上次执行时间
+        JobTimeRecord jobTimeRecord = jobTimeService.selectJobTimeRecord(CALCULATE_DATA_OF_YEAR);
         if (jobTimeRecord == null || jobTimeRecord.getTriggerTime() == null) {
             selectDate = DateUtil.getDateFromFormatStr(START_QUERY_DATE);
         }else{

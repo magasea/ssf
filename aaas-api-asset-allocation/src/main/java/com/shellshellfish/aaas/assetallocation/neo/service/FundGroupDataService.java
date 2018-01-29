@@ -97,8 +97,8 @@ public class FundGroupDataService {
     // 调用 MVO 得出组合数据并入库
     public Boolean insertFundGroupDatas(Integer groupId, List<String> codeList, String todayDate) {
         Boolean doSuccess = true;
-        Double [] ExpReturn = null;
-        Double[][] ExpCovariance = null;
+        Double [] expReturn = null;
+        Double[][] expCovariance = null;
         Date combinationDate = null;
 
         Calendar calendar = Calendar.getInstance();
@@ -115,8 +115,8 @@ public class FundGroupDataService {
         }
 
         if (SUCCEED_STATUS.equals(covarianceModel.getStatus())) { // 成功，数据有效
-            ExpReturn = covarianceModel.getYieldRatioArr();
-            ExpCovariance = covarianceModel.getCovarianceArr();
+            expReturn = covarianceModel.getYieldRatioArr();
+            expCovariance = covarianceModel.getCovarianceArr();
             combinationDate = covarianceModel.getNavDate();
             logger.debug("MVO方法所需参数矩阵查询成功！");
         } else {
@@ -125,7 +125,7 @@ public class FundGroupDataService {
         }
 
         //调用 MVO 获取 组合收益、风险、权重
-        List<float [][]> result = MVO.efficientFrontier(ExpReturn, ExpCovariance, SUB_GROUP_COUNT, LOW_BOUND, UP_BOUND);
+        List<float [][]> result = MVO.efficientFrontier(expReturn, expCovariance, SUB_GROUP_COUNT, LOW_BOUND, UP_BOUND);
         if (result != null && result.size() == 3) {
             float[][] riskArr = result.get(0); //子组合风险数组
             float[][] yieldArr = result.get(1); //子组合收益数组
