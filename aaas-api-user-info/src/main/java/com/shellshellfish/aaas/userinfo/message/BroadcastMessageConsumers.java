@@ -10,6 +10,7 @@ import com.shellshellfish.aaas.common.message.order.OrderStatusChangeDTO;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdLog;
+import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserTrdLogMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
@@ -58,10 +59,16 @@ public class BroadcastMessageConsumers {
         if(trdPayFlow.getTrdType() == TrdOrderOpTypeEnum.BUY.getOperation()){
             logger.info("get buy update payFlow msg");
             try{
-                uiProductDetailRepo.updateByParam(trdPayFlow.getTradeConfirmShare(),trdPayFlow
-                        .getTradeConfirmShare(), TradeUtil.getUTCTime(), trdPayFlow.getUserId(),
-                    trdPayFlow.getUserProdId() ,trdPayFlow.getFundCode(),
-                    trdPayFlow.getTrdStatus());
+                UiProductDetail uiProductDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
+                    (trdPayFlow.getUserProdId(), trdPayFlow.getFundCode());
+                uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+                uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
+                if(trdPayFlow.getTradeConfirmShare() != null && trdPayFlow.getTradeConfirmShare()
+                    > 0){
+                    uiProductDetail.setFundQuantityTrade(trdPayFlow.getTradeConfirmShare().intValue());
+                    uiProductDetail.setFundQuantity(trdPayFlow.getTradeConfirmShare().intValue());
+                }
+                uiProductDetailRepo.save(uiProductDetail);
             }catch (Exception ex){
                 ex.printStackTrace();
                 logger.error(ex.getMessage());
