@@ -699,6 +699,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 		return resultList;
 	}
 
+	/**
+	 *  从DailyAmount获取，组合资产、组合日收益、组合起始日期
+	 * @param uuid
+	 * @param prodId
+	 * @param flag
+	 * @return
+	 */
 	public Map<String, Object> getCombinations(String uuid, Long prodId, int flag) {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		Query query = new Query();
