@@ -1,27 +1,5 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import javax.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
@@ -36,6 +14,7 @@ import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
+import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
@@ -55,6 +34,28 @@ import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 import io.grpc.ManagedChannel;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import javax.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
@@ -172,9 +173,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public List<AssetDailyReptDTO> getAssetDailyRept(String userUuid, Long beginDate, Long endDate) throws Exception {
+	public List<AssetDailyReptDTO> getAssetDailyRept(String userUuid, Long beginDate, Long endDate)
+			throws Exception {
 		Long userId = getUserIdFromUUID(userUuid);
-		List<AssetDailyReptDTO> uiAssetDailyRepts = userInfoRepoService.getAssetDailyRept(userId, beginDate, endDate);
+		List<AssetDailyReptDTO> uiAssetDailyRepts = userInfoRepoService
+				.getAssetDailyRept(userId, beginDate, endDate);
 		// List<AssetDailyRept> assetDailyRepts = new ArrayList<>();
 		// for(UiAssetDailyRept uiAssetDailyRept: uiAssetDailyRepts){
 		// AssetDailyRept assetDailyRept = new AssetDailyRept();
@@ -199,7 +202,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public List<UserSysMsgDTO> getUserSysMsg(String userUuid) throws IllegalAccessException, InstantiationException {
+	public List<UserSysMsgDTO> getUserSysMsg(String userUuid)
+			throws IllegalAccessException, InstantiationException {
 		List<UserSysMsgDTO> userSysMsgs = userInfoRepoService.getUiSysMsg();
 		// List<UserSysMsg> userSysMsgs = new ArrayList<>();
 		// for(UiSysMsg uiSysMsg: uiSysMsgs){
@@ -224,7 +228,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public Boolean updateUserPersonMsg(String msgId, String userUuid, Boolean readedStatus) throws Exception {
+	public Boolean updateUserPersonMsg(String msgId, String userUuid, Boolean readedStatus)
+			throws Exception {
 		Long userId = getUserIdFromUUID(userUuid);
 		Boolean result = userInfoRepoService.updateUiUserPersonMsg(msgId, userId, readedStatus);
 
@@ -235,7 +240,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 	public Page<TradeLogDTO> findByUserId(String userUuid, Pageable pageable) throws Exception {
 		Long userId = getUserIdFromUUID(userUuid);
 		Page<UiTrdLog> tradeLogsPage = userInfoRepoService.findTradeLogDtoByUserId(pageable, userId);
-		Page<TradeLogDTO> tradeLogResult = MyBeanUtils.convertPageDTO(pageable, tradeLogsPage, TradeLogDTO.class);
+		Page<TradeLogDTO> tradeLogResult = MyBeanUtils
+				.convertPageDTO(pageable, tradeLogsPage, TradeLogDTO.class);
 		return tradeLogResult;
 	}
 
@@ -307,14 +313,16 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public ProductsDTO findByProdId(String prodId) throws IllegalAccessException, InstantiationException {
+	public ProductsDTO findByProdId(String prodId)
+			throws IllegalAccessException, InstantiationException {
 		ProductsDTO products = userInfoRepoService.findByProdId(prodId);
 		return products;
 	}
 
 	@Override
 	public ApplyResult queryTrdResultByOrderDetailId(Long userId, Long orderDetailId) {
-		ZhongZhengQueryByOrderDetailId.Builder requestBuilder = ZhongZhengQueryByOrderDetailId.newBuilder();
+		ZhongZhengQueryByOrderDetailId.Builder requestBuilder = ZhongZhengQueryByOrderDetailId
+				.newBuilder();
 
 		requestBuilder.setOrderDetailId(orderDetailId);
 		requestBuilder.setUserId(userId);
@@ -390,6 +398,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Override
 	public Map<String, Object> getTotalAssets(String uuid) throws Exception {
+		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
 		List<ProductsDTO> productsList = this.findProductInfos(uuid);
 		if (productsList == null || productsList.size() == 0) {
 			logger.error("我的智投组合暂时不存在");
@@ -431,7 +440,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 		String yesterday = DateUtil.getSystemDatesAgo(-1);
 		String beforeYesterday = DateUtil.getSystemDatesAgo(-2);
 		Query query = new Query();
-		query.addCriteria(Criteria.where("userUuid").is(uuid)).addCriteria(Criteria.where("date").is(yesterday));
+		query.addCriteria(Criteria.where("userUuid").is(uuid))
+				.addCriteria(Criteria.where("date").is(yesterday));
 
 		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
 		if (dailyAmountList != null && dailyAmountList.size() > 0) {
@@ -475,8 +485,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 			resultMap.put("dailyIncome", 0);
 		}
 		// 日收益率
-		BigDecimal dailyIncomeRate = userFinanceProdCalcService.calcYieldRate(uuid, beforeYesterday + "",
-				yesterday + "");
+		BigDecimal dailyIncomeRate = userFinanceProdCalcService
+				.calcYieldRate(uuid, beforeYesterday + "",
+						yesterday + "");
 		resultMap.put("dailyIncomeRate", dailyIncomeRate);
 		// 累计收益率
 		List<ProductsDTO> productsList = this.findProductInfos(uuid);
@@ -552,9 +563,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public List<Map<String, Object>> getTradeLogStatus(String uuid, Long userProdId) throws Exception {
+	public List<Map<String, Object>> getTradeLogStatus(String uuid, Long userProdId)
+			throws Exception {
 		Long userId = getUserIdFromUUID(uuid);
-		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService.findByUserIdAndProdId(userId, userProdId);
+		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService
+				.findByUserIdAndProdId(userId, userProdId);
 		Map<String, Map<String, Object>> resultMap = new HashMap<String, Map<String, Object>>();
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		if (trdLogList != null && trdLogList.size() > 0) {
@@ -568,7 +581,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}
 				if (resultMap.containsKey("A" + status)) {
 					resultMap2 = resultMap.get("A" + status);
-					if (Long.parseLong(resultMap2.get("lastModified") + "") < Long.parseLong(lastModifiedDate)) {
+					if (Long.parseLong(resultMap2.get("lastModified") + "") < Long
+							.parseLong(lastModifiedDate)) {
 						resultMap2.put("lastModified", lastModifiedDate);
 						resultMap2.put("time", DateUtil.getDateType(trdLog.getLastModifiedDate()));
 						resultMap2.put("status", status + "");
@@ -656,7 +670,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 			// 状态(0-待确认 1-已确认 -1-交易失败)
 			TrdOrderStatusEnum trdOrderStatusEnum[] = TrdOrderStatusEnum.values();
-			List<UiProductDetailDTO> productDetailsList = uiProductService.getProductDetailsByProdId(products.getId());
+			List<UiProductDetailDTO> productDetailsList = uiProductService
+					.getProductDetailsByProdId(products.getId());
 			Integer count = 0;
 			if (productDetailsList != null && productDetailsList.size() > 0) {
 				// Map<String, String> statusMap = new HashMap<String,
@@ -699,10 +714,18 @@ public class UserInfoServiceImpl implements UserInfoService {
 		return resultList;
 	}
 
+	@Override
+	public Integer getUserRishLevel(Long userId) {
+		UiUser uiUser = userInfoRepoService.getUserInfoByUserId(userId);
+		Optional<UiUser> userOptional = Optional.ofNullable(uiUser);
+		return userOptional.map(m -> m.getRiskLevel()).orElse(-1);
+	}
+
 	public Map<String, Object> getCombinations(String uuid, Long prodId, int flag) {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		Query query = new Query();
-		query.addCriteria(Criteria.where("userUuid").is(uuid)).addCriteria(Criteria.where("userProdId").is(prodId));
+		query.addCriteria(Criteria.where("userUuid").is(uuid))
+				.addCriteria(Criteria.where("userProdId").is(prodId));
 		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC, "date"));
 		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
 		String date = "";
