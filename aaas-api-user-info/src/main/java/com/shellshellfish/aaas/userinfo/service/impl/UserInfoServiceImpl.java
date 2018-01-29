@@ -359,9 +359,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 			String dayBeforeSelectDate = DateUtil.getSystemDatesAgo(-i - 1);
 			trendYieldMap.put("date", selectDate);
 			//调用对应的service
-			BigDecimal rate = userFinanceProdCalcService.calcYieldValue(userUuid, dayBeforeSelectDate, selectDate);
-			if(rate!=null){
-				trendYieldMap.put("value", (rate.divide(new BigDecimal("100"), MathContext.DECIMAL128)).setScale(2,BigDecimal.ROUND_HALF_UP));
+			BigDecimal rate = userFinanceProdCalcService
+					.calcYieldValue(userUuid, dayBeforeSelectDate, selectDate);
+			if (rate != null) {
+				trendYieldMap.put("value", (rate.divide(new BigDecimal("100"), MathContext.DECIMAL128))
+						.setScale(2, BigDecimal.ROUND_HALF_UP));
 			} else {
 				trendYieldMap.put("value", 0);
 			}
@@ -494,14 +496,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public Map<String, Object> getChicombinationAssets(String uuid, ProductsDTO products) throws Exception {
+	public Map<String, Object> getChicombinationAssets(String uuid, ProductsDTO products)
+			throws Exception {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		Map<String, Object> combinationMap = this.getCombinations(uuid, products.getId(), 2);
 
 		String endDate = combinationMap.get("date") == null ? "" : combinationMap.get("date") + "";
 		String startDate = "";
 		resultMap.put("assert", combinationMap.get("assert"));
-		
+
 //		List<UiProductDetailDTO> productDetailsList = uiProductService.getProductDetailsByProdId(products.getId());
 //		if (productDetailsList != null && productDetailsList.size() > 0) {
 //			for (int i = 0; i < productDetailsList.size(); i++) {
@@ -517,9 +520,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 //			}
 		// }
 		Long userId = getUserIdFromUUID(uuid);
-		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService.findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(
-				userId, products.getId(), TrdOrderOpTypeEnum.BUY.getOperation(),
-				TrdOrderStatusEnum.CONFIRMED.getStatus());
+		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService
+				.findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(
+						userId, products.getId(), TrdOrderOpTypeEnum.BUY.getOperation(),
+						TrdOrderStatusEnum.CONFIRMED.getStatus());
 		if (trdLogList != null && trdLogList.size() > 0) {
 			MongoUiTrdLogDTO uiTrdLog = trdLogList.get(0);
 			startDate = DateUtil.getDateStrFromLong(uiTrdLog.getLastModifiedDate()).replace("-", "");
@@ -532,11 +536,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 		}
 		resultMap.put("dailyIncome", combinationMap.get("dailyIncome"));
 		// 累计收益率
-		BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, products.getId(),startDate, endDate);
+		BigDecimal incomeRate = userFinanceProdCalcService
+				.calcYieldRate(uuid, products.getId(), startDate, endDate);
 		resultMap.put("totalIncomeRate", incomeRate);
 
 		// 累计收益
-		BigDecimal income = userFinanceProdCalcService.calcYieldValue(uuid, products.getId(),startDate, endDate);
+		BigDecimal income = userFinanceProdCalcService
+				.calcYieldValue(uuid, products.getId(), startDate, endDate);
 		if (income != null) {
 			income = (income.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
 		}
@@ -650,13 +656,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.FAILED.getStatus()
 								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.CANCEL.getStatus()) {
 							count++;
-						} else if(uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()){
+						} else if (uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()) {
 							fails++;
 						}
 					}
 				}
-				if(fails>0){
-					if(fails==productDetailsList.size()){
+				if (fails > 0) {
+					if (fails == productDetailsList.size()) {
 						//若组合中全部失败，则不显示
 						continue;
 					}
@@ -666,10 +672,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 					resultMap.put("title", "* 您有" + count + "支基金正在确认中");
 				}
 			}
-			
+
 			// 总资产
 			Map<String, Object> totalAssetsMap = this.getChicombinationAssets(uuid, products);
-			if(totalAssetsMap==null){
+			if (totalAssetsMap == null) {
 				continue;
 			}
 			if (totalAssetsMap.size() > 0) {
@@ -698,18 +704,14 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public Integer getUserRishLevel(Long userId) {
-		UiUser uiUser = userInfoRepoService.getUserInfoByUserId(userId);
+	public Integer getUserRishLevel(String userId) {
+		UiUser uiUser = userInfoRepoService.getUserInfoByUserUUID(userId);
 		Optional<UiUser> userOptional = Optional.ofNullable(uiUser);
 		return userOptional.map(m -> m.getRiskLevel()).orElse(-1);
 	}
 
 	/**
-	 *  从DailyAmount获取，组合资产、组合日收益、组合起始日期
-	 * @param uuid
-	 * @param prodId
-	 * @param flag
-	 * @return
+	 * 从DailyAmount获取，组合资产、组合日收益、组合起始日期
 	 */
 	public Map<String, Object> getCombinations(String uuid, Long prodId, int flag) {
 		Map<String, Object> resultMap = new HashMap<String, Object>();

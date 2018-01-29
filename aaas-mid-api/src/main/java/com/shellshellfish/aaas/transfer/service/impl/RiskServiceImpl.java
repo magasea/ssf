@@ -23,12 +23,12 @@ public class RiskServiceImpl implements RiskService {
 
 
 	@Override
-	public Boolean isAppropriateRishLevel(Long userId, Long prodId) {
+	public Boolean isAppropriateRishLevel(String uuid, Long prodId) {
 		String isAppropriateRishLevelUrl = "/api/userinfo/isAppropriateRishLevel";
 
 		Map<String, String> params = new HashMap<>(2);
 
-		params.put("userId", String.valueOf(userId));
+		params.put("uuid", uuid);
 		params.put("prodId", String.valueOf(prodId));
 
 		Boolean isAppropriate = restTemplate

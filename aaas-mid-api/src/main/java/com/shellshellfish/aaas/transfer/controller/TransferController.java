@@ -160,7 +160,7 @@ public class TransferController {
 			return new JsonResult(JsonResult.Fail, "手机验证失败，申购失败", JsonResult.EMPTYRESULT);
 		}
 
-		if (!riskService.isAppropriateRishLevel(prdInfo.getUserId(), prdInfo.getProdId())) {
+		if (!riskService.isAppropriateRishLevel(prdInfo.getUuid(), prdInfo.getProdId())) {
 			return new JsonResult(JsonResult.Fail, "风险等级低，不能购买当前产品", JsonResult.EMPTYRESULT);
 		}
 
@@ -288,11 +288,12 @@ public class TransferController {
 			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "String", required = true, value = "总金额", defaultValue = "")})
 	@RequestMapping(value = "/sellFundPage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult sellFundPage(String userUuid, String groupId, String subGroupId, String totalAmount) {
+	public JsonResult sellFundPage(String userUuid, String groupId, String subGroupId,
+			String totalAmount) {
 		Map result = null;
 		try {
 			result = service.sellFundPage(groupId, subGroupId, totalAmount);
-			if(result!=null){
+			if (result != null) {
 				result.put("userUuid", userUuid);
 			}
 			return new JsonResult(JsonResult.SUCCESS, "调用成功", result);
