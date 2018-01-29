@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
@@ -350,49 +351,22 @@ public class UserInfoServiceImpl implements UserInfoService {
 	public Map<String, Object> getTrendYield(String userUuid) {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		List<Map<String, Object>> trendYieldList = new ArrayList<Map<String, Object>>();
-		Map<String, Object> trendYieldMap = new HashMap();
-		String day1 = DateUtil.getSystemDatesAgo(-1);
-		String day2 = DateUtil.getSystemDatesAgo(-2);
-		BigDecimal rate1 = userFinanceProdCalcService.calcYieldRate(userUuid, day2, day1);
-
-		trendYieldMap.put("date", day1);
-		trendYieldMap.put("value", rate1);
-		trendYieldList.add(trendYieldMap);
-
-		String day3 = DateUtil.getSystemDatesAgo(-3);
-		BigDecimal rate2 = userFinanceProdCalcService.calcYieldRate(userUuid, day3, day2);
-		trendYieldMap = new HashMap<String, Object>();
-		trendYieldMap.put("date", day2);
-		trendYieldMap.put("value", rate2);
-		trendYieldList.add(trendYieldMap);
-
-		String day4 = DateUtil.getSystemDatesAgo(-4);
-		BigDecimal rate3 = userFinanceProdCalcService.calcYieldRate(userUuid, day4, day3);
-		trendYieldMap = new HashMap<String, Object>();
-		trendYieldMap.put("date", day3);
-		trendYieldMap.put("value", rate3);
-		trendYieldList.add(trendYieldMap);
-
-		String day5 = DateUtil.getSystemDatesAgo(-5);
-		BigDecimal rate4 = userFinanceProdCalcService.calcYieldRate(userUuid, day5, day4);
-		trendYieldMap = new HashMap<String, Object>();
-		trendYieldMap.put("date", day4);
-		trendYieldMap.put("value", rate4);
-		trendYieldList.add(trendYieldMap);
-
-		String day6 = DateUtil.getSystemDatesAgo(-6);
-		BigDecimal rate5 = userFinanceProdCalcService.calcYieldRate(userUuid, day6, day5);
-		trendYieldMap = new HashMap<String, Object>();
-		trendYieldMap.put("date", day5);
-		trendYieldMap.put("value", rate5);
-		trendYieldList.add(trendYieldMap);
-
-		String day7 = DateUtil.getSystemDatesAgo(-7);
-		BigDecimal rate6 = userFinanceProdCalcService.calcYieldRate(userUuid, day7, day6);
-		trendYieldMap = new HashMap<String, Object>();
-		trendYieldMap.put("date", day6);
-		trendYieldMap.put("value", rate6);
-		trendYieldList.add(trendYieldMap);
+		int days = 6;
+		//遍历赋值
+		for (int i = 0; i < days; i++) {
+			Map trendYieldMap = new HashMap<>();
+			String selectDate = DateUtil.getSystemDatesAgo(-i);
+			String dayBeforeSelectDate = DateUtil.getSystemDatesAgo(-i - 1);
+			trendYieldMap.put("date", selectDate);
+			//调用对应的service
+			BigDecimal rate = userFinanceProdCalcService.calcYieldValue(userUuid, dayBeforeSelectDate, selectDate);
+			if(rate!=null){
+				trendYieldMap.put("value", (rate.divide(new BigDecimal("100"), MathContext.DECIMAL128)).setScale(2,BigDecimal.ROUND_HALF_UP));
+			} else {
+				trendYieldMap.put("value", 0);
+			}
+			trendYieldList.add(trendYieldMap);
+		}
 		resultMap.put("trendYield", trendYieldList);
 		return resultMap;
 	}
@@ -520,7 +494,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public Map<String, Object> getChicombinationAssets(String uuid, ProductsDTO products) {
+	public Map<String, Object> getChicombinationAssets(String uuid, ProductsDTO products) throws Exception {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		Map<String, Object> combinationMap = this.getCombinations(uuid, products.getId(), 2);
 
@@ -528,19 +502,27 @@ public class UserInfoServiceImpl implements UserInfoService {
 		String startDate = "";
 		resultMap.put("assert", combinationMap.get("assert"));
 		
-		List<UiProductDetailDTO> productDetailsList = uiProductService.getProductDetailsByProdId(products.getId());
-		if (productDetailsList != null && productDetailsList.size() > 0) {
-			for (int i = 0; i < productDetailsList.size(); i++) {
-				UiProductDetailDTO productDetail = productDetailsList.get(i);
-				int status = 0;
-				if (productDetail.getStatus() != null) {
-					status = productDetail.getStatus();
-				}
-				if (status == TrdOrderStatusEnum.CONFIRMED.getStatus()) {
-					startDate = DateUtil.getDateStrFromLong(productDetail.getUpdateDate()).replace("-", "");
-					break;
-				}
-			}
+//		List<UiProductDetailDTO> productDetailsList = uiProductService.getProductDetailsByProdId(products.getId());
+//		if (productDetailsList != null && productDetailsList.size() > 0) {
+//			for (int i = 0; i < productDetailsList.size(); i++) {
+//				UiProductDetailDTO productDetail = productDetailsList.get(i);
+//				int status = 0;
+//				if (productDetail.getStatus() != null) {
+//					status = productDetail.getStatus();
+//				}
+//				if (status == TrdOrderStatusEnum.CONFIRMED.getStatus()) {
+//					startDate = DateUtil.getDateStrFromLong(productDetail.getUpdateDate()).replace("-", "");
+//					break;
+//				}
+//			}
+		// }
+		Long userId = getUserIdFromUUID(uuid);
+		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService.findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(
+				userId, products.getId(), TrdOrderOpTypeEnum.BUY.getOperation(),
+				TrdOrderStatusEnum.CONFIRMED.getStatus());
+		if (trdLogList != null && trdLogList.size() > 0) {
+			MongoUiTrdLogDTO uiTrdLog = trdLogList.get(0);
+			startDate = DateUtil.getDateStrFromLong(uiTrdLog.getLastModifiedDate()).replace("-", "");
 		}
 		if ("".equals(startDate)) {
 			resultMap.put("totalIncomeRate", 0);
@@ -652,8 +634,44 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 			resultMap.put("title", products.getProdName());
 			resultMap.put("createDate", products.getCreateDate());
+			// 状态(0-待确认 1-已确认 -1-交易失败)
+			TrdOrderStatusEnum trdOrderStatusEnum[] = TrdOrderStatusEnum.values();
+			List<UiProductDetailDTO> productDetailsList = uiProductService
+					.getProductDetailsByProdId(products.getId());
+			Integer count = 0;
+			Integer fails = 0;
+			if (productDetailsList != null && productDetailsList.size() > 0) {
+				// Map<String, String> statusMap = new HashMap<String,
+				// String>();
+				for (int j = 0; j < productDetailsList.size(); j++) {
+					UiProductDetailDTO uiProductDetailDTO = productDetailsList.get(j);
+					if (uiProductDetailDTO.getStatus() != null) {
+						if (uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.CONFIRMED.getStatus()
+								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.FAILED.getStatus()
+								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.CANCEL.getStatus()) {
+							count++;
+						} else if(uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()){
+							fails++;
+						}
+					}
+				}
+				if(fails>0){
+					if(fails==productDetailsList.size()){
+						//若组合中全部失败，则不显示
+						continue;
+					}
+				}
+				resultMap.put("count", count);
+				if (count > 0) {
+					resultMap.put("title", "* 您有" + count + "支基金正在确认中");
+				}
+			}
+			
 			// 总资产
 			Map<String, Object> totalAssetsMap = this.getChicombinationAssets(uuid, products);
+			if(totalAssetsMap==null){
+				continue;
+			}
 			if (totalAssetsMap.size() > 0) {
 				resultMap.put("totalAssets", totalAssetsMap.get("assert"));
 				// 日收益
@@ -669,42 +687,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 				resultMap.put("totalIncome", 0);
 			}
 
-			// 状态(0-待确认 1-已确认 -1-交易失败)
-			TrdOrderStatusEnum trdOrderStatusEnum[] = TrdOrderStatusEnum.values();
-			List<UiProductDetailDTO> productDetailsList = uiProductService
-					.getProductDetailsByProdId(products.getId());
-			Integer count = 0;
-			if (productDetailsList != null && productDetailsList.size() > 0) {
-				// Map<String, String> statusMap = new HashMap<String,
-				// String>();
-				for (int j = 0; j < productDetailsList.size(); j++) {
-					UiProductDetailDTO uiProductDetailDTO = productDetailsList.get(j);
-					if (uiProductDetailDTO.getStatus() != null) {
-						if (uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.CONFIRMED.getStatus()
-								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.FAILED.getStatus()
-								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.CANCEL.getStatus()) {
-							count++;
-						}
-					}
-				}
-			}
-			resultMap.put("count", count);
-			if (count > 0) {
-				resultMap.put("title", "* 您有" + count + "支基金正在确认中");
-			}
-			// if (products.getStatus() == 0) {
-			// resultMap.put("status", "待确认");
-			// if (productDetailsList != null && productDetailsList.size() > 0)
-			// {
-			// resultMap.put("count", productDetailsList.size());
-			// } else {
-			// resultMap.put("count", 0);
-			// }
-			// } else if (products.getStatus() == 1) {
-			// resultMap.put("status", "已确认");
-			// } else {
-			// resultMap.put("status", "交易失败");
-			// }
 			// 智投组合产品ID
 			resultMap.put("prodId", products.getId());
 			// 买入日期
@@ -758,6 +740,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 					} else if (flag == 2) {
 						if (count == 1) {
 							if (asserts2 != null && !asserts2.equals(BigDecimal.ZERO)) {
+								// 前一天的日期
 								resultMap.put("date2", date);
 								break;
 							}

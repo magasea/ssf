@@ -380,6 +380,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		BigDecimal assetOfEndDay = BigDecimal.ZERO;
 		BigDecimal assetOfStartDay = BigDecimal.ZERO;
 		BigDecimal intervalAmount = BigDecimal.ZERO;
+		BigDecimal buyAmount = BigDecimal.ZERO;
 		for (DailyAmount dailyAmount : dailyAmountList) {
 			if (dailyAmount.getDate().equals(startDate) && dailyAmount.getAsset() != null) {
 				assetOfStartDay = assetOfStartDay.add(dailyAmount.getAsset());
@@ -395,13 +396,15 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 			}
 			if (dailyAmount.getBuyAmount() != null) {
 				intervalAmount = intervalAmount.subtract(dailyAmount.getBuyAmount());
+				buyAmount = buyAmount.add(dailyAmount.getBuyAmount());
 			}
 		}
 
 		BigDecimal result = BigDecimal.ZERO;
 		if (assetOfStartDay.compareTo(BigDecimal.ZERO) != 0) {
-			result = assetOfEndDay.subtract(assetOfStartDay).add(intervalAmount)
-					.divide(assetOfStartDay, MathContext.DECIMAL128);
+			//(区间结束总资产-起始总资产+分红+赎回-区间购买金额)/(起始总资产+区间购买金额)
+			result = assetOfEndDay.subtract(assetOfStartDay).add(intervalAmount).divide(assetOfStartDay.add(buyAmount),
+					MathContext.DECIMAL128);
 		}
 
 		return result;
@@ -448,6 +451,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		BigDecimal assetOfEndDay = BigDecimal.ZERO;
 		BigDecimal assetOfStartDay = BigDecimal.ZERO;
 		BigDecimal intervalAmount = BigDecimal.ZERO;
+		BigDecimal buyAmount = BigDecimal.ZERO;
 		for (DailyAmount dailyAmount : dailyAmountList) {
 			if (dailyAmount.getDate().equals(startDate) && dailyAmount.getAsset() != null) {
 				assetOfStartDay = assetOfStartDay.add(dailyAmount.getAsset());
@@ -463,13 +467,15 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 			}
 			if (dailyAmount.getBuyAmount() != null) {
 				intervalAmount = intervalAmount.subtract(dailyAmount.getBuyAmount());
+				buyAmount = buyAmount.add(dailyAmount.getBuyAmount());
 			}
 		}
 
 		BigDecimal result = BigDecimal.ZERO;
 		if (assetOfStartDay.compareTo(BigDecimal.ZERO) != 0) {
+			//(区间结束总资产-起始总资产+分红+赎回-区间购买金额)/(起始总资产+区间购买金额)
 			result = assetOfEndDay.subtract(assetOfStartDay).add(intervalAmount)
-					.divide(assetOfStartDay, MathContext.DECIMAL128);
+					.divide((assetOfStartDay.add(buyAmount)), MathContext.DECIMAL128);
 		}
 
 		return result;

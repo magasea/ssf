@@ -405,7 +405,6 @@ public class UserInfoController {
 							if ("0".equals(trendYield)) {
 								trendYieldMap.put("value", "0");
 							} else {
-								trendYield = EasyKit.getDecimal(new BigDecimal(trendYield)) + "";
 								trendYieldMap.put("value", trendYield);
 							}
 						} else {

@@ -95,4 +95,7 @@ public interface UserInfoRepoService {
 
 	List<MongoUiTrdLogDTO> findByUserId(Long userId) throws IllegalAccessException, InstantiationException;
 
+	List<MongoUiTrdLogDTO> findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(Long userId, Long userProdId,
+			int operations, int tradeStatus) throws IllegalAccessException, InstantiationException;
+
 }
