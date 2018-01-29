@@ -52,7 +52,7 @@ public class CheckFundsBuyJobService {
         //先查一遍购买未确认状态的payFlow
 
         List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-            .findAllByFundSumConfirmedIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.BUY.getOperation
+            .findAllByTradeConfirmShareIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.BUY.getOperation
                 ());
 
         if(!CollectionUtils.isEmpty(trdPayFlows)) {
@@ -120,7 +120,7 @@ public class CheckFundsBuyJobService {
     public void checkReedemPayFlows(){
         //先查一遍赎回未确认状态的payFlow
         List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-            .findAllByFundSumConfirmedIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.REDEEM.getOperation
+            .findAllByTradeConfirmShareIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.REDEEM.getOperation
                 ());
         if(!CollectionUtils.isEmpty(trdPayFlows)) {
             ApplyResult applyResult = null;
@@ -174,7 +174,7 @@ public class CheckFundsBuyJobService {
                             trdPayFlow.setTradeTargetSum(TradeUtil.getLongNumWithMul100
                                 (applyResult.getApplysum()));
                         }
- 
+
                         trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno());
                         trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
                         trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
@@ -200,7 +200,7 @@ public class CheckFundsBuyJobService {
         Instant.now().getEpochSecond();
 
         List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-            .findAllByFundSumConfirmedIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.PREORDER.getOperation
+            .findAllByTradeConfirmShareIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.PREORDER.getOperation
                 ());
         if(!CollectionUtils.isEmpty(trdPayFlows)) {
             for (TrdPayFlow trdPayFlow : trdPayFlows) {
