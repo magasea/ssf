@@ -34,5 +34,7 @@ public interface TrdOrderDetailRepository extends PagingAndSortingRepository<Trd
 
   List<TrdOrderDetail> findAllByOrderId(String orderId);
 
+  TrdOrderDetail findByTradeApplySerial(String tradeApplySerial);
+
 //  TrdOrderDetail updateByParam(Map param);
 }

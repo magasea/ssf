@@ -63,6 +63,7 @@ public class BroadcastMessageConsumers {
                     (trdPayFlow.getUserProdId(), trdPayFlow.getFundCode());
                 uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
                 uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
+                uiProductDetail.setStatus(trdPayFlow.getTrdStatus());
                 if(trdPayFlow.getTradeConfirmShare() != null && trdPayFlow.getTradeConfirmShare()
                     > 0){
                     uiProductDetail.setFundQuantityTrade(trdPayFlow.getTradeConfirmShare().intValue());

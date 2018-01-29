@@ -353,8 +353,18 @@ public class TradeOpServiceImpl implements TradeOpService {
   @Override
   @Transactional
   public void updateByParam(String tradeApplySerial, Long fundSum, Long fundSumConfirmed, Long
-      fundNum, Long fundNumConfirmed,  Long updateDate, Long updateBy, Long id, int orderDetailStatus) {
-    TrdOrderDetail trdOrderDetail = trdOrderDetailRepository.findOne(id);
+      fundNum, Long fundNumConfirmed,  Long updateDate, Long updateBy, Long id, int orderDetailStatus)
+      throws Exception {
+    TrdOrderDetail trdOrderDetail;
+    if(id > 0){
+      trdOrderDetail = trdOrderDetailRepository.findOne(id);
+    }else{
+      trdOrderDetail = trdOrderDetailRepository.findByTradeApplySerial(tradeApplySerial);
+    }
+    if(trdOrderDetail == null){
+      logger.error("failed to find orderDetail by id:"+ id + " tradeApplySerial:" + tradeApplySerial);
+      throw new Exception("failed to find orderDetail by id:"+ id + " tradeApplySerial:" + tradeApplySerial);
+    }
     trdOrderDetail.setUpdateDate(TradeUtil.getUTCTime());
     trdOrderDetail.setUpdateBy(updateBy);
     if(fundNum != null && fundNum > 0){

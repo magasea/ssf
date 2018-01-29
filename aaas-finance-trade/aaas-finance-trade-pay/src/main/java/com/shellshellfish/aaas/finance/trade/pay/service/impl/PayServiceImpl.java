@@ -209,20 +209,24 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.BUY.getOperation());
       BuyFundResult fundResult = null;
       try {
-
-
-
         fundResult = fundTradeApiService.buyFund(userId4Pay, trdAcco, payAmount,
             sbOutsideOrderno.toString(),trdOrderDetail.getFundCode());
       }catch (Exception ex){
         ex.printStackTrace();
         logger.error(ex.getMessage());
+        errs.add(ex);
         if(ex.getMessage().contains("网络错误")){
           //try it again
-          fundResult = fundTradeApiService.buyFund(userId4Pay, trdAcco, payAmount,
-              sbOutsideOrderno.toString(),trdOrderDetail.getFundCode());
+          try {
+            fundResult = fundTradeApiService.buyFund(userId4Pay, trdAcco, payAmount,
+                sbOutsideOrderno.toString(), trdOrderDetail.getFundCode());
+          }catch(Exception exagain){
+            exagain.printStackTrace();
+            logger.error(exagain.getMessage());
+            errs.add(exagain);
+          }
         }
-        errs.add(ex);
+
       }
       //ToDo: 如果有真实数据， 则删除下面if代码
       if(null == fundResult){
@@ -234,6 +238,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       if(null != fundResult){
         trdPayFlow.setApplySerial(fundResult.getApplySerial());
         trdPayFlow.setTrdStatus(TradeUtil.getPayFlowStatus(fundResult.getKkstat()));
+        trdPayFlow.setTradeTargetSum(trdOrderDetail.getFundSum());
         trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
         trdPayFlow.setFundCode(trdOrderDetail.getFundCode());
         trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
@@ -602,6 +607,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
                   com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
                       .shellshellfish.aaas.common.message.order.TrdPayFlow();
                   BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
+
                   notifyPay(trdPayFlowMsg);
                   //重发notify后退出这个orderDetailId的处理
                   break;

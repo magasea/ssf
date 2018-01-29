@@ -160,9 +160,9 @@ public class TransferController {
 			return new JsonResult(JsonResult.Fail, "手机验证失败，申购失败", JsonResult.EMPTYRESULT);
 		}
 
-		if (!riskService.isAppropriateRishLevel(prdInfo.getUserId(), prdInfo.getProdId())) {
-			return new JsonResult(JsonResult.Fail, "风险等级低，不能购买当前产品", JsonResult.EMPTYRESULT);
-		}
+//		if (!riskService.isAppropriateRishLevel(prdInfo.getUserId(), prdInfo.getProdId())) {
+//			return new JsonResult(JsonResult.Fail, "风险等级低，不能购买当前产品", JsonResult.EMPTYRESULT);
+//		}
 
 		try {
 			// 调用购买接口
