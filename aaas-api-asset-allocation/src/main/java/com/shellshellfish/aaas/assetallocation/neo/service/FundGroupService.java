@@ -382,7 +382,7 @@ public class FundGroupService {
      * @param groupId
      * @return
      */
-    public ReturnType getCustRiskByGroupId(String groupId) {
+    public Return getCustRiskByGroupId(String groupId) {
         String riskLevel = fundGroupMapper.getRiskNum(groupId);
 
         List<Map<String, Object>> list = new ArrayList<>();
@@ -391,8 +391,9 @@ public class FundGroupService {
         _items.put("riskLevel", riskLevel);
         list.add(_items);
 
-        ReturnType rct = new ReturnType();
+        Return rct = new Return();
         rct.set_total(1);
+        rct.setProductGroupId(groupId);
         rct.setName("组合风险等级");
         rct.set_items(list);
         rct.set_links(_links);

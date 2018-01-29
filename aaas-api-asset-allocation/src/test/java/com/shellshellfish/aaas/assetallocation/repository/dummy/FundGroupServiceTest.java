@@ -183,7 +183,7 @@ public class FundGroupServiceTest {
     @Test
     public void getCustRiskByGroupIdTest() {
         String groupId = "5";
-        ReturnType rt = fundGroupService.getCustRiskByGroupId(groupId);
+        Return rt = fundGroupService.getCustRiskByGroupId(groupId);
         System.out.println(rt);
     }
 }
