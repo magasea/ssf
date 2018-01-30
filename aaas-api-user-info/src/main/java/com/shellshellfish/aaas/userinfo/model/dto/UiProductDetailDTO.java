@@ -7,16 +7,17 @@ package com.shellshellfish.aaas.userinfo.model.dto;
 public class UiProductDetailDTO {
 
 	private long id;
-	private long userProdId;
+	private Long createBy;
+	private Long createDate;
 	private String fundCode;
 	private String fundName;
-	private int fundShare;
-	private int fundQuantity;
-	private long updateBy;
-	private long updateDate;
-	private long createBy;
-	private long createDate;
+	private Integer fundQuantity;
+	private Integer fundQuantityTrade;
+	private Integer fundShare;
 	private Integer status;
+	private Long updateBy;
+	private Long updateDate;
+	private Long userProdId;
 
 	public long getId() {
 		return id;
@@ -26,12 +27,20 @@ public class UiProductDetailDTO {
 		this.id = id;
 	}
 
-	public long getUserProdId() {
-		return userProdId;
+	public Long getCreateBy() {
+		return createBy;
 	}
 
-	public void setUserProdId(long userProdId) {
-		this.userProdId = userProdId;
+	public void setCreateBy(Long createBy) {
+		this.createBy = createBy;
+	}
+
+	public Long getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Long createDate) {
+		this.createDate = createDate;
 	}
 
 	public String getFundCode() {
@@ -50,52 +59,28 @@ public class UiProductDetailDTO {
 		this.fundName = fundName;
 	}
 
-	public int getFundShare() {
-		return fundShare;
-	}
-
-	public void setFundShare(int fundShare) {
-		this.fundShare = fundShare;
-	}
-
-	public int getFundQuantity() {
+	public Integer getFundQuantity() {
 		return fundQuantity;
 	}
 
-	public void setFundQuantity(int fundQuantity) {
+	public void setFundQuantity(Integer fundQuantity) {
 		this.fundQuantity = fundQuantity;
 	}
 
-	public long getUpdateBy() {
-		return updateBy;
+	public Integer getFundQuantityTrade() {
+		return fundQuantityTrade;
 	}
 
-	public void setUpdateBy(long updateBy) {
-		this.updateBy = updateBy;
+	public void setFundQuantityTrade(Integer fundQuantityTrade) {
+		this.fundQuantityTrade = fundQuantityTrade;
 	}
 
-	public long getUpdateDate() {
-		return updateDate;
+	public Integer getFundShare() {
+		return fundShare;
 	}
 
-	public void setUpdateDate(long updateDate) {
-		this.updateDate = updateDate;
-	}
-
-	public long getCreateBy() {
-		return createBy;
-	}
-
-	public void setCreateBy(long createBy) {
-		this.createBy = createBy;
-	}
-
-	public long getCreateDate() {
-		return createDate;
-	}
-
-	public void setCreateDate(long createDate) {
-		this.createDate = createDate;
+	public void setFundShare(Integer fundShare) {
+		this.fundShare = fundShare;
 	}
 
 	public Integer getStatus() {
@@ -106,30 +91,47 @@ public class UiProductDetailDTO {
 		this.status = status;
 	}
 
+	public Long getUpdateBy() {
+		return updateBy;
+	}
+
+	public void setUpdateBy(Long updateBy) {
+		this.updateBy = updateBy;
+	}
+
+	public Long getUpdateDate() {
+		return updateDate;
+	}
+
+	public void setUpdateDate(Long updateDate) {
+		this.updateDate = updateDate;
+	}
+
+	public Long getUserProdId() {
+		return userProdId;
+	}
+
+	public void setUserProdId(Long userProdId) {
+		this.userProdId = userProdId;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (createBy ^ (createBy >>> 32));
-		result = prime * result + (int) (createDate ^ (createDate >>> 32));
+		result = prime * result + ((createBy == null) ? 0 : createBy.hashCode());
+		result = prime * result + ((createDate == null) ? 0 : createDate.hashCode());
 		result = prime * result + ((fundCode == null) ? 0 : fundCode.hashCode());
 		result = prime * result + ((fundName == null) ? 0 : fundName.hashCode());
-		result = prime * result + fundQuantity;
-		result = prime * result + fundShare;
+		result = prime * result + ((fundQuantity == null) ? 0 : fundQuantity.hashCode());
+		result = prime * result + ((fundQuantityTrade == null) ? 0 : fundQuantityTrade.hashCode());
+		result = prime * result + ((fundShare == null) ? 0 : fundShare.hashCode());
 		result = prime * result + (int) (id ^ (id >>> 32));
-		result = prime * result + status;
-		result = prime * result + (int) (updateBy ^ (updateBy >>> 32));
-		result = prime * result + (int) (updateDate ^ (updateDate >>> 32));
-		result = prime * result + (int) (userProdId ^ (userProdId >>> 32));
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		result = prime * result + ((updateBy == null) ? 0 : updateBy.hashCode());
+		result = prime * result + ((updateDate == null) ? 0 : updateDate.hashCode());
+		result = prime * result + ((userProdId == null) ? 0 : userProdId.hashCode());
 		return result;
-	}
-
-	@Override
-	public String toString() {
-		return "UiProductDetailDTO [id=" + id + ", userProdId=" + userProdId + ", fundCode=" + fundCode + ", fundName="
-				+ fundName + ", fundShare=" + fundShare + ", fundQuantity=" + fundQuantity + ", updateBy=" + updateBy
-				+ ", updateDate=" + updateDate + ", createBy=" + createBy + ", createDate=" + createDate + ", status="
-				+ status + "]";
 	}
 
 	@Override
@@ -141,9 +143,15 @@ public class UiProductDetailDTO {
 		if (getClass() != obj.getClass())
 			return false;
 		UiProductDetailDTO other = (UiProductDetailDTO) obj;
-		if (createBy != other.createBy)
+		if (createBy == null) {
+			if (other.createBy != null)
+				return false;
+		} else if (!createBy.equals(other.createBy))
 			return false;
-		if (createDate != other.createDate)
+		if (createDate == null) {
+			if (other.createDate != null)
+				return false;
+		} else if (!createDate.equals(other.createDate))
 			return false;
 		if (fundCode == null) {
 			if (other.fundCode != null)
@@ -155,21 +163,44 @@ public class UiProductDetailDTO {
 				return false;
 		} else if (!fundName.equals(other.fundName))
 			return false;
-		if (fundQuantity != other.fundQuantity)
+		if (fundQuantity == null) {
+			if (other.fundQuantity != null)
+				return false;
+		} else if (!fundQuantity.equals(other.fundQuantity))
 			return false;
-		if (fundShare != other.fundShare)
+		if (fundQuantityTrade == null) {
+			if (other.fundQuantityTrade != null)
+				return false;
+		} else if (!fundQuantityTrade.equals(other.fundQuantityTrade))
+			return false;
+		if (fundShare == null) {
+			if (other.fundShare != null)
+				return false;
+		} else if (!fundShare.equals(other.fundShare))
 			return false;
 		if (id != other.id)
 			return false;
-		if (status != other.status)
+		if (status == null) {
+			if (other.status != null)
+				return false;
+		} else if (!status.equals(other.status))
 			return false;
-		if (updateBy != other.updateBy)
+		if (updateBy == null) {
+			if (other.updateBy != null)
+				return false;
+		} else if (!updateBy.equals(other.updateBy))
 			return false;
-		if (updateDate != other.updateDate)
+		if (updateDate == null) {
+			if (other.updateDate != null)
+				return false;
+		} else if (!updateDate.equals(other.updateDate))
 			return false;
-		if (userProdId != other.userProdId)
+		if (userProdId == null) {
+			if (other.userProdId != null)
+				return false;
+		} else if (!userProdId.equals(other.userProdId))
 			return false;
 		return true;
 	}
-	
+
 }

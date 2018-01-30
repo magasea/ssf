@@ -285,16 +285,24 @@ public class TransferController {
 			@ApiImplicitParam(paramType = "query", name = "userUuid", dataType = "String", required = true, value = "客户uuid", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupID", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "bankNum", dataType = "String", required = true, value = "银行卡号", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = true, value = "银行名称", defaultValue = ""),
+//			@ApiImplicitParam(paramType = "query", name = "maxAmount", dataType = "String", required = true, value = "最大赎回金额", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "String", required = true, value = "总金额", defaultValue = "")})
 	@RequestMapping(value = "/sellFundPage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult sellFundPage(String userUuid, String groupId, String subGroupId,
+	public JsonResult sellFundPage(String userUuid, String groupId, String subGroupId, String bankNum, String bankName,
 			String totalAmount) {
 		Map result = null;
 		try {
 			result = service.sellFundPage(groupId, subGroupId, totalAmount);
 			if (result != null) {
 				result.put("userUuid", userUuid);
+				result.put("bankNum", bankNum);
+				result.put("bankName", bankName);
+				result.put("totalAmount", totalAmount);
+				result.put("sellAmountDate", "2018.01.31");
+				result.put("bankinfo", bankName + "(" + bankNum + ")");
 			}
 			return new JsonResult(JsonResult.SUCCESS, "调用成功", result);
 		} catch (Exception e) {

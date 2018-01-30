@@ -73,6 +73,7 @@ public class FundGroupController {
 			resultList.add(dateValueMap);
 		}
 		result.put("accumulationIncomes", resultList);
+		result.put("prodId", prodId);
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
 
