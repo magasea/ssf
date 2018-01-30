@@ -17,7 +17,16 @@ import java.util.List;
  * java8 日期工具类 用来替换旧版本的 {@link SSFDateUtils}
  */
 public class InstantDateUtil {
-
+	private static final String holiday[] = {"2018-01-01", "2018-02-15", "2018-02-16", "2018-02-17", "2018-02-18",
+			"2018-02-19",
+			"2018-02-20", "2018-02-21", "2018-04-05", "2018-04-06", "2018-04-07", "2018-05-29",
+			"2018-05-30",
+			"2018-06-01", "2018-06-16", "2018-06-17", "2018-06-18", "2018-09-22", "2018-09-23",
+			"2018-09-24",
+			"2018-10-01", "2018-10-02", "2018-10-03", "2018-10-04", "2018-10-05", "2018-10-06",
+			"2018-10-07"};
+	private static final String weekend[] = {"2018-02-11", "2018-02-24", "2018-04-08", "2018-05-28", "2018-09-29",
+	"2018-09-30"};
 	private static final String DEFAULT_DATE_FORMAT_PATTERN = "yyyy-MM-dd";
 
 
@@ -125,28 +134,20 @@ public class InstantDateUtil {
 	 */
 
 	public static String getTplusNDayNWeekendOfWork(Long startTime, int count) {
-		String holiday[] = {"2018-01-01", "2018-02-15", "2018-02-16", "2018-02-17", "2018-02-18",
-				"2018-02-19",
-				"2018-02-20", "2018-02-21", "2018-04-05", "2018-04-06", "2018-04-07", "2018-05-29",
-				"2018-05-30",
-				"2018-06-01", "2018-06-16", "2018-06-17", "2018-06-18", "2018-09-22", "2018-09-23",
-				"2018-09-24",
-				"2018-10-01", "2018-10-02", "2018-10-03", "2018-10-04", "2018-10-05", "2018-10-06",
-				"2018-10-07"};
-		String weekend[] = {"2018-02-11", "2018-02-24", "2018-04-08", "2018-05-28", "2018-09-29",
-				"2018-09-30"};
-		for (String str : holiday) {
-			initHolidayList(str, 1);
-		}
-		for (String str : weekend) {
-			initHolidayList(str, 2);
+		if(holidayList==null||holidayList.size()==0){
+			for (String str : holiday) {
+				initHolidayList(str, 1);
+			}
+			for (String str : weekend) {
+				initHolidayList(str, 2);
+			}
 		}
 
 		int flag = count / Math.abs(count);
 
 		count = Math.abs(count);
 
-		LocalDateTime localDateTime = LocalDateTime.ofEpochSecond(startTime, 0, ZoneOffset.UTC);
+		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(startTime), ZoneOffset.UTC);
 
 		LocalDateTime localDateTimeLimit = LocalDateTime
 				.of(localDateTime.toLocalDate(), LocalTime.of(15, 0));
@@ -192,10 +193,25 @@ public class InstantDateUtil {
 			weekendList.add(format(date));
 		}
 	}
+	
+	public static boolean isDealDay(long startTime){
+		if(holidayList==null||holidayList.size()==0){
+			for (String str : holiday) {
+				initHolidayList(str, 1);
+			}
+			for (String str : weekend) {
+				initHolidayList(str, 2);
+			}
+		}
+		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(startTime), ZoneOffset.UTC);
+		LocalDate localDate = localDateTime.toLocalDate();
+		return checkHoliday(localDate);
+	}
 
 	public static void main(String[] args) {
-		System.out.println(Instant.ofEpochSecond(
-				1516809600));
+		String date = TradeUtil.getReadableDateTime(System.currentTimeMillis());
+		date = date.substring(0,10);
+		System.out.println(date);
 	}
 
 }
