@@ -315,6 +315,8 @@ public class TransferController {
 				result.put("combinationName", combinationName);
 				result.put("prodId", prodId);
 				result.put("telNum", telNum);
+				result.put("title1", "依据最优比例分配赎回金额");
+				result.put("title2", "贝贝鱼依据最优比例分配赎回金额");
 				long startTime = System.currentTimeMillis();
 				if(!InstantDateUtil.isDealDay(startTime)){
 					//交易日

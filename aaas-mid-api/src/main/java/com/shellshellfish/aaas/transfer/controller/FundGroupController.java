@@ -89,7 +89,7 @@ public class FundGroupController {
 //								bankNum = bankcardSecurity[bankcardSecurity.length-1];
 //								bankNum = bankNum.substring(bankNum.length()-4);
 								bankShortNum = bankNum.substring(bankNum.length()-4);
-								telNum = bankMap.get("cellphone")+"";
+								telNum = bankMap.get("cellphone") + "";
 								break;
 							}
 						}
