@@ -100,8 +100,8 @@ public class DailyFundService {
                 Dailyfunds dailyfunds = new Dailyfunds();
                 dailyfunds.setCode(dailyFundsList.get(0).getCode());//基金代码
                 dailyfunds.setFname(dailyFundsList.get(0).getFname());//基金简称
-                dailyfunds.setFundTypeOne(dailyFundsList.get(dailyFundsList.size()-1).getFirstInvestType());//一级分类
-                dailyfunds.setFundTypeTwo(dailyFundsList.get(dailyFundsList.size()-1).getSecondInvestType());//二级分类
+                dailyfunds.setFundTypeOne(dailyFundsList.get(dailyFundsList.size() - 1).getFirstInvestType());//一级分类
+                dailyfunds.setFundTypeTwo(dailyFundsList.get(dailyFundsList.size() - 1).getSecondInvestType());//二级分类
                 fundNetValMapper.insertBasicDataToFundBasic(dailyfunds);
                 logger.debug("Succeed: Insert into fund_basic by call getFundDataOfDay!");
             }
