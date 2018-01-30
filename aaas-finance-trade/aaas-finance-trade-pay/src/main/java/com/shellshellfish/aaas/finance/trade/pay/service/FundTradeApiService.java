@@ -1,11 +1,14 @@
 package com.shellshellfish.aaas.finance.trade.pay.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface FundTradeApiService {
 
@@ -58,6 +61,7 @@ public interface FundTradeApiService {
     BigDecimal calcDiscountPoundage(BigDecimal amount, BigDecimal rate, BigDecimal discount);
 
     List<UserBank> getUserBank(String fundCode) throws Exception;
+
     List<UserBank> getUserBank(String userId,  String fundCode) throws Exception;
 
     void writeAllTradeRateToMongoDb() throws Exception;
@@ -65,4 +69,12 @@ public interface FundTradeApiService {
     void writeFundToMongoDb(String json);
 
     void writeAllFundsToMongoDb(List<String> funds);
+
+
+    public List<ConfirmResult> getConfirmResults(String openId, String outSideOrderNo) throws
+        Exception;
+
+    //String getAllConfirmList(String userUuid) throws JsonProcessingException;
+
+
 }

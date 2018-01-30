@@ -6,11 +6,14 @@ import com.shellshellfish.aaas.common.constants.RabbitMQConstants;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import com.shellshellfish.aaas.common.message.order.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.common.message.order.OrderStatusChangeDTO;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserTrdLogMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
@@ -43,6 +46,9 @@ public class BroadcastMessageConsumers {
 
     @Autowired
     MongoUserTrdLogMsgRepo mongoUserTrdLogMsgRepo;
+
+    @Autowired
+    MongoUiTrdZZInfoRepo mongoUiTrdZZInfoRepo;
 
     @Transactional
     @RabbitListener(bindings = @QueueBinding(
@@ -220,5 +226,30 @@ public class BroadcastMessageConsumers {
         }
         latch.countDown();
 
+    }
+
+    @Transactional
+    @RabbitListener(bindings = @QueueBinding(
+        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
+            .OPERATION_TYPE_UPDATE_UITRDCONFIRMINFO, durable = "false"),
+        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO)
+    )
+    public void receiveConfirmInfo(MongoUiTrdZZInfo mongoUiTrdZZInfo, Channel channel, @Header
+        (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
+        com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo mongoUiTrdZZInfoInDb = mongoUiTrdZZInfoRepo
+        .findByUserProdIdAndUserIdAndOutSideOrderNo(mongoUiTrdZZInfo
+            .getUserProdId(), mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getOutSideOrderNo());
+        if(mongoUiTrdZZInfoInDb == null){
+            mongoUiTrdZZInfoInDb = new com.shellshellfish.aaas.userinfo.model.dao
+                .MongoUiTrdZZInfo();
+            MyBeanUtils.mapEntityIntoDTO(mongoUiTrdZZInfo, mongoUiTrdZZInfoInDb);
+            mongoUiTrdZZInfoRepo.save(mongoUiTrdZZInfoInDb);
+        }else{
+            String idOrig = mongoUiTrdZZInfoInDb.getId();
+            MyBeanUtils.mapEntityIntoDTO(mongoUiTrdZZInfo, mongoUiTrdZZInfoInDb);
+            mongoUiTrdZZInfoInDb.setId(idOrig);
+            mongoUiTrdZZInfoRepo.save(mongoUiTrdZZInfoInDb);
+        }
     }
 }

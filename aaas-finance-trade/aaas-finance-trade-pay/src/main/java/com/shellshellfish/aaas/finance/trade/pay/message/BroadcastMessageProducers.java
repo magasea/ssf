@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.finance.trade.pay.message;
 
 
 import com.shellshellfish.aaas.common.constants.RabbitMQConstants;
+import com.shellshellfish.aaas.common.message.order.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,12 @@ public class BroadcastMessageProducers {
                 .ROUTING_KEY_PREORDER, trdPayFlow);
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_USERINFO,
             trdPayFlow);
+    }
+
+    public void sendConfirmMessage(MongoUiTrdZZInfo mongoUiTrdZZInfo){
+        logger.info("sending  mongoUiTrdZZInfo" + mongoUiTrdZZInfo.getApplySerial());
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
+            .ROUTING_KEY_USERINFO, mongoUiTrdZZInfo);
     }
 
 }

@@ -1,9 +1,12 @@
 package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
+import static java.awt.SystemColor.info;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.*;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
@@ -29,6 +32,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
     private static final Logger logger = LoggerFactory.getLogger(FundTradeZhongZhengApiService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final RestTemplate restTemplate = new RestTemplate();
+
+    private final Gson gson = new Gson();
 
     public FundTradeZhongZhengApiService() {
         restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(Charset.forName("UTF-8")));
@@ -223,6 +228,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
     @Override
     public ApplyResult getApplyResultByOutsideOrderNo(String userUuid, String outsideOrderNo) throws JsonProcessingException {
+
         Map<String, Object> info = init(userUuid);
         info.put("outsideorderno", outsideOrderNo);
         postInit(info);
@@ -237,6 +243,33 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         applyResult = getApplyResult(applyResult, jsonObject, status);
         return applyResult;
     }
+
+    private void init(String openId, String outsideOrderNo) throws JsonProcessingException {
+        Map<String, Object> info = init(openId);
+        info.put("outsideorderno", outsideOrderNo);
+        postInit(info);
+    }
+
+    @Override
+    public List<ConfirmResult> getConfirmResults(String openId, String outSideOrderNo)
+        throws Exception {
+        Map<String, Object> info = init(openId);
+        info.put("outsideorderno", outSideOrderNo);
+        postInit(info);
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_confirm_list";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        ConfirmCompondResult confirmCompondResult = gson.fromJson(json, ConfirmCompondResult.class);
+        if(!confirmCompondResult.getStatus().equals("1")){
+            throw new Exception(confirmCompondResult.getMsg());
+        }
+        return confirmCompondResult.getData();
+
+    }
+
+
 
     private ApplyResult getApplyResult(ApplyResult applyResult, JSONObject jsonObject, Integer status) {
         if (status.equals(1)) {
@@ -604,6 +637,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
             mongoTemplate.save(fund, "fundInfo");
         }
     }
+
+
 
     private void postInit(Map<String, Object> info) {
         String sign = makeMsg(info);
