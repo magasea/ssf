@@ -77,11 +77,6 @@ public class FundGroupServiceTest {
     }
 
     @Test
-    public void selectByIdTest() {
-        FundReturn fundReturn = fundGroupService.selectById("2", "2000");
-    }
-
-    @Test
     public void selectReturnAndPullbackTest() {
         Map<String, Object> map = fundGroupService.selectReturnAndPullback("1", "1", "1");
     }
@@ -185,5 +180,11 @@ public class FundGroupServiceTest {
         String groupId = "5";
         Return rt = fundGroupService.getCustRiskByGroupId(groupId);
         System.out.println(rt);
+    }
+
+    @Test
+    public void getProportionGroupByFundTypeTwoTest() {
+        FundReturn fr = fundGroupService.getProportionGroupByFundTypeTwo("2", "20049");
+        System.out.println(fr);
     }
 }

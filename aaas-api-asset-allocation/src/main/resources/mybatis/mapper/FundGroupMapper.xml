@@ -43,7 +43,7 @@
         select * from fund_group_sub d,strategy a,fund_group b,fund_basic e,fund_group_details c
         where a.fund_group_id = b.id and b.id = c.fund_group_id and c.fund_code = e.code and
         c.fund_group_id=d.fund_group_id and d.id=c.fund_group_sub_id and
-        ABS(d.risk_num - #{riskValue}) &lt; 0.00001 and ABS(d.income_num - #{returnValue}) &lt; 0.00001 and c.fund_group_id=#{id}
+        ABS(d.risk_num - #{riskValue}) &lt; 0.00001 and ABS(d.income_num - #{returnValue}) &lt; 0.00001 and c.fund_group_id=#{groupId}
     </select>
 
     <select id="getFundCode" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
@@ -61,6 +61,15 @@
         select a.fund_type_two,a.fund_group_id,sum(proportion) proportion,a.fund_code from (select * from fund_basic a,
         fund_group_details b where a.code = b.fund_code and fund_group_id = #{id} and fund_group_sub_id = #{subId}) a
         GROUP BY a.fund_type_two,a.fund_code
+    </select>
+
+    <select id="getProportionGroupByFundTypeTwo" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
+        select c.fund_type_two, b.fund_group_id, sum(b.proportion) proportion
+        from fund_basic c, fund_group_details b
+        where c.code = b.fund_code
+        and b.fund_group_id = #{groupId}
+        and b.fund_group_sub_id = #{subGroupId}
+        group by c.fund_type_two
     </select>
 
     <select id="getFnameAndProportion" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
@@ -144,6 +153,10 @@
 
     <select id="getFundGroupBuy" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupBuy">
         select * from fundgroupbuydetail c where c.fund_group_buy_id = #{id}
+    </select>
+
+    <select id="getFundGroupNameById" resultType="java.lang.String">
+        select fund_group_name from fund_group where id=#{id}
     </select>
 
     <select id="getFundGroupHistoryTime" resultType="java.lang.String">

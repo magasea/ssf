@@ -51,15 +51,16 @@ public class FundGroupService {
             if (CollectionUtils.isEmpty(riskIncomeIntervalList)) {
                 continue;
             }
+            query.remove("fund_group_id");
 
             RiskIncomeInterval riskIncomeInterval = riskIncomeIntervalList.get((riskIncomeIntervalList.size() - 1) / 2);
-            query.remove("fund_group_id");
-            query.put("id", riskIncomeInterval.getFund_group_id());
-            query.put("subId", riskIncomeInterval.getId());
-            List<Interval> intervals = fundGroupMapper.getProportion(query);
+            query.put("groupId", riskIncomeInterval.getFund_group_id());
+            query.put("subGroupId", riskIncomeInterval.getId());
             //基金组合内的各基金权重
+            List<Interval> intervals = fundGroupMapper.getProportionGroupByFundTypeTwo(query);
             List<Map<String, Object>> listMap = this.intervalListToListMap(intervals);
-            _items.put("assetsRatios", listMap);//组合内各基金权重
+
+            _items.put("assetsRatios", listMap); //组合内各基金权重
             _items.put("groupId", interval.getFund_group_id());
             _items.put("subGroupId", riskIncomeInterval.getId());
             _items.put("name", interval.getFund_group_name());
@@ -196,41 +197,27 @@ public class FundGroupService {
     }
 
     /**
-     * 按照ID查询基金组合明细
-     *
-     * @param id
-     * @return
-     */
-    public FundReturn selectById(String id, String subGroupId) {
-        FundReturn fr = null;
-        Map<String, String> query = new HashMap<>();
-        query.put("id", id);
-        query.put("subGroupId", subGroupId);
-        List<Interval> interval = fundGroupMapper.selectById(query);
-        if (interval.size() != 0) {
-            fr = getFundReturn(interval);
-        }
-        return fr;
-    }
-
-    /**
      * 预期收益率调整 风险率调整 最优组合(有效前沿线)
      *
-     * @param id
+     * @param groupId
      * @param riskValue
      * @param returnValue
      * @return
      */
-    public FundReturn getInterval(String id, String riskValue, String returnValue) {
+    public FundReturn getInterval(String groupId, String riskValue, String returnValue) {
         FundReturn fr = null;
+
         Map<String, Object> map = new HashMap<>();
         map.put("riskValue", riskValue);
         map.put("returnValue", returnValue);
-        map.put("id", id);
-        List<Interval> interval = fundGroupMapper.getInterval(map);
-        if (interval.size() != 0) {
-            fr = getFundReturn(interval);
+        map.put("groupId", groupId);
+        List<Interval> intervals = fundGroupMapper.getInterval(map);
+        if (CollectionUtils.isEmpty(intervals)) {
+            return fr;
         }
+
+        String subGroupId = intervals.get(0).getFund_group_sub_id();
+        fr = getProportionGroupByFundTypeTwo(groupId, subGroupId);
         return fr;
     }
 
@@ -265,13 +252,13 @@ public class FundGroupService {
      *
      * @return
      */
-    public ReturnType getRevenueContribution(String id, String subGroupId) {
+    public ReturnType getRevenueContribution(String groupId, String subGroupId) {
         ReturnType rcb = new ReturnType();
         Map<String, String> _links = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
         Map<String, Object> map = new HashMap<>();
         map.put("subGroupId", subGroupId);
-        map.put("id", id);
+        map.put("id", groupId);
         List<Interval> intervals = fundGroupMapper.getRevenueContribution(map);
         if (CollectionUtils.isEmpty(intervals)) {
             return rcb;
@@ -339,10 +326,10 @@ public class FundGroupService {
     /**
      * 风险控制
      *
-     * @param id
+     * @param groupId
      * @return
      */
-    public ReturnType getRiskController(String id, String subGroupId) {
+    public ReturnType getRiskController(String groupId, String subGroupId) {
         Map<String, String> query = new HashMap<>();
         /*query.put("id", id);
         query.put("subGroupId", subGroupId);*/
@@ -622,11 +609,11 @@ public class FundGroupService {
     /**
      * 滑动条分段数据  从fund_group_sub_choose 表中获取数据
      *
-     * @param id
+     * @param groupId
      * @param slidebarType (risk_num    风险率, income_num  收益率)
      * @return
      */
-    public ReturnType getScaleMarkFromChoose(String id, String slidebarType) {
+    public ReturnType getScaleMarkFromChoose(String groupId, String slidebarType) {
         ReturnType smk = new ReturnType();
 
         if (StringUtils.isEmpty(slidebarType)) {
@@ -635,7 +622,7 @@ public class FundGroupService {
 
         String standtardType = StandardTypeEnmu.getStandardTypeBySlidebarType(slidebarType);
         List<RiskIncomeInterval> riskIncomeIntervalList =
-                fundGroupMapper.getScaleMarkFromChoose(id, slidebarType, standtardType);
+                fundGroupMapper.getScaleMarkFromChoose(groupId, slidebarType, standtardType);
         if (CollectionUtils.isEmpty(riskIncomeIntervalList)) {
             return smk;
         }
@@ -672,18 +659,18 @@ public class FundGroupService {
     /**
      * 组合收益率(最大回撤)走势图   自组合基金成立以来的每天
      *
-     * @param id
+     * @param groupId
      * @param subGroupId
      * @return
      * @throws ParseException
      */
-    public ReturnType getFundGroupIncomeAll(String id, String subGroupId, String returnType) {
+    public ReturnType getFundGroupIncomeAll(String groupId, String subGroupId, String returnType) {
         ReturnType fgi = new ReturnType();
         List<Map<String, Object>> list = new ArrayList<>();
         Map<String, String> _links = new HashMap<>();
         Map<String, Object> allMap = new HashMap<>();
         Map<String, String> mapStr = new HashMap<>();
-        mapStr.put("fund_group_id", id);
+        mapStr.put("fund_group_id", groupId);
         mapStr.put("fund_group_sub_id", subGroupId);
         List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistoryAll(mapStr);
         if (CollectionUtils.isEmpty(fundGroupHistoryList)) {
@@ -766,13 +753,13 @@ public class FundGroupService {
     /**
      * 组合收益率(最大回撤)走势图
      *
-     * @param id
+     * @param groupId
      * @param subGroupId
      * @param mouth      几个月以来每天
      * @return
      * @throws ParseException
      */
-    public ReturnType getFundGroupIncome(String id, String subGroupId, int mouth, String returnType) {
+    public ReturnType getFundGroupIncome(String groupId, String subGroupId, int mouth, String returnType) {
         Calendar ca = Calendar.getInstance();
         Date enddate = new Date();
         ca.setTime(enddate);
@@ -782,7 +769,7 @@ public class FundGroupService {
         ca.add(Calendar.DATE, -1);
         String endtime = DateUtil.formatDate(ca.getTime());
         Map<String, String> mapStr = new HashMap<>();
-        mapStr.put("fund_group_id", id);
+        mapStr.put("fund_group_id", groupId);
         mapStr.put("fund_group_sub_id", subGroupId);
         mapStr.put("starttime", starttime);
         mapStr.put("endtime", endtime);
@@ -840,9 +827,8 @@ public class FundGroupService {
      * @param id
      * @param subGroupId
      * @return
-     * @throws ParseException
      */
-    public ReturnType getFundGroupIncomeWeek(String id, String subGroupId, String returnType) throws ParseException {
+    public ReturnType getFundGroupIncomeWeek(String id, String subGroupId, String returnType) {
         ReturnType fgi = new ReturnType();
         List<Map<String, Object>> list = new ArrayList<>();
         Calendar ca = Calendar.getInstance();
@@ -1025,11 +1011,11 @@ public class FundGroupService {
     /**
      * 未来收益走势图
      *
-     * @param id
+     * @param groupId
      * @param subGroupId
      * @return
      */
-    public ReturnType getExpectedIncome(String id, String subGroupId) {
+    public ReturnType getExpectedIncome(String groupId, String subGroupId) {
         ReturnType rt = new ReturnType();
         List<Map<String, Object>> list = new ArrayList<>();
         Map<String, String> _links = new HashMap<>();
@@ -1334,26 +1320,28 @@ public class FundGroupService {
     /**
      * 把传出数据转为json格式
      *
-     * @param intervalList
+     * @param groupId
+     * @param subGroupId
      * @return
      */
-    public FundReturn getFundReturn(List<Interval> intervalList) {
+    public FundReturn getProportionGroupByFundTypeTwo(String groupId, String subGroupId) {
         FundReturn fr = new FundReturn();
-        if (CollectionUtils.isEmpty(intervalList)) {
+        Map<String, String> _links = new HashMap<>();
+
+        Map<String, String> query = new HashMap<>();
+        query.put("groupId", groupId);
+        query.put("subGroupId", subGroupId);
+        //基金组合内的各基金权重
+        List<Interval> intervals = fundGroupMapper.getProportionGroupByFundTypeTwo(query);
+        if (CollectionUtils.isEmpty(intervals)) {
             return fr;
         }
-
-        Map<String, String> _links = new HashMap<>();
-        Map<String, String> query = new HashMap<>();
-        query.put("id", intervalList.get(0).getFund_group_id());
-        query.put("subId", intervalList.get(0).getId());
-        List<Interval> intervals = fundGroupMapper.getProportion(query);
-        //基金组合内的各基金权重
         List<Map<String, Object>> listMap = this.intervalListToListMap(intervals);
 
-        fr.setGroupId(intervalList.get(0).getFund_group_id());
-        fr.setSubGroupId(intervalList.get(0).getId());
-        fr.setName(intervalList.get(0).getFund_group_name());
+        String fundGroupName = fundGroupMapper.getFundGroupNameById(groupId);
+        fr.setName(fundGroupName);
+        fr.setGroupId(groupId);
+        fr.setSubGroupId(subGroupId);
         fr.set_links(_links);
         fr.set_schemaVersion("0.1.1");
         fr.set_serviceId("资产配置");

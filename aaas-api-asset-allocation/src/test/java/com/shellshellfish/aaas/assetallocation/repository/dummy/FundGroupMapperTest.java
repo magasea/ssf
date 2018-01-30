@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.assetallocation.repository.dummy;
 
+import com.shellshellfish.aaas.assetallocation.neo.entity.Interval;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -61,5 +63,20 @@ public class FundGroupMapperTest {
         query.put("time", "2018-01-15");
         Integer effectRow = fundGroupMapper.updateMaximumRetracementByRiskLevel(query);
         System.out.println(effectRow);
+    }
+
+    @Test
+    public void getProportionGroupByFundTypeTwoTest() {
+        Map<String, Object> query = new HashMap<>();
+        query.put("groupId", "2");
+        query.put("subGroupId", "20059");
+        List<Interval> intervals = fundGroupMapper.getProportionGroupByFundTypeTwo(query);
+        System.out.println(intervals.size());
+    }
+
+    @Test
+    public void getFundGroupNameByIdTest() {
+        String fundGroupName = fundGroupMapper.getFundGroupNameById("2");
+        System.out.println(fundGroupName);
     }
 }
