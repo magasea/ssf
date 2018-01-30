@@ -49,7 +49,7 @@ public class FundGroupServiceImpl implements FundGroupService {
 		UiProductDTO uiProductDTO = uiProductService.getProductByProdId(productId);
 		result.put("investDate", uiProductDTO.getUpdateDate());
 		result.put("investDays", DateUtil.getDaysToNow(new Date(uiProductDTO.getUpdateDate())));
-
+		result.put("combinationName", uiProductDTO.getProdName());
 
 		List<UiProductDetailDTO> uiProductDetailDTOList = uiProductService.getProductDetailsByProdId(productId);
 		List<Map> fundIncomes = new ArrayList<>(uiProductDetailDTOList.size());

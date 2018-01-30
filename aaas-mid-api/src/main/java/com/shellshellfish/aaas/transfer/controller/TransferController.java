@@ -296,12 +296,13 @@ public class TransferController {
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "bankNum", dataType = "String", required = true, value = "银行卡号", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = true, value = "银行名称", defaultValue = ""),
-//			@ApiImplicitParam(paramType = "query", name = "maxAmount", dataType = "String", required = true, value = "最大赎回金额", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "combinationName", dataType = "String", required = true, value = "组合名称", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品id", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "String", required = true, value = "总金额", defaultValue = "")})
 	@RequestMapping(value = "/sellFundPage", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult sellFundPage(String userUuid, String groupId, String subGroupId, String bankNum, String bankName,
-			String totalAmount) {
+			String combinationName, String prodId, String totalAmount) {
 		Map result = null;
 		try {
 			result = service.sellFundPage(groupId, subGroupId, totalAmount);
@@ -310,6 +311,8 @@ public class TransferController {
 				result.put("bankNum", bankNum);
 				result.put("bankName", bankName);
 				result.put("totalAmount", totalAmount);
+				result.put("combinationName", combinationName);
+				result.put("prodId", prodId);
 				long startTime = System.currentTimeMillis();
 				if(!InstantDateUtil.isDealDay(startTime)){
 					//交易日

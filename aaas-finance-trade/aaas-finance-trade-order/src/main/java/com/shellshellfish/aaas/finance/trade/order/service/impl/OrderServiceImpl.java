@@ -71,8 +71,11 @@ public class OrderServiceImpl  extends OrderRpcServiceGrpc.OrderRpcServiceImplBa
 	@Override
 	public TrdOrder findOrderByUserProdIdAndUserId(Long prodId,Long userId) {
 		//List<TrdOrderDetail> trdOrderDetails = trdOrderDetailRepository.findTrdOrderDetailsByOrderId(orderId);
-		List<TrdOrder> trdOrders = trdOrderRepository.findByUserProdIdAndUserId(prodId,userId);
-		TrdOrder trdOrder = trdOrders.get(0);
+		List<TrdOrder> trdOrderList = trdOrderRepository.findByUserProdIdAndUserId(prodId,userId);
+		TrdOrder trdOrder = new TrdOrder();
+		if(trdOrderList !=null && trdOrderList.size()>0){
+			trdOrder = trdOrderList.get(0);
+		}
 		return trdOrder;
 	}
 
