@@ -8,5 +8,5 @@ public interface OrderService {
 	List<TrdOrderDetail> getOrderByUserId(Long userId);
 	List<TrdOrderDetail> findOrderDetailByOrderId(String orderId);
 	TrdOrder getOrderByOrderId(String orderId);
-
+	TrdOrder findOrderByUserProdIdAndUserId(Long prodId, Long userId);
 }
