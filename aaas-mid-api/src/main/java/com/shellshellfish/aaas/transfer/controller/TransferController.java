@@ -2,6 +2,13 @@ package com.shellshellfish.aaas.transfer.controller;
 
 import com.shellshellfish.aaas.transfer.service.RiskService;
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +28,8 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.alibaba.fastjson.JSONObject;
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
 import com.shellshellfish.aaas.model.JsonResult;
@@ -301,7 +310,27 @@ public class TransferController {
 				result.put("bankNum", bankNum);
 				result.put("bankName", bankName);
 				result.put("totalAmount", totalAmount);
-				result.put("sellAmountDate", "2018.01.31");
+				long startTime = System.currentTimeMillis();
+				if(!InstantDateUtil.isDealDay(startTime)){
+					//交易日
+					LocalDateTime localDateTime = LocalDateTime.now();
+					LocalDateTime localDateTimeLimit = LocalDateTime.of(localDateTime.toLocalDate(), LocalTime.of(15, 0));
+					if (localDateTime.isAfter(localDateTimeLimit)) {
+						String date = InstantDateUtil.getTplusNDayNWeekendOfWork(startTime,1);
+						date = date.replaceAll("-", ".");
+						result.put("sellAmountDate", date);
+					} else {
+						//3点以前
+						String time = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+						time = time.replaceAll("-", ".");
+						result.put("sellAmountDate", time);
+					}
+				} else {
+					String date = InstantDateUtil.getTplusNDayNWeekendOfWork(startTime,1);
+					date = date.replaceAll("-", ".");
+					result.put("sellAmountDate", date);
+				}
+				
 				result.put("bankinfo", bankName + "(" + bankNum + ")");
 			}
 			return new JsonResult(JsonResult.SUCCESS, "调用成功", result);

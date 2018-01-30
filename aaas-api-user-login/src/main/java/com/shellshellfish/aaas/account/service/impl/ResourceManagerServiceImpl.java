@@ -364,7 +364,7 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
 		String uuid = args[1];
 		String token = args[2];
 		
-		rsmap.put("name", "loginhome");
+		rsmap.put("name", "");
 		//rsmap.put("uid", uid);
 		rsmap.put("uuid", uuid);
 		rsmap.put("token", token);
