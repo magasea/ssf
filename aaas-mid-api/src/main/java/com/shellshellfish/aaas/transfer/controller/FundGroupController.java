@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -32,7 +33,9 @@ public class FundGroupController {
 
 	@Value("${shellshellfish.user-user-info}")
 	private String userinfoUrl;
-
+	
+	@Value("${shellshellfish.trade-order-url}")
+	private String tradeOrderUrl;
 
 	@ApiOperation("我的智投组合详情")
 	@ApiImplicitParams({
@@ -57,10 +60,37 @@ public class FundGroupController {
 			result = entity.getBody();
 			result.put("groupId", groupId);
 			result.put("subGroupId", subGroupId);
+			Map bankNumResult = restTemplate
+					.getForEntity(tradeOrderUrl + "/api/trade/funds/banknums/" + uuid + "?prodId=" + prodId, Map.class)
+					.getBody();
+			if(bankNumResult.get("bankNum")!=null){
+				String bankNum = bankNumResult.get("bankNum")+"";
+				String bankName = "";
+				List bankList = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/bankcards", List.class).getBody();
+				if(bankList!=null){
+					for(int i=0;i<bankList.size();i++){
+						Map bankMap = (Map) bankList.get(i);
+						if(bankNum.equals(bankMap.get("bankcardNum"))){
+							if(bankMap.get("bankShortName")!=null){
+								bankName = bankMap.get("bankShortName")+"";
+//								String bankcardSecurity[] = (bankMap.get("bankcardSecurity").toString()).split(" ");
+//								bankNum = bankcardSecurity[bankcardSecurity.length-1];
+								bankNum = bankNum.substring(bankNum.length()-4);
+								break;
+							}
+						}
+					}
+					result.put("bankNum", bankNum);
+					result.put("bankName", bankName);
+				}
+			}
+					
 		} else {
 			logger.error("error code : {} ; error message :{}", entity.getStatusCode(), entity.getBody());
 			return new JsonResult(JsonResult.Fail, "获取失败", JsonResult.EMPTYRESULT);
 		}
+		
+		
 
 
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);

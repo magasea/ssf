@@ -68,6 +68,13 @@ public class OrderServiceImpl  extends OrderRpcServiceGrpc.OrderRpcServiceImplBa
 		List<TrdOrderDetail> trdOrderDetails = trdOrderDetailRepository.findAllByOrderId(orderId);
 		return trdOrderDetails;
 	}
+	@Override
+	public TrdOrder findOrderByUserProdIdAndUserId(Long prodId,Long userId) {
+		//List<TrdOrderDetail> trdOrderDetails = trdOrderDetailRepository.findTrdOrderDetailsByOrderId(orderId);
+		List<TrdOrder> trdOrders = trdOrderRepository.findByUserProdIdAndUserId(prodId,userId);
+		TrdOrder trdOrder = trdOrders.get(0);
+		return trdOrder;
+	}
 
   /**
    * <pre>
@@ -106,4 +113,5 @@ public class OrderServiceImpl  extends OrderRpcServiceGrpc.OrderRpcServiceImplBa
 
 
   }
+
 }

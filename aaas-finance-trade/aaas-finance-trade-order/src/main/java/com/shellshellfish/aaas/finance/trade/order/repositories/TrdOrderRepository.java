@@ -27,4 +27,6 @@ public interface TrdOrderRepository extends PagingAndSortingRepository<TrdOrder,
 	TrdOrder updateOrderStatus(@Param("orderStatus") int orderStatus, @Param("updateDate") long
 			updateDate, @Param("updateBy") Long updateBy, @Param("orderId") Long orderId );
 
+	List<TrdOrder> findByUserProdIdAndUserId(Long prodId, Long userId);
+
 }
