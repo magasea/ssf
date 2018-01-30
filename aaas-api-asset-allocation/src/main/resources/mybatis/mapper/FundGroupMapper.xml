@@ -97,17 +97,17 @@
     <select id="getPerformanceVolatility"
             resultType="com.shellshellfish.aaas.assetallocation.neo.entity.RiskIncomeInterval">
         select * from fund_group_sub b,strategy a where a.fund_group_id=b.fund_group_id
-         <if test="cust_risk != null and cust_risk !=''">
-         and  a.cust_risk = #{cust_risk}
-         </if>
-        <if test="investment_horizon != null and investment_horizon !=''">
-        and a.investment_horizon = #{investment_horizon}
+        <if test="subGroupId != null and subGroupId != ''">
+            and b.id=#{subGroupId}
         </if>
         <if test="fund_group_id != null and fund_group_id !=''">
-            and  b.fund_group_id = #{fund_group_id}
+            and b.fund_group_id = #{fund_group_id}
         </if>
-        <if test="fund_group_sub_id != null and fund_group_sub_id != ''">
-          and fund_group_sub_id=#{fund_group_sub_id}
+        <if test="cust_risk != null and cust_risk !=''">
+            and a.cust_risk = #{cust_risk}
+        </if>
+        <if test="investment_horizon != null and investment_horizon !=''">
+            and a.investment_horizon = #{investment_horizon}
         </if>
         ORDER BY b.simulate_historical_year_performance
     </select>
@@ -147,16 +147,25 @@
     </select>
 
     <select id="getFundGroupHistoryTime" resultType="java.lang.String">
-        select time from fund_group_history where
-        <if test="risk_level != null and risk_level != ''">
-            fund_group_id=#{risk_level}
-        </if>
-        <if test="fund_group_id != null and fund_group_id != ''">
-            fund_group_id=#{fund_group_id}
-        </if>
-        <if test="subGroupId != null and subGroupId != ''">
-            and fund_group_sub_id=#{subGroupId}
-        </if>
+        select time from fund_group_history
+        <where>
+            <if test="fund_group_id != null and fund_group_id != ''">
+                and fund_group_id=#{fund_group_id}
+            </if>
+            <if test="subGroupId != null and subGroupId != ''">
+                and fund_group_sub_id=#{subGroupId}
+            </if>
+        </where>
+        order by time DESC LIMIT 1
+    </select>
+
+    <select id="getFundGroupHistoryTimeByRiskLevel" resultType="java.lang.String">
+        select time from fund_group_history
+        <where>
+            <if test="risk_level != null and risk_level != ''">
+                and fund_group_id=#{risk_level}
+            </if>
+        </where>
         order by time DESC LIMIT 1
     </select>
 
@@ -222,13 +231,15 @@
     </insert>
 
     <update id="updateMaximumRetracement">
-        update fund_group_history set maximum_retracement = #{retracement} where
-        <if test="fund_group_id != null and fund_group_id != ''">
-          fund_group_id = #{fund_group_id} and fund_group_sub_id = #{subGroupId}
-        </if>
-        <if test="risk_level != null and risk_level != ''">
-            fund_group_id = #{risk_level}
-        </if>
+        update fund_group_history set maximum_retracement = #{retracement}
+        where fund_group_id = #{fund_group_id}
+        and fund_group_sub_id = #{subGroupId}
+        and time = #{time}
+    </update>
+
+    <update id="updateMaximumRetracementByRiskLevel">
+        update fund_group_history set maximum_retracement = #{retracement}
+        where fund_group_id = #{risk_level}
         and time = #{time}
     </update>
 
@@ -266,6 +277,7 @@
 
     <select id="selectMaximumRetracement" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupHistory">
         select maximum_retracement from fund_group_history where fund_group_id = #{id} and fund_group_sub_id = #{subId}
+        and maximum_retracement is not null
     </select>
 
     <delete id="deleteData">

@@ -36,33 +36,41 @@ public class FundGroupService {
      * @return
      */
     public FundAllReturn selectAllFundGroup() {
-        List<Interval> fundGroupNum = fundGroupMapper.selectAllFundGroupNum();
-        List<Map<String, Object>> list = new ArrayList<>();
         FundAllReturn far = new FundAllReturn();
-        if (fundGroupNum.size() != 0) {
-            for(Interval interval : fundGroupNum){
-                Map<String, Object> _items = new HashMap<>();
-                Map<String, String> query = new HashMap<>();
-                query.put("fund_group_id", interval.getFund_group_id());
-                List<RiskIncomeInterval> riskIncomeIntervalList = fundGroupMapper.getPerformanceVolatility(query);
-                RiskIncomeInterval riskIncomeInterval = riskIncomeIntervalList.get(riskIncomeIntervalList.size()/2 - 1);
-                query.put("id", riskIncomeInterval.getFund_group_id());
-                query.put("subId", riskIncomeInterval.getId());
-                List<Interval> intervals = fundGroupMapper.getProportion(query);
-                //基金组合内的各基金权重
-                List<Map<String, Object>> listMap = this.intervalListToListMap(intervals);
-                _items.put("assetsRatios", listMap);//组合内各基金权重
-                _items.put("groupId", interval.getFund_group_id());
-                _items.put("subGroupId", riskIncomeInterval.getId());
-                _items.put("name", interval.getFund_group_name());
-                list.add(_items);
-            }
-            far.setName("基金组合");
-            far.set_total(fundGroupNum.size());
-            far.set_items(list);
-            far.set_schemaVersion("0.1.1");
-            far.set_serviceId("资产配置");
+        List<Interval> fundGroupNum = fundGroupMapper.selectAllFundGroupNum();
+        if (CollectionUtils.isEmpty(fundGroupNum)) {
+            return far;
         }
+
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (Interval interval : fundGroupNum) {
+            Map<String, Object> _items = new HashMap<>();
+            Map<String, String> query = new HashMap<>();
+            query.put("fund_group_id", interval.getFund_group_id());
+            List<RiskIncomeInterval> riskIncomeIntervalList = fundGroupMapper.getPerformanceVolatility(query);
+            if (CollectionUtils.isEmpty(riskIncomeIntervalList)) {
+                continue;
+            }
+
+            RiskIncomeInterval riskIncomeInterval = riskIncomeIntervalList.get((riskIncomeIntervalList.size() - 1) / 2);
+            query.remove("fund_group_id");
+            query.put("id", riskIncomeInterval.getFund_group_id());
+            query.put("subId", riskIncomeInterval.getId());
+            List<Interval> intervals = fundGroupMapper.getProportion(query);
+            //基金组合内的各基金权重
+            List<Map<String, Object>> listMap = this.intervalListToListMap(intervals);
+            _items.put("assetsRatios", listMap);//组合内各基金权重
+            _items.put("groupId", interval.getFund_group_id());
+            _items.put("subGroupId", riskIncomeInterval.getId());
+            _items.put("name", interval.getFund_group_name());
+            list.add(_items);
+        }
+        far.setName("基金组合");
+        far.set_total(fundGroupNum.size());
+        far.set_items(list);
+        far.set_schemaVersion("0.1.1");
+        far.set_serviceId("资产配置");
+
         return far;
     }
 
@@ -374,8 +382,25 @@ public class FundGroupService {
      * @param groupId
      * @return
      */
-    public String getCustRiskByGroupId(String groupId) {
-        return fundGroupMapper.getRiskNum(groupId);
+    public Return getCustRiskByGroupId(String groupId) {
+        String riskLevel = fundGroupMapper.getRiskNum(groupId);
+
+        List<Map<String, Object>> list = new ArrayList<>();
+        Map<String, String> _links = new HashMap<>();
+        Map<String, Object> _items = new HashMap<>();
+        _items.put("riskLevel", riskLevel);
+        list.add(_items);
+
+        Return rct = new Return();
+        rct.set_total(1);
+        rct.setProductGroupId(groupId);
+        rct.setName("组合风险等级");
+        rct.set_items(list);
+        rct.set_links(_links);
+        rct.set_schemaVersion("0.1.1");
+        rct.set_serviceId("资产配置");
+
+        return rct;
     }
 
     /**
@@ -440,103 +465,111 @@ public class FundGroupService {
             map.put("investment_horizon", investment_horizon);
         }
         List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getPerformanceVolatility(map);
-        if (riskIncomeIntervals.size() > 0) {
-            RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(riskIncomeIntervals.size() / 2 - 1);
-            aReturn.setName("模拟数据");
-            aReturn.setProductGroupId(riskIncomeInterval.getFund_group_id());
-            aReturn.setProductSubGroupId(riskIncomeInterval.getId());
-            for (int i = 0; i < 4; i++) {
-                Map<String, Object> maps = new HashMap<>();
-                if (i == 0) {
-                    maps.put("id", 1);
-                    maps.put("name", "模拟历史年化业绩");
-                    maps.put("value", riskIncomeInterval.getSimulate_historical_year_performance());
-                } else if (i == 1) {
-                    maps.put("id", 2);
-                    maps.put("name", "模拟历史年化波动率");
-                    maps.put("value", riskIncomeInterval.getSimulate_historical_volatility());
-                } else if (i == 2) {
-                    maps.put("id", 3);
-                    maps.put("name", "置信区间");
-                    maps.put("value", riskIncomeInterval.getConfidence_interval());
-                } else if (i == 3) {
-                    maps.put("id", 4);
-                    maps.put("name", "最大亏损额");
-                    maps.put("value", riskIncomeInterval.getMaximum_losses());
-                }
-                list.add(maps);
-            }
-            aReturn.set_items(list);
-            aReturn.set_links(_links);
-            aReturn.set_schemaVersion("0.1.1");
-            aReturn.set_serviceId("资产配置");
+        if (CollectionUtils.isEmpty(riskIncomeIntervals)) {
+            return aReturn;
         }
+
+        RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get((riskIncomeIntervals.size() - 1) / 2);
+        aReturn.setName("模拟数据");
+        aReturn.setProductGroupId(riskIncomeInterval.getFund_group_id());
+        aReturn.setProductSubGroupId(riskIncomeInterval.getId());
+        for (int i = 0; i < 4; i++) {
+            Map<String, Object> maps = new HashMap<>();
+            if (i == 0) {
+                maps.put("id", 1);
+                maps.put("name", "模拟历史年化业绩");
+                maps.put("value", riskIncomeInterval.getSimulate_historical_year_performance());
+            } else if (i == 1) {
+                maps.put("id", 2);
+                maps.put("name", "模拟历史年化波动率");
+                maps.put("value", riskIncomeInterval.getSimulate_historical_volatility());
+            } else if (i == 2) {
+                maps.put("id", 3);
+                maps.put("name", "置信区间");
+                maps.put("value", riskIncomeInterval.getConfidence_interval());
+            } else if (i == 3) {
+                maps.put("id", 4);
+                maps.put("name", "最大亏损额");
+                maps.put("value", riskIncomeInterval.getMaximum_losses());
+            }
+            list.add(maps);
+        }
+        aReturn.set_items(list);
+        aReturn.set_links(_links);
+        aReturn.set_schemaVersion("0.1.1");
+        aReturn.set_serviceId("资产配置");
+
         return aReturn;
     }
 
     /**
      * 返回历史业绩
-     * @param fund_group_id
+     * @param groupId
      * @param subGroupId
      * @return
      */
-    public PerformanceVolatilityReturn getHistoricalPerformance(String fund_group_id, String subGroupId) {
+    public PerformanceVolatilityReturn getHistoricalPerformance(String groupId, String subGroupId) {
         Map<String, String> _links = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
         PerformanceVolatilityReturn aReturn = new PerformanceVolatilityReturn();
 
         Map<String, Object> query = new HashMap<>();
-        query.put("fund_group_id", fund_group_id);
+        query.put("fund_group_id", groupId);
         query.put("subGroupId", subGroupId);
-        List<FundNetVal> navadjStart = fundGroupMapper.getNavadjStartTime(query);
-        query.put("num", null == navadjStart ? 0 : navadjStart.size());
-        List<FundNetVal> navadjEnd = fundGroupMapper.getNavadjEndTime(query);
+        List<FundNetVal> navadjStartList = fundGroupMapper.getNavadjStartTime(query);
+
+        query.put("num", null == navadjStartList ? 0 : navadjStartList.size());
+        List<FundNetVal> navadjEndList = fundGroupMapper.getNavadjEndTime(query);
         double accumulatedIncome = 0;
-        for (FundNetVal fundNetVal : navadjStart) {
-            for (FundNetVal fundNetVal1 : navadjEnd) {
-                if (fundNetVal.getCode().equalsIgnoreCase(fundNetVal1.getCode()) && fundNetVal.getNavadj() != 0) {
-                    accumulatedIncome += (fundNetVal1.getNavadj() - fundNetVal.getNavadj()) / fundNetVal.getNavadj();
+        for (FundNetVal navadjStart : navadjStartList) {
+            for (FundNetVal navadjEnd : navadjEndList) {
+                if (navadjStart.getCode().equalsIgnoreCase(navadjEnd.getCode()) && navadjStart.getNavadj() != 0) {
+                    accumulatedIncome += (navadjEnd.getNavadj() - navadjStart.getNavadj()) / navadjStart.getNavadj();
                 }else {
-                    accumulatedIncome += fundNetVal1.getNavadj();
+                    accumulatedIncome += navadjEnd.getNavadj();
                 }
             }
         }
+
         List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getPerformanceVolatility(query);
-        if (riskIncomeIntervals.size() > 0) {
-            RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(riskIncomeIntervals.size() / 2 - 1);
-            aReturn.setName("模拟数据");
-            aReturn.setProductGroupId(riskIncomeInterval.getFund_group_id());
-            aReturn.setProductSubGroupId(riskIncomeInterval.getId());
-            for (int i = 0; i < 5; i++) {
-                Map<String, Object> maps = new HashMap<>();
-                if (i == 0) {
-                    maps.put("id", 1);
-                    maps.put("name", "累计收益");
-                    maps.put("value", accumulatedIncome);
-                } else if (i == 1) {
-                    maps.put("id", 2);
-                    maps.put("name", "年化收益");
-                    maps.put("value", riskIncomeInterval.getIncome_num());
-                } else if (i == 2) {
-                    maps.put("id", 3);
-                    maps.put("name", "最大回撤");
-                    maps.put("value", riskIncomeInterval.getRisk_num());
-                } else if (i == 3) {
-                    maps.put("id", 4);
-                    maps.put("name", "年化收益/最大回撤");
-                    maps.put("value", Math.abs(riskIncomeInterval.getIncome_num() / riskIncomeInterval.getRisk_num()));
-                } else if (i == 4) {
-                    maps.put("id", 4);
-                    maps.put("name", "夏普比率");
-                    maps.put("value", riskIncomeInterval.getSharpe_ratio());
-                }
-                list.add(maps);
-            }
-            aReturn.set_items(list);
-            aReturn.set_links(_links);
-            aReturn.set_schemaVersion("0.1.1");
-            aReturn.set_serviceId("资产配置");
+        if (CollectionUtils.isEmpty(riskIncomeIntervals)) {
+            return aReturn;
         }
+
+        RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get((riskIncomeIntervals.size() - 1) / 2);
+        aReturn.setName("模拟数据");
+        aReturn.setProductGroupId(riskIncomeInterval.getFund_group_id());
+        aReturn.setProductSubGroupId(riskIncomeInterval.getId());
+        for (int i = 0; i < 5; i++) {
+            Map<String, Object> maps = new HashMap<>();
+            if (i == 0) {
+                maps.put("id", 1);
+                maps.put("name", "累计收益");
+                maps.put("value", accumulatedIncome);
+            } else if (i == 1) {
+                maps.put("id", 2);
+                maps.put("name", "年化收益");
+                maps.put("value", riskIncomeInterval.getIncome_num());
+            } else if (i == 2) {
+                maps.put("id", 3);
+                maps.put("name", "最大回撤");
+                maps.put("value", riskIncomeInterval.getRisk_num());
+            } else if (i == 3) {
+                maps.put("id", 4);
+                maps.put("name", "年化收益/最大回撤");
+                maps.put("value", Math.abs(riskIncomeInterval.getIncome_num() / riskIncomeInterval.getRisk_num()));
+            } else if (i == 4) {
+                maps.put("id", 4);
+                maps.put("name", "夏普比率");
+                maps.put("value", riskIncomeInterval.getSharpe_ratio());
+            }
+            list.add(maps);
+        }
+        aReturn.set_items(list);
+        aReturn.set_links(_links);
+        aReturn.set_schemaVersion("0.1.1");
+        aReturn.set_serviceId("资产配置");
+
         return aReturn;
     }
 
@@ -1072,8 +1105,7 @@ public class FundGroupService {
      */
     public void getNavadj(String group_id, String subGroupId) {
         logger.info("getNavadj begin");
-        Date date = new Date();
-        Calendar ca = Calendar.getInstance();
+
         Map<String, Object> query = new HashMap<>();
         query.put("fund_group_id", group_id);
         query.put("subGroupId", subGroupId);
@@ -1097,26 +1129,37 @@ public class FundGroupService {
             }
         }
 
-        try {
-            if (StringUtils.isEmpty(endTime)) {
-                endTime = fundGroupMapper.getGroupStartTime(query);
-            }
-            query.put("startTime", endTime);
-            for ( ; date.getTime() > DateUtil.getDateFromFormatStr(groupStartTime).getTime(); ) {
-                query.put("endTime", DateUtil.formatDate(ca.getTime()));
-                list = fundGroupMapper.getNavadj(query);
-                double maximum_retracement = getNavadjList(list);
-                query.put("retracement", maximum_retracement);
-                query.put("time", DateUtil.formatDate(date));
-                fundGroupMapper.updateMaximumRetracement(query);
-                ca.setTime(date);
-                ca.add(Calendar.DATE,-1);
-                date = ca.getTime();
-            }
-        } catch (Exception e) {
-            logger.error("getNavadj:"+ e.getMessage());
-            e.printStackTrace();
+        if (StringUtils.isEmpty(endTime)) {
+            endTime = fundGroupMapper.getGroupStartTime(query);
         }
+        query.put("startTime", endTime);
+
+        logger.info("groupStartTime: " + groupStartTime);
+        logger.info("endTime: " + endTime);
+
+        Calendar ca = Calendar.getInstance();
+        Date date = new Date();
+        Date groupStartDate = DateUtil.getDateFromFormatStr(groupStartTime);
+        for ( ; date.getTime() > groupStartDate.getTime(); ) {
+            query.put("endTime", DateUtil.formatDate(ca.getTime()));
+            list = fundGroupMapper.getNavadj(query);
+
+            double maximum_retracement = this.getNavadjList(list);
+
+            Map<String, Object> updateParam = new HashMap<>();
+            updateParam.put("fund_group_id", group_id);
+            updateParam.put("subGroupId", subGroupId);
+            updateParam.put("retracement", maximum_retracement);
+            updateParam.put("time", DateUtil.formatDate(date));
+            logger.info("updateMaximumRetracement begin");
+            fundGroupMapper.updateMaximumRetracement(updateParam);
+            logger.info("updateMaximumRetracement end");
+
+            ca.setTime(date);
+            ca.add(Calendar.DATE,-1);
+            date = ca.getTime();
+        }
+
         logger.info("getNavadj end");
     }
 
@@ -1126,11 +1169,13 @@ public class FundGroupService {
      * @param risk_level
      */
     public void getNavadjBenchmark(String risk_level) {
+        logger.info("getNavadjBenchmark begin");
+
         Calendar ca = Calendar.getInstance();
         Date date = new Date();
         Map<String, Object> query = new HashMap<>();
         query.put("risk_level", risk_level);
-        String groupStartTime = fundGroupMapper.getFundGroupHistoryTime(query);
+        String groupStartTime = fundGroupMapper.getFundGroupHistoryTimeByRiskLevel(query);
         String endTime = null;
         if (StringUtils.isEmpty(groupStartTime)) {
             ca.setTime(date);
@@ -1152,27 +1197,33 @@ public class FundGroupService {
             }
         }
 
-        try {
-            if (StringUtils.isEmpty(endTime)) {
-                ca.setTime(date);
-                ca.add(Calendar.YEAR, -3);
-                endTime = DateUtil.formatDate(ca.getTime());
-            }
-            query.put("startTime", endTime);
-            for ( ; date.getTime() > DateUtil.getDateFromFormatStr(groupStartTime).getTime(); ) {
-                query.put("endTime", DateUtil.formatDate(date));
-                list = fundGroupMapper.getNavadjBenchmark(query);
-                double maximum_retracement = getNavadjList(list);
-                query.put("retracement", maximum_retracement);
-                query.put("time", DateUtil.formatDate(date));
-                fundGroupMapper.updateMaximumRetracement(query);
-                ca.setTime(date);
-                ca.add(Calendar.DATE,-1);
-                date = ca.getTime();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (StringUtils.isEmpty(endTime)) {
+            ca.setTime(date);
+            ca.add(Calendar.YEAR, -3);
+            endTime = DateUtil.formatDate(ca.getTime());
         }
+        query.put("startTime", endTime);
+
+        logger.info("groupStartTime: " + groupStartTime);
+        logger.info("endTime: " + endTime);
+
+        Date groupStartDate = DateUtil.getDateFromFormatStr(groupStartTime);
+        for ( ; date.getTime() > groupStartDate.getTime(); ) {
+            query.put("endTime", DateUtil.formatDate(date));
+            list = fundGroupMapper.getNavadjBenchmark(query);
+
+            double maximum_retracement = this.getNavadjList(list);
+
+            query.put("retracement", maximum_retracement);
+            query.put("time", DateUtil.formatDate(date));
+            fundGroupMapper.updateMaximumRetracementByRiskLevel(query);
+
+            ca.setTime(date);
+            ca.add(Calendar.DATE,-1);
+            date = ca.getTime();
+        }
+
+        logger.info("getNavadjBenchmark end");
     }
 
     /**
@@ -1221,10 +1272,23 @@ public class FundGroupService {
             return effectRow;
         }
 
-        Double[] asset = new Double[fundNetValList.size()];
-        for (int i = 0; i < fundNetValList.size(); i++) {
-            asset[i] = fundNetValList.get(i).getNavadj();
+        List<FundNetVal> filteredFundNetVals = new ArrayList<>();
+        for (FundNetVal fundNetVal : fundNetValList) {
+            if (null == fundNetVal) {
+                continue;
+            }
+            filteredFundNetVals.add(fundNetVal);
         }
+        if (CollectionUtils.isEmpty(filteredFundNetVals)) {
+            return effectRow;
+        }
+
+        Double[] asset = new Double[filteredFundNetVals.size()];
+        int i = 0;
+        for (FundNetVal fundNetVal : filteredFundNetVals) {
+            asset[i++] = fundNetVal.getNavadj();
+        }
+
         double sharpeRatio = Double.parseDouble(MVO.sharpeRatio(asset, cash).toString());
         Map<String, Object> update = new HashMap<>();
         update.put("id", subGroupId);
@@ -1329,7 +1393,7 @@ public class FundGroupService {
         List<FundGroupHistory> maximumRetracement = fundGroupMapper.selectMaximumRetracement(map);
         double retracement = 0d;
         for (FundGroupHistory fundGroupHistory : maximumRetracement) {
-            if (retracement > fundGroupHistory.getMaximum_retracement()) {
+            if (null != fundGroupHistory && retracement > fundGroupHistory.getMaximum_retracement()) {
                 retracement = fundGroupHistory.getMaximum_retracement();
             }
         }
@@ -1345,7 +1409,9 @@ public class FundGroupService {
     /**
      * 计算所有组合中基金收益贡献比
      */
-    public void contribution(){
+    public void contribution() {
+        logger.info("contribution begin");
+
         List<Interval> intervals = fundGroupMapper.getAllIdAndSubId();
         for (Interval interval : intervals) {
             Map<String, Object> query = new HashMap<>();
@@ -1381,5 +1447,7 @@ public class FundGroupService {
                 }
             }
         }
+
+        logger.info("contribution end");
     }
 }

@@ -23,7 +23,7 @@ import java.util.*;
 public class FundGroupServiceTest {
 
     @Autowired
-    private FundGroupService allocationService;
+    private FundGroupService fundGroupService;
     @Autowired
     private FinanceProductServiceImpl financeProductService;
 
@@ -73,57 +73,57 @@ public class FundGroupServiceTest {
 
     @Test
     public void getProductTest() {
-        FundAllReturn fundAllReturn = allocationService.selectAllFundGroup();
+        FundAllReturn fundAllReturn = fundGroupService.selectAllFundGroup();
     }
 
     @Test
     public void selectByIdTest() {
-        FundReturn fundReturn = allocationService.selectById("2", "2000");
+        FundReturn fundReturn = fundGroupService.selectById("2", "2000");
     }
 
     @Test
     public void selectReturnAndPullbackTest() {
-        Map<String, Object> map = allocationService.selectReturnAndPullback("1", "1", "1");
+        Map<String, Object> map = fundGroupService.selectReturnAndPullback("1", "1", "1");
     }
 
     @Test
     public void getRevenueContributionTest() {
-        ReturnType revenueContributionReturn = allocationService.getRevenueContribution("1", "1");
+        ReturnType revenueContributionReturn = fundGroupService.getRevenueContribution("1", "1");
     }
 
     @Test
     public void efficientFrontierTest() {
-        ReturnType revenueContributionReturn = allocationService.efficientFrontier("1");
+        ReturnType revenueContributionReturn = fundGroupService.efficientFrontier("1");
     }
 
     @Test
     public void getIntervalTest() {
-        FundReturn fundReturn = allocationService.getInterval("1", "0.13", "0.15");
+        FundReturn fundReturn = fundGroupService.getInterval("1", "0.13", "0.15");
     }
 
     @Test
     public void getRiskControllerTest() {
-        ReturnType revenueContributionReturn = allocationService.getRiskController("1", "2");
+        ReturnType revenueContributionReturn = fundGroupService.getRiskController("1", "2");
     }
 
     @Test
     public void getmeansAndNoticesRetrunTest() {
-        ReturnType revenueContributionReturn = allocationService.getMeansAndNoticesReturn();
+        ReturnType revenueContributionReturn = fundGroupService.getMeansAndNoticesReturn();
     }
 
     @Test
     public void getPerformanceVolatilityTest() {
-        PerformanceVolatilityReturn performanceVolatilityReturn = allocationService.getPerformanceVolatility( "C1", "1");
+        PerformanceVolatilityReturn performanceVolatilityReturn = fundGroupService.getPerformanceVolatility( "C1", "1");
     }
 
     @Test
     public void getScaleMarkTest() {
-        ReturnType revenueContributionReturn = allocationService.getScaleMark("1", "risk");
+        ReturnType revenueContributionReturn = fundGroupService.getScaleMark("1", "risk");
     }
 
     @Test
     public void getFundGroupIncomeTest() throws ParseException {
-        ReturnType e = allocationService.getFundGroupIncomeAll("14", "140049", "income");
+        ReturnType e = fundGroupService.getFundGroupIncomeAll("14", "140049", "income");
         System.out.println(e);
     }
 
@@ -137,41 +137,53 @@ public class FundGroupServiceTest {
 
     @Test
     public void getAllIdAndSubIdTest() {
-        allocationService.getAllIdAndSubId();
+        fundGroupService.getAllIdAndSubId();
     }
 
     @Test
     public void getNavadjTest() {
-        allocationService.getNavadj("1","1000");
+        fundGroupService.getNavadj("1","1000");
     }
 
     @Test
     public void updateExpectedMaxRetracementTest() {
-        allocationService.updateExpectedMaxRetracement("1","1000");
+        fundGroupService.updateExpectedMaxRetracement("1","1000");
     }
 
     @Test
     public void maximumLossesTest() {
-        allocationService.maximumLosses("1","1000");
+        fundGroupService.maximumLosses("1","1000");
+    }
+
+    @Test
+    public void updateAllMaximumLossesTest() {
+        fundGroupService.updateAllMaximumLosses();
     }
 
     @Test
     public void getNavadjBenchmarkTest() {
-        allocationService.getNavadjBenchmark("C1");
-        allocationService.getNavadjBenchmark("C2");
-        allocationService.getNavadjBenchmark("C3");
-        allocationService.getNavadjBenchmark("C4");
-        allocationService.getNavadjBenchmark("C5");
+        fundGroupService.getNavadjBenchmark("C1");
+        fundGroupService.getNavadjBenchmark("C2");
+        fundGroupService.getNavadjBenchmark("C3");
+        fundGroupService.getNavadjBenchmark("C4");
+        fundGroupService.getNavadjBenchmark("C5");
     }
 
     @Test
     public void sharpeRatioTest() {
-        int effectRow = allocationService.sharpeRatio("3","30089");
+        int effectRow = fundGroupService.sharpeRatio("3","30089");
         System.out.println(effectRow);
     }
 
     @Test
     public void contributionTest() {
-        allocationService.contribution();
+        fundGroupService.contribution();
+    }
+
+    @Test
+    public void getCustRiskByGroupIdTest() {
+        String groupId = "5";
+        Return rt = fundGroupService.getCustRiskByGroupId(groupId);
+        System.out.println(rt);
     }
 }

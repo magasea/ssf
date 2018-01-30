@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
 import com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil;
+import com.shellshellfish.aaas.assetallocation.neo.util.DateUtil;
 import com.shellshellfish.aaas.assetallocation.service.FundInfoService;
 import com.shellshellfish.aaas.common.utils.SSFDateUtils;
 import com.shellshellfish.aaas.datacollect.DailyFunds;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,7 +35,7 @@ public class DailyFundService {
     @Autowired
     FundInfoService fundInfoService;
 
-    private static final Logger logger= LoggerFactory.getLogger(DailyFundService.class);
+    private static final Logger logger = LoggerFactory.getLogger(DailyFundService.class);
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -100,8 +100,8 @@ public class DailyFundService {
                 Dailyfunds dailyfunds = new Dailyfunds();
                 dailyfunds.setCode(dailyFundsList.get(0).getCode());//基金代码
                 dailyfunds.setFname(dailyFundsList.get(0).getFname());//基金简称
-                dailyfunds.setFundTypeOne(dailyFundsList.get(dailyFundsList.size()-1).getFirstInvestType());//一级分类
-                dailyfunds.setFundTypeTwo(dailyFundsList.get(dailyFundsList.size()-1).getSecondInvestType());//二级分类
+                dailyfunds.setFundTypeOne(dailyFundsList.get(dailyFundsList.size() - 1).getFirstInvestType());//一级分类
+                dailyfunds.setFundTypeTwo(dailyFundsList.get(dailyFundsList.size() - 1).getSecondInvestType());//二级分类
                 fundNetValMapper.insertBasicDataToFundBasic(dailyfunds);
                 logger.debug("Succeed: Insert into fund_basic by call getFundDataOfDay!");
             }
@@ -115,37 +115,24 @@ public class DailyFundService {
             for (DailyFunds dailyFunds : dailyFundsList) {
                 Dailyfunds dailyfunds = new Dailyfunds();
                 //每日数据日期格式转换(取 NavLatestDate)
-                try {
-                    dailyfunds.setNavLatestDate(sdf.parse(SSFDateUtils.getDateStrFromLong(dailyFunds.getNavLatestDate())));
-                } catch (ParseException e) {
-                    logger.error("日期数据转换失败");
-                    e.printStackTrace();
-                }
+                dailyfunds.setNavLatestDate(DateUtil.getDateFromFormatStr(SSFDateUtils.getDateStrFromLong(dailyFunds.getNavLatestDate())));
                 dailyfunds.setCode(dailyFunds.getCode());
                 dailyfunds.setNavUnit(dailyFunds.getNavunit());
                 dailyfunds.setNavAccum(dailyFunds.getNavaccum());
                 dailyfunds.setNavAdj(dailyFunds.getNavadj());
                 dailyfunds.setCreateDate(new Date());
-
                 dailyFundsDetailList.add(dailyfunds);
             }
         } else {
             for (DailyFunds dailyFunds : dailyFundsList) {
                 Dailyfunds dailyfunds = new Dailyfunds();
                 //每日数据日期格式转换(取 Querydate)
-                try {
-                    dailyfunds.setNavLatestDate(sdf.parse(SSFDateUtils.getDateStrFromLong(dailyFunds.getQuerydate())));
-                } catch (ParseException e) {
-                    logger.error("日期数据转换失败");
-                    e.printStackTrace();
-                }
-
+                dailyfunds.setNavLatestDate(DateUtil.getDateFromFormatStr(SSFDateUtils.getDateStrFromLong(dailyFunds.getQuerydate())));
                 dailyfunds.setCode(dailyFunds.getCode());
                 dailyfunds.setNavUnit(dailyFunds.getNavunit());
                 dailyfunds.setNavAccum(dailyFunds.getNavaccum());
                 dailyfunds.setNavAdj(dailyFunds.getNavadj());
                 dailyfunds.setCreateDate(new Date());
-
                 dailyFundsDetailList.add(dailyfunds);
             }
         }
@@ -165,6 +152,5 @@ public class DailyFundService {
 
         return doSuccess;
     }
-
 
 }

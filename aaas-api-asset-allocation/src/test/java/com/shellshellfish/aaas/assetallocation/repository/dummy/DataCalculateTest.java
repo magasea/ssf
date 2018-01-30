@@ -40,7 +40,7 @@ public class DataCalculateTest {
      *
      */
     @Test
-    public void insertDailyFundTest(){
+    public void insertDailyFundTest() {
 //        String code="000905SH";
 //        String startDate="2017-12-20";
 //        String endDate="2018-01-12";
@@ -53,22 +53,22 @@ public class DataCalculateTest {
      * 计算每周的收益率以及风险率,insert into table:fund_calculate_data_week
      */
     @Test
-    public void calculateDataOfWeekTest(){
+    public void calculateDataOfWeekTest() {
         fundCalculateService.calculateDataOfWeek();
     }
 
     @Test
-    public void insertFundGroupDataTest(){
+    public void insertFundGroupDataTest() {
         fundGroupDataService.insertFundGroupData();
     }
 
     @Test
-    public void calculateCovarianceOfWeekTest(){
+    public void calculateCovarianceOfWeekTest() {
         covarianceCalculateService.calculateCovarianceOfWeek();
     }
 
     @Test
-    public void calculateMaxdrawdownTest(){
+    public void calculateMaxdrawdownTest() {
         double[] netValueArr = {0.0,1.0,2.0,3,10,7};
         Double maxdrawdown = CalculateMaxdrawdowns.calculateMaxdrawdown(netValueArr);
         System.out.println(maxdrawdown);
