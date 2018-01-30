@@ -115,22 +115,52 @@ public class FinanceProductServiceImpl  extends
     query.put("id",id);
     query.put("subGroupId",subGroupId);
     List<Interval> intervalList = fundGroupMapper.selectById(query);
+    Map<String, Integer> shareOfCodes = new HashMap<>();
     if (intervalList.size()>0){
       for (Interval interval : intervalList) {
         ProductMakeUpInfo productMakeUpInfo = new ProductMakeUpInfo();
         productMakeUpInfo.setFundCode(interval.getFund_id());
         productMakeUpInfo.setGroupId(Long.parseLong(interval.getFund_group_id()));
-
-        Integer result = Double.valueOf(interval.getProportion()*10000).intValue();
-        logger.info("fundShare:" + interval.getProportion() + "result:"+result);
+        Integer result = Long.valueOf(Math.round(Double.valueOf(interval.getProportion()*100000)
+            /10D)).intValue();
+        if(result > 0){
+          shareOfCodes.put(interval.getFund_id(), result);
+        }
+        logger.info("before adjust fundShare of: "+interval.getFund_id()+" :" + interval
+            .getProportion() + "result:"+result);
         productMakeUpInfo.setFundShare(result);
         productMakeUpInfo.setProdName(interval.getFund_group_name());
         productMakeUpInfo.setProdId(Long.parseLong(interval.getFund_group_sub_id()));
-
         productMakeUpInfo.setFundName(interval.getFname());
         productMakeUpInfos.add(productMakeUpInfo);
       }
+      adjustShareOfCode(shareOfCodes);
+      for(ProductMakeUpInfo productMakeUpInfo: productMakeUpInfos){
+        if(shareOfCodes.containsKey(productMakeUpInfo.getFundCode())){
+          productMakeUpInfo.setFundShare(shareOfCodes.get(productMakeUpInfo.getFundCode()));
+        }
+        logger.info("after adjust fundShare:" + productMakeUpInfo.getFundShare() + " of "
+            + "fundCode:"+ productMakeUpInfo.getFundCode());
+      }
     }
     return productMakeUpInfos;
+  }
+
+  /**
+   * 里面的value加起来为10000
+   * 请倒霉的最后的一个code
+   * @param shareOfCodes
+   */
+  private void adjustShareOfCode(Map<String, Integer> shareOfCodes){
+    Object[] keys = shareOfCodes.keySet().toArray();
+    Integer total = 10000;
+    Integer remain = 0;
+    for(int idx = 0; idx < keys.length; idx ++){
+      if(idx == keys.length -1){
+        shareOfCodes.put((String)keys[idx], remain);
+      }else{
+        remain = total - shareOfCodes.get(keys[idx]);
+      }
+    }
   }
 }

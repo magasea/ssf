@@ -38,7 +38,7 @@ public class UserFinanceProdCalcServiceImplTest {
     private UserFinanceProdCalcService userFinanceProdCalcService;
 
     @Autowired
-    @Qualifier("secondaryMongoTemplate")
+    @Qualifier("zhongZhengMongoTemplate")
     private MongoTemplate mongoTemplate;
 
     private List<String> fundCodeList = Arrays.asList("000614",

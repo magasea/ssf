@@ -301,8 +301,4 @@ public class FundNAVInfo {
 			return date.replace('\\', '-');
 		return date;
 	}
-
-	public static void main(String[] args) {
-		System.out.println(dateFormat("2017/05/02"));
-	}
 }

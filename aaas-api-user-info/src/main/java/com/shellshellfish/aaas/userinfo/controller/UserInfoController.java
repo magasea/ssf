@@ -1,8 +1,45 @@
 package com.shellshellfish.aaas.userinfo.controller;
 
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
+import com.shellshellfish.aaas.userinfo.aop.AopPageResources;
+import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
+import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
+import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.BankcardDetailBodyDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfoDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPersonalMsgBodyDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import com.shellshellfish.aaas.userinfo.service.OpenAccountService;
+import com.shellshellfish.aaas.userinfo.service.UiProductService;
+import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
+import com.shellshellfish.aaas.userinfo.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.utils.BankUtil;
+import com.shellshellfish.aaas.userinfo.utils.DateUtil;
+import com.shellshellfish.aaas.userinfo.utils.PageWrapper;
+import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -20,7 +57,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,92 +65,60 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
-import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
-import com.shellshellfish.aaas.userinfo.aop.AopPageResources;
-import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
-import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
-import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.BankcardDetailBodyDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfoDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPersonalMsgBodyDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
-import com.shellshellfish.aaas.userinfo.service.UiProductService;
-import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
-import com.shellshellfish.aaas.userinfo.service.UserInfoService;
-import com.shellshellfish.aaas.userinfo.utils.BankUtil;
-import com.shellshellfish.aaas.userinfo.utils.DateUtil;
-import com.shellshellfish.aaas.userinfo.utils.PageWrapper;
-import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
-
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
 @RestController
 @RequestMapping("/api/userinfo")
 public class UserInfoController {
 
 	public static final Logger logger = LoggerFactory.getLogger(UserInfoController.class);
-	
-	public static String URL_HEAD="/api/userinfo";
+
+	public static String URL_HEAD = "/api/userinfo";
 	@Autowired
 	UserInfoService userInfoService;
-	
+
 	@Autowired
 	UserInfoRepoService userInfoRepoService;
-	
+
 	@Autowired
 	UserFinanceProdCalcService userFinanceProdCalcService;
-	
+
 	@Autowired
 	UiProductService uiProductService;
+
+
+	@Autowired
+	OpenAccountService openAccountService;
+
 	/**
 	 * 我的 初始页面
-	 * @param id
-	 * @param userId
-	 * @return
 	 */
 	@ApiOperation("我的 初始页面")
 	@ApiResponses({
-		@ApiResponse(code=200,message="OK"),
-        @ApiResponse(code=400,message="请求参数没填好"),
-        @ApiResponse(code=401,message="未授权用户"),        				
-		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
-		@ApiResponse(code=404,message="请求路径没有或页面跳")   
-    })
+			@ApiResponse(code = 200, message = "OK"),
+			@ApiResponse(code = 400, message = "请求参数没填好"),
+			@ApiResponse(code = 401, message = "未授权用户"),
+			@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+			@ApiResponse(code = 404, message = "请求路径没有或页面跳")
+	})
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="userUuid",defaultValue="")
+			@ApiImplicitParam(paramType = "path", name = "userUuid", dataType = "String", required = true, value = "userUuid", defaultValue = "")
 	})
 	@RequestMapping(value = "/users/{userUuid}/initpage", method = RequestMethod.GET)
 	@AopLinkResources
 	public ResponseEntity<Object> getUserBaseInfo(
-			@Valid @NotNull(message="userUuid不能为空") @PathVariable("userUuid") String userUuid
-			) throws Exception {
+			@Valid @NotNull(message = "userUuid不能为空") @PathVariable("userUuid") String userUuid
+	) throws Exception {
 		System.out.println("userUuid is " + userUuid);
 		logger.info("getUserBaseInfo method run..");
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
 		Map<String, Object> selfmap = new HashMap<>();
-		selfmap.put("href", URL_HEAD+"/users/"+userUuid+"/initpage");
-		selfmap.put("describedBy","schema//"+URL_HEAD+"/users/"+userUuid+"/initpage.json");
-		
-		List<BankCardDTO> bankCards =  userInfoService.getUserInfoBankCards(userUuid);
-		UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
+		selfmap.put("href", URL_HEAD + "/users/" + userUuid + "/initpage");
+		selfmap.put("describedBy", "schema//" + URL_HEAD + "/users/" + userUuid + "/initpage.json");
+
+		List<BankCardDTO> bankCards = userInfoService.getUserInfoBankCards(userUuid);
+		UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService
+				.getUserInfoAssectsBrief(userUuid);
 		List<UserPortfolioDTO> userPortfolios = userInfoService.getUserPortfolios(userUuid);
 		UserBaseInfoDTO userBaseInfo = userInfoService.getUserInfoBase(userUuid);
 
@@ -193,9 +197,6 @@ public class UserInfoController {
 
 	/**
 	 * 个人信息 页面
-	 *
-	 * @param id
-	 * @return
 	 */
 	@ApiOperation("个人信息 页面")
 	@ApiResponses({
@@ -267,8 +268,6 @@ public class UserInfoController {
 	
 	/**
 	 * 银行卡 添加银行卡  下一步 初始页面
-	 * @param cardNumber
-	 * @return
 	 */
 	@ApiOperation("银行卡 添加银行卡 下一步 初始页面")
 	@ApiResponses({ 
@@ -374,10 +373,6 @@ public class UserInfoController {
 
 	/**
 	 * 添加银行卡	提交action
-	 * @param id
-	 * @param bankcardDetailVo
-	 * @return
-	 * @throws Exception
 	 */
 	@ApiOperation("银行卡 添加银行卡 提交")
 	@ApiResponses({
@@ -395,58 +390,26 @@ public class UserInfoController {
 	public ResponseEntity<Map> addBankCardWithDetailInfo(
 			@Valid @NotNull(message = "不能为空") @PathVariable("userUuid") String userUuid,
 			@RequestBody BankcardDetailBodyDTO bankcardDetailVo) throws Exception {
-		logger.info("addBankCardWithDetailInfo method run..");
+
+		bankcardDetailVo.setUserUuid(userUuid);
+		BankCardDTO bankCard = openAccountService.createBankCard(bankcardDetailVo);
 		Map<String, Object> result = new HashMap<>();
-		ObjectMapper mapper = new ObjectMapper();
-		// Convert POJO to Map
-		Map<String, Object> params = mapper.convertValue(bankcardDetailVo, new TypeReference<Map<String, Object>>() {
-		});
-		params.put("userUuid", userUuid);
-		Object object = params.get("bankName");
-		if(object==null||"".equals(object)){
-			object = BankUtil.getNameOfBank(params.get("cardNumber").toString());
-			if(StringUtils.isEmpty(object)){
-				throw new UserInfoException("404","银行卡号不正确");
-			}
-		}
-		params.put("bankName", object.toString());
-		if (CollectionUtils.isEmpty(params)) {
-			throw new ServletRequestBindingException("no cardNumber in params");
-		}
-		params.forEach((k, v) -> {
-			if (null == v || StringUtils.isEmpty(v.toString())) {
-				throw new IllegalArgumentException("no " + k.toString() + "'s value in params");
-			}
-		});
-		
-		BankCardDTO bankIsExist  =  userInfoService.getUserInfoBankCard(bankcardDetailVo.getCardNumber());
-		if(bankIsExist != null && bankIsExist.getCardNumber()!=null){
-			throw new UserInfoException("404","银行卡号已经存在，请重新输入");
-		}
-		BankCardDTO bankCard = userInfoService.createBankcard(params);
 		if (bankCard == null) {
 			logger.error("addBankCardWithDetailInfo method 添加失败..");
 //			return new ResponseEntity<Object>(
 //					URL_HEAD + "/users/" + userUuid + "/bankcardpage?cardNumber=" + bankcardDetailVo.getCardNumber(),
 //					HttpStatus.NO_CONTENT);
 			result.put("msg", "添加失败");
-			return new ResponseEntity<Map>(result,HttpStatus.NO_CONTENT);
-		} else {
-			//return new ResponseEntity<Object>(URL_HEAD + "/initpage", HttpStatus.OK);
-//			String code = BankUtil.getCodeOfBank(bankCard.getCardNumber());
-//			result.put("code", code);
-			logger.info("addBankCardWithDetailInfo method 添加成功..");
-			result.put("status", "添加成功");
-			return new ResponseEntity<Map>(result, HttpStatus.OK);
+			return new ResponseEntity<>(result, HttpStatus.NO_CONTENT);
 		}
+
+		logger.info("addBankCardWithDetailInfo method 添加成功..  bankCard:{}",bankCard);
+		result.put("status", "添加成功");
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
-	
+
 	/**
 	 * 银行查看
-	 * @param id
-	 * @param bankcardDetailVo
-	 * @return
-	 * @throws Exception
 	 */
 	@ApiOperation("银行查看")
 	@ApiResponses({
@@ -477,10 +440,6 @@ public class UserInfoController {
 
 	/**
 	 * 列出银行卡
-	 * @param id
-	 * @param bankcardDetailVo
-	 * @return
-	 * @throws Exception
 	 */
 	@ApiOperation("用户的银行卡集合")
 	@ApiResponses({
@@ -529,10 +488,12 @@ public class UserInfoController {
 				Map<String,Object> map = new HashMap();
 				BankCardDTO bankCard = bankCards.get(i);
 				map.put("cellphone",bankCard.getCellphone());
-				map.put("bankName",bankCard.getBankName());
+				String bankName = bankCard.getBankName(); 
+				map.put("bankName",bankName);
 				map.put("bankType","储蓄卡");
 				map.put("bankcardSecurity",getBankcardNumber(bankCard.getCardNumber()));
 				map.put("bankcardNum",bankCard.getCardNumber());
+				map.put("bankShortName",bankName.substring(0, bankName.indexOf("·")));
 				map.put("bankCode",BankUtil.getCodeOfBank(bankCard.getCardNumber()));
 				bankList.add(map);
 			}
@@ -545,10 +506,6 @@ public class UserInfoController {
 	
 	/**
 	 * 支持的银行卡
-	 * @param id
-	 * @param bankcardDetailVo
-	 * @return
-	 * @throws Exception
 	 */
 	@ApiOperation("支持的银行卡查看")
 	@ApiResponses({
@@ -586,10 +543,6 @@ public class UserInfoController {
 	
 	/**
 	 * 我的消息
-	 * @param id
-	 * @param bankcardDetailVo
-	 * @return
-	 * @throws Exception
 	 */
 	@ApiOperation("我的消息")
 	@ApiResponses({
@@ -634,10 +587,6 @@ public class UserInfoController {
 
 	/**
 	 * 个人资产总览 首页
-	 * @param id
-	 * @param params
-	 * @return
-	 * @throws Exception
 	 */
 	@ApiOperation("个人资产总览")
 	@ApiResponses({
@@ -845,12 +794,6 @@ public class UserInfoController {
 
 	/**
 	 * 交易记录
-	 * @param userUuid
-	 * @param pageNum
-	 * @param pageSize
-	 * @param sortField
-	 * @return
-	 * @throws Exception
 	 */
 	@ApiOperation("交易记录")
 	@ApiResponses({
@@ -1267,11 +1210,6 @@ public class UserInfoController {
 	
 	/**
 	 * 查看UIUser表信息
-	 * @param userUuid
-	 * @param cellphone
-	 * @param isTestFlag
-	 * @return
-	 * @throws Exception
 	 */
 	@RequestMapping(value = "/users/telnums/{cellphone}", method = RequestMethod.GET)
 	public ResponseEntity<Map> getUiUser(
@@ -1320,9 +1258,6 @@ public class UserInfoController {
 	
 	/**
 	 * 登录首页信息（我的消息和银行卡数量）
-	 * @param cardNumber
-	 * @return
-	 * @throws Exception 
 	 */
 	@ApiOperation("我的数量统计")
 	@ApiResponses({
@@ -1381,7 +1316,7 @@ public class UserInfoController {
 			resultMap.put("dailyReturn", 0);
 			resultMap.put("dailyIncomeRate", 0);
 			resultMap.put("totalIncomeRate", "0");
-			resultMap.put("totalIncome", "0");
+			resultMap.put("totalIncome", 0);
 		}
 		
 		//累计收益
@@ -1472,12 +1407,6 @@ public class UserInfoController {
 	
 	/**
 	 * 交易记录
-	 * @param userUuid
-	 * @param pageNum
-	 * @param pageSize
-	 * @param sortField
-	 * @return
-	 * @throws Exception
 	 */
 	@ApiOperation("交易记录")
 	@ApiResponses({
@@ -1496,52 +1425,121 @@ public class UserInfoController {
 			) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
 		logger.info("getTradLogsOfUser method run..");
-		List<TradeLogDTO> tradeLogList = userInfoService.findByUserId(userUuid);
+		List<MongoUiTrdLogDTO> tradeLogList = userInfoService.getTradeLogs(userUuid);
 		List<Map<String,Object>> tradeLogs = new ArrayList<Map<String,Object>>();
 		if(tradeLogList==null||tradeLogList.size()==0){
 			throw new UserInfoException("404", "交易记录为空");
 		}
 		Map<String,Object> map = null;
-		TradeLogDTO tradeLog = new TradeLogDTO();
-		for (int i = 0; i < tradeLogList.size(); i++) {
+		MongoUiTrdLogDTO tradeLog = new MongoUiTrdLogDTO();
+		for(MongoUiTrdLogDTO mongoUiTrdLogDTO: tradeLogList){
 			map = new HashMap<String, Object>();
-			tradeLog = tradeLogList.get(i);
-			map.put("amount", tradeLog.getAmount());
-			int operations = tradeLog.getOperations();
-			if (operations == 1) {
-				map.put("operations", "购买");
-			} else if (operations == 2) {
-				map.put("operations", "赎回");
-			} else if (operations == 3) {
-				map.put("operations", "分红");
+			try{
+				map.put("operations", TrdOrderOpTypeEnum.getComment(mongoUiTrdLogDTO.getOperations()));
+			}catch (Exception ex){
+				logger.error(ex.getMessage());
+				ex.printStackTrace();
+				map.put("operations", "未知操作:" + mongoUiTrdLogDTO.getOperations());
+			}
+			try{
+				map.put("tradeStatus", TrdOrderStatusEnum.getComment(mongoUiTrdLogDTO.getTradeStatus()));
+			}catch (Exception ex){
+				logger.error(ex.getMessage());
+				ex.printStackTrace();
+				map.put("tradeStatus", "未知状态:" + mongoUiTrdLogDTO.getTradeStatus());
+			}
+
+			if(mongoUiTrdLogDTO.getUserProdId()!=null&&mongoUiTrdLogDTO.getUserProdId()!=0){
+				ProductsDTO products = userInfoService.findByProdId(mongoUiTrdLogDTO.getUserProdId() + "");
+				logger.info("理财产品findByProdId查询end");
+				if (products == null) {
+					//throw new UserInfoException("404", "理财产品:" + tradeLog.getUserProdId() + "为空");
+					map.put("prodName", "");
+				} else {
+					map.put("prodName", products.getProdName());
+				}
 			} else {
-				map.put("operations", "其他");
+				map.put("prodName", "");
 			}
-			// map.put("operations",tradeLog.getOperations());
-			int tradeStatus = tradeLog.getTradeStatus();
-			if (tradeStatus == 0) {
-				map.put("tradeStatus", "确认中");
-			} else if (tradeStatus == 1) {
-				map.put("tradeStatus", "确认成功");
-			} else {
-				map.put("tradeStatus", "其他");
+			map.put("fundCode", mongoUiTrdLogDTO.getFundCode());
+			map.put("date", TradeUtil.getReadableDateTime(mongoUiTrdLogDTO.getLastModifiedDate()));
+			if(mongoUiTrdLogDTO.getAmount() != null ) {
+				map.put("amount", mongoUiTrdLogDTO.getAmount());
+			}else if(mongoUiTrdLogDTO.getTradeTargetSum() != null && mongoUiTrdLogDTO.getTradeStatus()
+					== TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus()){
+				map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdLogDTO.getTradeTargetSum
+						()));
+			}else if(mongoUiTrdLogDTO.getTradeConfirmShare() != null && mongoUiTrdLogDTO.getTradeStatus
+					() == TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus()){
+				map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdLogDTO
+						.getTradeTargetShare()));
+			}else if(mongoUiTrdLogDTO.getTradeConfirmShare() != null ){
+				map.put("amount", mongoUiTrdLogDTO.getTradeConfirmShare());
+			}else if(mongoUiTrdLogDTO.getTradeConfirmSum() != null){
+				map.put("amount", mongoUiTrdLogDTO.getTradeConfirmSum());
+			}else{
+				logger.error("there is no amount information for mondUiTrdLogDTO with userId:" + userUuid
+						+ " userProdId:" + mongoUiTrdLogDTO.getUserProdId());
 			}
-			// map.put("tradeStatus",tradeLog.getTradeStatus());
-			if (tradeLog.getTradeDate() != null) {
-				map.put("tradeDate", DateUtil.getDateType(tradeLog.getTradeDate()));
-			} else {
-				map.put("tradeDate", "");
-			}
-			// map.put("prodId",tradeLog.getProdId());
-			logger.info("理财产品findByProdId查询start");
-			ProductsDTO products = userInfoService.findByProdId(tradeLog.getProdId() + "");
-			logger.info("理财产品findByProdId查询end");
-			if (products == null) {
-				throw new UserInfoException("404", "理财产品:" + tradeLog.getProdId() + "为空");
-			}
-			map.put("prodName", products.getProdName());
+
 			tradeLogs.add(map);
 		}
+//
+//
+//		for (int i = 0; i < tradeLogList.size(); i++) {
+//			map = new HashMap<String, Object>();
+//			tradeLog = tradeLogList.get(i);
+//			map.put("amount", tradeLog.getAmount());
+//			int operations = tradeLog.getOperations();
+////			if (operations == 1) {
+////				map.put("operations", "购买");
+////			} else if (operations == 2) {
+////				map.put("operations", "赎回");
+////			} else if (operations == 3) {
+////				map.put("operations", "分红");
+////			} else {
+////				map.put("operations", "其他");
+////			}
+//			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
+//			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){
+//				if(operations == trdOrder3.getOperation()){
+//					map.put("operations", trdOrder3.getComment());
+//					break;
+//				} else {
+//					map.put("operations", "");
+//				}
+//			}
+//			// map.put("operations",tradeLog.getOperations());
+//			int tradeStatus = tradeLog.getTradeStatus();
+//			if (tradeStatus == 0) {
+//				map.put("tradeStatus", "确认中");
+//			} else if (tradeStatus == 1) {
+//				map.put("tradeStatus", "确认成功");
+//			} else {
+//				map.put("tradeStatus", "其他");
+//			}
+//			// map.put("tradeStatus",tradeLog.getTradeStatus());
+//			if (tradeLog.getTradeDate() != null) {
+//				map.put("tradeDate", DateUtil.getDateType(tradeLog.getLastModifiedDate()));
+//			} else {
+//				map.put("tradeDate", "");
+//			}
+//			// map.put("prodId",tradeLog.getProdId());
+//			logger.info("理财产品findByProdId查询start");
+//			if(tradeLog.getUserProdId()!=null&&tradeLog.getUserProdId()!=0){
+//				ProductsDTO products = userInfoService.findByProdId(tradeLog.getUserProdId() + "");
+//				logger.info("理财产品findByProdId查询end");
+//				if (products == null) {
+//					//throw new UserInfoException("404", "理财产品:" + tradeLog.getUserProdId() + "为空");
+//					map.put("prodName", "");
+//				} else {
+//					map.put("prodName", products.getProdName());
+//				}
+//			} else {
+//				map.put("prodName", "");
+//			}
+//			tradeLogs.add(map);
+//		}
 		result.put("tradeLogs", tradeLogs);
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
@@ -1569,57 +1567,7 @@ public class UserInfoController {
 			) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
 		logger.info("getMyCombination method run..");
-		List<ProductsDTO> productsList = userInfoService.findProductInfos(userUuid);
-		if(productsList==null||productsList.size()==0){
-			logger.info("我的智投组合暂时不存在");
-			return new ResponseEntity<>(result, HttpStatus.OK);
-		}
-		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		ProductsDTO products= new ProductsDTO();
-		for(int i = 0; i< productsList.size();i++){
-			products = productsList.get(i);
-			resultMap = new HashMap<String, Object>();
-			resultMap.put("title", products.getProdName());
-			resultMap.put("createDate", products.getCreateDate());
-			//总资产
-			Map<String, Object> totalAssetsMap = userInfoService.getChicombinationAssets(userUuid,products);
-			if(totalAssetsMap.size()>0){
-				resultMap.put("totalAssets", totalAssetsMap.get("assert"));
-				//日收益
-				resultMap.put("dailyIncome", totalAssetsMap.get("dailyIncome"));
-				//累计收益率
-				resultMap.put("totalIncomeRate", totalAssetsMap.get("totalIncomeRate"));
-				//累计收益
-				resultMap.put("totalIncome", totalAssetsMap.get("totalIncome"));
-			} else {
-				resultMap.put("totalAssets", 0);
-				resultMap.put("dailyIncome", 0);
-				resultMap.put("totalIncomeRate", 0);
-				resultMap.put("totalIncome", 0);
-			}
-			
-			//状态(0-待确认 1-已确认 -1-交易失败)
-			if(products.getStatus() == 0){
-				resultMap.put("status", "待确认");
-				List<UiProductDetailDTO> productDetailsList = uiProductService.getProductDetailsByProdId(products.getProdId());
-				if(productDetailsList!=null&&productDetailsList.size()>0){
-					resultMap.put("count", productDetailsList.size());
-				} else {
-					resultMap.put("count", 0);
-				}
-			} else if(products.getStatus() == 1){
-				resultMap.put("status", "已确认");
-			} else {
-				resultMap.put("status", "交易失败");
-			}
-			//智投组合产品ID
-			resultMap.put("prodId",products.getProdId());
-			//买入日期
-			resultMap.put("updateDate",DateUtil.getDateType(products.getUpdateDate()));
-			
-			resultList.add(resultMap);
-		}
+		List<Map<String, Object>> resultList = userInfoService.getMyCombinations(userUuid);
 		result.put("result", resultList);
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
@@ -1635,28 +1583,22 @@ public class UserInfoController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue=""),
 		@ApiImplicitParam(paramType="path",name="prodId",dataType="String",required=true,value="产品ID",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="buyfee",dataType="String",required=true,value="产品ID",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="buyfee",dataType="String",required=true,value="预计费用",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="bankName",dataType="String",required=true,value="银行名称",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="bankCard",dataType="String",required=true,value="银行卡号",defaultValue=""),
 	})
 	@RequestMapping(value = "/users/{userUuid}/orders/{prodId}/records", method = RequestMethod.GET)
-	public ResponseEntity<Map> getRecords(
-			@PathVariable String userUuid,
-			@PathVariable String prodId,
-			@RequestParam String buyfee,
-			@RequestParam String bankName,
-			@RequestParam String bankCard
-			) throws Exception {
+	public ResponseEntity<Map> getRecords(@PathVariable String userUuid, @PathVariable String prodId,
+			@RequestParam String buyfee, @RequestParam String bankName, @RequestParam String bankCard)
+			throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
-		Calendar c = Calendar.getInstance();
-		int month = c.get(Calendar.MONTH);
-		//TODO 可能需要从基金详情中获取
-		c.add(5, 7);
-		int date = c.get(Calendar.DATE);
-		result.put("date", month+"."+date);
-		
+		Instant instance = Instant.now();
+		Long instanceLong = instance.toEpochMilli();
+		String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 2);
+		result.put("date", date);
+		result.put("title", "预计" + date.substring(5).replace("-", ".") + "日可查看收益");
 		result.put("buyfee", buyfee);
-		result.put("bankInfo", bankName+"("+bankCard+")");
+		result.put("bankInfo", bankName + "(" + bankCard + ")");
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 	
@@ -1748,6 +1690,9 @@ public class UserInfoController {
 		Map<String,Object> result = new HashMap<String,Object>();
 		List<Map<String, Object>> resultMap = new ArrayList();
 		resultMap = userInfoService.getTradeLogStatus(userUuid, prodId);
+		if(resultMap == null){
+			resultMap = new ArrayList();
+		}
 		result.put("result", resultMap);
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}

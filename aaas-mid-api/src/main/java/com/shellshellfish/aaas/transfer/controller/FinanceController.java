@@ -132,17 +132,24 @@ public class FinanceController {
 								}
 							}
 						}
-//						if(objMap.containsKey("product_list")){
-//							List productList = (List) objMap.get("product_list");
-//							if(productList!=null&&productList.size()>0){
+						if(objMap.containsKey("product_list")){
+							List productList = (List) objMap.get("product_list");
+							if(productList!=null&&productList.size()>0){
+								Collections.sort(productList, new Comparator<Map<String, Object>>() {
+						            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+						            	int map1value = (int) o1.get("value");
+						            	int map2value = (int) o2.get("value");
+						                return map2value-map1value;
+						            }
+						        });
 //								for(int i = 0;i<productList.size();i++){
 //									Map productMap = (Map) productList.get(i);
 //									if(productMap!=null){
 //										productMap.put("value", productMap.get("value")+EasyKit.PERCENT);
 //									}
 //								}
-//							}
-//						}
+							}
+						}
 					}
 				}
 			}
@@ -164,11 +171,11 @@ public class FinanceController {
 		Map returnMap = new HashMap<>();
 		//BANNER LIST
 		List<String> bannerList = new ArrayList<>();
-		bannerList.add("http://47.96.164.161/1.png");
-		bannerList.add("http://47.96.164.161/2.png");
-		bannerList.add("http://47.96.164.161/3.png");
-		bannerList.add("http://47.96.164.161/4.png");
-
+		bannerList.add("http://47.96.164.161/APP-invest-banner01.png");
+		bannerList.add("http://47.96.164.161/APP-invest-banner02.png");
+		bannerList.add("http://47.96.164.161/APP-invest-banner03.png");
+		bannerList.add("http://47.96.164.161/APP-invest-banner04.png");
+		bannerList.add("http://47.96.164.161/APP-invest-banner05.png");
 		returnMap.put("bannerList", bannerList);
 
 		//先获取全部产品

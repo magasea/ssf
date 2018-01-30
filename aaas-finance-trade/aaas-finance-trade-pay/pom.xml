@@ -204,6 +204,10 @@
 									<filtering>true</filtering>
 								</resource>
 								<resource>
+									<directory>../../proto/order/</directory>
+									<filtering>true</filtering>
+								</resource>
+								<resource>
 									<directory>../../proto/userinfo/</directory>
 									<filtering>true</filtering>
 								</resource>

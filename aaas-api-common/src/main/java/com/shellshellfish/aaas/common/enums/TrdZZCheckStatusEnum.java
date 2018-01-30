@@ -34,7 +34,7 @@ public enum TrdZZCheckStatusEnum {
         return enumItem.getComment();
       }
     }
-    return null;
+    throw new IllegalArgumentException("input status:"+status+" is illeagal");
   }
 
 
@@ -44,7 +44,7 @@ public enum TrdZZCheckStatusEnum {
         return enumItem;
       }
     }
-    return null;
+    throw new IllegalArgumentException("input status:"+status+" is illeagal");
   }
 
 }

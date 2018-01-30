@@ -30,15 +30,14 @@ public class TradeUtil {
   public static String generateOrderIdByBankCardNum(String bankCardNum, int tradeBrokerId){
     Long utcTime = getUTCTime();
     System.out.println(utcTime);
-    Long disOrderedBankCardId = Long.valueOf(bankCardNum.substring(bankCardNum.length() -4 )+
-        bankCardNum.substring(0, 3));
+    String disOrderedBankCardId = bankCardNum.substring(0, 3) + bankCardNum.substring(bankCardNum
+        .length() -4);
     StringBuilder sb = new StringBuilder();
     sb.append(disOrderedBankCardId).append(String.format("%04d", tradeBrokerId)).append(String.format("%018d", utcTime));
     return sb.toString();
   }
 
   public static String getReadableDateTime(Long utcTime){
-
     ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(utcTime), ZoneId.systemDefault
         ());
     return     zonedDateTime.toLocalDateTime().toString();
@@ -178,6 +177,15 @@ public class TradeUtil {
     return sha256hex;
   }
 
+  /**
+   * 用orderDetail的主键id结合 orderId 构成给中证接口购买时用的outside orderNo
+   * 规则为orderId+ %08d orderDetail id
+   */
+
+  public static String getZZOutsideOrderNo(String orderId, Long orderDetailId){
+    return orderId+String.format("08d%", orderDetailId);
+  }
+
 
   /**
    * 获得某一年的周末判断静态map
@@ -185,9 +193,6 @@ public class TradeUtil {
    * @return
    */
   public static String getTplusNDayOfWork(Long startTime, int n){
-
-
-
 
     ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(startTime), ZoneId.systemDefault
         ());

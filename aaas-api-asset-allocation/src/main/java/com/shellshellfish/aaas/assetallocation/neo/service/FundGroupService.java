@@ -370,6 +370,15 @@ public class FundGroupService {
     }
 
     /**
+     * 根据 组合ID 获取 风险等级
+     * @param groupId
+     * @return
+     */
+    public String getCustRiskByGroupId(String groupId) {
+        return fundGroupMapper.getRiskNum(groupId);
+    }
+
+    /**
      * 风险控制手段与通知
      *
      * @return

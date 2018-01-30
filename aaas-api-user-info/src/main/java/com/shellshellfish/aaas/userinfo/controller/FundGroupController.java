@@ -68,11 +68,12 @@ public class FundGroupController {
 			String dayBeforeSelectDate = DateUtil.getSystemDatesAgo(-i - 1);
 			dateValueMap.put("time", selectDate);
 			//调用对应的service
-			BigDecimal rate = userFinanceProdCalcService.calcYieldRate(uuid, prodId, dayBeforeSelectDate, selectDate);
-			dateValueMap.put("value", rate);
+			BigDecimal value = userFinanceProdCalcService.calcYieldValue(uuid, prodId, dayBeforeSelectDate, selectDate);
+			dateValueMap.put("value", value);
 			resultList.add(dateValueMap);
 		}
 		result.put("accumulationIncomes", resultList);
+		result.put("prodId", prodId);
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
 

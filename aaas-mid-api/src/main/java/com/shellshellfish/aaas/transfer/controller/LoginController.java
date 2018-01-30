@@ -118,7 +118,19 @@ public class LoginController {
 				result.put("dailyReturnRate", "0.00%"); //日收益率
 			}
 			result.put("totalRevenue", userinfoMap.get("totalIncome")); //累计收益
-			result.put("totalIncomeRate", userinfoMap.get("totalIncomeRate")); //累计收益率
+			
+			if(userinfoMap.get("totalIncomeRate")!=null){
+				String totalIncomeRate = userinfoMap.get("totalIncomeRate")+"";
+				if("0".equals(totalIncomeRate)){
+					result.put("totalIncomeRate", "0.00%");
+				} else {
+					totalIncomeRate = EasyKit.getDecimal(new BigDecimal(totalIncomeRate))+"";
+					result.put("totalIncomeRate", totalIncomeRate+EasyKit.PERCENT); //累计收益率
+				}
+			} else {
+				result.put("totalIncomeRate", "0.00%"); //累计收益率
+			}
+//			result.put("totalIncomeRate", userinfoMap.get("totalIncomeRate")); //累计收益率
 			/**********************添加的测试数据*******************************/
 			//移除不需要的数据
 			result.remove("_links");
@@ -282,10 +294,11 @@ public class LoginController {
 		} catch (HttpClientErrorException e) {
 			result = new HashMap();
 			result.put("errorCode", "400");
-			String str = e.getResponseBodyAsString();
+//			String str = e.getResponseBodyAsString();
+			String str = new ReturnedException(e).getErrorMsg();
 			System.out.println(str);
 			result.put("error", e.getResponseBodyAsString());
-			return new JsonResult(JsonResult.Fail, "修改密码失败", JsonResult.EMPTYRESULT);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		} catch (Exception e) {
 			return new JsonResult(JsonResult.Fail, "Fail", JsonResult.EMPTYRESULT);
 		}

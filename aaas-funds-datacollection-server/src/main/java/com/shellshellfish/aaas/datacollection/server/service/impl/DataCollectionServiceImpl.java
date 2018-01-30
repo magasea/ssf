@@ -4,6 +4,7 @@ package com.shellshellfish.aaas.datacollection.server.service.impl;
 import com.shellshellfish.aaas.common.utils.DataCollectorUtil;
 import com.shellshellfish.aaas.common.utils.MathUtil;
 import com.shellshellfish.aaas.common.utils.SSFDateUtils;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.datacollect.DailyFunds.Builder;
 import com.shellshellfish.aaas.datacollect.*;
 import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc.DataCollectionServiceImplBase;
@@ -89,6 +90,15 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
 		responseObserver.onNext(builder.build());
 		responseObserver.onCompleted();
 
+	}
+
+	@Override
+	public List<FundYeildRate> getLatestFundYeildRates(List<String> fundCodes, Long queryDate) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("code").in(fundCodes).and("querydate").gte(queryDate));
+		List<FundYeildRate> fundYeildRates = mongoTemplate.find(query, FundYeildRate.class,
+				"fund_yieldrate");
+		return fundYeildRates;
 	}
 
 
@@ -209,8 +219,11 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
 
 
 	public FundInfos getPriceOfCodes(List<String> codes) {
-		List<FundYeildRate> fundYeildRateList = getLastFundYeildRates4Test(codes);
-		List<FundYeildRate> filteredFunds = filter(fundYeildRateList);
+//		List<FundYeildRate> fundYeildRateList = getLastFundYeildRates4Test(codes);
+		Long nineDayBefore = TradeUtil.getUTCTimeNDayAfter(-9)/1000;
+		logger.info("nineDayBefore:" + nineDayBefore);
+		List<FundYeildRate> fundYeildRates = getLatestFundYeildRates(codes, nineDayBefore);
+		List<FundYeildRate> filteredFunds = filter(fundYeildRates);
 		FundInfos.Builder builder = FundInfos.newBuilder();
 		FundInfo.Builder builderFI = FundInfo.newBuilder();
 		for (FundYeildRate fundYeildRate : filteredFunds) {
@@ -223,17 +236,18 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
 		return builder.build();
 	}
 
+
 	private List<FundYeildRate> filter(List<FundYeildRate> fundYeildRateList) {
 		Map<String, FundYeildRate> fundYeildRateHashMap = new HashMap<>();
 		for (FundYeildRate fundYeildRate : fundYeildRateList) {
 			if (!fundYeildRateHashMap.containsKey(fundYeildRate.getCode())) {
 				if (fundYeildRate.getNavunit() != null && fundYeildRate.getNavunit() != Double.MIN_VALUE) {
 					fundYeildRateHashMap.put(fundYeildRate.getCode(), fundYeildRate);
-				} else {
-					if (fundYeildRateHashMap.get(fundYeildRate.getCode()).getQuerydate() < fundYeildRate
-							.getQuerydate() && fundYeildRate.getNavunit() != Double.MIN_VALUE) {
-						fundYeildRateHashMap.put(fundYeildRate.getCode(), fundYeildRate);
-					}
+				}
+			}else {
+				if (fundYeildRateHashMap.get(fundYeildRate.getCode()).getQuerydate() < fundYeildRate
+						.getQuerydate() && fundYeildRate.getNavunit() != Double.MIN_VALUE) {
+					fundYeildRateHashMap.put(fundYeildRate.getCode(), fundYeildRate);
 				}
 			}
 		}

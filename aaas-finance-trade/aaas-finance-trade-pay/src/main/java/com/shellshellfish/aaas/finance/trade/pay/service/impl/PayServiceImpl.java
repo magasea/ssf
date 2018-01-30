@@ -1,22 +1,22 @@
 package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.OrderJobPayRltEnum;
+import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
 import com.shellshellfish.aaas.common.enums.ZZRiskAbilityEnum;
+import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
 import com.shellshellfish.aaas.common.message.order.ProdDtlSellDTO;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
-import com.shellshellfish.aaas.common.utils.MathUtil;
-import com.shellshellfish.aaas.common.utils.SSFDateUtils;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.utils.ZZRiskToSSFRiskUtils;
 import com.shellshellfish.aaas.common.utils.ZZStatsToOrdStatsUtils;
@@ -28,7 +28,6 @@ import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcService
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
-import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.FundConvertResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.OpenAccountResult;
@@ -41,7 +40,6 @@ import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import com.shellshellfish.aaas.finance.trade.pay.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
-import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,18 +94,21 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     List<Exception > errs = new ArrayList<>();
       logger.info("payOrder fundCode:"+trdOrderDetail.getFundCode());
 
-      trdOrderDetail.getOrderDetailId();
+//      trdOrderDetail.getOrderDetailId();
       //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
-      BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundMoneyQuantity());
+      BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100
+          (trdOrderDetail.getFundSum());
       //TODO: replace userId with userUuid
       TrdPayFlow trdPayFlow = new TrdPayFlow();
-      trdPayFlow.setCreateDate(SSFDateUtils.getCurrentDateInLong());
+      trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
       trdPayFlow.setCreateBy(0L);
 
-      trdPayFlow.setTrdMoneyAmount(trdOrderDetail.getFundMoneyQuantity());
+      trdPayFlow.setTradeTargetSum(trdOrderDetail.getFundSum());
       trdPayFlow.setTrdStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(userProdId);
-      trdPayFlow.setOrderDetailId(trdOrderDetail.getOrderDetailId());
+      trdPayFlow.setOrderDetailId(trdOrderDetail.getId());
+      //注意outsideOrderNo 用主订单的OrderID+子订单ID 来拼接
+      trdPayFlow.setOutsideOrderno(trdOrderDetail.getOrderId()+""+trdOrderDetail.getId());
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.BUY.getOperation());
       BuyFundResult fundResult = null;
       com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
@@ -120,8 +121,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 //        }else{
 //          userId4Pay = String.valueOf(trdOrderDetail.getUserId());
 //        }
+        String outSideTradeNo = trdPayFlow.getOutsideOrderno();
         fundResult = fundTradeApiService.buyFund(userId4Pay, trdAcco, payAmount,
-            String.valueOf(trdOrderDetail.getId()),trdOrderDetail.getFundCode());
+            outSideTradeNo,trdOrderDetail.getFundCode());
       }catch (Exception ex){
         ex.printStackTrace();
         logger.error(ex.getMessage());
@@ -169,65 +171,74 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   private PayOrderDto payNewOrder(PayOrderDto payOrderDto) throws Exception{
     List<Exception > errs = new ArrayList<>();
     String trdAcco = payOrderDto.getTrdAccount();
+    String userId4Pay = TradeUtil.getZZOpenId(payOrderDto.getUserPid());
+    //此处因为产品设计丑陋所以只好在每次购买的时候设置风险测评值
+    fundTradeApiService.commitRisk(userId4Pay, payOrderDto.getRiskLevel());
     List<TrdOrderDetail> orderDetailList = payOrderDto.getOrderDetailList();
+    StringBuilder sbOutsideOrderno = new StringBuilder();
     for(TrdOrderDetail trdOrderDetail: orderDetailList){
+      sbOutsideOrderno.setLength(0);
+      sbOutsideOrderno.append(trdOrderDetail.getOrderId()).append(trdOrderDetail.getId());
       logger.info("payOrder fundCode:"+trdOrderDetail.getFundCode());
-      if(null == trdOrderDetail.getOrderDetailId()){
-        logger.error("input pay request is not correct: OrderDetailId is:"+trdOrderDetail.getOrderDetailId());
+      if(null == trdOrderDetail.getOrderId()){
+        logger.error("input pay request is not correct: OrderId is:"+trdOrderDetail.getOrderId());
+        sbOutsideOrderno.setLength(0);
         continue;
       }else{
         if(
-        trdPayFlowRepository.findAllByOrderDetailId(trdOrderDetail.getOrderDetailId()).size() > 0){
-          logger.error("repay request for :"+ trdOrderDetail.getOrderDetailId() + " we will "
-              + "ignore it ");
+          //我们目前是用主订单OrderId和子订单ID拼接成OutsideOrderno
+          trdPayFlowRepository.findAllByOutsideOrderno(sbOutsideOrderno.toString()).size() > 0){
+            logger.error("repay request for outsideOrderno:"+sbOutsideOrderno+" we will ignore it ");
+          sbOutsideOrderno.setLength(0);
           continue;
         }
       }
-      trdOrderDetail.getOrderDetailId();
+
       //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
-      BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundMoneyQuantity());
+      BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundSum());
       //TODO: replace userId with userUuid
       TrdPayFlow trdPayFlow = new TrdPayFlow();
-      trdPayFlow.setCreateDate(SSFDateUtils.getCurrentDateInLong());
+      trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
       trdPayFlow.setCreateBy(0L);
-
-      trdPayFlow.setTrdMoneyAmount(trdOrderDetail.getFundMoneyQuantity());
+      //重要。。。。。
+      trdPayFlow.setOutsideOrderno(sbOutsideOrderno.toString());
+      trdPayFlow.setTradeTargetSum(trdOrderDetail.getFundSum());
       trdPayFlow.setTrdStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(payOrderDto.getUserProdId());
-      trdPayFlow.setOrderDetailId(trdOrderDetail.getOrderDetailId());
+      trdPayFlow.setOrderDetailId(trdOrderDetail.getId());
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.BUY.getOperation());
       BuyFundResult fundResult = null;
       try {
-        String userId4Pay = TradeUtil.getZZOpenId(payOrderDto.getUserPid());
-
-
         fundResult = fundTradeApiService.buyFund(userId4Pay, trdAcco, payAmount,
-            String.valueOf(trdOrderDetail.getId()),trdOrderDetail.getFundCode());
+            sbOutsideOrderno.toString(),trdOrderDetail.getFundCode());
       }catch (Exception ex){
         ex.printStackTrace();
         logger.error(ex.getMessage());
         errs.add(ex);
+        if(ex.getMessage().contains("网络错误")){
+          //try it again
+          try {
+            fundResult = fundTradeApiService.buyFund(userId4Pay, trdAcco, payAmount,
+                sbOutsideOrderno.toString(), trdOrderDetail.getFundCode());
+          }catch(Exception exagain){
+            exagain.printStackTrace();
+            logger.error(exagain.getMessage());
+            errs.add(exagain);
+          }
+        }
+
       }
       //ToDo: 如果有真实数据， 则删除下面if代码
       if(null == fundResult){
-        com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
-            .shellshellfish.aaas.common.message.order.TrdPayFlow();
-        trdPayFlowMsg.setTrdStatus(TrdZZCheckStatusEnum.NOTHANDLED.getStatus());
-        StringBuilder errMsg = new StringBuilder();
-        for(Exception ex: errs){
-          errMsg.append(ex.getMessage());
-          errMsg.append("|");
-        }
-        trdPayFlowMsg.setErrMsg(errMsg.toString());
-        trdPayFlowMsg.setUserId(trdOrderDetail.getUserId());
-        trdPayFlowMsg.setOrderDetailId(trdOrderDetail.getId());
-        notifyPay(trdPayFlowMsg);
-        errs.clear();
-
+        logger.error("failed to pay for:" + payOrderDto.getUserPid() + " with prodId:" +
+            payOrderDto.getUserProdId() + " with TrdMoneyAmount" + payAmount + " fundCode:"+
+            trdOrderDetail.getFundCode());
+        continue;
       }
       if(null != fundResult){
         trdPayFlow.setApplySerial(fundResult.getApplySerial());
         trdPayFlow.setTrdStatus(TradeUtil.getPayFlowStatus(fundResult.getKkstat()));
+        trdPayFlow.setTradeTargetSum(trdOrderDetail.getFundSum());
         trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
         trdPayFlow.setFundCode(trdOrderDetail.getFundCode());
         trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
@@ -236,13 +247,14 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         trdPayFlow.setTradeAcco(trdAcco);
         trdPayFlow.setUserProdId(trdOrderDetail.getUserProdId());
         trdPayFlow.setUserId(trdOrderDetail.getUserId());
-        trdPayFlow.setTradeBrokeId(payOrderDto.getTrdBrokerId());
+        trdPayFlow.setTradeBrokeId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
         TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
         com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
             .shellshellfish.aaas.common.message.order.TrdPayFlow();
         BeanUtils.copyProperties(trdPayFlowResult, trdPayFlowMsg);
         notifyPay(trdPayFlowMsg);
       }
+
     }
     if(errs.size() > 0){
       throw new Exception("meet errors in pay api services");
@@ -265,8 +277,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   }
 
   @Override
-  public String bindCard(BindBankCard bindBankCard)
-      throws ExecutionException, InterruptedException, JsonProcessingException {
+  public String bindCard(BindBankCard bindBankCard)throws JsonProcessingException {
     String tradeAcco = null;
     try {
       OpenAccountResult openAccountResult = fundTradeApiService.openAccount("" +TradeUtil
@@ -313,7 +324,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   public boolean sellProd(ProdSellDTO prodSellDTO) throws Exception {
     logger.info("sell prod with: userId:" + prodSellDTO.getUserId()+ "" + prodSellDTO.getUserUuid
         ()+ prodSellDTO.getTrdAcco());
-    String userUuid = prodSellDTO.getUserUuid();
+    String openId = TradeUtil.getZZOpenId(prodSellDTO.getUserPid());
+    String tradeAcco = prodSellDTO.getTrdAcco();
     if(CollectionUtils.isEmpty(prodSellDTO.getProdDtlSellDTOList())){
       logger.error("empty sellProd list");
       return false;
@@ -321,11 +333,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
     for(ProdDtlSellDTO prodDtlSellDTO: prodSellDTO.getProdDtlSellDTOList()){
       int sellNum = prodDtlSellDTO.getFundQuantity();
-      String code = prodDtlSellDTO.getFundCode();
-      String tradeAcco = prodSellDTO.getTrdAcco();
-      String outsideOrderNo = Long.toString(prodDtlSellDTO.getOrderDetailId());
-
-      logger.info("sell prod with fundCode :"+code
+      String fundCode = prodDtlSellDTO.getFundCode();
+      String outsideOrderNo = prodSellDTO.getOrderId()+prodDtlSellDTO.getOrderDetailId();
+      logger.info("sell prod with fundCode :"+fundCode
           +"sell fund quantity:"+ sellNum + " sell  account:"+ tradeAcco + " outsideOrderNo:" +
           outsideOrderNo);
       TrdPayFlow trdPayFlow = new TrdPayFlow();
@@ -334,27 +344,46 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setTrdStatus(TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(prodSellDTO.getUserProdId());
       trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
-      SellFundResult sellFundResult = fundTradeApiService.sellFund(userUuid, sellNum,
-          outsideOrderNo, tradeAcco, code);
-      if(null != sellFundResult){
-        trdPayFlow.setApplySerial(sellFundResult.getApplySerial());
-        trdPayFlow.setTrdStatus(TrdZZCheckStatusEnum.CONFIRMSUCCESS.getStatus());
-        trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
-        trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
-        trdPayFlow.setFundCode(prodDtlSellDTO.getFundCode());
-        trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
-        trdPayFlow.setCreateBy(prodSellDTO.getUserId());
-        trdPayFlow.setUpdateBy(prodSellDTO.getUserId());
-        trdPayFlow.setTradeAcco(prodSellDTO.getTrdAcco());
-        trdPayFlow.setUserProdId(prodSellDTO.getUserProdId());
-        trdPayFlow.setUserId(prodSellDTO.getUserId());
-        trdPayFlow.setTradeBrokeId(prodSellDTO.getTrdBrokerId());
-        TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
-        com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
-            .shellshellfish.aaas.common.message.order.TrdPayFlow();
-        BeanUtils.copyProperties(trdPayFlowResult, trdPayFlowMsg);
-        notifyPay(trdPayFlowMsg);
+      trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+      BigDecimal sellAmount = TradeUtil.getBigDecimalNumWithDiv100(Long.valueOf(sellNum));
+      try{
+        SellFundResult sellFundResult = fundTradeApiService.sellFund(openId, sellAmount,
+            outsideOrderNo, tradeAcco, fundCode);
+        if(null != sellFundResult){
+          trdPayFlow.setApplySerial(sellFundResult.getApplySerial());
+          trdPayFlow.setTrdStatus(TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus());
+          trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+          trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
+          trdPayFlow.setTradeTargetShare(prodDtlSellDTO.getFundQuantity());
+          trdPayFlow.setFundCode(prodDtlSellDTO.getFundCode());
+          trdPayFlow.setOutsideOrderno(outsideOrderNo);
+          trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
+          trdPayFlow.setCreateBy(prodSellDTO.getUserId());
+          trdPayFlow.setUpdateBy(prodSellDTO.getUserId());
+          trdPayFlow.setTradeAcco(prodSellDTO.getTrdAcco());
+          trdPayFlow.setUserProdId(prodSellDTO.getUserProdId());
+          trdPayFlow.setUserId(prodSellDTO.getUserId());
+          trdPayFlow.setTradeBrokeId(prodSellDTO.getTrdBrokerId());
+          TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
+          com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
+              .shellshellfish.aaas.common.message.order.TrdPayFlow();
+          BeanUtils.copyProperties(trdPayFlowResult, trdPayFlowMsg);
+          notifyPay(trdPayFlowMsg);
+        }else{
+          //赎回请求失败，需要把扣减的基金数量加回去
+          com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
+              .shellshellfish.aaas.common.message.order.TrdPayFlow();
+          trdPayFlow.setTrdStatus(TrdOrderStatusEnum.FAILED.getStatus());
+          trdPayFlow.setTradeTargetShare(sellNum);
+          trdPayFlow.setUserProdId(prodDtlSellDTO.getUserProdId());
+          MyBeanUtils.mapEntityIntoDTO(trdPayFlow, trdPayFlowMsg);
+          notifyPay(trdPayFlowMsg);
+        }
+      }catch (Exception ex){
+        ex.printStackTrace();
+        logger.error(ex.getMessage());
       }
+
     }
 
 //    fundTradeApiService.sellFund(userUuid, sellNum, outsideOrderNo, tradeAcco, fundCode);
@@ -446,39 +475,30 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   }
 
 
+	@Override
+	public void bindBankCard(com.shellshellfish.aaas.finance.trade.pay.BindBankCardQuery bindBankCardQuery,
+							 io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.pay.BindBankCardResult> responseObserver) {
+		final String errMsg = "-1";
 
-
-  @Override
-  public void bindBankCard(com.shellshellfish.aaas.finance.trade.pay.BindBankCardQuery bindBankCardQuery,
-      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.pay.BindBankCardResult> responseObserver) {
-    BindBankCard bindBankCard = new BindBankCard();
-    BeanUtils.copyProperties(bindBankCardQuery, bindBankCard);
-    String trdAcco = null;
-    try {
-      trdAcco = bindCard(bindBankCard);
-    } catch (ExecutionException e) {
-      e.printStackTrace();
-      logger.error(e.getMessage());
-
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-
-      logger.error(e.getMessage());
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
-
-      logger.error(e.getMessage());
-    }
-    if(StringUtils.isEmpty(trdAcco) || trdAcco.equals("-1")){
-      logger.error("failed to bind card with UserName:"+ bindBankCard.getUserName() + " pid:"+
-          bindBankCard.getUserPid() + "bankCode:"+ bindBankCard.getBankCode() +
-          "userId:" +bindBankCard.getUserId());
-    }
-    BindBankCardResult.Builder builder = BindBankCardResult.newBuilder();
-    builder.setTradeacco(trdAcco);
-    responseObserver.onNext(builder.build());
-    responseObserver.onCompleted();
-  }
+		BindBankCard bindBankCard = new BindBankCard();
+		BeanUtils.copyProperties(bindBankCardQuery, bindBankCard);
+		String trdAcco;
+		try {
+			trdAcco = bindCard(bindBankCard);
+		} catch (JsonProcessingException e) {
+			trdAcco = errMsg;
+			logger.error(e.getMessage());
+		}
+		if (StringUtils.isEmpty(trdAcco) || trdAcco.equals(errMsg)) {
+			logger.error("failed to bind card with UserName:" + bindBankCard.getUserName() + " pid:" +
+					bindBankCard.getUserPid() + "bankCode:" + bindBankCard.getBankCode() +
+					"userId:" + bindBankCard.getUserId());
+		}
+		BindBankCardResult.Builder builder = BindBankCardResult.newBuilder();
+		builder.setTradeacco(trdAcco);
+		responseObserver.onNext(builder.build());
+		responseObserver.onCompleted();
+	}
 
   @Override
   /**
@@ -544,21 +564,23 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     List<TrdOrderDetail> orderDetailList = payOrderDto.getOrderDetailList();
     logger.info("总共有:" + orderDetailList.size() + " 个orderDetail需要处理");
     for(TrdOrderDetail trdOrderDetail: orderDetailList){
-      logger.info("开始处理 trdOrderDetail with orderDetailId:" + trdOrderDetail.getOrderDetailId());
+      logger.info("开始处理 trdOrderDetail with orderId:" + trdOrderDetail.getOrderId() + " "
+          + "orderDetailId:" + trdOrderDetail.getId());
       logger.info("payOrder fundCode:"+trdOrderDetail.getFundCode());
 
-      if(null == trdOrderDetail.getOrderDetailId()){
-        logger.error("input pay request is not correct: OrderDetailId is:"+trdOrderDetail.getOrderDetailId());
+      if(null == trdOrderDetail.getOrderId() || trdOrderDetail.getId() <= 0){
+        logger.error("input pay request is not correct: OrderId is:"+trdOrderDetail.getOrderId()
+            + " OrderDetailId is:" + trdOrderDetail.getId());
         continue;
       }else{
-        List<TrdPayFlow> trdPayFlows =  trdPayFlowRepository.findAllByOrderDetailId(trdOrderDetail.getOrderDetailId());
+        String outsideOrderno = trdOrderDetail.getOrderId()+ trdOrderDetail.getId();
+        List<TrdPayFlow> trdPayFlows =  trdPayFlowRepository.findAllByOutsideOrderno(outsideOrderno);
         if(!CollectionUtils.isEmpty(trdPayFlows) &&
             trdPayFlows.size() > 0){
-          logger.error("repay request for :"+ trdOrderDetail.getOrderDetailId() + " we will "
-              + "ignore it ");
+          logger.error("repay request for outsideOrderno:" + outsideOrderno);
           //开始处理已经尝试过的payflow
           if(trdPayFlows.size() >=2){
-            logger.error("this trdOrderDetail:"+trdOrderDetail.getOrderDetailId()+" is payed more"
+            logger.error("this trdOrderDetail with outsideOrderNo"+outsideOrderno +" is payed more"
                 + " than 2 times, need check logic");
             //准备去取支付成功的applyserial,如果没有，就取最后一次applySerial
             String applySerial = null;
@@ -580,11 +602,12 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
                 if(trdPayFlow.getTrdbkerStatusCode() == TrdZZCheckStatusEnum.CONFIRMSUCCESS
                     .getStatus() ){
                   //状态为成功， 应该是已经交易过，但是order 或者 ui prod系统没有更新应该发消息队列让对应模块去更新
-                  logger.error("trdPayFlow orderDetailId:"+ trdOrderDetail.getOrderDetailId()+"状态为成功， "
+                  logger.error("trdPayFlow with outsideOrderno:"+ outsideOrderno+"状态为成功， "
                       + "应该是已经交易过，但是order 或者 ui prod系统没有更新应该发消息队列让对应模块去更新");
                   com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
                       .shellshellfish.aaas.common.message.order.TrdPayFlow();
                   BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
+
                   notifyPay(trdPayFlowMsg);
                   //重发notify后退出这个orderDetailId的处理
                   break;
@@ -650,7 +673,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setUpdateBy(request.getUserId());
       trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.PREORDER.getOperation());
-      trdPayFlow.setTrdDate(TradeUtil.getUTCTime());
+      trdPayFlow.setTrdConfirmDate(TradeUtil.getUTCTime());
       trdPayFlow.setUserId(request.getUserId());
       trdPayFlow.setApplySerial(buyFundResult.getApplySerial());
       trdPayFlow.setCreateBy(request.getUserId());
@@ -665,7 +688,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setTrdbkerStatusCode(kkStat);
       trdPayFlow.setTradeBrokeId(request.getTrdBrokerId());
       //注意外面接口用BigDecimal表示金额，入库都用long精确到分
-      trdPayFlow.setTrdMoneyAmount(request.getPayAmount());
+      trdPayFlow.setTradeTargetSum(request.getPayAmount());
       trdPayFlow.setTrdStatus(trdOrderStatusEnum.getStatus());
       trdPayFlowRepository.save(trdPayFlow);
       com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
@@ -691,30 +714,33 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     String trdAcco = payPreOrderDto.getTrdAccount();
     List<TrdOrderDetail> orderDetailList = payPreOrderDto.getOrderDetailList();
     for(TrdOrderDetail trdOrderDetail: orderDetailList){
+      String outsideOrderno = trdOrderDetail.getOrderId()+trdOrderDetail.getId();
       logger.info("payOrder fundCode:"+trdOrderDetail.getFundCode());
-      if(null == trdOrderDetail.getOrderDetailId()){
-        logger.error("input pay request is not correct: OrderDetailId is:"+trdOrderDetail.getOrderDetailId());
+      if(null == trdOrderDetail.getOrderId() || trdOrderDetail.getId() <= 0){
+        logger.error("input pay request is not correct: orderId is:"+ trdOrderDetail.getOrderId
+            () + " orderDetailId:" + trdOrderDetail.getId());
         continue;
       }else{
+
         if(
-            trdPayFlowRepository.findAllByOrderDetailId(trdOrderDetail.getOrderDetailId()).size() > 0){
-          logger.error("repay request for :"+ trdOrderDetail.getOrderDetailId() + " we will "
-              + "ignore it ");
+            trdPayFlowRepository.findAllByOutsideOrderno(outsideOrderno).size() > 0){
+          logger.error("repay request for outsideOrderno:"+ outsideOrderno);
           continue;
         }
       }
-      trdOrderDetail.getOrderDetailId();
+
       //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
-      BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundMoneyQuantity());
+      BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundSum());
       //TODO: replace userId with userUuid
       TrdPayFlow trdPayFlow = new TrdPayFlow();
       trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
       trdPayFlow.setCreateBy(0L);
 
-      trdPayFlow.setTrdMoneyAmount(trdOrderDetail.getFundMoneyQuantity());
+      trdPayFlow.setTradeTargetSum(trdOrderDetail.getFundSum());
       trdPayFlow.setTrdStatus(TrdOrderStatusEnum.CONVERTWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(payPreOrderDto.getUserProdId());
-      trdPayFlow.setOrderDetailId(trdOrderDetail.getOrderDetailId());
+      trdPayFlow.setOrderDetailId(trdOrderDetail.getId());
+      trdPayFlow.setOutsideOrderno(outsideOrderno);
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.FUNDCONVERT.getOperation());
       FundConvertResult fundResult = null;
       try {

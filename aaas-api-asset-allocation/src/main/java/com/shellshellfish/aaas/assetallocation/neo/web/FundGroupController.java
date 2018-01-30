@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.assetallocation.neo.web;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.FundAllReturn;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.FundReturn;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.PerformanceVolatilityReturn;
+import com.shellshellfish.aaas.assetallocation.neo.returnType.Return;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.ReturnType;
 import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupService;
 import io.swagger.annotations.ApiOperation;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -145,6 +147,21 @@ public class FundGroupController {
     public ReturnType getRiskController(@PathVariable("groupId") String id, @PathVariable("subGroupId") String subGroupId){
         ReturnType rct = fundGroupService.getRiskController(id, subGroupId);
         return rct;
+    }
+
+    /**
+     * 获取组合风险等级
+     * @param groupId
+     * @return
+     */
+    @ApiOperation("组合风险等级")
+    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/risk-level", method = RequestMethod.GET)
+    @ResponseBody
+    public String getCustRiskController(@PathVariable("groupId") String groupId){
+        if (StringUtils.isEmpty(groupId)) {
+            return null;
+        }
+        return fundGroupService.getCustRiskByGroupId(groupId);
     }
 
     /**

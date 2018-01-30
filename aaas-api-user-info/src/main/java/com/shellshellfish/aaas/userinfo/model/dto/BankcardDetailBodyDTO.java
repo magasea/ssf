@@ -1,19 +1,38 @@
 package com.shellshellfish.aaas.userinfo.model.dto;
 
-import java.math.BigInteger;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+
 public class BankcardDetailBodyDTO {
 
+	private String userUuid;
+	private Long userId;
 	private String cardNumber;
 	private String cardUserName;
 	private String cardCellphone;
 	private String cardUserPid;
 	private String cardUuId;
 	private String bankName;
+
+
+	public String getUserUuid() {
+		return userUuid;
+	}
+
+	public void setUserUuid(String userUuid) {
+		this.userUuid = userUuid;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
 
 	public String getCardNumber() {
 		return cardNumber;
@@ -63,4 +82,17 @@ public class BankcardDetailBodyDTO {
 		this.bankName = bankName;
 	}
 
+	@Override
+	public String toString() {
+		return "BankcardDetailBodyDTO{" +
+				"userUuid='" + userUuid + '\'' +
+				", userId=" + userId +
+				", cardNumber='" + cardNumber + '\'' +
+				", cardUserName='" + cardUserName + '\'' +
+				", cardCellphone='" + cardCellphone + '\'' +
+				", cardUserPid='" + cardUserPid + '\'' +
+				", cardUuId='" + cardUuId + '\'' +
+				", bankName='" + bankName + '\'' +
+				'}';
+	}
 }

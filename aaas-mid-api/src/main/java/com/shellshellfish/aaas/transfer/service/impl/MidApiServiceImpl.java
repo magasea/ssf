@@ -2,17 +2,26 @@ package com.shellshellfish.aaas.transfer.service.impl;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.utils.SSFDateUtils;
 import com.shellshellfish.aaas.common.utils.URLutils;
 import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
 import com.shellshellfish.aaas.dto.FundNAVInfo;
-import com.shellshellfish.aaas.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.model.MonetaryFund;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
 import com.shellshellfish.aaas.transfer.utils.EasyKit;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,13 +30,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
-import java.math.BigDecimal;
-import java.util.*;
 
 public class MidApiServiceImpl implements MidApiService {
 	Logger logger = LoggerFactory.getLogger(MidApiServiceImpl.class);
@@ -331,6 +336,33 @@ public class MidApiServiceImpl implements MidApiService {
 	public Map sellFundPage(String groupId, String subGroupId, String totalAmount) throws Exception {
 		String url = tradeOrderUrl + "api/trade/funds/sellProduct?groupId=" + groupId + "&subGroupId=" + subGroupId + "&totalAmount=" + totalAmount;
 		Map result = restTemplate.getForEntity(url, Map.class).getBody();
+		if(result!=null){
+			Object poundage = result.get("poundage");
+			if(poundage!=null){
+				BigDecimal poundageValue = new BigDecimal(poundage+"");
+				poundageValue = poundageValue.setScale(2, BigDecimal.ROUND_HALF_UP);
+				result.put("poundage", poundageValue);
+			}
+			Object discountSaving = result.get("discountSaving");
+			if(discountSaving!=null){
+				BigDecimal discountSavingValue = new BigDecimal(discountSaving+"");
+				discountSavingValue = discountSavingValue.setScale(2, BigDecimal.ROUND_HALF_UP);
+				result.put("discountSaving", discountSavingValue);
+			}
+			Object fundAmountList = result.get("fundAmountList");
+			if(fundAmountList!=null){
+				List<Map> fundList = (List<Map>)fundAmountList;
+				for(int i = 0;i<fundList.size();i++){
+					Map fundMap = fundList.get(i);
+					if(fundMap.get("grossAmount")!=null){
+						BigDecimal grossAmount = new BigDecimal(fundMap.get("grossAmount")+"");
+						BigDecimal grossAmountValue = grossAmount.setScale(2, BigDecimal.ROUND_HALF_UP);
+						fundMap.put("grossAmount",grossAmountValue);
+					}
+				}
+			}
+		}
+		
 		return result;
 	}
 

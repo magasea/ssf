@@ -184,7 +184,7 @@ public class RestApiController {
 			//@Valid @NotNull(message = "手机号码不能为空") @Size(max = 11, min = 11, message = "手机号长度必须是11位的数字") 
 			@RequestParam(value = "telnum") String telnum
 			) {
-		String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
+		String telRegExp = "^((1[3,5,8][0-9])|(14[5,7])|(17[0,6,7,8])|(19[7]))\\d{8}$";
 		Pattern telPattern = Pattern.compile(telRegExp);
 		Matcher telMatcher = telPattern.matcher(telnum);
 		if (!telMatcher.find()) {
@@ -210,7 +210,7 @@ public class RestApiController {
 			@RequestParam(value = "action") String action) {
 		Map<String,Object> result = new HashMap();
 		if ("getVerificationCode".equals(action)) {
-			String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
+			String telRegExp = "^((1[3,5,8][0-9])|(14[5,7])|(17[0,6,7,8])|(19[7]))\\d{8}$";
 			Pattern telPattern = Pattern.compile(telRegExp);
 			Matcher telMatcher = telPattern.matcher(id);
 			if (!telMatcher.find()) {
@@ -222,15 +222,15 @@ public class RestApiController {
 			}
 			result.put("identifyingCode", code);
 		} else if ("getVerificationCode2".equals(action)) {
-			String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
+			String telRegExp = "^((1[3,5,8][0-9])|(14[5,7])|(17[0,6,7,8])|(19[7]))\\d{8}$";
 			Pattern telPattern = Pattern.compile(telRegExp);
 			Matcher telMatcher = telPattern.matcher(id);
 			if (!telMatcher.find()) {
 				throw new UserException("102", "手机号格式不对");
 			}
 			String code = accountService.getSmsMessage(id);
-			if (code==""||code==null) {
-				return new ResponseEntity<Map>(result,HttpStatus.INTERNAL_SERVER_ERROR);
+			if (StringUtils.isEmpty(code)) {
+				throw new UserException("102", "手机验证码为空");
 			}
 			result.put("identifyingCode", code);
 		}
@@ -282,7 +282,7 @@ public class RestApiController {
 			//throw new UserException("101", "密码长度至少8位,至多20位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合");
 		}
 
-		String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
+		String telRegExp = "^((1[3,5,8][0-9])|(14[5,7])|(17[0,6,7,8])|(19[7]))\\d{8}$";
 		Pattern telPattern = Pattern.compile(telRegExp);
 		Matcher telMatcher = telPattern.matcher(telnum);
 		if (!telMatcher.find()) {
@@ -356,7 +356,7 @@ public class RestApiController {
 	/**
 	 * 短信验证 初始页面
 	 * 
-	 * @param telnum手机号码
+	 * @param telnum 手机号码
 	 * @return
 	 */
 	@ApiOperation("短信验证 初始页面")
@@ -374,7 +374,7 @@ public class RestApiController {
 	public ResponseEntity<Map> smsverificationsres(
 			//@Valid @NotNull(message = "电话不能为空") @Size(max = 11, min = 11, message = "手机号长度必须是11位的数字") 
 			@RequestParam(value = "telnum") String telnum) {
-		String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
+		String telRegExp = "^((1[3,5,8][0-9])|(14[5,7])|(17[0,6,7,8])|(19[7]))\\d{8}$";
 		Pattern telPattern = Pattern.compile(telRegExp);
 		Matcher telMatcher = telPattern.matcher(telnum);
 		if (!telMatcher.find()) {
@@ -386,10 +386,8 @@ public class RestApiController {
 	}
 
 	/**
-	 * 短信验证 确认
-	 * 
-	 * @param telnum
-	 * @param identifyingcode
+	 *
+	 * @param verificationBody
 	 * @return
 	 */
 	@ApiOperation("短信验证 确认按钮")
@@ -407,7 +405,7 @@ public class RestApiController {
 	public ResponseEntity<String> smsverificationpageId(
 			@Valid @RequestBody VerificationBodyDTO verificationBody) {
 		String telnum = verificationBody.getTelnum();
-		String telRegExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
+		String telRegExp = "^((1[3,5,8][0-9])|(14[5,7])|(17[0,6,7,8])|(19[7]))\\d{8}$";
 		Pattern telPattern = Pattern.compile(telRegExp);
 		Matcher telMatcher = telPattern.matcher(telnum);
 		if (!telMatcher.find()) {
@@ -574,13 +572,11 @@ public class RestApiController {
 		HashMap<String, Object> rsmap = resourceManagerService.response("pwdsettings", tel);
 		return new ResponseEntity<Map>(rsmap, HttpStatus.OK);
 	}
-	
+
 	/**
 	 * 密码设置 确认
-	 * 
-	 * @param telnum
-	 * @param pwdsetting
-	 * @param pwdconfirm
+	 * @param id
+	 * @param pwdSettingBody
 	 * @return
 	 */
 	@ApiOperation("密码设置 确认按钮")
@@ -713,6 +709,9 @@ public class RestApiController {
 			@RequestParam(value = "newpassword") String newpassword
 			) throws IllegalAccessException, InstantiationException {
 		Map<String,Object> result = new HashMap<String,Object>();
+		if (newpassword.length() < 6 || newpassword.length() > 20) {
+			throw new UserException("101", "密码长度至少为6~20位，请重新输入.");
+		}
 		password = MD5.getMD5(password);
 		newpassword = MD5.getMD5(newpassword);
 		accountService.updateUser(uuid,password,newpassword);
