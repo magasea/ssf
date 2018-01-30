@@ -26,4 +26,14 @@ public enum TrdOrderOpTypeEnum {
     this.comment = comment;
   }
 
+  public static String getComment(int operation){
+
+    for (TrdOrderOpTypeEnum enumItem : TrdOrderOpTypeEnum.values()) {
+      if (enumItem.getOperation() == operation) {
+        return enumItem.getComment();
+      }
+    }
+    throw new IllegalArgumentException("input operation:"+operation+" is illeagal");
+  }
+
 }

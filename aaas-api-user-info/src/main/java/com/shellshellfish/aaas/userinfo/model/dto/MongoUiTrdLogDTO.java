@@ -2,6 +2,8 @@ package com.shellshellfish.aaas.userinfo.model.dto;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import javax.persistence.Id;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
  * The persistent class for the ui_trd_log database table.
@@ -10,28 +12,52 @@ import java.math.BigDecimal;
 public class MongoUiTrdLogDTO implements Serializable {
   private static final long serialVersionUID = 1L;
 
+  
   private String id;
 
   private BigDecimal amount;
 
+  
   private String createdBy;
 
+  
   private Long createdDate;
 
+  
   private String lastModifiedBy;
 
+  
   private Long lastModifiedDate;
 
   private int operations;
 
+  
   private Long userProdId;
 
 
+  
   private Long tradeDate;
 
+  
   private int tradeStatus;
 
+  
   private Long userId;
+
+  
+  private String fundCode;
+
+  
+  private Long tradeConfirmShare;
+
+  
+  private Long tradeConfirmSum;
+
+  
+  private Long tradeTargetShare;
+
+  
+  private Long tradeTargetSum;
 
   public MongoUiTrdLogDTO() {
   }
@@ -124,4 +150,47 @@ public class MongoUiTrdLogDTO implements Serializable {
     this.userId = userId;
   }
 
+  public void setUserId(Long userId) {
+    this.userId = userId;
+  }
+
+  public String getFundCode() {
+    return fundCode;
+  }
+
+  public void setFundCode(String fundCode) {
+    this.fundCode = fundCode;
+  }
+
+  public Long getTradeConfirmShare() {
+    return tradeConfirmShare;
+  }
+
+  public void setTradeConfirmShare(Long tradeConfirmShare) {
+    this.tradeConfirmShare = tradeConfirmShare;
+  }
+
+  public Long getTradeConfirmSum() {
+    return tradeConfirmSum;
+  }
+
+  public void setTradeConfirmSum(Long tradeConfirmSum) {
+    this.tradeConfirmSum = tradeConfirmSum;
+  }
+
+  public Long getTradeTargetShare() {
+    return tradeTargetShare;
+  }
+
+  public void setTradeTargetShare(Long tradeTargetShare) {
+    this.tradeTargetShare = tradeTargetShare;
+  }
+
+  public Long getTradeTargetSum() {
+    return tradeTargetSum;
+  }
+
+  public void setTradeTargetSum(Long tradeTargetSum) {
+    this.tradeTargetSum = tradeTargetSum;
+  }
 }

@@ -1,8 +1,10 @@
 package com.shellshellfish.aaas.userinfo.controller;
 
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
 import com.shellshellfish.aaas.userinfo.aop.AopPageResources;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
@@ -1430,48 +1432,25 @@ public class UserInfoController {
 		}
 		Map<String,Object> map = null;
 		MongoUiTrdLogDTO tradeLog = new MongoUiTrdLogDTO();
-		for (int i = 0; i < tradeLogList.size(); i++) {
+		for(MongoUiTrdLogDTO mongoUiTrdLogDTO: tradeLogList){
 			map = new HashMap<String, Object>();
-			tradeLog = tradeLogList.get(i);
-			map.put("amount", tradeLog.getAmount());
-			int operations = tradeLog.getOperations();
-//			if (operations == 1) {
-//				map.put("operations", "购买");
-//			} else if (operations == 2) {
-//				map.put("operations", "赎回");
-//			} else if (operations == 3) {
-//				map.put("operations", "分红");
-//			} else {
-//				map.put("operations", "其他");
-//			}
-			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
-			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){
-				if(operations == trdOrder3.getOperation()){
-					map.put("operations", trdOrder3.getComment());
-					break;
-				} else {
-					map.put("operations", "");
-				}
+			try{
+				map.put("operations", TrdOrderOpTypeEnum.getComment(mongoUiTrdLogDTO.getOperations()));
+			}catch (Exception ex){
+				logger.error(ex.getMessage());
+				ex.printStackTrace();
+				map.put("operations", "未知操作:" + mongoUiTrdLogDTO.getOperations());
 			}
-			// map.put("operations",tradeLog.getOperations());
-			int tradeStatus = tradeLog.getTradeStatus();
-			if (tradeStatus == 0) {
-				map.put("tradeStatus", "确认中");
-			} else if (tradeStatus == 1) {
-				map.put("tradeStatus", "确认成功");
-			} else {
-				map.put("tradeStatus", "其他");
+			try{
+				map.put("tradeStatus", TrdOrderStatusEnum.getComment(mongoUiTrdLogDTO.getTradeStatus()));
+			}catch (Exception ex){
+				logger.error(ex.getMessage());
+				ex.printStackTrace();
+				map.put("tradeStatus", "未知状态:" + mongoUiTrdLogDTO.getTradeStatus());
 			}
-			// map.put("tradeStatus",tradeLog.getTradeStatus());
-			if (tradeLog.getTradeDate() != null) {
-				map.put("tradeDate", DateUtil.getDateType(tradeLog.getLastModifiedDate()));
-			} else {
-				map.put("tradeDate", "");
-			}
-			// map.put("prodId",tradeLog.getProdId());
-			logger.info("理财产品findByProdId查询start");
-			if(tradeLog.getUserProdId()!=null&&tradeLog.getUserProdId()!=0){
-				ProductsDTO products = userInfoService.findByProdId(tradeLog.getUserProdId() + "");
+
+			if(mongoUiTrdLogDTO.getUserProdId()!=null&&mongoUiTrdLogDTO.getUserProdId()!=0){
+				ProductsDTO products = userInfoService.findByProdId(mongoUiTrdLogDTO.getUserProdId() + "");
 				logger.info("理财产品findByProdId查询end");
 				if (products == null) {
 					//throw new UserInfoException("404", "理财产品:" + tradeLog.getUserProdId() + "为空");
@@ -1482,8 +1461,85 @@ public class UserInfoController {
 			} else {
 				map.put("prodName", "");
 			}
+			map.put("fundCode", mongoUiTrdLogDTO.getFundCode());
+			map.put("date", TradeUtil.getReadableDateTime(mongoUiTrdLogDTO.getLastModifiedDate()));
+			if(mongoUiTrdLogDTO.getAmount() != null ) {
+				map.put("amount", mongoUiTrdLogDTO.getAmount());
+			}else if(mongoUiTrdLogDTO.getTradeTargetSum() != null && mongoUiTrdLogDTO.getTradeStatus()
+					== TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus()){
+				map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdLogDTO.getTradeTargetSum
+						()));
+			}else if(mongoUiTrdLogDTO.getTradeConfirmShare() != null && mongoUiTrdLogDTO.getTradeStatus
+					() == TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus()){
+				map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdLogDTO
+						.getTradeTargetShare()));
+			}else if(mongoUiTrdLogDTO.getTradeConfirmShare() != null ){
+				map.put("amount", mongoUiTrdLogDTO.getTradeConfirmShare());
+			}else if(mongoUiTrdLogDTO.getTradeConfirmSum() != null){
+				map.put("amount", mongoUiTrdLogDTO.getTradeConfirmSum());
+			}else{
+				logger.error("there is no amount information for mondUiTrdLogDTO with userId:" + userUuid
+						+ " userProdId:" + mongoUiTrdLogDTO.getUserProdId());
+			}
+
 			tradeLogs.add(map);
 		}
+//
+//
+//		for (int i = 0; i < tradeLogList.size(); i++) {
+//			map = new HashMap<String, Object>();
+//			tradeLog = tradeLogList.get(i);
+//			map.put("amount", tradeLog.getAmount());
+//			int operations = tradeLog.getOperations();
+////			if (operations == 1) {
+////				map.put("operations", "购买");
+////			} else if (operations == 2) {
+////				map.put("operations", "赎回");
+////			} else if (operations == 3) {
+////				map.put("operations", "分红");
+////			} else {
+////				map.put("operations", "其他");
+////			}
+//			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
+//			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){
+//				if(operations == trdOrder3.getOperation()){
+//					map.put("operations", trdOrder3.getComment());
+//					break;
+//				} else {
+//					map.put("operations", "");
+//				}
+//			}
+//			// map.put("operations",tradeLog.getOperations());
+//			int tradeStatus = tradeLog.getTradeStatus();
+//			if (tradeStatus == 0) {
+//				map.put("tradeStatus", "确认中");
+//			} else if (tradeStatus == 1) {
+//				map.put("tradeStatus", "确认成功");
+//			} else {
+//				map.put("tradeStatus", "其他");
+//			}
+//			// map.put("tradeStatus",tradeLog.getTradeStatus());
+//			if (tradeLog.getTradeDate() != null) {
+//				map.put("tradeDate", DateUtil.getDateType(tradeLog.getLastModifiedDate()));
+//			} else {
+//				map.put("tradeDate", "");
+//			}
+//			// map.put("prodId",tradeLog.getProdId());
+//			logger.info("理财产品findByProdId查询start");
+//			if(tradeLog.getUserProdId()!=null&&tradeLog.getUserProdId()!=0){
+//				ProductsDTO products = userInfoService.findByProdId(tradeLog.getUserProdId() + "");
+//				logger.info("理财产品findByProdId查询end");
+//				if (products == null) {
+//					//throw new UserInfoException("404", "理财产品:" + tradeLog.getUserProdId() + "为空");
+//					map.put("prodName", "");
+//				} else {
+//					map.put("prodName", products.getProdName());
+//				}
+//			} else {
+//				map.put("prodName", "");
+//			}
+//			tradeLogs.add(map);
+//		}
 		result.put("tradeLogs", tradeLogs);
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}

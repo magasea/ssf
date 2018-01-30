@@ -107,6 +107,23 @@ public class BroadcastMessageConsumers {
             mongoUiTrdLog.setUserProdId(trdPayFlow.getUserProdId());
             mongoUiTrdLog.setUserId(trdPayFlow.getUserId());
             mongoUiTrdLog.setTradeStatus(trdPayFlow.getTrdStatus());
+            if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.WAITPAY.getStatus() ||
+                trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()){
+                //等待支付金额就是下单请求时候的金额
+                mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow.getTradeTargetSum()));
+            }else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus() ||
+                trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus()){
+                //等待赎回份额就是下单请求时候的份额
+                mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow.getTradeTargetShare()));
+            }else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()){
+                if(trdPayFlow.getTrdType() == TrdOrderOpTypeEnum.BUY.getOperation()){
+                    mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow
+                        .getTradeConfirmShare()));
+                }else if(trdPayFlow.getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+                    mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow
+                        .getTradeConfirmSum()));
+                }
+            }
             mongoUiTrdLog.setLastModifiedDate(TradeUtil.getUTCTime());
             mongoUiTrdLog.setFundCode(trdPayFlow.getFundCode());
             mongoUiTrdLog.setTradeDate(trdPayFlow.getUpdateDate());

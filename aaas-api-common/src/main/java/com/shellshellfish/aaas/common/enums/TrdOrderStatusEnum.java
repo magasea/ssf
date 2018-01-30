@@ -25,4 +25,12 @@ public enum TrdOrderStatusEnum {
     this.comment = comment;
   }
 
+  public static String getComment(int status){
+    for (TrdOrderStatusEnum enumItem : TrdOrderStatusEnum.values()) {
+      if (enumItem.getStatus() == status) {
+        return enumItem.getComment();
+      }
+    }
+    throw new IllegalArgumentException("input operation:"+status+" is illeagal");
+  }
 }

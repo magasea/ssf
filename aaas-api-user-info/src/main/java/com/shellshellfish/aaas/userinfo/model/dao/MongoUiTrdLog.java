@@ -23,6 +23,7 @@ public class MongoUiTrdLog implements Serializable {
   @Id
   private String id;
 
+  @Field( value = "amount")
   private BigDecimal amount;
 
   @Field( value = "created_by")
