@@ -45,7 +45,7 @@ public class UiProductServiceImpl implements UiProductService {
 	@Override
 	public UiProductDTO getProductByProdId(Long prodId) {
 
-		UiProducts uiProducts = uiProductRepo.findByProdId(prodId);
+		UiProducts uiProducts = uiProductRepo.findById(prodId);
 		UiProductDTO uiProductDTO = new UiProductDTO();
 		if (uiProducts != null) {
 			BeanUtils.copyProperties(uiProducts, uiProductDTO);

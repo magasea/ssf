@@ -42,10 +42,16 @@ public class FundGroupController {
 			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = "shellshellfish"),
 			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = "41"),
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "12"),
-			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "120049"),})
+			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "120049"),
+			@ApiImplicitParam(paramType = "query", name = "buyDate", dataType = "String", required = true, value = "买入时间", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "totals", dataType = "String", required = true, value = "组合资产", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "totalIncome", dataType = "String", required = true, value = "累计收益", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "totalIncomeRate", dataType = "String", required = true, value = "累计收益率", defaultValue = "")})
 	@RequestMapping(value = "/getMyProductDetail", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getProductDetail(@RequestParam String uuid, @RequestParam String prodId,@RequestParam String groupId,@RequestParam String subGroupId) {
+	public JsonResult getProductDetail(@RequestParam String uuid, @RequestParam String prodId,
+			@RequestParam String groupId, @RequestParam String subGroupId, @RequestParam String buyDate,
+			@RequestParam String totals, @RequestParam String totalIncome, @RequestParam String totalIncomeRate) {
 
 		Map result = null;
 
@@ -60,12 +66,18 @@ public class FundGroupController {
 			result = entity.getBody();
 			result.put("groupId", groupId);
 			result.put("subGroupId", subGroupId);
+			result.put("buyDate", buyDate);
+			result.put("totals", totals);
+			result.put("totalIncome", totalIncome);
+			result.put("totalIncomeRate", totalIncomeRate);
 			Map bankNumResult = restTemplate
 					.getForEntity(tradeOrderUrl + "/api/trade/funds/banknums/" + uuid + "?prodId=" + prodId, Map.class)
 					.getBody();
 			if(bankNumResult.get("bankNum")!=null){
 				String bankNum = bankNumResult.get("bankNum")+"";
 				String bankName = "";
+				String bankShortNum = "";
+				String telNum = "";
 				List bankList = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/bankcards", List.class).getBody();
 				if(bankList!=null){
 					for(int i=0;i<bankList.size();i++){
@@ -75,12 +87,15 @@ public class FundGroupController {
 								bankName = bankMap.get("bankShortName")+"";
 //								String bankcardSecurity[] = (bankMap.get("bankcardSecurity").toString()).split(" ");
 //								bankNum = bankcardSecurity[bankcardSecurity.length-1];
-								bankNum = bankNum.substring(bankNum.length()-4);
+//								bankNum = bankNum.substring(bankNum.length()-4);
+								bankShortNum = bankNum.substring(bankNum.length()-4);
+								telNum = bankMap.get("cellphone") + "";
 								break;
 							}
 						}
 					}
 					result.put("bankNum", bankNum);
+					result.put("telNum", telNum);
 					result.put("bankName", bankName);
 				}
 			}

@@ -3,10 +3,14 @@ package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
+import com.shellshellfish.aaas.common.message.order.MongoUiTrdZZInfo;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.ZZStatsToOrdStatsUtils;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.ConfirmResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
 
 import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;
@@ -14,6 +18,7 @@ import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.service.OrderService;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +64,7 @@ public class CheckFundsBuyJobService {
             ApplyResult applyResult = null;
             String userPid = null;
             String outsideOrderno = null;
+            List<TrdPayFlow> trdPayFlowListToGetConfirmInfo = new ArrayList<>();
             for (TrdPayFlow trdPayFlow : trdPayFlows) {
                 try {
                     // TODO: replace userId with userUuid
@@ -89,6 +95,9 @@ public class CheckFundsBuyJobService {
                         trdPayFlow.setTrdStatus(ZZStatsToOrdStatsUtils
                             .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
                                 Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum).getStatus());
+                        if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()){
+                            trdPayFlowListToGetConfirmInfo.add(trdPayFlow);
+                        }
                         trdPayFlow.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
                             .getPoundage()));
                         updateByCheckAboutSumNum(trdPayFlow, applyResult);
@@ -110,7 +119,64 @@ public class CheckFundsBuyJobService {
                     logger.info("Sample job has finished...");
                 }
             }
+            CheckAndSendConfirmInfo(trdPayFlowListToGetConfirmInfo);
         }
+    }
+
+    private void CheckAndSendConfirmInfo(List<TrdPayFlow> trdPayFlowListToGetConfirmInfo) {
+        if(CollectionUtils.isEmpty(trdPayFlowListToGetConfirmInfo)){
+            logger.info("there is no confirm trdPayFlow to handle");
+            return;
+        }
+        String userPid;
+        String outsideOrderno;
+        for(TrdPayFlow trdPayFlow: trdPayFlowListToGetConfirmInfo){
+            try {
+                userPid = orderService.getPidFromTrdAccoBrokerId(trdPayFlow);
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.error("failed to retrieve userPid for trdPayFlow with userId:"+ trdPayFlow
+                    .getUserId());
+                continue;
+            }
+            outsideOrderno = trdPayFlow.getOutsideOrderno();
+            if(StringUtils.isEmpty(outsideOrderno)){
+                logger.error("if the outsideOrderno is empty, the payflow is of old "
+                    + "process with outsideOrderno as the orderDetailId");
+                outsideOrderno = ""+trdPayFlow.getOrderDetailId();
+            }
+            List<ConfirmResult> confirmResults = null;
+            try{
+                confirmResults = fundTradeApiService.getConfirmResults(TradeUtil.getZZOpenId(userPid), outsideOrderno);
+            }catch (Exception ex){
+                ex.printStackTrace();
+                logger.error("failed to get confirmResults with userPid:" + userPid + " "
+                    + "outsideOrderno:" + outsideOrderno + " errMsg:" + ex.getMessage());
+            }
+            //now compond the message for sending
+            if(CollectionUtils.isEmpty(confirmResults)){
+               logger.error("there is no confirm information for outsideOrderno:" + outsideOrderno);
+               continue;
+            }
+            ConfirmResult confirmResult = confirmResults.get(0);
+            MongoUiTrdZZInfo mongoUiTrdZZInfo = new MongoUiTrdZZInfo();
+            MyBeanUtils.mapEntityIntoDTO(trdPayFlow, mongoUiTrdZZInfo);
+            MyBeanUtils.mapEntityIntoDTO(confirmResult, mongoUiTrdZZInfo);
+            mongoUiTrdZZInfo.setBankName(confirmResult.getBankname());
+            mongoUiTrdZZInfo.setBankAcco(confirmResult.getBankacco());
+            mongoUiTrdZZInfo.setBusinFlagStr(confirmResult.getBusinflagStr());
+            mongoUiTrdZZInfo.setApplyDate(confirmResult.getApplydate());
+            mongoUiTrdZZInfo.setApplySerial(confirmResult.getBankSerial());
+            mongoUiTrdZZInfo.setTradeStatus(trdPayFlow.getTrdStatus());
+            mongoUiTrdZZInfo.setConfirmDate(confirmResult.getConfirmdate());
+            mongoUiTrdZZInfo.setOutSideOrderNo(confirmResult.getOutsideorderno());
+            mongoUiTrdZZInfo.setTradeType(trdPayFlow.getTrdType());
+            mongoUiTrdZZInfo.setMelonMethod(confirmResult.getMelonmethod());
+            mongoUiTrdZZInfo.setOriApplyDate(confirmResult.getOriapplydate());
+            mongoUiTrdZZInfo.setBankSerial(confirmResult.getBankSerial());
+            broadcastMessageProducers.sendConfirmMessage(mongoUiTrdZZInfo);
+        }
+
     }
 
     private void updateByCheckAboutSumNum(TrdPayFlow trdPayFlow, ApplyResult applyResult){
