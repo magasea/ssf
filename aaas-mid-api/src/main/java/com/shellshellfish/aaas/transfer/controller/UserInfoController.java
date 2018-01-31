@@ -401,6 +401,7 @@ public class UserInfoController {
 			} else {
 				if (result.get("trendYield") != null) {
 					List trendYieldList = (List) result.get("trendYield");
+					List<Double> maxMinValueList = new ArrayList<Double>();
 					for (int i = 0; i < trendYieldList.size(); i++) {
 						Map trendYieldMap = (Map) trendYieldList.get(i);
 						if (trendYieldMap.get("value") != null) {
@@ -410,11 +411,16 @@ public class UserInfoController {
 							} else {
 								trendYieldMap.put("value", trendYield);
 							}
+							maxMinValueList.add(Double.parseDouble(trendYield));
 						} else {
 							trendYieldMap.put("value", "0");
+							maxMinValueList.add(0D);
 						}
 					}
-
+					if (maxMinValueList != null && maxMinValueList.size() > 0) {
+						result.put("maxValue", Collections.max(maxMinValueList));
+						result.put("minValue", Collections.min(maxMinValueList));
+					}
 					Collections.sort(trendYieldList, new Comparator<Map<String, Object>>() {
 						public int compare(Map<String, Object> o1, Map<String, Object> o2) {
 							int map1value = Integer.parseInt(o1.get("date") + "");
