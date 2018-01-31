@@ -25,6 +25,8 @@ public interface FundGroupMapper {
 
     List<Interval> getProportion(Map map);
 
+    List<Interval> getProportionGroupByFundTypeTwo(Map map);
+
     List<Interval> getFnameAndProportion(Map map);
 
     List<Interval> getFundCode(Map map);
@@ -54,6 +56,8 @@ public interface FundGroupMapper {
                                                     @Param("standardType") String standardType);
 
     List<FundGroupBuy> getFundGroupBuy(@Param("id") String id);
+
+    String getFundGroupNameById(@Param("id") String id);
 
     String getFundGroupHistoryTime(Map map);
 
