@@ -774,4 +774,20 @@ public class UserInfoServiceImpl implements UserInfoService {
 		}
 		return resultMap;
 	}
+
+	@Override
+	public Map<String, Object> getProducts(Long prodId) throws IllegalAccessException, InstantiationException {
+		Map<String, Object> result = new HashMap<String, Object>();
+		ProductsDTO product = new ProductsDTO();
+		if (prodId != null) {
+			product = userInfoRepoService.findByProdId(prodId + "");
+			result.put("id", product.getId());
+			result.put("userId", product.getUserId());
+			result.put("groupId", product.getProdId());
+			result.put("subGroupId", product.getGroupId());
+			result.put("prodName", product.getProdName());
+			result.put("status", product.getStatus());
+		}
+		return result;
+	}
 }

@@ -4,6 +4,7 @@ import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.finance.trade.order.model.DistributionResult;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
@@ -21,6 +22,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 
 @RestController
@@ -198,7 +200,7 @@ public class TradeOrderController {
 		TrdOrder trdOrder = orderService.getOrderByOrderId(orderId);
 		List<TrdOrderDetail> trdOrderDetailList = new ArrayList<TrdOrderDetail>();
 		if (trdOrder != null && trdOrder.getOrderId() != null) {
-			result.put("prodId", trdOrder.getProdId());
+			result.put("prodId", trdOrder.getUserProdId());
 			trdOrderDetailList = orderService.findOrderDetailByOrderId(orderId);
 		} else {
 			logger.error("购买详情不存在.");
@@ -230,7 +232,7 @@ public class TradeOrderController {
 			}
 		}
 		//TODO title
-		result.put("title", "稳健型-3个月组合");
+		//result.put("title", "稳健型-3个月组合");
 		//金额
 		long amount = trdOrder.getPayAmount();
 		if (amount != 0) {
@@ -263,7 +265,10 @@ public class TradeOrderController {
 			detailMap.put("fundCode", trdOrderDetail.getFundCode());
 			//基金费用
 			detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
-			detailMap.put("funddate", c.get(Calendar.YEAR)+"."+(c.get(Calendar.MONTH)+1)+"."+c.get(Calendar.DATE));
+			Instant instance = Instant.now();
+			Long instanceLong = instance.toEpochMilli();
+			String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 1);
+			detailMap.put("funddate", date);
 
 			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
 			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){

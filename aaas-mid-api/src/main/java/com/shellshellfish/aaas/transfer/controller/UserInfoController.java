@@ -39,7 +39,7 @@ import io.swagger.annotations.ApiOperation;
 public class UserInfoController {
 
 	Logger logger = LoggerFactory.getLogger(UserInfoController.class);
-
+	private final static String FUND_TYPE_TWO = "QDII基金";
 	// @Autowired
 	@Value("${shellshellfish.user-user-info}")
 	private String userinfoUrl;
@@ -52,6 +52,9 @@ public class UserInfoController {
 
 	@Value("${shellshellfish.data-manager-url}")
 	private String dataManagerUrl;
+
+	@Value("${shellshellfish.asset-alloction-url}")
+	private String assetAlloctionUrl;
 
 	@Autowired
 	private RestTemplate restTemplate;
@@ -432,21 +435,32 @@ public class UserInfoController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户uuid", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = true, value = "产品ID", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "orderId", dataType = "String", required = false, value = "订单编号"),
+			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = false, value = "预计费用"),
+			@ApiImplicitParam(paramType = "query", name = "poundage", dataType = "String", required = false, value = "手续费"),
 			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = true, value = "银行名称", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = true, value = "银行卡号", defaultValue = ""), })
 	@RequestMapping(value = "/traderesult", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getRecords(@RequestParam String uuid, @RequestParam String prodId, @RequestParam String buyfee,
-			@RequestParam String bankName, @RequestParam String bankCard) {
+	public JsonResult getRecords(@RequestParam String uuid, @RequestParam String prodId,
+			@RequestParam(required = false) String orderId, @RequestParam(required = false) String buyfee,
+			@RequestParam(required = false) String poundage, @RequestParam String bankName,
+			@RequestParam String bankCard) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
-			String url = userinfoUrl + "/api/userinfo/users/" + uuid + "/orders/" + prodId + "/records?buyfee=" + buyfee
-					+ "&bankName=" + bankName + "&bankCard=" + bankCard;
+			String url = userinfoUrl + "/api/userinfo/users/" + uuid + "/orders/" + prodId + "/buy-records?buyfee="
+					+ buyfee + "&bankName=" + bankName + "&bankCard=" + bankCard;
 			result = restTemplate.getForEntity(url, Map.class).getBody();
 			if (result == null || result.size() == 0) {
 				logger.error("交易结果获取失败");
 				return new JsonResult(JsonResult.Fail, "交易结果获取失败", JsonResult.EMPTYRESULT);
+			} else {
+				result.put("uuid", uuid);
+				result.put("prodId", prodId);
+				result.put("orderId", orderId);
+				result.put("buyfee", buyfee);
+				result.put("bankName", bankName);
+				result.put("bankCard", bankCard);
 			}
 			return new JsonResult(JsonResult.SUCCESS, "交易结果成功", result);
 		} catch (Exception e) {
@@ -459,13 +473,17 @@ public class UserInfoController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户uuid", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = true, value = "预计费用", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "orderId", dataType = "String", required = false, value = "订单编号"),
+			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = false, value = "预计费用"),
+			@ApiImplicitParam(paramType = "query", name = "poundage", dataType = "String", required = false, value = "手续费"),
 			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = true, value = "银行名称", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = true, value = "银行卡号", defaultValue = ""), })
 	@RequestMapping(value = "/sellresult", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getSellRecords(@RequestParam String uuid, @RequestParam String prodId,
-			@RequestParam String buyfee, @RequestParam String bankName, @RequestParam String bankCard) {
+			@RequestParam(required = false) String orderId, @RequestParam(required = false) String buyfee,
+			@RequestParam(required = false) String poundage, @RequestParam String bankName,
+			@RequestParam String bankCard) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
 			String url = userinfoUrl + "/api/userinfo/users/" + uuid + "/orders/" + prodId + "/sell-records?buyfee="
@@ -474,6 +492,58 @@ public class UserInfoController {
 			if (result == null || result.size() == 0) {
 				logger.error("交易结果获取失败");
 				return new JsonResult(JsonResult.Fail, "交易结果获取失败", JsonResult.EMPTYRESULT);
+			} else {
+				result.put("uuid", uuid);
+				result.put("prodId", prodId);
+				result.put("orderId", orderId);
+				result.put("buyfee", buyfee);
+				result.put("bankName", bankName);
+				result.put("bankCard", bankCard);
+				result.put("poundage", poundage);
+
+				if (result.get("date1") != null) {
+					String date1 = result.get("date1") + "";
+					if (result.get("date1") != null) {
+						String date2 = result.get("date2") + "";
+						String title1 = "预计" + date1 + "-" + date2 + "期间到账。";
+						String title2 = "预计" + date1 + "-" + date2 + "期间到账，赎回基金中包含投资海外资产的QDII类型基金，确认后需要4-15个工作日到账。";
+						// 获取产品组合信息
+						String url2 = userinfoUrl + "/api/userinfo/product/" + prodId;
+						Map productResult = restTemplate.getForEntity(url2, Map.class).getBody();
+						if (productResult != null) {
+							if (productResult.get("groupId") != null) {
+								String groupId = productResult.get("groupId") + "";
+								if (productResult.get("subGroupId") != null) {
+									String subGroupId = productResult.get("subGroupId") + "";
+									// 获取二级分类
+									String url3 = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
+											+ "/sub-groups/" + subGroupId;
+									Map productMap = restTemplate.getForEntity(url3, Map.class).getBody();
+									if (productMap == null) {
+										logger.info("单个基金组合产品信息为空");
+									} else {
+										if (productMap.get("assetsRatios") != null) {
+											List<Map> assetsList = (List<Map>) productMap.get("assetsRatios");
+											for (int i = 0; i < assetsList.size(); i++) {
+												Map assetsMap = assetsList.get(i);
+												if (assetsMap != null) {
+													if (FUND_TYPE_TWO.equals(assetsMap.get("type"))) {
+														result.put("title", title2);
+														break;
+													} else {
+														result.put("title", title1);
+													}
+													result.remove("date1");
+													result.remove("date2");
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 			return new JsonResult(JsonResult.SUCCESS, "交易结果成功", result);
 		} catch (Exception e) {
@@ -486,11 +556,14 @@ public class UserInfoController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "userUuid", dataType = "String", required = true, value = "用户uuid", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "orderId", dataType = "String", required = true, value = "订单编号", defaultValue = "1231230001000001513657092497"),
+			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = false, value = "预计费用"),
+			@ApiImplicitParam(paramType = "query", name = "poundage", dataType = "String", required = false, value = "手续费"),
 			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = true, value = "银行名称", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = true, value = "银行卡号", defaultValue = "") })
 	@RequestMapping(value = "/buyDetails", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult buyDetails(@RequestParam String userUuid, @RequestParam String orderId,
+			@RequestParam(required = false) String buyfee, @RequestParam(required = false) String poundage,
 			@RequestParam String bankName, @RequestParam String bankCard) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
@@ -499,13 +572,18 @@ public class UserInfoController {
 			if (result == null || result.size() == 0) {
 				logger.error("产品详情-result-获取失败");
 				return new JsonResult(JsonResult.Fail, "产品详情获取失败", JsonResult.EMPTYRESULT);
+			} else {
+				result.put("buyfee", buyfee == null ? "" : buyfee);
+				result.put("poundage", poundage == null ? "" : poundage);
+				result.put("bankName", bankName);
+				result.put("bankCard", bankCard);
 			}
 			if (result.get("detailList") == null) {
 				logger.error("产品详情-detailList-获取失败");
 				// return new JsonResult(JsonResult.Fail, "产品详情获取失败",
 				// JsonResult.EMPTYRESULT);
 			} else {
-				
+
 				List detail = (List) result.get("detailList");
 				if (detail != null || detail.size() != 0) {
 					for (int i = 0; i < detail.size(); i++) {
@@ -543,6 +621,12 @@ public class UserInfoController {
 					result.put("statusList", new ArrayList());
 				}
 				result.put("bankinfo", bankName + "(" + bankCard + ")");
+				// 获取产品组合信息
+				String url2 = userinfoUrl + "/api/userinfo/product/" + prodId;
+				Map productResult = restTemplate.getForEntity(url2, Map.class).getBody();
+				if (productResult != null) {
+					result.put("title", productResult.get("prodName"));
+				}
 			}
 			return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result);
 		} catch (Exception e) {
