@@ -27,7 +27,7 @@ spring:
     topicUserinfo: shellshellfish.userinfo
   data:
     mongodb:
-      host: 192.168.1.10
+      host: localhost
       port: 27017
       database: zhongzheng
       paydatabase: ssftrdpay
