@@ -96,7 +96,7 @@ public class AccountServiceImpl implements AccountService {
 				Pattern telPattern = Pattern.compile(telRegExp);
 				Matcher telMatcher = telPattern.matcher(telnum);
 				if (!telMatcher.find()) {
-					throw new UserException("101", "手机号格式不对");
+					//throw new UserException("101", "手机号格式不对");
 				}
 				User user = userList.get(0);
 				String currentPWD = user.getPasswordHash();
@@ -156,7 +156,7 @@ public class AccountServiceImpl implements AccountService {
 		Pattern telPattern = Pattern.compile(telRegExp);
 		Matcher telMatcher = telPattern.matcher(cellphone);
 		if (!telMatcher.find()) {
-			throw new UserException("101", "手机号格式不对");
+			//throw new UserException("101", "手机号格式不对");
 		}
 		List<User> result = userRepository.findByCellPhone(cellphone);
 		List<UserDTO> userDtoList = null;

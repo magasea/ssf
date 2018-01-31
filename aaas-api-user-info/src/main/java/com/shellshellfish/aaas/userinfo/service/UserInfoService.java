@@ -84,4 +84,6 @@ public interface UserInfoService {
 
 	Integer getUserRishLevel(String  uuid);
 
+	Map<String, Object> getProducts(Long prodId) throws IllegalAccessException, InstantiationException;
+
 }

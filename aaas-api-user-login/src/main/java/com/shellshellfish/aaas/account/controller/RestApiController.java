@@ -188,7 +188,7 @@ public class RestApiController {
 		Pattern telPattern = Pattern.compile(telRegExp);
 		Matcher telMatcher = telPattern.matcher(telnum);
 		if (!telMatcher.find()) {
-			throw new UserException("102", "手机号格式不对");
+			//throw new UserException("102", "手机号格式不对");
 		}
 		HashMap<String, Object> rsmap = resourceManagerService.response("forgottenpwd", new String[] { telnum });
 
@@ -214,7 +214,7 @@ public class RestApiController {
 			Pattern telPattern = Pattern.compile(telRegExp);
 			Matcher telMatcher = telPattern.matcher(id);
 			if (!telMatcher.find()) {
-				throw new UserException("102", "手机号格式不对");
+				//throw new UserException("102", "手机号格式不对");
 			}
 			String code = accountService.sendSmsMessage(id);
 			if (code==""||code==null) {
@@ -226,7 +226,7 @@ public class RestApiController {
 			Pattern telPattern = Pattern.compile(telRegExp);
 			Matcher telMatcher = telPattern.matcher(id);
 			if (!telMatcher.find()) {
-				throw new UserException("102", "手机号格式不对");
+				//throw new UserException("102", "手机号格式不对");
 			}
 			String code = accountService.getSmsMessage(id);
 			if (StringUtils.isEmpty(code)) {
@@ -286,7 +286,7 @@ public class RestApiController {
 		Pattern telPattern = Pattern.compile(telRegExp);
 		Matcher telMatcher = telPattern.matcher(telnum);
 		if (!telMatcher.find()) {
-			throw new UserException("102", "手机号格式不对");
+			//throw new UserException("102", "手机号格式不对");
 		}
 
 		// passwd:abccd4djsN-999
@@ -378,7 +378,7 @@ public class RestApiController {
 		Pattern telPattern = Pattern.compile(telRegExp);
 		Matcher telMatcher = telPattern.matcher(telnum);
 		if (!telMatcher.find()) {
-			throw new UserException("102", "手机号格式不对");
+			//throw new UserException("102", "手机号格式不对");
 		}
 		String tel[] = new String[] { telnum };
 		HashMap<String, Object> rsmap = resourceManagerService.response("smsverifications", tel);
@@ -409,7 +409,7 @@ public class RestApiController {
 		Pattern telPattern = Pattern.compile(telRegExp);
 		Matcher telMatcher = telPattern.matcher(telnum);
 		if (!telMatcher.find()) {
-			throw new UserException("102", "手机号格式不对");
+			//throw new UserException("102", "手机号格式不对");
 		}
 		String identifyingcode = verificationBody.getIdentifyingcode();
 		String args[] = new String[] { telnum, identifyingcode };
