@@ -118,6 +118,10 @@ public class FundGroupDataService {
             expReturn = covarianceModel.getYieldRatioArr();
             expCovariance = covarianceModel.getCovarianceArr();
             combinationDate = covarianceModel.getNavDate();
+
+            this.printReturnAndCov(covarianceModel);
+            logger.info("combinationDate: " + combinationDate);
+
             logger.debug("MVO方法所需参数矩阵查询成功！");
         } else {
             logger.error("MVO方法所需参数矩阵查询失败！");
@@ -179,6 +183,27 @@ public class FundGroupDataService {
         }
 
         return doSuccess;
+    }
+
+    private void printReturnAndCov(CovarianceModel covarianceModel) {
+        Double [] expReturn = covarianceModel.getYieldRatioArr();
+        Double [][] expCovariance = covarianceModel.getCovarianceArr();
+
+        System.out.print("expReturn: [");
+        for(double d: expReturn) {
+            System.out.print(d + ", ");
+        }
+        System.out.println("]");
+
+        System.out.println("expCovariance: [");
+        for (Double[] dcov : expCovariance) {
+            System.out.print("[");
+            for(double d: dcov) {
+                System.out.print(d + ", ");
+            }
+            System.out.println("]");
+        }
+        System.out.println("]");
     }
 
 }
