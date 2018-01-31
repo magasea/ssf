@@ -13,5 +13,5 @@ public interface TradeSellService {
 
 
   TrdOrder sellProduct(ProdSellPageDTO prodSellPageDTO)
-      throws ExecutionException, InterruptedException;
+      throws Exception;
 }

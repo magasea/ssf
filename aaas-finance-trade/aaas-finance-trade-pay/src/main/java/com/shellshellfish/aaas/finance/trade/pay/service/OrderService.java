@@ -1,5 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.pay.service;
 
+import com.shellshellfish.aaas.finance.trade.pay.model.dao.mysql.TrdPayFlow;
+
 public interface OrderService {
 
   /**
@@ -7,7 +9,7 @@ public interface OrderService {
    * @param payOrderDto
    * @return
    */
-  String getPidFromTrdAccoBrokerId(com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow
+  String getPidFromTrdAccoBrokerId(TrdPayFlow
    trdPayFlow   ) throws Exception;
 
 

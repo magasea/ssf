@@ -248,6 +248,7 @@ public class BroadcastMessageConsumers {
         }else{
             String idOrig = mongoUiTrdZZInfoInDb.getId();
             MyBeanUtils.mapEntityIntoDTO(mongoUiTrdZZInfo, mongoUiTrdZZInfoInDb);
+            mongoUiTrdZZInfoInDb.setTradeType(mongoUiTrdZZInfo.getTradeType());
             mongoUiTrdZZInfoInDb.setId(idOrig);
             mongoUiTrdZZInfoRepo.save(mongoUiTrdZZInfoInDb);
         }

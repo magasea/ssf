@@ -11,9 +11,9 @@ import com.shellshellfish.aaas.common.utils.ZZStatsToOrdStatsUtils;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.ConfirmResult;
-import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
+import com.shellshellfish.aaas.finance.trade.pay.model.dao.mysql.TrdPayFlow;
 
-import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;
+import com.shellshellfish.aaas.finance.trade.pay.repositories.mysql.TrdPayFlowRepository;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.service.OrderService;

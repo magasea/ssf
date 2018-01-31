@@ -1,6 +1,6 @@
-package com.shellshellfish.aaas.finance.trade.pay.repositories;
+package com.shellshellfish.aaas.finance.trade.pay.repositories.mysql;
 
-import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
+import com.shellshellfish.aaas.finance.trade.pay.model.dao.mysql.TrdPayFlow;
 import java.util.List;
 import org.springframework.data.repository.PagingAndSortingRepository;
 

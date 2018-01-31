@@ -94,7 +94,7 @@ public class MongoUiTrdZZInfo implements Serializable {
   private String outSideOrderNo;
 
   @Field( value = "trade_type")
-  private String tradeType;
+  private int tradeType;
 
   @Field( value = "trade_confirm_share")
   private Long tradeConfirmShare;
@@ -332,11 +332,11 @@ public class MongoUiTrdZZInfo implements Serializable {
     this.tradeTargetSum = tradeTargetSum;
   }
 
-  public String getTradeType() {
+  public Integer getTradeType() {
     return tradeType;
   }
 
-  public void setTradeType(String tradeType) {
+  public void setTradeType(int tradeType) {
     this.tradeType = tradeType;
   }
 }

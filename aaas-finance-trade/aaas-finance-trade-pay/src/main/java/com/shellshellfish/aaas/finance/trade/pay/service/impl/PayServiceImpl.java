@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.enums.OrderJobPayRltEnum;
 import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
@@ -21,6 +22,8 @@ import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.utils.ZZRiskToSSFRiskUtils;
 import com.shellshellfish.aaas.common.utils.ZZStatsToOrdStatsUtils;
 import com.shellshellfish.aaas.finance.trade.pay.BindBankCardResult;
+import com.shellshellfish.aaas.finance.trade.pay.FundNetInfo;
+import com.shellshellfish.aaas.finance.trade.pay.FundNetInfos;
 import com.shellshellfish.aaas.finance.trade.pay.OrderDetailPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.OrderPayResult;
 import com.shellshellfish.aaas.finance.trade.pay.OrderPayResultDetail;
@@ -30,24 +33,33 @@ import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
 import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.FundConvertResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.FundNetZZInfo;
 import com.shellshellfish.aaas.finance.trade.pay.model.OpenAccountResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.SellFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.UserBank;
 import com.shellshellfish.aaas.finance.trade.pay.model.ZZBuyFund;
-import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
-import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;
+import com.shellshellfish.aaas.finance.trade.pay.model.dao.mongo.MongoFundNetInfo;
+import com.shellshellfish.aaas.finance.trade.pay.model.dao.mysql.TrdPayFlow;
+import com.shellshellfish.aaas.finance.trade.pay.repositories.mysql.TrdPayFlowRepository;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import com.shellshellfish.aaas.finance.trade.pay.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -72,6 +84,11 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   @Autowired
   MultiThreadTaskHandler multiThreadTaskHandler;
 
+
+
+
+  @Autowired
+  MongoTemplate mongoPayTemplate;
 
   @Override
   public PayOrderDto payOrder(PayOrderDto payOrderDto) throws Exception {
@@ -357,6 +374,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           trdPayFlow.setTradeTargetShare(prodDtlSellDTO.getFundQuantity());
           trdPayFlow.setFundCode(prodDtlSellDTO.getFundCode());
           trdPayFlow.setOutsideOrderno(outsideOrderNo);
+          trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
           trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
           trdPayFlow.setCreateBy(prodSellDTO.getUserId());
           trdPayFlow.setUpdateBy(prodSellDTO.getUserId());
@@ -667,8 +685,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       TrdOrderStatusEnum trdOrderStatusEnum = ZZStatsToOrdStatsUtils.getOrdStatByZZKKStatus(ZZKKStatusEnum
           .getByStatus((kkStat)), TrdOrderOpTypeEnum.BUY);
 
-      com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow trdPayFlow = new com
-          .shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow();
+      TrdPayFlow trdPayFlow = new TrdPayFlow();
 //      BeanUtils.copyProperties(request.getTrdOrderDetail(), trdPayFlow);
       trdPayFlow.setUpdateBy(request.getUserId());
       trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
@@ -785,6 +802,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   }
 
 
+
+
   /**
    * <pre>
    **
@@ -826,5 +845,124 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     }
     responseObserver.onNext(resultBuilder.build());
     responseObserver.onCompleted();
+  }
+
+  /**
+   * <pre>
+   **
+   * 用中证提供的接口获取交易基金的净值
+   * </pre>
+   */
+  public void getLatestFundNet(com.shellshellfish.aaas.finance.trade.pay.FundNetQuery request,
+      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.pay.FundNetInfos> responseObserver) {
+    List<MongoFundNetInfo> mongoFundNetInfoList = getFundNetInfo(request.getFundCodeList(),
+        request.getTradeDays(), request.getUserPid());
+    FundNetInfos.Builder fnisBuilder = FundNetInfos.newBuilder();
+    for(MongoFundNetInfo mongoFundNetInfo: mongoFundNetInfoList){
+      FundNetInfo.Builder fniBuilder = FundNetInfo.newBuilder();
+      MyBeanUtils.mapEntityIntoDTO(mongoFundNetInfo, fniBuilder);
+      fnisBuilder.addFundNetInfo(fniBuilder);
+    }
+    responseObserver.onNext(fnisBuilder.build());
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public List<MongoFundNetInfo> getFundNetInfo(List<String> fundCodes, int trdDates, String
+      userPid) {
+    String latestWorkDay = null;
+    try {
+       latestWorkDay = fundTradeApiService.getWorkDay(TradeUtil.getZZOpenId(userPid),"left",
+          1);
+    } catch (Exception e) {
+      e.printStackTrace();
+      logger.error("failed to get latestWorkDay for input userPid:"+ userPid);
+    }
+    if(!StringUtils.isEmpty(latestWorkDay)){
+      if(!latestWorkDay.contains("-")){
+        latestWorkDay = String.format("%s-%s-%s",latestWorkDay.substring(0,4),latestWorkDay
+            .substring(4,6),latestWorkDay.substring(6,8));
+      }
+    }
+    List<MongoFundNetInfo> mongoFundNetInfoList = new ArrayList<>();
+    if(trdDates == 0){
+      //默认取当前10天的交易信息 返回最近的交易信息
+      for(String fundCode: fundCodes){
+        try {
+          List<MongoFundNetInfo> mongoFundNetInfoListInit = initMongoFundNetInfo(fundCode, 10);
+          mongoFundNetInfoList.addAll(mongoFundNetInfoListInit);
+        } catch (Exception e) {
+          e.printStackTrace();
+          logger.error(e.getMessage());
+        }
+      }
+      return mongoFundNetInfoList;
+    }else{
+      for(String fundCode: fundCodes){
+        Query findFundNetInfoQuery = new Query();
+        findFundNetInfoQuery.addCriteria(Criteria.where("fund_code").in(fundCode).andOperator
+            (Criteria.where("trade_date").is(latestWorkDay)));
+        findFundNetInfoQuery.with(new Sort(Direction.DESC, "trade_date"));
+        findFundNetInfoQuery.limit(1);
+        List<MongoFundNetInfo> mongoFundNetInfos = mongoPayTemplate.find(findFundNetInfoQuery,
+            MongoFundNetInfo.class);
+        if(CollectionUtils.isEmpty(mongoFundNetInfos)){
+          try {
+            List<MongoFundNetInfo> mongoFundNetInfoListInit = initMongoFundNetInfo(fundCode, 1);
+            mongoFundNetInfoList.addAll(mongoFundNetInfoListInit);
+          } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+          }
+        }else{
+          mongoFundNetInfoList.addAll(mongoFundNetInfos);
+        }
+      }
+      return mongoFundNetInfoList;
+    }
+  }
+
+
+
+  private List<MongoFundNetInfo> initMongoFundNetInfo(String fundCode, int days){
+    List<MongoFundNetInfo> mongoFundNetInfoList = new ArrayList<>();
+    try {
+      if(MonetaryFundEnum.containsCode(fundCode)){
+        logger.info("monetary fund should alwary be 1 for netunit");
+      }
+      int dayStart = days -1 >= 0? days -1: days;
+      List<FundNetZZInfo> fundNets =  fundTradeApiService.getFundNets(fundCode, dayStart, days);
+      if(!CollectionUtils.isEmpty(fundNets)){
+        for(FundNetZZInfo fundNet: fundNets){
+          Query findFundNetInfoQuery = new Query();
+          findFundNetInfoQuery.addCriteria(Criteria.where("fund_code").is(fundCode));
+          findFundNetInfoQuery.with(new Sort(Direction.DESC, "trade_date"));
+          findFundNetInfoQuery.limit(1);
+          List<MongoFundNetInfo> mongoFundNetInfos = mongoPayTemplate.find(findFundNetInfoQuery,
+              MongoFundNetInfo.class);
+          if(CollectionUtils.isEmpty(mongoFundNetInfos )){
+            MongoFundNetInfo mongoFundNetInfo = new MongoFundNetInfo();
+            MyBeanUtils.mapEntityIntoDTO(fundNet, mongoFundNetInfo);
+            mongoFundNetInfo.setFundCode(fundCode);
+            mongoPayTemplate.save(mongoFundNetInfo);
+
+          }else{
+            logger.info("the record of mongoFundNetInfo of fundCode:"+ fundCode + " and "
+                + "trdDate:" + fundNet.getTradeDate() +" is already exists");
+          }
+        }
+      }
+      Query findFundNetInfoQuery = new Query();
+      findFundNetInfoQuery.addCriteria(Criteria.where("fund_code").is(fundCode));
+      findFundNetInfoQuery.with(new Sort(Direction.DESC, "trade_date"));
+      findFundNetInfoQuery.limit(1);
+      List<MongoFundNetInfo> mongoFundNetInfos = mongoPayTemplate.find(findFundNetInfoQuery,
+          MongoFundNetInfo.class);
+      mongoFundNetInfoList.add(mongoFundNetInfos.get(0));
+    } catch (Exception e) {
+      e.printStackTrace();
+      logger.error(e.getMessage());
+    }
+    return mongoFundNetInfoList;
   }
 }

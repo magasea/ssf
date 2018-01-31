@@ -18,6 +18,7 @@ service UserInfoService {
     rpc GetUserInfo (UserId) returns (UserInfo){}
     rpc GetUserInfoByUserUUID (UserIdQuery) returns (UserInfo){}
     rpc SellUserProducts (SellProducts) returns (SellProducts){}
+    rpc RollbackUserProducts (SellProducts) returns (SellProducts){}
 }
 message SellProducts{
   int64 user_product_id = 1;//用户理财产品ID

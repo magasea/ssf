@@ -1,14 +1,11 @@
 package com.shellshellfish.aaas.finance.trade.pay.service;
 
-import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 public interface FundTradeApiService {
 
@@ -76,5 +73,9 @@ public interface FundTradeApiService {
 
     //String getAllConfirmList(String userUuid) throws JsonProcessingException;
 
+    public List<FundNetZZInfo> getFundNets(String fundCode, Integer startIndex, Integer count)
+        throws Exception;
 
+    public String getWorkDay(String openId, String direction, int day)
+        throws Exception;
 }
