@@ -444,14 +444,14 @@ public class UserInfoController {
 			@ApiImplicitParam(paramType = "query", name = "orderId", dataType = "String", required = false, value = "订单编号"),
 			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = false, value = "预计费用"),
 			@ApiImplicitParam(paramType = "query", name = "poundage", dataType = "String", required = false, value = "手续费"),
-			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = true, value = "银行名称", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = true, value = "银行卡号", defaultValue = ""), })
+			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = false, value = "银行名称"),
+			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"), })
 	@RequestMapping(value = "/traderesult", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getRecords(@RequestParam String uuid, @RequestParam String prodId,
 			@RequestParam(required = false) String orderId, @RequestParam(required = false) String buyfee,
-			@RequestParam(required = false) String poundage, @RequestParam String bankName,
-			@RequestParam String bankCard) {
+			@RequestParam(required = false) String poundage, @RequestParam(required = false) String bankName,
+			@RequestParam(required = false) String bankCard) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
 			String url = userinfoUrl + "/api/userinfo/users/" + uuid + "/orders/" + prodId + "/buy-records?buyfee="
@@ -463,10 +463,11 @@ public class UserInfoController {
 			} else {
 				result.put("uuid", uuid);
 				result.put("prodId", prodId);
-				result.put("orderId", orderId);
-				result.put("buyfee", buyfee);
-				result.put("bankName", bankName);
-				result.put("bankCard", bankCard);
+				result.put("orderId", orderId == null ? "" : orderId);
+				result.put("buyfee", buyfee == null ? "" : buyfee);
+				result.put("bankName", bankName == null ? "" : bankName);
+				result.put("bankCard", bankCard == null ? "" : bankCard);
+				result.put("poundage", poundage == null ? "" : poundage);
 			}
 			return new JsonResult(JsonResult.SUCCESS, "交易结果成功", result);
 		} catch (Exception e) {
@@ -482,14 +483,14 @@ public class UserInfoController {
 			@ApiImplicitParam(paramType = "query", name = "orderId", dataType = "String", required = false, value = "订单编号"),
 			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = false, value = "预计费用"),
 			@ApiImplicitParam(paramType = "query", name = "poundage", dataType = "String", required = false, value = "手续费"),
-			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = true, value = "银行名称", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = true, value = "银行卡号", defaultValue = ""), })
+			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = false, value = "银行名称"),
+			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"), })
 	@RequestMapping(value = "/sellresult", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getSellRecords(@RequestParam String uuid, @RequestParam String prodId,
 			@RequestParam(required = false) String orderId, @RequestParam(required = false) String buyfee,
-			@RequestParam(required = false) String poundage, @RequestParam String bankName,
-			@RequestParam String bankCard) {
+			@RequestParam(required = false) String poundage, @RequestParam(required = false) String bankName,
+			@RequestParam(required = false) String bankCard) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
 			String url = userinfoUrl + "/api/userinfo/users/" + uuid + "/orders/" + prodId + "/sell-records?buyfee="
@@ -501,11 +502,11 @@ public class UserInfoController {
 			} else {
 				result.put("uuid", uuid);
 				result.put("prodId", prodId);
-				result.put("orderId", orderId);
-				result.put("buyfee", buyfee);
-				result.put("bankName", bankName);
-				result.put("bankCard", bankCard);
-				result.put("poundage", poundage);
+				result.put("orderId", orderId == null ? "" : orderId);
+				result.put("buyfee", buyfee == null ? "" : buyfee);
+				result.put("bankName", bankName == null ? "" : bankName);
+				result.put("bankCard", bankCard == null ? "" : bankCard);
+				result.put("poundage", poundage == null ? "" : poundage);
 
 				if (result.get("date1") != null) {
 					String date1 = result.get("date1") + "";

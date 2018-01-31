@@ -44,15 +44,17 @@ public class FundGroupController {
 			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = "41"),
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "12"),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "120049"),
-			@ApiImplicitParam(paramType = "query", name = "buyDate", dataType = "String", required = true, value = "买入时间", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "totals", dataType = "String", required = true, value = "组合资产", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "totalIncome", dataType = "String", required = true, value = "累计收益", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "totalIncomeRate", dataType = "String", required = true, value = "累计收益率", defaultValue = "") })
+			@ApiImplicitParam(paramType = "query", name = "buyDate", dataType = "String", required = false, value = "买入时间"),
+			@ApiImplicitParam(paramType = "query", name = "totals", dataType = "String", required = false, value = "组合资产"),
+			@ApiImplicitParam(paramType = "query", name = "totalIncome", dataType = "String", required = false, value = "累计收益"),
+			@ApiImplicitParam(paramType = "query", name = "totalIncomeRate", dataType = "String", required = false, value = "累计收益率") })
 	@RequestMapping(value = "/getMyProductDetail", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getProductDetail(@RequestParam String uuid, @RequestParam String prodId,
-			@RequestParam String groupId, @RequestParam String subGroupId, @RequestParam String buyDate,
-			@RequestParam String totals, @RequestParam String totalIncome, @RequestParam String totalIncomeRate) {
+			@RequestParam String groupId, @RequestParam String subGroupId,
+			@RequestParam(required = false) String buyDate, @RequestParam(required = false) String totals,
+			@RequestParam(required = false) String totalIncome,
+			@RequestParam(required = false) String totalIncomeRate) {
 
 		Map result = null;
 
@@ -68,10 +70,10 @@ public class FundGroupController {
 			result = entity.getBody();
 			result.put("groupId", groupId);
 			result.put("subGroupId", subGroupId);
-			result.put("buyDate", buyDate);
-			result.put("totals", totals);
-			result.put("totalIncome", totalIncome);
-			result.put("totalIncomeRate", totalIncomeRate);
+			result.put("buyDate", buyDate == null ? "" : buyDate);
+			result.put("totals", totals == null ? "" : totals);
+			result.put("totalIncome", totalIncome == null ? "" : totalIncome);
+			result.put("totalIncomeRate", totalIncomeRate == null ? "" : totalIncomeRate);
 			Map bankNumResult = restTemplate
 					.getForEntity(tradeOrderUrl + "/api/trade/funds/banknums/" + uuid + "?prodId=" + prodId, Map.class)
 					.getBody();
