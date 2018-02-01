@@ -30,6 +30,7 @@ spring:
       host: localhost
       port: 27017
       database: zhongzheng
+      paydatabase: ssftrdpay
 
 
 datasource:

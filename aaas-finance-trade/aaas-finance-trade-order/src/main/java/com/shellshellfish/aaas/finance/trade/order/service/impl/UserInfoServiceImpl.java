@@ -67,5 +67,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	}
 
+  @Override
+  public SellProducts rollbackSellProducts(SellProducts sellProducts)
+      throws ExecutionException, InterruptedException {
+    return userInfoServiceFutureStub.rollbackUserProducts(sellProducts).get();
+  }
+
 
 }

@@ -38,6 +38,11 @@ service PayRpcService {
     */
     rpc PreOrder2Pay(PreOrderPayReq) returns(PreOrderPayResult){
     }
+
+    /**
+    * 用中证提供的接口获取交易基金的净值
+    */
+    rpc GetLatestFundNet(FundNetQuery) returns (FundNetInfos){}
 }
 //绑定银行卡
 message BindBankCardQuery{
@@ -213,4 +218,20 @@ message PreOrderPayResult{
   int64 pre_order_id = 1; //预订单ID
   string apply_serial = 2; //交易流水号
   string err_msg = 3; // 错误消息
+}
+
+message FundNetQuery{
+  string user_pid = 1; //用户身份证件编码
+  repeated string fund_code = 2; //交易的基金代码列
+  int32 trade_days = 3; //交易日期数
+}
+message FundNetInfos{
+  repeated FundNetInfo fundNetInfo = 1; //基金净值信息
+}
+message FundNetInfo{
+  string fund_code = 1; //基金代码
+  string unit_net = 2; //单位净值
+  string accum_net = 3; //累计单位净值
+  string chng_pct = 4; //变化率
+  string tradedate = 5; //交易日期
 }

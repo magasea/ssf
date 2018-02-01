@@ -11,6 +11,9 @@ import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokerUserRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.pay.BindBankCardQuery;
+import com.shellshellfish.aaas.finance.trade.pay.FundNetInfo;
+import com.shellshellfish.aaas.finance.trade.pay.FundNetInfos;
+import com.shellshellfish.aaas.finance.trade.pay.FundNetQuery;
 import com.shellshellfish.aaas.finance.trade.pay.OrderDetailPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.OrderPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
@@ -167,6 +170,18 @@ public class PayServiceImpl implements PayService {
     return preOrderPayResult;
   }
 
+  @Override
+  public List<FundNetInfo> getFundNetInfo(String userPid , List<String> fundCodes, int days)
+      throws ExecutionException, InterruptedException {
+    FundNetQuery.Builder fnqBuilder = FundNetQuery.newBuilder();
+    for(String fundCode: fundCodes){
+      fnqBuilder.addFundCode(fundCode);
+    }
+    fnqBuilder.setTradeDays(days);
+    fnqBuilder.setUserPid(userPid);
+    FundNetInfos fundNetInfos = payRpcFutureStub.getLatestFundNet(fnqBuilder.build()).get();
+    return fundNetInfos.getFundNetInfoList();
+  }
 
 
 }

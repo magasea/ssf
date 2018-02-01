@@ -18,7 +18,6 @@ import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZinfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
@@ -69,7 +68,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 @Service
@@ -808,4 +806,20 @@ public class UserInfoServiceImpl implements UserInfoService {
 		return resultMap;
 	}
 
+
+	@Override
+	public Map<String, Object> getProducts(Long prodId) throws IllegalAccessException, InstantiationException {
+		Map<String, Object> result = new HashMap<String, Object>();
+		ProductsDTO product = new ProductsDTO();
+		if (prodId != null) {
+			product = userInfoRepoService.findByProdId(prodId + "");
+			result.put("id", product.getId());
+			result.put("userId", product.getUserId());
+			result.put("groupId", product.getProdId());
+			result.put("subGroupId", product.getGroupId());
+			result.put("prodName", product.getProdName());
+			result.put("status", product.getStatus());
+		}
+		return result;
+	}
 }

@@ -11,7 +11,8 @@ import com.shellshellfish.aaas.common.utils.ZZStatsToOrdStatsUtils;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
 import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.ZZBuyFund;
-import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;
+import com.shellshellfish.aaas.finance.trade.pay.model.dao.mysql.TrdPayFlow;
+import com.shellshellfish.aaas.finance.trade.pay.repositories.mysql.TrdPayFlowRepository;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -70,8 +71,7 @@ public class ZZTaskBuyFunds implements Callable<TrdOrderDetail> {
       TrdOrderStatusEnum trdOrderStatusEnum = ZZStatsToOrdStatsUtils.getOrdStatByZZKKStatus(ZZKKStatusEnum
           .getByStatus((kkStat)), TrdOrderOpTypeEnum.BUY);
       trdOrderDetail.setOrderDetailStatus(TrdOrderStatusEnum.FAILED.getStatus());
-      com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow trdPayFlow = new com
-          .shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow();
+      TrdPayFlow trdPayFlow = new TrdPayFlow();
       BeanUtils.copyProperties(request.getTrdOrderDetail(), trdPayFlow);
       trdPayFlow.setUpdateBy(request.getUserId());
       trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());

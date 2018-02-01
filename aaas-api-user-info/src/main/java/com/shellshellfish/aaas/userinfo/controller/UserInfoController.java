@@ -1,8 +1,10 @@
 package com.shellshellfish.aaas.userinfo.controller;
 
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
 import com.shellshellfish.aaas.userinfo.aop.AopPageResources;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
@@ -1430,48 +1432,25 @@ public class UserInfoController {
 		}
 		Map<String,Object> map = null;
 		MongoUiTrdLogDTO tradeLog = new MongoUiTrdLogDTO();
-		for (int i = 0; i < tradeLogList.size(); i++) {
+		for(MongoUiTrdLogDTO mongoUiTrdLogDTO: tradeLogList){
 			map = new HashMap<String, Object>();
-			tradeLog = tradeLogList.get(i);
-			map.put("amount", tradeLog.getAmount());
-			int operations = tradeLog.getOperations();
-//			if (operations == 1) {
-//				map.put("operations", "购买");
-//			} else if (operations == 2) {
-//				map.put("operations", "赎回");
-//			} else if (operations == 3) {
-//				map.put("operations", "分红");
-//			} else {
-//				map.put("operations", "其他");
-//			}
-			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
-			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){
-				if(operations == trdOrder3.getOperation()){
-					map.put("operations", trdOrder3.getComment());
-					break;
-				} else {
-					map.put("operations", "");
-				}
+			try{
+				map.put("operations", TrdOrderOpTypeEnum.getComment(mongoUiTrdLogDTO.getOperations()));
+			}catch (Exception ex){
+				logger.error(ex.getMessage());
+				ex.printStackTrace();
+				map.put("operations", "未知操作:" + mongoUiTrdLogDTO.getOperations());
 			}
-			// map.put("operations",tradeLog.getOperations());
-			int tradeStatus = tradeLog.getTradeStatus();
-			if (tradeStatus == 0) {
-				map.put("tradeStatus", "确认中");
-			} else if (tradeStatus == 1) {
-				map.put("tradeStatus", "确认成功");
-			} else {
-				map.put("tradeStatus", "其他");
+			try{
+				map.put("tradeStatus", TrdOrderStatusEnum.getComment(mongoUiTrdLogDTO.getTradeStatus()));
+			}catch (Exception ex){
+				logger.error(ex.getMessage());
+				ex.printStackTrace();
+				map.put("tradeStatus", "未知状态:" + mongoUiTrdLogDTO.getTradeStatus());
 			}
-			// map.put("tradeStatus",tradeLog.getTradeStatus());
-			if (tradeLog.getTradeDate() != null) {
-				map.put("tradeDate", DateUtil.getDateType(tradeLog.getLastModifiedDate()));
-			} else {
-				map.put("tradeDate", "");
-			}
-			// map.put("prodId",tradeLog.getProdId());
-			logger.info("理财产品findByProdId查询start");
-			if(tradeLog.getUserProdId()!=null&&tradeLog.getUserProdId()!=0){
-				ProductsDTO products = userInfoService.findByProdId(tradeLog.getUserProdId() + "");
+
+			if(mongoUiTrdLogDTO.getUserProdId()!=null&&mongoUiTrdLogDTO.getUserProdId()!=0){
+				ProductsDTO products = userInfoService.findByProdId(mongoUiTrdLogDTO.getUserProdId() + "");
 				logger.info("理财产品findByProdId查询end");
 				if (products == null) {
 					//throw new UserInfoException("404", "理财产品:" + tradeLog.getUserProdId() + "为空");
@@ -1482,8 +1461,85 @@ public class UserInfoController {
 			} else {
 				map.put("prodName", "");
 			}
+			map.put("fundCode", mongoUiTrdLogDTO.getFundCode());
+			map.put("date", TradeUtil.getReadableDateTime(mongoUiTrdLogDTO.getLastModifiedDate()));
+			if(mongoUiTrdLogDTO.getAmount() != null ) {
+				map.put("amount", mongoUiTrdLogDTO.getAmount());
+			}else if(mongoUiTrdLogDTO.getTradeTargetSum() != null && mongoUiTrdLogDTO.getTradeStatus()
+					== TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus()){
+				map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdLogDTO.getTradeTargetSum
+						()));
+			}else if(mongoUiTrdLogDTO.getTradeConfirmShare() != null && mongoUiTrdLogDTO.getTradeStatus
+					() == TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus()){
+				map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdLogDTO
+						.getTradeTargetShare()));
+			}else if(mongoUiTrdLogDTO.getTradeConfirmShare() != null ){
+				map.put("amount", mongoUiTrdLogDTO.getTradeConfirmShare());
+			}else if(mongoUiTrdLogDTO.getTradeConfirmSum() != null){
+				map.put("amount", mongoUiTrdLogDTO.getTradeConfirmSum());
+			}else{
+				logger.error("there is no amount information for mondUiTrdLogDTO with userId:" + userUuid
+						+ " userProdId:" + mongoUiTrdLogDTO.getUserProdId());
+			}
+
 			tradeLogs.add(map);
 		}
+//
+//
+//		for (int i = 0; i < tradeLogList.size(); i++) {
+//			map = new HashMap<String, Object>();
+//			tradeLog = tradeLogList.get(i);
+//			map.put("amount", tradeLog.getAmount());
+//			int operations = tradeLog.getOperations();
+////			if (operations == 1) {
+////				map.put("operations", "购买");
+////			} else if (operations == 2) {
+////				map.put("operations", "赎回");
+////			} else if (operations == 3) {
+////				map.put("operations", "分红");
+////			} else {
+////				map.put("operations", "其他");
+////			}
+//			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
+//			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){
+//				if(operations == trdOrder3.getOperation()){
+//					map.put("operations", trdOrder3.getComment());
+//					break;
+//				} else {
+//					map.put("operations", "");
+//				}
+//			}
+//			// map.put("operations",tradeLog.getOperations());
+//			int tradeStatus = tradeLog.getTradeStatus();
+//			if (tradeStatus == 0) {
+//				map.put("tradeStatus", "确认中");
+//			} else if (tradeStatus == 1) {
+//				map.put("tradeStatus", "确认成功");
+//			} else {
+//				map.put("tradeStatus", "其他");
+//			}
+//			// map.put("tradeStatus",tradeLog.getTradeStatus());
+//			if (tradeLog.getTradeDate() != null) {
+//				map.put("tradeDate", DateUtil.getDateType(tradeLog.getLastModifiedDate()));
+//			} else {
+//				map.put("tradeDate", "");
+//			}
+//			// map.put("prodId",tradeLog.getProdId());
+//			logger.info("理财产品findByProdId查询start");
+//			if(tradeLog.getUserProdId()!=null&&tradeLog.getUserProdId()!=0){
+//				ProductsDTO products = userInfoService.findByProdId(tradeLog.getUserProdId() + "");
+//				logger.info("理财产品findByProdId查询end");
+//				if (products == null) {
+//					//throw new UserInfoException("404", "理财产品:" + tradeLog.getUserProdId() + "为空");
+//					map.put("prodName", "");
+//				} else {
+//					map.put("prodName", products.getProdName());
+//				}
+//			} else {
+//				map.put("prodName", "");
+//			}
+//			tradeLogs.add(map);
+//		}
 		result.put("tradeLogs", tradeLogs);
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
@@ -1531,7 +1587,7 @@ public class UserInfoController {
 		@ApiImplicitParam(paramType="query",name="bankName",dataType="String",required=true,value="银行名称",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="bankCard",dataType="String",required=true,value="银行卡号",defaultValue=""),
 	})
-	@RequestMapping(value = "/users/{userUuid}/orders/{prodId}/records", method = RequestMethod.GET)
+	@RequestMapping(value = "/users/{userUuid}/orders/{prodId}/buy-records", method = RequestMethod.GET)
 	public ResponseEntity<Map> getRecords(@PathVariable String userUuid, @PathVariable String prodId,
 			@RequestParam String buyfee, @RequestParam String bankName, @RequestParam String bankCard)
 			throws Exception {
@@ -1557,7 +1613,7 @@ public class UserInfoController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid",defaultValue=""),
 		@ApiImplicitParam(paramType="path",name="prodId",dataType="String",required=true,value="产品ID",defaultValue=""),
-		@ApiImplicitParam(paramType="query",name="buyfee",dataType="String",required=true,value="产品ID",defaultValue=""),
+		@ApiImplicitParam(paramType="query",name="buyfee",dataType="String",required=true,value="赎回费用",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="bankName",dataType="String",required=true,value="银行名称",defaultValue=""),
 		@ApiImplicitParam(paramType="query",name="bankCard",dataType="String",required=true,value="银行卡号",defaultValue=""),
 	})
@@ -1570,15 +1626,15 @@ public class UserInfoController {
 			@RequestParam String bankCard
 			) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
-		Calendar c = Calendar.getInstance();
-		int month = c.get(Calendar.MONTH);
-		// TODO 可能需要从基金详情中获取
-		c.add(5, 7);
-		int date = c.get(Calendar.DATE);
-		result.put("date1", month + "." + date);
-		c.add(5, 1);
-		date = c.get(Calendar.DATE);
-		result.put("date2", month + "." + date);
+		Instant instance = Instant.now();
+		Long instanceLong = instance.toEpochMilli();
+		String date1 = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 1);
+		String date2 = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 2);
+		result.put("date1", date1);
+		result.put("date2", date2);
+		date1 = date1.substring(5).replace("-", ".");
+		date2 = date2.substring(5).replace("-", ".");
+		
 		result.put("buyfee", buyfee);
 		result.put("bankInfo", bankName + "(" + bankCard + ")");
 		return new ResponseEntity<>(result, HttpStatus.OK);
@@ -1639,5 +1695,27 @@ public class UserInfoController {
 		}
 		result.put("result", resultMap);
 		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
+	
+	@ApiOperation("获取产品组合信息")
+	@ApiResponses({
+		@ApiResponse(code=200,message="OK"),
+		@ApiResponse(code=400,message="请求参数没填好"),
+		@ApiResponse(code=401,message="未授权用户"),        				
+		@ApiResponse(code=403,message="服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对")   
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid"),
+		@ApiImplicitParam(paramType="path",name="prodId",dataType="Long",required=true,value="产品ID")
+	})
+	@RequestMapping(value = "/product/{prodId}", method = RequestMethod.GET)
+	public ResponseEntity<Map> getProducts(@PathVariable Long prodId) throws Exception {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		resultMap = userInfoService.getProducts(prodId);
+		if (resultMap == null) {
+			resultMap = new HashMap<String, Object>();
+		}
+		return new ResponseEntity<>(resultMap, HttpStatus.OK);
 	}
 }

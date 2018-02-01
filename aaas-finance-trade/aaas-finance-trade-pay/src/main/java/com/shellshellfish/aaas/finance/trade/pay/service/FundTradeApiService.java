@@ -58,6 +58,7 @@ public interface FundTradeApiService {
     BigDecimal calcDiscountPoundage(BigDecimal amount, BigDecimal rate, BigDecimal discount);
 
     List<UserBank> getUserBank(String fundCode) throws Exception;
+
     List<UserBank> getUserBank(String userId,  String fundCode) throws Exception;
 
     void writeAllTradeRateToMongoDb() throws Exception;
@@ -65,4 +66,16 @@ public interface FundTradeApiService {
     void writeFundToMongoDb(String json);
 
     void writeAllFundsToMongoDb(List<String> funds);
+
+
+    public List<ConfirmResult> getConfirmResults(String openId, String outSideOrderNo) throws
+        Exception;
+
+    //String getAllConfirmList(String userUuid) throws JsonProcessingException;
+
+    public List<FundNetZZInfo> getFundNets(String fundCode, Integer startIndex, Integer count)
+        throws Exception;
+
+    public String getWorkDay(String openId, String direction, int day)
+        throws Exception;
 }

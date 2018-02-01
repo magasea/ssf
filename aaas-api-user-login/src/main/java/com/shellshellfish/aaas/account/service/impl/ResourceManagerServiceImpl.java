@@ -240,8 +240,8 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
 		Pattern regExp = Pattern.compile("^((1[3,5,8][0-9])|(14[5,7])|(17[0,6,7,8])|(19[7]))\\d{8}$");
 		Matcher m = regExp.matcher(telnum[0]);
 		if (!m.find()) {
-			rsmap.put("status", "手机号格式不正确");
-			return rsmap;
+//			rsmap.put("status", "手机号格式不正确");
+//			return rsmap;
 		}
 		// pwdsetting resource
 		rsmap.put("name", "pwdsettings");
@@ -277,8 +277,8 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
 		Pattern regExp = Pattern.compile("^((1[3,5,8][0-9])|(14[5,7])|(17[0,6,7,8])|(19[7]))\\d{8}$");
 		Matcher m = regExp.matcher(telnum[0]);
 		if (!m.find()) {
-			rsmap.put("status", "手机号格式不正确");
-			return rsmap;
+//			rsmap.put("status", "手机号格式不正确");
+//			return rsmap;
 		}
 		/// =====end=======///
 
@@ -322,8 +322,8 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
 		Pattern regExp = Pattern.compile("^((1[3,5,8][0-9])|(14[5,7])|(17[0,6,7,8])|(19[7]))\\d{8}$");
 		Matcher m = regExp.matcher(args[1]);
 		if (!m.find()) {
-			rsmap.put("status", "手机号格式不正确");
-			return rsmap;
+//			rsmap.put("status", "手机号格式不正确");
+//			return rsmap;
 		}
 		/// =====end=======///
 
@@ -364,7 +364,7 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
 		String uuid = args[1];
 		String token = args[2];
 		
-		rsmap.put("name", "loginhome");
+		rsmap.put("name", "");
 		//rsmap.put("uid", uid);
 		rsmap.put("uuid", uuid);
 		rsmap.put("token", token);
