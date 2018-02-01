@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.userinfo.aop;
 
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import org.springframework.core.convert.converter.Converter;
 
 /**
@@ -11,7 +12,7 @@ public class BigDecimalToDoubleConverter implements Converter<BigDecimal, Double
 
 	@Override
 	public Double convert(BigDecimal source) {
-		return source.doubleValue();
+		return source.setScale(2, RoundingMode.HALF_UP).doubleValue();
 	}
 
 }
