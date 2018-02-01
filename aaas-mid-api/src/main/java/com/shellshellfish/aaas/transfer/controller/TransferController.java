@@ -83,7 +83,13 @@ public class TransferController {
 			BigDecimal total = poundage;
 			BigDecimal totalOffDiscount = total.add(discount);
 			if (total != null) {
-				total = total.setScale(2, BigDecimal.ROUND_HALF_UP);
+				if (total.compareTo(BigDecimal.ZERO) > 0 && total.compareTo(new BigDecimal("0.01")) < 0) {
+					total = new BigDecimal("0.01");
+					resultMap.put("poundage", "小于:¥0.01");
+				} else {
+					total = total.setScale(2, BigDecimal.ROUND_HALF_UP);
+					resultMap.put("poundage", total);
+				}
 			}
 			if (totalOffDiscount != null) {
 				totalOffDiscount = totalOffDiscount.setScale(2, BigDecimal.ROUND_HALF_UP);
@@ -103,7 +109,7 @@ public class TransferController {
 					}
 				}
 			}
-			resultMap.put("poundage", total);
+			
 			resultMap.put("discountSaving", discount);
 			resultMap.put("total", total);
 			resultMap.put("originalCost", totalOffDiscount);

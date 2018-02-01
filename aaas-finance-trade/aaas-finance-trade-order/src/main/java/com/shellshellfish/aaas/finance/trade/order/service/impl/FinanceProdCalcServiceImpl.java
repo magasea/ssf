@@ -83,7 +83,7 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
             totalPoundage = totalPoundage.add(poundage);
             totalDiscountSaving = totalDiscountSaving.add(discountSaving);
 
-            FundAmount fundAmount = new FundAmount(info.getFundCode(), info.getFundName(), amount.add(poundage));
+            FundAmount fundAmount = new FundAmount(info.getFundCode(), info.getFundName(), amount);
             fundAmountList.add(fundAmount);
         }
         return new DistributionResult(totalPoundage, totalDiscountSaving, fundAmountList);
