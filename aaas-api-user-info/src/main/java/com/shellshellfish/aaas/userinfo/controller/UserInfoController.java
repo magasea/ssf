@@ -1439,14 +1439,16 @@ public class UserInfoController {
 			}catch (Exception ex){
 				logger.error(ex.getMessage());
 				ex.printStackTrace();
-				map.put("operations", "未知操作:" + mongoUiTrdLogDTO.getOperations());
+//				map.put("operations", "未知操作:" + mongoUiTrdLogDTO.getOperations());
+				continue;
 			}
 			try{
 				map.put("tradeStatus", TrdOrderStatusEnum.getComment(mongoUiTrdLogDTO.getTradeStatus()));
 			}catch (Exception ex){
 				logger.error(ex.getMessage());
 				ex.printStackTrace();
-				map.put("tradeStatus", "未知状态:" + mongoUiTrdLogDTO.getTradeStatus());
+//				map.put("tradeStatus", "未知状态:" + mongoUiTrdLogDTO.getTradeStatus());
+				continue;
 			}
 
 			if(mongoUiTrdLogDTO.getUserProdId()!=null&&mongoUiTrdLogDTO.getUserProdId()!=0){
