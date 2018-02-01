@@ -26,35 +26,36 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 @Service
-public class OrderServiceImpl  extends OrderRpcServiceGrpc.OrderRpcServiceImplBase implements OrderService{
+public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBase implements
+		OrderService {
 
-  Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
+	Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
-  @Autowired
-  TrdOrderRepository trdOrderRepository;
+	@Autowired
+	TrdOrderRepository trdOrderRepository;
 
-  @Autowired
-  TrdOrderDetailRepository trdOrderDetailRepository;
+	@Autowired
+	TrdOrderDetailRepository trdOrderDetailRepository;
 
-  @Autowired
-  TrdBrokerUserRepository trdBrokerUserRepository;
+	@Autowired
+	TrdBrokerUserRepository trdBrokerUserRepository;
 
-  @Autowired
-  UserInfoService userInfoService;
+	@Autowired
+	UserInfoService userInfoService;
 
-  @Override
-  public List<TrdOrderDetail> getOrderByUserId(Long userId) {
-    List<TrdOrderDetail> trdOrderDetails = new ArrayList<>();
-    List<TrdOrder> trdOrders = trdOrderRepository.findTrdOrdersByUserId(userId);
-    for(TrdOrder trdOrder: trdOrders){
-      List<TrdOrderDetail> trdOrderDetailList = trdOrderDetailRepository.findAllByOrderId(trdOrder
-          .getOrderId());
-      trdOrderDetails.addAll(trdOrderDetailList);
-    }
-    return trdOrderDetails;
-  }
-  
-  
+	@Override
+	public List<TrdOrderDetail> getOrderByUserId(Long userId) {
+		List<TrdOrderDetail> trdOrderDetails = new ArrayList<>();
+		List<TrdOrder> trdOrders = trdOrderRepository.findTrdOrdersByUserId(userId);
+		for (TrdOrder trdOrder : trdOrders) {
+			List<TrdOrderDetail> trdOrderDetailList = trdOrderDetailRepository.findAllByOrderId(trdOrder
+					.getOrderId());
+			trdOrderDetails.addAll(trdOrderDetailList);
+		}
+		return trdOrderDetails;
+	}
+
+
 	@Override
 	public TrdOrder getOrderByOrderId(String orderId) {
 		TrdOrder trdOrders = trdOrderRepository.findByOrderId(orderId);
@@ -68,12 +69,13 @@ public class OrderServiceImpl  extends OrderRpcServiceGrpc.OrderRpcServiceImplBa
 		List<TrdOrderDetail> trdOrderDetails = trdOrderDetailRepository.findAllByOrderId(orderId);
 		return trdOrderDetails;
 	}
+
 	@Override
-	public TrdOrder findOrderByUserProdIdAndUserId(Long prodId,Long userId) {
+	public TrdOrder findOrderByUserProdIdAndUserId(Long prodId, Long userId) {
 		//List<TrdOrderDetail> trdOrderDetails = trdOrderDetailRepository.findTrdOrderDetailsByOrderId(orderId);
-		List<TrdOrder> trdOrderList = trdOrderRepository.findByUserProdIdAndUserId(prodId,userId);
+		List<TrdOrder> trdOrderList = trdOrderRepository.findByUserProdIdAndUserId(prodId, userId);
 		TrdOrder trdOrder = new TrdOrder();
-		if(trdOrderList !=null && trdOrderList.size()>0){
+		if (trdOrderList != null && trdOrderList.size() > 0) {
 			trdOrder = trdOrderList.get(0);
 		}
 		return trdOrder;
@@ -140,7 +142,5 @@ public class OrderServiceImpl  extends OrderRpcServiceGrpc.OrderRpcServiceImplBa
 		responseObserver.onCompleted();
 	}
 
-
-  }
 
 }
