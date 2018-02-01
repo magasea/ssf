@@ -6,6 +6,7 @@ import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.order.OrderResult;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
@@ -14,7 +15,8 @@ import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZinfo;
+
+import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
@@ -33,7 +35,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
-import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZzInfoRepo;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
 import com.shellshellfish.aaas.userinfo.service.UiProductService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
@@ -86,7 +88,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 
 	@Autowired
-	MongoUiTrdZzInfoRepo mongoUiTrdZzInfoRepo;
+	MongoUiTrdZZInfoRepo mongoUiTrdZZInfoRepo;
 
 
 	@Autowired
@@ -565,16 +567,16 @@ public class UserInfoServiceImpl implements UserInfoService {
 		PortfolioInfo portfolioInfo = userFinanceProdCalcService
 				.calculateProductValue(uuid, userId, userId, startDay, endDay);
 
-		List<MongoUiTrdZZinfo> mongoUiTrdZZinfoList = mongoUiTrdZzInfoRepo
-				.findAllByUserProdIdAndTradeTypeAndTradeStatus(prodId,
+		List<MongoUiTrdZZInfo> mongoUiTrdZZinfoList = mongoUiTrdZZInfoRepo
+				.findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(userId,prodId,
 						TrdOrderOpTypeEnum.BUY.getOperation(),
 						TrdOrderStatusEnum.CONFIRMED.getStatus());
 
 		//已经确认部分金额
 		BigDecimal conifrmAsset = BigDecimal.ZERO;
-		for (MongoUiTrdZZinfo mongoUiTrdZZinfo : mongoUiTrdZZinfoList) {
+		for (MongoUiTrdZZInfo mongoUiTrdZZinfo : mongoUiTrdZZinfoList) {
 			conifrmAsset.add(mongoUiTrdZZinfo == null ? BigDecimal.ZERO
-					: mongoUiTrdZZinfo.getTradeTargetSum());
+					: TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZinfo.getTradeTargetSum()));
 		}
 		conifrmAsset.divide(new BigDecimal(100));
 
