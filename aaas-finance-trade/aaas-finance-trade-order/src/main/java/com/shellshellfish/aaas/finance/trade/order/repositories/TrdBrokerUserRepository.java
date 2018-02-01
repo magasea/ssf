@@ -17,7 +17,7 @@ public interface TrdBrokerUserRepository extends PagingAndSortingRepository<TrdB
   List<TrdBrokerUser> findByUserId(Long userId);
 
 
-  TrdBrokerUser findByUserIdAndAndBankCardNum(Long userId, String bankCardNum);
+  TrdBrokerUser findByUserIdAndBankCardNum(Long userId, String bankCardNum);
 
   @Modifying
   @Query("UPDATE TrdBrokerUser SET trade_acco = :trdAcco,  update_date = :updateDate, update_by ="

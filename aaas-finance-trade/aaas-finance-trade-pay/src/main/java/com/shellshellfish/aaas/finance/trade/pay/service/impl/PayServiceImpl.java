@@ -889,7 +889,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       //默认取当前10天的交易信息 返回最近的交易信息
       for(String fundCode: fundCodes){
         try {
-          List<MongoFundNetInfo> mongoFundNetInfoListInit = initMongoFundNetInfo(fundCode, 10);
+          List<MongoFundNetInfo> mongoFundNetInfoListInit = initMongoFundNetInfo(fundCode, 10, latestWorkDay);
           mongoFundNetInfoList.addAll(mongoFundNetInfoListInit);
         } catch (Exception e) {
           e.printStackTrace();
@@ -908,7 +908,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
             MongoFundNetInfo.class);
         if(CollectionUtils.isEmpty(mongoFundNetInfos)){
           try {
-            List<MongoFundNetInfo> mongoFundNetInfoListInit = initMongoFundNetInfo(fundCode, 1);
+            List<MongoFundNetInfo> mongoFundNetInfoListInit = initMongoFundNetInfo(fundCode, 1,
+                latestWorkDay);
             mongoFundNetInfoList.addAll(mongoFundNetInfoListInit);
           } catch (Exception e) {
             e.printStackTrace();
@@ -924,7 +925,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
 
 
-  private List<MongoFundNetInfo> initMongoFundNetInfo(String fundCode, int days){
+  private List<MongoFundNetInfo> initMongoFundNetInfo(String fundCode, int days, String
+      latestWorkDay){
     List<MongoFundNetInfo> mongoFundNetInfoList = new ArrayList<>();
     try {
       if(MonetaryFundEnum.containsCode(fundCode)){
@@ -935,7 +937,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       if(!CollectionUtils.isEmpty(fundNets)){
         for(FundNetZZInfo fundNet: fundNets){
           Query findFundNetInfoQuery = new Query();
-          findFundNetInfoQuery.addCriteria(Criteria.where("fund_code").is(fundCode));
+          findFundNetInfoQuery.addCriteria(Criteria.where("fund_code").is(fundCode).andOperator
+              (Criteria.where("trade_date").is(latestWorkDay)));
           findFundNetInfoQuery.with(new Sort(Direction.DESC, "trade_date"));
           findFundNetInfoQuery.limit(1);
           List<MongoFundNetInfo> mongoFundNetInfos = mongoPayTemplate.find(findFundNetInfoQuery,

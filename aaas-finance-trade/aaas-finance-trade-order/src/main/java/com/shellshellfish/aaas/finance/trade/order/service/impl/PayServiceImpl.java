@@ -73,21 +73,32 @@ public class PayServiceImpl implements PayService {
 		if (trdAcco == null || errMsg.equals(trdAcco))
 			return errMsg;
 
-
-		TrdBrokerUser trdBrokerUserNew = new TrdBrokerUser();
-		trdBrokerUserNew.setTradeAcco(trdAcco);
-		trdBrokerUserNew.setBankCardNum(bindBankCard.getBankCardNum());
-		trdBrokerUserNew.setCreateBy(bindBankCard.getUserId());
-		trdBrokerUserNew.setCreateDate(TradeUtil.getUTCTime());
-		trdBrokerUserNew.setTradeAcco(trdAcco);
-		trdBrokerUserNew.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId().intValue());
-		trdBrokerUserNew.setUserId(bindBankCard.getUserId());
-		trdBrokerUserNew.setUpdateBy(bindBankCard.getUserId());
-		trdBrokerUserNew.setUpdateDate(TradeUtil.getUTCTime());
-		trdBrokerUserRepository.save(trdBrokerUserNew);
-
+    TrdBrokerUser trdBrokerUserOld = trdBrokerUserRepository.findByUserIdAndBankCardNum(bindBankCard
+            .getUserId(), bindBankCard.getBankCardNum());
+    if(trdBrokerUserOld != null){
+      logger.error("the intending bind card user already have trade account there ");
+      trdBrokerUserOld.setTradeAcco(trdAcco);
+      trdBrokerUserOld.setBankCardNum(bindBankCard.getBankCardNum());
+      trdBrokerUserOld.setTradeAcco(trdAcco);
+      trdBrokerUserOld.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId().intValue());
+      trdBrokerUserOld.setUserId(bindBankCard.getUserId());
+      trdBrokerUserOld.setUpdateBy(bindBankCard.getUserId());
+      trdBrokerUserOld.setUpdateDate(TradeUtil.getUTCTime());
+      trdBrokerUserRepository.save(trdBrokerUserOld);
+    }else{
+      TrdBrokerUser trdBrokerUserNew = new TrdBrokerUser();
+      trdBrokerUserNew.setTradeAcco(trdAcco);
+      trdBrokerUserNew.setBankCardNum(bindBankCard.getBankCardNum());
+      trdBrokerUserNew.setCreateBy(bindBankCard.getUserId());
+      trdBrokerUserNew.setCreateDate(TradeUtil.getUTCTime());
+      trdBrokerUserNew.setTradeAcco(trdAcco);
+      trdBrokerUserNew.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId().intValue());
+      trdBrokerUserNew.setUserId(bindBankCard.getUserId());
+      trdBrokerUserNew.setUpdateBy(bindBankCard.getUserId());
+      trdBrokerUserNew.setUpdateDate(TradeUtil.getUTCTime());
+      trdBrokerUserRepository.save(trdBrokerUserNew);
+    }
 		return trdAcco;
-
 	}
 
 

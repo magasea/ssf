@@ -10,7 +10,6 @@ import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc;
 import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc.DataCollectionServiceFutureStub;
 import com.shellshellfish.aaas.datacollect.FundCodes;
-import com.shellshellfish.aaas.datacollect.FundInfo;
 import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProducer;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
@@ -34,7 +33,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,7 +176,7 @@ public class TradeSellServiceImpl implements TradeSellService {
     List<Exception> errors = new ArrayList<>();
     try {
       TrdBrokerUser trdBrokerUser = trdBrokerUserRepository
-          .findByUserIdAndAndBankCardNum(prodSellDTO.getUserId(), prodSellDTO.getUserBankNum());
+          .findByUserIdAndBankCardNum(prodSellDTO.getUserId(), prodSellDTO.getUserBankNum());
 
 
 //

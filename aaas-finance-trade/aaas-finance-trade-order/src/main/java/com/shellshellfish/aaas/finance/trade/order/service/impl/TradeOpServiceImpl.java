@@ -291,7 +291,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 
 
       BindBankCard bindBankCard = new BindBankCard();
-      TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndAndBankCardNum
+      TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndBankCardNum
           (userBankInfo.getUserId(),financeProdBuyInfo.getBankAcc());
       bindBankCard.setBankCardNum(financeProdBuyInfo.getBankAcc());
 //      String bankShortName = BankUtil.getCodeOfBank(financeProdBuyInfo.getBankAcc());
@@ -415,7 +415,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 
   @Override
   public TrdBrokerUser getBrokerUserByUserIdAndBandCard(Long userId, String bankCardNum) {
-    TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndAndBankCardNum
+    TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndBankCardNum
         (userId,bankCardNum);
     return trdBrokerUser;
   }
