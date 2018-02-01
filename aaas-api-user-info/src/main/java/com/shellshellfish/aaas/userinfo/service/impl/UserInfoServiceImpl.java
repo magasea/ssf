@@ -549,12 +549,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 			//完全确认
 			products.setStatus(TrdOrderStatusEnum.CONFIRMED.getStatus());
 			return userFinanceProdCalcService
-					.calculateProductValue(uuid, userId, products.getId(), startDay, endDay);
+					.calculateProductValue(uuid, products.getId(), startDay, endDay);
 		} else {
 			//部分确认
 			products.setStatus(TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
 			return getPartConfirmFundInfo(uuid, userId, products.getId(), startDay, endDay);
 		}
+
 
 	}
 
@@ -565,10 +566,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 	private PortfolioInfo getPartConfirmFundInfo(String uuid, Long userId, Long prodId,
 			String startDay, String endDay) {
 		PortfolioInfo portfolioInfo = userFinanceProdCalcService
-				.calculateProductValue(uuid, userId, userId, startDay, endDay);
+				.calculateProductValue(uuid, prodId, startDay, endDay);
 
 		List<MongoUiTrdZZInfo> mongoUiTrdZZinfoList = mongoUiTrdZZInfoRepo
-				.findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(userId,prodId,
+				.findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(userId, prodId,
 						TrdOrderOpTypeEnum.BUY.getOperation(),
 						TrdOrderStatusEnum.CONFIRMED.getStatus());
 
@@ -578,22 +579,29 @@ public class UserInfoServiceImpl implements UserInfoService {
 			conifrmAsset.add(mongoUiTrdZZinfo == null ? BigDecimal.ZERO
 					: TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZinfo.getTradeTargetSum()));
 		}
-		conifrmAsset.divide(new BigDecimal(100));
 
 		OrderResult orderResult = rpcOrderService
 				.getOrderInfoByProdIdAndOrderStatus(prodId, TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
 		BigDecimal applyAsset = BigDecimal.valueOf(orderResult.getPayAmount() / 100);
 
-		BigDecimal source = portfolioInfo.getTotalAssets().divide(new BigDecimal(100));
+		BigDecimal assetOfEndDay = portfolioInfo.getTotalAssets();
 
-		// 总资产 = 确认基金资产+ 未确的基金的申购金额  = 结束日资产（即申购成功部分结束日资产） +（总申购资产-确认部分申购资产）
-		BigDecimal asset = source.add(applyAsset.subtract(conifrmAsset));
+		// 总资产 = 确认基金资产+ 未确认的基金的申购金额  = 结束日资产（即申购成功部分结束日资产） +（总申购资产-确认部分申购资产）
+		BigDecimal asset = assetOfEndDay.add(applyAsset.subtract(conifrmAsset));
 
-		// 累计收益=总资产-申购资产
-		BigDecimal toltalIncome = asset.subtract(applyAsset.setScale(2, RoundingMode.HALF_UP));
+		//区间净赎回
+		BigDecimal internalAmount = portfolioInfo.getBonus().add(portfolioInfo.getSellAmount())
+				.subtract(portfolioInfo.getBuyAmount());
+
+		// 累计收益=总资产+区间净赎回-申购资产
+		BigDecimal toltalIncome = asset.add(internalAmount).subtract(applyAsset);
+
 		// 累计收益率= 累计收益/申购资产
-		BigDecimal toltalIncomeRate = toltalIncome.divide(applyAsset);
+		BigDecimal toltalIncomeRate = BigDecimal.ZERO;
+		if (applyAsset.compareTo(BigDecimal.ZERO) != 0) {
+			toltalIncomeRate = toltalIncome.divide(applyAsset);
+		}
 
 		portfolioInfo.setTotalAssets(asset.setScale(2, RoundingMode.HALF_UP));
 		portfolioInfo.setTotalIncomeRate(toltalIncomeRate.setScale(2, RoundingMode.HALF_UP));
@@ -810,7 +818,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 
 	@Override
-	public Map<String, Object> getProducts(Long prodId) throws IllegalAccessException, InstantiationException {
+	public Map<String, Object> getProducts(Long prodId)
+			throws IllegalAccessException, InstantiationException {
 		Map<String, Object> result = new HashMap<String, Object>();
 		ProductsDTO product = new ProductsDTO();
 		if (prodId != null) {

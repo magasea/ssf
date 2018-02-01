@@ -34,7 +34,7 @@ public interface UserFinanceProdCalcService {
 
 	BigDecimal getAssert(String userUuid, Long prodId) throws Exception;
 
-	PortfolioInfo calculateProductValue(String userUuid, Long userId, Long prodId,
+	PortfolioInfo calculateProductValue(String userUuid, Long prodId,
 			String startDate, String endDate);
 
 	BigDecimal calculateProductYieldRate(String userUuid, Long userId, Long prodId,

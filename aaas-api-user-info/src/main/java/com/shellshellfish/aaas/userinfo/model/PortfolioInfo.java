@@ -18,6 +18,11 @@ public class PortfolioInfo {
 	//总收益率
 	private BigDecimal totalIncomeRate;
 
+
+	private BigDecimal sellAmount;
+	private BigDecimal buyAmount;
+	private BigDecimal bonus;
+
 	public BigDecimal getTotalAssets() {
 		return totalAssets;
 	}
@@ -58,6 +63,30 @@ public class PortfolioInfo {
 		this.totalIncomeRate = totalIncomeRate;
 	}
 
+	public BigDecimal getSellAmount() {
+		return sellAmount;
+	}
+
+	public void setSellAmount(BigDecimal sellAmount) {
+		this.sellAmount = sellAmount;
+	}
+
+	public BigDecimal getBuyAmount() {
+		return buyAmount;
+	}
+
+	public void setBuyAmount(BigDecimal buyAmount) {
+		this.buyAmount = buyAmount;
+	}
+
+	public BigDecimal getBonus() {
+		return bonus;
+	}
+
+	public void setBonus(BigDecimal bonus) {
+		this.bonus = bonus;
+	}
+
 	@Override
 	public String toString() {
 		return "PortfolioInfo{" +
@@ -66,6 +95,9 @@ public class PortfolioInfo {
 				", dailyIncomeRate=" + dailyIncomeRate +
 				", totalIncome=" + totalIncome +
 				", totalIncomeRate=" + totalIncomeRate +
+				", sellAmount=" + sellAmount +
+				", buyAmount=" + buyAmount +
+				", bonus=" + bonus +
 				'}';
 	}
 }
