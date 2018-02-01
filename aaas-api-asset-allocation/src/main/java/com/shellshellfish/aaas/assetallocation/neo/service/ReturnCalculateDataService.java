@@ -4,6 +4,7 @@ import com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.CovarianceMapper;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundCalculateDataMapper;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
+import com.shellshellfish.aaas.assetallocation.neo.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,8 @@ public class ReturnCalculateDataService {
         Calendar now = Calendar.getInstance();
         now.add(Calendar.WEEK_OF_YEAR, -number); //现在时间的number 周前
         Date preDate = now.getTime();
-        Date startDate = minDate.compareTo(preDate) > 0 ? minDate : preDate;
+        Date tmpStartDate = minDate.compareTo(preDate) > 0 ? minDate : preDate;
+        Date startDate = DateUtil.getDateFromFormatStr(DateUtil.formatDate(tmpStartDate));
 
         String calculateTableName = ""; //方差/风险率（risk_ratio）记录表
         switch (type) {
@@ -90,6 +92,7 @@ public class ReturnCalculateDataService {
         //取出收益率组成 1 X n 矩阵
         int index = 0;
         Double[] yieldRatio = new Double[codeList.size()];
+        List<List<Double>> yieldRatiosList = new ArrayList<>();
         for (String code : codeList) {
             if (StringUtils.isEmpty(code) || StringUtils.isEmpty(calculateTableName) || null == startDate) {
                 covarianceModel.setStatus(FAILUED_STATUS); //失败，数据无效
@@ -106,83 +109,51 @@ public class ReturnCalculateDataService {
             }
 
             //计算几何平均收益率 = (π（1+Ri）)^(1/N) - 1
-            Double yieldRatioVal = calculateGeometricMean(yieldRatioValList);
-            if (null == yieldRatioVal) {
+            Double geoMeanYieldRatio = calculateGeometricMean(yieldRatioValList);
+            if (null == geoMeanYieldRatio) {
                 covarianceModel.setStatus(NULL_STATUS); //无数据
                 logger.debug("yieldRatioVal 无数据");
                 break;
             }
-            yieldRatio[index++] = yieldRatioVal;
+            yieldRatio[index++] = geoMeanYieldRatio;
+            yieldRatiosList.add(yieldRatioValList);
         }
 
-        if (covarianceModel.getStatus() != null) {
+        if (covarianceModel.getStatus() != null
+                && !SUCCEED_STATUS.equalsIgnoreCase(covarianceModel.getStatus())) {
             return covarianceModel; //失败情况下就直接返回，不再继续后续步骤
         }
         covarianceModel.setStatus(SUCCEED_STATUS); //成功，数据有效
-
         covarianceModel.setYieldRatioArr(yieldRatio);
 
-        List<List<Double>> list = new ArrayList<>();
-        //遍历查询数据
-        for (String codeA : codeList) {
-            if (StringUtils.isEmpty(codeA)) {
-                covarianceModel.setStatus(FAILUED_STATUS); //失败，数据无效
-                logger.debug("计算协方差 获取协方差矩阵 失败");
-                break;
+        if (CollectionUtils.isEmpty(yieldRatiosList)) {
+            covarianceModel.setStatus(FAILUED_STATUS); //失败，数据无效
+            logger.debug("计算协方差 获取协方差矩阵 失败");
+            return covarianceModel; //失败情况下就直接返回，不再继续后续步骤
+        }
+
+        List<List<Double>> covsList = new ArrayList<>();
+        for (List<Double> yieldRatioListA : yieldRatiosList) {
+            if (CollectionUtils.isEmpty(yieldRatioListA) || yieldRatioListA.size() <= 1) {
+                continue;
             }
 
-            List<Double> tempList = new ArrayList();
-            for (String codeB : codeList) {
-                if (StringUtils.isEmpty(codeB)) {
-                    covarianceModel.setStatus(FAILUED_STATUS); //失败，数据无效
-                    logger.debug("code 无效, codeB: " + codeB);
-                    break;
+            List<Double> tempCovs = new ArrayList();
+            for (List<Double> yieldRatioListB : yieldRatiosList) {
+                if (CollectionUtils.isEmpty(yieldRatioListB) || yieldRatioListB.size() <= 1) {
+                    continue;
                 }
 
-                covarianceModel.setCodeA(codeA);
-                covarianceModel.setCodeB(codeB);
-                covarianceModel.setNavDate(startDate);
-                //根据code组合查找基金数据
-                List<CovarianceModel> tempCovarianceModelList = fundNetValMapper.getDataByCodeAndDate(covarianceModel);
-                //过滤数据
-                List<CovarianceModel> covarianceModelList = covarianceCalculateService.filterData(tempCovarianceModelList, TYPE_OF_WEEK);
-
-                //计算协方差 组成 矩阵
-                List<Double> yieldRatioArrA = new ArrayList<>();
-                List<Double> yieldRatioArrB = new ArrayList<>();
-                List<Double> listA = new ArrayList<>();
-                List<Double> listB = new ArrayList<>();
-                for (CovarianceModel tempCovarianceModel : covarianceModelList) {
-                    if (tempCovarianceModel.getNavadjA() == null || tempCovarianceModel.getNavadjB() == null) {
-                        continue;
-                    }
-
-                    listA.add(tempCovarianceModel.getNavadjA().doubleValue());
-                    listB.add(tempCovarianceModel.getNavadjB().doubleValue());
-                    if (listA.size() > 1) {
-                        Double yieldRatioA = fundCalculateService.calculateYieldRatio(listA.get(listA.size() - 2), listA.get(listA.size() - 1));
-                        yieldRatioArrA.add(yieldRatioA);
-
-                        Double yieldRatioB = fundCalculateService.calculateYieldRatio(listB.get(listB.size() - 2), listB.get(listB.size() - 1));
-                        yieldRatioArrB.add(yieldRatioB);
-                    }
-                }
-
-                Double cov = null;
-                //计算协方差
-                if (yieldRatioArrA.size() > 1) {
-                    cov = covarianceCalculateService.getCovariance(yieldRatioArrA.toArray(new Double[0]), yieldRatioArrB.toArray(new Double[0]));
-                }
+                Double cov = covarianceCalculateService.getCovariance(yieldRatioListA.toArray(new Double[0]), yieldRatioListB.toArray(new Double[0]));
                 if (cov != null) {
-                    tempList.add(cov);
+                    tempCovs.add(cov);
                 } else {
                     covarianceModel.setStatus(NULL_STATUS); //无数据
                     logger.debug("covariance 无数据");
                     break;
                 }
             }
-
-            list.add(tempList);
+            covsList.add(tempCovs);
         }
 
         if (!SUCCEED_STATUS.equals(covarianceModel.getStatus())) {
@@ -190,7 +161,7 @@ public class ReturnCalculateDataService {
         }
 
         //取出对应协方差组成 n X n 矩阵
-        Double[][] covarianceDoubleArr = getDoubleArray(list); //转为数组矩阵
+        Double[][] covarianceDoubleArr = getDoubleArray(covsList); //转为数组矩阵
         covarianceModel.setCovarianceArr(covarianceDoubleArr);
 
         return covarianceModel;

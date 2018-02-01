@@ -62,6 +62,7 @@ public class FundCalculateService {
         codeMap.put("codeList", codeList);
         codeMap.put("selectDate", selectDate);
         try {
+            //按净值日期倒序排列
             fundNetValList = fundNetValMapper.getAllDataByCodeAndDate(codeMap);
         } catch (Exception e) {
             logger.error("查询净值数据失败!");
@@ -204,8 +205,8 @@ public class FundCalculateService {
                     continue;
                 }
 
-                Double navadj1 = null;//该周周五净值
-                Double navadj2 = null;//前一周周五净值
+                Double curNavadj = null;//该周周五净值
+                Double preNavadj = null;//前一周周五净值
                 Double yieldRatio = null;//收益率
                 Double riskRatio = null;//风险率
                 Double semiVariance = 0d;//半方差
@@ -213,16 +214,16 @@ public class FundCalculateService {
                     try {
                         int tempNum = i;
                         //取该周周五数据（没有则往之前时间递推）
-                        FundNetVal fundNetVal1 = getEffectData(tempNum, fundList);
+                        FundNetVal curFundNetVal = getEffectData(tempNum, fundList);
                         //取前一周周五数据（没有则往之前时间递推）
-                        FundNetVal fundNetVal2 = getEffectData(++tempNum, fundList);
+                        FundNetVal preFundNetVal = getEffectData(++tempNum, fundList);
 
                         //计算收益率
-                        if (fundNetVal1 != null && fundNetVal2 != null) {
-                            navadj1 = fundNetVal1.getNavadj();
-                            navadj2 = fundNetVal2.getNavadj();
+                        if (curFundNetVal != null && preFundNetVal != null) {
+                            curNavadj = curFundNetVal.getNavadj();
+                            preNavadj = preFundNetVal.getNavadj();
                             //调用计算收益率方法
-                            yieldRatio = calculateYieldRatio(navadj1, navadj2);
+                            yieldRatio = calculateYieldRatio(curNavadj, preNavadj);
                         }
                         //计算风险率
                         riskRatio = calculateRiskRatio(i, fundList, number);
@@ -231,11 +232,11 @@ public class FundCalculateService {
 
                         FundCalculateData fundCalculateData = new FundCalculateData();
                         fundCalculateData.setCode(code); //基金代码
-                        fundCalculateData.setNavDate(fundNetVal1.getNavLatestDate()); //净值日期
+                        fundCalculateData.setNavDate(curFundNetVal.getNavLatestDate()); //净值日期
                         fundCalculateData.setYieldRatio(yieldRatio == null ? 0d : yieldRatio); //收益率
                         fundCalculateData.setRiskRatio(riskRatio == null ? 0d : riskRatio); //风险率
                         fundCalculateData.setSemiVariance(semiVariance == null ? 0d : semiVariance); //半方差
-                        fundCalculateData.setNavadj(fundNetVal1.getNavadj()); //复权单位净值
+                        fundCalculateData.setNavadj(curFundNetVal.getNavadj()); //复权单位净值
                         fundCalculateData.setCreateDate(new Date()); //数据产生时间
 
                         try {
@@ -620,16 +621,11 @@ public class FundCalculateService {
         return null;
     }
 
-    /*
+    /**
      * 计算收益率方法
      */
-    public Double calculateYieldRatio(Double navadj1, Double navadj2) {
-        Double yieldRatio = 0d;
-        if (navadj2 != 0) {
-            yieldRatio = Math.log(navadj1 / navadj2);
-
-        }
-        return yieldRatio;
+    public Double calculateYieldRatio(Double curNavadj, Double preNavadj) {
+        return preNavadj != 0 ? Math.log(curNavadj / preNavadj) : 0d;
     }
 
     /*
