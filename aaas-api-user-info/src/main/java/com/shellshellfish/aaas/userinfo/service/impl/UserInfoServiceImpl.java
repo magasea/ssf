@@ -561,7 +561,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 
 	/**
-	 * 组合中已确认部分总资产
+	 * 计算组合部分确认的资产和收益
 	 */
 	private PortfolioInfo getPartConfirmFundInfo(String uuid, Long userId, Long prodId,
 			String startDay, String endDay) {
@@ -575,9 +575,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 		//已经确认部分金额
 		BigDecimal conifrmAsset = BigDecimal.ZERO;
+		BigDecimal confirmAssetOfEndDay = BigDecimal.ZERO;
 		for (MongoUiTrdZZInfo mongoUiTrdZZinfo : mongoUiTrdZZinfoList) {
 			conifrmAsset.add(mongoUiTrdZZinfo == null ? BigDecimal.ZERO
 					: TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZinfo.getTradeTargetSum()));
+
+			if (endDay.equals(mongoUiTrdZZinfo.getConfirmDate())) {
+				confirmAssetOfEndDay
+						.add(TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZinfo.getTradeTargetSum()));
+			}
 		}
 
 		OrderResult orderResult = rpcOrderService
@@ -597,10 +603,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 		// 累计收益=总资产+区间净赎回-申购资产
 		BigDecimal toltalIncome = asset.add(internalAmount).subtract(applyAsset);
 
-		// 累计收益率= 累计收益/申购资产
+		// 累计收益率= 累计收益/(申购资产+ 区间申购)
 		BigDecimal toltalIncomeRate = BigDecimal.ZERO;
 		if (applyAsset.compareTo(BigDecimal.ZERO) != 0) {
-			toltalIncomeRate = toltalIncome.divide(applyAsset);
+			toltalIncomeRate = toltalIncome.divide(applyAsset.add(portfolioInfo.getBuyAmount()));
 		}
 
 		portfolioInfo.setTotalAssets(asset.setScale(2, RoundingMode.HALF_UP));

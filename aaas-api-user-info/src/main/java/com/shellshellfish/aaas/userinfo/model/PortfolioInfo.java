@@ -23,6 +23,14 @@ public class PortfolioInfo {
 	private BigDecimal buyAmount;
 	private BigDecimal bonus;
 
+	//最后一日申购赎回和分红
+	private BigDecimal buyAmountOfEndDay;
+	private BigDecimal sellAmountOfEndDay;
+	private BigDecimal bonusOfEndDay;
+
+
+	private BigDecimal assetOfOneDayBefore;
+
 	public BigDecimal getTotalAssets() {
 		return totalAssets;
 	}
@@ -87,6 +95,39 @@ public class PortfolioInfo {
 		this.bonus = bonus;
 	}
 
+	public BigDecimal getBuyAmountOfEndDay() {
+		return buyAmountOfEndDay;
+	}
+
+	public void setBuyAmountOfEndDay(BigDecimal buyAmountOfEndDay) {
+		this.buyAmountOfEndDay = buyAmountOfEndDay;
+	}
+
+	public BigDecimal getSellAmountOfEndDay() {
+		return sellAmountOfEndDay;
+	}
+
+	public void setSellAmountOfEndDay(BigDecimal sellAmountOfEndDay) {
+		this.sellAmountOfEndDay = sellAmountOfEndDay;
+	}
+
+	public BigDecimal getBonusOfEndDay() {
+		return bonusOfEndDay;
+	}
+
+	public void setBonusOfEndDay(BigDecimal bonusOfEndDay) {
+		this.bonusOfEndDay = bonusOfEndDay;
+	}
+
+
+	public BigDecimal getAssetOfOneDayBefore() {
+		return assetOfOneDayBefore;
+	}
+
+	public void setAssetOfOneDayBefore(BigDecimal assetOfOneDayBefore) {
+		this.assetOfOneDayBefore = assetOfOneDayBefore;
+	}
+
 	@Override
 	public String toString() {
 		return "PortfolioInfo{" +
@@ -98,6 +139,10 @@ public class PortfolioInfo {
 				", sellAmount=" + sellAmount +
 				", buyAmount=" + buyAmount +
 				", bonus=" + bonus +
+				", buyAmountOfEndDay=" + buyAmountOfEndDay +
+				", sellAmountOfEndDay=" + sellAmountOfEndDay +
+				", bonusOfEndDay=" + bonusOfEndDay +
+				", assetOfOneDayBefore=" + assetOfOneDayBefore +
 				'}';
 	}
 }

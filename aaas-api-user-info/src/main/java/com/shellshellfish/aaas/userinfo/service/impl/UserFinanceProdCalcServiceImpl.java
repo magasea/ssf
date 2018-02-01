@@ -467,10 +467,17 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		portfolioInfo.setDailyIncome(dailyIncome.setScale(2, RoundingMode.HALF_UP));
 		portfolioInfo.setDailyIncomeRate(dailyIncomeRate.setScale(2, RoundingMode.HALF_UP));
 
+		//设置区间分红 ，申购和赎回
 		portfolioInfo.setBonus(bonus);
 		portfolioInfo.setBuyAmount(buyAmount);
 		portfolioInfo.setSellAmount(sellAmount);
 
+		//设置最后一日 分红，申购以及赎回
+		portfolioInfo.setBonusOfEndDay(bonusOfEndDay);
+		portfolioInfo.setBuyAmountOfEndDay(buyAmountOfEndDay);
+		portfolioInfo.setSellAmountOfEndDay(sellAmountOfEndDay);
+
+		portfolioInfo.setAssetOfOneDayBefore(assetOfOneDayBefore);
 		return portfolioInfo;
 	}
 

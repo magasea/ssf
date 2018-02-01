@@ -5,6 +5,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.matc
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 
 import com.shellshellfish.aaas.userinfo.UserInfoApp;
+import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.dao.DailyAmountAggregation;
 import java.util.List;
 import org.junit.Test;
@@ -41,26 +42,23 @@ public class MongDailyAmountRepositoryTest {
 	public void aggregation() {
 
 		String userUuid = "3a0bc5f0-c491-4718-a6c2-dc716ae308f9";
-		Long startDate = 0L;
-		Long endDate = 0L;
-		Integer prodId = 46;
+		String startDate = "20180123";
+		String endDate = "20180201";
 
 		Aggregation agg = newAggregation(
-
 				match(Criteria.where("userUuid").is(userUuid)),
-				match(Criteria.where("date").is("20180131")),
-				match(Criteria.where("userProdId").is(prodId)),
+				match(Criteria.where("date").gte(startDate).lte(endDate)),
+				match(Criteria.where("userProdId").is(46)),
 				group("userProdId")
-						.first("userProdId").as("userProdId")
 						.sum("sellAmount").as("sellAmount")
 						.sum("asset").as("asset")
 						.sum("bonus").as("bonus")
 						.sum("buyAmount").as("buyAmount")
 		);
-		DailyAmountAggregation results = zhongZhengMongoTemplate
+		DailyAmountAggregation dailyAmountAggregation = zhongZhengMongoTemplate
 				.aggregate(agg, "dailyAmount", DailyAmountAggregation.class).getUniqueMappedResult();
 
-		System.out.println(results);
+		System.out.println(dailyAmountAggregation);
 	}
 
 }
