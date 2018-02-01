@@ -284,7 +284,7 @@ public class TransferController {
 		// 调用赎回口
 		Map result = new HashMap();
 		try {
-			//result = service.sellFund(userProdId, prodId, groupId, userUuid, infoList);
+			result = service.sellFund(userProdId, prodId, groupId, userUuid, infoList);
 		} catch (Exception e) {
 			logger.error("调用赎回接口发生错误");
 			logger.error(e.getMessage());
