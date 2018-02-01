@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
@@ -11,11 +12,13 @@ import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.FundInfo;
 import com.shellshellfish.aaas.userinfo.model.FundShare;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.CoinFundYieldRate;
 import com.shellshellfish.aaas.userinfo.model.dao.FundYieldRate;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProducts;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
+import com.shellshellfish.aaas.userinfo.repositories.funds.MongoCoinFundYieldRateRepository;
 import com.shellshellfish.aaas.userinfo.repositories.funds.MongoFundYieldRateRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
@@ -36,6 +39,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import net.bytebuddy.asm.Advice.Unused;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +90,9 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 	@Autowired
 	MongoFundYieldRateRepository mongoFundYieldRateRepository;
+
+	@Autowired
+	MongoCoinFundYieldRateRepository mongoCoinFundYieldRateRepository;
 
 	@Autowired
 	@Qualifier("mongoTemplate")
@@ -157,19 +164,35 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		if (BigDecimal.ZERO.equals(share)) {
 			return BigDecimal.ZERO;
 		}
+		share = share.divide(BigDecimal.valueOf(100));
 
 		LocalDate localDate = InstantDateUtil.format(date, "yyyyMMdd");
 		localDate.plusDays(1);
-		FundYieldRate fundYieldRate = mongoFundYieldRateRepository
-				.findFirstByCodeAndQueryDateBefore(fundCode,
-						InstantDateUtil.getEpochSecondOfZero(localDate),
-						new Sort(new Order(Direction.DESC, "querydate")));
 
-		if (fundYieldRate == null || fundYieldRate.getUnitNav() == null) {
-			return BigDecimal.ZERO;
+		BigDecimal netValue;
+
+		if (MonetaryFundEnum.containsCode(fundCode)) {
+			//货币基金使用附权单位净值
+			CoinFundYieldRate coinFundYieldRate = mongoCoinFundYieldRateRepository
+					.findFirstByCodeAndQueryDateBefore(fundCode,
+							InstantDateUtil.getEpochSecondOfZero(localDate),
+							new Sort(new Order(Direction.DESC, "querydate")));
+			if (coinFundYieldRate == null || coinFundYieldRate.getNavadj() == null) {
+				return BigDecimal.ZERO;
+			}
+			netValue = coinFundYieldRate.getNavadj();
+		} else {
+			FundYieldRate fundYieldRate = mongoFundYieldRateRepository
+					.findFirstByCodeAndQueryDateBefore(fundCode,
+							InstantDateUtil.getEpochSecondOfZero(localDate),
+							new Sort(new Order(Direction.DESC, "querydate")));
+
+			if (fundYieldRate == null || fundYieldRate.getUnitNav() == null) {
+				return BigDecimal.ZERO;
+			}
+			netValue = fundYieldRate.getUnitNav();
 		}
 
-		BigDecimal netValue = fundYieldRate.getUnitNav();
 		BigDecimal rateOfSellFund = fundTradeApiService.getRate(fundCode, "024");
 
 		BigDecimal fundAsset = share.multiply(netValue)

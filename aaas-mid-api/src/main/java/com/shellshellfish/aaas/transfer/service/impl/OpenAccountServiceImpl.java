@@ -1,7 +1,8 @@
 package com.shellshellfish.aaas.transfer.service.impl;
 
-import com.shellshellfish.aaas.transfer.service.OpenAccountService;
 import org.springframework.beans.factory.annotation.Value;
+
+import com.shellshellfish.aaas.transfer.service.OpenAccountService;
 
 /**
  * @Author pierre

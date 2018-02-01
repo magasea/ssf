@@ -1,18 +1,6 @@
 package com.shellshellfish.aaas.transfer.service.impl;
 
 
-import com.alibaba.fastjson.JSONObject;
-import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
-import com.shellshellfish.aaas.common.utils.SSFDateUtils;
-import com.shellshellfish.aaas.common.utils.URLutils;
-import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
-import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
-import com.shellshellfish.aaas.dto.FundNAVInfo;
-import com.shellshellfish.aaas.model.MonetaryFund;
-import com.shellshellfish.aaas.service.MidApiService;
-import com.shellshellfish.aaas.transfer.exception.ReturnedException;
-import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
-import com.shellshellfish.aaas.transfer.utils.EasyKit;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +22,20 @@ import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+
+import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.node.BigIntegerNode;
+import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
+import com.shellshellfish.aaas.common.utils.SSFDateUtils;
+import com.shellshellfish.aaas.common.utils.URLutils;
+import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
+import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
+import com.shellshellfish.aaas.dto.FundNAVInfo;
+import com.shellshellfish.aaas.model.MonetaryFund;
+import com.shellshellfish.aaas.service.MidApiService;
+import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
+import com.shellshellfish.aaas.transfer.utils.EasyKit;
 
 public class MidApiServiceImpl implements MidApiService {
 	Logger logger = LoggerFactory.getLogger(MidApiServiceImpl.class);
@@ -340,7 +343,13 @@ public class MidApiServiceImpl implements MidApiService {
 			Object poundage = result.get("poundage");
 			if(poundage!=null){
 				BigDecimal poundageValue = new BigDecimal(poundage+"");
-				poundageValue = poundageValue.setScale(2, BigDecimal.ROUND_HALF_UP);
+				if (poundageValue.compareTo(BigDecimal.ZERO) > 0
+						&& poundageValue.compareTo(new BigDecimal("0.01")) < 0) {
+					poundageValue = new BigDecimal("0.01");
+//					result.put("poundage", "小于:¥0.01");
+				} else {
+					poundageValue = poundageValue.setScale(2, BigDecimal.ROUND_HALF_UP);
+				}
 				result.put("poundage", poundageValue);
 			}
 			Object discountSaving = result.get("discountSaving");
