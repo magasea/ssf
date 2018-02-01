@@ -346,11 +346,11 @@ public class MidApiServiceImpl implements MidApiService {
 				if (poundageValue.compareTo(BigDecimal.ZERO) > 0
 						&& poundageValue.compareTo(new BigDecimal("0.01")) < 0) {
 					poundageValue = new BigDecimal("0.01");
-					result.put("poundage", "小于:¥0.01");
+//					result.put("poundage", "小于:¥0.01");
 				} else {
 					poundageValue = poundageValue.setScale(2, BigDecimal.ROUND_HALF_UP);
-					result.put("poundage", poundageValue);
 				}
+				result.put("poundage", poundageValue);
 			}
 			Object discountSaving = result.get("discountSaving");
 			if(discountSaving!=null){
