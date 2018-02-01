@@ -1,6 +1,8 @@
 package com.shellshellfish.aaas.userinfo.configuration;
 
 import com.shellshellfish.aaas.finance.trade.grpc.TradeServiceGrpc;
+import com.shellshellfish.aaas.finance.trade.order.OrderRpcServiceGrpc;
+import com.shellshellfish.aaas.finance.trade.order.OrderRpcServiceGrpc.OrderRpcServiceBlockingStub;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +38,12 @@ public class GrpcOrderConfig {
 	@PostConstruct
 	TradeServiceGrpc.TradeServiceBlockingStub tradeOrderServiceBlockingStub() {
 		return TradeServiceGrpc.newBlockingStub(managedOrderChannel());
+	}
+
+	@Bean
+	@PostConstruct
+	OrderRpcServiceBlockingStub orderRpcServiceBlockingStub() {
+		return OrderRpcServiceGrpc.newBlockingStub(managedOrderChannel());
 	}
 
 

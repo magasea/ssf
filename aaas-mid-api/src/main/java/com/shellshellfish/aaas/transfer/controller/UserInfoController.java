@@ -178,7 +178,7 @@ public class UserInfoController {
 	/**
 	 * 进入个人信息页面获取手机号，所属行业，和修改密码的link
 	 *
-	 * @param uid
+	 * @param uuid
 	 *            客户id
 	 * @return
 	 */

@@ -30,8 +30,7 @@ import java.util.Map;
 
 
 /**
- * @Author pierre
- * 17-12-28
+ * @Author pierre 17-12-28
  */
 
 @RestController
@@ -57,7 +56,8 @@ public class FundGroupController {
 			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "Long", required = true, value = "产品ID", defaultValue = "41")})
 	@RequestMapping(value = "/getMyProductDetail", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Map> getProductDetail(@RequestParam @NotNull String uuid, @RequestParam @NotNull Long prodId) {
+	public ResponseEntity<Map> getProductDetail(@RequestParam @NotNull String uuid,
+			@RequestParam @NotNull Long prodId) {
 		List resultList = new ArrayList();
 		int days = 6; //计算6天的值
 		Map result = fundGroupService.getGroupDetails(uuid, prodId);
@@ -68,7 +68,14 @@ public class FundGroupController {
 			String dayBeforeSelectDate = DateUtil.getSystemDatesAgo(-i - 1);
 			dateValueMap.put("time", selectDate);
 			//调用对应的service
-			BigDecimal value = userFinanceProdCalcService.calcYieldValue(uuid, prodId, dayBeforeSelectDate, selectDate);
+			BigDecimal value = null;
+			try {
+				//FIXME
+				value = userFinanceProdCalcService
+						.calcYieldValue(uuid, prodId, dayBeforeSelectDate, selectDate);
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
 			dateValueMap.put("value", value);
 			resultList.add(dateValueMap);
 		}
@@ -85,9 +92,12 @@ public class FundGroupController {
 			@ApiImplicitParam(paramType = "query", name = "endDate", dataType = "Long", required = true, value = "结束时间", defaultValue = "1516276950940")
 	})
 	@RequestMapping(value = "/getGrowthRateOfMonetaryFundsList", method = RequestMethod.POST)
-	public ResponseEntity<List<MonetaryFund>> getGrowthRateOfMonetaryFundsList(@RequestParam @NotNull String code, @RequestParam @NotNull Long startDate, @RequestParam Long endDate) {
+	public ResponseEntity<List<MonetaryFund>> getGrowthRateOfMonetaryFundsList(
+			@RequestParam @NotNull String code, @RequestParam @NotNull Long startDate,
+			@RequestParam Long endDate) {
 
-		List<GrowthRateOfMonetaryFund> growthRateOfMonetaryFunds = monetaryFundsService.getGrowthRateOfMonetaryFundsList(code, startDate, endDate);
+		List<GrowthRateOfMonetaryFund> growthRateOfMonetaryFunds = monetaryFundsService
+				.getGrowthRateOfMonetaryFundsList(code, startDate, endDate);
 
 		List<MonetaryFund> result = new ArrayList<>(growthRateOfMonetaryFunds.size());
 		copyProperties(growthRateOfMonetaryFunds, result);

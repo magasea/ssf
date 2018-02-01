@@ -144,7 +144,6 @@ public class UserInfoController {
 
 	/**
 	 * 我的银行卡 查看页面
-	 * @param id
 	 * @param cardNumber
 	 * @return
 	 * @throws Exception
