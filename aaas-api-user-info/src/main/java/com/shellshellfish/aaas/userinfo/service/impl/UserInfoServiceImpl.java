@@ -543,7 +543,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				ZoneOffset.UTC).toLocalDate();
 		String startDay = InstantDateUtil.format(startLocalDate, "yyyyMMdd");
 
-		String endDay = InstantDateUtil.format(LocalDate.now(), "yyyyMMdd");
+		String endDay = InstantDateUtil.format(LocalDate.now().plusDays(-1), "yyyyMMdd");
 
 		if (flag) {
 			//完全确认
