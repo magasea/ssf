@@ -1,13 +1,8 @@
 package com.shellshellfish.aaas.transfer.controller;
 
-import com.shellshellfish.aaas.transfer.service.RiskService;
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -29,12 +24,12 @@ import org.springframework.web.client.RestTemplate;
 
 import com.alibaba.fastjson.JSONObject;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
-import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+import com.shellshellfish.aaas.transfer.service.RiskService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -291,6 +286,10 @@ public class TransferController {
 			return new JsonResult(JsonResult.Fail, "赎回失败", JsonResult.EMPTYRESULT);
 		}
 		if (result != null) {
+			if (result.get("payAmount") != null) {
+				BigDecimal payAmount = new BigDecimal(result.get("payAmount") + "");
+				result.put("payAmount", payAmount.setScale(2, BigDecimal.ROUND_HALF_UP));
+			}
 			result.put("poundage", poundage);
 			result.put("buyfee", buyfee);
 			result.put("bankName", bankName);

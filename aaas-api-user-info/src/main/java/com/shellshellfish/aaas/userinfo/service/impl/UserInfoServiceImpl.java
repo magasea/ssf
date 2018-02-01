@@ -686,7 +686,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		ProductsDTO products;
 		for (int i = 0; i < productsList.size(); i++) {
 			products = productsList.get(i);
-			resultMap = new HashMap();
+			resultMap = new HashMap<String, Object>();
 			resultMap.put("groupId", products.getProdId());
 			resultMap.put("subGroupId", products.getGroupId());
 
@@ -698,7 +698,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 			Integer count = 0;
 			Integer fails = 0;
 			if (productDetailsList != null && productDetailsList.size() > 0) {
-
 				for (int j = 0; j < productDetailsList.size(); j++) {
 					UiProductDetailDTO uiProductDetailDTO = productDetailsList.get(j);
 					if (uiProductDetailDTO.getStatus() != null) {

@@ -1,6 +1,5 @@
 package com.shellshellfish.aaas.transfer.exception;
 
-import org.omg.CORBA.UserException;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 

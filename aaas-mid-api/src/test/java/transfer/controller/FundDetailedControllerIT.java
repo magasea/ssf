@@ -1,8 +1,11 @@
 package transfer.controller;
 
-import com.shellshellfish.aaas.transfer.TransferServiceApplication;
-import io.restassured.RestAssured;
-import io.restassured.filter.log.ResponseLoggingFilter;
+import static io.restassured.RestAssured.given;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.hamcrest.Matchers.equalTo;
+
+import java.io.UnsupportedEncodingException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,13 +15,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLEncoder;
+import com.shellshellfish.aaas.transfer.TransferServiceApplication;
 
-import static io.restassured.RestAssured.given;
-import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.hamcrest.Matchers.equalTo;
+import io.restassured.RestAssured;
+import io.restassured.filter.log.ResponseLoggingFilter;
 
 /**
  * @Author pierre
