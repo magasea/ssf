@@ -120,7 +120,7 @@ public class FinanceProductServiceImpl  extends
       for (Interval interval : intervalList) {
         ProductMakeUpInfo productMakeUpInfo = new ProductMakeUpInfo();
         productMakeUpInfo.setFundCode(interval.getFund_id());
-        productMakeUpInfo.setGroupId(Long.parseLong(interval.getFund_group_id()));
+        productMakeUpInfo.setGroupId(Long.parseLong(interval.getFund_group_sub_id()));
         Integer result = Long.valueOf(Math.round(Double.valueOf(interval.getProportion()*100000)
             /10D)).intValue();
         if(result > 0){
@@ -130,7 +130,7 @@ public class FinanceProductServiceImpl  extends
             .getProportion() + "result:"+result);
         productMakeUpInfo.setFundShare(result);
         productMakeUpInfo.setProdName(interval.getFund_group_name());
-        productMakeUpInfo.setProdId(Long.parseLong(interval.getFund_group_sub_id()));
+        productMakeUpInfo.setProdId(Long.parseLong(interval.getFund_group_id()));
         productMakeUpInfo.setFundName(interval.getFname());
         productMakeUpInfos.add(productMakeUpInfo);
       }
