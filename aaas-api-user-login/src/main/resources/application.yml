@@ -3,5 +3,5 @@ server:
   contextPath: /
 spring:
   application:
-    name: aaas-api-user-login
+    name: aaas-api-user-login `
 
