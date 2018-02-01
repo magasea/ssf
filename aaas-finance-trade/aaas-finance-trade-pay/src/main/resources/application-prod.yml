@@ -31,7 +31,10 @@ spring:
       port: 27017
       database: zhongzheng
       paydatabase: ssftrdpay
-
+  redis:
+    host: localhost
+    port: 6379
+    password: redis123
 
 datasource:
   sampleapp:

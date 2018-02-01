@@ -627,7 +627,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     trdPreOrder.setPayAmount(TradeUtil.getLongNumWithMul100(financeProdInfo.getMoney()));
     trdPreOrder.setProdId(financeProdInfo.getProdId());
     Long userId = null;
-    if( financeProdInfo.getUserId() == null ){
+    if( financeProdInfo.getUserId() == null || financeProdInfo.getUserId() == 0){
       userId = getUserId(financeProdInfo.getUuid());
     }
     if(null == userId){
