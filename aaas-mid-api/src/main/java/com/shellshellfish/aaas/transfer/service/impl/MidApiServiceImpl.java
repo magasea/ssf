@@ -24,6 +24,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.node.BigIntegerNode;
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.utils.SSFDateUtils;
 import com.shellshellfish.aaas.common.utils.URLutils;
@@ -342,7 +343,12 @@ public class MidApiServiceImpl implements MidApiService {
 			Object poundage = result.get("poundage");
 			if(poundage!=null){
 				BigDecimal poundageValue = new BigDecimal(poundage+"");
-				poundageValue = poundageValue.setScale(2, BigDecimal.ROUND_HALF_UP);
+				if (poundageValue.compareTo(BigDecimal.ZERO) > 0
+						&& poundageValue.compareTo(new BigDecimal("0.01")) < 0) {
+					poundageValue = new BigDecimal("0.01");
+				} else {
+					poundageValue = poundageValue.setScale(2, BigDecimal.ROUND_HALF_UP);
+				}
 				result.put("poundage", poundageValue);
 			}
 			Object discountSaving = result.get("discountSaving");
