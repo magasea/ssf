@@ -4,6 +4,7 @@ import com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.CovarianceMapper;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundCalculateDataMapper;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
+import com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil;
 import com.shellshellfish.aaas.assetallocation.neo.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,15 +109,20 @@ public class ReturnCalculateDataService {
                 break;
             }
 
+            List<Double> annualisedYieldRatioList = new ArrayList<>();
+            for (Double ratioVal : yieldRatioValList) {
+                annualisedYieldRatioList.add(ratioVal * ConstantUtil.ANNUALISED_WEEK_NUM);
+            }
+
             //计算几何平均收益率 = (π（1+Ri）)^(1/N) - 1
-            Double geoMeanYieldRatio = calculateGeometricMean(yieldRatioValList);
+            Double geoMeanYieldRatio = calculateGeometricMean(annualisedYieldRatioList);
             if (null == geoMeanYieldRatio) {
                 covarianceModel.setStatus(NULL_STATUS); //无数据
                 logger.debug("yieldRatioVal 无数据");
                 break;
             }
             yieldRatio[index++] = geoMeanYieldRatio;
-            yieldRatiosList.add(yieldRatioValList);
+            yieldRatiosList.add(annualisedYieldRatioList);
         }
 
         if (covarianceModel.getStatus() != null
