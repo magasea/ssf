@@ -755,7 +755,12 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Override
 	public Integer getUserRishLevel(String userId) {
-		UiUser uiUser = userInfoRepoService.getUserInfoByUserUUID(userId);
+		UiUser uiUser = null;
+		try {
+			uiUser = userInfoRepoService.getUserInfoByUserUUID(userId);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		Optional<UiUser> userOptional = Optional.ofNullable(uiUser);
 		return userOptional.map(m -> m.getRiskLevel()).orElse(-1);
 	}

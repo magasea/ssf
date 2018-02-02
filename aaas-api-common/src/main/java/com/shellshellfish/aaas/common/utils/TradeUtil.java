@@ -5,16 +5,16 @@ import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.time.DateTimeException;
-import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-import java.util.Map;
+import java.util.Date;
 import java.util.TimeZone;
 
 
@@ -41,6 +41,23 @@ public class TradeUtil {
     ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(utcTime), ZoneId.systemDefault
         ());
     return     zonedDateTime.toLocalDateTime().toString();
+  }
+
+  public static Long getUTCOfSpecificTimeToday(int hour, int minute){
+    String day = getReadableDateTime(getUTCTime()).split("T")[0];
+    day = day +  " " + String.format("%02d",hour)+":"+String.format("%02d", minute)+ ":00";
+    ZonedDateTime dt = ZonedDateTime.parse(day, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        .withZone(ZoneId.systemDefault()));
+    return dt.toInstant().toEpochMilli();
+  }
+
+  public static Date getDateOfSpecificTimeToday(int hour, int minute){
+    String day = getReadableDateTime(getUTCTime()).split("T")[0];
+    day = day +  " " + String.format("%02d",hour)+":"+String.format("%02d", minute)+ ":00";
+    ZonedDateTime dt = ZonedDateTime.parse(day, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        .withZone(ZoneId.systemDefault()));
+    Date out = Date.from(dt.toInstant());
+    return out;
   }
 
   public static Long getUTCTime(){

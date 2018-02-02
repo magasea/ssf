@@ -14,17 +14,20 @@ import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.grpc.*;
 import com.shellshellfish.aaas.userinfo.model.dao.*;
 import com.shellshellfish.aaas.userinfo.model.dto.*;
+import com.shellshellfish.aaas.userinfo.model.redis.UserBaseInfoRedis;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserAssectsRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserPersonMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserProdMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserSysMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserTrdLogMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.*;
+import com.shellshellfish.aaas.userinfo.repositories.redis.UserInfoBaseDao;
 import com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import io.grpc.stub.StreamObserver;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -95,6 +98,9 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Autowired
 	MongoTemplate mongoTemplate;
+
+	@Resource
+	UserInfoBaseDao userInfoBaseDao;
 
 	@Override
 	public UserBaseInfoDTO getUserInfoBase(Long id) {
@@ -266,12 +272,21 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public Long getUserIdFromUUID(String userUuid) throws Exception {
-		UiUser uiUser = userInfoRepository.findByUuid(userUuid);
+		UserBaseInfoRedis userBaseInfoRedis = userInfoBaseDao.get(userUuid);
+		UiUser uiUser = null;
 		Long userId = new Long(0);
-		if (null == uiUser) {
-			throw new Exception("not vaild userUuid:" + userUuid);
-		} else {
-			userId = uiUser.getId();
+		if(userBaseInfoRedis == null){
+			uiUser = userInfoRepository.findByUuid(userUuid);
+			if (null == uiUser) {
+				throw new Exception("not vaild userUuid:" + userUuid);
+			} else {
+				userId = uiUser.getId();
+				userBaseInfoRedis = new UserBaseInfoRedis();
+				MyBeanUtils.mapEntityIntoDTO(uiUser, userBaseInfoRedis);
+				userInfoBaseDao.addUserBaseInfo(userBaseInfoRedis);
+			}
+		}else{
+			userId = userBaseInfoRedis.getId();
 		}
 		return userId;
 	}
@@ -378,7 +393,14 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		// uiUser.setIsTestFlag(UserRiskTestFlagEnum.valueOf(isTestFlag).getRiskTestFlag());
 		uiUser.setIsTestFlag(Integer.valueOf(isTestFlag));
 		uiUser.setCreatedDate(TradeUtil.getUTCTime());
-		userInfoRepository.save(uiUser);
+		uiUser = userInfoRepository.save(uiUser);
+		UserBaseInfoRedis userBaseInfoRedis = new UserBaseInfoRedis();
+		MyBeanUtils.mapEntityIntoDTO(uiUser, userBaseInfoRedis);
+		if(userInfoBaseDao.get(userUuid) == null){
+			userInfoBaseDao.addUserBaseInfo(userBaseInfoRedis);
+		}else{
+			userInfoBaseDao.updateUserBaseInfo(userBaseInfoRedis);
+		}
 		return true;
 	}
 
@@ -394,6 +416,13 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			//uiUser.setRiskLevel(UserRiskLevelEnum.valueOf(riskLevel).getRiskLevel());
 			uiUser.setRiskLevel(UserRiskLevelEnum.get(riskLevel).getRiskLevel());
 			userInfoRepository.save(uiUser);
+			UserBaseInfoRedis userBaseInfoRedis = new UserBaseInfoRedis();
+			MyBeanUtils.mapEntityIntoDTO(uiUser, userBaseInfoRedis);
+			if(userInfoBaseDao.get(uiUser.getUuid()) == null){
+				userInfoBaseDao.addUserBaseInfo(userBaseInfoRedis);
+			}else{
+				userInfoBaseDao.updateUserBaseInfo(userBaseInfoRedis);
+			}
 			return true;
 		}
 		return flag;
@@ -616,8 +645,8 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			uiProducts.setStatus(TrdOrderStatusEnum.CONVERTWAITCONFIRM.getStatus());
 			uiProducts.setProdId(request.getProdId());
 			uiProducts.setGroupId(request.getGroupId());
-			uiProducts.setCreateDate(TradeUtil.getUTCTime());
-			uiProducts.setUpdateDate(TradeUtil.getUTCTime());
+//			uiProducts.setCreateDate(TradeUtil.getUTCTime());
+//			uiProducts.setUpdateDate(TradeUtil.getUTCTime());
 			uiProducts.setCreateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
 			uiProducts.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
 			uiProductRepo.save(uiProducts);
@@ -628,8 +657,8 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 				uiProductDetail.setUserProdId(userProdId);
 				uiProductDetail.setFundCode(updateUserProdReq.getFundCode());
 				uiProductDetail.setFundShare(updateUserProdReq.getFundShare());
-				uiProductDetail.setCreateDate(TradeUtil.getUTCTime());
-				uiProductDetail.setCreateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+//				uiProductDetail.setCreateDate(TradeUtil.getUTCTime());
+//				uiProductDetail.setCreateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
 				uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
 				uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
 				uiProductDetailRepo.save(uiProductDetail);
@@ -726,8 +755,24 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	}
 
 	@Override
-	public UiUser getUserInfoByUserUUID(String userUUID) {
-		return userInfoRepository.findByUuid(userUUID);
+	public UiUser getUserInfoByUserUUID(String userUUID) throws Exception {
+		UserBaseInfoRedis userBaseInfoRedis = userInfoBaseDao.get(userUUID);
+		UiUser uiUser = null;
+		Long userId = new Long(0);
+		if(userBaseInfoRedis == null){
+			uiUser = userInfoRepository.findByUuid(userUUID);
+			if (null == uiUser) {
+				throw new Exception("not vaild userUuid:" + userUUID);
+			} else {
+				userBaseInfoRedis = new UserBaseInfoRedis();
+				MyBeanUtils.mapEntityIntoDTO(uiUser, userBaseInfoRedis);
+				userInfoBaseDao.addUserBaseInfo(userBaseInfoRedis);
+			}
+		}else{
+			uiUser = new UiUser();
+			MyBeanUtils.mapEntityIntoDTO(userBaseInfoRedis, uiUser);
+		}
+		return uiUser;
 	}
 
 	/**
@@ -735,7 +780,13 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	@Override
 	public void getUserInfoByUserUUID(com.shellshellfish.aaas.userinfo.grpc.UserIdQuery request,
 			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserInfo> responseObserver) {
-		UiUser uiUser = getUserInfoByUserUUID(request.getUuid());
+		UiUser uiUser = null;
+		try {
+			uiUser = getUserInfoByUserUUID(request.getUuid());
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("failed to find uiUser by uuid:" + request.getUuid());
+		}
 		UserInfo.Builder uiBuilder = UserInfo.newBuilder();
 		if(uiUser.getRiskLevel() == null || uiUser.getRiskLevel() < 0){
 			logger.error("this user haven't done risk evaluate");

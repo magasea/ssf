@@ -874,39 +874,49 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   @Override
   public List<MongoFundNetInfo> getFundNetInfo(List<String> fundCodes, int trdDates, String
       userPid) {
-    String latestWorkDay = null;
-    try {
-      String currentDay = TradeUtil.getReadableDateTime(TradeUtil.getUTCTime()).split("T")[0];
-      WorkDayRedis workDayRedis = workDayDao.get(currentDay);
-      if(workDayRedis == null){
-        latestWorkDay = fundTradeApiService.getWorkDay(TradeUtil.getZZOpenId(userPid),"left", 1);
-        workDayRedis = new WorkDayRedis();
-        workDayRedis.setWorkDay(latestWorkDay);
-        workDayRedis.setCreate_date(TradeUtil.getUTCTime());
-        workDayRedis.setUpdate_date(TradeUtil.getUTCTime());
-        workDayDao.addWorkDay(workDayRedis);
-        logger.debug("latestWorkDay from ZZ:"+ latestWorkDay);
-      }else{
-        latestWorkDay = workDayRedis.getWorkDay();
-        logger.debug("latestWorkDay in redis:" + latestWorkDay);
-      }
 
-    } catch (Exception e) {
-      e.printStackTrace();
-      logger.error("failed to get latestWorkDay for input userPid:"+ userPid);
-    }
-    if(!StringUtils.isEmpty(latestWorkDay)){
-      if(!latestWorkDay.contains("-")){
-        latestWorkDay = String.format("%s-%s-%s",latestWorkDay.substring(0,4),latestWorkDay
-            .substring(4,6),latestWorkDay.substring(6,8));
+    String currentDay = TradeUtil.getReadableDateTime(TradeUtil.getUTCTime()).split("T")[0];
+
+    for(String code: fundCodes){
+      try {
+
+        String key = currentDay+code;
+        WorkDayRedis workDayRedis = workDayDao.get(key);
+        if(workDayRedis == null){
+          String latestWorkDay = fundTradeApiService.getWorkDay(TradeUtil.getZZOpenId(userPid),
+              "left", 1);
+          if(!StringUtils.isEmpty(latestWorkDay)){
+            if(!latestWorkDay.contains("-")){
+              latestWorkDay = String.format("%s-%s-%s",latestWorkDay.substring(0,4),latestWorkDay
+                  .substring(4,6),latestWorkDay.substring(6,8));
+            }
+          }
+          workDayRedis = new WorkDayRedis();
+          workDayRedis.setFundCode(code);
+          workDayRedis.setQueryDay(currentDay);
+          workDayRedis.setWorkDay(latestWorkDay);
+          workDayRedis.setCreate_date(TradeUtil.getUTCTime());
+          workDayRedis.setUpdate_date(TradeUtil.getUTCTime());
+          workDayDao.addWorkDay(workDayRedis);
+          logger.debug("latestWorkDay from ZZ:"+ latestWorkDay);
+        }else{
+          String latestWorkDay = workDayRedis.getWorkDay();
+          logger.debug("latestWorkDay in redis:" + latestWorkDay);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+        logger.error("failed to get latestWorkDay for input userPid:"+ userPid);
       }
     }
+
     List<MongoFundNetInfo> mongoFundNetInfoList = new ArrayList<>();
     if(trdDates == 0){
       //默认取当前10天的交易信息 返回最近的交易信息
       for(String fundCode: fundCodes){
+        WorkDayRedis workDayRedis = workDayDao.get(currentDay+fundCode);
         try {
-          List<MongoFundNetInfo> mongoFundNetInfoListInit = initMongoFundNetInfo(fundCode, 10, latestWorkDay);
+          List<MongoFundNetInfo> mongoFundNetInfoListInit = initMongoFundNetInfo(fundCode, 10,
+              workDayRedis.getWorkDay());
           mongoFundNetInfoList.addAll(mongoFundNetInfoListInit);
         } catch (Exception e) {
           e.printStackTrace();
@@ -916,9 +926,10 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       return mongoFundNetInfoList;
     }else{
       for(String fundCode: fundCodes){
+        WorkDayRedis workDayRedis = workDayDao.get(currentDay+fundCode);
         Query findFundNetInfoQuery = new Query();
         findFundNetInfoQuery.addCriteria(Criteria.where("fund_code").in(fundCode).andOperator
-            (Criteria.where("trade_date").is(latestWorkDay)));
+            (Criteria.where("trade_date").is(workDayRedis.getWorkDay())));
         findFundNetInfoQuery.with(new Sort(Direction.DESC, "trade_date"));
         findFundNetInfoQuery.limit(1);
         List<MongoFundNetInfo> mongoFundNetInfos = mongoPayTemplate.find(findFundNetInfoQuery,
@@ -926,7 +937,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         if(CollectionUtils.isEmpty(mongoFundNetInfos)){
           try {
             List<MongoFundNetInfo> mongoFundNetInfoListInit = initMongoFundNetInfo(fundCode, 1,
-                latestWorkDay);
+                workDayRedis.getWorkDay());
             mongoFundNetInfoList.addAll(mongoFundNetInfoListInit);
           } catch (Exception e) {
             e.printStackTrace();
@@ -944,15 +955,17 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
   private List<MongoFundNetInfo> initMongoFundNetInfo(String fundCode, int days, String
       latestWorkDay){
+    String currentDay = TradeUtil.getReadableDateTime(TradeUtil.getUTCTime()).split("T")[0];
     List<MongoFundNetInfo> mongoFundNetInfoList = new ArrayList<>();
     try {
       if(MonetaryFundEnum.containsCode(fundCode)){
         logger.info("monetary fund should alwary be 1 for netunit");
       }
-      int dayStart = days -1 >= 0? days -1: days;
+      int dayStart = days -1 >= 0? 0: days;//按照中证的定义0就是默认最近的一个交易日
       List<FundNetZZInfo> fundNets =  fundTradeApiService.getFundNets(fundCode, dayStart, days);
       if(!CollectionUtils.isEmpty(fundNets)){
         for(FundNetZZInfo fundNet: fundNets){
+          String key = currentDay+fundCode;
           Query findFundNetInfoQuery = new Query();
           findFundNetInfoQuery.addCriteria(Criteria.where("fund_code").is(fundCode).andOperator
               (Criteria.where("trade_date").is(fundNet.getTradeDate())));
@@ -965,7 +978,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
             MyBeanUtils.mapEntityIntoDTO(fundNet, mongoFundNetInfo);
             mongoFundNetInfo.setFundCode(fundCode);
             mongoPayTemplate.save(mongoFundNetInfo);
-
+            WorkDayRedis workDayRedis = workDayDao.get(key);
+            workDayRedis.setWorkDay(mongoFundNetInfo.getTradeDate());
+            workDayDao.updateWorkDay(workDayRedis);
           }else{
             logger.info("the record of mongoFundNetInfo of fundCode:"+ fundCode + " and "
                 + "trdDate:" + fundNet.getTradeDate() +" is already exists");
