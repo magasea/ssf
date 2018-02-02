@@ -55,6 +55,7 @@
         yield_ratio
         FROM ${tableName}
         WHERE code='${code}' AND nav_date >='${selectDate}'
+        ORDER BY nav_date DESC
     </select>
 
     <select id="findRiskRatio"  resultType="java.lang.Double" statementType="STATEMENT">
