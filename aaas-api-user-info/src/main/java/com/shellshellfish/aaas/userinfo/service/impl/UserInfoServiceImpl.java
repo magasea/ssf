@@ -657,7 +657,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}
 				resultMap.put("count", count);
 				if (count > 0) {
-					resultMap.put("title", "* 您有" + count + "支基金正在确认中");
+					resultMap.put("title2", "* 您有" + count + "支基金正在确认中");
 				}
 			}
 

@@ -74,7 +74,7 @@ public class AccountServiceImpl implements AccountService {
 			return userList;
 		} else {
 			//return new ArrayList<User>();
-			throw new UserException("101", "登录用户密码不正确");
+			throw new UserException("101", "密码不正确");
 		}
 	}
 	
