@@ -42,7 +42,7 @@ public class JobScheduleService {
     /*
      * 调用每日接口
      */
-    @Scheduled(cron = "0 0 1 * * ?")    //每天凌晨1点执行
+//    @Scheduled(cron = "0 0 1 * * ?")    //每天凌晨1点执行
     public void insertDailyFundJobSchedule() {
         logger.info("调用每日接口获取数据定时任务启动..." + sdf.format(new Date()));
         Boolean doSuccess = false;
