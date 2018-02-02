@@ -48,6 +48,8 @@ import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc.UserInfoService
 import io.grpc.ManagedChannel;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -627,7 +629,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     trdPreOrder.setPayAmount(TradeUtil.getLongNumWithMul100(financeProdInfo.getMoney()));
     trdPreOrder.setProdId(financeProdInfo.getProdId());
     Long userId = null;
-    if( financeProdInfo.getUserId() == null ){
+    if( financeProdInfo.getUserId() == null || financeProdInfo.getUserId() == 0){
       userId = getUserId(financeProdInfo.getUuid());
     }
     if(null == userId){
@@ -719,6 +721,10 @@ public class TradeOpServiceImpl implements TradeOpService {
 		//状态详情
 		List<Map<String, Object>> detailList = new ArrayList<Map<String, Object>>();
 		Map<String, Object> detailMap = new HashMap<String, Object>();
+		Instant instance = Instant.now();
+		Long instanceLong = instance.toEpochMilli();
+		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(instanceLong), ZoneOffset.UTC);
+		String dayOfWeek = InstantDateUtil.getDayOfWeekName(localDateTime);
 		for (int i = 0; i < trdOrderDetailList.size(); i++) {
 			detailMap = new HashMap<String, Object>();
 			TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
@@ -735,11 +741,10 @@ public class TradeOpServiceImpl implements TradeOpService {
 			detailMap.put("fundCode", trdOrderDetail.getFundCode());
 			//基金费用
 			detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
-			Instant instance = Instant.now();
-			Long instanceLong = instance.toEpochMilli();
 			String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 1);
 			detailMap.put("funddate", date);
-			
+			logger.info("dayOfWeek value is :" + dayOfWeek);
+			detailMap.put("fundTitle", "将于" + date + "(" + dayOfWeek + ")确认");
 			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
 			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){
 				if(trdOrderDetail.getTradeType() == trdOrder3.getOperation()){

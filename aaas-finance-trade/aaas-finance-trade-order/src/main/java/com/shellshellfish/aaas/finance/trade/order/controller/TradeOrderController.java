@@ -396,6 +396,7 @@ public class TradeOrderController {
 		TrdOrder trdOrder = orderService.findOrderByUserProdIdAndUserId(prodId, userId);
 		String bankNum = trdOrder.getBankCardNum();
 		result.put("bankNum", bankNum);
+		result.put("orderId", trdOrder.getOrderId());
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
 

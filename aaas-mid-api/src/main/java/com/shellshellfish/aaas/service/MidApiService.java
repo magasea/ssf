@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
-import com.shellshellfish.aaas.dto.FinanceProductCompo;
 
 /**
  * 作一些数据处理

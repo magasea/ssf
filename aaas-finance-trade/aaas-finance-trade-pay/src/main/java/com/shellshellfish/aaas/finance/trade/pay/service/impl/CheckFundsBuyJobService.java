@@ -207,6 +207,7 @@ public class CheckFundsBuyJobService {
             ApplyResult applyResult = null;
             String userPid = null;
             String outsideOrderno = null;
+            List<TrdPayFlow> trdPayFlowListToGetConfirmInfo = new ArrayList<>();
             for (TrdPayFlow trdPayFlow : trdPayFlows) {
                 try {
                     // TODO: replace userId with userUuid
@@ -248,6 +249,9 @@ public class CheckFundsBuyJobService {
                         BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
                         trdPayFlowRepository.save(trdPayFlow);
                         broadcastMessageProducers.sendMessage(trdPayFlowMsg);
+                        if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()){
+                            trdPayFlowListToGetConfirmInfo.add(trdPayFlow);
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -260,6 +264,7 @@ public class CheckFundsBuyJobService {
                     logger.info("Sample job has finished...");
                 }
             }
+            CheckAndSendConfirmInfo(trdPayFlowListToGetConfirmInfo);
         }
     }
     public void executePreOrderStatus(){

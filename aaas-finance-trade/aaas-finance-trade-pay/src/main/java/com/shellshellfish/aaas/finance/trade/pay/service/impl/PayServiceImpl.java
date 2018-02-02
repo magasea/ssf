@@ -37,10 +37,12 @@ import com.shellshellfish.aaas.finance.trade.pay.model.FundNetZZInfo;
 import com.shellshellfish.aaas.finance.trade.pay.model.OpenAccountResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.SellFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.UserBank;
+import com.shellshellfish.aaas.finance.trade.pay.model.WorkDayRedis;
 import com.shellshellfish.aaas.finance.trade.pay.model.ZZBuyFund;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.mongo.MongoFundNetInfo;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.mysql.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.pay.repositories.mysql.TrdPayFlowRepository;
+import com.shellshellfish.aaas.finance.trade.pay.repositories.redis.WorkDayDao;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import com.shellshellfish.aaas.finance.trade.pay.service.UserInfoService;
@@ -51,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -85,7 +88,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   MultiThreadTaskHandler multiThreadTaskHandler;
 
 
-
+  @Resource
+  WorkDayDao workDayDao;
 
   @Autowired
   MongoTemplate mongoPayTemplate;
@@ -872,8 +876,21 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       userPid) {
     String latestWorkDay = null;
     try {
-       latestWorkDay = fundTradeApiService.getWorkDay(TradeUtil.getZZOpenId(userPid),"left",
-          1);
+      String currentDay = TradeUtil.getReadableDateTime(TradeUtil.getUTCTime()).split("T")[0];
+      WorkDayRedis workDayRedis = workDayDao.get(currentDay);
+      if(workDayRedis == null){
+        latestWorkDay = fundTradeApiService.getWorkDay(TradeUtil.getZZOpenId(userPid),"left", 1);
+        workDayRedis = new WorkDayRedis();
+        workDayRedis.setWorkDay(latestWorkDay);
+        workDayRedis.setCreate_date(TradeUtil.getUTCTime());
+        workDayRedis.setUpdate_date(TradeUtil.getUTCTime());
+        workDayDao.addWorkDay(workDayRedis);
+        logger.debug("latestWorkDay from ZZ:"+ latestWorkDay);
+      }else{
+        latestWorkDay = workDayRedis.getWorkDay();
+        logger.debug("latestWorkDay in redis:" + latestWorkDay);
+      }
+
     } catch (Exception e) {
       e.printStackTrace();
       logger.error("failed to get latestWorkDay for input userPid:"+ userPid);
@@ -938,7 +955,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         for(FundNetZZInfo fundNet: fundNets){
           Query findFundNetInfoQuery = new Query();
           findFundNetInfoQuery.addCriteria(Criteria.where("fund_code").is(fundCode).andOperator
-              (Criteria.where("trade_date").is(latestWorkDay)));
+              (Criteria.where("trade_date").is(fundNet.getTradeDate())));
           findFundNetInfoQuery.with(new Sort(Direction.DESC, "trade_date"));
           findFundNetInfoQuery.limit(1);
           List<MongoFundNetInfo> mongoFundNetInfos = mongoPayTemplate.find(findFundNetInfoQuery,
