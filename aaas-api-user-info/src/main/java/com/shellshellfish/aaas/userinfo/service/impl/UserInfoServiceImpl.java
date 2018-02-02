@@ -686,7 +686,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		ProductsDTO products;
 		for (int i = 0; i < productsList.size(); i++) {
 			products = productsList.get(i);
-			resultMap = new HashMap();
+			resultMap = new HashMap<String, Object>();
 			resultMap.put("groupId", products.getProdId());
 			resultMap.put("subGroupId", products.getGroupId());
 
@@ -697,8 +697,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 					.getProductDetailsByProdId(products.getId());
 			Integer count = 0;
 			Integer fails = 0;
+			Integer statusIsNull = 0;
+			
 			if (productDetailsList != null && productDetailsList.size() > 0) {
-
 				for (int j = 0; j < productDetailsList.size(); j++) {
 					UiProductDetailDTO uiProductDetailDTO = productDetailsList.get(j);
 					if (uiProductDetailDTO.getStatus() != null) {
@@ -709,11 +710,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 						} else if (uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()) {
 							fails++;
 						}
+					} else {
+						statusIsNull++;
 					}
 				}
 				if (fails > 0) {
 					if (fails == productDetailsList.size()) {
 						//若组合中全部失败，则不显示
+						continue;
+					}
+				}
+				if (statusIsNull > 0) {
+					if (statusIsNull == productDetailsList.size()) {
+						//若组合中状态全部为NULL，则不显示
 						continue;
 					}
 				}

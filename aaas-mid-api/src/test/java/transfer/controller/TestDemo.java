@@ -1,8 +1,10 @@
 package transfer.controller;
 
-import com.shellshellfish.aaas.transfer.TransferServiceApplication;
-import io.restassured.RestAssured;
-import io.restassured.filter.log.ResponseLoggingFilter;
+import static io.restassured.RestAssured.given;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.notNullValue;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,10 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static io.restassured.RestAssured.given;
-import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.notNullValue;
+import com.shellshellfish.aaas.transfer.TransferServiceApplication;
+
+import io.restassured.RestAssured;
+import io.restassured.filter.log.ResponseLoggingFilter;
 
 /**
  * @Author pierre

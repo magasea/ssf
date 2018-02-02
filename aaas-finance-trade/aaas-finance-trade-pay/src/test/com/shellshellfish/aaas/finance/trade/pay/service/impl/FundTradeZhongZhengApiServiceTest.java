@@ -5,7 +5,9 @@ import static org.junit.Assert.*;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.PayServiceApplication;
+import com.shellshellfish.aaas.finance.trade.pay.model.FundNetZZInfo;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(classes = PayServiceApplication.class)
 @ActiveProfiles(profiles = "dev")
 public class FundTradeZhongZhengApiServiceTest {
+
+  @Test
+  public void getFundNets() throws Exception {
+    List<FundNetZZInfo> fundNetZZInfos =  fundTradeApiService.getFundNets("001987.OF", -1, 2);
+    for(FundNetZZInfo fundNetZZInfo: fundNetZZInfos){
+      System.out.println(fundNetZZInfo.getTradeDate());
+    }
+  }
 
   @Test
   public void getApplyResultByOutsideOrderNo() throws Exception {

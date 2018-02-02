@@ -40,6 +40,9 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -50,6 +53,7 @@ import java.util.TimeZone;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1435,6 +1439,15 @@ public class UserInfoController {
 			map = new HashMap<String, Object>();
 			try{
 				map.put("operations", TrdOrderOpTypeEnum.getComment(mongoUiTrdLogDTO.getOperations()));
+				if(mongoUiTrdLogDTO.getOperations()==1){
+					map.put("operationsStatus", 1);
+				} else if(mongoUiTrdLogDTO.getOperations()==2){
+					map.put("operationsStatus", 2);
+				}else if(mongoUiTrdLogDTO.getOperations()==3||mongoUiTrdLogDTO.getOperations()==4){
+					map.put("operationsStatus", 3);
+				} else {
+					map.put("operationsStatus", 4);
+				}
 			}catch (Exception ex){
 				logger.error(ex.getMessage());
 				ex.printStackTrace();
@@ -1462,8 +1475,18 @@ public class UserInfoController {
 			} else {
 				map.put("prodName", "");
 			}
+			if(mongoUiTrdLogDTO.getFundCode()==null){
+				continue;
+			}
 			map.put("fundCode", mongoUiTrdLogDTO.getFundCode());
-			map.put("date", TradeUtil.getReadableDateTime(mongoUiTrdLogDTO.getLastModifiedDate()));
+			map.put("prodId", mongoUiTrdLogDTO.getUserProdId());
+//			String dateTime = TradeUtil.getReadableDateTime(mongoUiTrdLogDTO.getLastModifiedDate());
+//			map.put("date", dateTime);
+			long dateLong= mongoUiTrdLogDTO.getLastModifiedDate();
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Date date = new Date(dateLong);
+			String dateTime = simpleDateFormat.format(date);
+			map.put("date", dateTime);
 			if(mongoUiTrdLogDTO.getAmount() != null ) {
 				map.put("amount", mongoUiTrdLogDTO.getAmount());
 			}else if(mongoUiTrdLogDTO.getTradeTargetSum() != null && mongoUiTrdLogDTO.getTradeStatus()
