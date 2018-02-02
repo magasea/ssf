@@ -38,11 +38,18 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -229,7 +236,62 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 		return fundAsset;
 	}
-
+	
+	@Override
+	public List<Map<String, Object>> getCalcYieldof7days(String fundCode, String type ,String date) throws Exception {
+		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+		if (!fundCode.contains("OF") && !fundCode.contains("SH") && !fundCode.contains("SZ")){
+			fundCode=fundCode+".OF";
+		}
+		Date enddate=null;
+		long sttime=0L;
+		long endtime=0L;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String settingdate = "";
+		if (date == null) {
+			settingdate = sdf.format(new Date());
+		} else {
+			settingdate = date;
+		}
+		enddate = sdf.parse(settingdate);
+		endtime=enddate.getTime()/1000;
+		
+		GregorianCalendar gc=new GregorianCalendar();
+        gc.setTime(enddate);
+        if (type.equals("1"))
+           gc.add(2, -Integer.parseInt("3"));//3 month
+        else if (type.equals("2"))
+           gc.add(2, -Integer.parseInt("6"));//6 month
+        else if (type.equals("3"))
+            gc.add(2, -Integer.parseInt("12"));//1 year
+        else 
+            gc.add(2, -Integer.parseInt("36"));//3 year
+         
+        System.out.println(new SimpleDateFormat("yyyy-MM-dd").format(gc.getTime()));
+        sttime=gc.getTime().getTime()/1000;
+		
+		// 货币基金使用附权单位净值
+		List<CoinFundYieldRate> coinFundYieldRateList = mongoCoinFundYieldRateRepository
+				.findAllByCodeAndQueryDateIsBetween(fundCode, sttime, endtime,
+						new Sort(new Order(Direction.DESC, "querydate")));
+		if (coinFundYieldRateList != null && coinFundYieldRateList.size() > 0) {
+			for(int i = 0; i < coinFundYieldRateList.size();i++){
+				Map<String, Object> resultMap = new HashMap<String, Object>();
+				CoinFundYieldRate coinFundYieldRate = coinFundYieldRateList.get(i);
+				resultMap.put("profit",coinFundYieldRate.getYieldOf7Days());
+				resultMap.put("yieldOf7Days",coinFundYieldRate.getYieldOf7Days());
+				resultMap.put("code", coinFundYieldRate.getCode());
+				Long queryDate = coinFundYieldRate.getQueryDate();
+				LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(queryDate), ZoneOffset.UTC);
+				String dateNow = localDateTime.toLocalDate().toString();
+				resultMap.put("querydate", dateNow);
+				resultMap.put("date", dateNow);
+				resultList.add(resultMap);
+			}
+		}
+		return resultList;
+	}
+	
 	private String getTodayAsString() {
 		final Calendar cal = Calendar.getInstance();
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
