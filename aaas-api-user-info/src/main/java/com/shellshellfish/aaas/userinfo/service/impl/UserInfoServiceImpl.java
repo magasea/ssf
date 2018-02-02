@@ -507,7 +507,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 		BigDecimal applyAsset = BigDecimal.valueOf(orderResult.getPayAmount() / 100);
 
 		BigDecimal assetOfEndDay = portfolioInfo.getTotalAssets();
-
+		
+		assetOfEndDay = Optional.ofNullable(portfolioInfo.getTotalAssets()).orElse(BigDecimal.ZERO);
+		
 		// 总资产 = 确认基金资产+ 未确认的基金的申购金额  = 结束日资产（即申购成功部分结束日资产） +（总申购资产-确认部分申购资产）
 		BigDecimal asset = assetOfEndDay.add(applyAsset.subtract(conifrmAsset));
 
