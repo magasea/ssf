@@ -435,7 +435,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 
-
 	/**
 	 * 计算组合的累计净值，累计收益，累计收益率 ，日收益，日收益率
 	 */
@@ -506,22 +505,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 		BigDecimal applyAsset = BigDecimal.valueOf(orderResult.getPayAmount() / 100);
 
-		BigDecimal assetOfEndDay = portfolioInfo.getTotalAssets();
-		
-		assetOfEndDay = Optional.ofNullable(portfolioInfo.getTotalAssets()).orElse(BigDecimal.ZERO);
-		
+		BigDecimal assetOfEndDay = Optional.ofNullable(portfolioInfo.getTotalAssets())
+				.orElse(BigDecimal.ZERO);
+
 		// 总资产 = 确认基金资产+ 未确认的基金的申购金额  = 结束日资产（即申购成功部分结束日资产） +（总申购资产-确认部分申购资产）
 		BigDecimal asset = assetOfEndDay.add(applyAsset.subtract(conifrmAsset));
-
-		//区间净赎回
-		BigDecimal internalAmount = portfolioInfo.getBonus().add(portfolioInfo.getSellAmount())
-				.subtract(portfolioInfo.getBuyAmount());
 
 		// 累计收益=确认部分资产- 确认部分申购金额
 		BigDecimal toltalIncome = assetOfEndDay.subtract(conifrmAsset);
 
 		// 累计收益率= 累计收益/申购金额
-		BigDecimal toltalIncomeRate = portfolioInfo.getTotalIncomeRate();
+		BigDecimal toltalIncomeRate = Optional.ofNullable(portfolioInfo.getTotalIncomeRate())
+				.orElse(BigDecimal.ZERO);
+
 		if (applyAsset.compareTo(BigDecimal.ZERO) != 0) {
 			toltalIncomeRate = toltalIncome.divide(applyAsset);
 		}
