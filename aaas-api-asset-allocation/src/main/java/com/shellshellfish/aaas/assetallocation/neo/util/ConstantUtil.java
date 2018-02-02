@@ -51,5 +51,6 @@ public interface ConstantUtil {
     int DEFAULT_TYPE_DAY_NUMBER = 20; // 默认周期类型时, 计算风险率时取值数量
     int FUND_GROUP_COUNT = 15; // 基金组合数目
     int RISK_LEVEL_COUNT = 5; // 风险偏好等级数目
+    int ANNUALISED_WEEK_NUM = 52;
 
 }

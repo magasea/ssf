@@ -191,17 +191,17 @@ public class FundGroupDataService {
 
         System.out.print("expReturn: [");
         for(double d: expReturn) {
-            System.out.print(d + ", ");
+            System.out.print(d + "; ");
         }
         System.out.println("]");
 
         System.out.println("expCovariance: [");
         for (Double[] dcov : expCovariance) {
-            System.out.print("[");
+            System.out.print(" ");
             for(double d: dcov) {
                 System.out.print(d + ", ");
             }
-            System.out.println("]");
+            System.out.println(" ");
         }
         System.out.println("]");
     }
