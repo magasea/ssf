@@ -114,8 +114,9 @@ public class ReturnCalculateDataService {
                 annualisedYieldRatioList.add(ratioVal * ConstantUtil.ANNUALISED_WEEK_NUM);
             }
 
-            //计算几何平均收益率 = (π（1+Ri）)^(1/N) - 1
-            Double geoMeanYieldRatio = calculateGeometricMean(annualisedYieldRatioList);
+            //计算几何平均 周收益率 = (π（1+Ri）)^(1/N) - 1
+            //并乘以年化系数
+            Double geoMeanYieldRatio = calculateGeometricMean(yieldRatioValList) * ConstantUtil.ANNUALISED_WEEK_NUM;
             if (null == geoMeanYieldRatio) {
                 covarianceModel.setStatus(NULL_STATUS); //无数据
                 logger.debug("yieldRatioVal 无数据");
@@ -136,6 +137,20 @@ public class ReturnCalculateDataService {
             covarianceModel.setStatus(FAILUED_STATUS); //失败，数据无效
             logger.debug("计算协方差 获取协方差矩阵 失败");
             return covarianceModel; //失败情况下就直接返回，不再继续后续步骤
+        }
+
+        //数据修剪对齐
+        int minSize = Integer.MAX_VALUE;
+        for (List<Double> yieldRatios : yieldRatiosList) {
+            minSize = minSize > yieldRatios.size() ? yieldRatios.size() : minSize;
+        }
+        for (List<Double> yieldRatios : yieldRatiosList) {
+            if (minSize == yieldRatios.size()) {
+                continue;
+            }
+            for (int i = yieldRatios.size() - 1; i >= minSize; i--) {
+                yieldRatios.remove(i);
+            }
         }
 
         List<List<Double>> covsList = new ArrayList<>();
