@@ -699,10 +699,8 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 						calcIntervalAmount2(user.getUuid(), prod.getProdId(),
 								detail.getUserProdId(), fundCode, date);
 					} catch (Exception e) {
-						e.printStackTrace();
 						logger.error("计算{用户:{},基金code:{},基金名称：{}}日收益出错", detail.getCreateBy(),
-								detail.getFundCode(), detail.getFundName());
-						logger.error(e.getMessage());
+								detail.getFundCode(), detail.getFundName(), e);
 					}
 				}
 			}
