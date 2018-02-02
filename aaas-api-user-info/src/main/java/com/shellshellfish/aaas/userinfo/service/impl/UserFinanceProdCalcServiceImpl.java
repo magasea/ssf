@@ -319,10 +319,10 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 		update
 				.set("buyAmount",
-						Double.valueOf(sell.map(m -> m.getTradeConfirmSum()).map(m -> m / 100L).orElse(0L)));
+						Double.valueOf(buy.map(m -> m.getTradeConfirmSum()).map(m -> m / 100L).orElse(0L)));
 
 		update.set("sellAmount",
-				Double.valueOf(buy.map(m -> m.getTradeConfirmSum()).map(m -> m / 100L).orElse(0L)));
+				Double.valueOf(sell.map(m -> m.getTradeConfirmSum()).map(m -> m / 100L).orElse(0L)));
 
 		DailyAmount dailyAmount = zhongZhengMongoTemplate
 				.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
