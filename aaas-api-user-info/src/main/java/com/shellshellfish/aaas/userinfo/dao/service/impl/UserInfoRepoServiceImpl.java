@@ -1,5 +1,7 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
+import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
+
 import com.mongodb.WriteResult;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
@@ -742,6 +744,65 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		MyBeanUtils.mapEntityIntoDTO(uiUser, uiBuilder);
 		responseObserver.onNext(uiBuilder.build());
 		responseObserver.onCompleted();
+	}
+
+	/**
+	 */
+	public void rollbackUserProducts(com.shellshellfish.aaas.userinfo.grpc.SellProducts request,
+			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.SellProducts> responseObserver) {
+		SellProducts result = rollbackUserProducts(request);
+
+		responseObserver.onNext(result);
+		responseObserver.onCompleted();
+	}
+
+	private SellProducts rollbackUserProducts(SellProducts request) {
+		//检查出售的每个基金在当前用户拥有的产品有足够的份额
+		UiProducts uiProducts = uiProductRepo.findById(request.getUserProductId());
+		List<UiProductDetail> uiProductDetails = uiProductDetailRepo.findAllByUserProdId(request
+				.getUserProductId());
+		Map<String, Long[]> currentAvailableFunds = new HashMap<>();
+		for(UiProductDetail uiProductDetail: uiProductDetails){
+			Long[] currentAndOrigin = {Long.valueOf(uiProductDetail.getFundQuantityTrade()),
+					Long.valueOf(uiProductDetail.getFundQuantity())};
+			currentAvailableFunds.put(uiProductDetail.getFundCode(), currentAndOrigin);
+		}
+		SellProducts.Builder spBuilder = SellProducts.newBuilder();
+		SellProductDetail.Builder spdBuilder = SellProductDetail.newBuilder();
+		boolean canRollback = true;
+		for(SellProductDetail sellProductDetail: request.getSellProductDetailsList()){
+			logger.info("check fundCode:" + sellProductDetail.getFundCode() + " of userProdId:" +
+					request.getUserProductId());
+			spdBuilder.setFundCode(sellProductDetail.getFundCode());
+			spdBuilder.setFundQuantityTrade(sellProductDetail.getFundQuantityTrade());
+			if(sellProductDetail.getFundQuantityTrade() + currentAvailableFunds.get(sellProductDetail
+					.getFundCode())[0]	> currentAvailableFunds.get(sellProductDetail.getFundCode())[1]){
+				spdBuilder.setResult(-1);
+				spdBuilder.setFundQuantityTrade(currentAvailableFunds.get(sellProductDetail.getFundCode()
+						)[0]);
+				canRollback = false;
+			}
+			spBuilder.addSellProductDetails(spdBuilder);
+			spdBuilder.clear();
+		}
+		spBuilder.setUserId(request.getUserId());
+		spBuilder.setUserProductId(request.getUserProductId());
+		if(!StringUtils.isEmpty(uiProducts.getBankCardNum())){
+			spBuilder.setUserBankNum(uiProducts.getBankCardNum());
+		}
+
+
+		if(canRollback){
+			Long fundQuantityRemain = null;
+			for(SellProductDetail sellProductDetail: request.getSellProductDetailsList()){
+				fundQuantityRemain = currentAvailableFunds.get(sellProductDetail.getFundCode())[0] +
+						sellProductDetail.getFundQuantityTrade();
+				uiProductDetailRepo.updateByParamDeductTrade(fundQuantityRemain, TradeUtil.getUTCTime(),
+						request.getUserId(), request.getUserProductId(),sellProductDetail.getFundCode(),
+						TrdOrderStatusEnum.WAITSELL.getStatus() );
+			}
+		}
+		return spBuilder.build();
 	}
 }
 

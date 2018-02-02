@@ -9,6 +9,9 @@ import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.FundNet;
+import com.shellshellfish.aaas.finance.trade.pay.model.dao.mongo.MongoFundNetInfo;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface PayService {
@@ -79,4 +82,9 @@ public interface PayService {
   PreOrderPayResult preOrder2Pay(PreOrderPayReq preOrderPayReq);
 
   PayPreOrderDto payPreOrder(PayPreOrderDto message) throws Exception;
+
+  public List<MongoFundNetInfo> getFundNetInfo(List<String> fundCodes, int trdDates, String
+      userPid);
+
+
 }

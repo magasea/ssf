@@ -21,12 +21,15 @@ public interface TrdOrderRepository extends PagingAndSortingRepository<TrdOrder,
 	List<TrdOrder> findByUserProdId(Long userProdId);
 
 	List<TrdOrder> findTrdOrdersByOrderStatusIs(int orderStatus);
+
 	@Modifying(clearAutomatically = true)
 	@Query("UPDATE TrdOrder SET order_status = :orderStatus, update_date = :updateDate, update_by "
 			+ "= :updateBy WHERE id = :orderId")
 	TrdOrder updateOrderStatus(@Param("orderStatus") int orderStatus, @Param("updateDate") long
-			updateDate, @Param("updateBy") Long updateBy, @Param("orderId") Long orderId );
+			updateDate, @Param("updateBy") Long updateBy, @Param("orderId") Long orderId);
 
 	List<TrdOrder> findByUserProdIdAndUserId(Long prodId, Long userId);
+
+	TrdOrder findFirstByUserProdIdAndOrderStatus(Long userProdId, Integer orderStatus);
 
 }

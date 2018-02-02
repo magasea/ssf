@@ -9,7 +9,9 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author pierre 18-1-25
@@ -207,11 +209,34 @@ public class InstantDateUtil {
 		LocalDate localDate = localDateTime.toLocalDate();
 		return checkHoliday(localDate);
 	}
+	
+	public static DayOfWeek getDayOfWeek(LocalDateTime localDateTime){
+        DayOfWeek dayOfWeek = localDateTime.getDayOfWeek();        
+        System.out.println("getDayOfWeek : " + dayOfWeek);
+        return dayOfWeek;
+    }
+	
+	public static String getDayOfWeekName(LocalDateTime localDateTime) {
+		DayOfWeek dayOfWeek = localDateTime.getDayOfWeek();
+		Map<String, String> weekDayMap = new HashMap<String, String>();
+		weekDayMap.put("SUNDAY", "周日");
+		weekDayMap.put("MONDAY", "周一");
+		weekDayMap.put("TUESDAY", "周二");
+		weekDayMap.put("WEDNESDAY", "周三");
+		weekDayMap.put("THURSDAY", "周四");
+		weekDayMap.put("FRIDAY", "周五");
+		weekDayMap.put("SATURDAY", "周六");
+		String dayOfWeekName = weekDayMap.get(dayOfWeek + "");
+		System.out.println("getDayOfWeek : " + dayOfWeekName);
+		return dayOfWeekName;
+	}
 
 	public static void main(String[] args) {
-		String date = TradeUtil.getReadableDateTime(System.currentTimeMillis());
-		date = date.substring(0,10);
-		System.out.println(date);
+//		String date = TradeUtil.getReadableDateTime(System.currentTimeMillis());
+//		date = date.substring(0,10);
+//		System.out.println(date);
+		LocalDateTime ldt = LocalDateTime.now(); 
+		System.out.println(getDayOfWeekName(ldt).toString());
 	}
 
 }

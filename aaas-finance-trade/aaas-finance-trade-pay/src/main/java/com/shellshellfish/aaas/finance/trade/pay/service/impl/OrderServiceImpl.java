@@ -3,7 +3,7 @@ package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 import com.shellshellfish.aaas.finance.trade.order.GetPIDReq;
 import com.shellshellfish.aaas.finance.trade.order.OrderRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.order.UserPID;
-import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
+import com.shellshellfish.aaas.finance.trade.pay.model.dao.mysql.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.pay.service.OrderService;
 import io.grpc.ManagedChannel;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -11,6 +11,9 @@ import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokerUserRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.pay.BindBankCardQuery;
+import com.shellshellfish.aaas.finance.trade.pay.FundNetInfo;
+import com.shellshellfish.aaas.finance.trade.pay.FundNetInfos;
+import com.shellshellfish.aaas.finance.trade.pay.FundNetQuery;
 import com.shellshellfish.aaas.finance.trade.pay.OrderDetailPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.OrderPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
@@ -70,21 +73,32 @@ public class PayServiceImpl implements PayService {
 		if (trdAcco == null || errMsg.equals(trdAcco))
 			return errMsg;
 
-
-		TrdBrokerUser trdBrokerUserNew = new TrdBrokerUser();
-		trdBrokerUserNew.setTradeAcco(trdAcco);
-		trdBrokerUserNew.setBankCardNum(bindBankCard.getBankCardNum());
-		trdBrokerUserNew.setCreateBy(bindBankCard.getUserId());
-		trdBrokerUserNew.setCreateDate(TradeUtil.getUTCTime());
-		trdBrokerUserNew.setTradeAcco(trdAcco);
-		trdBrokerUserNew.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId().intValue());
-		trdBrokerUserNew.setUserId(bindBankCard.getUserId());
-		trdBrokerUserNew.setUpdateBy(bindBankCard.getUserId());
-		trdBrokerUserNew.setUpdateDate(TradeUtil.getUTCTime());
-		trdBrokerUserRepository.save(trdBrokerUserNew);
-
+    TrdBrokerUser trdBrokerUserOld = trdBrokerUserRepository.findByUserIdAndBankCardNum(bindBankCard
+            .getUserId(), bindBankCard.getBankCardNum());
+    if(trdBrokerUserOld != null){
+      logger.error("the intending bind card user already have trade account there ");
+      trdBrokerUserOld.setTradeAcco(trdAcco);
+      trdBrokerUserOld.setBankCardNum(bindBankCard.getBankCardNum());
+      trdBrokerUserOld.setTradeAcco(trdAcco);
+      trdBrokerUserOld.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId().intValue());
+      trdBrokerUserOld.setUserId(bindBankCard.getUserId());
+      trdBrokerUserOld.setUpdateBy(bindBankCard.getUserId());
+      trdBrokerUserOld.setUpdateDate(TradeUtil.getUTCTime());
+      trdBrokerUserRepository.save(trdBrokerUserOld);
+    }else{
+      TrdBrokerUser trdBrokerUserNew = new TrdBrokerUser();
+      trdBrokerUserNew.setTradeAcco(trdAcco);
+      trdBrokerUserNew.setBankCardNum(bindBankCard.getBankCardNum());
+      trdBrokerUserNew.setCreateBy(bindBankCard.getUserId());
+      trdBrokerUserNew.setCreateDate(TradeUtil.getUTCTime());
+      trdBrokerUserNew.setTradeAcco(trdAcco);
+      trdBrokerUserNew.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId().intValue());
+      trdBrokerUserNew.setUserId(bindBankCard.getUserId());
+      trdBrokerUserNew.setUpdateBy(bindBankCard.getUserId());
+      trdBrokerUserNew.setUpdateDate(TradeUtil.getUTCTime());
+      trdBrokerUserRepository.save(trdBrokerUserNew);
+    }
 		return trdAcco;
-
 	}
 
 
@@ -167,6 +181,18 @@ public class PayServiceImpl implements PayService {
     return preOrderPayResult;
   }
 
+  @Override
+  public List<FundNetInfo> getFundNetInfo(String userPid , List<String> fundCodes, int days)
+      throws ExecutionException, InterruptedException {
+    FundNetQuery.Builder fnqBuilder = FundNetQuery.newBuilder();
+    for(String fundCode: fundCodes){
+      fnqBuilder.addFundCode(fundCode);
+    }
+    fnqBuilder.setTradeDays(days);
+    fnqBuilder.setUserPid(userPid);
+    FundNetInfos fundNetInfos = payRpcFutureStub.getLatestFundNet(fnqBuilder.build()).get();
+    return fundNetInfos.getFundNetInfoList();
+  }
 
 
 }

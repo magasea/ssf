@@ -4,6 +4,7 @@ import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.finance.trade.order.model.DistributionResult;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
@@ -21,6 +22,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 
 @RestController
@@ -175,7 +177,7 @@ public class TradeOrderController {
 	 * @param orderId
 	 * @return
 	 */
-	@ApiOperation("购买理财产品 产品详情页面")
+	@ApiOperation("购买理财产品 产品详情页面(购买)")
 	@ApiImplicitParams({
 //				@ApiImplicitParam(paramType = "path", name = "uuid", dataType = "String", required = true, value = "用户UUID", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "orderId", dataType = "String", required = true, value = "订单编号", defaultValue = "1231230001000001513657092497")
@@ -185,8 +187,8 @@ public class TradeOrderController {
 			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
 			@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
 			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")})
-	@RequestMapping(value = "/funds/buyDetails/{orderId}", method = RequestMethod.GET)
-	public ResponseEntity<Map> buyDetails(
+	//@RequestMapping(value = "/funds/buyDetails/{orderId}", method = RequestMethod.GET)
+	public ResponseEntity<Map> buyDetails_bak(
 			// @PathVariable(value = "groupId") Long uuid,
 			@PathVariable(value = "orderId") String orderId) throws Exception {
 		logger.error("method buyDetails run ..");
@@ -198,7 +200,7 @@ public class TradeOrderController {
 		TrdOrder trdOrder = orderService.getOrderByOrderId(orderId);
 		List<TrdOrderDetail> trdOrderDetailList = new ArrayList<TrdOrderDetail>();
 		if (trdOrder != null && trdOrder.getOrderId() != null) {
-			result.put("prodId", trdOrder.getProdId());
+			result.put("prodId", trdOrder.getUserProdId());
 			trdOrderDetailList = orderService.findOrderDetailByOrderId(orderId);
 		} else {
 			logger.error("购买详情不存在.");
@@ -230,7 +232,7 @@ public class TradeOrderController {
 			}
 		}
 		//TODO title
-		result.put("title", "稳健型-3个月组合");
+		//result.put("title", "稳健型-3个月组合");
 		//金额
 		long amount = trdOrder.getPayAmount();
 		if (amount != 0) {
@@ -243,7 +245,6 @@ public class TradeOrderController {
 		} else {
 			result.put("payfee", trdOrder.getPayFee());
 		}
-		Calendar c = Calendar.getInstance();
 		//状态详情
 		List<Map<String, Object>> detailList = new ArrayList<Map<String, Object>>();
 		Map<String, Object> detailMap = new HashMap<String, Object>();
@@ -263,7 +264,10 @@ public class TradeOrderController {
 			detailMap.put("fundCode", trdOrderDetail.getFundCode());
 			//基金费用
 			detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
-			detailMap.put("funddate", c.get(Calendar.YEAR)+"."+(c.get(Calendar.MONTH)+1)+"."+c.get(Calendar.DATE));
+			Instant instance = Instant.now();
+			Long instanceLong = instance.toEpochMilli();
+			String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 1);
+			detailMap.put("funddate", date);
 
 			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
 			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){
@@ -278,6 +282,56 @@ public class TradeOrderController {
 		}
 		result.put("detailList", detailList);
 
+		return new ResponseEntity<Map>(result, HttpStatus.OK);
+	}
+	/**
+	 * 购买理财产品 产品详情
+	 *
+	 * @param orderId
+	 * @return
+	 */
+	@ApiOperation("购买理财产品 产品详情页面(购买)")
+	@ApiImplicitParams({
+//				@ApiImplicitParam(paramType = "path", name = "uuid", dataType = "String", required = true, value = "用户UUID", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "orderId", dataType = "String", required = true, value = "订单编号", defaultValue = "1231230001000001513657092497")
+	})
+	@ApiResponses({
+		@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
+		@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
+		@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")})
+	@RequestMapping(value = "/funds/buyDetails/{orderId}", method = RequestMethod.GET)
+	public ResponseEntity<Map> buyDetails(
+			// @PathVariable(value = "groupId") Long uuid,
+			@PathVariable(value = "orderId") String orderId) throws Exception {
+		logger.error("method buyDetails run ..");
+		Map<String, Object> result = tradeOpService.sellorbuyDeatils(orderId);
+		
+		return new ResponseEntity<Map>(result, HttpStatus.OK);
+	}
+	
+	/**
+	 * 赎回理财产品 产品详情
+	 *
+	 * @param orderId
+	 * @return
+	 */
+	@ApiOperation("购买理财产品 产品详情页面(赎回)")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "orderId", dataType = "String", required = true, value = "订单编号", defaultValue = "1231230001000001513657092497")
+	})
+	@ApiResponses({
+		@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
+		@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
+		@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")})
+	@RequestMapping(value = "/funds/sellDetails/{orderId}", method = RequestMethod.GET)
+	public ResponseEntity<Map> sellDetails(
+			// @PathVariable(value = "groupId") Long uuid,
+			@PathVariable(value = "orderId") String orderId) throws Exception {
+		logger.error("method sellDetails run ..");
+		Map<String, Object> result = tradeOpService.sellorbuyDeatils(orderId);
+//		Map<String, Object> result = new HashMap<String, Object>();
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
 
@@ -342,6 +396,7 @@ public class TradeOrderController {
 		TrdOrder trdOrder = orderService.findOrderByUserProdIdAndUserId(prodId, userId);
 		String bankNum = trdOrder.getBankCardNum();
 		result.put("bankNum", bankNum);
+		result.put("orderId", trdOrder.getOrderId());
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
 

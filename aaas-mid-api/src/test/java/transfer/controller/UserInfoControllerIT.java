@@ -1,10 +1,13 @@
 package transfer.controller;
 
-import com.shellshellfish.aaas.common.utils.RandomPhoneNumUtil;
-import com.shellshellfish.aaas.transfer.TransferServiceApplication;
-import com.shellshellfish.aaas.transfer.controller.LoginController;
-import io.restassured.RestAssured;
-import io.restassured.filter.log.ResponseLoggingFilter;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.notNullValue;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,13 +18,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import com.shellshellfish.aaas.common.utils.RandomPhoneNumUtil;
+import com.shellshellfish.aaas.transfer.TransferServiceApplication;
+import com.shellshellfish.aaas.transfer.controller.LoginController;
 
-import static io.restassured.RestAssured.given;
-import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.hamcrest.Matchers.*;
+import io.restassured.RestAssured;
+import io.restassured.filter.log.ResponseLoggingFilter;
 
 /**
  * @Author pierre

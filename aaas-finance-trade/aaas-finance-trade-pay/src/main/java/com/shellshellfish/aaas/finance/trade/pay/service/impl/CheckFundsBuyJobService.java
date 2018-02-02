@@ -11,9 +11,9 @@ import com.shellshellfish.aaas.common.utils.ZZStatsToOrdStatsUtils;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.ConfirmResult;
-import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
+import com.shellshellfish.aaas.finance.trade.pay.model.dao.mysql.TrdPayFlow;
 
-import com.shellshellfish.aaas.finance.trade.pay.repositories.TrdPayFlowRepository;
+import com.shellshellfish.aaas.finance.trade.pay.repositories.mysql.TrdPayFlowRepository;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.service.OrderService;
@@ -207,6 +207,7 @@ public class CheckFundsBuyJobService {
             ApplyResult applyResult = null;
             String userPid = null;
             String outsideOrderno = null;
+            List<TrdPayFlow> trdPayFlowListToGetConfirmInfo = new ArrayList<>();
             for (TrdPayFlow trdPayFlow : trdPayFlows) {
                 try {
                     // TODO: replace userId with userUuid
@@ -248,6 +249,9 @@ public class CheckFundsBuyJobService {
                         BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
                         trdPayFlowRepository.save(trdPayFlow);
                         broadcastMessageProducers.sendMessage(trdPayFlowMsg);
+                        if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()){
+                            trdPayFlowListToGetConfirmInfo.add(trdPayFlow);
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -260,6 +264,7 @@ public class CheckFundsBuyJobService {
                     logger.info("Sample job has finished...");
                 }
             }
+            CheckAndSendConfirmInfo(trdPayFlowListToGetConfirmInfo);
         }
     }
     public void executePreOrderStatus(){

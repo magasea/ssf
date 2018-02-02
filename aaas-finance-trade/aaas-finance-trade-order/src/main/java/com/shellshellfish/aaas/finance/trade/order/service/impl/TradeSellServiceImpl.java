@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
@@ -9,7 +10,6 @@ import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc;
 import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc.DataCollectionServiceFutureStub;
 import com.shellshellfish.aaas.datacollect.FundCodes;
-import com.shellshellfish.aaas.datacollect.FundInfo;
 import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProducer;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
@@ -19,8 +19,10 @@ import com.shellshellfish.aaas.finance.trade.order.model.vo.ProdSellPageDTO;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokerUserRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderRepository;
+import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeSellService;
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
+import com.shellshellfish.aaas.finance.trade.pay.FundNetInfo;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductDetail;
 import com.shellshellfish.aaas.userinfo.grpc.SellProducts;
@@ -31,7 +33,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +70,9 @@ public class TradeSellServiceImpl implements TradeSellService {
   @Autowired
   UserInfoService userInfoService;
 
+  @Autowired
+  PayService payService;
+
   @PostConstruct
   void init(){
     dataCollectionServiceFutureStub = DataCollectionServiceGrpc.newFutureStub(managedDCChannel);
@@ -80,16 +84,18 @@ public class TradeSellServiceImpl implements TradeSellService {
   @Override
   @Transactional
   public TrdOrder sellProduct(ProdSellPageDTO prodSellPageDTO)
-      throws ExecutionException, InterruptedException {
+      throws Exception {
     //first : get price of funds , this
     FundCodes.Builder requestBuilder = FundCodes.newBuilder();
     for(ProdDtlSellPageDTO prodDtlSellPageDTO: prodSellPageDTO.getProdDtlSellPageDTOList()){
       requestBuilder.addFundCode(prodDtlSellPageDTO.getFundCode());
     }
     BigDecimal totalSell = BigDecimal.valueOf(0);
+    List<String> fundCodes = new ArrayList<>();
     if(null == prodSellPageDTO.getSellTargetMoney()){
       for(ProdDtlSellPageDTO prodDtlSellPageDTO: prodSellPageDTO.getProdDtlSellPageDTOList()){
         totalSell = totalSell.add(prodDtlSellPageDTO.getTargetSellAmount());
+        fundCodes.add(prodDtlSellPageDTO.getFundCode());
       }
       prodSellPageDTO.setSellTargetMoney(totalSell);
     }
@@ -97,14 +103,33 @@ public class TradeSellServiceImpl implements TradeSellService {
 
     com.shellshellfish.aaas.userinfo.grpc.UserBankInfo userBankInfo =
         userInfoService.getUserBankInfo(prodSellPageDTO.getUserId());
+    String userPid = null;
+    List<TrdOrder> trdOrders = trdOrderRepository.findByUserProdId(prodSellPageDTO.getUserProdId());
+    String usedBankCard = trdOrders.get(0).getBankCardNum();
+    for(CardInfo cardInfo: userBankInfo.getCardNumbersList()){
+      if(cardInfo.getCardNumbers().equals(usedBankCard)){
+        userPid = cardInfo.getUserPid();
+        break;
+      }
+    }
+    List<FundNetInfo> fundNetInfos = payService.getFundNetInfo(userPid,fundCodes,1);
 
-
-    List<FundInfo> fundInfoList =dataCollectionServiceFutureStub.getFundsPrice
-        (requestBuilder.build()).get().getFundInfoList();
-    fundInfoList.get(0).getNavunit();
+//    List<FundInfo> fundInfoList =dataCollectionServiceFutureStub.getFundsPrice
+//        (requestBuilder.build()).get().getFundInfoList();
+//    fundInfoList.get(0).getNavunit();
     Map<String, Integer> fundNavunits = new HashMap<>();
-    for(FundInfo fundInfo: fundInfoList){
-      fundNavunits.put(fundInfo.getFundCode(), fundInfo.getNavunit());
+//    for(FundInfo fundInfo: fundInfoList){
+//      fundNavunits.put(fundInfo.getFundCode(), fundInfo.getNavunit());
+//    }
+    for(FundNetInfo fundNetInfo: fundNetInfos){
+      Long netValL = null;
+      if(MonetaryFundEnum.containsCode(fundNetInfo.getFundCode())){
+        logger.info("contains monetary fund");
+        netValL = 100L;
+      }else{
+        netValL = TradeUtil.getLongNumWithMul100(fundNetInfo.getUnitNet());
+      }
+      fundNavunits.put(fundNetInfo.getFundCode(), netValL.intValue());
     }
     List<ProdDtlSellDTO> prodDtlSellDTOList = new ArrayList<>();
     for(ProdDtlSellPageDTO prodDtlSellDTO: prodSellPageDTO.getProdDtlSellPageDTOList()){
@@ -130,20 +155,14 @@ public class TradeSellServiceImpl implements TradeSellService {
     prodSellDTO.setProdDtlSellDTOList(prodDtlSellDTOList);
 
     if(StringUtils.isEmpty(prodSellDTO.getUserBankNum())){
-      List<TrdOrder> trdOrders = trdOrderRepository.findByUserProdId(prodSellPageDTO.getUserProdId());
-      prodSellDTO.setUserBankNum(trdOrders.get(0).getBankCardNum());
+      prodSellDTO.setUserBankNum(usedBankCard);
     }
+
     TrdOrder result = generateOrderInfo4Sell(prodSellDTO);
     if(result == null){
       logger.error("failed to generate order info for sell information");
     }
-    String userPid = null;
-    for(CardInfo cardInfo: userBankInfo.getCardNumbersList()){
-      if(cardInfo.getCardNumbers().equals(prodSellDTO.getUserBankNum())){
-        userPid = cardInfo.getUserPid();
-        break;
-      }
-    }
+
     prodSellDTO.setUserPid(userPid);
     broadcastMessageProducer.sendSellMessages(prodSellDTO);
     return result;
@@ -151,11 +170,13 @@ public class TradeSellServiceImpl implements TradeSellService {
 
 
   private TrdOrder generateOrderInfo4Sell(ProdSellDTO prodSellDTO)
-      throws ExecutionException, InterruptedException {
+      throws Exception {
     TrdOrder trdOrder = new TrdOrder();
+    boolean isSellable = true;
+    List<Exception> errors = new ArrayList<>();
     try {
       TrdBrokerUser trdBrokerUser = trdBrokerUserRepository
-          .findByUserIdAndAndBankCardNum(prodSellDTO.getUserId(), prodSellDTO.getUserBankNum());
+          .findByUserIdAndBankCardNum(prodSellDTO.getUserId(), prodSellDTO.getUserBankNum());
 
 
 //
@@ -178,8 +199,9 @@ public class TradeSellServiceImpl implements TradeSellService {
         spdBuilder.setResult(1);
         spBuilder.addSellProductDetails(spdBuilder);
       }
+
+      prodSellDTO.setTrdAcco(trdBrokerUser.getTradeAcco());
       SellProducts results = userInfoService.checkSellProducts(spBuilder.build());
-      boolean isSellable = true;
       for( SellProductDetail sellProductDetail: results.getSellProductDetailsList()){
         if(sellProductDetail.getResult() < 0){
           isSellable = false;
@@ -189,7 +211,6 @@ public class TradeSellServiceImpl implements TradeSellService {
               + "the fundCode:" + sellProductDetail.getFundCode() + " quantity is not enough");
         }
       }
-      prodSellDTO.setTrdAcco(trdBrokerUser.getTradeAcco());
       String bankCardNum = null;
       if(StringUtils.isEmpty(results.getUserBankNum())){
         logger.error("the user_prod_id:" + results.getUserProductId() + " haven't save "
@@ -216,7 +237,7 @@ public class TradeSellServiceImpl implements TradeSellService {
       prodSellDTO.setTrdAcco(trdBrokerUser.getTradeAcco());
       prodSellDTO.setTrdBrokerId(trdBrokerUser.getTradeBrokerId());
       prodSellDTO.setOrderId(trdOrder.getOrderId());
-      trdOrderRepository.save(trdOrder);
+      trdOrder = trdOrderRepository.save(trdOrder);
       TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
       for( ProdDtlSellDTO prodDtlSellDTO: prodSellDTO.getProdDtlSellDTOList()){
         //生成赎回子订单信息
@@ -235,7 +256,7 @@ public class TradeSellServiceImpl implements TradeSellService {
             .getTargetSellAmount()));
         trdOrderDetail.setOrderId(orderId);
         trdOrderDetail.setOrderDetailStatus(TrdOrderStatusEnum.WAITSELL.getStatus());
-        trdOrderDetailRepository.save(trdOrderDetail);
+        trdOrderDetail = trdOrderDetailRepository.save(trdOrderDetail);
         prodDtlSellDTO.setOrderDetailId(trdOrderDetail.getId());
         trdOrderDetail = new TrdOrderDetail();
       }
@@ -243,7 +264,13 @@ public class TradeSellServiceImpl implements TradeSellService {
     }catch (Exception ex){
       ex.printStackTrace();
       logger.error(ex.getMessage());
-      throw ex;
+      errors.add(ex);
+      StringBuilder sb = new StringBuilder();
+      for(Exception err: errors){
+        sb.append(err.getMessage()+"\n");
+      }
+      throw new Exception(sb.toString());
     }
+
   }
 }

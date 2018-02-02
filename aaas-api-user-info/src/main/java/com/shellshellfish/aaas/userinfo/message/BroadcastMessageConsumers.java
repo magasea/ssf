@@ -18,7 +18,6 @@ import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserTrdLogMsgRep
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -248,6 +247,7 @@ public class BroadcastMessageConsumers {
         }else{
             String idOrig = mongoUiTrdZZInfoInDb.getId();
             MyBeanUtils.mapEntityIntoDTO(mongoUiTrdZZInfo, mongoUiTrdZZInfoInDb);
+            mongoUiTrdZZInfoInDb.setTradeType(mongoUiTrdZZInfo.getTradeType());
             mongoUiTrdZZInfoInDb.setId(idOrig);
             mongoUiTrdZZInfoRepo.save(mongoUiTrdZZInfoInDb);
         }

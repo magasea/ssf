@@ -1,9 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
-import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.ZZBuyFund;
-import com.shellshellfish.aaas.finance.trade.pay.model.dao.TrdPayFlow;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;

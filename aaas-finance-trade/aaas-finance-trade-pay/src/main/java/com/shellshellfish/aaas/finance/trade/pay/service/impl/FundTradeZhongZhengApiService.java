@@ -1,7 +1,5 @@
 package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
-import static java.awt.SystemColor.info;
-
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -146,6 +144,23 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         }
 
         return sellFundResult;
+    }
+    @Override
+    public String getWorkDay(String openId, String direction, int day)
+        throws Exception {
+        Map<String, Object> info = init(openId);
+
+        info.put("day_num", day);
+        info.put("direct", direction);
+        postInit(info);
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_work_day";
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+        ZZWorkDayCompond zzWorkDayCompond = gson.fromJson(json, ZZWorkDayCompond.class);
+        if(!zzWorkDayCompond.getStatus().equals("1")){
+            throw new Exception(zzWorkDayCompond.getMsg());
+        }
+        return zzWorkDayCompond.getData();
     }
 
     @Override
@@ -718,5 +733,36 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    /**
+     * 获取基金每日净值,累计净值，日涨跌幅等
+     *
+     * @param fundCode 基金代码
+     * @param startIndex 开始下表 eg: 昨天为0,前天为1，。大前天为3 以此类推
+     * @param count 需要获取数据的条数
+     */
+    @Override
+    public List<FundNetZZInfo> getFundNets(String fundCode, Integer startIndex, Integer count)
+        throws Exception {
+        fundCode = trimSuffix(fundCode);
+
+        Map<String, Object> info = init();
+        info.put("fundcode", fundCode);
+        info.put("limit_left", startIndex);
+        info.put("limit_right", count);
+        postInit(info);
+
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_all_net";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+        ZZFundNetCompond zzFundNetCompond = gson.fromJson(json, ZZFundNetCompond.class);
+        if(!zzFundNetCompond.getStatus().equals("1")){
+            logger.error(zzFundNetCompond.getErrno()+":" + zzFundNetCompond.getMsg());
+            throw new Exception(zzFundNetCompond.getErrno()+":" + zzFundNetCompond.getMsg());
+        }
+        return zzFundNetCompond.getData();
+
     }
 }

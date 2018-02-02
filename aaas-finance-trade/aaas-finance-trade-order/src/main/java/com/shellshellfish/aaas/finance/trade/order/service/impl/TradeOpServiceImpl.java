@@ -10,6 +10,7 @@ import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.utils.BankUtil;
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProducer;
@@ -26,6 +27,7 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderReposito
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdPreOrderRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.TrdTradeBankDicRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdInfoService;
+import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
@@ -45,6 +47,9 @@ import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc.UserInfoServiceFutureStub;
 import io.grpc.ManagedChannel;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -104,6 +109,9 @@ public class TradeOpServiceImpl implements TradeOpService {
 
   @Autowired
   ManagedChannel managedUIChannel;
+  
+  @Autowired
+  OrderService orderService;
 
   boolean useMsgToBuy = true;
 
@@ -285,7 +293,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 
 
       BindBankCard bindBankCard = new BindBankCard();
-      TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndAndBankCardNum
+      TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndBankCardNum
           (userBankInfo.getUserId(),financeProdBuyInfo.getBankAcc());
       bindBankCard.setBankCardNum(financeProdBuyInfo.getBankAcc());
 //      String bankShortName = BankUtil.getCodeOfBank(financeProdBuyInfo.getBankAcc());
@@ -409,7 +417,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 
   @Override
   public TrdBrokerUser getBrokerUserByUserIdAndBandCard(Long userId, String bankCardNum) {
-    TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndAndBankCardNum
+    TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndBankCardNum
         (userId,bankCardNum);
     return trdBrokerUser;
   }
@@ -621,7 +629,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     trdPreOrder.setPayAmount(TradeUtil.getLongNumWithMul100(financeProdInfo.getMoney()));
     trdPreOrder.setProdId(financeProdInfo.getProdId());
     Long userId = null;
-    if( financeProdInfo.getUserId() == null ){
+    if( financeProdInfo.getUserId() == null || financeProdInfo.getUserId() == 0){
       userId = getUserId(financeProdInfo.getUuid());
     }
     if(null == userId){
@@ -657,6 +665,100 @@ public class TradeOpServiceImpl implements TradeOpService {
     //Todo: add code
     return null;
   }
+
+	@Override
+	public Map<String, Object> sellorbuyDeatils(String orderId) throws Exception {
+		Map<String, Object> result = new HashMap<String, Object>();
+		if (StringUtils.isEmpty(orderId)) {
+			logger.error("详情信息数据不存在:" + orderId);
+			throw new Exception("详情信息数据不存在:" + orderId);
+		}
+		TrdOrder trdOrder = orderService.getOrderByOrderId(orderId);
+		List<TrdOrderDetail> trdOrderDetailList = new ArrayList<TrdOrderDetail>();
+		if (trdOrder != null && trdOrder.getOrderId() != null) {
+			result.put("prodId", trdOrder.getUserProdId());
+			trdOrderDetailList = orderService.findOrderDetailByOrderId(orderId);
+		} else {
+			logger.error("详情信息数据不存在.");
+			throw new Exception("详情信息数据不存在.");
+		}
+		//result.put("list", trdOrderDetailList);
+		if (trdOrderDetailList == null || trdOrderDetailList.isEmpty()) {
+			logger.error("详情信息数据不存在.");
+			throw new Exception("详情信息数据不存在.");
+		}
+		TrdOrderStatusEnum[] trdOrderStatusEnum = TrdOrderStatusEnum.values();
+		for (TrdOrderStatusEnum trdOrderStatus : trdOrderStatusEnum) {
+			if (trdOrder.getOrderStatus() == trdOrderStatus.getStatus()) {
+				result.put("orderStatus", trdOrderStatus.getComment());
+				break;
+			} else {
+				result.put("orderStatus", "");
+			}
+		}
+		
+		TrdOrderOpTypeEnum[] trdOrderOpType = TrdOrderOpTypeEnum.values();
+		for (TrdOrderOpTypeEnum trdOrderOpTypeEnum : trdOrderOpType) {
+			if (trdOrder.getOrderType() == trdOrderOpTypeEnum.getOperation()) {
+				result.put("orderType", trdOrderOpTypeEnum.getComment());
+				break;
+			} else {
+				result.put("orderType", "");
+			}
+		}
+		//金额
+		long amount = trdOrder.getPayAmount();
+		if (amount != 0) {
+			amount = amount / 100L;
+		}
+		result.put("amount", amount);
+		//手续费
+		if (trdOrder.getPayFee() == null) {
+			result.put("payfee", "");
+		} else {
+			result.put("payfee", trdOrder.getPayFee());
+		}
+		//状态详情
+		List<Map<String, Object>> detailList = new ArrayList<Map<String, Object>>();
+		Map<String, Object> detailMap = new HashMap<String, Object>();
+		Instant instance = Instant.now();
+		Long instanceLong = instance.toEpochMilli();
+		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(instanceLong), ZoneOffset.UTC);
+		String dayOfWeek = InstantDateUtil.getDayOfWeekName(localDateTime);
+		for (int i = 0; i < trdOrderDetailList.size(); i++) {
+			detailMap = new HashMap<String, Object>();
+			TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
+			
+			TrdOrderStatusEnum[] trdOrderStatusEnum2 = TrdOrderStatusEnum.values();
+			for (TrdOrderStatusEnum trdOrderStatus2 : trdOrderStatusEnum2) {
+				if (trdOrderDetail.getOrderDetailStatus() == trdOrderStatus2.getStatus()) {
+					detailMap.put("fundstatus", trdOrderStatus2.getComment());
+					break;
+				} else {
+					detailMap.put("fundstatus", "");
+				}
+			}
+			detailMap.put("fundCode", trdOrderDetail.getFundCode());
+			//基金费用
+			detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
+			String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 1);
+			detailMap.put("funddate", date);
+			logger.info("dayOfWeek value is :" + dayOfWeek);
+			detailMap.put("fundTitle", "将于" + date + "(" + dayOfWeek + ")确认");
+			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
+			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){
+				if(trdOrderDetail.getTradeType() == trdOrder3.getOperation()){
+					detailMap.put("fundTradeType", trdOrder3.getComment());
+					break;
+				} else {
+					detailMap.put("fundTradeType", "");
+				}
+			}
+			detailList.add(detailMap);
+		}
+		result.put("detailList", detailList);
+		return result;
+	}
 
 
 

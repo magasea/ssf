@@ -4,13 +4,19 @@ import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.finance.trade.order.OrderResult;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
 import com.shellshellfish.aaas.finance.trade.pay.ZhongZhengQueryByOrderDetailId;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
+import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
+
+import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
@@ -29,6 +35,8 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
+import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
 import com.shellshellfish.aaas.userinfo.service.UiProductService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
@@ -37,6 +45,11 @@ import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 import io.grpc.ManagedChannel;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -72,6 +85,14 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Autowired
 	UiProductService uiProductService;
+
+
+	@Autowired
+	MongoUiTrdZZInfoRepo mongoUiTrdZZInfoRepo;
+
+
+	@Autowired
+	RpcOrderService rpcOrderService;
 
 	@Autowired
 	@Qualifier("zhongZhengMongoTemplate")
@@ -387,15 +408,16 @@ public class UserInfoServiceImpl implements UserInfoService {
 		BigDecimal totalIncome = new BigDecimal(0);
 		for (int i = 0; i < productsList.size(); i++) {
 			ProductsDTO products = productsList.get(i);
-			Map<String, Object> combinationMap = this.getChicombinationAssets(uuid, products);
-			if (combinationMap.get("assert") != null) {
-				asserts = asserts.add(new BigDecimal(combinationMap.get("assert") + ""));
+			PortfolioInfo portfolioInfo = this
+					.getChicombinationAssets(uuid, getUserIdFromUUID(uuid), products);
+			if (portfolioInfo.getTotalAssets() != null) {
+				asserts = asserts.add(portfolioInfo.getTotalAssets());
 			}
-			if (combinationMap.get("dailyIncome") != null) {
-				dailyIncome = dailyIncome.add(new BigDecimal(combinationMap.get("dailyIncome") + ""));
+			if (portfolioInfo.getDailyIncome() != null) {
+				dailyIncome = dailyIncome.add(portfolioInfo.getDailyIncome());
 			}
-			if (combinationMap.get("totalIncome") != null) {
-				totalIncome = totalIncome.add(new BigDecimal(combinationMap.get("totalIncome") + ""));
+			if (portfolioInfo.getTotalIncome() != null) {
+				totalIncome = totalIncome.add(portfolioInfo.getTotalIncome());
 			}
 		}
 		resultMap.put("assert", asserts);
@@ -495,61 +517,104 @@ public class UserInfoServiceImpl implements UserInfoService {
 		return resultMap;
 	}
 
+
+	/**
+	 * 计算组合的累计净值，累计收益，累计收益率 ，日收益，日收益率
+	 */
 	@Override
-	public Map<String, Object> getChicombinationAssets(String uuid, ProductsDTO products)
-			throws Exception {
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		Map<String, Object> combinationMap = this.getCombinations(uuid, products.getId(), 2);
+	public PortfolioInfo getChicombinationAssets(String uuid, Long userId, ProductsDTO products)
+			throws InstantiationException, IllegalAccessException {
 
-		String endDate = combinationMap.get("date") == null ? "" : combinationMap.get("date") + "";
-		String startDate = "";
-		resultMap.put("assert", combinationMap.get("assert"));
-
-//		List<UiProductDetailDTO> productDetailsList = uiProductService.getProductDetailsByProdId(products.getId());
-//		if (productDetailsList != null && productDetailsList.size() > 0) {
-//			for (int i = 0; i < productDetailsList.size(); i++) {
-//				UiProductDetailDTO productDetail = productDetailsList.get(i);
-//				int status = 0;
-//				if (productDetail.getStatus() != null) {
-//					status = productDetail.getStatus();
-//				}
-//				if (status == TrdOrderStatusEnum.CONFIRMED.getStatus()) {
-//					startDate = DateUtil.getDateStrFromLong(productDetail.getUpdateDate()).replace("-", "");
-//					break;
-//				}
-//			}
-		// }
-		Long userId = getUserIdFromUUID(uuid);
-		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService
+		List<MongoUiTrdLogDTO> MongoUiTrdLogDTO = userInfoRepoService
 				.findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(
 						userId, products.getId(), TrdOrderOpTypeEnum.BUY.getOperation(),
 						TrdOrderStatusEnum.CONFIRMED.getStatus());
-		if (trdLogList != null && trdLogList.size() > 0) {
-			MongoUiTrdLogDTO uiTrdLog = trdLogList.get(0);
-			startDate = DateUtil.getDateStrFromLong(uiTrdLog.getLastModifiedDate()).replace("-", "");
-		}
-		if ("".equals(startDate)) {
-			resultMap.put("totalIncomeRate", 0);
-			resultMap.put("totalIncome", 0);
-			resultMap.put("dailyIncome", 0);
-			return resultMap;
-		}
-		resultMap.put("dailyIncome", combinationMap.get("dailyIncome"));
-		// 累计收益率
-		BigDecimal incomeRate = userFinanceProdCalcService
-				.calcYieldRate(uuid, products.getId(), startDate, endDate);
-		resultMap.put("totalIncomeRate", incomeRate);
+		//完全确认标志
+		boolean flag = true;
 
-		// 累计收益
-		BigDecimal income = userFinanceProdCalcService
-				.calcYieldValue(uuid, products.getId(), startDate, endDate);
-		if (income != null) {
-			income = (income.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
+		for (MongoUiTrdLogDTO mongoUiTrdLogDTO : MongoUiTrdLogDTO) {
+			if (!TrdOrderStatusEnum.isEntirelyConfirmed(mongoUiTrdLogDTO.getTradeStatus())) {
+				flag = false;
+			}
 		}
-		resultMap.put("totalIncome", income);
 
-		return resultMap;
+		Long startDate = products.getCreateDate();
+		LocalDate startLocalDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(startDate),
+				ZoneOffset.UTC).toLocalDate();
+		String startDay = InstantDateUtil.format(startLocalDate, "yyyyMMdd");
+
+		String endDay = InstantDateUtil.format(LocalDate.now().plusDays(-1), "yyyyMMdd");
+
+		if (flag) {
+			//完全确认
+			products.setStatus(TrdOrderStatusEnum.CONFIRMED.getStatus());
+			return userFinanceProdCalcService
+					.calculateProductValue(uuid, products.getId(), startDay, endDay);
+		} else {
+			//部分确认
+			products.setStatus(TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
+			return getPartConfirmFundInfo(uuid, userId, products.getId(), startDay, endDay);
+		}
+
+
 	}
+
+
+	/**
+	 * 计算组合部分确认的资产和收益
+	 */
+	private PortfolioInfo getPartConfirmFundInfo(String uuid, Long userId, Long prodId,
+			String startDay, String endDay) {
+		PortfolioInfo portfolioInfo = userFinanceProdCalcService
+				.calculateProductValue(uuid, prodId, startDay, endDay);
+
+		List<MongoUiTrdZZInfo> mongoUiTrdZZinfoList = mongoUiTrdZZInfoRepo
+				.findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(userId, prodId,
+						TrdOrderOpTypeEnum.BUY.getOperation(),
+						TrdOrderStatusEnum.CONFIRMED.getStatus());
+
+		//已经确认部分金额
+		BigDecimal conifrmAsset = BigDecimal.ZERO;
+		BigDecimal confirmAssetOfEndDay = BigDecimal.ZERO;
+		for (MongoUiTrdZZInfo mongoUiTrdZZinfo : mongoUiTrdZZinfoList) {
+			conifrmAsset.add(mongoUiTrdZZinfo == null ? BigDecimal.ZERO
+					: TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZinfo.getTradeTargetSum()));
+
+			if (endDay.equals(mongoUiTrdZZinfo.getConfirmDate())) {
+				confirmAssetOfEndDay
+						.add(TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZinfo.getTradeTargetSum()));
+			}
+		}
+
+		OrderResult orderResult = rpcOrderService
+				.getOrderInfoByProdIdAndOrderStatus(prodId, TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
+
+		BigDecimal applyAsset = BigDecimal.valueOf(orderResult.getPayAmount() / 100);
+
+		BigDecimal assetOfEndDay = portfolioInfo.getTotalAssets();
+
+		// 总资产 = 确认基金资产+ 未确认的基金的申购金额  = 结束日资产（即申购成功部分结束日资产） +（总申购资产-确认部分申购资产）
+		BigDecimal asset = assetOfEndDay.add(applyAsset.subtract(conifrmAsset));
+
+		//区间净赎回
+		BigDecimal internalAmount = portfolioInfo.getBonus().add(portfolioInfo.getSellAmount())
+				.subtract(portfolioInfo.getBuyAmount());
+
+		// 累计收益=总资产+区间净赎回-申购资产
+		BigDecimal toltalIncome = asset.add(internalAmount).subtract(applyAsset);
+
+		// 累计收益率= 累计收益/(申购资产+ 区间申购)
+		BigDecimal toltalIncomeRate = BigDecimal.ZERO;
+		if (applyAsset.compareTo(BigDecimal.ZERO) != 0) {
+			toltalIncomeRate = toltalIncome.divide(applyAsset.add(portfolioInfo.getBuyAmount()));
+		}
+
+		portfolioInfo.setTotalAssets(asset.setScale(2, RoundingMode.HALF_UP));
+		portfolioInfo.setTotalIncomeRate(toltalIncomeRate.setScale(2, RoundingMode.HALF_UP));
+
+		return portfolioInfo;
+	}
+
 
 	@Override
 	public List<Map<String, Object>> getTradeLogStatus(String uuid, Long userProdId)
@@ -624,14 +689,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Override
 	public List<Map<String, Object>> getMyCombinations(String uuid) throws Exception {
-		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> resultList = new ArrayList();
 		List<ProductsDTO> productsList = this.findProductInfos(uuid);
 		if (productsList == null || productsList.size() == 0) {
 			logger.error("我的智投组合暂时不存在");
 			return resultList;
 		}
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		ProductsDTO products = new ProductsDTO();
+
+		Map<String, Object> resultMap;
+		ProductsDTO products;
 		for (int i = 0; i < productsList.size(); i++) {
 			products = productsList.get(i);
 			resultMap = new HashMap<String, Object>();
@@ -641,14 +707,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 			resultMap.put("title", products.getProdName());
 			resultMap.put("createDate", products.getCreateDate());
 			// 状态(0-待确认 1-已确认 -1-交易失败)
-			TrdOrderStatusEnum trdOrderStatusEnum[] = TrdOrderStatusEnum.values();
 			List<UiProductDetailDTO> productDetailsList = uiProductService
 					.getProductDetailsByProdId(products.getId());
 			Integer count = 0;
 			Integer fails = 0;
+			Integer statusIsNull = 0;
+			
 			if (productDetailsList != null && productDetailsList.size() > 0) {
-				// Map<String, String> statusMap = new HashMap<String,
-				// String>();
 				for (int j = 0; j < productDetailsList.size(); j++) {
 					UiProductDetailDTO uiProductDetailDTO = productDetailsList.get(j);
 					if (uiProductDetailDTO.getStatus() != null) {
@@ -659,6 +724,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 						} else if (uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()) {
 							fails++;
 						}
+					} else {
+						statusIsNull++;
 					}
 				}
 				if (fails > 0) {
@@ -667,31 +734,28 @@ public class UserInfoServiceImpl implements UserInfoService {
 						continue;
 					}
 				}
+				if (statusIsNull > 0) {
+					if (statusIsNull == productDetailsList.size()) {
+						//若组合中状态全部为NULL，则不显示
+						continue;
+					}
+				}
 				resultMap.put("count", count);
 				if (count > 0) {
-					resultMap.put("title", "* 您有" + count + "支基金正在确认中");
+					resultMap.put("title2", "* 您有" + count + "支基金正在确认中");
 				}
 			}
 
+			Long userId = getUserIdFromUUID(uuid);
 			// 总资产
-			Map<String, Object> totalAssetsMap = this.getChicombinationAssets(uuid, products);
-			if (totalAssetsMap == null) {
-				continue;
-			}
-			if (totalAssetsMap.size() > 0) {
-				resultMap.put("totalAssets", totalAssetsMap.get("assert"));
-				// 日收益
-				resultMap.put("dailyIncome", totalAssetsMap.get("dailyIncome"));
-				// 累计收益率
-				resultMap.put("totalIncomeRate", totalAssetsMap.get("totalIncomeRate"));
-				// 累计收益
-				resultMap.put("totalIncome", totalAssetsMap.get("totalIncome"));
-			} else {
-				resultMap.put("totalAssets", 0);
-				resultMap.put("dailyIncome", 0);
-				resultMap.put("totalIncomeRate", 0);
-				resultMap.put("totalIncome", 0);
-			}
+			PortfolioInfo portfolioInfo = this.getChicombinationAssets(uuid, userId, products);
+			resultMap.put("totalAssets", portfolioInfo.getTotalAssets());
+			// 日收益
+			resultMap.put("dailyIncome", portfolioInfo.getDailyIncome());
+			// 累计收益率
+			resultMap.put("totalIncomeRate", portfolioInfo.getTotalIncomeRate());
+			// 累计收益
+			resultMap.put("totalIncome", portfolioInfo.getTotalIncome());
 
 			// 智投组合产品ID
 			resultMap.put("prodId", products.getId());
@@ -713,7 +777,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 	/**
 	 * 从DailyAmount获取，组合资产、组合日收益、组合起始日期
 	 */
-	public Map<String, Object> getCombinations(String uuid, Long prodId, int flag) {
+	public Map<String, Object> getCombinations(String uuid, Long prodId) {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		Query query = new Query();
 		query.addCriteria(Criteria.where("userUuid").is(uuid))
@@ -721,57 +785,67 @@ public class UserInfoServiceImpl implements UserInfoService {
 		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC, "date"));
 		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
 		String date = "";
-		BigDecimal asserts = new BigDecimal(0);
-		BigDecimal asserts2 = new BigDecimal(0);
+		BigDecimal assets = BigDecimal.ZERO;
+		BigDecimal assetsOneDayBeofre = BigDecimal.ZERO;
 		int count = 0;
 		if (dailyAmountList != null && dailyAmountList.size() > 0) {
 			for (int i = 0; i < dailyAmountList.size(); i++) {
 				DailyAmount dailyAmount = dailyAmountList.get(i);
 				if (date.equals(dailyAmount.getDate()) || i == 0) {
 					if (count == 0) {
-						asserts = asserts.add(dailyAmount.getAsset());
+						assets = assets.add(dailyAmount.getAsset());
 					} else if (count == 1) {
-						asserts2 = asserts2.add(dailyAmount.getAsset());
+						assetsOneDayBeofre = assetsOneDayBeofre.add(dailyAmount.getAsset());
 					}
 				} else {
-					if (flag == 1) {
-						if (asserts != null && !asserts.equals(BigDecimal.ZERO)) {
-							resultMap.put("date", date);
+					if (count == 1) {
+						if (assetsOneDayBeofre != null && !assetsOneDayBeofre.equals(BigDecimal.ZERO)) {
+							// 前一天的日期
+							resultMap.put("date2", date);
 							break;
 						}
-					} else if (flag == 2) {
-						if (count == 1) {
-							if (asserts2 != null && !asserts2.equals(BigDecimal.ZERO)) {
-								// 前一天的日期
-								resultMap.put("date2", date);
-								break;
-							}
-						} else if (count == 0) {
-							resultMap.put("date", date);
-							asserts2 = dailyAmount.getAsset();
-						}
-						count++;
+					} else if (count == 0) {
+						resultMap.put("date", date);
+						assetsOneDayBeofre = dailyAmount.getAsset();
 					}
+					count++;
 				}
 				date = dailyAmount.getDate();
 			}
 		}
-		if (asserts != null) {
-			asserts = (asserts.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
-			resultMap.put("assert", asserts);
+		if (assets != null) {
+			assets = (assets.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
+			resultMap.put("assert", assets);
 		} else {
 			resultMap.put("assert", 0);
 		}
 
-		if (flag == 2) {
-			if (asserts2 != null) {
-				asserts2 = (asserts2.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
-				resultMap.put("dailyIncome", asserts.subtract(asserts2));
-			} else {
-				resultMap.put("dailyIncome", 0);
-			}
-
+		if (assetsOneDayBeofre != null) {
+			assetsOneDayBeofre = (assetsOneDayBeofre.divide(new BigDecimal(100)))
+					.setScale(2, BigDecimal.ROUND_HALF_UP);
+			resultMap.put("dailyIncome", assets.subtract(assetsOneDayBeofre));
+		} else {
+			resultMap.put("dailyIncome", 0);
 		}
+
 		return resultMap;
+	}
+
+
+	@Override
+	public Map<String, Object> getProducts(Long prodId)
+			throws IllegalAccessException, InstantiationException {
+		Map<String, Object> result = new HashMap<String, Object>();
+		ProductsDTO product = new ProductsDTO();
+		if (prodId != null) {
+			product = userInfoRepoService.findByProdId(prodId + "");
+			result.put("id", product.getId());
+			result.put("userId", product.getUserId());
+			result.put("groupId", product.getProdId());
+			result.put("subGroupId", product.getGroupId());
+			result.put("prodName", product.getProdName());
+			result.put("status", product.getStatus());
+		}
+		return result;
 	}
 }

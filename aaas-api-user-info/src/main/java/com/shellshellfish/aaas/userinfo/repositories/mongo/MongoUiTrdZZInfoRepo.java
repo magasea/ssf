@@ -7,16 +7,19 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface MongoUiTrdZZInfoRepo extends MongoRepository<MongoUiTrdZZInfo, Long> {
 
-  @Override
-  MongoUiTrdZZInfo save(MongoUiTrdZZInfo mongoUiTrdZZInfo);
+	@Override
+	MongoUiTrdZZInfo save(MongoUiTrdZZInfo mongoUiTrdZZInfo);
 
-  List<MongoUiTrdZZInfo> findAllByUserIdAndUserProdId(Long userId, Long userProdId);
+	List<MongoUiTrdZZInfo> findAllByUserIdAndUserProdId(Long userId, Long userProdId);
 
-  List<MongoUiTrdZZInfo> findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(Long userId,
-      Long userProdId, int operations, int tradeStatus);
+	List<MongoUiTrdZZInfo> findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(Long userId,
+			Long userProdId, int operations, int tradeStatus);
 
-  List<MongoUiTrdZZInfo> findAllByUserId(Long userId);
+	List<MongoUiTrdZZInfo> findAllByUserId(Long userId);
 
-  MongoUiTrdZZInfo findByUserProdIdAndUserIdAndOutSideOrderNo(Long userProdId, Long userId,
-      String outSideOrderNo);
+	MongoUiTrdZZInfo findByUserProdIdAndUserIdAndOutSideOrderNo(Long userProdId, Long userId,
+			String outSideOrderNo);
+
+	MongoUiTrdZZInfo findFirstByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(
+			Long userProdId, String fundType, int tardeType, int tradeStatus, String confrimDate);
 }

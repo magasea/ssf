@@ -27,7 +27,8 @@ public class GlobalExceptionHandler {
 	//设置此handler处理所有异常
 	@ExceptionHandler(value = Exception.class)
 	public void defaultErrorHandler(Exception e) {
-		logger.error("{}:{}", e.getClass(), e.getMessage());
+		logger.error("{}:{}:{}", e.getClass(), e.getStackTrace(), e.getMessage());
+		e.printStackTrace();
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
@@ -80,7 +81,8 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(MissingServletRequestParameterException.class)
-	public ResponseEntity<ErrorDTO> ParamMissingErrorHandler(MissingServletRequestParameterException e) {
+	public ResponseEntity<ErrorDTO> ParamMissingErrorHandler(
+			MissingServletRequestParameterException e) {
 		String errmsg = e.getMessage();
 		ErrorDTO error = new ErrorDTO(errmsg);
 		String pname = e.getParameterName();

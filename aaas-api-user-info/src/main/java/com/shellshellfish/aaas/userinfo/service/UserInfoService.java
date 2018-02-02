@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.userinfo.service;
 
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
+import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
@@ -74,7 +75,8 @@ public interface UserInfoService {
 
 	Map<String, Object> getTotalAssets(String uuid) throws Exception;
 
-	Map<String, Object> getChicombinationAssets(String uuid, ProductsDTO productsDTO) throws Exception;
+	PortfolioInfo getChicombinationAssets(String uuid, Long userid, ProductsDTO productsDTO)
+			throws Exception;
 
 	List<Map<String, Object>> getTradeLogStatus(String uuid, Long userProdId) throws Exception;
 
@@ -82,6 +84,8 @@ public interface UserInfoService {
 
 	List<Map<String, Object>> getMyCombinations(String uuid) throws Exception;
 
-	Integer getUserRishLevel(String  uuid);
+	Integer getUserRishLevel(String uuid);
+
+	Map<String, Object> getProducts(Long prodId) throws IllegalAccessException, InstantiationException;
 
 }
