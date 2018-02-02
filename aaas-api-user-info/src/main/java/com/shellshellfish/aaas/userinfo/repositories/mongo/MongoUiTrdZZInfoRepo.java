@@ -20,6 +20,6 @@ public interface MongoUiTrdZZInfoRepo extends MongoRepository<MongoUiTrdZZInfo, 
 	MongoUiTrdZZInfo findByUserProdIdAndUserIdAndOutSideOrderNo(Long userProdId, Long userId,
 			String outSideOrderNo);
 
-	MongoUiTrdZZInfo findFirstByUserProdIdAndTradeTypeAndTradeStatusAndConfirmDate(
-			Long userProdId, int tardeType, int tradeStatus, String confrimDate);
+	MongoUiTrdZZInfo findFirstByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(
+			Long userProdId, String fundType, int tardeType, int tradeStatus, String confrimDate);
 }

@@ -296,14 +296,14 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		//FIXME 此处缺少分红
 
 		MongoUiTrdZZInfo mongoUiTrdZZInfoBuy = mongoUiTrdZZInfoRepo
-				.findFirstByUserProdIdAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
-						TrdOrderOpTypeEnum.BUY.getOperation(), TrdOrderStatusEnum.CONFIRMED.getStatus(),
-						startDate);
+				.findFirstByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
+						fundCode, TrdOrderOpTypeEnum.BUY.getOperation(),
+						TrdOrderStatusEnum.CONFIRMED.getStatus(), startDate);
 
 		MongoUiTrdZZInfo mongoUiTrdZZInfoSell = mongoUiTrdZZInfoRepo
-				.findFirstByUserProdIdAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
-						TrdOrderOpTypeEnum.REDEEM.getOperation(), TrdOrderStatusEnum.CONFIRMED.getStatus(),
-						startDate);
+				.findFirstByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
+						fundCode, TrdOrderOpTypeEnum.REDEEM.getOperation(),
+						TrdOrderStatusEnum.CONFIRMED.getStatus(), startDate);
 
 		Query query = new Query();
 		query.addCriteria(Criteria.where("userUuid").is(userUuid))
@@ -319,10 +319,12 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 		update
 				.set("buyAmount",
-						Double.valueOf(buy.map(m -> m.getTradeConfirmSum()).map(m -> m / 100L).orElse(0L)));
+						buy.map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeTargetSum()))
+								.orElse(BigDecimal.ZERO));
 
 		update.set("sellAmount",
-				Double.valueOf(sell.map(m -> m.getTradeConfirmSum()).map(m -> m / 100L).orElse(0L)));
+				sell.map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeTargetSum()))
+						.orElse(BigDecimal.ZERO));
 
 		DailyAmount dailyAmount = zhongZhengMongoTemplate
 				.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
