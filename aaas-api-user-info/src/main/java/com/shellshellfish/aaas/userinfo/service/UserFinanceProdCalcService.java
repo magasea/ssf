@@ -39,7 +39,5 @@ public interface UserFinanceProdCalcService {
 	PortfolioInfo calculateProductValue(String userUuid, Long prodId,
 			String startDate, String endDate);
 
-	BigDecimal calculateProductYieldRate(String userUuid, Long userId, Long prodId,
-			String startDate, String endDate);
 	List<Map<String, Object>> getCalcYieldof7days(String fundCode, String type, String date) throws Exception;
 }
