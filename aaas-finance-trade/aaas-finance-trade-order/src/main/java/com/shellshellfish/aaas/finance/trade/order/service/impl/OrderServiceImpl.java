@@ -1,5 +1,8 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
+import com.shellshellfish.aaas.finance.trade.order.OrderDetailQueryInfo;
+import com.shellshellfish.aaas.finance.trade.order.OrderDetailResult;
 import com.shellshellfish.aaas.finance.trade.order.OrderQueryInfo;
 import com.shellshellfish.aaas.finance.trade.order.OrderResult;
 import com.shellshellfish.aaas.finance.trade.order.OrderRpcServiceGrpc;
@@ -142,5 +145,32 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 		responseObserver.onCompleted();
 	}
 
+	/**
+	 *
+	 * @param request
+	 * @param responseObserver
+	 */
+	@Override
+	public void getOrderDetail(OrderDetailQueryInfo request,
+			StreamObserver<OrderDetailResult> responseObserver) {
+
+		List<TrdOrderDetail> result = trdOrderDetailRepository
+				.findAllByUserProdIdAndOrderDetailStatus(request.getUserProdId(),
+						request.getOrderDetailStatus());
+
+		if (result == null) {
+			result = new ArrayList<>(0);
+		}
+		OrderDetailResult.Builder builder = OrderDetailResult.newBuilder();
+
+		for (int i = 0; i < result.size(); i++) {
+			TrdOrderDetail trdOrderDetail = result.get(i);
+			OrderDetail orderDetail = OrderDetail.newBuilder().build();
+			BeanUtils.copyProperties(trdOrderDetail, orderDetail);
+			builder.addOrderDetailResult(orderDetail);
+		}
+		responseObserver.onNext(builder.build());
+		responseObserver.onCompleted();
+	}
 
 }

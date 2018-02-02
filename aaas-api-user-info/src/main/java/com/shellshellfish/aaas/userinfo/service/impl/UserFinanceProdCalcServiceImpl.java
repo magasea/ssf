@@ -402,6 +402,10 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		// 区间数据
 		DailyAmountAggregation dailyAmountAggregation = aggregation(userUuid, startDate, endDate,
 				prodId);
+
+		if(dailyAmountAggregation == null){
+			return  new PortfolioInfo();
+		}
 		BigDecimal buyAmount = dailyAmountAggregation.getBuyAmount();
 		BigDecimal sellAmount = dailyAmountAggregation.getSellAmount();
 		BigDecimal bonus = dailyAmountAggregation.getBonus();
@@ -451,11 +455,11 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		}
 		PortfolioInfo portfolioInfo = new PortfolioInfo();
 
-		portfolioInfo.setTotalAssets(assetOfEndDay.setScale(2, RoundingMode.HALF_UP));
-		portfolioInfo.setTotalIncome(totalIncome.setScale(2, RoundingMode.HALF_UP));
-		portfolioInfo.setTotalIncomeRate(totalIncomeRate.setScale(2, RoundingMode.HALF_UP));
-		portfolioInfo.setDailyIncome(dailyIncome.setScale(2, RoundingMode.HALF_UP));
-		portfolioInfo.setDailyIncomeRate(dailyIncomeRate.setScale(2, RoundingMode.HALF_UP));
+		portfolioInfo.setTotalAssets(assetOfEndDay.setScale(4, RoundingMode.HALF_UP));
+		portfolioInfo.setTotalIncome(totalIncome.setScale(4, RoundingMode.HALF_UP));
+		portfolioInfo.setTotalIncomeRate(totalIncomeRate.setScale(4, RoundingMode.HALF_UP));
+		portfolioInfo.setDailyIncome(dailyIncome.setScale(4, RoundingMode.HALF_UP));
+		portfolioInfo.setDailyIncomeRate(dailyIncomeRate.setScale(4, RoundingMode.HALF_UP));
 
 		//设置区间分红 ，申购和赎回
 		portfolioInfo.setBonus(bonus);
