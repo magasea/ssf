@@ -296,12 +296,12 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		//FIXME 此处缺少分红
 
 		MongoUiTrdZZInfo mongoUiTrdZZInfoBuy = mongoUiTrdZZInfoRepo
-				.findFirstByUserProdIdAndOperationsAndTradeStatusAndConfirmDate(userProdId,
+				.findFirstByUserProdIdAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
 						TrdOrderOpTypeEnum.BUY.getOperation(), TrdOrderStatusEnum.CONFIRMED.getStatus(),
 						startDate);
 
 		MongoUiTrdZZInfo mongoUiTrdZZInfoSell = mongoUiTrdZZInfoRepo
-				.findFirstByUserProdIdAndOperationsAndTradeStatusAndConfirmDate(userProdId,
+				.findFirstByUserProdIdAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
 						TrdOrderOpTypeEnum.REDEEM.getOperation(), TrdOrderStatusEnum.CONFIRMED.getStatus(),
 						startDate);
 
@@ -318,10 +318,11 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		Optional<MongoUiTrdZZInfo> sell = Optional.ofNullable(mongoUiTrdZZInfoSell);
 
 		update
-				.set("buyAmount", Double.valueOf(buy.map(MongoUiTrdZZInfo::getTradeConfirmSum).orElse(0L)));
+				.set("buyAmount",
+						Double.valueOf(sell.map(m -> m.getTradeConfirmSum()).map(m -> m / 100L).orElse(0L)));
 
 		update.set("sellAmount",
-				Double.valueOf(sell.map(MongoUiTrdZZInfo::getTradeConfirmSum).orElse(0L)));
+				Double.valueOf(buy.map(m -> m.getTradeConfirmSum()).map(m -> m / 100L).orElse(0L)));
 
 		DailyAmount dailyAmount = zhongZhengMongoTemplate
 				.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),

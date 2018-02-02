@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface MongoUiTrdZZInfoRepo extends MongoRepository<MongoUiTrdZZInfo, Long> {
+
 	@Override
 	MongoUiTrdZZInfo save(MongoUiTrdZZInfo mongoUiTrdZZInfo);
 
@@ -19,6 +20,6 @@ public interface MongoUiTrdZZInfoRepo extends MongoRepository<MongoUiTrdZZInfo, 
 	MongoUiTrdZZInfo findByUserProdIdAndUserIdAndOutSideOrderNo(Long userProdId, Long userId,
 			String outSideOrderNo);
 
-	MongoUiTrdZZInfo findFirstByUserProdIdAndOperationsAndTradeStatusAndConfirmDate(
-			Long userProdId, int operations, int tradeStatus, String confrimDate);
+	MongoUiTrdZZInfo findFirstByUserProdIdAndTradeTypeAndTradeStatusAndConfirmDate(
+			Long userProdId, int tardeType, int tradeStatus, String confrimDate);
 }
