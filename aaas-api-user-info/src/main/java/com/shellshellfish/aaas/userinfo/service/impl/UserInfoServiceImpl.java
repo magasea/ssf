@@ -410,15 +410,17 @@ public class UserInfoServiceImpl implements UserInfoService {
 			ProductsDTO products = productsList.get(i);
 			PortfolioInfo portfolioInfo = this
 					.getChicombinationAssets(uuid, getUserIdFromUUID(uuid), products);
-			if (portfolioInfo.getTotalAssets() != null) {
-				asserts = asserts.add(portfolioInfo.getTotalAssets());
-			}
-			if (portfolioInfo.getDailyIncome() != null) {
-				dailyIncome = dailyIncome.add(portfolioInfo.getDailyIncome());
-			}
-			if (portfolioInfo.getTotalIncome() != null) {
-				totalIncome = totalIncome.add(portfolioInfo.getTotalIncome());
-			}
+			asserts = asserts
+					.add(Optional.ofNullable(portfolioInfo.getTotalAssets()).orElse(BigDecimal.ZERO)
+							.setScale(2, RoundingMode.HALF_UP));
+
+			dailyIncome = dailyIncome
+					.add(Optional.ofNullable(portfolioInfo.getDailyIncome()).orElse(BigDecimal.ZERO)
+							.setScale(2, RoundingMode.HALF_UP));
+
+			totalIncome = totalIncome
+					.add(Optional.ofNullable(portfolioInfo.getTotalIncome()).orElse(BigDecimal.ZERO)
+							.setScale(2, RoundingMode.HALF_UP));
 		}
 		resultMap.put("assert", asserts.setScale(2, RoundingMode.HALF_UP));
 		resultMap.put("dailyIncome", dailyIncome.setScale(2, BigDecimal.ROUND_HALF_UP));
@@ -663,16 +665,23 @@ public class UserInfoServiceImpl implements UserInfoService {
 			// 总资产
 			PortfolioInfo portfolioInfo = this.getChicombinationAssets(uuid, userId, products);
 			resultMap
-					.put("totalAssets", portfolioInfo.getTotalAssets().setScale(2, BigDecimal.ROUND_HALF_UP));
+					.put("totalAssets",
+							Optional.ofNullable(portfolioInfo.getTotalAssets()).orElse(BigDecimal.ZERO)
+									.setScale(2, RoundingMode.HALF_UP));
 			// 日收益
 			resultMap
-					.put("dailyIncome", portfolioInfo.getDailyIncome().setScale(2, BigDecimal.ROUND_HALF_UP));
+					.put("dailyIncome",
+							Optional.ofNullable(portfolioInfo.getDailyIncome()).orElse(BigDecimal.ZERO)
+									.setScale(2, RoundingMode.HALF_UP));
 			// 累计收益率
 			resultMap.put("totalIncomeRate",
-					portfolioInfo.getTotalIncomeRate().setScale(2, BigDecimal.ROUND_HALF_UP));
+					Optional.ofNullable(portfolioInfo.getTotalIncomeRate()).orElse(BigDecimal.ZERO)
+							.setScale(2, RoundingMode.HALF_UP));
 			// 累计收益
 			resultMap
-					.put("totalIncome", portfolioInfo.getTotalIncome().setScale(2, BigDecimal.ROUND_HALF_UP));
+					.put("totalIncome",
+							Optional.ofNullable(portfolioInfo.getTotalIncome()).orElse(BigDecimal.ZERO)
+									.setScale(2, RoundingMode.HALF_UP));
 
 			// 智投组合产品ID
 			resultMap.put("prodId", products.getId());
