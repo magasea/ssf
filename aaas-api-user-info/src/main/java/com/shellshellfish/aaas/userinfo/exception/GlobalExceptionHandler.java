@@ -27,8 +27,7 @@ public class GlobalExceptionHandler {
 	//设置此handler处理所有异常
 	@ExceptionHandler(value = Exception.class)
 	public void defaultErrorHandler(Exception e) {
-		logger.error("{}:{}:{}", e.getClass(), e.getStackTrace(), e.getMessage());
-		e.printStackTrace();
+		logger.error(e.getMessage(), e);
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)

@@ -7,6 +7,7 @@ import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.OrderResult;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
@@ -15,7 +16,6 @@ import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
-
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
@@ -51,7 +51,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +69,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 @Service
@@ -410,19 +410,21 @@ public class UserInfoServiceImpl implements UserInfoService {
 			ProductsDTO products = productsList.get(i);
 			PortfolioInfo portfolioInfo = this
 					.getChicombinationAssets(uuid, getUserIdFromUUID(uuid), products);
-			if (portfolioInfo.getTotalAssets() != null) {
-				asserts = asserts.add(portfolioInfo.getTotalAssets());
-			}
-			if (portfolioInfo.getDailyIncome() != null) {
-				dailyIncome = dailyIncome.add(portfolioInfo.getDailyIncome());
-			}
-			if (portfolioInfo.getTotalIncome() != null) {
-				totalIncome = totalIncome.add(portfolioInfo.getTotalIncome());
-			}
+			asserts = asserts
+					.add(Optional.ofNullable(portfolioInfo.getTotalAssets()).orElse(BigDecimal.ZERO)
+							.setScale(2, RoundingMode.HALF_UP));
+
+			dailyIncome = dailyIncome
+					.add(Optional.ofNullable(portfolioInfo.getDailyIncome()).orElse(BigDecimal.ZERO)
+							.setScale(2, RoundingMode.HALF_UP));
+
+			totalIncome = totalIncome
+					.add(Optional.ofNullable(portfolioInfo.getTotalIncome()).orElse(BigDecimal.ZERO)
+							.setScale(2, RoundingMode.HALF_UP));
 		}
-		resultMap.put("assert", asserts);
-		resultMap.put("dailyIncome", dailyIncome);
-		resultMap.put("totalIncome", totalIncome);
+		resultMap.put("assert", asserts.setScale(2, RoundingMode.HALF_UP));
+		resultMap.put("dailyIncome", dailyIncome.setScale(2, BigDecimal.ROUND_HALF_UP));
+		resultMap.put("totalIncome", totalIncome.setScale(2, RoundingMode.HALF_UP));
 		if (asserts != BigDecimal.ZERO && !"0.00".equals(asserts + "")) {
 			BigDecimal incomeRate = (totalIncome.divide(asserts, MathContext.DECIMAL128)).setScale(2,
 					BigDecimal.ROUND_HALF_UP);
@@ -434,108 +436,22 @@ public class UserInfoServiceImpl implements UserInfoService {
 		return resultMap;
 	}
 
-	public Map<String, Object> getTotalAssetsBak(String uuid) throws Exception {
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		String yesterday = DateUtil.getSystemDatesAgo(-1);
-		String beforeYesterday = DateUtil.getSystemDatesAgo(-2);
-		Query query = new Query();
-		query.addCriteria(Criteria.where("userUuid").is(uuid))
-				.addCriteria(Criteria.where("date").is(yesterday));
-
-		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
-		if (dailyAmountList != null && dailyAmountList.size() > 0) {
-			BigDecimal asserts = new BigDecimal(0);
-			for (int i = 0; i < dailyAmountList.size(); i++) {
-				DailyAmount dailyAmount = dailyAmountList.get(i);
-				if (dailyAmount.getAsset() != null) {
-					asserts = asserts.add(dailyAmount.getAsset());
-				}
-			}
-			if (asserts != null) {
-				asserts = (asserts.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
-				resultMap.put("assert", asserts);
-			} else {
-				resultMap.put("assert", 0);
-			}
-
-			Query query2 = new Query();
-			query2.addCriteria(Criteria.where("userUuid").is(uuid))
-					.addCriteria(Criteria.where("date").is(beforeYesterday));
-			List<DailyAmount> dailyAmountList2 = mongoTemplate.find(query, DailyAmount.class);
-			if (dailyAmountList2 != null && dailyAmountList2.size() > 0) {
-				BigDecimal asserts2 = new BigDecimal(0);
-				for (int i = 0; i < dailyAmountList.size(); i++) {
-					DailyAmount dailyIncome = dailyAmountList2.get(i);
-					if (dailyIncome.getAsset() != null) {
-						asserts2 = asserts2.add(dailyIncome.getAsset());
-					}
-				}
-				if (asserts2 != null) {
-					asserts2 = (asserts2.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
-					resultMap.put("dailyIncome", asserts.subtract(asserts2));
-				} else {
-					resultMap.put("dailyIncome", 0);
-				}
-			} else {
-				resultMap.put("dailyIncome", 0);
-			}
-		} else {
-			resultMap.put("assert", 0);
-			resultMap.put("dailyIncome", 0);
-		}
-		// 日收益率
-		BigDecimal dailyIncomeRate = userFinanceProdCalcService
-				.calcYieldRate(uuid, beforeYesterday + "",
-						yesterday + "");
-		resultMap.put("dailyIncomeRate", dailyIncomeRate);
-		// 累计收益率
-		List<ProductsDTO> productsList = this.findProductInfos(uuid);
-		if (productsList != null && productsList.size() > 0) {
-			List<Long> dateList = new ArrayList<Long>();
-			for (int i = 0; i < productsList.size(); i++) {
-				ProductsDTO products = productsList.get(i);
-				dateList.add(products.getUpdateDate());
-				System.out.println("--" + products.getUpdateDate());
-				// System.out.println("--"+DateUtil.getDateStrFromLong(products.getUpdateDate()));
-			}
-			Long minDate = Collections.min(dateList);
-			String startDate = DateUtil.getDateStrFromLong(minDate).replace("-", "");
-			BigDecimal incomeRate = userFinanceProdCalcService.calcYieldRate(uuid, startDate, yesterday);
-			BigDecimal income = userFinanceProdCalcService.calcYieldValue(uuid, startDate, yesterday);
-			resultMap.put("totalIncomeRate", incomeRate);
-			if (income != null) {
-				income = (income.divide(new BigDecimal(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
-				resultMap.put("totalIncome", income);
-			} else {
-				resultMap.put("totalIncome", 0);
-			}
-		} else {
-			resultMap.put("totalIncomeRate", 0);
-			resultMap.put("totalIncome", 0);
-		}
-
-		return resultMap;
-	}
-
 
 	/**
 	 * 计算组合的累计净值，累计收益，累计收益率 ，日收益，日收益率
 	 */
 	@Override
-	public PortfolioInfo getChicombinationAssets(String uuid, Long userId, ProductsDTO products)
-			throws InstantiationException, IllegalAccessException {
+	public PortfolioInfo getChicombinationAssets(String uuid, Long userId, ProductsDTO products) {
 
-		List<MongoUiTrdLogDTO> MongoUiTrdLogDTO = userInfoRepoService
-				.findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(
-						userId, products.getId(), TrdOrderOpTypeEnum.BUY.getOperation(),
-						TrdOrderStatusEnum.CONFIRMED.getStatus());
+		List<OrderDetail> orderDetailList = rpcOrderService
+				.getOrderDetails(products.getId(),
+						TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
+
 		//完全确认标志
-		boolean flag = true;
+		boolean flag = false;
 
-		for (MongoUiTrdLogDTO mongoUiTrdLogDTO : MongoUiTrdLogDTO) {
-			if (!TrdOrderStatusEnum.isEntirelyConfirmed(mongoUiTrdLogDTO.getTradeStatus())) {
-				flag = false;
-			}
+		if (CollectionUtils.isEmpty(orderDetailList)) {
+			flag = true;
 		}
 
 		Long startDate = products.getCreateDate();
@@ -591,26 +507,25 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 		BigDecimal applyAsset = BigDecimal.valueOf(orderResult.getPayAmount() / 100);
 
-		BigDecimal assetOfEndDay = portfolioInfo.getTotalAssets();
+		BigDecimal assetOfEndDay = Optional.ofNullable(portfolioInfo.getTotalAssets())
+				.orElse(BigDecimal.ZERO);
 
 		// 总资产 = 确认基金资产+ 未确认的基金的申购金额  = 结束日资产（即申购成功部分结束日资产） +（总申购资产-确认部分申购资产）
 		BigDecimal asset = assetOfEndDay.add(applyAsset.subtract(conifrmAsset));
 
-		//区间净赎回
-		BigDecimal internalAmount = portfolioInfo.getBonus().add(portfolioInfo.getSellAmount())
-				.subtract(portfolioInfo.getBuyAmount());
+		// 累计收益=确认部分资产- 确认部分申购金额
+		BigDecimal toltalIncome = assetOfEndDay.subtract(conifrmAsset);
 
-		// 累计收益=总资产+区间净赎回-申购资产
-		BigDecimal toltalIncome = asset.add(internalAmount).subtract(applyAsset);
+		// 累计收益率= 累计收益/申购金额
+		BigDecimal toltalIncomeRate = Optional.ofNullable(portfolioInfo.getTotalIncomeRate())
+				.orElse(BigDecimal.ZERO);
 
-		// 累计收益率= 累计收益/(申购资产+ 区间申购)
-		BigDecimal toltalIncomeRate = BigDecimal.ZERO;
 		if (applyAsset.compareTo(BigDecimal.ZERO) != 0) {
-			toltalIncomeRate = toltalIncome.divide(applyAsset.add(portfolioInfo.getBuyAmount()));
+			toltalIncomeRate = toltalIncome.divide(applyAsset);
 		}
 
-		portfolioInfo.setTotalAssets(asset.setScale(2, RoundingMode.HALF_UP));
-		portfolioInfo.setTotalIncomeRate(toltalIncomeRate.setScale(2, RoundingMode.HALF_UP));
+		portfolioInfo.setTotalAssets(asset.setScale(4, RoundingMode.HALF_UP));
+		portfolioInfo.setTotalIncomeRate(toltalIncomeRate.setScale(4, RoundingMode.HALF_UP));
 
 		return portfolioInfo;
 	}
@@ -712,7 +627,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 			Integer count = 0;
 			Integer fails = 0;
 			Integer statusIsNull = 0;
-			
+
 			if (productDetailsList != null && productDetailsList.size() > 0) {
 				for (int j = 0; j < productDetailsList.size(); j++) {
 					UiProductDetailDTO uiProductDetailDTO = productDetailsList.get(j);
@@ -749,13 +664,24 @@ public class UserInfoServiceImpl implements UserInfoService {
 			Long userId = getUserIdFromUUID(uuid);
 			// 总资产
 			PortfolioInfo portfolioInfo = this.getChicombinationAssets(uuid, userId, products);
-			resultMap.put("totalAssets", portfolioInfo.getTotalAssets());
+			resultMap
+					.put("totalAssets",
+							Optional.ofNullable(portfolioInfo.getTotalAssets()).orElse(BigDecimal.ZERO)
+									.setScale(2, RoundingMode.HALF_UP));
 			// 日收益
-			resultMap.put("dailyIncome", portfolioInfo.getDailyIncome());
+			resultMap
+					.put("dailyIncome",
+							Optional.ofNullable(portfolioInfo.getDailyIncome()).orElse(BigDecimal.ZERO)
+									.setScale(2, RoundingMode.HALF_UP));
 			// 累计收益率
-			resultMap.put("totalIncomeRate", portfolioInfo.getTotalIncomeRate());
+			resultMap.put("totalIncomeRate",
+					Optional.ofNullable(portfolioInfo.getTotalIncomeRate()).orElse(BigDecimal.ZERO)
+							.setScale(2, RoundingMode.HALF_UP));
 			// 累计收益
-			resultMap.put("totalIncome", portfolioInfo.getTotalIncome());
+			resultMap
+					.put("totalIncome",
+							Optional.ofNullable(portfolioInfo.getTotalIncome()).orElse(BigDecimal.ZERO)
+									.setScale(2, RoundingMode.HALF_UP));
 
 			// 智投组合产品ID
 			resultMap.put("prodId", products.getId());

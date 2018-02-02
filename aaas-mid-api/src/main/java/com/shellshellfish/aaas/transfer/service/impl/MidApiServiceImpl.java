@@ -4,6 +4,7 @@ package com.shellshellfish.aaas.transfer.service.impl;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -77,6 +78,36 @@ public class MidApiServiceImpl implements MidApiService {
 				FundNAVInfo info = FundNAVInfo.mergeIntoOne(infoA, infoB);
 				if (info != null) {
 					getGrowthOfMonetaryFunds(info);
+					
+					List<Map> yieldof7days = info.getYieldof7days();
+					Map<String,Object> maxMinValue = new HashMap();
+					if(yieldof7days!=null&&yieldof7days.size()>0){
+						List<Double> maxMinValueList = new ArrayList<Double>();
+						for (int i = 0; i < yieldof7days.size(); i++) {
+							Map yieldof7daysMap = yieldof7days.get(i);
+							if(yieldof7daysMap.get("value")!=null){
+								maxMinValueList.add(Double.parseDouble(yieldof7daysMap.get("value")+""));
+							}
+						}
+						maxMinValue.put("maxValue", Collections.max(maxMinValueList));
+						maxMinValue.put("minValue", Collections.min(maxMinValueList));
+					}
+					info.setYieldof7daysMap(maxMinValue);
+					
+					List<Map> tenKiloUnitYieldList = info.getTenKiloUnitYield();
+					maxMinValue = new HashMap();
+					if(tenKiloUnitYieldList!=null&&tenKiloUnitYieldList.size()>0){
+						List<Double> maxMinValueList = new ArrayList<Double>();
+						for (int i = 0; i < tenKiloUnitYieldList.size(); i++) {
+							Map tenKiloUnitYieldMap = tenKiloUnitYieldList.get(i);
+							if(tenKiloUnitYieldMap.get("value")!=null){
+								maxMinValueList.add(Double.parseDouble(tenKiloUnitYieldMap.get("value")+""));
+							}
+						}
+						maxMinValue.put("maxValue", Collections.max(maxMinValueList));
+						maxMinValue.put("minValue", Collections.min(maxMinValueList));
+					}
+					info.setTenKiloUnitYieldMap(maxMinValue);
 					resultList.add(info);
 				}
 			}
