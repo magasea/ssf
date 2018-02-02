@@ -42,8 +42,11 @@ public class FundNAVInfo {
 
 	/* 是否时货币基金*/
 	private Integer isMonetaryFund;
+	
+	private Map yieldof7daysMap;
 
-
+	private Map tenKiloUnitYieldMap;
+	
 	public Map getIncrementMinMaxValueMap() {
 		return incrementMinMaxValueMap;
 	}
@@ -177,6 +180,30 @@ public class FundNAVInfo {
 
 	public void setIsMonetaryFund(Integer isMonetaryFund) {
 		this.isMonetaryFund = isMonetaryFund;
+	}
+	
+	public Map getYieldof7daysMap() {
+		return yieldof7daysMap;
+	}
+
+	public void setYieldof7daysMap(Map yieldof7daysMap) {
+		this.yieldof7daysMap = yieldof7daysMap;
+	}
+
+	public Map getTenKiloUnitYieldMap() {
+		return tenKiloUnitYieldMap;
+	}
+
+	public void setTenKiloUnitYieldMap(Map tenKiloUnitYieldMap) {
+		this.tenKiloUnitYieldMap = tenKiloUnitYieldMap;
+	}
+
+	public void setIncrementMinMaxValueMap(Map incrementMinMaxValueMap) {
+		this.incrementMinMaxValueMap = incrementMinMaxValueMap;
+	}
+
+	public void setIncrementRateMinMaxValueMap(Map incrementRateMinMaxValueMap) {
+		this.incrementRateMinMaxValueMap = incrementRateMinMaxValueMap;
 	}
 
 	@Override

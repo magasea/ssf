@@ -1,6 +1,11 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
@@ -13,13 +18,15 @@ import com.shellshellfish.aaas.userinfo.model.FundInfo;
 import com.shellshellfish.aaas.userinfo.model.FundShare;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.CoinFundYieldRate;
+import com.shellshellfish.aaas.userinfo.model.dao.DailyAmountAggregation;
 import com.shellshellfish.aaas.userinfo.model.dao.FundYieldRate;
-import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProducts;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.repositories.funds.MongoCoinFundYieldRateRepository;
 import com.shellshellfish.aaas.userinfo.repositories.funds.MongoFundYieldRateRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
@@ -31,15 +38,22 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import net.bytebuddy.asm.Advice.Unused;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,11 +64,11 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 @Service
 public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcService {
@@ -97,6 +111,10 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 	@Autowired
 	@Qualifier("mongoTemplate")
 	private MongoTemplate mongoTemplate;
+
+
+	@Autowired
+	MongoUiTrdZZInfoRepo mongoUiTrdZZInfoRepo;
 
 
 	@Autowired
@@ -159,12 +177,13 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 	private BigDecimal calcDailyAsset2(String userUuid, Long prodId, Long userProdId, String fundCode,
 			String date, UiProductDetail uiProductDetail) throws Exception {
-		BigDecimal share = new BigDecimal(uiProductDetail.getFundQuantity());
+		Optional<Integer> fundQuantityOptional = Optional.ofNullable(uiProductDetail.getFundQuantity());
+		BigDecimal share = new BigDecimal(fundQuantityOptional.orElse(0));
 
 		if (BigDecimal.ZERO.equals(share)) {
 			return BigDecimal.ZERO;
 		}
-		share = share.divide(BigDecimal.valueOf(100));
+		share = share.divide(new BigDecimal(100));
 
 		LocalDate localDate = InstantDateUtil.format(date, "yyyyMMdd");
 		localDate.plusDays(1);
@@ -217,6 +236,64 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 				"set asset ==> dailyAmount:{}", dailyAmount);
 
 		return fundAsset;
+	}
+
+	@Override
+	public List<Map<String, Object>> getCalcYieldof7days(String fundCode, String type, String date)
+			throws Exception {
+		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+		if (!fundCode.contains("OF") && !fundCode.contains("SH") && !fundCode.contains("SZ")) {
+			fundCode = fundCode + ".OF";
+		}
+		Date enddate = null;
+		long sttime = 0L;
+		long endtime = 0L;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String settingdate = "";
+		if (date == null) {
+			settingdate = sdf.format(new Date());
+		} else {
+			settingdate = date;
+		}
+		enddate = sdf.parse(settingdate);
+		endtime = enddate.getTime() / 1000;
+
+		GregorianCalendar gc = new GregorianCalendar();
+		gc.setTime(enddate);
+		if (type.equals("1")) {
+			gc.add(2, -Integer.parseInt("3"));//3 month
+		} else if (type.equals("2")) {
+			gc.add(2, -Integer.parseInt("6"));//6 month
+		} else if (type.equals("3")) {
+			gc.add(2, -Integer.parseInt("12"));//1 year
+		} else {
+			gc.add(2, -Integer.parseInt("36"));//3 year
+		}
+
+		System.out.println(new SimpleDateFormat("yyyy-MM-dd").format(gc.getTime()));
+		sttime = gc.getTime().getTime() / 1000;
+
+		// 货币基金使用附权单位净值
+		List<CoinFundYieldRate> coinFundYieldRateList = mongoCoinFundYieldRateRepository
+				.findAllByCodeAndQueryDateIsBetween(fundCode, sttime, endtime,
+						new Sort(new Order(Direction.DESC, "querydate")));
+		if (coinFundYieldRateList != null && coinFundYieldRateList.size() > 0) {
+			for (int i = 0; i < coinFundYieldRateList.size(); i++) {
+				Map<String, Object> resultMap = new HashMap<String, Object>();
+				CoinFundYieldRate coinFundYieldRate = coinFundYieldRateList.get(i);
+				resultMap.put("profit", coinFundYieldRate.getYieldOf7Days());
+				resultMap.put("yieldOf7Days", coinFundYieldRate.getYieldOf7Days());
+				resultMap.put("code", coinFundYieldRate.getCode());
+				Long queryDate = coinFundYieldRate.getQueryDate();
+				LocalDateTime localDateTime = LocalDateTime
+						.ofInstant(Instant.ofEpochSecond(queryDate), ZoneOffset.UTC);
+				String dateNow = localDateTime.toLocalDate().toString();
+				resultMap.put("querydate", dateNow);
+				resultMap.put("date", dateNow);
+				resultList.add(resultMap);
+			}
+		}
+		return resultList;
 	}
 
 	private String getTodayAsString() {
@@ -282,69 +359,48 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 	}
 
 
-	private void calcIntervalAmount2(String openId, String userUuid, Long prodId, Long userProdId,
-			String fundCode, String startDate) throws Exception {
-		List<BonusInfo> bonusInfoList = fundTradeApiService.getBonusList(openId, fundCode, startDate);
-		final String ZERO = "0.00";
+	private void calcIntervalAmount2(String userUuid, Long prodId, Long userProdId,
+			String fundCode, String startDate) {
 
-		for (BonusInfo info : bonusInfoList) {
-			if (info.getFactbonussum() == null || ZERO.equals(info.getFactbonussum())) {
-				continue;
-			}
+		//FIXME 此处缺少分红
 
-			if (!startDate.equals(info.getConfirmdate())) {
-				continue;
-			}
+		MongoUiTrdZZInfo mongoUiTrdZZInfoBuy = mongoUiTrdZZInfoRepo
+				.findFirstByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
+						fundCode, TrdOrderOpTypeEnum.BUY.getOperation(),
+						TrdOrderStatusEnum.CONFIRMED.getStatus(), startDate);
 
-			Query query = new Query();
-			query.addCriteria(Criteria.where("userUuid").is(userUuid))
-					.addCriteria(Criteria.where("date").is(startDate))
-					.addCriteria(Criteria.where("fundCode").is(fundCode))
-					.addCriteria(Criteria.where("prodId").is(prodId))
-					.addCriteria(Criteria.where("userProdId").is(userProdId));
+		MongoUiTrdZZInfo mongoUiTrdZZInfoSell = mongoUiTrdZZInfoRepo
+				.findFirstByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
+						fundCode, TrdOrderOpTypeEnum.REDEEM.getOperation(),
+						TrdOrderStatusEnum.CONFIRMED.getStatus(), startDate);
 
-			Update update = new Update();
-			update.set("bonus", Double.valueOf(info.getFactbonussum()));
-			DailyAmount dailyAmount = zhongZhengMongoTemplate
-					.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
-							DailyAmount.class);
-			logger.info(
-					"set bonus ==> dailyAmount:{}", dailyAmount);
-		}
+		Query query = new Query();
+		query.addCriteria(Criteria.where("userUuid").is(userUuid))
+				.addCriteria(Criteria.where("date").is(startDate))
+				.addCriteria(Criteria.where("fundCode").is(fundCode))
+				.addCriteria(Criteria.where("prodId").is(prodId))
+				.addCriteria(Criteria.where("userProdId").is(userProdId));
 
-		List<ConfirmResult> confirmList = fundTradeApiService
-				.getConfirmResults(openId, fundCode, startDate);
-		for (ConfirmResult result : confirmList) {
+		Update update = new Update();
 
-			if (result.getTradeconfirmsum() == null || ZERO.equals(result.getTradeconfirmsum())) {
-				continue;
-			}
+		Optional<MongoUiTrdZZInfo> buy = Optional.ofNullable(mongoUiTrdZZInfoBuy);
+		Optional<MongoUiTrdZZInfo> sell = Optional.ofNullable(mongoUiTrdZZInfoSell);
 
-			if (!startDate.equals(result.getConfirmdate())) {
-				continue;
-			}
+		update
+				.set("buyAmount",
+						buy.map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeTargetSum()))
+								.orElse(BigDecimal.ZERO));
 
-			Query query = new Query();
-			query.addCriteria(Criteria.where("userUuid").is(userUuid))
-					.addCriteria(Criteria.where("date").is(startDate))
-					.addCriteria(Criteria.where("fundCode").is(fundCode))
-					.addCriteria(Criteria.where("prodId").is(prodId))
-					.addCriteria(Criteria.where("userProdId").is(userProdId));
+		update.set("sellAmount",
+				sell.map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeTargetSum()))
+						.orElse(BigDecimal.ZERO));
 
-			Update update = new Update();
-			if ("022".equals(result.getCallingcode())) {
-				// 转换为Double 方便使用mongo 聚合函数
-				update.set("buyAmount", Double.valueOf(result.getTradeconfirmsum()));
-			} else if ("024".equals(result.getCallingcode())) {
-				update.set("sellAmount", Double.valueOf(result.getTradeconfirmsum()));
-			}
+		DailyAmount dailyAmount = zhongZhengMongoTemplate
+				.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
+						DailyAmount.class);
+		logger.info(
+				"set buyAmount and sell Amount ==> dailyAmount:{}", dailyAmount);
 
-			DailyAmount dailyAmount = zhongZhengMongoTemplate
-					.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
-							DailyAmount.class);
-			logger.info(
-					"set buyAmount or sell Amount ==> dailyAmount:{}", dailyAmount);
-		}
 	}
 
 	@Override
@@ -406,104 +462,84 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 	}
 
 	@Override
-	public PortfolioInfo calculateProductValue(String userUuid, Long userId, Long prodId,
+	public PortfolioInfo calculateProductValue(String userUuid, Long prodId,
 			String startDate, String endDate) {
-		Query query = new Query();
-		query.addCriteria(Criteria.where("userUuid").is(userUuid))
-				.addCriteria(Criteria.where("date").gte(startDate).lte(endDate))
-				.addCriteria(Criteria.where("userProdId").is(prodId));
 
-		List<DailyAmount> dailyAmountList = zhongZhengMongoTemplate.find(query, DailyAmount.class);
-		BigDecimal assetOfEndDay = BigDecimal.ZERO;
-		BigDecimal intervalAmount = BigDecimal.ZERO;
-		BigDecimal buyAmount = BigDecimal.ZERO;
+		// 区间数据
+		DailyAmountAggregation dailyAmountAggregation = aggregation(userUuid, startDate, endDate,
+				prodId);
 
+		if (dailyAmountAggregation == null) {
+			return new PortfolioInfo();
+		}
+		BigDecimal buyAmount = dailyAmountAggregation.getBuyAmount();
+		BigDecimal sellAmount = dailyAmountAggregation.getSellAmount();
+		BigDecimal bonus = dailyAmountAggregation.getBonus();
+		// 区间净赎回金额= 区间该基金累计分红现金+区间该基金累计赎回金额-区间该基金累计购买金额
+		BigDecimal intervalAmount = bonus.add(sellAmount).subtract(buyAmount);
+
+		//区间结束日数据
+		DailyAmountAggregation dailyAmountAggregationOfEndDay = aggregation(userUuid, endDate, endDate,
+				prodId);
+		BigDecimal assetOfEndDay = dailyAmountAggregationOfEndDay.getAsset();
+		BigDecimal buyAmountOfEndDay = dailyAmountAggregationOfEndDay.getBuyAmount();
+		BigDecimal sellAmountOfEndDay = dailyAmountAggregationOfEndDay.getSellAmount();
+		BigDecimal bonusOfEndDay = dailyAmountAggregationOfEndDay.getBonus();
+		// 区间结束日净赎回净赎回金额= 区间该基金累计分红现金+区间该基金累计赎回金额-区间该基金累计购买金额
+		BigDecimal intervalAmountOfEndDay = bonusOfEndDay.add(sellAmountOfEndDay)
+				.subtract(buyAmountOfEndDay);
+
+		//区间结束日前一天数据
 		LocalDate endLocalDate = InstantDateUtil.format(endDate, "yyyyMMdd");
 		String oneDayBefore = InstantDateUtil.format(endLocalDate.plusDays(-1), "yyyyMMdd");
+		DailyAmountAggregation dailyAmountAggregationOfOneDayBefore = aggregation(userUuid,
+				oneDayBefore, oneDayBefore, prodId);
+		BigDecimal assetOfOneDayBefore = dailyAmountAggregationOfOneDayBefore.getAsset();
 
-		BigDecimal assetOfOneDayBefore = BigDecimal.ZERO;
-		BigDecimal intervalAmountOfEndDay = BigDecimal.ZERO;
-
-		for (DailyAmount dailyAmount : dailyAmountList) {
-			//计算结束日总资产
-			if (dailyAmount.getDate().equals(endDate) && dailyAmount.getAsset() != null) {
-				assetOfEndDay = assetOfEndDay
-						.add(dailyAmount.getAsset().divide(new BigDecimal(100), MathContext.DECIMAL128));
-			}
-			//计算结束日前一天总资产
-			if (dailyAmount.getDate().equals(oneDayBefore) && dailyAmount.getAsset() != null) {
-				assetOfOneDayBefore = assetOfOneDayBefore
-						.add(dailyAmount.getAsset().divide(new BigDecimal(1000), MathContext.DECIMAL128));
-			}
-
-			//期间分红 以及 结束日当日分红
-			if (dailyAmount.getBonus() != null) {
-				intervalAmount = intervalAmount.add(dailyAmount.getBonus());
-				//结束日当天确认分红
-				if (dailyAmount.getDate().equals(endDate)) {
-					intervalAmountOfEndDay = intervalAmountOfEndDay.add(dailyAmount.getBonus());
-				}
-			}
-
-			//期间赎回 以及结束日当天确认赎回
-			if (dailyAmount.getSellAmount() != null) {
-				intervalAmount = intervalAmount.add(dailyAmount.getSellAmount());
-				//借宿日当天赎回
-				if (dailyAmount.getDate().equals(endDate)) {
-					intervalAmountOfEndDay = intervalAmountOfEndDay.add(dailyAmount.getSellAmount());
-				}
-			}
-
-			//期间申购 以及结束日当天确认申购
-			if (dailyAmount.getBuyAmount() != null) {
-				intervalAmount = intervalAmount.subtract(dailyAmount.getBuyAmount());
-				buyAmount = buyAmount.add(dailyAmount.getBuyAmount());
-
-				if (dailyAmount.getDate().equals(endDate)) {
-					intervalAmountOfEndDay = intervalAmountOfEndDay.subtract(dailyAmount.getBuyAmount());
-				}
-			}
-		}
-
-		//FIXME
-		OrderResult orderResult = rpcOrderService
-				.getOrderInfoByProdIdAndOrderStatus(prodId, TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
-
-		//BigDecimal startAsset = BigDecimal.valueOf(orderResult.getPayAmount() / 100);
+		//区间开始总资产 恒为零
 		BigDecimal startAsset = BigDecimal.ZERO;
 
-		//累计收益 = 结束日总资产-开始日总资产 + 区间净赎回
+		//累计收益 = 结束日总资产 - 开始日总资产 + 区间净赎回
 		BigDecimal totalIncome = assetOfEndDay.add(intervalAmount).subtract(startAsset);
 
-		//日收益=结束日净值 - 前一日净值 + 结束日的确认赎回+ 结束日的确认分红-结束日确认购买
+		//日收益=结束日净值 - 前一日净值 + 结束日区间净赎回
 		BigDecimal dailyIncome = assetOfEndDay.subtract(assetOfOneDayBefore)
 				.add(intervalAmountOfEndDay);
 
-		//日收益率= 结束日收益/（结束日净值-结束日收益）
+		//日收益率= 日收益 / （结束日前一天资产+ 结束日购买金额）
 		BigDecimal dailyIncomeRate = BigDecimal.ZERO;
-		if (assetOfEndDay.subtract(dailyIncome).compareTo(BigDecimal.ZERO) > 0) {
+		if (assetOfOneDayBefore.add(buyAmountOfEndDay).compareTo(BigDecimal.ZERO) != 0) {
 			dailyIncomeRate = dailyIncome
-					.divide(assetOfEndDay.subtract(dailyIncome), MathContext.DECIMAL128);
+					.divide(assetOfOneDayBefore.add(buyAmountOfEndDay), MathContext.DECIMAL128);
 		}
-
-		//区间收益率 =(区间结束总资产-起始总资产+分红+赎回-区间购买金额)/(起始总资产+区间购买金额)
 		BigDecimal totalIncomeRate = BigDecimal.ZERO;
-		if ((startAsset.add(buyAmount)).compareTo(BigDecimal.ZERO) > 0) {
+		if (startAsset.add(buyAmount).compareTo(BigDecimal.ZERO) != 0) {
+			//区间收益率 =(区间结束总资产-起始总资产+区间净赎回金额)/(起始总资产+区间购买金额)
 			totalIncomeRate = assetOfEndDay.subtract(startAsset).add(intervalAmount)
-					.divide(startAsset.add(buyAmount),
-							MathContext.DECIMAL128);
+					.divide(startAsset.add(buyAmount), MathContext.DECIMAL128);
+
 		}
-
 		PortfolioInfo portfolioInfo = new PortfolioInfo();
-		portfolioInfo.setTotalAssets(assetOfEndDay.setScale(2, RoundingMode.HALF_UP));
-		portfolioInfo.setTotalIncome(totalIncome.setScale(2, RoundingMode.HALF_UP));
-		portfolioInfo.setTotalIncomeRate(totalIncomeRate.setScale(2, RoundingMode.HALF_UP));
-		portfolioInfo.setDailyIncome(dailyIncome.setScale(2, RoundingMode.HALF_UP));
-		portfolioInfo.setDailyIncomeRate(dailyIncomeRate.setScale(2, RoundingMode.HALF_UP));
 
+		portfolioInfo.setTotalAssets(assetOfEndDay.setScale(4, RoundingMode.HALF_UP));
+		portfolioInfo.setTotalIncome(totalIncome.setScale(4, RoundingMode.HALF_UP));
+		portfolioInfo.setTotalIncomeRate(totalIncomeRate.setScale(4, RoundingMode.HALF_UP));
+		portfolioInfo.setDailyIncome(dailyIncome.setScale(4, RoundingMode.HALF_UP));
+		portfolioInfo.setDailyIncomeRate(dailyIncomeRate.setScale(4, RoundingMode.HALF_UP));
+
+		//设置区间分红 ，申购和赎回
+		portfolioInfo.setBonus(bonus);
+		portfolioInfo.setBuyAmount(buyAmount);
+		portfolioInfo.setSellAmount(sellAmount);
+
+		//设置最后一日 分红，申购以及赎回
+		portfolioInfo.setBonusOfEndDay(bonusOfEndDay);
+		portfolioInfo.setBuyAmountOfEndDay(buyAmountOfEndDay);
+		portfolioInfo.setSellAmountOfEndDay(sellAmountOfEndDay);
+
+		portfolioInfo.setAssetOfOneDayBefore(assetOfOneDayBefore);
 		return portfolioInfo;
 	}
-
 
 	/**
 	 * @param startDate yyyyMMdd
@@ -551,55 +587,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		return result;
 	}
 
-	/**
-	 * @param startDate yyyyMMdd
-	 * @param endDate yyyyMMdd
-	 */
-	@Override
-	public BigDecimal calculateProductYieldRate(String userUuid, Long userId, Long prodId,
-			String startDate,
-			String endDate) {
-		Query query = new Query();
-		query.addCriteria(Criteria.where("userUuid").is(userUuid))
-				.addCriteria(Criteria.where("date").gte(startDate).lte(endDate))
-				.addCriteria(Criteria.where("userProdId").is(prodId));
-
-		List<DailyAmount> dailyAmountList = zhongZhengMongoTemplate.find(query, DailyAmount.class);
-		BigDecimal assetOfEndDay = BigDecimal.ZERO;
-		BigDecimal intervalAmount = BigDecimal.ZERO;
-		BigDecimal buyAmount = BigDecimal.ZERO;
-		for (DailyAmount dailyAmount : dailyAmountList) {
-			if (dailyAmount.getDate().equals(endDate) && dailyAmount.getAsset() != null) {
-				assetOfEndDay = assetOfEndDay.add(dailyAmount.getAsset());
-			}
-			if (dailyAmount.getBonus() != null) {
-				intervalAmount = intervalAmount.add(dailyAmount.getBonus());
-			}
-			if (dailyAmount.getSellAmount() != null) {
-				intervalAmount = intervalAmount.add(dailyAmount.getSellAmount());
-			}
-			if (dailyAmount.getBuyAmount() != null) {
-				intervalAmount = intervalAmount.subtract(dailyAmount.getBuyAmount());
-				buyAmount = buyAmount.add(dailyAmount.getBuyAmount());
-			}
-		}
-
-		BigDecimal result = BigDecimal.ZERO;
-
-		OrderResult orderResult = rpcOrderService
-				.getOrderInfoByProdIdAndOrderStatus(userId, TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
-
-		BigDecimal assetOfStartDay = BigDecimal.valueOf(orderResult.getPayFee());
-
-		if (assetOfStartDay.compareTo(BigDecimal.ZERO) != 0) {
-			//(区间结束总资产-起始总资产+分红+赎回-区间购买金额)/(起始总资产+区间购买金额)
-			result = assetOfEndDay.subtract(assetOfStartDay).add(intervalAmount)
-					.divide(assetOfStartDay.add(buyAmount),
-							MathContext.DECIMAL128);
-		}
-
-		return result;
-	}
 
 	@Override
 	public BigDecimal calcYieldValue(String userUuid, String startDate, String endDate) {
@@ -709,12 +696,11 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 								date, detail);
 
 						//获取当日分红，以及确认购买和赎回的金额
-						calcIntervalAmount2(getZZOpenId(user.getId()), user.getUuid(), prod.getProdId(),
+						calcIntervalAmount2(user.getUuid(), prod.getProdId(),
 								detail.getUserProdId(), fundCode, date);
 					} catch (Exception e) {
 						logger.error("计算{用户:{},基金code:{},基金名称：{}}日收益出错", detail.getCreateBy(),
-								detail.getFundCode(), detail.getFundName());
-						logger.error(e.getMessage());
+								detail.getFundCode(), detail.getFundName(), e);
 					}
 				}
 			}
@@ -770,20 +756,22 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		return fundAsset;
 	}
 
-	/**
-	 * FIXME : 时间待定  标记人：pierre 一个用户可以绑定多张银行卡的情况下，这里是有BUG的， 因为大部分情况下用户只会绑定自己的身份证，权宜之计，我们选取第一个可用的身份证号，来生成中证openId
-	 */
-	private String getZZOpenId(Long userId) {
-		List<UiBankcard> bankcards = userInfoBankCardsRepository.findAllByUserIdAndStatusIs(userId, 1);
-		if (CollectionUtils.isEmpty(bankcards)) {
-			return null;
-		}
-		for (int i = 0; i < bankcards.size(); i++) {
-			if (bankcards.get(i) != null && bankcards.get(i).getUserPid() != null) {
-				return TradeUtil.getZZOpenId(bankcards.get(i).getUserPid());
-			}
-		}
 
-		return null;
+	private DailyAmountAggregation aggregation(String userUuid, String startDate, String endDate,
+			Long prodId) {
+
+		Aggregation agg = newAggregation(
+				match(Criteria.where("userUuid").is(userUuid)),
+				match(Criteria.where("date").gte(startDate).lte(endDate)),
+				match(Criteria.where("userProdId").is(prodId)),
+				group("userProdId")
+						.sum("sellAmount").as("sellAmount")
+						.sum("asset").as("asset")
+						.sum("bonus").as("bonus")
+						.sum("buyAmount").as("buyAmount")
+		);
+		return zhongZhengMongoTemplate
+				.aggregate(agg, "dailyAmount", DailyAmountAggregation.class).getUniqueMappedResult();
+
 	}
 }

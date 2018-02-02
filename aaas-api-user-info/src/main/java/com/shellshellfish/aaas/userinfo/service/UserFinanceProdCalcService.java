@@ -1,9 +1,11 @@
 package com.shellshellfish.aaas.userinfo.service;
 
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.CoinFundYieldRate;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 public interface UserFinanceProdCalcService {
 
@@ -34,9 +36,8 @@ public interface UserFinanceProdCalcService {
 
 	BigDecimal getAssert(String userUuid, Long prodId) throws Exception;
 
-	PortfolioInfo calculateProductValue(String userUuid, Long userId, Long prodId,
+	PortfolioInfo calculateProductValue(String userUuid, Long prodId,
 			String startDate, String endDate);
 
-	BigDecimal calculateProductYieldRate(String userUuid, Long userId, Long prodId,
-			String startDate, String endDate);
+	List<Map<String, Object>> getCalcYieldof7days(String fundCode, String type, String date) throws Exception;
 }

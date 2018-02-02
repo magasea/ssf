@@ -9,6 +9,7 @@ import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
 import com.shellshellfish.aaas.userinfo.aop.AopPageResources;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
+import com.shellshellfish.aaas.userinfo.model.dao.CoinFundYieldRate;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankcardDetailBodyDTO;
@@ -1741,5 +1742,24 @@ public class UserInfoController {
 			resultMap = new HashMap<String, Object>();
 		}
 		return new ResponseEntity<>(resultMap, HttpStatus.OK);
+	}
+	
+	@ApiOperation("获取单个基金的七日年化信息")
+	@ApiResponses({ @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 400, message = "请求参数没填好"),
+			@ApiResponse(code = 401, message = "未授权用户"), @ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对") })
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "path", name = "fundcode", dataType = "String", required = true, value = "基金code"),
+			@ApiImplicitParam(paramType = "query", name = "type", dataType = "String", required = true, value = "类型(1:近3个月，2:近6个月，3:近1年，4:近3年)"),
+			@ApiImplicitParam(paramType = "query", name = "date", dataType = "String", required = false, value = "日期")
+			})
+	@RequestMapping(value = "/funds/{fundcode}", method = RequestMethod.GET)
+	public ResponseEntity<Map> getFundInfos(@PathVariable String fundcode, @RequestParam(value = "type") String type,@RequestParam(value = "date" ,required = false) String date)
+			throws Exception {
+		Map<String, Object> resudltMap = new HashMap<String, Object>();
+		List<Map<String, Object>> coinFundYieldRateList = userFinanceProdCalcService.getCalcYieldof7days(fundcode,
+				type,date);
+		resudltMap.put("result", coinFundYieldRateList);
+		return new ResponseEntity<>(resudltMap, HttpStatus.OK);
 	}
 }
