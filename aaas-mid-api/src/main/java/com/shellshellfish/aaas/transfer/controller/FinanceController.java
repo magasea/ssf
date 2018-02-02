@@ -142,12 +142,24 @@ public class FinanceController {
 						                return map2value-map1value;
 						            }
 						        });
-//								for(int i = 0;i<productList.size();i++){
-//									Map productMap = (Map) productList.get(i);
-//									if(productMap!=null){
-//										productMap.put("value", productMap.get("value")+EasyKit.PERCENT);
-//									}
-//								}
+								Integer count = 0;
+								Integer value = 0;
+								for (int i = 0; i < productList.size(); i++) {
+									Map pMap = (Map) productList.get(i);
+									if (pMap.get("value") != null) {
+										if (i == productList.size() - 1) {
+											value = 100 - count;
+										} else {
+											value = (Integer) pMap.get("value");
+											count = count + value;
+										}
+										if (value != null) {
+											pMap.put("value", value);
+										} else {
+											pMap.put("value", "0.00");
+										}
+									}
+								}
 							}
 						}
 					}
