@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
@@ -14,12 +15,14 @@ import com.shellshellfish.aaas.userinfo.model.FundShare;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.CoinFundYieldRate;
 import com.shellshellfish.aaas.userinfo.model.dao.FundYieldRate;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProducts;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.repositories.funds.MongoCoinFundYieldRateRepository;
 import com.shellshellfish.aaas.userinfo.repositories.funds.MongoFundYieldRateRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
@@ -36,6 +39,7 @@ import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -97,6 +101,10 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 	@Autowired
 	@Qualifier("mongoTemplate")
 	private MongoTemplate mongoTemplate;
+
+
+	@Autowired
+	MongoUiTrdZZInfoRepo mongoUiTrdZZInfoRepo;
 
 
 	@Autowired
@@ -282,69 +290,45 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 	}
 
 
-	private void calcIntervalAmount2(String openId, String userUuid, Long prodId, Long userProdId,
-			String fundCode, String startDate) throws Exception {
-		List<BonusInfo> bonusInfoList = fundTradeApiService.getBonusList(openId, fundCode, startDate);
-		final String ZERO = "0.00";
+	private void calcIntervalAmount2(String userUuid, Long prodId, Long userProdId,
+			String fundCode, String startDate) {
 
-		for (BonusInfo info : bonusInfoList) {
-			if (info.getFactbonussum() == null || ZERO.equals(info.getFactbonussum())) {
-				continue;
-			}
+		//FIXME 此处缺少分红
 
-			if (!startDate.equals(info.getConfirmdate())) {
-				continue;
-			}
+		MongoUiTrdZZInfo mongoUiTrdZZInfoBuy = mongoUiTrdZZInfoRepo
+				.findFirstByUserProdIdAndOperationsAndTradeStatusAndConfirmDate(userProdId,
+						TrdOrderOpTypeEnum.BUY.getOperation(), TrdOrderStatusEnum.CONFIRMED.getStatus(),
+						startDate);
 
-			Query query = new Query();
-			query.addCriteria(Criteria.where("userUuid").is(userUuid))
-					.addCriteria(Criteria.where("date").is(startDate))
-					.addCriteria(Criteria.where("fundCode").is(fundCode))
-					.addCriteria(Criteria.where("prodId").is(prodId))
-					.addCriteria(Criteria.where("userProdId").is(userProdId));
+		MongoUiTrdZZInfo mongoUiTrdZZInfoSell = mongoUiTrdZZInfoRepo
+				.findFirstByUserProdIdAndOperationsAndTradeStatusAndConfirmDate(userProdId,
+						TrdOrderOpTypeEnum.REDEEM.getOperation(), TrdOrderStatusEnum.CONFIRMED.getStatus(),
+						startDate);
 
-			Update update = new Update();
-			update.set("bonus", Double.valueOf(info.getFactbonussum()));
-			DailyAmount dailyAmount = zhongZhengMongoTemplate
-					.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
-							DailyAmount.class);
-			logger.info(
-					"set bonus ==> dailyAmount:{}", dailyAmount);
-		}
+		Query query = new Query();
+		query.addCriteria(Criteria.where("userUuid").is(userUuid))
+				.addCriteria(Criteria.where("date").is(startDate))
+				.addCriteria(Criteria.where("fundCode").is(fundCode))
+				.addCriteria(Criteria.where("prodId").is(prodId))
+				.addCriteria(Criteria.where("userProdId").is(userProdId));
 
-		List<ConfirmResult> confirmList = fundTradeApiService
-				.getConfirmResults(openId, fundCode, startDate);
-		for (ConfirmResult result : confirmList) {
+		Update update = new Update();
 
-			if (result.getTradeconfirmsum() == null || ZERO.equals(result.getTradeconfirmsum())) {
-				continue;
-			}
+		Optional<MongoUiTrdZZInfo> buy = Optional.ofNullable(mongoUiTrdZZInfoBuy);
+		Optional<MongoUiTrdZZInfo> sell = Optional.ofNullable(mongoUiTrdZZInfoSell);
 
-			if (!startDate.equals(result.getConfirmdate())) {
-				continue;
-			}
+		update
+				.set("buyAmount", Double.valueOf(buy.map(MongoUiTrdZZInfo::getTradeConfirmSum).orElse(0L)));
 
-			Query query = new Query();
-			query.addCriteria(Criteria.where("userUuid").is(userUuid))
-					.addCriteria(Criteria.where("date").is(startDate))
-					.addCriteria(Criteria.where("fundCode").is(fundCode))
-					.addCriteria(Criteria.where("prodId").is(prodId))
-					.addCriteria(Criteria.where("userProdId").is(userProdId));
+		update.set("sellAmount",
+				Double.valueOf(sell.map(MongoUiTrdZZInfo::getTradeConfirmSum).orElse(0L)));
 
-			Update update = new Update();
-			if ("022".equals(result.getCallingcode())) {
-				// 转换为Double 方便使用mongo 聚合函数
-				update.set("buyAmount", Double.valueOf(result.getTradeconfirmsum()));
-			} else if ("024".equals(result.getCallingcode())) {
-				update.set("sellAmount", Double.valueOf(result.getTradeconfirmsum()));
-			}
+		DailyAmount dailyAmount = zhongZhengMongoTemplate
+				.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
+						DailyAmount.class);
+		logger.info(
+				"set buyAmount and sell Amount ==> dailyAmount:{}", dailyAmount);
 
-			DailyAmount dailyAmount = zhongZhengMongoTemplate
-					.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
-							DailyAmount.class);
-			logger.info(
-					"set buyAmount or sell Amount ==> dailyAmount:{}", dailyAmount);
-		}
 	}
 
 	@Override
@@ -504,7 +488,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		return portfolioInfo;
 	}
 
-
 	/**
 	 * @param startDate yyyyMMdd
 	 * @param endDate yyyyMMdd
@@ -632,7 +615,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		return assetOfEndDay.subtract(assetOfStartDay).add(intervalAmount);
 	}
 
-
 	@Override
 	public BigDecimal calcYieldRate(String userUuid, String startDate, String endDate) {
 		Query query = new Query();
@@ -674,7 +656,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 	}
 
 	//    @Scheduled(cron = "0 0 3 * * ?", zone= "Asia/Shanghai")
-	//   定时任务改为脚本执行
+//   定时任务改为脚本执行
 	@Deprecated
 	@Override
 	public void dailyCalculation() throws Exception {
@@ -709,7 +691,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 								date, detail);
 
 						//获取当日分红，以及确认购买和赎回的金额
-						calcIntervalAmount2(getZZOpenId(user.getId()), user.getUuid(), prod.getProdId(),
+						calcIntervalAmount2(user.getUuid(), prod.getProdId(),
 								detail.getUserProdId(), fundCode, date);
 					} catch (Exception e) {
 						logger.error("计算{用户:{},基金code:{},基金名称：{}}日收益出错", detail.getCreateBy(),
@@ -770,20 +752,5 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		return fundAsset;
 	}
 
-	/**
-	 * FIXME : 时间待定  标记人：pierre 一个用户可以绑定多张银行卡的情况下，这里是有BUG的， 因为大部分情况下用户只会绑定自己的身份证，权宜之计，我们选取第一个可用的身份证号，来生成中证openId
-	 */
-	private String getZZOpenId(Long userId) {
-		List<UiBankcard> bankcards = userInfoBankCardsRepository.findAllByUserIdAndStatusIs(userId, 1);
-		if (CollectionUtils.isEmpty(bankcards)) {
-			return null;
-		}
-		for (int i = 0; i < bankcards.size(); i++) {
-			if (bankcards.get(i) != null && bankcards.get(i).getUserPid() != null) {
-				return TradeUtil.getZZOpenId(bankcards.get(i).getUserPid());
-			}
-		}
 
-		return null;
-	}
 }
