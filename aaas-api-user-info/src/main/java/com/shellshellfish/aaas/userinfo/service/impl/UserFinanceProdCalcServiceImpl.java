@@ -175,6 +175,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		if (BigDecimal.ZERO.equals(share)) {
 			return BigDecimal.ZERO;
 		}
+		share = share.divide(new BigDecimal(100));
 
 		LocalDate localDate = InstantDateUtil.format(date, "yyyyMMdd");
 		localDate.plusDays(1);
