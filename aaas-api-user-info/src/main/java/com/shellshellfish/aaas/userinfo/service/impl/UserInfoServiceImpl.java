@@ -519,13 +519,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 		BigDecimal assetOfEndDay = Optional.ofNullable(portfolioInfo.getTotalAssets())
 				.orElse(BigDecimal.ZERO);
 
-		logger.info("\nuserProdId:{}  === assetOfEndDay{}\n", prodId, assetOfEndDay);
+		logger.info("\nuserProdId:{}  === assetOfEndDay {}\n", prodId, assetOfEndDay);
 		// 总资产 = 确认基金资产+ 未确认的基金的申购金额  = 结束日资产（即申购成功部分结束日资产） +（总申购资产-确认部分申购资产）
 		BigDecimal asset = assetOfEndDay.add(applyAsset.subtract(conifrmAsset));
 
 		logger.info("\nuserProdId:{}  === asset {}\n", prodId, asset);
 
-		logger.info("\nuserProdId:{}  === confirmAsset{}\n", prodId, conifrmAsset);
+		logger.info("\nuserProdId:{}  === confirmAsset {}\n", prodId, conifrmAsset);
 		// 累计收益=确认部分资产- 确认部分申购金额
 		BigDecimal toltalIncome = assetOfEndDay.subtract(conifrmAsset);
 
