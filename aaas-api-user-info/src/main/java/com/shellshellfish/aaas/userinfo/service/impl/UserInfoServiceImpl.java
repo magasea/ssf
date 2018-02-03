@@ -533,7 +533,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				.orElse(BigDecimal.ZERO);
 
 		if (applyAsset.compareTo(BigDecimal.ZERO) != 0) {
-			toltalIncomeRate = toltalIncome.divide(applyAsset);
+			toltalIncomeRate = toltalIncome.divide(applyAsset, 4, RoundingMode.HALF_UP);
 		}
 
 		portfolioInfo.setTotalAssets(asset.setScale(4, RoundingMode.HALF_UP));
