@@ -141,7 +141,22 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 		}
 		logger.info("trdOrder{}", trdOrder);
 		OrderResult.Builder orderResultBuilder = OrderResult.newBuilder();
-		BeanUtils.copyProperties(trdOrder, orderResultBuilder);
+
+		orderResultBuilder.setCreateBy(trdOrder.getCreateBy());
+		orderResultBuilder.setCreateDate(trdOrder.getCreateDate());
+		orderResultBuilder.setGroupId(trdOrder.getGroupId());
+		orderResultBuilder.setOrderDate(trdOrder.getOrderDate());
+		orderResultBuilder.setOrderType(trdOrder.getOrderType());
+		orderResultBuilder.setPayAmount(trdOrder.getPayAmount());
+		orderResultBuilder.setPayFee(trdOrder.getPayFee());
+		orderResultBuilder.setOrderStatus(trdOrder.getOrderStatus());
+		orderResultBuilder.setPreOrderId(trdOrder.getPreOrderId());
+		orderResultBuilder.setUserId(trdOrder.getUserId());
+		orderResultBuilder.setUpdateDate(trdOrder.getUpdateDate());
+		orderResultBuilder.setBankCardNum(trdOrder.getBankCardNum());
+		orderResultBuilder.setOrderId(trdOrder.getOrderId());
+
+
 
 		OrderResult orderResult = orderResultBuilder.build();
 
