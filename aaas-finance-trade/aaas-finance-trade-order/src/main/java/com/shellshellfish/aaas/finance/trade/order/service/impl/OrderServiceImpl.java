@@ -148,15 +148,12 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 		orderResultBuilder.setOrderDate(trdOrder.getOrderDate());
 		orderResultBuilder.setOrderType(trdOrder.getOrderType());
 		orderResultBuilder.setPayAmount(trdOrder.getPayAmount());
-		orderResultBuilder.setPayFee(trdOrder.getPayFee());
 		orderResultBuilder.setOrderStatus(trdOrder.getOrderStatus());
 		orderResultBuilder.setPreOrderId(trdOrder.getPreOrderId());
 		orderResultBuilder.setUserId(trdOrder.getUserId());
 		orderResultBuilder.setUpdateDate(trdOrder.getUpdateDate());
 		orderResultBuilder.setBankCardNum(trdOrder.getBankCardNum());
 		orderResultBuilder.setOrderId(trdOrder.getOrderId());
-
-
 
 		OrderResult orderResult = orderResultBuilder.build();
 
