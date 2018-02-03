@@ -494,7 +494,11 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		String oneDayBefore = InstantDateUtil.format(endLocalDate.plusDays(-1), "yyyyMMdd");
 		DailyAmountAggregation dailyAmountAggregationOfOneDayBefore = aggregation(userUuid,
 				oneDayBefore, oneDayBefore, prodId);
-		BigDecimal assetOfOneDayBefore = dailyAmountAggregationOfOneDayBefore.getAsset();
+		Optional<DailyAmountAggregation> dailyAmountAggregationOfOneDayBeforeOptional = Optional
+				.ofNullable(dailyAmountAggregationOfOneDayBefore);
+
+		BigDecimal assetOfOneDayBefore = dailyAmountAggregationOfOneDayBeforeOptional
+				.map(DailyAmountAggregation::getAsset).orElse(BigDecimal.ZERO);
 
 		//区间开始总资产 恒为零
 		BigDecimal startAsset = BigDecimal.ZERO;
