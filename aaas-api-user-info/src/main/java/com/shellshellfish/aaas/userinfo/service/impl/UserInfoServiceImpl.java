@@ -519,6 +519,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		BigDecimal assetOfEndDay = Optional.ofNullable(portfolioInfo.getTotalAssets())
 				.orElse(BigDecimal.ZERO);
 
+		logger.info("\nuserProdId:{}  === assetOfEndDay{}\n", prodId, assetOfEndDay);
 		// 总资产 = 确认基金资产+ 未确认的基金的申购金额  = 结束日资产（即申购成功部分结束日资产） +（总申购资产-确认部分申购资产）
 		BigDecimal asset = assetOfEndDay.add(applyAsset.subtract(conifrmAsset));
 
@@ -537,6 +538,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		}
 
 		portfolioInfo.setTotalAssets(asset.setScale(4, RoundingMode.HALF_UP));
+		portfolioInfo.setTotalIncome(toltalIncome.setScale(4, RoundingMode.HALF_UP));
 		portfolioInfo.setTotalIncomeRate(toltalIncomeRate.setScale(4, RoundingMode.HALF_UP));
 
 		return portfolioInfo;
