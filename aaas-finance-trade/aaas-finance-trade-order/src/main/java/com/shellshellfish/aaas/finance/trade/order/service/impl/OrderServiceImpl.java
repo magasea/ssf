@@ -144,6 +144,7 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 		BeanUtils.copyProperties(trdOrder, orderResult);
 		logger.info("=====================================================");
 		logger.info("orderResult{}", orderResult.getPayAmount());
+
 		logger.info("=====================================================");
 		responseObserver.onNext(orderResult);
 		responseObserver.onCompleted();
