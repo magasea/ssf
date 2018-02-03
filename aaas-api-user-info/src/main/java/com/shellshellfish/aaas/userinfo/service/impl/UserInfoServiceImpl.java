@@ -426,7 +426,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		resultMap.put("dailyIncome", dailyIncome.setScale(2, BigDecimal.ROUND_HALF_UP));
 		resultMap.put("totalIncome", totalIncome.setScale(2, RoundingMode.HALF_UP));
 		if (asserts != BigDecimal.ZERO && !"0.00".equals(asserts + "")) {
-			BigDecimal incomeRate = (totalIncome.divide(asserts, MathContext.DECIMAL128)).setScale(2,
+			BigDecimal incomeRate = (totalIncome.divide(asserts, MathContext.DECIMAL128)).setScale(4,
 					BigDecimal.ROUND_HALF_UP);
 //			BigDecimal incomeRate = totalIncome.divide(asserts, 2, BigDecimal.ROUND_HALF_UP);
 			resultMap.put("totalIncomeRate", incomeRate);
@@ -676,7 +676,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 			// 累计收益率
 			resultMap.put("totalIncomeRate",
 					Optional.ofNullable(portfolioInfo.getTotalIncomeRate()).orElse(BigDecimal.ZERO)
-							.setScale(2, RoundingMode.HALF_UP));
+							.setScale(4, RoundingMode.HALF_UP));
 			// 累计收益
 			resultMap
 					.put("totalIncome",
