@@ -139,8 +139,12 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 		if (trdOrder == null) {
 			trdOrder = new TrdOrder();
 		}
+		logger.info("trdOrder{}", trdOrder);
 		OrderResult orderResult = OrderResult.newBuilder().build();
 		BeanUtils.copyProperties(trdOrder, orderResult);
+		logger.info("=====================================================");
+		logger.info("orderResult{}", orderResult);
+		logger.info("=====================================================");
 		responseObserver.onNext(orderResult);
 		responseObserver.onCompleted();
 	}
