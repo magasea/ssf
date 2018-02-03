@@ -468,6 +468,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 					.calculateProductValue(uuid, products.getId(), startDay, endDay);
 		} else {
 			//部分确认
+			logger.info("\n未完全确认数据 userProdId :{}\n", products.getId());
 			products.setStatus(TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
 			return getPartConfirmFundInfo(uuid, userId, products.getId(), startDay, endDay);
 		}
@@ -505,14 +506,25 @@ public class UserInfoServiceImpl implements UserInfoService {
 		OrderResult orderResult = rpcOrderService
 				.getOrderInfoByProdIdAndOrderStatus(prodId, TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
+		logger.info(
+				"=======================================================================================");
+		logger.info("\n\n{}\n\n", orderResult.getPayAmount());
+		logger.info(
+				"=======================================================================================");
+
 		BigDecimal applyAsset = BigDecimal.valueOf(orderResult.getPayAmount() / 100);
 
+		logger.info("\nuserProdId:{}  ===  applyAsset {}\n",applyAsset);
 		BigDecimal assetOfEndDay = Optional.ofNullable(portfolioInfo.getTotalAssets())
 				.orElse(BigDecimal.ZERO);
 
 		// 总资产 = 确认基金资产+ 未确认的基金的申购金额  = 结束日资产（即申购成功部分结束日资产） +（总申购资产-确认部分申购资产）
 		BigDecimal asset = assetOfEndDay.add(applyAsset.subtract(conifrmAsset));
 
+
+		logger.info("\nuserProdId:{}  === asset {}\n",asset);
+
+		logger.info("\nuserProdId:{}  === confirmAsset{}\n",conifrmAsset);
 		// 累计收益=确认部分资产- 确认部分申购金额
 		BigDecimal toltalIncome = assetOfEndDay.subtract(conifrmAsset);
 
