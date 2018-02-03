@@ -9,6 +9,7 @@ import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.OrderResult;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.BonusInfo;
@@ -69,6 +70,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcService {
@@ -177,6 +179,16 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 	private BigDecimal calcDailyAsset2(String userUuid, Long prodId, Long userProdId, String fundCode,
 			String date, UiProductDetail uiProductDetail) throws Exception {
+
+		List<OrderDetail> orderDetailList = rpcOrderService
+				.getOrderDetails(userProdId,
+						TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
+
+		for (OrderDetail orderDetail : orderDetailList) {
+			if (fundCode.equals(orderDetail.getFundCode())) {
+				return BigDecimal.ZERO;
+			}
+		}
 		Optional<Integer> fundQuantityOptional = Optional.ofNullable(uiProductDetail.getFundQuantity());
 		BigDecimal share = new BigDecimal(fundQuantityOptional.orElse(0));
 
