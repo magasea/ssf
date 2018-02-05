@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.userinfo.service.impl;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import com.shellshellfish.aaas.common.enums.UiTrdLogStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
@@ -46,11 +47,15 @@ import io.grpc.ManagedChannel;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,7 +137,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public List<BankCardDTO> getUserInfoBankCards(String userUuid) throws Exception {
+	public List<BankCardDTO> getUserInfoBankCards(String userUuid) {
 		Long userId = null;
 		try {
 			userId = getUserIdFromUUID(userUuid);
@@ -397,7 +402,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Override
 	public Map<String, Object> getTotalAssets(String uuid) throws Exception {
 		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
-		List<ProductsDTO> productsList = this.findProductInfos(uuid);
+		List<Map<String, Object>> productsList = this.getMyCombinations(uuid);
 		if (productsList == null || productsList.size() == 0) {
 			logger.error("我的智投组合暂时不存在");
 			return new HashMap<String, Object>();
@@ -406,25 +411,28 @@ public class UserInfoServiceImpl implements UserInfoService {
 		BigDecimal asserts = new BigDecimal(0);
 		BigDecimal dailyIncome = new BigDecimal(0);
 		BigDecimal totalIncome = new BigDecimal(0);
-		for (int i = 0; i < productsList.size(); i++) {
-			ProductsDTO products = productsList.get(i);
-			PortfolioInfo portfolioInfo = this
-					.getChicombinationAssets(uuid, getUserIdFromUUID(uuid), products);
-			if (portfolioInfo.getTotalAssets() != null) {
-				asserts = asserts.add(portfolioInfo.getTotalAssets());
-			}
-			if (portfolioInfo.getDailyIncome() != null) {
-				dailyIncome = dailyIncome.add(portfolioInfo.getDailyIncome());
-			}
-			if (portfolioInfo.getTotalIncome() != null) {
-				totalIncome = totalIncome.add(portfolioInfo.getTotalIncome());
+		if (productsList != null && productsList.size() > 0) {
+			for (int i = 0; i < productsList.size(); i++) {
+				Map<String, Object> products = productsList.get(i);
+				if (products.get("totalAssets") != null) {
+					asserts = asserts.add(new BigDecimal(products.get("totalAssets") + "")).setScale(2,
+							RoundingMode.HALF_UP);
+				}
+				if (products.get("dailyIncome") != null) {
+					dailyIncome = dailyIncome.add(new BigDecimal(products.get("dailyIncome") + "")).setScale(2,
+							RoundingMode.HALF_UP);
+				}
+				if (products.get("totalIncome") != null) {
+					totalIncome = totalIncome.add(new BigDecimal(products.get("totalIncome") + "")).setScale(2,
+							RoundingMode.HALF_UP);
+				}
 			}
 		}
 		resultMap.put("assert", asserts.setScale(2, RoundingMode.HALF_UP));
 		resultMap.put("dailyIncome", dailyIncome.setScale(2, BigDecimal.ROUND_HALF_UP));
 		resultMap.put("totalIncome", totalIncome.setScale(2, RoundingMode.HALF_UP));
 		if (asserts != BigDecimal.ZERO && !"0.00".equals(asserts + "")) {
-			BigDecimal incomeRate = (totalIncome.divide(asserts, MathContext.DECIMAL128)).setScale(2,
+			BigDecimal incomeRate = (totalIncome.divide(asserts, MathContext.DECIMAL128)).setScale(4,
 					BigDecimal.ROUND_HALF_UP);
 //			BigDecimal incomeRate = totalIncome.divide(asserts, 2, BigDecimal.ROUND_HALF_UP);
 			resultMap.put("totalIncomeRate", incomeRate);
@@ -441,14 +449,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Override
 	public PortfolioInfo getChicombinationAssets(String uuid, Long userId, ProductsDTO products) {
 
-		List<OrderDetail> orderDetailList = rpcOrderService
+		List<OrderDetail> orderDetailPayWaitConfirm = rpcOrderService
 				.getOrderDetails(products.getId(),
 						TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
 		//完全确认标志
 		boolean flag = false;
-
-		if (CollectionUtils.isEmpty(orderDetailList)) {
+		if (CollectionUtils.isEmpty(orderDetailPayWaitConfirm)) {
 			flag = true;
 		}
 
@@ -466,6 +473,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 					.calculateProductValue(uuid, products.getId(), startDay, endDay);
 		} else {
 			//部分确认
+			logger.info("\n未完全确认数据 userProdId :{}\n", products.getId());
 			products.setStatus(TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
 			return getPartConfirmFundInfo(uuid, userId, products.getId(), startDay, endDay);
 		}
@@ -503,15 +511,27 @@ public class UserInfoServiceImpl implements UserInfoService {
 		OrderResult orderResult = rpcOrderService
 				.getOrderInfoByProdIdAndOrderStatus(prodId, TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
-		BigDecimal applyAsset = BigDecimal.valueOf(orderResult.getPayAmount() / 100);
+		logger.info(
+				"=======================================================================================");
+		logger.info("\n\n{}\n\n", orderResult.getPayAmount());
+		logger.info(
+				"=======================================================================================");
 
+		BigDecimal applyAsset = BigDecimal.valueOf(orderResult.getPayAmount())
+				.divide(BigDecimal.valueOf(100));
+
+		logger.info("\nuserProdId:{}  ===  applyAsset {}\n", prodId, applyAsset);
 		BigDecimal assetOfEndDay = Optional.ofNullable(portfolioInfo.getTotalAssets())
 				.orElse(BigDecimal.ZERO);
 
+		logger.info("\nuserProdId:{}  === assetOfEndDay {}\n", prodId, assetOfEndDay);
 		// 总资产 = 确认基金资产+ 未确认的基金的申购金额  = 结束日资产（即申购成功部分结束日资产） +（总申购资产-确认部分申购资产）
 		BigDecimal asset = assetOfEndDay.add(applyAsset.subtract(conifrmAsset));
 
-		// 累计收益=确认部分资产- 确认部分申购金额
+		logger.info("\nuserProdId:{}  === asset {}\n", prodId, asset);
+
+		logger.info("\nuserProdId:{}  === confirmAsset {}\n", prodId, conifrmAsset);
+		// 累计收益=确认部分资产- 确认部分申购金额  (默认未完全确认  不能追加和赎回)
 		BigDecimal toltalIncome = assetOfEndDay.subtract(conifrmAsset);
 
 		// 累计收益率= 累计收益/申购金额
@@ -519,10 +539,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 				.orElse(BigDecimal.ZERO);
 
 		if (applyAsset.compareTo(BigDecimal.ZERO) != 0) {
-			toltalIncomeRate = toltalIncome.divide(applyAsset);
+			toltalIncomeRate = toltalIncome.divide(applyAsset, 4, RoundingMode.HALF_UP);
 		}
 
 		portfolioInfo.setTotalAssets(asset.setScale(4, RoundingMode.HALF_UP));
+		portfolioInfo.setTotalIncome(toltalIncome.setScale(4, RoundingMode.HALF_UP));
 		portfolioInfo.setTotalIncomeRate(toltalIncomeRate.setScale(4, RoundingMode.HALF_UP));
 
 		return portfolioInfo;
@@ -663,16 +684,23 @@ public class UserInfoServiceImpl implements UserInfoService {
 			// 总资产
 			PortfolioInfo portfolioInfo = this.getChicombinationAssets(uuid, userId, products);
 			resultMap
-					.put("totalAssets", portfolioInfo.getTotalAssets().setScale(2, BigDecimal.ROUND_HALF_UP));
+					.put("totalAssets",
+							Optional.ofNullable(portfolioInfo.getTotalAssets()).orElse(BigDecimal.ZERO)
+									.setScale(2, RoundingMode.HALF_UP));
 			// 日收益
 			resultMap
-					.put("dailyIncome", portfolioInfo.getDailyIncome().setScale(2, BigDecimal.ROUND_HALF_UP));
+					.put("dailyIncome",
+							Optional.ofNullable(portfolioInfo.getDailyIncome()).orElse(BigDecimal.ZERO)
+									.setScale(2, RoundingMode.HALF_UP));
 			// 累计收益率
 			resultMap.put("totalIncomeRate",
-					portfolioInfo.getTotalIncomeRate().setScale(2, BigDecimal.ROUND_HALF_UP));
+					Optional.ofNullable(portfolioInfo.getTotalIncomeRate()).orElse(BigDecimal.ZERO)
+							.setScale(4, RoundingMode.HALF_UP));
 			// 累计收益
 			resultMap
-					.put("totalIncome", portfolioInfo.getTotalIncome().setScale(2, BigDecimal.ROUND_HALF_UP));
+					.put("totalIncome",
+							Optional.ofNullable(portfolioInfo.getTotalIncome()).orElse(BigDecimal.ZERO)
+									.setScale(2, RoundingMode.HALF_UP));
 
 			// 智投组合产品ID
 			resultMap.put("prodId", products.getId());
@@ -769,5 +797,166 @@ public class UserInfoServiceImpl implements UserInfoService {
 			result.put("status", product.getStatus());
 		}
 		return result;
+	}
+
+	@Override
+	public List<Map<String, Object>> getTradLogsOfUser(String userUuid) throws Exception {
+	  List<MongoUiTrdLogDTO> tradeLogList = this.getTradeLogs(userUuid);
+		List<Map<String,Object>> tradeLogs = new ArrayList<Map<String,Object>>();
+		if(tradeLogList==null||tradeLogList.size()==0){
+			throw new UserInfoException("404", "交易记录为空");
+		}
+		Map<Long,Map<String,Object>> bakMap = new HashMap<Long,Map<String,Object>>();
+		Map<String,Map<String,Object>> tradLogsMap = new HashMap<String,Map<String,Object>>();
+		Map<String,Map<String,Object>> tradLogsMap2 = new HashMap<String,Map<String,Object>>();
+		// 获取最新一天的单个基金的信息
+		for (MongoUiTrdLogDTO mongoUiTrdLogDTO : tradeLogList) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			try {
+				Long prodId = mongoUiTrdLogDTO.getUserProdId();
+				if (mongoUiTrdLogDTO.getFundCode() == null) {
+					continue;
+				}
+				String fundCode = mongoUiTrdLogDTO.getFundCode();
+				long dateLong = mongoUiTrdLogDTO.getLastModifiedDate();
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				Date date = new Date(dateLong);
+				String dateTime = simpleDateFormat.format(date);
+				map.put("date", dateTime);
+				dateLong = dateLong / 1000;
+				map.put("dateLong", dateLong);
+				String key = prodId + "-" + fundCode;
+				if (tradLogsMap.containsKey(key)) {
+					if (tradLogsMap.get(key) != null) {
+						Map<String, Object> map2 = tradLogsMap.get(key);
+						if (map2.get("dateLong") != null) {
+							long dateLongold = (long) map2.get("dateLong");
+							if (dateLong < dateLongold) {
+								continue;
+							}
+						}
+					}
+				}
+				map.put("operations", TrdOrderOpTypeEnum.getComment(mongoUiTrdLogDTO.getOperations()));
+				if (mongoUiTrdLogDTO.getOperations() == 1) {
+					map.put("operationsStatus", 1);
+				} else if (mongoUiTrdLogDTO.getOperations() == 2) {
+					map.put("operationsStatus", 2);
+				} else if (mongoUiTrdLogDTO.getOperations() == 3
+						|| mongoUiTrdLogDTO.getOperations() == 4) {
+					map.put("operationsStatus", 3);
+				} else {
+					map.put("operationsStatus", 4);
+				}
+				map.put("tradeStatusValue", mongoUiTrdLogDTO.getTradeStatus());
+				map.put("prodId", prodId);
+				if (mongoUiTrdLogDTO.getTradeStatus() == -1) {
+					logger.error("mongoUiTrdLogDTO.getTradeStatus()为-1，prodId：" + prodId + "--UserId:"
+							+ mongoUiTrdLogDTO.getUserId());
+				}
+				if (prodId != null && prodId != 0) {
+					ProductsDTO products = this.findByProdId(prodId + "");
+					logger.info("理财产品findByProdId查询end");
+					if (products == null) {
+						map.put("prodName", "");
+					} else {
+						map.put("prodName", products.getProdName());
+					}
+				} else {
+					map.put("prodName", "");
+				}
+				if (mongoUiTrdLogDTO.getAmount() != null) {
+					map.put("amount", mongoUiTrdLogDTO.getAmount());
+				} else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
+						&& mongoUiTrdLogDTO
+								.getTradeStatus() == TrdOrderStatusEnum.PAYWAITCONFIRM
+										.getStatus()) {
+					map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(
+							mongoUiTrdLogDTO.getTradeTargetSum()));
+				} else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
+						&& mongoUiTrdLogDTO
+								.getTradeStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM
+										.getStatus()) {
+					map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(
+							mongoUiTrdLogDTO.getTradeTargetShare()));
+				} else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null) {
+					map.put("amount", new BigDecimal(
+							mongoUiTrdLogDTO.getTradeConfirmShare()));
+				} else if (mongoUiTrdLogDTO.getTradeConfirmSum() != null) {
+					map.put("amount", new BigDecimal(
+							mongoUiTrdLogDTO.getTradeConfirmSum()));
+				} else {
+					logger.error(
+							"there is no amount information for mondUiTrdLogDTO with userId:"
+									+ userUuid + " userProdId:"
+									+ mongoUiTrdLogDTO.getUserProdId());
+				}
+				tradLogsMap.put(key, map);
+			} catch (Exception ex) {
+				logger.error(ex.getMessage());
+				ex.printStackTrace();
+				continue;
+			}
+			// tradeLogs.add(map);
+		}
+		
+		if (tradLogsMap != null && tradLogsMap.size() > 0) {
+			for (String key : tradLogsMap.keySet()) {
+				String[] params = key.split("-");
+				String prodId = params[0];
+				// String fundCode = params[1];
+				Map<String, Object> bakMap2 = tradLogsMap.get(key);
+				if (!tradLogsMap2.containsKey(prodId)) {
+					tradLogsMap2.put(prodId, bakMap2);
+				} else {
+					Map<String, Object> trad = tradLogsMap2.get(prodId);
+					if (trad.get("amount") != null) {
+						BigDecimal amountTotal = new BigDecimal(trad.get("amount") + "");
+						if (bakMap2.get("amount") != null) {
+							amountTotal = amountTotal.add(new BigDecimal(bakMap2.get("amount") + ""));
+						}
+						trad.put("amount", amountTotal);
+					}
+
+					if (trad.get("tradeStatusValue") != null) {
+						Integer operationsStatusOld = Integer.parseInt(trad.get("tradeStatusValue") + "");
+						Integer operationsStatusNew = Integer.parseInt(bakMap2.get("tradeStatusValue") + "");
+						if (operationsStatusOld != null) {
+							if (operationsStatusOld == TrdOrderStatusEnum.FAILED.getStatus()
+									|| operationsStatusNew == TrdOrderStatusEnum.FAILED.getStatus()) {
+								trad.put("tradeStatusValue", TrdOrderStatusEnum.FAILED.getStatus());
+								trad.put("tradeStatus", UiTrdLogStatusEnum.CONFIRMEDFAILED.getComment());
+							} else {
+								if (bakMap2.get("tradeStatusValue") != null) {
+									if (operationsStatusOld == TrdOrderStatusEnum.CONFIRMED.getStatus()
+											&& operationsStatusNew == TrdOrderStatusEnum.CONFIRMED.getStatus()) {
+										trad.put("tradeStatusValue", TrdOrderStatusEnum.CONFIRMED.getStatus());
+										trad.put("tradeStatus", UiTrdLogStatusEnum.CONFIRMED.getComment());
+									} else{
+										trad.put("tradeStatusValue", TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
+										trad.put("tradeStatus", UiTrdLogStatusEnum.WAITCONFIRM.getComment());
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if (tradLogsMap2 != null && tradLogsMap2.size() > 0) {
+				for (String key2 : tradLogsMap2.keySet()) {
+					Map<String, Object> mapThree = tradLogsMap2.get(key2);
+					tradeLogs.add(mapThree);
+				}
+			}
+		}
+		Collections.sort(tradeLogs, new Comparator<Map<String, Object>>() {
+			public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+				Long map1value = (Long) o1.get("dateLong");
+				Long map2value = (Long) o2.get("dateLong");
+				return map2value.compareTo(map1value);
+			}
+		});
+		
+		return tradeLogs;
 	}
 }

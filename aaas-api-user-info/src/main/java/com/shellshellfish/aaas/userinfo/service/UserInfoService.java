@@ -25,7 +25,7 @@ public interface UserInfoService {
 
 	UserInfoAssectsBriefDTO getUserInfoAssectsBrief(String userUuid) throws Exception;
 
-	List<BankCardDTO> getUserInfoBankCards(String userUuid) throws Exception;
+	List<BankCardDTO> getUserInfoBankCards(String userUuid) ;
 
 	List<UserPortfolioDTO> getUserPortfolios(String userUuid) throws Exception;
 
@@ -87,5 +87,7 @@ public interface UserInfoService {
 	Integer getUserRishLevel(String uuid);
 
 	Map<String, Object> getProducts(Long prodId) throws IllegalAccessException, InstantiationException;
+
+	List<Map<String, Object>> getTradLogsOfUser(String userUuid) throws Exception;
 
 }

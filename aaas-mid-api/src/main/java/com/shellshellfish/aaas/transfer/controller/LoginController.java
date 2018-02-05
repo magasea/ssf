@@ -102,6 +102,7 @@ public class LoginController {
 			if (userinfoMap == null) {
 				return new JsonResult(JsonResult.Fail, "登录时，获取userinfo信息为空", JsonResult.EMPTYRESULT);
 			}
+			result.put("name", telNum);
 			result.put("myInvstTotalQty", userinfoMap.get("myInvstTotalQty")); //我的智投组合数量
 			result.put("myCardTotalQty", userinfoMap.get("myCardTotalQty")); //我的银行卡数量
 			result.put("messageUnread", userinfoMap.get("messageUnread")); //未读消息数量	
