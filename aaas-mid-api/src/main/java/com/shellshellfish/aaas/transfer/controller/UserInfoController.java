@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+
+import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
@@ -347,22 +349,7 @@ public class UserInfoController {
 					for (int i = 0; i < detail.size(); i++) {
 						if (detail.get(i) != null) {
 							Map map = (Map) detail.get(i);
-							String fundCode = (String) map.get("fundCode");
 							int operationsStatus = (int) map.get("operationsStatus");
-							if (!StringUtils.isEmpty(fundCode)) {
-								Map fundMap = new HashMap();
-								fundMap = restTemplate.getForEntity(
-										dataManagerUrl + "/api/datamanager/getFundInfoBycode?code=" + fundCode,
-										Map.class).getBody();
-								if (fundMap == null || fundMap.size() == 0) {
-									logger.error("基金CODE:" + fundCode + "不存在");
-								} else {
-									String fundName = (String) (fundMap.get("fundname"));
-									map.put("fundName", fundName);
-									map.remove("fundCode");
-								}
-							}
-							// String userId = (String) map.get("userId");
 							if (map.get("prodId") != null) {
 								Integer prodId = (Integer) map.get("prodId");
 								Map orderResult = restTemplate.getForEntity(
@@ -370,7 +357,18 @@ public class UserInfoController {
 										Map.class).getBody();
 								if (orderResult.get("orderId") != null) {
 									String orderId = orderResult.get("orderId") + "";
+									String bankName = "";
+									String bankcardNum = "";
+									if (orderResult.get("bankNum") != null) {
+										bankcardNum = orderResult.get("bankNum") + "";
+										bankName = BankUtil.getNameOfBank(bankcardNum);
+										bankName = bankName.substring(0, bankName.indexOf("·"));
+									}
 									map.put("orderId", orderId);
+									map.put("poundage", "0");
+									map.put("bankName", bankName);
+									map.put("bankcardNum", bankcardNum);
+									map.put("bankinfo", bankName + "(" + bankcardNum.substring(bankcardNum.length() - 4) + ")");
 									if (type == operationsStatus || type == 0) {
 										detailBak.add(map);
 									}
