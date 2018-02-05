@@ -161,6 +161,11 @@ public class TradeUtil {
     return MathUtil.round(BigDecimal.valueOf(originNum).divide(BigDecimal.valueOf(100)),2,true);
   }
 
+  public static BigDecimal getBigDecimalNumWithRoundUp2Digit(String origin){
+    return MathUtil.round(new BigDecimal(origin),2,true);
+  }
+
+
   public static BigDecimal getBigDecimalNumWithDiv10000(Long originNum){
     return new BigDecimal(originNum).divide(BigDecimal.valueOf(10000));
   }

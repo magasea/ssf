@@ -28,24 +28,17 @@ public class UserInfoBaseDao {
 		}
 
 	  public void addUserBaseInfo(UserBaseInfoRedis userBaseInfoRedis) {
-		  hashOps.putIfAbsent(KEY, userBaseInfoRedis.getUuid(), userBaseInfoRedis);
-			redisTemplate.expire(KEY, timeout, TimeUnit.SECONDS);
+		  hashOps.putIfAbsent(KEY+userBaseInfoRedis.getUuid(), userBaseInfoRedis.getUuid(),
+					userBaseInfoRedis);
+			redisTemplate.expire(KEY+userBaseInfoRedis.getUuid(), timeout, TimeUnit.SECONDS);
 	  }
 	  public void updateUserBaseInfo(UserBaseInfoRedis userBaseInfoRedis) {
-		  hashOps.put(KEY, userBaseInfoRedis.getUuid(), userBaseInfoRedis);
-		  redisTemplate.expire(KEY, timeout, TimeUnit.SECONDS);
+		  hashOps.put(KEY+userBaseInfoRedis.getUuid(), userBaseInfoRedis.getUuid(), userBaseInfoRedis);
+		  redisTemplate.expire(KEY+userBaseInfoRedis.getUuid(), timeout, TimeUnit.SECONDS);
 
 	  }	  
 	  public UserBaseInfoRedis get(String userUUID) {
-		  return hashOps.get(KEY, userUUID);
+		  return hashOps.get(KEY+userUUID, userUUID);
 	  }
-	  public long getNumberOfUserBaseInfoInRedis() {
-		  return hashOps.size(KEY);
-	  }
-	  public Map<String, UserBaseInfoRedis> getAllUserBaseInfoes() {
-		  return hashOps.entries(KEY);
-	  }
-	  public long deleteUserBaseInfos(String... userUUIDs) {
-		  return hashOps.delete(KEY, (Object)userUUIDs);
-	  }	  		  
+
 }

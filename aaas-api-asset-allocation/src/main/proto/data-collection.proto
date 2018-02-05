@@ -40,6 +40,8 @@ message DailyFunds {
   string first_invest_type = 13;//基金一级分类
   string second_invest_type = 14;//基金二级分类
   string close = 15;//日行情收盘价
+  double yield_of_7_days = 16; //七日年化收益率
+  double million_revenue = 17;//万份年化收益
 }
 
 //获取当前基金信息

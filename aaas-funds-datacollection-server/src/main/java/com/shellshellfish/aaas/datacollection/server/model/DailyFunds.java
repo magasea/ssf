@@ -22,7 +22,7 @@ public class DailyFunds {
   String code;
   @Field( value = "ACCUMULATEDNAV")
   Double navaccum = Double.MIN_VALUE;
-  @Field( value = "navadj")
+  @Field( value = "ADJUSTEDNAV")
   Double navadj = Double.MIN_VALUE;
   @Field( value = "navlatestdate")
   Long navLatestDate;

@@ -20,7 +20,7 @@ public class WorkDayDao {
 	  
 		private static final int TIMEOUT = 1800;//in seconds
 
-		private static final int EXPIRE_HOUR = 5;
+		private static final int EXPIRE_HOUR = 4;
 
 		private static final int EXPIRE_MINUTE = 30;
 
@@ -36,19 +36,22 @@ public class WorkDayDao {
 			hashOps = redisTemplate.opsForHash();
 		}
 	  public void addWorkDay(WorkDayRedis workDayRedis) {
-			String currentDay = TradeUtil.getReadableDateTime(workDayRedis.getCreate_date()).split("T")
-					[0];
-		  hashOps.putIfAbsent(KEY, currentDay+workDayRedis.getFundCode(), workDayRedis);
-		  redisTemplate.expireAt(KEY, TradeUtil.getDateOfSpecificTimeToday(EXPIRE_HOUR, EXPIRE_MINUTE));
+			String currentDay = workDayRedis.getQueryDay();
+
+		  hashOps.putIfAbsent(KEY+currentDay, currentDay+workDayRedis.getFundCode()
+					, workDayRedis);
+		  redisTemplate.expireAt(KEY+currentDay, TradeUtil.getDateOfSpecificTimeToday(EXPIRE_HOUR, EXPIRE_MINUTE));
 	  }
 	  public void updateWorkDay(WorkDayRedis workDayRedis) {
-			String currentDay = TradeUtil.getReadableDateTime(workDayRedis.getCreate_date()).split("T")
-					[0];
-		  hashOps.put(KEY, currentDay+workDayRedis.getFundCode(), workDayRedis);
-			redisTemplate.expire(KEY, TIMEOUT, TimeUnit.SECONDS);
+
+		  hashOps.put(KEY+workDayRedis.getQueryDay(), workDayRedis.getQueryDay()+workDayRedis.getFundCode(),
+					workDayRedis);
+//			redisTemplate.expireAt(KEY+currentDay, TradeUtil.getDateOfSpecificTimeToday(EXPIRE_HOUR,
+//					EXPIRE_MINUTE));
 	  }	  
-	  public WorkDayRedis get(String currentDay) {
-		  return hashOps.get(KEY, currentDay);
+	  public WorkDayRedis get(String Code) {
+			String currentDay = TradeUtil.getReadableDateTime(TradeUtil.getUTCTime()).split("T")[0];
+		  return hashOps.get(KEY+currentDay, currentDay+ Code);
 	  }
 	  public long getNumberOfWorkDays() {
 		  return hashOps.size(KEY);
