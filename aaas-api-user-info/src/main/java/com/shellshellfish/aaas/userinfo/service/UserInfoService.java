@@ -88,4 +88,6 @@ public interface UserInfoService {
 
 	Map<String, Object> getProducts(Long prodId) throws IllegalAccessException, InstantiationException;
 
+	List<Map<String, Object>> getTradLogsOfUser(String userUuid) throws Exception;
+
 }

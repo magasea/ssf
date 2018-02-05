@@ -324,7 +324,7 @@ public class UserInfoController {
 	@ApiOperation("交易记录")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户uuid", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "type", dataType = "Integer", required = false, value = "类型（1：购买，2：赎回，3：分红，4：其他）") })
+			@ApiImplicitParam(paramType = "query", name = "type", dataType = "Integer", required = false, value = "类型（1：购买，2：赎回）") })
 	@RequestMapping(value = "/traderecords", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult tradeLogsOfUser(@RequestParam String uuid, @RequestParam(required = false) Integer type) {
