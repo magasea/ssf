@@ -20,6 +20,7 @@ import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,8 +140,29 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 		if (trdOrder == null) {
 			trdOrder = new TrdOrder();
 		}
-		OrderResult orderResult = OrderResult.newBuilder().build();
-		BeanUtils.copyProperties(trdOrder, orderResult);
+		logger.info("trdOrder{}", trdOrder);
+		OrderResult.Builder orderResultBuilder = OrderResult.newBuilder();
+
+		orderResultBuilder.setCreateBy(Optional.ofNullable(trdOrder.getCreateBy()).orElse(0L));
+		orderResultBuilder.setCreateDate(Optional.ofNullable(trdOrder.getCreateDate()).orElse(0L));
+		orderResultBuilder.setGroupId(Optional.ofNullable(trdOrder.getGroupId()).orElse(0L));
+		orderResultBuilder.setOrderDate(Optional.ofNullable(trdOrder.getOrderDate()).orElse(0L));
+		orderResultBuilder.setOrderType(Optional.ofNullable(trdOrder.getOrderType()).orElse(0));
+		orderResultBuilder.setPayAmount(Optional.ofNullable(trdOrder.getPayAmount()).orElse(0L));
+		orderResultBuilder.setOrderStatus(Optional.ofNullable(trdOrder.getOrderStatus()).orElse(0));
+		orderResultBuilder.setPreOrderId(Optional.ofNullable(trdOrder.getPreOrderId()).orElse(0L));
+		orderResultBuilder.setUserId(Optional.ofNullable(trdOrder.getUserId()).orElse(0L));
+		orderResultBuilder.setUpdateDate(Optional.ofNullable(trdOrder.getUpdateDate()).orElse(0L));
+		orderResultBuilder.setBankCardNum(Optional.ofNullable(trdOrder.getBankCardNum()).orElse("-1"));
+		orderResultBuilder.setOrderId(Optional.ofNullable(trdOrder.getOrderId()).orElse("-1"));
+		orderResultBuilder.setPayFee(Optional.ofNullable(trdOrder.getPayFee()).orElse(0L));
+
+		OrderResult orderResult = orderResultBuilder.build();
+
+		logger.info("=====================================================");
+		logger.info("payAmount {}", orderResult.getPayAmount());
+
+		logger.info("=====================================================");
 		responseObserver.onNext(orderResult);
 		responseObserver.onCompleted();
 	}

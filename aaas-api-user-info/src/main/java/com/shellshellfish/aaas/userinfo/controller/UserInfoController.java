@@ -1,20 +1,43 @@
 package com.shellshellfish.aaas.userinfo.controller;
 
-import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
-import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.ServletRequestBindingException;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
-import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
 import com.shellshellfish.aaas.userinfo.aop.AopPageResources;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
-import com.shellshellfish.aaas.userinfo.model.dao.CoinFundYieldRate;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankcardDetailBodyDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
@@ -37,39 +60,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/userinfo")
@@ -1296,11 +1286,17 @@ public class UserInfoController {
 			resultMap.put("myCardTotalQty", 0);
 		}
 		//我的智投组合数量
-		List<ProductsDTO> productsList = userInfoService.findProductInfos(userUuid);
-		if(productsList==null||productsList.size()==0){
-			resultMap.put("myInvstTotalQty", 0);
+//		List<ProductsDTO> productsList = userInfoService.findProductInfos(userUuid);
+//		if(productsList==null||productsList.size()==0){
+//			resultMap.put("myInvstTotalQty", 0);
+//		} else {
+//			resultMap.put("myInvstTotalQty", productsList.size());
+//		}
+		List<Map<String, Object>> combinationsList = userInfoService.getMyCombinations(userUuid);
+		if (combinationsList != null && combinationsList.size() > 0) {
+			resultMap.put("myInvstTotalQty", combinationsList.size());
 		} else {
-			resultMap.put("myInvstTotalQty", productsList.size());
+			resultMap.put("myInvstTotalQty", 0);
 		}
 		//UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
 		// 总资产
@@ -1429,142 +1425,7 @@ public class UserInfoController {
 			) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
 		logger.info("getTradLogsOfUser method run..");
-		List<MongoUiTrdLogDTO> tradeLogList = userInfoService.getTradeLogs(userUuid);
-		List<Map<String,Object>> tradeLogs = new ArrayList<Map<String,Object>>();
-		if(tradeLogList==null||tradeLogList.size()==0){
-			throw new UserInfoException("404", "交易记录为空");
-		}
-		Map<String,Object> map = null;
-		MongoUiTrdLogDTO tradeLog = new MongoUiTrdLogDTO();
-		for(MongoUiTrdLogDTO mongoUiTrdLogDTO: tradeLogList){
-			map = new HashMap<String, Object>();
-			try{
-				map.put("operations", TrdOrderOpTypeEnum.getComment(mongoUiTrdLogDTO.getOperations()));
-				if(mongoUiTrdLogDTO.getOperations()==1){
-					map.put("operationsStatus", 1);
-				} else if(mongoUiTrdLogDTO.getOperations()==2){
-					map.put("operationsStatus", 2);
-				}else if(mongoUiTrdLogDTO.getOperations()==3||mongoUiTrdLogDTO.getOperations()==4){
-					map.put("operationsStatus", 3);
-				} else {
-					map.put("operationsStatus", 4);
-				}
-			}catch (Exception ex){
-				logger.error(ex.getMessage());
-				ex.printStackTrace();
-//				map.put("operations", "未知操作:" + mongoUiTrdLogDTO.getOperations());
-				continue;
-			}
-			try{
-				map.put("tradeStatus", TrdOrderStatusEnum.getComment(mongoUiTrdLogDTO.getTradeStatus()));
-			}catch (Exception ex){
-				logger.error(ex.getMessage());
-				ex.printStackTrace();
-//				map.put("tradeStatus", "未知状态:" + mongoUiTrdLogDTO.getTradeStatus());
-				continue;
-			}
-
-			if(mongoUiTrdLogDTO.getUserProdId()!=null&&mongoUiTrdLogDTO.getUserProdId()!=0){
-				ProductsDTO products = userInfoService.findByProdId(mongoUiTrdLogDTO.getUserProdId() + "");
-				logger.info("理财产品findByProdId查询end");
-				if (products == null) {
-					//throw new UserInfoException("404", "理财产品:" + tradeLog.getUserProdId() + "为空");
-					map.put("prodName", "");
-				} else {
-					map.put("prodName", products.getProdName());
-				}
-			} else {
-				map.put("prodName", "");
-			}
-			if(mongoUiTrdLogDTO.getFundCode()==null){
-				continue;
-			}
-			map.put("fundCode", mongoUiTrdLogDTO.getFundCode());
-			map.put("prodId", mongoUiTrdLogDTO.getUserProdId());
-//			String dateTime = TradeUtil.getReadableDateTime(mongoUiTrdLogDTO.getLastModifiedDate());
-//			map.put("date", dateTime);
-			long dateLong= mongoUiTrdLogDTO.getLastModifiedDate();
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			Date date = new Date(dateLong);
-			String dateTime = simpleDateFormat.format(date);
-			map.put("date", dateTime);
-			if(mongoUiTrdLogDTO.getAmount() != null ) {
-				map.put("amount", mongoUiTrdLogDTO.getAmount());
-			}else if(mongoUiTrdLogDTO.getTradeTargetSum() != null && mongoUiTrdLogDTO.getTradeStatus()
-					== TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus()){
-				map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdLogDTO.getTradeTargetSum
-						()));
-			}else if(mongoUiTrdLogDTO.getTradeConfirmShare() != null && mongoUiTrdLogDTO.getTradeStatus
-					() == TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus()){
-				map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdLogDTO
-						.getTradeTargetShare()));
-			}else if(mongoUiTrdLogDTO.getTradeConfirmShare() != null ){
-				map.put("amount", mongoUiTrdLogDTO.getTradeConfirmShare());
-			}else if(mongoUiTrdLogDTO.getTradeConfirmSum() != null){
-				map.put("amount", mongoUiTrdLogDTO.getTradeConfirmSum());
-			}else{
-				logger.error("there is no amount information for mondUiTrdLogDTO with userId:" + userUuid
-						+ " userProdId:" + mongoUiTrdLogDTO.getUserProdId());
-			}
-
-			tradeLogs.add(map);
-		}
-//
-//
-//		for (int i = 0; i < tradeLogList.size(); i++) {
-//			map = new HashMap<String, Object>();
-//			tradeLog = tradeLogList.get(i);
-//			map.put("amount", tradeLog.getAmount());
-//			int operations = tradeLog.getOperations();
-////			if (operations == 1) {
-////				map.put("operations", "购买");
-////			} else if (operations == 2) {
-////				map.put("operations", "赎回");
-////			} else if (operations == 3) {
-////				map.put("operations", "分红");
-////			} else {
-////				map.put("operations", "其他");
-////			}
-//			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
-//			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){
-//				if(operations == trdOrder3.getOperation()){
-//					map.put("operations", trdOrder3.getComment());
-//					break;
-//				} else {
-//					map.put("operations", "");
-//				}
-//			}
-//			// map.put("operations",tradeLog.getOperations());
-//			int tradeStatus = tradeLog.getTradeStatus();
-//			if (tradeStatus == 0) {
-//				map.put("tradeStatus", "确认中");
-//			} else if (tradeStatus == 1) {
-//				map.put("tradeStatus", "确认成功");
-//			} else {
-//				map.put("tradeStatus", "其他");
-//			}
-//			// map.put("tradeStatus",tradeLog.getTradeStatus());
-//			if (tradeLog.getTradeDate() != null) {
-//				map.put("tradeDate", DateUtil.getDateType(tradeLog.getLastModifiedDate()));
-//			} else {
-//				map.put("tradeDate", "");
-//			}
-//			// map.put("prodId",tradeLog.getProdId());
-//			logger.info("理财产品findByProdId查询start");
-//			if(tradeLog.getUserProdId()!=null&&tradeLog.getUserProdId()!=0){
-//				ProductsDTO products = userInfoService.findByProdId(tradeLog.getUserProdId() + "");
-//				logger.info("理财产品findByProdId查询end");
-//				if (products == null) {
-//					//throw new UserInfoException("404", "理财产品:" + tradeLog.getUserProdId() + "为空");
-//					map.put("prodName", "");
-//				} else {
-//					map.put("prodName", products.getProdName());
-//				}
-//			} else {
-//				map.put("prodName", "");
-//			}
-//			tradeLogs.add(map);
-//		}
+		List<Map<String,Object>> tradeLogs = userInfoService.getTradLogsOfUser(userUuid);
 		result.put("tradeLogs", tradeLogs);
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}

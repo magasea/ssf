@@ -6,5 +6,5 @@ package com.shellshellfish.aaas.common.constants;
 
 public class RedisConstants {
   public final static String TRADE_PAY_KEY = "trade_pay_key";
-
+  public final static String USERINFO_KEY = "userinfo_key";
 }
