@@ -5,6 +5,10 @@ import com.yihui.MATLAB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Author: yongquan.xiong
@@ -14,6 +18,8 @@ import org.slf4j.LoggerFactory;
 public class CalculateMaxdrawdowns {
 
     private static final Logger logger = LoggerFactory.getLogger(CalculateMaxdrawdowns.class);
+
+    private static final DecimalFormat decimalFormat = new DecimalFormat(".00000"); //保留 5 位
 
     /*
      * @Desc:计算最大回撤率
@@ -35,5 +41,35 @@ public class CalculateMaxdrawdowns {
             e.printStackTrace();
         }
         return maxdrawdownValue;
+    }
+
+    /**
+     * @author yongquan.xiong
+     * @Description: 计算最大回撤
+     * @date:   2018年1月22日
+     * @Param: data(list) 收益价格序列 （如 基金的复权单位净值 序列）
+     */
+    public static Double calculateMaxdrawdown(List<Double> data) {
+        int length = data.size();
+        List<Double> maxdraw = new ArrayList<Double>();
+        if (length > 1) {
+            for(int i = length - 1; i > 0; i--) {
+                if (i != 0) {
+                    if (data.get(i) <= 0) {
+                        logger.info("Data cannot have values <= 0");
+                        return null ;
+                    }
+                    Double maxValue = Collections.max(data.subList(0, i));
+                    Double temp = data.get(i) / maxValue - 1;
+                    maxdraw.add(temp);
+                }
+            }
+        } else {
+            logger.info("The length of data must > 1");
+            return null;
+        }
+        maxdraw.add(0.0);   //当数据都为非负数 时 添加 默认值 0.0
+
+        return  Double.parseDouble(decimalFormat.format(Collections.min(maxdraw)));   //保留 5 位
     }
 }

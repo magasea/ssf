@@ -19,7 +19,7 @@ public class DateUtil {
     public static final String DATE_FORMAT = "yyyy-MM-dd";
     public static final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
 
-    public static Date getDateFromFormatStr(String formatStr) {
+    public synchronized static Date getDateFromFormatStr(String formatStr) {
         try {
             return sdf.parse(formatStr);
         } catch (ParseException e) {
@@ -29,7 +29,7 @@ public class DateUtil {
         return null;
     }
 
-    public static String formatDate(Date date) {
+    public synchronized static String formatDate(Date date) {
         return sdf.format(date);
     }
 

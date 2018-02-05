@@ -222,6 +222,7 @@
           and navlatestdate &lt; #{endTime}
         </if>
         group by a.navlatestdate
+        order by navlatestdate asc
     </select>
 
     <select id="getNavadjBenchmark" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
@@ -231,6 +232,7 @@
           and navlatestdate &lt; #{endTime}
         </if>
         group by a.navlatestdate
+        order by navlatestdate asc
     </select>
 
     <insert id="insertGroupNavadj">
@@ -238,9 +240,23 @@
         VALUES (#{subGroupId},#{fund_group_id},#{num},#{time})
     </insert>
 
+    <insert id="batchInsertFundGroupHistory" parameterType="java.util.Map">
+        <foreach collection="list" item="item" separator=";">
+            insert into fund_group_history (fund_group_sub_id,fund_group_id,income_num,time)
+            VALUES (#{item.subGroupId},#{item.fundGroupId},#{item.incomeNum},#{item.time})
+        </foreach>
+    </insert>
+
     <insert id="insertGroupNavadjBenchmark">
         insert into fund_group_history (fund_group_id,income_num,time)
         VALUES (#{risk_level},#{num},#{time})
+    </insert>
+
+    <insert id="batchInsertFundGroupHistoryBenchmark">
+        <foreach collection="list" item="item" separator=";">
+            insert into fund_group_history (fund_group_id,income_num,time)
+            VALUES (#{item.risk_level},#{item.incomeNum},#{item.time})
+        </foreach>
     </insert>
 
     <update id="updateMaximumRetracement">
@@ -250,10 +266,31 @@
         and time = #{time}
     </update>
 
+    <update id="batchUpdateMaximumRetracement" parameterType="java.util.Map">
+        <!-- 接收list参数，循环组装sql语句，注意for循环的写法
+             separator=";" 代表着每次循环完，在sql后面放一个分号
+             item="item" 循环List的每条的结果集
+             collection="list" list 即为 map传过来的参数key -->
+        <foreach collection="list" separator=";" item="item">
+            update fund_group_history set maximum_retracement = #{item.retracement}
+            where fund_group_id = #{item.fund_group_id}
+            and fund_group_sub_id = #{item.subGroupId}
+            and time = #{item.time}
+        </foreach>
+    </update>
+
     <update id="updateMaximumRetracementByRiskLevel">
         update fund_group_history set maximum_retracement = #{retracement}
         where fund_group_id = #{risk_level}
         and time = #{time}
+    </update>
+
+    <update id="batchUpdateMaximumRetracementByRiskLevel" parameterType="java.util.Map">
+        <foreach collection="list" separator=";" item="item">
+            update fund_group_history set maximum_retracement = #{item.retracement}
+            where fund_group_id = #{item.risk_level}
+            and time = #{item.time}
+        </foreach>
     </update>
 
     <select id="getGroupStartTime" resultType="java.lang.String">
