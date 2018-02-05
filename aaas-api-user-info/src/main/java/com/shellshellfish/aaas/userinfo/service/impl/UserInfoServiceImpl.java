@@ -132,7 +132,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public List<BankCardDTO> getUserInfoBankCards(String userUuid) throws Exception {
+	public List<BankCardDTO> getUserInfoBankCards(String userUuid) {
 		Long userId = null;
 		try {
 			userId = getUserIdFromUUID(userUuid);
