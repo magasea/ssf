@@ -447,12 +447,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 				.getOrderDetails(products.getId(),
 						TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
-		List<OrderDetail> orderDetailWaitPay = rpcOrderService
-				.getOrderDetails(products.getId(),
-						TrdOrderStatusEnum.WAITPAY.getStatus());
 		//完全确认标志
 		boolean flag = false;
-		orderDetailPayWaitConfirm.addAll(orderDetailWaitPay);
 		if (CollectionUtils.isEmpty(orderDetailPayWaitConfirm)) {
 			flag = true;
 		}
@@ -493,10 +489,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 						TrdOrderOpTypeEnum.BUY.getOperation(),
 						TrdOrderStatusEnum.CONFIRMED.getStatus());
 
-		List<MongoUiTrdZZInfo> mongoUiTrdZZinfoWaitPay = mongoUiTrdZZInfoRepo
-				.findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(userId, prodId,
-						TrdOrderOpTypeEnum.BUY.getOperation(),
-						TrdOrderStatusEnum.WAITPAY.getStatus());
 		//已经确认部分金额
 		BigDecimal conifrmAsset = BigDecimal.ZERO;
 		BigDecimal confirmAssetOfEndDay = BigDecimal.ZERO;
@@ -533,7 +525,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		logger.info("\nuserProdId:{}  === asset {}\n", prodId, asset);
 
 		logger.info("\nuserProdId:{}  === confirmAsset {}\n", prodId, conifrmAsset);
-		// 累计收益=确认部分资产- 确认部分申购金额
+		// 累计收益=确认部分资产- 确认部分申购金额  (默认未完全确认  不能追加和赎回)
 		BigDecimal toltalIncome = assetOfEndDay.subtract(conifrmAsset);
 
 		// 累计收益率= 累计收益/申购金额
