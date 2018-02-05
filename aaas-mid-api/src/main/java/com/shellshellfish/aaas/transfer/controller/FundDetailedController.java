@@ -150,6 +150,70 @@ public class FundDetailedController {
 //				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 			}
 			
+			if (MonetaryFundEnum.containsCode(code)) {
+				if (result.get("yieldOf7DaysAndTenKiloUnitYield") != null) {
+					List<Map> yieldOf7DaysAndTenKiloUnitYieldList = (List<Map>) result
+							.get("yieldOf7DaysAndTenKiloUnitYield");
+					if (yieldOf7DaysAndTenKiloUnitYieldList != null && yieldOf7DaysAndTenKiloUnitYieldList.size() > 0) {
+						Map yieldOf7DaysAndTenKiloUnitYieldMap = yieldOf7DaysAndTenKiloUnitYieldList.get(yieldOf7DaysAndTenKiloUnitYieldList.size()-1);
+						yieldOf7DaysAndTenKiloUnitYieldList.remove(yieldOf7DaysAndTenKiloUnitYieldList.size()-1);
+						Map<String,Object> yieldOfTenKiloUnitYieldMaxMin = new HashMap<String,Object>();
+						Map<String,Object> yieldOf7DaysMaxMin = new HashMap<String,Object>();
+						if (yieldOf7DaysAndTenKiloUnitYieldMap.get("yieldOfTenKiloUnitYieldMin") != null) {
+							yieldOfTenKiloUnitYieldMaxMin.put("yieldOfTenKiloUnitYieldMin",
+									yieldOf7DaysAndTenKiloUnitYieldMap.get("yieldOfTenKiloUnitYieldMin"));
+							if (yieldOf7DaysAndTenKiloUnitYieldMap.get("yieldOfTenKiloUnitYieldMax") != null) {
+								yieldOfTenKiloUnitYieldMaxMin.put("yieldOfTenKiloUnitYieldMax",
+										yieldOf7DaysAndTenKiloUnitYieldMap.get("yieldOfTenKiloUnitYieldMax"));
+								result.put("yieldOfTenKiloUnitYieldMaxMin", yieldOfTenKiloUnitYieldMaxMin);
+							}
+						}
+
+						if (yieldOf7DaysAndTenKiloUnitYieldMap.get("yieldOf7DaysMax") != null) {
+							yieldOf7DaysMaxMin.put("yieldOf7DaysMax",
+									yieldOf7DaysAndTenKiloUnitYieldMap.get("yieldOf7DaysMax"));
+							if (yieldOf7DaysAndTenKiloUnitYieldMap.get("yieldOf7DaysMin") != null) {
+								yieldOf7DaysMaxMin.put("yieldOf7DaysMin",
+										yieldOf7DaysAndTenKiloUnitYieldMap.get("yieldOf7DaysMin"));
+								result.put("yieldOf7DaysMaxMin", yieldOf7DaysMaxMin);
+							}
+						}
+					}
+				}
+			} else {
+				if(result.get("baselinehistoryprofitlist")!=null){
+					List<Map> baselinehistoryprofitlist = (List<Map>) result.get("baselinehistoryprofitlist");
+					Map<String,Object> baselinehistoryprofitMaxMix = new HashMap();
+					if(baselinehistoryprofitlist!=null&&baselinehistoryprofitlist.size()>0){
+						List<Double> maxMinValueList = new ArrayList<Double>();
+						for(int i=0;i<baselinehistoryprofitlist.size();i++){
+							Map baselinehistoryprofitMap = baselinehistoryprofitlist.get(i);
+							String dayup = baselinehistoryprofitMap.get("dayup")+"";
+							dayup = dayup.replace("%", "");
+							maxMinValueList.add(Double.parseDouble(dayup));
+						}
+						baselinehistoryprofitMaxMix.put("maxValue", Collections.max(maxMinValueList));
+						baselinehistoryprofitMaxMix.put("minValue", Collections.min(maxMinValueList));
+						result.put("baselinehistoryprofitMaxMix", baselinehistoryprofitMaxMix);
+					}
+				}
+				if(result.get("historyprofitlist")!=null){
+					List<Map> historyprofitlist = (List<Map>) result.get("historyprofitlist");
+					Map<String,Object> historyprofitMaxMix = new HashMap();
+					if(historyprofitlist!=null&&historyprofitlist.size()>0){
+						List<Double> maxMinValueList = new ArrayList<Double>();
+						for(int i=0;i<historyprofitlist.size();i++){
+							Map historyprofitMap = historyprofitlist.get(i);
+							String profit = historyprofitMap.get("profit")+"";
+							maxMinValueList.add(Double.parseDouble(profit));
+						}
+						historyprofitMaxMix.put("maxValue", Collections.max(maxMinValueList));
+						historyprofitMaxMix.put("minValue", Collections.min(maxMinValueList));
+						result.put("historyprofitMaxMix", historyprofitMaxMix);
+					}
+				}
+			}
+			
 			if(result.get("basename")!=null){
 				String basename = result.get("basename") + "";
 				StringBuffer base = new StringBuffer();
