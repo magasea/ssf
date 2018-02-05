@@ -1,7 +1,6 @@
 package com.shellshellfish.aaas.assetallocation.neo.util;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 /**
  * Author: hongming
@@ -10,7 +9,14 @@ import java.util.concurrent.Executors;
  */
 public class ThreadPoolUtil {
 
-    private static ExecutorService pool = Executors.newFixedThreadPool(2);
+    private static ThreadPoolExecutor pool = new ThreadPoolExecutor(
+            15,
+            15,
+            0L,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(15),
+            Executors.defaultThreadFactory(),
+            new ThreadPoolExecutor.AbortPolicy());
 
     public static ExecutorService getThreadPool() {
         return pool;

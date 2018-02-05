@@ -85,11 +85,19 @@ public interface FundGroupMapper {
 
     int insertGroupNavadj(Map map);
 
+    int batchInsertFundGroupHistory(List<Map> mapList);
+
     int insertGroupNavadjBenchmark(Map map);
+
+    int batchInsertFundGroupHistoryBenchmark(List<Map> mapList);
 
     int updateMaximumRetracement(Map map);
 
+    int batchUpdateMaximumRetracement(List<Map> mapList);
+
     int updateMaximumRetracementByRiskLevel(Map map);
+
+    int batchUpdateMaximumRetracementByRiskLevel(List<Map> mapList);
 
     String getGroupStartTime(Map map);
 

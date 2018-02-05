@@ -20,7 +20,7 @@ public class MVO {
      * @param count 有效前沿线生成的点数
      * @return
      */
-    public static List<float [][]> efficientFrontier(Double [] ExpReturn, Double[][] ExpCovariance, int count, Double lb, Double ub) {
+    public synchronized static List<float [][]> efficientFrontier(Double [] ExpReturn, Double[][] ExpCovariance, int count, Double lb, Double ub) {
         Object[] resust = null;
         List<float [][]> list = new ArrayList<>();
         try{
@@ -56,7 +56,7 @@ public class MVO {
      * @param PortWts 权重
      * @return
      */
-    public static Object[] incomeAndRisk(Double [] ExpReturn,Double[][] ExpCovariance,Double [] PortWts){
+    public synchronized static Object[] incomeAndRisk(Double [] ExpReturn,Double[][] ExpCovariance,Double [] PortWts){
         Object[] resust = null;
         try{
             MATLAB ml = new MATLAB();
@@ -80,7 +80,7 @@ public class MVO {
      * @param cash 0.0013
      * @return
      */
-    public static Object sharpeRatio(Double[] asset, Double cash) {
+    public synchronized static Object sharpeRatio(Double[] asset, Double cash) {
         Object result = null;
         try {
             MATLAB ml = new MATLAB();
