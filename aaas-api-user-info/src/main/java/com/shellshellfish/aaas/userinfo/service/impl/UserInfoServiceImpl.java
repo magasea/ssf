@@ -842,7 +842,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				} else {
 					map.put("operationsStatus", 4);
 				}
-				map.put("tradeStatus", mongoUiTrdLogDTO.getTradeStatus());
+				map.put("tradeStatusValue", mongoUiTrdLogDTO.getTradeStatus());
 				map.put("prodId", prodId);
 				if (prodId != null && prodId != 0) {
 					ProductsDTO products = this.findByProdId(prodId + "");
@@ -908,29 +908,29 @@ public class UserInfoServiceImpl implements UserInfoService {
 						trad.put("amount", amountTotal);
 					}
 
-					if (trad.get("tradeStatus") != null) {
-						Integer operationsStatusOld = Integer.parseInt(trad.get("tradeStatus") + "");
-						Integer operationsStatusNew = Integer.parseInt(bakMap2.get("tradeStatus") + "");
+					if (trad.get("tradeStatusValue") != null) {
+						Integer operationsStatusOld = Integer.parseInt(trad.get("tradeStatusValue") + "");
+						Integer operationsStatusNew = Integer.parseInt(bakMap2.get("tradeStatusValue") + "");
 						if (operationsStatusOld != null) {
 							if (operationsStatusOld == TrdOrderStatusEnum.FAILED.getStatus()
 									|| operationsStatusNew == TrdOrderStatusEnum.FAILED.getStatus()) {
-								trad.put("tradeStatusComment", TrdOrderStatusEnum.FAILED.getComment());
+								trad.put("tradeStatus", TrdOrderStatusEnum.FAILED.getComment());
 							} else {
-								if (bakMap2.get("tradeStatus") != null) {
+								if (bakMap2.get("tradeStatusValue") != null) {
 									if (operationsStatusNew == TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus()) {
 										continue;
 									} else {
 										if (operationsStatusOld == TrdOrderStatusEnum.CONFIRMED.getStatus()
 												&& operationsStatusNew == TrdOrderStatusEnum.CONFIRMED.getStatus()) {
-											trad.put("tradeStatusComment", TrdOrderStatusEnum.CONFIRMED.getComment());
+											trad.put("tradeStatus", TrdOrderStatusEnum.CONFIRMED.getComment());
 										} else if (operationsStatusNew != TrdOrderStatusEnum.CONFIRMED.getStatus()
 												&& operationsStatusNew != TrdOrderStatusEnum.FAILED.getStatus()
 												&& operationsStatusNew != TrdOrderStatusEnum.CANCEL.getStatus()) {
-											trad.put("tradeStatus",TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
-											trad.put("tradeStatusComment", TrdOrderStatusEnum.PARTIALCONFIRMED.getComment());
+											trad.put("tradeStatusValue",TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
+											trad.put("tradeStatus", TrdOrderStatusEnum.PARTIALCONFIRMED.getComment());
 										} else {
-											trad.put("tradeStatus", TrdOrderStatusEnum.FAILED.getStatus());
-											trad.put("tradeStatusComment", TrdOrderStatusEnum.FAILED.getComment());
+											trad.put("tradeStatusValue", TrdOrderStatusEnum.FAILED.getStatus());
+											trad.put("tradeStatus", TrdOrderStatusEnum.FAILED.getComment());
 										}
 									}
 								} else {
