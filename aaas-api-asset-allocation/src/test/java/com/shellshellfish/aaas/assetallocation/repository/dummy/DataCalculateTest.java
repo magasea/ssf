@@ -101,7 +101,7 @@ public class DataCalculateTest {
     }
 
     @Test
-    public void test6() {
+    public void insertFundGroupDatasTest() {
         long start = System.currentTimeMillis();
         System.out.println("start: " + start);
 
@@ -115,10 +115,41 @@ public class DataCalculateTest {
 //        codeList.add("000696.OF");
 //        codeList.add("000248.OF");
 
-        codeList.add("000696.OF"); // 000696.OF	汇添富环保行业股票型证券投资基金	股票型基金	普通股票型基金
-        codeList.add("000395.OF"); // 000395.OF	汇添富安心中国债券型证券投资基金	债券型基金	长期纯债型基金
-        String strDay = "2018-01-31";
-        fundGroupDataService.insertFundGroupDatas(25, codeList, strDay);
+//        codeList.add("000366.OF");
+//        codeList.add("400009.OF");
+//        codeList.add("400016.OF");
+//        codeList.add("400020.OF");
+//        codeList.add("400023.OF");
+//        codeList.add("000149.OF");
+//        String strDay = "2018-01-31";
+//        fundGroupDataService.insertFundGroupDatas(1, codeList, strDay);
+
+//        codeList.add("400009.OF");
+//        codeList.add("400016.OF");
+//        codeList.add("400020.OF");
+//        codeList.add("400023.OF");
+//        codeList.add("000406.OF");
+//        codeList.add("000217.OF");
+//        codeList.add("000312.OF");
+//        String strDay = "2018-01-31";
+//        fundGroupDataService.insertFundGroupDatas(6, codeList, strDay);
+
+//        codeList.add("000366.OF");
+//        codeList.add("400009.OF");
+//        codeList.add("000406.OF");
+//        codeList.add("001495.OF");
+//        codeList.add("000312.OF");
+//        codeList.add("000614.OF");
+//        codeList.add("001541.OF");
+//        codeList.add("001694.OF");
+//        String strDay = "2018-01-31";
+//        fundGroupDataService.insertFundGroupDatas(9, codeList, strDay);
+
+//        codeList.add("000905.SH");
+//        codeList.add("000906.SH");
+//        codeList.add("H11001.CSI");
+//        String strDay = "2018-01-31";
+//        fundGroupDataService.insertFundGroupDatas(0, codeList, strDay);
 
         long end = System.currentTimeMillis();
         long elapse = end - start;
