@@ -401,7 +401,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Override
 	public Map<String, Object> getTotalAssets(String uuid) throws Exception {
 		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
-		List<ProductsDTO> productsList = this.findProductInfos(uuid);
+		List<Map<String, Object>> productsList = this.getMyCombinations(uuid);
 		if (productsList == null || productsList.size() == 0) {
 			logger.error("我的智投组合暂时不存在");
 			return new HashMap<String, Object>();
@@ -410,21 +410,22 @@ public class UserInfoServiceImpl implements UserInfoService {
 		BigDecimal asserts = new BigDecimal(0);
 		BigDecimal dailyIncome = new BigDecimal(0);
 		BigDecimal totalIncome = new BigDecimal(0);
-		for (int i = 0; i < productsList.size(); i++) {
-			ProductsDTO products = productsList.get(i);
-			PortfolioInfo portfolioInfo = this
-					.getChicombinationAssets(uuid, getUserIdFromUUID(uuid), products);
-			asserts = asserts
-					.add(Optional.ofNullable(portfolioInfo.getTotalAssets()).orElse(BigDecimal.ZERO)
-							.setScale(2, RoundingMode.HALF_UP));
-
-			dailyIncome = dailyIncome
-					.add(Optional.ofNullable(portfolioInfo.getDailyIncome()).orElse(BigDecimal.ZERO)
-							.setScale(2, RoundingMode.HALF_UP));
-
-			totalIncome = totalIncome
-					.add(Optional.ofNullable(portfolioInfo.getTotalIncome()).orElse(BigDecimal.ZERO)
-							.setScale(2, RoundingMode.HALF_UP));
+		if (productsList != null && productsList.size() > 0) {
+			for (int i = 0; i < productsList.size(); i++) {
+				Map<String, Object> products = productsList.get(i);
+				if (products.get("totalAssets") != null) {
+					asserts = asserts.add(new BigDecimal(products.get("totalAssets") + "")).setScale(2,
+							RoundingMode.HALF_UP);
+				}
+				if (products.get("dailyIncome") != null) {
+					dailyIncome = dailyIncome.add(new BigDecimal(products.get("dailyIncome") + "")).setScale(2,
+							RoundingMode.HALF_UP);
+				}
+				if (products.get("totalIncome") != null) {
+					totalIncome = totalIncome.add(new BigDecimal(products.get("totalIncome") + "")).setScale(2,
+							RoundingMode.HALF_UP);
+				}
+			}
 		}
 		resultMap.put("assert", asserts.setScale(2, RoundingMode.HALF_UP));
 		resultMap.put("dailyIncome", dailyIncome.setScale(2, BigDecimal.ROUND_HALF_UP));
