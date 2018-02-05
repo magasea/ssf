@@ -443,14 +443,17 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Override
 	public PortfolioInfo getChicombinationAssets(String uuid, Long userId, ProductsDTO products) {
 
-		List<OrderDetail> orderDetailList = rpcOrderService
+		List<OrderDetail> orderDetailPayWaitConfirm = rpcOrderService
 				.getOrderDetails(products.getId(),
 						TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
+		List<OrderDetail> orderDetailWaitPay = rpcOrderService
+				.getOrderDetails(products.getId(),
+						TrdOrderStatusEnum.WAITPAY.getStatus());
 		//完全确认标志
 		boolean flag = false;
-
-		if (CollectionUtils.isEmpty(orderDetailList)) {
+		orderDetailPayWaitConfirm.addAll(orderDetailWaitPay);
+		if (CollectionUtils.isEmpty(orderDetailPayWaitConfirm)) {
 			flag = true;
 		}
 
@@ -490,6 +493,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 						TrdOrderOpTypeEnum.BUY.getOperation(),
 						TrdOrderStatusEnum.CONFIRMED.getStatus());
 
+		List<MongoUiTrdZZInfo> mongoUiTrdZZinfoWaitPay = mongoUiTrdZZInfoRepo
+				.findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(userId, prodId,
+						TrdOrderOpTypeEnum.BUY.getOperation(),
+						TrdOrderStatusEnum.WAITPAY.getStatus());
 		//已经确认部分金额
 		BigDecimal conifrmAsset = BigDecimal.ZERO;
 		BigDecimal confirmAssetOfEndDay = BigDecimal.ZERO;

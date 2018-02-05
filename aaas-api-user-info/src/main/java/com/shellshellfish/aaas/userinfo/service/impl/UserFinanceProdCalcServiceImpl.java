@@ -180,21 +180,21 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 	private BigDecimal calcDailyAsset2(String userUuid, Long prodId, Long userProdId, String fundCode,
 			String date, UiProductDetail uiProductDetail) throws Exception {
 
-		List<OrderDetail> orderDetailList = rpcOrderService
-				.getOrderDetails(userProdId,
-						TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
+		List<OrderDetail> orderDetailListPayWatiConfirm = rpcOrderService
+				.getOrderDetails(userProdId, TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
-		for (OrderDetail orderDetail : orderDetailList) {
+		List<OrderDetail> orderDetailListWaitPay = rpcOrderService
+				.getOrderDetails(userProdId, TrdOrderStatusEnum.WAITPAY.getStatus());
+
+		orderDetailListPayWatiConfirm.addAll(orderDetailListWaitPay);
+
+		for (OrderDetail orderDetail : orderDetailListPayWatiConfirm) {
 			if (fundCode.equals(orderDetail.getFundCode())) {
 				return BigDecimal.ZERO;
 			}
 		}
 		Optional<Integer> fundQuantityOptional = Optional.ofNullable(uiProductDetail.getFundQuantity());
 		BigDecimal share = new BigDecimal(fundQuantityOptional.orElse(0));
-
-		if (BigDecimal.ZERO.equals(share)) {
-			return BigDecimal.ZERO;
-		}
 		share = share.divide(new BigDecimal(100));
 
 		LocalDate localDate = InstantDateUtil.format(date, "yyyyMMdd");
@@ -224,7 +224,14 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 			netValue = fundYieldRate.getUnitNav();
 		}
 
-		BigDecimal rateOfSellFund = fundTradeApiService.getRate(fundCode, "024");
+		BigDecimal rateOfSellFund;
+
+		//货币即基金赎回费率为零
+		if (MonetaryFundEnum.containsCode(fundCode)) {
+			rateOfSellFund = BigDecimal.ZERO;
+		} else {
+			rateOfSellFund = fundTradeApiService.getRate(fundCode, "024");
+		}
 
 		BigDecimal fundAsset = share.multiply(netValue)
 				.multiply(BigDecimal.ONE.subtract(rateOfSellFund));
@@ -376,13 +383,13 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 		//FIXME 此处缺少分红
 
-		MongoUiTrdZZInfo mongoUiTrdZZInfoBuy = mongoUiTrdZZInfoRepo
-				.findFirstByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
+		List<MongoUiTrdZZInfo> mongoUiTrdZZInfoBuy = mongoUiTrdZZInfoRepo
+				.findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
 						fundCode, TrdOrderOpTypeEnum.BUY.getOperation(),
 						TrdOrderStatusEnum.CONFIRMED.getStatus(), startDate);
 
-		MongoUiTrdZZInfo mongoUiTrdZZInfoSell = mongoUiTrdZZInfoRepo
-				.findFirstByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
+		List<MongoUiTrdZZInfo> mongoUiTrdZZInfoSell = mongoUiTrdZZInfoRepo
+				.findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
 						fundCode, TrdOrderOpTypeEnum.REDEEM.getOperation(),
 						TrdOrderStatusEnum.CONFIRMED.getStatus(), startDate);
 
@@ -395,17 +402,23 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 		Update update = new Update();
 
-		Optional<MongoUiTrdZZInfo> buy = Optional.ofNullable(mongoUiTrdZZInfoBuy);
-		Optional<MongoUiTrdZZInfo> sell = Optional.ofNullable(mongoUiTrdZZInfoSell);
+		BigDecimal buyAmount = BigDecimal.ZERO;
+		BigDecimal sellAmount = BigDecimal.ZERO;
 
-		update
-				.set("buyAmount",
-						buy.map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeTargetSum()))
-								.orElse(BigDecimal.ZERO));
+		for (MongoUiTrdZZInfo buy : mongoUiTrdZZInfoBuy) {
+			buyAmount = buyAmount.add(Optional.ofNullable(buy)
+					.map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeTargetSum()))
+					.orElse(BigDecimal.ZERO));
+		}
 
-		update.set("sellAmount",
-				sell.map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeTargetSum()))
-						.orElse(BigDecimal.ZERO));
+		for (MongoUiTrdZZInfo sell : mongoUiTrdZZInfoSell) {
+			sellAmount = sellAmount.add(Optional.ofNullable(sell)
+					.map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeTargetSum()))
+					.orElse(BigDecimal.ZERO));
+		}
+
+		update.set("buyAmount", buyAmount);
+		update.set("sellAmount", sellAmount);
 
 		DailyAmount dailyAmount = zhongZhengMongoTemplate
 				.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
