@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.userinfo.service.impl;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import com.shellshellfish.aaas.common.enums.UiTrdLogStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
@@ -844,6 +845,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}
 				map.put("tradeStatusValue", mongoUiTrdLogDTO.getTradeStatus());
 				map.put("prodId", prodId);
+				if (mongoUiTrdLogDTO.getTradeStatus() == -1) {
+					logger.error("mongoUiTrdLogDTO.getTradeStatus()为-1，prodId：" + prodId + "--UserId:"
+							+ mongoUiTrdLogDTO.getUserId());
+				}
 				if (prodId != null && prodId != 0) {
 					ProductsDTO products = this.findByProdId(prodId + "");
 					logger.info("理财产品findByProdId查询end");
@@ -914,27 +919,18 @@ public class UserInfoServiceImpl implements UserInfoService {
 						if (operationsStatusOld != null) {
 							if (operationsStatusOld == TrdOrderStatusEnum.FAILED.getStatus()
 									|| operationsStatusNew == TrdOrderStatusEnum.FAILED.getStatus()) {
-								trad.put("tradeStatus", TrdOrderStatusEnum.FAILED.getComment());
+								trad.put("tradeStatusValue", TrdOrderStatusEnum.FAILED.getStatus());
+								trad.put("tradeStatus", UiTrdLogStatusEnum.CONFIRMEDFAILED.getComment());
 							} else {
 								if (bakMap2.get("tradeStatusValue") != null) {
-									if (operationsStatusNew == TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus()) {
-										continue;
-									} else {
-										if (operationsStatusOld == TrdOrderStatusEnum.CONFIRMED.getStatus()
-												&& operationsStatusNew == TrdOrderStatusEnum.CONFIRMED.getStatus()) {
-											trad.put("tradeStatus", TrdOrderStatusEnum.CONFIRMED.getComment());
-										} else if (operationsStatusNew != TrdOrderStatusEnum.CONFIRMED.getStatus()
-												&& operationsStatusNew != TrdOrderStatusEnum.FAILED.getStatus()
-												&& operationsStatusNew != TrdOrderStatusEnum.CANCEL.getStatus()) {
-											trad.put("tradeStatusValue",TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
-											trad.put("tradeStatus", TrdOrderStatusEnum.PARTIALCONFIRMED.getComment());
-										} else {
-											trad.put("tradeStatusValue", TrdOrderStatusEnum.FAILED.getStatus());
-											trad.put("tradeStatus", TrdOrderStatusEnum.FAILED.getComment());
-										}
+									if (operationsStatusOld == TrdOrderStatusEnum.CONFIRMED.getStatus()
+											&& operationsStatusNew == TrdOrderStatusEnum.CONFIRMED.getStatus()) {
+										trad.put("tradeStatusValue", TrdOrderStatusEnum.CONFIRMED.getStatus());
+										trad.put("tradeStatus", UiTrdLogStatusEnum.CONFIRMED.getComment());
+									} else{
+										trad.put("tradeStatusValue", TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
+										trad.put("tradeStatus", UiTrdLogStatusEnum.WAITCONFIRM.getComment());
 									}
-								} else {
-									continue;
 								}
 							}
 						}

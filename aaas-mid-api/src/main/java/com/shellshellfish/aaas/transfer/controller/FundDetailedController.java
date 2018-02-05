@@ -149,48 +149,7 @@ public class FundDetailedController {
 				return new JsonResult(JsonResult.Fail, "获取失败", JsonResult.EMPTYRESULT);
 //				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 			}
-			if (MonetaryFundEnum.containsCode(code)) {
-				if(StringUtils.isEmpty(date)){
-					url = userinfoUrl + "/api/userinfo/funds/" + code+ "?type=" + type;
-				} else {
-					url = userinfoUrl + "/api/userinfo/funds/" + code+ "?type=" + type + "&date=" + date;
-				}
-				Map<String, Object> userInfoResult = new HashMap<String, Object>();
-				userInfoResult = restTemplate.getForEntity(url, Map.class).getBody();
-				
-				result.put("historyprofitlist", userInfoResult.get("result"));
-			}
-			if(result.get("baselinehistoryprofitlist")!=null){
-				List<Map> baselinehistoryprofitlist = (List<Map>) result.get("baselinehistoryprofitlist");
-				Map<String,Object> baselinehistoryprofitMaxMix = new HashMap();
-				if(baselinehistoryprofitlist!=null&&baselinehistoryprofitlist.size()>0){
-					List<Double> maxMinValueList = new ArrayList<Double>();
-					for(int i=0;i<baselinehistoryprofitlist.size();i++){
-						Map baselinehistoryprofitMap = baselinehistoryprofitlist.get(i);
-						String dayup = baselinehistoryprofitMap.get("dayup")+"";
-						dayup = dayup.replace("%", "");
-						maxMinValueList.add(Double.parseDouble(dayup));
-					}
-					baselinehistoryprofitMaxMix.put("maxValue", Collections.max(maxMinValueList));
-					baselinehistoryprofitMaxMix.put("minValue", Collections.min(maxMinValueList));
-					result.put("baselinehistoryprofitMaxMix", baselinehistoryprofitMaxMix);
-				}
-			}
-			if(result.get("historyprofitlist")!=null){
-				List<Map> historyprofitlist = (List<Map>) result.get("historyprofitlist");
-				Map<String,Object> historyprofitMaxMix = new HashMap();
-				if(historyprofitlist!=null&&historyprofitlist.size()>0){
-					List<Double> maxMinValueList = new ArrayList<Double>();
-					for(int i=0;i<historyprofitlist.size();i++){
-						Map historyprofitMap = historyprofitlist.get(i);
-						String profit = historyprofitMap.get("profit")+"";
-						maxMinValueList.add(Double.parseDouble(profit));
-					}
-					historyprofitMaxMix.put("maxValue", Collections.max(maxMinValueList));
-					historyprofitMaxMix.put("minValue", Collections.min(maxMinValueList));
-					result.put("historyprofitMaxMix", historyprofitMaxMix);
-				}
-			}
+			
 			if(result.get("basename")!=null){
 				String basename = result.get("basename") + "";
 				StringBuffer base = new StringBuffer();
