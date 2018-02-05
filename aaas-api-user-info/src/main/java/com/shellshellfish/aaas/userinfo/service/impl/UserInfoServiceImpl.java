@@ -46,11 +46,15 @@ import io.grpc.ManagedChannel;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -397,7 +401,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Override
 	public Map<String, Object> getTotalAssets(String uuid) throws Exception {
 		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
-		List<ProductsDTO> productsList = this.findProductInfos(uuid);
+		List<Map<String, Object>> productsList = this.getMyCombinations(uuid);
 		if (productsList == null || productsList.size() == 0) {
 			logger.error("我的智投组合暂时不存在");
 			return new HashMap<String, Object>();
@@ -406,21 +410,22 @@ public class UserInfoServiceImpl implements UserInfoService {
 		BigDecimal asserts = new BigDecimal(0);
 		BigDecimal dailyIncome = new BigDecimal(0);
 		BigDecimal totalIncome = new BigDecimal(0);
-		for (int i = 0; i < productsList.size(); i++) {
-			ProductsDTO products = productsList.get(i);
-			PortfolioInfo portfolioInfo = this
-					.getChicombinationAssets(uuid, getUserIdFromUUID(uuid), products);
-			asserts = asserts
-					.add(Optional.ofNullable(portfolioInfo.getTotalAssets()).orElse(BigDecimal.ZERO)
-							.setScale(2, RoundingMode.HALF_UP));
-
-			dailyIncome = dailyIncome
-					.add(Optional.ofNullable(portfolioInfo.getDailyIncome()).orElse(BigDecimal.ZERO)
-							.setScale(2, RoundingMode.HALF_UP));
-
-			totalIncome = totalIncome
-					.add(Optional.ofNullable(portfolioInfo.getTotalIncome()).orElse(BigDecimal.ZERO)
-							.setScale(2, RoundingMode.HALF_UP));
+		if (productsList != null && productsList.size() > 0) {
+			for (int i = 0; i < productsList.size(); i++) {
+				Map<String, Object> products = productsList.get(i);
+				if (products.get("totalAssets") != null) {
+					asserts = asserts.add(new BigDecimal(products.get("totalAssets") + "")).setScale(2,
+							RoundingMode.HALF_UP);
+				}
+				if (products.get("dailyIncome") != null) {
+					dailyIncome = dailyIncome.add(new BigDecimal(products.get("dailyIncome") + "")).setScale(2,
+							RoundingMode.HALF_UP);
+				}
+				if (products.get("totalIncome") != null) {
+					totalIncome = totalIncome.add(new BigDecimal(products.get("totalIncome") + "")).setScale(2,
+							RoundingMode.HALF_UP);
+				}
+			}
 		}
 		resultMap.put("assert", asserts.setScale(2, RoundingMode.HALF_UP));
 		resultMap.put("dailyIncome", dailyIncome.setScale(2, BigDecimal.ROUND_HALF_UP));
@@ -786,5 +791,171 @@ public class UserInfoServiceImpl implements UserInfoService {
 			result.put("status", product.getStatus());
 		}
 		return result;
+	}
+
+	@Override
+	public List<Map<String, Object>> getTradLogsOfUser(String userUuid) throws Exception {
+	  List<MongoUiTrdLogDTO> tradeLogList = this.getTradeLogs(userUuid);
+		List<Map<String,Object>> tradeLogs = new ArrayList<Map<String,Object>>();
+		if(tradeLogList==null||tradeLogList.size()==0){
+			throw new UserInfoException("404", "交易记录为空");
+		}
+		Map<Long,Map<String,Object>> bakMap = new HashMap<Long,Map<String,Object>>();
+		Map<String,Map<String,Object>> tradLogsMap = new HashMap<String,Map<String,Object>>();
+		Map<String,Map<String,Object>> tradLogsMap2 = new HashMap<String,Map<String,Object>>();
+		// 获取最新一天的单个基金的信息
+		for (MongoUiTrdLogDTO mongoUiTrdLogDTO : tradeLogList) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			try {
+				Long prodId = mongoUiTrdLogDTO.getUserProdId();
+				if (mongoUiTrdLogDTO.getFundCode() == null) {
+					continue;
+				}
+				String fundCode = mongoUiTrdLogDTO.getFundCode();
+				long dateLong = mongoUiTrdLogDTO.getLastModifiedDate();
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				Date date = new Date(dateLong);
+				String dateTime = simpleDateFormat.format(date);
+				map.put("date", dateTime);
+				dateLong = dateLong / 1000;
+				map.put("dateLong", dateLong);
+				String key = prodId + "-" + fundCode;
+				if (tradLogsMap.containsKey(key)) {
+					if (tradLogsMap.get(key) != null) {
+						Map<String, Object> map2 = tradLogsMap.get(key);
+						if (map2.get("dateLong") != null) {
+							long dateLongold = (long) map2.get("dateLong");
+							if (dateLong < dateLongold) {
+								continue;
+							}
+						}
+					}
+				}
+				map.put("operations", TrdOrderOpTypeEnum.getComment(mongoUiTrdLogDTO.getOperations()));
+				if (mongoUiTrdLogDTO.getOperations() == 1) {
+					map.put("operationsStatus", 1);
+				} else if (mongoUiTrdLogDTO.getOperations() == 2) {
+					map.put("operationsStatus", 2);
+				} else if (mongoUiTrdLogDTO.getOperations() == 3
+						|| mongoUiTrdLogDTO.getOperations() == 4) {
+					map.put("operationsStatus", 3);
+				} else {
+					map.put("operationsStatus", 4);
+				}
+				map.put("tradeStatus", mongoUiTrdLogDTO.getTradeStatus());
+				map.put("prodId", prodId);
+				if (prodId != null && prodId != 0) {
+					ProductsDTO products = this.findByProdId(prodId + "");
+					logger.info("理财产品findByProdId查询end");
+					if (products == null) {
+						map.put("prodName", "");
+					} else {
+						map.put("prodName", products.getProdName());
+					}
+				} else {
+					map.put("prodName", "");
+				}
+				if (mongoUiTrdLogDTO.getAmount() != null) {
+					map.put("amount", mongoUiTrdLogDTO.getAmount());
+				} else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
+						&& mongoUiTrdLogDTO
+								.getTradeStatus() == TrdOrderStatusEnum.PAYWAITCONFIRM
+										.getStatus()) {
+					map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(
+							mongoUiTrdLogDTO.getTradeTargetSum()));
+				} else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
+						&& mongoUiTrdLogDTO
+								.getTradeStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM
+										.getStatus()) {
+					map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(
+							mongoUiTrdLogDTO.getTradeTargetShare()));
+				} else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null) {
+					map.put("amount", new BigDecimal(
+							mongoUiTrdLogDTO.getTradeConfirmShare()));
+				} else if (mongoUiTrdLogDTO.getTradeConfirmSum() != null) {
+					map.put("amount", new BigDecimal(
+							mongoUiTrdLogDTO.getTradeConfirmSum()));
+				} else {
+					logger.error(
+							"there is no amount information for mondUiTrdLogDTO with userId:"
+									+ userUuid + " userProdId:"
+									+ mongoUiTrdLogDTO.getUserProdId());
+				}
+				tradLogsMap.put(key, map);
+			} catch (Exception ex) {
+				logger.error(ex.getMessage());
+				ex.printStackTrace();
+				continue;
+			}
+			// tradeLogs.add(map);
+		}
+		
+		if (tradLogsMap != null && tradLogsMap.size() > 0) {
+			for (String key : tradLogsMap.keySet()) {
+				String[] params = key.split("-");
+				String prodId = params[0];
+				// String fundCode = params[1];
+				Map<String, Object> bakMap2 = tradLogsMap.get(key);
+				if (!tradLogsMap2.containsKey(prodId)) {
+					tradLogsMap2.put(prodId, bakMap2);
+				} else {
+					Map<String, Object> trad = tradLogsMap2.get(prodId);
+					if (trad.get("amount") != null) {
+						BigDecimal amountTotal = new BigDecimal(trad.get("amount") + "");
+						if (bakMap2.get("amount") != null) {
+							amountTotal = amountTotal.add(new BigDecimal(bakMap2.get("amount") + ""));
+						}
+						trad.put("amount", amountTotal);
+					}
+
+					if (trad.get("tradeStatus") != null) {
+						Integer operationsStatusOld = Integer.parseInt(trad.get("tradeStatus") + "");
+						Integer operationsStatusNew = Integer.parseInt(bakMap2.get("tradeStatus") + "");
+						if (operationsStatusOld != null) {
+							if (operationsStatusOld == TrdOrderStatusEnum.FAILED.getStatus()
+									|| operationsStatusNew == TrdOrderStatusEnum.FAILED.getStatus()) {
+								trad.put("tradeStatusComment", TrdOrderStatusEnum.FAILED.getComment());
+							} else {
+								if (bakMap2.get("tradeStatus") != null) {
+									if (operationsStatusNew == TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus()) {
+										continue;
+									} else {
+										if (operationsStatusOld == TrdOrderStatusEnum.CONFIRMED.getStatus()
+												&& operationsStatusNew == TrdOrderStatusEnum.CONFIRMED.getStatus()) {
+											trad.put("tradeStatusComment", TrdOrderStatusEnum.CONFIRMED.getComment());
+										} else if (operationsStatusNew != TrdOrderStatusEnum.CONFIRMED.getStatus()
+												&& operationsStatusNew != TrdOrderStatusEnum.FAILED.getStatus()
+												&& operationsStatusNew != TrdOrderStatusEnum.CANCEL.getStatus()) {
+											trad.put("tradeStatus",TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
+											trad.put("tradeStatusComment", TrdOrderStatusEnum.PARTIALCONFIRMED.getComment());
+										} else {
+											trad.put("tradeStatus", TrdOrderStatusEnum.FAILED.getStatus());
+											trad.put("tradeStatusComment", TrdOrderStatusEnum.FAILED.getComment());
+										}
+									}
+								} else {
+									continue;
+								}
+							}
+						}
+					}
+				}
+			}
+			if (tradLogsMap2 != null && tradLogsMap2.size() > 0) {
+				for (String key2 : tradLogsMap2.keySet()) {
+					Map<String, Object> mapThree = tradLogsMap2.get(key2);
+					tradeLogs.add(mapThree);
+				}
+			}
+		}
+		Collections.sort(tradeLogs, new Comparator<Map<String, Object>>() {
+			public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+				Long map1value = (Long) o1.get("dateLong");
+				Long map2value = (Long) o2.get("dateLong");
+				return map2value.compareTo(map1value);
+			}
+		});
+		
+		return tradeLogs;
 	}
 }
