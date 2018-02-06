@@ -7,9 +7,27 @@ import java.io.Serializable;
  */
 
 public class WorkDayRedis implements Serializable{
+  String fundCode;
+  String queryDay;
   String workDay;
   Long create_date;
   Long update_date;
+
+  public String getFundCode() {
+    return fundCode;
+  }
+
+  public void setFundCode(String fundCode) {
+    this.fundCode = fundCode;
+  }
+
+  public String getQueryDay() {
+    return queryDay;
+  }
+
+  public void setQueryDay(String queryDay) {
+    this.queryDay = queryDay;
+  }
 
   public String getWorkDay() {
     return workDay;

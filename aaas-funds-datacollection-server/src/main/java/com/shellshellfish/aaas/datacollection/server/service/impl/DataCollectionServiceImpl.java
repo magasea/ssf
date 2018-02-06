@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.datacollection.server.service.impl;
 
 import com.shellshellfish.aaas.common.utils.DataCollectorUtil;
 import com.shellshellfish.aaas.common.utils.MathUtil;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.SSFDateUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.datacollect.DailyFunds.Builder;
@@ -120,30 +121,141 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
 		List<String> codes = request.getCodesList();
 		List<DailyFunds> dailyFundsList = new ArrayList<>();
 		List<DailyFunds> partialFundsList = null;
+		List<CoinFunds> coinFundsList = new ArrayList<>();
+		List<CoinFunds> partialCoinFundsList = new ArrayList<>();
 		List<String> baseIndexs = new ArrayList<>();
+		boolean codeIsNormalFund = false;
+		boolean codeIsCoinFund = false;
+		boolean codeIsBase = false;
 		for (String code : codes) {
 			try {
+				codeIsNormalFund = false;
+				codeIsCoinFund = false;
 
-				Query query = new Query();
+				Query	query = new Query();
+				query.addCriteria(Criteria.where("code").is(code).andOperator(Criteria.where
+								("querydate").gt(DateUtil.getDateLongVal(navLatestDateStart) / 1000),
+						Criteria.where("querydate").lte(DateUtil.getDateLongVal(navLatestDateEnd) / 1000)));
+				partialCoinFundsList = mongoTemplate.find(query, CoinFunds.class, "coinfund_yieldrate");
+				coinFundsList.addAll(partialCoinFundsList);
+				if(!CollectionUtils.isEmpty(partialCoinFundsList)){
+					codeIsCoinFund = true;
+				}
+				query = new Query();
 				query.addCriteria(Criteria.where("code").is(code).andOperator(
-						Criteria.where("navlatestdate").gt(DateUtil.getDateLongVal
+						Criteria.where("querydate").gt(DateUtil.getDateLongVal
 								(navLatestDateStart) / 1000),
-						Criteria.where("navlatestdate").lte(DateUtil.getDateLongVal
+						Criteria.where("querydate").lte(DateUtil.getDateLongVal
 								(navLatestDateEnd) / 1000)));
 				partialFundsList = mongoTemplate.find(query, DailyFunds.class, "fund_yieldrate");
+				if (!CollectionUtils.isEmpty(partialFundsList)) {
+					codeIsNormalFund = true;
+					dailyFundsList.addAll(partialFundsList);
+				}
+
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
-			if (!CollectionUtils.isEmpty(partialFundsList)) {
-				//it is normal funds
-				dailyFundsList.addAll(partialFundsList);
-			} else {
-				//it is baseIdx code
-				baseIndexs.add(code);
+			if (!codeIsCoinFund && !codeIsNormalFund) {
+				if(code.contains(".")){
+					logger.error("haven't find corresponding information for :"+ code + " in fund_yieldrate");
+				}else{
+					baseIndexs.add(code);
+				}
 			}
 		}
 
+
+
 		List<com.shellshellfish.aaas.datacollect.DailyFunds> dailyFundsListProto = new ArrayList<>();
+
+		addNormalFundsToDailyFunds(dailyFundsListProto, dailyFundsList);
+		addCoinFundsToDailyFunds(dailyFundsListProto, coinFundsList);
+		//check if the codes is of base codes
+		List<Map> fundbasecloses = null;
+		List<Map> fundbaseclosesAll = new ArrayList<>();
+		if (!CollectionUtils.isEmpty(baseIndexs)) {
+			for (String code : baseIndexs) {
+				try {
+					Query query = new Query();
+//      String dateStart = DateUtil.getDateStrFromLong(Long.parseLong(navLatestDateStart));
+//      String dateEnd = DateUtil.getDateStrFromLong(Long.parseLong(navLatestDateEnd));
+					query.addCriteria(Criteria.where
+							("querydate").gt((DateUtil.getDateLongVal(navLatestDateStart) / 1000)).andOperator
+							(Criteria.where("querydate").lte(DateUtil.getDateLongVal(navLatestDateEnd) / 1000)));
+					fundbasecloses = mongoTemplate.find(query, Map.class, "fundbaseclose");
+					if (!CollectionUtils.isEmpty(fundbasecloses)) {
+						fundbaseclosesAll.addAll(fundbasecloses);
+					}
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					logger.error("failed to convert date str to long date");
+				}
+			}
+
+
+			if (CollectionUtils.isEmpty(fundbaseclosesAll)) {
+				logger.error("cannot find baseIdx for dateStart:" + navLatestDateStart + " dateEnd:" + navLatestDateEnd);
+			} else {
+				Builder builderDailyFunds = com.shellshellfish.aaas.datacollect.DailyFunds.newBuilder();
+				builderDailyFunds.clear();
+				Set checkCodesSet = new HashSet();
+				checkCodesSet.addAll(baseIndexs);
+				Double nvadj = null;
+				for (Map<String, Object> fundBaseClose : fundbaseclosesAll) {
+					for(String code: baseIndexs){
+						builderDailyFunds.setCode(code);
+						nvadj = (Double) fundBaseClose.get(code);
+						builderDailyFunds.setNavadj(nvadj);
+						builderDailyFunds.setNavLatestDate((Long)fundBaseClose.get("querydate"));
+						dailyFundsListProto.add(builderDailyFunds.build());
+						builderDailyFunds.clear();
+					}
+				}
+			}
+		}
+		final DailyFundsCollection.Builder builder = DailyFundsCollection.newBuilder()
+				.addAllDailyFunds(dailyFundsListProto);
+		responseObserver.onNext(builder.build());
+		responseObserver.onCompleted();
+	}
+
+	private void addCoinFundsToDailyFunds(
+			List<com.shellshellfish.aaas.datacollect.DailyFunds> dailyFundsListProto,
+			List<CoinFunds> coinFundsList) {
+		Builder builderDailyFunds = com.shellshellfish.aaas.datacollect.DailyFunds.newBuilder();
+		for (CoinFunds coinFunds : coinFundsList) {
+			MyBeanUtils.mapEntityIntoDTO(coinFunds, builderDailyFunds);
+			builderDailyFunds.setNavadj(coinFunds.getNavAdj());
+			builderDailyFunds.setCode(coinFunds.getCode());
+			builderDailyFunds.setYieldOf7Days(coinFunds.getUnitYieldOf10K());
+			builderDailyFunds.setMillionRevenue(coinFunds.getUnitYieldOf10K());
+			Query query = new Query();
+			query.addCriteria(Criteria.where("code").is(coinFunds.getCode()));
+			List<FundResources> fundResources = mongoTemplate.find(query, FundResources.class,
+					"fundresources");
+			if (CollectionUtils.isEmpty(fundResources)) {
+				logger.error("cannot find fundTypeOne for code:" + coinFunds.getCode());
+			} else {
+				builderDailyFunds.setFname(fundResources.get(0).getFname());
+				builderDailyFunds.setFirstInvestType(fundResources.get(0).getFirstinvesttype());
+				builderDailyFunds.setSecondInvestType(fundResources.get(0).getSecondinvesttype());
+			}
+			List<DayIndicator> dayIndicators = mongoTemplate.find(query, DayIndicator.class,
+					"dayindicator");
+			if (CollectionUtils.isEmpty(dayIndicators)) {
+				logger.error("cannot find close for code:" + coinFunds.getCode());
+			} else {
+				builderDailyFunds.setClose(dayIndicators.get(0).getClose());
+			}
+			dailyFundsListProto.add(builderDailyFunds.build());
+			builderDailyFunds.clear();
+		}
+	}
+
+	private void addNormalFundsToDailyFunds(
+			List<com.shellshellfish.aaas.datacollect.DailyFunds> dailyFundsListProto,
+			List<DailyFunds> dailyFundsList) {
 		Builder builderDailyFunds = com.shellshellfish.aaas.datacollect.DailyFunds.newBuilder();
 		for (DailyFunds dailyFunds : dailyFundsList) {
 			BeanUtils.copyProperties(dailyFunds, builderDailyFunds, DataCollectorUtil
@@ -170,51 +282,6 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
 			dailyFundsListProto.add(builderDailyFunds.build());
 			builderDailyFunds.clear();
 		}
-		//check if the codes is of base codes
-		List<FundBaseClose> fundbasecloses = null;
-		List<FundBaseClose> fundbaseclosesAll = new ArrayList<>();
-		if (!CollectionUtils.isEmpty(baseIndexs)) {
-			for (String code : baseIndexs) {
-				try {
-					Query query = new Query();
-//      String dateStart = DateUtil.getDateStrFromLong(Long.parseLong(navLatestDateStart));
-//      String dateEnd = DateUtil.getDateStrFromLong(Long.parseLong(navLatestDateEnd));
-					query.addCriteria(Criteria.where("code").is(code).andOperator(Criteria.where
-							("querydate").gt((DateUtil.getDateLongVal(navLatestDateStart) / 1000)), Criteria.where
-							("querydate").lte(DateUtil.getDateLongVal(navLatestDateEnd) / 1000)));
-					fundbasecloses = mongoTemplate.find(query, FundBaseClose.class, "fundbaseclose_origin");
-					if (!CollectionUtils.isEmpty(fundbasecloses)) {
-						fundbaseclosesAll.addAll(fundbasecloses);
-					}
-				} catch (Exception ex) {
-					ex.printStackTrace();
-					logger.error("failed to convert date str to long date");
-				}
-			}
-
-
-			if (CollectionUtils.isEmpty(fundbaseclosesAll)) {
-				logger.error("cannot find baseIdx for dateStart:" + navLatestDateStart + " dateEnd:" + navLatestDateEnd);
-			} else {
-				//为了适应这个奇葩的表结构 fundbaseclose，只好写这个奇葩的hardcode赋值
-				builderDailyFunds.clear();
-				Set checkCodesSet = new HashSet();
-				checkCodesSet.addAll(baseIndexs);
-				Double nvadj = null;
-				for (FundBaseClose fundBaseClose : fundbaseclosesAll) {
-					builderDailyFunds.setCode(fundBaseClose.getCode());
-					nvadj = fundBaseClose.getClose();
-					builderDailyFunds.setNavadj(nvadj);
-					builderDailyFunds.setNavLatestDate(fundBaseClose.getQuerydate());
-					dailyFundsListProto.add(builderDailyFunds.build());
-					builderDailyFunds.clear();
-				}
-			}
-		}
-		final DailyFundsCollection.Builder builder = DailyFundsCollection.newBuilder()
-				.addAllDailyFunds(dailyFundsListProto);
-		responseObserver.onNext(builder.build());
-		responseObserver.onCompleted();
 	}
 
 

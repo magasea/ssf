@@ -102,5 +102,15 @@ public class TradeUtilTest {
     System.out.println(TradeUtil.getTplusNDayOfWork(TradeUtil.getUTCTime(), 1));
   }
 
+  @Test
+  public void getSpecificTime(){
+    System.out.println(TradeUtil.getUTCOfSpecificTimeToday(6,30));
+    System.out.println(TradeUtil.getUTCOfSpecificTimeToday(7,30));
+  }
+
+  @Test
+  public void getDateOfSpecificTimeToday(){
+    System.out.println(TradeUtil.getDateOfSpecificTimeToday(6,30).toString());
+  }
 
 }

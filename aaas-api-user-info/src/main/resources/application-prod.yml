@@ -35,6 +35,10 @@ spring:
     topicPay: shellshellfish.pay
     topicOrder: shellshellfish.order
     topicUserinfo: shellshellfish.userinfo
+  redis:
+    host: localhost
+    port: 6379
+    password: redis123
 datasource:
   sampleapp:
     url: jdbc:mysql://localhost:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8

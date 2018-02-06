@@ -91,7 +91,7 @@ public interface UserInfoRepoService {
 
 	UiUser getUserInfoByUserId(Long userId);
 
-	UiUser getUserInfoByUserUUID(String userUUID);
+	UiUser getUserInfoByUserUUID(String userUUID) throws Exception;
 
 	List<MongoUiTrdLogDTO> findByUserId(Long userId) throws IllegalAccessException, InstantiationException;
 

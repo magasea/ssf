@@ -127,7 +127,9 @@ public class TradeSellServiceImpl implements TradeSellService {
         logger.info("contains monetary fund");
         netValL = 100L;
       }else{
-        netValL = TradeUtil.getLongNumWithMul100(fundNetInfo.getUnitNet());
+        //四舍五入的基金净值
+        netValL = TradeUtil.getLongNumWithMul100(TradeUtil.getBigDecimalNumWithRoundUp2Digit
+            (fundNetInfo.getUnitNet()));
       }
       fundNavunits.put(fundNetInfo.getFundCode(), netValL.intValue());
     }
