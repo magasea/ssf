@@ -70,8 +70,7 @@ public class FundGroupController {
 			BigDecimal value = null;
 			try {
 				//FIXME
-				value = userFinanceProdCalcService
-						.calcYieldValue(uuid, prodId, dayBeforeSelectDate, selectDate);
+				value = userFinanceProdCalcService.calcYieldRate(uuid, prodId, dayBeforeSelectDate, selectDate);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}

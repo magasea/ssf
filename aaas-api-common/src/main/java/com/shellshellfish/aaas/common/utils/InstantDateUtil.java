@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -19,6 +20,8 @@ import java.util.Map;
  * java8 日期工具类 用来替换旧版本的 {@link SSFDateUtils}
  */
 public class InstantDateUtil {
+	
+	private static DateTimeFormatter dateTimeFormatter= DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	private static final String holiday[] = {"2018-01-01", "2018-02-15", "2018-02-16", "2018-02-17",
 			"2018-02-18",
@@ -235,13 +238,22 @@ public class InstantDateUtil {
 		System.out.println("getDayOfWeek : " + dayOfWeekName);
 		return dayOfWeekName;
 	}
-
+	
+	public static String getDayConvertString(Long dateTime) {
+		String date = "";
+		if(dateTime!=null){
+			date = dateTimeFormatter.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(dateTime),ZoneId.of("GMT+8")));
+		}
+		return date;
+	}
+	
 	public static void main(String[] args) {
 //		String date = TradeUtil.getReadableDateTime(System.currentTimeMillis());
 //		date = date.substring(0,10);
 //		System.out.println(date);
-		LocalDateTime ldt = LocalDateTime.now();
-		System.out.println(ldt);
+//		LocalDateTime ldt = LocalDateTime.now();
+//		System.out.println(ldt);
+		System.out.println(getDayConvertString(1516260956137L));
 	}
 
 }

@@ -7,7 +7,9 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -85,7 +87,7 @@ import io.grpc.ManagedChannel;
 public class UserInfoServiceImpl implements UserInfoService {
 
 	Logger logger = LoggerFactory.getLogger(UserInfoServiceImpl.class);
-
+	
 	@Autowired
 	UserInfoRepoService userInfoRepoService;
 
@@ -709,7 +711,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 			// 智投组合产品ID
 			resultMap.put("prodId", products.getId());
 			// 买入日期
-			resultMap.put("updateDate", DateUtil.getDateType(products.getUpdateDate()));
+//			resultMap.put("updateDate", DateUtil.getDateType(products.getUpdateDate()));
+			String date = InstantDateUtil.getDayConvertString(products.getCreateDate());
+			resultMap.put("updateDate", date);
 
 			resultList.add(resultMap);
 		}
