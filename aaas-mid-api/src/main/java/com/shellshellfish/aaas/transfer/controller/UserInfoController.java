@@ -357,6 +357,10 @@ public class UserInfoController {
 										Map.class).getBody();
 								if (orderResult.get("orderId") != null) {
 									String orderId = orderResult.get("orderId") + "";
+									if(!StringUtils.isEmpty(orderId)){
+										orderId = orderId.trim();
+										orderId = orderId.replaceAll("-", "");
+									}
 									String bankName = "";
 									String bankcardNum = "";
 									if (orderResult.get("bankNum") != null) {
