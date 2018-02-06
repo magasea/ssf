@@ -117,7 +117,6 @@ public class FundDetailedController {
 			result.put("fundnotice", FUNDNOTICE);
 
 			result.remove("_links");
-			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
