@@ -1093,7 +1093,6 @@ public class FundGroupService {
      */
     public void getNavadj(String group_id, String subGroupId) {
         logger.info("getNavadj begin");
-        long beginNavadj = System.currentTimeMillis();
 
         Map<String, Object> query = new HashMap<>();
         query.put("fund_group_id", group_id);
@@ -1123,13 +1122,14 @@ public class FundGroupService {
             query.put("endTime", DateUtil.formatDate(ca.getTime()));
             fundNetValList = fundGroupMapper.getNavadj(query);
         }
+
         long startMaxRetracement = System.currentTimeMillis();
         for ( ; !CollectionUtils.isEmpty(fundNetValList) && date.getTime() > groupStartDate.getTime(); ) {
-            long beginGetNewMaxDrawDowns = System.currentTimeMillis();
+            long beginGetNewMaxDrawDown = System.currentTimeMillis();
             Double maximumRetracement = getMaxdrawdownFromNetVals(fundNetValList);
-            long endGetNewMaxDrawDowns = System.currentTimeMillis();
-            logger.info("elapse newMaxDrawDowns : {}", endGetNewMaxDrawDowns - beginGetNewMaxDrawDowns);
-            logger.info("newValue: {}", maximumRetracement);
+            long endGetNewMaxDrawDown = System.currentTimeMillis();
+            logger.info("calculate MaxDrawDown elapse : {}", endGetNewMaxDrawDown - beginGetNewMaxDrawDown);
+            logger.info("MaxDrawDown: {}", maximumRetracement);
 
             Map<String, Object> updateParam = new HashMap<>();
             updateParam.put("fund_group_id", group_id);
@@ -1145,18 +1145,16 @@ public class FundGroupService {
             date = ca.getTime();
         }
         long endMaxRetracement = System.currentTimeMillis();
-        logger.info("elapse maxRetracement : {} ", endMaxRetracement - startMaxRetracement);
+        logger.info("maxRetracement elapse : {} ", endMaxRetracement - startMaxRetracement);
 
         if (!CollectionUtils.isEmpty(updateMapList)) {
             logger.info("batchUpdateMaximumRetracement begin, updateMapList.size() : {}", updateMapList.size());
             long beginBatchUpdate = System.currentTimeMillis();
             batchUpdateMaximumRetracement(updateMapList);
             long endBatchUpdate = System.currentTimeMillis();
-            logger.info("elapse batch update : {}", endBatchUpdate - beginBatchUpdate);
+            logger.info("batch update elapse : {}", endBatchUpdate - beginBatchUpdate);
         }
 
-        long endNavadj = System.currentTimeMillis();
-        logger.info("getNavadj elapse : {}", endNavadj - beginNavadj);
         logger.info("getNavadj end");
     }
 
@@ -1182,7 +1180,7 @@ public class FundGroupService {
             long beginBatchInsert = System.currentTimeMillis();
             batchInsertFundGroupHistory(fundGroupHistoryMapList);
             long endBatchInsert = System.currentTimeMillis();
-            logger.info("elapse batch insert : {} ", (endBatchInsert - beginBatchInsert));
+            logger.info("batch insert elapse : {} ", endBatchInsert - beginBatchInsert);
             logger.info("batchInsertFundGroupHistory end");
         }
     }
@@ -1265,11 +1263,11 @@ public class FundGroupService {
         }
         long startMaxRetracement = System.currentTimeMillis();
         for ( ; !CollectionUtils.isEmpty(fundNetValList) && date.getTime() > groupStartDate.getTime(); ) {
-            long beginGetNewMaxDrawDowns = System.currentTimeMillis();
+            long beginGetNewMaxDrawDown = System.currentTimeMillis();
             Double maximumRetracement = getMaxdrawdownFromNetVals(fundNetValList);
-            long endGetNewMaxDrawDowns = System.currentTimeMillis();
-            logger.info("elapse newMaxDrawDowns : {}", endGetNewMaxDrawDowns - beginGetNewMaxDrawDowns);
-            logger.info("newValue: {}", maximumRetracement);
+            long endGetNewMaxDrawDown = System.currentTimeMillis();
+            logger.info("calculate MaxDrawDown elapse : {}", endGetNewMaxDrawDown - beginGetNewMaxDrawDown);
+            logger.info("MaxDrawDown: {}", maximumRetracement);
 
             Map<String, Object> updateParam = new HashMap<>();
             updateParam.put("risk_level", risk_level);
@@ -1284,14 +1282,14 @@ public class FundGroupService {
             date = ca.getTime();
         }
         long endMaxRetracement = System.currentTimeMillis();
-        logger.info("elapse benchmark maxRetracement : {} ", endMaxRetracement - startMaxRetracement);
+        logger.info("benchmark maxRetracement elapse : {} ", endMaxRetracement - startMaxRetracement);
 
         if (!CollectionUtils.isEmpty(updateMapList)) {
             logger.info("batchUpdateMaximumRetracementByRiskLevel begin, updateMapList.size() : {}", updateMapList.size());
             long beginBatchUpdate = System.currentTimeMillis();
             batchUpdateMaximumRetracementByRiskLevel(updateMapList);
             long endBatchUpdate = System.currentTimeMillis();
-            logger.info("elapse batch update : {}", (endBatchUpdate - beginBatchUpdate));
+            logger.info("batch update elapse : {}", endBatchUpdate - beginBatchUpdate);
         }
 
         logger.info("getNavadjBenchmark end");
@@ -1318,7 +1316,7 @@ public class FundGroupService {
             long beginBatchInsert = System.currentTimeMillis();
             batchInsertFundGroupHistoryBenchmark(benchmarkMapList);
             long endBatchInsert = System.currentTimeMillis();
-            logger.info("elapse batch insert benchmark : {} ", (endBatchInsert - beginBatchInsert));
+            logger.info("batch insert benchmark elapse : {} ", endBatchInsert - beginBatchInsert);
             logger.info("batchInsertFundGroupHistoryBenchmark end");
         }
     }
@@ -1557,6 +1555,9 @@ public class FundGroupService {
     }
 
     private void navadjBenchmark() {
+        logger.info("navadjBenchmark begin");
+        long start = System.currentTimeMillis();
+
         ExecutorService pool = ThreadPoolUtil.getThreadPool();
         for (int index = 1; index <= RISK_LEVEL_COUNT; index++) {
             String riskLevel = "C" + index;
@@ -1564,6 +1565,12 @@ public class FundGroupService {
                 getNavadjBenchmark(riskLevel);
             });
         }
+
+        sleep(1000);
+
+        long end = System.currentTimeMillis();
+        logger.info("navadjBenchmark elapse : {}", end - start);
+        logger.info("navadjBenchmark end");
     }
 
     private void fundGroupIdTask(int fundGroupId) {
@@ -1613,6 +1620,7 @@ public class FundGroupService {
      */
     public void contribution() {
         logger.info("contribution begin");
+        long start = System.currentTimeMillis();
 
         Map<String, List<Interval>> groupedMap = this.getGroupedMapIntervals();
         if (CollectionUtils.isEmpty(groupedMap)) {
@@ -1627,6 +1635,10 @@ public class FundGroupService {
             });
         }
 
+        sleep(1000);
+
+        long end = System.currentTimeMillis();
+        logger.info("contribution elapse : {}", end - start);
         logger.info("contribution end");
     }
 
@@ -1674,7 +1686,6 @@ public class FundGroupService {
             if (!CollectionUtils.isEmpty(updateMapList)) {
                 this.batchUpdateContribution(updateMapList);
             }
-
         }
 
         logger.info("contributionTask end");
