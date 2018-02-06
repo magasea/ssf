@@ -157,11 +157,11 @@ public class FundGroupServiceTest {
 
     @Test
     public void getNavadjBenchmarkTest() {
-        fundGroupService.getNavadjBenchmark("C1");
-        fundGroupService.getNavadjBenchmark("C2");
-        fundGroupService.getNavadjBenchmark("C3");
-        fundGroupService.getNavadjBenchmark("C4");
-        fundGroupService.getNavadjBenchmark("C5");
+//        fundGroupService.getNavadjBenchmark("C1");
+//        fundGroupService.getNavadjBenchmark("C2");
+//        fundGroupService.getNavadjBenchmark("C3");
+//        fundGroupService.getNavadjBenchmark("C4");
+//        fundGroupService.getNavadjBenchmark("C5");
     }
 
     @Test

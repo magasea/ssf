@@ -1231,11 +1231,12 @@ public class FundGroupService {
     public void  getNavadjBenchmark(String risk_level) {
         logger.info("getNavadjBenchmark begin, risk_level : {}", risk_level);
 
-        Calendar ca = Calendar.getInstance();
-        Date date = new Date();
         Map<String, Object> query = new HashMap<>();
         query.put("risk_level", risk_level);
         String groupStartTime = fundGroupMapper.getFundGroupHistoryTimeByRiskLevel(query);
+
+        Calendar ca = Calendar.getInstance();
+        Date date = new Date();
         String startTime = null;
         if (StringUtils.isEmpty(groupStartTime)) {
             ca.setTime(date);
@@ -1534,13 +1535,35 @@ public class FundGroupService {
             });
         }
 
-        contribution();
+        this.sleep(1000);
 
-        for (int riskLevel = 1; riskLevel <= RISK_LEVEL_COUNT; riskLevel++) {
-            getNavadjBenchmark("C" + riskLevel);
-        }
+        this.contribution();
+
+        this.sleep(1000);
+
+        this.navadjBenchmark();
+
+        this.sleep(1000);
 
         logger.info("getAllIdAndSubId end");
+    }
+
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void navadjBenchmark() {
+        ExecutorService pool = ThreadPoolUtil.getThreadPool();
+        for (int index = 1; index <= RISK_LEVEL_COUNT; index++) {
+            String riskLevel = "C" + index;
+            pool.execute(() -> {
+                getNavadjBenchmark(riskLevel);
+            });
+        }
     }
 
     private void fundGroupIdTask(int fundGroupId) {
@@ -1556,8 +1579,7 @@ public class FundGroupService {
             sharpeRatio(fundGroupId + "", riskIncomeInterval.getId());
 
             long endTime = System.currentTimeMillis();
-            logger.info("fundGroupId : {}", fundGroupId);
-            logger.info("subGroupId : {}", riskIncomeInterval.getId());
+            logger.info("fundGroupId : {} , subGroupId : {}", fundGroupId, riskIncomeInterval.getId());
             logger.info("one loop elapse : {}", endTime - startTime);
         }
     }
