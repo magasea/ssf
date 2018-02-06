@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.BATCH_SIZE_NUM;
@@ -1525,23 +1526,9 @@ public class FundGroupService {
     public void getAllIdAndSubId(){
         logger.info("getAllIdAndSubId begin");
 
-        ExecutorService pool = ThreadPoolUtil.getThreadPool();
-        for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
-            int fundGroupId = index;
-            pool.execute(() -> {
-                fundGroupIdTask(fundGroupId);
-            });
-        }
-
-        this.sleep(1000);
-
+        this.fundGroupIdTasks();
         this.contribution();
-
-        this.sleep(1000);
-
         this.navadjBenchmark();
-
-        this.sleep(1000);
 
         logger.info("getAllIdAndSubId end");
     }
@@ -1558,19 +1545,43 @@ public class FundGroupService {
         logger.info("navadjBenchmark begin");
         long start = System.currentTimeMillis();
 
-        ExecutorService pool = ThreadPoolUtil.getThreadPool();
-        for (int index = 1; index <= RISK_LEVEL_COUNT; index++) {
-            String riskLevel = "C" + index;
-            pool.execute(() -> {
-                getNavadjBenchmark(riskLevel);
-            });
+        try {
+            final CountDownLatch countDownLatch = new CountDownLatch(RISK_LEVEL_COUNT);
+            ExecutorService pool = ThreadPoolUtil.getThreadPool();
+            for (int index = 1; index <= RISK_LEVEL_COUNT; index++) {
+                String riskLevel = "C" + index;
+                pool.execute(() -> {
+                    getNavadjBenchmark(riskLevel);
+                    countDownLatch.countDown();
+                });
+            }
+            sleep(1000);
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-
-        sleep(1000);
 
         long end = System.currentTimeMillis();
         logger.info("navadjBenchmark elapse : {}", end - start);
         logger.info("navadjBenchmark end");
+    }
+
+    private void fundGroupIdTasks() {
+        try {
+            final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
+            ExecutorService pool = ThreadPoolUtil.getThreadPool();
+            for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
+                int fundGroupId = index;
+                pool.execute(() -> {
+                    fundGroupIdTask(fundGroupId);
+                    countDownLatch.countDown();
+                });
+            }
+            this.sleep(1000);
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void fundGroupIdTask(int fundGroupId) {
@@ -1627,15 +1638,21 @@ public class FundGroupService {
             return;
         }
 
-        ExecutorService pool = ThreadPoolUtil.getThreadPool();
-        for (List<Interval> groupedIntervals : groupedMap.values()) {
-            List<Interval> intervals = groupedIntervals;
-            pool.execute(() -> {
-                contributionTask(intervals);
-            });
+        try {
+            final CountDownLatch countDownLatch = new CountDownLatch(groupedMap.size());
+            ExecutorService pool = ThreadPoolUtil.getThreadPool();
+            for (List<Interval> groupedIntervals : groupedMap.values()) {
+                List<Interval> intervals = groupedIntervals;
+                pool.execute(() -> {
+                    contributionTask(intervals);
+                    countDownLatch.countDown();
+                });
+            }
+            sleep(1000);
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-
-        sleep(1000);
 
         long end = System.currentTimeMillis();
         logger.info("contribution elapse : {}", end - start);
