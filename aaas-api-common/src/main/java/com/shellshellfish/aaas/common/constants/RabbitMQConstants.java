@@ -22,6 +22,7 @@ public class RabbitMQConstants {
   public final static String ROUTING_KEY_ORDER = "routing.order";
   public final static String ROUTING_KEY_PREORDER = "routing.preorder";
   public final static String ROUTING_KEY_USERINFO = "routing.userinfo";
+  public final static String ROUTING_KEY_USERINFO_CFMLOG = "routing.userinfo.confirmlog";
   public final static String OPERATION_TYPE_BUY_PROD = "buy_prod";
   public final static String OPERATION_TYPE_BUY_PREORDER_PROD = "buy_preorder_prod";
   public final static String OPERATION_TYPE_SEL_PROD = "sell_prod";

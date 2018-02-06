@@ -232,28 +232,6 @@ public class FundNAVInfo {
 		return result;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		FundNAVInfo other = (FundNAVInfo) obj;
-		if (fundCode == null) {
-			if (other.fundCode != null)
-				return false;
-		} else if (!fundCode.equals(other.fundCode))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		return true;
-	}
-
 	/**
 	 * 数据进行交换
 	 *
@@ -314,6 +292,28 @@ public class FundNAVInfo {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FundNAVInfo other = (FundNAVInfo) obj;
+		if (fundCode == null) {
+			if (other.fundCode != null)
+				return false;
+		} else if (!fundCode.equals(other.fundCode))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		return true;
 	}
 
 

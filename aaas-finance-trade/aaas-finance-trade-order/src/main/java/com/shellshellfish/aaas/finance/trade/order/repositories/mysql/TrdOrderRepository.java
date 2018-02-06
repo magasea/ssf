@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.finance.trade.order.repositories;
+package com.shellshellfish.aaas.finance.trade.order.repositories.mysql;
 
 import java.util.List;
 import org.springframework.data.jpa.repository.Modifying;

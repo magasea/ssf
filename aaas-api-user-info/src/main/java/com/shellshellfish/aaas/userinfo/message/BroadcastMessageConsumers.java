@@ -232,7 +232,7 @@ public class BroadcastMessageConsumers {
         value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
             .OPERATION_TYPE_UPDATE_UITRDCONFIRMINFO, durable = "false"),
         exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
-            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO)
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_CFMLOG)
     )
     public void receiveConfirmInfo(MongoUiTrdZZInfo mongoUiTrdZZInfo, Channel channel, @Header
         (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {

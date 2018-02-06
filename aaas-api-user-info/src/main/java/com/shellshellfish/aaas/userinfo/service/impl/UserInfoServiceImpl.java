@@ -1,5 +1,42 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+
+import javax.annotation.PostConstruct;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
@@ -43,45 +80,14 @@ import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
+
 import io.grpc.ManagedChannel;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import javax.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
 
 	Logger logger = LoggerFactory.getLogger(UserInfoServiceImpl.class);
-
+	
 	@Autowired
 	UserInfoRepoService userInfoRepoService;
 
@@ -705,7 +711,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 			// 智投组合产品ID
 			resultMap.put("prodId", products.getId());
 			// 买入日期
-			resultMap.put("updateDate", DateUtil.getDateType(products.getUpdateDate()));
+//			resultMap.put("updateDate", DateUtil.getDateType(products.getUpdateDate()));
+			String date = InstantDateUtil.getDayConvertString(products.getCreateDate());
+			resultMap.put("updateDate", date);
 
 			resultList.add(resultMap);
 		}
@@ -907,6 +915,18 @@ public class UserInfoServiceImpl implements UserInfoService {
 				// String fundCode = params[1];
 				Map<String, Object> bakMap2 = tradLogsMap.get(key);
 				if (!tradLogsMap2.containsKey(prodId)) {
+					if (bakMap2.get("tradeStatusValue") != null) {
+						Integer operation = Integer.parseInt(bakMap2.get("tradeStatusValue") + "");
+						if (bakMap2.get("tradeStatus") == null) {
+							if (operation == TrdOrderStatusEnum.CONFIRMED.getStatus()){
+								bakMap2.put("tradeStatus", UiTrdLogStatusEnum.CONFIRMED.getComment());
+							} else if (operation == TrdOrderStatusEnum.FAILED.getStatus()){
+								bakMap2.put("tradeStatus", UiTrdLogStatusEnum.CONFIRMEDFAILED.getComment());
+							} else {
+								bakMap2.put("tradeStatus", UiTrdLogStatusEnum.WAITCONFIRM.getComment());
+							}
+						}
+					}
 					tradLogsMap2.put(prodId, bakMap2);
 				} else {
 					Map<String, Object> trad = tradLogsMap2.get(prodId);
@@ -921,24 +941,28 @@ public class UserInfoServiceImpl implements UserInfoService {
 					if (trad.get("tradeStatusValue") != null) {
 						Integer operationsStatusOld = Integer.parseInt(trad.get("tradeStatusValue") + "");
 						Integer operationsStatusNew = Integer.parseInt(bakMap2.get("tradeStatusValue") + "");
-						if (operationsStatusOld != null) {
-							if (operationsStatusOld == TrdOrderStatusEnum.FAILED.getStatus()
-									|| operationsStatusNew == TrdOrderStatusEnum.FAILED.getStatus()) {
+						if (operationsStatusOld == TrdOrderStatusEnum.FAILED.getStatus()
+								|| operationsStatusNew == TrdOrderStatusEnum.FAILED.getStatus()) {
+							trad.put("tradeStatusValue", TrdOrderStatusEnum.FAILED.getStatus());
+							trad.put("tradeStatus", UiTrdLogStatusEnum.CONFIRMEDFAILED.getComment());
+						} else {
+							if (bakMap2.get("tradeStatusValue") != null) {
+								if (operationsStatusOld == TrdOrderStatusEnum.CONFIRMED.getStatus()
+										&& operationsStatusNew == TrdOrderStatusEnum.CONFIRMED.getStatus()) {
+									trad.put("tradeStatusValue", TrdOrderStatusEnum.CONFIRMED.getStatus());
+									trad.put("tradeStatus", UiTrdLogStatusEnum.CONFIRMED.getComment());
+								} else {
+									trad.put("tradeStatusValue", TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
+									trad.put("tradeStatus", UiTrdLogStatusEnum.WAITCONFIRM.getComment());
+								}
+							} else {
 								trad.put("tradeStatusValue", TrdOrderStatusEnum.FAILED.getStatus());
 								trad.put("tradeStatus", UiTrdLogStatusEnum.CONFIRMEDFAILED.getComment());
-							} else {
-								if (bakMap2.get("tradeStatusValue") != null) {
-									if (operationsStatusOld == TrdOrderStatusEnum.CONFIRMED.getStatus()
-											&& operationsStatusNew == TrdOrderStatusEnum.CONFIRMED.getStatus()) {
-										trad.put("tradeStatusValue", TrdOrderStatusEnum.CONFIRMED.getStatus());
-										trad.put("tradeStatus", UiTrdLogStatusEnum.CONFIRMED.getComment());
-									} else {
-										trad.put("tradeStatusValue", TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
-										trad.put("tradeStatus", UiTrdLogStatusEnum.WAITCONFIRM.getComment());
-									}
-								}
 							}
 						}
+					} else {
+						trad.put("tradeStatusValue", TrdOrderStatusEnum.FAILED.getStatus());
+						trad.put("tradeStatus", UiTrdLogStatusEnum.CONFIRMEDFAILED.getComment());
 					}
 				}
 			}

@@ -20,12 +20,12 @@ import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdPreOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdTradeBankDic;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.FinanceProdBuyInfo;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokderRepository;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokerUserRepository;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRepository;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderRepository;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdPreOrderRepository;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdTradeBankDicRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdBrokderRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdBrokerUserRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderDetailRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdPreOrderRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdTradeBankDicRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdInfoService;
 import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
@@ -361,7 +361,8 @@ public class TradeOpServiceImpl implements TradeOpService {
   @Override
   @Transactional
   public void updateByParam(String tradeApplySerial, Long fundSum, Long fundSumConfirmed, Long
-      fundNum, Long fundNumConfirmed,  Long updateDate, Long updateBy, Long id, int orderDetailStatus)
+      fundNum, Long fundNumConfirmed,  Long updateDate, Long updateBy, Long id, int
+      orderDetailStatus, Long buyFee)
       throws Exception {
     TrdOrderDetail trdOrderDetail;
     if(id > 0){
@@ -386,6 +387,9 @@ public class TradeOpServiceImpl implements TradeOpService {
     }
     if(fundNumConfirmed != null && fundNumConfirmed > 0){
       trdOrderDetail.setFundNumConfirmed(fundNumConfirmed);
+    }
+    if(buyFee != null && buyFee >= 0){
+      trdOrderDetail.setBuyFee(buyFee);
     }
     trdOrderDetail.setTradeApplySerial(tradeApplySerial);
     trdOrderDetail.setOrderDetailStatus(orderDetailStatus);

@@ -8,5 +8,5 @@ import java.util.Map;
  */
 public interface FundGroupService {
 
-	Map getGroupDetails(String userUUID, Long productId);
+	Map getGroupDetails(String uuid, Long prodId, String buyDate);
 }
