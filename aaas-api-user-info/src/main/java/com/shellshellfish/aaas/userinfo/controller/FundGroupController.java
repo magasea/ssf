@@ -9,6 +9,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +56,7 @@ public class FundGroupController {
 	@RequestMapping(value = "/getMyProductDetail", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Map> getProductDetail(@RequestParam @NotNull String uuid,
-			@RequestParam(required = false) String buyDate, @RequestParam @NotNull Long prodId) {
+			@RequestParam(required = false) String buyDate, @RequestParam @NotNull Long prodId) throws ParseException {
 		Map result = fundGroupService.getGroupDetails(uuid, prodId, buyDate);
 		result.put("prodId", prodId);
 		return new ResponseEntity<Map>(result, HttpStatus.OK);

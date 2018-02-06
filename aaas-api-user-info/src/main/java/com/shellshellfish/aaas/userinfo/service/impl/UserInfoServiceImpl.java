@@ -380,34 +380,68 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public Map<String, Object> getTrendYield(String userUuid) {
+	public Map<String, Object> getTrendYield(String userUuid) throws Exception {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		List<Map<String, Object>> trendYieldList = new ArrayList<Map<String, Object>>();
-		int days = 6;
-		//遍历赋值
-		for (int i = 0; i < days; i++) {
-			Map trendYieldMap = new HashMap<>();
-			String selectDate = DateUtil.getSystemDatesAgo(-i);
-			String dayBeforeSelectDate = DateUtil.getSystemDatesAgo(-i - 1);
+		String buyDate = "";
+		String selectDate = "";
+		Query query = new Query();
+		query.addCriteria(Criteria.where("userUuid").is(userUuid));
+		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC, "date"));
+		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
+		if(dailyAmountList!=null&&dailyAmountList.size()>0){
+			Map<String,BigDecimal> dailyAmountMap = new HashMap<String,BigDecimal>();
+			for (int i = 0; i < dailyAmountList.size(); i++) {
+				DailyAmount dailyAmount = dailyAmountList.get(i);
+				BigDecimal asset = BigDecimal.ZERO;
+				if (dailyAmountMap.get(dailyAmount.getDate()) == null) {
+					asset = dailyAmount.getAsset();
+					dailyAmountMap.put(dailyAmount.getDate(), asset);
+				} else {
+					asset = dailyAmountMap.get(dailyAmount.getDate()).add(dailyAmount.getAsset());
+					dailyAmountMap.put(dailyAmount.getDate(), asset);
+				}
+				if (asset.compareTo(BigDecimal.ZERO) > 0) {
+					if (StringUtils.isEmpty(selectDate)) {
+						selectDate = dailyAmount.getDate();
+					} else {
+						buyDate = dailyAmount.getDate();
+					}
+				}
+			}
+		}
+		
+		// 遍历赋值
+		while (true) {
+			Map<String,Object> trendYieldMap = new HashMap<String,Object>();
+			if (selectDate.equals(buyDate)) {
+				break;
+			}
 			trendYieldMap.put("date", selectDate);
-			//调用对应的service
-			BigDecimal rate = userFinanceProdCalcService
-					.calcYieldValue(userUuid, dayBeforeSelectDate, selectDate);
+			// 调用对应的service
+			BigDecimal rate = userFinanceProdCalcService.calcYieldValue(userUuid, buyDate, selectDate);
 			if (rate != null) {
-				trendYieldMap.put("value", (rate.divide(new BigDecimal("100"), MathContext.DECIMAL128))
-						.setScale(2, BigDecimal.ROUND_HALF_UP));
+				trendYieldMap.put("value", (rate.divide(new BigDecimal("100"), MathContext.DECIMAL128)).setScale(2,
+						BigDecimal.ROUND_HALF_UP));
 			} else {
 				trendYieldMap.put("value", 0);
 			}
 			trendYieldList.add(trendYieldMap);
+			
+			int year = Integer.parseInt(selectDate.substring(0,4));
+			int month = Integer.parseInt(selectDate.substring(4,6));
+			int day = Integer.parseInt(selectDate.substring(6,8));
+			LocalDate localDate = LocalDate.of(year, month, day);
+			localDate =  localDate.minusDays(1);
+			selectDate = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 		}
 		resultMap.put("trendYield", trendYieldList);
+		Collections.reverse(trendYieldList);
 		return resultMap;
 	}
 
 	@Override
 	public Map<String, Object> getTotalAssets(String uuid) throws Exception {
-		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
 		List<Map<String, Object>> productsList = this.getMyCombinations(uuid);
 		if (productsList == null || productsList.size() == 0) {
 			logger.error("我的智投组合暂时不存在");
