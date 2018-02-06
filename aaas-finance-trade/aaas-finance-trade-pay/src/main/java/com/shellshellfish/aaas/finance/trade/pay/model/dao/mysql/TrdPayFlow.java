@@ -28,6 +28,8 @@ public class TrdPayFlow {
   private int trdStatus;
   private long trdConfirmDate;
   private int trdType;
+  private long trdApplySum;
+  private long trdApplyShare;
   private Long tradeTargetSum;
   private long tradeTargetShare;
   private long tradeConfirmShare;
@@ -163,6 +165,26 @@ public class TrdPayFlow {
 
   public void setTrdType(int trdType) {
     this.trdType = trdType;
+  }
+
+  @Basic
+  @Column(name = "trd_apply_sum")
+  public long getTrdApplySum() {
+    return trdApplySum;
+  }
+
+  public void setTrdApplySum(long trdApplySum) {
+    this.trdApplySum = trdApplySum;
+  }
+
+  @Basic
+  @Column(name = "trd_apply_share")
+  public long getTrdApplyShare() {
+    return trdApplyShare;
+  }
+
+  public void setTrdApplyShare(long trdApplyShare) {
+    this.trdApplyShare = trdApplyShare;
   }
 
   @Basic
@@ -347,6 +369,12 @@ public class TrdPayFlow {
     if (trdType != that.trdType) {
       return false;
     }
+    if (trdApplySum != that.trdApplySum) {
+      return false;
+    }
+    if (trdApplyShare != that.trdApplyShare) {
+      return false;
+    }
     if (tradeTargetShare != that.tradeTargetShare) {
       return false;
     }
@@ -429,6 +457,8 @@ public class TrdPayFlow {
     result = 31 * result + trdStatus;
     result = 31 * result + (int) (trdConfirmDate ^ (trdConfirmDate >>> 32));
     result = 31 * result + trdType;
+    result = 31 * result + (int) (trdApplySum ^ (trdApplySum >>> 32));
+    result = 31 * result + (int) (trdApplyShare ^ (trdApplyShare >>> 32));
     result = 31 * result + (tradeTargetSum != null ? tradeTargetSum.hashCode() : 0);
     result = 31 * result + (int) (tradeTargetShare ^ (tradeTargetShare >>> 32));
     result = 31 * result + (int) (tradeConfirmShare ^ (tradeConfirmShare >>> 32));
