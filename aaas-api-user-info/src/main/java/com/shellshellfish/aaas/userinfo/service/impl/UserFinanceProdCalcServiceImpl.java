@@ -10,7 +10,6 @@ import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
-import com.shellshellfish.aaas.finance.trade.order.OrderResult;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.BonusInfo;
 import com.shellshellfish.aaas.userinfo.model.ConfirmResult;
@@ -42,7 +41,6 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -70,7 +68,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 @Service
 public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcService {
@@ -183,13 +180,14 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		List<OrderDetail> orderDetailListPayWatiConfirm = rpcOrderService
 				.getOrderDetails(userProdId, TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
-//		List<OrderDetail> orderDetailListWaitPay = rpcOrderService
-//				.getOrderDetails(userProdId, TrdOrderStatusEnum.WAITPAY.getStatus());
-//
-//		if (!CollectionUtils.isEmpty(orderDetailListPayWatiConfirm) && !CollectionUtils
-//				.isEmpty(orderDetailListWaitPay)) {
-//			orderDetailListPayWatiConfirm.addAll(orderDetailListWaitPay);
-//		}
+		List<OrderDetail> orderDetailListWaitPay = rpcOrderService
+				.getOrderDetails(userProdId, TrdOrderStatusEnum.WAITPAY.getStatus());
+
+		for (OrderDetail orderDetail : orderDetailListWaitPay) {
+			if (fundCode.equals(orderDetail.getFundCode())) {
+				return BigDecimal.ZERO;
+			}
+		}
 
 		for (OrderDetail orderDetail : orderDetailListPayWatiConfirm) {
 			if (fundCode.equals(orderDetail.getFundCode())) {

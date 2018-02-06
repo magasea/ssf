@@ -17,6 +17,5 @@ public interface OrderService {
 
 	TrdOrder findOrderByUserProdIdAndUserId(Long prodId, Long userId);
 
-	void getOrderInfo(OrderQueryInfo request, StreamObserver<OrderResult> responseObserver);
 
 }

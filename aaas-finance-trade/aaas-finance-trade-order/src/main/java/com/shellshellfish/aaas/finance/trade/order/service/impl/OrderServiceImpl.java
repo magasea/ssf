@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetailQueryInfo;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetailResult;
@@ -24,7 +25,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -186,10 +186,9 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 		OrderDetailResult.Builder builder = OrderDetailResult.newBuilder();
 
 		for (int i = 0; i < result.size(); i++) {
-			TrdOrderDetail trdOrderDetail = result.get(i);
-			OrderDetail orderDetail = OrderDetail.newBuilder().build();
-			BeanUtils.copyProperties(trdOrderDetail, orderDetail);
-			builder.addOrderDetailResult(orderDetail);
+			OrderDetail.Builder orderDetailBuilder = OrderDetail.newBuilder();
+			MyBeanUtils.mapEntityIntoDTO(result.get(i), orderDetailBuilder);
+			builder.addOrderDetailResult(orderDetailBuilder);
 		}
 		responseObserver.onNext(builder.build());
 		responseObserver.onCompleted();
