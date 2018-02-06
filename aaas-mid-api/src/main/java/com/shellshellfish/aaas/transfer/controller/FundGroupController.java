@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.transfer.controller;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.shellshellfish.aaas.common.utils.URLutils;
 import com.shellshellfish.aaas.model.JsonResult;
+import com.shellshellfish.aaas.transfer.utils.EasyKit;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -46,8 +48,8 @@ public class FundGroupController {
 
 	@ApiOperation("我的智投组合详情")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = "shellshellfish"),
-			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = "41"),
+			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "12"),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "120049"),
 			@ApiImplicitParam(paramType = "query", name = "buyDate", dataType = "String", required = false, value = "买入时间"),
@@ -68,6 +70,7 @@ public class FundGroupController {
 		Map<String, String> params = new HashMap(2);
 
 		params.put("uuid", uuid);
+		params.put("buyDate", buyDate);
 		params.put("prodId", prodId);
 
 		ResponseEntity<Map> entity = restTemplate.postForEntity(
@@ -122,6 +125,8 @@ public class FundGroupController {
 					for (int i = 0; i < accumulationIncomesList.size(); i++) {
 						Map accumulationIncomesMap = accumulationIncomesList.get(i);
 						if (accumulationIncomesMap.get("value") != null) {
+							BigDecimal value = new BigDecimal(accumulationIncomesMap.get("value")+"");
+							accumulationIncomesMap.put("value", EasyKit.getDecimal(value));
 							maxMinValueList.add(Double.parseDouble(accumulationIncomesMap.get("value") + ""));
 						}
 					}
