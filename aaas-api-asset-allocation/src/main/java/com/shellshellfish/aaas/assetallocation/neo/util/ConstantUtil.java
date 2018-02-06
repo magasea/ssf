@@ -52,5 +52,6 @@ public interface ConstantUtil {
     int FUND_GROUP_COUNT = 15; // 基金组合数目
     int RISK_LEVEL_COUNT = 5; // 风险偏好等级数目
     int ANNUALISED_WEEK_NUM = 52;
+    int BATCH_SIZE_NUM = 100; //批次处理记录数 100条
 
 }

@@ -117,6 +117,8 @@ public interface FundGroupMapper {
 
     int updateContribution(Map map);
 
+    int batchUpdateContribution(List<Map> mapList);
+
     int updateMaximumLosses(Map map);
 
     int updateExpectedMaximumRetracement(Map map);

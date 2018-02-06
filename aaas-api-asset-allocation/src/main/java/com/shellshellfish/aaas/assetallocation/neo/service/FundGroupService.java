@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.BATCH_SIZE_NUM;
 import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.RISK_LEVEL_COUNT;
 
 /**
@@ -1193,7 +1194,7 @@ public class FundGroupService {
         List<Map> mapList = new ArrayList<>();
         for (Map map : dataMapList) {
             mapList.add(map);
-            if (mapList.size() == 100) {
+            if (mapList.size() == BATCH_SIZE_NUM) {
                 fundGroupMapper.batchInsertFundGroupHistory(mapList);
                 mapList.clear();
             }
@@ -1211,7 +1212,7 @@ public class FundGroupService {
         List<Map> mapList = new ArrayList<>();
         for (Map map : dataMapList) {
             mapList.add(map);
-            if (mapList.size() == 100) {
+            if (mapList.size() == BATCH_SIZE_NUM) {
                 fundGroupMapper.batchUpdateMaximumRetracement(mapList);
                 mapList.clear();
             }
@@ -1328,7 +1329,7 @@ public class FundGroupService {
         List<Map> mapList = new ArrayList<>();
         for (Map map : dataMapList) {
             mapList.add(map);
-            if (mapList.size() == 100) {
+            if (mapList.size() == BATCH_SIZE_NUM) {
                 fundGroupMapper.batchInsertFundGroupHistoryBenchmark(mapList);
                 mapList.clear();
             }
@@ -1346,7 +1347,7 @@ public class FundGroupService {
         List<Map> mapList = new ArrayList<>();
         for (Map map : dataMapList) {
             mapList.add(map);
-            if (mapList.size() == 100) {
+            if (mapList.size() == BATCH_SIZE_NUM) {
                 fundGroupMapper.batchUpdateMaximumRetracementByRiskLevel(mapList);
                 mapList.clear();
             }
@@ -1530,28 +1531,17 @@ public class FundGroupService {
             pool.execute(() -> {
                 fundGroupIdTask(fundGroupId);
             });
-
-//            Map<String, Object> map = new HashMap<>();
-//            map.put("slidebarType", SlidebarTypeEnmu.RISK_NUM.getName());
-//            map.put("fundGroupId", fundGroupId);
-//            List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getScaleMark(map);
-//            for (RiskIncomeInterval riskIncomeInterval : riskIncomeIntervals) {
-//                long startTime = System.currentTimeMillis();
-//
-//                sharpeRatio(fundGroupId + "", riskIncomeInterval.getId());
-//
-//                long endTime = System.currentTimeMillis();
-//                logger.info("fundGroupId : {}", fundGroupId);
-//                logger.info("subGroupId : {}", riskIncomeInterval.getId());
-//                logger.info("one loop sharpeRatio elapse : {}", endTime - startTime);
-//            }
         }
-        pool.shutdown();
 
         contribution();
+
         for (int index = 1; index <= RISK_LEVEL_COUNT; index++) {
-            getNavadjBenchmark("C" + index);
+            int riskLevelIndex = index;
+            pool.execute(() -> {
+                getNavadjBenchmark("C" + riskLevelIndex);
+            });
         }
+
         logger.info("getAllIdAndSubId end");
     }
 
@@ -1565,7 +1555,7 @@ public class FundGroupService {
 
             getNavadj(fundGroupId + "", riskIncomeInterval.getId());
             updateExpectedMaxRetracement(fundGroupId + "", riskIncomeInterval.getId());
-//            sharpeRatio(fundGroupId + "", riskIncomeInterval.getId());
+            sharpeRatio(fundGroupId + "", riskIncomeInterval.getId());
 
             long endTime = System.currentTimeMillis();
             logger.info("fundGroupId : {}", fundGroupId);
@@ -1604,7 +1594,24 @@ public class FundGroupService {
     public void contribution() {
         logger.info("contribution begin");
 
-        List<Interval> intervals = fundGroupMapper.getAllIdAndSubId();
+        Map<String, List<Interval>> groupedMap = this.getGroupedMapIntervals();
+        if (CollectionUtils.isEmpty(groupedMap)) {
+            return;
+        }
+
+        ExecutorService pool = ThreadPoolUtil.getThreadPool();
+        for (List<Interval> groupedIntervals : groupedMap.values()) {
+            List<Interval> intervals = groupedIntervals;
+            pool.execute(() -> {
+                contributionTask(intervals);
+            });
+        }
+
+        logger.info("contribution end");
+    }
+
+    private void contributionTask(List<Interval> intervals) {
+        logger.info("contributionTask begin");
         for (Interval interval : intervals) {
             Map<String, Object> query = new HashMap<>();
             query.put("fund_group_id", interval.getFund_group_id());
@@ -1620,26 +1627,71 @@ public class FundGroupService {
                     }
                 }
             }
+
+            List<Map> updateMapList = new ArrayList<>();
             for (FundNetVal fundNetVal : navadjStart) {
                 for (FundNetVal fundNetVal1 : navadjEnd) {
                     if (fundNetVal.getCode().equalsIgnoreCase(fundNetVal1.getCode())) {
+                        Map<String, Object> updateParam = new HashMap<>();
                         if (fundNetVal.getNavadj() != 0) {
                             double contribution = (fundNetVal1.getNavadj() - fundNetVal.getNavadj()) / fundNetVal.getNavadj() / accumulatedIncome;
-                            query.put("code", fundNetVal.getCode());
-                            query.put("contribution", contribution);
-                            fundGroupMapper.updateContribution(query);
+                            updateParam.put("code", fundNetVal.getCode());
+                            updateParam.put("contribution", contribution);
+                            updateParam.put("subGroupId", query.get("subGroupId"));
+                            updateMapList.add(updateParam);
                             break;
                         } else {
-                            query.put("code", fundNetVal.getCode());
-                            query.put("contribution", 0);
-                            fundGroupMapper.updateContribution(query);
+                            updateParam.put("code", fundNetVal.getCode());
+                            updateParam.put("contribution", 0);
+                            updateParam.put("subGroupId", query.get("subGroupId"));
+                            updateMapList.add(updateParam);
                             break;
                         }
                     }
                 }
             }
+            if (!CollectionUtils.isEmpty(updateMapList)) {
+                this.batchUpdateContribution(updateMapList);
+            }
+
+        }
+    }
+
+    private Map<String, List<Interval>> getGroupedMapIntervals() {
+        List<Interval> intervals = fundGroupMapper.getAllIdAndSubId();
+        if (CollectionUtils.isEmpty(intervals)) {
+            return null;
         }
 
-        logger.info("contribution end");
+        Map<String, List<Interval>> groupedMap = new HashMap<>();
+        for (Interval interval : intervals) {
+            List<Interval> groupedIntervals = groupedMap.get(interval.getFund_group_id());
+            if (!CollectionUtils.isEmpty(groupedIntervals)) {
+                groupedIntervals.add(interval);
+            } else {
+                List<Interval> tmpIntervals = new ArrayList<>();
+                tmpIntervals.add(interval);
+                groupedMap.put(interval.getFund_group_id(), tmpIntervals);
+            }
+        }
+        return groupedMap;
+    }
+
+    private void batchUpdateContribution(List<Map> dataMapList) {
+        if (CollectionUtils.isEmpty(dataMapList)) {
+            return;
+        }
+        List<Map> mapList = new ArrayList<>();
+        for (Map map : dataMapList) {
+            mapList.add(map);
+            if (mapList.size() == BATCH_SIZE_NUM) {
+                fundGroupMapper.batchUpdateContribution(mapList);
+                mapList.clear();
+            }
+        }
+        if (!CollectionUtils.isEmpty(mapList)) {
+            fundGroupMapper.batchUpdateContribution(mapList);
+        }
+        return;
     }
 }

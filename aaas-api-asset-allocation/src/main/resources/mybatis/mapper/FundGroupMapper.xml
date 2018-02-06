@@ -338,6 +338,14 @@
         update fund_group_details set revenue_contribution = #{contribution} where fund_group_sub_id= #{subGroupId} and fund_code= #{code}
     </update>
 
+    <update id="batchUpdateContribution" parameterType="java.util.Map">
+        <foreach collection="list" separator=";" item="item">
+            update fund_group_details set revenue_contribution = #{item.contribution}
+            where fund_group_sub_id = #{item.subGroupId}
+            and fund_code = #{item.code}
+        </foreach>
+    </update>
+
     <update id="updateMaximumLosses">
         update fund_group_sub set maximum_losses = #{maximum_losses} where fund_group_id = #{id} and id=#{subGroupId}
     </update>
