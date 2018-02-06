@@ -1525,6 +1525,7 @@ public class FundGroupService {
 
     public void getAllIdAndSubId(){
         logger.info("getAllIdAndSubId begin");
+
         ExecutorService pool = ThreadPoolUtil.getThreadPool();
         for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
             int fundGroupId = index;
@@ -1535,11 +1536,8 @@ public class FundGroupService {
 
         contribution();
 
-        for (int index = 1; index <= RISK_LEVEL_COUNT; index++) {
-            int riskLevelIndex = index;
-            pool.execute(() -> {
-                getNavadjBenchmark("C" + riskLevelIndex);
-            });
+        for (int riskLevel = 1; riskLevel <= RISK_LEVEL_COUNT; riskLevel++) {
+            getNavadjBenchmark("C" + riskLevel);
         }
 
         logger.info("getAllIdAndSubId end");
@@ -1612,6 +1610,7 @@ public class FundGroupService {
 
     private void contributionTask(List<Interval> intervals) {
         logger.info("contributionTask begin");
+
         for (Interval interval : intervals) {
             Map<String, Object> query = new HashMap<>();
             query.put("fund_group_id", interval.getFund_group_id());
@@ -1655,6 +1654,8 @@ public class FundGroupService {
             }
 
         }
+
+        logger.info("contributionTask end");
     }
 
     private Map<String, List<Interval>> getGroupedMapIntervals() {
