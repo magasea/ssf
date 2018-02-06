@@ -932,7 +932,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 											&& operationsStatusNew == TrdOrderStatusEnum.CONFIRMED.getStatus()) {
 										trad.put("tradeStatusValue", TrdOrderStatusEnum.CONFIRMED.getStatus());
 										trad.put("tradeStatus", UiTrdLogStatusEnum.CONFIRMED.getComment());
-									} else{
+									} else {
 										trad.put("tradeStatusValue", TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
 										trad.put("tradeStatus", UiTrdLogStatusEnum.WAITCONFIRM.getComment());
 									}

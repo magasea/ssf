@@ -131,7 +131,17 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
 			try {
 				codeIsNormalFund = false;
 				codeIsCoinFund = false;
-				Query query = new Query();
+
+				Query	query = new Query();
+				query.addCriteria(Criteria.where("code").is(code).andOperator(Criteria.where
+								("querydate").gt(DateUtil.getDateLongVal(navLatestDateStart) / 1000),
+						Criteria.where("querydate").lte(DateUtil.getDateLongVal(navLatestDateEnd) / 1000)));
+				partialCoinFundsList = mongoTemplate.find(query, CoinFunds.class, "coinfund_yieldrate");
+				coinFundsList.addAll(partialCoinFundsList);
+				if(!CollectionUtils.isEmpty(partialCoinFundsList)){
+					codeIsCoinFund = true;
+				}
+				query = new Query();
 				query.addCriteria(Criteria.where("code").is(code).andOperator(
 						Criteria.where("querydate").gt(DateUtil.getDateLongVal
 								(navLatestDateStart) / 1000),
@@ -141,17 +151,8 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
 				if (!CollectionUtils.isEmpty(partialFundsList)) {
 					codeIsNormalFund = true;
 					dailyFundsList.addAll(partialFundsList);
-				}else{
-					query = new Query();
-					query.addCriteria(Criteria.where("code").is(code).andOperator(Criteria.where
-									("querydate").gt(DateUtil.getDateLongVal(navLatestDateStart) / 1000),
-							Criteria.where("querydate").lte(DateUtil.getDateLongVal(navLatestDateEnd) / 1000)));
-					partialCoinFundsList = mongoTemplate.find(query, CoinFunds.class, "coinfund_yieldrate");
-					coinFundsList.addAll(partialCoinFundsList);
 				}
-				if(!CollectionUtils.isEmpty(partialCoinFundsList)){
-					codeIsCoinFund = true;
-				}
+
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}

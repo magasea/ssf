@@ -183,10 +183,13 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		List<OrderDetail> orderDetailListPayWatiConfirm = rpcOrderService
 				.getOrderDetails(userProdId, TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
-		List<OrderDetail> orderDetailListWaitPay = rpcOrderService
-				.getOrderDetails(userProdId, TrdOrderStatusEnum.WAITPAY.getStatus());
-
-		orderDetailListPayWatiConfirm.addAll(orderDetailListWaitPay);
+//		List<OrderDetail> orderDetailListWaitPay = rpcOrderService
+//				.getOrderDetails(userProdId, TrdOrderStatusEnum.WAITPAY.getStatus());
+//
+//		if (!CollectionUtils.isEmpty(orderDetailListPayWatiConfirm) && !CollectionUtils
+//				.isEmpty(orderDetailListWaitPay)) {
+//			orderDetailListPayWatiConfirm.addAll(orderDetailListWaitPay);
+//		}
 
 		for (OrderDetail orderDetail : orderDetailListPayWatiConfirm) {
 			if (fundCode.equals(orderDetail.getFundCode())) {
