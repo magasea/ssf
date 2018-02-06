@@ -39,7 +39,7 @@ public class BroadcastMessageProducers {
     public void sendConfirmMessage(MongoUiTrdZZInfo mongoUiTrdZZInfo){
         logger.info("sending  mongoUiTrdZZInfo" + mongoUiTrdZZInfo.getApplySerial());
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
-            .ROUTING_KEY_USERINFO, mongoUiTrdZZInfo);
+            .ROUTING_KEY_USERINFO_CFMLOG, mongoUiTrdZZInfo);
     }
 
 }

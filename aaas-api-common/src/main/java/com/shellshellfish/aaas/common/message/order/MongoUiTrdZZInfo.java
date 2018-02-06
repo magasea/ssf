@@ -101,6 +101,8 @@ public class MongoUiTrdZZInfo implements Serializable {
   
   private Long tradeTargetSum;
 
+  private Long fee;
+
   public String getId() {
     return id;
   }
@@ -331,5 +333,13 @@ public class MongoUiTrdZZInfo implements Serializable {
 
   public void setTradeType(int tradeType) {
     this.tradeType = tradeType;
+  }
+
+  public Long getFee() {
+    return fee;
+  }
+
+  public void setFee(Long fee) {
+    this.fee = fee;
   }
 }

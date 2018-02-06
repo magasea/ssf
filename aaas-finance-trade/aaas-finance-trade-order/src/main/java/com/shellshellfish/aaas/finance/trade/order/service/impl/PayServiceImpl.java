@@ -8,7 +8,8 @@ import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import com.shellshellfish.aaas.common.utils.DataCollectorUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokerUserRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdBrokerUserRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.redis.UserPidDAO;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.pay.BindBankCardQuery;
 import com.shellshellfish.aaas.finance.trade.pay.FundNetInfo;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -48,6 +50,9 @@ public class PayServiceImpl implements PayService {
 
   @Autowired
   ManagedChannel managedPayChannel;
+
+  @Resource
+  UserPidDAO userPidDAO;
 
   @PostConstruct
   public void init(){
@@ -85,6 +90,8 @@ public class PayServiceImpl implements PayService {
       trdBrokerUserOld.setUpdateBy(bindBankCard.getUserId());
       trdBrokerUserOld.setUpdateDate(TradeUtil.getUTCTime());
       trdBrokerUserRepository.save(trdBrokerUserOld);
+      //update userPidDao
+      userPidDAO.deleteUserPid(trdAcco, trdBrokerUserOld.getTradeBrokerId(), bindBankCard.getUserId());
     }else{
       TrdBrokerUser trdBrokerUserNew = new TrdBrokerUser();
       trdBrokerUserNew.setTradeAcco(trdAcco);
@@ -97,6 +104,8 @@ public class PayServiceImpl implements PayService {
       trdBrokerUserNew.setUpdateBy(bindBankCard.getUserId());
       trdBrokerUserNew.setUpdateDate(TradeUtil.getUTCTime());
       trdBrokerUserRepository.save(trdBrokerUserNew);
+      //update userPidDao
+      userPidDAO.deleteUserPid(trdAcco, trdBrokerUserOld.getTradeBrokerId(), bindBankCard.getUserId());
     }
 		return trdAcco;
 	}

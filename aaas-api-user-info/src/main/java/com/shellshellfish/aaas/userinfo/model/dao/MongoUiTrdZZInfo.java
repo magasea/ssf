@@ -108,6 +108,9 @@ public class MongoUiTrdZZInfo implements Serializable {
 	@Field( value = "trade_target_sum")
 	private Long tradeTargetSum;
 
+	@Field( value = "fee")
+	private Long fee;
+
 	public String getId() {
 		return id;
 	}
@@ -338,5 +341,13 @@ public class MongoUiTrdZZInfo implements Serializable {
 
 	public void setTradeType(int tradeType) {
 		this.tradeType = tradeType;
+	}
+
+	public Long getFee() {
+		return fee;
+	}
+
+	public void setFee(Long fee) {
+		this.fee = fee;
 	}
 }
