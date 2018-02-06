@@ -932,7 +932,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 											&& operationsStatusNew == TrdOrderStatusEnum.CONFIRMED.getStatus()) {
 										trad.put("tradeStatusValue", TrdOrderStatusEnum.CONFIRMED.getStatus());
 										trad.put("tradeStatus", UiTrdLogStatusEnum.CONFIRMED.getComment());
-									} else{
+									} else {
 										trad.put("tradeStatusValue", TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
 										trad.put("tradeStatus", UiTrdLogStatusEnum.WAITCONFIRM.getComment());
 									}
@@ -945,6 +945,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 			if (tradLogsMap2 != null && tradLogsMap2.size() > 0) {
 				for (String key2 : tradLogsMap2.keySet()) {
 					Map<String, Object> mapThree = tradLogsMap2.get(key2);
+					if (mapThree.get("tradeStatusValue") != null) {
+						mapThree.put("tradeStatus",
+								UiTrdLogStatusEnum.getComment(Integer.parseInt(mapThree.get("tradeStatusValue") + "")));
+					}
 					tradeLogs.add(mapThree);
 				}
 			}
