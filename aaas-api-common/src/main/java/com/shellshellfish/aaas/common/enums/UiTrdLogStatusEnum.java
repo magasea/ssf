@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.common.enums;
 
 public enum UiTrdLogStatusEnum {
-	WAITCONFIRM(0, "确认中"),CONFIRMED(2, "确认成功"),CONFIRMEDFAILED(-1, "失败");
+	WAITCONFIRM(0, "确认中"),CONFIRMED(2, "确认成功"),CONFIRMEDFAILED(-1, "确认失败");
 
 	private int operation;
 	String comment;

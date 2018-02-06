@@ -178,6 +178,24 @@ public class FundDetailedController {
 								result.put("yieldOf7DaysMaxMin", yieldOf7DaysMaxMin);
 							}
 						}
+						
+						List<Map> yieldOf7DaysList = new ArrayList<Map>();
+						List<Map> yieldOfTenKiloUnitYieldList = new ArrayList<Map>();
+						for(int i=0;i<yieldOf7DaysAndTenKiloUnitYieldList.size();i++){
+							Map<String,Object> yieldOf7DaysMap = new HashMap<String,Object>();
+							Map<String,Object> yieldOfTenKiloUnitYieldMap = new HashMap<String,Object>();
+							Map yieldMap = yieldOf7DaysAndTenKiloUnitYieldList.get(i);
+							yieldOf7DaysMap.put("date", yieldMap.get("date"));
+							yieldOf7DaysMap.put("yieldOf7Days", yieldMap.get("yieldOf7Days"));
+							yieldOfTenKiloUnitYieldMap.put("date", yieldMap.get("date"));
+							yieldOfTenKiloUnitYieldMap.put("tenKiloUnitYield", yieldMap.get("tenKiloUnitYield"));
+							yieldOf7DaysList.add(yieldOf7DaysMap);
+							yieldOfTenKiloUnitYieldList.add(yieldOfTenKiloUnitYieldMap);
+						}
+						Collections.reverse(yieldOf7DaysAndTenKiloUnitYieldList);
+						result.put("yieldOf7DaysList", yieldOf7DaysList);
+						result.put("yieldOfTenKiloUnitYieldList", yieldOfTenKiloUnitYieldList);
+						result.put("yieldOf7DaysAndTenKiloUnitYield", yieldOf7DaysAndTenKiloUnitYieldList);
 					}
 				}
 			} else {
@@ -210,6 +228,17 @@ public class FundDetailedController {
 						historyprofitMaxMix.put("maxValue", Collections.max(maxMinValueList));
 						historyprofitMaxMix.put("minValue", Collections.min(maxMinValueList));
 						result.put("historyprofitMaxMix", historyprofitMaxMix);
+					}
+				}
+				if(result.get("historynetlist")!=null){
+					List<Map> historynetlist = (List<Map>) result.get("historynetlist");
+					if(historynetlist!=null&&historynetlist.size()>0){
+						List<Map> historynetlistBak = new ArrayList<Map>();
+						for (int i = historynetlist.size() - 1; i >= 0; i--) {
+							Map historyprofitMap = historynetlist.get(i);
+							historynetlistBak.add(historyprofitMap);
+						}
+						result.put("historynetlist", historynetlistBak);
 					}
 				}
 			}
