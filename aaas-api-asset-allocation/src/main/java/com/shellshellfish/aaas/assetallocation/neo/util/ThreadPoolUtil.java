@@ -18,7 +18,7 @@ public class ThreadPoolUtil {
             Executors.defaultThreadFactory(),
             new ThreadPoolExecutor.AbortPolicy());
 
-    public static ExecutorService getThreadPool() {
+    public synchronized static ExecutorService getThreadPool() {
         return pool;
     }
 
