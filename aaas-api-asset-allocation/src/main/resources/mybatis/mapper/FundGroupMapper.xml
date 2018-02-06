@@ -217,22 +217,25 @@
 
     <select id="getNavadj" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
         select sum(a.navadj*b.proportion) navadj,a.navlatestdate from fund_net_value a,fund_group_details b
-        where a.code=b.fund_code and fund_group_id = #{fund_group_id} and fund_group_sub_id = #{subGroupId} and navlatestdate >= #{startTime}
+        where b.fund_group_id = #{fund_group_id}
+        and b.fund_group_sub_id = #{subGroupId}
+        and a.code=b.fund_code
+        and a.navlatestdate >= #{startTime}
         <if test="endTime != null and endTime != '' ">
-          and navlatestdate &lt; #{endTime}
+          and a.navlatestdate &lt; #{endTime}
         </if>
         group by a.navlatestdate
-        order by navlatestdate asc
+        order by a.navlatestdate asc
     </select>
 
     <select id="getNavadjBenchmark" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
         select sum(a.navadj*b.proportion) navadj,a.navlatestdate from fund_net_value a,fund_group_benchmark b
-        where a.code=b.fund_code and risk_level= #{risk_level} and navlatestdate >= #{startTime}
+        where a.code=b.fund_code and b.risk_level= #{risk_level} and a.navlatestdate >= #{startTime}
         <if test="endTime != null and endTime != '' ">
-          and navlatestdate &lt; #{endTime}
+          and a.navlatestdate &lt; #{endTime}
         </if>
         group by a.navlatestdate
-        order by navlatestdate asc
+        order by a.navlatestdate asc
     </select>
 
     <insert id="insertGroupNavadj">
@@ -307,13 +310,17 @@
 
     <select id="getNavadjStartTime" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
         select DISTINCT a.fund_code code,b.navadj*a.proportion navadj from fund_group_details a,fund_net_value b,fund_group_sub c
-        where a.fund_code=b.code and b.NAVLATESTDATE = c.interval_last_mod_time and a.fund_group_id = #{fund_group_id}
+        where a.fund_group_id=#{fund_group_id}
         and a.fund_group_sub_id=#{subGroupId}
+        and a.fund_code=b.code
+        and b.NAVLATESTDATE = c.interval_last_mod_time
     </select>
 
     <select id="getNavadjEndTime" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
         select a.fund_code code,b.navadj*a.proportion navadj from fund_group_details a,fund_net_value b
-        where a.fund_code=b.code and a.fund_group_id = #{fund_group_id} and a.fund_group_sub_id=#{subGroupId}
+        where a.fund_group_id=#{fund_group_id}
+        and a.fund_group_sub_id=#{subGroupId}
+        and a.fund_code=b.code
         order by b.navlatestdate desc limit #{num}
     </select>
 

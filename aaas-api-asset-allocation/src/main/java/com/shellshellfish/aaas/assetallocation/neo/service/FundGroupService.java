@@ -1229,7 +1229,7 @@ public class FundGroupService {
      * @param risk_level
      */
     public void  getNavadjBenchmark(String risk_level) {
-        logger.info("getNavadjBenchmark begin");
+        logger.info("getNavadjBenchmark begin, risk_level : {}", risk_level);
 
         Calendar ca = Calendar.getInstance();
         Date date = new Date();
@@ -1679,9 +1679,12 @@ public class FundGroupService {
     }
 
     private void batchUpdateContribution(List<Map> dataMapList) {
+        logger.info("batchUpdateContribution begin");
+
         if (CollectionUtils.isEmpty(dataMapList)) {
             return;
         }
+        logger.info("batchUpdateContribution size : {}", dataMapList.size());
         List<Map> mapList = new ArrayList<>();
         for (Map map : dataMapList) {
             mapList.add(map);
@@ -1693,6 +1696,8 @@ public class FundGroupService {
         if (!CollectionUtils.isEmpty(mapList)) {
             fundGroupMapper.batchUpdateContribution(mapList);
         }
+
+        logger.info("batchUpdateContribution end");
         return;
     }
 }
