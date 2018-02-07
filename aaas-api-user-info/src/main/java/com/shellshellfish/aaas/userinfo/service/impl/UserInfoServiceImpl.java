@@ -423,12 +423,14 @@ public class UserInfoServiceImpl implements UserInfoService {
 							RoundingMode.HALF_UP);
 				}
 				if (products.get("dailyIncome") != null) {
-					dailyIncome = dailyIncome.add(new BigDecimal(products.get("dailyIncome") + "")).setScale(2,
-							RoundingMode.HALF_UP);
+					dailyIncome = dailyIncome.add(new BigDecimal(products.get("dailyIncome") + ""))
+							.setScale(2,
+									RoundingMode.HALF_UP);
 				}
 				if (products.get("totalIncome") != null) {
-					totalIncome = totalIncome.add(new BigDecimal(products.get("totalIncome") + "")).setScale(2,
-							RoundingMode.HALF_UP);
+					totalIncome = totalIncome.add(new BigDecimal(products.get("totalIncome") + ""))
+							.setScale(2,
+									RoundingMode.HALF_UP);
 				}
 			}
 		}
@@ -689,21 +691,25 @@ public class UserInfoServiceImpl implements UserInfoService {
 			PortfolioInfo portfolioInfo = this.getChicombinationAssets(uuid, userId, products);
 			resultMap
 					.put("totalAssets",
-							Optional.ofNullable(portfolioInfo.getTotalAssets()).orElse(BigDecimal.ZERO)
+							Optional.ofNullable(portfolioInfo).map(m -> m.getTotalAssets())
+									.orElse(BigDecimal.ZERO)
 									.setScale(2, RoundingMode.HALF_UP));
 			// 日收益
 			resultMap
 					.put("dailyIncome",
-							Optional.ofNullable(portfolioInfo.getDailyIncome()).orElse(BigDecimal.ZERO)
+							Optional.ofNullable(portfolioInfo).map(m -> m.getDailyIncome())
+									.orElse(BigDecimal.ZERO)
 									.setScale(2, RoundingMode.HALF_UP));
 			// 累计收益率
 			resultMap.put("totalIncomeRate",
-					Optional.ofNullable(portfolioInfo.getTotalIncomeRate()).orElse(BigDecimal.ZERO)
+					Optional.ofNullable(portfolioInfo).map(m -> m.getTotalIncomeRate())
+							.orElse(BigDecimal.ZERO)
 							.setScale(4, RoundingMode.HALF_UP));
 			// 累计收益
 			resultMap
 					.put("totalIncome",
-							Optional.ofNullable(portfolioInfo.getTotalIncome()).orElse(BigDecimal.ZERO)
+							Optional.ofNullable(portfolioInfo).map(m -> m.getTotalIncome())
+									.orElse(BigDecimal.ZERO)
 									.setScale(2, RoundingMode.HALF_UP));
 
 			// 智投组合产品ID
@@ -805,14 +811,14 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Override
 	public List<Map<String, Object>> getTradLogsOfUser(String userUuid) throws Exception {
-	  List<MongoUiTrdLogDTO> tradeLogList = this.getTradeLogs(userUuid);
-		List<Map<String,Object>> tradeLogs = new ArrayList<Map<String,Object>>();
-		if(tradeLogList==null||tradeLogList.size()==0){
+		List<MongoUiTrdLogDTO> tradeLogList = this.getTradeLogs(userUuid);
+		List<Map<String, Object>> tradeLogs = new ArrayList<Map<String, Object>>();
+		if (tradeLogList == null || tradeLogList.size() == 0) {
 			throw new UserInfoException("404", "交易记录为空");
 		}
-		Map<Long,Map<String,Object>> bakMap = new HashMap<Long,Map<String,Object>>();
-		Map<String,Map<String,Object>> tradLogsMap = new HashMap<String,Map<String,Object>>();
-		Map<String,Map<String,Object>> tradLogsMap2 = new HashMap<String,Map<String,Object>>();
+		Map<Long, Map<String, Object>> bakMap = new HashMap<Long, Map<String, Object>>();
+		Map<String, Map<String, Object>> tradLogsMap = new HashMap<String, Map<String, Object>>();
+		Map<String, Map<String, Object>> tradLogsMap2 = new HashMap<String, Map<String, Object>>();
 		// 获取最新一天的单个基金的信息
 		for (MongoUiTrdLogDTO mongoUiTrdLogDTO : tradeLogList) {
 			Map<String, Object> map = new HashMap<String, Object>();
@@ -873,14 +879,14 @@ public class UserInfoServiceImpl implements UserInfoService {
 					map.put("amount", mongoUiTrdLogDTO.getAmount());
 				} else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
 						&& mongoUiTrdLogDTO
-								.getTradeStatus() == TrdOrderStatusEnum.PAYWAITCONFIRM
-										.getStatus()) {
+						.getTradeStatus() == TrdOrderStatusEnum.PAYWAITCONFIRM
+						.getStatus()) {
 					map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(
 							mongoUiTrdLogDTO.getTradeTargetSum()));
 				} else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
 						&& mongoUiTrdLogDTO
-								.getTradeStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM
-										.getStatus()) {
+						.getTradeStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM
+						.getStatus()) {
 					map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(
 							mongoUiTrdLogDTO.getTradeTargetShare()));
 				} else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null) {
@@ -903,7 +909,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 			}
 			// tradeLogs.add(map);
 		}
-		
+
 		if (tradLogsMap != null && tradLogsMap.size() > 0) {
 			for (String key : tradLogsMap.keySet()) {
 				String[] params = key.split("-");
@@ -914,9 +920,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 					if (bakMap2.get("tradeStatusValue") != null) {
 						Integer operation = Integer.parseInt(bakMap2.get("tradeStatusValue") + "");
 						if (bakMap2.get("tradeStatus") == null) {
-							if (operation == TrdOrderStatusEnum.CONFIRMED.getStatus()){
+							if (operation == TrdOrderStatusEnum.CONFIRMED.getStatus()) {
 								bakMap2.put("tradeStatus", UiTrdLogStatusEnum.CONFIRMED.getComment());
-							} else if (operation == TrdOrderStatusEnum.FAILED.getStatus()){
+							} else if (operation == TrdOrderStatusEnum.FAILED.getStatus()) {
 								bakMap2.put("tradeStatus", UiTrdLogStatusEnum.CONFIRMEDFAILED.getComment());
 							} else {
 								bakMap2.put("tradeStatus", UiTrdLogStatusEnum.WAITCONFIRM.getComment());
@@ -976,7 +982,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				return map2value.compareTo(map1value);
 			}
 		});
-		
+
 		return tradeLogs;
 	}
 }
