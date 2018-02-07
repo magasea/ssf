@@ -1,7 +1,5 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
-import static org.mockito.Matchers.intThat;
-
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -9,7 +7,6 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -21,9 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-
 import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -38,7 +33,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
@@ -82,7 +76,6 @@ import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
-
 import io.grpc.ManagedChannel;
 
 @Service
@@ -697,8 +690,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.CANCEL.getStatus()) {
 							count++;
 						}
-					} else if (uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()
-							|| uiProductDetailDTO.getStatus() == null) {
+					} else if (uiProductDetailDTO.getStatus() == null
+							|| uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()) {
 						fails++;
 					} else {
 						logger.error("uiProductDetailDTO.getStatus():" + uiProductDetailDTO.getStatus());
