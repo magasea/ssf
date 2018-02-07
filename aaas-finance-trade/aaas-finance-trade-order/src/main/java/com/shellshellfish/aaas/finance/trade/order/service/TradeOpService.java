@@ -58,4 +58,6 @@ public interface TradeOpService {
 
    Map<String, Object> sellorbuyDeatils(String orderId) throws Exception;
 
+   Map<String, Object> getOrderInfos(String uuid, Long prodId) throws Exception;
+
 }

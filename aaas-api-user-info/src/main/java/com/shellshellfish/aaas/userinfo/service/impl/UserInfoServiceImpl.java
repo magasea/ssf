@@ -1,5 +1,7 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import static org.mockito.Matchers.intThat;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -837,14 +839,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Override
 	public List<Map<String, Object>> getTradLogsOfUser(String userUuid) throws Exception {
-	  List<MongoUiTrdLogDTO> tradeLogList = this.getTradeLogs(userUuid);
-		List<Map<String,Object>> tradeLogs = new ArrayList<Map<String,Object>>();
-		if(tradeLogList==null||tradeLogList.size()==0){
+		List<MongoUiTrdLogDTO> tradeLogList = this.getTradeLogs(userUuid);
+		List<Map<String, Object>> tradeLogs = new ArrayList<Map<String, Object>>();
+		if (tradeLogList == null || tradeLogList.size() == 0) {
 			throw new UserInfoException("404", "交易记录为空");
 		}
-		Map<Long,Map<String,Object>> bakMap = new HashMap<Long,Map<String,Object>>();
-		Map<String,Map<String,Object>> tradLogsMap = new HashMap<String,Map<String,Object>>();
-		Map<String,Map<String,Object>> tradLogsMap2 = new HashMap<String,Map<String,Object>>();
+		Map<String, Map<String, Object>> tradLogsMap = new HashMap<String, Map<String, Object>>();
+		Map<String, Map<String, Object>> tradLogsMap2 = new HashMap<String, Map<String, Object>>();
 		// 获取最新一天的单个基金的信息
 		for (MongoUiTrdLogDTO mongoUiTrdLogDTO : tradeLogList) {
 			Map<String, Object> map = new HashMap<String, Object>();
@@ -878,8 +879,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 					map.put("operationsStatus", 1);
 				} else if (mongoUiTrdLogDTO.getOperations() == 2) {
 					map.put("operationsStatus", 2);
-				} else if (mongoUiTrdLogDTO.getOperations() == 3
-						|| mongoUiTrdLogDTO.getOperations() == 4) {
+				} else if (mongoUiTrdLogDTO.getOperations() == 3 || mongoUiTrdLogDTO.getOperations() == 4) {
 					map.put("operationsStatus", 3);
 				} else {
 					map.put("operationsStatus", 4);
@@ -904,28 +904,18 @@ public class UserInfoServiceImpl implements UserInfoService {
 				if (mongoUiTrdLogDTO.getAmount() != null) {
 					map.put("amount", mongoUiTrdLogDTO.getAmount());
 				} else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
-						&& mongoUiTrdLogDTO
-								.getTradeStatus() == TrdOrderStatusEnum.PAYWAITCONFIRM
-										.getStatus()) {
-					map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(
-							mongoUiTrdLogDTO.getTradeTargetSum()));
+						&& mongoUiTrdLogDTO.getTradeStatus() == TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus()) {
+					map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdLogDTO.getTradeTargetSum()));
 				} else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
-						&& mongoUiTrdLogDTO
-								.getTradeStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM
-										.getStatus()) {
-					map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(
-							mongoUiTrdLogDTO.getTradeTargetShare()));
+						&& mongoUiTrdLogDTO.getTradeStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus()) {
+					map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdLogDTO.getTradeTargetShare()));
 				} else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null) {
-					map.put("amount", new BigDecimal(
-							mongoUiTrdLogDTO.getTradeConfirmShare()));
+					map.put("amount", new BigDecimal(mongoUiTrdLogDTO.getTradeConfirmShare()));
 				} else if (mongoUiTrdLogDTO.getTradeConfirmSum() != null) {
-					map.put("amount", new BigDecimal(
-							mongoUiTrdLogDTO.getTradeConfirmSum()));
+					map.put("amount", new BigDecimal(mongoUiTrdLogDTO.getTradeConfirmSum()));
 				} else {
-					logger.error(
-							"there is no amount information for mondUiTrdLogDTO with userId:"
-									+ userUuid + " userProdId:"
-									+ mongoUiTrdLogDTO.getUserProdId());
+					logger.error("there is no amount information for mondUiTrdLogDTO with userId:" + userUuid
+							+ " userProdId:" + mongoUiTrdLogDTO.getUserProdId());
 				}
 				tradLogsMap.put(key, map);
 			} catch (Exception ex) {
