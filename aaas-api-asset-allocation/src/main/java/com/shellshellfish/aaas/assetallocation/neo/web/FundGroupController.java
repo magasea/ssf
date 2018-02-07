@@ -45,7 +45,7 @@ public class FundGroupController {
      */
     @ApiOperation("产品类别比重")
     @RequestMapping(value = "/api/asset-allocation/products/{groupId}/sub-groups/{subGroupId}/one-type", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType getProportionOne(@PathVariable("groupId") String groupId,@PathVariable("subGroupId") String subGroupId) {
+    public ReturnType getProportionOne(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId) {
         return fundGroupService.getProportionOne(groupId, subGroupId);
     }
 
