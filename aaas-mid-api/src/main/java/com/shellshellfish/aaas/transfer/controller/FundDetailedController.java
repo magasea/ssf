@@ -195,6 +195,7 @@ public class FundDetailedController {
 						result.put("yieldOf7DaysList", yieldOf7DaysList);
 						result.put("yieldOfTenKiloUnitYieldList", yieldOfTenKiloUnitYieldList);
 						result.put("yieldOf7DaysAndTenKiloUnitYield", yieldOf7DaysAndTenKiloUnitYieldList);
+						result.put("title", "查看历史数据");
 					}
 				}
 			} else {
@@ -240,6 +241,7 @@ public class FundDetailedController {
 						result.put("historynetlist", historynetlistBak);
 					}
 				}
+				result.put("title", "查看历史净值");
 			}
 			
 			if(result.get("basename")!=null){
