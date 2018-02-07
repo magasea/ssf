@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
+import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
 import com.shellshellfish.aaas.userinfo.aop.AopPageResources;
@@ -51,7 +52,6 @@ import com.shellshellfish.aaas.userinfo.service.OpenAccountService;
 import com.shellshellfish.aaas.userinfo.service.UiProductService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
-import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 import com.shellshellfish.aaas.userinfo.utils.PageWrapper;
 import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
@@ -1400,6 +1400,7 @@ public class UserInfoController {
 		} else {
 			resultMap.put("trendYield", new ArrayList<Map<String,Object>>());
 		}
+		resultMap.put("trendYieldTitle", "累计收益走势图 ");
 		//每日收益
 		
 		return new ResponseEntity<Map>(resultMap, HttpStatus.OK);

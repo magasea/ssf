@@ -1034,6 +1034,10 @@ public class FinanceController {
 									value = EasyKit.getDecimal(new BigDecimal(value));
 									incomeMap.put("value", value);
 								}
+							} else {
+								if (incomeList == null) {
+									map.put("income", new ArrayList<Map>());
+								}
 							}
 						}
 					}

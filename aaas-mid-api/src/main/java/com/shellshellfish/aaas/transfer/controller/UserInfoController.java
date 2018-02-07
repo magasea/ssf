@@ -369,7 +369,7 @@ public class UserInfoController {
 										bankName = bankName.substring(0, bankName.indexOf("·"));
 									}
 									map.put("orderId", orderId);
-									map.put("poundage", "0");
+									map.put("poundage", orderResult.get("buyFee"));
 									map.put("bankName", bankName);
 									map.put("bankcardNum", bankcardNum);
 									map.put("bankinfo", bankName + "(" + bankcardNum.substring(bankcardNum.length() - 4) + ")");
@@ -560,8 +560,8 @@ public class UserInfoController {
 					String date1 = result.get("date1") + "";
 					if (result.get("date1") != null) {
 						String date2 = result.get("date2") + "";
-						String title1 = "预计" + date1 + "-" + date2 + "期间到账。";
-						String title2 = "预计" + date1 + "-" + date2 + "期间到账，赎回基金中包含投资海外资产的QDII类型基金，确认后需要4-15个工作日到账。";
+						String title1 = "预计" + date1 + " ~ " + date2 + "期间到账。";
+						String title2 = "预计" + date1 + " ~ " + date2 + "期间到账，赎回基金中包含投资海外资产的QDII类型基金，确认后需要4-15个工作日到账。";
 						// 获取产品组合信息
 						String url2 = userinfoUrl + "/api/userinfo/product/" + prodId;
 						Map productResult = restTemplate.getForEntity(url2, Map.class).getBody();

@@ -1,11 +1,8 @@
 package com.shellshellfish.aaas.finance.trade.order.service;
 
-import com.shellshellfish.aaas.finance.trade.order.OrderQueryInfo;
-import com.shellshellfish.aaas.finance.trade.order.OrderResult;
+import java.util.List;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
-import io.grpc.stub.StreamObserver;
-import java.util.List;
 
 public interface OrderService {
 

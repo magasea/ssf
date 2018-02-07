@@ -84,6 +84,7 @@ public class FundGroupServiceImpl implements FundGroupService {
 		result.put("investDate", uiProductDTO.getUpdateDate());
 		result.put("investDays", DateUtil.getDaysToNow(new Date(uiProductDTO.getUpdateDate())));
 		result.put("combinationName", uiProductDTO.getProdName());
+		result.put("chartTitle", "累计收益率走势图");
 		
 		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
 //		buyDate = buyDate.substring(0,10);
