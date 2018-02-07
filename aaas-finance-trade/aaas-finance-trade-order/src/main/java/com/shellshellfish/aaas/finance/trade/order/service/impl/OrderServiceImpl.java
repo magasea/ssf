@@ -11,9 +11,11 @@ import com.shellshellfish.aaas.finance.trade.order.UserPID;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
+import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdTradeBankDic;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdBrokerUserRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderDetailRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdTradeBankDicRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.redis.UserPidDAO;
 import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
@@ -21,7 +23,9 @@ import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Resource;
@@ -48,6 +52,9 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 
 	@Autowired
 	UserInfoService userInfoService;
+	
+	@Autowired
+	TrdTradeBankDicRepository trdTradeBankDicRepository;
 
 	@Resource
 	UserPidDAO userPidDAO;
@@ -210,6 +217,16 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 		}
 		responseObserver.onNext(builder.build());
 		responseObserver.onCompleted();
+	}
+
+
+	@Override
+	public Map<String, Object> getBankInfos(String bankShortName) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository.findByBankShortName(bankShortName);
+		result.put("bankName", trdTradeBankDic.getBankName());
+		result.put("bankCode", trdTradeBankDic.getBankCode());
+		return result;
 	}
 
 }

@@ -135,6 +135,21 @@ public class UserInfoController {
 			// .getBody();
 			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/bankcards", List.class)
 					.getBody();
+			if (result != null && result.size() > 0) {
+				for (int i = 0; i < result.size(); i++) {
+					Map resultMap = result.get(i);
+					if (resultMap.get("bankCode") != null) {
+						Map bankMap = new HashMap();
+						bankMap = restTemplate.getForEntity(
+								tradeOrderUrl + "/api/trade/funds/banks?bankShortName=" + resultMap.get("bankCode"),
+								Map.class).getBody();
+						if (bankMap.get("bankName") != null) {
+							resultMap.put("bankShortName", bankMap.get("bankName"));
+							resultMap.put("bankName", bankMap.get("bankName"));
+						}
+					}
+				}
+			}
 			if (result == null) {
 				return new JsonResult(JsonResult.SUCCESS, "获取银行卡为空", JsonResult.EMPTYRESULT);
 			} else {
@@ -160,10 +175,16 @@ public class UserInfoController {
 		try {
 			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/bankcards/" + bankNum + "/banks", Map.class)
 					.getBody();
-			/*
-			 * if(result==null||result.size()==0){ return new
-			 * JsonResult(JsonResult.SUCCESS, "获取", result); }
-			 */
+			if (result != null && result.get("bankName") != null) {
+				Map bankMap = new HashMap();
+				bankMap = restTemplate
+						.getForEntity(tradeOrderUrl + "/api/trade/funds/banks?bankShortName=" + result.get("bankCode"),
+								Map.class)
+						.getBody();
+				if (bankMap.get("bankName") != null) {
+					result.put("bankName", bankMap.get("bankName"));
+				}
+			}
 			return new JsonResult(JsonResult.SUCCESS, "获取银行名称成功", result);
 		} catch (Exception e) {
 			/*
