@@ -387,16 +387,11 @@ public class TradeOrderController {
 			@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
 			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对") })
 	@RequestMapping(value = "/funds/banknums/{uuid}", method = RequestMethod.GET)
-	public ResponseEntity<Map> getBanknums(@PathVariable(value = "uuid") String uuid,
+	public ResponseEntity<Map> getOrderInfos(@PathVariable(value = "uuid") String uuid,
 			@RequestParam(value = "prodId") Long prodId) throws Exception {
 		logger.error("method getBanknums run ..");
 		Map<String, Object> result = new HashMap<String, Object>();
-		UserInfo userInfo = tradeOpService.getUserInfoByUserUUID(uuid);
-		Long userId = userInfo.getId();
-		TrdOrder trdOrder = orderService.findOrderByUserProdIdAndUserId(prodId, userId);
-		String bankNum = trdOrder.getBankCardNum();
-		result.put("bankNum", bankNum);
-		result.put("orderId", trdOrder.getOrderId());
+		result = tradeOpService.getOrderInfos(uuid, prodId);
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
 

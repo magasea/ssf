@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.finance.trade.order.repositories;
+package com.shellshellfish.aaas.finance.trade.order.repositories.mysql;
 
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdTradeBankDic;
 import org.springframework.data.repository.PagingAndSortingRepository;

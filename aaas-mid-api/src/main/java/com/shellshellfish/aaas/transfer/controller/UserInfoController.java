@@ -369,7 +369,7 @@ public class UserInfoController {
 										bankName = bankName.substring(0, bankName.indexOf("·"));
 									}
 									map.put("orderId", orderId);
-									map.put("poundage", "0");
+									map.put("poundage", orderResult.get("buyFee"));
 									map.put("bankName", bankName);
 									map.put("bankcardNum", bankcardNum);
 									map.put("bankinfo", bankName + "(" + bankcardNum.substring(bankcardNum.length() - 4) + ")");
@@ -404,8 +404,9 @@ public class UserInfoController {
 				logger.error("我的智投组合获取失败");
 				return new JsonResult(JsonResult.Fail, "我的智投组合为空", JsonResult.EMPTYRESULT);
 			} else {
+				List<Map<String, Object>> resultList = new ArrayList<Map<String,Object>>();
 				if (result.get("result") != null) {
-					List<Map<String, Object>> resultList = (List<Map<String, Object>>) result.get("result");
+					resultList = (List<Map<String, Object>>) result.get("result");
 					for (int i = 0; i < resultList.size(); i++) {
 						Map<String, Object> resultMap = resultList.get(i);
 						if (resultMap.get("totalIncomeRate") != null) {
@@ -414,8 +415,9 @@ public class UserInfoController {
 							resultMap.put("totalIncomeRate", totalIncomeRate + EasyKit.PERCENT);
 						}
 					}
+					Collections.reverse(resultList);
 				}
-				return new JsonResult(JsonResult.SUCCESS, "我的智投组合成功", result.get("result"));
+				return new JsonResult(JsonResult.SUCCESS, "我的智投组合成功", resultList);
 			}
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();

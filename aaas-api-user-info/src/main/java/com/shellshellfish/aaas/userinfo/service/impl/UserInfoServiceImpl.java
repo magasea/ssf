@@ -1,5 +1,7 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import static org.mockito.Matchers.intThat;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -7,7 +9,9 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -378,34 +382,68 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public Map<String, Object> getTrendYield(String userUuid) {
+	public Map<String, Object> getTrendYield(String userUuid) throws Exception {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		List<Map<String, Object>> trendYieldList = new ArrayList<Map<String, Object>>();
-		int days = 6;
-		//遍历赋值
-		for (int i = 0; i < days; i++) {
-			Map trendYieldMap = new HashMap<>();
-			String selectDate = DateUtil.getSystemDatesAgo(-i);
-			String dayBeforeSelectDate = DateUtil.getSystemDatesAgo(-i - 1);
+		String buyDate = "";
+		String selectDate = "";
+		Query query = new Query();
+		query.addCriteria(Criteria.where("userUuid").is(userUuid));
+		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC, "date"));
+		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
+		if(dailyAmountList!=null&&dailyAmountList.size()>0){
+			Map<String,BigDecimal> dailyAmountMap = new HashMap<String,BigDecimal>();
+			for (int i = 0; i < dailyAmountList.size(); i++) {
+				DailyAmount dailyAmount = dailyAmountList.get(i);
+				BigDecimal asset = BigDecimal.ZERO;
+				if (dailyAmountMap.get(dailyAmount.getDate()) == null) {
+					asset = dailyAmount.getAsset();
+					dailyAmountMap.put(dailyAmount.getDate(), asset);
+				} else {
+					asset = dailyAmountMap.get(dailyAmount.getDate()).add(dailyAmount.getAsset());
+					dailyAmountMap.put(dailyAmount.getDate(), asset);
+				}
+				if (asset.compareTo(BigDecimal.ZERO) > 0) {
+					if (StringUtils.isEmpty(selectDate)) {
+						selectDate = dailyAmount.getDate();
+					} else {
+						buyDate = dailyAmount.getDate();
+					}
+				}
+			}
+		}
+
+		// 遍历赋值
+		while (true) {
+			Map<String,Object> trendYieldMap = new HashMap<String,Object>();
+			if (selectDate.equals(buyDate)) {
+				break;
+			}
 			trendYieldMap.put("date", selectDate);
-			//调用对应的service
-			BigDecimal rate = userFinanceProdCalcService
-					.calcYieldValue(userUuid, dayBeforeSelectDate, selectDate);
+			// 调用对应的service
+			BigDecimal rate = userFinanceProdCalcService.calcYieldValue(userUuid, buyDate, selectDate);
 			if (rate != null) {
-				trendYieldMap.put("value", (rate.divide(new BigDecimal("100"), MathContext.DECIMAL128))
-						.setScale(2, BigDecimal.ROUND_HALF_UP));
+				trendYieldMap.put("value", (rate.divide(new BigDecimal("100"), MathContext.DECIMAL128)).setScale(2,
+						BigDecimal.ROUND_HALF_UP));
 			} else {
 				trendYieldMap.put("value", 0);
 			}
 			trendYieldList.add(trendYieldMap);
+
+			int year = Integer.parseInt(selectDate.substring(0,4));
+			int month = Integer.parseInt(selectDate.substring(4,6));
+			int day = Integer.parseInt(selectDate.substring(6,8));
+			LocalDate localDate = LocalDate.of(year, month, day);
+			localDate =  localDate.minusDays(1);
+			selectDate = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 		}
 		resultMap.put("trendYield", trendYieldList);
+		Collections.reverse(trendYieldList);
 		return resultMap;
 	}
 
 	@Override
 	public Map<String, Object> getTotalAssets(String uuid) throws Exception {
-		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
 		List<Map<String, Object>> productsList = this.getMyCombinations(uuid);
 		if (productsList == null || productsList.size() == 0) {
 			logger.error("我的智投组合暂时不存在");
@@ -651,7 +689,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 					.getProductDetailsByProdId(products.getId());
 			Integer count = 0;
 			Integer fails = 0;
-			Integer statusIsNull = 0;
 
 			if (productDetailsList != null && productDetailsList.size() > 0) {
 				for (int j = 0; j < productDetailsList.size(); j++) {
@@ -661,22 +698,17 @@ public class UserInfoServiceImpl implements UserInfoService {
 								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.FAILED.getStatus()
 								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.CANCEL.getStatus()) {
 							count++;
-						} else if (uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()) {
-							fails++;
 						}
+					} else if (uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()
+							|| uiProductDetailDTO.getStatus() == null) {
+						fails++;
 					} else {
-						statusIsNull++;
+						logger.error("uiProductDetailDTO.getStatus():" + uiProductDetailDTO.getStatus());
 					}
 				}
 				if (fails > 0) {
 					if (fails == productDetailsList.size()) {
 						//若组合中全部失败，则不显示
-						continue;
-					}
-				}
-				if (statusIsNull > 0) {
-					if (statusIsNull == productDetailsList.size()) {
-						//若组合中状态全部为NULL，则不显示
 						continue;
 					}
 				}
@@ -715,7 +747,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 			// 智投组合产品ID
 			resultMap.put("prodId", products.getId());
 			// 买入日期
-			resultMap.put("updateDate", DateUtil.getDateType(products.getUpdateDate()));
+//			resultMap.put("updateDate", DateUtil.getDateType(products.getUpdateDate()));
+			String date = InstantDateUtil.getDayConvertString(products.getCreateDate());
+			resultMap.put("updateDate", date);
 
 			resultList.add(resultMap);
 		}
@@ -816,7 +850,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 		if (tradeLogList == null || tradeLogList.size() == 0) {
 			throw new UserInfoException("404", "交易记录为空");
 		}
-		Map<Long, Map<String, Object>> bakMap = new HashMap<Long, Map<String, Object>>();
 		Map<String, Map<String, Object>> tradLogsMap = new HashMap<String, Map<String, Object>>();
 		Map<String, Map<String, Object>> tradLogsMap2 = new HashMap<String, Map<String, Object>>();
 		// 获取最新一天的单个基金的信息
@@ -852,8 +885,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 					map.put("operationsStatus", 1);
 				} else if (mongoUiTrdLogDTO.getOperations() == 2) {
 					map.put("operationsStatus", 2);
-				} else if (mongoUiTrdLogDTO.getOperations() == 3
-						|| mongoUiTrdLogDTO.getOperations() == 4) {
+				} else if (mongoUiTrdLogDTO.getOperations() == 3 || mongoUiTrdLogDTO.getOperations() == 4) {
 					map.put("operationsStatus", 3);
 				} else {
 					map.put("operationsStatus", 4);
@@ -878,28 +910,18 @@ public class UserInfoServiceImpl implements UserInfoService {
 				if (mongoUiTrdLogDTO.getAmount() != null) {
 					map.put("amount", mongoUiTrdLogDTO.getAmount());
 				} else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
-						&& mongoUiTrdLogDTO
-						.getTradeStatus() == TrdOrderStatusEnum.PAYWAITCONFIRM
-						.getStatus()) {
-					map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(
-							mongoUiTrdLogDTO.getTradeTargetSum()));
+						&& mongoUiTrdLogDTO.getTradeStatus() == TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus()) {
+					map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdLogDTO.getTradeTargetSum()));
 				} else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
-						&& mongoUiTrdLogDTO
-						.getTradeStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM
-						.getStatus()) {
-					map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(
-							mongoUiTrdLogDTO.getTradeTargetShare()));
+						&& mongoUiTrdLogDTO.getTradeStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus()) {
+					map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdLogDTO.getTradeTargetShare()));
 				} else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null) {
-					map.put("amount", new BigDecimal(
-							mongoUiTrdLogDTO.getTradeConfirmShare()));
+					map.put("amount", new BigDecimal(mongoUiTrdLogDTO.getTradeConfirmShare()));
 				} else if (mongoUiTrdLogDTO.getTradeConfirmSum() != null) {
-					map.put("amount", new BigDecimal(
-							mongoUiTrdLogDTO.getTradeConfirmSum()));
+					map.put("amount", new BigDecimal(mongoUiTrdLogDTO.getTradeConfirmSum()));
 				} else {
-					logger.error(
-							"there is no amount information for mondUiTrdLogDTO with userId:"
-									+ userUuid + " userProdId:"
-									+ mongoUiTrdLogDTO.getUserProdId());
+					logger.error("there is no amount information for mondUiTrdLogDTO with userId:" + userUuid
+							+ " userProdId:" + mongoUiTrdLogDTO.getUserProdId());
 				}
 				tradLogsMap.put(key, map);
 			} catch (Exception ex) {
@@ -909,7 +931,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 			}
 			// tradeLogs.add(map);
 		}
-
+		
 		if (tradLogsMap != null && tradLogsMap.size() > 0) {
 			for (String key : tradLogsMap.keySet()) {
 				String[] params = key.split("-");
@@ -920,9 +942,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 					if (bakMap2.get("tradeStatusValue") != null) {
 						Integer operation = Integer.parseInt(bakMap2.get("tradeStatusValue") + "");
 						if (bakMap2.get("tradeStatus") == null) {
-							if (operation == TrdOrderStatusEnum.CONFIRMED.getStatus()) {
+							if (operation == TrdOrderStatusEnum.CONFIRMED.getStatus()){
 								bakMap2.put("tradeStatus", UiTrdLogStatusEnum.CONFIRMED.getComment());
-							} else if (operation == TrdOrderStatusEnum.FAILED.getStatus()) {
+							} else if (operation == TrdOrderStatusEnum.FAILED.getStatus()){
 								bakMap2.put("tradeStatus", UiTrdLogStatusEnum.CONFIRMEDFAILED.getComment());
 							} else {
 								bakMap2.put("tradeStatus", UiTrdLogStatusEnum.WAITCONFIRM.getComment());
@@ -982,7 +1004,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				return map2value.compareTo(map1value);
 			}
 		});
-
+		
 		return tradeLogs;
 	}
 }

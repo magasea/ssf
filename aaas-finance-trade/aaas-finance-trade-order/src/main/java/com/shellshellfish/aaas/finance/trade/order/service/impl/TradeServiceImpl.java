@@ -7,7 +7,7 @@ import com.shellshellfish.aaas.finance.trade.grpc.BindCardInfo;
 import com.shellshellfish.aaas.finance.trade.grpc.BindCardResult;
 import com.shellshellfish.aaas.finance.trade.grpc.TradeServiceGrpc.TradeServiceImplBase;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdTradeBankDic;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdTradeBankDicRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdTradeBankDicRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;

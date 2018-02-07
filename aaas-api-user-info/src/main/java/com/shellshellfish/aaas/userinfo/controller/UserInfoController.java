@@ -1400,6 +1400,7 @@ public class UserInfoController {
 		} else {
 			resultMap.put("trendYield", new ArrayList<Map<String,Object>>());
 		}
+		resultMap.put("trendYieldTitle", "累计收益走势图 ");
 		//每日收益
 		
 		return new ResponseEntity<Map>(resultMap, HttpStatus.OK);

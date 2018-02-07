@@ -11,9 +11,10 @@ import com.shellshellfish.aaas.finance.trade.order.UserPID;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokerUserRepository;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRepository;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdBrokerUserRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderDetailRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.redis.UserPidDAO;
 import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +48,9 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 
 	@Autowired
 	UserInfoService userInfoService;
+
+	@Resource
+	UserPidDAO userPidDAO;
 
 	@Override
 	public List<TrdOrderDetail> getOrderByUserId(Long userId) {
@@ -98,19 +103,31 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 		String trdAcco = request.getTrdAcco();
 		int brokerId = request.getTrdBrokerId();
 		long userId = request.getUserId();
+		UserPID.Builder upidBuilder = UserPID.newBuilder();
 		if (StringUtils.isEmpty(trdAcco) || brokerId <= 0 || userId <= 0) {
 			logger.error(
 					"trdAcco:" + trdAcco + " brokerId:" + brokerId + " userId:" + userId + " is not valid");
+		}
+		if(StringUtils.isEmpty(userPidDAO.getUserPid(trdAcco,brokerId,userId) )){
+			logger.error(
+					"trdAcco:" + trdAcco + " brokerId:" + brokerId + " userId:" + userId + " cannot find "
+							+ "corresponding userPid");
+		}else{
+			upidBuilder.setUserPid(userPidDAO.getUserPid(trdAcco,brokerId,userId));
+			responseObserver.onNext(upidBuilder.build());
+			responseObserver.onCompleted();
+			return;
 		}
 		TrdBrokerUser trdBrokerUser = trdBrokerUserRepository
 				.findByTradeAccoAndTradeBrokerId(trdAcco, brokerId);
 		//获取银行卡cardNm后去查询userInfo里面的 userPid
 		UserBankInfo userInfo = null;
-		UserPID.Builder upidBuilder = UserPID.newBuilder();
+
 		try {
 			userInfo = userInfoService.getUserBankInfo(userId);
 			for (CardInfo cardInfo : userInfo.getCardNumbersList()) {
 				if (trdBrokerUser.getBankCardNum().equals(cardInfo.getCardNumbers())) {
+					userPidDAO.addUserPid(trdAcco,brokerId,userId, cardInfo.getUserPid());
 					upidBuilder.setUserPid(cardInfo.getUserPid());
 				}
 			}
@@ -119,6 +136,7 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 		} catch (ExecutionException | InterruptedException e) {
 			e.printStackTrace();
 			logger.error(e.getMessage());
+			userPidDAO.deleteUserPid(trdAcco, brokerId, userId);
 			upidBuilder.setUserPid("-1");
 			responseObserver.onNext(upidBuilder.build());
 			responseObserver.onCompleted();

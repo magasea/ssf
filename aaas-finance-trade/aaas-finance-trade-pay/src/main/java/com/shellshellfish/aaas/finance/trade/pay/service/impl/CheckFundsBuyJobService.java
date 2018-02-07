@@ -174,6 +174,7 @@ public class CheckFundsBuyJobService {
             mongoUiTrdZZInfo.setMelonMethod(confirmResult.getMelonmethod());
             mongoUiTrdZZInfo.setOriApplyDate(confirmResult.getOriapplydate());
             mongoUiTrdZZInfo.setBankSerial(confirmResult.getBankSerial());
+            mongoUiTrdZZInfo.setFee(TradeUtil.getLongNumWithMul100(confirmResult.getPoundage()));
             broadcastMessageProducers.sendConfirmMessage(mongoUiTrdZZInfo);
         }
 
