@@ -68,7 +68,9 @@ public class FundGroupService {
             }
             query.remove("fund_group_id");
 
-            RiskIncomeInterval riskIncomeInterval = riskIncomeIntervalList.get((riskIncomeIntervalList.size() - 1) / 2);
+            int index = (riskIncomeIntervalList.size() - 1) / 2;
+            index = index > 0 ? index - 1 : 0;
+            RiskIncomeInterval riskIncomeInterval = riskIncomeIntervalList.get(index);
             query.put("groupId", riskIncomeInterval.getFund_group_id());
             query.put("subGroupId", riskIncomeInterval.getId());
             //基金组合内的各基金权重
