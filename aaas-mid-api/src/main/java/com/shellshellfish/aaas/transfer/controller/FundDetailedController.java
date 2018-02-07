@@ -196,6 +196,9 @@ public class FundDetailedController {
 						result.put("yieldOfTenKiloUnitYieldList", yieldOfTenKiloUnitYieldList);
 						result.put("yieldOf7DaysAndTenKiloUnitYield", yieldOf7DaysAndTenKiloUnitYieldList);
 						result.put("title", "查看历史数据");
+						result.put("title1", "日期");
+						result.put("title2", "七日年化");
+						result.put("title3", "万份收益");
 					}
 				}
 			} else {
@@ -242,6 +245,10 @@ public class FundDetailedController {
 					}
 				}
 				result.put("title", "查看历史净值");
+				result.put("title1", "日期");
+				result.put("title2", "单位净值");
+				result.put("title3", "累计净值");
+				result.put("title4", "日涨幅");
 			}
 			
 			if(result.get("basename")!=null){
