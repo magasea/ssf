@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Component
 public class BroadcastMessageConsumers {
@@ -96,7 +97,7 @@ public class BroadcastMessageConsumers {
         value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
             .OPERATION_TYPE_UPDATE_UITRDLOG, durable = "false"),
         exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
-            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO)
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_TRDLOG)
     )
     public void receiveTradeMessage(TrdPayFlow trdPayFlow, Channel channel, @Header(AmqpHeaders
         .DELIVERY_TAG) long tag) throws Exception {
@@ -151,7 +152,7 @@ public class BroadcastMessageConsumers {
         value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
             .OPERATION_TYPE_UPDATE_UITRDLOG, durable = "false"),
         exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
-            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO)
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_ORDSTATCHG)
     )
     public void receiveOrderStatusChangeMessage(OrderStatusChangeDTO orderStatusChangeDTO, Channel channel, @Header
         (AmqpHeaders
@@ -186,33 +187,100 @@ public class BroadcastMessageConsumers {
         value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
             .OPERATION_TYPE_CHECKSELL_ROLLBACK, durable = "false"),
         exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
-            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO)
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_REDEEM)
     )
     public void receiveAndCheckSell(TrdPayFlow trdPayFlow, Channel channel, @Header(AmqpHeaders
         .DELIVERY_TAG) long tag) throws Exception {
         logger.info("receiveAndCheckSell Received fanout 1 message: " + trdPayFlow);
         logger.info("this consumer only controll redeem payFlow message");
         //if sell failed then update ui_product_details product number back
-        if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.FAILED.getStatus() && trdPayFlow
-            .getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+        UiProductDetail uiProductDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
+            (trdPayFlow.getUserProdId(), trdPayFlow.getFundCode());
+        if(!StringUtils.isEmpty(trdPayFlow.getApplySerial()) && trdPayFlow.getApplySerial().equals
+            (uiProductDetail.getLastestSerial())){
+            logger.error("repeated trdPayFlow message received, just ignore it");
+        }
+        else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.REDEEMFAILED.getStatus() &&
+            trdPayFlow.getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation() &&
+            uiProductDetail.getStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()){
             //记住 要和payService里面sellProd的做法一致，发送方也得用这个字段存储赎回基金数量
+
+            //赎回失败情况下把数量加回去，前提是状态已经是等待赎回， 否则作为重复请求忽略掉这个信息
             Long fundQuantity = trdPayFlow.getTradeTargetShare();
             logger.info("now set the fund quantity back with userProdId:" + trdPayFlow.getUserProdId
                 () + " fundQuantity:" + fundQuantity);
-            uiProductDetailRepo.updateByAddBackQuantity(fundQuantity, TradeUtil.getUTCTime(),
-                SystemUserEnum.SYSTEM_USER_ENUM.getUserId(), trdPayFlow.getUserProdId(),
-                trdPayFlow.getFundCode(), trdPayFlow.getTrdStatus());
+            uiProductDetail.setFundQuantityTrade(uiProductDetail.getFundQuantityTrade() +
+                fundQuantity.intValue());
+            uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+            uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
+            uiProductDetail.setStatus(trdPayFlow.getTrdStatus());
+            uiProductDetailRepo.save(uiProductDetail);
+//            uiProductDetailRepo.updateByAddBackQuantity(fundQuantity, TradeUtil.getUTCTime(),
+//                SystemUserEnum.SYSTEM_USER_ENUM.getUserId(), trdPayFlow.getUserProdId(),
+//                trdPayFlow.getFundCode(), trdPayFlow.getTrdStatus(), TrdOrderStatusEnum.WAITSELL.getStatus());
         }else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus() && trdPayFlow
             .getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
             logger.info("now update the product status to SELLWAITCONFIRM");
-            uiProductDetailRepo.updateByParamForStatus(TradeUtil.getUTCTime(),
-                SystemUserEnum.SYSTEM_USER_ENUM.getUserId(), trdPayFlow.getUserProdId(),
-                trdPayFlow.getFundCode(), trdPayFlow.getTrdStatus());
+            uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
+            uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+            uiProductDetail.setStatus(trdPayFlow.getTrdStatus());
+            boolean haveSerialInPayFlow = true;
+            if(StringUtils.isEmpty(trdPayFlow.getApplySerial())){
+                logger.error("the apply serial is empty so it is an error ");
+                haveSerialInPayFlow = false;
+            }
+            if(StringUtils.isEmpty(uiProductDetail.getLastestSerial())){
+                if(haveSerialInPayFlow) {
+                   uiProductDetail.setLastestSerial(trdPayFlow.getApplySerial());
+                }
+            }else{
+                if(haveSerialInPayFlow){
+                    uiProductDetail.setLastestSerial(uiProductDetail.getLastestSerial()
+                        +"|"+trdPayFlow.getApplySerial());
+                }
+            }
+            uiProductDetailRepo.save(uiProductDetail);
+//            uiProductDetailRepo.updateByParamForStatus(TradeUtil.getUTCTime(),
+//                SystemUserEnum.SYSTEM_USER_ENUM.getUserId(), trdPayFlow.getUserProdId(),
+//                trdPayFlow.getFundCode(), trdPayFlow.getTrdStatus());
         }else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus() && trdPayFlow
             .getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
-            uiProductDetailRepo.updateByReedemConfirm(trdPayFlow.getTradeConfirmShare(),
-                TradeUtil.getUTCTime(),SystemUserEnum.SYSTEM_USER_ENUM.getUserId(),trdPayFlow
-                .getUserProdId(),trdPayFlow.getFundCode(),trdPayFlow.getTrdStatus());
+            int status = trdPayFlow.getTrdStatus();
+            if(uiProductDetail.getStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()){
+                logger.info("because uiProductDetail.getStatus() is:" + uiProductDetail.getStatus
+                    () + " so the status should be kept for reject current redeem operation");
+                status = uiProductDetail.getStatus();
+            }
+            Long delta = trdPayFlow.getTradeTargetShare() - trdPayFlow.getTradeConfirmShare();
+            //delta need to be add back to the origin trade quantity
+            uiProductDetail.setFundQuantity(uiProductDetail.getFundQuantity() - trdPayFlow
+                .getTradeConfirmShare().intValue());
+            uiProductDetail.setStatus(status);
+            uiProductDetail.setFundQuantityTrade(uiProductDetail.getFundQuantityTrade() + delta.intValue());
+            uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
+            uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+            if( !StringUtils.isEmpty(uiProductDetail.getLastestSerial()) && !uiProductDetail
+                .getLastestSerial().contains(trdPayFlow.getApplySerial())){
+                logger.error("received repeated confirm message :" + trdPayFlow.getApplySerial());
+            }else if(StringUtils.isEmpty(uiProductDetail.getLastestSerial())){
+                logger.info("it is initial, let's handle this message ");
+                uiProductDetailRepo.save(uiProductDetail);
+            }else if(!StringUtils.isEmpty(uiProductDetail.getLastestSerial()) && uiProductDetail
+                .getLastestSerial().contains(trdPayFlow.getApplySerial())){
+                String[] serials = uiProductDetail.getLastestSerial().split("|");
+                StringBuilder sb = new StringBuilder();
+                for(String serial: serials){
+                    if(serial.equals(trdPayFlow.getApplySerial())){
+                        logger.info("got the history stored serial:"+trdPayFlow.getApplySerial());
+                        continue;
+                    }else{
+                        sb.append(serial).append("|");
+                    }
+                }
+                uiProductDetail.setLastestSerial(sb.toString());
+                uiProductDetailRepo.save(uiProductDetail);
+            }
+
         }else{
             logger.error("havent handling this kind of trdPayflow: of trdType:"+ trdPayFlow
                 .getTrdType() + " status:" + trdPayFlow.getTrdStatus());

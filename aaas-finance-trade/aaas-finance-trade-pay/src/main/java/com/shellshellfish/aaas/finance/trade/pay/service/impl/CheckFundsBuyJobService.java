@@ -243,7 +243,7 @@ public class CheckFundsBuyJobService {
                             .getPoundage()));
                         updateByCheckAboutSumNum(trdPayFlow, applyResult);
 
-
+                        trdPayFlow.setTrdType(opTypeEnum.getOperation());
                         trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno());
                         trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
                         trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());

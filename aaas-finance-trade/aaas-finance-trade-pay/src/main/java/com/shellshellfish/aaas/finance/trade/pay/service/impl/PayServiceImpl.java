@@ -291,7 +291,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   @Override
   public com.shellshellfish.aaas.common.message.order.TrdPayFlow notifySell(
       com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlow) {
-    return null;
+    broadcastMessageProducers.sendSellMessage(trdPayFlow);
+    return trdPayFlow;
   }
 
   @Override
@@ -387,20 +388,18 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
               .shellshellfish.aaas.common.message.order.TrdPayFlow();
           BeanUtils.copyProperties(trdPayFlowResult, trdPayFlowMsg);
-          notifyPay(trdPayFlowMsg);
+          notifySell(trdPayFlowMsg);
         }else{
           //赎回请求失败，需要把扣减的基金数量加回去
-          com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
-              .shellshellfish.aaas.common.message.order.TrdPayFlow();
-          trdPayFlow.setTrdStatus(TrdOrderStatusEnum.FAILED.getStatus());
-          trdPayFlow.setTradeTargetShare(sellNum);
-          trdPayFlow.setUserProdId(prodDtlSellDTO.getUserProdId());
-          MyBeanUtils.mapEntityIntoDTO(trdPayFlow, trdPayFlowMsg);
-          notifyPay(trdPayFlowMsg);
+          notifyRollback(trdPayFlow, prodDtlSellDTO, sellNum);
         }
       }catch (Exception ex){
         ex.printStackTrace();
         logger.error(ex.getMessage());
+        logger.error("because of error:" + ex.getMessage() + " we need send out rollback "
+            + "notification");
+        //赎回请求失败，需要把扣减的基金数量加回去
+        notifyRollback(trdPayFlow, prodDtlSellDTO, sellNum);
       }
 
     }
@@ -409,6 +408,17 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     return false;
   }
 
+  private void notifyRollback(TrdPayFlow trdPayFlow, ProdDtlSellDTO prodDtlSellDTO, int sellNum){
+    com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
+        .shellshellfish.aaas.common.message.order.TrdPayFlow();
+    trdPayFlow.setTrdStatus(TrdOrderStatusEnum.REDEEMFAILED.getStatus());
+    trdPayFlow.setTradeTargetShare(sellNum);
+    trdPayFlow.setUserProdId(prodDtlSellDTO.getUserProdId());
+    trdPayFlow.setFundCode(prodDtlSellDTO.getFundCode());
+    trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+    MyBeanUtils.mapEntityIntoDTO(trdPayFlow, trdPayFlowMsg);
+    notifySell(trdPayFlowMsg);
+  }
   /**
    */
   @Override
@@ -938,7 +948,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           String key = fundCode;
           Query findFundNetInfoQuery = new Query();
           findFundNetInfoQuery.addCriteria(Criteria.where("fund_code").is(fundCode).andOperator
-              (Criteria.where("trade_date").is(fundNet.getTradeDate())));
+              (Criteria.where("trade_date").is(String.join("",fundNet.getTradeDate().split("-")
+              ))));
           findFundNetInfoQuery.with(new Sort(Direction.DESC, "trade_date"));
           findFundNetInfoQuery.limit(1);
           List<MongoFundNetInfo> mongoFundNetInfos = mongoPayTemplate.find(findFundNetInfoQuery,
@@ -947,6 +958,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
             MongoFundNetInfo mongoFundNetInfo = new MongoFundNetInfo();
             MyBeanUtils.mapEntityIntoDTO(fundNet, mongoFundNetInfo);
             mongoFundNetInfo.setFundCode(fundCode);
+            mongoFundNetInfo.setTradeDate(String.join("", fundNet.getTradeDate().split("-")));
             mongoPayTemplate.save(mongoFundNetInfo);
           }else{
             logger.info("the record of mongoFundNetInfo of fundCode:"+ fundCode + " and "

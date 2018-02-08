@@ -60,6 +60,26 @@ public class TradeUtil {
     return out;
   }
 
+  public static Date getDateOfSpecificTime(int year, int month, int day, int hour, int minute){
+
+    String time = year +  "-" +String.format("%02d",month) + "-" +String.format("%02d",day) +" "+
+        String.format("%02d", hour)+":"+String.format("%02d", minute)+ ":00";
+    ZonedDateTime dt = ZonedDateTime.parse(time, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        .withZone(ZoneId.systemDefault()));
+    Date out = Date.from(dt.toInstant());
+    return out;
+  }
+
+  public static Long getUTCTimeOfSpecificTime(int year, int month, int day, int hour, int
+      minute){
+
+    String time = year +  "-" +String.format("%02d",month) + "-" +String.format("%02d",day) +" "+
+        String.format("%02d", hour)+":"+String.format("%02d", minute)+ ":00";
+    ZonedDateTime dt = ZonedDateTime.parse(time, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        .withZone(ZoneId.systemDefault()));
+    Date out = Date.from(dt.toInstant());
+    return out.toInstant().toEpochMilli();
+  }
   public static Long getUTCTime(){
     ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneId.systemDefault());
     return utcDateTime.toInstant().toEpochMilli();

@@ -124,7 +124,7 @@ public class FundGroupServiceImpl implements FundGroupService {
 		while (true) {
 			Map<String,Object> dateValueMap = new HashMap<String,Object>();
 //			String dayBeforeSelectDate = DateUtil.getSystemDatesAgo(-days - 1);
-			if (selectDate.equals(buyDate)) {
+			if (selectDate.equals(buyDate) || StringUtils.isEmpty(selectDate)) {
 				break;
 			}
 			dateValueMap.put("time", selectDate);
@@ -138,6 +138,7 @@ public class FundGroupServiceImpl implements FundGroupService {
 			dateValueMap.put("value", value);
 			resultList.add(dateValueMap);
 			
+			logger.info("selectDate==="+selectDate);
 			int year = Integer.parseInt(selectDate.substring(0,4));
 			int month = Integer.parseInt(selectDate.substring(4,6));
 			int day = Integer.parseInt(selectDate.substring(6,8));

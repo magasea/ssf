@@ -389,7 +389,7 @@ public class TradeOrderController {
 	@RequestMapping(value = "/funds/banknums/{uuid}", method = RequestMethod.GET)
 	public ResponseEntity<Map> getOrderInfos(@PathVariable(value = "uuid") String uuid,
 			@RequestParam(value = "prodId") Long prodId) throws Exception {
-		logger.error("method getBanknums run ..");
+//		logger.error("method getBanknums run ..");
 		Map<String, Object> result = new HashMap<String, Object>();
 		result = tradeOpService.getOrderInfos(uuid, prodId);
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
