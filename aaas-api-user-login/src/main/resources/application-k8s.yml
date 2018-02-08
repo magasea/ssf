@@ -21,7 +21,7 @@ datasource:
       format_sql: true
       dialect: org.hibernate.dialect.MySQLDialect
 grpc:
-  host: localhost
+#  host: localhost
   port: 10071
 ali:
     accessKeyId: LTAIpZL9r6q0kkPV
@@ -29,7 +29,7 @@ ali:
 app:
     debug: true
 redis:
-    host: localhost
+    host: redis-service
     port: 6379
     pwd: redis123
 sms:

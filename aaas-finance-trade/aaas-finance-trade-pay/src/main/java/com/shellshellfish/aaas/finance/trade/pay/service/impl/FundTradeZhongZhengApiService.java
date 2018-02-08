@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.model.*;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import org.apache.commons.codec.digest.UnixCrypt;
@@ -675,7 +676,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         String publicKey = "enVoZWNlc2hpMQ==";
         String platformCode = "zuheceshi1";
         String platformOpenId = userUuid;//"shellshellfish";//"noUserToOneFund";
-        Long time = new Date().toInstant().getEpochSecond();
+//        Long time = new Date().toInstant().getEpochSecond();
+        long time = TradeUtil.getUTCTimeInSeconds();
         String data = objectMapper.writeValueAsString(Arrays.asList(platformOpenId));
 
         String privateKey = "6t9L76KqurWlX9Zn";

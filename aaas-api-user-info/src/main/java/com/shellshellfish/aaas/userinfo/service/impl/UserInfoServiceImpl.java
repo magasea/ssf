@@ -439,6 +439,134 @@ public class UserInfoServiceImpl implements UserInfoService {
 		Collections.reverse(trendYieldList);
 		return resultMap;
 	}
+	
+	public Map<String, Object> getTrendYield2(String userUuid) throws Exception {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		List<Map<String, Object>> trendYieldList = new ArrayList<Map<String, Object>>();
+		String buyDate = "";
+		String selectDate = "";
+		Query query = new Query();
+		query.addCriteria(Criteria.where("userUuid").is(userUuid));
+		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC, "date"));
+		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
+		if(dailyAmountList!=null&&dailyAmountList.size()>0){
+			Map<String,BigDecimal> dailyAmountMap = new HashMap<String,BigDecimal>();
+			for (int i = 0; i < dailyAmountList.size(); i++) {
+				DailyAmount dailyAmount = dailyAmountList.get(i);
+				BigDecimal asset = BigDecimal.ZERO;
+				if (dailyAmountMap.get(dailyAmount.getDate()) == null) {
+					asset = dailyAmount.getAsset();
+					dailyAmountMap.put(dailyAmount.getDate(), asset);
+				} else {
+					asset = dailyAmountMap.get(dailyAmount.getDate()).add(dailyAmount.getAsset());
+					dailyAmountMap.put(dailyAmount.getDate(), asset);
+				}
+				if (asset.compareTo(BigDecimal.ZERO) > 0) {
+					if (StringUtils.isEmpty(selectDate)) {
+						selectDate = dailyAmount.getDate();
+					} else {
+						buyDate = dailyAmount.getDate();
+					}
+				}
+			}
+		}
+		List<ProductsDTO> productsList = this.findProductInfos(userUuid);
+		if (productsList == null || productsList.size() == 0) {
+			logger.error("我的智投组合暂时不存在");
+			return new HashMap<String, Object>();
+		}
+		ProductsDTO products;
+		Integer count = 0;
+		Integer fails = 0;
+		List<Map<String, PortfolioInfo>> portfolioInfoList = new ArrayList<Map<String, PortfolioInfo>>();
+//		String startDate = "";
+		for (int i = 0; i < productsList.size(); i++) {
+			products = productsList.get(i);
+			// 状态(0-待确认 1-已确认 -1-交易失败)
+						List<UiProductDetailDTO> productDetailsList = uiProductService
+								.getProductDetailsByProdId(products.getId());
+			if (productDetailsList != null && productDetailsList.size() > 0) {
+				for (int j = 0; j < productDetailsList.size(); j++) {
+					UiProductDetailDTO uiProductDetailDTO = productDetailsList.get(j);
+					if (uiProductDetailDTO.getStatus() != null) {
+						if(uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()){
+							fails++;
+						}
+					} else{
+						fails++;
+					}
+				}
+				if (fails == productDetailsList.size()) {
+					//若组合中全部失败，则不显示
+					continue;
+				}
+				resultMap.put("count", count);
+				if (count > 0) {
+					resultMap.put("title2", "* 您有" + count + "支基金正在确认中");
+				}
+			}
+			Long userId = getUserIdFromUUID(userUuid);
+			// 总资产
+			Map<String, PortfolioInfo> portfolioInfoMap = this.getCalculateTotalAndRate(userUuid, userId, products);
+//			if (portfolioInfoMap != null) {
+//				Set<String> set = portfolioInfoMap.keySet();
+//				Object[] obj = set.toArray();
+//				int length = obj.length;
+//				Arrays.sort(obj);
+//				Object min = obj[0];
+//				if (StringUtils.isEmpty(startDate)) {
+//					startDate = min.toString();
+//				} else {
+//					if (Integer.parseInt(startDate) > Integer.parseInt(min.toString())) {
+//						startDate = min.toString();
+//					}
+//				}
+//			}
+			portfolioInfoList.add(portfolioInfoMap);
+		}
+		Map<String, Object> portfolioInfoMap = new HashMap<String, Object>();
+		Map<String, Map<String, Object>> portfolioInfoMap2 = new HashMap<String, Map<String, Object>>();
+		if (portfolioInfoList != null && portfolioInfoList.size() > 0) {
+			for (int i = 0; i < portfolioInfoList.size(); i++) {
+				//循环单个组合的map
+				Map<String, PortfolioInfo> portMap = portfolioInfoList.get(i);
+				
+				
+			}
+
+		}
+		
+		
+		
+		
+		// 遍历赋值
+		while (true) {
+			Map<String,Object> trendYieldMap = new HashMap<String,Object>();
+			if (selectDate.equals(buyDate)) {
+				break;
+			}
+			trendYieldMap.put("date", selectDate);
+			// 调用对应的service
+			BigDecimal rate = userFinanceProdCalcService.calcYieldValue(userUuid, buyDate, selectDate);
+			if (rate != null) {
+				trendYieldMap.put("value", (rate.divide(new BigDecimal("100"), MathContext.DECIMAL128)).setScale(2,
+						BigDecimal.ROUND_HALF_UP));
+			} else {
+				trendYieldMap.put("value", 0);
+			}
+			trendYieldList.add(trendYieldMap);
+			
+			int year = Integer.parseInt(selectDate.substring(0,4));
+			int month = Integer.parseInt(selectDate.substring(4,6));
+			int day = Integer.parseInt(selectDate.substring(6,8));
+			LocalDate localDate = LocalDate.of(year, month, day);
+			localDate =  localDate.minusDays(1);
+			selectDate = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+		}
+		resultMap.put("trendYield", trendYieldList);
+		Collections.reverse(trendYieldList);
+		return resultMap;
+	}
 
 	@Override
 	public Map<String, Object> getTotalAssets(String uuid) throws Exception {
@@ -520,6 +648,54 @@ public class UserInfoServiceImpl implements UserInfoService {
 		}
 
 
+	}
+	
+	/**
+	 * 计算组合的累计收益，累计收益率 
+	 */
+	@Override
+	public Map<String, PortfolioInfo> getCalculateTotalAndRate(String uuid, Long userId, ProductsDTO products) {
+		Map<String, PortfolioInfo> result = new HashMap<String, PortfolioInfo>();
+		List<OrderDetail> orderDetailPayWaitConfirm = rpcOrderService
+				.getOrderDetails(products.getId(),
+						TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
+		
+		//完全确认标志
+		boolean flag = false;
+		if (CollectionUtils.isEmpty(orderDetailPayWaitConfirm)) {
+			flag = true;
+		}
+		
+		Long startDate = products.getCreateDate();
+		LocalDate startLocalDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(startDate),
+				ZoneOffset.UTC).toLocalDate();
+		String startDay = InstantDateUtil.format(startLocalDate, "yyyyMMdd");
+		
+		int i=1;
+		String endDay = InstantDateUtil.format(LocalDate.now().plusDays(-i), "yyyyMMdd");
+		while(true){
+			PortfolioInfo portfolioInfo = new PortfolioInfo();
+			if (flag) {
+				//完全确认
+				products.setStatus(TrdOrderStatusEnum.CONFIRMED.getStatus());
+				portfolioInfo = userFinanceProdCalcService
+						.calculateProductValue(uuid, products.getId(), startDay, endDay);
+			} else {
+				//部分确认
+				logger.info("\n未完全确认数据 userProdId :{}\n", products.getId());
+				products.setStatus(TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
+				portfolioInfo = getPartConfirmFundInfo(uuid, userId, products.getId(), startDay, endDay);
+			}
+			result.put(endDay, portfolioInfo);
+			
+			i++;
+			endDay = InstantDateUtil.format(LocalDate.now().plusDays(-i), "yyyyMMdd");
+			if(startDate.equals(endDay)){
+				break;
+			}
+		}
+		return result;
+		
 	}
 
 
@@ -664,7 +840,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Override
 	public List<Map<String, Object>> getMyCombinations(String uuid) throws Exception {
-		List<Map<String, Object>> resultList = new ArrayList();
+		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
 		List<ProductsDTO> productsList = this.findProductInfos(uuid);
 		if (productsList == null || productsList.size() == 0) {
 			logger.error("我的智投组合暂时不存在");
