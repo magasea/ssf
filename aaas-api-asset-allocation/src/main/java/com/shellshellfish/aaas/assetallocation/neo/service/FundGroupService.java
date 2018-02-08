@@ -931,14 +931,37 @@ public class FundGroupService {
         Map maxMinValueMap = new HashMap();
         Map maxMinBenchmarkMap = new HashMap();
 
+        Map<String, Object> queryTime = new HashMap<>();
+        queryTime.put("fund_group_id", id);
+        queryTime.put("subGroupId", subGroupId);
+        String endTime = fundGroupMapper.getFundGroupHistoryTime(queryTime);
+        if (StringUtils.isEmpty(endTime)) {
+            if (returnType.equalsIgnoreCase("income")) {
+                allMap.put("income", new ArrayList<>());
+                allMap.put("incomeBenchmark", new ArrayList<>());
+                list.add(allMap);
+                fgi.setName("组合收益率走势图");
+            } else {
+                allMap.put("retracement", new ArrayList<>());
+                allMap.put("incomeBenchmark", new ArrayList<>());
+                list.add(allMap);
+                fgi.setName("组合最大回撤走势图");
+            }
+            fgi.set_total(0);
+            fgi.set_items(list);
+            fgi.set_links(_links);
+            fgi.set_schemaVersion("0.1.1");
+            fgi.set_serviceId("资产配置");
+            fgi.setMaxMinMap(maxMinValueMap);
+            fgi.setMaxMinBenchmarkMap(maxMinBenchmarkMap);
+            return fgi;
+        }
+
         Calendar ca = Calendar.getInstance();
-        Date endDate = new Date();
+        Date endDate = DateUtil.getDateFromFormatStr(endTime);
         ca.setTime(endDate);
-        ca.add(Calendar.DATE, -8);
+        ca.add(Calendar.DATE, -7);
         String startTime = DateUtil.formatDate(ca.getTime());
-        ca.setTime(endDate);
-        ca.add(Calendar.DATE, -1);
-        String endTime = DateUtil.formatDate(ca.getTime());
         Map<String, String> mapStr = new HashMap<>();
         mapStr.put("fund_group_id", id);
         mapStr.put("fund_group_sub_id", subGroupId);
