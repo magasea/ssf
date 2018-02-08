@@ -1,8 +1,11 @@
 package com.shellshellfish.aaas.transfer.controller;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +17,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+
+import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -39,6 +45,9 @@ public class FundDetailedController {
 
 	@Value("${shellshellfish.data-manager-url}")
 	private String dataManagerUrl;
+	
+	@Value("${shellshellfish.user-user-info}")
+	private String userinfoUrl;
 
 	@Autowired
 	private RestTemplate restTemplate;
@@ -108,7 +117,6 @@ public class FundDetailedController {
 			result.put("fundnotice", FUNDNOTICE);
 
 			result.remove("_links");
-			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -128,16 +136,129 @@ public class FundDetailedController {
 	public JsonResult getHistoryNetvalue(@RequestParam String code, @RequestParam String type, @RequestParam(required = false) String date) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
-			result = restTemplate
-					.getForEntity(dataManagerUrl + "/api/datamanager/getHistoryNetvalue?code=" + code + "&type=" + type + "&date=" + date, Map.class)
-					.getBody();
+			String url = "";
+			if(StringUtils.isEmpty(date)){
+				url = dataManagerUrl + "/api/datamanager/getHistoryNetvalue?code=" + code + "&type=" + type ;
+			} else {
+				url = dataManagerUrl + "/api/datamanager/getHistoryNetvalue?code=" + code + "&type=" + type + "&date=" + date;
+			}
+			result = restTemplate.getForEntity(url, Map.class).getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
 				return new JsonResult(JsonResult.Fail, "获取失败", JsonResult.EMPTYRESULT);
 //				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 			}
+			
+			if (MonetaryFundEnum.containsCode(code)) {
+				if (result.get("yieldOf7DaysAndTenKiloUnitYield") != null) {
+					List<Map> yieldOf7DaysAndTenKiloUnitYieldList = (List<Map>) result
+							.get("yieldOf7DaysAndTenKiloUnitYield");
+					if (yieldOf7DaysAndTenKiloUnitYieldList != null && yieldOf7DaysAndTenKiloUnitYieldList.size() > 0) {
+						Map yieldOf7DaysAndTenKiloUnitYieldMap = yieldOf7DaysAndTenKiloUnitYieldList.get(yieldOf7DaysAndTenKiloUnitYieldList.size()-1);
+						yieldOf7DaysAndTenKiloUnitYieldList.remove(yieldOf7DaysAndTenKiloUnitYieldList.size()-1);
+						Map<String,Object> yieldOfTenKiloUnitYieldMaxMin = new HashMap<String,Object>();
+						Map<String,Object> yieldOf7DaysMaxMin = new HashMap<String,Object>();
+						if (yieldOf7DaysAndTenKiloUnitYieldMap.get("yieldOfTenKiloUnitYieldMin") != null) {
+							yieldOfTenKiloUnitYieldMaxMin.put("yieldOfTenKiloUnitYieldMin",
+									yieldOf7DaysAndTenKiloUnitYieldMap.get("yieldOfTenKiloUnitYieldMin"));
+							if (yieldOf7DaysAndTenKiloUnitYieldMap.get("yieldOfTenKiloUnitYieldMax") != null) {
+								yieldOfTenKiloUnitYieldMaxMin.put("yieldOfTenKiloUnitYieldMax",
+										yieldOf7DaysAndTenKiloUnitYieldMap.get("yieldOfTenKiloUnitYieldMax"));
+								result.put("yieldOfTenKiloUnitYieldMaxMin", yieldOfTenKiloUnitYieldMaxMin);
+							}
+						}
 
-			result.remove("_links");
+						if (yieldOf7DaysAndTenKiloUnitYieldMap.get("yieldOf7DaysMax") != null) {
+							yieldOf7DaysMaxMin.put("yieldOf7DaysMax",
+									yieldOf7DaysAndTenKiloUnitYieldMap.get("yieldOf7DaysMax"));
+							if (yieldOf7DaysAndTenKiloUnitYieldMap.get("yieldOf7DaysMin") != null) {
+								yieldOf7DaysMaxMin.put("yieldOf7DaysMin",
+										yieldOf7DaysAndTenKiloUnitYieldMap.get("yieldOf7DaysMin"));
+								result.put("yieldOf7DaysMaxMin", yieldOf7DaysMaxMin);
+							}
+						}
+						
+						List<Map> yieldOf7DaysList = new ArrayList<Map>();
+						List<Map> yieldOfTenKiloUnitYieldList = new ArrayList<Map>();
+						for(int i=0;i<yieldOf7DaysAndTenKiloUnitYieldList.size();i++){
+							Map<String,Object> yieldOf7DaysMap = new HashMap<String,Object>();
+							Map<String,Object> yieldOfTenKiloUnitYieldMap = new HashMap<String,Object>();
+							Map yieldMap = yieldOf7DaysAndTenKiloUnitYieldList.get(i);
+							yieldOf7DaysMap.put("date", yieldMap.get("date"));
+							yieldOf7DaysMap.put("yieldOf7Days", yieldMap.get("yieldOf7Days"));
+							yieldOfTenKiloUnitYieldMap.put("date", yieldMap.get("date"));
+							yieldOfTenKiloUnitYieldMap.put("tenKiloUnitYield", yieldMap.get("tenKiloUnitYield"));
+							yieldOf7DaysList.add(yieldOf7DaysMap);
+							yieldOfTenKiloUnitYieldList.add(yieldOfTenKiloUnitYieldMap);
+						}
+						Collections.reverse(yieldOf7DaysAndTenKiloUnitYieldList);
+						result.put("yieldOf7DaysList", yieldOf7DaysList);
+						result.put("yieldOfTenKiloUnitYieldList", yieldOfTenKiloUnitYieldList);
+						result.put("yieldOf7DaysAndTenKiloUnitYield", yieldOf7DaysAndTenKiloUnitYieldList);
+						result.put("title", "查看历史数据");
+						result.put("title1", "日期");
+						result.put("title2", "七日年化");
+						result.put("title3", "万份收益");
+					}
+				}
+			} else {
+				if(result.get("baselinehistoryprofitlist")!=null){
+					List<Map> baselinehistoryprofitlist = (List<Map>) result.get("baselinehistoryprofitlist");
+					Map<String,Object> baselinehistoryprofitMaxMix = new HashMap();
+					if(baselinehistoryprofitlist!=null&&baselinehistoryprofitlist.size()>0){
+						List<Double> maxMinValueList = new ArrayList<Double>();
+						for(int i=0;i<baselinehistoryprofitlist.size();i++){
+							Map baselinehistoryprofitMap = baselinehistoryprofitlist.get(i);
+							String dayup = baselinehistoryprofitMap.get("dayup")+"";
+							dayup = dayup.replace("%", "");
+							maxMinValueList.add(Double.parseDouble(dayup));
+						}
+						baselinehistoryprofitMaxMix.put("maxValue", Collections.max(maxMinValueList));
+						baselinehistoryprofitMaxMix.put("minValue", Collections.min(maxMinValueList));
+						result.put("baselinehistoryprofitMaxMix", baselinehistoryprofitMaxMix);
+					}
+				}
+				if(result.get("historyprofitlist")!=null){
+					List<Map> historyprofitlist = (List<Map>) result.get("historyprofitlist");
+					Map<String,Object> historyprofitMaxMix = new HashMap();
+					if(historyprofitlist!=null&&historyprofitlist.size()>0){
+						List<Double> maxMinValueList = new ArrayList<Double>();
+						for(int i=0;i<historyprofitlist.size();i++){
+							Map historyprofitMap = historyprofitlist.get(i);
+							String profit = historyprofitMap.get("profit")+"";
+							maxMinValueList.add(Double.parseDouble(profit));
+						}
+						historyprofitMaxMix.put("maxValue", Collections.max(maxMinValueList));
+						historyprofitMaxMix.put("minValue", Collections.min(maxMinValueList));
+						result.put("historyprofitMaxMix", historyprofitMaxMix);
+					}
+				}
+				if(result.get("historynetlist")!=null){
+					List<Map> historynetlist = (List<Map>) result.get("historynetlist");
+					if(historynetlist!=null&&historynetlist.size()>0){
+						List<Map> historynetlistBak = new ArrayList<Map>();
+						for (int i = historynetlist.size() - 1; i >= 0; i--) {
+							Map historyprofitMap = historynetlist.get(i);
+							historynetlistBak.add(historyprofitMap);
+						}
+						result.put("historynetlist", historynetlistBak);
+					}
+				}
+				result.put("title", "查看历史净值");
+				result.put("title1", "日期");
+				result.put("title2", "单位净值");
+				result.put("title3", "累计净值");
+				result.put("title4", "日涨幅");
+			}
+			
+			if(result.get("basename")!=null){
+				String basename = result.get("basename") + "";
+				StringBuffer base = new StringBuffer();
+				base.append("基准（");
+				base.append(basename);
+				base.append("）");
+				result.put("basename", base);
+			}
 			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {

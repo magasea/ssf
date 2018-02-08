@@ -5,8 +5,7 @@ import com.shellshellfish.aaas.common.constants.RabbitMQConstants;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRepository;
-import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderDetailRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +18,6 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
@@ -37,6 +35,7 @@ public class BroadcastMessageConsumers {
 
 
 
+    @Transactional
     @RabbitListener(bindings = @QueueBinding(
         value = @Queue(value = RabbitMQConstants.QUEUE_ORDER_BASE + RabbitMQConstants.OPERATION_TYPE_UPDATE_ORDER, durable =
             "false"),
@@ -53,10 +52,14 @@ public class BroadcastMessageConsumers {
             Long buyFee = trdPayFlow.getBuyFee();
             Long updateBy =  SystemUserEnum.SYSTEM_USER_ENUM.getUserId();
             Long updateDate = TradeUtil.getUTCTime();
+            Long fundNum = trdPayFlow.getTradeTargetShare();
+            Long fundNumConfirmed = trdPayFlow.getTradeConfirmShare() ;
+            Long fundSum = trdPayFlow.getTradeTargetSum();
+            Long fundSumConfirmed = trdPayFlow.getTradeConfirmSum();
             int orderDetailStatus = trdPayFlow.getTrdStatus();
-//            trdOrderDetailRepository.updateByParam(tradeApplySerial,orderDetailStatus,
-//                updateDate, updateBy,  id);
-            tradeOpService.updateByParam(tradeApplySerial, updateDate, updateBy,  id, orderDetailStatus);
+            tradeOpService.updateByParam(tradeApplySerial,fundSum, fundSumConfirmed, fundNum,
+                fundNumConfirmed, updateDate, updateBy,  id, orderDetailStatus, buyFee);
+
         }catch (Exception ex){
             ex.printStackTrace();
             logger.error(ex.getMessage());
@@ -64,20 +67,20 @@ public class BroadcastMessageConsumers {
     }
 
 
-    @RabbitListener(bindings = @QueueBinding(
-        value = @Queue(value = RabbitMQConstants.QUEUE_ORDER_BASE + RabbitMQConstants.OPERATION_TYPE_HANDLE_PREORDER, durable =
-            "false"),
-        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
-            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_PREORDER )
-    )
-    public void receivePreOrderMessage(TrdPayFlow trdPayFlow) throws Exception {
-        try{
-            logger.info("receivePreOrderMessage 1 message: with fundCode:" + trdPayFlow.getFundCode
-                () + " with preOrderId:" + trdPayFlow.getOrderDetailId());
-            tradeOpService.buyPreOrderProduct(trdPayFlow);
-        }catch (Exception ex){
-            ex.printStackTrace();
-            logger.error(ex.getMessage());
-        }
-    }
+//    @RabbitListener(bindings = @QueueBinding(
+//        value = @Queue(value = RabbitMQConstants.QUEUE_ORDER_BASE + RabbitMQConstants.OPERATION_TYPE_HANDLE_PREORDER, durable =
+//            "false"),
+//        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+//            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_PREORDER )
+//    )
+//    public void receivePreOrderMessage(TrdPayFlow trdPayFlow) throws Exception {
+//        try{
+//            logger.info("receivePreOrderMessage 1 message: with fundCode:" + trdPayFlow.getFundCode
+//                () + " with preOrderId:" + trdPayFlow.getOrderDetailId());
+//            tradeOpService.buyPreOrderProduct(trdPayFlow);
+//        }catch (Exception ex){
+//            ex.printStackTrace();
+//            logger.error(ex.getMessage());
+//        }
+//    }
 }

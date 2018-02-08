@@ -11,20 +11,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @Configuration
-//@EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.finance.repository.mongo", mongoTemplateRef = "mongoTemplate")
+@EnableMongoRepositories(basePackages = "com.shellshellfish.aaas.finance.trade.pay.repositories.mongo")
 public class MongoConfiguration {
-
-	// @Bean
-	// public Mongo mongo(MongoProperties mongoProperties) throws Exception {
-	// return new MongoClient(mongoProperties.getHost(), mongoProperties.getPort());
-	// }
-	//
-	// @Bean
-	// public MongoTemplate mongoTemplate(MongoProperties mongoProperties) throws
-	// Exception {
-	// return new MongoTemplate(mongo(mongoProperties),
-	// mongoProperties.getDatabase());
-	// }
 
 	@Value("${spring.data.mongodb.host}")
 	private String host;
@@ -35,16 +23,26 @@ public class MongoConfiguration {
 	@Value("${spring.data.mongodb.database}")
 	private String database;
 
+	@Value("${spring.data.mongodb.paydatabase}")
+	private String payDatabase;
+
+
 	@Bean
 	public Mongo mongo() throws Exception {
-		// return new MongoClient(mongoProperties.getHost(), mongoProperties.getPort());
 		return new MongoClient(host, port);
 	}
 
 	@Bean
-	@Primary
+
 	@Qualifier("mongoTemplate")
 	public MongoTemplate mongoTemplate() throws Exception {
 		return new MongoTemplate(new MongoClient(host, port), database);
+	}
+
+	@Bean
+
+	@Qualifier("mongoPayTemplate")
+	public MongoTemplate mongoPayTemplate() throws Exception {
+		return new MongoTemplate(new MongoClient(host, port), payDatabase);
 	}
 }

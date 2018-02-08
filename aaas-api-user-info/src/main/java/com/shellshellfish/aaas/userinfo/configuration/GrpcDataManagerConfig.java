@@ -17,11 +17,7 @@ public class GrpcDataManagerConfig {
   @Value("${grpc.data-manager-rpc.port}")
   int dataManagerPort;
 
-  @Value("${grpc.finance-trade-order-rpc.host}")
-  String financeTradeOrderHost;
 
-  @Value("${grpc.finance-trade-order-rpc.port}")
-  int financeTradeOrderPort;
 
   @Bean
   ManagedChannelBuilder<?> grpcDMChannelBuilder(){
@@ -37,17 +33,6 @@ public class GrpcDataManagerConfig {
   }
 
 
-  @Bean
-  ManagedChannelBuilder<?> grpcTrdChannelBuilder(){
-    return ManagedChannelBuilder.forAddress(financeTradeOrderHost, financeTradeOrderPort);
-  }
 
-
-  @Bean
-  @PostConstruct
-  ManagedChannel managedTrdChannel(){
-    ManagedChannel managedChannel = grpcTrdChannelBuilder().usePlaintext(true).build();
-    return managedChannel;
-  }
 
 }

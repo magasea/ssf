@@ -31,10 +31,14 @@ spring:
     topicOrder: shellshellfish.order
   data:
     mongodb:
-      host: 192.168.1.249
+      host: 192.168.1.10
       port: 27017
       database: zhongzheng
-
+      paydatabase: ssftrdpay
+  redis:
+    host: 192.168.1.10
+    port: 6379
+    password: redis123
 
 datasource:
   sampleapp:

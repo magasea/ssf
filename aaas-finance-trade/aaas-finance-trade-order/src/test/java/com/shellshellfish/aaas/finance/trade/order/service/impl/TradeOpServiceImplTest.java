@@ -1,14 +1,14 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProducer;
-import com.shellshellfish.aaas.finance.trade.order.model.vo.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
-import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderTypeEnum;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokderRepository;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRepository;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderRepository;
+import com.shellshellfish.aaas.finance.trade.order.model.vo.FinanceProdBuyInfo;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdBrokderRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderDetailRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdInfoService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
 import java.math.BigDecimal;
@@ -59,7 +59,7 @@ public class TradeOpServiceImplTest {
     financeProdBuyInfo.setGroupId(1L);
     financeProdBuyInfo.setMoney(BigDecimal.valueOf(100000L));
     financeProdBuyInfo.setProdId(1L);
-    financeProdBuyInfo.setOrderType(TrdOrderTypeEnum.BUY.ordinal());
+    financeProdBuyInfo.setOrderType(TrdOrderOpTypeEnum.BUY.ordinal());
     financeProdBuyInfo.setUserId(11L);
     TrdOrder trdOrder = tradeOpService.buyFinanceProduct(financeProdBuyInfo);
     logger.info("trdOrder:" + trdOrder);

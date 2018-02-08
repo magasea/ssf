@@ -36,11 +36,24 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.BootstrapWith;
 import org.springframework.test.context.TestContextBootstrapper;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.CollectionUtils;
 
 @RunWith(value= SpringRunner.class)
 @SpringBootTest
 @ActiveProfiles(profiles="dev")
 public class UserInfoRepoServiceImplTest {
+
+  @Test
+  public void addUserBankcard() throws Exception {
+    List<UiBankcard> uiBankcards = userInfoBankCardsRepository.findUiBankcardByCardNumberIsAndStatusIsNot
+        ("6222081001023607157", -1);
+    if(!CollectionUtils.isEmpty(uiBankcards)){
+      System.out.println(uiBankcards.size());
+      uiBankcards.get(0).setStatus(-1);
+      userInfoBankCardsRepository.save(uiBankcards.get(0));
+    }
+
+  }
 
   @Test
   public void addUiSysMsg() throws Exception {

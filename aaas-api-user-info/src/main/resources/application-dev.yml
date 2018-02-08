@@ -4,9 +4,9 @@ server:
   contextPath: /
 logging:
   level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    org.springframework.data: debug
+    org.hibernate.SQL: info
+    org.hibernate.type.descriptor.sql.BasicBinder: info
+    org.springframework.data: info
 
 ---
 
@@ -16,6 +16,8 @@ spring:
       database: test1
       host: 192.168.1.10
       port: 27017
+      zhongzheng: "zhongzheng"
+      funds: "funds"
   jpa:
     hibernate:
       ddl-auto: update
@@ -35,7 +37,16 @@ spring:
      topicPay: shellshellfish.pay
      topicOrder: shellshellfish.order
      topicUserinfo: shellshellfish.userinfo
-
+  redis:
+    host: 192.168.1.10
+    port: 6379
+    password: redis123
+    timeout: 0
+    pool:
+      max-active: 8
+      max-wait: -1
+      max-idle: 8
+      min-idle: 0
 datasource:
   sampleapp:
     url: jdbc:mysql://192.168.1.10:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
@@ -68,9 +79,14 @@ grpc:
   finance-trade-pay-rpc:
     host: localhost
     port: 10111
+  datacollection-server-rpc:
+    host: localhost
+    port: 10091
 
 
 aaas-api-finance-url: http://localhost:10120
+
+api-asset-alloction-url: http://localhost:10020
 
 # 每日收益计算 多线程
 daily-finance-calculate-thread: 8

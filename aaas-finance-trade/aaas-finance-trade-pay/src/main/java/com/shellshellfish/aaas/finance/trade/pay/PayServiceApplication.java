@@ -5,10 +5,11 @@ import java.io.IOException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication
-
+@EntityScan("com.shellshellfish.aaas.finance.trade.pay")
 public class PayServiceApplication {
 
 	@Value("${spring.rabbitmq.topicQueuePayName}")

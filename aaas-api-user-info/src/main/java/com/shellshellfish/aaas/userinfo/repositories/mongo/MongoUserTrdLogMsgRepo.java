@@ -11,5 +11,9 @@ public interface MongoUserTrdLogMsgRepo extends MongoRepository<MongoUiTrdLog, L
   @Override
   MongoUiTrdLog save(MongoUiTrdLog uiTrdLog);
 
-  List<MongoUiTrdLog> findAllByUserIdAndUserProdId();
+  List<MongoUiTrdLog> findAllByUserIdAndUserProdId(Long userId, Long userProdId);
+  
+  List<MongoUiTrdLog> findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(Long userId, Long userProdId,int operations,int tradeStatus);
+
+  List<MongoUiTrdLog> findAllByUserId(Long userId);
 }

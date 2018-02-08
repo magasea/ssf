@@ -10,6 +10,7 @@ import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
+import com.shellshellfish.aaas.account.exception.UserException;
 import com.shellshellfish.aaas.account.model.dto.VerificationBodyDTO;
 
 import java.text.SimpleDateFormat;
@@ -141,10 +142,14 @@ public class AliSms {
     	SendSmsResponse response;
     	try {
     	     response = sendSms(phonenum);
+    	     if(response.getCode() == null || !response.getCode().equals("OK")) {
+    	    	 throw new UserException("400", response.getMessage());
+    	     }
     	}catch (ClientException e) {
     	
         	logger.debug(e.getErrMsg());
-        	return null;
+        	throw new UserException(e.getErrCode(), e.getErrMsg());
+        	//return null;
         	
         } 
     	

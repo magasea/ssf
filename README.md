@@ -1,6 +1,6 @@
 ## 软件开发规范
 ### JAVA 开发规范
-我们一致按照业内标准[https://google.github.io/styleguide/javaguide.html]配置自己的ide，比如
+我们一致按照业内标准[https://github.com/google/styleguide]配置自己的ide，比如
 1. import中不能有通配符。
 2. 重载方法应该放在一起连续出现。
 3. 即使代码块中没有内容，或者只有一行代码，也必须使用大括号。

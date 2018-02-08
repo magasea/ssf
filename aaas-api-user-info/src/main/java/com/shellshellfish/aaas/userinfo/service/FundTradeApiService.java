@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shellshellfish.aaas.userinfo.model.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -30,11 +31,11 @@ public interface FundTradeApiService {
 
     List<ConfirmResult> getConfirmResults(JSONObject jsonObject, Integer status);
 
-    List<ConfirmResult> getConfirmResults(String userUuid, String fundCode) throws JsonProcessingException;
+    List<ConfirmResult> getConfirmResults(String userUuid, String fundCode,String Date) throws JsonProcessingException;
 
     //String getAllConfirmList(String userUuid) throws JsonProcessingException;
 
-    String getAllConfirmList(String userUuid, String fundCode) throws JsonProcessingException;
+    String getAllConfirmList(String userUuid, String fundCode, String startDate) throws JsonProcessingException;
 
     FundNotice getLatestFundNotice(String fundCode) throws Exception;
 
@@ -73,6 +74,10 @@ public interface FundTradeApiService {
     BigDecimal calcDiscountPoundage(BigDecimal amount, BigDecimal rate, BigDecimal discount);
 
     List<UserBank> getUserBank(String fundCode) throws Exception;
+
+    FundNet getFundNet(String fundCode,LocalDate date) throws JsonProcessingException;
+
+    List<FundNet> getFundNets(String fundCode,Integer limitLeft,Integer limitRight) throws JsonProcessingException;
 
     List<BonusInfo> getBonusList(String userUuid, String fundCode, String startDate) throws Exception;
 

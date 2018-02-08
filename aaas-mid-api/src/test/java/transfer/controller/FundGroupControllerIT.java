@@ -1,9 +1,8 @@
 package transfer.controller;
 
-import com.shellshellfish.aaas.transfer.TransferServiceApplication;
-import io.restassured.RestAssured;
-import io.restassured.filter.log.ResponseLoggingFilter;
-import io.swagger.annotations.ApiImplicitParam;
+import static io.restassured.RestAssured.given;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,8 +12,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static io.restassured.RestAssured.given;
-import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import com.shellshellfish.aaas.transfer.TransferServiceApplication;
+
+import io.restassured.RestAssured;
+import io.restassured.filter.log.ResponseLoggingFilter;
 
 /**
  * @Author pierre

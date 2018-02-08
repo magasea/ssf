@@ -38,6 +38,11 @@ service PayRpcService {
     */
     rpc PreOrder2Pay(PreOrderPayReq) returns(PreOrderPayResult){
     }
+
+    /**
+    * 用中证提供的接口获取交易基金的净值
+    */
+    rpc GetLatestFundNet(FundNetQuery) returns (FundNetInfos){}
 }
 //绑定银行卡
 message BindBankCardQuery{
@@ -49,6 +54,7 @@ message BindBankCardQuery{
   string bankCode = 6;//银行在交易系统的编码
   string tradeBrokerName = 7;//交易系统名称
   int64 tradeBrokerId = 8;//交易系统Id
+  int32 riskLevel = 9;//用户贝贝鱼的风险评测值
 }
 
 //绑定银行卡的结果
@@ -142,20 +148,21 @@ message OrderDetailPayReq {
   int64 userId = 8;
   int64 userProdId = 9;
   string fundCode = 10;
-  int64 fundMoneyQuantity  = 11;
-  int64 fundNum = 12;
-  int64 fundNumConfirmed = 13;
-  int64 buyFee = 14;
-  int64 buyDiscount = 15;
-  int32 orderDetailStatus = 16;
-  int64 createBy = 17;
-  int64 createDate = 18;
-  int64 updateBy = 19;
-  int64 updateDate = 20;
-  string bankCardNum = 21;
-  int64 fundQuantity = 22;
-  int32 orderStatus = 23;
-  string prodCode = 24;
+  int64 fundSum  = 11;
+  int64 fundSumConfirmed  = 12;
+  int64 fundNum = 13;
+  int64 fundNumConfirmed = 14;
+  int64 buyFee = 15;
+  int64 buyDiscount = 16;
+  int32 orderDetailStatus = 17;
+  int64 createBy = 18;
+  int64 createDate = 19;
+  int64 updateBy = 20;
+  int64 updateDate = 21;
+  string bankCardNum = 22;
+  int64 fundQuantity = 23;
+  int32 orderStatus = 24;
+  string prodCode = 25;
 }
 
 //订单支付结果
@@ -176,20 +183,21 @@ message OrderPayResultDetail{
   int64 userId = 8;
   int64 userProdId = 9;
   string fundCode = 10;
-  int64 fundMoneyQuantity  = 11;
-  int64 fundNum = 12;
-  int64 fundNumConfirmed = 13;
-  int64 buyFee = 14;
-  int64 buyDiscount = 15;
-  int32 orderDetailStatus = 16;
-  int64 createBy = 17;
-  int64 createDate = 18;
-  int64 updateBy = 19;
-  int64 updateDate = 20;
-  string bankCardNum = 21;
-  int64 fundQuantity = 22;
-  int32 orderStatus = 23;
-  string prodCode = 24;
+  int64 fundSum  = 11;
+  int64 fundSumConfirmed  = 12;
+  int64 fundNum = 13;
+  int64 fundNumConfirmed = 14;
+  int64 buyFee = 15;
+  int64 buyDiscount = 16;
+  int32 orderDetailStatus = 17;
+  int64 createBy = 18;
+  int64 createDate = 19;
+  int64 updateBy = 20;
+  int64 updateDate = 21;
+  string bankCardNum = 22;
+  int64 fundQuantity = 23;
+  int32 orderStatus = 24;
+  string prodCode = 25;
 }
 //预订单支付请求 
 message PreOrderPayReq{
@@ -210,4 +218,20 @@ message PreOrderPayResult{
   int64 pre_order_id = 1; //预订单ID
   string apply_serial = 2; //交易流水号
   string err_msg = 3; // 错误消息
+}
+
+message FundNetQuery{
+  string user_pid = 1; //用户身份证件编码
+  repeated string fund_code = 2; //交易的基金代码列
+  int32 trade_days = 3; //交易日期数
+}
+message FundNetInfos{
+  repeated FundNetInfo fundNetInfo = 1; //基金净值信息
+}
+message FundNetInfo{
+  string fund_code = 1; //基金代码
+  string unit_net = 2; //单位净值
+  string accum_net = 3; //累计单位净值
+  string chng_pct = 4; //变化率
+  string tradedate = 5; //交易日期
 }

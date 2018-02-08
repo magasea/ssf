@@ -1,13 +1,18 @@
 package transfer.controller;
 
-import com.alibaba.fastjson.JSONObject;
-import com.shellshellfish.aaas.common.utils.RandomPhoneNumUtil;
-import com.shellshellfish.aaas.transfer.TransferServiceApplication;
-import com.shellshellfish.aaas.transfer.controller.LoginController;
-import io.restassured.RestAssured;
-import io.restassured.filter.log.ResponseLoggingFilter;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +23,13 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.alibaba.fastjson.JSONObject;
+import com.shellshellfish.aaas.common.utils.RandomPhoneNumUtil;
+import com.shellshellfish.aaas.transfer.TransferServiceApplication;
+import com.shellshellfish.aaas.transfer.controller.LoginController;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
+import io.restassured.RestAssured;
+import io.restassured.filter.log.ResponseLoggingFilter;
 
 /**
  * @Author pierre

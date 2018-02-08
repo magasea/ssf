@@ -407,6 +407,7 @@ public class FundGroupService {
      * @param groupId
      * @return
      */
+
     public Return getCustRiskByGroupId(String groupId) {
         String riskLevel = fundGroupMapper.getRiskNum(groupId);
 
@@ -426,6 +427,7 @@ public class FundGroupService {
         rct.set_serviceId("资产配置");
 
         return rct;
+
     }
 
     /**

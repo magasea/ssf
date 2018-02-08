@@ -1,11 +1,13 @@
 package transfer.controller;
 
-import com.shellshellfish.aaas.dto.Answer;
-import com.shellshellfish.aaas.dto.OptionItem;
-import com.shellshellfish.aaas.dto.SurveyResult;
-import com.shellshellfish.aaas.transfer.TransferServiceApplication;
-import io.restassured.RestAssured;
-import io.restassured.filter.log.ResponseLoggingFilter;
+import static io.restassured.RestAssured.given;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,13 +17,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.shellshellfish.aaas.dto.Answer;
+import com.shellshellfish.aaas.dto.OptionItem;
+import com.shellshellfish.aaas.dto.SurveyResult;
+import com.shellshellfish.aaas.transfer.TransferServiceApplication;
 
-import static io.restassured.RestAssured.given;
-import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
+import io.restassured.RestAssured;
+import io.restassured.filter.log.ResponseLoggingFilter;
 
 /**
  * @Author pierre

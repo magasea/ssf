@@ -17,6 +17,8 @@ spring:
       database: test1
       host: 192.168.1.249
       port: 27017
+      zhongzheng: "zhongzheng"
+      funds: "funds"
   rabbitmq:
     listener:
       simple:
@@ -32,6 +34,10 @@ spring:
     topicPay: shellshellfish.pay
     topicOrder: shellshellfish.order
     topicUserinfo: shellshellfish.userinfo
+  redis:
+    host: 192.168.1.10
+    port: 6379
+    password: redis123
 datasource:
   sampleapp:
     url: jdbc:mysql://192.168.1.249:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8
@@ -64,9 +70,14 @@ grpc:
   finance-trade-pay-rpc:
     host: localhost
     port: 10111
+  datacollection-server-rpc:
+    host: localhost
+    port: 10091
 
 
 aaas-api-finance-url: http://localhost:10120
+
+api-asset-alloction-url: http://localhost:10020
 
 # 每日收益计算 多线程
 daily-finance-calculate-thread: 8

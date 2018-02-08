@@ -1,81 +1,103 @@
 package com.shellshellfish.aaas.userinfo.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.math.BigDecimal;
 
 public class DailyAmount {
-    private String date;
-    private String userUuid;
-    private Long prodId;
-    private String fundCode;
-    private BigDecimal asset;
-    private BigDecimal bonus;
-    private BigDecimal buyAmount;
-    private BigDecimal sellAmount;
 
-    public String getUserUuid() {
-        return userUuid;
-    }
+	private String date;
+	private String userUuid;
+	private Long prodId;
+	private Long userProdId;
+	private String fundCode;
+	private BigDecimal asset;
+	private BigDecimal bonus;
+	private BigDecimal buyAmount;
+	private BigDecimal sellAmount;
 
-    public void setUserUuid(String userUuid) {
-        this.userUuid = userUuid;
-    }
+	public String getUserUuid() {
+		return userUuid;
+	}
 
-    public Long getProdId() {
-        return prodId;
-    }
+	public void setUserUuid(String userUuid) {
+		this.userUuid = userUuid;
+	}
 
-    public void setProdId(Long prodId) {
-        this.prodId = prodId;
-    }
+	public Long getProdId() {
+		return prodId;
+	}
 
-    public BigDecimal getAsset() {
-        return asset;
-    }
+	public void setProdId(Long prodId) {
+		this.prodId = prodId;
+	}
 
-    public void setAsset(BigDecimal asset) {
-        this.asset = asset;
-    }
+	public Long getUserProdId() {
+		return userProdId;
+	}
 
-    public String getFundCode() {
-        return fundCode;
-    }
+	public void setUserProdId(Long userProdId) {
+		this.userProdId = userProdId;
+	}
 
-    public void setFundCode(String fundCode) {
-        this.fundCode = fundCode;
-    }
+	public BigDecimal getAsset() {
+		return asset;
+	}
 
-    public String getDate() {
-        return date;
-    }
+	public void setAsset(BigDecimal asset) {
+		this.asset = asset;
+	}
 
-    public void setDate(String date) {
-        this.date = date;
-    }
+	public String getFundCode() {
+		return fundCode;
+	}
 
-    public BigDecimal getBonus() {
-        return bonus;
-    }
+	public void setFundCode(String fundCode) {
+		this.fundCode = fundCode;
+	}
 
-    public void setBonus(BigDecimal bonus) {
-        this.bonus = bonus;
-    }
+	public String getDate() {
+		return date;
+	}
 
-    public BigDecimal getBuyAmount() {
-        return buyAmount;
-    }
+	public void setDate(String date) {
+		this.date = date;
+	}
 
-    public void setBuyAmount(BigDecimal buyAmount) {
-        this.buyAmount = buyAmount;
-    }
+	public BigDecimal getBonus() {
+		return bonus;
+	}
 
-    public BigDecimal getSellAmount() {
-        return sellAmount;
-    }
+	public void setBonus(BigDecimal bonus) {
+		this.bonus = bonus;
+	}
 
-    public void setSellAmount(BigDecimal sellAmount) {
-        this.sellAmount = sellAmount;
-    }
+	public BigDecimal getBuyAmount() {
+		return buyAmount;
+	}
+
+	public void setBuyAmount(BigDecimal buyAmount) {
+		this.buyAmount = buyAmount;
+	}
+
+	public BigDecimal getSellAmount() {
+		return sellAmount;
+	}
+
+	public void setSellAmount(BigDecimal sellAmount) {
+		this.sellAmount = sellAmount;
+	}
+
+	@Override
+	public String toString() {
+		return "DailyAmount{" +
+				"date='" + date + '\'' +
+				", userUuid='" + userUuid + '\'' +
+				", prodId=" + prodId +
+				", userProdId=" + userProdId +
+				", fundCode='" + fundCode + '\'' +
+				", asset=" + asset +
+				", bonus=" + bonus +
+				", buyAmount=" + buyAmount +
+				", sellAmount=" + sellAmount +
+				'}';
+	}
 }
