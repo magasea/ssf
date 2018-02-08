@@ -97,16 +97,27 @@ public class TransferController {
 			if (discount != null) {
 				discount = discount.setScale(2, BigDecimal.ROUND_HALF_UP);
 			}
+			BigDecimal totalAmountTemp = new BigDecimal(0);
 			if (resultMap.get("fundAmountList") != null) {
 				List<Map> resultList = (List<Map>) resultMap.get("fundAmountList");
 				if (resultList != null && resultList.size() > 0) {
-					for (int i = 0; i < resultList.size(); i++) {
+					for (int i = 0; i < resultList.size()-1; i++) {
 						Map map = resultList.get(i);
 						if (map.get("grossAmount") != null) {
 							BigDecimal grossAmount = new BigDecimal(map.get("grossAmount") + "");
+							grossAmount = grossAmount.setScale(2, BigDecimal.ROUND_HALF_UP);
 							map.put("grossAmount", grossAmount.setScale(2, BigDecimal.ROUND_HALF_UP));
+							totalAmountTemp = totalAmountTemp.add(grossAmount);
 						}
 					}
+					Map map = resultList.get(resultList.size()-1);
+					if (map.get("grossAmount") != null) {
+						BigDecimal grossAmount = new BigDecimal(totalAmount);
+						grossAmount = grossAmount.subtract(totalAmountTemp).subtract(total);
+						map.put("grossAmount", grossAmount.setScale(2, BigDecimal.ROUND_HALF_UP));
+						totalAmountTemp = totalAmountTemp.add(grossAmount);
+					}
+					
 				}
 			}
 			
