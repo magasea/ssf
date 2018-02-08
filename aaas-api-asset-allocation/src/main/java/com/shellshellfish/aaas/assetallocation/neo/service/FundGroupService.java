@@ -1590,6 +1590,10 @@ public class FundGroupService {
         query.put("subGroupId", subGroupId);
         query.put("fundGroupId", fundGroupId);
         List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getScaleMark(query);
+        if (CollectionUtils.isEmpty(riskIncomeIntervals)) {
+            return;
+        }
+
         Double maximumLosses = CalculatePortvrisks.calculatePortvrisk(riskIncomeIntervals.get(0).getIncome_num(), riskIncomeIntervals.get(0).getRisk_num(), 0.975, 10000);
         query.put("maximum_losses", maximumLosses);
         fundGroupMapper.updateMaximumLosses(query);
@@ -1599,14 +1603,34 @@ public class FundGroupService {
      * 更新 所有基金组合 的最大亏损额
      */
     public void updateAllMaximumLosses() {
-        for (int fundGroupId = 1; fundGroupId <= ConstantUtil.FUND_GROUP_COUNT; fundGroupId++) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("slidebarType", "risk_num");
-            map.put("fundGroupId", fundGroupId);
-            List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getScaleMark(map);
-            for (RiskIncomeInterval riskIncomeInterval : riskIncomeIntervals) {
-                this.maximumLosses(fundGroupId + "", riskIncomeInterval.getId());
+        try {
+            final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
+            ExecutorService pool = ThreadPoolUtil.getThreadPool();
+            for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
+                int fundGroupId = index;
+                pool.execute(() -> {
+                    updateMaximumLossesTask(fundGroupId);
+                    countDownLatch.countDown();
+                });
             }
+            this.sleep(1000);
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateMaximumLossesTask(int fundGroupId) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("slidebarType", "risk_num");
+        map.put("fundGroupId", fundGroupId);
+        List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getScaleMark(map);
+        if (CollectionUtils.isEmpty(riskIncomeIntervals)) {
+            return;
+        }
+
+        for (RiskIncomeInterval riskIncomeInterval : riskIncomeIntervals) {
+            this.maximumLosses(fundGroupId + "", riskIncomeInterval.getId());
         }
     }
 
