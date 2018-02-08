@@ -55,20 +55,23 @@ public class ReturnCalculateDataService {
     public CovarianceModel getMVOParamData(String selectDate, List<String> codeList, String type) {
         CovarianceModel covarianceModel = new CovarianceModel();
         //查询组合中基金最晚成立日 作为 该组合成立日
-        Date minDate = fundNetValMapper.getMinNavDateByCodeList(codeList);
-        if (minDate == null) {
+        Date minNavDate = fundNetValMapper.getMinNavDateByCodeList(codeList);
+        if (minNavDate == null) {
             covarianceModel.setStatus(FAILUED_STATUS); // 失败，数据无效
             logger.debug("获取 组合中基金最晚成立日 失败 ！");
             return covarianceModel;
         }
-        covarianceModel.setNavDate(minDate); //作为组合成立日
+        covarianceModel.setNavDate(minNavDate); //作为组合成立日
 
         //查询参数（取值数量）
         Integer number = fundCalculateService.getNumberFromSysConfig(type);
-        Calendar now = Calendar.getInstance();
-        now.add(Calendar.WEEK_OF_YEAR, -number); //现在时间的number 周前
-        Date preDate = now.getTime();
-        Date tmpStartDate = minDate.compareTo(preDate) > 0 ? minDate : preDate;
+        // 根据 codeList 查询基金最近的净值更新日期
+        Date maxNavDate = fundNetValMapper.getMaxNavDateByCodeList(codeList);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(maxNavDate);
+        calendar.add(Calendar.WEEK_OF_YEAR, -number); // 基金最近的净值更新日期时间 的 number 周前
+        Date preDate = calendar.getTime();
+        Date tmpStartDate = minNavDate.compareTo(preDate) > 0 ? minNavDate : preDate;
         Date startDate = DateUtil.getDateFromFormatStr(DateUtil.formatDate(tmpStartDate));
 
         String calculateTableName = ""; //方差/风险率（risk_ratio）记录表

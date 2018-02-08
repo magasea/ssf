@@ -135,4 +135,16 @@
         GROUP BY code ) as a
     </select>
 
+    <select id="getMaxNavDateByCodeList"  resultType="java.util.Date">
+        SELECT MIN(a.maxDate) FROM
+        ( SELECT MAX(NAVLATESTDATE) maxDate
+          FROM fund_net_value
+          WHERE CODE IN
+          <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+          GROUP BY code
+        ) as a
+    </select>
+
 </mapper>

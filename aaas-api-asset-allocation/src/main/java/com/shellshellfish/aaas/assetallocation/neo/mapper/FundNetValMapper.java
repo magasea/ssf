@@ -46,4 +46,6 @@ public interface FundNetValMapper {
     //根据 codeList 查询基金最晚成立日
     Date getMinNavDateByCodeList(List<String> codeList);
 
+    // 根据 codeList 查询基金最近的净值更新日期
+    Date getMaxNavDateByCodeList(List<String> codeList);
 }
