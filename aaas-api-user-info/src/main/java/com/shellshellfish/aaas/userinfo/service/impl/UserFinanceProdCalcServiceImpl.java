@@ -68,6 +68,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcService {
@@ -177,23 +178,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 	private BigDecimal calcDailyAsset2(String userUuid, Long prodId, Long userProdId, String fundCode,
 			String date, UiProductDetail uiProductDetail) throws Exception {
 
-		List<OrderDetail> orderDetailListPayWatiConfirm = rpcOrderService
-				.getOrderDetails(userProdId, TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
-
-		List<OrderDetail> orderDetailListWaitPay = rpcOrderService
-				.getOrderDetails(userProdId, TrdOrderStatusEnum.WAITPAY.getStatus());
-
-		for (OrderDetail orderDetail : orderDetailListWaitPay) {
-			if (fundCode.equals(orderDetail.getFundCode())) {
-				return BigDecimal.ZERO;
-			}
-		}
-
-		for (OrderDetail orderDetail : orderDetailListPayWatiConfirm) {
-			if (fundCode.equals(orderDetail.getFundCode())) {
-				return BigDecimal.ZERO;
-			}
-		}
 		Optional<Integer> fundQuantityOptional = Optional.ofNullable(uiProductDetail.getFundQuantity());
 		BigDecimal share = new BigDecimal(fundQuantityOptional.orElse(0));
 		share = share.divide(new BigDecimal(100));
