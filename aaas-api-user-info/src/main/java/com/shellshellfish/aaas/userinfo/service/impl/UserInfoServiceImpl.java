@@ -618,16 +618,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Override
 	public PortfolioInfo getChicombinationAssets(String uuid, Long userId, ProductsDTO products) {
 
-		logger.error(
-				"\n==============================start to query uiProdDetail   {} ==========================\n",
-				Instant.now().getEpochSecond());
 		List<UiProductDetail> uiProductDetailList = uiProductDetailRepo
 				.findAllByUserProdIdAndStatusIn(products.getId(),
 						TrdOrderStatusEnum.WAITPAY.getStatus(), TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
-		logger.error(
-				"\n==============================start to query uiProdDetail   {} ==========================\n",
-				Instant.now().getEpochSecond());
 		//完全确认标志
 		boolean flag = false;
 		if (CollectionUtils.isEmpty(uiProductDetailList)) {
