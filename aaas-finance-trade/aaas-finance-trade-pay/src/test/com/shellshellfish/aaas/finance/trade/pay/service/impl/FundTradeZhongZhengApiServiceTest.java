@@ -34,9 +34,9 @@ public class FundTradeZhongZhengApiServiceTest {
   @Test
   public void getApplyResultByOutsideOrderNo() throws Exception {
 
-    String personId = "352230198703172130";
+    String personId = "411327198710181169";
     String openId = TradeUtil.getZZOpenId(personId);
-    String outsideOrderno = "1066";
+    String outsideOrderno = "621709900000000015169683005511231";
     ApplyResult applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo(openId,
         outsideOrderno);
     System.out.println(applyResult.getConfirmflag());

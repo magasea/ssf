@@ -56,6 +56,6 @@ public class BroadcastMessageProducer {
 
     public void sendOrderStatusChangeMessages(OrderStatusChangeDTO orderStatusChangeDTO) {
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
-            .ROUTING_KEY_ORDER, orderStatusChangeDTO);
+            .ROUTING_KEY_USERINFO_ORDSTATCHG, orderStatusChangeDTO);
     }
 }

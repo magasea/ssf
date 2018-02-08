@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.userinfo.repositories.mysql;
 import static org.junit.Assert.*;
 
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +33,7 @@ public class UiProductDetailRepoTest {
     String fundCode = "001987.OF";
     int status = 1;
     uiProductDetailRepo.updateByAddBackQuantity(fundQuantity,updateDate,updateBy,userProdId,
-        fundCode,status);
+        fundCode,status, TrdOrderStatusEnum.WAITSELL.getStatus());
   }
 
 }

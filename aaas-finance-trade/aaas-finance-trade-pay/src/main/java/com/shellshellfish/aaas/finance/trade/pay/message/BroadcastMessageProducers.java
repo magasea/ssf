@@ -26,6 +26,9 @@ public class BroadcastMessageProducers {
             trdPayFlow);
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_USERINFO,
             trdPayFlow);
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
+                .ROUTING_KEY_USERINFO_TRDLOG,
+            trdPayFlow);
     }
 
     public void sendPreOrderMessage(TrdPayFlow trdPayFlow) {
@@ -42,4 +45,13 @@ public class BroadcastMessageProducers {
             .ROUTING_KEY_USERINFO_CFMLOG, mongoUiTrdZZInfo);
     }
 
+    public void sendSellMessage(TrdPayFlow trdPayFlow) {
+        logger.info("send message: " + trdPayFlow.getOrderDetailId());
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_ORDER,
+            trdPayFlow);
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
+                .ROUTING_KEY_USERINFO_REDEEM, trdPayFlow);
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
+            .ROUTING_KEY_USERINFO_TRDLOG, trdPayFlow);
+    }
 }
