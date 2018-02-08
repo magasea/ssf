@@ -1046,23 +1046,27 @@ public class FinanceController {
 
 				if (result.get("maxMinMap") != null) {
 					Map maxminMap = (Map) result.get("maxMinMap");
-					Double min = (Double) maxminMap.get("minValue");
-					Double max = (Double) maxminMap.get("maxValue");
-					Double minValue = EasyKit.getDecimal(new BigDecimal(min));
-					Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
-					maxminMap.put("minValue", minValue);
-					maxminMap.put("maxValue", maxValue);
-					result.put("maxMinMap", maxminMap);
+					if (maxminMap != null && maxminMap.size() > 0) {
+						Double min = (Double) maxminMap.get("minValue");
+						Double max = (Double) maxminMap.get("maxValue");
+						Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+						Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+						maxminMap.put("minValue", minValue);
+						maxminMap.put("maxValue", maxValue);
+						result.put("maxMinMap", maxminMap);
+					}
 				}
 				if (result.get("maxMinBenchmarkMap") != null) {
 					Map maxminMap = (Map) result.get("maxMinBenchmarkMap");
-					Double min = (Double) maxminMap.get("minValue");
-					Double max = (Double) maxminMap.get("maxValue");
-					Double minValue = EasyKit.getDecimal(new BigDecimal(min));
-					Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
-					maxminMap.put("minValue", minValue);
-					maxminMap.put("maxValue", maxValue);
-					result.put("maxMinBenchmarkMap", maxminMap);
+					if (maxminMap != null && maxminMap.size() > 0) {
+						Double min = (Double) maxminMap.get("minValue");
+						Double max = (Double) maxminMap.get("maxValue");
+						Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+						Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+						maxminMap.put("minValue", minValue);
+						maxminMap.put("maxValue", maxValue);
+						result.put("maxMinBenchmarkMap", maxminMap);
+					}
 				}
 			}
 		} catch (Exception e) {
