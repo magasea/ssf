@@ -71,7 +71,7 @@ public interface UserInfoService {
 
 	ApplyResult queryTrdResultByOrderDetailId(Long userId, Long orderDetailId);
 
-	Map<String, Object> getTrendYield(String uuid);
+	Map<String, Object> getTrendYield(String uuid) throws Exception;
 
 	Map<String, Object> getTotalAssets(String uuid) throws Exception;
 

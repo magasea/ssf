@@ -387,16 +387,11 @@ public class TradeOrderController {
 			@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
 			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对") })
 	@RequestMapping(value = "/funds/banknums/{uuid}", method = RequestMethod.GET)
-	public ResponseEntity<Map> getBanknums(@PathVariable(value = "uuid") String uuid,
+	public ResponseEntity<Map> getOrderInfos(@PathVariable(value = "uuid") String uuid,
 			@RequestParam(value = "prodId") Long prodId) throws Exception {
 //		logger.error("method getBanknums run ..");
 		Map<String, Object> result = new HashMap<String, Object>();
-		UserInfo userInfo = tradeOpService.getUserInfoByUserUUID(uuid);
-		Long userId = userInfo.getId();
-		TrdOrder trdOrder = orderService.findOrderByUserProdIdAndUserId(prodId, userId);
-		String bankNum = trdOrder.getBankCardNum();
-		result.put("bankNum", bankNum);
-		result.put("orderId", trdOrder.getOrderId());
+		result = tradeOpService.getOrderInfos(uuid, prodId);
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
 
@@ -430,6 +425,27 @@ public class TradeOrderController {
 		BigDecimal max = financeProdCalcService.getMaxBuyAmount(productList);
 		result.put("min", min);
 		result.put("max", max);
+		return new ResponseEntity<Map>(result, HttpStatus.OK);
+	}
+	
+	/**
+	 * 获取中正银行信息
+	 *
+	 * @return
+	 */
+	@ApiOperation("获取中正银行信息")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "bankShortName", dataType = "String", required = true, value = "银行简称", defaultValue = "")
+	})
+	@ApiResponses({
+		@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
+		@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
+		@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+		@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")})
+	@RequestMapping(value = "/funds/banks", method = RequestMethod.GET)
+	public ResponseEntity<Map> getBanks(@RequestParam(value = "bankShortName") String bankShortName) throws Exception {
+		Map<String, Object> result = new HashMap<String, Object>();
+		result = orderService.getBankInfos(bankShortName);
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
 

@@ -117,7 +117,6 @@ public class FundDetailedController {
 			result.put("fundnotice", FUNDNOTICE);
 
 			result.remove("_links");
-			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -196,6 +195,10 @@ public class FundDetailedController {
 						result.put("yieldOf7DaysList", yieldOf7DaysList);
 						result.put("yieldOfTenKiloUnitYieldList", yieldOfTenKiloUnitYieldList);
 						result.put("yieldOf7DaysAndTenKiloUnitYield", yieldOf7DaysAndTenKiloUnitYieldList);
+						result.put("title", "查看历史数据");
+						result.put("title1", "日期");
+						result.put("title2", "七日年化");
+						result.put("title3", "万份收益");
 					}
 				}
 			} else {
@@ -241,6 +244,11 @@ public class FundDetailedController {
 						result.put("historynetlist", historynetlistBak);
 					}
 				}
+				result.put("title", "查看历史净值");
+				result.put("title1", "日期");
+				result.put("title2", "单位净值");
+				result.put("title3", "累计净值");
+				result.put("title4", "日涨幅");
 			}
 			
 			if(result.get("basename")!=null){

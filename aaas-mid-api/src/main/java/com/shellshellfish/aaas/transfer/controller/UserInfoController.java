@@ -135,6 +135,21 @@ public class UserInfoController {
 			// .getBody();
 			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/bankcards", List.class)
 					.getBody();
+			if (result != null && result.size() > 0) {
+				for (int i = 0; i < result.size(); i++) {
+					Map resultMap = result.get(i);
+					if (resultMap.get("bankCode") != null) {
+						Map bankMap = new HashMap();
+						bankMap = restTemplate.getForEntity(
+								tradeOrderUrl + "/api/trade/funds/banks?bankShortName=" + resultMap.get("bankCode"),
+								Map.class).getBody();
+						if (bankMap.get("bankName") != null) {
+							resultMap.put("bankShortName", bankMap.get("bankName"));
+							resultMap.put("bankName", bankMap.get("bankName"));
+						}
+					}
+				}
+			}
 			if (result == null) {
 				return new JsonResult(JsonResult.SUCCESS, "获取银行卡为空", JsonResult.EMPTYRESULT);
 			} else {
@@ -160,10 +175,16 @@ public class UserInfoController {
 		try {
 			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/bankcards/" + bankNum + "/banks", Map.class)
 					.getBody();
-			/*
-			 * if(result==null||result.size()==0){ return new
-			 * JsonResult(JsonResult.SUCCESS, "获取", result); }
-			 */
+			if (result != null && result.get("bankName") != null) {
+				Map bankMap = new HashMap();
+				bankMap = restTemplate
+						.getForEntity(tradeOrderUrl + "/api/trade/funds/banks?bankShortName=" + result.get("bankCode"),
+								Map.class)
+						.getBody();
+				if (bankMap.get("bankName") != null) {
+					result.put("bankName", bankMap.get("bankName"));
+				}
+			}
 			return new JsonResult(JsonResult.SUCCESS, "获取银行名称成功", result);
 		} catch (Exception e) {
 			/*
@@ -369,7 +390,7 @@ public class UserInfoController {
 										bankName = bankName.substring(0, bankName.indexOf("·"));
 									}
 									map.put("orderId", orderId);
-									map.put("poundage", "0");
+									map.put("poundage", orderResult.get("buyFee"));
 									map.put("bankName", bankName);
 									map.put("bankcardNum", bankcardNum);
 									map.put("bankinfo", bankName + "(" + bankcardNum.substring(bankcardNum.length() - 4) + ")");
@@ -560,8 +581,8 @@ public class UserInfoController {
 					String date1 = result.get("date1") + "";
 					if (result.get("date1") != null) {
 						String date2 = result.get("date2") + "";
-						String title1 = "预计" + date1 + "-" + date2 + "期间到账。";
-						String title2 = "预计" + date1 + "-" + date2 + "期间到账，赎回基金中包含投资海外资产的QDII类型基金，确认后需要4-15个工作日到账。";
+						String title1 = "预计" + date1 + " ~ " + date2 + "期间到账。";
+						String title2 = "预计" + date1 + " ~ " + date2 + "期间到账，赎回基金中包含投资海外资产的QDII类型基金，确认后需要4-15个工作日到账。";
 						// 获取产品组合信息
 						String url2 = userinfoUrl + "/api/userinfo/product/" + prodId;
 						Map productResult = restTemplate.getForEntity(url2, Map.class).getBody();

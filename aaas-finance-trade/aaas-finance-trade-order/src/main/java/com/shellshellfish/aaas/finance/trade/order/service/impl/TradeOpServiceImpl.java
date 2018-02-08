@@ -111,6 +111,9 @@ public class TradeOpServiceImpl implements TradeOpService {
   ManagedChannel managedUIChannel;
   
   @Autowired
+  TradeOpService tradeOpService;
+  
+  @Autowired
   OrderService orderService;
 
   boolean useMsgToBuy = true;
@@ -761,6 +764,32 @@ public class TradeOpServiceImpl implements TradeOpService {
 			detailList.add(detailMap);
 		}
 		result.put("detailList", detailList);
+		return result;
+	}
+	
+	@Override
+	public Map<String, Object> getOrderInfos(String uuid,Long prodId) throws Exception {
+		Map<String, Object> result = new HashMap<String, Object>();
+		UserInfo userInfo = tradeOpService.getUserInfoByUserUUID(uuid);
+		Long userId = userInfo.getId();
+		TrdOrder trdOrder = orderService.findOrderByUserProdIdAndUserId(prodId, userId);
+		String bankNum = trdOrder.getBankCardNum();
+		String orderId = trdOrder.getOrderId();
+		result.put("bankNum", bankNum);
+		result.put("orderId", orderId);
+		Long buyFee = new Long(0);
+		if(!StringUtils.isEmpty(orderId)){
+			List<TrdOrderDetail> trdOrderDetailsList = orderService.findOrderDetailByOrderId(orderId);
+			if(trdOrderDetailsList!=null && trdOrderDetailsList.size()>0){
+				for(int i = 0; i < trdOrderDetailsList.size(); i++){
+					TrdOrderDetail trdOrderDetail = trdOrderDetailsList.get(i);
+					if(trdOrderDetail.getBuyFee()!=null){
+						buyFee = buyFee + trdOrderDetail.getBuyFee();
+					}
+				}
+			}
+		}
+		result.put("buyFee", buyFee);
 		return result;
 	}
 

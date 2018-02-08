@@ -1,11 +1,10 @@
 package com.shellshellfish.aaas.finance.trade.order.service;
 
-import com.shellshellfish.aaas.finance.trade.order.OrderQueryInfo;
-import com.shellshellfish.aaas.finance.trade.order.OrderResult;
+import java.util.List;
+import java.util.Map;
+
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
-import io.grpc.stub.StreamObserver;
-import java.util.List;
 
 public interface OrderService {
 
@@ -16,6 +15,8 @@ public interface OrderService {
 	TrdOrder getOrderByOrderId(String orderId);
 
 	TrdOrder findOrderByUserProdIdAndUserId(Long prodId, Long userId);
+
+	Map<String, Object> getBankInfos(String bankShortName);
 
 
 }
