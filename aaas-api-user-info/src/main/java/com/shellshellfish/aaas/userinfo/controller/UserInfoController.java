@@ -1523,6 +1523,7 @@ public class UserInfoController {
 		date2 = date2.substring(5).replace("-", ".");
 		
 		result.put("buyfee", buyfee);
+		bankCard = bankCard.substring(bankCard.length()-4, bankCard.length());
 		result.put("bankInfo", bankName + "(" + bankCard + ")");
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
