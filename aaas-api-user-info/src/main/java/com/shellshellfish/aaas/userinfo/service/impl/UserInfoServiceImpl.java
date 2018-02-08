@@ -439,7 +439,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		Collections.reverse(trendYieldList);
 		return resultMap;
 	}
-	
+
 	public Map<String, Object> getTrendYield2(String userUuid) throws Exception {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		List<Map<String, Object>> trendYieldList = new ArrayList<Map<String, Object>>();
@@ -449,8 +449,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 		query.addCriteria(Criteria.where("userUuid").is(userUuid));
 		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC, "date"));
 		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
-		if(dailyAmountList!=null&&dailyAmountList.size()>0){
-			Map<String,BigDecimal> dailyAmountMap = new HashMap<String,BigDecimal>();
+		if (dailyAmountList != null && dailyAmountList.size() > 0) {
+			Map<String, BigDecimal> dailyAmountMap = new HashMap<String, BigDecimal>();
 			for (int i = 0; i < dailyAmountList.size(); i++) {
 				DailyAmount dailyAmount = dailyAmountList.get(i);
 				BigDecimal asset = BigDecimal.ZERO;
@@ -483,16 +483,16 @@ public class UserInfoServiceImpl implements UserInfoService {
 		for (int i = 0; i < productsList.size(); i++) {
 			products = productsList.get(i);
 			// 状态(0-待确认 1-已确认 -1-交易失败)
-						List<UiProductDetailDTO> productDetailsList = uiProductService
-								.getProductDetailsByProdId(products.getId());
+			List<UiProductDetailDTO> productDetailsList = uiProductService
+					.getProductDetailsByProdId(products.getId());
 			if (productDetailsList != null && productDetailsList.size() > 0) {
 				for (int j = 0; j < productDetailsList.size(); j++) {
 					UiProductDetailDTO uiProductDetailDTO = productDetailsList.get(j);
 					if (uiProductDetailDTO.getStatus() != null) {
-						if(uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()){
+						if (uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()) {
 							fails++;
 						}
-					} else{
+					} else {
 						fails++;
 					}
 				}
@@ -507,7 +507,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 			}
 			Long userId = getUserIdFromUUID(userUuid);
 			// 总资产
-			Map<String, PortfolioInfo> portfolioInfoMap = this.getCalculateTotalAndRate(userUuid, userId, products);
+			Map<String, PortfolioInfo> portfolioInfoMap = this
+					.getCalculateTotalAndRate(userUuid, userId, products);
 //			if (portfolioInfoMap != null) {
 //				Set<String> set = portfolioInfoMap.keySet();
 //				Object[] obj = set.toArray();
@@ -530,18 +531,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 			for (int i = 0; i < portfolioInfoList.size(); i++) {
 				//循环单个组合的map
 				Map<String, PortfolioInfo> portMap = portfolioInfoList.get(i);
-				
-				
+
+
 			}
 
 		}
-		
-		
-		
-		
+
 		// 遍历赋值
 		while (true) {
-			Map<String,Object> trendYieldMap = new HashMap<String,Object>();
+			Map<String, Object> trendYieldMap = new HashMap<String, Object>();
 			if (selectDate.equals(buyDate)) {
 				break;
 			}
@@ -549,18 +547,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 			// 调用对应的service
 			BigDecimal rate = userFinanceProdCalcService.calcYieldValue(userUuid, buyDate, selectDate);
 			if (rate != null) {
-				trendYieldMap.put("value", (rate.divide(new BigDecimal("100"), MathContext.DECIMAL128)).setScale(2,
-						BigDecimal.ROUND_HALF_UP));
+				trendYieldMap
+						.put("value", (rate.divide(new BigDecimal("100"), MathContext.DECIMAL128)).setScale(2,
+								BigDecimal.ROUND_HALF_UP));
 			} else {
 				trendYieldMap.put("value", 0);
 			}
 			trendYieldList.add(trendYieldMap);
-			
-			int year = Integer.parseInt(selectDate.substring(0,4));
-			int month = Integer.parseInt(selectDate.substring(4,6));
-			int day = Integer.parseInt(selectDate.substring(6,8));
+
+			int year = Integer.parseInt(selectDate.substring(0, 4));
+			int month = Integer.parseInt(selectDate.substring(4, 6));
+			int day = Integer.parseInt(selectDate.substring(6, 8));
 			LocalDate localDate = LocalDate.of(year, month, day);
-			localDate =  localDate.minusDays(1);
+			localDate = localDate.minusDays(1);
 			selectDate = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 		}
 		resultMap.put("trendYield", trendYieldList);
@@ -619,9 +618,16 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Override
 	public PortfolioInfo getChicombinationAssets(String uuid, Long userId, ProductsDTO products) {
 
+		logger.error(
+				"\n==============================start to query uiProdDetail   {} ==========================\n",
+				Instant.now().getEpochSecond());
 		List<UiProductDetail> uiProductDetailList = uiProductDetailRepo
 				.findAllByUserProdIdAndStatusIn(products.getId(),
 						TrdOrderStatusEnum.WAITPAY.getStatus(), TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
+
+		logger.error(
+				"\n==============================start to query uiProdDetail   {} ==========================\n",
+				Instant.now().getEpochSecond());
 		//完全确认标志
 		boolean flag = false;
 		if (CollectionUtils.isEmpty(uiProductDetailList)) {
@@ -649,31 +655,32 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 
 	}
-	
+
 	/**
-	 * 计算组合的累计收益，累计收益率 
+	 * 计算组合的累计收益，累计收益率
 	 */
 	@Override
-	public Map<String, PortfolioInfo> getCalculateTotalAndRate(String uuid, Long userId, ProductsDTO products) {
+	public Map<String, PortfolioInfo> getCalculateTotalAndRate(String uuid, Long userId,
+			ProductsDTO products) {
 		Map<String, PortfolioInfo> result = new HashMap<String, PortfolioInfo>();
 		List<OrderDetail> orderDetailPayWaitConfirm = rpcOrderService
 				.getOrderDetails(products.getId(),
 						TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
-		
+
 		//完全确认标志
 		boolean flag = false;
 		if (CollectionUtils.isEmpty(orderDetailPayWaitConfirm)) {
 			flag = true;
 		}
-		
+
 		Long startDate = products.getCreateDate();
 		LocalDate startLocalDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(startDate),
 				ZoneOffset.UTC).toLocalDate();
 		String startDay = InstantDateUtil.format(startLocalDate, "yyyyMMdd");
-		
-		int i=1;
+
+		int i = 1;
 		String endDay = InstantDateUtil.format(LocalDate.now().plusDays(-i), "yyyyMMdd");
-		while(true){
+		while (true) {
 			PortfolioInfo portfolioInfo = new PortfolioInfo();
 			if (flag) {
 				//完全确认
@@ -687,15 +694,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 				portfolioInfo = getPartConfirmFundInfo(uuid, userId, products.getId(), startDay, endDay);
 			}
 			result.put(endDay, portfolioInfo);
-			
+
 			i++;
 			endDay = InstantDateUtil.format(LocalDate.now().plusDays(-i), "yyyyMMdd");
-			if(startDate.equals(endDay)){
+			if (startDate.equals(endDay)) {
 				break;
 			}
 		}
 		return result;
-		
+
 	}
 
 
