@@ -691,19 +691,16 @@ public class UserInfoServiceImpl implements UserInfoService {
 								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.FAILED.getStatus()
 								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.CANCEL.getStatus()) {
 							count++;
+						} else if(uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()){
+							fails++;
 						}
-					} else if (uiProductDetailDTO.getStatus() == null
-							|| uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()) {
+					} else{
 						fails++;
-					} else {
-						logger.error("uiProductDetailDTO.getStatus():" + uiProductDetailDTO.getStatus());
 					}
 				}
-				if (fails > 0) {
-					if (fails == productDetailsList.size()) {
-						//若组合中全部失败，则不显示
-						continue;
-					}
+				if (fails == productDetailsList.size()) {
+					//若组合中全部失败，则不显示
+					continue;
 				}
 				resultMap.put("count", count);
 				if (count > 0) {
