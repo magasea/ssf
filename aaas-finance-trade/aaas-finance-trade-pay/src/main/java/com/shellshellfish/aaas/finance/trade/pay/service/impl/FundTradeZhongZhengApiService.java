@@ -89,7 +89,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         Map<String, Object> info = init(userUuid);
 
         info.put("tradeacco", tradeAcco);
-        info.put("applysum", applySum);
+        info.put("applysum", applySum.toString());
         info.put("outsideorderno", outsideOrderNo);
         info.put("fundcode", fundCode);
         //info.put("platform_openid", "88048");
@@ -121,7 +121,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
         Map<String, Object> info = init(userUuid);
 
-        info.put("sell_num", sellNum);
+        info.put("sell_num", sellNum.toString());
         info.put("outsideorderno", outsideOrderNo);
         info.put("tradeacco", tradeAcco);
         info.put("fundcode", fundCode);
