@@ -495,9 +495,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		BigDecimal buyAmountOfEndDay = dailyAmountAggregationOfEndDay.getBuyAmount();
 		BigDecimal sellAmountOfEndDay = dailyAmountAggregationOfEndDay.getSellAmount();
 		BigDecimal bonusOfEndDay = dailyAmountAggregationOfEndDay.getBonus();
-		// 区间结束日净赎回净赎回金额= 区间该基金累计分红现金+区间该基金累计赎回金额-区间该基金累计购买金额
-		BigDecimal intervalAmountOfEndDay = bonusOfEndDay.add(sellAmountOfEndDay)
-				.subtract(buyAmountOfEndDay);
 
 		//区间结束日前一天数据
 		LocalDate endLocalDate = InstantDateUtil.format(endDate, "yyyyMMdd");
@@ -517,15 +514,8 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		BigDecimal totalIncome = assetOfEndDay.add(intervalAmount).subtract(startAsset);
 
 		//日收益=结束日净值 - 前一日净值 + 结束日区间净赎回
-		BigDecimal dailyIncome = assetOfEndDay.subtract(assetOfOneDayBefore)
-				.add(intervalAmountOfEndDay);
+		BigDecimal dailyIncome = assetOfEndDay.subtract(assetOfOneDayBefore);
 
-		//日收益率= 日收益 / （结束日前一天资产+ 结束日购买金额）
-		BigDecimal dailyIncomeRate = BigDecimal.ZERO;
-		if (assetOfOneDayBefore.add(buyAmountOfEndDay).compareTo(BigDecimal.ZERO) != 0) {
-			dailyIncomeRate = dailyIncome
-					.divide(assetOfOneDayBefore.add(buyAmountOfEndDay), MathContext.DECIMAL128);
-		}
 		BigDecimal totalIncomeRate = BigDecimal.ZERO;
 		if (startAsset.add(buyAmount).compareTo(BigDecimal.ZERO) != 0) {
 			//区间收益率 =(区间结束总资产-起始总资产+区间净赎回金额)/(起始总资产+区间购买金额)
@@ -539,7 +529,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		portfolioInfo.setTotalIncome(totalIncome.setScale(4, RoundingMode.HALF_UP));
 		portfolioInfo.setTotalIncomeRate(totalIncomeRate.setScale(4, RoundingMode.HALF_UP));
 		portfolioInfo.setDailyIncome(dailyIncome.setScale(4, RoundingMode.HALF_UP));
-		portfolioInfo.setDailyIncomeRate(dailyIncomeRate.setScale(4, RoundingMode.HALF_UP));
 
 		//设置区间分红 ，申购和赎回
 		portfolioInfo.setBonus(bonus);

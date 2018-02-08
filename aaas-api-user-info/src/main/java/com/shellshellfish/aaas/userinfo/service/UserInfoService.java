@@ -90,4 +90,6 @@ public interface UserInfoService {
 
 	List<Map<String, Object>> getTradLogsOfUser(String userUuid) throws Exception;
 
+	Map<String, PortfolioInfo> getCalculateTotalAndRate(String uuid, Long userId, ProductsDTO products);
+
 }

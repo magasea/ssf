@@ -19,8 +19,8 @@ public class GrpcConfig extends GRpcServerBuilderConfigurer {
 
 
 
-  @Value("${grpc.host}")
-  String host;
+//  @Value("${grpc.host}")
+//  String host;
 
   @Value("${grpc.port}")
   int port;

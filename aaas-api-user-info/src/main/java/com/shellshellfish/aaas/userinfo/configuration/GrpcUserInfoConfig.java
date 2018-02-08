@@ -17,8 +17,8 @@ public class GrpcUserInfoConfig  {
 
 
 
-  @Value("${grpc.userinfo.host}")
-  String host;
+//  @Value("${grpc.userinfo.host}")
+//  String host;
 
   @Value("${grpc.userinfo.port}")
   int port;
