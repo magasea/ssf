@@ -3,8 +3,10 @@ package com.shellshellfish.aaas.finance.trade.order.service;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
+import com.shellshellfish.aaas.finance.trade.pay.FundNetInfo;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -40,6 +42,18 @@ public interface PayService {
    * @return
    */
   PreOrderPayResult preOrder2Pay(PreOrderPayReq preOrderPayReq)
+      throws ExecutionException, InterruptedException;
+
+  /**
+   * 获取中证的基金净值
+   * @param userPid
+   * @param fundCodes
+   * @param days
+   * @return
+   * @throws ExecutionException
+   * @throws InterruptedException
+   */
+  public List<FundNetInfo> getFundNetInfo(String userPid , List<String> fundCodes, int days)
       throws ExecutionException, InterruptedException;
 
 }

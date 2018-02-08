@@ -35,8 +35,11 @@ spring:
       host: 192.168.1.10
       port: 27017
       database: zhongzheng
-
-
+      paydatabase: ssftrdpay
+  redis:
+    host: 192.168.1.10
+    port: 6379
+    password: redis123
 datasource:
   sampleapp:
     url: jdbc:mysql://192.168.1.10:3306/ssftrdpay?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8
@@ -61,8 +64,13 @@ grpc:
   port: 10111
   finance_prod_client:
     host: localhost
-    port: 10030
-
+    port: 10031
+  userinfo_client:
+    host: localhost
+    port: 10061
+  order_client:
+    host: localhost
+    port: 10101
 using:
   spring:
     schedulerFactory: true
@@ -79,8 +87,8 @@ cron:
   frequency:
     #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
     #     0	0	5,17,22	?	*	*	*
-    jobwithcrontrigger: 0 0 5,17,22 ? * * *
-    jobpreorderpayflowcheck: 0 0 5,17,22 ? * * *
+    jobwithcrontrigger: 0 0 5,13,17,22 ? * * *
+    jobpreorderpayflowcheck: 0 0 5,13,17,22 ? * * *
 
 #--- multithread
 multithread:

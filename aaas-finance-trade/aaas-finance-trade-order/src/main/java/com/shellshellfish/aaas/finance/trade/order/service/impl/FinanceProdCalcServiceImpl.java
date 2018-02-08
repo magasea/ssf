@@ -83,7 +83,7 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
             totalPoundage = totalPoundage.add(poundage);
             totalDiscountSaving = totalDiscountSaving.add(discountSaving);
 
-            FundAmount fundAmount = new FundAmount(info.getFundCode(), info.getFundName(), amount.add(poundage));
+            FundAmount fundAmount = new FundAmount(info.getFundCode(), info.getFundName(), amount);
             fundAmountList.add(fundAmount);
         }
         return new DistributionResult(totalPoundage, totalDiscountSaving, fundAmountList);
@@ -115,12 +115,12 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
 			throws Exception {
 		BigDecimal min = this.getMinBuyAmount(productMakeUpInfoList);
 		if(!min.equals(new BigDecimal(0))&&totalAmount.compareTo(min) == -1){
-			throw new Exception("低于最小金额数:"+min);
+			throw new Exception("购买金额小于起购金额！");
 			//return false;
 		}
 		BigDecimal max = this.getMaxBuyAmount(productMakeUpInfoList);
 		if(!max.equals(new BigDecimal(0))&&totalAmount.compareTo(max) == 1){
-			throw new Exception("大于最小金额数:"+max);
+			throw new Exception("购买金额大于最大金额！");
 			//return false;
 		}
 		return true;

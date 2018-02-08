@@ -3,12 +3,12 @@ package com.shellshellfish.aaas.common.message.order;
 import java.io.Serializable;
 
 /**
- * Created by chenwei on 2018- 一月 - 10
+ * Created by chenwei on 2018- 一月 - 29
  */
 
 
 
-public class TrdPayFlow implements Serializable{
+public class TrdPayFlow implements Serializable {
 
   private long id;
   private long orderDetailId;
@@ -20,11 +20,12 @@ public class TrdPayFlow implements Serializable{
   private long userProdId;
   private String fundCode;
   private int trdStatus;
-  private long trdDate;
+  private long trdConfirmDate;
   private int trdType;
-  private Long trdMoneyAmount;
-  private long fundSum;
-  private long fundSumConfirmed;
+  private Long tradeTargetSum;
+  private long tradeTargetShare;
+  private long tradeConfirmShare;
+  private long tradeConfirmSum;
   private long buyFee;
   private long buyDiscount;
   private long userId;
@@ -139,12 +140,12 @@ public class TrdPayFlow implements Serializable{
 
   
   
-  public long getTrdDate() {
-    return trdDate;
+  public long getTrdConfirmDate() {
+    return trdConfirmDate;
   }
 
-  public void setTrdDate(long trdDate) {
-    this.trdDate = trdDate;
+  public void setTrdConfirmDate(long trdConfirmDate) {
+    this.trdConfirmDate = trdConfirmDate;
   }
 
   
@@ -159,32 +160,42 @@ public class TrdPayFlow implements Serializable{
 
   
   
-  public Long getTrdMoneyAmount() {
-    return trdMoneyAmount;
+  public Long getTradeTargetSum() {
+    return tradeTargetSum;
   }
 
-  public void setTrdMoneyAmount(Long trdMoneyAmount) {
-    this.trdMoneyAmount = trdMoneyAmount;
-  }
-
-  
-  
-  public long getFundSum() {
-    return fundSum;
-  }
-
-  public void setFundSum(long fundSum) {
-    this.fundSum = fundSum;
+  public void setTradeTargetSum(Long tradeTargetSum) {
+    this.tradeTargetSum = tradeTargetSum;
   }
 
   
   
-  public long getFundSumConfirmed() {
-    return fundSumConfirmed;
+  public long getTradeTargetShare() {
+    return tradeTargetShare;
   }
 
-  public void setFundSumConfirmed(long fundSumConfirmed) {
-    this.fundSumConfirmed = fundSumConfirmed;
+  public void setTradeTargetShare(long tradeTargetShare) {
+    this.tradeTargetShare = tradeTargetShare;
+  }
+
+  
+  
+  public Long getTradeConfirmShare() {
+    return tradeConfirmShare;
+  }
+
+  public void setTradeConfirmShare(long tradeConfirmShare) {
+    this.tradeConfirmShare = tradeConfirmShare;
+  }
+
+  
+  
+  public long getTradeConfirmSum() {
+    return tradeConfirmSum;
+  }
+
+  public void setTradeConfirmSum(long tradeConfirmSum) {
+    this.tradeConfirmSum = tradeConfirmSum;
   }
 
   
@@ -323,16 +334,19 @@ public class TrdPayFlow implements Serializable{
     if (trdStatus != that.trdStatus) {
       return false;
     }
-    if (trdDate != that.trdDate) {
+    if (trdConfirmDate != that.trdConfirmDate) {
       return false;
     }
     if (trdType != that.trdType) {
       return false;
     }
-    if (fundSum != that.fundSum) {
+    if (tradeTargetShare != that.tradeTargetShare) {
       return false;
     }
-    if (fundSumConfirmed != that.fundSumConfirmed) {
+    if (tradeConfirmShare != that.tradeConfirmShare) {
+      return false;
+    }
+    if (tradeConfirmSum != that.tradeConfirmSum) {
       return false;
     }
     if (buyFee != that.buyFee) {
@@ -372,8 +386,8 @@ public class TrdPayFlow implements Serializable{
     if (fundCode != null ? !fundCode.equals(that.fundCode) : that.fundCode != null) {
       return false;
     }
-    if (trdMoneyAmount != null ? !trdMoneyAmount.equals(that.trdMoneyAmount)
-        : that.trdMoneyAmount != null) {
+    if (tradeTargetSum != null ? !tradeTargetSum.equals(that.tradeTargetSum)
+        : that.tradeTargetSum != null) {
       return false;
     }
     if (errMsg != null ? !errMsg.equals(that.errMsg) : that.errMsg != null) {
@@ -406,11 +420,12 @@ public class TrdPayFlow implements Serializable{
     result = 31 * result + (int) (userProdId ^ (userProdId >>> 32));
     result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
     result = 31 * result + trdStatus;
-    result = 31 * result + (int) (trdDate ^ (trdDate >>> 32));
+    result = 31 * result + (int) (trdConfirmDate ^ (trdConfirmDate >>> 32));
     result = 31 * result + trdType;
-    result = 31 * result + (trdMoneyAmount != null ? trdMoneyAmount.hashCode() : 0);
-    result = 31 * result + (int) (fundSum ^ (fundSum >>> 32));
-    result = 31 * result + (int) (fundSumConfirmed ^ (fundSumConfirmed >>> 32));
+    result = 31 * result + (tradeTargetSum != null ? tradeTargetSum.hashCode() : 0);
+    result = 31 * result + (int) (tradeTargetShare ^ (tradeTargetShare >>> 32));
+    result = 31 * result + (int) (tradeConfirmShare ^ (tradeConfirmShare >>> 32));
+    result = 31 * result + (int) (tradeConfirmSum ^ (tradeConfirmSum >>> 32));
     result = 31 * result + (int) (buyFee ^ (buyFee >>> 32));
     result = 31 * result + (int) (buyDiscount ^ (buyDiscount >>> 32));
     result = 31 * result + (int) (userId ^ (userId >>> 32));

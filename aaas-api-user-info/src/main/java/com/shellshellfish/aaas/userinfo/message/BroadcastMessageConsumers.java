@@ -3,15 +3,21 @@ package com.shellshellfish.aaas.userinfo.message;
 
 import com.rabbitmq.client.Channel;
 import com.shellshellfish.aaas.common.constants.RabbitMQConstants;
+import com.shellshellfish.aaas.common.enums.SystemUserEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import com.shellshellfish.aaas.common.message.order.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.common.message.order.OrderStatusChangeDTO;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdLog;
+import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserTrdLogMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Component
 public class BroadcastMessageConsumers {
@@ -40,6 +47,9 @@ public class BroadcastMessageConsumers {
     @Autowired
     MongoUserTrdLogMsgRepo mongoUserTrdLogMsgRepo;
 
+    @Autowired
+    MongoUiTrdZZInfoRepo mongoUiTrdZZInfoRepo;
+
     @Transactional
     @RabbitListener(bindings = @QueueBinding(
         value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants.OPERATION_TYPE_UPDATE_UIPROD,
@@ -51,14 +61,27 @@ public class BroadcastMessageConsumers {
         .DELIVERY_TAG) long tag) throws Exception {
         logger.info("Received fanout 1 message: " + trdPayFlow);
         //update ui_products 和 ui_product_details
-        try{
-            uiProductDetailRepo.updateByParam(trdPayFlow.getFundSum(), TradeUtil.getUTCTime(),
-                trdPayFlow.getUserId(),trdPayFlow.getUserProdId() ,trdPayFlow.getFundCode(),
-                trdPayFlow.getTrdStatus());
-        }catch (Exception ex){
-            ex.printStackTrace();
-            logger.error(ex.getMessage());
+        logger.info("this consumer only controll buy payFlow message");
+        if(trdPayFlow.getTrdType() == TrdOrderOpTypeEnum.BUY.getOperation()){
+            logger.info("get buy update payFlow msg");
+            try{
+                UiProductDetail uiProductDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
+                    (trdPayFlow.getUserProdId(), trdPayFlow.getFundCode());
+                uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+                uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
+                uiProductDetail.setStatus(trdPayFlow.getTrdStatus());
+                if(trdPayFlow.getTradeConfirmShare() != null && trdPayFlow.getTradeConfirmShare()
+                    > 0){
+                    uiProductDetail.setFundQuantityTrade(trdPayFlow.getTradeConfirmShare().intValue());
+                    uiProductDetail.setFundQuantity(trdPayFlow.getTradeConfirmShare().intValue());
+                }
+                uiProductDetailRepo.save(uiProductDetail);
+            }catch (Exception ex){
+                ex.printStackTrace();
+                logger.error(ex.getMessage());
+            }
         }
+
         try {
             channel.basicAck(tag, true);
         } catch (IOException e) {
@@ -74,7 +97,7 @@ public class BroadcastMessageConsumers {
         value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
             .OPERATION_TYPE_UPDATE_UITRDLOG, durable = "false"),
         exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
-            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO)
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_TRDLOG)
     )
     public void receiveTradeMessage(TrdPayFlow trdPayFlow, Channel channel, @Header(AmqpHeaders
         .DELIVERY_TAG) long tag) throws Exception {
@@ -82,18 +105,34 @@ public class BroadcastMessageConsumers {
         //update ui_products 和 ui_product_details
         MongoUiTrdLog  mongoUiTrdLog = new MongoUiTrdLog();
         try{
-            if(null == trdPayFlow.getTrdMoneyAmount()){
-                mongoUiTrdLog.setAmount(BigDecimal.valueOf(0));
-            }else {
-                mongoUiTrdLog.setAmount(
-                    TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow.getTrdMoneyAmount()));
-            }
+            mongoUiTrdLog.setTradeConfirmSum(trdPayFlow.getTradeConfirmSum());
+            mongoUiTrdLog.setTradeConfirmShare(trdPayFlow.getTradeConfirmShare());
+            mongoUiTrdLog.setTradeTargetShare(trdPayFlow.getTradeTargetShare());
+            mongoUiTrdLog.setTradeTargetSum(trdPayFlow.getTradeTargetSum());
             mongoUiTrdLog.setOperations(trdPayFlow.getTrdType());
             mongoUiTrdLog.setUserProdId(trdPayFlow.getUserProdId());
             mongoUiTrdLog.setUserId(trdPayFlow.getUserId());
             mongoUiTrdLog.setTradeStatus(trdPayFlow.getTrdStatus());
+            if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.WAITPAY.getStatus() ||
+                trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()){
+                //等待支付金额就是下单请求时候的金额
+                mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow.getTradeTargetSum()));
+            }else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus() ||
+                trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus()){
+                //等待赎回份额就是下单请求时候的份额
+                mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow.getTradeTargetShare()));
+            }else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()){
+                if(trdPayFlow.getTrdType() == TrdOrderOpTypeEnum.BUY.getOperation()){
+                    mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow
+                        .getTradeConfirmShare()));
+                }else if(trdPayFlow.getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+                    mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow
+                        .getTradeConfirmSum()));
+                }
+            }
             mongoUiTrdLog.setLastModifiedDate(TradeUtil.getUTCTime());
-            mongoUiTrdLog.setTradeDate(trdPayFlow.getTrdDate());
+            mongoUiTrdLog.setFundCode(trdPayFlow.getFundCode());
+            mongoUiTrdLog.setTradeDate(trdPayFlow.getUpdateDate());
             mongoUserTrdLogMsgRepo.save(mongoUiTrdLog);
         }catch (Exception ex){
             ex.printStackTrace();
@@ -113,7 +152,7 @@ public class BroadcastMessageConsumers {
         value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
             .OPERATION_TYPE_UPDATE_UITRDLOG, durable = "false"),
         exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
-            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO)
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_ORDSTATCHG)
     )
     public void receiveOrderStatusChangeMessage(OrderStatusChangeDTO orderStatusChangeDTO, Channel channel, @Header
         (AmqpHeaders
@@ -122,7 +161,6 @@ public class BroadcastMessageConsumers {
         //update ui_products 和 ui_product_details
         MongoUiTrdLog  mongoUiTrdLog = new MongoUiTrdLog();
         try{
-
             mongoUiTrdLog.setOperations(orderStatusChangeDTO.getOrderType());
             mongoUiTrdLog.setUserProdId(orderStatusChangeDTO.getUserProdId());
             mongoUiTrdLog.setUserId(orderStatusChangeDTO.getUserId());
@@ -141,5 +179,145 @@ public class BroadcastMessageConsumers {
         }
         latch.countDown();
 
+    }
+
+
+    @Transactional
+    @RabbitListener(bindings = @QueueBinding(
+        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
+            .OPERATION_TYPE_CHECKSELL_ROLLBACK, durable = "false"),
+        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_REDEEM)
+    )
+    public void receiveAndCheckSell(TrdPayFlow trdPayFlow, Channel channel, @Header(AmqpHeaders
+        .DELIVERY_TAG) long tag) throws Exception {
+        logger.info("receiveAndCheckSell Received fanout 1 message: " + trdPayFlow);
+        logger.info("this consumer only controll redeem payFlow message");
+        //if sell failed then update ui_product_details product number back
+        UiProductDetail uiProductDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
+            (trdPayFlow.getUserProdId(), trdPayFlow.getFundCode());
+        if(!StringUtils.isEmpty(trdPayFlow.getApplySerial()) && trdPayFlow.getApplySerial().equals
+            (uiProductDetail.getLastestSerial())){
+            logger.error("repeated trdPayFlow message received, just ignore it");
+        }
+        else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.REDEEMFAILED.getStatus() &&
+            trdPayFlow.getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation() &&
+            uiProductDetail.getStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()){
+            //记住 要和payService里面sellProd的做法一致，发送方也得用这个字段存储赎回基金数量
+
+            //赎回失败情况下把数量加回去，前提是状态已经是等待赎回， 否则作为重复请求忽略掉这个信息
+            Long fundQuantity = trdPayFlow.getTradeTargetShare();
+            logger.info("now set the fund quantity back with userProdId:" + trdPayFlow.getUserProdId
+                () + " fundQuantity:" + fundQuantity);
+            uiProductDetail.setFundQuantityTrade(uiProductDetail.getFundQuantityTrade() +
+                fundQuantity.intValue());
+            uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+            uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
+            uiProductDetail.setStatus(trdPayFlow.getTrdStatus());
+            uiProductDetailRepo.save(uiProductDetail);
+//            uiProductDetailRepo.updateByAddBackQuantity(fundQuantity, TradeUtil.getUTCTime(),
+//                SystemUserEnum.SYSTEM_USER_ENUM.getUserId(), trdPayFlow.getUserProdId(),
+//                trdPayFlow.getFundCode(), trdPayFlow.getTrdStatus(), TrdOrderStatusEnum.WAITSELL.getStatus());
+        }else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus() && trdPayFlow
+            .getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+            logger.info("now update the product status to SELLWAITCONFIRM");
+            uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
+            uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+            uiProductDetail.setStatus(trdPayFlow.getTrdStatus());
+            boolean haveSerialInPayFlow = true;
+            if(StringUtils.isEmpty(trdPayFlow.getApplySerial())){
+                logger.error("the apply serial is empty so it is an error ");
+                haveSerialInPayFlow = false;
+            }
+            if(StringUtils.isEmpty(uiProductDetail.getLastestSerial())){
+                if(haveSerialInPayFlow) {
+                   uiProductDetail.setLastestSerial(trdPayFlow.getApplySerial());
+                }
+            }else{
+                if(haveSerialInPayFlow){
+                    uiProductDetail.setLastestSerial(uiProductDetail.getLastestSerial()
+                        +"|"+trdPayFlow.getApplySerial());
+                }
+            }
+            uiProductDetailRepo.save(uiProductDetail);
+//            uiProductDetailRepo.updateByParamForStatus(TradeUtil.getUTCTime(),
+//                SystemUserEnum.SYSTEM_USER_ENUM.getUserId(), trdPayFlow.getUserProdId(),
+//                trdPayFlow.getFundCode(), trdPayFlow.getTrdStatus());
+        }else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus() && trdPayFlow
+            .getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+            int status = trdPayFlow.getTrdStatus();
+            if(uiProductDetail.getStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()){
+                logger.info("because uiProductDetail.getStatus() is:" + uiProductDetail.getStatus
+                    () + " so the status should be kept for reject current redeem operation");
+                status = uiProductDetail.getStatus();
+            }
+            Long delta = trdPayFlow.getTradeTargetShare() - trdPayFlow.getTradeConfirmShare();
+            //delta need to be add back to the origin trade quantity
+            uiProductDetail.setFundQuantity(uiProductDetail.getFundQuantity() - trdPayFlow
+                .getTradeConfirmShare().intValue());
+            uiProductDetail.setStatus(status);
+            uiProductDetail.setFundQuantityTrade(uiProductDetail.getFundQuantityTrade() + delta.intValue());
+            uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
+            uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+            if( !StringUtils.isEmpty(uiProductDetail.getLastestSerial()) && !uiProductDetail
+                .getLastestSerial().contains(trdPayFlow.getApplySerial())){
+                logger.error("received repeated confirm message :" + trdPayFlow.getApplySerial());
+            }else if(StringUtils.isEmpty(uiProductDetail.getLastestSerial())){
+                logger.info("it is initial, let's handle this message ");
+                uiProductDetailRepo.save(uiProductDetail);
+            }else if(!StringUtils.isEmpty(uiProductDetail.getLastestSerial()) && uiProductDetail
+                .getLastestSerial().contains(trdPayFlow.getApplySerial())){
+                String[] serials = uiProductDetail.getLastestSerial().split("|");
+                StringBuilder sb = new StringBuilder();
+                for(String serial: serials){
+                    if(serial.equals(trdPayFlow.getApplySerial())){
+                        logger.info("got the history stored serial:"+trdPayFlow.getApplySerial());
+                        continue;
+                    }else{
+                        sb.append(serial).append("|");
+                    }
+                }
+                uiProductDetail.setLastestSerial(sb.toString());
+                uiProductDetailRepo.save(uiProductDetail);
+            }
+
+        }else{
+            logger.error("havent handling this kind of trdPayflow: of trdType:"+ trdPayFlow
+                .getTrdType() + " status:" + trdPayFlow.getTrdStatus());
+        }
+
+        try {
+            channel.basicAck(tag, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        latch.countDown();
+
+    }
+
+    @Transactional
+    @RabbitListener(bindings = @QueueBinding(
+        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
+            .OPERATION_TYPE_UPDATE_UITRDCONFIRMINFO, durable = "false"),
+        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_CFMLOG)
+    )
+    public void receiveConfirmInfo(MongoUiTrdZZInfo mongoUiTrdZZInfo, Channel channel, @Header
+        (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
+        com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo mongoUiTrdZZInfoInDb = mongoUiTrdZZInfoRepo
+        .findByUserProdIdAndUserIdAndOutSideOrderNo(mongoUiTrdZZInfo
+            .getUserProdId(), mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getOutSideOrderNo());
+        if(mongoUiTrdZZInfoInDb == null){
+            mongoUiTrdZZInfoInDb = new com.shellshellfish.aaas.userinfo.model.dao
+                .MongoUiTrdZZInfo();
+            MyBeanUtils.mapEntityIntoDTO(mongoUiTrdZZInfo, mongoUiTrdZZInfoInDb);
+            mongoUiTrdZZInfoRepo.save(mongoUiTrdZZInfoInDb);
+        }else{
+            String idOrig = mongoUiTrdZZInfoInDb.getId();
+            MyBeanUtils.mapEntityIntoDTO(mongoUiTrdZZInfo, mongoUiTrdZZInfoInDb);
+            mongoUiTrdZZInfoInDb.setTradeType(mongoUiTrdZZInfo.getTradeType());
+            mongoUiTrdZZInfoInDb.setId(idOrig);
+            mongoUiTrdZZInfoRepo.save(mongoUiTrdZZInfoInDb);
+        }
     }
 }

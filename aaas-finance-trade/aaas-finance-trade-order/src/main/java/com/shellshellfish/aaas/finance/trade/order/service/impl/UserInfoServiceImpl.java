@@ -1,9 +1,11 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.grpc.SellProducts;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
+import com.shellshellfish.aaas.userinfo.grpc.UserId;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery;
-import com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery.Builder;
+import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc.UserInfoServiceFutureStub;
 import io.grpc.ManagedChannel;
@@ -19,23 +21,57 @@ import org.springframework.stereotype.Service;
 public class UserInfoServiceImpl implements UserInfoService {
 
 
-  UserInfoServiceFutureStub userInfoServiceFutureStub;
+	UserInfoServiceFutureStub userInfoServiceFutureStub;
 
-  @Autowired
-  ManagedChannel managedUIChannel;
+	@Autowired
+	ManagedChannel managedUIChannel;
 
-  @PostConstruct
-  public void init(){
-    userInfoServiceFutureStub = UserInfoServiceGrpc.newFutureStub(managedUIChannel);
-  }
+	@PostConstruct
+	public void init() {
+		userInfoServiceFutureStub = UserInfoServiceGrpc.newFutureStub(managedUIChannel);
+	}
+
+	@Override
+	public UserBankInfo getUserBankInfo(Long userId) throws ExecutionException, InterruptedException {
+		UserIdOrUUIDQuery.Builder builder = UserIdOrUUIDQuery.newBuilder();
+		builder.setUserId(userId);
+
+		com.shellshellfish.aaas.userinfo.grpc.UserBankInfo userBankInfo =
+				userInfoServiceFutureStub.getUserBankInfo(builder.build()).get();
+		return userBankInfo;
+	}
+
+
+	@Override
+	public UserBankInfo getUserBankInfo(String userUUID) throws ExecutionException,
+			InterruptedException {
+		UserIdOrUUIDQuery.Builder builder = UserIdOrUUIDQuery.newBuilder();
+		builder.setUuid(userUUID);
+		com.shellshellfish.aaas.userinfo.grpc.UserBankInfo userBankInfo =
+				userInfoServiceFutureStub.getUserBankInfo(builder.build()).get();
+		return userBankInfo;
+	}
+
+	@Override
+	public UserInfo getUserInfoByUserId(Long userId) throws ExecutionException, InterruptedException {
+		UserId.Builder uiBuilder = UserId.newBuilder();
+		uiBuilder.setUserId(userId);
+		return userInfoServiceFutureStub.getUserInfo(uiBuilder.build()).get();
+
+	}
+
+	@Override
+	public SellProducts checkSellProducts(SellProducts sellProducts)
+			throws ExecutionException, InterruptedException {
+		return userInfoServiceFutureStub.sellUserProducts(sellProducts).get();
+
+	}
 
   @Override
-  public UserBankInfo getUserBankInfo(Long userId) throws ExecutionException, InterruptedException {
-    UserIdOrUUIDQuery.Builder builder = UserIdOrUUIDQuery.newBuilder();
-    builder.setUserId(userId);
-
-    com.shellshellfish.aaas.userinfo.grpc.UserBankInfo userBankInfo =
-        userInfoServiceFutureStub.getUserBankInfo(builder.build()).get();
-    return userBankInfo;
+  public SellProducts rollbackSellProducts(SellProducts sellProducts)
+      throws ExecutionException, InterruptedException {
+    return userInfoServiceFutureStub.rollbackUserProducts(sellProducts).get();
   }
+
+
 }

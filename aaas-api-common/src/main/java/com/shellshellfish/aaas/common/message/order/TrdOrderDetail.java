@@ -3,7 +3,7 @@ package com.shellshellfish.aaas.common.message.order;
 import java.io.Serializable;
 
 /**
- * Created by chenwei on 2017- 十二月 - 25
+ * Created by chenwei on 2018- 一月 - 29
  */
 
 
@@ -11,9 +11,9 @@ import java.io.Serializable;
 public class TrdOrderDetail implements Serializable {
 
   private long id;
-  private Long orderDetailId;
+  private String orderId;
   private String tradeApplySerial;
-  private long boughtDate;
+  private long buysellDate;
   private int tradeType;
   private long payAmount;
   private long payFee;
@@ -22,7 +22,10 @@ public class TrdOrderDetail implements Serializable {
   private String fundCode;
   private long fundMoneyQuantity;
   private long fundNum;
-  private long fundNumConfirmed;
+  private long fundSum;
+  private Long fundNumConfirmed;
+  private long fundSumConfirmed;
+  private int fundShare;
   private long buyFee;
   private long buyDiscount;
   private int orderDetailStatus;
@@ -31,13 +34,14 @@ public class TrdOrderDetail implements Serializable {
   private long updateBy;
   private long updateDate;
   private String bankCardNum;
+  private String errMsg;
   private Long fundQuantity;
-  private Integer orderStatus;
-  private String prodCode;
+  private Long prodId;
 
   
   
-  public long getId() {
+  
+  public Long getId() {
     return id;
   }
 
@@ -47,12 +51,12 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public Long getOrderDetailId() {
-    return orderDetailId;
+  public String getOrderId() {
+    return orderId;
   }
 
-  public void setOrderDetailId(Long orderDetailId) {
-    this.orderDetailId = orderDetailId;
+  public void setOrderId(String orderId) {
+    this.orderId = orderId;
   }
 
   
@@ -67,12 +71,12 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getBoughtDate() {
-    return boughtDate;
+  public Long getBuysellDate() {
+    return buysellDate;
   }
 
-  public void setBoughtDate(long boughtDate) {
-    this.boughtDate = boughtDate;
+  public void setBuysellDate(long buysellDate) {
+    this.buysellDate = buysellDate;
   }
 
   
@@ -87,7 +91,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getPayAmount() {
+  public Long getPayAmount() {
     return payAmount;
   }
 
@@ -97,7 +101,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getPayFee() {
+  public Long getPayFee() {
     return payFee;
   }
 
@@ -107,7 +111,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getUserId() {
+  public Long getUserId() {
     return userId;
   }
 
@@ -117,7 +121,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getUserProdId() {
+  public Long getUserProdId() {
     return userProdId;
   }
 
@@ -137,7 +141,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getFundMoneyQuantity() {
+  public Long getFundMoneyQuantity() {
     return fundMoneyQuantity;
   }
 
@@ -147,7 +151,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getFundNum() {
+  public Long getFundNum() {
     return fundNum;
   }
 
@@ -157,17 +161,47 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getFundNumConfirmed() {
+  public Long getFundSum() {
+    return fundSum;
+  }
+
+  public void setFundSum(long fundSum) {
+    this.fundSum = fundSum;
+  }
+
+  
+  
+  public Long getFundNumConfirmed() {
     return fundNumConfirmed;
   }
 
-  public void setFundNumConfirmed(long fundNumConfirmed) {
+  public void setFundNumConfirmed(Long fundNumConfirmed) {
     this.fundNumConfirmed = fundNumConfirmed;
   }
 
   
   
-  public long getBuyFee() {
+  public Long getFundSumConfirmed() {
+    return fundSumConfirmed;
+  }
+
+  public void setFundSumConfirmed(long fundSumConfirmed) {
+    this.fundSumConfirmed = fundSumConfirmed;
+  }
+
+  
+  
+  public int getFundShare() {
+    return fundShare;
+  }
+
+  public void setFundShare(int fundShare) {
+    this.fundShare = fundShare;
+  }
+
+  
+  
+  public Long getBuyFee() {
     return buyFee;
   }
 
@@ -177,7 +211,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getBuyDiscount() {
+  public Long getBuyDiscount() {
     return buyDiscount;
   }
 
@@ -197,7 +231,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getCreateBy() {
+  public Long getCreateBy() {
     return createBy;
   }
 
@@ -207,7 +241,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getCreateDate() {
+  public Long getCreateDate() {
     return createDate;
   }
 
@@ -217,7 +251,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getUpdateBy() {
+  public Long getUpdateBy() {
     return updateBy;
   }
 
@@ -227,7 +261,7 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public long getUpdateDate() {
+  public Long getUpdateDate() {
     return updateDate;
   }
 
@@ -247,6 +281,16 @@ public class TrdOrderDetail implements Serializable {
 
   
   
+  public String getErrMsg() {
+    return errMsg;
+  }
+
+  public void setErrMsg(String errMsg) {
+    this.errMsg = errMsg;
+  }
+
+  
+  
   public Long getFundQuantity() {
     return fundQuantity;
   }
@@ -257,22 +301,12 @@ public class TrdOrderDetail implements Serializable {
 
   
   
-  public Integer getOrderStatus() {
-    return orderStatus;
+  public Long getProdId() {
+    return prodId;
   }
 
-  public void setOrderStatus(Integer orderStatus) {
-    this.orderStatus = orderStatus;
-  }
-
-  
-  
-  public String getProdCode() {
-    return prodCode;
-  }
-
-  public void setProdCode(String prodCode) {
-    this.prodCode = prodCode;
+  public void setProdId(Long prodId) {
+    this.prodId = prodId;
   }
 
   
@@ -289,7 +323,7 @@ public class TrdOrderDetail implements Serializable {
     if (id != that.id) {
       return false;
     }
-    if (boughtDate != that.boughtDate) {
+    if (buysellDate != that.buysellDate) {
       return false;
     }
     if (tradeType != that.tradeType) {
@@ -313,7 +347,13 @@ public class TrdOrderDetail implements Serializable {
     if (fundNum != that.fundNum) {
       return false;
     }
-    if (fundNumConfirmed != that.fundNumConfirmed) {
+    if (fundSum != that.fundSum) {
+      return false;
+    }
+    if (fundSumConfirmed != that.fundSumConfirmed) {
+      return false;
+    }
+    if (fundShare != that.fundShare) {
       return false;
     }
     if (buyFee != that.buyFee) {
@@ -337,7 +377,7 @@ public class TrdOrderDetail implements Serializable {
     if (updateDate != that.updateDate) {
       return false;
     }
-    if (orderDetailId != null ? !orderDetailId.equals(that.orderDetailId) : that.orderDetailId != null) {
+    if (orderId != null ? !orderId.equals(that.orderId) : that.orderId != null) {
       return false;
     }
     if (tradeApplySerial != null ? !tradeApplySerial.equals(that.tradeApplySerial)
@@ -347,17 +387,21 @@ public class TrdOrderDetail implements Serializable {
     if (fundCode != null ? !fundCode.equals(that.fundCode) : that.fundCode != null) {
       return false;
     }
+    if (fundNumConfirmed != null ? !fundNumConfirmed.equals(that.fundNumConfirmed)
+        : that.fundNumConfirmed != null) {
+      return false;
+    }
     if (bankCardNum != null ? !bankCardNum.equals(that.bankCardNum) : that.bankCardNum != null) {
+      return false;
+    }
+    if (errMsg != null ? !errMsg.equals(that.errMsg) : that.errMsg != null) {
       return false;
     }
     if (fundQuantity != null ? !fundQuantity.equals(that.fundQuantity)
         : that.fundQuantity != null) {
       return false;
     }
-    if (orderStatus != null ? !orderStatus.equals(that.orderStatus) : that.orderStatus != null) {
-      return false;
-    }
-    if (prodCode != null ? !prodCode.equals(that.prodCode) : that.prodCode != null) {
+    if (prodId != null ? !prodId.equals(that.prodId) : that.prodId != null) {
       return false;
     }
 
@@ -367,9 +411,9 @@ public class TrdOrderDetail implements Serializable {
   
   public int hashCode() {
     int result = (int) (id ^ (id >>> 32));
-    result = 31 * result + (orderDetailId != null ? orderDetailId.hashCode() : 0);
+    result = 31 * result + (orderId != null ? orderId.hashCode() : 0);
     result = 31 * result + (tradeApplySerial != null ? tradeApplySerial.hashCode() : 0);
-    result = 31 * result + (int) (boughtDate ^ (boughtDate >>> 32));
+    result = 31 * result + (int) (buysellDate ^ (buysellDate >>> 32));
     result = 31 * result + tradeType;
     result = 31 * result + (int) (payAmount ^ (payAmount >>> 32));
     result = 31 * result + (int) (payFee ^ (payFee >>> 32));
@@ -378,7 +422,10 @@ public class TrdOrderDetail implements Serializable {
     result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
     result = 31 * result + (int) (fundMoneyQuantity ^ (fundMoneyQuantity >>> 32));
     result = 31 * result + (int) (fundNum ^ (fundNum >>> 32));
-    result = 31 * result + (int) (fundNumConfirmed ^ (fundNumConfirmed >>> 32));
+    result = 31 * result + (int) (fundSum ^ (fundSum >>> 32));
+    result = 31 * result + (fundNumConfirmed != null ? fundNumConfirmed.hashCode() : 0);
+    result = 31 * result + (int) (fundSumConfirmed ^ (fundSumConfirmed >>> 32));
+    result = 31 * result + fundShare;
     result = 31 * result + (int) (buyFee ^ (buyFee >>> 32));
     result = 31 * result + (int) (buyDiscount ^ (buyDiscount >>> 32));
     result = 31 * result + orderDetailStatus;
@@ -387,9 +434,9 @@ public class TrdOrderDetail implements Serializable {
     result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
     result = 31 * result + (int) (updateDate ^ (updateDate >>> 32));
     result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
+    result = 31 * result + (errMsg != null ? errMsg.hashCode() : 0);
     result = 31 * result + (fundQuantity != null ? fundQuantity.hashCode() : 0);
-    result = 31 * result + (orderStatus != null ? orderStatus.hashCode() : 0);
-    result = 31 * result + (prodCode != null ? prodCode.hashCode() : 0);
+    result = 31 * result + (prodId != null ? prodId.hashCode() : 0);
     return result;
   }
 }

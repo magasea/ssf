@@ -20,9 +20,25 @@ import org.junit.Test;
 public class TradeUtilTest {
 
   @Test
+  public void getReadableDateTime() throws Exception {
+    System.out.println(TradeUtil.getReadableDateTime(TradeUtil.getUTCTime()));
+  }
+
+  @Test
   public void getZZOpenId() throws Exception {
     String origin = "612727198301116032";
     System.out.println(TradeUtil.getZZOpenId(origin));
+  }
+
+  @Test
+  public void getZZOpenIds() throws Exception {
+    String[] origins = {"11022319850127211X","11022619850111011X","11022619850127211X",
+        "11022619850127212X","352230198703172130","362522198709220031","370181199001026835",
+        "370181199001206536","411327198710181169","412827199205132051","522101197402150413",
+        "612727198301116032"};
+    for(String origin : origins){
+      System.out.println(TradeUtil.getZZOpenId(origin));
+    }
   }
 
   @Test
@@ -63,9 +79,9 @@ public class TradeUtilTest {
     System.out.println("deltaOfDay:" + deltaOfDay + " deltaOfHour:" + deltaOfHour + " "
         + "caculateDayInHour:" + cacluateDayInHour);
     Set<String> allZoneIds = ZoneId.getAvailableZoneIds();
-//    for(String zoneId: allZoneIds){
-//      System.out.println(zoneId);
-//    }
+    for(String zoneId: allZoneIds){
+      System.out.println(zoneId);
+    }
     LocalDateTime dateTime = LocalDateTime.now();
     LocalDateTime oneHourBefore = dateTime.plusHours(-1);
     LocalDateTime oneDayBefore = dateTime.plusDays(-1);
@@ -90,6 +106,28 @@ public class TradeUtilTest {
         + "caculateDayInHour:" + cacluateDayInHour);
 
 
+  }
+
+  @Test
+  public void getTplusNDayOfWork(){
+    System.out.println(TradeUtil.getTplusNDayOfWork(TradeUtil.getUTCTime(), 1));
+  }
+
+  @Test
+  public void getSpecificTime(){
+    System.out.println(TradeUtil.getUTCOfSpecificTimeToday(6,30));
+    System.out.println(TradeUtil.getUTCOfSpecificTimeToday(7,30));
+  }
+
+  @Test
+  public void getDateOfSpecificTimeToday(){
+    System.out.println(TradeUtil.getDateOfSpecificTimeToday(6,30).toString());
+  }
+
+  @Test
+  public void getDateOfSpecificTime(){
+    System.out.println(TradeUtil.getUTCTimeOfSpecificTime(2018,01, 26, 20, 1));
+    System.out.println(TradeUtil.getUTCTimeOfSpecificTime(2018,01, 26, 20, 8));
   }
 
 }

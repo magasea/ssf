@@ -20,7 +20,7 @@ public class TrdOrder {
   private String orderId;
   private long preOrderId;
   private String bankCardNum;
-  private String prodCode;
+
   private int orderStatus;
   private long orderDate;
   private int orderType;
@@ -76,15 +76,7 @@ public class TrdOrder {
     this.bankCardNum = bankCardNum;
   }
 
-  @Basic
-  @Column(name = "prod_code")
-  public String getProdCode() {
-    return prodCode;
-  }
 
-  public void setProdCode(String prodCode) {
-    this.prodCode = prodCode;
-  }
 
   @Basic
   @Column(name = "order_status")
@@ -276,9 +268,7 @@ public class TrdOrder {
         : trdOrder.bankCardNum != null) {
       return false;
     }
-    if (prodCode != null ? !prodCode.equals(trdOrder.prodCode) : trdOrder.prodCode != null) {
-      return false;
-    }
+
     if (payFee != null ? !payFee.equals(trdOrder.payFee) : trdOrder.payFee != null) {
       return false;
     }
@@ -292,7 +282,7 @@ public class TrdOrder {
     result = 31 * result + (orderId != null ? orderId.hashCode() : 0);
     result = 31 * result + (int) (preOrderId ^ (preOrderId >>> 32));
     result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
-    result = 31 * result + (prodCode != null ? prodCode.hashCode() : 0);
+
     result = 31 * result + orderStatus;
     result = 31 * result + (int) (orderDate ^ (orderDate >>> 32));
     result = 31 * result + orderType;

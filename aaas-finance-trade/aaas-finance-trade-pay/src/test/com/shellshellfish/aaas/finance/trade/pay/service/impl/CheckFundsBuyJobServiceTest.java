@@ -16,6 +16,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @SpringBootTest
 @ActiveProfiles("local")
 public class CheckFundsBuyJobServiceTest {
+
+
   @Autowired
   private CheckFundsBuyJobService jobService;
   @Test

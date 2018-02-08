@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.finance.trade.pay.message;
 
 
 import com.shellshellfish.aaas.common.constants.RabbitMQConstants;
+import com.shellshellfish.aaas.common.message.order.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,9 @@ public class BroadcastMessageProducers {
             trdPayFlow);
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_USERINFO,
             trdPayFlow);
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
+                .ROUTING_KEY_USERINFO_TRDLOG,
+            trdPayFlow);
     }
 
     public void sendPreOrderMessage(TrdPayFlow trdPayFlow) {
@@ -35,4 +39,19 @@ public class BroadcastMessageProducers {
             trdPayFlow);
     }
 
+    public void sendConfirmMessage(MongoUiTrdZZInfo mongoUiTrdZZInfo){
+        logger.info("sending  mongoUiTrdZZInfo" + mongoUiTrdZZInfo.getApplySerial());
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
+            .ROUTING_KEY_USERINFO_CFMLOG, mongoUiTrdZZInfo);
+    }
+
+    public void sendSellMessage(TrdPayFlow trdPayFlow) {
+        logger.info("send message: " + trdPayFlow.getOrderDetailId());
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_ORDER,
+            trdPayFlow);
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
+                .ROUTING_KEY_USERINFO_REDEEM, trdPayFlow);
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
+            .ROUTING_KEY_USERINFO_TRDLOG, trdPayFlow);
+    }
 }

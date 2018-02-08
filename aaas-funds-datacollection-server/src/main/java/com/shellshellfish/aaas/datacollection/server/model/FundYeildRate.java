@@ -16,8 +16,8 @@ public class FundYeildRate {
 	String code;
 	@Field("_id")
 	String id;
-	@Field("navaccum")
-	Double navaccum;
+	@Field( value = "ACCUMULATEDNAV")
+	Double navaccum = Double.MIN_VALUE;
 	@Field("navadj")
 	Double navadj;
 	@Field("navlatestdate")
@@ -28,8 +28,8 @@ public class FundYeildRate {
 	String navreturnrankingpctp;
 	@Field("navsimiavgreturnp")
 	Double navsimiavgreturnp;
-	@Field("navunit")
-	Double navunit;
+	@Field( value = "UNITNAV")
+	Double navunit = Double.MIN_VALUE;
 	@Field("querydate")
 	@Indexed(name = "querydate", direction = IndexDirection.DESCENDING)
 	Long querydate;

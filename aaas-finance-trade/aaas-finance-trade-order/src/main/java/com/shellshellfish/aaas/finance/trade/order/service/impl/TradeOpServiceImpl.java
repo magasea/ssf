@@ -10,6 +10,8 @@ import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.utils.BankUtil;
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProducer;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
@@ -18,13 +20,14 @@ import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdPreOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdTradeBankDic;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.FinanceProdBuyInfo;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokderRepository;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdBrokerUserRepository;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderDetailRepository;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdOrderRepository;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdPreOrderRepository;
-import com.shellshellfish.aaas.finance.trade.order.repositories.TrdTradeBankDicRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdBrokderRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdBrokerUserRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderDetailRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdPreOrderRepository;
+import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdTradeBankDicRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdInfoService;
+import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
@@ -38,12 +41,15 @@ import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoQuery;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.FinanceProdInfosQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
-import com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
+import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc.UserInfoServiceFutureStub;
 import io.grpc.ManagedChannel;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -103,6 +109,12 @@ public class TradeOpServiceImpl implements TradeOpService {
 
   @Autowired
   ManagedChannel managedUIChannel;
+  
+  @Autowired
+  TradeOpService tradeOpService;
+  
+  @Autowired
+  OrderService orderService;
 
   boolean useMsgToBuy = true;
 
@@ -118,7 +130,6 @@ public class TradeOpServiceImpl implements TradeOpService {
   }
 
   @Override
-  @Transactional( propagation = Propagation.REQUIRED, transactionManager = "transactionManager")
   public TrdOrder buyFinanceProduct(FinanceProdBuyInfo financeProdBuyInfo)
       throws Exception {
     ProductBaseInfo productBaseInfo = new ProductBaseInfo();
@@ -126,8 +137,10 @@ public class TradeOpServiceImpl implements TradeOpService {
     List<ProductMakeUpInfo> productMakeUpInfos =  financeProdInfoService.getFinanceProdMakeUpInfo
         (productBaseInfo);
     if(productMakeUpInfos.size() <=0 ){
-      logger.info("failed to get prod make up informations!");
-      throw new Exception("failed to get prod make up informations!");
+      logger.info("没有发现产品组成信息 prodId:"+ productBaseInfo.getProdId() + " groupId:"+
+          productBaseInfo.getGroupId());
+      throw new Exception("没有发现产品组成信息 prodId:"+ productBaseInfo.getProdId() + " groupId:"+
+          productBaseInfo.getGroupId());
     }
     //在用户理财产品系统里面生成用户的理财产品, 这是日后《我的理财产品》模块的依据
     Long userProdId =  genUserProduct(financeProdBuyInfo, productMakeUpInfos);
@@ -140,7 +153,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       List<ProductMakeUpInfo> productMakeUpInfos) throws Exception {
     FinanceProdInfosQuery.Builder requestBuilder = FinanceProdInfosQuery.newBuilder();
     requestBuilder.setUserId(financeProdBuyInfo.getUserId());
-
+    requestBuilder.setBankCardNum(financeProdBuyInfo.getBankAcc());
     FinanceProdInfoCollection.Builder subReqBuilder = FinanceProdInfoCollection.newBuilder();
     FinanceProdInfo.Builder finProdInfoBuilder = FinanceProdInfo.newBuilder();
     for( ProductMakeUpInfo productMakeUpInfo: productMakeUpInfos){
@@ -158,8 +171,9 @@ public class TradeOpServiceImpl implements TradeOpService {
   }
 
 
-
-  TrdOrder genOrderFromBuyInfoAndProdMakeUpInfo(FinanceProdBuyInfo financeProdBuyInfo,
+  @Override
+  @Transactional( propagation = Propagation.REQUIRED, transactionManager = "transactionManager")
+  public TrdOrder genOrderFromBuyInfoAndProdMakeUpInfo(FinanceProdBuyInfo financeProdBuyInfo,
       List<ProductMakeUpInfo> productMakeUpInfos) throws Exception {
     //generate order
 //    TrdTradeBroker trdTradeBroker = trdBrokderRepository.findOne(1L);
@@ -177,8 +191,8 @@ public class TradeOpServiceImpl implements TradeOpService {
     String items[] = trdAccoOrig.split("\\|");
     trdAcco = items[0];
     payOrderDto.setUserPid(items[1]);
-    String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdBuyInfo.getBankAcc()
-            .substring(0,6)),trdBrokerId);
+    payOrderDto.setRiskLevel(Integer.parseInt(items[2]));
+    String orderId = TradeUtil.generateOrderIdByBankCardNum(financeProdBuyInfo.getBankAcc(), trdBrokerId);
     payOrderDto.setTrdAccount(trdAcco);
     payOrderDto.setUserUuid(financeProdBuyInfo.getUuid());
     payOrderDto.setUserProdId(financeProdBuyInfo.getUserProdId());
@@ -186,18 +200,19 @@ public class TradeOpServiceImpl implements TradeOpService {
         ArrayList<com.shellshellfish.aaas.common.message.order.TrdOrderDetail>();
 
     TrdOrder trdOrder = new TrdOrder();
+    MyBeanUtils.mapEntityIntoDTO(financeProdBuyInfo, trdOrder);
     trdOrder.setBankCardNum(financeProdBuyInfo.getBankAcc());
     trdOrder.setOrderDate(TradeUtil.getUTCTime());
     trdOrder.setCreateDate(TradeUtil.getUTCTime());
     trdOrder.setOrderType(TrdOrderOpTypeEnum.BUY.getOperation());
     trdOrder.setProdId(financeProdBuyInfo.getProdId());
+    trdOrder.setGroupId(financeProdBuyInfo.getGroupId());
     trdOrder.setUserProdId(financeProdBuyInfo.getUserProdId());
     trdOrder.setOrderStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.ordinal());
     trdOrder.setOrderId(orderId);
     trdOrder.setUserId(financeProdBuyInfo.getUserId());
     trdOrder.setCreateBy(financeProdBuyInfo.getUserId());
     trdOrder.setPayAmount(TradeUtil.getLongNumWithMul100(financeProdBuyInfo.getMoney()));
-    trdOrder.setProdCode(financeProdBuyInfo.getProdCode());
     trdOrderRepository.save(trdOrder);
     //generate sub order for each funds
     for(ProductMakeUpInfo productMakeUpInfo: productMakeUpInfos){
@@ -207,7 +222,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       //规定基金占比用百分比并且精确万分之一
       BigDecimal fundRatio = BigDecimal.valueOf(productMakeUpInfo.getFundShare()).divide
           (BigDecimal.valueOf(10000));
-      trdOrderDetail.setFundMoneyQuantity(fundRatio.multiply(financeProdBuyInfo.getMoney())
+      trdOrderDetail.setFundSum(fundRatio.multiply(financeProdBuyInfo.getMoney())
           .multiply(BigDecimal.valueOf(100)).toBigInteger()
           .longValue());
       trdOrderDetail.setBuysellDate(TradeUtil.getUTCTime());
@@ -224,7 +239,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       com.shellshellfish.aaas.common.message.order.TrdOrderDetail trdOrderPay =  new com
           .shellshellfish.aaas.common.message.order.TrdOrderDetail();
       BeanUtils.copyProperties(trdOrderDetail, trdOrderPay);
-      trdOrderPay.setOrderDetailId(trdOrderDetail.getId());
+      trdOrderPay.setOrderId(trdOrderDetail.getOrderId());
       trdOrderPay.setUserId(financeProdBuyInfo.getUserId());
 //      GenericMessage<TrdOrderDetail> genericMessage = new GenericMessage<TrdOrderDetail>();
       trdOrderDetails.add(trdOrderPay);
@@ -246,71 +261,71 @@ public class TradeOpServiceImpl implements TradeOpService {
     String bankCardNum = null;
     String trdAcco = null;
     String userPid = null;
-    UserBankInfo userBankInfo = userInfoService.getUserBankInfo(financeProdBuyInfo.getUserId());
+    int riskLevel;
+    UserBankInfo userBankInfo = userInfoService.getUserBankInfo(financeProdBuyInfo.getUuid());
+    if(CollectionUtils.isEmpty(userBankInfo.getCardNumbersList())){
+      logger.error("failed to find user:" + financeProdBuyInfo.getUserId() +" have binded cards");
+      throw new Exception("用户未绑卡，请绑卡后再购买理财产品");
+    }
     for(CardInfo cardInfo:userBankInfo.getCardNumbersList()){
       if(cardInfo.getCardNumbers().equals(financeProdBuyInfo.getBankAcc())){
         userPid = cardInfo.getUserPid();
         break;
       }
     }
-
+    riskLevel = userBankInfo.getRiskLevel();
 
     if(StringUtils.isEmpty(userPid)){
       logger.error("this user: "+financeProdBuyInfo.getUserId()+" personal id is not in "
           + "ui_bankcard" );
-      throw new Exception("this user: "+financeProdBuyInfo.getUserId()+" personal id is not in "
-          + "ui_bankcard");
+      throw new Exception("用户: "+financeProdBuyInfo.getUserId()+" 的绑卡信息有误，没有身份证号");
     }
     if(!CollectionUtils.isEmpty(trdBrokerUsers)){
+
       trdBrokerId = trdBrokerUsers.get(0).getTradeBrokerId().intValue();
       bankCardNum = financeProdBuyInfo.getBankAcc();
-      trdAcco = trdBrokerUsers.get(0).getTradeAcco();
+      for(TrdBrokerUser trdBrokerUser: trdBrokerUsers){
+        if(bankCardNum.equals(trdBrokerUser.getBankCardNum())){
+          trdBrokerId = trdBrokerUser.getTradeBrokerId();
+          trdAcco = trdBrokerUser.getTradeAcco();
+        }
+      }
     }else if(CollectionUtils.isEmpty(trdBrokerUsers) || StringUtils.isEmpty(trdAcco)){
-      //Todo: get userBankCardInfo to make tradAcco
+
       logger.info("trdBrokerUsers.get(0).getTradeAcco() is empty, 坑货出现，需要生成交易账号再交易");
 
 
       BindBankCard bindBankCard = new BindBankCard();
-      TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndAndBankCardNum
+      TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndBankCardNum
           (userBankInfo.getUserId(),financeProdBuyInfo.getBankAcc());
       bindBankCard.setBankCardNum(financeProdBuyInfo.getBankAcc());
-      String bankName = BankUtil.getNameOfBank(financeProdBuyInfo.getBankAcc());
-      bankName = bankName.split("银行")[0] + "银行";
+//      String bankShortName = BankUtil.getCodeOfBank(financeProdBuyInfo.getBankAcc());
+//      String bankName = BankUtil.getNameOfBank(financeProdBuyInfo.getBankAcc());
+      String bankName = BankUtil.getZZBankNameFromOriginBankName(BankUtil.getNameOfBank
+          (financeProdBuyInfo.getBankAcc()));
       TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository.findByBankNameAndTraderBrokerId
           (bankName, TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
+
+
       if(null == trdTradeBankDic){
         logger.error("this bank name:"+bankName+" with brokerId"+ TradeBrokerIdEnum
             .ZhongZhenCaifu.getTradeBrokerId()+" is not in table:");
         throw new Exception("this bank name:"+bankName
             + " with brokerId"+ TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId()+" is not in table:");
       }
-      userPid = bindBankCard.getUserPid();
+      UserInfo userInfo = userInfoService.getUserInfoByUserId(financeProdBuyInfo.getUserId());
       bindBankCard.setBankCode(trdTradeBankDic.getBankCode().trim());
       bindBankCard.setCellphone(userBankInfo.getCellphone());
       bindBankCard.setBankCardNum(financeProdBuyInfo.getBankAcc());
       bindBankCard.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
       bindBankCard.setUserId(financeProdBuyInfo.getUserId());
       bindBankCard.setUserName(userBankInfo.getUserName());
-      bindBankCard.setUserPid(userBankInfo.getUserPid());
+      bindBankCard.setUserPid(userPid);
+      bindBankCard.setRiskLevel(userInfo.getRiskLevel());
       trdAcco = payService.bindCard(bindBankCard);
-      TrdBrokerUser trdBrokerUserNew = new TrdBrokerUser();
-      trdBrokerUserNew.setBankCardNum(bindBankCard.getBankCardNum());
-      trdBrokerUserNew.setCreateBy(financeProdBuyInfo.getUserId());
-      trdBrokerUserNew.setCreateDate(TradeUtil.getUTCTime());
-      trdBrokerUserNew.setTradeAcco(trdAcco);
-      trdBrokerUserNew.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
-      trdBrokerUserNew.setUserId(financeProdBuyInfo.getUserId());
-      trdBrokerUserNew.setUpdateBy(financeProdBuyInfo.getUserId());
-      trdBrokerUserNew.setUpdateDate(TradeUtil.getUTCTime());
-      trdBrokerUserRepository.save(trdBrokerUserNew);
-
-//      trdBrokerUserRepository.updateTradeAcco(trdAcco, TradeUtil.getUTCTime(), bindBankCard
-//          .getUserId(),  bindBankCard.getUserId());
-
     }
-
     //因为要提取用户身份证号码，所以这里拼接回去，要优化吗？
-    result.put(trdBrokerId, trdAcco+"|"+userPid);
+    result.put(trdBrokerId, trdAcco+"|"+userPid+"|"+riskLevel);
     return result;
   }
 
@@ -326,28 +341,69 @@ public class TradeOpServiceImpl implements TradeOpService {
   }
 
 
-  private void sendOutOrder(PayPreOrderDto payPreOrderDto){
 
-    logger.info("use message queue to send payPreOrderDto");
-    broadcastMessageProducer.sendPayMessages(payPreOrderDto);
-
-  }
 
   @Override
   public Long getUserId(String userUuid) throws ExecutionException, InterruptedException {
     UserIdQuery.Builder builder = UserIdQuery.newBuilder();
     builder.setUuid(userUuid);
-    com.shellshellfish.aaas.userinfo.grpc.UserId userId = userInfoServiceFutureStub.getUserId(builder
-        .build()).get();
+    com.shellshellfish.aaas.userinfo.grpc.UserId userId = userInfoServiceFutureStub.getUserId
+        (builder.build()).get();
     return userId.getUserId();
   }
 
   @Override
+  public UserInfo getUserInfoByUserUUID(String uuid) throws ExecutionException,
+      InterruptedException {
+    UserIdQuery.Builder builder = UserIdQuery.newBuilder();
+    builder.setUuid(uuid);
+    UserInfo userInfo = userInfoServiceFutureStub.getUserInfoByUserUUID(builder.build()).get();
+    return userInfo;
+  }
+
+  @Override
   @Transactional
-  public void updateByParam(String tradeApplySerial, Long updateDate, Long updateBy, Long id,
-      int orderDetailStatus) {
-    trdOrderDetailRepository.updateByParam(tradeApplySerial,orderDetailStatus, updateDate,
-        updateBy,  id );
+  public void updateByParam(String tradeApplySerial, Long fundSum, Long fundSumConfirmed, Long
+      fundNum, Long fundNumConfirmed,  Long updateDate, Long updateBy, Long id, int
+      orderDetailStatus, Long buyFee)
+      throws Exception {
+    TrdOrderDetail trdOrderDetail;
+    if(id > 0){
+      trdOrderDetail = trdOrderDetailRepository.findOne(id);
+    }else{
+      trdOrderDetail = trdOrderDetailRepository.findByTradeApplySerial(tradeApplySerial);
+    }
+    if(trdOrderDetail == null){
+      logger.error("failed to find orderDetail by id:"+ id + " tradeApplySerial:" + tradeApplySerial);
+      throw new Exception("failed to find orderDetail by id:"+ id + " tradeApplySerial:" + tradeApplySerial);
+    }
+    trdOrderDetail.setUpdateDate(TradeUtil.getUTCTime());
+    trdOrderDetail.setUpdateBy(updateBy);
+    if(fundNum != null && fundNum > 0){
+      trdOrderDetail.setFundNum(fundNum);
+    }
+    if(fundSumConfirmed != null && fundSumConfirmed > 0){
+      trdOrderDetail.setFundSumConfirmed(fundSumConfirmed);
+    }
+    if(fundSum != null && fundSum > 0){
+      trdOrderDetail.setFundSum(fundSum);
+    }
+    if(fundNumConfirmed != null && fundNumConfirmed > 0){
+      trdOrderDetail.setFundNumConfirmed(fundNumConfirmed);
+    }
+    if(buyFee != null && buyFee >= 0){
+      trdOrderDetail.setBuyFee(buyFee);
+    }
+    trdOrderDetail.setTradeApplySerial(tradeApplySerial);
+    trdOrderDetail.setOrderDetailStatus(orderDetailStatus);
+    trdOrderDetailRepository.save(trdOrderDetail);
+  }
+
+  @Override
+  public void updateByParamWithSerial(String tradeApplySerial, int orderDetailStatus,
+      Long updateDate, Long updateBy, Long id) {
+    trdOrderDetailRepository.updateByParamWithSerial(tradeApplySerial,
+        orderDetailStatus, updateDate, updateBy,  id );
   }
 
   @Override
@@ -368,7 +424,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 
   @Override
   public TrdBrokerUser getBrokerUserByUserIdAndBandCard(Long userId, String bankCardNum) {
-    TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndAndBankCardNum
+    TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndBankCardNum
         (userId,bankCardNum);
     return trdBrokerUser;
   }
@@ -391,14 +447,12 @@ public class TradeOpServiceImpl implements TradeOpService {
     ProductBaseInfo productBaseInfo = new ProductBaseInfo();
     BeanUtils.copyProperties(financeProdInfo, productBaseInfo);
     //查询现在默认的货币基金作为preOrder
-
     List<ProductMakeUpInfo> productMakeUpInfos =  financeProdInfoService.getFinanceProdMakeUpInfo
         (productBaseInfo);
     if(productMakeUpInfos.size() <=0 ){
       logger.info("failed to get prod make up informations!");
       throw new Exception("failed to get prod make up informations!");
     }
-
     //需要先用preOrder去调中证接口去发起扣款交易
     FinanceProdInfoQuery.Builder fpqBuilder = FinanceProdInfoQuery.newBuilder();
     fpqBuilder.setGroupId(financeProdInfo.getGroupId());
@@ -444,8 +498,8 @@ public class TradeOpServiceImpl implements TradeOpService {
       Long groupId = trdOrder.getGroupId();
       List<ProductMakeUpInfo> productMakeUpInfos = financeProdInfoService.getFinanceProdMakeUpInfo
           (prodId, groupId);
-      Long preOrderFundNumber = trdPayFlow.getFundSumConfirmed();
-      logger.info("preOrderFundNumber : " + preOrderFundNumber);
+      Long preOrderFundShares = trdPayFlow.getTradeConfirmShare();
+      logger.info("preOrderFundNumber : " + preOrderFundShares);
       PayPreOrderDto payPreOrderDto = new PayPreOrderDto();
       payPreOrderDto.setOriginFundCode(trdPayFlow.getFundCode());
       payPreOrderDto.setTrdBrokerId(trdPayFlow.getTradeBrokeId().intValue());
@@ -466,7 +520,7 @@ public class TradeOpServiceImpl implements TradeOpService {
             ());
         com.shellshellfish.aaas.common.message.order.TrdOrderDetail trdOrderDetail = new com
             .shellshellfish.aaas.common.message.order.TrdOrderDetail();
-        trdOrderDetail.setOrderStatus(TrdOrderStatusEnum.CONVERTWAITCONFIRM.getStatus());
+        trdOrderDetail.setOrderDetailStatus(TrdOrderStatusEnum.CONVERTWAITCONFIRM.getStatus());
 
         Long result = TradeUtil.getBigDecimalNumWithDiv10000(productMakeUpInfo.getFundShare())
             .multiply(BigDecimal.valueOf(trdPreOrders.get(0).getFundShareConfirmed())).longValue();
@@ -479,7 +533,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         trdOrderDetails.add(trdOrderDetail);
       }
       payPreOrderDto.setOrderDetailList(trdOrderDetails);
-      broadcastMessageProducer.sendPayMessages(payPreOrderDto);
+//      broadcastMessageProducer.sendPayMessages(payPreOrderDto);
     }
 
     return trdOrder;
@@ -509,8 +563,8 @@ public class TradeOpServiceImpl implements TradeOpService {
     String items[] = trdAccoOrig.split("\\|");
     trdAcco = items[0];
     payOrderDto.setUserPid(items[1]);
-    String orderId = TradeUtil.generateOrderId(Integer.valueOf(financeProdInfo.getBankAcc()
-        .substring(0,6)),trdBrokerId);
+    payOrderDto.setRiskLevel(Integer.parseInt(items[2]));
+    String orderId = TradeUtil.generateOrderIdByBankCardNum(financeProdInfo.getBankAcc(),trdBrokerId);
     payOrderDto.setTrdAccount(trdAcco);
     payOrderDto.setUserUuid(financeProdInfo.getUuid());
     payOrderDto.setUserProdId(financeProdInfo.getUserProdId());
@@ -518,11 +572,13 @@ public class TradeOpServiceImpl implements TradeOpService {
         ArrayList<com.shellshellfish.aaas.common.message.order.TrdOrderDetail>();
 
     TrdOrder trdOrder = new TrdOrder();
+    MyBeanUtils.mapEntityIntoDTO(financeProdInfo, trdOrder);
     trdOrder.setBankCardNum(financeProdInfo.getBankAcc());
     trdOrder.setOrderDate(TradeUtil.getUTCTime());
     trdOrder.setCreateDate(TradeUtil.getUTCTime());
     trdOrder.setOrderType(TrdOrderOpTypeEnum.BUY.getOperation());
     trdOrder.setProdId(financeProdInfo.getProdId());
+    trdOrder.setGroupId(financeProdInfo.getGroupId());
     trdOrder.setUserProdId(financeProdInfo.getUserProdId());
     trdOrder.setOrderStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.ordinal());
     trdOrder.setOrderId(orderId);
@@ -530,7 +586,6 @@ public class TradeOpServiceImpl implements TradeOpService {
     trdOrder.setPreOrderId(preOrderId);
     trdOrder.setCreateBy(financeProdInfo.getUserId());
     trdOrder.setPayAmount(TradeUtil.getLongNumWithMul100(financeProdInfo.getMoney()));
-    trdOrder.setProdCode(financeProdInfo.getProdCode());
     trdOrderRepository.save(trdOrder);
     //generate sub order for each funds
     for(ProductMakeUpInfo productMakeUpInfo: productMakeUpInfos){
@@ -540,7 +595,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       //规定基金占比用百分比并且精确万分之一
       BigDecimal fundRatio = BigDecimal.valueOf(productMakeUpInfo.getFundShare()).divide
           (BigDecimal.valueOf(10000));
-      trdOrderDetail.setFundMoneyQuantity(fundRatio.multiply(financeProdInfo.getMoney())
+      trdOrderDetail.setFundSum(fundRatio.multiply(financeProdInfo.getMoney())
           .multiply(BigDecimal.valueOf(100)).toBigInteger()
           .longValue());
       trdOrderDetail.setBuysellDate(TradeUtil.getUTCTime());
@@ -557,7 +612,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       com.shellshellfish.aaas.common.message.order.TrdOrderDetail trdOrderPay =  new com
           .shellshellfish.aaas.common.message.order.TrdOrderDetail();
       BeanUtils.copyProperties(trdOrderDetail, trdOrderPay);
-      trdOrderPay.setOrderDetailId(trdOrderDetail.getId());
+      trdOrderPay.setOrderId(trdOrderDetail.getOrderId());
       trdOrderPay.setUserId(financeProdInfo.getUserId());
 //      GenericMessage<TrdOrderDetail> genericMessage = new GenericMessage<TrdOrderDetail>();
       trdOrderDetails.add(trdOrderPay);
@@ -581,7 +636,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     trdPreOrder.setPayAmount(TradeUtil.getLongNumWithMul100(financeProdInfo.getMoney()));
     trdPreOrder.setProdId(financeProdInfo.getProdId());
     Long userId = null;
-    if( financeProdInfo.getUserId() == null ){
+    if( financeProdInfo.getUserId() == null || financeProdInfo.getUserId() == 0){
       userId = getUserId(financeProdInfo.getUuid());
     }
     if(null == userId){
@@ -617,6 +672,126 @@ public class TradeOpServiceImpl implements TradeOpService {
     //Todo: add code
     return null;
   }
+
+	@Override
+	public Map<String, Object> sellorbuyDeatils(String orderId) throws Exception {
+		Map<String, Object> result = new HashMap<String, Object>();
+		if (StringUtils.isEmpty(orderId)) {
+			logger.error("详情信息数据不存在:" + orderId);
+			throw new Exception("详情信息数据不存在:" + orderId);
+		}
+		TrdOrder trdOrder = orderService.getOrderByOrderId(orderId);
+		List<TrdOrderDetail> trdOrderDetailList = new ArrayList<TrdOrderDetail>();
+		if (trdOrder != null && trdOrder.getOrderId() != null) {
+			result.put("prodId", trdOrder.getUserProdId());
+			trdOrderDetailList = orderService.findOrderDetailByOrderId(orderId);
+		} else {
+			logger.error("详情信息数据不存在.");
+			throw new Exception("详情信息数据不存在.");
+		}
+		//result.put("list", trdOrderDetailList);
+		if (trdOrderDetailList == null || trdOrderDetailList.isEmpty()) {
+			logger.error("详情信息数据不存在.");
+			throw new Exception("详情信息数据不存在.");
+		}
+		TrdOrderStatusEnum[] trdOrderStatusEnum = TrdOrderStatusEnum.values();
+		for (TrdOrderStatusEnum trdOrderStatus : trdOrderStatusEnum) {
+			if (trdOrder.getOrderStatus() == trdOrderStatus.getStatus()) {
+				result.put("orderStatus", trdOrderStatus.getComment());
+				break;
+			} else {
+				result.put("orderStatus", "");
+			}
+		}
+		
+		TrdOrderOpTypeEnum[] trdOrderOpType = TrdOrderOpTypeEnum.values();
+		for (TrdOrderOpTypeEnum trdOrderOpTypeEnum : trdOrderOpType) {
+			if (trdOrder.getOrderType() == trdOrderOpTypeEnum.getOperation()) {
+				result.put("orderType", trdOrderOpTypeEnum.getComment());
+				break;
+			} else {
+				result.put("orderType", "");
+			}
+		}
+		//金额
+		long amount = trdOrder.getPayAmount();
+		if (amount != 0) {
+			amount = amount / 100L;
+		}
+		result.put("amount", amount);
+		//手续费
+		if (trdOrder.getPayFee() == null) {
+			result.put("payfee", "");
+		} else {
+			result.put("payfee", trdOrder.getPayFee());
+		}
+		//状态详情
+		List<Map<String, Object>> detailList = new ArrayList<Map<String, Object>>();
+		Map<String, Object> detailMap = new HashMap<String, Object>();
+		Instant instance = Instant.now();
+		Long instanceLong = instance.toEpochMilli();
+		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(instanceLong), ZoneOffset.UTC);
+		String dayOfWeek = InstantDateUtil.getDayOfWeekName(localDateTime);
+		for (int i = 0; i < trdOrderDetailList.size(); i++) {
+			detailMap = new HashMap<String, Object>();
+			TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
+			
+			TrdOrderStatusEnum[] trdOrderStatusEnum2 = TrdOrderStatusEnum.values();
+			for (TrdOrderStatusEnum trdOrderStatus2 : trdOrderStatusEnum2) {
+				if (trdOrderDetail.getOrderDetailStatus() == trdOrderStatus2.getStatus()) {
+					detailMap.put("fundstatus", trdOrderStatus2.getComment());
+					break;
+				} else {
+					detailMap.put("fundstatus", "");
+				}
+			}
+			detailMap.put("fundCode", trdOrderDetail.getFundCode());
+			//基金费用
+			detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
+			String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 1);
+			detailMap.put("funddate", date);
+			logger.info("dayOfWeek value is :" + dayOfWeek);
+			detailMap.put("fundTitle", "将于" + date + "(" + dayOfWeek + ")确认");
+			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
+			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){
+				if(trdOrderDetail.getTradeType() == trdOrder3.getOperation()){
+					detailMap.put("fundTradeType", trdOrder3.getComment());
+					break;
+				} else {
+					detailMap.put("fundTradeType", "");
+				}
+			}
+			detailList.add(detailMap);
+		}
+		result.put("detailList", detailList);
+		return result;
+	}
+	
+	@Override
+	public Map<String, Object> getOrderInfos(String uuid,Long prodId) throws Exception {
+		Map<String, Object> result = new HashMap<String, Object>();
+		UserInfo userInfo = tradeOpService.getUserInfoByUserUUID(uuid);
+		Long userId = userInfo.getId();
+		TrdOrder trdOrder = orderService.findOrderByUserProdIdAndUserId(prodId, userId);
+		String bankNum = trdOrder.getBankCardNum();
+		String orderId = trdOrder.getOrderId();
+		result.put("bankNum", bankNum);
+		result.put("orderId", orderId);
+		Long buyFee = new Long(0);
+		if(!StringUtils.isEmpty(orderId)){
+			List<TrdOrderDetail> trdOrderDetailsList = orderService.findOrderDetailByOrderId(orderId);
+			if(trdOrderDetailsList!=null && trdOrderDetailsList.size()>0){
+				for(int i = 0; i < trdOrderDetailsList.size(); i++){
+					TrdOrderDetail trdOrderDetail = trdOrderDetailsList.get(i);
+					if(trdOrderDetail.getBuyFee()!=null){
+						buyFee = buyFee + trdOrderDetail.getBuyFee();
+					}
+				}
+			}
+		}
+		result.put("buyFee", buyFee);
+		return result;
+	}
 
 
 

@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.pay.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
@@ -8,6 +9,9 @@ import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.FundNet;
+import com.shellshellfish.aaas.finance.trade.pay.model.dao.mongo.MongoFundNetInfo;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface PayService {
@@ -34,7 +38,8 @@ public interface PayService {
    * @param bindBankCard
    * @return
    */
-  String bindCard(BindBankCard bindBankCard) throws ExecutionException, InterruptedException;
+  String bindCard(BindBankCard bindBankCard)
+      throws ExecutionException, InterruptedException, JsonProcessingException;
 
   /**
    * 根据Order模块消息传来的TrdOrderPay生成支付流水完成支付
@@ -55,7 +60,8 @@ public interface PayService {
    *
    */
 
-  ApplyResult queryOrder(Long userId, Long orderDetailId);
+  ApplyResult queryOrder(Long userId, Long orderDetailId)
+      throws ExecutionException, InterruptedException;
 
   /**
    * 根据order状态为未完成，找到orderDetail表中没有apply_serial 且fund_quantity > 0 且
@@ -76,4 +82,9 @@ public interface PayService {
   PreOrderPayResult preOrder2Pay(PreOrderPayReq preOrderPayReq);
 
   PayPreOrderDto payPreOrder(PayPreOrderDto message) throws Exception;
+
+  public List<MongoFundNetInfo> getFundNetInfo(List<String> fundCodes, int trdDates, String
+      userPid);
+
+
 }

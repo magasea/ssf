@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.*;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
@@ -29,6 +30,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
     private static final Logger logger = LoggerFactory.getLogger(FundTradeZhongZhengApiService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final RestTemplate restTemplate = new RestTemplate();
+
+    private final Gson gson = new Gson();
 
     public FundTradeZhongZhengApiService() {
         restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(Charset.forName("UTF-8")));
@@ -111,7 +114,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
     }
 
     @Override
-    public SellFundResult sellFund(String userUuid, Integer sellNum, String outsideOrderNo, String tradeAcco, String fundCode) throws Exception {
+    public SellFundResult sellFund(String userUuid, BigDecimal sellNum, String outsideOrderNo, String
+        tradeAcco, String fundCode) throws Exception {
         fundCode = trimSuffix(fundCode);
 
         Map<String, Object> info = init(userUuid);
@@ -140,6 +144,23 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         }
 
         return sellFundResult;
+    }
+    @Override
+    public String getWorkDay(String openId, String direction, int day)
+        throws Exception {
+        Map<String, Object> info = init(openId);
+
+        info.put("day_num", day);
+        info.put("direct", direction);
+        postInit(info);
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_work_day";
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+        ZZWorkDayCompond zzWorkDayCompond = gson.fromJson(json, ZZWorkDayCompond.class);
+        if(!zzWorkDayCompond.getStatus().equals("1")){
+            throw new Exception(zzWorkDayCompond.getMsg());
+        }
+        return zzWorkDayCompond.getData();
     }
 
     @Override
@@ -222,6 +243,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
     @Override
     public ApplyResult getApplyResultByOutsideOrderNo(String userUuid, String outsideOrderNo) throws JsonProcessingException {
+
         Map<String, Object> info = init(userUuid);
         info.put("outsideorderno", outsideOrderNo);
         postInit(info);
@@ -236,6 +258,33 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         applyResult = getApplyResult(applyResult, jsonObject, status);
         return applyResult;
     }
+
+    private void init(String openId, String outsideOrderNo) throws JsonProcessingException {
+        Map<String, Object> info = init(openId);
+        info.put("outsideorderno", outsideOrderNo);
+        postInit(info);
+    }
+
+    @Override
+    public List<ConfirmResult> getConfirmResults(String openId, String outSideOrderNo)
+        throws Exception {
+        Map<String, Object> info = init(openId);
+        info.put("outsideorderno", outSideOrderNo);
+        postInit(info);
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_confirm_list";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        ConfirmCompondResult confirmCompondResult = gson.fromJson(json, ConfirmCompondResult.class);
+        if(!confirmCompondResult.getStatus().equals("1")){
+            throw new Exception(confirmCompondResult.getMsg());
+        }
+        return confirmCompondResult.getData();
+
+    }
+
+
 
     private ApplyResult getApplyResult(ApplyResult applyResult, JSONObject jsonObject, Integer status) {
         if (status.equals(1)) {
@@ -279,6 +328,20 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
     public String commitRisk(String userUuid) throws JsonProcessingException {
         Map<String, Object> info = init(userUuid);
         info.put("risk_ability", 3);
+        postInit(info);
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/commit_risk";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+
+        return json;
+    }
+
+
+    @Override
+    public String commitRisk(String userUuid, int riskLevel) throws JsonProcessingException {
+        Map<String, Object> info = init(userUuid);
+        info.put("risk_ability", riskLevel);
         postInit(info);
         String url = "https://onetest.51fa.la/v2/internet/fundapi/commit_risk";
 
@@ -590,6 +653,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         }
     }
 
+
+
     private void postInit(Map<String, Object> info) {
         String sign = makeMsg(info);
         logger.info("sign: {}", sign);
@@ -668,5 +733,36 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    /**
+     * 获取基金每日净值,累计净值，日涨跌幅等
+     *
+     * @param fundCode 基金代码
+     * @param startIndex 开始下表 eg: 昨天为0,前天为1，。大前天为3 以此类推
+     * @param count 需要获取数据的条数
+     */
+    @Override
+    public List<FundNetZZInfo> getFundNets(String fundCode, Integer startIndex, Integer count)
+        throws Exception {
+        fundCode = trimSuffix(fundCode);
+
+        Map<String, Object> info = init();
+        info.put("fundcode", fundCode);
+        info.put("limit_left", startIndex);
+        info.put("limit_right", count);
+        postInit(info);
+
+        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_all_net";
+
+        String json = restTemplate.postForObject(url, info, String.class);
+        logger.info("{}", json);
+        ZZFundNetCompond zzFundNetCompond = gson.fromJson(json, ZZFundNetCompond.class);
+        if(!zzFundNetCompond.getStatus().equals("1")){
+            logger.error(zzFundNetCompond.getErrno()+":" + zzFundNetCompond.getMsg());
+            throw new Exception(zzFundNetCompond.getErrno()+":" + zzFundNetCompond.getMsg());
+        }
+        return zzFundNetCompond.getData();
+
     }
 }

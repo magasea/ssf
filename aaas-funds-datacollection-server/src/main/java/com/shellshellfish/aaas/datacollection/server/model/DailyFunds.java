@@ -20,9 +20,9 @@ public class DailyFunds {
   @Indexed(name ="code", direction = IndexDirection.DESCENDING)
   @Field( value = "code")
   String code;
-  @Field( value = "navaccum")
+  @Field( value = "ACCUMULATEDNAV")
   Double navaccum = Double.MIN_VALUE;
-  @Field( value = "navadj")
+  @Field( value = "ADJUSTEDNAV")
   Double navadj = Double.MIN_VALUE;
   @Field( value = "navlatestdate")
   Long navLatestDate;
@@ -32,7 +32,7 @@ public class DailyFunds {
   String navreturnrankingpctp;
   @Field( value = "navsimiavgreturnp")
   Double navsimiavgreturnp = Double.MIN_VALUE;
-  @Field( value = "navunit")
+  @Field( value = "UNITNAV")
   Double navunit = Double.MIN_VALUE;
   @Indexed(name ="querydate", direction = IndexDirection.DESCENDING)
   @Field( value = "querydate")

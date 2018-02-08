@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.service;
 
+import java.text.ParseException;
 import java.util.Map;
 
 /**
@@ -8,5 +9,5 @@ import java.util.Map;
  */
 public interface FundGroupService {
 
-	Map getGroupDetails(String userUUID, Long productId);
+	Map getGroupDetails(String uuid, Long prodId, String buyDate) throws ParseException;
 }
