@@ -68,6 +68,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcService {
@@ -183,15 +184,19 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		List<OrderDetail> orderDetailListWaitPay = rpcOrderService
 				.getOrderDetails(userProdId, TrdOrderStatusEnum.WAITPAY.getStatus());
 
-		for (OrderDetail orderDetail : orderDetailListWaitPay) {
-			if (fundCode.equals(orderDetail.getFundCode())) {
-				return BigDecimal.ZERO;
+		if (!CollectionUtils.isEmpty(orderDetailListWaitPay)) {
+			for (OrderDetail orderDetail : orderDetailListWaitPay) {
+				if (fundCode.equals(orderDetail.getFundCode())) {
+					return BigDecimal.ZERO;
+				}
 			}
 		}
 
-		for (OrderDetail orderDetail : orderDetailListPayWatiConfirm) {
-			if (fundCode.equals(orderDetail.getFundCode())) {
-				return BigDecimal.ZERO;
+		if (!CollectionUtils.isEmpty(orderDetailListPayWatiConfirm)) {
+			for (OrderDetail orderDetail : orderDetailListPayWatiConfirm) {
+				if (fundCode.equals(orderDetail.getFundCode())) {
+					return BigDecimal.ZERO;
+				}
 			}
 		}
 		Optional<Integer> fundQuantityOptional = Optional.ofNullable(uiProductDetail.getFundQuantity());
