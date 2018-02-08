@@ -706,9 +706,12 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		List<UiProductDetail> uiProductDetails = uiProductDetailRepo.findAllByUserProdId(request
 				.getUserProductId());
 		Map<String, Long> currentAvailableFunds = new HashMap<>();
+		Map<String, Integer> currentFundsStatus = new HashMap<>();
 		for(UiProductDetail uiProductDetail: uiProductDetails){
-			currentAvailableFunds.put(uiProductDetail.getFundCode(), Long.valueOf(uiProductDetail
-					.getFundQuantityTrade()));
+			currentAvailableFunds.put(uiProductDetail.getFundCode(), uiProductDetail
+					.getFundQuantityTrade() != null? Long.valueOf(uiProductDetail
+					.getFundQuantityTrade()):0L);
+			currentFundsStatus.put(uiProductDetail.getFundCode(), uiProductDetail.getStatus());
 		}
 		SellProducts.Builder spBuilder = SellProducts.newBuilder();
 		SellProductDetail.Builder spdBuilder = SellProductDetail.newBuilder();
@@ -719,7 +722,8 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			spdBuilder.setFundCode(sellProductDetail.getFundCode());
 			spdBuilder.setFundQuantityTrade(sellProductDetail.getFundQuantityTrade());
 			if(sellProductDetail.getFundQuantityTrade() > currentAvailableFunds.get(sellProductDetail
-					.getFundCode())){
+					.getFundCode()) || currentFundsStatus.get(sellProductDetail.getFundCode()) ==
+					TrdOrderStatusEnum.WAITSELL.getStatus()) {
 				spdBuilder.setResult(-1);
 				spdBuilder.setFundQuantityTrade(currentAvailableFunds.get(sellProductDetail.getFundCode()));
 				canDuduct = false;

@@ -22,4 +22,10 @@ public interface MongoUiTrdZZInfoRepo extends MongoRepository<MongoUiTrdZZInfo, 
 
 	List<MongoUiTrdZZInfo> findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(
 			Long userProdId, String fundType, int tardeType, int tradeStatus, String confrimDate);
+
+	List<MongoUiTrdZZInfo> findByTradeTypeAndTradeStatusAndConfirmDateGreaterThanEqual(
+			int trdType, int tradeStatus, String confrimDate);
+
+	List<MongoUiTrdZZInfo> findAllByUserProdId(Long userProdId);
+
 }

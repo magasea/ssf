@@ -31,6 +31,17 @@ public class TradeUtilTest {
   }
 
   @Test
+  public void getZZOpenIds() throws Exception {
+    String[] origins = {"11022319850127211X","11022619850111011X","11022619850127211X",
+        "11022619850127212X","352230198703172130","362522198709220031","370181199001026835",
+        "370181199001206536","411327198710181169","412827199205132051","522101197402150413",
+        "612727198301116032"};
+    for(String origin : origins){
+      System.out.println(TradeUtil.getZZOpenId(origin));
+    }
+  }
+
+  @Test
   public void getUTCTimeTodayStartTime() throws Exception {
     System.out.println(ZoneId.systemDefault().getId());
     long currentZoneDayStartTime = TradeUtil.getUTCTimeTodayStartTime(ZoneId.systemDefault().getId
@@ -111,6 +122,12 @@ public class TradeUtilTest {
   @Test
   public void getDateOfSpecificTimeToday(){
     System.out.println(TradeUtil.getDateOfSpecificTimeToday(6,30).toString());
+  }
+
+  @Test
+  public void getDateOfSpecificTime(){
+    System.out.println(TradeUtil.getUTCTimeOfSpecificTime(2018,01, 26, 20, 1));
+    System.out.println(TradeUtil.getUTCTimeOfSpecificTime(2018,01, 26, 20, 8));
   }
 
 }
