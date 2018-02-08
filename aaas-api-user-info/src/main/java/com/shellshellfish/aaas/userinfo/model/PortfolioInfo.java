@@ -10,9 +10,6 @@ public class PortfolioInfo {
 	private BigDecimal dailyIncome;
 
 
-	//日收益率
-	private BigDecimal dailyIncomeRate;
-
 	//总收益
 	private BigDecimal totalIncome;
 	//总收益率
@@ -47,13 +44,6 @@ public class PortfolioInfo {
 		this.dailyIncome = dailyIncome;
 	}
 
-	public BigDecimal getDailyIncomeRate() {
-		return dailyIncomeRate;
-	}
-
-	public void setDailyIncomeRate(BigDecimal dailyIncomeRate) {
-		this.dailyIncomeRate = dailyIncomeRate;
-	}
 
 	public BigDecimal getTotalIncome() {
 		return totalIncome;
@@ -133,7 +123,6 @@ public class PortfolioInfo {
 		return "PortfolioInfo{" +
 				"totalAssets=" + totalAssets +
 				", dailyIncome=" + dailyIncome +
-				", dailyIncomeRate=" + dailyIncomeRate +
 				", totalIncome=" + totalIncome +
 				", totalIncomeRate=" + totalIncomeRate +
 				", sellAmount=" + sellAmount +
