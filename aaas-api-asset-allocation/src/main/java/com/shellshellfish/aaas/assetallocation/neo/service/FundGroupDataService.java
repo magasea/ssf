@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel;
 import com.shellshellfish.aaas.assetallocation.neo.entity.FundCombination;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.neo.util.MVO;
+import com.shellshellfish.aaas.assetallocation.neo.util.ThreadPoolUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.*;
 
 import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.*;
 
@@ -68,34 +70,63 @@ public class FundGroupDataService {
         // 将 fund_group_sub 中 数据 删除
         Integer deleteSubEffectRows = fundGroupMapper.deleteFundGroupSub();
         if (transToDetailsEffectRows >= 0 && transToSubEffectRows >= 0 && deleteDetailsEffectRows >= 0 && deleteSubEffectRows >= 0) {
-            //查询时间
-            String todayDate = sdf.format(new Date());
             //取出code
-            if (!CollectionUtils.isEmpty(groupCodeMap)) {
+            if (CollectionUtils.isEmpty(groupCodeMap)) {
+                return doSuccess;
+            }
+
+            final int groupSize = groupCodeMap.size();
+            try {
+                final CountDownLatch countDownLatch = new CountDownLatch(groupSize);
+                ExecutorService pool = ThreadPoolUtil.getThreadPool();
+                CompletionService<Boolean> completionService = new ExecutorCompletionService<>(pool);
                 Iterator<Map.Entry<Integer, List<String>>> entries = groupCodeMap.entrySet().iterator();
                 while (entries.hasNext()) {
-                    Map.Entry<Integer, List<String>> entry = entries.next();
-                    Integer groupId = entry.getKey(); // 组合id
-                    List<String> codeList = entry.getValue(); // 组合中所含基金代码
-                    //计算组合数据并入库
-                    try {
-                        doSuccess = this.insertFundGroupDatas(groupId, codeList, todayDate);
-                        if (!doSuccess) {
-                            return doSuccess;
-                        }
-                    } catch (Exception e) {
-                        logger.error("计算组合数据失败:", e);
+                    final Map.Entry<Integer, List<String>> entry = entries.next();
+                    completionService.submit(() -> {
+                        final Boolean taskRunSuccess = insertFundGroupDatasTask(entry);
+                        countDownLatch.countDown();
+                        return taskRunSuccess;
+                    });
+                }
+                this.sleep(1000);
+                countDownLatch.await();
+
+                for (int i = 0; i < groupSize; i++) {
+                    doSuccess = completionService.take().get();
+                    if (!doSuccess) {
+                        return doSuccess;
                     }
                 }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
         return doSuccess;
     }
 
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Boolean insertFundGroupDatasTask(Map.Entry<Integer, List<String>> entry) {
+        Integer groupId = entry.getKey(); // 组合id
+        List<String> codeList = entry.getValue(); // 组合中所含基金代码
+        //计算组合数据并入库
+        Boolean doSuccess = insertFundGroupDatas(groupId, codeList);
+        return doSuccess;
+    }
+
 
     // 调用 MVO 得出组合数据并入库
-    public Boolean insertFundGroupDatas(Integer groupId, List<String> codeList, String todayDate) {
+    public Boolean insertFundGroupDatas(Integer groupId, List<String> codeList) {
         Boolean doSuccess = true;
         Double [] expReturn = null;
         Double[][] expCovariance = null;
@@ -103,11 +134,10 @@ public class FundGroupDataService {
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        CovarianceModel covarianceModel = returnCalculateDataService.getMVOParamData(todayDate, codeList, TYPE_OF_WEEK);
+        CovarianceModel covarianceModel = returnCalculateDataService.getMVOParamData(codeList, TYPE_OF_WEEK);
         while (!SUCCEED_STATUS.equals(covarianceModel.getStatus())) {
             calendar.add(Calendar.DATE, -1); // 若无合理数据 则 往前递推
-            todayDate = sdf.format(calendar.getTime());
-            covarianceModel = returnCalculateDataService.getMVOParamData(todayDate, codeList, TYPE_OF_WEEK);
+            covarianceModel = returnCalculateDataService.getMVOParamData(codeList, TYPE_OF_WEEK);
             // 若无查询基本数据则跳出循环
             if (NULL_STATUS.equals(covarianceModel.getStatus())) {
                 break;
@@ -149,15 +179,15 @@ public class FundGroupDataService {
                 for (int j = 0; j < codeNum; j++) {
                     FundCombination fundGroupDetails = new FundCombination();
                     fundGroupDetails.setGroupId(groupId); //组合Id
-                    fundGroupDetails.setSubGroupId(((Integer)(groupId * SUB_GROUP_COUNT)).toString() + ((Integer)i).toString()); //子组合Id
+                    fundGroupDetails.setSubGroupId(String.format("%s%d", groupId * SUB_GROUP_COUNT, i)); //子组合Id
                     fundGroupDetails.setCode(codeList.get(j)); //基金代码
                     fundGroupDetails.setProportion(weightArr[j][i]); //权重
                     fundGroupDetails.setCreateDate(new Date()); //数据产生时间
-                    subGroupDetails.add(fundGroupDetails); //
+                    subGroupDetails.add(fundGroupDetails);
                 }
                 FundCombination fundCombination = new FundCombination();
                 fundCombination.setGroupId(groupId); //组合Id
-                fundCombination.setSubGroupId(((Integer)(groupId * SUB_GROUP_COUNT)).toString() + ((Integer)i).toString()); //子组合Id
+                fundCombination.setSubGroupId(String.format("%s%d", groupId * SUB_GROUP_COUNT, i)); //子组合Id
                 fundCombination.setSubGroupRisk(riskVal); //子组合风险
                 fundCombination.setSimulateHistoricalVolatility(riskVal); //模拟历史年化波动率
                 fundCombination.setSubGroupYield(yieldVal); //子组合收益

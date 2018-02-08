@@ -52,7 +52,7 @@ public class ReturnCalculateDataService {
      *        codeList:基金代码集合
      *        type:数据类型（日周月年）
      */
-    public CovarianceModel getMVOParamData(String selectDate, List<String> codeList, String type) {
+    public CovarianceModel getMVOParamData(List<String> codeList, String type) {
         CovarianceModel covarianceModel = new CovarianceModel();
         //查询组合中基金最晚成立日 作为 该组合成立日
         Date minNavDate = fundNetValMapper.getMinNavDateByCodeList(codeList);
