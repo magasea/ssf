@@ -504,7 +504,9 @@ public class FundGroupService {
             return aReturn;
         }
 
-        RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get((riskIncomeIntervals.size() - 1) / 2);
+        int index = (riskIncomeIntervals.size() - 1) / 2;
+        index = index > 0 ? index - 1 : 0;
+        RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(index);
         aReturn.setName("模拟数据");
         aReturn.setProductGroupId(riskIncomeInterval.getFund_group_id());
         aReturn.setProductSubGroupId(riskIncomeInterval.getId());
@@ -564,7 +566,7 @@ public class FundGroupService {
         List<FundNetVal> navadjEndList = fundGroupMapper.getNavadjByNavDate(query);
 
         if (CollectionUtils.isEmpty(navadjStartList) || CollectionUtils.isEmpty(navadjEndList)) {
-            aReturn.setName("模拟数据");
+            aReturn.setName("历史业绩");
             aReturn.setProductGroupId("");
             aReturn.setProductSubGroupId("");
             aReturn.set_items(list);
@@ -587,7 +589,7 @@ public class FundGroupService {
 
         List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getPerformanceVolatility(query);
         if (CollectionUtils.isEmpty(riskIncomeIntervals)) {
-            aReturn.setName("模拟数据");
+            aReturn.setName("历史业绩");
             aReturn.setProductGroupId("");
             aReturn.setProductSubGroupId("");
             aReturn.set_items(list);
@@ -597,8 +599,10 @@ public class FundGroupService {
             return aReturn;
         }
 
-        RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get((riskIncomeIntervals.size() - 1) / 2);
-        aReturn.setName("模拟数据");
+        int index = (riskIncomeIntervals.size() - 1) / 2;
+        index = index > 0 ? index - 1 : 0;
+        RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(index);
+        aReturn.setName("历史业绩");
         aReturn.setProductGroupId(riskIncomeInterval.getFund_group_id());
         aReturn.setProductSubGroupId(riskIncomeInterval.getId());
         for (int i = 0; i < 5; i++) {
