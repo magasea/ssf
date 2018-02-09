@@ -10,7 +10,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -120,12 +119,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Override
 	public UserBaseInfoDTO getUserInfoBase(String userUuid) throws Exception {
+		logger.info("com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl.getUserInfoBase(String)===>start");
 		Long userId = getUserIdFromUUID(userUuid);
+		logger.info("com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl.getUserInfoBase(String)===>"+userId);
 		UserBaseInfoDTO userInfoDao = userInfoRepoService.getUserInfoBase(userId);
 		// UserBaseInfo userBaseInfo = new UserBaseInfo();
 		// if( null != userInfoDao) {
 		// BeanUtils.copyProperties(userInfoDao, userBaseInfo);
 		// }
+		logger.info("com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl.getUserInfoBase(String)===>end");
 		return userInfoDao;
 	}
 
@@ -381,67 +383,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Override
 	public Map<String, Object> getTrendYield(String userUuid) throws Exception {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
-		List<Map<String, Object>> trendYieldList = new ArrayList<Map<String, Object>>();
-		String buyDate = "";
-		String selectDate = "";
-		Query query = new Query();
-		query.addCriteria(Criteria.where("userUuid").is(userUuid));
-		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC, "date"));
-		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
-		if (dailyAmountList != null && dailyAmountList.size() > 0) {
-			Map<String, BigDecimal> dailyAmountMap = new HashMap<String, BigDecimal>();
-			for (int i = 0; i < dailyAmountList.size(); i++) {
-				DailyAmount dailyAmount = dailyAmountList.get(i);
-				BigDecimal asset = BigDecimal.ZERO;
-				if (dailyAmountMap.get(dailyAmount.getDate()) == null) {
-					asset = dailyAmount.getAsset();
-					dailyAmountMap.put(dailyAmount.getDate(), asset);
-				} else {
-					asset = dailyAmountMap.get(dailyAmount.getDate()).add(dailyAmount.getAsset());
-					dailyAmountMap.put(dailyAmount.getDate(), asset);
-				}
-				if (asset.compareTo(BigDecimal.ZERO) > 0) {
-					if (StringUtils.isEmpty(selectDate)) {
-						selectDate = dailyAmount.getDate();
-					} else {
-						buyDate = dailyAmount.getDate();
-					}
-				}
-			}
-		}
-
-		// 遍历赋值
-		while (true) {
-			Map<String, Object> trendYieldMap = new HashMap<String, Object>();
-			if (selectDate.equals(buyDate)) {
-				break;
-			}
-			trendYieldMap.put("date", selectDate);
-			// 调用对应的service
-			BigDecimal rate = userFinanceProdCalcService.calcYieldValue(userUuid, buyDate, selectDate);
-			if (rate != null) {
-				trendYieldMap
-						.put("value", (rate.divide(new BigDecimal("100"), MathContext.DECIMAL128)).setScale(2,
-								BigDecimal.ROUND_HALF_UP));
-			} else {
-				trendYieldMap.put("value", 0);
-			}
-			trendYieldList.add(trendYieldMap);
-
-			int year = Integer.parseInt(selectDate.substring(0, 4));
-			int month = Integer.parseInt(selectDate.substring(4, 6));
-			int day = Integer.parseInt(selectDate.substring(6, 8));
-			LocalDate localDate = LocalDate.of(year, month, day);
-			localDate = localDate.minusDays(1);
-			selectDate = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-		}
-		resultMap.put("trendYield", trendYieldList);
-		Collections.reverse(trendYieldList);
-		return resultMap;
-	}
-
-	public Map<String, Object> getTrendYield2(String userUuid) throws Exception {
-		Map<String, Object> resultMap = new HashMap<String, Object>();
 		List<ProductsDTO> productsList = this.findProductInfos(userUuid);
 		if (productsList == null || productsList.size() == 0) {
 			logger.error("我的智投组合暂时不存在");
@@ -477,6 +418,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 					.getCalculateTotalAndRate(userUuid, userId, products);
 			portfolioInfoList.add(portfolioInfoMap);
 		}
+
 		Map<String, Object> portfolioInfoMap = new HashMap<String, Object>();
 		if (portfolioInfoList != null && portfolioInfoList.size() > 0) {
 			for (int i = 0; i < portfolioInfoList.size(); i++) {
@@ -485,19 +427,44 @@ public class UserInfoServiceImpl implements UserInfoService {
 				if (portMap != null && portMap.size() > 0) {
 					for (String key : portMap.keySet()) {
 						PortfolioInfo portfolioInfo = portMap.get(key);
+						BigDecimal value = portfolioInfo.getTotalIncome();
+						if(value!=null){
+							value = value.setScale(2, BigDecimal.ROUND_HALF_UP);
+						}
 						if (portfolioInfoMap.containsKey(key)) {
-							if (portfolioInfo.getTotalIncome() != null) {
-								BigDecimal totalIncome = new BigDecimal(portfolioInfo.getTotalIncome() + "");
-								totalIncome = totalIncome.add(portfolioInfo.getTotalIncome());
+							BigDecimal income = new BigDecimal(portfolioInfoMap.get(key) + "");
+							if (value != null) {
+								BigDecimal totalIncome = new BigDecimal(value + "");
+								totalIncome = totalIncome.add(income);
 								portfolioInfoMap.put(key, totalIncome);
 							}
 						} else {
-							portfolioInfoMap.put(key, portfolioInfo.getTotalIncome());
+							portfolioInfoMap.put(key, value);
 						}
 					}
 				}
 			}
 		}
+		List<Map<String, Object>> portfolioList = new ArrayList<Map<String, Object>>();
+		if (portfolioInfoMap != null && portfolioInfoMap.size() > 0) {
+			Map<String, Object> portfolioMap = new HashMap<String, Object>();
+			if (portfolioInfoMap != null && portfolioInfoMap.size() > 0) {
+				for (String key : portfolioInfoMap.keySet()) {
+					portfolioMap = new HashMap<String, Object>();
+					portfolioMap.put("date", key);
+					portfolioMap.put("value", portfolioInfoMap.get(key));
+					portfolioList.add(portfolioMap);
+				}
+			}
+		}
+		Collections.sort(portfolioList, new Comparator<Map<String, Object>>() {
+            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+            	int map1value = Integer.parseInt(o1.get("date")+"");
+            	int map2value = Integer.parseInt(o2.get("date")+"");
+                return map1value-map2value;
+            }
+        });
+		resultMap.put("trendYield", portfolioList);
 		return resultMap;
 	}
 
@@ -625,7 +592,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 			i++;
 			endDay = InstantDateUtil.format(LocalDate.now().plusDays(-i), "yyyyMMdd");
-			if (startDate.equals(endDay)) {
+			if (startDay.equals(endDay)) {
 				break;
 			}
 		}

@@ -105,10 +105,17 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public UserBaseInfoDTO getUserInfoBase(Long id) {
-		BigInteger userIdLocal = BigInteger.valueOf(id);
+		// BigInteger userIdLocal = BigInteger.valueOf(id);
+		logger.info(
+				"com.shellshellfish.aaas.userinfo.dao.service.impl.UserInfoRepoServiceImpl.getUserInfoBase(Long)  start"
+						+ id);
 		UiUser uiUser = userInfoRepository.findById(id);
+		logger.info("==>" + uiUser);
 		UserBaseInfoDTO user = new UserBaseInfoDTO();
 		BeanUtils.copyProperties(uiUser, user);
+		logger.info(
+				"com.shellshellfish.aaas.userinfo.dao.service.impl.UserInfoRepoServiceImpl.getUserInfoBase(Long)  end"
+						+ user);
 		return user;
 	}
 

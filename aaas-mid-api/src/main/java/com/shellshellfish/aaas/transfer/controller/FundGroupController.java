@@ -130,8 +130,10 @@ public class FundGroupController {
 							Map accumulationIncomesMap = accumulationIncomesList.get(i);
 							if (accumulationIncomesMap.get("value") != null) {
 								BigDecimal value = new BigDecimal(accumulationIncomesMap.get("value")+"");
-								accumulationIncomesMap.put("value", EasyKit.getDecimal(value));
-								maxMinValueList.add(Double.parseDouble(accumulationIncomesMap.get("value") + ""));
+								value = value.setScale(2, BigDecimal.ROUND_HALF_UP);
+//								accumulationIncomesMap.put("value", EasyKit.getDecimal(value));
+								accumulationIncomesMap.put("value", value);
+								maxMinValueList.add(value.doubleValue());
 							}
 						}
 						if (maxMinValueList != null && maxMinValueList.size() > 0) {
