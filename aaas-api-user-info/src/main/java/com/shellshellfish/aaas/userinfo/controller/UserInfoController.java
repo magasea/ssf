@@ -214,6 +214,8 @@ public class UserInfoController {
 			try{
 			 userBaseInfo =  userInfoService.getUserInfoBase(userUuid);
 			}catch(Exception e){
+				logger.error(e.getMessage());
+				e.printStackTrace();
 				throw new UserInfoException("404","无法获取到uid="+userUuid+" 用户的个人信息数据");
 			}
 			
