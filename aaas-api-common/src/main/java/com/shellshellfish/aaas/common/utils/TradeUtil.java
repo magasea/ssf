@@ -6,7 +6,6 @@ import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -226,6 +225,10 @@ public class TradeUtil {
 
   public static String getZZOutsideOrderNo(String orderId, Long orderDetailId){
     return orderId+String.format("08d%", orderDetailId);
+  }
+  public static Long getUTCTimeInSeconds(){
+    ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneId.systemDefault());
+    return utcDateTime.toInstant().getEpochSecond();
   }
 
 

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.model.*;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import org.apache.commons.codec.digest.UnixCrypt;
@@ -88,7 +89,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         Map<String, Object> info = init(userUuid);
 
         info.put("tradeacco", tradeAcco);
-        info.put("applysum", applySum);
+        info.put("applysum", applySum.toString());
         info.put("outsideorderno", outsideOrderNo);
         info.put("fundcode", fundCode);
         //info.put("platform_openid", "88048");
@@ -120,7 +121,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
         Map<String, Object> info = init(userUuid);
 
-        info.put("sell_num", sellNum);
+        info.put("sell_num", sellNum.toString());
         info.put("outsideorderno", outsideOrderNo);
         info.put("tradeacco", tradeAcco);
         info.put("fundcode", fundCode);
@@ -675,7 +676,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         String publicKey = "enVoZWNlc2hpMQ==";
         String platformCode = "zuheceshi1";
         String platformOpenId = userUuid;//"shellshellfish";//"noUserToOneFund";
-        Long time = new Date().toInstant().getEpochSecond();
+//        Long time = new Date().toInstant().getEpochSecond();
+        long time = TradeUtil.getUTCTimeInSeconds();
         String data = objectMapper.writeValueAsString(Arrays.asList(platformOpenId));
 
         String privateKey = "6t9L76KqurWlX9Zn";
