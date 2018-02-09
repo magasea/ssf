@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.controller;
 
+import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -48,7 +49,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPersonalMsgBodyDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
-import com.shellshellfish.aaas.userinfo.service.OpenAccountService;
+import com.shellshellfish.aaas.userinfo.service.PayGrpcService;
 import com.shellshellfish.aaas.userinfo.service.UiProductService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
@@ -82,7 +83,7 @@ public class UserInfoController {
 
 
 	@Autowired
-	OpenAccountService openAccountService;
+	OrderRpcService orderGrpcService;
 
 	/**
 	 * 我的 初始页面
@@ -386,7 +387,7 @@ public class UserInfoController {
 			@RequestBody BankcardDetailBodyDTO bankcardDetailVo) throws Exception {
 
 		bankcardDetailVo.setUserUuid(userUuid);
-		BankCardDTO bankCard = openAccountService.createBankCard(bankcardDetailVo);
+		BankCardDTO bankCard = orderGrpcService.createBankCard(bankcardDetailVo);
 		Map<String, Object> result = new HashMap<>();
 		if (bankCard == null) {
 			logger.error("addBankCardWithDetailInfo method 添加失败..");
@@ -1359,6 +1360,7 @@ public class UserInfoController {
 			@RequestParam("totalRevenueRate") String totalRevenueRate
 			) throws Exception{
 		Map<String, Object> resultMap = new HashMap<String, Object>();
+		//UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
 		//总资产
 		resultMap.put("totalAssets", totalAssets);
 		//日收益
@@ -1367,10 +1369,32 @@ public class UserInfoController {
 		resultMap.put("totalRevenue", totalRevenue);
 		// 累计收益率
 		resultMap.put("totalRevenueRate", totalRevenueRate);
-		
 		//收益走势图
 		Map<String,Object> trendYieldMap = new HashMap();
-//		trendYieldMap = userInfoService.getTrendYield(userUuid);
+//		trendYieldMap.put("date","12.25");
+//		trendYieldMap.put("value","-0.09");
+//		trendYieldList.add(trendYieldMap);
+//		trendYieldMap = new HashMap();
+//		trendYieldMap.put("date","12.26");
+//		trendYieldMap.put("value","0.00");
+//		trendYieldList.add(trendYieldMap);
+//		trendYieldMap = new HashMap();
+//		trendYieldMap.put("date","12.27");
+//		trendYieldMap.put("value","0.20");
+//		trendYieldList.add(trendYieldMap);
+//		trendYieldMap = new HashMap();
+//		trendYieldMap.put("date","12.28");
+//		trendYieldMap.put("value","0.30");
+//		trendYieldList.add(trendYieldMap);
+//		trendYieldMap = new HashMap();
+//		trendYieldMap.put("date","12.29");
+//		trendYieldMap.put("value","0.40");
+//		trendYieldList.add(trendYieldMap);
+//		trendYieldMap = new HashMap();
+//		trendYieldMap.put("date","12.30");
+//		trendYieldMap.put("value","0.50");
+//		trendYieldList.add(trendYieldMap);
+//		resultMap.put("trendYield", trendYieldList);
 		trendYieldMap = userInfoService.getTrendYield(userUuid);
 		if(trendYieldMap!=null&&trendYieldMap.size()>0){
 			resultMap.put("trendYield", trendYieldMap.get("trendYield"));
