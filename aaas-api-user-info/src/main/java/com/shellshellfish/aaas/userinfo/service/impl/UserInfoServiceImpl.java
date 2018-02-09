@@ -378,68 +378,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 		return null;
 	}
 
-	
-	public Map<String, Object> getTrendYield_bak(String userUuid) throws Exception {
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		List<Map<String, Object>> trendYieldList = new ArrayList<Map<String, Object>>();
-		String buyDate = "";
-		String selectDate = "";
-		Query query = new Query();
-		query.addCriteria(Criteria.where("userUuid").is(userUuid));
-		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC, "date"));
-		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
-		if (dailyAmountList != null && dailyAmountList.size() > 0) {
-			Map<String, BigDecimal> dailyAmountMap = new HashMap<String, BigDecimal>();
-			for (int i = 0; i < dailyAmountList.size(); i++) {
-				DailyAmount dailyAmount = dailyAmountList.get(i);
-				BigDecimal asset = BigDecimal.ZERO;
-				if (dailyAmountMap.get(dailyAmount.getDate()) == null) {
-					asset = dailyAmount.getAsset();
-					dailyAmountMap.put(dailyAmount.getDate(), asset);
-				} else {
-					asset = dailyAmountMap.get(dailyAmount.getDate()).add(dailyAmount.getAsset());
-					dailyAmountMap.put(dailyAmount.getDate(), asset);
-				}
-				if (asset.compareTo(BigDecimal.ZERO) > 0) {
-					if (StringUtils.isEmpty(selectDate)) {
-						selectDate = dailyAmount.getDate();
-					} else {
-						buyDate = dailyAmount.getDate();
-					}
-				}
-			}
-		}
-
-		// 遍历赋值
-		while (true) {
-			Map<String, Object> trendYieldMap = new HashMap<String, Object>();
-			if (selectDate.equals(buyDate)) {
-				break;
-			}
-			trendYieldMap.put("date", selectDate);
-			// 调用对应的service
-			BigDecimal rate = userFinanceProdCalcService.calcYieldValue(userUuid, buyDate, selectDate);
-			if (rate != null) {
-				trendYieldMap
-						.put("value", (rate.divide(new BigDecimal("100"), MathContext.DECIMAL128)).setScale(2,
-								BigDecimal.ROUND_HALF_UP));
-			} else {
-				trendYieldMap.put("value", 0);
-			}
-			trendYieldList.add(trendYieldMap);
-
-			int year = Integer.parseInt(selectDate.substring(0, 4));
-			int month = Integer.parseInt(selectDate.substring(4, 6));
-			int day = Integer.parseInt(selectDate.substring(6, 8));
-			LocalDate localDate = LocalDate.of(year, month, day);
-			localDate = localDate.minusDays(1);
-			selectDate = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-		}
-		resultMap.put("trendYield", trendYieldList);
-		Collections.reverse(trendYieldList);
-		return resultMap;
-	}
-
 	@Override
 	public Map<String, Object> getTrendYield(String userUuid) throws Exception {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
@@ -487,15 +425,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 				if (portMap != null && portMap.size() > 0) {
 					for (String key : portMap.keySet()) {
 						PortfolioInfo portfolioInfo = portMap.get(key);
+						BigDecimal value = portfolioInfo.getTotalIncome();
+						if(value!=null){
+							value = value.setScale(2, BigDecimal.ROUND_HALF_UP);
+						}
 						if (portfolioInfoMap.containsKey(key)) {
 							BigDecimal income = new BigDecimal(portfolioInfoMap.get(key) + "");
-							if (portfolioInfo.getTotalIncome() != null) {
-								BigDecimal totalIncome = new BigDecimal(portfolioInfo.getTotalIncome() + "");
+							if (value != null) {
+								BigDecimal totalIncome = new BigDecimal(value + "");
 								totalIncome = totalIncome.add(income);
 								portfolioInfoMap.put(key, totalIncome);
 							}
 						} else {
-							portfolioInfoMap.put(key, portfolioInfo.getTotalIncome());
+							portfolioInfoMap.put(key, value);
 						}
 					}
 				}
@@ -513,7 +455,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}
 			}
 		}
-		
+		Collections.sort(portfolioList, new Comparator<Map<String, Object>>() {
+            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+            	int map1value = Integer.parseInt(o1.get("date")+"");
+            	int map2value = Integer.parseInt(o2.get("date")+"");
+                return map1value-map2value;
+            }
+        });
 		resultMap.put("trendYield", portfolioList);
 		return resultMap;
 	}
