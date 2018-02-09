@@ -91,8 +91,8 @@ public class FundGroupController {
      */
     @ApiOperation("预期年化收益(action=calcExpectedAnnualizedReturn), 预期最大回撤(action=calcExpectedMaxPullback)")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String,Object>> selectReturnAndPullback(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="1") String returntype) {
-        Map<String,Object> map = fundGroupService.selectReturnAndPullback(groupId, returntype, subGroupId);
+    public ResponseEntity<Map<String, Object>> selectReturnAndPullback(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="1") String returntype) {
+        Map<String, Object> map = fundGroupService.selectReturnAndPullback(groupId, returntype, subGroupId);
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
@@ -137,7 +137,7 @@ public class FundGroupController {
     @ApiOperation("风险控制")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/risk-controls", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ReturnType getRiskController(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId) {
-        return fundGroupService.getRiskController(groupId, subGroupId);
+        return fundGroupService.getRiskController("1", "2");
     }
 
     /**
