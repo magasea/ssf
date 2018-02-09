@@ -369,7 +369,7 @@ public class BroadcastMessageConsumers {
             (mongoUiTrdZZInfo.getUserProdId(), mongoUiTrdZZInfo.getFundCode());
         String cardNumber = orderRpcService.getBankCardNumberByUserProdId(mongoUiTrdZZInfo
             .getUserProdId());
-        List<UiBankcard> uiBankcards =  userInfoBankCardsRepository.findAllByUserIdAAndCardNumber
+        List<UiBankcard> uiBankcards =  userInfoBankCardsRepository.findAllByUserIdAndCardNumber
             (mongoUiTrdZZInfo.getUserId(), cardNumber);
         String userPid = uiBankcards.get(0).getUserPid();
 
@@ -406,7 +406,7 @@ public class BroadcastMessageConsumers {
             (mongoUiTrdZZInfo.getUserProdId(), mongoUiTrdZZInfo.getFundCode());
         String cardNumber = orderRpcService.getBankCardNumberByUserProdId(mongoUiTrdZZInfo
             .getUserProdId());
-        List<UiBankcard> uiBankcards =  userInfoBankCardsRepository.findAllByUserIdAAndCardNumber
+        List<UiBankcard> uiBankcards =  userInfoBankCardsRepository.findAllByUserIdAndCardNumber
             (mongoUiTrdZZInfo.getUserId(), cardNumber);
         String userPid = uiBankcards.get(0).getUserPid();
 

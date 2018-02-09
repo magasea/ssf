@@ -14,7 +14,7 @@ public interface UserInfoBankCardsRepository extends
 
 	List<UiBankcard> findAllByUserId(Long userId);
 
-	List<UiBankcard> findAllByUserIdAAndCardNumber(Long userId, String cardNumber);
+
 
 	List<UiBankcard> findAllByUserIdAndStatusIs(Long userId, int status);
 
