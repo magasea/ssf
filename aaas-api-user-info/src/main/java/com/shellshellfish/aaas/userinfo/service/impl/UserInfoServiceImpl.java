@@ -119,12 +119,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Override
 	public UserBaseInfoDTO getUserInfoBase(String userUuid) throws Exception {
+		logger.info("com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl.getUserInfoBase(String)===>start");
 		Long userId = getUserIdFromUUID(userUuid);
+		logger.info("com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl.getUserInfoBase(String)===>"+userId);
 		UserBaseInfoDTO userInfoDao = userInfoRepoService.getUserInfoBase(userId);
 		// UserBaseInfo userBaseInfo = new UserBaseInfo();
 		// if( null != userInfoDao) {
 		// BeanUtils.copyProperties(userInfoDao, userBaseInfo);
 		// }
+		logger.info("com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl.getUserInfoBase(String)===>end");
 		return userInfoDao;
 	}
 

@@ -60,6 +60,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Info;
 
 @RestController
 @RequestMapping("/api/userinfo")
@@ -214,6 +215,9 @@ public class UserInfoController {
 			try{
 			 userBaseInfo =  userInfoService.getUserInfoBase(userUuid);
 			}catch(Exception e){
+				e.printStackTrace();
+				logger.error("========="+userUuid);
+				logger.error("========="+e.getMessage());
 				throw new UserInfoException("404","无法获取到uid="+userUuid+" 用户的个人信息数据");
 			}
 			

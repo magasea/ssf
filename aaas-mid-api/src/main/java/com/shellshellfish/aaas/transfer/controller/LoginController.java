@@ -105,32 +105,48 @@ public class LoginController {
 			result.put("name", telNum);
 			result.put("myInvstTotalQty", userinfoMap.get("myInvstTotalQty")); //我的智投组合数量
 			result.put("myCardTotalQty", userinfoMap.get("myCardTotalQty")); //我的银行卡数量
-			result.put("messageUnread", userinfoMap.get("messageUnread")); //未读消息数量	
-			result.put("totalAssets", userinfoMap.get("totalAssets")); //总资产
-			result.put("dailyReturn", userinfoMap.get("dailyReturn")); //日收益
-			if(userinfoMap.get("dailyIncomeRate")!=null){
-				String dailyIncomeRate = userinfoMap.get("dailyIncomeRate")+"";
-				if("0".equals(dailyIncomeRate)){
+			result.put("messageUnread", userinfoMap.get("messageUnread")); //未读消息数量
+			Double total = 0.00;
+			if (userinfoMap.get("totalAssets") != null) {
+				total = Double.valueOf(userinfoMap.get("totalAssets") + "");
+			}
+			result.put("totalAssets", String.format("%.2f", total)); // 总资产
+
+			Double dailyReturn = 0.00;
+			if (userinfoMap.get("dailyReturn") != null) {
+				dailyReturn = Double.valueOf(userinfoMap.get("dailyReturn") + "");
+			}
+			result.put("dailyReturn", String.format("%.2f", dailyReturn)); // 日收益
+
+			if (userinfoMap.get("dailyIncomeRate") != null) {
+				String dailyIncomeRate = userinfoMap.get("dailyIncomeRate") + "";
+				if ("0".equals(dailyIncomeRate)) {
 					result.put("dailyReturnRate", "0.00%");
 				} else {
-					dailyIncomeRate = EasyKit.getDecimal(new BigDecimal(dailyIncomeRate))+"";
-					result.put("dailyReturnRate", dailyIncomeRate+EasyKit.PERCENT); //日收益率
+					dailyIncomeRate = EasyKit.getDecimal(new BigDecimal(dailyIncomeRate)) + "";
+					result.put("dailyReturnRate", String.format("%.2f", Double.valueOf(dailyIncomeRate)) + EasyKit.PERCENT); // 日收益率
 				}
 			} else {
-				result.put("dailyReturnRate", "0.00%"); //日收益率
+				result.put("dailyReturnRate", "0.00%"); // 日收益率
 			}
-			result.put("totalRevenue", userinfoMap.get("totalIncome")); //累计收益
-			
-			if(userinfoMap.get("totalIncomeRate")!=null){
-				String totalIncomeRate = userinfoMap.get("totalIncomeRate")+"";
-				if("0".equals(totalIncomeRate)){
+
+			Double totalIncome = 0.00;
+			if (userinfoMap.get("totalIncome") != null) {
+				totalIncome = Double.valueOf(userinfoMap.get("totalIncome") + "");
+			}
+			result.put("totalRevenue", String.format("%.2f", totalIncome)); // 累计收益
+
+			if (userinfoMap.get("totalIncomeRate") != null) {
+				String totalIncomeRate = userinfoMap.get("totalIncomeRate") + "";
+				if ("0".equals(totalIncomeRate)) {
 					result.put("totalIncomeRate", "0.00%");
 				} else {
-					totalIncomeRate = EasyKit.getDecimal(new BigDecimal(totalIncomeRate))+"";
-					result.put("totalIncomeRate", totalIncomeRate+EasyKit.PERCENT); //累计收益率
+					totalIncomeRate = EasyKit.getDecimal(new BigDecimal(totalIncomeRate)) + "";
+//					result.put("totalIncomeRate", String.format("%.2f", Double.valueOf(totalIncomeRate)) + EasyKit.PERCENT); // 累计收益率
+					result.put("totalIncomeRate", ""); // 累计收益率
 				}
 			} else {
-				result.put("totalIncomeRate", "0.00%"); //累计收益率
+				result.put("totalIncomeRate", "0.00%"); // 累计收益率
 			}
 //			result.put("totalIncomeRate", userinfoMap.get("totalIncomeRate")); //累计收益率
 			/**********************添加的测试数据*******************************/
