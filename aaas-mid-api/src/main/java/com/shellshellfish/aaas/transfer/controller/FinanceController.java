@@ -30,6 +30,7 @@ import com.shellshellfish.aaas.dto.FinanceProductCompo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+import com.shellshellfish.aaas.transfer.service.RiskService;
 import com.shellshellfish.aaas.transfer.utils.EasyKit;
 
 import io.swagger.annotations.Api;
@@ -62,6 +63,9 @@ public class FinanceController {
 
 	@Autowired
 	private MidApiService service;
+	
+	@Autowired
+	RiskService riskService;
 
 	@ApiOperation("1.首页")
 	@ApiImplicitParams({
@@ -268,21 +272,38 @@ public class FinanceController {
 
 	@ApiOperation("理财产品查看详情页面")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "4"),
-			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "4009"),
+		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "uuid"),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "4"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "4009"),
 	})
 	@RequestMapping(value = "/checkPrdDetails", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getPrdDetails(String groupId, String subGroupId) {
+	public JsonResult getPrdDetails(@RequestParam(required = false) String uuid, String groupId, String subGroupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
+		String status = "";
+		String title = "";
+		if(StringUtils.isEmpty(uuid)){
+			status = "0";
+			title = "用户未登录，不能购买当前产品";
+		} else if (!riskService.isAppropriateRishLevel(uuid, Long.parseLong(groupId))) {
+			status = "0";
+			title = "风险等级低，不能购买当前产品";
+//			return new JsonResult(JsonResult.Fail, "风险等级低，不能购买当前产品", JsonResult.EMPTYRESULT);
+		} else {
+			status = "1";
+		}
+		
 		result = service.getPrdNPVList(groupId, subGroupId);
-		if (result == null)
+		if (result == null){
 			return new JsonResult(JsonResult.Fail, "获取净值增长值活净值增长率为空", JsonResult.EMPTYRESULT);
+		}
 
 		Map expAnnReturn = getExpAnnReturn(groupId, subGroupId);
 		Map expMaxReturn = getExpMaxReturn(groupId, subGroupId);
 		result.put("expAnnReturn", expAnnReturn);
 		result.put("expMaxDrawDown", expMaxReturn);
+		result.put("status", status);
+		result.put("title", title);
 		//饼图（返回单个基金组合产品信息）
 		try {
 			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId;
