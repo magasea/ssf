@@ -437,34 +437,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 	
 	public Map<String, Object> getTrendYield2(String userUuid) throws Exception {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
-		List<Map<String, Object>> trendYieldList = new ArrayList<Map<String, Object>>();
-		String buyDate = "";
-		String selectDate = "";
-		Query query = new Query();
-		query.addCriteria(Criteria.where("userUuid").is(userUuid));
-		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC, "date"));
-		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
-		if(dailyAmountList!=null&&dailyAmountList.size()>0){
-			Map<String,BigDecimal> dailyAmountMap = new HashMap<String,BigDecimal>();
-			for (int i = 0; i < dailyAmountList.size(); i++) {
-				DailyAmount dailyAmount = dailyAmountList.get(i);
-				BigDecimal asset = BigDecimal.ZERO;
-				if (dailyAmountMap.get(dailyAmount.getDate()) == null) {
-					asset = dailyAmount.getAsset();
-					dailyAmountMap.put(dailyAmount.getDate(), asset);
-				} else {
-					asset = dailyAmountMap.get(dailyAmount.getDate()).add(dailyAmount.getAsset());
-					dailyAmountMap.put(dailyAmount.getDate(), asset);
-				}
-				if (asset.compareTo(BigDecimal.ZERO) > 0) {
-					if (StringUtils.isEmpty(selectDate)) {
-						selectDate = dailyAmount.getDate();
-					} else {
-						buyDate = dailyAmount.getDate();
-					}
-				}
-			}
-		}
 		List<ProductsDTO> productsList = this.findProductInfos(userUuid);
 		if (productsList == null || productsList.size() == 0) {
 			logger.error("我的智投组合暂时不存在");
@@ -520,46 +492,26 @@ public class UserInfoServiceImpl implements UserInfoService {
 			portfolioInfoList.add(portfolioInfoMap);
 		}
 		Map<String, Object> portfolioInfoMap = new HashMap<String, Object>();
-		Map<String, Map<String, Object>> portfolioInfoMap2 = new HashMap<String, Map<String, Object>>();
 		if (portfolioInfoList != null && portfolioInfoList.size() > 0) {
 			for (int i = 0; i < portfolioInfoList.size(); i++) {
 				//循环单个组合的map
 				Map<String, PortfolioInfo> portMap = portfolioInfoList.get(i);
-				
-				
+				if (portMap != null && portMap.size() > 0) {
+					for (String key : portMap.keySet()) {
+						PortfolioInfo portfolioInfo = portMap.get(key);
+						if (portfolioInfoMap.containsKey(key)) {
+							if (portfolioInfo.getTotalIncome() != null) {
+								BigDecimal totalIncome = new BigDecimal(portfolioInfo.getTotalIncome() + "");
+								totalIncome = totalIncome.add(portfolioInfo.getTotalIncome());
+								portfolioInfoMap.put(key, totalIncome);
+							}
+						} else {
+							portfolioInfoMap.put(key, portfolioInfo.getTotalIncome());
+						}
+					}
+				}
 			}
-
 		}
-		
-		
-		
-		
-		// 遍历赋值
-		while (true) {
-			Map<String,Object> trendYieldMap = new HashMap<String,Object>();
-			if (selectDate.equals(buyDate)) {
-				break;
-			}
-			trendYieldMap.put("date", selectDate);
-			// 调用对应的service
-			BigDecimal rate = userFinanceProdCalcService.calcYieldValue(userUuid, buyDate, selectDate);
-			if (rate != null) {
-				trendYieldMap.put("value", (rate.divide(new BigDecimal("100"), MathContext.DECIMAL128)).setScale(2,
-						BigDecimal.ROUND_HALF_UP));
-			} else {
-				trendYieldMap.put("value", 0);
-			}
-			trendYieldList.add(trendYieldMap);
-			
-			int year = Integer.parseInt(selectDate.substring(0,4));
-			int month = Integer.parseInt(selectDate.substring(4,6));
-			int day = Integer.parseInt(selectDate.substring(6,8));
-			LocalDate localDate = LocalDate.of(year, month, day);
-			localDate =  localDate.minusDays(1);
-			selectDate = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-		}
-		resultMap.put("trendYield", trendYieldList);
-		Collections.reverse(trendYieldList);
 		return resultMap;
 	}
 
