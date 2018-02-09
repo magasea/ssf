@@ -378,8 +378,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 		return null;
 	}
 
-	@Override
-	public Map<String, Object> getTrendYield(String userUuid) throws Exception {
+	
+	public Map<String, Object> getTrendYield_bak(String userUuid) throws Exception {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		List<Map<String, Object>> trendYieldList = new ArrayList<Map<String, Object>>();
 		String buyDate = "";
@@ -440,7 +440,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 		return resultMap;
 	}
 
-	public Map<String, Object> getTrendYield2(String userUuid) throws Exception {
+	@Override
+	public Map<String, Object> getTrendYield(String userUuid) throws Exception {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		List<ProductsDTO> productsList = this.findProductInfos(userUuid);
 		if (productsList == null || productsList.size() == 0) {
@@ -477,6 +478,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 					.getCalculateTotalAndRate(userUuid, userId, products);
 			portfolioInfoList.add(portfolioInfoMap);
 		}
+		
 		Map<String, Object> portfolioInfoMap = new HashMap<String, Object>();
 		if (portfolioInfoList != null && portfolioInfoList.size() > 0) {
 			for (int i = 0; i < portfolioInfoList.size(); i++) {
@@ -486,9 +488,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 					for (String key : portMap.keySet()) {
 						PortfolioInfo portfolioInfo = portMap.get(key);
 						if (portfolioInfoMap.containsKey(key)) {
+							BigDecimal income = new BigDecimal(portfolioInfoMap.get(key) + "");
 							if (portfolioInfo.getTotalIncome() != null) {
 								BigDecimal totalIncome = new BigDecimal(portfolioInfo.getTotalIncome() + "");
-								totalIncome = totalIncome.add(portfolioInfo.getTotalIncome());
+								totalIncome = totalIncome.add(income);
 								portfolioInfoMap.put(key, totalIncome);
 							}
 						} else {
@@ -498,6 +501,20 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}
 			}
 		}
+		List<Map<String, Object>> portfolioList = new ArrayList<Map<String, Object>>();
+		if (portfolioInfoMap != null && portfolioInfoMap.size() > 0) {
+			Map<String, Object> portfolioMap = new HashMap<String, Object>();
+			if (portfolioInfoMap != null && portfolioInfoMap.size() > 0) {
+				for (String key : portfolioInfoMap.keySet()) {
+					portfolioMap = new HashMap<String, Object>();
+					portfolioMap.put("date", key);
+					portfolioMap.put("value", portfolioInfoMap.get(key));
+					portfolioList.add(portfolioMap);
+				}
+			}
+		}
+		
+		resultMap.put("trendYield", portfolioList);
 		return resultMap;
 	}
 
@@ -625,7 +642,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 			i++;
 			endDay = InstantDateUtil.format(LocalDate.now().plusDays(-i), "yyyyMMdd");
-			if (startDate.equals(endDay)) {
+			if (startDay.equals(endDay)) {
 				break;
 			}
 		}

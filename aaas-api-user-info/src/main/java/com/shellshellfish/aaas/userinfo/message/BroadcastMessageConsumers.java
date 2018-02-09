@@ -253,6 +253,13 @@ public class BroadcastMessageConsumers {
             }
             Long delta = trdPayFlow.getTradeTargetShare() - trdPayFlow.getTradeConfirmShare();
             //delta need to be add back to the origin trade quantity
+            int remainQuantity = uiProductDetail.getFundQuantity() - trdPayFlow
+                .getTradeConfirmShare().intValue();
+            if (remainQuantity < 0 ){
+                logger.error("super super error! current fundQuantity is :" + uiProductDetail
+                    .getFundQuantity() + " will deduct confirmed redeem of quantity:" +
+                    trdPayFlow.getTradeConfirmShare());
+            }
             uiProductDetail.setFundQuantity(uiProductDetail.getFundQuantity() - trdPayFlow
                 .getTradeConfirmShare().intValue());
             uiProductDetail.setStatus(status);
