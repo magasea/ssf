@@ -1359,7 +1359,6 @@ public class UserInfoController {
 			@RequestParam("totalRevenueRate") String totalRevenueRate
 			) throws Exception{
 		Map<String, Object> resultMap = new HashMap<String, Object>();
-		//UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
 		//总资产
 		resultMap.put("totalAssets", totalAssets);
 		//日收益
@@ -1368,32 +1367,10 @@ public class UserInfoController {
 		resultMap.put("totalRevenue", totalRevenue);
 		// 累计收益率
 		resultMap.put("totalRevenueRate", totalRevenueRate);
+		
 		//收益走势图
 		Map<String,Object> trendYieldMap = new HashMap();
-//		trendYieldMap.put("date","12.25");
-//		trendYieldMap.put("value","-0.09");
-//		trendYieldList.add(trendYieldMap);
-//		trendYieldMap = new HashMap();
-//		trendYieldMap.put("date","12.26");
-//		trendYieldMap.put("value","0.00");
-//		trendYieldList.add(trendYieldMap);
-//		trendYieldMap = new HashMap();
-//		trendYieldMap.put("date","12.27");
-//		trendYieldMap.put("value","0.20");
-//		trendYieldList.add(trendYieldMap);
-//		trendYieldMap = new HashMap();
-//		trendYieldMap.put("date","12.28");
-//		trendYieldMap.put("value","0.30");
-//		trendYieldList.add(trendYieldMap);
-//		trendYieldMap = new HashMap();
-//		trendYieldMap.put("date","12.29");
-//		trendYieldMap.put("value","0.40");
-//		trendYieldList.add(trendYieldMap);
-//		trendYieldMap = new HashMap();
-//		trendYieldMap.put("date","12.30");
-//		trendYieldMap.put("value","0.50");
-//		trendYieldList.add(trendYieldMap);
-//		resultMap.put("trendYield", trendYieldList);
+//		trendYieldMap = userInfoService.getTrendYield(userUuid);
 		trendYieldMap = userInfoService.getTrendYield(userUuid);
 		if(trendYieldMap!=null&&trendYieldMap.size()>0){
 			resultMap.put("trendYield", trendYieldMap.get("trendYield"));
