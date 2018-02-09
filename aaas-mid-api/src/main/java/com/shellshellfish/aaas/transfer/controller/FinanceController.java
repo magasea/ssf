@@ -1031,7 +1031,7 @@ public class FinanceController {
 		Map result = null;
 		try {
 			//准备调用asset-allocation接口的方法，获取组合组合收益率(最大回撤)走势图-每天
-			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield-week?returnType=income";
+			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield-all?returnType=income";
 			result = restTemplate.getForEntity(url, Map.class, groupId, subgroupId).getBody();
 			result.remove("_total");
 			result.remove("_name");
