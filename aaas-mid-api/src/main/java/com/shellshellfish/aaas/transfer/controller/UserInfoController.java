@@ -489,6 +489,24 @@ public class UserInfoController {
 						result.put("minValue", Collections.min(maxMinValueList));
 					}
 				}
+				if (result.get("totalRevenue") != null) {
+					Double totalRevenue2 = Double.valueOf(result.get("totalRevenue") + "");
+					result.put("totalRevenue", String.format("%.2f", totalRevenue2));
+				} else {
+					result.put("totalRevenue", "0.00");
+				}
+				if (result.get("totalAssets") != null) {
+					Double totalAssets2 = Double.valueOf(result.get("totalAssets") + "");
+					result.put("totalAssets", String.format("%.2f", totalAssets2));
+				} else {
+					result.put("totalAssets", "0.00");
+				}
+				if (result.get("dailyReturn") != null) {
+					Double dailyReturn2 = Double.valueOf(result.get("dailyReturn") + "");
+					result.put("dailyReturn", String.format("%.2f", dailyReturn2));
+				} else {
+					result.put("dailyReturn", "0.00");
+				}
 			}
 			return new JsonResult(JsonResult.SUCCESS, "资产总览成功", result);
 		} catch (Exception e) {
