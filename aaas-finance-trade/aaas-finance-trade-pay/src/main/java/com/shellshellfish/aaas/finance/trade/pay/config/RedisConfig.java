@@ -30,7 +30,7 @@ public class RedisConfig {
   @Bean
   public RedisConnectionFactory redisConnectionFactory() {
     JedisPoolConfig poolConfig = new JedisPoolConfig();
-    poolConfig.setMaxTotal(5);
+    poolConfig.setMaxTotal(100);
     poolConfig.setTestOnBorrow(true);
     poolConfig.setTestOnReturn(true);
 

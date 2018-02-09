@@ -513,7 +513,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		//累计收益 = 结束日总资产 - 开始日总资产 + 区间净赎回
 		BigDecimal totalIncome = assetOfEndDay.add(intervalAmount).subtract(startAsset);
 
-		//日收益=结束日净值 - 前一日净值 + 结束日区间净赎回
+		//日收益=结束日净值 - 前一日净值
 		BigDecimal dailyIncome = assetOfEndDay.subtract(assetOfOneDayBefore);
 
 		BigDecimal totalIncomeRate = BigDecimal.ZERO;
@@ -682,7 +682,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 				// 查询时间晚于购买时间
 				LocalDate localDate = InstantDateUtil.format(date, "yyyyMMdd");
-				localDate.plusDays(1);
 				if (localDate.atTime(0, 0, 0).toInstant(ZoneOffset.UTC).toEpochMilli() < prod
 						.getCreateDate()) {
 					continue;
