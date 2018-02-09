@@ -705,13 +705,11 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		UiProducts uiProducts = uiProductRepo.findById(request.getUserProductId());
 		List<UiProductDetail> uiProductDetails = uiProductDetailRepo.findAllByUserProdId(request
 				.getUserProductId());
-		Map<String, Long> currentAvailableFunds = new HashMap<>();
-		Map<String, Integer> currentFundsStatus = new HashMap<>();
+		Map<String, UiProductDetail> currentAvailableFunds = new HashMap<>();
+//		Map<String, Integer> currentFundsStatus = new HashMap<>();
 		for(UiProductDetail uiProductDetail: uiProductDetails){
-			currentAvailableFunds.put(uiProductDetail.getFundCode(), uiProductDetail
-					.getFundQuantityTrade() != null? Long.valueOf(uiProductDetail
-					.getFundQuantityTrade()):0L);
-			currentFundsStatus.put(uiProductDetail.getFundCode(), uiProductDetail.getStatus());
+			currentAvailableFunds.put(uiProductDetail.getFundCode(), uiProductDetail);
+//			currentFundsStatus.put(uiProductDetail.getFundCode(), uiProductDetail.getStatus());
 		}
 		SellProducts.Builder spBuilder = SellProducts.newBuilder();
 		SellProductDetail.Builder spdBuilder = SellProductDetail.newBuilder();
@@ -721,11 +719,20 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 					request.getUserProductId());
 			spdBuilder.setFundCode(sellProductDetail.getFundCode());
 			spdBuilder.setFundQuantityTrade(sellProductDetail.getFundQuantityTrade());
-			if(sellProductDetail.getFundQuantityTrade() > currentAvailableFunds.get(sellProductDetail
-					.getFundCode()) || currentFundsStatus.get(sellProductDetail.getFundCode()) ==
-					TrdOrderStatusEnum.WAITSELL.getStatus()) {
+			UiProductDetail currentProductDetail = currentAvailableFunds.get(sellProductDetail
+					.getFundCode());
+			long currentAvailFundQuantityTrade = currentProductDetail.getFundQuantityTrade()
+					== null ? 0L : currentProductDetail.getFundQuantityTrade();
+			long currentAvailFundQuantity = currentProductDetail.getFundQuantity()
+					== null ? 0L : currentProductDetail.getFundQuantity();
+			if(sellProductDetail.getFundQuantityTrade() > currentAvailFundQuantity ||
+					currentProductDetail.getStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()
+					|| sellProductDetail.getFundQuantityTrade() > currentAvailFundQuantityTrade)
+			{
 				spdBuilder.setResult(-1);
-				spdBuilder.setFundQuantityTrade(currentAvailableFunds.get(sellProductDetail.getFundCode()));
+				long smallestRemain = currentAvailFundQuantity > currentAvailFundQuantityTrade ?
+						currentAvailFundQuantityTrade: currentAvailFundQuantity;
+				spdBuilder.setFundQuantityTrade(smallestRemain);
 				canDuduct = false;
 			}
 			spBuilder.addSellProductDetails(spdBuilder);
@@ -742,7 +749,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		if(canDuduct){
 			Long fundQuantityRemain = null;
 			for(SellProductDetail sellProductDetail: request.getSellProductDetailsList()){
-				fundQuantityRemain = currentAvailableFunds.get(sellProductDetail.getFundCode()) -
+				fundQuantityRemain = currentAvailableFunds.get(sellProductDetail.getFundCode()).getFundQuantityTrade() -
 						sellProductDetail.getFundQuantityTrade();
 				uiProductDetailRepo.updateByParamDeductTrade(fundQuantityRemain, TradeUtil.getUTCTime(),
 						request
