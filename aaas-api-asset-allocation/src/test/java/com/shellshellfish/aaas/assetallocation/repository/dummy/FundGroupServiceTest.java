@@ -136,6 +136,13 @@ public class FundGroupServiceTest {
     }
 
     @Test
+    public void fundGroupIdAndSubIdTaskTest() {
+        String fundGroupId = "1";
+        String subGroupId = "10048";
+        fundGroupService.fundGroupIdAndSubIdTask(fundGroupId, subGroupId);
+    }
+
+    @Test
     public void getNavadjTest() {
         fundGroupService.getNavadj("1","1000");
     }

@@ -4,6 +4,7 @@ import com.shellshellfish.aaas.assetallocation.neo.enmu.SlidebarTypeEnmu;
 import com.shellshellfish.aaas.assetallocation.neo.enmu.StandardTypeEnmu;
 import com.shellshellfish.aaas.assetallocation.neo.entity.*;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
+import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
 import com.shellshellfish.aaas.assetallocation.neo.util.*;
 import org.slf4j.Logger;
@@ -30,6 +31,8 @@ public class FundGroupService {
 
     @Autowired
     private FundGroupMapper fundGroupMapper;
+    @Autowired
+    private FundNetValMapper fundNetValMapper;
 
     Logger logger = LoggerFactory.getLogger(FundGroupService.class);
 
@@ -548,16 +551,35 @@ public class FundGroupService {
         Map<String, Object> query = new HashMap<>();
         query.put("fund_group_id", groupId);
         query.put("subGroupId", subGroupId);
-        List<FundNetVal> navadjStartList = fundGroupMapper.getNavadjStartTime(query);
 
-        query.put("num", null == navadjStartList ? 0 : navadjStartList.size());
-        List<FundNetVal> navadjEndList = fundGroupMapper.getNavadjEndTime(query);
+        List<String> codeList = getFundGroupCodes(groupId, subGroupId);
+        //查询组合中基金最晚成立日 作为 该组合成立日
+        Date minNavDate = fundNetValMapper.getMinNavDateByCodeList(codeList);
+        query.put("minNavDate", minNavDate);
+        List<FundNetVal> navadjStartList = fundGroupMapper.getNavadjFromStartDate(query);
+
+        // 根据 codeList 查询基金最近的净值更新日期
+        Date maxNavDate = fundNetValMapper.getMaxNavDateByCodeList(codeList);
+        query.put("navDate", maxNavDate);
+        List<FundNetVal> navadjEndList = fundGroupMapper.getNavadjByNavDate(query);
+
+        if (CollectionUtils.isEmpty(navadjStartList) || CollectionUtils.isEmpty(navadjEndList)) {
+            aReturn.setName("模拟数据");
+            aReturn.setProductGroupId("");
+            aReturn.setProductSubGroupId("");
+            aReturn.set_items(list);
+            aReturn.set_links(_links);
+            aReturn.set_schemaVersion("0.1.1");
+            aReturn.set_serviceId("资产配置");
+            return aReturn;
+        }
+
         double accumulatedIncome = 0;
         for (FundNetVal navadjStart : navadjStartList) {
             for (FundNetVal navadjEnd : navadjEndList) {
                 if (navadjStart.getCode().equalsIgnoreCase(navadjEnd.getCode()) && navadjStart.getNavadj() != 0) {
                     accumulatedIncome += (navadjEnd.getNavadj() - navadjStart.getNavadj()) / navadjStart.getNavadj();
-                }else {
+                } else {
                     accumulatedIncome += navadjEnd.getNavadj();
                 }
             }
@@ -610,6 +632,14 @@ public class FundGroupService {
         aReturn.set_serviceId("资产配置");
 
         return aReturn;
+    }
+
+    public List<String> getFundGroupCodes(String groupId, String subGroupId) {
+        Map<String, Object> queryCodes = new HashMap<>();
+        queryCodes.put("fundGroupId", groupId);
+        queryCodes.put("subGroupId", subGroupId);
+        List<String> codeList = fundGroupMapper.getFundGroupCodeList(queryCodes);
+        return codeList;
     }
 
     /**
@@ -1762,14 +1792,18 @@ public class FundGroupService {
         for (RiskIncomeInterval riskIncomeInterval : riskIncomeIntervals) {
             long startTime = System.currentTimeMillis();
 
-            getNavadj(fundGroupId + "", riskIncomeInterval.getId());
-            updateExpectedMaxRetracement(fundGroupId + "", riskIncomeInterval.getId());
-            sharpeRatio(fundGroupId + "", riskIncomeInterval.getId());
+            fundGroupIdAndSubIdTask(fundGroupId + "", riskIncomeInterval.getId());
 
             long endTime = System.currentTimeMillis();
             logger.info("fundGroupId : {} , subGroupId : {}", fundGroupId, riskIncomeInterval.getId());
             logger.info("one loop elapse : {}", endTime - startTime);
         }
+    }
+
+    public void fundGroupIdAndSubIdTask(String fundGroupId, String subGroupId) {
+        getNavadj(fundGroupId, subGroupId);
+        updateExpectedMaxRetracement(fundGroupId, subGroupId);
+        sharpeRatio(fundGroupId, subGroupId);
     }
 
     /**

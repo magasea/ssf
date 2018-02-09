@@ -31,7 +31,7 @@ public interface FundGroupMapper {
 
     List<Interval> getFundCode(Map map);
 
-    List<FundGroupDetails> efficientFrontier(Map map);
+    List<String> getFundGroupCodeList(Map map);
 
     List<Interval> getInterval(Map map);
 
@@ -106,6 +106,10 @@ public interface FundGroupMapper {
     List<EfficientFrontier> getEfficientFrontierDetail(String id);
 
     List<FundNetVal> getNavadjStartTime(Map map);
+
+    List<FundNetVal> getNavadjFromStartDate(Map map);
+
+    List<FundNetVal> getNavadjByNavDate(Map map);
 
     List<FundNetVal> getNavadjEndTime(Map map);
 
