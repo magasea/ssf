@@ -418,7 +418,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 					.getCalculateTotalAndRate(userUuid, userId, products);
 			portfolioInfoList.add(portfolioInfoMap);
 		}
-		
+
 		Map<String, Object> portfolioInfoMap = new HashMap<String, Object>();
 		if (portfolioInfoList != null && portfolioInfoList.size() > 0) {
 			for (int i = 0; i < portfolioInfoList.size(); i++) {
