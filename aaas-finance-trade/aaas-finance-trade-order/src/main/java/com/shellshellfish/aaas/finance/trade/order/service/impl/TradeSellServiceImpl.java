@@ -130,7 +130,7 @@ public class TradeSellServiceImpl implements TradeSellService {
       Long netValL = null;
       if(MonetaryFundEnum.containsCode(fundNetInfo.getFundCode())){
         logger.info("contains monetary fund");
-        netValL = TradeUtil.getLongNumWithMul100(fundNetInfo.getAccumNet());
+        netValL = TradeUtil.getLongNumWithMul100(fundNetInfo.getUnitNet());
       }else{
         //四舍五入的基金净值
         netValL = TradeUtil.getLongNumWithMul100(TradeUtil.getBigDecimalNumWithRoundUp2Digit

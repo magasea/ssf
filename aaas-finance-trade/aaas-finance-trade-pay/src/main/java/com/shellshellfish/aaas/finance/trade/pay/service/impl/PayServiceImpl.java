@@ -349,7 +349,6 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       logger.error("empty sellProd list");
       return false;
     }
-
     for(ProdDtlSellDTO prodDtlSellDTO: prodSellDTO.getProdDtlSellDTOList()){
       int sellNum = prodDtlSellDTO.getFundQuantity();
       String fundCode = prodDtlSellDTO.getFundCode();
@@ -401,12 +400,12 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         //赎回请求失败，需要把扣减的基金数量加回去
         notifyRollback(trdPayFlow, prodDtlSellDTO, sellNum);
       }
-
     }
-
 //    fundTradeApiService.sellFund(userUuid, sellNum, outsideOrderNo, tradeAcco, fundCode);
     return false;
   }
+
+
 
   private void notifyRollback(TrdPayFlow trdPayFlow, ProdDtlSellDTO prodDtlSellDTO, int sellNum){
     com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
