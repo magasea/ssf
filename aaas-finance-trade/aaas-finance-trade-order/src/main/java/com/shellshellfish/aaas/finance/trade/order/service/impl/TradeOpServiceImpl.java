@@ -681,9 +681,12 @@ public class TradeOpServiceImpl implements TradeOpService {
 			logger.error("详情信息数据不存在:" + orderId);
 			throw new Exception("详情信息数据不存在:" + orderId);
 		}
+		logger.info("详情信息数据为:" + orderId);
 		TrdOrder trdOrder = orderService.getOrderByOrderId(orderId);
 		List<TrdOrderDetail> trdOrderDetailList = new ArrayList<TrdOrderDetail>();
+		logger.info("trdOrder ===>"+trdOrder);
 		if (trdOrder != null && trdOrder.getOrderId() != null) {
+			logger.info("trdOrder.getOrderId()===>"+trdOrder.getOrderId());
 			result.put("prodId", trdOrder.getUserProdId());
 			trdOrderDetailList = orderService.findOrderDetailByOrderId(orderId);
 		} else {
