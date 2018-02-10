@@ -51,6 +51,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -730,8 +731,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 		Map<String, Object> detailMap = new HashMap<String, Object>();
 		Instant instance = Instant.now();
 		Long instanceLong = instance.toEpochMilli();
-		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(instanceLong), ZoneOffset.UTC);
-		String dayOfWeek = InstantDateUtil.getDayOfWeekName(localDateTime);
+//		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(instanceLong), ZoneOffset.UTC);
 		for (int i = 0; i < trdOrderDetailList.size(); i++) {
 			detailMap = new HashMap<String, Object>();
 			TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
@@ -749,6 +749,10 @@ public class TradeOpServiceImpl implements TradeOpService {
 			//基金费用
 			detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
 			String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 1);
+			
+			LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(InstantDateUtil.getEpochSecondOfZero(date)), ZoneOffset.UTC);
+			String dayOfWeek = InstantDateUtil.getDayOfWeekName(localDateTime);
+			
 			detailMap.put("funddate", date);
 			logger.info("dayOfWeek value is :" + dayOfWeek);
 			detailMap.put("fundTitle", "将于" + date + "(" + dayOfWeek + ")确认");
