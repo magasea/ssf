@@ -1,5 +1,6 @@
 syntax = "proto3";
 import "finance_prod.proto";
+import "common.proto";
 
 option java_multiple_files = true;
 option java_package = "com.shellshellfish.aaas.userinfo.grpc";
@@ -68,9 +69,7 @@ message FinanceProdInfosQuery{
   string bank_card_num = 2; //该理财产品购买的时候用的银行卡
   repeated FinanceProdInfo prodList = 3; //产品成分List
 }
-message UserProdId{
-  int64 user_prod_id = 1;//用户理财产品ID 如果为-1 表示对应的操作失败
-}
+
 
 message UpdateUserProdReqs{
   int64 user_id = 1; //用户id

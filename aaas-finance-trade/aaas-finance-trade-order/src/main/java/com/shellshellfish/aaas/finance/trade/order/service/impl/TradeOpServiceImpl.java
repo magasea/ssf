@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
@@ -223,8 +224,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       BigDecimal fundRatio = BigDecimal.valueOf(productMakeUpInfo.getFundShare()).divide
           (BigDecimal.valueOf(10000));
       trdOrderDetail.setFundSum(fundRatio.multiply(financeProdBuyInfo.getMoney())
-          .multiply(BigDecimal.valueOf(100)).toBigInteger()
-          .longValue());
+          .multiply(BigDecimal.valueOf(100)).toBigInteger().longValue());
       trdOrderDetail.setBuysellDate(TradeUtil.getUTCTime());
       trdOrderDetail.setCreateBy(financeProdBuyInfo.getUserId());
       trdOrderDetail.setCreateDate(TradeUtil.getUTCTime());
