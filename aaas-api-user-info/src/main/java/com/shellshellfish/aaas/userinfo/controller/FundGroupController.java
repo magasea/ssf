@@ -56,7 +56,7 @@ public class FundGroupController {
 	@RequestMapping(value = "/getMyProductDetail", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Map> getProductDetail(@RequestParam @NotNull String uuid,
-			@RequestParam(required = false) String buyDate, @RequestParam @NotNull Long prodId) throws ParseException {
+			@RequestParam(required = false) String buyDate, @RequestParam @NotNull Long prodId) throws Exception {
 		Map result = fundGroupService.getGroupDetails(uuid, prodId, buyDate);
 		result.put("prodId", prodId);
 		return new ResponseEntity<Map>(result, HttpStatus.OK);

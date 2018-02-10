@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.transfer.controller;
 
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.util.TimeZone;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,8 +132,10 @@ public class FundGroupController {
 							Map accumulationIncomesMap = accumulationIncomesList.get(i);
 							if (accumulationIncomesMap.get("value") != null) {
 								BigDecimal value = new BigDecimal(accumulationIncomesMap.get("value")+"");
-								accumulationIncomesMap.put("value", EasyKit.getDecimal(value));
-								maxMinValueList.add(Double.parseDouble(accumulationIncomesMap.get("value") + ""));
+								value = value.setScale(2, BigDecimal.ROUND_HALF_UP);
+//								accumulationIncomesMap.put("value", EasyKit.getDecimal(value));
+								accumulationIncomesMap.put("value", value);
+								maxMinValueList.add(value.doubleValue());
 							}
 						}
 						if (maxMinValueList != null && maxMinValueList.size() > 0) {
@@ -141,10 +145,15 @@ public class FundGroupController {
 					}
 				}
 			} else {
+
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				Date dateTime;
 				try {
-					dateTime = format.parse(buyDate);
+					if(!buyDate.contains(" ") && !buyDate.contains("-") && !buyDate.contains(":")){
+						dateTime = new Date(Long.valueOf(buyDate));
+					}else{
+						dateTime = format.parse(buyDate);
+					}
 					String date = InstantDateUtil.getTplusNDayNWeekendOfWork(dateTime.getTime(), 2);
 					result.put("title", "资产含购买确认中" + totals + "元，将于" + date + "确认");
 				} catch (ParseException e) {

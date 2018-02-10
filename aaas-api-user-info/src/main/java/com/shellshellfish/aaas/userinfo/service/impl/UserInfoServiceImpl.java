@@ -10,7 +10,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -77,7 +76,6 @@ import com.shellshellfish.aaas.userinfo.service.UiProductService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
-import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 import io.grpc.ManagedChannel;
 
 @Service
@@ -120,12 +118,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Override
 	public UserBaseInfoDTO getUserInfoBase(String userUuid) throws Exception {
+		logger.info("com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl.getUserInfoBase(String)===>start");
 		Long userId = getUserIdFromUUID(userUuid);
+		logger.info("com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl.getUserInfoBase(String)===>"+userId);
 		UserBaseInfoDTO userInfoDao = userInfoRepoService.getUserInfoBase(userId);
 		// UserBaseInfo userBaseInfo = new UserBaseInfo();
 		// if( null != userInfoDao) {
 		// BeanUtils.copyProperties(userInfoDao, userBaseInfo);
 		// }
+		logger.info("com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl.getUserInfoBase(String)===>end");
 		return userInfoDao;
 	}
 
@@ -378,68 +379,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 		return null;
 	}
 
-	
-	public Map<String, Object> getTrendYield_bak(String userUuid) throws Exception {
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		List<Map<String, Object>> trendYieldList = new ArrayList<Map<String, Object>>();
-		String buyDate = "";
-		String selectDate = "";
-		Query query = new Query();
-		query.addCriteria(Criteria.where("userUuid").is(userUuid));
-		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC, "date"));
-		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
-		if (dailyAmountList != null && dailyAmountList.size() > 0) {
-			Map<String, BigDecimal> dailyAmountMap = new HashMap<String, BigDecimal>();
-			for (int i = 0; i < dailyAmountList.size(); i++) {
-				DailyAmount dailyAmount = dailyAmountList.get(i);
-				BigDecimal asset = BigDecimal.ZERO;
-				if (dailyAmountMap.get(dailyAmount.getDate()) == null) {
-					asset = dailyAmount.getAsset();
-					dailyAmountMap.put(dailyAmount.getDate(), asset);
-				} else {
-					asset = dailyAmountMap.get(dailyAmount.getDate()).add(dailyAmount.getAsset());
-					dailyAmountMap.put(dailyAmount.getDate(), asset);
-				}
-				if (asset.compareTo(BigDecimal.ZERO) > 0) {
-					if (StringUtils.isEmpty(selectDate)) {
-						selectDate = dailyAmount.getDate();
-					} else {
-						buyDate = dailyAmount.getDate();
-					}
-				}
-			}
-		}
-
-		// 遍历赋值
-		while (true) {
-			Map<String, Object> trendYieldMap = new HashMap<String, Object>();
-			if (selectDate.equals(buyDate)) {
-				break;
-			}
-			trendYieldMap.put("date", selectDate);
-			// 调用对应的service
-			BigDecimal rate = userFinanceProdCalcService.calcYieldValue(userUuid, buyDate, selectDate);
-			if (rate != null) {
-				trendYieldMap
-						.put("value", (rate.divide(new BigDecimal("100"), MathContext.DECIMAL128)).setScale(2,
-								BigDecimal.ROUND_HALF_UP));
-			} else {
-				trendYieldMap.put("value", 0);
-			}
-			trendYieldList.add(trendYieldMap);
-
-			int year = Integer.parseInt(selectDate.substring(0, 4));
-			int month = Integer.parseInt(selectDate.substring(4, 6));
-			int day = Integer.parseInt(selectDate.substring(6, 8));
-			LocalDate localDate = LocalDate.of(year, month, day);
-			localDate = localDate.minusDays(1);
-			selectDate = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-		}
-		resultMap.put("trendYield", trendYieldList);
-		Collections.reverse(trendYieldList);
-		return resultMap;
-	}
-
 	@Override
 	public Map<String, Object> getTrendYield(String userUuid) throws Exception {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
@@ -478,7 +417,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 					.getCalculateTotalAndRate(userUuid, userId, products);
 			portfolioInfoList.add(portfolioInfoMap);
 		}
-		
+
 		Map<String, Object> portfolioInfoMap = new HashMap<String, Object>();
 		if (portfolioInfoList != null && portfolioInfoList.size() > 0) {
 			for (int i = 0; i < portfolioInfoList.size(); i++) {
@@ -487,15 +426,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 				if (portMap != null && portMap.size() > 0) {
 					for (String key : portMap.keySet()) {
 						PortfolioInfo portfolioInfo = portMap.get(key);
+						BigDecimal value = portfolioInfo.getTotalIncome();
+						if(value!=null){
+							value = value.setScale(2, BigDecimal.ROUND_HALF_UP);
+						}
 						if (portfolioInfoMap.containsKey(key)) {
 							BigDecimal income = new BigDecimal(portfolioInfoMap.get(key) + "");
-							if (portfolioInfo.getTotalIncome() != null) {
-								BigDecimal totalIncome = new BigDecimal(portfolioInfo.getTotalIncome() + "");
+							if (value != null) {
+								BigDecimal totalIncome = new BigDecimal(value + "");
 								totalIncome = totalIncome.add(income);
 								portfolioInfoMap.put(key, totalIncome);
 							}
 						} else {
-							portfolioInfoMap.put(key, portfolioInfo.getTotalIncome());
+							portfolioInfoMap.put(key, value);
 						}
 					}
 				}
@@ -513,7 +456,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}
 			}
 		}
-		
+		Collections.sort(portfolioList, new Comparator<Map<String, Object>>() {
+            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+            	int map1value = Integer.parseInt(o1.get("date")+"");
+            	int map2value = Integer.parseInt(o2.get("date")+"");
+                return map1value-map2value;
+            }
+        });
 		resultMap.put("trendYield", portfolioList);
 		return resultMap;
 	}
@@ -642,7 +591,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 			i++;
 			endDay = InstantDateUtil.format(LocalDate.now().plusDays(-i), "yyyyMMdd");
-			if (startDay.equals(endDay)) {
+			if (TradeUtil.getLongNumWithMul100(startDay) - TradeUtil.getLongNumWithMul100(endDay) >= 0 ) {
 				break;
 			}
 		}
@@ -732,39 +681,30 @@ public class UserInfoServiceImpl implements UserInfoService {
 				Map<String, Object> resultMap2 = new HashMap<String, Object>();
 				MongoUiTrdLogDTO trdLog = trdLogList.get(i);
 				int status = trdLog.getTradeStatus();
-				String lastModifiedDate = "0";
+				long lastModifiedDate = 0;
 				if (trdLog.getLastModifiedDate() != 0) {
-					lastModifiedDate = trdLog.getLastModifiedDate() + "";
+					lastModifiedDate = trdLog.getLastModifiedDate();
 				}
+				LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(lastModifiedDate), ZoneOffset.systemDefault());
 				if (resultMap.containsKey("A" + status)) {
 					resultMap2 = resultMap.get("A" + status);
-					if (Long.parseLong(resultMap2.get("lastModified") + "") < Long
-							.parseLong(lastModifiedDate)) {
+					if (Long.parseLong(resultMap2.get("lastModified") + "") < lastModifiedDate) {
 						resultMap2.put("lastModified", lastModifiedDate);
-						resultMap2.put("time", DateUtil.getDateType(trdLog.getLastModifiedDate()));
+						resultMap2.put("date", localDateTime.getYear()+"."+localDateTime.getMonthValue()+"."+localDateTime.getDayOfMonth());
+						resultMap2.put("time", localDateTime.getHour()+":"+localDateTime.getMinute());
 						resultMap2.put("status", status + "");
 						resultMap.put("A" + status, resultMap2);
 					}
 				} else {
 					resultMap2.put("lastModified", lastModifiedDate);
-					resultMap2.put("time", DateUtil.getDateType(trdLog.getLastModifiedDate()));
+					resultMap2.put("date", localDateTime.getYear()+"."+localDateTime.getMonthValue()+"."+localDateTime.getDayOfMonth());
+					resultMap2.put("time", localDateTime.getHour()+":"+localDateTime.getMinute());
 					resultMap2.put("status", status + "");
 					resultMap.put("A" + status, resultMap2);
 				}
 			}
 			for (Map map : resultMap.values()) {
 				map.remove("lastModified");
-				if (map.get("time") != null) {
-					String dateTime = (String) map.get("time");
-					String date[] = dateTime.split(" ");
-					if (date.length == 2) {
-						map.put("date", date[0]);
-						map.put("time", date[1]);
-					} else if (date.length == 1) {
-						map.put("date", date[0]);
-						map.remove("time");
-					}
-				}
 				if (map.get("status") != null) {
 					TrdOrderStatusEnum trdOrderStatusEnum[] = TrdOrderStatusEnum.values();
 					String status = (String) map.get("status");
@@ -782,7 +722,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		}
 		return result;
 	}
-
+	
 	@Override
 	public List<MongoUiTrdLogDTO> getTradeLogs(String uuid) throws Exception {
 		Long userId = getUserIdFromUUID(uuid);

@@ -256,6 +256,10 @@
 									<directory>../proto/pay/</directory>
 									<filtering>true</filtering>
 								</resource>
+								<resource>
+								<directory>../proto/common/</directory>
+								<filtering>true</filtering>
+							</resource>
 							</resources>
 						</configuration>
 					</execution>

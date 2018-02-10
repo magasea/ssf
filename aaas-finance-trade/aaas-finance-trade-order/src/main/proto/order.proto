@@ -1,5 +1,5 @@
 syntax = "proto3";
-
+import "common.proto";
 
 option java_multiple_files = true;
 option java_package = "com.shellshellfish.aaas.finance.trade.order";
@@ -16,6 +16,7 @@ service OrderRpcService {
 
   rpc getOrderDetail (OrderDetailQueryInfo) returns (OrderDetailResult) {
   };
+  rpc getBankCardNumByUserProdId(UserProdId) returns(UserBankCardNum);
 }
 
 //获取交易用户PID
@@ -96,4 +97,10 @@ message OrderDetail {
   int64 prod_id = 27;
 }
 
+
+
+message UserBankCardNum {
+  //用户银行卡号
+  string user_bank_cardnum = 1;
+}
 

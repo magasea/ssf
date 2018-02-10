@@ -1,5 +1,9 @@
 package com.shellshellfish.aaas.userinfo.configuration;
 
+import com.shellshellfish.aaas.finance.trade.order.OrderRpcServiceGrpc;
+import com.shellshellfish.aaas.finance.trade.order.OrderRpcServiceGrpc.OrderRpcServiceBlockingStub;
+import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
+import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceBlockingStub;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.dao.service.impl.UserInfoRepoServiceImpl;
 import io.grpc.BindableService;
@@ -38,6 +42,10 @@ public class GrpcPayConfig {
     return managedChannel;
   }
 
-
+  @Bean
+  @PostConstruct
+  PayRpcServiceGrpc.PayRpcServiceBlockingStub payRpcServiceBlockingStub() {
+    return PayRpcServiceGrpc.newBlockingStub(managedPayChannel());
+  }
 
 }
