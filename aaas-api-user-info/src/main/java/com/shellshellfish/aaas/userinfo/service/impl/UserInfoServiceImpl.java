@@ -592,7 +592,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 			i++;
 			endDay = InstantDateUtil.format(LocalDate.now().plusDays(-i), "yyyyMMdd");
-			if (startDay.equals(endDay)) {
+			if (TradeUtil.getLongNumWithMul100(startDay) - TradeUtil.getLongNumWithMul100(endDay) >= 0 ) {
 				break;
 			}
 		}
