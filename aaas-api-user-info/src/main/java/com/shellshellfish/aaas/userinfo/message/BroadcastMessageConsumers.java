@@ -159,39 +159,39 @@ public class BroadcastMessageConsumers {
 
     }
 
-    @Transactional
-    @RabbitListener(bindings = @QueueBinding(
-        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
-            .OPERATION_TYPE_UPDATE_UITRDLOG, durable = "false"),
-        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
-            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_ORDSTATCHG)
-    )
-    public void receiveOrderStatusChangeMessage(OrderStatusChangeDTO orderStatusChangeDTO, Channel channel, @Header
-        (AmqpHeaders
-        .DELIVERY_TAG) long tag) throws Exception {
-        logger.info("Received fanout 1 message: " + orderStatusChangeDTO);
-        //update ui_products 和 ui_product_details
-        MongoUiTrdLog  mongoUiTrdLog = new MongoUiTrdLog();
-        try{
-            mongoUiTrdLog.setOperations(orderStatusChangeDTO.getOrderType());
-            mongoUiTrdLog.setUserProdId(orderStatusChangeDTO.getUserProdId());
-            mongoUiTrdLog.setUserId(orderStatusChangeDTO.getUserId());
-            mongoUiTrdLog.setTradeStatus(orderStatusChangeDTO.getOrderStatus());
-            mongoUiTrdLog.setLastModifiedDate(TradeUtil.getUTCTime());
-            mongoUiTrdLog.setTradeDate(orderStatusChangeDTO.getOrderDate());
-            mongoUserTrdLogMsgRepo.save(mongoUiTrdLog);
-        }catch (Exception ex){
-            ex.printStackTrace();
-            logger.error(ex.getMessage());
-        }
-        try {
-            channel.basicAck(tag, true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        latch.countDown();
-
-    }
+//    @Transactional
+//    @RabbitListener(bindings = @QueueBinding(
+//        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
+//            .OPERATION_TYPE_UPDATE_UITRDLOG, durable = "false"),
+//        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+//            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_ORDSTATCHG)
+//    )
+//    public void receiveOrderStatusChangeMessage(OrderStatusChangeDTO orderStatusChangeDTO, Channel channel, @Header
+//        (AmqpHeaders
+//        .DELIVERY_TAG) long tag) throws Exception {
+//        logger.info("Received fanout 1 message: " + orderStatusChangeDTO);
+//        //update ui_products 和 ui_product_details
+//        MongoUiTrdLog  mongoUiTrdLog = new MongoUiTrdLog();
+//        try{
+//            mongoUiTrdLog.setOperations(orderStatusChangeDTO.getOrderType());
+//            mongoUiTrdLog.setUserProdId(orderStatusChangeDTO.getUserProdId());
+//            mongoUiTrdLog.setUserId(orderStatusChangeDTO.getUserId());
+//            mongoUiTrdLog.setTradeStatus(orderStatusChangeDTO.getOrderStatus());
+//            mongoUiTrdLog.setLastModifiedDate(TradeUtil.getUTCTime());
+//            mongoUiTrdLog.setTradeDate(orderStatusChangeDTO.getOrderDate());
+//            mongoUserTrdLogMsgRepo.save(mongoUiTrdLog);
+//        }catch (Exception ex){
+//            ex.printStackTrace();
+//            logger.error(ex.getMessage());
+//        }
+//        try {
+//            channel.basicAck(tag, true);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        latch.countDown();
+//
+//    }
 
 
     @Transactional
