@@ -76,7 +76,6 @@ import com.shellshellfish.aaas.userinfo.service.UiProductService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
-import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 import io.grpc.ManagedChannel;
 
 @Service
@@ -691,14 +690,14 @@ public class UserInfoServiceImpl implements UserInfoService {
 					resultMap2 = resultMap.get("A" + status);
 					if (Long.parseLong(resultMap2.get("lastModified") + "") < lastModifiedDate) {
 						resultMap2.put("lastModified", lastModifiedDate);
-						resultMap2.put("date", localDateTime.getYear()+"."+localDateTime.getMonthValue()+"."+localDateTime.getDayOfYear());
+						resultMap2.put("date", localDateTime.getYear()+"."+localDateTime.getMonthValue()+"."+localDateTime.getDayOfMonth());
 						resultMap2.put("time", localDateTime.getHour()+":"+localDateTime.getMinute());
 						resultMap2.put("status", status + "");
 						resultMap.put("A" + status, resultMap2);
 					}
 				} else {
 					resultMap2.put("lastModified", lastModifiedDate);
-					resultMap2.put("date", localDateTime.getYear()+"."+localDateTime.getMonthValue()+"."+localDateTime.getDayOfYear());
+					resultMap2.put("date", localDateTime.getYear()+"."+localDateTime.getMonthValue()+"."+localDateTime.getDayOfMonth());
 					resultMap2.put("time", localDateTime.getHour()+":"+localDateTime.getMinute());
 					resultMap2.put("status", status + "");
 					resultMap.put("A" + status, resultMap2);
