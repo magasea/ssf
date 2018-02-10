@@ -69,6 +69,8 @@ public class TradeUtil {
     return out;
   }
 
+
+
   public static Long getUTCTimeOfSpecificTime(int year, int month, int day, int hour, int
       minute){
 
