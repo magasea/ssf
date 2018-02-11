@@ -249,6 +249,10 @@
 									<filtering>true</filtering>
 								</resource>
 								<resource>
+									<directory>../proto/datacollection/</directory>
+									<filtering>true</filtering>
+								</resource>
+								<resource>
 									<directory>../proto/order/</directory>
 									<filtering>true</filtering>
 								</resource>

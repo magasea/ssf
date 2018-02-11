@@ -1,5 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
+
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetailQueryInfo;
@@ -7,6 +9,7 @@ import com.shellshellfish.aaas.finance.trade.order.OrderDetailResult;
 import com.shellshellfish.aaas.finance.trade.order.OrderQueryInfo;
 import com.shellshellfish.aaas.finance.trade.order.OrderResult;
 import com.shellshellfish.aaas.finance.trade.order.OrderRpcServiceGrpc;
+import com.shellshellfish.aaas.finance.trade.order.UserBankCardNum;
 import com.shellshellfish.aaas.finance.trade.order.UserPID;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
@@ -227,6 +230,20 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 		result.put("bankName", trdTradeBankDic.getBankName());
 		result.put("bankCode", trdTradeBankDic.getBankCode());
 		return result;
+	}
+
+	/**
+	 */
+	@Override
+	public void getBankCardNumByUserProdId(com.shellshellfish.aaas.grpc.common.UserProdId request,
+			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.order.UserBankCardNum> responseObserver) {
+		Long userProdId = request.getUserProdId();
+		List<TrdOrder> trdOrderList =  trdOrderRepository.findByUserProdId(userProdId);
+		UserBankCardNum.Builder ubcnBuilder = UserBankCardNum.newBuilder();
+		ubcnBuilder.setUserBankCardnum(trdOrderList.get(0).getBankCardNum());
+		responseObserver.onNext(ubcnBuilder.build());
+		responseObserver.onCompleted();
+
 	}
 
 }

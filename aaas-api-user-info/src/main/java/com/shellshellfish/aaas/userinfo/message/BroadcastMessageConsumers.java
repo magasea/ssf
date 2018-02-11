@@ -208,6 +208,10 @@ public class BroadcastMessageConsumers {
         //if sell failed then update ui_product_details product number back
         UiProductDetail uiProductDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
             (trdPayFlow.getUserProdId(), trdPayFlow.getFundCode());
+        String cardNumber = orderRpcService.getBankCardNumberByUserProdId(trdPayFlow.getUserProdId());
+        List<UiBankcard> uiBankcards =  userInfoBankCardsRepository.findAllByUserIdAndCardNumber
+            (trdPayFlow.getUserId(), cardNumber);
+        String userPid = uiBankcards.get(0).getUserPid();
         if(!StringUtils.isEmpty(trdPayFlow.getApplySerial()) && trdPayFlow.getApplySerial().equals
             (uiProductDetail.getLastestSerial())){
             logger.error("repeated trdPayFlow message received, just ignore it");
@@ -219,10 +223,24 @@ public class BroadcastMessageConsumers {
 
             //赎回失败情况下把数量加回去，前提是状态已经是等待赎回， 否则作为重复请求忽略掉这个信息
             Long fundQuantity = trdPayFlow.getTradeTargetShare();
+            Long caculatedFundQty = fundQuantity;
+            if(MonetaryFundEnum.containsCode(trdPayFlow.getFundCode())){
+                //monetary fund should caculate quantity by NetValue
+
+                List<FundNetInfo> fundNetInfos = payGrpcService.getFundNetInfosFromZZ(userPid,
+                    trdPayFlow.getFundCode(), 10);
+                Long fundUnitNet= getFundUnitNet(trdPayFlow.getFundCode(), fundNetInfos,
+                    TradeUtil.getReadableDateTime(trdPayFlow.getCreateDate()).split("T")[0]
+                        .replace("-",""));
+                caculatedFundQty = TradeUtil.getBigDecimalNumWithDivOfTwoLong(fundQuantity,
+                    fundUnitNet).longValueExact();
+            }
+
+
             logger.info("now set the fund quantity back with userProdId:" + trdPayFlow.getUserProdId
                 () + " fundQuantity:" + fundQuantity);
             uiProductDetail.setFundQuantityTrade(uiProductDetail.getFundQuantityTrade() +
-                fundQuantity.intValue());
+                caculatedFundQty.intValue());
             uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
             uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
             uiProductDetail.setStatus(trdPayFlow.getTrdStatus());
@@ -255,52 +273,54 @@ public class BroadcastMessageConsumers {
 //            uiProductDetailRepo.updateByParamForStatus(TradeUtil.getUTCTime(),
 //                SystemUserEnum.SYSTEM_USER_ENUM.getUserId(), trdPayFlow.getUserProdId(),
 //                trdPayFlow.getFundCode(), trdPayFlow.getTrdStatus());
-        }else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus() && trdPayFlow
-            .getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
-            int status = trdPayFlow.getTrdStatus();
-            if(uiProductDetail.getStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()){
-                logger.info("because uiProductDetail.getStatus() is:" + uiProductDetail.getStatus
-                    () + " so the status should be kept for reject current redeem operation");
-                status = uiProductDetail.getStatus();
-            }
-            Long delta = trdPayFlow.getTradeTargetShare() - trdPayFlow.getTradeConfirmShare();
-            //delta need to be add back to the origin trade quantity
-            int remainQuantity = uiProductDetail.getFundQuantity() - trdPayFlow
-                .getTradeConfirmShare().intValue();
-            if (remainQuantity < 0 ){
-                logger.error("super super error! current fundQuantity is :" + uiProductDetail
-                    .getFundQuantity() + " will deduct confirmed redeem of quantity:" +
-                    trdPayFlow.getTradeConfirmShare());
-            }
-            uiProductDetail.setFundQuantity(uiProductDetail.getFundQuantity() - trdPayFlow
-                .getTradeConfirmShare().intValue());
-            uiProductDetail.setStatus(status);
-            uiProductDetail.setFundQuantityTrade(uiProductDetail.getFundQuantityTrade() + delta.intValue());
-            uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
-            uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
-            if( !StringUtils.isEmpty(uiProductDetail.getLastestSerial()) && !uiProductDetail
-                .getLastestSerial().contains(trdPayFlow.getApplySerial())){
-                logger.error("received repeated confirm message :" + trdPayFlow.getApplySerial());
-            }else if(StringUtils.isEmpty(uiProductDetail.getLastestSerial())){
-                logger.info("it is initial, let's handle this message ");
-                uiProductDetailRepo.save(uiProductDetail);
-            }else if(!StringUtils.isEmpty(uiProductDetail.getLastestSerial()) && uiProductDetail
-                .getLastestSerial().contains(trdPayFlow.getApplySerial())){
-                String[] serials = uiProductDetail.getLastestSerial().split("|");
-                StringBuilder sb = new StringBuilder();
-                for(String serial: serials){
-                    if(serial.equals(trdPayFlow.getApplySerial())){
-                        logger.info("got the history stored serial:"+trdPayFlow.getApplySerial());
-                        continue;
-                    }else{
-                        sb.append(serial).append("|");
-                    }
-                }
-                uiProductDetail.setLastestSerial(sb.toString());
-                uiProductDetailRepo.save(uiProductDetail);
-            }
-
-        }else{
+        }//这段逻辑已经实现在receiveConfirmInfo里面，
+//        else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus() && trdPayFlow
+//            .getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+//            int status = trdPayFlow.getTrdStatus();
+//            if(uiProductDetail.getStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()){
+//                logger.info("because uiProductDetail.getStatus() is:" + uiProductDetail.getStatus
+//                    () + " so the status should be kept for reject current redeem operation");
+//                status = uiProductDetail.getStatus();
+//            }
+//            Long delta = trdPayFlow.getTradeTargetShare() - trdPayFlow.getTradeConfirmShare();
+//            //delta need to be add back to the origin trade quantity
+//            int remainQuantity = uiProductDetail.getFundQuantity() - trdPayFlow
+//                .getTradeConfirmShare().intValue();
+//            if (remainQuantity < 0 ){
+//                logger.error("super super error! current fundQuantity is :" + uiProductDetail
+//                    .getFundQuantity() + " will deduct confirmed redeem of quantity:" +
+//                    trdPayFlow.getTradeConfirmShare());
+//            }
+//            uiProductDetail.setFundQuantity(uiProductDetail.getFundQuantity() - trdPayFlow
+//                .getTradeConfirmShare().intValue());
+//            uiProductDetail.setStatus(status);
+//            uiProductDetail.setFundQuantityTrade(uiProductDetail.getFundQuantityTrade() + delta.intValue());
+//            uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
+//            uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+//            if( !StringUtils.isEmpty(uiProductDetail.getLastestSerial()) && !uiProductDetail
+//                .getLastestSerial().contains(trdPayFlow.getApplySerial())){
+//                logger.error("received repeated confirm message :" + trdPayFlow.getApplySerial());
+//            }else if(StringUtils.isEmpty(uiProductDetail.getLastestSerial())){
+//                logger.info("it is initial, let's handle this message ");
+//                uiProductDetailRepo.save(uiProductDetail);
+//            }else if(!StringUtils.isEmpty(uiProductDetail.getLastestSerial()) && uiProductDetail
+//                .getLastestSerial().contains(trdPayFlow.getApplySerial())){
+//                String[] serials = uiProductDetail.getLastestSerial().split("|");
+//                StringBuilder sb = new StringBuilder();
+//                for(String serial: serials){
+//                    if(serial.equals(trdPayFlow.getApplySerial())){
+//                        logger.info("got the history stored serial:"+trdPayFlow.getApplySerial());
+//                        continue;
+//                    }else{
+//                        sb.append(serial).append("|");
+//                    }
+//                }
+//                uiProductDetail.setLastestSerial(sb.toString());
+//                uiProductDetailRepo.save(uiProductDetail);
+//            }
+//
+//        }
+        else{
             logger.error("havent handling this kind of trdPayflow: of trdType:"+ trdPayFlow
                 .getTrdType() + " status:" + trdPayFlow.getTrdStatus());
         }
@@ -448,8 +468,27 @@ public class BroadcastMessageConsumers {
             productDetail.setFundQuantityTrade(remainQty.intValue());
             productDetail.setFundQuantity(remainQty.intValue());
         }
+        if( !StringUtils.isEmpty(productDetail.getLastestSerial()) && !productDetail
+            .getLastestSerial().contains(mongoUiTrdZZInfo.getApplySerial())){
+            logger.error("received repeated confirm message :" + mongoUiTrdZZInfo.getApplySerial());
+        }else if(StringUtils.isEmpty(productDetail.getLastestSerial())){
+            logger.info("it is initial, let's handle this message ");
+            uiProductDetailRepo.save(productDetail);
+        }else if(!StringUtils.isEmpty(productDetail.getLastestSerial()) && productDetail
+            .getLastestSerial().contains(mongoUiTrdZZInfo.getApplySerial())){
+            String[] serials = productDetail.getLastestSerial().split("|");
+            StringBuilder sb = new StringBuilder();
+            for(String serial: serials){
+                if(serial.equals(mongoUiTrdZZInfo.getApplySerial())){
+                    logger.info("got the history stored serial:"+mongoUiTrdZZInfo.getApplySerial());
+                    continue;
+                }else{
+                    sb.append(serial).append("|");
+                }
+            }
+            productDetail.setLastestSerial(sb.toString());
+        }
         uiProductDetailRepo.save(productDetail);
-
         return true;
     }
 
