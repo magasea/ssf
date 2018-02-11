@@ -69,6 +69,8 @@ public class TradeUtil {
     return out;
   }
 
+
+
   public static Long getUTCTimeOfSpecificTime(int year, int month, int day, int hour, int
       minute){
 
@@ -178,6 +180,10 @@ public class TradeUtil {
 
   public static BigDecimal getBigDecimalNumWithDiv100(Long originNum){
     return MathUtil.round(BigDecimal.valueOf(originNum).divide(BigDecimal.valueOf(100)),2,true);
+  }
+
+  public static BigDecimal getBigDecimalNumWithDivOfTwoLong(Long number, Long divider){
+    return MathUtil.round(BigDecimal.valueOf(number).divide(BigDecimal.valueOf(divider)),2,true);
   }
 
   public static BigDecimal getBigDecimalNumWithRoundUp2Digit(String origin){

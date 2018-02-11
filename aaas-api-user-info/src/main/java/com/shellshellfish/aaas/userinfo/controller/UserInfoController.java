@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.controller;
 
+import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -48,7 +49,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPersonalMsgBodyDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
-import com.shellshellfish.aaas.userinfo.service.OpenAccountService;
+import com.shellshellfish.aaas.userinfo.service.PayGrpcService;
 import com.shellshellfish.aaas.userinfo.service.UiProductService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
@@ -60,6 +61,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Info;
 
 @RestController
 @RequestMapping("/api/userinfo")
@@ -82,7 +84,7 @@ public class UserInfoController {
 
 
 	@Autowired
-	OpenAccountService openAccountService;
+	OrderRpcService orderGrpcService;
 
 	/**
 	 * 我的 初始页面
@@ -214,6 +216,9 @@ public class UserInfoController {
 			try{
 			 userBaseInfo =  userInfoService.getUserInfoBase(userUuid);
 			}catch(Exception e){
+				e.printStackTrace();
+				logger.error("========="+userUuid);
+				logger.error("========="+e.getMessage());
 				throw new UserInfoException("404","无法获取到uid="+userUuid+" 用户的个人信息数据");
 			}
 			
@@ -386,7 +391,7 @@ public class UserInfoController {
 			@RequestBody BankcardDetailBodyDTO bankcardDetailVo) throws Exception {
 
 		bankcardDetailVo.setUserUuid(userUuid);
-		BankCardDTO bankCard = openAccountService.createBankCard(bankcardDetailVo);
+		BankCardDTO bankCard = orderGrpcService.createBankCard(bankcardDetailVo);
 		Map<String, Object> result = new HashMap<>();
 		if (bankCard == null) {
 			logger.error("addBankCardWithDetailInfo method 添加失败..");

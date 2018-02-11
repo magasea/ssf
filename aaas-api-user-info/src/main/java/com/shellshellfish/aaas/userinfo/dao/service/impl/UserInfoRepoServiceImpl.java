@@ -8,6 +8,7 @@ import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.grpc.common.UserProdId;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
@@ -104,10 +105,17 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public UserBaseInfoDTO getUserInfoBase(Long id) {
-		BigInteger userIdLocal = BigInteger.valueOf(id);
+		// BigInteger userIdLocal = BigInteger.valueOf(id);
+		logger.info(
+				"com.shellshellfish.aaas.userinfo.dao.service.impl.UserInfoRepoServiceImpl.getUserInfoBase(Long)  start"
+						+ id);
 		UiUser uiUser = userInfoRepository.findById(id);
+		logger.info("==>" + uiUser);
 		UserBaseInfoDTO user = new UserBaseInfoDTO();
 		BeanUtils.copyProperties(uiUser, user);
+		logger.info(
+				"com.shellshellfish.aaas.userinfo.dao.service.impl.UserInfoRepoServiceImpl.getUserInfoBase(Long)  end"
+						+ user);
 		return user;
 	}
 
@@ -510,7 +518,8 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	/**
 	 */
 	public void genUserProdsFromOrder(com.shellshellfish.aaas.userinfo.grpc.FinanceProdInfosQuery request,
-			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserProdId> responseObserver) {
+			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.grpc.common.UserProdId>
+			responseObserver) {
 		UserProdId.Builder respBuilder = UserProdId.newBuilder();
 		List<com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo> financeProdInfoList =
 				request.getProdListList();
@@ -634,7 +643,8 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	 */
 	@Override
 	public void updateUserProd(com.shellshellfish.aaas.userinfo.grpc.UpdateUserProdReqs request,
-			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.UserProdId> responseObserver) {
+			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.grpc.common.UserProdId>
+					responseObserver) {
 //		request
 //		uiProductRepo.findByProdId(request.getProdId())
 		UiProducts uiProducts = uiProductRepo.findByProdId(request.getUserProdId());
@@ -705,13 +715,11 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		UiProducts uiProducts = uiProductRepo.findById(request.getUserProductId());
 		List<UiProductDetail> uiProductDetails = uiProductDetailRepo.findAllByUserProdId(request
 				.getUserProductId());
-		Map<String, Long> currentAvailableFunds = new HashMap<>();
-		Map<String, Integer> currentFundsStatus = new HashMap<>();
+		Map<String, UiProductDetail> currentAvailableFunds = new HashMap<>();
+//		Map<String, Integer> currentFundsStatus = new HashMap<>();
 		for(UiProductDetail uiProductDetail: uiProductDetails){
-			currentAvailableFunds.put(uiProductDetail.getFundCode(), uiProductDetail
-					.getFundQuantityTrade() != null? Long.valueOf(uiProductDetail
-					.getFundQuantityTrade()):0L);
-			currentFundsStatus.put(uiProductDetail.getFundCode(), uiProductDetail.getStatus());
+			currentAvailableFunds.put(uiProductDetail.getFundCode(), uiProductDetail);
+//			currentFundsStatus.put(uiProductDetail.getFundCode(), uiProductDetail.getStatus());
 		}
 		SellProducts.Builder spBuilder = SellProducts.newBuilder();
 		SellProductDetail.Builder spdBuilder = SellProductDetail.newBuilder();
@@ -721,11 +729,20 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 					request.getUserProductId());
 			spdBuilder.setFundCode(sellProductDetail.getFundCode());
 			spdBuilder.setFundQuantityTrade(sellProductDetail.getFundQuantityTrade());
-			if(sellProductDetail.getFundQuantityTrade() > currentAvailableFunds.get(sellProductDetail
-					.getFundCode()) || currentFundsStatus.get(sellProductDetail.getFundCode()) ==
-					TrdOrderStatusEnum.WAITSELL.getStatus()) {
+			UiProductDetail currentProductDetail = currentAvailableFunds.get(sellProductDetail
+					.getFundCode());
+			long currentAvailFundQuantityTrade = currentProductDetail.getFundQuantityTrade()
+					== null ? 0L : currentProductDetail.getFundQuantityTrade();
+			long currentAvailFundQuantity = currentProductDetail.getFundQuantity()
+					== null ? 0L : currentProductDetail.getFundQuantity();
+			if(sellProductDetail.getFundQuantityTrade() > currentAvailFundQuantity ||
+					currentProductDetail.getStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()
+					|| sellProductDetail.getFundQuantityTrade() > currentAvailFundQuantityTrade)
+			{
 				spdBuilder.setResult(-1);
-				spdBuilder.setFundQuantityTrade(currentAvailableFunds.get(sellProductDetail.getFundCode()));
+				long smallestRemain = currentAvailFundQuantity > currentAvailFundQuantityTrade ?
+						currentAvailFundQuantityTrade: currentAvailFundQuantity;
+				spdBuilder.setFundQuantityTrade(smallestRemain);
 				canDuduct = false;
 			}
 			spBuilder.addSellProductDetails(spdBuilder);
@@ -742,7 +759,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		if(canDuduct){
 			Long fundQuantityRemain = null;
 			for(SellProductDetail sellProductDetail: request.getSellProductDetailsList()){
-				fundQuantityRemain = currentAvailableFunds.get(sellProductDetail.getFundCode()) -
+				fundQuantityRemain = currentAvailableFunds.get(sellProductDetail.getFundCode()).getFundQuantityTrade() -
 						sellProductDetail.getFundQuantityTrade();
 				uiProductDetailRepo.updateByParamDeductTrade(fundQuantityRemain, TradeUtil.getUTCTime(),
 						request

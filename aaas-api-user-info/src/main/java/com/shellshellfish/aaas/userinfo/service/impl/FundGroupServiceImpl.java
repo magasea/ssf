@@ -28,11 +28,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import com.alibaba.fastjson.JSONObject;
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.utils.URLutils;
+import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.FundIncome;
+import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
+import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UiProductDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
@@ -73,81 +77,49 @@ public class FundGroupServiceImpl implements FundGroupService {
 	UserInfoService userInfoService;
 	
 	@Autowired
+	UserInfoRepoService userInfoRepoService;
+	
+	@Autowired
 	@Qualifier("zhongZhengMongoTemplate")
 	private MongoTemplate mongoTemplate;
 
 
 	@Override
-	public Map getGroupDetails(String userUuid, Long productId, String buyDate) throws ParseException {
+	public Map getGroupDetails(String userUuid, Long productId, String buyDate) throws Exception {
 		Map<String, Object> result = new HashMap<String,Object>();
-		UiProductDTO uiProductDTO = uiProductService.getProductByProdId(productId);
-		result.put("investDate", uiProductDTO.getUpdateDate());
-		result.put("investDays", DateUtil.getDaysToNow(new Date(uiProductDTO.getUpdateDate())));
-		result.put("combinationName", uiProductDTO.getProdName());
+		ProductsDTO productDTO = userInfoRepoService.findByProdId(productId + "");
+		result.put("investDate", productDTO.getUpdateDate());
+		result.put("investDays", DateUtil.getDaysToNow(new Date(productDTO.getUpdateDate())));
+		result.put("combinationName", productDTO.getProdName());
 		result.put("chartTitle", "累计收益率走势图");
 		
 		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
-//		buyDate = buyDate.substring(0,10);
-//		buyDate = buyDate.replaceAll("-", "");
-		
-		String selectDate = "";
-		Query query = new Query();
-		query.addCriteria(Criteria.where("userUuid").is(userUuid))
-				.addCriteria(Criteria.where("date").gte(buyDate))
-				.addCriteria(Criteria.where("userProdId").is(productId));
-		query.with(new Sort(Sort.DEFAULT_DIRECTION.DESC, "date"));
-		List<DailyAmount> dailyAmountList = mongoTemplate.find(query, DailyAmount.class);
-		if(dailyAmountList!=null&&dailyAmountList.size()>0){
-			Map<String,BigDecimal> dailyAmountMap = new HashMap<String,BigDecimal>();
-			for (int i = 0; i < dailyAmountList.size(); i++) {
-				DailyAmount dailyAmount = dailyAmountList.get(i);
-				BigDecimal asset = BigDecimal.ZERO;
-				if (dailyAmountMap.get(dailyAmount.getDate()) == null) {
-					asset = dailyAmount.getAsset();
-					dailyAmountMap.put(dailyAmount.getDate(), asset);
-				} else {
-					asset = dailyAmountMap.get(dailyAmount.getDate()).add(dailyAmount.getAsset());
-					dailyAmountMap.put(dailyAmount.getDate(), asset);
-				}
-				if (asset.compareTo(BigDecimal.ZERO) > 0) {
-					if (StringUtils.isEmpty(selectDate)) {
-						selectDate = dailyAmount.getDate();
-					} else {
-						buyDate = dailyAmount.getDate();
-					}
+		Long userId = userInfoRepoService.getUserIdFromUUID(userUuid);
+		// 总资产
+		Map<String, PortfolioInfo> portfolioInfoMap = userInfoService.getCalculateTotalAndRate(userUuid, userId, productDTO);
+		List<Map<String, Object>> portfolioList = new ArrayList<Map<String, Object>>();
+		if (portfolioInfoMap != null && portfolioInfoMap.size() > 0) {
+			Map<String, Object> portfolioMap = new HashMap<String, Object>();
+			if (portfolioInfoMap != null && portfolioInfoMap.size() > 0) {
+				for (String key : portfolioInfoMap.keySet()) {
+					portfolioMap = new HashMap<String, Object>();
+					portfolioMap.put("date", key);
+					PortfolioInfo portfolioInfo = portfolioInfoMap.get(key);
+					BigDecimal value = portfolioInfo.getTotalIncomeRate();
+					portfolioMap.put("value",value);
+					portfolioList.add(portfolioMap);
 				}
 			}
 		}
+		Collections.sort(portfolioList, new Comparator<Map<String, Object>>() {
+			public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+				int map1value = Integer.parseInt(o1.get("date") + "");
+				int map2value = Integer.parseInt(o2.get("date") + "");
+				return map1value - map2value;
+			}
+		});
 		
-		//int days = 6; //计算6天的值
-		//遍历赋值
-		while (true) {
-			Map<String,Object> dateValueMap = new HashMap<String,Object>();
-//			String dayBeforeSelectDate = DateUtil.getSystemDatesAgo(-days - 1);
-			if (selectDate.equals(buyDate) || StringUtils.isEmpty(selectDate)) {
-				break;
-			}
-			dateValueMap.put("time", selectDate);
-			// 调用对应的service
-			BigDecimal value = null;
-			try {
-				value = userFinanceProdCalcService.calcYieldRate(userUuid, productId, buyDate, selectDate);
-			} catch (Exception e) {
-				logger.error(e.getMessage());
-			}
-			dateValueMap.put("value", value);
-			resultList.add(dateValueMap);
-			
-			logger.info("selectDate==="+selectDate);
-			int year = Integer.parseInt(selectDate.substring(0,4));
-			int month = Integer.parseInt(selectDate.substring(4,6));
-			int day = Integer.parseInt(selectDate.substring(6,8));
-			LocalDate localDate = LocalDate.of(year, month, day);
-			localDate =  localDate.minusDays(1);
-			selectDate = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-		}
-		Collections.reverse(resultList);
-		result.put("accumulationIncomes", resultList);
+		result.put("accumulationIncomes", portfolioList);
 
 		List<UiProductDetailDTO> uiProductDetailDTOList = uiProductService
 				.getProductDetailsByProdId(productId);

@@ -227,6 +227,10 @@
 								<resource>
 									<directory>../../proto/datacollection/</directory>
 								</resource>
+								<resource>
+									<directory>../../proto/common/</directory>
+									<filtering>true</filtering>
+								</resource>
 							</resources>
 						</configuration>
 					</execution>

@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.userinfo.message;
 
 import com.rabbitmq.client.Channel;
 import com.shellshellfish.aaas.common.constants.RabbitMQConstants;
+import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
@@ -11,13 +12,19 @@ import com.shellshellfish.aaas.common.message.order.OrderStatusChangeDTO;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.finance.trade.pay.FundNetInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdLog;
+import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserTrdLogMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
+import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
+import com.shellshellfish.aaas.userinfo.service.PayGrpcService;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +57,15 @@ public class BroadcastMessageConsumers {
     @Autowired
     MongoUiTrdZZInfoRepo mongoUiTrdZZInfoRepo;
 
+    @Autowired
+    OrderRpcService orderRpcService;
+
+    @Autowired
+    UserInfoBankCardsRepository userInfoBankCardsRepository;
+
+    @Autowired
+    PayGrpcService payGrpcService;
+
     @Transactional
     @RabbitListener(bindings = @QueueBinding(
         value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants.OPERATION_TYPE_UPDATE_UIPROD,
@@ -70,11 +86,7 @@ public class BroadcastMessageConsumers {
                 uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
                 uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
                 uiProductDetail.setStatus(trdPayFlow.getTrdStatus());
-                if(trdPayFlow.getTradeConfirmShare() != null && trdPayFlow.getTradeConfirmShare()
-                    > 0){
-                    uiProductDetail.setFundQuantityTrade(trdPayFlow.getTradeConfirmShare().intValue());
-                    uiProductDetail.setFundQuantity(trdPayFlow.getTradeConfirmShare().intValue());
-                }
+
                 uiProductDetailRepo.save(uiProductDetail);
             }catch (Exception ex){
                 ex.printStackTrace();
@@ -147,39 +159,39 @@ public class BroadcastMessageConsumers {
 
     }
 
-    @Transactional
-    @RabbitListener(bindings = @QueueBinding(
-        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
-            .OPERATION_TYPE_UPDATE_UITRDLOG, durable = "false"),
-        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
-            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_ORDSTATCHG)
-    )
-    public void receiveOrderStatusChangeMessage(OrderStatusChangeDTO orderStatusChangeDTO, Channel channel, @Header
-        (AmqpHeaders
-        .DELIVERY_TAG) long tag) throws Exception {
-        logger.info("Received fanout 1 message: " + orderStatusChangeDTO);
-        //update ui_products 和 ui_product_details
-        MongoUiTrdLog  mongoUiTrdLog = new MongoUiTrdLog();
-        try{
-            mongoUiTrdLog.setOperations(orderStatusChangeDTO.getOrderType());
-            mongoUiTrdLog.setUserProdId(orderStatusChangeDTO.getUserProdId());
-            mongoUiTrdLog.setUserId(orderStatusChangeDTO.getUserId());
-            mongoUiTrdLog.setTradeStatus(orderStatusChangeDTO.getOrderStatus());
-            mongoUiTrdLog.setLastModifiedDate(TradeUtil.getUTCTime());
-            mongoUiTrdLog.setTradeDate(orderStatusChangeDTO.getOrderDate());
-            mongoUserTrdLogMsgRepo.save(mongoUiTrdLog);
-        }catch (Exception ex){
-            ex.printStackTrace();
-            logger.error(ex.getMessage());
-        }
-        try {
-            channel.basicAck(tag, true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        latch.countDown();
-
-    }
+//    @Transactional
+//    @RabbitListener(bindings = @QueueBinding(
+//        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
+//            .OPERATION_TYPE_UPDATE_UITRDLOG, durable = "false"),
+//        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+//            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_ORDSTATCHG)
+//    )
+//    public void receiveOrderStatusChangeMessage(OrderStatusChangeDTO orderStatusChangeDTO, Channel channel, @Header
+//        (AmqpHeaders
+//        .DELIVERY_TAG) long tag) throws Exception {
+//        logger.info("Received fanout 1 message: " + orderStatusChangeDTO);
+//        //update ui_products 和 ui_product_details
+//        MongoUiTrdLog  mongoUiTrdLog = new MongoUiTrdLog();
+//        try{
+//            mongoUiTrdLog.setOperations(orderStatusChangeDTO.getOrderType());
+//            mongoUiTrdLog.setUserProdId(orderStatusChangeDTO.getUserProdId());
+//            mongoUiTrdLog.setUserId(orderStatusChangeDTO.getUserId());
+//            mongoUiTrdLog.setTradeStatus(orderStatusChangeDTO.getOrderStatus());
+//            mongoUiTrdLog.setLastModifiedDate(TradeUtil.getUTCTime());
+//            mongoUiTrdLog.setTradeDate(orderStatusChangeDTO.getOrderDate());
+//            mongoUserTrdLogMsgRepo.save(mongoUiTrdLog);
+//        }catch (Exception ex){
+//            ex.printStackTrace();
+//            logger.error(ex.getMessage());
+//        }
+//        try {
+//            channel.basicAck(tag, true);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        latch.countDown();
+//
+//    }
 
 
     @Transactional
@@ -253,6 +265,13 @@ public class BroadcastMessageConsumers {
             }
             Long delta = trdPayFlow.getTradeTargetShare() - trdPayFlow.getTradeConfirmShare();
             //delta need to be add back to the origin trade quantity
+            int remainQuantity = uiProductDetail.getFundQuantity() - trdPayFlow
+                .getTradeConfirmShare().intValue();
+            if (remainQuantity < 0 ){
+                logger.error("super super error! current fundQuantity is :" + uiProductDetail
+                    .getFundQuantity() + " will deduct confirmed redeem of quantity:" +
+                    trdPayFlow.getTradeConfirmShare());
+            }
             uiProductDetail.setFundQuantity(uiProductDetail.getFundQuantity() - trdPayFlow
                 .getTradeConfirmShare().intValue());
             uiProductDetail.setStatus(status);
@@ -298,11 +317,12 @@ public class BroadcastMessageConsumers {
     @Transactional
     @RabbitListener(bindings = @QueueBinding(
         value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
-            .OPERATION_TYPE_UPDATE_UITRDCONFIRMINFO, durable = "false"),
+            .OPERATION_TYPE_UPDATE_UIPRODQUANTITY, durable = "false"),
         exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
             durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_CFMLOG)
     )
-    public void receiveConfirmInfo(MongoUiTrdZZInfo mongoUiTrdZZInfo, Channel channel, @Header
+    public void receiveConfirmInfo(MongoUiTrdZZInfo mongoUiTrdZZInfo, Channel
+        channel, @Header
         (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
         com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo mongoUiTrdZZInfoInDb = mongoUiTrdZZInfoRepo
         .findByUserProdIdAndUserIdAndOutSideOrderNo(mongoUiTrdZZInfo
@@ -319,5 +339,127 @@ public class BroadcastMessageConsumers {
             mongoUiTrdZZInfoInDb.setId(idOrig);
             mongoUiTrdZZInfoRepo.save(mongoUiTrdZZInfoInDb);
         }
+
+    }
+
+    @Transactional
+    @RabbitListener(bindings = @QueueBinding(
+        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
+            .OPERATION_TYPE_UPDATE_UITRDCONFIRMINFO, durable = "false"),
+        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_UPDATEPROD)
+    )
+    public void receiveConfirmInfoUpdateProdQty(MongoUiTrdZZInfo mongoUiTrdZZInfo, Channel channel, @Header
+        (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
+
+        // now update correspond product_detail for quantity of fund
+        if(mongoUiTrdZZInfo.getTradeType() == TrdOrderOpTypeEnum.BUY.getOperation()){
+            updateBuyProductQty(mongoUiTrdZZInfo);
+        }else if(mongoUiTrdZZInfo.getTradeType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+            updateRedeemProductQty(mongoUiTrdZZInfo);
+        }else{
+            logger.error("cannot handle this mongoUiTrdZZInfo with trdType:{}", mongoUiTrdZZInfo
+                .getTradeType());
+        }
+
+    }
+
+    private boolean updateBuyProductQty(MongoUiTrdZZInfo mongoUiTrdZZInfo){
+        UiProductDetail productDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
+            (mongoUiTrdZZInfo.getUserProdId(), mongoUiTrdZZInfo.getFundCode());
+        String cardNumber = orderRpcService.getBankCardNumberByUserProdId(mongoUiTrdZZInfo
+            .getUserProdId());
+        List<UiBankcard> uiBankcards =  userInfoBankCardsRepository.findAllByUserIdAndCardNumber
+            (mongoUiTrdZZInfo.getUserId(), cardNumber);
+        String userPid = uiBankcards.get(0).getUserPid();
+
+
+        if(productDetail.getFundQuantityTrade() != null && productDetail
+            .getFundQuantityTrade() > 0){
+            logger.error("abnormal situation appeared the userProdId:" + mongoUiTrdZZInfo
+                .getUserProdId() + " initial quantity should be 0 or null but already "
+                + "have number , need check why, but curent we reset the quantity "
+                + "according to the confirm message ");
+        }
+        if(MonetaryFundEnum.containsCode(productDetail.getFundCode())){
+            //monetary fund should caculate quantity by NetValue
+            Long trdCfmSum = mongoUiTrdZZInfo.getTradeConfirmSum();
+            List<FundNetInfo> fundNetInfos = payGrpcService.getFundNetInfosFromZZ(userPid,
+                mongoUiTrdZZInfo.getFundCode(), 10);
+            Long fundUnitNet= getFundUnitNet(productDetail.getFundCode(), fundNetInfos,
+                mongoUiTrdZZInfo.getApplyDate());
+            Long caculatedFundQty = TradeUtil.getBigDecimalNumWithDivOfTwoLong(trdCfmSum,
+                fundUnitNet).longValueExact();
+            productDetail.setFundQuantity(caculatedFundQty.intValue());
+            productDetail.setFundQuantityTrade(caculatedFundQty.intValue());
+        }else{
+            productDetail.setFundQuantityTrade(mongoUiTrdZZInfo.getTradeConfirmShare().intValue());
+            productDetail.setFundQuantity(mongoUiTrdZZInfo.getTradeConfirmShare().intValue());
+        }
+        uiProductDetailRepo.save(productDetail);
+        return true;
+    }
+
+    private boolean updateRedeemProductQty(MongoUiTrdZZInfo mongoUiTrdZZInfo){
+
+        UiProductDetail productDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
+            (mongoUiTrdZZInfo.getUserProdId(), mongoUiTrdZZInfo.getFundCode());
+        String cardNumber = orderRpcService.getBankCardNumberByUserProdId(mongoUiTrdZZInfo
+            .getUserProdId());
+        List<UiBankcard> uiBankcards =  userInfoBankCardsRepository.findAllByUserIdAndCardNumber
+            (mongoUiTrdZZInfo.getUserId(), cardNumber);
+        String userPid = uiBankcards.get(0).getUserPid();
+
+
+        if(productDetail.getFundQuantityTrade() != null && productDetail
+            .getFundQuantityTrade() > 0){
+            logger.error("abnormal situation appeared the userProdId:" + mongoUiTrdZZInfo
+                .getUserProdId() + " initial quantity should be 0 or null but already "
+                + "have number , need check why, but curent we reset the quantity "
+                + "according to the confirm message ");
+        }
+        if(MonetaryFundEnum.containsCode(productDetail.getFundCode())){
+            //monetary fund should caculate quantity by NetValue
+            Long trdCfmSum = mongoUiTrdZZInfo.getTradeConfirmSum();
+            List<FundNetInfo> fundNetInfos = payGrpcService.getFundNetInfosFromZZ(userPid,
+                mongoUiTrdZZInfo.getFundCode(), 10);
+            Long fundUnitNet= getFundUnitNet(productDetail.getFundCode(), fundNetInfos,
+                mongoUiTrdZZInfo.getApplyDate());
+            Long caculatedFundQty = TradeUtil.getBigDecimalNumWithDivOfTwoLong(trdCfmSum,
+                fundUnitNet).longValueExact();
+            Long remainQty = productDetail.getFundQuantity() - caculatedFundQty;
+            if(remainQty < 0 ){
+                logger.error("abnormal situation appeared for the userProdId:{} current "
+                    + "quantity:{} the redeem confirm quantity:{}", mongoUiTrdZZInfo
+                    .getUserProdId(), productDetail.getFundQuantity(), mongoUiTrdZZInfo
+                    .getTradeConfirmShare());
+            }
+            productDetail.setFundQuantity(remainQty.intValue());
+            productDetail.setFundQuantityTrade(remainQty.intValue());
+        }else{
+            Long remainQty = productDetail.getFundQuantity() - mongoUiTrdZZInfo
+                .getTradeConfirmShare();
+            if(remainQty < 0 ){
+                logger.error("abnormal situation appeared for the userProdId:{} current "
+                    + "quantity:{} the redeem confirm quantity:{}", mongoUiTrdZZInfo
+                    .getUserProdId(), productDetail.getFundQuantity(), mongoUiTrdZZInfo
+                    .getTradeConfirmShare());
+            }
+            productDetail.setFundQuantityTrade(remainQty.intValue());
+            productDetail.setFundQuantity(remainQty.intValue());
+        }
+        uiProductDetailRepo.save(productDetail);
+
+        return true;
+    }
+
+    private Long getFundUnitNet(String fundCode, List<FundNetInfo> fundNetInfos, String tradeDate){
+        for(FundNetInfo fundNetInfo: fundNetInfos){
+            if(fundNetInfo.getFundCode().equals(fundCode) && fundNetInfo.getTradedate().equals(tradeDate)){
+                return TradeUtil.getLongNumWithMul100(fundNetInfo.getUnitNet());
+            }
+        }
+        logger.error("Failed to find unit net for :{} and tradeDate:{}",fundCode, tradeDate);
+        return -1L;
     }
 }
