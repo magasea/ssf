@@ -396,6 +396,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 			List<UiProductDetailDTO> productDetailsList = uiProductService
 					.getProductDetailsByProdId(products.getId());
 			if (productDetailsList != null && productDetailsList.size() > 0) {
+				fails = 0;
 				for (int j = 0; j < productDetailsList.size(); j++) {
 					UiProductDetailDTO uiProductDetailDTO = productDetailsList.get(j);
 					if (uiProductDetailDTO.getStatus() != null) {
@@ -557,13 +558,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 	public Map<String, PortfolioInfo> getCalculateTotalAndRate(String uuid, Long userId,
 			ProductsDTO products) {
 		Map<String, PortfolioInfo> result = new HashMap<String, PortfolioInfo>();
-		List<OrderDetail> orderDetailPayWaitConfirm = rpcOrderService
-				.getOrderDetails(products.getId(),
-						TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
+		List<UiProductDetail> uiProductDetailList = uiProductDetailRepo
+				.findAllByUserProdIdAndStatusIn(products.getId(),
+						TrdOrderStatusEnum.WAITPAY.getStatus(), TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
 		//完全确认标志
 		boolean flag = false;
-		if (CollectionUtils.isEmpty(orderDetailPayWaitConfirm)) {
+		if (CollectionUtils.isEmpty(uiProductDetailList)) {
 			flag = true;
 		}
 
@@ -754,8 +755,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 					.getProductDetailsByProdId(products.getId());
 			Integer count = 0;
 			Integer fails = 0;
-
 			if (productDetailsList != null && productDetailsList.size() > 0) {
+				fails = 0;
+				count = 0;
 				for (int j = 0; j < productDetailsList.size(); j++) {
 					UiProductDetailDTO uiProductDetailDTO = productDetailsList.get(j);
 					if (uiProductDetailDTO.getStatus() != null) {
