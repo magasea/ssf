@@ -432,7 +432,7 @@ public class BroadcastMessageConsumers {
 
 
         if(productDetail.getFundQuantityTrade() != null && productDetail
-            .getFundQuantityTrade() > 0){
+            .getFundQuantityTrade() < 0){
             logger.error("abnormal situation appeared the userProdId:" + mongoUiTrdZZInfo
                 .getUserProdId() + " initial quantity should be 0 or null but already "
                 + "have number , need check why, but curent we reset the quantity "
@@ -467,6 +467,11 @@ public class BroadcastMessageConsumers {
             }
             productDetail.setFundQuantityTrade(remainQty.intValue());
             productDetail.setFundQuantity(remainQty.intValue());
+        }
+        if(StringUtils.isEmpty(mongoUiTrdZZInfo.getApplySerial())){
+            logger.error("abnormal message of mongoUiTrdZZInfo, there is no applySerial in "
+                + "mongoUiTrdZZInfo:" + mongoUiTrdZZInfo.getApplySerial());
+            return false;
         }
         if( !StringUtils.isEmpty(productDetail.getLastestSerial()) && !productDetail
             .getLastestSerial().contains(mongoUiTrdZZInfo.getApplySerial())){
