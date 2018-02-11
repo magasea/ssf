@@ -267,6 +267,8 @@ public class TradeSellServiceImpl implements TradeSellService {
         trdOrderDetail.setFundNum(prodDtlSellDTO.getFundQuantity());
         trdOrderDetail.setFundSum(TradeUtil.getLongNumWithMul100(prodDtlSellDTO
             .getTargetSellAmount()));
+        trdOrderDetail.setFundMoneyQuantity(TradeUtil.getLongNumWithMul100(prodDtlSellDTO
+            .getTargetSellAmount()));
         trdOrderDetail.setOrderId(orderId);
         trdOrderDetail.setOrderDetailStatus(TrdOrderStatusEnum.WAITSELL.getStatus());
         trdOrderDetail = trdOrderDetailRepository.save(trdOrderDetail);

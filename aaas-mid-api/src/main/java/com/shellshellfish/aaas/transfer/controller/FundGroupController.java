@@ -86,56 +86,58 @@ public class FundGroupController {
 			result.put("totals", totals == null ? "" : totals);
 			result.put("totalIncome", totalIncome == null ? "" : totalIncome);
 			result.put("totalIncomeRate", totalIncomeRate == null ? "" : totalIncomeRate);
+			
+			Map bankNumResult = restTemplate
+					.getForEntity(tradeOrderUrl + "/api/trade/funds/banknums/" + uuid + "?prodId=" + prodId, Map.class)
+					.getBody();
+			if (bankNumResult.get("bankNum") != null) {
+				String bankNum = bankNumResult.get("bankNum") + "";
+				String bankName = "";
+//				String bankShortNum = "";
+				String telNum = "";
+				List bankList = restTemplate
+						.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/bankcards", List.class).getBody();
+				if (bankList != null) {
+					for (int i = 0; i < bankList.size(); i++) {
+						Map bankMap = (Map) bankList.get(i);
+						if (bankNum.equals(bankMap.get("bankcardNum"))) {
+							if (bankMap.get("bankShortName") != null) {
+								bankName = bankMap.get("bankShortName") + "";
+//								bankShortNum = bankNum.substring(bankNum.length() - 4);
+								telNum = bankMap.get("cellphone") + "";
+								break;
+							}
+						}
+					}
+					result.put("bankNum", bankNum);
+					result.put("telNum", telNum);
+					result.put("bankName", bankName);
+				}
+			}
+			
+			if (result.get("accumulationIncomes") != null) {
+				List<Map> accumulationIncomesList = (List<Map>) result.get("accumulationIncomes");
+				if (accumulationIncomesList != null) {
+					List<Double> maxMinValueList = new ArrayList<Double>();
+					for (int i = 0; i < accumulationIncomesList.size(); i++) {
+						Map accumulationIncomesMap = accumulationIncomesList.get(i);
+						if (accumulationIncomesMap.get("value") != null) {
+							BigDecimal value = new BigDecimal(accumulationIncomesMap.get("value")+"");
+							value = value.setScale(2, BigDecimal.ROUND_HALF_UP);
+//								accumulationIncomesMap.put("value", EasyKit.getDecimal(value));
+							accumulationIncomesMap.put("value", value);
+							maxMinValueList.add(value.doubleValue());
+						}
+					}
+					if (maxMinValueList != null && maxMinValueList.size() > 0) {
+						result.put("maxValue", Collections.max(maxMinValueList));
+						result.put("minValue", Collections.min(maxMinValueList));
+					}
+				}
+			}
+			
 			if (StringUtils.isEmpty(count) || "0".equals(count)) {
 				result.put("title", "");
-				Map bankNumResult = restTemplate
-						.getForEntity(tradeOrderUrl + "/api/trade/funds/banknums/" + uuid + "?prodId=" + prodId, Map.class)
-						.getBody();
-				if (bankNumResult.get("bankNum") != null) {
-					String bankNum = bankNumResult.get("bankNum") + "";
-					String bankName = "";
-					String bankShortNum = "";
-					String telNum = "";
-					List bankList = restTemplate
-							.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/bankcards", List.class).getBody();
-					if (bankList != null) {
-						for (int i = 0; i < bankList.size(); i++) {
-							Map bankMap = (Map) bankList.get(i);
-							if (bankNum.equals(bankMap.get("bankcardNum"))) {
-								if (bankMap.get("bankShortName") != null) {
-									bankName = bankMap.get("bankShortName") + "";
-									bankShortNum = bankNum.substring(bankNum.length() - 4);
-									telNum = bankMap.get("cellphone") + "";
-									break;
-								}
-							}
-						}
-						result.put("bankNum", bankNum);
-						result.put("telNum", telNum);
-						result.put("bankName", bankName);
-					}
-				}
-	
-				if (result.get("accumulationIncomes") != null) {
-					List<Map> accumulationIncomesList = (List<Map>) result.get("accumulationIncomes");
-					if (accumulationIncomesList != null) {
-						List<Double> maxMinValueList = new ArrayList<Double>();
-						for (int i = 0; i < accumulationIncomesList.size(); i++) {
-							Map accumulationIncomesMap = accumulationIncomesList.get(i);
-							if (accumulationIncomesMap.get("value") != null) {
-								BigDecimal value = new BigDecimal(accumulationIncomesMap.get("value")+"");
-								value = value.setScale(2, BigDecimal.ROUND_HALF_UP);
-//								accumulationIncomesMap.put("value", EasyKit.getDecimal(value));
-								accumulationIncomesMap.put("value", value);
-								maxMinValueList.add(value.doubleValue());
-							}
-						}
-						if (maxMinValueList != null && maxMinValueList.size() > 0) {
-							result.put("maxValue", Collections.max(maxMinValueList));
-							result.put("minValue", Collections.min(maxMinValueList));
-						}
-					}
-				}
 			} else {
 
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

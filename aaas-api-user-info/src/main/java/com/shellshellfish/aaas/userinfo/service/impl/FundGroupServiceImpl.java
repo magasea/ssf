@@ -93,7 +93,6 @@ public class FundGroupServiceImpl implements FundGroupService {
 		result.put("combinationName", productDTO.getProdName());
 		result.put("chartTitle", "累计收益率走势图");
 		
-		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
 		Long userId = userInfoRepoService.getUserIdFromUUID(userUuid);
 		// 总资产
 		Map<String, PortfolioInfo> portfolioInfoMap = userInfoService.getCalculateTotalAndRate(userUuid, userId, productDTO);
@@ -106,6 +105,10 @@ public class FundGroupServiceImpl implements FundGroupService {
 					portfolioMap.put("date", key);
 					PortfolioInfo portfolioInfo = portfolioInfoMap.get(key);
 					BigDecimal value = portfolioInfo.getTotalIncomeRate();
+					if(value!=null){
+						value = value.multiply(new BigDecimal("100"));
+						value = value.setScale(2, BigDecimal.ROUND_HALF_UP);
+					}
 					portfolioMap.put("value",value);
 					portfolioList.add(portfolioMap);
 				}

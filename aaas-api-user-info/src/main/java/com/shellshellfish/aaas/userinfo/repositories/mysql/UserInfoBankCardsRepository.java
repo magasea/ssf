@@ -21,6 +21,8 @@ public interface UserInfoBankCardsRepository extends
 
 	List<UiBankcard> findAllByUserIdAndCardNumber(Long userId, String cardNumber);
 
+	List<UiBankcard> findAllByCardNumber(String cardNumber);
+
 	@Override
 	UiBankcard findOne(Long userId);
 

@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 @Component
@@ -209,8 +210,19 @@ public class BroadcastMessageConsumers {
         UiProductDetail uiProductDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
             (trdPayFlow.getUserProdId(), trdPayFlow.getFundCode());
         String cardNumber = orderRpcService.getBankCardNumberByUserProdId(trdPayFlow.getUserProdId());
-        List<UiBankcard> uiBankcards =  userInfoBankCardsRepository.findAllByUserIdAndCardNumber
-            (trdPayFlow.getUserId(), cardNumber);
+        List<UiBankcard> uiBankcards =  null;
+        if(trdPayFlow.getUserId() == SystemUserEnum.SYSTEM_USER_ENUM.getUserId()){
+            uiBankcards =  userInfoBankCardsRepository.findAllByCardNumber(cardNumber);
+        }else{
+            uiBankcards =  userInfoBankCardsRepository.findAllByUserIdAndCardNumber
+                (trdPayFlow.getUserId(), cardNumber);
+        }
+        if(CollectionUtils.isEmpty(uiBankcards)){
+            logger.error("failed to find bankCard for this trdPayFlow message with trdPayFlow.getUserProdId():" + trdPayFlow
+                .getUserProdId());
+            return;
+        }
+
         String userPid = uiBankcards.get(0).getUserPid();
         if(!StringUtils.isEmpty(trdPayFlow.getApplySerial()) && trdPayFlow.getApplySerial().equals
             (uiProductDetail.getLastestSerial())){
@@ -432,7 +444,7 @@ public class BroadcastMessageConsumers {
 
 
         if(productDetail.getFundQuantityTrade() != null && productDetail
-            .getFundQuantityTrade() > 0){
+            .getFundQuantityTrade() < 0){
             logger.error("abnormal situation appeared the userProdId:" + mongoUiTrdZZInfo
                 .getUserProdId() + " initial quantity should be 0 or null but already "
                 + "have number , need check why, but curent we reset the quantity "
@@ -467,6 +479,11 @@ public class BroadcastMessageConsumers {
             }
             productDetail.setFundQuantityTrade(remainQty.intValue());
             productDetail.setFundQuantity(remainQty.intValue());
+        }
+        if(StringUtils.isEmpty(mongoUiTrdZZInfo.getApplySerial())){
+            logger.error("abnormal message of mongoUiTrdZZInfo, there is no applySerial in "
+                + "mongoUiTrdZZInfo:" + mongoUiTrdZZInfo.getApplySerial());
+            return false;
         }
         if( !StringUtils.isEmpty(productDetail.getLastestSerial()) && !productDetail
             .getLastestSerial().contains(mongoUiTrdZZInfo.getApplySerial())){

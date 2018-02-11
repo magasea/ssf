@@ -226,6 +226,8 @@ public class TradeOpServiceImpl implements TradeOpService {
           (BigDecimal.valueOf(10000));
       trdOrderDetail.setFundSum(fundRatio.multiply(financeProdBuyInfo.getMoney())
           .multiply(BigDecimal.valueOf(100)).toBigInteger().longValue());
+      trdOrderDetail.setFundMoneyQuantity(fundRatio.multiply(financeProdBuyInfo.getMoney())
+          .multiply(BigDecimal.valueOf(100)).toBigInteger().longValue());
       trdOrderDetail.setBuysellDate(TradeUtil.getUTCTime());
       trdOrderDetail.setCreateBy(financeProdBuyInfo.getUserId());
       trdOrderDetail.setCreateDate(TradeUtil.getUTCTime());
