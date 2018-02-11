@@ -349,7 +349,6 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       logger.error("empty sellProd list");
       return false;
     }
-
     for(ProdDtlSellDTO prodDtlSellDTO: prodSellDTO.getProdDtlSellDTOList()){
       int sellNum = prodDtlSellDTO.getFundQuantity();
       String fundCode = prodDtlSellDTO.getFundCode();
@@ -364,7 +363,13 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setUserProdId(prodSellDTO.getUserProdId());
       trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
-      BigDecimal sellAmount = TradeUtil.getBigDecimalNumWithDiv100(Long.valueOf(sellNum));
+      BigDecimal sellAmount = BigDecimal.valueOf(0);
+      if(MonetaryFundEnum.containsCode(fundCode)){
+        //如果是货币基金 ， 就直接用
+        sellAmount = prodDtlSellDTO.getTargetSellAmount();
+      }else {
+        sellAmount = TradeUtil.getBigDecimalNumWithDiv100(Long.valueOf(sellNum));
+      }
       try{
         SellFundResult sellFundResult = fundTradeApiService.sellFund(openId, sellAmount,
             outsideOrderNo, tradeAcco, fundCode);
@@ -401,12 +406,12 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         //赎回请求失败，需要把扣减的基金数量加回去
         notifyRollback(trdPayFlow, prodDtlSellDTO, sellNum);
       }
-
     }
-
 //    fundTradeApiService.sellFund(userUuid, sellNum, outsideOrderNo, tradeAcco, fundCode);
     return false;
   }
+
+
 
   private void notifyRollback(TrdPayFlow trdPayFlow, ProdDtlSellDTO prodDtlSellDTO, int sellNum){
     com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com

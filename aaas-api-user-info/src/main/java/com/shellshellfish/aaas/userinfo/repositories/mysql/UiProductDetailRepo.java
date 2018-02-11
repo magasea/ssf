@@ -46,6 +46,7 @@ public interface UiProductDetailRepo extends PagingAndSortingRepository<UiProduc
 	List<UiProductDetail> findAllByUserProdId(Long userProdId);
 
 
+
 	@Modifying
 	@Query("UPDATE UiProductDetail SET fund_share = :fundShare, update_date = :updateDate, "
 			+ "update_by = :updateBy WHERE user_prod_id = :userProdId and fund_code = :fundCode")

@@ -26,12 +26,14 @@ public class RabbitMQConstants {
   public final static String ROUTING_KEY_USERINFO_REDEEM = "routing.userinfo.redeem";
   public final static String ROUTING_KEY_USERINFO_ORDSTATCHG = "routing.userinfo.ordstatchg";
   public final static String ROUTING_KEY_USERINFO_CFMLOG = "routing.userinfo.confirmlog";
+  public final static String ROUTING_KEY_USERINFO_UPDATEPROD = "routing.userinfo.updateprod";
   public final static String OPERATION_TYPE_BUY_PROD = "buy_prod";
   public final static String OPERATION_TYPE_BUY_PREORDER_PROD = "buy_preorder_prod";
   public final static String OPERATION_TYPE_SEL_PROD = "sell_prod";
   public final static String OPERATION_TYPE_UPDATE_UIPROD = "update_uiprod";
   public final static String OPERATION_TYPE_UPDATE_UITRDLOG = "update_uitrdlog";
   public final static String OPERATION_TYPE_UPDATE_UITRDCONFIRMINFO = "update_uitrdconfirminfo";
+  public final static String OPERATION_TYPE_UPDATE_UIPRODQUANTITY = "update_uiprodquantity";
   public final static String OPERATION_TYPE_CHECKSELL_ROLLBACK = "update_checksell_rollback";
   public final static String OPERATION_TYPE_UPDATE_ORDER = "update_order";
   public final static String OPERATION_TYPE_HANDLE_PREORDER = "handle_preorder";

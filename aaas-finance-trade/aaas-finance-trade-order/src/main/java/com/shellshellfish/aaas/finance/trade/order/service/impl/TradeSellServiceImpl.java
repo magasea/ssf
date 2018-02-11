@@ -71,7 +71,7 @@ public class TradeSellServiceImpl implements TradeSellService {
   UserInfoService userInfoService;
 
   @Autowired
-  PayService payService;
+  PayService payGrpcService;
 
   @PostConstruct
   void init(){
@@ -85,6 +85,11 @@ public class TradeSellServiceImpl implements TradeSellService {
   @Transactional
   public TrdOrder sellProduct(ProdSellPageDTO prodSellPageDTO)
       throws Exception {
+    if(CollectionUtils.isEmpty(prodSellPageDTO.getProdDtlSellPageDTOList())){
+      logger.error("failed to generate sell information because input information is not complete");
+      throw new IllegalArgumentException("赎回输入信息不完整，无法赎回, prodSellPageDTO"
+          + ".getProdDtlSellPageDTOList():" + prodSellPageDTO.getProdDtlSellPageDTOList());
+    }
     //first : get price of funds , this
     FundCodes.Builder requestBuilder = FundCodes.newBuilder();
     for(ProdDtlSellPageDTO prodDtlSellPageDTO: prodSellPageDTO.getProdDtlSellPageDTOList()){
@@ -112,7 +117,7 @@ public class TradeSellServiceImpl implements TradeSellService {
         break;
       }
     }
-    List<FundNetInfo> fundNetInfos = payService.getFundNetInfo(userPid,fundCodes,1);
+    List<FundNetInfo> fundNetInfos = payGrpcService.getFundNetInfo(userPid,fundCodes,1);
 
 //    List<FundInfo> fundInfoList =dataCollectionServiceFutureStub.getFundsPrice
 //        (requestBuilder.build()).get().getFundInfoList();
@@ -125,7 +130,7 @@ public class TradeSellServiceImpl implements TradeSellService {
       Long netValL = null;
       if(MonetaryFundEnum.containsCode(fundNetInfo.getFundCode())){
         logger.info("contains monetary fund");
-        netValL = TradeUtil.getLongNumWithMul100(fundNetInfo.getAccumNet());
+        netValL = TradeUtil.getLongNumWithMul100(fundNetInfo.getUnitNet());
       }else{
         //四舍五入的基金净值
         netValL = TradeUtil.getLongNumWithMul100(TradeUtil.getBigDecimalNumWithRoundUp2Digit
@@ -134,11 +139,7 @@ public class TradeSellServiceImpl implements TradeSellService {
       fundNavunits.put(fundNetInfo.getFundCode(), netValL.intValue());
     }
     List<ProdDtlSellDTO> prodDtlSellDTOList = new ArrayList<>();
-    if(CollectionUtils.isEmpty(prodSellPageDTO.getProdDtlSellPageDTOList())){
-      logger.error("failed to generate sell information because input information is not complete");
-      throw new IllegalArgumentException("赎回输入信息不完整，无法赎回, prodSellPageDTO"
-          + ".getProdDtlSellPageDTOList():" + prodSellPageDTO.getProdDtlSellPageDTOList());
-    }
+
     for(ProdDtlSellPageDTO prodDtlSellDTO: prodSellPageDTO.getProdDtlSellPageDTOList()){
       ProdDtlSellDTO prodDtlSellDTOTgt = new ProdDtlSellDTO();
       BeanUtils.copyProperties(prodDtlSellDTO, prodDtlSellDTOTgt);

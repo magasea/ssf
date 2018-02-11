@@ -76,7 +76,6 @@ import com.shellshellfish.aaas.userinfo.service.UiProductService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
-import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 import io.grpc.ManagedChannel;
 
 @Service
@@ -418,7 +417,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 					.getCalculateTotalAndRate(userUuid, userId, products);
 			portfolioInfoList.add(portfolioInfoMap);
 		}
-		
+
 		Map<String, Object> portfolioInfoMap = new HashMap<String, Object>();
 		if (portfolioInfoList != null && portfolioInfoList.size() > 0) {
 			for (int i = 0; i < portfolioInfoList.size(); i++) {
@@ -592,7 +591,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 			i++;
 			endDay = InstantDateUtil.format(LocalDate.now().plusDays(-i), "yyyyMMdd");
-			if (startDay.equals(endDay)) {
+			if (TradeUtil.getLongNumWithMul100(startDay) - TradeUtil.getLongNumWithMul100(endDay) >= 0 ) {
 				break;
 			}
 		}
@@ -682,39 +681,30 @@ public class UserInfoServiceImpl implements UserInfoService {
 				Map<String, Object> resultMap2 = new HashMap<String, Object>();
 				MongoUiTrdLogDTO trdLog = trdLogList.get(i);
 				int status = trdLog.getTradeStatus();
-				String lastModifiedDate = "0";
+				long lastModifiedDate = 0;
 				if (trdLog.getLastModifiedDate() != 0) {
-					lastModifiedDate = trdLog.getLastModifiedDate() + "";
+					lastModifiedDate = trdLog.getLastModifiedDate();
 				}
+				LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(lastModifiedDate), ZoneOffset.systemDefault());
 				if (resultMap.containsKey("A" + status)) {
 					resultMap2 = resultMap.get("A" + status);
-					if (Long.parseLong(resultMap2.get("lastModified") + "") < Long
-							.parseLong(lastModifiedDate)) {
+					if (Long.parseLong(resultMap2.get("lastModified") + "") < lastModifiedDate) {
 						resultMap2.put("lastModified", lastModifiedDate);
-						resultMap2.put("time", DateUtil.getDateType(trdLog.getLastModifiedDate()));
+						resultMap2.put("date", localDateTime.getYear()+"."+localDateTime.getMonthValue()+"."+localDateTime.getDayOfMonth());
+						resultMap2.put("time", localDateTime.getHour()+":"+localDateTime.getMinute());
 						resultMap2.put("status", status + "");
 						resultMap.put("A" + status, resultMap2);
 					}
 				} else {
 					resultMap2.put("lastModified", lastModifiedDate);
-					resultMap2.put("time", DateUtil.getDateType(trdLog.getLastModifiedDate()));
+					resultMap2.put("date", localDateTime.getYear()+"."+localDateTime.getMonthValue()+"."+localDateTime.getDayOfMonth());
+					resultMap2.put("time", localDateTime.getHour()+":"+localDateTime.getMinute());
 					resultMap2.put("status", status + "");
 					resultMap.put("A" + status, resultMap2);
 				}
 			}
 			for (Map map : resultMap.values()) {
 				map.remove("lastModified");
-				if (map.get("time") != null) {
-					String dateTime = (String) map.get("time");
-					String date[] = dateTime.split(" ");
-					if (date.length == 2) {
-						map.put("date", date[0]);
-						map.put("time", date[1]);
-					} else if (date.length == 1) {
-						map.put("date", date[0]);
-						map.remove("time");
-					}
-				}
 				if (map.get("status") != null) {
 					TrdOrderStatusEnum trdOrderStatusEnum[] = TrdOrderStatusEnum.values();
 					String status = (String) map.get("status");
@@ -732,7 +722,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		}
 		return result;
 	}
-
+	
 	@Override
 	public List<MongoUiTrdLogDTO> getTradeLogs(String uuid) throws Exception {
 		Long userId = getUserIdFromUUID(uuid);

@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
@@ -50,6 +51,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -223,8 +225,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       BigDecimal fundRatio = BigDecimal.valueOf(productMakeUpInfo.getFundShare()).divide
           (BigDecimal.valueOf(10000));
       trdOrderDetail.setFundSum(fundRatio.multiply(financeProdBuyInfo.getMoney())
-          .multiply(BigDecimal.valueOf(100)).toBigInteger()
-          .longValue());
+          .multiply(BigDecimal.valueOf(100)).toBigInteger().longValue());
       trdOrderDetail.setBuysellDate(TradeUtil.getUTCTime());
       trdOrderDetail.setCreateBy(financeProdBuyInfo.getUserId());
       trdOrderDetail.setCreateDate(TradeUtil.getUTCTime());
@@ -680,9 +681,12 @@ public class TradeOpServiceImpl implements TradeOpService {
 			logger.error("详情信息数据不存在:" + orderId);
 			throw new Exception("详情信息数据不存在:" + orderId);
 		}
+		logger.info("详情信息数据为:" + orderId);
 		TrdOrder trdOrder = orderService.getOrderByOrderId(orderId);
 		List<TrdOrderDetail> trdOrderDetailList = new ArrayList<TrdOrderDetail>();
+		logger.info("trdOrder ===>"+trdOrder);
 		if (trdOrder != null && trdOrder.getOrderId() != null) {
+			logger.info("trdOrder.getOrderId()===>"+trdOrder.getOrderId());
 			result.put("prodId", trdOrder.getUserProdId());
 			trdOrderDetailList = orderService.findOrderDetailByOrderId(orderId);
 		} else {
@@ -728,10 +732,9 @@ public class TradeOpServiceImpl implements TradeOpService {
 		//状态详情
 		List<Map<String, Object>> detailList = new ArrayList<Map<String, Object>>();
 		Map<String, Object> detailMap = new HashMap<String, Object>();
-		Instant instance = Instant.now();
-		Long instanceLong = instance.toEpochMilli();
-		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(instanceLong), ZoneOffset.UTC);
-		String dayOfWeek = InstantDateUtil.getDayOfWeekName(localDateTime);
+//		Instant instance = Instant.now();
+//		Long instanceLong = instance.toEpochMilli();
+//		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(instanceLong), ZoneOffset.UTC);
 		for (int i = 0; i < trdOrderDetailList.size(); i++) {
 			detailMap = new HashMap<String, Object>();
 			TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
@@ -745,12 +748,19 @@ public class TradeOpServiceImpl implements TradeOpService {
 					detailMap.put("fundstatus", "");
 				}
 			}
+			
+			Long instanceLong = trdOrderDetail.getCreateDate();
 			detailMap.put("fundCode", trdOrderDetail.getFundCode());
 			//基金费用
 			detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
 			String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 1);
+			
+			LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(InstantDateUtil.getEpochSecondOfZero(date)), ZoneOffset.UTC);
+			String dayOfWeek = InstantDateUtil.getDayOfWeekName(localDateTime);
+			
 			detailMap.put("funddate", date);
 			logger.info("dayOfWeek value is :" + dayOfWeek);
+			logger.info("date value is :" + date);
 			detailMap.put("fundTitle", "将于" + date + "(" + dayOfWeek + ")确认");
 			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
 			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){
