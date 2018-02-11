@@ -550,7 +550,7 @@ public class FinanceController {
 			} else {
 				logger.info("maxMinMap2获取失败");
 			}
-			if (maxMinBenchmarkMap2 != null) {
+			if (!CollectionUtils.isEmpty((Map)maxMinBenchmarkMap2)) {
 				logger.info("maxMinBenchmarkMap获取成功");
 				Double min = (Double) ((Map) maxMinBenchmarkMap2).get("minValue");
 				Double max = (Double) ((Map) maxMinBenchmarkMap2).get("maxValue");
@@ -644,7 +644,7 @@ public class FinanceController {
 				} else {
 					logger.error("未来收益走势图数据获取失败");
 				}
-				if (expectedIncomeSizeMap != null) {
+				if (!CollectionUtils.isEmpty((Map) expectedIncomeSizeMap)) {
 					logger.info("expectedIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
 					Double min = (Double) ((Map) expectedIncomeSizeMap).get("minValue");
@@ -657,7 +657,7 @@ public class FinanceController {
 				} else {
 					logger.error("expectedIncomeSizeMap:未来收益走势图数据获取失败");
 				}
-				if (highPercentMaxIncomeSizeMap != null) {
+				if (!CollectionUtils.isEmpty((Map) highPercentMaxIncomeSizeMap)) {
 					logger.info("highPercentMaxIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
 					Double min = (Double) ((Map) highPercentMaxIncomeSizeMap).get("minValue");
@@ -670,7 +670,7 @@ public class FinanceController {
 				} else {
 					logger.error("highPercentMaxIncomeSizeMap:未来收益走势图数据获取失败");
 				}
-				if (highPercentMinIncomeSizeMap != null) {
+				if (!CollectionUtils.isEmpty((Map) highPercentMinIncomeSizeMap)) {
 					logger.info("highPercentMinIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
 					Double min = (Double) ((Map) highPercentMinIncomeSizeMap).get("minValue");
@@ -683,7 +683,7 @@ public class FinanceController {
 				} else {
 					logger.error("highPercentMinIncomeSizeMap:未来收益走势图数据获取失败");
 				}
-				if (lowPercentMaxIncomeSizeMap != null) {
+				if (!CollectionUtils.isEmpty((Map) lowPercentMaxIncomeSizeMap)) {
 					logger.info("lowPercentMaxIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
 					Double min = (Double) ((Map) lowPercentMaxIncomeSizeMap).get("minValue");
@@ -696,7 +696,7 @@ public class FinanceController {
 				} else {
 					logger.error("lowPercentMaxIncomeSizeMap:未来收益走势图数据获取失败");
 				}
-				if (lowPercentMinIncomeSizeMap != null) {
+				if (!CollectionUtils.isEmpty((Map) lowPercentMinIncomeSizeMap)) {
 					logger.info("lowPercentMinIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
 					Double min = (Double) ((Map) lowPercentMinIncomeSizeMap).get("minValue");
