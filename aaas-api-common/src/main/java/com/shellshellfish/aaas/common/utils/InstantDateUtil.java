@@ -239,9 +239,8 @@ public class InstantDateUtil {
 
 	public static String getDayConvertString(Long dateTime) {
 		String date = "";
-		if (dateTime != null) {
-			date = dateTimeFormatter
-					.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(dateTime), ZoneId.of("GMT+8")));
+		if(dateTime!=null){
+			date = dateTimeFormatter.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(dateTime),ZoneOffset.systemDefault()));
 		}
 		return date;
 	}
