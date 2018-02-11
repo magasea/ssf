@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -118,15 +119,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Override
 	public UserBaseInfoDTO getUserInfoBase(String userUuid) throws Exception {
-		logger.info("com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl.getUserInfoBase(String)===>start");
+		logger.info(
+				"com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl.getUserInfoBase(String)===>start");
 		Long userId = getUserIdFromUUID(userUuid);
-		logger.info("com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl.getUserInfoBase(String)===>"+userId);
+		logger.info(
+				"com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl.getUserInfoBase(String)===>"
+						+ userId);
 		UserBaseInfoDTO userInfoDao = userInfoRepoService.getUserInfoBase(userId);
 		// UserBaseInfo userBaseInfo = new UserBaseInfo();
 		// if( null != userInfoDao) {
 		// BeanUtils.copyProperties(userInfoDao, userBaseInfo);
 		// }
-		logger.info("com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl.getUserInfoBase(String)===>end");
+		logger.info(
+				"com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl.getUserInfoBase(String)===>end");
 		return userInfoDao;
 	}
 
@@ -428,7 +433,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 					for (String key : portMap.keySet()) {
 						PortfolioInfo portfolioInfo = portMap.get(key);
 						BigDecimal value = portfolioInfo.getTotalIncome();
-						if(value!=null){
+						if (value != null) {
 							value = value.setScale(2, BigDecimal.ROUND_HALF_UP);
 						}
 						if (portfolioInfoMap.containsKey(key)) {
@@ -458,12 +463,12 @@ public class UserInfoServiceImpl implements UserInfoService {
 			}
 		}
 		Collections.sort(portfolioList, new Comparator<Map<String, Object>>() {
-            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
-            	int map1value = Integer.parseInt(o1.get("date")+"");
-            	int map2value = Integer.parseInt(o2.get("date")+"");
-                return map1value-map2value;
-            }
-        });
+			public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+				int map1value = Integer.parseInt(o1.get("date") + "");
+				int map2value = Integer.parseInt(o2.get("date") + "");
+				return map1value - map2value;
+			}
+		});
 		resultMap.put("trendYield", portfolioList);
 		return resultMap;
 	}
@@ -531,7 +536,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 		Long startDate = products.getCreateDate();
 		LocalDate startLocalDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(startDate),
-				ZoneOffset.UTC).toLocalDate();
+				ZoneId.systemDefault()).toLocalDate();
 		String startDay = InstantDateUtil.format(startLocalDate, "yyyyMMdd");
 
 		String endDay = InstantDateUtil.format(LocalDate.now().plusDays(-1), "yyyyMMdd");
@@ -570,13 +575,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 		Long startDate = products.getCreateDate();
 		LocalDate startLocalDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(startDate),
-				ZoneOffset.UTC).toLocalDate();
+				ZoneId.systemDefault()).toLocalDate();
 		String startDay = InstantDateUtil.format(startLocalDate, "yyyyMMdd");
 
 		int i = 1;
 		String endDay = InstantDateUtil.format(LocalDate.now().plusDays(-i), "yyyyMMdd");
 		while (true) {
-			PortfolioInfo portfolioInfo = new PortfolioInfo();
+			PortfolioInfo portfolioInfo;
 			if (flag) {
 				//完全确认
 				products.setStatus(TrdOrderStatusEnum.CONFIRMED.getStatus());
@@ -592,7 +597,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 			i++;
 			endDay = InstantDateUtil.format(LocalDate.now().plusDays(-i), "yyyyMMdd");
-			if (TradeUtil.getLongNumWithMul100(startDay) - TradeUtil.getLongNumWithMul100(endDay) >= 0 ) {
+			if (TradeUtil.getLongNumWithMul100(startDay) - TradeUtil.getLongNumWithMul100(endDay) >= 0) {
 				break;
 			}
 		}
@@ -686,20 +691,25 @@ public class UserInfoServiceImpl implements UserInfoService {
 				if (trdLog.getLastModifiedDate() != 0) {
 					lastModifiedDate = trdLog.getLastModifiedDate();
 				}
-				LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(lastModifiedDate), ZoneOffset.systemDefault());
+				LocalDateTime localDateTime = LocalDateTime
+						.ofInstant(Instant.ofEpochMilli(lastModifiedDate), ZoneOffset.systemDefault());
 				if (resultMap.containsKey("A" + status)) {
 					resultMap2 = resultMap.get("A" + status);
 					if (Long.parseLong(resultMap2.get("lastModified") + "") < lastModifiedDate) {
 						resultMap2.put("lastModified", lastModifiedDate);
-						resultMap2.put("date", localDateTime.getYear()+"."+localDateTime.getMonthValue()+"."+localDateTime.getDayOfMonth());
-						resultMap2.put("time", localDateTime.getHour()+":"+localDateTime.getMinute());
+						resultMap2.put("date",
+								localDateTime.getYear() + "." + localDateTime.getMonthValue() + "." + localDateTime
+										.getDayOfMonth());
+						resultMap2.put("time", localDateTime.getHour() + ":" + localDateTime.getMinute());
 						resultMap2.put("status", status + "");
 						resultMap.put("A" + status, resultMap2);
 					}
 				} else {
 					resultMap2.put("lastModified", lastModifiedDate);
-					resultMap2.put("date", localDateTime.getYear()+"."+localDateTime.getMonthValue()+"."+localDateTime.getDayOfMonth());
-					resultMap2.put("time", localDateTime.getHour()+":"+localDateTime.getMinute());
+					resultMap2.put("date",
+							localDateTime.getYear() + "." + localDateTime.getMonthValue() + "." + localDateTime
+									.getDayOfMonth());
+					resultMap2.put("time", localDateTime.getHour() + ":" + localDateTime.getMinute());
 					resultMap2.put("status", status + "");
 					resultMap.put("A" + status, resultMap2);
 				}
@@ -723,7 +733,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		}
 		return result;
 	}
-	
+
 	@Override
 	public List<MongoUiTrdLogDTO> getTradeLogs(String uuid) throws Exception {
 		Long userId = getUserIdFromUUID(uuid);

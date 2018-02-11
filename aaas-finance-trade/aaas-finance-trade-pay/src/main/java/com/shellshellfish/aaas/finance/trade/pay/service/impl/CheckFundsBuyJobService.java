@@ -166,7 +166,7 @@ public class CheckFundsBuyJobService {
             mongoUiTrdZZInfo.setBankAcco(confirmResult.getBankacco());
             mongoUiTrdZZInfo.setBusinFlagStr(confirmResult.getBusinflagStr());
             mongoUiTrdZZInfo.setApplyDate(confirmResult.getApplydate());
-            mongoUiTrdZZInfo.setApplySerial(confirmResult.getBankSerial());
+            mongoUiTrdZZInfo.setApplySerial(confirmResult.getApplyserial());
             mongoUiTrdZZInfo.setTradeStatus(trdPayFlow.getTrdStatus());
             mongoUiTrdZZInfo.setConfirmDate(confirmResult.getConfirmdate());
             mongoUiTrdZZInfo.setOutSideOrderNo(confirmResult.getOutsideorderno());

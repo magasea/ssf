@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.userinfo.utils;
 
 import java.math.BigDecimal;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -109,7 +110,7 @@ public class UserInfoUtils {
   }
 
   public static Long getCurrentUTCTime(){
-    ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
+    ZonedDateTime utc = ZonedDateTime.now(ZoneId.systemDefault());
     Date date = Date.from(utc.toInstant());
     return date.getTime();
   }
