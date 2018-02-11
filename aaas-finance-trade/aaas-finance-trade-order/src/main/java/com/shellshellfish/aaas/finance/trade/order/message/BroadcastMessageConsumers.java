@@ -3,10 +3,12 @@ package com.shellshellfish.aaas.finance.trade.order.message;
 
 import com.shellshellfish.aaas.common.constants.RabbitMQConstants;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
+import com.shellshellfish.aaas.common.enums.TrdZZApplyResultEnum;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderDetailRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
+import io.swagger.models.auth.In;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -19,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Component
 public class BroadcastMessageConsumers {
@@ -48,6 +51,18 @@ public class BroadcastMessageConsumers {
             logger.info("receiveMessageFromFanout1: " + trdPayFlow.getFundCode());
             Map<String, Object> trdOrderDetail = new HashMap<>();
             String tradeApplySerial =  trdPayFlow.getApplySerial();
+            if(!StringUtils.isEmpty(trdPayFlow.getErrCode())){
+                try{
+                    TrdZZApplyResultEnum trdZZApplyResultEnum  = TrdZZApplyResultEnum.getByCode
+                        (Integer.getInteger(trdPayFlow.getErrCode()));
+                    if(trdZZApplyResultEnum.getCode() == TrdZZApplyResultEnum.OUTSIDEORDERDUP.getCode()){
+                        logger.error("duplicated outside order num, ignore such error ");
+                        return;
+                    }
+                }catch (Exception ex){
+                    logger.error("failed to get correspond error message from ZZ");
+                }
+            }
             Long id = trdPayFlow.getOrderDetailId();
             Long buyFee = trdPayFlow.getBuyFee();
             Long updateBy =  SystemUserEnum.SYSTEM_USER_ENUM.getUserId();
