@@ -95,4 +95,13 @@ public class DailyAmountAggregation {
 
 		return Objects.hash(id, asset, bonus, sellAmount, buyAmount);
 	}
+
+	public static DailyAmountAggregation getEmptyInstance() {
+		final DailyAmountAggregation instance = new DailyAmountAggregation();
+		instance.setSellAmount(BigDecimal.ZERO);
+		instance.setBuyAmount(BigDecimal.ZERO);
+		instance.setBonus(BigDecimal.ZERO);
+		instance.setAsset(BigDecimal.ZERO);
+		return instance;
+	}
 }
