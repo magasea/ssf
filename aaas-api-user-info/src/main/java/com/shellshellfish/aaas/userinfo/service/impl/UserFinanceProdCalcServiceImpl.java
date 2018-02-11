@@ -41,6 +41,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -290,7 +291,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 				resultMap.put("code", coinFundYieldRate.getCode());
 				Long queryDate = coinFundYieldRate.getQueryDate();
 				LocalDateTime localDateTime = LocalDateTime
-						.ofInstant(Instant.ofEpochSecond(queryDate), ZoneOffset.UTC);
+						.ofInstant(Instant.ofEpochSecond(queryDate), ZoneId.systemDefault());
 				String dateNow = localDateTime.toLocalDate().toString();
 				resultMap.put("querydate", dateNow);
 				resultMap.put("date", dateNow);
@@ -474,6 +475,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 	@Override
 	public PortfolioInfo calculateProductValue(String userUuid, Long prodId,
 			String startDate, String endDate) {
+		final String FORMAT_PATTERN = "yyyyMMdd";
 
 		// 区间数据
 		DailyAmountAggregation dailyAmountAggregation = aggregation(userUuid, startDate, endDate,
@@ -482,6 +484,53 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		if (dailyAmountAggregation == null) {
 			return new PortfolioInfo();
 		}
+		//区间结束日前一天数据
+		LocalDate startLocalDate = InstantDateUtil.format(startDate, FORMAT_PATTERN);
+		LocalDate endLocalDate = InstantDateUtil.format(endDate, FORMAT_PATTERN);
+		LocalDate oneDayBefore = endLocalDate.plusDays(-1);
+		String oneDayBeforeStr = InstantDateUtil.format(oneDayBefore, FORMAT_PATTERN);
+
+		//区间结束日数据
+		DailyAmountAggregation dailyAmountAggregationOfEndDay = aggregation(userUuid, endDate, endDate,
+				prodId);
+		//结束日前一天数据
+		DailyAmountAggregation dailyAmountAggregationOfOneDayBefore = aggregation(userUuid,
+				oneDayBeforeStr, oneDayBeforeStr, prodId);
+
+		if (dailyAmountAggregationOfEndDay == null) {
+
+			LocalDate endLocalDateCopy;
+			LocalDate oneDayBeforeCopy = oneDayBefore;
+
+			while (dailyAmountAggregationOfEndDay == null && oneDayBeforeCopy.isAfter(startLocalDate)) {
+				if (dailyAmountAggregationOfOneDayBefore != null) {
+					//前推一天
+					oneDayBeforeCopy = oneDayBeforeCopy.plusDays(-1);
+					dailyAmountAggregationOfEndDay = dailyAmountAggregationOfOneDayBefore;
+					dailyAmountAggregationOfOneDayBefore = aggregation(userUuid,
+							InstantDateUtil.format(oneDayBeforeCopy, FORMAT_PATTERN),
+							InstantDateUtil.format(oneDayBeforeCopy, FORMAT_PATTERN), prodId);
+				} else {
+					//前推两天
+					endLocalDateCopy = oneDayBeforeCopy.plusDays(-1);
+					oneDayBeforeCopy = endLocalDateCopy.plusDays(-1);
+
+					dailyAmountAggregationOfEndDay = aggregation(userUuid,
+							InstantDateUtil.format(endLocalDateCopy, FORMAT_PATTERN),
+							InstantDateUtil.format(endLocalDateCopy, FORMAT_PATTERN), prodId);
+
+					dailyAmountAggregationOfOneDayBefore = aggregation(userUuid,
+							InstantDateUtil.format(oneDayBeforeCopy, FORMAT_PATTERN),
+							InstantDateUtil.format(oneDayBeforeCopy, FORMAT_PATTERN), prodId);
+				}
+			}
+		}
+
+		if (dailyAmountAggregationOfEndDay == null) {
+			return new PortfolioInfo();
+		}
+
+		//区间数据
 		BigDecimal buyAmount = dailyAmountAggregation.getBuyAmount();
 		BigDecimal sellAmount = dailyAmountAggregation.getSellAmount();
 		BigDecimal bonus = dailyAmountAggregation.getBonus();
@@ -489,18 +538,16 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		BigDecimal intervalAmount = bonus.add(sellAmount).subtract(buyAmount);
 
 		//区间结束日数据
-		DailyAmountAggregation dailyAmountAggregationOfEndDay = aggregation(userUuid, endDate, endDate,
-				prodId);
 		BigDecimal assetOfEndDay = dailyAmountAggregationOfEndDay.getAsset();
 		BigDecimal buyAmountOfEndDay = dailyAmountAggregationOfEndDay.getBuyAmount();
 		BigDecimal sellAmountOfEndDay = dailyAmountAggregationOfEndDay.getSellAmount();
 		BigDecimal bonusOfEndDay = dailyAmountAggregationOfEndDay.getBonus();
 
+		if (dailyAmountAggregationOfOneDayBefore == null) {
+			dailyAmountAggregationOfOneDayBefore = DailyAmountAggregation.getEmptyInstance();
+		}
+
 		//区间结束日前一天数据
-		LocalDate endLocalDate = InstantDateUtil.format(endDate, "yyyyMMdd");
-		String oneDayBefore = InstantDateUtil.format(endLocalDate.plusDays(-1), "yyyyMMdd");
-		DailyAmountAggregation dailyAmountAggregationOfOneDayBefore = aggregation(userUuid,
-				oneDayBefore, oneDayBefore, prodId);
 		Optional<DailyAmountAggregation> dailyAmountAggregationOfOneDayBeforeOptional = Optional
 				.ofNullable(dailyAmountAggregationOfOneDayBefore);
 
@@ -682,8 +729,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 				// 查询时间晚于购买时间
 				LocalDate localDate = InstantDateUtil.format(date, "yyyyMMdd");
-				if (localDate.atTime(0, 0, 0).toInstant(ZoneOffset.UTC).toEpochMilli() < prod
-						.getCreateDate()) {
+				if (InstantDateUtil.getEpochSecondOfZero(localDate) * 1000 < prod.getCreateDate()) {
 					continue;
 				}
 
