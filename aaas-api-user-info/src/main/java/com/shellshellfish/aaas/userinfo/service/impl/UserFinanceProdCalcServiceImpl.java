@@ -41,6 +41,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -290,7 +291,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 				resultMap.put("code", coinFundYieldRate.getCode());
 				Long queryDate = coinFundYieldRate.getQueryDate();
 				LocalDateTime localDateTime = LocalDateTime
-						.ofInstant(Instant.ofEpochSecond(queryDate), ZoneOffset.UTC);
+						.ofInstant(Instant.ofEpochSecond(queryDate), ZoneId.systemDefault());
 				String dateNow = localDateTime.toLocalDate().toString();
 				resultMap.put("querydate", dateNow);
 				resultMap.put("date", dateNow);
@@ -728,8 +729,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 				// 查询时间晚于购买时间
 				LocalDate localDate = InstantDateUtil.format(date, "yyyyMMdd");
-				if (localDate.atTime(0, 0, 0).toInstant(ZoneOffset.UTC).toEpochMilli() < prod
-						.getCreateDate()) {
+				if (InstantDateUtil.getEpochSecondOfZero(localDate) * 1000 < prod.getCreateDate()) {
 					continue;
 				}
 
