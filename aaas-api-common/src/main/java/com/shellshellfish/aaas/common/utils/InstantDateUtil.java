@@ -216,11 +216,6 @@ public class InstantDateUtil {
 		return checkHoliday(localDate);
 	}
 
-	public static DayOfWeek getDayOfWeek(LocalDateTime localDateTime) {
-		DayOfWeek dayOfWeek = localDateTime.getDayOfWeek();
-		System.out.println("getDayOfWeek : " + dayOfWeek);
-		return dayOfWeek;
-	}
 
 	public static String getDayOfWeekName(LocalDateTime localDateTime) {
 		DayOfWeek dayOfWeek = localDateTime.getDayOfWeek();
@@ -239,19 +234,15 @@ public class InstantDateUtil {
 
 	public static String getDayConvertString(Long dateTime) {
 		String date = "";
-		if(dateTime!=null){
-			date = dateTimeFormatter.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(dateTime),ZoneOffset.systemDefault()));
+		if (dateTime != null) {
+			date = dateTimeFormatter.format(
+					LocalDateTime.ofInstant(Instant.ofEpochMilli(dateTime), ZoneId.systemDefault()));
 		}
 		return date;
 	}
 
 	public static void main(String[] args) {
-//		String date = TradeUtil.getReadableDateTime(System.currentTimeMillis());
-//		date = date.substring(0,10);
-//		System.out.println(date);
-//		LocalDateTime ldt = LocalDateTime.now();
-//		System.out.println(ldt);
-		System.out.println(getDayConvertString(1516260956137L));
+		System.out.println(getTplusNDayNWeekendOfWork(System.currentTimeMillis(), 6));
 	}
 
 }
