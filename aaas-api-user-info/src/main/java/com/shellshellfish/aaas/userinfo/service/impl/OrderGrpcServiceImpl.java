@@ -48,6 +48,7 @@ public class OrderGrpcServiceImpl implements OrderRpcService {
   @Override
   public String getBankCardNumberByUserProdId(Long userProdId) {
     UserProdId.Builder npiBuilder = UserProdId.newBuilder();
+    npiBuilder.setUserProdId(userProdId);
     return tradeOrderServiceBlockingStub.getBankCardNumByUserProdId(npiBuilder.build()).getUserBankCardnum();
   }
 
