@@ -3,16 +3,12 @@ package com.shellshellfish.aaas.transfer.controller;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,18 +16,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.URLutils;
 import com.shellshellfish.aaas.model.JsonResult;
-import com.shellshellfish.aaas.transfer.utils.EasyKit;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -92,7 +86,7 @@ public class FundGroupController {
 			result.put("totals", totals == null ? "" : totals);
 			result.put("totalIncome", totalIncome == null ? "" : totalIncome);
 			result.put("totalIncomeRate", totalIncomeRate == null ? "" : totalIncomeRate);
-			if("0".equals(count)){
+			if (StringUtils.isEmpty(count) || "0".equals(count)) {
 				result.put("title", "");
 				Map bankNumResult = restTemplate
 						.getForEntity(tradeOrderUrl + "/api/trade/funds/banknums/" + uuid + "?prodId=" + prodId, Map.class)
@@ -143,10 +137,15 @@ public class FundGroupController {
 					}
 				}
 			} else {
+
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				Date dateTime;
 				try {
-					dateTime = format.parse(buyDate);
+					if(!buyDate.contains(" ") && !buyDate.contains("-") && !buyDate.contains(":")){
+						dateTime = new Date(Long.valueOf(buyDate));
+					}else{
+						dateTime = format.parse(buyDate);
+					}
 					String date = InstantDateUtil.getTplusNDayNWeekendOfWork(dateTime.getTime(), 2);
 					result.put("title", "资产含购买确认中" + totals + "元，将于" + date + "确认");
 				} catch (ParseException e) {
