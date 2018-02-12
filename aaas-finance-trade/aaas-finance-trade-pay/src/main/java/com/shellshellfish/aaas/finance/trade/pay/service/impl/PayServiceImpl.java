@@ -49,6 +49,7 @@ import com.shellshellfish.aaas.finance.trade.pay.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -401,9 +402,16 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       }catch (Exception ex){
         ex.printStackTrace();
         logger.error(ex.getMessage());
-        logger.error("because of error:" + ex.getMessage() + " we need send out rollback "
-            + "notification");
+        logger.error("because of error:" + ex.getMessage() + " we need send out rollback notification");
         //赎回请求失败，需要把扣减的基金数量加回去
+        if(!StringUtils.isEmpty(ex.getMessage())){
+          if(ex.getMessage().split(":").length >= 2){
+            trdPayFlow.setErrCode(ex.getMessage().split(":")[0]);
+            trdPayFlow.setErrCode(ex.getMessage().split(":")[1]);
+          }else{
+            logger.error("strange err message from ZZ:"+ ex.getMessage());
+          }
+        }
         notifyRollback(trdPayFlow, prodDtlSellDTO, sellNum);
       }
     }

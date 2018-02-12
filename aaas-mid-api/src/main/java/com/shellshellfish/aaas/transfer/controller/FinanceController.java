@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -90,8 +91,9 @@ public class FinanceController {
 			requestEntity.add("uuid", uuid);
 			isTestFlag = isTestFlag == null ? "" : isTestFlag;
 			testResult = testResult == null ? "" : testResult;
-			result = restTemplate.getForEntity(financeUrl + "/api/ssf-finance/product-groups/homepage?uuid=" + uuid
-					+ "&isTestFlag=" + isTestFlag + "&testResult=" + testResult, Map.class).getBody();
+			result = restTemplate
+					.getForEntity(financeUrl + "/api/ssf-finance/product-groups/homepage?uuid=" + uuid
+							+ "&isTestFlag=" + isTestFlag + "&testResult=" + testResult, Map.class).getBody();
 			if (result == null || result.size() == 0) {
 				/*result.put("msg", "获取失败");*/
 				return new JsonResult(JsonResult.SUCCESS, "没有获取到产品", JsonResult.EMPTYRESULT);
@@ -102,7 +104,8 @@ public class FinanceController {
 						if (objMap.containsKey("income6month")) {
 							// 历史年化收益率和历史波动率
 							Double historicalYearPerformance = (Double) objMap.get("historicalYearPerformance");
-							historicalYearPerformance = EasyKit.getDecimal(new BigDecimal(historicalYearPerformance));
+							historicalYearPerformance = EasyKit
+									.getDecimal(new BigDecimal(historicalYearPerformance));
 							objMap.put("historicalYearPerformance", historicalYearPerformance + EasyKit.PERCENT);
 							Double historicalvolatility = (Double) objMap.get("historicalvolatility");
 							historicalvolatility = EasyKit.getDecimal(new BigDecimal(historicalvolatility));
@@ -119,9 +122,8 @@ public class FinanceController {
 										itemMap.put("value", value);
 									}
 								}
-
-								if (income6monthMap.get("maxMinMap") != null) {
-									Map maxminMap = (Map) income6monthMap.get("maxMinMap");
+								Map maxminMap = (Map) income6monthMap.get("maxMinMap");
+								if (!CollectionUtils.isEmpty(maxminMap)) {
 									Double min = (Double) maxminMap.get("minValue");
 									Double max = (Double) maxminMap.get("maxValue");
 									Double minValue = EasyKit.getDecimal(new BigDecimal(min));
@@ -132,16 +134,16 @@ public class FinanceController {
 								}
 							}
 						}
-						if(objMap.containsKey("product_list")){
+						if (objMap.containsKey("product_list")) {
 							List productList = (List) objMap.get("product_list");
-							if(productList!=null&&productList.size()>0){
+							if (productList != null && productList.size() > 0) {
 								Collections.sort(productList, new Comparator<Map<String, Object>>() {
-						            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
-						            	int map1value = (int) o1.get("value");
-						            	int map2value = (int) o2.get("value");
-						                return map2value-map1value;
-						            }
-						        });
+									public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+										int map1value = (int) o1.get("value");
+										int map2value = (int) o2.get("value");
+										return map2value - map1value;
+									}
+								});
 								Integer count = 0;
 								Integer value = 0;
 								for (int i = 0; i < productList.size(); i++) {
@@ -214,9 +216,12 @@ public class FinanceController {
 				try {
 					for (Map<String, Object> productMap : prdList) {
 						//获取goupid和subGroupId
-						String groupId = (productMap.get("groupId")) == null ? null : (productMap.get("groupId")).toString();
-						String subGroupId = (productMap.get("subGroupId")) == null ? null : (productMap.get("subGroupId")).toString();
-						String prdName = productMap.get("name") == null ? null : (productMap.get("name")).toString();
+						String groupId =
+								(productMap.get("groupId")) == null ? null : (productMap.get("groupId")).toString();
+						String subGroupId = (productMap.get("subGroupId")) == null ? null
+								: (productMap.get("subGroupId")).toString();
+						String prdName =
+								productMap.get("name") == null ? null : (productMap.get("name")).toString();
 						List productCompo = (List) productMap.get("assetsRatios");
 						if (productCompo != null && productCompo.size() > 0) {
 							Double count = 0D;
@@ -251,7 +256,9 @@ public class FinanceController {
 						}
 						//Map ExpMaxReturn=getExpMaxReturn(groupId,subGroupId);
 						//将结果封装进实体类
-						FinanceProductCompo prd = new FinanceProductCompo(groupId, subGroupId, prdName, expAnnReturn.size() > 0 ? expAnnReturn.get("value").toString() : null, productCompo, histYieldRate);
+						FinanceProductCompo prd = new FinanceProductCompo(groupId, subGroupId, prdName,
+								expAnnReturn.size() > 0 ? expAnnReturn.get("value").toString() : null, productCompo,
+								histYieldRate);
 						resultList.add(prd);
 					}
 				} catch (Exception e) {
@@ -276,8 +283,9 @@ public class FinanceController {
 	public JsonResult getPrdDetails(String groupId, String subGroupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		result = service.getPrdNPVList(groupId, subGroupId);
-		if (result == null)
+		if (result == null) {
 			return new JsonResult(JsonResult.Fail, "获取净值增长值活净值增长率为空", JsonResult.EMPTYRESULT);
+		}
 
 		Map expAnnReturn = getExpAnnReturn(groupId, subGroupId);
 		Map expMaxReturn = getExpMaxReturn(groupId, subGroupId);
@@ -285,7 +293,9 @@ public class FinanceController {
 		result.put("expMaxDrawDown", expMaxReturn);
 		//饼图（返回单个基金组合产品信息）
 		try {
-			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId;
+			String url =
+					assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
+							+ subGroupId;
 			Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
 			if (productMap == null) {
 				logger.info("单个基金组合产品信息为空");
@@ -331,9 +341,12 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/historicalPerformancePage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getHistoricalPerformance(@RequestParam(required = false) String groupId, @RequestParam(required = false) String subGroupId, @RequestParam(required = false) String productName) {
+	public JsonResult getHistoricalPerformance(@RequestParam(required = false) String groupId,
+			@RequestParam(required = false) String subGroupId,
+			@RequestParam(required = false) String productName) {
 		// 先获取全部产品
-		String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/historicalPer-formance?fund_group_id=" + groupId
+		String url = assetAlloctionUrl
+				+ "/api/asset-allocation/product-groups/historicalPer-formance?fund_group_id=" + groupId
 				+ "&subGroupId=" + subGroupId;
 		Map<String, Object> result = new HashMap<String, Object>();// 中间容器
 		Map<String, Object> title = new HashMap<String, Object>();
@@ -385,7 +398,8 @@ public class FinanceController {
 
 		//收益率走势图
 		//http://localhost:10020/api/asset-allocation/product-groups/6/sub-groups/111111/portfolio-yield-week?returnType=income
-		url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/portfolio-yield-week?returnType=income";
+		url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
+				+ subGroupId + "/portfolio-yield-week?returnType=income";
 		Map<String, Object> incomeResult = new HashMap<String, Object>();
 		incomeResult = restTemplate.getForEntity(url, Map.class).getBody();
 		// 如果成功获取内部值，再遍历获取每一个产品的年化收益(进入service)
@@ -439,7 +453,7 @@ public class FinanceController {
 			} else {
 				logger.info("object获取失败");
 			}
-			if (maxMinMap != null) {
+			if (!CollectionUtils.isEmpty((Map) maxMinMap)) {
 				Double min = (Double) ((Map) maxMinMap).get("minValue");
 				Double max = (Double) ((Map) maxMinMap).get("maxValue");
 				Double minValue = EasyKit.getDecimal(new BigDecimal(min));
@@ -451,7 +465,7 @@ public class FinanceController {
 			} else {
 				logger.info("maxMinMap获取失败");
 			}
-			if (maxMinBenchmarkMap != null) {
+			if (!CollectionUtils.isEmpty((Map) maxMinBenchmarkMap)) {
 				logger.info("maxMinBenchmarkMap获取成功");
 				Double min = (Double) ((Map) maxMinBenchmarkMap).get("minValue");
 				Double max = (Double) ((Map) maxMinBenchmarkMap).get("maxValue");
@@ -468,7 +482,8 @@ public class FinanceController {
 			return new JsonResult(JsonResult.SUCCESS, "获取收益率失败", resultList);
 		}
 		//最大回撤走势图
-		url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/portfolio-yield-week?returnType=1";
+		url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
+				+ subGroupId + "/portfolio-yield-week?returnType=1";
 		Map<String, Object> incomeResult1 = new HashMap<String, Object>();
 		incomeResult1 = restTemplate.getForEntity(url, Map.class).getBody();
 		// 如果成功获取内部值，再遍历获取每一个产品的年化收益(进入service)
@@ -484,7 +499,8 @@ public class FinanceController {
 				List<Map> maxRetreatList = (List<Map>) obj1;
 				for (int i = 0; i < maxRetreatList.size(); i++) {
 					Map maxRetreatMap = maxRetreatList.get(i);
-					if (maxRetreatMap.containsKey("retracement") && maxRetreatMap.get("retracement") != null) {
+					if (maxRetreatMap.containsKey("retracement")
+							&& maxRetreatMap.get("retracement") != null) {
 						List<Map> maxRetreatList2 = (List<Map>) maxRetreatMap.get("retracement");
 						if (maxRetreatList2 != null && maxRetreatList2.size() > 0) {
 							for (int j = 0; j < maxRetreatList2.size(); j++) {
@@ -499,7 +515,8 @@ public class FinanceController {
 							}
 						}
 					}
-					if (maxRetreatMap.containsKey("incomeBenchmark") && maxRetreatMap.get("incomeBenchmark") != null) {
+					if (maxRetreatMap.containsKey("incomeBenchmark")
+							&& maxRetreatMap.get("incomeBenchmark") != null) {
 						List<Map> incomeBenchmarkList2 = (List<Map>) maxRetreatMap.get("incomeBenchmark");
 						if (incomeBenchmarkList2 != null && incomeBenchmarkList2.size() > 0) {
 							for (int j = 0; j < incomeBenchmarkList2.size(); j++) {
@@ -521,7 +538,7 @@ public class FinanceController {
 			} else {
 				logger.info("object获取失败");
 			}
-			if (maxMinMap2 != null) {
+			if (!CollectionUtils.isEmpty((Map)maxMinMap2)) {
 				logger.info("maxMinIncomeMap获取成功");
 				Double min = (Double) ((Map) maxMinMap2).get("minValue");
 				Double max = (Double) ((Map) maxMinMap2).get("maxValue");
@@ -533,7 +550,7 @@ public class FinanceController {
 			} else {
 				logger.info("maxMinMap2获取失败");
 			}
-			if (maxMinBenchmarkMap2 != null) {
+			if (!CollectionUtils.isEmpty((Map)maxMinBenchmarkMap2)) {
 				logger.info("maxMinBenchmarkMap获取成功");
 				Double min = (Double) ((Map) maxMinBenchmarkMap2).get("minValue");
 				Double max = (Double) ((Map) maxMinBenchmarkMap2).get("maxValue");
@@ -561,11 +578,14 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/futureExpectationPage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getFutureExpectation(@RequestParam(required = false) String uuid, @RequestParam String groupId, @RequestParam String subGroupId) {
+	public JsonResult getFutureExpectation(@RequestParam(required = false) String uuid,
+			@RequestParam String groupId, @RequestParam String subGroupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		// 预期平均年化收益率
 		Map<String, Object> optMap = new HashMap<String, Object>();
-		String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/opt?returntype=1";
+		String url =
+				assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
+						+ subGroupId + "/opt?returntype=1";
 		optMap = restTemplate.postForEntity(url, null, Map.class).getBody();
 		if (optMap != null && !optMap.isEmpty()) {
 			logger.info("预期平均年化收益率获取成功");
@@ -586,23 +606,26 @@ public class FinanceController {
 		//未来收益走势图
 		Object object = null;
 		List<Map<String, Object>> prdList = new ArrayList<Map<String, Object>>(); // 中间容器
-		url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/expected-income";
+		url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
+				+ subGroupId + "/expected-income";
 		try {
 			Map<String, Object> expectedIncomeMap = new HashMap<String, Object>();
 			expectedIncomeMap = restTemplate.getForEntity(url, Map.class).getBody();
 			if (expectedIncomeMap != null && !expectedIncomeMap.isEmpty()) {
-				List<Map<String, Object>> expectedIncomeList = (List<Map<String, Object>>) expectedIncomeMap.get("_items");
+				List<Map<String, Object>> expectedIncomeList = (List<Map<String, Object>>) expectedIncomeMap
+						.get("_items");
 				if (expectedIncomeList != null && expectedIncomeList.size() > 0) {
 					for (int i = 0; i < expectedIncomeList.size(); i++) {
 						Map incomeMap = expectedIncomeList.get(i);
 						if (incomeMap.get("_item") != null) {
 							Map<String, Object> itemMap = (Map<String, Object>) incomeMap.get("_item");
-							if (itemMap != null && itemMap.size() > 0)
+							if (itemMap != null && itemMap.size() > 0) {
 								for (String key : itemMap.keySet()) {
 									Double value = (Double) itemMap.get(key);
 									Double doubleValue = EasyKit.getDecimal(new BigDecimal(value));
 									itemMap.put(key, doubleValue);
 								}
+							}
 						}
 					}
 				}
@@ -621,7 +644,7 @@ public class FinanceController {
 				} else {
 					logger.error("未来收益走势图数据获取失败");
 				}
-				if (expectedIncomeSizeMap != null) {
+				if (!CollectionUtils.isEmpty((Map) expectedIncomeSizeMap)) {
 					logger.info("expectedIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
 					Double min = (Double) ((Map) expectedIncomeSizeMap).get("minValue");
@@ -634,7 +657,7 @@ public class FinanceController {
 				} else {
 					logger.error("expectedIncomeSizeMap:未来收益走势图数据获取失败");
 				}
-				if (highPercentMaxIncomeSizeMap != null) {
+				if (!CollectionUtils.isEmpty((Map) highPercentMaxIncomeSizeMap)) {
 					logger.info("highPercentMaxIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
 					Double min = (Double) ((Map) highPercentMaxIncomeSizeMap).get("minValue");
@@ -647,7 +670,7 @@ public class FinanceController {
 				} else {
 					logger.error("highPercentMaxIncomeSizeMap:未来收益走势图数据获取失败");
 				}
-				if (highPercentMinIncomeSizeMap != null) {
+				if (!CollectionUtils.isEmpty((Map) highPercentMinIncomeSizeMap)) {
 					logger.info("highPercentMinIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
 					Double min = (Double) ((Map) highPercentMinIncomeSizeMap).get("minValue");
@@ -660,7 +683,7 @@ public class FinanceController {
 				} else {
 					logger.error("highPercentMinIncomeSizeMap:未来收益走势图数据获取失败");
 				}
-				if (lowPercentMaxIncomeSizeMap != null) {
+				if (!CollectionUtils.isEmpty((Map) lowPercentMaxIncomeSizeMap)) {
 					logger.info("lowPercentMaxIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
 					Double min = (Double) ((Map) lowPercentMaxIncomeSizeMap).get("minValue");
@@ -673,7 +696,7 @@ public class FinanceController {
 				} else {
 					logger.error("lowPercentMaxIncomeSizeMap:未来收益走势图数据获取失败");
 				}
-				if (lowPercentMinIncomeSizeMap != null) {
+				if (!CollectionUtils.isEmpty((Map) lowPercentMinIncomeSizeMap)) {
 					logger.info("lowPercentMinIncomeSizeMap:未来收益走势图数据获取成功");
 					//prdList = (List<Map<String, Object>>) obj2;
 					Double min = (Double) ((Map) lowPercentMinIncomeSizeMap).get("minValue");
@@ -709,14 +732,17 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/riskMangementPage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getRiskManagement(@RequestParam(required = false) String uuid, @RequestParam String groupId, @RequestParam String subGroupId, @RequestParam(required = false) String productName) {
+	public JsonResult getRiskManagement(@RequestParam(required = false) String uuid,
+			@RequestParam String groupId, @RequestParam String subGroupId,
+			@RequestParam(required = false) String productName) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String, Object> title = new HashMap<String, Object>();
 		// 最大回撤走势图
 		Map<String, Object> portfolioYieldWeekMap = new HashMap<String, Object>();
 		try {
-			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
-					+ subGroupId + "/portfolio-yield-week?returnType=1";
+			String url =
+					assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
+							+ subGroupId + "/portfolio-yield-week?returnType=1";
 			portfolioYieldWeekMap = restTemplate.getForEntity(url, Map.class).getBody();
 			if (portfolioYieldWeekMap != null && !portfolioYieldWeekMap.isEmpty()) {
 				logger.info("最大回撤走势图获取成功");
@@ -758,7 +784,7 @@ public class FinanceController {
 				} else {
 					logger.error("最大回撤走势图获取失败");
 				}
-				if (maxMinMap != null) {
+				if (!CollectionUtils.isEmpty((Map) maxMinMap)) {
 					logger.info("maxMinMap:最大回撤走势图获取成功");
 					// value = obj.toString();
 					Double min = (Double) ((Map) maxMinMap).get("minValue");
@@ -771,7 +797,7 @@ public class FinanceController {
 				} else {
 					logger.error("maxMinMap:最大回撤走势图获取失败");
 				}
-				if (maxMinBenchmarkMap != null) {
+				if (!CollectionUtils.isEmpty((Map) maxMinBenchmarkMap)) {
 					logger.info("maxMinBenchmarkMap:最大回撤走势图获取成功");
 					// value = obj.toString();
 					Double min = (Double) ((Map) maxMinBenchmarkMap).get("minValue");
@@ -789,8 +815,10 @@ public class FinanceController {
 			}
 			title.put("header1", productName);
 			//预期最大回撤数
-			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/opt?returntype=2";
-			Map<String, Object> optResult = (Map) restTemplate.postForEntity(url, null, Map.class).getBody();
+			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
+					+ subGroupId + "/opt?returntype=2";
+			Map<String, Object> optResult = (Map) restTemplate.postForEntity(url, null, Map.class)
+					.getBody();
 			if (optResult != null) {
 				if (optResult.get("value") != null) {
 					double opt = Double.valueOf(optResult.get("value") + "");
@@ -806,7 +834,8 @@ public class FinanceController {
 			}
 
 			// 等级风险
-			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId
+			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
+					+ subGroupId
 					+ "/risk-controls";
 			Map<String, Object> riskMap = new HashMap<String, Object>();
 			riskMap = restTemplate.getForEntity(url, Map.class).getBody();
@@ -879,14 +908,18 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/globalConfigurationPage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getGlobalConfiguration(@RequestParam(required = false) String uuid, @RequestParam String groupId, @RequestParam String subGroupId) {
+	public JsonResult getGlobalConfiguration(@RequestParam(required = false) String uuid,
+			@RequestParam String groupId, @RequestParam String subGroupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		// 配置收益贡献
 		Map<String, Object> configurationBenefitContributionMap = new HashMap<String, Object>();
 		try {
-			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/contributions";
+			String url =
+					assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
+							+ subGroupId + "/contributions";
 			configurationBenefitContributionMap = restTemplate.getForEntity(url, Map.class).getBody();
-			if (configurationBenefitContributionMap != null && !configurationBenefitContributionMap.isEmpty()) {
+			if (configurationBenefitContributionMap != null && !configurationBenefitContributionMap
+					.isEmpty()) {
 				logger.info("配置收益贡献获取成功");
 				Object obj = configurationBenefitContributionMap.get("_items");
 				Object category = configurationBenefitContributionMap.get("_total");
@@ -933,21 +966,20 @@ public class FinanceController {
 	@RequestMapping(value = "/getExpAnnualAndMaxReturn", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getExpAnnualAndMaxReturn(String groupId, String subGroupId) {
-		return new JsonResult(JsonResult.SUCCESS, "请求成功", service.getExpAnnualAndMaxReturn(groupId, subGroupId));
+		return new JsonResult(JsonResult.SUCCESS, "请求成功",
+				service.getExpAnnualAndMaxReturn(groupId, subGroupId));
 	}
 
 
 	/**
 	 * 获取预期最大回撤（/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt，参数+2）
-	 *
-	 * @param groupId
-	 * @param subGroupId
-	 * @return
 	 */
 	protected Map<String, Object> getExpMaxReturn(String groupId, String subGroupId) {
 		Map result = null;
 		try {
-			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/opt?returntype=" + "2";
+			String url =
+					assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
+							+ subGroupId + "/opt?returntype=" + "2";
 //			String str="{\"returnType\":\""+"2"+"\"}";
 			result = (Map) restTemplate.postForEntity(url, null, Map.class).getBody();
 
@@ -968,15 +1000,13 @@ public class FinanceController {
 
 	/**
 	 * 获取预期年化收益（/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt，参数+1）
-	 *
-	 * @param groupId
-	 * @param subGroupId
-	 * @return
 	 */
 	protected Map<String, Object> getExpAnnReturn(String groupId, String subGroupId) {
 		Map<String, Object> result = new HashMap<>();
 		try {
-			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/opt?returntype=" + "1";
+			String url =
+					assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
+							+ subGroupId + "/opt?returntype=" + "1";
 			String str = "{\"returnType\":\"" + "1" + "\"}";
 			result = (Map) restTemplate.postForEntity(url, getHttpEntity(str), Map.class).getBody();
 			/*result.remove("_total");
@@ -1001,16 +1031,13 @@ public class FinanceController {
 
 	/**
 	 * 根据groupid和subgroupid获取产品组合的组合收益率
-	 *
-	 * @param groupId
-	 * @param subGroupId
-	 * @return
 	 */
 	protected Map<String, Object> getCombYieldRate(String groupId, String subgroupId) {
 		Map result = null;
 		try {
 			//准备调用asset-allocation接口的方法，获取组合组合收益率(最大回撤)走势图-每天
-			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield-all?returnType=income";
+			String url = assetAlloctionUrl
+					+ "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield-all?returnType=income";
 			result = restTemplate.getForEntity(url, Map.class, groupId, subgroupId).getBody();
 			result.remove("_total");
 			result.remove("_name");
@@ -1044,8 +1071,8 @@ public class FinanceController {
 				}
 				item.remove("incomeBenchmark");
 
-				if (result.get("maxMinMap") != null) {
-					Map maxminMap = (Map) result.get("maxMinMap");
+				Map maxminMap = (Map) result.get("maxMinMap");
+				if (!CollectionUtils.isEmpty(maxminMap)) {
 					if (maxminMap != null && maxminMap.size() > 0) {
 						Double min = (Double) maxminMap.get("minValue");
 						Double max = (Double) maxminMap.get("maxValue");
@@ -1056,8 +1083,8 @@ public class FinanceController {
 						result.put("maxMinMap", maxminMap);
 					}
 				}
-				if (result.get("maxMinBenchmarkMap") != null) {
-					Map maxminMap = (Map) result.get("maxMinBenchmarkMap");
+				maxminMap = (Map) result.get("maxMinBenchmarkMap");
+				if (!CollectionUtils.isEmpty(maxminMap)) {
 					if (maxminMap != null && maxminMap.size() > 0) {
 						Double min = (Double) maxminMap.get("minValue");
 						Double max = (Double) maxminMap.get("maxValue");
@@ -1074,7 +1101,7 @@ public class FinanceController {
 			e.printStackTrace();
 			logger.error(e.getMessage());
 			String str = new ReturnedException(e).getErrorMsg();
-			result.put("error", "restTemplate获取预期组合收益率走势图失败:"+str);
+			result.put("error", "restTemplate获取预期组合收益率走势图失败:" + str);
 		}
 		return result;
 	}
@@ -1082,9 +1109,6 @@ public class FinanceController {
 
 	/**
 	 * 通用方法处理post请求带requestbody
-	 *
-	 * @param JsonString
-	 * @return
 	 */
 	protected HttpEntity<String> getHttpEntity(String JsonString) {
 		HttpHeaders headers = new HttpHeaders();
@@ -1128,7 +1152,8 @@ public class FinanceController {
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "子产品组ID", defaultValue = "4009")})
 	//@RequestMapping(value = "/portfolioYieldWeek", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult portfolioYieldWeek(@RequestParam String groupId, @RequestParam String subGroupId) {
+	public JsonResult portfolioYieldWeek(@RequestParam String groupId,
+			@RequestParam String subGroupId) {
 
 		String PORFOLIO_YIELD_WEEK_URL = "/api/asset-allocation/product-groups/{0}/sub-groups/{1}/portfolio-yield-week?returnType=1";
 
@@ -1158,7 +1183,8 @@ public class FinanceController {
 	@ResponseBody
 	public JsonResult getOptAdjustment(String invstTerm, String riskLevel) {
 		try {
-			return new JsonResult(JsonResult.SUCCESS, "请求成功", service.getOptAdjustment(riskLevel, invstTerm));
+			return new JsonResult(JsonResult.SUCCESS, "请求成功",
+					service.getOptAdjustment(riskLevel, invstTerm));
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
@@ -1172,7 +1198,9 @@ public class FinanceController {
 		MultiValueMap<String, String> requestEntity = new LinkedMultiValueMap<>();
 		requestEntity.add("groupId", groupId);
 		requestEntity.add("subGroupId", subGroupId);
-		result = restTemplate.getForEntity(assetAlloctionUrl + MessageFormat.format(url, groupId, subGroupId), Map.class).getBody();
+		result = restTemplate
+				.getForEntity(assetAlloctionUrl + MessageFormat.format(url, groupId, subGroupId), Map.class)
+				.getBody();
 
 		if (result.isEmpty()) {
 			result.put("msg", "获取失败");
@@ -1219,14 +1247,16 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/optimizations", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult Optimizations(@RequestParam String groupId, @RequestParam String riskPointValue, @RequestParam String incomePointValue) {
+	public JsonResult Optimizations(@RequestParam String groupId, @RequestParam String riskPointValue,
+			@RequestParam String incomePointValue) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			MultiValueMap<String, String> requestEntity = new LinkedMultiValueMap<>();
 			requestEntity.add("riskValue", riskPointValue);
 			requestEntity.add("returnValue", incomePointValue);
 			result = restTemplate
-					.postForEntity(assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/optimizations", requestEntity, Map.class)
+					.postForEntity(assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
+							+ "/optimizations", requestEntity, Map.class)
 					.getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
@@ -1252,7 +1282,8 @@ public class FinanceController {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			result = restTemplate
-					.getForEntity(assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/slidebar-points?slidebarType=income_num", Map.class)
+					.getForEntity(assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
+							+ "/slidebar-points?slidebarType=income_num", Map.class)
 					.getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
@@ -1278,7 +1309,8 @@ public class FinanceController {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			result = restTemplate
-					.getForEntity(assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/slidebar-points?slidebarType=risk_num", Map.class)
+					.getForEntity(assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
+							+ "/slidebar-points?slidebarType=risk_num", Map.class)
 					.getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
@@ -1304,7 +1336,8 @@ public class FinanceController {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			result = restTemplate
-					.getForEntity(assetAlloctionUrl + "/api/asset-allocation/products/" + groupId + "/effective-frontier-points", Map.class)
+					.getForEntity(assetAlloctionUrl + "/api/asset-allocation/products/" + groupId
+							+ "/effective-frontier-points", Map.class)
 					.getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
