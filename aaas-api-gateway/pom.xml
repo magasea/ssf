@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.shellshellfish</groupId>
-	<artifactId>com.shellshellfish.aaas.gateway</artifactId>
+	<artifactId>aaas-api-gateway</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
@@ -88,6 +88,42 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>io.fabric8</groupId>
+				<artifactId>fabric8-maven-plugin</artifactId>
+				<version>3.5.30</version>
+				<configuration>
+					<resources>
+						<labels>
+							<all>
+								<property>
+									<name>app</name>
+									<value>aaas-api-gateway</value>
+								</property>
+								<property>
+									<name>hystrix.enabled</name>
+									<value>false</value>
+								</property>
+							</all>
+						</labels>
+					</resources>
+					<enricher>
+						<config>
+							<spring-boot-health-check>
+								<port>4444</port>
+							</spring-boot-health-check>
+						</config>
+					</enricher>
+				</configuration>
+				<executions>
+					<execution>
+						<id>fmp</id>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
