@@ -59,17 +59,17 @@ datasource:
 
 grpc:
   finance_prod_client:
-    host: localhost
+    host: aaas-api-asset-allocation
     port: 10021
   pay_client:
-    host: localhost
+    host: aaas-finance-trade-pay
     port: 10111
   order_server:
-    host: localhost
+    host: aaas-finance-trade-order
     port: 10101
   datacollection_client:
-    host: localhost
+    host: aaas-app-datacollection-server
     port: 10091
   userinfo_client:
-    host: localhost
+    host: aaas-api-user-info
     port: 10061

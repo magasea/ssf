@@ -15,8 +15,8 @@ import org.springframework.context.annotation.Configuration;
 @EntityScan("com.shellshellfish.aaas.assectallocation.model")
 public class GrpcServerCfg {
 
-  @Value("${grpc.host}")
-  String host;
+//  @Value("${grpc.host}")
+//  String host;
 
   @Value("${grpc.port}")
   int port;

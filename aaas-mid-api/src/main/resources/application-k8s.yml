@@ -1,0 +1,27 @@
+---
+server:
+  port: 10130
+grpc:
+#  host: localhost
+  port: 10131
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.data: debug
+    
+shellshellfish:
+  user-login-url: "http://aaas-api-user-login:10070"
+  risk-assessment-url: "http://aaas-api-risk-assessment:10050"
+  userinfo-url: "http://aaas-api-user-info:10060"
+  finance-url: "http://aaas-api-finance:10120"
+  asset-alloction-url: "http://aaas-api-asset-allocation:10020"
+  trade-order-url: "http://aaas-finance-trade-order:10100"
+  trade-pay-url: "http://aaas-finance-trade-pay:10110"
+  data-manager-url: "http://aaas-api-data_manager:10030"
+  
+security:
+  basic:
+    enabled: false
+
+  
