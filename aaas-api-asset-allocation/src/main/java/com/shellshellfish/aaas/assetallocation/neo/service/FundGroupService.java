@@ -799,13 +799,26 @@ public class FundGroupService {
         List maxMinValueList = new ArrayList();
         List maxMinBenchmarkList = new ArrayList();
         if (returnType.equalsIgnoreCase("income")) {
+            Map<String, Object> queryNetValue = new HashMap<>();
+            List<String> codeList = getFundGroupCodes(groupId, subGroupId);
+            //查询组合中基金最晚成立日 作为 该组合成立日
+            Date minNavDate = fundNetValMapper.getMinNavDateByCodeList(codeList);
+            String startTime = DateUtil.formatDate(minNavDate);
+            queryNetValue.put("fund_group_id", groupId);
+            queryNetValue.put("subGroupId", subGroupId);
+            queryNetValue.put("startTime", startTime);
+            List<FundNetVal> fundNetVals = fundGroupMapper.getNavadj(queryNetValue);
+            if (CollectionUtils.isEmpty(fundNetVals)) {
+                return fgi;
+            }
+
             List<Map<String, Object>> listFund = new ArrayList<>();
-            for (int i = 1; i < fundGroupHistoryList.size(); i++) {
+            for (int i = 1; i < fundNetVals.size(); i++) {
                 Map<String, Object> mapBasic = new HashMap<>();
-                mapBasic.put("time", DateUtil.formatDate(fundGroupHistoryList.get(i).getTime()));
-                mapBasic.put("value", (fundGroupHistoryList.get(i).getIncome_num() - fundGroupHistoryList.get(0).getIncome_num()) / fundGroupHistoryList.get(0).getIncome_num());
+                mapBasic.put("time", DateUtil.formatDate(fundNetVals.get(i).getNavLatestDate()));
+                mapBasic.put("value", (fundNetVals.get(i).getNavadj() - fundNetVals.get(0).getNavadj()) / fundNetVals.get(0).getNavadj());
                 listFund.add(mapBasic);
-                maxMinValueList.add((fundGroupHistoryList.get(i).getIncome_num() - fundGroupHistoryList.get(0).getIncome_num()) / fundGroupHistoryList.get(0).getIncome_num());
+                maxMinValueList.add((fundNetVals.get(i).getNavadj() - fundNetVals.get(0).getNavadj()) / fundNetVals.get(0).getNavadj());
             }
             maxMinValueMap = TransformUtil.getMaxMinValue(maxMinValueList);
             allMap.put("income", listFund);
