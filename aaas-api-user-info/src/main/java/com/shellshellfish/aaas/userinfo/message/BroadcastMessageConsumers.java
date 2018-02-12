@@ -25,6 +25,7 @@ import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
 import com.shellshellfish.aaas.userinfo.service.PayGrpcService;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -276,9 +277,16 @@ public class BroadcastMessageConsumers {
                    uiProductDetail.setLastestSerial(trdPayFlow.getApplySerial());
                 }
             }else{
-                if(haveSerialInPayFlow){
-                    uiProductDetail.setLastestSerial(uiProductDetail.getLastestSerial()
-                        +"|"+trdPayFlow.getApplySerial());
+                if(haveSerialInPayFlow && !uiProductDetail.getLastestSerial().contains(trdPayFlow
+                    .getApplySerial())){
+                    Set<String> resultSet = TradeUtil.getSetFromString(uiProductDetail
+                            .getLastestSerial(), "\\|");
+                    StringBuilder sb = new StringBuilder();
+                    resultSet.forEach(item-> sb.append(item).append("|"));
+                    if(!resultSet.contains(trdPayFlow.getApplySerial())){
+                       sb.append(trdPayFlow.getApplySerial());
+                    }
+                    uiProductDetail.setLastestSerial(sb.toString());
                 }
             }
             uiProductDetailRepo.save(uiProductDetail);
@@ -488,12 +496,13 @@ public class BroadcastMessageConsumers {
         if( !StringUtils.isEmpty(productDetail.getLastestSerial()) && !productDetail
             .getLastestSerial().contains(mongoUiTrdZZInfo.getApplySerial())){
             logger.error("received repeated confirm message :" + mongoUiTrdZZInfo.getApplySerial());
+            return false;
         }else if(StringUtils.isEmpty(productDetail.getLastestSerial())){
             logger.info("it is initial, let's handle this message ");
             uiProductDetailRepo.save(productDetail);
         }else if(!StringUtils.isEmpty(productDetail.getLastestSerial()) && productDetail
             .getLastestSerial().contains(mongoUiTrdZZInfo.getApplySerial())){
-            String[] serials = productDetail.getLastestSerial().split("|");
+            String[] serials = productDetail.getLastestSerial().split("\\|");
             StringBuilder sb = new StringBuilder();
             for(String serial: serials){
                 if(serial.equals(mongoUiTrdZZInfo.getApplySerial())){

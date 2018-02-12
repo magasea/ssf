@@ -114,7 +114,7 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 		int brokerId = request.getTrdBrokerId();
 		long userId = request.getUserId();
 		UserPID.Builder upidBuilder = UserPID.newBuilder();
-		if (StringUtils.isEmpty(trdAcco) || brokerId <= 0 || userId <= 0) {
+		if (StringUtils.isEmpty(trdAcco) || brokerId < 0 || userId <= 0) {
 			logger.error(
 					"trdAcco:" + trdAcco + " brokerId:" + brokerId + " userId:" + userId + " is not valid");
 		}

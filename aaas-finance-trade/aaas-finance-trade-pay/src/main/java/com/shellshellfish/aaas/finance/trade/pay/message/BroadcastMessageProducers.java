@@ -43,6 +43,8 @@ public class BroadcastMessageProducers {
         logger.info("sending  mongoUiTrdZZInfo" + mongoUiTrdZZInfo.getApplySerial());
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
             .ROUTING_KEY_USERINFO_CFMLOG, mongoUiTrdZZInfo);
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
+            .ROUTING_KEY_USERINFO_UPDATEPROD, mongoUiTrdZZInfo);
     }
 
     public void sendSellMessage(TrdPayFlow trdPayFlow) {

@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.pay.controller;
 
 import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.finance.trade.pay.service.impl.CheckFundsBuyJobService;
+import com.shellshellfish.aaas.finance.trade.pay.service.impl.CheckFundsTradeJobService;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +19,6 @@ import com.shellshellfish.aaas.finance.trade.pay.model.SellFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import com.shellshellfish.aaas.finance.trade.pay.service.impl.FundTradeZhongZhengApiService;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -36,7 +35,7 @@ public class TradePayController {
   PayService payService;
 
 	@Autowired
-	private CheckFundsBuyJobService jobService;
+	private CheckFundsTradeJobService jobService;
   
   @Autowired
   FundTradeZhongZhengApiService fundTradeZhongZhengApiService;
