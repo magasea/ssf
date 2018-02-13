@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.assetallocation.repository.dummy;
 
+import com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal;
 import com.shellshellfish.aaas.assetallocation.neo.entity.Interval;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import org.junit.Test;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -78,5 +80,21 @@ public class FundGroupMapperTest {
     public void getFundGroupNameByIdTest() {
         String fundGroupName = fundGroupMapper.getFundGroupNameById("2");
         System.out.println(fundGroupName);
+    }
+
+    @Test
+    public void getNavadjTest() {
+        Map<String, Object> query = new HashMap<>();
+        query.put("fund_group_id", "2");
+        query.put("subGroupId", "20048");
+        String startTime = null;
+        String groupStartTime = fundGroupMapper.getFundGroupHistoryTime(query);
+        if (StringUtils.isEmpty(groupStartTime)) {
+            groupStartTime = fundGroupMapper.getGroupStartTime(query);
+            startTime = groupStartTime;
+        }
+        query.put("startTime", groupStartTime);
+        List<FundNetVal> list = fundGroupMapper.getNavadj(query);
+        System.out.println("");
     }
 }
