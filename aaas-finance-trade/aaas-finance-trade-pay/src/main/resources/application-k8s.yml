@@ -59,13 +59,13 @@ grpc:
 #  host: localhost
   port: 10111
   finance_prod_client:
-    host: localhost
+    host: aaas-api-asset-allocation
     port: 10031
   userinfo_client:
-    host: localhost
+    host: aaas-api-user-info
     port: 10061
   order_client:
-    host: localhost
+    host: aaas-finance-trade-order
     port: 10101
 using:
   spring:

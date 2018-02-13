@@ -1,0 +1,33 @@
+server:
+  port: 10020
+
+mybatis:
+    config-locations: classpath:mybatis/mybatis-config.xml
+    mapper-locations: classpath:mybatis/mapper/*.xml
+spring:
+    datasource:
+        driverClassName: com.mysql.jdbc.Driver
+        password: 1rIQ9wi!@g3P$Qh*
+        url: jdbc:mysql://external-mysql-service:3306/choice?useUnicode=true&characterEncoding=utf-8
+        username: ssf08
+    jpa:
+      hibernate:
+        ddl-auto: update
+grpc:
+#  host: localhost
+  port: 10021
+  daily-fund-client:
+    host: aaas-app-datacollection-server
+    port: 10091
+
+application:
+    swagger:
+        title: SSF Platform API
+        description: Shell shell fish API documentation
+        version: 0.1.X
+        termsOfServiceUrl:
+        contactName:
+        contactUrl:
+        contactEmail:
+        license:
+        licenseUrl:

@@ -130,4 +130,9 @@ public class TradeUtilTest {
     System.out.println(TradeUtil.getUTCTimeOfSpecificTime(2018,01, 26, 20, 8));
   }
 
+  @Test
+  public void testPassword(){
+//    System.out.println(MD5.)
+  }
+
 }
