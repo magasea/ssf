@@ -14,6 +14,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -126,29 +127,33 @@ public class UserInfoController {
 	@RequestMapping(value = "/selectbanks", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getUserBanks(@RequestParam String uuid) {
+		List<Map> resultOrigin = new ArrayList();
 		List<Map> result = new ArrayList();
 		try {
 			// result = restTemplate.getForEntity(userinfoUrl +
 			// "/api/userinfo/selectbanks?uuid=" + uid, List.class)
 			// .getBody();
-			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/bankcards", List.class)
+			resultOrigin = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid +
+					"/bankcards", List.class)
 					.getBody();
-			if (result != null && result.size() > 0) {
-				for (int i = 0; i < result.size(); i++) {
-					Map resultMap = result.get(i);
+
+			if (resultOrigin != null && resultOrigin.size() > 0) {
+				for (int i = 0; i < resultOrigin.size(); i++) {
+					Map resultMap = resultOrigin.get(i);
 					if (resultMap.get("bankCode") != null) {
 						Map bankMap = new HashMap();
 						bankMap = restTemplate.getForEntity(
 								tradeOrderUrl + "/api/trade/funds/banks?bankShortName=" + resultMap.get("bankCode"),
 								Map.class).getBody();
-						if (bankMap.get("bankName") != null) {
+						if (!StringUtils.isEmpty(bankMap.get("bankName"))) {
 							resultMap.put("bankShortName", bankMap.get("bankName"));
 							resultMap.put("bankName", bankMap.get("bankName"));
+							result.add(resultMap);
 						}
 					}
 				}
 			}
-			if (result == null) {
+			if (CollectionUtils.isEmpty(result )) {
 				return new JsonResult(JsonResult.SUCCESS, "获取银行卡为空", JsonResult.EMPTYRESULT);
 			} else {
 				return new JsonResult(JsonResult.SUCCESS, "获取银行卡成功", result);

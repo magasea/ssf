@@ -134,6 +134,42 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>io.fabric8</groupId>
+				<artifactId>fabric8-maven-plugin</artifactId>
+				<version>3.5.30</version>
+				<configuration>
+					<resources>
+						<labels>
+							<all>
+								<property>
+									<name>app</name>
+									<value>aaas-api-risk-assessment</value>
+								</property>
+								<property>
+									<name>hystrix.enabled</name>
+									<value>false</value>
+								</property>
+							</all>
+						</labels>
+					</resources>
+					<enricher>
+						<config>
+							<spring-boot-health-check>
+								<port>4444</port>
+							</spring-boot-health-check>
+						</config>
+					</enricher>
+				</configuration>
+				<executions>
+					<execution>
+						<id>fmp</id>
+						<goals>
+							<goal>resource</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	<!-- junit surefire test-->
@@ -149,6 +185,7 @@
 				<artifactId>jxr-maven-plugin</artifactId>
 				<version>${jxr-maven-plugin.version}</version>
 			</plugin>
+
 		</plugins>
 	</reporting>
 </project>

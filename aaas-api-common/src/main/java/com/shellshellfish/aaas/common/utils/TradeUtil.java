@@ -14,7 +14,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TimeZone;
+import org.springframework.util.StringUtils;
 
 
 public class TradeUtil {
@@ -274,5 +277,18 @@ public class TradeUtil {
     }
   }
 
+  public static Set<String> getSetFromString(String origin, String sep){
+    if(StringUtils.isEmpty(origin) || StringUtils.isEmpty(sep)){
+      throw new IllegalArgumentException("origin:" + origin + " sep:"+sep +" is not valid");
+    }
+    Set<String> result = new HashSet<String>();
+    String[] arrayRlt = origin.split(sep);
+    if(arrayRlt.length > 0){
+      for(String item: arrayRlt){
+        result.add(item);
+      }
+    }
+    return result;
+  }
 
 }

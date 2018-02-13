@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.pay.scheduler;
 
 
-import com.shellshellfish.aaas.finance.trade.pay.service.impl.CheckFundsBuyJobService;
+import com.shellshellfish.aaas.finance.trade.pay.service.impl.CheckFundsTradeJobService;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -16,7 +16,7 @@ public class CheckPreOrderStatus2TriggerBuyJob implements Job {
     Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private CheckFundsBuyJobService jobService;
+    private CheckFundsTradeJobService jobService;
 
     public void execute(JobExecutionContext context) throws JobExecutionException {
 

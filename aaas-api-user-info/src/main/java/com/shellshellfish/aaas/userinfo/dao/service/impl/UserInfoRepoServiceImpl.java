@@ -382,6 +382,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		}
 		//用状态来控制银行卡
 		userInfoBankCardsRepository.setBankCardInvalid(userId, cardNumber);
+
 		return true;
 	}
 

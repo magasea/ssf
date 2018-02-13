@@ -29,7 +29,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 @Service
-public class CheckFundsBuyJobService {
+public class CheckFundsTradeJobService {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 

@@ -114,7 +114,7 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 		int brokerId = request.getTrdBrokerId();
 		long userId = request.getUserId();
 		UserPID.Builder upidBuilder = UserPID.newBuilder();
-		if (StringUtils.isEmpty(trdAcco) || brokerId <= 0 || userId <= 0) {
+		if (StringUtils.isEmpty(trdAcco) || brokerId < 0 || userId <= 0) {
 			logger.error(
 					"trdAcco:" + trdAcco + " brokerId:" + brokerId + " userId:" + userId + " is not valid");
 		}
@@ -227,8 +227,14 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 	public Map<String, Object> getBankInfos(String bankShortName) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository.findByBankShortName(bankShortName);
-		result.put("bankName", trdTradeBankDic.getBankName());
-		result.put("bankCode", trdTradeBankDic.getBankCode());
+		if(null != trdTradeBankDic){
+			result.put("bankName", trdTradeBankDic.getBankName());
+			result.put("bankCode", trdTradeBankDic.getBankCode());
+		}else{
+			result.put("bankName", "");
+			result.put("bankCode", "");
+		}
+
 		return result;
 	}
 

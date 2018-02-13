@@ -57,4 +57,4 @@ application:
         license:
         licenseUrl:
 
-api-data-manager-url: http://localhost:10030
+api-data-manager-url: http://aaas-api-data_manager:10030
