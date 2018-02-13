@@ -227,8 +227,14 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 	public Map<String, Object> getBankInfos(String bankShortName) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository.findByBankShortName(bankShortName);
-		result.put("bankName", trdTradeBankDic.getBankName());
-		result.put("bankCode", trdTradeBankDic.getBankCode());
+		if(null != trdTradeBankDic){
+			result.put("bankName", trdTradeBankDic.getBankName());
+			result.put("bankCode", trdTradeBankDic.getBankCode());
+		}else{
+			result.put("bankName", "");
+			result.put("bankCode", "");
+		}
+
 		return result;
 	}
 
