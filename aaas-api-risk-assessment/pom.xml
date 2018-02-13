@@ -165,7 +165,7 @@
 					<execution>
 						<id>fmp</id>
 						<goals>
-							<goal>deploy</goal>
+							<goal>resource</goal>
 						</goals>
 					</execution>
 				</executions>
