@@ -927,6 +927,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		Map<String, Map<String, Object>> tradLogsMap = new HashMap<String, Map<String, Object>>();
 		Map<String, Map<String, Object>> tradLogsMap2 = new HashMap<String, Map<String, Object>>();
 		// 获取最新一天的单个基金的信息
+		String dateStr = null;
 		for (MongoUiTrdLogDTO mongoUiTrdLogDTO : tradeLogList) {
 			Map<String, Object> map = new HashMap<String, Object>();
 			try {
@@ -935,14 +936,20 @@ public class UserInfoServiceImpl implements UserInfoService {
 					continue;
 				}
 				String fundCode = mongoUiTrdLogDTO.getFundCode();
+				int operation = mongoUiTrdLogDTO.getOperations();
 				long dateLong = mongoUiTrdLogDTO.getLastModifiedDate();
-				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				Date date = new Date(dateLong);
-				String dateTime = simpleDateFormat.format(date);
-				map.put("date", dateTime);
+//				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//				Date date = new Date(dateLong);
+//				String dateTime = simpleDateFormat.format(date);
+				dateStr = TradeUtil.getReadableDateTime(mongoUiTrdLogDTO.getCreatedDate());
+				if(StringUtils.isEmpty(dateStr)){
+					logger.error("This tradeLog is with no time:"+ mongoUiTrdLogDTO.getCreatedDate());
+					continue;
+				}
+				map.put("date", dateStr.split("T")[0]);
 				dateLong = dateLong / 1000;
 				map.put("dateLong", dateLong);
-				String key = prodId + "-" + fundCode;
+				String key = prodId + "-" + fundCode + "-" + operation ;
 				if (tradLogsMap.containsKey(key)) {
 					if (tradLogsMap.get(key) != null) {
 						Map<String, Object> map2 = tradLogsMap.get(key);
@@ -981,25 +988,36 @@ public class UserInfoServiceImpl implements UserInfoService {
 				} else {
 					map.put("prodName", "");
 				}
-				if (mongoUiTrdLogDTO.getAmount() != null) {
-					map.put("amount", mongoUiTrdLogDTO.getAmount());
-				} else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
-						&& mongoUiTrdLogDTO.getTradeStatus() == TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus()) {
-					map.put("amount",
-							TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdLogDTO.getTradeTargetSum()));
-				} else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
-						&& mongoUiTrdLogDTO.getTradeStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM
-						.getStatus()) {
-					map.put("amount",
-							TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdLogDTO.getTradeTargetShare()));
-				} else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null) {
-					map.put("amount", new BigDecimal(mongoUiTrdLogDTO.getTradeConfirmShare()));
-				} else if (mongoUiTrdLogDTO.getTradeConfirmSum() != null) {
-					map.put("amount", new BigDecimal(mongoUiTrdLogDTO.getTradeConfirmSum()));
-				} else {
-					logger.error("there is no amount information for mondUiTrdLogDTO with userId:" + userUuid
-							+ " userProdId:" + mongoUiTrdLogDTO.getUserProdId());
+				Long sumFromLog = null;
+				if(mongoUiTrdLogDTO.getTradeConfirmSum() != null){
+					sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum();
+				}else if(mongoUiTrdLogDTO.getTradeConfirmShare() != null){
+					sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
+				}else if(mongoUiTrdLogDTO.getTradeTargetSum() != null){
+					sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum();
+				}else if(mongoUiTrdLogDTO.getTradeTargetShare() != null){
+					sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
 				}
+				map.put("amount", sumFromLog);
+//				if (mongoUiTrdLogDTO.getAmount() != null) {
+//					map.put("amount", mongoUiTrdLogDTO.getAmount());
+//				} else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
+//						&& mongoUiTrdLogDTO.getTradeStatus() == TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus()) {
+//					map.put("amount",
+//							TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdLogDTO.getTradeTargetSum()));
+//				} else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
+//						&& mongoUiTrdLogDTO.getTradeStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM
+//						.getStatus()) {
+//					map.put("amount",
+//							TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdLogDTO.getTradeTargetShare()));
+//				} else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null) {
+//					map.put("amount", new BigDecimal(mongoUiTrdLogDTO.getTradeConfirmShare()));
+//				} else if (mongoUiTrdLogDTO.getTradeConfirmSum() != null) {
+//					map.put("amount", new BigDecimal(mongoUiTrdLogDTO.getTradeConfirmSum()));
+//				} else {
+//					logger.error("there is no amount information for mondUiTrdLogDTO with userId:" + userUuid
+//							+ " userProdId:" + mongoUiTrdLogDTO.getUserProdId());
+//				}
 				tradLogsMap.put(key, map);
 			} catch (Exception ex) {
 				logger.error(ex.getMessage());

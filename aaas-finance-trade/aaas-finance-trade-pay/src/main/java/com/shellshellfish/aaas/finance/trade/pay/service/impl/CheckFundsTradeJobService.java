@@ -202,7 +202,7 @@ public class CheckFundsTradeJobService {
     public void checkReedemPayFlows(){
         //先查一遍赎回未确认状态的payFlow
         List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-            .findAllByTradeConfirmShareIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.REDEEM.getOperation
+            .findAllByTradeConfirmSumIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.REDEEM.getOperation
                 ());
         if(!CollectionUtils.isEmpty(trdPayFlows)) {
             ApplyResult applyResult = null;

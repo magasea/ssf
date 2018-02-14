@@ -9,7 +9,7 @@ public interface TrdPayFlowRepository extends PagingAndSortingRepository<TrdPayF
   TrdPayFlow save(TrdPayFlow trdPayFlow);
 
   List<TrdPayFlow> findAllByTradeConfirmSumIsAndTrdTypeIs(Long tradeConfirmSum,  int trdType);
-  List<TrdPayFlow> findAllByTradeConfirmShareIsAndTrdTypeIs(Long tradeConfirmSum,  int trdType);
+  List<TrdPayFlow> findAllByTradeConfirmShareIsAndTrdTypeIs(Long tradeConfirmShare,  int trdType);
 
   List<TrdPayFlow> findAllByUserProdId(Long userProdId);
 
