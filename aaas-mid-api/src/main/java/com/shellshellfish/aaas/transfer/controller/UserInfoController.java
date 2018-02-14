@@ -434,9 +434,7 @@ public class UserInfoController {
 					for (int i = 0; i < resultList.size(); i++) {
 						Map<String, Object> resultMap = resultList.get(i);
 						if (resultMap.get("totalIncomeRate") != null) {
-							String totalIncomeRate = resultMap.get("totalIncomeRate") + "";
-							totalIncomeRate = EasyKit.getDecimal(new BigDecimal(totalIncomeRate)) + "";
-							resultMap.put("totalIncomeRate", totalIncomeRate + EasyKit.PERCENT);
+							resultMap.put("totalIncomeRate", EasyKit.getStringValue(BigDecimal.valueOf((Double) resultMap.get("totalIncomeRate"))));
 						}
 					}
 					Collections.reverse(resultList);

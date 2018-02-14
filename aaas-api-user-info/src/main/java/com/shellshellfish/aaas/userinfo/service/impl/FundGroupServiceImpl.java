@@ -121,7 +121,7 @@ public class FundGroupServiceImpl implements FundGroupService {
 				return map1value - map2value;
 			}
 		});
-		
+
 		result.put("accumulationIncomes", portfolioList);
 
 		List<UiProductDetailDTO> uiProductDetailDTOList = uiProductService
