@@ -486,6 +486,11 @@ public class UserInfoController {
 							trendYieldMap.put("value", "0");
 							maxMinValueList.add(0D);
 						}
+						if (trendYieldMap.get("date") != null) {
+							String dateStr1 = (String) trendYieldMap.get("date");
+							String dateStr2 = String.format("%s-%s-%s", dateStr1.substring(0,4), dateStr1.substring(4,6), dateStr1.substring(6,8));
+							trendYieldMap.put("date", dateStr2);
+						}
 					}
 					if (maxMinValueList != null && maxMinValueList.size() > 0) {
 						result.put("maxValue", Collections.max(maxMinValueList));
