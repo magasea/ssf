@@ -66,7 +66,7 @@ public class JobScheduleService {
     /*
      * 计算每周收益率以及风险率数据
      */
-//    @Scheduled(cron = "0 0 2 28 * ?")       //每月 28 号  凌晨 2 点执行
+//    @Scheduled(cron = "0 0 2 * 5 ?")       //每周五  凌晨 2 点执行
     public void calculateYieldAndRiskOfWeekJobSchedule() {
         logger.info("计算每周收益率以及风险率数据定时任务启动..." + sdf.format(new Date()));
         Boolean doSuccess = false;
