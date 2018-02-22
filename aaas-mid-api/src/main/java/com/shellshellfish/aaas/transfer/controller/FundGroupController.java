@@ -126,6 +126,9 @@ public class FundGroupController {
 							value = value.setScale(2, BigDecimal.ROUND_HALF_UP);
 //								accumulationIncomesMap.put("value", EasyKit.getDecimal(value));
 							accumulationIncomesMap.put("value", value);
+							String dateStr1 = (String) accumulationIncomesMap.get("date");
+							String dateStr2 = String.format("%s-%s-%s", dateStr1.substring(0,4), dateStr1.substring(4,6), dateStr1.substring(6,8));
+							accumulationIncomesMap.put("date", dateStr2);
 							maxMinValueList.add(value.doubleValue());
 						}
 					}

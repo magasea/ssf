@@ -135,6 +135,7 @@ public class BroadcastMessageConsumers {
                 trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus()){
                 //等待赎回份额就是下单请求时候的份额
                 mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow.getTradeTargetShare()));
+                mongoUiTrdLog.setApplySerial(trdPayFlow.getApplySerial());
             }else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()){
                 if(trdPayFlow.getTrdType() == TrdOrderOpTypeEnum.BUY.getOperation()){
                     mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow
@@ -143,6 +144,7 @@ public class BroadcastMessageConsumers {
                     mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow
                         .getTradeConfirmSum()));
                 }
+                mongoUiTrdLog.setApplySerial(trdPayFlow.getApplySerial());
             }
             mongoUiTrdLog.setLastModifiedDate(TradeUtil.getUTCTime());
             mongoUiTrdLog.setFundCode(trdPayFlow.getFundCode());

@@ -25,6 +25,7 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.*;
 import com.shellshellfish.aaas.userinfo.repositories.redis.UserInfoBaseDao;
 import com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
+import com.shellshellfish.aaas.userinfo.utils.MongoUiTrdLogUtil;
 import io.grpc.stub.StreamObserver;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +36,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -262,10 +264,15 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	}
 	@Override
 	public List<MongoUiTrdLogDTO> findByUserId(Long userId) throws IllegalAccessException, InstantiationException {
-		List<MongoUiTrdLog> mongoUiTrdLogList = mongoUserTrdLogMsgRepo.findAllByUserId(userId);
-		List<MongoUiTrdLogDTO> mongoUiTrdLogDtoList = MyBeanUtils.convertList(mongoUiTrdLogList, MongoUiTrdLogDTO.class);
+		Criteria criteria = Criteria.where("user_id").is(userId);
+		Query query = new Query(criteria);
+		List<MongoUiTrdLog> mongoUiTrdLogList = mongoTemplate.find(query, MongoUiTrdLog.class);
+//		List<MongoUiTrdLog> mongoUiTrdLogList = mongoUserTrdLogMsgRepo.findAllByUserId(userId);
+		List<MongoUiTrdLog> uiTrdLogsUnique =  MongoUiTrdLogUtil.getDistinct(mongoUiTrdLogList);
+		List<MongoUiTrdLogDTO> mongoUiTrdLogDtoList = MyBeanUtils.convertList(uiTrdLogsUnique, MongoUiTrdLogDTO.class);
 		return mongoUiTrdLogDtoList;
 	}
+
 
 
 

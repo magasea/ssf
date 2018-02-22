@@ -721,7 +721,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 	}
 
 	@Override
-	public void dailyCalculation(String date, List<UiUser> uiUsers) {
+	public void dailyCalculation(String date, List<UiUser> uiUsers) throws Exception {
 		for (UiUser user : uiUsers) {
 
 			List<UiProducts> userProducts = uiProductRepo.findByUserId(user.getId());
@@ -749,6 +749,8 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 					} catch (Exception e) {
 						logger.error("计算{用户:{},基金code:{},基金名称：{}}日收益出错", detail.getCreateBy(),
 								detail.getFundCode(), detail.getFundName(), e);
+						//need to stop when it throws exception
+						throw e;
 					}
 				}
 			}

@@ -33,6 +33,7 @@ public class UserFinanceProdCalController {
 		String today = InstantDateUtil
 				.format(LocalDate.now().plusDays(-1), DEFAULT_DATE_FORMAT_PATTERN);
 		userFinanceProdCalcService.dailyCalculation(today);
+		//TODO: need to fix it because it always return OK
 		return HttpStatus.OK;
 	}
 
