@@ -87,11 +87,14 @@ public class EasyKit {
 		if(bigDecimal!=null){
 			bigDecimal = bigDecimal.multiply(new BigDecimal("100"));
 			decimal = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-			result.append(decimal);
+			if (decimal == 0)
+				result.append("0.00");
+			else
+				result.append(decimal);
 			result.append("%");
 		}
 		if(StringUtils.isEmpty(result)){
-			return "0.0%";
+			return "0.00%";
 		} else {
 			return result.toString();
 		}
