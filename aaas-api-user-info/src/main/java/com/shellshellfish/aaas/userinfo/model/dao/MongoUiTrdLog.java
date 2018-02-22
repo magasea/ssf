@@ -68,6 +68,9 @@ public class MongoUiTrdLog implements Serializable {
   @Field( value = "trade_target_sum")
   private Long tradeTargetSum;
 
+  @Field( value = "apply_serial")
+  private String applySerial;
+
   public MongoUiTrdLog() {
   }
 
@@ -200,5 +203,13 @@ public class MongoUiTrdLog implements Serializable {
 
   public void setTradeTargetSum(Long tradeTargetSum) {
     this.tradeTargetSum = tradeTargetSum;
+  }
+
+  public String getApplySerial() {
+    return applySerial;
+  }
+
+  public void setApplySerial(String applySerial) {
+    this.applySerial = applySerial;
   }
 }

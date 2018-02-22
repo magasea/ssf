@@ -59,6 +59,8 @@ public class MongoUiTrdLogDTO implements Serializable {
   
   private Long tradeTargetSum;
 
+  private String applySerial;
+
   public MongoUiTrdLogDTO() {
   }
 
@@ -192,5 +194,13 @@ public class MongoUiTrdLogDTO implements Serializable {
 
   public void setTradeTargetSum(Long tradeTargetSum) {
     this.tradeTargetSum = tradeTargetSum;
+  }
+
+  public String getApplySerial() {
+    return applySerial;
+  }
+
+  public void setApplySerial(String applySerial) {
+    this.applySerial = applySerial;
   }
 }

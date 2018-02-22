@@ -92,6 +92,15 @@ public class CheckFundsTradeJobService {
                         TrdOrderOpTypeEnum opTypeEnum = ZZStatsToOrdStatsUtils
                             .getTrdOrdOpTypeFromCallingCode(Integer
                                 .valueOf(applyResult.getCallingcode()));
+                        int queryStatus = ZZStatsToOrdStatsUtils
+                            .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
+                                Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum)
+                            .getStatus();
+                        if(trdPayFlow.getTrdStatus() == queryStatus){
+                            logger.error("There is no status change for outsideOrderno:{}, current status:{} queryStatus:{}",
+                                outsideOrderno, trdPayFlow.getTrdStatus(), queryStatus);
+                            continue;
+                        }
                         trdPayFlow.setTrdStatus(ZZStatsToOrdStatsUtils
                             .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
                                 Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum).getStatus());

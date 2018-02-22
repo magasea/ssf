@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.userinfo.model.dao;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Comparator;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -54,8 +55,11 @@ public class UiTrdLog implements Serializable {
   @Column(name="user_id")
   private Long userId;
 
+
+
   public UiTrdLog() {
   }
+
 
   public Long getId() {
     return this.id;

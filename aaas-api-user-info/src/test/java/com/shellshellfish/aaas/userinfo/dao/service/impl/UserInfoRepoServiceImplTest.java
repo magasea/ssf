@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.userinfo.UserInfoApp;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
@@ -18,9 +19,12 @@ import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserProdMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserSysMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
+import com.shellshellfish.aaas.userinfo.utils.MongoUiTrdLogUtil;
 import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import org.junit.Test;
@@ -145,6 +149,51 @@ public class UserInfoRepoServiceImplTest {
 
   @Autowired
   MongoUserProdMsgRepo mongoUserProdMsgRepo;
+
+
+  @Test
+  public void selectUiTrdLog(){
+
+    Criteria criteria = Criteria.where("user_id").is(5625);
+    Query query = new Query(criteria);
+    List<MongoUiTrdLog> uiTrdLogs = mongoTemplate.find(query, MongoUiTrdLog.class);
+    List<MongoUiTrdLog> uiTrdLogsUnique =  MongoUiTrdLogUtil.getDistinct(uiTrdLogs);
+    Comparator<MongoUiTrdLog> byUserProdIdAndTradeDate =
+        ((MongoUiTrdLog o1, MongoUiTrdLog o2)->{
+        if(o1.getUserProdId() == null && o2.getUserProdId() != null){
+          return -1;
+        }
+        if(o1.getUserProdId() != null && o2.getUserProdId() == null){
+          return 1;
+        }
+        if(o1.getUserProdId() == o2.getUserProdId()){
+          if(o1.getTradeDate() == null && o2.getTradeDate() != null){
+            return -1;
+          }
+          if(o1.getTradeDate() != null && o2.getTradeDate() == null){
+            return 1;
+          }
+          return Long.valueOf(o1.getTradeDate() - o2.getTradeDate()).intValue();
+        }else{
+          return Long.valueOf(o1.getUserProdId() - o2.getUserProdId()).intValue();
+        }
+    });
+
+
+    Collections.sort(uiTrdLogs,byUserProdIdAndTradeDate);
+
+    uiTrdLogs.forEach(o-> System.out.println(String.format("getUserProdId():%s getFundCode():%s"
+        + "getOperations():%s getTradeStatus():%s getApplySerial():%s",o.getUserProdId(),o
+        .getFundCode(),o.getOperations(),o.getTradeStatus(), o.getApplySerial())));
+
+    System.out.println("==================================================");
+
+    Collections.sort(uiTrdLogsUnique, byUserProdIdAndTradeDate);
+
+    uiTrdLogsUnique.forEach(o-> System.out.println(String.format("getUserProdId():%s getFundCode():%s"
+        + "getOperations():%s getTradeStatus():%s getApplySerial():%s",o.getUserProdId(),o
+        .getFundCode(),o.getOperations(),o.getTradeStatus(), o.getApplySerial())));
+  }
 
   @Test
   public void addUiPersonMsg() throws Exception {
