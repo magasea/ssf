@@ -116,7 +116,7 @@ public class JobScheduleService {
     /*
      * 计算 单位收益净值、最大回撤、夏普比率、基金收益贡献比
      */
-//    @Scheduled(cron = "0 0 5 * * ?")        //每天 凌晨 5 点执行
+//    @Scheduled(cron = "0 0 4 * * ?")				//每天 凌晨 4 点执行
     public void getAllIdAndSubIdJobSchedule() {
         logger.info("计算 单位收益净值、最大回撤、夏普比率、基金收益贡献比 定时任务启动..." + sdf.format(new Date()));
         Boolean doSuccess = true;
