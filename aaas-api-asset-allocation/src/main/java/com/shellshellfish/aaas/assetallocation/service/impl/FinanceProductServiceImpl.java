@@ -152,6 +152,7 @@ public class FinanceProductServiceImpl  extends
    * @param shareOfCodes
    */
   private void adjustShareOfCode(Map<String, Integer> shareOfCodes){
+
     Object[] keys = shareOfCodes.keySet().toArray();
     Integer total = 0;
     for(int idx = 0; idx < keys.length; idx ++){
