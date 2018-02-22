@@ -434,9 +434,7 @@ public class UserInfoController {
 					for (int i = 0; i < resultList.size(); i++) {
 						Map<String, Object> resultMap = resultList.get(i);
 						if (resultMap.get("totalIncomeRate") != null) {
-							String totalIncomeRate = resultMap.get("totalIncomeRate") + "";
-							totalIncomeRate = EasyKit.getDecimal(new BigDecimal(totalIncomeRate)) + "";
-							resultMap.put("totalIncomeRate", totalIncomeRate + EasyKit.PERCENT);
+							resultMap.put("totalIncomeRate", EasyKit.getStringValue(BigDecimal.valueOf((Double) resultMap.get("totalIncomeRate"))));
 						}
 					}
 					Collections.reverse(resultList);
@@ -487,6 +485,11 @@ public class UserInfoController {
 						} else {
 							trendYieldMap.put("value", "0");
 							maxMinValueList.add(0D);
+						}
+						if (trendYieldMap.get("date") != null) {
+							String dateStr1 = (String) trendYieldMap.get("date");
+							String dateStr2 = String.format("%s-%s-%s", dateStr1.substring(0,4), dateStr1.substring(4,6), dateStr1.substring(6,8));
+							trendYieldMap.put("date", dateStr2);
 						}
 					}
 					if (maxMinValueList != null && maxMinValueList.size() > 0) {
