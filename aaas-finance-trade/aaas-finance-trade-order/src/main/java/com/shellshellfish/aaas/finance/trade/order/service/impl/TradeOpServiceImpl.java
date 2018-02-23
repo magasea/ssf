@@ -111,10 +111,10 @@ public class TradeOpServiceImpl implements TradeOpService {
 
   @Autowired
   ManagedChannel managedUIChannel;
-  
+
   @Autowired
   TradeOpService tradeOpService;
-  
+
   @Autowired
   OrderService orderService;
 
@@ -709,7 +709,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 				result.put("orderStatus", "");
 			}
 		}
-		
+
 		TrdOrderOpTypeEnum[] trdOrderOpType = TrdOrderOpTypeEnum.values();
 		for (TrdOrderOpTypeEnum trdOrderOpTypeEnum : trdOrderOpType) {
 			if (trdOrder.getOrderType() == trdOrderOpTypeEnum.getOperation()) {
@@ -740,7 +740,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 		for (int i = 0; i < trdOrderDetailList.size(); i++) {
 			detailMap = new HashMap<String, Object>();
 			TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
-			
+
 			TrdOrderStatusEnum[] trdOrderStatusEnum2 = TrdOrderStatusEnum.values();
 			for (TrdOrderStatusEnum trdOrderStatus2 : trdOrderStatusEnum2) {
 				if (trdOrderDetail.getOrderDetailStatus() == trdOrderStatus2.getStatus()) {
@@ -750,16 +750,19 @@ public class TradeOpServiceImpl implements TradeOpService {
 					detailMap.put("fundstatus", "");
 				}
 			}
-			
+
 			Long instanceLong = trdOrderDetail.getCreateDate();
 			detailMap.put("fundCode", trdOrderDetail.getFundCode());
 			//基金费用
 			detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
+			//交易金额
+			detailMap.put("fundSum", TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundSum()));
+
 			String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 1);
-			
+
 			LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(InstantDateUtil.getEpochSecondOfZero(date)), ZoneOffset.UTC);
 			String dayOfWeek = InstantDateUtil.getDayOfWeekName(localDateTime);
-			
+
 			detailMap.put("funddate", date);
 			logger.info("dayOfWeek value is :" + dayOfWeek);
 			logger.info("date value is :" + date);
@@ -778,7 +781,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 		result.put("detailList", detailList);
 		return result;
 	}
-	
+
 	@Override
 	public Map<String, Object> getOrderInfos(String uuid,Long prodId) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
