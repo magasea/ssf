@@ -227,12 +227,12 @@ public class TransferController {
 			if (resultMap.get("min") != null) {
 				Double min = (Double) resultMap.get("min");
 				BigDecimal minValue = new BigDecimal(min);
-				resultMap.put("min", minValue.setScale(2, BigDecimal.ROUND_HALF_UP));
+				resultMap.put("min", minValue.setScale(0, BigDecimal.ROUND_UP));
 			}
 			if (resultMap.get("min") != null) {
 				Double max = (Double) resultMap.get("max");
 				BigDecimal maxValue = new BigDecimal(max);
-				resultMap.put("max", maxValue.setScale(2, BigDecimal.ROUND_HALF_UP));
+				resultMap.put("max", maxValue.setScale(0, BigDecimal.ROUND_DOWN));
 			}
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", resultMap);
 		} catch (HttpClientErrorException e) {
