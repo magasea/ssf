@@ -998,10 +998,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 				Long sumFromLog = null;
 				if(mongoUiTrdLogDTO.getTradeConfirmSum() != null){
 					sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum();
-				}else if(mongoUiTrdLogDTO.getTradeConfirmShare() != null){
-					sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
 				}else if(mongoUiTrdLogDTO.getTradeTargetSum() != null){
 					sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum();
+				}else if(mongoUiTrdLogDTO.getTradeConfirmShare() != null){
+					sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
 				}else if(mongoUiTrdLogDTO.getTradeTargetShare() != null){
 					sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
 				}
