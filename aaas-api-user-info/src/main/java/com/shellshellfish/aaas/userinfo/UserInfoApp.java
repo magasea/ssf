@@ -40,6 +40,6 @@ public class UserInfoApp {
 
 	@PostConstruct
 	void started() {
-		TimeZone.setDefault(TimeZone.getTimeZone("Etc/UTC"));
+//		TimeZone.setDefault(TimeZone.getTimeZone("Etc/UTC"));
 	}
 }

@@ -21,6 +21,7 @@ public class TradeUtilTest {
 
   @Test
   public void getReadableDateTime() throws Exception {
+    System.out.println(TradeUtil.getUTCTime());
     System.out.println(TradeUtil.getReadableDateTime(TradeUtil.getUTCTime()));
   }
 
