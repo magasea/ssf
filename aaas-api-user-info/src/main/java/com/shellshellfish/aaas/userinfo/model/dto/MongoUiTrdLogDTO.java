@@ -2,8 +2,6 @@ package com.shellshellfish.aaas.userinfo.model.dto;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import javax.persistence.Id;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
  * The persistent class for the ui_trd_log database table.
@@ -15,6 +13,7 @@ public class MongoUiTrdLogDTO implements Serializable {
   
   private String id;
 
+  
   private BigDecimal amount;
 
   
@@ -59,6 +58,7 @@ public class MongoUiTrdLogDTO implements Serializable {
   
   private Long tradeTargetSum;
 
+  
   private String applySerial;
 
   public MongoUiTrdLogDTO() {
@@ -151,7 +151,6 @@ public class MongoUiTrdLogDTO implements Serializable {
   public void setUserId(long userId) {
     this.userId = userId;
   }
-
   public void setUserId(Long userId) {
     this.userId = userId;
   }
