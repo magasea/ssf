@@ -53,7 +53,7 @@
 * aaas-app-datacollection-client
   - 自身 10080
   - GRPC 10081
-* aaas-app-datacollection-server
+* aaas-funds-datacollection-server
   - 自身 10090
   - GRPC 10091
 * aaas-finance-trade-order
