@@ -937,15 +937,22 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}
 				String fundCode = mongoUiTrdLogDTO.getFundCode();
 				int operation = mongoUiTrdLogDTO.getOperations();
-				long dateLong = mongoUiTrdLogDTO.getLastModifiedDate();
+				Long dateLong = null;
 //				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 //				Date date = new Date(dateLong);
 //				String dateTime = simpleDateFormat.format(date);
-				dateStr = TradeUtil.getReadableDateTime(mongoUiTrdLogDTO.getCreatedDate());
-				if(StringUtils.isEmpty(dateStr)){
+				if(mongoUiTrdLogDTO.getTradeDate() != null && mongoUiTrdLogDTO.getTradeDate() > 0){
+					dateStr = TradeUtil.getReadableDateTime(mongoUiTrdLogDTO.getTradeDate());
+					dateLong = mongoUiTrdLogDTO.getTradeDate();
+				}else if(mongoUiTrdLogDTO.getLastModifiedDate() != null && mongoUiTrdLogDTO.getLastModifiedDate() > 0){
+					dateStr = TradeUtil.getReadableDateTime(mongoUiTrdLogDTO.getLastModifiedDate());
+					dateLong = mongoUiTrdLogDTO.getLastModifiedDate();
+				}else{
 					logger.error("This tradeLog is with no time:"+ mongoUiTrdLogDTO.getCreatedDate());
 					continue;
 				}
+
+
 				map.put("date", dateStr.split("T")[0]);
 				dateLong = dateLong / 1000;
 				map.put("dateLong", dateLong);
