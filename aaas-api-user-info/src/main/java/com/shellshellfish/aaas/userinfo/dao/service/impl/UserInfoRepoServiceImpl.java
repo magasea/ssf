@@ -739,6 +739,16 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			spdBuilder.setFundQuantityTrade(sellProductDetail.getFundQuantityTrade());
 			UiProductDetail currentProductDetail = currentAvailableFunds.get(sellProductDetail
 					.getFundCode());
+			if(currentProductDetail == null){
+				logger.error("no currentProductDetail info available for fundCode:{}", sellProductDetail
+						.getFundCode());
+				spdBuilder.setResult(-1);
+				long smallestRemain = -1;
+				spdBuilder.setFundQuantityTrade(smallestRemain);
+				canDuduct = false;
+				spBuilder.addSellProductDetails(spdBuilder);
+				continue;
+			}
 			long currentAvailFundQuantityTrade = currentProductDetail.getFundQuantityTrade()
 					== null ? 0L : currentProductDetail.getFundQuantityTrade();
 			long currentAvailFundQuantity = currentProductDetail.getFundQuantity()
