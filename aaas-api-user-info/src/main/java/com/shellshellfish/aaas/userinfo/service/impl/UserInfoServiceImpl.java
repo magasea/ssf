@@ -1005,7 +1005,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}else if(mongoUiTrdLogDTO.getTradeTargetShare() != null){
 					sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
 				}
-				map.put("amount", sumFromLog);
+				map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(sumFromLog));
 //				if (mongoUiTrdLogDTO.getAmount() != null) {
 //					map.put("amount", mongoUiTrdLogDTO.getAmount());
 //				} else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
