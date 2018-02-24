@@ -1,16 +1,25 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
+import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
+import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
 import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoDailyAmountRepository;
+import com.shellshellfish.aaas.userinfo.service.FundGroupService;
+import com.shellshellfish.aaas.userinfo.service.UiProductService;
+import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
+import com.shellshellfish.aaas.userinfo.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,22 +30,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
-import com.alibaba.fastjson.JSONObject;
-import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.common.utils.URLutils;
-import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
-import com.shellshellfish.aaas.userinfo.model.FundIncome;
-import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
-import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
-import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
-import com.shellshellfish.aaas.userinfo.service.FundGroupService;
-import com.shellshellfish.aaas.userinfo.service.UiProductService;
-import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
-import com.shellshellfish.aaas.userinfo.service.UserInfoService;
-import com.shellshellfish.aaas.userinfo.utils.DateUtil;
 
 /**
  * @Author pierre 17-12-29
@@ -146,7 +140,7 @@ public class FundGroupServiceImpl implements FundGroupService {
 		DailyAmount today = dailyAmountList.get(0);
 		DailyAmount yesterday = dailyAmountList.get(1);
 
-		return today.getAsset().subtract(yesterday.getAsset());
+		return today.getAsset().subtract(yesterday.getAsset()).setScale(2, RoundingMode.HALF_UP);
 	}
 
 
