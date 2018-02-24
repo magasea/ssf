@@ -18,7 +18,7 @@ shellshellfish:
   asset-alloction-url: "http://aaas-api-asset-allocation:10020"
   trade-order-url: "http://aaas-finance-trade-order:10100"
   trade-pay-url: "http://aaas-finance-trade-pay:10110"
-  data-manager-url: "http://aaas-api-data_manager:10030"
+  data-manager-url: "http://aaas-api-data-manager:10030"
   
 security:
   basic:
