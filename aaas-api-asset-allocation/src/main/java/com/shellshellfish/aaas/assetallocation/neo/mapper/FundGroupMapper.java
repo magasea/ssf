@@ -25,9 +25,13 @@ public interface FundGroupMapper {
 
     List<Interval> getProportion(Map map);
 
+    List<Interval> getProportionGroupByFundTypeTwo(Map map);
+
+    List<Interval> getFnameAndProportion(Map map);
+
     List<Interval> getFundCode(Map map);
 
-    List<FundGroupDetails> efficientFrontier(Map map);
+    List<String> getFundGroupCodeList(Map map);
 
     List<Interval> getInterval(Map map);
 
@@ -45,15 +49,27 @@ public interface FundGroupMapper {
 
     List<RiskController> getRiskController(Map map);
 
-    List<RiskIncomeInterval> getScaleMark(@Param("id") String id,@Param("slidebarType") String slidebarType);
+    List<RiskIncomeInterval> getScaleMark(Map map);
+
+    List<RiskIncomeInterval> getScaleMarkFromChoose(@Param("id") String id,
+                                                    @Param("slidebarType") String slidebarType,
+                                                    @Param("standardType") String standardType);
 
     List<FundGroupBuy> getFundGroupBuy(@Param("id") String id);
 
+    String getFundGroupNameById(@Param("id") String id);
+
     String getFundGroupHistoryTime(Map map);
+
+    String getFundGroupHistoryTimeByRiskLevel(Map map);
 
     List<FundNetVal> getFundNetValue(Map map);
 
     List<FundGroupHistory> getHistory(Map map);
+
+    List<FundGroupHistory> getHistoryOne(Map map);
+
+    List<FundGroupHistory> getHistoryAll(Map map);
 
     List<FundNetVal> getSharpeRatio(Map map);
 
@@ -65,11 +81,23 @@ public interface FundGroupMapper {
 
     List<FundNetVal> getNavadjBenchmark(Map map);
 
+    List<FundGroupHistory> selectMaximumRetracement(Map map);
+
     int insertGroupNavadj(Map map);
+
+    int batchInsertFundGroupHistory(List<Map> mapList);
 
     int insertGroupNavadjBenchmark(Map map);
 
+    int batchInsertFundGroupHistoryBenchmark(List<Map> mapList);
+
     int updateMaximumRetracement(Map map);
+
+    int batchUpdateMaximumRetracement(List<Map> mapList);
+
+    int updateMaximumRetracementByRiskLevel(Map map);
+
+    int batchUpdateMaximumRetracementByRiskLevel(List<Map> mapList);
 
     String getGroupStartTime(Map map);
 
@@ -78,6 +106,10 @@ public interface FundGroupMapper {
     List<EfficientFrontier> getEfficientFrontierDetail(String id);
 
     List<FundNetVal> getNavadjStartTime(Map map);
+
+    List<FundNetVal> getNavadjFromStartDate(Map map);
+
+    List<FundNetVal> getNavadjByNavDate(Map map);
 
     List<FundNetVal> getNavadjEndTime(Map map);
 
@@ -88,6 +120,12 @@ public interface FundGroupMapper {
     int deleteData(@Param("tableName") String tableName);
 
     int updateContribution(Map map);
+
+    int batchUpdateContribution(List<Map> mapList);
+
+    int updateMaximumLosses(Map map);
+
+    int updateExpectedMaximumRetracement(Map map);
 
     //查询 fund_group_basic 中全部 code
     List<String> findAllGroupCode();

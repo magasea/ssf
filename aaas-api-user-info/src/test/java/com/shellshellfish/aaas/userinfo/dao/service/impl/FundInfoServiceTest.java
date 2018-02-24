@@ -29,7 +29,7 @@ public class FundInfoServiceTest {
 
 	@Test
 	public void testGetAllNet() throws Exception {
-		String fundCode = "000149.OF";
+		String fundCode = "400023.OF";
 
 		try {
 			BigDecimal result = fundTradeApiService.getRate(fundCode, "024");

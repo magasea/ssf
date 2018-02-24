@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.assetallocation.neo.entity;
 
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,6 +25,8 @@ public class FundCombination {
     private Float simulateHistoricalVolatility;//模拟历史年化波动率
 
     private Integer isValid; //数据是否有效
+    private Date createDate;//数据创建时间
+    private Date combinationDate;//组合成立日
 
     public Integer getGroupId() {
         return groupId;
@@ -121,6 +124,22 @@ public class FundCombination {
         this.isValid = isValid;
     }
 
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public Date getCombinationDate() {
+        return combinationDate;
+    }
+
+    public void setCombinationDate(Date combinationDate) {
+        this.combinationDate = combinationDate;
+    }
+
     @Override
     public String toString() {
         return "FundCombination{" +
@@ -136,6 +155,8 @@ public class FundCombination {
                 ", expectedMaxRetracement=" + expectedMaxRetracement +
                 ", simulateHistoricalVolatility=" + simulateHistoricalVolatility +
                 ", isValid=" + isValid +
+                ", createDate=" + createDate +
+                ", combinationDate=" + combinationDate +
                 '}';
     }
 }

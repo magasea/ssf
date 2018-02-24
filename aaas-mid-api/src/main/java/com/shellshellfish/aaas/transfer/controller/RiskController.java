@@ -134,8 +134,10 @@ public class RiskController {
 			}
 			//String telNum = "13573143909";
 			//获取uid
+			logger.info("获取uuid==="+userUuid);
 			String urlUid=userinfoUrl+"/api/userinfo/users/"+userUuid;
 			Map uidMap = restTemplate.getForEntity(urlUid,Map.class).getBody();
+			logger.info("获取uuid成功");
 			Map resultMap = (Map) uidMap.get("userBaseInfo");
 			String telNum = (String) resultMap.get("cellPhone");
 			
@@ -156,6 +158,8 @@ public class RiskController {
 			result = new HashMap<>();
 			result.put("errorCode", "400");
 			result.put("error", "");
+			e.printStackTrace();
+			logger.error(e.getMessage());
 			String str = new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}

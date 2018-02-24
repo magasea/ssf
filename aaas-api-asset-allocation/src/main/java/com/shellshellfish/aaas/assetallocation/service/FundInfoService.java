@@ -10,6 +10,6 @@ import java.util.List;
 
 public interface FundInfoService {
 
-  public List<DailyFunds> getDailyFunds(DailyFundsQuery fundsQuery) throws Exception;
+  List<DailyFunds> getDailyFunds(DailyFundsQuery fundsQuery) throws Exception;
 
 }
