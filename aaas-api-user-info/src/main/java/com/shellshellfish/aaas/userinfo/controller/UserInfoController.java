@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.userinfo.controller;
 
 import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
+import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -85,6 +86,15 @@ public class UserInfoController {
 
 	@Autowired
 	OrderRpcService orderGrpcService;
+
+	@Autowired
+	PayGrpcService payGrpcService;
+
+	@Autowired
+	OrderRpcService orderRpcService;
+
+	@Autowired
+	RpcOrderService rpcOrderService;
 
 	/**
 	 * 我的 初始页面
@@ -391,7 +401,7 @@ public class UserInfoController {
 			@RequestBody BankcardDetailBodyDTO bankcardDetailVo) throws Exception {
 
 		bankcardDetailVo.setUserUuid(userUuid);
-		BankCardDTO bankCard = orderGrpcService.createBankCard(bankcardDetailVo);
+		BankCardDTO bankCard = rpcOrderService.createBankCard(bankcardDetailVo);
 		Map<String, Object> result = new HashMap<>();
 		if (bankCard == null) {
 			logger.error("addBankCardWithDetailInfo method 添加失败..");

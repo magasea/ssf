@@ -9,6 +9,8 @@ option objc_class_prefix = "PRS";
 service PayRpcService {
     rpc BindBankCard (BindBankCardQuery) returns (BindBankCardResult) {
     }
+
+
     /**
     * 中证接口查询，输入流水号和用户id或者流水号和外部订单号查询交易状态
     */
@@ -235,3 +237,4 @@ message FundNetInfo{
   string chng_pct = 4; //变化率
   string tradedate = 5; //交易日期
 }
+
