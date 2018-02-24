@@ -17,7 +17,7 @@ grpc:
 #  host: localhost
   port: 10021
   daily-fund-client:
-    host: aaas-app-datacollection-server
+    host: aaas-funds-datacollection-server
     port: 10091
 
 application:

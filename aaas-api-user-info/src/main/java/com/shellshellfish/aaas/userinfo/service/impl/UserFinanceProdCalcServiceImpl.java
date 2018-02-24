@@ -749,8 +749,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 					} catch (Exception e) {
 						logger.error("计算{用户:{},基金code:{},基金名称：{}}日收益出错", detail.getCreateBy(),
 								detail.getFundCode(), detail.getFundName(), e);
-						//need to stop when it throws exception
-						throw e;
+						//FIXME  记录错误数据 并返回
 					}
 				}
 			}
