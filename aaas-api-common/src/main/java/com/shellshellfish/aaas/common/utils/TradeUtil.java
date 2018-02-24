@@ -32,7 +32,7 @@ public class TradeUtil {
   public static String generateOrderIdByBankCardNum(String bankCardNum, int tradeBrokerId){
     Long utcTime = getUTCTime();
     System.out.println(utcTime);
-    String disOrderedBankCardId = bankCardNum.substring(0, 3) + bankCardNum.substring(bankCardNum
+    String disOrderedBankCardId = bankCardNum.substring(0, 5) + bankCardNum.substring(bankCardNum
         .length() -4);
     StringBuilder sb = new StringBuilder();
     sb.append(disOrderedBankCardId).append(String.format("%04d", tradeBrokerId)).append(String.format("%018d", utcTime));

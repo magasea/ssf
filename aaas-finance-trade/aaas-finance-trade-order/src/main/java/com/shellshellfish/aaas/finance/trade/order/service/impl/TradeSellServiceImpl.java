@@ -31,6 +31,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
@@ -89,6 +90,18 @@ public class TradeSellServiceImpl implements TradeSellService {
       logger.error("failed to generate sell information because input information is not complete");
       throw new IllegalArgumentException("赎回输入信息不完整，无法赎回, prodSellPageDTO"
           + ".getProdDtlSellPageDTOList():" + prodSellPageDTO.getProdDtlSellPageDTOList());
+    }else{
+      //filter 0 amount request in getProdDtlSellPageDTOList
+      Iterator<ProdDtlSellPageDTO> prodDtlSellPageDTOIterator = prodSellPageDTO
+          .getProdDtlSellPageDTOList().iterator();
+      while(prodDtlSellPageDTOIterator.hasNext()){
+        ProdDtlSellPageDTO prodDtlSellPageDTO = prodDtlSellPageDTOIterator.next();
+        if(TradeUtil.getLongNumWithMul100(prodDtlSellPageDTO.getTargetSellAmount()) == 0L){
+          logger.error("needn't to handle the fundCode:{} , because sellAmount is :{}",
+              prodDtlSellPageDTO.getFundCode(), prodDtlSellPageDTO.getTargetSellAmount());
+          prodDtlSellPageDTOIterator.remove();
+        }
+      }
     }
     //first : get price of funds , this
     FundCodes.Builder requestBuilder = FundCodes.newBuilder();
