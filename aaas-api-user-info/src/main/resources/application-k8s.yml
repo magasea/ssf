@@ -43,7 +43,7 @@ datasource:
   sampleapp:
     url: jdbc:mysql://external-mysql-service:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8
     username: sa
-    password: N4eTVr89lX9BaPcx
+    password: 1rIQ9wi!@g3P$Qh* 
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema: ssfuser
     maxPoolSize: 20
@@ -63,7 +63,7 @@ grpc:
 #    host: localhost
     port: 10061
   data-manager-rpc:
-    host: aaas-api-data_manager
+    host: aaas-api-data-manager
     port: 10031
   finance-trade-order-rpc:
     host: aaas-finance-trade-order
