@@ -3,6 +3,8 @@ package com.shellshellfish.aaas.userinfo.service;
 
 import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.OrderResult;
+import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.BankcardDetailBodyDTO;
 import java.util.List;
 
 public interface RpcOrderService {
@@ -13,4 +15,8 @@ public interface RpcOrderService {
 	OrderResult getOrderInfoByProdIdAndOrderStatus(Long userProdId, Integer orderStatus);
 
 	List<OrderDetail> getOrderDetails(Long userProdId, Integer orderDetailStatus);
+
+	String openAccount(BankcardDetailBodyDTO bankcardDetailBodyDTO);
+
+	BankCardDTO createBankCard(BankcardDetailBodyDTO bankcardDetailBodyDTO);
 }

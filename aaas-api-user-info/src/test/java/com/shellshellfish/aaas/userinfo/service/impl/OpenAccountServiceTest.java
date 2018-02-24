@@ -4,6 +4,7 @@ import com.shellshellfish.aaas.userinfo.UserInfoApp;
 import com.shellshellfish.aaas.userinfo.model.dto.BankcardDetailBodyDTO;
 import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
 import com.shellshellfish.aaas.userinfo.service.PayGrpcService;
+import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +20,7 @@ public class OpenAccountServiceTest {
 
 
 	@Autowired
-	OrderRpcService orderGrpcService;
+	RpcOrderService rpcOrderService;
 
 	@Test
 	public void openAccountTest() throws Exception {
@@ -33,7 +34,7 @@ public class OpenAccountServiceTest {
 		bankcardDetailBodyDTO.setCardUserPid("456465431351543134");
 		bankcardDetailBodyDTO.setUserId(-1L);
 
-		String result = orderGrpcService.openAccount(bankcardDetailBodyDTO);
+		String result = rpcOrderService.openAccount(bankcardDetailBodyDTO);
 		Assert.assertNotNull(result);
 		Assert.assertNotEquals("-1", result);
 	}
