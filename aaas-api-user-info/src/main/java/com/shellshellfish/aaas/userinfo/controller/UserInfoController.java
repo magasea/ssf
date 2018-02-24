@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.userinfo.controller;
 
 import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
+import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -85,6 +86,15 @@ public class UserInfoController {
 
 	@Autowired
 	OrderRpcService orderGrpcService;
+
+	@Autowired
+	PayGrpcService payGrpcService;
+
+	@Autowired
+	OrderRpcService orderRpcService;
+
+	@Autowired
+	RpcOrderService rpcOrderService;
 
 	/**
 	 * 我的 初始页面
@@ -391,7 +401,7 @@ public class UserInfoController {
 			@RequestBody BankcardDetailBodyDTO bankcardDetailVo) throws Exception {
 
 		bankcardDetailVo.setUserUuid(userUuid);
-		BankCardDTO bankCard = orderGrpcService.createBankCard(bankcardDetailVo);
+		BankCardDTO bankCard = rpcOrderService.createBankCard(bankcardDetailVo);
 		Map<String, Object> result = new HashMap<>();
 		if (bankCard == null) {
 			logger.error("addBankCardWithDetailInfo method 添加失败..");
@@ -1241,16 +1251,10 @@ public class UserInfoController {
 	}
 	
 	public static String getBankcardNumber(String bankcard) {
-		//String str = "622588013770686";
-		//System.out.println(str.replaceAll("([\\d]{4})", "$1 ")+"");
-		bankcard = bankcard.replaceAll("([\\d]{4})", "$1 ");
-		String bankcardS[] = bankcard.split(" ");
-		StringBuilder bankcardSecurity = new StringBuilder();
-		for(int i=0;i<bankcardS.length-1;i++){
-			bankcardSecurity.append("**** ");
-		}
-		bankcardSecurity.append(bankcardS[bankcardS.length-1]);
-		System.out.println(bankcardSecurity);
+		int len=bankcard.length();
+		StringBuilder bankcardSecurity = new StringBuilder(bankcard);
+		for (int i=0; i<len-4; i++) 
+			bankcardSecurity.replace(i, i+1, "*");
 		return bankcardSecurity.toString();
 	}
 	

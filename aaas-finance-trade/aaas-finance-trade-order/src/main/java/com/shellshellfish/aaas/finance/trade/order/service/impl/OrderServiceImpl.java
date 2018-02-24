@@ -1,8 +1,10 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
-import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
-
+import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
+import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
+import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
+import com.shellshellfish.aaas.finance.trade.order.BindCardResult;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetailQueryInfo;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetailResult;
@@ -21,6 +23,7 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderRe
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdTradeBankDicRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.redis.UserPidDAO;
 import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
+import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
@@ -55,12 +58,15 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 
 	@Autowired
 	UserInfoService userInfoService;
-	
+
 	@Autowired
 	TrdTradeBankDicRepository trdTradeBankDicRepository;
 
 	@Resource
 	UserPidDAO userPidDAO;
+
+	@Autowired
+	PayService payService;
 
 	@Override
 	public List<TrdOrderDetail> getOrderByUserId(Long userId) {
@@ -251,5 +257,56 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 		responseObserver.onCompleted();
 
 	}
+
+	@Override
+	/**
+	 */
+	public void openAccount(com.shellshellfish.aaas.finance.trade.order.BindCardInfo bankCardInfo,
+			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.order.BindCardResult> responseObserver) {
+		BindCardResult.Builder resultBuilder = BindCardResult.newBuilder();
+
+		final String errorMsg = "-1";
+
+		String bankCardNo = bankCardInfo.getCardNo();
+		String bankName = BankUtil.getNameOfBank(bankCardNo);
+		bankName = BankUtil.getZZBankNameFromOriginBankName(bankName);
+
+		TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository.findByBankNameAndTraderBrokerId
+				(bankName, TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
+
+		String tradeNo;
+		if (trdTradeBankDic != null) {
+			BindBankCard bindBankCard = new BindBankCard();
+			bindBankCard.setBankCardNum(bankCardInfo.getCardNo());
+			bindBankCard.setUserId(bankCardInfo.getUserId());
+			bindBankCard.setBankCode(trdTradeBankDic.getBankCode());
+			bindBankCard.setCellphone(bankCardInfo.getUserPhone());
+			bindBankCard.setTradeBrokerId(trdTradeBankDic.getTraderBrokerId());
+			bindBankCard.setUserPid(bankCardInfo.getIdCardNo());
+			bindBankCard.setUserName(bankCardInfo.getUserName());
+			bindBankCard.setRiskLevel(bankCardInfo.getRiskLevel());
+
+			try {
+				tradeNo = payService.bindCard(bindBankCard);
+			} catch (ExecutionException e) {
+				logger.error(e.getMessage());
+				tradeNo = errorMsg;
+			} catch (InterruptedException e) {
+				logger.error(e.getMessage());
+				tradeNo = errorMsg;
+			}
+		} else {
+			tradeNo = errorMsg;
+		}
+
+		if (tradeNo == null)
+			tradeNo = errorMsg;
+
+		resultBuilder.setTradeacco(tradeNo);
+
+		responseObserver.onNext(resultBuilder.build());
+		responseObserver.onCompleted();
+	}
+
 
 }

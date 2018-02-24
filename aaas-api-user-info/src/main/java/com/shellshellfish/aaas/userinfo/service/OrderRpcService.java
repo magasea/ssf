@@ -9,8 +9,6 @@ import com.shellshellfish.aaas.userinfo.model.dto.BankcardDetailBodyDTO;
 public interface OrderRpcService {
   String getBankCardNumberByUserProdId(Long userProdId);
 
-  String openAccount(BankcardDetailBodyDTO bankcardDetailBodyDTO);
 
-  BankCardDTO createBankCard(BankcardDetailBodyDTO bankcardDetailBodyDTO);
 
 }
