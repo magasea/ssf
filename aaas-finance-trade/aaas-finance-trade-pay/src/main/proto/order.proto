@@ -17,6 +17,9 @@ service OrderRpcService {
   rpc getOrderDetail (OrderDetailQueryInfo) returns (OrderDetailResult) {
   };
   rpc getBankCardNumByUserProdId(UserProdId) returns(UserBankCardNum);
+
+  rpc OpenAccount (BindCardInfo) returns (BindCardResult) {
+  }
 }
 
 //获取交易用户PID
@@ -97,10 +100,21 @@ message OrderDetail {
   int64 prod_id = 27;
 }
 
-
-
 message UserBankCardNum {
   //用户银行卡号
   string user_bank_cardnum = 1;
 }
 
+message BindCardInfo {
+    string cardNo = 1; //银行卡号
+    string bankName = 2; //开户行名称
+    int64 userId = 3; //用户ID
+    string idCardNo = 4; //身份证号码
+    string userPhone = 5; //用户电话
+    string userName = 6; //用户名
+    int32 riskLevel = 7;//用户风险评级
+}
+
+message BindCardResult {
+    string tradeacco = 1; //交易帐号号
+}
