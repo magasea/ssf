@@ -1241,16 +1241,10 @@ public class UserInfoController {
 	}
 	
 	public static String getBankcardNumber(String bankcard) {
-		//String str = "622588013770686";
-		//System.out.println(str.replaceAll("([\\d]{4})", "$1 ")+"");
-		bankcard = bankcard.replaceAll("([\\d]{4})", "$1 ");
-		String bankcardS[] = bankcard.split(" ");
-		StringBuilder bankcardSecurity = new StringBuilder();
-		for(int i=0;i<bankcardS.length-1;i++){
-			bankcardSecurity.append("**** ");
-		}
-		bankcardSecurity.append(bankcardS[bankcardS.length-1]);
-		System.out.println(bankcardSecurity);
+		int len=bankcard.length();
+		StringBuilder bankcardSecurity = new StringBuilder(bankcard);
+		for (int i=0; i<len-4; i++) 
+			bankcardSecurity.replace(i, i+1, "*");
 		return bankcardSecurity.toString();
 	}
 	
