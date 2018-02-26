@@ -184,7 +184,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		share = share.divide(new BigDecimal(100));
 
 		LocalDate localDate = InstantDateUtil.format(date, "yyyyMMdd");
-		localDate.plusDays(1);
+		localDate = localDate.plusDays(1);
 
 		BigDecimal netValue;
 
