@@ -39,7 +39,7 @@ public interface PayService {
    * @return
    */
   String bindCard(BindBankCard bindBankCard)
-      throws ExecutionException, InterruptedException, JsonProcessingException;
+      throws Exception;
 
   /**
    * 根据Order模块消息传来的TrdOrderPay生成支付流水完成支付

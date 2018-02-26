@@ -25,6 +25,7 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.redis.UserPidDAO
 import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
+import com.shellshellfish.aaas.grpc.common.ErrInfo;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import io.grpc.stub.StreamObserver;
@@ -274,7 +275,7 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 		TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository.findByBankNameAndTraderBrokerId
 				(bankName, TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
 
-		String tradeNo;
+		String tradeNo = null;
 		if (trdTradeBankDic != null) {
 			BindBankCard bindBankCard = new BindBankCard();
 			bindBankCard.setBankCardNum(bankCardInfo.getCardNo());
@@ -294,16 +295,21 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 			} catch (InterruptedException e) {
 				logger.error(e.getMessage());
 				tradeNo = errorMsg;
+			} catch (Exception e) {
+				e.printStackTrace();
+				if(e.getMessage().contains("|")){
+					int errCode = Integer.parseInt(e.getMessage().split("|")[0]);
+					String errMsg = e.getMessage().split("|")[1];
+					ErrInfo.Builder eiBuilder = ErrInfo.newBuilder();
+					eiBuilder.setErrCode(errCode);
+					eiBuilder.setErrMsg(errMsg);
+					resultBuilder.setErrInfo(eiBuilder.build());
+				}
 			}
 		} else {
 			tradeNo = errorMsg;
 		}
-
-		if (tradeNo == null)
-			tradeNo = errorMsg;
-
 		resultBuilder.setTradeacco(tradeNo);
-
 		responseObserver.onNext(resultBuilder.build());
 		responseObserver.onCompleted();
 	}

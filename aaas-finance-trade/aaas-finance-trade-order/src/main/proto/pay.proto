@@ -1,5 +1,5 @@
 syntax = "proto3";
-
+import "common.proto";
 
 option java_multiple_files = true;
 option java_package = "com.shellshellfish.aaas.finance.trade.pay";
@@ -62,6 +62,7 @@ message BindBankCardQuery{
 //绑定银行卡的结果
 message BindBankCardResult{
   string tradeacco = 1;//交易账户号
+  ErrInfo err_info = 2;//绑卡失败信息
 }
 
 //中证接口查询入参

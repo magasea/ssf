@@ -545,6 +545,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 		if (dailyAmountAggregationOfOneDayBefore == null) {
 			dailyAmountAggregationOfOneDayBefore = DailyAmountAggregation.getEmptyInstance();
+			dailyAmountAggregationOfOneDayBefore.setAsset(assetOfEndDay);
 		}
 
 		//区间结束日前一天数据

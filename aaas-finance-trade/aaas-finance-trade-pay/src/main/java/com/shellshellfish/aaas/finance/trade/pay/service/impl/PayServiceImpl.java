@@ -10,6 +10,7 @@ import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
 import com.shellshellfish.aaas.common.enums.ZZRiskAbilityEnum;
+import com.shellshellfish.aaas.common.exceptions.ErrorConstants;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
@@ -46,6 +47,7 @@ import com.shellshellfish.aaas.finance.trade.pay.repositories.redis.WorkDayDao;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import com.shellshellfish.aaas.finance.trade.pay.service.UserInfoService;
+import com.shellshellfish.aaas.grpc.common.ErrInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -297,7 +299,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
   }
 
   @Override
-  public String bindCard(BindBankCard bindBankCard)throws JsonProcessingException {
+  public String bindCard(BindBankCard bindBankCard) throws Exception {
     String tradeAcco = null;
     try {
       OpenAccountResult openAccountResult = fundTradeApiService.openAccount("" +TradeUtil
@@ -326,6 +328,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           }
         } catch (Exception e1) {
           e1.printStackTrace();
+          throw e1;
         }
       }
     }
@@ -524,19 +527,26 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
 		BindBankCard bindBankCard = new BindBankCard();
 		BeanUtils.copyProperties(bindBankCardQuery, bindBankCard);
-		String trdAcco;
+		String trdAcco = null;
+    BindBankCardResult.Builder builder = BindBankCardResult.newBuilder();
 		try {
 			trdAcco = bindCard(bindBankCard);
 		} catch (JsonProcessingException e) {
 			trdAcco = errMsg;
 			logger.error(e.getMessage());
-		}
-		if (StringUtils.isEmpty(trdAcco) || trdAcco.equals(errMsg)) {
+		} catch (Exception e) {
+      e.printStackTrace();
+      ErrInfo.Builder eiBuilder = ErrInfo.newBuilder();
+      eiBuilder.setErrMsg(e.getMessage());
+      eiBuilder.setErrCode(ErrorConstants.GRPC_ERROR_BINDCARD_FAIL_GENERAL);
+      builder.setErrInfo(eiBuilder.build());
+    }
+    if (StringUtils.isEmpty(trdAcco) || trdAcco.equals(errMsg)) {
 			logger.error("failed to bind card with UserName:" + bindBankCard.getUserName() + " pid:" +
 					bindBankCard.getUserPid() + "bankCode:" + bindBankCard.getBankCode() +
 					"userId:" + bindBankCard.getUserId());
 		}
-		BindBankCardResult.Builder builder = BindBankCardResult.newBuilder();
+
 		builder.setTradeacco(trdAcco);
 		responseObserver.onNext(builder.build());
 		responseObserver.onCompleted();

@@ -117,4 +117,5 @@ message BindCardInfo {
 
 message BindCardResult {
     string tradeacco = 1; //交易帐号号
+    ErrInfo err_info = 2; //绑卡失败信息
 }
