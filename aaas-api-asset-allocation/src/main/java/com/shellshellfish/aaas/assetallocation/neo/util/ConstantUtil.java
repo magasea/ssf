@@ -54,4 +54,11 @@ public interface ConstantUtil {
     int ANNUALISED_WEEK_NUM = 52;
     int BATCH_SIZE_NUM = 100; //批次处理记录数 100条
 
+    String SUB_GROUP_ID_SUBFIX = "0048";
+
+    String MONGO_DB_HOST = "192.168.1.10";
+    int MONGO_DB_PORT = 27017;
+    String MONGO_DB_DATABASE_NAME = "funds";
+    String MONGO_DB_COLLECTION = "portfolio_yield_all";
+
 }

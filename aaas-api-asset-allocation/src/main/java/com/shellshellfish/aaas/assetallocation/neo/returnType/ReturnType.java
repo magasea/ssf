@@ -1,12 +1,13 @@
 package com.shellshellfish.aaas.assetallocation.neo.returnType;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by wangyinuo on 2017/11/30.
  */
-public class ReturnType {
+public class ReturnType implements Serializable {
 
 	private int _total;
 	private List<Map<String, Object>> _items;
