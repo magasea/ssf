@@ -99,11 +99,11 @@
     </select>
 
     <insert id="insertDailyDataToFundNetVal" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
-        INSERT INTO fund_net_value (CODE,NAVLATESTDATE,UNITNAV,NAVACCUM,NAVADJ,YIELDOF7DAYS,MILLION_REVENUE)
+        INSERT INTO fund_net_value (CODE,NAVLATESTDATE,UNITNAV,NAVACCUM,NAVADJ,YIELDOF7DAYS,MILLION_REVENUE,LAST_MOD_TIME)
         <foreach collection="list" item="dailyData" index="index" separator="union all">
             ( SELECT
             #{dailyData.code},#{dailyData.navLatestDate},#{dailyData.navUnit},#{dailyData.navAccum},
-            #{dailyData.navAdj},#{dailyData.yieldOf7Days},#{dailyData.millionRevenue}
+            #{dailyData.navAdj},#{dailyData.yieldOf7Days},#{dailyData.millionRevenue},#{dailyData.createDate}
             FROM dual
             )
         </foreach>
@@ -122,6 +122,29 @@
         code
         FROM fund_basic
         WHERE code=#{code}
+    </select>
+
+    <select id="getMinNavDateByCodeList"  resultType="java.util.Date">
+        SELECT MAX(a.minDate) FROM
+        ( SELECT MIN(NAVLATESTDATE) minDate
+        FROM fund_net_value
+        WHERE CODE IN
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        GROUP BY code ) as a
+    </select>
+
+    <select id="getMaxNavDateByCodeList"  resultType="java.util.Date">
+        SELECT MIN(a.maxDate) FROM
+        ( SELECT MAX(NAVLATESTDATE) maxDate
+          FROM fund_net_value
+          WHERE CODE IN
+          <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+          GROUP BY code
+        ) as a
     </select>
 
 </mapper>

@@ -15,6 +15,7 @@ public class FundCalculateData {
     private Date navDate;//净值日期
     private Double semiVariance;//半方差
     private Double navadj;//复权单位净值
+    private Date createDate;//数据产生时间
 
     public Integer getId() {
         return id;
@@ -72,6 +73,14 @@ public class FundCalculateData {
         this.navadj = navadj;
     }
 
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
     @Override
     public String toString() {
         return "FundCalculateData{" +
@@ -82,6 +91,7 @@ public class FundCalculateData {
                 ", navDate=" + navDate +
                 ", semiVariance=" + semiVariance +
                 ", navadj=" + navadj +
+                ", createDate=" + createDate +
                 '}';
     }
 }

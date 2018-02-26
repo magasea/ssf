@@ -26,7 +26,7 @@ public interface FundCalculateDataMapper {
     Integer insertFundCalculateDataYear(FundCalculateData fundCalculateData);
 
     //查询收益率
-    Double findYieldRatio(@Param("tableName") String tableName, @Param("code") String code, @Param("selectDate") String selectDate);
+    List<Double> findYieldRatio(@Param("tableName") String tableName, @Param("code") String code, @Param("selectDate") String selectDate);
 
     //查询风险率(方差)
     Double findRiskRatio(@Param("tableName") String tableName, @Param("code") String code, @Param("selectDate") String selectDate);

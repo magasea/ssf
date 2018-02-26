@@ -24,15 +24,15 @@ public class Dailyfunds {
     private String fundTypeTwo;//二级分类
     private Double close;//日行情收盘价
     private String id;//实体Id
+    private Date createDate;//数据生成时间
 
 
     public Dailyfunds() {
     }
 
-    public Dailyfunds(Date navLatestDate, Float fundScale, Double navUnit,
-                      Double navAccum, Double navAdj, Float yieldOf7Days,
-                      Double millionRevenue, Float bmIndexChgPct, String code,
-                      String fname, String fundTypeOne, String fundTypeTwo, String id) {
+    public Dailyfunds(Date navLatestDate, Float fundScale, Double navUnit, Double navAccum, Double navAdj,
+                      Float yieldOf7Days, Double millionRevenue, Float bmIndexChgPct, String code, String fname,
+                      String fundTypeOne, String fundTypeTwo, Double close, String id, Date createDate) {
         this.navLatestDate = navLatestDate;
         this.fundScale = fundScale;
         this.navUnit = navUnit;
@@ -45,7 +45,9 @@ public class Dailyfunds {
         this.fname = fname;
         this.fundTypeOne = fundTypeOne;
         this.fundTypeTwo = fundTypeTwo;
+        this.close = close;
         this.id = id;
+        this.createDate = createDate;
     }
 
     public Date getNavLatestDate() {
@@ -160,6 +162,14 @@ public class Dailyfunds {
         this.id = id;
     }
 
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
     @Override
     public String toString() {
         return "Dailyfunds{" +
@@ -177,6 +187,7 @@ public class Dailyfunds {
                 ", fundTypeTwo='" + fundTypeTwo + '\'' +
                 ", close=" + close +
                 ", id='" + id + '\'' +
+                ", createDate=" + createDate +
                 '}';
     }
 

@@ -43,4 +43,9 @@ public interface FundNetValMapper {
     //根据code 查询 fund_basic 表中是否已有数据
     String findBasicDataByCode(String code);
 
+    //根据 codeList 查询基金最晚成立日
+    Date getMinNavDateByCodeList(List<String> codeList);
+
+    // 根据 codeList 查询基金最近的净值更新日期
+    Date getMaxNavDateByCodeList(List<String> codeList);
 }

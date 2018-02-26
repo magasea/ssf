@@ -97,15 +97,25 @@ public class TransferController {
 			if (discount != null) {
 				discount = discount.setScale(2, BigDecimal.ROUND_HALF_UP);
 			}
+			BigDecimal totalAmountTemp = new BigDecimal(0);
 			if (resultMap.get("fundAmountList") != null) {
 				List<Map> resultList = (List<Map>) resultMap.get("fundAmountList");
 				if (resultList != null && resultList.size() > 0) {
-					for (int i = 0; i < resultList.size(); i++) {
+					for (int i = 0; i < resultList.size()-1; i++) {
 						Map map = resultList.get(i);
 						if (map.get("grossAmount") != null) {
 							BigDecimal grossAmount = new BigDecimal(map.get("grossAmount") + "");
-							map.put("grossAmount", grossAmount.setScale(2, BigDecimal.ROUND_HALF_UP));
+							grossAmount = grossAmount.setScale(2, BigDecimal.ROUND_HALF_UP);
+							map.put("grossAmount", grossAmount);
+							totalAmountTemp = totalAmountTemp.add(grossAmount);
 						}
+					}
+					Map map = resultList.get(resultList.size()-1);
+					if (map.get("grossAmount") != null) {
+						BigDecimal grossAmount = new BigDecimal(totalAmount);
+						totalAmountTemp = totalAmountTemp.setScale(2, BigDecimal.ROUND_HALF_UP);
+						grossAmount = grossAmount.subtract(totalAmountTemp);
+						map.put("grossAmount", grossAmount.setScale(2, BigDecimal.ROUND_HALF_UP));
 					}
 				}
 			}
@@ -217,12 +227,12 @@ public class TransferController {
 			if (resultMap.get("min") != null) {
 				Double min = (Double) resultMap.get("min");
 				BigDecimal minValue = new BigDecimal(min);
-				resultMap.put("min", minValue.setScale(2, BigDecimal.ROUND_HALF_UP));
+				resultMap.put("min", minValue.setScale(0, BigDecimal.ROUND_UP));
 			}
 			if (resultMap.get("min") != null) {
 				Double max = (Double) resultMap.get("max");
 				BigDecimal maxValue = new BigDecimal(max);
-				resultMap.put("max", maxValue.setScale(2, BigDecimal.ROUND_HALF_UP));
+				resultMap.put("max", maxValue.setScale(0, BigDecimal.ROUND_DOWN));
 			}
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", resultMap);
 		} catch (HttpClientErrorException e) {

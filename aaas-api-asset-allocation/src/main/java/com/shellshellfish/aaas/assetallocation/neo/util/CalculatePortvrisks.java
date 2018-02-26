@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CalculatePortvrisks {
 
-    private static final Logger logger= LoggerFactory.getLogger(CalculatePortvrisks.class);
+    private static final Logger logger = LoggerFactory.getLogger(CalculatePortvrisks.class);
 
 
     /*
@@ -26,24 +26,21 @@ public class CalculatePortvrisks {
      *        riskThreshold    损失概率= 1 - 置信区间
      *        portValue   资产组合的总价值
      */
-    public Double calculatePortvrisk(double portReturn, double portRisk, double confidenceInterval, double portValue){
-        Double portvrisk=null;
-        Object[] result=null;
-        Double riskThreshold=1-confidenceInterval;
-
+    public static Double calculatePortvrisk(double portReturn, double portRisk, double confidenceInterval, double portValue) {
+        Double portvrisk = null;
+        Object[] result = null;
+        Double riskThreshold = 1 - confidenceInterval;
         try {
-            MATLAB matLab= new MATLAB();
-            result=matLab.calculatePortvrisk(1,portReturn,portRisk,riskThreshold,portValue);
-
-            if(result!=null && result[0]!=null){
-                portvrisk=Double.parseDouble(result[0].toString());
+            MATLAB matLab = new MATLAB();
+            result = matLab.calculatePortvrisk(1, portReturn, portRisk, riskThreshold, portValue);
+            if (result != null && result[0] != null) {
+                portvrisk = Double.parseDouble(result[0].toString());
             }
-
+            matLab.dispose();
         } catch (MWException e) {
             logger.error("Failed to calculatePortvrisk!");
             e.printStackTrace();
         }
-
         return portvrisk;
     }
 
