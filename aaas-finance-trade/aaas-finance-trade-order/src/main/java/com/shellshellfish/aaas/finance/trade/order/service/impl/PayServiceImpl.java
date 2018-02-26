@@ -12,6 +12,7 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdBrokerU
 import com.shellshellfish.aaas.finance.trade.order.repositories.redis.UserPidDAO;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.pay.BindBankCardQuery;
+import com.shellshellfish.aaas.finance.trade.pay.BindBankCardResult;
 import com.shellshellfish.aaas.finance.trade.pay.FundNetInfo;
 import com.shellshellfish.aaas.finance.trade.pay.FundNetInfos;
 import com.shellshellfish.aaas.finance.trade.pay.FundNetQuery;
@@ -28,6 +29,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -65,18 +67,26 @@ public class PayServiceImpl implements PayService {
 
 	@Override
 	public String bindCard(BindBankCard bindBankCard)
-			throws ExecutionException, InterruptedException {
+      throws Exception {
 		final String errMsg = "-1";
 		logger.info("bindCard:" + bindBankCard);
 		BindBankCardQuery.Builder builder = BindBankCardQuery.newBuilder();
 		BeanUtils.copyProperties(bindBankCard, builder, DataCollectorUtil.getNullPropertyNames(bindBankCard));
 		builder.setTradeBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
 
+    BindBankCardResult bindBankCardResult = payRpcFutureStub.bindBankCard(builder.build()).get();
 
-		String trdAcco = payRpcFutureStub.bindBankCard(builder.build()).get().getTradeacco();
+		String trdAcco = bindBankCardResult.getTradeacco();
 
-		if (trdAcco == null || errMsg.equals(trdAcco))
-			return errMsg;
+		if (trdAcco == null || errMsg.equals(trdAcco) || !StringUtils.isEmpty(bindBankCardResult
+        .getErrInfo().getErrMsg())){
+		  logger.error("failed to bindCard because of errCode:{} and errMsg:{}",bindBankCardResult
+          .getErrInfo().getErrCode(), bindBankCardResult.getErrInfo().getErrMsg());
+
+		  throw new Exception(bindBankCardResult.getErrInfo().getErrCode()+"|"+bindBankCardResult
+          .getErrInfo().getErrMsg());
+    }
+
 
     TrdBrokerUser trdBrokerUserOld = trdBrokerUserRepository.findByUserIdAndBankCardNum(bindBankCard
             .getUserId(), bindBankCard.getBankCardNum());

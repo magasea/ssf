@@ -385,7 +385,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		}
 		List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserIdAndCardNumber(userId, cardNumber);
 		if (CollectionUtils.isEmpty(bankcardList)) {
-			throw new UserInfoException("404", "解绑的银行卡不存在");
+			throw new UserInfoException("404", String.format("用户:{}, 要解绑的银行卡:{} 不存在",userId, cardNumber));
 		}
 		//用状态来控制银行卡
 		userInfoBankCardsRepository.setBankCardInvalid(userId, cardNumber);
