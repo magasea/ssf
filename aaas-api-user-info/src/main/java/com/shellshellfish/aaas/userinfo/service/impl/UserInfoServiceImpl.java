@@ -680,7 +680,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		Long userId = getUserIdFromUUID(uuid);
 		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService
 				.findByUserIdAndProdId(userId, userProdId);
-		Map<String, Map<String, Object>> resultMap = new HashMap<String, Map<String, Object>>();
+		Map<Integer, Map<String, Object>> resultMap = new HashMap<>();
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		if (trdLogList != null && trdLogList.size() > 0) {
 			for (int i = 0; i < trdLogList.size(); i++) {
@@ -688,48 +688,50 @@ public class UserInfoServiceImpl implements UserInfoService {
 				MongoUiTrdLogDTO trdLog = trdLogList.get(i);
 				int status = trdLog.getTradeStatus();
 				long lastModifiedDate = 0;
-				if (trdLog.getLastModifiedDate() != 0) {
-					lastModifiedDate = trdLog.getLastModifiedDate();
-				}
+				 if(trdLog.getTradeDate() !=null && trdLog.getTradeDate() > 0){
+					lastModifiedDate = trdLog.getTradeDate();
+				} else if (trdLog.getLastModifiedDate() != 0) {
+					 lastModifiedDate = trdLog.getLastModifiedDate();
+				 }
+				String dateTime = TradeUtil.getReadableDateTime(lastModifiedDate);
 				LocalDateTime localDateTime = LocalDateTime
 						.ofInstant(Instant.ofEpochMilli(lastModifiedDate), ZoneOffset.systemDefault());
-				if (resultMap.containsKey("A" + status)) {
-					resultMap2 = resultMap.get("A" + status);
+				if (resultMap.containsKey(status)) {
+					resultMap2 = resultMap.get(status);
 					if (Long.parseLong(resultMap2.get("lastModified") + "") < lastModifiedDate) {
 						resultMap2.put("lastModified", lastModifiedDate);
-						resultMap2.put("date",
-								localDateTime.getYear() + "." + localDateTime.getMonthValue() + "." + localDateTime
-										.getDayOfMonth());
-						resultMap2.put("time", localDateTime.getHour() + ":" + localDateTime.getMinute());
-						resultMap2.put("status", status + "");
-						resultMap.put("A" + status, resultMap2);
+//						resultMap2.put("date",
+//								localDateTime.getYear() + "." + localDateTime.getMonthValue() + "." + localDateTime
+//										.getDayOfMonth());
+						resultMap2.put("date", dateTime.split("T")[0]);
+//						resultMap2.put("time", localDateTime.getHour() + ":" + localDateTime.getMinute());
+						resultMap2.put("time", dateTime.split("T")[1]);
+//						resultMap2.put("status", status + "");
+						resultMap.put(status, resultMap2);
 					}
 				} else {
 					resultMap2.put("lastModified", lastModifiedDate);
-					resultMap2.put("date",
-							localDateTime.getYear() + "." + localDateTime.getMonthValue() + "." + localDateTime
-									.getDayOfMonth());
-					resultMap2.put("time", localDateTime.getHour() + ":" + localDateTime.getMinute());
-					resultMap2.put("status", status + "");
-					resultMap.put("A" + status, resultMap2);
+					resultMap2.put("date", dateTime.split("T")[0]);
+//						resultMap2.put("time", localDateTime.getHour() + ":" + localDateTime.getMinute());
+					resultMap2.put("time", dateTime.split("T")[1]);
+//					resultMap2.put("status", status + "");
+					resultMap.put(status, resultMap2);
 				}
 			}
-			for (Map map : resultMap.values()) {
-				map.remove("lastModified");
-				if (map.get("status") != null) {
-					TrdOrderStatusEnum trdOrderStatusEnum[] = TrdOrderStatusEnum.values();
-					String status = (String) map.get("status");
-					for (TrdOrderStatusEnum temp : trdOrderStatusEnum) {
-						if (status.equals(temp.getStatus() + "")) {
-							map.put("status", temp.getComment());
-							break;
-						} else {
-							map.put("status", "");
-						}
-					}
+
+
+			for(Map.Entry<Integer, Map<String, Object>> entry : resultMap.entrySet()) {
+				Map value = entry.getValue();
+				try{
+					value.put("status", TrdOrderStatusEnum.getComment(entry.getKey()));
+				}catch (Exception ex){
+					ex.printStackTrace();
+					logger.error(ex.getMessage());
+					value.put("status", "");
 				}
-				result.add(map);
+				result.add(value);
 			}
+
 		}
 		return result;
 	}
