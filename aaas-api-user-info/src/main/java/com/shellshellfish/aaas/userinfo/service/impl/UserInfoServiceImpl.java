@@ -1000,14 +1000,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 				Long sumFromLog = null;
 				if(mongoUiTrdLogDTO.getTradeConfirmSum() != null){
 					sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum();
+					logger.info("sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum():{}",sumFromLog);
 				}else if(mongoUiTrdLogDTO.getTradeTargetSum() != null){
 					sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum();
+					logger.info("sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum():{}",sumFromLog);
 				}else if(mongoUiTrdLogDTO.getTradeConfirmShare() != null){
 					sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
+					logger.info("sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare():{}",sumFromLog);
 				}else if(mongoUiTrdLogDTO.getTradeTargetShare() != null){
 					sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
+					logger.info("sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare():{}",sumFromLog);
 				}else if(mongoUiTrdLogDTO.getAmount() != null){
 					sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount());
+					logger.info("sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount()):{}",sumFromLog);
 				}else{
 					logger.error("havent find trade money or quantity info for userProdId:{} and "
 							+ "fundCode:{}", mongoUiTrdLogDTO.getUserProdId(), mongoUiTrdLogDTO.getFundCode());
