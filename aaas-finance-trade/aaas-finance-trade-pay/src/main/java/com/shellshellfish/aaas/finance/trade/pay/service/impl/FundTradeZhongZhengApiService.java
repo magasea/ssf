@@ -267,10 +267,10 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
     }
 
     @Override
-    public List<ConfirmResult> getConfirmResults(String openId, String outSideOrderNo)
+    public List<ConfirmResult> getConfirmResultsBySerial(String openId, String applySerial)
         throws Exception {
         Map<String, Object> info = init(openId);
-        info.put("outsideorderno", outSideOrderNo);
+        info.put("outsideorderno", applySerial);
         postInit(info);
         String url = "https://onetest.51fa.la/v2/internet/fundapi/get_confirm_list";
 
