@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.grpc.SellProducts;
+import com.shellshellfish.aaas.userinfo.grpc.SellProductsResult;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserId;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdOrUUIDQuery;
@@ -61,7 +62,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public SellProducts checkSellProducts(SellProducts sellProducts)
+	public SellProductsResult checkSellProducts(SellProducts sellProducts)
 			throws ExecutionException, InterruptedException {
 		return userInfoServiceFutureStub.sellUserProducts(sellProducts).get();
 

@@ -23,9 +23,12 @@ import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeSellService;
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
 import com.shellshellfish.aaas.finance.trade.pay.FundNetInfo;
+import com.shellshellfish.aaas.grpc.common.ErrInfo;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductDetail;
+import com.shellshellfish.aaas.userinfo.grpc.SellProductDetailResult;
 import com.shellshellfish.aaas.userinfo.grpc.SellProducts;
+import com.shellshellfish.aaas.userinfo.grpc.SellProductsResult;
 import io.grpc.ManagedChannel;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -179,7 +182,7 @@ public class TradeSellServiceImpl implements TradeSellService {
       prodSellDTO.setUserBankNum(usedBankCard);
     }
 
-    TrdOrder result = generateOrderInfo4Sell(prodSellDTO);
+    TrdOrder result = generateOrderInfo4Sell(prodSellDTO, fundNavunits);
     if(result == null){
       logger.error("failed to generate order info for sell information");
     }
@@ -190,8 +193,8 @@ public class TradeSellServiceImpl implements TradeSellService {
   }
 
 
-  private TrdOrder generateOrderInfo4Sell(ProdSellDTO prodSellDTO)
-      throws Exception {
+  private TrdOrder generateOrderInfo4Sell(ProdSellDTO prodSellDTO, Map<String, Integer>
+      fundNavunits) throws Exception {
     TrdOrder trdOrder = new TrdOrder();
     boolean isSellable = true;
     List<Exception> errors = new ArrayList<>();
@@ -222,15 +225,54 @@ public class TradeSellServiceImpl implements TradeSellService {
       }
 
       prodSellDTO.setTrdAcco(trdBrokerUser.getTradeAcco());
-      SellProducts results = userInfoService.checkSellProducts(spBuilder.build());
-      for( SellProductDetail sellProductDetail: results.getSellProductDetailsList()){
-        if(sellProductDetail.getResult() < 0){
-          isSellable = false;
-          logger.error("cannot sell the userProdId:" + prodSellDTO.getUserProdId() + " because "
-              + "the fundCode:" + sellProductDetail.getFundCode() + " quantity is not enough");
-          throw new IllegalArgumentException("cannot sell the userProdId:" + prodSellDTO.getUserProdId() + " because "
-              + "the fundCode:" + sellProductDetail.getFundCode() + " quantity is not enough");
+      SellProductsResult results = userInfoService.checkSellProducts(spBuilder.build());
+      if(results.getErrInfo() != null && results.getErrInfo().getErrCode() < 0){
+        ErrInfo errInfo = results.getErrInfo();
+        throw new Exception(String.format("赎回失败:{}", errInfo.getErrMsg()));
+      }
+//      for( SellProductDetailResult sellProductDetail: results.getSellProductDetailResultsList()){
+//        if(sellProductDetail.getResult() < 0){
+//          isSellable = false;
+//          logger.error("cannot sell the userProdId:" + prodSellDTO.getUserProdId() + " because "
+//              + "the fundCode:" + sellProductDetail.getFundCode() + " quantity is not enough");
+//          throw new IllegalArgumentException("cannot sell the userProdId:" + prodSellDTO.getUserProdId() + " because "
+//              + "the fundCode:" + sellProductDetail.getFundCode() + " quantity is not enough");
+//        }
+//      }
+
+      // if the results list contains -1, means need adjust sell target money
+      Map<String, SellProductDetailResult> sellProdDetailNeedHandle = new HashMap<>();
+      for( SellProductDetailResult sellProductDetailResult: results.getSellProductDetailResultsList()){
+        if(sellProductDetailResult.getResult() < 0){
+          sellProdDetailNeedHandle.put(sellProductDetailResult.getFundCode(),
+              sellProductDetailResult);
         }
+      }
+      BigDecimal delta = BigDecimal.ZERO;
+      boolean adjusted = false;
+      for(ProdDtlSellDTO prodDtlSellDTO: prodSellDTO.getProdDtlSellDTOList()){
+        if(sellProdDetailNeedHandle.containsKey(prodDtlSellDTO.getFundCode())){
+          logger.error("need adjust the target sell money and fund sell money and quantity for "
+              + "fundCode:{} and the current netValue:{}", prodDtlSellDTO.getFundCode(), fundNavunits.get(prodDtlSellDTO.getFundCode()));
+          BigDecimal targetSellAmount = TradeUtil.getBigDecimalNumWithDiv10000(
+              sellProdDetailNeedHandle.get(prodDtlSellDTO.getFundCode()
+          ).getFundQuantityTradeRemain()*fundNavunits.get(prodDtlSellDTO.getFundCode()));
+          BigDecimal diff = prodDtlSellDTO.getTargetSellAmount().subtract(targetSellAmount);
+          delta=delta.add(diff);
+          logger.error("the diff for fundCode:{} is:{}", prodDtlSellDTO.getFundCode(), diff);
+          prodDtlSellDTO.setTargetSellAmount(targetSellAmount);
+          prodDtlSellDTO.setFundQuantity(Long.valueOf(sellProdDetailNeedHandle.get(prodDtlSellDTO
+              .getFundCode()).getFundQuantityTradeRemain()).intValue());
+          adjusted = true;
+
+        }
+      }
+      if(adjusted){
+        Long adjustedTarget = prodSellDTO.getSellTargetMoney() - TradeUtil
+            .getLongNumWithMul100(delta);
+        logger.error("now adjust the getSellTargetMoney:{} to {}", prodSellDTO.getSellTargetMoney
+            (), adjustedTarget);
+        prodSellDTO.setSellTargetMoney(adjustedTarget);
       }
       String bankCardNum = null;
       if(StringUtils.isEmpty(results.getUserBankNum())){
@@ -270,7 +312,7 @@ public class TradeSellServiceImpl implements TradeSellService {
         trdOrderDetail.setUserId(prodSellDTO.getUserId());
         trdOrderDetail.setCreateDate(TradeUtil.getUTCTime());
         trdOrderDetail.setUserProdId(prodSellDTO.getUserProdId());
-        trdOrderDetail.setFundNum(prodDtlSellDTO.getFundQuantity());
+//        trdOrderDetail.setFundNum(prodDtlSellDTO.getFundQuantity());
         trdOrderDetail.setCreateBy(prodSellDTO.getUserId());
         trdOrderDetail.setTradeType(TrdOrderOpTypeEnum.REDEEM.getOperation());
         trdOrderDetail.setUpdateBy(prodSellDTO.getUserId());

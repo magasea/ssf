@@ -38,12 +38,10 @@ import com.shellshellfish.aaas.finance.trade.pay.model.FundNetZZInfo;
 import com.shellshellfish.aaas.finance.trade.pay.model.OpenAccountResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.SellFundResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.UserBank;
-import com.shellshellfish.aaas.finance.trade.pay.model.WorkDayRedis;
 import com.shellshellfish.aaas.finance.trade.pay.model.ZZBuyFund;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.mongo.MongoFundNetInfo;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.mysql.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.pay.repositories.mysql.TrdPayFlowRepository;
-import com.shellshellfish.aaas.finance.trade.pay.repositories.redis.WorkDayDao;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import com.shellshellfish.aaas.finance.trade.pay.service.UserInfoService;
@@ -51,12 +49,8 @@ import com.shellshellfish.aaas.grpc.common.ErrInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -538,7 +532,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       e.printStackTrace();
       ErrInfo.Builder eiBuilder = ErrInfo.newBuilder();
       eiBuilder.setErrMsg(e.getMessage());
-      eiBuilder.setErrCode(ErrorConstants.GRPC_ERROR_BINDCARD_FAIL_GENERAL);
+      eiBuilder.setErrCode(ErrorConstants.GRPC_ERROR_UI_BINDCARD_FAIL_GENERAL);
       builder.setErrInfo(eiBuilder.build());
     }
     if (StringUtils.isEmpty(trdAcco) || trdAcco.equals(errMsg)) {
