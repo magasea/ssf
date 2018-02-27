@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.userinfo.dao.service;
 
 import com.shellshellfish.aaas.userinfo.grpc.SellProducts;
+import com.shellshellfish.aaas.userinfo.grpc.SellProductsResult.Builder;
 import com.shellshellfish.aaas.userinfo.model.dao.UiSysMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import java.util.List;
@@ -87,7 +88,7 @@ public interface UserInfoRepoService {
 
 	List<MongoUiTrdLogDTO> findByUserIdAndProdId(Long userId,Long userProdId) throws IllegalAccessException, InstantiationException;
 
-	public SellProducts updateProductQuantity(SellProducts request);
+	public Builder updateProductQuantity(SellProducts request) throws Exception;
 
 	UiUser getUserInfoByUserId(Long userId);
 
