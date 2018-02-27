@@ -27,7 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ActiveProfiles(profiles="dev")
 public class TradeOpServiceImplTest {
 
-  Logger logger = LoggerFactory.getLogger(TradeOpServiceImpl.class);
+  Logger logger = LoggerFactory.getLogger(TradeOpServiceImplTest.class);
 
   @Autowired
   FinanceProdInfoService financeProdInfoService;

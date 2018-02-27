@@ -1,18 +1,19 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
-import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
-
 import com.mongodb.WriteResult;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
+import com.shellshellfish.aaas.common.exceptions.ErrorConstants;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.grpc.common.ErrInfo;
 import com.shellshellfish.aaas.grpc.common.UserProdId;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.grpc.*;
+import com.shellshellfish.aaas.userinfo.grpc.SellProductsResult.Builder;
 import com.shellshellfish.aaas.userinfo.model.dao.*;
 import com.shellshellfish.aaas.userinfo.model.dto.*;
 import com.shellshellfish.aaas.userinfo.model.redis.UserBaseInfoRedis;
@@ -36,7 +37,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -706,19 +706,30 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	/**
 	 */
-	@Override
+	/**
+	 */
 	public void sellUserProducts(com.shellshellfish.aaas.userinfo.grpc.SellProducts request,
-			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.SellProducts> responseObserver) {
-		SellProducts result = updateProductQuantity(request);
+			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.SellProductsResult> responseObserver) {
 
-		responseObserver.onNext(result);
+		SellProductsResult.Builder result = null;
+		try {
+			result = updateProductQuantity(request);
+		} catch (Exception e) {
+			e.printStackTrace();
+			ErrInfo.Builder eiBuilder = ErrInfo.newBuilder();
+			eiBuilder.setErrCode(ErrorConstants.GRPC_ERROR_UI_CHECKSELL_FAIL_GENERAL);
+			eiBuilder.setErrMsg(e.getMessage());
+			result.setErrInfo(eiBuilder);
+		}
+		responseObserver.onNext(result.build());
 		responseObserver.onCompleted();
 
 	}
 
+
 	@Override
 	@Transactional
-	public SellProducts updateProductQuantity(SellProducts request) {
+	public Builder updateProductQuantity(SellProducts request) throws Exception {
 		//检查出售的每个基金在当前用户拥有的产品有足够的份额
 		UiProducts uiProducts = uiProductRepo.findById(request.getUserProductId());
 		List<UiProductDetail> uiProductDetails = uiProductDetailRepo.findAllByUserProdId(request
@@ -729,63 +740,110 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			currentAvailableFunds.put(uiProductDetail.getFundCode(), uiProductDetail);
 //			currentFundsStatus.put(uiProductDetail.getFundCode(), uiProductDetail.getStatus());
 		}
-		SellProducts.Builder spBuilder = SellProducts.newBuilder();
-		SellProductDetail.Builder spdBuilder = SellProductDetail.newBuilder();
+		SellProductsResult.Builder sprBuilder = SellProductsResult.newBuilder();
+		SellProductDetailResult.Builder spdrBuilder = SellProductDetailResult.newBuilder();
 		boolean canDuduct = true;
 		for(SellProductDetail sellProductDetail: request.getSellProductDetailsList()){
 			logger.info("check fundCode:" + sellProductDetail.getFundCode() + " of userProdId:" +
 					request.getUserProductId());
-			spdBuilder.setFundCode(sellProductDetail.getFundCode());
-			spdBuilder.setFundQuantityTrade(sellProductDetail.getFundQuantityTrade());
+			spdrBuilder.setFundCode(sellProductDetail.getFundCode());
+			spdrBuilder.setFundQuantityTrade(sellProductDetail.getFundQuantityTrade());
 			UiProductDetail currentProductDetail = currentAvailableFunds.get(sellProductDetail
 					.getFundCode());
 			if(currentProductDetail == null){
 				logger.error("no currentProductDetail info available for fundCode:{}", sellProductDetail
 						.getFundCode());
-				spdBuilder.setResult(-1);
-				long smallestRemain = -1;
-				spdBuilder.setFundQuantityTrade(smallestRemain);
-				canDuduct = false;
-				spBuilder.addSellProductDetails(spdBuilder);
-				continue;
+				throw new Exception(String.format("no currentProductDetail info available for fundCode:{}", sellProductDetail
+						.getFundCode()));
+//				spdrBuilder.setResult(-1);
+//				long smallestRemain = -1;
+//				spdrBuilder.setFundQuantityTrade(smallestRemain);
+//				canDuduct = false;
+//				sprBuilder.addSellProductDetailResults(spdrBuilder);
+//				continue;
 			}
 			long currentAvailFundQuantityTrade = currentProductDetail.getFundQuantityTrade()
 					== null ? 0L : currentProductDetail.getFundQuantityTrade();
-			long currentAvailFundQuantity = currentProductDetail.getFundQuantity()
-					== null ? 0L : currentProductDetail.getFundQuantity();
-			if(sellProductDetail.getFundQuantityTrade() > currentAvailFundQuantity ||
-					currentProductDetail.getStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()
-					|| sellProductDetail.getFundQuantityTrade() > currentAvailFundQuantityTrade)
+
+			if(sellProductDetail.getFundQuantityTrade() > currentAvailFundQuantityTrade)
 			{
-				spdBuilder.setResult(-1);
-				long smallestRemain = currentAvailFundQuantity > currentAvailFundQuantityTrade ?
-						currentAvailFundQuantityTrade: currentAvailFundQuantity;
-				spdBuilder.setFundQuantityTrade(smallestRemain);
-				canDuduct = false;
+				spdrBuilder.setResult(-1);
+				long smallestRemain = currentAvailFundQuantityTrade;
+				spdrBuilder.setFundQuantityTrade(sellProductDetail.getFundQuantityTrade());
+				spdrBuilder.setFundQuantityTradeRemain(smallestRemain);
+				logger.error("the userProdId:{}'s fundCode:{} will be dump to 0 because "
+						+ "getFundQuantityTrade:{} exceed the smallestRemain:{}",
+						request.getUserProductId(), sellProductDetail.getFundCode(), sellProductDetail
+						.getFundQuantityTrade(), smallestRemain);
 			}
-			spBuilder.addSellProductDetails(spdBuilder);
-			spdBuilder.clear();
+			if(currentProductDetail.getStatus() != null && currentProductDetail.getStatus() ==
+					TrdOrderStatusEnum.WAITSELL.getStatus()){
+				throw new Exception(String.format("fundCode:{} is in WAITSELL status:{}",
+						currentProductDetail.getFundCode(), currentProductDetail.getStatus()));
+			}
+			sprBuilder.addSellProductDetailResults(spdrBuilder);
+			spdrBuilder.clear();
 		}
 
-		spBuilder.setUserId(request.getUserId());
-		spBuilder.setUserProductId(request.getUserProductId());
+		sprBuilder.setUserId(request.getUserId());
+		sprBuilder.setUserProductId(request.getUserProductId());
 		if(!StringUtils.isEmpty(uiProducts.getBankCardNum())){
-			spBuilder.setUserBankNum(uiProducts.getBankCardNum());
+			sprBuilder.setUserBankNum(uiProducts.getBankCardNum());
 		}
 
 
 		if(canDuduct){
 			Long fundQuantityRemain = null;
-			for(SellProductDetail sellProductDetail: request.getSellProductDetailsList()){
-				fundQuantityRemain = currentAvailableFunds.get(sellProductDetail.getFundCode()).getFundQuantityTrade() -
-						sellProductDetail.getFundQuantityTrade();
-				uiProductDetailRepo.updateByParamDeductTrade(fundQuantityRemain, TradeUtil.getUTCTime(),
-						request
-								.getUserId(), request.getUserProductId(),sellProductDetail.getFundCode(),
-						TrdOrderStatusEnum.WAITSELL.getStatus() );
+//			for(SellProductDetail sellProductDetail: request.getSellProductDetailsList()){
+//				Integer fundQuantityTrade = currentAvailableFunds.get(sellProductDetail.getFundCode())
+//						.getFundQuantityTrade() ;
+//				if(fundQuantityTrade == null || fundQuantityTrade <=0){
+//					fundQuantityRemain = 0L;
+//				}else if(fundQuantityTrade < sellProductDetail.getFundQuantityTrade()){
+//					fundQuantityRemain = 0L;
+//				}else{
+//					fundQuantityRemain = currentAvailableFunds.get(sellProductDetail.getFundCode()).getFundQuantityTrade() -
+//							sellProductDetail.getFundQuantityTrade();
+//				}
+//				uiProductDetailRepo.updateByParamDeductTrade(fundQuantityRemain, TradeUtil.getUTCTime(),
+//						request.getUserId(), request.getUserProductId(),sellProductDetail.getFundCode(),
+//						TrdOrderStatusEnum.WAITSELL.getStatus() );
+//			}
+
+			for(SellProductDetailResult.Builder sellProductDetail: sprBuilder
+					.getSellProductDetailResultsBuilderList()){
+
+				if(sellProductDetail.getResult() == -1){
+					logger.error("Because the target sell amount exceed remain ammount, now use remain "
+							+ "amount to update uiProductDetail:{} and default make the fundQuantityTrade to 0",
+							sellProductDetail.getFundQuantityTradeRemain());
+					uiProductDetailRepo.updateByParamDeductTrade(0L, TradeUtil.getUTCTime(),
+							request.getUserId(), request.getUserProductId(),sellProductDetail.getFundCode(),
+							TrdOrderStatusEnum.WAITSELL.getStatus() );
+				}else{
+					fundQuantityRemain = currentAvailableFunds.get(sellProductDetail.getFundCode()).getFundQuantityTrade() -
+							sellProductDetail.getFundQuantityTrade();
+					if(fundQuantityRemain < 0){
+						logger.error("cannot deduct the fundQuantity, because getFundQuantityTrade:{} is less "
+								+ "than target sellProductDetail.getFundQuantityTrade:{}",currentAvailableFunds.get
+								(sellProductDetail.getFundCode()).getFundQuantityTrade(), sellProductDetail.getFundQuantityTrade());
+						sellProductDetail.setResult(-1);
+						sellProductDetail.setFundQuantityTradeRemain(currentAvailableFunds.get
+								(sellProductDetail.getFundCode()).getFundQuantityTrade());
+						uiProductDetailRepo.updateByParamDeductTrade(0L, TradeUtil.getUTCTime(),
+								request.getUserId(), request.getUserProductId(),sellProductDetail.getFundCode(),
+								TrdOrderStatusEnum.WAITSELL.getStatus() );
+					}else{
+						uiProductDetailRepo.updateByParamDeductTrade(fundQuantityRemain, TradeUtil.getUTCTime(),
+								request.getUserId(), request.getUserProductId(),sellProductDetail.getFundCode(),
+								TrdOrderStatusEnum.WAITSELL.getStatus() );
+					}
+				}
 			}
+
+
 		}
-		return spBuilder.build();
+		return sprBuilder;
 	}
 
 	@Override

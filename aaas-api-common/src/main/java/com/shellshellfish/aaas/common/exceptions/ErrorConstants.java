@@ -5,5 +5,6 @@ package com.shellshellfish.aaas.common.exceptions;
  */
 
 public class ErrorConstants {
-  public static final int GRPC_ERROR_BINDCARD_FAIL_GENERAL = -10000;
+  public static final int GRPC_ERROR_UI_BINDCARD_FAIL_GENERAL = -10000;
+  public static final int GRPC_ERROR_UI_CHECKSELL_FAIL_GENERAL = -10001;
 }
