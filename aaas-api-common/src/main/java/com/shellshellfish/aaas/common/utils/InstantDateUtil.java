@@ -135,6 +135,12 @@ public class InstantDateUtil {
 	}
 
 
+	public static LocalDate toLocalDate(long epochSecond) {
+
+		return LocalDateTime.ofInstant(Instant.ofEpochSecond(epochSecond), ZoneId.systemDefault())
+				.toLocalDate();
+	}
+
 	/**
 	 * 当前日期加上工作日数量
 	 */
