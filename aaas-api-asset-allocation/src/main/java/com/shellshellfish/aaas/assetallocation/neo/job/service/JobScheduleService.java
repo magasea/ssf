@@ -1,5 +1,20 @@
 package com.shellshellfish.aaas.assetallocation.neo.job.service;
 
+
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.CALCULATE_YIELDANDRISKOFWEEK_JOBSCHEDULE;
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.FAILURED_STATUS;
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.GET_ALLIDANDSUBID_JOBSCHEDULE;
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.INSERT_DAILYFUND_JOBSCHEDULE;
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.INSERT_FUNDGROUPDATA_JOBSCHEDULE;
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.JOB_SCHEDULE_NAME;
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.MONGO_DB_COLLECTION;
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.MONGO_DB_DATABASE_NAME;
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.MONGO_DB_HOST;
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.MONGO_DB_PORT;
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.SUB_GROUP_ID_SUBFIX;
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.SUCCESSFUL_STATUS;
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.UPDATE_ALLMAXIMUMLOSSES_JOBSCHEDULE;
+
 import com.alibaba.fastjson.JSON;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -7,20 +22,21 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.shellshellfish.aaas.assetallocation.neo.job.entity.JobTimeRecord;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.ReturnType;
-import com.shellshellfish.aaas.assetallocation.neo.service.*;
+import com.shellshellfish.aaas.assetallocation.neo.service.CovarianceCalculateService;
+import com.shellshellfish.aaas.assetallocation.neo.service.DailyFundService;
+import com.shellshellfish.aaas.assetallocation.neo.service.FundCalculateService;
+import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupDataService;
+import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupService;
 import com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.*;
 
 
 /**

@@ -1006,6 +1006,12 @@ public class UserInfoServiceImpl implements UserInfoService {
 					sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
 				}else if(mongoUiTrdLogDTO.getTradeTargetShare() != null){
 					sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
+				}else if(mongoUiTrdLogDTO.getAmount() != null){
+					sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount());
+				}else{
+					logger.error("havent find trade money or quantity info for userProdId:{} and "
+							+ "fundCode:{}", mongoUiTrdLogDTO.getUserProdId(), mongoUiTrdLogDTO.getFundCode());
+					sumFromLog = 0L;
 				}
 				map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(sumFromLog));
 //				if (mongoUiTrdLogDTO.getAmount() != null) {

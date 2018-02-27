@@ -305,6 +305,7 @@
                 <executions>
                     <execution>
                         <id>fmp</id>
+                        <phase>deploy</phase>
                         <goals>
                             <goal>resource</goal>
                         </goals>

@@ -68,7 +68,7 @@ public interface FundTradeApiService {
     void writeAllFundsToMongoDb(List<String> funds);
 
 
-    public List<ConfirmResult> getConfirmResults(String openId, String outSideOrderNo) throws
+    public List<ConfirmResult> getConfirmResultsBySerial(String openId, String applySerial) throws
         Exception;
 
     //String getAllConfirmList(String userUuid) throws JsonProcessingException;

@@ -226,6 +226,7 @@
         </configuration>
         <executions>
           <execution>
+            <phase>deploy</phase>
             <id>fmp</id>
               <goals>
                 <goal>resource</goal>
