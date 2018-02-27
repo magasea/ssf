@@ -1,5 +1,12 @@
 package com.shellshellfish.aaas.assetallocation.neo.service;
 
+import com.alibaba.fastjson.JSON;
+import com.mongodb.MongoClient;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import com.shellshellfish.aaas.assetallocation.neo.enmu.SlidebarTypeEnmu;
 import com.shellshellfish.aaas.assetallocation.neo.enmu.StandardTypeEnmu;
 import com.shellshellfish.aaas.assetallocation.neo.entity.*;
@@ -7,6 +14,7 @@ import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
 import com.shellshellfish.aaas.assetallocation.neo.util.*;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +28,8 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.BATCH_SIZE_NUM;
-import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.RISK_LEVEL_COUNT;
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.*;
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.MONGO_DB_COLLECTION;
 
 /**
  * Created by wangyinuo on 2017/11/27.
@@ -801,6 +809,10 @@ public class FundGroupService {
         if (returnType.equalsIgnoreCase("income")) {
             Map<String, Object> queryNetValue = new HashMap<>();
             List<String> codeList = getFundGroupCodes(groupId, subGroupId);
+            if (CollectionUtils.isEmpty(codeList)) {
+                return fgi;
+            }
+
             //查询组合中基金最晚成立日 作为 该组合成立日
             Date minNavDate = fundNetValMapper.getMinNavDateByCodeList(codeList);
             String startTime = DateUtil.formatDate(minNavDate);
@@ -881,6 +893,67 @@ public class FundGroupService {
         fgi.setMaxMinBenchmarkMap(maxMinBenchmarkMap);
         return fgi;
     }
+
+    public ReturnType getFundGroupIncomeAllFromMongo(String groupId, String subGroupId, String returnType) {
+        ReturnType rt = null;
+        try {
+            // 连接到 mongodb 服务
+            MongoClient mongoClient = new MongoClient(MONGO_DB_HOST, MONGO_DB_PORT);
+            // 连接到数据库
+            MongoDatabase mongoDatabase = mongoClient.getDatabase(MONGO_DB_DATABASE_NAME);
+            logger.info("Connect to database successfully");
+
+            MongoCollection<Document> collection = mongoDatabase.getCollection(MONGO_DB_COLLECTION);
+            logger.info(MONGO_DB_COLLECTION + "集合选择成功");
+
+            String key = groupId + "_" + subGroupId;
+            FindIterable<Document> findIterable = collection.find(Filters.eq("key", key));
+            MongoCursor<Document> mongoCursor = findIterable.limit(1).iterator();
+            while (mongoCursor.hasNext()) {
+                Document doc = mongoCursor.next();
+                rt = documentToReturnType(doc);
+                break;
+            }
+        } catch (Exception e) {
+            logger.error(e.getClass().getName() + ":" + e.getMessage());
+        }
+
+        return rt;
+    }
+
+    private ReturnType documentToReturnType(Document doc) {
+        String _total = doc.getString("_total");
+        String _items = doc.getString("_items");
+        String name = doc.getString("name");
+        String _links = doc.getString("_links");
+        String maxMinMap = doc.getString("maxMinMap");
+        String maxMinBenchmarkMap = doc.getString("maxMinBenchmarkMap");
+        String expectedIncomeSizeMap = doc.getString("expectedIncomeSizeMap");
+        String highPercentMaxIncomeSizeMap = doc.getString("highPercentMaxIncomeSizeMap");
+        String highPercentMinIncomeSizeMap = doc.getString("highPercentMinIncomeSizeMap");
+        String lowPercentMaxIncomeSizeMap = doc.getString("lowPercentMaxIncomeSizeMap");
+        String lowPercentMinIncomeSizeMap = doc.getString("lowPercentMinIncomeSizeMap");
+        String _schemaVersion = doc.getString("_schemaVersion");
+        String _serviceId = doc.getString("_serviceId");
+
+        ReturnType rt = new ReturnType();
+        rt.set_total(Integer.valueOf(_total).intValue());
+        rt.set_items(JSON.parseObject(_items, List.class));
+        rt.setName(name);
+        rt.set_links(JSON.parseObject(_links, Map.class));
+        rt.setMaxMinMap(JSON.parseObject(maxMinMap, Map.class));
+        rt.setMaxMinBenchmarkMap(JSON.parseObject(maxMinBenchmarkMap, Map.class));
+        rt.setExpectedIncomeSizeMap(JSON.parseObject(expectedIncomeSizeMap, Map.class));
+        rt.setHighPercentMaxIncomeSizeMap(JSON.parseObject(highPercentMaxIncomeSizeMap, Map.class));
+        rt.setHighPercentMinIncomeSizeMap(JSON.parseObject(highPercentMinIncomeSizeMap, Map.class));
+        rt.setLowPercentMaxIncomeSizeMap(JSON.parseObject(lowPercentMaxIncomeSizeMap, Map.class));
+        rt.setLowPercentMinIncomeSizeMap(JSON.parseObject(lowPercentMinIncomeSizeMap, Map.class));
+        rt.set_schemaVersion(_schemaVersion);
+        rt.set_serviceId(_serviceId);
+
+        return rt;
+    }
+
     /**
      * 组合收益率(最大回撤)走势图
      *

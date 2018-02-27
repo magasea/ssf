@@ -1,7 +1,15 @@
 package com.shellshellfish.aaas.assetallocation.neo.job.service;
 
+import com.alibaba.fastjson.JSON;
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import com.shellshellfish.aaas.assetallocation.neo.job.entity.JobTimeRecord;
+import com.shellshellfish.aaas.assetallocation.neo.returnType.ReturnType;
 import com.shellshellfish.aaas.assetallocation.neo.service.*;
+import com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 
 import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.*;
 
@@ -161,6 +169,76 @@ public class JobScheduleService {
         }
         //记录 定时任务执行的状态
         saveJobScheduleRecord(UPDATE_ALLMAXIMUMLOSSES_JOBSCHEDULE, status);
+    }
+
+    /*
+     * 组合收益率(最大回撤)走势图-自组合基金成立以来的每天
+     */
+//    @Scheduled(cron = "0 30 6 * * ?")        //每天 凌晨 6:30 点 执行
+    public void getFundGroupIncomeAllJobSchedule() {
+        try {
+            // 连接到 mongodb 服务
+            MongoClient mongoClient = new MongoClient(MONGO_DB_HOST, MONGO_DB_PORT);
+            // 连接到数据库
+            MongoDatabase mongoDatabase = mongoClient.getDatabase(MONGO_DB_DATABASE_NAME);
+            logger.info("Connect to database successfully");
+
+            MongoCollection<Document> collection = mongoDatabase.getCollection(MONGO_DB_COLLECTION);
+            logger.info(MONGO_DB_COLLECTION + "集合选择成功");
+
+            List<Document> documents = new ArrayList<>();
+            String returnType = "income";
+            String subfix = SUB_GROUP_ID_SUBFIX;
+            for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
+                String groupId = String.valueOf(index);
+                String subGroupId = String.valueOf(index + subfix);
+                String key = groupId + "_" + subGroupId;
+                ReturnType rt = fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, returnType);
+                Document document = returnTypeToDocument(key, rt);
+                documents.add(document);
+            }
+            // 删除所有符合条件的文档
+            collection.deleteMany(Filters.eq("title", MONGO_DB_COLLECTION));
+
+            collection.insertMany(documents);
+            logger.info("文档插入成功");
+        } catch (Exception e) {
+            logger.error(e.getClass().getName() + ":" + e.getMessage());
+        }
+    }
+
+    private Document returnTypeToDocument(String key, ReturnType rt) {
+        String _total = JSON.toJSONString(rt.get_total());
+        String _items = JSON.toJSONString(rt.get_items());
+        String name = JSON.toJSONString(rt.getName());
+        String _links = JSON.toJSONString(rt.get_links());
+        String maxMinMap = JSON.toJSONString(rt.getMaxMinMap());
+        String maxMinBenchmarkMap = JSON.toJSONString(rt.getMaxMinBenchmarkMap());
+        String expectedIncomeSizeMap = JSON.toJSONString(rt.getExpectedIncomeSizeMap());
+        String highPercentMaxIncomeSizeMap = JSON.toJSONString(rt.getHighPercentMaxIncomeSizeMap());
+        String highPercentMinIncomeSizeMap = JSON.toJSONString(rt.getHighPercentMinIncomeSizeMap());
+        String lowPercentMaxIncomeSizeMap = JSON.toJSONString(rt.getLowPercentMaxIncomeSizeMap());
+        String lowPercentMinIncomeSizeMap = JSON.toJSONString(rt.getLowPercentMinIncomeSizeMap());
+        String _schemaVersion = JSON.toJSONString(rt.get_schemaVersion());
+        String _serviceId = JSON.toJSONString(rt.get_serviceId());
+
+        Document document = new Document("title", MONGO_DB_COLLECTION).
+                append("key", key).
+                append("_total", _total).
+                append("_items", _items).
+                append("name", name).
+                append("_links", _links).
+                append("maxMinMap", maxMinMap).
+                append("maxMinBenchmarkMap", maxMinBenchmarkMap).
+                append("expectedIncomeSizeMap", expectedIncomeSizeMap).
+                append("highPercentMaxIncomeSizeMap", highPercentMaxIncomeSizeMap).
+                append("highPercentMinIncomeSizeMap", highPercentMinIncomeSizeMap).
+                append("lowPercentMaxIncomeSizeMap", lowPercentMaxIncomeSizeMap).
+                append("lowPercentMinIncomeSizeMap", lowPercentMinIncomeSizeMap).
+                append("_schemaVersion", _schemaVersion).
+                append("_serviceId", _serviceId);
+
+        return document;
     }
 
     //记录定时任务执行的状态

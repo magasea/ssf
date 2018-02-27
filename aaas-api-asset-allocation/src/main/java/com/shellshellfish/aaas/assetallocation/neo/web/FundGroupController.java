@@ -240,6 +240,10 @@ public class FundGroupController {
     @ApiOperation("组合收益率(最大回撤)走势图-自组合基金成立以来的每天")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield-all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ReturnType getFundGroupIncomeAll(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="income") String returnType) {
+        if (returnType.equalsIgnoreCase("income")) {
+            return fundGroupService.getFundGroupIncomeAllFromMongo(groupId, subGroupId, returnType);
+        }
+
         return fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, returnType);
     }
 

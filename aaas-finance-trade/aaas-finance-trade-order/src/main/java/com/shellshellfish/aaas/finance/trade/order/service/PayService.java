@@ -19,7 +19,7 @@ public interface PayService {
    * @param bindBankCard
    * @return
    */
-  String bindCard(BindBankCard bindBankCard) throws ExecutionException, InterruptedException;
+  String bindCard(BindBankCard bindBankCard) throws Exception;
 
   /**
    * 定时任务检查处于等待支付状态或者等待赎回状态的订单去发起中证接口调用

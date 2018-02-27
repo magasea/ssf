@@ -700,36 +700,42 @@ public class TradeOpServiceImpl implements TradeOpService {
 			logger.error("详情信息数据不存在.");
 			throw new Exception("详情信息数据不存在.");
 		}
-		TrdOrderStatusEnum[] trdOrderStatusEnum = TrdOrderStatusEnum.values();
-		for (TrdOrderStatusEnum trdOrderStatus : trdOrderStatusEnum) {
-			if (trdOrder.getOrderStatus() == trdOrderStatus.getStatus()) {
-				result.put("orderStatus", trdOrderStatus.getComment());
-				break;
-			} else {
-				result.put("orderStatus", "");
-			}
-		}
+		result.put("orderStatus", TrdOrderStatusEnum.getComment(trdOrder.getOrderStatus()));
+//		TrdOrderStatusEnum[] trdOrderStatusEnum = TrdOrderStatusEnum.values();
+//		for (TrdOrderStatusEnum trdOrderStatus : trdOrderStatusEnum) {
+//			if (trdOrder.getOrderStatus() == trdOrderStatus.getStatus()) {
+//				result.put("orderStatus", trdOrderStatus.getComment());
+//				break;
+//			} else {
+//				result.put("orderStatus", "");
+//			}
+//		}
 
-		TrdOrderOpTypeEnum[] trdOrderOpType = TrdOrderOpTypeEnum.values();
-		for (TrdOrderOpTypeEnum trdOrderOpTypeEnum : trdOrderOpType) {
-			if (trdOrder.getOrderType() == trdOrderOpTypeEnum.getOperation()) {
-				result.put("orderType", trdOrderOpTypeEnum.getComment());
-				break;
-			} else {
-				result.put("orderType", "");
-			}
-		}
+    result.put("orderType", TrdOrderOpTypeEnum.getComment(trdOrder.getOrderType()));
+//
+//		TrdOrderOpTypeEnum[] trdOrderOpType = TrdOrderOpTypeEnum.values();
+//		for (TrdOrderOpTypeEnum trdOrderOpTypeEnum : trdOrderOpType) {
+//			if (trdOrder.getOrderType() == trdOrderOpTypeEnum.getOperation()) {
+//				result.put("orderType", trdOrderOpTypeEnum.getComment());
+//				break;
+//			} else {
+//				result.put("orderType", "");
+//			}
+//		}
 		//金额
 		long amount = trdOrder.getPayAmount();
+		BigDecimal bigDecimalAmount = BigDecimal.ZERO;
 		if (amount != 0) {
-			amount = amount / 100L;
+      bigDecimalAmount = TradeUtil.getBigDecimalNumWithDiv100(amount);
 		}
-		result.put("amount", amount);
+
+		result.put("amount", bigDecimalAmount);
 		//手续费
 		if (trdOrder.getPayFee() == null) {
 			result.put("payfee", "");
 		} else {
-			result.put("payfee", trdOrder.getPayFee());
+      BigDecimal bigDecimalPayFee = BigDecimal.ZERO;
+			result.put("payfee", TradeUtil.getBigDecimalNumWithDiv100(trdOrder.getPayFee()));
 		}
 		//状态详情
 		List<Map<String, Object>> detailList = new ArrayList<Map<String, Object>>();
@@ -740,23 +746,31 @@ public class TradeOpServiceImpl implements TradeOpService {
 		for (int i = 0; i < trdOrderDetailList.size(); i++) {
 			detailMap = new HashMap<String, Object>();
 			TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
-
-			TrdOrderStatusEnum[] trdOrderStatusEnum2 = TrdOrderStatusEnum.values();
-			for (TrdOrderStatusEnum trdOrderStatus2 : trdOrderStatusEnum2) {
-				if (trdOrderDetail.getOrderDetailStatus() == trdOrderStatus2.getStatus()) {
-					detailMap.put("fundstatus", trdOrderStatus2.getComment());
-					break;
-				} else {
-					detailMap.put("fundstatus", "");
-				}
-			}
+      detailMap.put("fundstatus", TrdOrderStatusEnum.getComment(trdOrderDetail.getOrderDetailStatus()));
+//			TrdOrderStatusEnum[] trdOrderStatusEnum2 = TrdOrderStatusEnum.values();
+//			for (TrdOrderStatusEnum trdOrderStatus2 : trdOrderStatusEnum2) {
+//				if (trdOrderDetail.getOrderDetailStatus() == trdOrderStatus2.getStatus()) {
+//					detailMap.put("fundstatus", trdOrderStatus2.getComment());
+//					break;
+//				} else {
+//					detailMap.put("fundstatus", "");
+//				}
+//			}
 
 			Long instanceLong = trdOrderDetail.getCreateDate();
 			detailMap.put("fundCode", trdOrderDetail.getFundCode());
 			//基金费用
 			detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
 			//交易金额
-			detailMap.put("fundSum", TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundSum()));
+      Long fundSum = 0L;
+      if(trdOrderDetail.getFundSumConfirmed() != null && trdOrderDetail.getFundSumConfirmed() > 0){
+        fundSum = trdOrderDetail.getFundSumConfirmed();
+      }else if(trdOrderDetail.getFundSum() != null && trdOrderDetail.getFundSum() > 0){
+        fundSum = trdOrderDetail.getFundSum();
+      }else{
+        fundSum = trdOrderDetail.getFundMoneyQuantity();
+      }
+			detailMap.put("fundSum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
 
 			String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 1);
 
@@ -767,15 +781,16 @@ public class TradeOpServiceImpl implements TradeOpService {
 			logger.info("dayOfWeek value is :" + dayOfWeek);
 			logger.info("date value is :" + date);
 			detailMap.put("fundTitle", "将于" + date + "(" + dayOfWeek + ")确认");
-			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
-			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){
-				if(trdOrderDetail.getTradeType() == trdOrder3.getOperation()){
-					detailMap.put("fundTradeType", trdOrder3.getComment());
-					break;
-				} else {
-					detailMap.put("fundTradeType", "");
-				}
-			}
+      detailMap.put("fundTradeType", TrdOrderOpTypeEnum.getComment(trdOrderDetail.getTradeType()));
+//			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
+//			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){
+//				if(trdOrderDetail.getTradeType() == trdOrder3.getOperation()){
+//					detailMap.put("fundTradeType", trdOrder3.getComment());
+//					break;
+//				} else {
+//					detailMap.put("fundTradeType", "");
+//				}
+//			}
 			detailList.add(detailMap);
 		}
 		result.put("detailList", detailList);
