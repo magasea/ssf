@@ -1001,22 +1001,22 @@ public class UserInfoServiceImpl implements UserInfoService {
 				if(mongoUiTrdLogDTO.getTradeConfirmSum() != null && mongoUiTrdLogDTO.getTradeConfirmSum()
 						> 0){
 					sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum();
-					logger.info("sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum():{}",sumFromLog);
+//					logger.info("sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum():{}",sumFromLog);
 				}else if(mongoUiTrdLogDTO.getTradeTargetSum() != null && mongoUiTrdLogDTO
 						.getTradeTargetSum() > 0){
 					sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum();
-					logger.info("sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum():{}",sumFromLog);
+//					logger.info("sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum():{}",sumFromLog);
 				}else if(mongoUiTrdLogDTO.getTradeConfirmShare() != null && mongoUiTrdLogDTO
 						.getTradeConfirmShare() > 0){
 					sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
-					logger.info("sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare():{}",sumFromLog);
+//					logger.info("sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare():{}",sumFromLog);
 				}else if(mongoUiTrdLogDTO.getTradeTargetShare() != null && mongoUiTrdLogDTO
 						.getTradeTargetShare() > 0){
 					sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
-					logger.info("sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare():{}",sumFromLog);
+//					logger.info("sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare():{}",sumFromLog);
 				}else if(mongoUiTrdLogDTO.getAmount() != null ){
 					sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount());
-					logger.info("sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount()):{}",sumFromLog);
+//					logger.info("sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount()):{}",sumFromLog);
 				}else{
 					logger.error("havent find trade money or quantity info for userProdId:{} and "
 							+ "fundCode:{}", mongoUiTrdLogDTO.getUserProdId(), mongoUiTrdLogDTO.getFundCode());
