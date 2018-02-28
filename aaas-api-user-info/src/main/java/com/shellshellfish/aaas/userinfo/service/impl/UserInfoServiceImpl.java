@@ -703,7 +703,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 //										.getDayOfMonth());
 						resultMap2.put("date", dateTime.split("T")[0]);
 //						resultMap2.put("time", localDateTime.getHour() + ":" + localDateTime.getMinute());
-						resultMap2.put("time", dateTime.split("T")[1]);
+						resultMap2.put("time", dateTime.split("T")[1].substring(0, 8));
 //						resultMap2.put("status", status + "");
 						resultMap.put(status, resultMap2);
 					}
@@ -1035,7 +1035,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 			for (Map.Entry<String, Map<String, Object>> entry : tradLogsMap.entrySet()) {
 
 				String[] params = entry.getKey().split("-");
-				String uoKey = String.format("{}-{}",params[0], params[2]);
+				String uoKey = String.format("%s-%s",params[0], params[2]);
 				Map<String, Object> valueMap = entry.getValue();
 
 
@@ -1043,7 +1043,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 					if (valueMap.get("tradeStatusValue") != null) {
 						TrdOrderStatusEnum trdOrderStatus = TrdOrderStatusEnum.getTrdOrderStatusEnum(Integer.parseInt(valueMap
 								.get("tradeStatusValue")	+ ""));
-						valueMap.put("tradeStatus", TrdStatusToCombStatusUtils.getCSEFromTSE(trdOrderStatus));
+						valueMap.put("tradeStatus", TrdStatusToCombStatusUtils.getCSEFromTSE(trdOrderStatus).getComment());
+						logger.info("tradeStatusValue:{} trdOrderStatus:{} ",valueMap.get("tradeStatusValue"));
 					}
 					tradLogsSum.put(uoKey, valueMap);
 				} else {
@@ -1054,6 +1055,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 							amountTotal = amountTotal.add(new BigDecimal(valueMap.get("amount") + ""));
 						}
 						trad.put("amount", amountTotal);
+						logger.info("now uoKey:{} amountTotal:{}", uoKey, amountTotal);
 					}
 
 					if (trad.get("tradeStatusValue") != null) {

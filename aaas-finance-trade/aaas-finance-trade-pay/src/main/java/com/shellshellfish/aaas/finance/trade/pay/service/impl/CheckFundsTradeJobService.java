@@ -145,8 +145,8 @@ public class CheckFundsTradeJobService {
                 userPid = orderService.getPidFromTrdAccoBrokerId(trdPayFlow);
             } catch (Exception e) {
                 e.printStackTrace();
-                logger.error("failed to retrieve userPid for trdPayFlow with userId:"+ trdPayFlow
-                    .getUserId());
+                logger.error("failed to retrieve userPid for trdPayFlow with userId:{} in "
+                    + "applySerial:{}"+ trdPayFlow.getUserId(), trdPayFlow.getApplySerial());
                 continue;
             }
             applySerial = trdPayFlow.getApplySerial();
@@ -217,20 +217,21 @@ public class CheckFundsTradeJobService {
         if(!CollectionUtils.isEmpty(trdPayFlows)) {
             ApplyResult applyResult = null;
             String userPid = null;
-            String outsideOrderno = null;
+//            String outsideOrderno = null;
+            String applySerial = null;
             List<TrdPayFlow> trdPayFlowListToGetConfirmInfo = new ArrayList<>();
             for (TrdPayFlow trdPayFlow : trdPayFlows) {
                 try {
                     // TODO: replace userId with userUuid
                     userPid = orderService.getPidFromTrdAccoBrokerId(trdPayFlow);
-                    outsideOrderno = trdPayFlow.getOutsideOrderno();
-                    if(StringUtils.isEmpty(outsideOrderno)){
-                        logger.error("if the outsideOrderno is empty, the payflow is of old "
-                            + "process with outsideOrderno as the orderDetailId");
-                        outsideOrderno = ""+trdPayFlow.getOrderDetailId();
+//                    outsideOrderno = trdPayFlow.getOutsideOrderno();
+                    applySerial = trdPayFlow.getApplySerial();
+                    if(StringUtils.isEmpty(applySerial)){
+                        logger.error("if the applySerial is empty , the payFlow is of Id:{}",
+                            trdPayFlow.getId());
                     }
-                    applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo
-                        (TradeUtil.getZZOpenId(userPid), outsideOrderno);
+                    applyResult = fundTradeApiService.getApplyResultByApplySerial
+                        (TradeUtil.getZZOpenId(userPid), applySerial);
                     if (null != applyResult && !StringUtils
                         .isEmpty(applyResult.getApplyshare())) {
                         com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
@@ -270,7 +271,7 @@ public class CheckFundsTradeJobService {
                 } finally {
                     if(null == applyResult){
                         logger.error("failed to retrieve applyResult with pid:" + userPid + ""
-                            + " and outsideOrdernu:"+ outsideOrderno);
+                            + " and applySerial:"+ applySerial);
                     }
                     logger.info("Sample job has finished...");
                 }

@@ -134,6 +134,9 @@ public class TradeUtilTest {
   @Test
   public void testPassword(){
 //    System.out.println(MD5.)
+
+    String test = String.format("%s-%s","test", "name");
+    System.out.println(test);
   }
 
 }

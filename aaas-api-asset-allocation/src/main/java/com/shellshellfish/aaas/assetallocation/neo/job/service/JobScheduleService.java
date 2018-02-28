@@ -202,12 +202,6 @@ public class JobScheduleService {
 //    @Scheduled(cron = "0 30 6 * * ?")        //每天 凌晨 6:30 点 执行
     public void getFundGroupIncomeAllJobSchedule() {
         try {
-//            // 连接到 mongodb 服务
-//            MongoClient mongoClient = new MongoClient(MONGO_DB_HOST, MONGO_DB_PORT);
-//            // 连接到数据库
-//            MongoDatabase mongoDatabase = mongoClient.getDatabase(MONGO_DB_DATABASE_NAME);
-            logger.info("Connect to database successfully");
-
             MongoCollection<Document> collection = mongoDatabase.getCollection(collectionName);
             logger.info(collectionName + "集合选择成功");
 
