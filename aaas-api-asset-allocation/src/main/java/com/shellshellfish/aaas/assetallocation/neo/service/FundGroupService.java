@@ -18,6 +18,7 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -29,7 +30,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.*;
-import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.MONGO_DB_COLLECTION;
+//import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.MONGO_DB_COLLECTION;
 
 /**
  * Created by wangyinuo on 2017/11/27.
@@ -41,6 +42,14 @@ public class FundGroupService {
     private FundGroupMapper fundGroupMapper;
     @Autowired
     private FundNetValMapper fundNetValMapper;
+    @Autowired
+    private FundGroupService fundGroupService;
+
+    @Autowired
+    MongoDatabase mongoDatabase;
+
+    @Value("${spring.data.mongodb.collection}")
+    String collectionName;
 
     Logger logger = LoggerFactory.getLogger(FundGroupService.class);
 
@@ -646,6 +655,30 @@ public class FundGroupService {
         return aReturn;
     }
 
+    public List<Date> getNavlatestdateCount(String groupId, String subGroupId) {
+        List<String> codeList = fundGroupService.getFundGroupCodes(groupId, subGroupId);
+        int codeSize = codeList.size();
+        Map query = new HashMap();
+        query.put("list", codeList);
+        //查询组合中基金最晚成立日 作为 该组合成立日
+        Date minNavDate = fundNetValMapper.getMinNavDateByCodeList(codeList);
+        query.put("minNavDate", minNavDate);
+        List<Map> resultMap = fundGroupMapper.getNavlatestdateCount(query);
+
+        List<Date> navDateList = new ArrayList<>();
+        for (Map map : resultMap) {
+            int count = ((Long)map.get("count")).intValue();
+            Date navDate = (Date)map.get("navDate");
+            if (count != codeSize) {
+                continue;
+            }
+
+            navDateList.add(navDate);
+        }
+
+        return navDateList;
+    }
+
     public List<String> getFundGroupCodes(String groupId, String subGroupId) {
         Map<String, Object> queryCodes = new HashMap<>();
         queryCodes.put("fundGroupId", groupId);
@@ -898,13 +931,13 @@ public class FundGroupService {
         ReturnType rt = null;
         try {
             // 连接到 mongodb 服务
-            MongoClient mongoClient = new MongoClient(MONGO_DB_HOST, MONGO_DB_PORT);
-            // 连接到数据库
-            MongoDatabase mongoDatabase = mongoClient.getDatabase(MONGO_DB_DATABASE_NAME);
+//            MongoClient mongoClient = new MongoClient(MONGO_DB_HOST, MONGO_DB_PORT);
+//            // 连接到数据库
+//            MongoDatabase mongoDatabase = mongoClient.getDatabase(MONGO_DB_DATABASE_NAME);
             logger.info("Connect to database successfully");
 
-            MongoCollection<Document> collection = mongoDatabase.getCollection(MONGO_DB_COLLECTION);
-            logger.info(MONGO_DB_COLLECTION + "集合选择成功");
+            MongoCollection<Document> collection = mongoDatabase.getCollection(collectionName);
+            logger.info(collectionName + "集合选择成功");
 
             String key = groupId + "_" + subGroupId;
             FindIterable<Document> findIterable = collection.find(Filters.eq("key", key));
@@ -1349,6 +1382,18 @@ public class FundGroupService {
         return fundGroupMapper.findAllGroupCode();
     }
 
+    public List<FundNetVal> getNavadjNew(String groupId, String subGroupId) {
+        List<Date> navDateList = fundGroupService.getNavlatestdateCount(groupId, subGroupId);
+
+        Map query = new HashMap();
+        query.put("groupId", groupId);
+        query.put("subGroupId", subGroupId);
+        query.put("list", navDateList);
+        List<FundNetVal> fundNetVals = fundGroupMapper.getNavadjByNavDates(query);
+
+        return fundNetVals;
+    }
+
     /**
      * 计算组合单位收益净值和最大回撤
      *
@@ -1361,25 +1406,28 @@ public class FundGroupService {
         Map<String, Object> query = new HashMap<>();
         query.put("fund_group_id", group_id);
         query.put("subGroupId", subGroupId);
-        String startTime = null;
-        String groupStartTime = fundGroupMapper.getFundGroupHistoryTime(query);
-        if (StringUtils.isEmpty(groupStartTime)) {
-            groupStartTime = fundGroupMapper.getGroupStartTime(query);
-            startTime = groupStartTime;
-        }
-        query.put("startTime", groupStartTime);
-        List<FundNetVal> list = fundGroupMapper.getNavadj(query);
-        this.insertToFundGroupHistory(list, group_id, subGroupId, startTime);
 
-        if (StringUtils.isEmpty(startTime)) {
-            startTime = fundGroupMapper.getGroupStartTime(query);
+        List<String> codeList = getFundGroupCodes(group_id, subGroupId);
+        if (CollectionUtils.isEmpty(codeList)) {
+            return ;
         }
+
+        //查询组合中基金最晚成立日 作为 该组合成立日
+        Date minNavDate = fundNetValMapper.getMinNavDateByCodeList(codeList);
+        String startTime = DateUtil.formatDate(minNavDate);
         query.put("startTime", startTime);
+
+        List<FundNetVal> list = this.getNavadjNew(group_id, subGroupId);
+        if (CollectionUtils.isEmpty(list)) {
+            return ;
+        }
+
+        this.insertToFundGroupHistory(list, group_id, subGroupId, startTime);
 
         List<Map> updateMapList = new ArrayList<>();
         Calendar ca = Calendar.getInstance();
         Date date = new Date();
-        Date groupStartDate = DateUtil.getDateFromFormatStr(groupStartTime);
+        Date groupStartDate = DateUtil.getDateFromFormatStr(startTime);
 
         List<FundNetVal> fundNetValList = null;
         if (date.getTime() > groupStartDate.getTime()) {

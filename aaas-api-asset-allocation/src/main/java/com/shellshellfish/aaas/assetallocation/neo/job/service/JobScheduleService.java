@@ -36,6 +36,7 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 
@@ -63,6 +64,14 @@ public class JobScheduleService {
     @Autowired
     private JobTimeService jobTimeService;
 
+    @Autowired
+    MongoClient mongoClient;
+
+    @Autowired
+    MongoDatabase mongoDatabase;
+
+    @Value("${spring.data.mongodb.collection}")
+    String collectionName;
     /*
      * 调用每日接口
      */
@@ -193,14 +202,14 @@ public class JobScheduleService {
 //    @Scheduled(cron = "0 30 6 * * ?")        //每天 凌晨 6:30 点 执行
     public void getFundGroupIncomeAllJobSchedule() {
         try {
-            // 连接到 mongodb 服务
-            MongoClient mongoClient = new MongoClient(MONGO_DB_HOST, MONGO_DB_PORT);
-            // 连接到数据库
-            MongoDatabase mongoDatabase = mongoClient.getDatabase(MONGO_DB_DATABASE_NAME);
+//            // 连接到 mongodb 服务
+//            MongoClient mongoClient = new MongoClient(MONGO_DB_HOST, MONGO_DB_PORT);
+//            // 连接到数据库
+//            MongoDatabase mongoDatabase = mongoClient.getDatabase(MONGO_DB_DATABASE_NAME);
             logger.info("Connect to database successfully");
 
-            MongoCollection<Document> collection = mongoDatabase.getCollection(MONGO_DB_COLLECTION);
-            logger.info(MONGO_DB_COLLECTION + "集合选择成功");
+            MongoCollection<Document> collection = mongoDatabase.getCollection(collectionName);
+            logger.info(collectionName + "集合选择成功");
 
             List<Document> documents = new ArrayList<>();
             String returnType = "income";
@@ -214,7 +223,7 @@ public class JobScheduleService {
                 documents.add(document);
             }
             // 删除所有符合条件的文档
-            collection.deleteMany(Filters.eq("title", MONGO_DB_COLLECTION));
+            collection.deleteMany(Filters.eq("title", collectionName));
 
             collection.insertMany(documents);
             logger.info("文档插入成功");
