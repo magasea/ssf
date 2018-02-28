@@ -703,7 +703,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 //										.getDayOfMonth());
 						resultMap2.put("date", dateTime.split("T")[0]);
 //						resultMap2.put("time", localDateTime.getHour() + ":" + localDateTime.getMinute());
-						resultMap2.put("time", dateTime.split("T")[1]);
+						resultMap2.put("time", dateTime.split("T")[1].substring(0, 8));
 //						resultMap2.put("status", status + "");
 						resultMap.put(status, resultMap2);
 					}
