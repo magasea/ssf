@@ -1035,7 +1035,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 			for (Map.Entry<String, Map<String, Object>> entry : tradLogsMap.entrySet()) {
 
 				String[] params = entry.getKey().split("-");
-				String uoKey = String.format("{}-{}",params[0], params[2]);
+				String uoKey = String.format("%s-%s",params[0], params[2]);
 				Map<String, Object> valueMap = entry.getValue();
 
 
