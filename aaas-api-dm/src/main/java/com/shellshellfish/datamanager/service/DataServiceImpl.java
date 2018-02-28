@@ -530,7 +530,7 @@ public class DataServiceImpl implements DataService {
 				befdate = curdate.plusYears(-1);//前一年
 				break;
 			case 7:
-				befdate = curdate.plusDays(-3);//前三年
+				befdate = curdate.plusYears(-3);//前三年
 				break;
 			case 8:
 				befdate = LocalDate.of(curdate.getYear(), 1, 1);//本年年初
