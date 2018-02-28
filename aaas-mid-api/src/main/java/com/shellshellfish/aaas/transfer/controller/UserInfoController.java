@@ -154,7 +154,7 @@ public class UserInfoController {
 				}
 			}
 			if (CollectionUtils.isEmpty(result )) {
-				return new JsonResult(JsonResult.SUCCESS, "获取银行卡为空", JsonResult.EMPTYRESULT);
+				return new JsonResult(JsonResult.SUCCESS, "获取银行卡为空", new ArrayList());
 			} else {
 				return new JsonResult(JsonResult.SUCCESS, "获取银行卡成功", result);
 			}
