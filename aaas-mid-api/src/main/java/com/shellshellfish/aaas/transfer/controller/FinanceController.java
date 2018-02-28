@@ -57,6 +57,9 @@ public class FinanceController {
 
 	@Value("${shellshellfish.asset-alloction-url}")
 	private String assetAlloctionUrl;
+	
+	@Value("${shellshellfish.data-manager-url}")
+	private String dataManagerUrl;
 
 	@Autowired
 	private RestTemplate restTemplate;
@@ -177,11 +180,10 @@ public class FinanceController {
 		}
 	}
 
-
-	@ApiOperation("6.进入理财页面后的数据")
-	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
+	@ApiOperation("进入理财页面后的数据（暂时不用）")
+	@RequestMapping(value = "/financeFrontPage2", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult financeModule() {
+	public JsonResult financeModule2() {
 		Map returnMap = new HashMap<>();
 		//BANNER LIST
 		List<String> bannerList = new ArrayList<>();
@@ -270,6 +272,17 @@ public class FinanceController {
 		}
 		returnMap.put("data", resultList);
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", returnMap);
+	}
+	
+	@ApiOperation("进入理财页面后的数据")
+	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult financeModule() {
+		// 先获取全部产品
+		JsonResult result = restTemplate
+				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage", JsonResult.class).getBody();
+
+		return result;
 	}
 
 

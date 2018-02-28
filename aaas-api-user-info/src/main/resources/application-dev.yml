@@ -27,7 +27,7 @@ spring:
          acknowledge-mode: auto
      username: ssf
      password: shellshellfish
-     host: 192.168.1.22
+     host: 192.168.1.249
      port: 5672
      virtual-host: aaas
      topicQueuePayName: com-ssf-topic-queue-pay

@@ -114,16 +114,20 @@ public class FundGroupServiceImpl implements FundGroupService {
 		List<UiProductDetailDTO> uiProductDetailDTOList = uiProductService
 				.getProductDetailsByProdId(productId);
 		List<Map> fundIncomes = new ArrayList<>(uiProductDetailDTOList.size());
+		BigDecimal dailyIncome = BigDecimal.ZERO;
 		for (int i = 0; i < uiProductDetailDTOList.size(); i++) {
 			UiProductDetailDTO uiProductDetailDTO = uiProductDetailDTOList.get(i);
 			String fundCode = uiProductDetailDTOList.get(i).getFundCode();
 			Map fundIncomeInfo = new HashMap(3);
 			fundIncomeInfo.put("fundCode", fundCode);
 			fundIncomeInfo.put("fundName", uiProductDetailDTO.getFundName());
-			fundIncomeInfo.put("todayIncome", getFundInome(fundCode, uiProductDetailDTO.getUserProdId()));
+			BigDecimal todayIncome = getFundInome(fundCode, uiProductDetailDTO.getUserProdId());
+			fundIncomeInfo.put("todayIncome", todayIncome.setScale(2, RoundingMode.HALF_UP));
 			fundIncomes.add(fundIncomeInfo);
+			dailyIncome.add(todayIncome);
 		}
 		result.put("fundIncomes", fundIncomes);
+		result.put("dailyIncome", dailyIncome.setScale(2, RoundingMode.HALF_UP));
 		return result;
 	}
 
@@ -140,7 +144,7 @@ public class FundGroupServiceImpl implements FundGroupService {
 		DailyAmount today = dailyAmountList.get(0);
 		DailyAmount yesterday = dailyAmountList.get(1);
 
-		return today.getAsset().subtract(yesterday.getAsset()).setScale(2, RoundingMode.HALF_UP);
+		return today.getAsset().subtract(yesterday.getAsset());
 	}
 
 

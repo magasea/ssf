@@ -11,9 +11,7 @@ public class JsonResult {
  
  private Head head;
  private Object result;
- 
- 
- 
+ public JsonResult(){}
  
  public JsonResult(String success,String message,Object object){
 	this.head=new Head(success,message);

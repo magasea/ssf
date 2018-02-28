@@ -1,9 +1,9 @@
 package com.shellshellfish.datamanager.configuration;
 
 import static springfox.documentation.builders.PathSelectors.regex;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
@@ -35,5 +35,10 @@ public class SwaggerConfig {
                "Apache License Version 2.0",
                 "https://www.apache.org/licenses/LICENSE-2.0");
         return apiInfo;
+    }
+    
+    @Bean
+    public RestTemplate restTemplate(){
+        return new RestTemplate();
     }
 }
