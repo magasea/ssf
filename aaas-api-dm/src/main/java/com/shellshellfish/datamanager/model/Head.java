@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.model;
+package com.shellshellfish.datamanager.model;
 
 public class Head {
 	private String status;
