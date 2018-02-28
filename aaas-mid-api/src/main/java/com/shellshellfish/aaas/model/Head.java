@@ -3,7 +3,7 @@ package com.shellshellfish.aaas.model;
 public class Head {
 	private String status;
 	private String msg;
-	
+	public Head(){}
 	public Head(String status,String msg){
 		this.status=status;
 		this.msg=msg;	
