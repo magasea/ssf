@@ -3,17 +3,18 @@ package com.shellshellfish.aaas.assetallocation.repository.dummy;
 import com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal;
 import com.shellshellfish.aaas.assetallocation.neo.entity.Interval;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
+import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
+import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Author: hongming
@@ -28,6 +29,10 @@ public class FundGroupMapperTest {
 
     @Autowired
     private FundGroupMapper fundGroupMapper;
+    @Autowired
+    private FundGroupService fundGroupService;
+    @Autowired
+    private FundNetValMapper fundNetValMapper;
 
     @Test
     public void getFundGroupHistoryTimeTest() {
@@ -97,4 +102,59 @@ public class FundGroupMapperTest {
         List<FundNetVal> list = fundGroupMapper.getNavadj(query);
         System.out.println("");
     }
+
+    @Test
+    public void getNavlatestdateCountTest() {
+        String group_id = "9";
+        String subGroupId = "90048";
+        List<String> codeList = fundGroupService.getFundGroupCodes(group_id, subGroupId);
+        int codeSize = codeList.size();
+        Map query = new HashMap();
+        query.put("list", codeList);
+        //查询组合中基金最晚成立日 作为 该组合成立日
+        Date minNavDate = fundNetValMapper.getMinNavDateByCodeList(codeList);
+        query.put("minNavDate", minNavDate);
+        List<Map> resultMap = fundGroupMapper.getNavlatestdateCount(query);
+
+        List<Date> navDateList = new ArrayList<>();
+        List<Date> otherNavDateList = new ArrayList<>();
+        for (Map map : resultMap) {
+            int count = ((Long)map.get("count")).intValue();
+            Date navDate = (Date)map.get("navDate");
+            if (count != codeSize) {
+                otherNavDateList.add(navDate);
+                continue;
+            }
+
+            navDateList.add(navDate);
+        }
+
+        if (!CollectionUtils.isEmpty(navDateList)) {
+            System.out.println(navDateList.size());
+        }
+
+        if (!CollectionUtils.isEmpty(otherNavDateList)) {
+            System.out.println(otherNavDateList.size());
+        }
+
+    }
+
+    @Test
+    public void getNavadjByNavDatesTest() {
+        String groupId = "9";
+        String subGroupId = "90048";
+
+        List<Date> navDateList = fundGroupService.getNavlatestdateCount(groupId, subGroupId);
+
+        Map query = new HashMap();
+        query.put("groupId", groupId);
+        query.put("subGroupId", subGroupId);
+        query.put("list", navDateList);
+        List<FundNetVal> fundNetVals = fundGroupMapper.getNavadjByNavDates(query);
+
+        if (!CollectionUtils.isEmpty(fundNetVals)) {
+            System.out.println(fundNetVals.size());
+        }
+    }
+
 }

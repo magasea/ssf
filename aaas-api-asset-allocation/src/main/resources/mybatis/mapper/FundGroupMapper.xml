@@ -228,6 +228,32 @@
         order by a.navlatestdate asc
     </select>
 
+    <select id="getNavadjByNavDates" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
+        select sum(a.navadj*b.proportion) navadj,a.navlatestdate from fund_net_value a,fund_group_details b
+        where b.fund_group_id = #{groupId}
+        and b.fund_group_sub_id = #{subGroupId}
+        and a.code=b.fund_code
+        and a.NAVLATESTDATE in (
+            <foreach collection="list" separator="," item="item">
+                #{item}
+            </foreach>
+        )
+        group by a.navlatestdate
+        order by a.navlatestdate asc
+    </select>
+
+    <select id="getNavlatestdateCount" parameterType="java.util.Map" resultType="java.util.Map">
+        select count(NAVLATESTDATE) as count, NAVLATESTDATE as navDate from fund_net_value where
+        code in (
+            <foreach collection="list" separator="," item="item">
+                #{item}
+            </foreach>
+        )
+        and NAVLATESTDATE >= #{minNavDate}
+        group by NAVLATESTDATE
+        order by NAVLATESTDATE asc
+    </select>
+
     <select id="getNavadjBenchmark" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
         select sum(a.navadj*b.proportion) navadj,a.navlatestdate from fund_net_value a,fund_group_benchmark b
         where a.code=b.fund_code and b.risk_level= #{risk_level} and a.navlatestdate >= #{startTime}

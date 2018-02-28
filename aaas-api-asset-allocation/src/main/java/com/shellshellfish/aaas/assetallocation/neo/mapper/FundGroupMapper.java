@@ -79,6 +79,10 @@ public interface FundGroupMapper {
 
     List<FundNetVal> getNavadj(Map map);
 
+    List<FundNetVal> getNavadjByNavDates(Map map);
+
+    List<Map> getNavlatestdateCount(Map map);
+
     List<FundNetVal> getNavadjBenchmark(Map map);
 
     List<FundGroupHistory> selectMaximumRetracement(Map map);
