@@ -182,6 +182,12 @@
             <version>0.0.1</version>
             <classifier>linux-x86_64</classifier>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -305,6 +311,7 @@
                 <executions>
                     <execution>
                         <id>fmp</id>
+                        <phase>deploy</phase>
                         <goals>
                             <goal>resource</goal>
                         </goals>

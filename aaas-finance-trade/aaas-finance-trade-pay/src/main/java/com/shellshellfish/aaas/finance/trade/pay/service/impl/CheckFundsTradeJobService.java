@@ -63,20 +63,20 @@ public class CheckFundsTradeJobService {
         if(!CollectionUtils.isEmpty(trdPayFlows)) {
             ApplyResult applyResult = null;
             String userPid = null;
-            String outsideOrderno = null;
+            String applySerial = null;
             List<TrdPayFlow> trdPayFlowListToGetConfirmInfo = new ArrayList<>();
             for (TrdPayFlow trdPayFlow : trdPayFlows) {
                 try {
                     // TODO: replace userId with userUuid
                     userPid = orderService.getPidFromTrdAccoBrokerId(trdPayFlow);
-                    outsideOrderno = trdPayFlow.getOutsideOrderno();
-                    if(StringUtils.isEmpty(outsideOrderno)){
-                        logger.error("if the outsideOrderno is empty, the payflow is of old "
-                            + "process with outsideOrderno as the orderDetailId");
-                        outsideOrderno = ""+trdPayFlow.getOrderDetailId();
+                    applySerial = trdPayFlow.getApplySerial();
+                    if(StringUtils.isEmpty(applySerial)){
+                        logger.error("if the applySerial is empty, the payflow is of not need to "
+                            + "check ");
+                        continue;
                     }
-                    applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo
-                        (TradeUtil.getZZOpenId(userPid), outsideOrderno);
+                    applyResult = fundTradeApiService.getApplyResultByApplySerial
+                        (TradeUtil.getZZOpenId(userPid), applySerial);
                     if (null != applyResult && !StringUtils
                         .isEmpty(applyResult.getApplyshare())) {
                         com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
@@ -97,8 +97,9 @@ public class CheckFundsTradeJobService {
                                 Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum)
                             .getStatus();
                         if(trdPayFlow.getTrdStatus() == queryStatus){
-                            logger.error("There is no status change for outsideOrderno:{}, current status:{} queryStatus:{}",
-                                outsideOrderno, trdPayFlow.getTrdStatus(), queryStatus);
+                            logger.error("There is no status change for applySerial:{}, current "
+                                    + "status:{} queryStatus:{}", applySerial, trdPayFlow
+                                .getTrdStatus(), queryStatus);
                             continue;
                         }
                         trdPayFlow.setTrdStatus(ZZStatsToOrdStatsUtils
@@ -123,7 +124,7 @@ public class CheckFundsTradeJobService {
                 } finally {
                     if(null == applyResult){
                         logger.error("failed to retrieve applyResult with pid:" + userPid + ""
-                            + " and outsideOrdernu:"+ outsideOrderno);
+                            + " and applySerial:"+ applySerial);
                     }
                     logger.info("Sample job has finished...");
                 }
@@ -138,7 +139,7 @@ public class CheckFundsTradeJobService {
             return;
         }
         String userPid;
-        String outsideOrderno;
+        String applySerial;
         for(TrdPayFlow trdPayFlow: trdPayFlowListToGetConfirmInfo){
             try {
                 userPid = orderService.getPidFromTrdAccoBrokerId(trdPayFlow);
@@ -148,23 +149,23 @@ public class CheckFundsTradeJobService {
                     .getUserId());
                 continue;
             }
-            outsideOrderno = trdPayFlow.getOutsideOrderno();
-            if(StringUtils.isEmpty(outsideOrderno)){
-                logger.error("if the outsideOrderno is empty, the payflow is of old "
-                    + "process with outsideOrderno as the orderDetailId");
-                outsideOrderno = ""+trdPayFlow.getOrderDetailId();
+            applySerial = trdPayFlow.getApplySerial();
+            if(StringUtils.isEmpty(applySerial)){
+                logger.error("the applySerial is empty, the payflow is not need to be handle");
+                continue;
             }
             List<ConfirmResult> confirmResults = null;
             try{
-                confirmResults = fundTradeApiService.getConfirmResults(TradeUtil.getZZOpenId(userPid), outsideOrderno);
+                confirmResults = fundTradeApiService.getConfirmResultsBySerial(TradeUtil.getZZOpenId
+                    (userPid), applySerial);
             }catch (Exception ex){
                 ex.printStackTrace();
                 logger.error("failed to get confirmResults with userPid:" + userPid + " "
-                    + "outsideOrderno:" + outsideOrderno + " errMsg:" + ex.getMessage());
+                    + "applySerial:" + applySerial + " errMsg:" + ex.getMessage());
             }
             //now compond the message for sending
             if(CollectionUtils.isEmpty(confirmResults)){
-               logger.error("there is no confirm information for outsideOrderno:" + outsideOrderno);
+               logger.error("there is no confirm information for applySerial:" + applySerial);
                continue;
             }
             ConfirmResult confirmResult = confirmResults.get(0);

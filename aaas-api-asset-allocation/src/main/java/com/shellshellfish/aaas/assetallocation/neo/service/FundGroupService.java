@@ -18,6 +18,7 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -29,7 +30,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.*;
-import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.MONGO_DB_COLLECTION;
+//import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.MONGO_DB_COLLECTION;
 
 /**
  * Created by wangyinuo on 2017/11/27.
@@ -43,6 +44,12 @@ public class FundGroupService {
     private FundNetValMapper fundNetValMapper;
     @Autowired
     private FundGroupService fundGroupService;
+
+    @Autowired
+    MongoDatabase mongoDatabase;
+
+    @Value("${spring.data.mongodb.collection}")
+    String collectionName;
 
     Logger logger = LoggerFactory.getLogger(FundGroupService.class);
 
@@ -924,13 +931,13 @@ public class FundGroupService {
         ReturnType rt = null;
         try {
             // 连接到 mongodb 服务
-            MongoClient mongoClient = new MongoClient(MONGO_DB_HOST, MONGO_DB_PORT);
-            // 连接到数据库
-            MongoDatabase mongoDatabase = mongoClient.getDatabase(MONGO_DB_DATABASE_NAME);
+//            MongoClient mongoClient = new MongoClient(MONGO_DB_HOST, MONGO_DB_PORT);
+//            // 连接到数据库
+//            MongoDatabase mongoDatabase = mongoClient.getDatabase(MONGO_DB_DATABASE_NAME);
             logger.info("Connect to database successfully");
 
-            MongoCollection<Document> collection = mongoDatabase.getCollection(MONGO_DB_COLLECTION);
-            logger.info(MONGO_DB_COLLECTION + "集合选择成功");
+            MongoCollection<Document> collection = mongoDatabase.getCollection(collectionName);
+            logger.info(collectionName + "集合选择成功");
 
             String key = groupId + "_" + subGroupId;
             FindIterable<Document> findIterable = collection.find(Filters.eq("key", key));
