@@ -840,19 +840,7 @@ public class FundGroupService {
         List maxMinValueList = new ArrayList();
         List maxMinBenchmarkList = new ArrayList();
         if (returnType.equalsIgnoreCase("income")) {
-            Map<String, Object> queryNetValue = new HashMap<>();
-            List<String> codeList = getFundGroupCodes(groupId, subGroupId);
-            if (CollectionUtils.isEmpty(codeList)) {
-                return fgi;
-            }
-
-            //查询组合中基金最晚成立日 作为 该组合成立日
-            Date minNavDate = fundNetValMapper.getMinNavDateByCodeList(codeList);
-            String startTime = DateUtil.formatDate(minNavDate);
-            queryNetValue.put("fund_group_id", groupId);
-            queryNetValue.put("subGroupId", subGroupId);
-            queryNetValue.put("startTime", startTime);
-            List<FundNetVal> fundNetVals = fundGroupMapper.getNavadj(queryNetValue);
+            List<FundNetVal> fundNetVals = this.getNavadjNew(groupId, subGroupId);
             if (CollectionUtils.isEmpty(fundNetVals)) {
                 return fgi;
             }
@@ -930,12 +918,6 @@ public class FundGroupService {
     public ReturnType getFundGroupIncomeAllFromMongo(String groupId, String subGroupId, String returnType) {
         ReturnType rt = null;
         try {
-            // 连接到 mongodb 服务
-//            MongoClient mongoClient = new MongoClient(MONGO_DB_HOST, MONGO_DB_PORT);
-//            // 连接到数据库
-//            MongoDatabase mongoDatabase = mongoClient.getDatabase(MONGO_DB_DATABASE_NAME);
-            logger.info("Connect to database successfully");
-
             MongoCollection<Document> collection = mongoDatabase.getCollection(collectionName);
             logger.info(collectionName + "集合选择成功");
 
