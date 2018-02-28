@@ -145,8 +145,8 @@ public class CheckFundsTradeJobService {
                 userPid = orderService.getPidFromTrdAccoBrokerId(trdPayFlow);
             } catch (Exception e) {
                 e.printStackTrace();
-                logger.error("failed to retrieve userPid for trdPayFlow with userId:"+ trdPayFlow
-                    .getUserId());
+                logger.error("failed to retrieve userPid for trdPayFlow with userId:{} in "
+                    + "applySerial:{}"+ trdPayFlow.getUserId(), trdPayFlow.getApplySerial());
                 continue;
             }
             applySerial = trdPayFlow.getApplySerial();
