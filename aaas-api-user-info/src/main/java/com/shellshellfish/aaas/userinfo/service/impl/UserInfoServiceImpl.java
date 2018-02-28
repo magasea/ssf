@@ -1043,7 +1043,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 					if (valueMap.get("tradeStatusValue") != null) {
 						TrdOrderStatusEnum trdOrderStatus = TrdOrderStatusEnum.getTrdOrderStatusEnum(Integer.parseInt(valueMap
 								.get("tradeStatusValue")	+ ""));
-						valueMap.put("tradeStatus", TrdStatusToCombStatusUtils.getCSEFromTSE(trdOrderStatus));
+						valueMap.put("tradeStatus", TrdStatusToCombStatusUtils.getCSEFromTSE(trdOrderStatus).getComment());
 						logger.info("tradeStatusValue:{} trdOrderStatus:{} ",valueMap.get("tradeStatusValue"));
 					}
 					tradLogsSum.put(uoKey, valueMap);
