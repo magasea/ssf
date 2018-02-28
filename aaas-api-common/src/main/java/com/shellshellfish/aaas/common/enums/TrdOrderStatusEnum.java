@@ -41,6 +41,15 @@ public enum TrdOrderStatusEnum {
 		throw new IllegalArgumentException("input operation:" + status + " is illeagal");
 	}
 
+	public static TrdOrderStatusEnum getTrdOrderStatusEnum(int status) {
+		for (TrdOrderStatusEnum enumItem : TrdOrderStatusEnum.values()) {
+			if (enumItem.getStatus() == status) {
+				return enumItem;
+			}
+		}
+		throw new IllegalArgumentException("input operation:" + status + " is illeagal");
+	}
+
 
 	public static boolean isEntirelyConfirmed(Integer status) {
 		if (status == null) {
