@@ -1044,6 +1044,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 						TrdOrderStatusEnum trdOrderStatus = TrdOrderStatusEnum.getTrdOrderStatusEnum(Integer.parseInt(valueMap
 								.get("tradeStatusValue")	+ ""));
 						valueMap.put("tradeStatus", TrdStatusToCombStatusUtils.getCSEFromTSE(trdOrderStatus));
+						logger.info("tradeStatusValue:{} trdOrderStatus:{} ",valueMap.get("tradeStatusValue"));
 					}
 					tradLogsSum.put(uoKey, valueMap);
 				} else {
@@ -1054,6 +1055,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 							amountTotal = amountTotal.add(new BigDecimal(valueMap.get("amount") + ""));
 						}
 						trad.put("amount", amountTotal);
+						logger.info("now uoKey:{} amountTotal:{}", uoKey, amountTotal);
 					}
 
 					if (trad.get("tradeStatusValue") != null) {
