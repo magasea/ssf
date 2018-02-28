@@ -1,6 +1,6 @@
 package com.shellshellfish.aaas.common.enums;
 
-public enum UiTrdLogStatusEnum {
+public enum CombinedStatusEnum {
 	WAITCONFIRM(0, "确认中"),CONFIRMED(2, "确认成功"),CONFIRMEDFAILED(-1, "确认失败");
 
 	private int operation;
@@ -17,14 +17,14 @@ public enum UiTrdLogStatusEnum {
 	}
 
 
-	UiTrdLogStatusEnum(int operation, String comment) {
+	CombinedStatusEnum(int operation, String comment) {
 		this.operation = operation;
 		this.comment = comment;
 	}
 
   public static String getComment(int operation){
 
-    for (UiTrdLogStatusEnum enumItem : UiTrdLogStatusEnum.values()) {
+    for (CombinedStatusEnum enumItem : CombinedStatusEnum.values()) {
       if (enumItem.getOperation() == operation) {
         return enumItem.getComment();
       }
