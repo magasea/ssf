@@ -42,6 +42,9 @@ public class OptimizationApiController {
 	public JsonResult getFinanceModule() {
 		JsonResult result = optimizationService.getFinanceFront();
 		if (result != null) {
+			if(result.getHead()==null){
+				optimizationService.financeFront();
+			}
 			logger.info(
 					"run com.shellshellfish.datamanager.controller.OptimizationApiController.getFinanceModule() success..");
 		} else {
