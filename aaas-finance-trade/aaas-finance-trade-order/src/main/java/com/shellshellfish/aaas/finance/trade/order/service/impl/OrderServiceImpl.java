@@ -297,6 +297,7 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 				tradeNo = errorMsg;
 			} catch (Exception e) {
 				e.printStackTrace();
+				logger.error(e.getMessage());
 				if(e.getMessage().contains("|")){
 					int errCode = Integer.parseInt(e.getMessage().split("|")[0]);
 					String errMsg = e.getMessage().split("|")[1];
