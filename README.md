@@ -91,7 +91,7 @@ http://192.168.1.10:7015/（备用）
 阿里云内测数据库账户密码：
 1、ID: sa   AD:47.96.179.8 端口:3306 密码：N4eTVr89lX9BaPcx   
 拥有权限1：select,insert,update,create,index,References 。
-对应数据库包括： ssffinance     ssflogin  ssftrdorder   ssftrdpay   ssfuser  
+对应数据库包括： ssflogin  ssftrdorder   ssftrdpay   ssfuser  
 拥有权限2： select  对应数据库  choice 
 2、ID: ssf08    AD:47.96.179.8  密码： t5MqqozQDNramNHh   
 拥有权限为：select,insert,update,create,index,References    
