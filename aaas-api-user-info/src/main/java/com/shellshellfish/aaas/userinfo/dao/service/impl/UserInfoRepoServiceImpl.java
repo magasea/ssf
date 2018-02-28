@@ -385,7 +385,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		}
 		List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserIdAndCardNumber(userId, cardNumber);
 		if (CollectionUtils.isEmpty(bankcardList)) {
-			throw new UserInfoException("404", String.format("用户:{}, 要解绑的银行卡:{} 不存在",userId, cardNumber));
+			throw new UserInfoException("404", String.format("用户:%s, 要解绑的银行卡:%s 不存在",userId, cardNumber));
 		}
 		//用状态来控制银行卡
 		userInfoBankCardsRepository.setBankCardInvalid(userId, cardNumber);
@@ -753,7 +753,8 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			if(currentProductDetail == null){
 				logger.error("no currentProductDetail info available for fundCode:{}", sellProductDetail
 						.getFundCode());
-				throw new Exception(String.format("no currentProductDetail info available for fundCode:{}", sellProductDetail
+				throw new Exception(String.format("no currentProductDetail info available for "
+						+ "fundCode:%s", sellProductDetail
 						.getFundCode()));
 //				spdrBuilder.setResult(-1);
 //				long smallestRemain = -1;
@@ -778,7 +779,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			}
 			if(currentProductDetail.getStatus() != null && currentProductDetail.getStatus() ==
 					TrdOrderStatusEnum.WAITSELL.getStatus()){
-				throw new Exception(String.format("fundCode:{} is in WAITSELL status:{}",
+				throw new Exception(String.format("fundCode:%s is in WAITSELL status:%s",
 						currentProductDetail.getFundCode(), currentProductDetail.getStatus()));
 			}
 			sprBuilder.addSellProductDetailResults(spdrBuilder);
