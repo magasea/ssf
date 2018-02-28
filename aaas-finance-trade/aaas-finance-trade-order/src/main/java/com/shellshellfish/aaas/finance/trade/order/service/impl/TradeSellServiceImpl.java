@@ -228,7 +228,7 @@ public class TradeSellServiceImpl implements TradeSellService {
       SellProductsResult results = userInfoService.checkSellProducts(spBuilder.build());
       if(results.getErrInfo() != null && results.getErrInfo().getErrCode() < 0){
         ErrInfo errInfo = results.getErrInfo();
-        throw new Exception(String.format("赎回失败:{}", errInfo.getErrMsg()));
+        throw new Exception(String.format("赎回失败:%s", errInfo.getErrMsg()));
       }
 //      for( SellProductDetailResult sellProductDetail: results.getSellProductDetailResultsList()){
 //        if(sellProductDetail.getResult() < 0){
