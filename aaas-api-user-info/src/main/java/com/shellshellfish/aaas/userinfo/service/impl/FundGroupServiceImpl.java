@@ -143,8 +143,10 @@ public class FundGroupServiceImpl implements FundGroupService {
 
 		DailyAmount today = dailyAmountList.get(0);
 		DailyAmount yesterday = dailyAmountList.get(1);
+		BigDecimal internalAmount = today.getBonus().add(today.getSellAmount())
+				.subtract(today.getBuyAmount());
 
-		return today.getAsset().subtract(yesterday.getAsset());
+		return today.getAsset().subtract(yesterday.getAsset()).add(internalAmount);
 	}
 
 
