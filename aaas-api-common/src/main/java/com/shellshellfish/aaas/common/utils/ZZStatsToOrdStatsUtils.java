@@ -48,7 +48,7 @@ public class ZZStatsToOrdStatsUtils {
     try{
       trdZZCheckStatusEnum = TrdZZCheckStatusEnum.valueOf(inputEnumVal);
     }catch (Exception ex){
-      ex.printStackTrace();
+      logger.error("exception:",ex);
       logger.error(ex.getMessage());
     }
 

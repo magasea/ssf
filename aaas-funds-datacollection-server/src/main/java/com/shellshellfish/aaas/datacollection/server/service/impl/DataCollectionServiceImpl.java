@@ -188,7 +188,7 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
 						fundbaseclosesAll.addAll(fundbasecloses);
 					}
 				} catch (Exception ex) {
-					ex.printStackTrace();
+					logger.error("exception:",ex);
 					logger.error("failed to convert date str to long date");
 				}
 			}

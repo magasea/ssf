@@ -35,7 +35,7 @@ public class BroadcastMessageConsumers {
         try {
             PayOrderDto payOrderDto = payService.payOrder(message);
         }catch (Exception ex){
-            ex.printStackTrace();
+            logger.error("exception:",ex);
             logger.error(ex.getMessage());
         }
 
@@ -52,7 +52,7 @@ public class BroadcastMessageConsumers {
         try {
             boolean payDto = payService.sellProd(prodSellDTO);
         }catch (Exception ex){
-            ex.printStackTrace();
+            logger.error("exception:",ex);
             logger.error(ex.getMessage());
         }
 
@@ -69,7 +69,7 @@ public class BroadcastMessageConsumers {
 //        try {
 //            PayPreOrderDto payPreOrderDto = payService.payPreOrder(message);
 //        }catch (Exception ex){
-//            ex.printStackTrace();
+//            logger.error("exception:",ex);
 //            logger.error(ex.getMessage());
 //        }
 //
