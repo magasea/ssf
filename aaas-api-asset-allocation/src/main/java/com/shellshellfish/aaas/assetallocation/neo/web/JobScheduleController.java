@@ -29,7 +29,7 @@ public class JobScheduleController {
      * @return
      */
     @ApiOperation("每日接口获取数据定时任务")
-    @RequestMapping(value = "/api/asset-allocation/job/insertDailyFund", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/asset-allocation/job/insertDailyFund", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public JobResult insertDailyFund() {
         ExecutorService pool = ThreadPoolUtil.getThreadPool();
         pool.execute(() -> {
@@ -44,7 +44,7 @@ public class JobScheduleController {
      * @return
      */
     @ApiOperation("计算每周收益率以及风险率数据")
-    @RequestMapping(value = "/api/asset-allocation/job/calculateYieldAndRiskOfWeek", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/asset-allocation/job/calculateYieldAndRiskOfWeek", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public JobResult calculateYieldAndRiskOfWeek() {
         ExecutorService pool = ThreadPoolUtil.getThreadPool();
         pool.execute(() -> {
@@ -59,7 +59,7 @@ public class JobScheduleController {
      * @return
      */
     @ApiOperation("计算产品组合数据(产品组合风险率、收益率、权重)")
-    @RequestMapping(value = "/api/asset-allocation/job/insertFundGroupData", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/asset-allocation/job/insertFundGroupData", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public JobResult insertFundGroupData() {
         ExecutorService pool = ThreadPoolUtil.getThreadPool();
         pool.execute(() -> {
@@ -74,7 +74,7 @@ public class JobScheduleController {
      * @return
      */
     @ApiOperation("计算 单位收益净值、最大回撤、夏普比率、基金收益贡献比，运行时间较长")
-    @RequestMapping(value = "/api/asset-allocation/job/getAllIdAndSubId", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/asset-allocation/job/getAllIdAndSubId", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public JobResult getAllIdAndSubId() {
         ExecutorService pool = ThreadPoolUtil.getThreadPool();
         pool.execute(() -> {
@@ -89,7 +89,7 @@ public class JobScheduleController {
      * @return
      */
     @ApiOperation("更新所有基金组合的最大亏损额")
-    @RequestMapping(value = "/api/asset-allocation/job/updateAllMaximumLosses", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/asset-allocation/job/updateAllMaximumLosses", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public JobResult updateAllMaximumLosses() {
         ExecutorService pool = ThreadPoolUtil.getThreadPool();
         pool.execute(() -> {
