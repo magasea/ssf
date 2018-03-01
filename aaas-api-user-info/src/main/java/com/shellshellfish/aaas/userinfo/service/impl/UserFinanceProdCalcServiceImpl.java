@@ -368,8 +368,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 			String fundCode, String startDate) {
 
 		//FIXME 此处缺少分红
-		startDate = InstantDateUtil.format(InstantDateUtil.format(startDate), "yyyyMMdd");
-
 		List<MongoUiTrdZZInfo> mongoUiTrdZZInfoBuy = mongoUiTrdZZInfoRepo
 				.findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
 						fundCode, TrdOrderOpTypeEnum.BUY.getOperation(),
@@ -394,13 +392,13 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 		for (MongoUiTrdZZInfo buy : mongoUiTrdZZInfoBuy) {
 			buyAmount = buyAmount.add(Optional.ofNullable(buy)
-					.map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeTargetSum()))
+					.map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeConfirmSum()))
 					.orElse(BigDecimal.ZERO));
 		}
 
 		for (MongoUiTrdZZInfo sell : mongoUiTrdZZInfoSell) {
 			sellAmount = sellAmount.add(Optional.ofNullable(sell)
-					.map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeTargetSum()))
+					.map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeConfirmSum()))
 					.orElse(BigDecimal.ZERO));
 		}
 
@@ -544,16 +542,13 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		BigDecimal sellAmountOfEndDay = dailyAmountAggregationOfEndDay.getSellAmount();
 		BigDecimal bonusOfEndDay = dailyAmountAggregationOfEndDay.getBonus();
 		BigDecimal intervalAmountOfEndDay = bonusOfEndDay.add(sellAmountOfEndDay)
-				.add(buyAmountOfEndDay);
+				.subtract(buyAmountOfEndDay);
 
 		//确认当天才会有 asset 值
 		if (dailyAmountAggregationOfOneDayBefore == null) {
 			dailyAmountAggregationOfOneDayBefore = DailyAmountAggregation.getEmptyInstance();
 		}
 
-		if (BigDecimal.ZERO.compareTo(dailyAmountAggregationOfOneDayBefore.getAsset()) == 0) {
-			dailyAmountAggregationOfOneDayBefore.setAsset(assetOfEndDay);
-		}
 
 		//区间结束日前一天数据
 		Optional<DailyAmountAggregation> dailyAmountAggregationOfOneDayBeforeOptional = Optional
