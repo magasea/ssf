@@ -1,7 +1,6 @@
 package com.shellshellfish.aaas.assetallocation.neo.service;
 
 import com.alibaba.fastjson.JSON;
-import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -1257,7 +1256,10 @@ public class FundGroupService {
 
             Map<String, String> query1 = new HashMap<>();
             query1.put("fund_code", intervalCode.getFund_id());
-            List<FundNetVal> fundNetValues = fundGroupMapper.getFundNetValue(query1);
+            List<FundNetVal> fundNetValues = this.getNavadjNew(id, subGroupId);
+            if (CollectionUtils.isEmpty(fundNetValues)) {
+                return fgi;
+            }
 
             List<Map<String, Object>> listFund = new ArrayList<>();
             if (!CollectionUtils.isEmpty(fundNetValues)) {
@@ -1332,7 +1334,7 @@ public class FundGroupService {
             map1.put("low_percent_max_income", fgei.getLow_percent_max_income());
             //低概率最低收益
             map1.put("low_percent_min_income", fgei.getLow_percent_min_income());
-            map.put("income_mounth_time", fgei.getIncome_mounth_time());
+            map.put("income_mounth_time", fgei.getIncome_month_time());
             map.put("_item", map1);
             list.add(map);
             expectedIncomeSizeList.add(fgei.getExpected_income());
