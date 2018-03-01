@@ -394,13 +394,13 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 		for (MongoUiTrdZZInfo buy : mongoUiTrdZZInfoBuy) {
 			buyAmount = buyAmount.add(Optional.ofNullable(buy)
-					.map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeTargetSum()))
+					.map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeConfirmSum()))
 					.orElse(BigDecimal.ZERO));
 		}
 
 		for (MongoUiTrdZZInfo sell : mongoUiTrdZZInfoSell) {
 			sellAmount = sellAmount.add(Optional.ofNullable(sell)
-					.map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeTargetSum()))
+					.map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeConfirmSum()))
 					.orElse(BigDecimal.ZERO));
 		}
 
