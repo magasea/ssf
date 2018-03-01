@@ -367,8 +367,8 @@ public class BroadcastMessageConsumers {
         channel, @Header
         (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
         com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo mongoUiTrdZZInfoInDb = mongoUiTrdZZInfoRepo
-        .findByUserProdIdAndUserIdAndOutSideOrderNo(mongoUiTrdZZInfo
-            .getUserProdId(), mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getOutSideOrderNo());
+        .findByUserProdIdAndUserIdAndApplySerial(mongoUiTrdZZInfo
+            .getUserProdId(), mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getApplySerial());
         try{
             if(mongoUiTrdZZInfoInDb == null){
                 mongoUiTrdZZInfoInDb = new com.shellshellfish.aaas.userinfo.model.dao
