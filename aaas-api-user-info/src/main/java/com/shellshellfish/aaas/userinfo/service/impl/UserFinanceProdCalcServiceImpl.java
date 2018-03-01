@@ -542,7 +542,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		BigDecimal sellAmountOfEndDay = dailyAmountAggregationOfEndDay.getSellAmount();
 		BigDecimal bonusOfEndDay = dailyAmountAggregationOfEndDay.getBonus();
 		BigDecimal intervalAmountOfEndDay = bonusOfEndDay.add(sellAmountOfEndDay)
-				.add(buyAmountOfEndDay);
+				.subtract(buyAmountOfEndDay);
 
 		//确认当天才会有 asset 值
 		if (dailyAmountAggregationOfOneDayBefore == null) {
