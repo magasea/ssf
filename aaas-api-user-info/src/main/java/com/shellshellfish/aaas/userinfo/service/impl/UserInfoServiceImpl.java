@@ -773,9 +773,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 					if (uiProductDetailDTO.getStatus() != null) {
 						if (uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.CONFIRMED.getStatus()
 								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.FAILED.getStatus()
+								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.REDEEMFAILED.getStatus()
 								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.CANCEL.getStatus()) {
 							count++;
-						} else if (uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()) {
+						} else if (uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()
+								|| uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.REDEEMFAILED.getStatus()) {
 							fails++;
 						}
 					} else {
