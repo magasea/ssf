@@ -9,8 +9,7 @@ public interface OrderService {
    * @param trdPayFlow
    * @return
    */
-  String getPidFromTrdAccoBrokerId(TrdPayFlow
-   trdPayFlow   ) throws Exception;
+  String getPidFromTrdAccoBrokerId(TrdPayFlow trdPayFlow   ) throws Exception;
 
 
 }

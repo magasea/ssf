@@ -28,5 +28,5 @@ public interface TrdBrokerUserRepository extends PagingAndSortingRepository<TrdB
   @Override
   TrdBrokerUser save(TrdBrokerUser trdBrokerUser);
 
-  TrdBrokerUser findByTradeAccoAndTradeBrokerId(String tradeAcco, int tradeBrokerId);
+  List<TrdBrokerUser> findByTradeAccoAndTradeBrokerId(String tradeAcco, int tradeBrokerId);
 }

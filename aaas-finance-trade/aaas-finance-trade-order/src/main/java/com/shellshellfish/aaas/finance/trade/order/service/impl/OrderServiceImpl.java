@@ -31,15 +31,18 @@ import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 @Service
@@ -135,22 +138,30 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 			responseObserver.onCompleted();
 			return;
 		}
-		TrdBrokerUser trdBrokerUser = trdBrokerUserRepository
+		List<TrdBrokerUser> trdBrokerUsers = trdBrokerUserRepository
 				.findByTradeAccoAndTradeBrokerId(trdAcco, brokerId);
 		//获取银行卡cardNm后去查询userInfo里面的 userPid
 		UserBankInfo userInfo = null;
 
+
 		try {
+			if(CollectionUtils.isEmpty(trdBrokerUsers)){
+				logger.error("failed to find trdBrokerUsers with trdAcco:{} brokerId:{}", trdAcco, brokerId);
+				throw new Exception(String.format("failed to find trdBrokerUsers with trdAcco:%s "
+						+ "brokerId:%s", trdAcco, brokerId));
+			}
+			Set<String> cardNums = new HashSet<>();
+			trdBrokerUsers.forEach(item -> cardNums.add(item.getBankCardNum()));
 			userInfo = userInfoService.getUserBankInfo(userId);
 			for (CardInfo cardInfo : userInfo.getCardNumbersList()) {
-				if (trdBrokerUser.getBankCardNum().equals(cardInfo.getCardNumbers())) {
+				if (cardNums.contains(cardInfo.getCardNumbers())) {
 					userPidDAO.addUserPid(trdAcco,brokerId,userId, cardInfo.getUserPid());
 					upidBuilder.setUserPid(cardInfo.getUserPid());
 				}
 			}
 			responseObserver.onNext(upidBuilder.build());
 			responseObserver.onCompleted();
-		} catch (ExecutionException | InterruptedException e) {
+		} catch ( Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage());
 			userPidDAO.deleteUserPid(trdAcco, brokerId, userId);
