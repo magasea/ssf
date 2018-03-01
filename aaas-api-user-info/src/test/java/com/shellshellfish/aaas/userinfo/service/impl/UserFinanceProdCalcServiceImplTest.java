@@ -114,7 +114,7 @@ public class UserFinanceProdCalcServiceImplTest {
             try {
                 userFinanceProdCalcService.dailyCalculation(day);
             } catch (Exception e) {
-                logger.error("exception:",ex);
+                logger.error("exception:",e);
             }
         });
 
