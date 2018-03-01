@@ -333,7 +333,7 @@ public class TradeSellServiceImpl implements TradeSellService {
       return trdOrder;
     }catch (Exception ex){
       logger.error("exception:",ex);
-      logger.error(ex.getMessage());
+
       errors.add(ex);
       StringBuilder sb = new StringBuilder();
       for(Exception err: errors){

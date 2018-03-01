@@ -724,7 +724,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 					value.put("status", TrdOrderStatusEnum.getComment(entry.getKey()));
 				}catch (Exception ex){
 					logger.error("exception:",ex);
-					logger.error(ex.getMessage());
+
 					value.put("status", "");
 				}
 				result.add(value);
@@ -1026,7 +1026,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 				tradLogsMap.put(ufoKey, map);
 			} catch (Exception ex) {
-				logger.error(ex.getMessage());
+
 				logger.error("exception:",ex);
 				continue;
 			}

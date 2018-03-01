@@ -159,7 +159,7 @@ public class RiskController {
 			result.put("errorCode", "400");
 			result.put("error", "");
 			logger.error("exception:",ex);
-			logger.error(ex.getMessage());
+
 			String str = new ReturnedException(ex).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}

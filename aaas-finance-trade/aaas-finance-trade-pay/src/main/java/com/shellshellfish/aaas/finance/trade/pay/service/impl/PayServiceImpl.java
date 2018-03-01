@@ -141,7 +141,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
             outSideTradeNo,trdOrderDetail.getFundCode());
       }catch (Exception ex){
         logger.error("exception:",ex);
-        logger.error(ex.getMessage());
+
         errs.add(ex);
       }
       //ToDo: 如果有真实数据， 则删除下面if代码
@@ -228,7 +228,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
             sbOutsideOrderno.toString(),trdOrderDetail.getFundCode());
       }catch (Exception ex){
         logger.error("exception:",ex);
-        logger.error(ex.getMessage());
+
         errs.add(ex);
         if(ex.getMessage().contains("网络错误")){
           //try it again
@@ -400,7 +400,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         }
       }catch (Exception ex){
         logger.error("exception:",ex);
-        logger.error(ex.getMessage());
+
         logger.error("because of error:" + ex.getMessage() + " we need send out rollback notification");
         //赎回请求失败，需要把扣减的基金数量加回去
         if(!StringUtils.isEmpty(ex.getMessage())){
@@ -802,7 +802,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
                 .getFundNum()), ""+ trdOrderDetail.getId(), trdAcco,payPreOrderDto.getOriginFundCode(), trdOrderDetail.getFundCode());
       }catch (Exception ex){
         logger.error("exception:",ex);
-        logger.error(ex.getMessage());
+
         errs.add(ex);
       }
 

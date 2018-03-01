@@ -574,7 +574,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			responseObserver.onCompleted();
 			return;
 		}catch (Exception ex){
-			logger.error(ex.getMessage());
+
 			respBuilder.setUserProdId(-1L);
 			responseObserver.onNext(respBuilder.build());
 			responseObserver.onCompleted();

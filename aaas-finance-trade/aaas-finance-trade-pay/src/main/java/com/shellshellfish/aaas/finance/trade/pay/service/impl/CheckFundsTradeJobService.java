@@ -120,7 +120,7 @@ public class CheckFundsTradeJobService {
                     }
                 } catch (Exception ex) {
                     logger.error("exception:",ex);
-                    logger.error(ex.getMessage());
+
                 } finally {
                     if(null == applyResult){
                         logger.error("failed to retrieve applyResult with pid:" + userPid + ""
@@ -267,7 +267,7 @@ public class CheckFundsTradeJobService {
                     }
                 } catch (Exception ex) {
                     logger.error("exception:",ex);
-                    logger.error(ex.getMessage());
+
                 } finally {
                     if(null == applyResult){
                         logger.error("failed to retrieve applyResult with pid:" + userPid + ""
@@ -296,7 +296,7 @@ public class CheckFundsTradeJobService {
                     }
                 } catch (JsonProcessingException ex) {
                     logger.error("exception:",ex);
-                    logger.error(ex.getMessage());
+
                 }
             }
         }

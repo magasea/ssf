@@ -41,13 +41,13 @@ public class MultiThreadTaskHandler {
       }
     } catch (InterruptedException ex) {
       logger.error("exception:",ex);
-      logger.error(ex.getMessage());
+
     } catch (ExecutionException ex) {
       logger.error("exception:",ex);
-      logger.error(ex.getMessage());
+
     } catch (TimeoutException ex) {
       logger.error("exception:",ex);
-      logger.error(ex.getMessage());
+
     }
     return trdOrderDetails;
   }
