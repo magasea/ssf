@@ -1136,7 +1136,7 @@ public class UserInfoController {
 			@Valid @NotNull(message = "userUuid不可为空")@PathVariable String userUuid,
 			@Valid @NotNull(message = "id")@PathVariable String bankcardId)
 			throws Exception {	
-		logger.info("unbundlingBank method run..");
+		logger.info("unbundlingBank with userUuid:{} and bandcardId:{}", userUuid, bankcardId);
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		//id message ID
 		Boolean result =  userInfoService.deleteBankCard(userUuid, bankcardId);
