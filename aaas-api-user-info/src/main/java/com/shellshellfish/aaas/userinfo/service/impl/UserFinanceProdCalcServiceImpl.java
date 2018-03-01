@@ -368,6 +368,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 			String fundCode, String startDate) {
 
 		//FIXME 此处缺少分红
+		startDate = InstantDateUtil.format(InstantDateUtil.format(startDate), "yyyyMMdd");
 
 		List<MongoUiTrdZZInfo> mongoUiTrdZZInfoBuy = mongoUiTrdZZInfoRepo
 				.findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
