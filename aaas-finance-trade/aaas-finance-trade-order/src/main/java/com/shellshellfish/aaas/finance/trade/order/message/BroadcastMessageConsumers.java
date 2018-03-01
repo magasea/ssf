@@ -76,7 +76,7 @@ public class BroadcastMessageConsumers {
                 fundNumConfirmed, updateDate, updateBy,  id, orderDetailStatus, buyFee);
 
         }catch (Exception ex){
-            ex.printStackTrace();
+            logger.error("exception:",ex);
             logger.error(ex.getMessage());
         }
     }
@@ -94,7 +94,7 @@ public class BroadcastMessageConsumers {
 //                () + " with preOrderId:" + trdPayFlow.getOrderDetailId());
 //            tradeOpService.buyPreOrderProduct(trdPayFlow);
 //        }catch (Exception ex){
-//            ex.printStackTrace();
+//            logger.error("exception:",ex);
 //            logger.error(ex.getMessage());
 //        }
 //    }

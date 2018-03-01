@@ -140,7 +140,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         fundResult = fundTradeApiService.buyFund(userId4Pay, trdAcco, payAmount,
             outSideTradeNo,trdOrderDetail.getFundCode());
       }catch (Exception ex){
-        ex.printStackTrace();
+        logger.error("exception:",ex);
         logger.error(ex.getMessage());
         errs.add(ex);
       }
@@ -227,7 +227,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         fundResult = fundTradeApiService.buyFund(userId4Pay, trdAcco, payAmount,
             sbOutsideOrderno.toString(),trdOrderDetail.getFundCode());
       }catch (Exception ex){
-        ex.printStackTrace();
+        logger.error("exception:",ex);
         logger.error(ex.getMessage());
         errs.add(ex);
         if(ex.getMessage().contains("网络错误")){
@@ -399,7 +399,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           notifyRollback(trdPayFlow, prodDtlSellDTO, sellNum);
         }
       }catch (Exception ex){
-        ex.printStackTrace();
+        logger.error("exception:",ex);
         logger.error(ex.getMessage());
         logger.error("because of error:" + ex.getMessage() + " we need send out rollback notification");
         //赎回请求失败，需要把扣减的基金数量加回去
@@ -583,7 +583,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       payOrderDto.setUserPid(request.getUserPid());
       payOrderByJob(payOrderDto);
     }catch (Exception ex){
-      ex.printStackTrace();
+      logger.error("exception:",ex);
       logger.error("got error when payOrderByJob" + ex.getMessage());
       resultBdr.setResult(OrderJobPayRltEnum.FAILED.ordinal());
       responseObserver.onNext(resultBdr.build());
@@ -801,7 +801,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         fundResult = fundTradeApiService.fundConvert(userId4Pay , TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail
                 .getFundNum()), ""+ trdOrderDetail.getId(), trdAcco,payPreOrderDto.getOriginFundCode(), trdOrderDetail.getFundCode());
       }catch (Exception ex){
-        ex.printStackTrace();
+        logger.error("exception:",ex);
         logger.error(ex.getMessage());
         errs.add(ex);
       }

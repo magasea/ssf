@@ -91,7 +91,7 @@ public class BroadcastMessageConsumers {
 
                 uiProductDetailRepo.save(uiProductDetail);
             }catch (Exception ex){
-                ex.printStackTrace();
+                logger.error("exception:",ex);
                 logger.error(ex.getMessage());
             }
         }
@@ -151,7 +151,7 @@ public class BroadcastMessageConsumers {
             mongoUiTrdLog.setTradeDate(trdPayFlow.getUpdateDate());
             mongoUserTrdLogMsgRepo.save(mongoUiTrdLog);
         }catch (Exception ex){
-            ex.printStackTrace();
+            logger.error("exception:",ex);
             logger.error(ex.getMessage());
         }
         try {
@@ -185,7 +185,7 @@ public class BroadcastMessageConsumers {
 //            mongoUiTrdLog.setTradeDate(orderStatusChangeDTO.getOrderDate());
 //            mongoUserTrdLogMsgRepo.save(mongoUiTrdLog);
 //        }catch (Exception ex){
-//            ex.printStackTrace();
+//            logger.error("exception:",ex);
 //            logger.error(ex.getMessage());
 //        }
 //        try {
@@ -369,18 +369,30 @@ public class BroadcastMessageConsumers {
         com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo mongoUiTrdZZInfoInDb = mongoUiTrdZZInfoRepo
         .findByUserProdIdAndUserIdAndOutSideOrderNo(mongoUiTrdZZInfo
             .getUserProdId(), mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getOutSideOrderNo());
-        if(mongoUiTrdZZInfoInDb == null){
-            mongoUiTrdZZInfoInDb = new com.shellshellfish.aaas.userinfo.model.dao
-                .MongoUiTrdZZInfo();
-            MyBeanUtils.mapEntityIntoDTO(mongoUiTrdZZInfo, mongoUiTrdZZInfoInDb);
-            mongoUiTrdZZInfoRepo.save(mongoUiTrdZZInfoInDb);
-        }else{
-            String idOrig = mongoUiTrdZZInfoInDb.getId();
-            MyBeanUtils.mapEntityIntoDTO(mongoUiTrdZZInfo, mongoUiTrdZZInfoInDb);
-            mongoUiTrdZZInfoInDb.setTradeType(mongoUiTrdZZInfo.getTradeType());
-            mongoUiTrdZZInfoInDb.setId(idOrig);
-            mongoUiTrdZZInfoRepo.save(mongoUiTrdZZInfoInDb);
+        try{
+            if(mongoUiTrdZZInfoInDb == null){
+                mongoUiTrdZZInfoInDb = new com.shellshellfish.aaas.userinfo.model.dao
+                    .MongoUiTrdZZInfo();
+                MyBeanUtils.mapEntityIntoDTO(mongoUiTrdZZInfo, mongoUiTrdZZInfoInDb);
+                mongoUiTrdZZInfoRepo.save(mongoUiTrdZZInfoInDb);
+            }else{
+                String idOrig = mongoUiTrdZZInfoInDb.getId();
+                MyBeanUtils.mapEntityIntoDTO(mongoUiTrdZZInfo, mongoUiTrdZZInfoInDb);
+                mongoUiTrdZZInfoInDb.setTradeType(mongoUiTrdZZInfo.getTradeType());
+                mongoUiTrdZZInfoInDb.setId(idOrig);
+                mongoUiTrdZZInfoRepo.save(mongoUiTrdZZInfoInDb);
+            }
+        }catch (Exception ex){
+            logger.error("exception:",ex);
+            logger.error(ex.getMessage());
         }
+
+        try {
+            channel.basicAck(tag, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        latch.countDown();
 
     }
 
@@ -393,15 +405,19 @@ public class BroadcastMessageConsumers {
     )
     public void receiveConfirmInfoUpdateProdQty(MongoUiTrdZZInfo mongoUiTrdZZInfo, Channel channel, @Header
         (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
-
-        // now update correspond product_detail for quantity of fund
-        if(mongoUiTrdZZInfo.getTradeType() == TrdOrderOpTypeEnum.BUY.getOperation()){
-            updateBuyProductQty(mongoUiTrdZZInfo);
-        }else if(mongoUiTrdZZInfo.getTradeType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
-            updateRedeemProductQty(mongoUiTrdZZInfo);
-        }else{
-            logger.error("cannot handle this mongoUiTrdZZInfo with trdType:{}", mongoUiTrdZZInfo
-                .getTradeType());
+        try {
+            // now update correspond product_detail for quantity of fund
+            if (mongoUiTrdZZInfo.getTradeType() == TrdOrderOpTypeEnum.BUY.getOperation()) {
+                updateBuyProductQty(mongoUiTrdZZInfo);
+            } else if (mongoUiTrdZZInfo.getTradeType() == TrdOrderOpTypeEnum.REDEEM
+                .getOperation()) {
+                updateRedeemProductQty(mongoUiTrdZZInfo);
+            } else {
+                logger.error("cannot handle this mongoUiTrdZZInfo with trdType:{}", mongoUiTrdZZInfo
+                    .getTradeType());
+            }
+        }catch(Exception ex){
+            logger.error("Exception:", ex);
         }
 
     }

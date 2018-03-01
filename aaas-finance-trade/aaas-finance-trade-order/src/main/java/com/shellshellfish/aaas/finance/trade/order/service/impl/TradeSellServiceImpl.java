@@ -332,7 +332,7 @@ public class TradeSellServiceImpl implements TradeSellService {
       }
       return trdOrder;
     }catch (Exception ex){
-      ex.printStackTrace();
+      logger.error("exception:",ex);
       logger.error(ex.getMessage());
       errors.add(ex);
       StringBuilder sb = new StringBuilder();

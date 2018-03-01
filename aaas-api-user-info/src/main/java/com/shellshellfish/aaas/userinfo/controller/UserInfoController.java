@@ -627,7 +627,7 @@ public class UserInfoController {
 			beginDate = sdf.parse(bgDate);
 
 		}catch (ParseException ex) {
-			ex.printStackTrace();
+			logger.error("exception:",ex);
 		}
 		if (beginDate == null && !StringUtils.isEmpty(bgDate )) {
 			// Invalid date format

@@ -159,7 +159,7 @@ public class CheckFundsTradeJobService {
                 confirmResults = fundTradeApiService.getConfirmResultsBySerial(TradeUtil.getZZOpenId
                     (userPid), applySerial);
             }catch (Exception ex){
-                ex.printStackTrace();
+                logger.error("exception:",ex);
                 logger.error("failed to get confirmResults with userPid:" + userPid + " "
                     + "applySerial:" + applySerial + " errMsg:" + ex.getMessage());
             }
