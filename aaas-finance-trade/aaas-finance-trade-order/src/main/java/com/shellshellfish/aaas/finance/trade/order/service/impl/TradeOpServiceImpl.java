@@ -420,10 +420,10 @@ public class TradeOpServiceImpl implements TradeOpService {
     try {
       return userInfoServiceFutureStub.getUerUUIDByUserId(builder.build()).get().getUserUUID();
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
       return null;
     } catch (ExecutionException e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
       return null;
     }
   }

@@ -173,10 +173,10 @@ public class CheckFundsOrderJobService {
 //                payRpcServiceFutureStub.order2Pay(reqBuilder.build()).get().getResult();
 //            } catch (InterruptedException e) {
 //                logger.error("failed to handling payRpcServiceFutureStub.orderJob2Pay：" + e.getMessage());
-//                e.printStackTrace();
+//                logger.error("exception:",ex);
 //            } catch (ExecutionException e) {
 //                logger.error("failed to handling payRpcServiceFutureStub.orderJob2Pay：" + e.getMessage());
-//                e.printStackTrace();
+//                logger.error("exception:",ex);
 //            }
 
         }

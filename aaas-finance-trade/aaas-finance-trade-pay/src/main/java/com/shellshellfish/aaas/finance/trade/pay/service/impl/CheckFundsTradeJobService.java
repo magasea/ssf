@@ -118,9 +118,9 @@ public class CheckFundsTradeJobService {
                         trdPayFlowRepository.save(trdPayFlow);
                         broadcastMessageProducers.sendMessage(trdPayFlowMsg);
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    logger.error(e.getMessage());
+                } catch (Exception ex) {
+                    logger.error("exception:",ex);
+                    logger.error(ex.getMessage());
                 } finally {
                     if(null == applyResult){
                         logger.error("failed to retrieve applyResult with pid:" + userPid + ""
@@ -143,8 +143,8 @@ public class CheckFundsTradeJobService {
         for(TrdPayFlow trdPayFlow: trdPayFlowListToGetConfirmInfo){
             try {
                 userPid = orderService.getPidFromTrdAccoBrokerId(trdPayFlow);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception ex) {
+                logger.error("exception:",ex);
                 logger.error("failed to retrieve userPid for trdPayFlow with userId:{} in "
                     + "applySerial:{}"+ trdPayFlow.getUserId(), trdPayFlow.getApplySerial());
                 continue;
@@ -265,9 +265,9 @@ public class CheckFundsTradeJobService {
                             trdPayFlowListToGetConfirmInfo.add(trdPayFlow);
                         }
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    logger.error(e.getMessage());
+                } catch (Exception ex) {
+                    logger.error("exception:",ex);
+                    logger.error(ex.getMessage());
                 } finally {
                     if(null == applyResult){
                         logger.error("failed to retrieve applyResult with pid:" + userPid + ""
@@ -294,9 +294,9 @@ public class CheckFundsTradeJobService {
                     if(null != trdPayFlowMsg){
                         broadcastMessageProducers.sendMessage(trdPayFlowMsg);
                     }
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                    logger.error(e.getMessage());
+                } catch (JsonProcessingException ex) {
+                    logger.error("exception:",ex);
+                    logger.error(ex.getMessage());
                 }
             }
         }

@@ -302,7 +302,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           bindBankCard.getBankCode());
       tradeAcco =  openAccountResult.getTradeAcco();
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
       if(e.getMessage().contains("该商户下已有其他openid绑定该身份证") || e.getMessage().contains("此卡已存在")){
         //尝试用当前的userId去获取tradeAccount
         try {
@@ -460,10 +460,10 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     try {
       applyResult = queryOrder(userId, orderDetailId);
     } catch (ExecutionException e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
       logger.error(e.getMessage());
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
       logger.error(e.getMessage());
     }
     if(applyResult == null){
@@ -488,7 +488,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     try {
       applyResult = fundTradeApiService.getApplyResultByApplySerial(tradeUserId, applySerial);
     } catch (JsonProcessingException e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
       logger.error(e.getMessage());
     }
     return applyResult;
@@ -508,7 +508,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo(openId, orderDetailId
           .toString());
     } catch (JsonProcessingException e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
       logger.error(e.getMessage());
     }
     return applyResult;
@@ -531,7 +531,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 			trdAcco = errMsg;
 			logger.error(e.getMessage());
 		} catch (Exception e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
       ErrInfo.Builder eiBuilder = ErrInfo.newBuilder();
       eiBuilder.setErrMsg(e.getMessage());
       eiBuilder.setErrCode(ErrorConstants.GRPC_ERROR_UI_BINDCARD_FAIL_GENERAL);
@@ -743,11 +743,11 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
 //      notifyPayMsg( trdPayFlowMsg);
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
       logger.error(e.getMessage());
       poprBuilder.setErrMsg(e.getMessage());
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
       logger.error(e.getMessage());
       poprBuilder.setErrMsg(e.getMessage());
     }
@@ -907,7 +907,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       latestWorkDay = fundTradeApiService.getWorkDay(TradeUtil.getZZOpenId(userPid),
           "left", 1);
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
     }
 
     List<MongoFundNetInfo> mongoFundNetInfoList = new ArrayList<>();
@@ -919,7 +919,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
               latestWorkDay);
           mongoFundNetInfoList.addAll(mongoFundNetInfoListInit);
         } catch (Exception e) {
-          e.printStackTrace();
+          logger.error("exception:",e);
           logger.error(e.getMessage());
         }
       }
@@ -939,7 +939,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
                 latestWorkDay);
             mongoFundNetInfoList.addAll(mongoFundNetInfoListInit);
           } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("exception:",e);
             logger.error(e.getMessage());
           }
         }else{
@@ -993,7 +993,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           MongoFundNetInfo.class);
       mongoFundNetInfoList.add(mongoFundNetInfos.get(0));
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
       logger.error(e.getMessage());
     }
     return mongoFundNetInfoList;

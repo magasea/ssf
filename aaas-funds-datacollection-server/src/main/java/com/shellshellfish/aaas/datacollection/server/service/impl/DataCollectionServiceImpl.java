@@ -154,7 +154,7 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
 				}
 
 			} catch (ParseException e) {
-				e.printStackTrace();
+				logger.error("exception:",e);
 			}
 			if (!codeIsCoinFund && !codeIsNormalFund) {
 				if(code.contains(".")){

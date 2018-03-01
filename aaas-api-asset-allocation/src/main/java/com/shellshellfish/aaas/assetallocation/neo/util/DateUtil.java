@@ -24,7 +24,7 @@ public class DateUtil {
             return sdf.parse(formatStr);
         } catch (ParseException e) {
             logger.error("日期数据转换失败");
-            e.printStackTrace();
+            logger.error("exception:",e);
         }
         return null;
     }

@@ -29,7 +29,7 @@ import io.swagger.annotations.ApiResponses;
 @RequestMapping("/api/riskassessments")
 public class QuestionController {
 
-	private final Logger log = LoggerFactory.getLogger(QuestionController.class);
+	private final Logger logger = LoggerFactory.getLogger(QuestionController.class);
 	
 //	@Autowired
 //	private SurveyTemplateService surveyTemplateService;
@@ -61,7 +61,8 @@ public class QuestionController {
 			@RequestParam(value = "size",defaultValue="25") Integer size,
 			@RequestParam(value = "page",defaultValue="0") Integer page,
 			@RequestParam(value = "sort") String sort) {
-		log.debug("REST request to get questions based on page id and bank uuid. bank uuid:{}, page:{}", bankUuid, page);		
+		logger.debug("REST request to get questions based on page id and bank uuid. bank uuid:{}, "
+				+ "page:{}", bankUuid, page);
 		if (size == null) {
 			size = 20;
 		}
@@ -84,10 +85,10 @@ public class QuestionController {
 		Page<SurveyTemplateDTO> pages = null;
 		try {
 			pages = questionService.findByTitleAndVersion(pageable, "南京银行个人客户风险评估表", "1.0");
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+		} catch (InstantiationException ex) {
+			logger.error("exception:",ex);
+		} catch (IllegalAccessException ex) {
+			logger.error("exception:",ex);
 		}
 		Map<String, Object> selfMap = new HashMap<String, Object>();
 		Map<String, Object> self = new HashMap<String, Object>();

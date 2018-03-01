@@ -66,7 +66,7 @@ public class FundCalculateService {
             fundNetValList = fundNetValMapper.getAllDataByCodeAndDate(codeMap);
         } catch (Exception e) {
             logger.error("查询净值数据失败!");
-            e.printStackTrace();
+            logger.error("exception:",e);
         }
         //根据基金代码分组(按净值日期倒序排列)
         Map<String, List<FundNetVal>> fundListMap = new HashMap<>();
@@ -155,12 +155,12 @@ public class FundCalculateService {
                             fundCalculateDataMapper.insertFundCalculateDataDay(fundCalculateData);
                         } catch (Exception e) {
                             logger.error("插入基金日计算数据失败：fundCalculateData=" + fundCalculateData.toString());
-                            e.printStackTrace();
+                            logger.error("exception:",e);
                         }
 
                     } catch (Exception e) {
                         logger.error("计算基金日收益率以及风险率失败：code="+code);
-                        e.printStackTrace();
+                        logger.error("exception:",e);
                     }
 
                 }
@@ -247,12 +247,12 @@ public class FundCalculateService {
                             }
                         } catch (Exception e) {
                             logger.error("插入基金周计算数据失败：fundCalculateData=" + fundCalculateData.toString());
-                            e.printStackTrace();
+                            logger.error("exception:",e);
                         }
 
                     } catch(Exception e) {
                         logger.error("计算基金周收益率以及风险率失败：code=" + code);
-                        e.printStackTrace();
+                        logger.error("exception:",e);
                     }
 
                 }
@@ -332,12 +332,12 @@ public class FundCalculateService {
                             fundCalculateDataMapper.insertFundCalculateDataMonth(fundCalculateData);
                         } catch (Exception e) {
                             logger.error("插入基金月计算数据失败：fundCalculateData=" + fundCalculateData.toString());
-                            e.printStackTrace();
+                            logger.error("exception:",e);
                         }
 
                     } catch (Exception e) {
                         logger.error("计算基金月收益率以及风险率失败：code=" + code);
-                        e.printStackTrace();
+                        logger.error("exception:",e);
                     }
 
                 }
@@ -418,12 +418,12 @@ public class FundCalculateService {
                             fundCalculateDataMapper.insertFundCalculateDataYear(fundCalculateData);
                         } catch (Exception e) {
                             logger.error("插入基金年计算数据失败：fundCalculateData=" + fundCalculateData.toString());
-                            e.printStackTrace();
+                            logger.error("exception:",e);
                         }
 
                     } catch (Exception e) {
                         logger.error("计算基金年收益率以及风险率失败：code=" + code);
-                        e.printStackTrace();
+                        logger.error("exception:",e);
                     }
 
                 }

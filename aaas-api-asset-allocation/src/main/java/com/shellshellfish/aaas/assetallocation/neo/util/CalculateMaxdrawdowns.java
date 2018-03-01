@@ -38,7 +38,7 @@ public class CalculateMaxdrawdowns {
             }
         } catch (MWException e) {
             logger.error("Failed to calculateMaxdrawdown!");
-            e.printStackTrace();
+            logger.error("exception:",e);
         }
         return maxdrawdownValue;
     }

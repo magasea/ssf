@@ -1789,7 +1789,7 @@ public class FundGroupService {
             this.sleep(1000);
             countDownLatch.await();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("exception:",e);
         }
     }
 
@@ -1857,7 +1857,7 @@ public class FundGroupService {
         try {
             Thread.sleep(millis);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("exception:",e);
         }
     }
 
@@ -1878,7 +1878,7 @@ public class FundGroupService {
             sleep(1000);
             countDownLatch.await();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("exception:",e);
         }
 
         long end = System.currentTimeMillis();
@@ -1900,7 +1900,7 @@ public class FundGroupService {
             this.sleep(1000);
             countDownLatch.await();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("exception:",e);
         }
     }
 
@@ -1975,7 +1975,7 @@ public class FundGroupService {
             sleep(1000);
             countDownLatch.await();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("exception:",e);
         }
 
         long end = System.currentTimeMillis();

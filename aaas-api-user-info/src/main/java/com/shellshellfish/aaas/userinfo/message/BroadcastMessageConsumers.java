@@ -99,7 +99,7 @@ public class BroadcastMessageConsumers {
         try {
             channel.basicAck(tag, true);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("exception:",e);
         }
         latch.countDown();
         
@@ -157,7 +157,7 @@ public class BroadcastMessageConsumers {
         try {
             channel.basicAck(tag, true);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("exception:",e);
         }
         latch.countDown();
 
@@ -191,7 +191,7 @@ public class BroadcastMessageConsumers {
 //        try {
 //            channel.basicAck(tag, true);
 //        } catch (IOException e) {
-//            e.printStackTrace();
+//            logger.error("exception:",ex);
 //        }
 //        latch.countDown();
 //
@@ -350,7 +350,7 @@ public class BroadcastMessageConsumers {
         try {
             channel.basicAck(tag, true);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("exception:",e);
         }
         latch.countDown();
 
@@ -390,7 +390,8 @@ public class BroadcastMessageConsumers {
         try {
             channel.basicAck(tag, true);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("exception:", e);
+            logger.error("exception:",e);
         }
         latch.countDown();
 

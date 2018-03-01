@@ -226,7 +226,7 @@ public class UserInfoController {
 			try{
 			 userBaseInfo =  userInfoService.getUserInfoBase(userUuid);
 			}catch(Exception e){
-				e.printStackTrace();
+				logger.error("exception:",e);
 				logger.error("========="+userUuid);
 				logger.error("========="+e.getMessage());
 				throw new UserInfoException("404","无法获取到uid="+userUuid+" 用户的个人信息数据");

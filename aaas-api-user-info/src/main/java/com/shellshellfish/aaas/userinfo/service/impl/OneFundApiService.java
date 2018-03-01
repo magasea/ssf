@@ -1016,7 +1016,7 @@ public class OneFundApiService implements FundTradeApiService {
 			return md5Text;
 
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			logger.error("exception:",e);
 		}
 		return "";
 	}

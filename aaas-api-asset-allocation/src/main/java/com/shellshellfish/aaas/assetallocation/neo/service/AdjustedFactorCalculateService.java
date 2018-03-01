@@ -93,12 +93,12 @@ public class AdjustedFactorCalculateService {
                                 fundNetValMapper.updateAdjustedFactor(fundNetVal1);
                             } catch (Exception e) {
                                 logger.error("插入基金复权因子数据失败：fundNetVal=" + fundNetVal1.toString());
-                                e.printStackTrace();
+                                logger.error("exception:",e);
                             }
                         }
                     } catch (Exception e) {
                         logger.error("计算基金复权因子失败：code=" + code);
-                        e.printStackTrace();
+                        logger.error("exception:",e);
                     }
                 }
             }

@@ -65,7 +65,7 @@ public class BankAccountService {
 //			try {
 //				Thread.sleep(1000);
 //			} catch (InterruptedException e) {
-//				e.printStackTrace();
+//				logger.error("exception:",ex);
 //			}
 //			BankAccountNumber.Builder builder = BankAccountNumber.newBuilder();
 //			builder.setAccountNumber(number);
@@ -78,7 +78,7 @@ public class BankAccountService {
 //		try {
 //			finishLatch.await();
 //		} catch (InterruptedException e) {
-//			e.printStackTrace();
+//			logger.error("exception:",ex);
 //		}
 //
 //		return bankAccounts;
@@ -97,7 +97,7 @@ public class BankAccountService {
 //			managedChannel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
 //		} catch (InterruptedException e) {
 //			// TODO Auto-generated catch block
-//			e.printStackTrace();
+//			logger.error("exception:",ex);
 //		}
 //	}
 }

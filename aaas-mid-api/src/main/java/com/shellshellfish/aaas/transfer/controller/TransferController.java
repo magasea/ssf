@@ -137,7 +137,7 @@ public class TransferController {
 			return new JsonResult(JsonResult.Fail, error, JsonResult.EMPTYRESULT);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error("exception:",e);
 			String str = new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
@@ -206,7 +206,7 @@ public class TransferController {
 			return new JsonResult(JsonResult.Fail, error, JsonResult.EMPTYRESULT);
 		} catch (Exception e) {
 			logger.error("购买基金调用购买接口失败" + e.getMessage());
-			e.printStackTrace();
+			logger.error("exception:",e);
 			String str = new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
@@ -247,7 +247,7 @@ public class TransferController {
 			return new JsonResult(JsonResult.Fail, error, JsonResult.EMPTYRESULT);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error("exception:",e);
 			String str = new ReturnedException(e).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
@@ -371,10 +371,10 @@ public class TransferController {
 				}
 			}
 			return new JsonResult(JsonResult.SUCCESS, "调用成功", result);
-		} catch (Exception e) {
+		} catch (Exception ex) {
 			logger.error("赎回页面接口调用失败");
-			e.printStackTrace();
-			String str = new ReturnedException(e).getErrorMsg();
+			logger.error("exception:",ex);
+			String str = new ReturnedException(ex).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}

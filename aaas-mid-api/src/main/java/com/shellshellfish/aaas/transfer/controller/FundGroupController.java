@@ -153,9 +153,9 @@ public class FundGroupController {
 					}
 					String date = InstantDateUtil.getTplusNDayNWeekendOfWork(dateTime.getTime(), 2);
 					result.put("title", "资产含购买确认中" + totals + "元，将于" + date + "确认");
-				} catch (ParseException e) {
-					logger.error("资产含购买确认中===" + e.getMessage());
-					e.printStackTrace();
+				} catch (ParseException ex) {
+					logger.error("资产含购买确认中===" + ex.getMessage());
+					logger.error("exception:",ex);
 				}
 			}
 		} else {

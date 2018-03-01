@@ -62,7 +62,7 @@ public class OneFundApiServiceTest {
 			System.out.println(result.get(0));
 			Assert.assertNotNull(result);
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			logger.error("exception:",ex);
 		}
 	}
 
@@ -79,7 +79,7 @@ public class OneFundApiServiceTest {
 			Assert.assertEquals(result.getTradeDate(), result2.getTradeDate());
 			Assert.assertEquals("20180119", result.getTradeDate());
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			logger.error("exception:",ex);
 		}
 	}
 
@@ -105,7 +105,7 @@ public class OneFundApiServiceTest {
 				System.out.println(confirm);
 			}
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			logger.error("exception:",ex);
 		}
 	}
 

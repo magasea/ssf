@@ -368,7 +368,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		try {
 			userId = getUserIdFromUUID(userIdQuery.getUuid());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("exception:",e);
 		}
 		responseObserver.onNext(UserId.newBuilder().setUserId(userId).build());
 		responseObserver.onCompleted();
@@ -381,7 +381,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		try {
 			userId = getUserIdFromUUID(userUuid);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("exception:",e);
 		}
 		List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserIdAndCardNumber(userId, cardNumber);
 		if (CollectionUtils.isEmpty(bankcardList)) {
@@ -477,7 +477,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 					uiUser = getUserInfoByUserUUID(userUUID);
 					userId = uiUser.getId();
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error("exception:",e);
 					logger.error("failed to retrieve userId by userUUID:" + userUUID);
 					return;
 				}
@@ -489,9 +489,9 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		try {
 			bankCardDTOS = getUserInfoBankCards(userId);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			logger.error("exception:",e);
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			logger.error("exception:",e);
 		}
 		UserBankInfo.Builder builder = UserBankInfo.newBuilder();
 		builder.setUserId(userId);
@@ -606,7 +606,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		try {
 			userId = getUserIdFromUUID(uuid);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("exception:",e);
 		}
 		List<ProductsDTO> productsList = new ArrayList<>();
 		List<UiProducts> productsData = uiProductRepo.findByUserId(userId);
@@ -715,7 +715,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		try {
 			result = updateProductQuantity(request);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("exception:",e);
 			ErrInfo.Builder eiBuilder = ErrInfo.newBuilder();
 			eiBuilder.setErrCode(ErrorConstants.GRPC_ERROR_UI_CHECKSELL_FAIL_GENERAL);
 			eiBuilder.setErrMsg(e.getMessage());
@@ -882,7 +882,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		try {
 			uiUser = getUserInfoByUserUUID(request.getUuid());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("exception:",e);
 			logger.error("failed to find uiUser by uuid:" + request.getUuid());
 		}
 		UserInfo.Builder uiBuilder = UserInfo.newBuilder();

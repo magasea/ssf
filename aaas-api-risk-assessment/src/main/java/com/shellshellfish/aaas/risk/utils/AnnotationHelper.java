@@ -64,8 +64,8 @@ public class AnnotationHelper {
                 Map<Class<? extends Annotation>, Annotation> map =
                     (Map<Class<? extends Annotation>, Annotation>) annotations.get(clazzToLookFor);
                 map.put(annotationToAlter, annotationValue);
-            } catch (Exception  e) {
-                e.printStackTrace();
+            } catch (Exception  ex) {
+                ex.printStackTrace();
             }
         } else {
             try {

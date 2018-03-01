@@ -154,13 +154,13 @@ public class RiskController {
 				return new JsonResult(JsonResult.Fail, "风险测评失败", JsonResult.EMPTYRESULT);
 			}
 			return new JsonResult(JsonResult.SUCCESS, "风险测评成功", result);
-		} catch (Exception e) {
+		} catch (Exception ex) {
 			result = new HashMap<>();
 			result.put("errorCode", "400");
 			result.put("error", "");
-			e.printStackTrace();
-			logger.error(e.getMessage());
-			String str = new ReturnedException(e).getErrorMsg();
+			logger.error("exception:",ex);
+			logger.error(ex.getMessage());
+			String str = new ReturnedException(ex).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}

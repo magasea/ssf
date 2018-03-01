@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,8 @@ public class CombinationServiceImpl implements CombinationService {
 	
 	@Autowired
 	FundResourceRepository fundResourceRepository;
+
+	private final static Logger logger = LoggerFactory.getLogger(CombinationServiceImpl.class);
 
 	@Override
 	public Map<String, Object> getCombinationServices(String groupId, String subGroupId, String code) {
@@ -255,7 +259,7 @@ public class CombinationServiceImpl implements CombinationService {
 			}
 			tradeLimitList = fundTradeApiService.getTradeLimits(code,businflag);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("exception:",e);
 		}
 		Map<String, Object> linksMap = new HashMap<String, Object>();
 		Map<String, Object> selfMap = new HashMap<String, Object>();

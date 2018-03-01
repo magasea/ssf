@@ -99,11 +99,11 @@ public class ZZTaskBuyFunds implements Callable<TrdOrderDetail> {
       BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
       notifyPayMsg( trdPayFlowMsg);
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
       logger.error(e.getMessage());
       trdOrderDetail.setOrderDetailStatus(TrdOrderStatusEnum.FAILED.getStatus());
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
       logger.error(e.getMessage());
       trdOrderDetail.setOrderDetailStatus(TrdOrderStatusEnum.FAILED.getStatus());
     }

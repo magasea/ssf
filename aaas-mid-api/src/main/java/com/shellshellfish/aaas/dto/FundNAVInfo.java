@@ -10,6 +10,8 @@ import java.util.Map;
 
 import com.shellshellfish.aaas.model.MonetaryFund;
 import com.shellshellfish.aaas.transfer.utils.EasyKit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 记录查询详情的所有信息
@@ -46,6 +48,8 @@ public class FundNAVInfo {
 	private Map yieldof7daysMap;
 
 	private Map tenKiloUnitYieldMap;
+
+	private final static Logger logger = LoggerFactory.getLogger(FundNAVInfo.class);
 	
 	public Map getIncrementMinMaxValueMap() {
 		return incrementMinMaxValueMap;
@@ -258,16 +262,16 @@ public class FundNAVInfo {
 							if (infoAValue == null && infoBValue != null) { //如果infoA的值为空，将infoB的值给infoA
 								setMethod.invoke(infoA, infoBValue);
 							}
-						} catch (NoSuchMethodException e) {
-							e.printStackTrace();
-						} catch (SecurityException e) {
-							e.printStackTrace();
-						} catch (IllegalAccessException e) {
-							e.printStackTrace();
-						} catch (IllegalArgumentException e) {
-							e.printStackTrace();
-						} catch (InvocationTargetException e) {
-							e.printStackTrace();
+						} catch (NoSuchMethodException ex) {
+							logger.error("exception:",ex);
+						} catch (SecurityException ex) {
+							logger.error("exception:",ex);
+						} catch (IllegalAccessException ex) {
+							logger.error("exception:",ex);
+						} catch (IllegalArgumentException ex) {
+							logger.error("exception:",ex);
+						} catch (InvocationTargetException ex) {
+							logger.error("exception:",ex);
 						}
 					}
 				}

@@ -99,9 +99,9 @@ public class FundGroupDataService {
                     }
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error("exception:",e);
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("exception:",e);
             }
         }
 
@@ -112,7 +112,7 @@ public class FundGroupDataService {
         try {
             Thread.sleep(millis);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("exception:",e);
         }
     }
 

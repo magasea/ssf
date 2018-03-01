@@ -47,7 +47,7 @@ public class CalculatePriceAndYield {
             }
         } catch (MWException e) {
             logger.error("Failed to calculatePriceToYield");
-            e.printStackTrace();
+            logger.error("exception:",e);
         }
         return retSeriesList;
     }
@@ -84,7 +84,7 @@ public class CalculatePriceAndYield {
             }
         } catch (MWException e) {
             logger.error("Failed to calculateYieldToPrice");
-            e.printStackTrace();
+            logger.error("exception:",e);
         }
         return tickSeriesList;
     }

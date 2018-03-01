@@ -162,7 +162,7 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 			responseObserver.onNext(upidBuilder.build());
 			responseObserver.onCompleted();
 		} catch ( Exception e) {
-			e.printStackTrace();
+			logger.error("exception:",e);
 			logger.error(e.getMessage());
 			userPidDAO.deleteUserPid(trdAcco, brokerId, userId);
 			upidBuilder.setUserPid("-1");
@@ -307,7 +307,7 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 				logger.error(e.getMessage());
 				tradeNo = errorMsg;
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error("exception:",e);
 				logger.error(e.getMessage());
 				if(e.getMessage().contains("|")){
 					int errCode = Integer.parseInt(e.getMessage().split("|")[0]);

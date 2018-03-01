@@ -433,7 +433,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
             return md5Text;
 
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            logger.error("exception:",e);
         }
         return "";
     }

@@ -725,10 +725,10 @@ public class UserInfoController {
 				}
 			}
 			return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result);
-		} catch (Exception e) {
+		} catch (Exception ex) {
 			logger.error("产品详情页面接口失败");
-			e.printStackTrace();
-			String str = new ReturnedException(e).getErrorMsg();
+			logger.error("exception:",ex);
+			String str = new ReturnedException(ex).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, "产品详情页面失败", JsonResult.EMPTYRESULT);
 		}
 	}
@@ -810,10 +810,10 @@ public class UserInfoController {
 				}
 			}
 			return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result);
-		} catch (Exception e) {
+		} catch (Exception ex) {
 			logger.error("产品详情页面接口失败");
-			e.printStackTrace();
-			String str = new ReturnedException(e).getErrorMsg();
+			logger.error("exception:",ex);
+			String str = new ReturnedException(ex).getErrorMsg();
 			return new JsonResult(JsonResult.Fail, "产品详情页面失败", JsonResult.EMPTYRESULT);
 		}
 	}

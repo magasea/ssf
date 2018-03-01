@@ -402,7 +402,7 @@ public class DataServiceImpl implements DataService {
 			hnmap.replace(key, arrayCopy);
 
 		} catch (ParseException e) {
-			e.printStackTrace();
+			logger.error("exception:",e);
 			return false;
 		}
 

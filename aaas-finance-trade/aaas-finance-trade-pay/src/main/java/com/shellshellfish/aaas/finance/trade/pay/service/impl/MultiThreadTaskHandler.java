@@ -39,15 +39,15 @@ public class MultiThreadTaskHandler {
         trdOrderDetails.add(trdOrderDetail);
         logger.debug("Thread reply results [" + result + "]");
       }
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-      logger.error(e.getMessage());
-    } catch (ExecutionException e) {
-      e.printStackTrace();
-      logger.error(e.getMessage());
-    } catch (TimeoutException e) {
-      e.printStackTrace();
-      logger.error(e.getMessage());
+    } catch (InterruptedException ex) {
+      logger.error("exception:",ex);
+      logger.error(ex.getMessage());
+    } catch (ExecutionException ex) {
+      logger.error("exception:",ex);
+      logger.error(ex.getMessage());
+    } catch (TimeoutException ex) {
+      logger.error("exception:",ex);
+      logger.error(ex.getMessage());
     }
     return trdOrderDetails;
   }

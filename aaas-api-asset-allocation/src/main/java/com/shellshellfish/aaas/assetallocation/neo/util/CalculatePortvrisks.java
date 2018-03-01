@@ -39,7 +39,7 @@ public class CalculatePortvrisks {
             matLab.dispose();
         } catch (MWException e) {
             logger.error("Failed to calculatePortvrisk!");
-            e.printStackTrace();
+            logger.error("exception:",e);
         }
         return portvrisk;
     }

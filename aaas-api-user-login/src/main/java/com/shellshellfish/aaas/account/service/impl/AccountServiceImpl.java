@@ -8,6 +8,8 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 //import org.springframework.test.context.ActiveProfiles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,8 @@ import com.shellshellfish.aaas.account.utils.MyBeanUtils;
 
 //@ActiveProfiles(profiles = "prod")
 public class AccountServiceImpl implements AccountService {
+
+	private final static Logger logger = LoggerFactory.getLogger(AccountServiceImpl.class);
 
 	@Autowired
     private UserRepository userRepository;
@@ -165,7 +169,7 @@ public class AccountServiceImpl implements AccountService {
 			try {
 				userDtoList = MyBeanUtils.convertList(result, UserDTO.class);
 			} catch (IllegalAccessException | InstantiationException e) {
-				e.printStackTrace();
+				logger.error("exception:",e);
 			}
 		}
 		

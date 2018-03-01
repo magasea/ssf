@@ -373,9 +373,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 			BeanUtils.copyProperties(result, applyResult);
 			return applyResult;
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logger.error("exception:",e);
 		} catch (ExecutionException e) {
-			e.printStackTrace();
+			logger.error("exception:",e);
 			logger.error(e.getMessage());
 			return null;
 		}
@@ -836,7 +836,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		try {
 			uiUser = userInfoRepoService.getUserInfoByUserUUID(userId);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("exception:",e);
 		}
 		Optional<UiUser> userOptional = Optional.ofNullable(uiUser);
 		return userOptional.map(m -> m.getRiskLevel()).orElse(-1);

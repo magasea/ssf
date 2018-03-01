@@ -719,8 +719,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
             return md5Text;
 
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+        } catch (NoSuchAlgorithmException ex) {
+            logger.error("exception:",ex);
         }
         return "";
     }

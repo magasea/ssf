@@ -138,11 +138,11 @@ public class PayServiceImpl implements PayService {
     try {
       return payRpcFutureStub.orderJob2Pay(bdOfReq.build()).get().getResult();
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
       logger.error(e.getMessage());
       return -1;
     } catch (ExecutionException e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
       logger.error(e.getMessage());
       return -1;
     }
@@ -181,11 +181,11 @@ public class PayServiceImpl implements PayService {
 //        trdOrderDetailList.add(trdOrderDetail);
 //      }
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
       logger.error(e.getMessage());
       return TrdOrderStatusEnum.FAILED;
     } catch (ExecutionException e) {
-      e.printStackTrace();
+      logger.error("exception:",e);
       logger.error(e.getMessage());
       return TrdOrderStatusEnum.FAILED;
     }

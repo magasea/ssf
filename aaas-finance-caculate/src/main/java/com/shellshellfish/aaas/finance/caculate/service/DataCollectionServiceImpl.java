@@ -49,7 +49,7 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase {
           /1000).and("code").in(code));
       dailyFundsList  = mongoTemplate.find(query, DailyFunds.class, "dailyfunds");
     } catch (ParseException e) {
-      e.printStackTrace();
+      logger.error("exception:",ex);
     }
     List<com.shellshellfish.aaas.datacollect.DailyFunds> dailyFundsListProto = new ArrayList<>();
     Builder builderDailyFunds = com.shellshellfish.aaas.datacollect.DailyFunds.newBuilder();

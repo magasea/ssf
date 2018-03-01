@@ -222,7 +222,7 @@ public class OptimizationServiceImpl implements OptimizationService {
 			}
 		} catch (Exception e) {
 			result = new HashMap<String, Object>();
-			e.printStackTrace();
+			logger.error("exception:",e);
 			logger.error(e.getMessage());
 			String str = new ReturnedException(e).getErrorMsg();
 			result.put("error", "restTemplate获取预期组合收益率走势图失败:" + str);
