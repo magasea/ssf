@@ -543,11 +543,12 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		BigDecimal buyAmountOfEndDay = dailyAmountAggregationOfEndDay.getBuyAmount();
 		BigDecimal sellAmountOfEndDay = dailyAmountAggregationOfEndDay.getSellAmount();
 		BigDecimal bonusOfEndDay = dailyAmountAggregationOfEndDay.getBonus();
+		BigDecimal intervalAmountOfEndDay = bonusOfEndDay.add(sellAmountOfEndDay)
+				.add(buyAmountOfEndDay);
 
 		//确认当天才会有 asset 值
 		if (dailyAmountAggregationOfOneDayBefore == null) {
 			dailyAmountAggregationOfOneDayBefore = DailyAmountAggregation.getEmptyInstance();
-			dailyAmountAggregationOfOneDayBefore.setAsset(assetOfEndDay);
 		}
 
 		if (BigDecimal.ZERO.compareTo(dailyAmountAggregationOfOneDayBefore.getAsset()) == 0) {
@@ -568,7 +569,8 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		BigDecimal totalIncome = assetOfEndDay.add(intervalAmount).subtract(startAsset);
 
 		//日收益=结束日净值 - 前一日净值
-		BigDecimal dailyIncome = assetOfEndDay.subtract(assetOfOneDayBefore);
+		BigDecimal dailyIncome = assetOfEndDay.subtract(assetOfOneDayBefore)
+				.add(intervalAmountOfEndDay);
 
 		BigDecimal totalIncomeRate = BigDecimal.ZERO;
 		if (startAsset.add(buyAmount).compareTo(BigDecimal.ZERO) != 0) {
