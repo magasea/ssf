@@ -104,7 +104,7 @@ public class JobScheduleController {
      * @return
      */
     @ApiOperation("组合收益率(最大回撤)走势图-自组合基金成立以来的每天")
-    @RequestMapping(value = "/api/asset-allocation/job/getFundGroupIncomeAllToMongoDb", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/asset-allocation/job/getFundGroupIncomeAllToMongoDb", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public JobResult getFundGroupIncomeAllToMongoDb() {
         ExecutorService pool = ThreadPoolUtil.getThreadPool();
         pool.execute(() -> {
