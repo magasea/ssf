@@ -17,10 +17,11 @@ public interface MongoUiTrdZZInfoRepo extends MongoRepository<MongoUiTrdZZInfo, 
 
 	List<MongoUiTrdZZInfo> findAllByUserId(Long userId);
 
-	MongoUiTrdZZInfo findByUserProdIdAndUserIdAndOutSideOrderNo(Long userProdId, Long userId,
-			String outSideOrderNo);
+//	MongoUiTrdZZInfo findByUserProdIdAndUserIdAndOutSideOrderNo(Long userProdId, Long userId,
+//			String outSideOrderNo);
 
-
+	MongoUiTrdZZInfo findByUserProdIdAndUserIdAndApplySerial(Long userProdId, Long userId,
+			String applySerial);
 
 	List<MongoUiTrdZZInfo> findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(
 			Long userProdId, String fundType, int tardeType, int tradeStatus, String confrimDate);

@@ -29,11 +29,16 @@ public class OptimizationApiController {
 	@ApiOperation("进入理财页面后的数据")
 	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
 	@ResponseBody
-	public void financeModule() {
-		optimizationService.financeFront();
-		logger.info(
-				"run com.shellshellfish.datamanager.controller.OptimizationApiController.financeModule() success..");
-		System.out.println("run success");
+	public JsonResult financeModule() {
+		JsonResult jsonResult = optimizationService.financeFront();
+		if (jsonResult != null) {
+			logger.info(
+					"run com.shellshellfish.datamanager.controller.OptimizationApiController.financeModule() success..");
+			System.out.println("run success");
+			return new JsonResult(JsonResult.SUCCESS, "OK", JsonResult.EMPTYRESULT);
+		} else {
+			return new JsonResult(JsonResult.Fail, "NG:没有获取到产品", JsonResult.EMPTYRESULT);
+		}
 	}
 
 	@ApiOperation("进入理财页面后的数据")

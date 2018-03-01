@@ -150,7 +150,7 @@ public class OptimizationServiceImpl implements OptimizationService {
 			logger.info("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.financeFront() fail..\n");
 			logger.info("jsonResult 结果为空");
 		}
-		return null;
+		return jsonResult;
 	}
 
 	/**
