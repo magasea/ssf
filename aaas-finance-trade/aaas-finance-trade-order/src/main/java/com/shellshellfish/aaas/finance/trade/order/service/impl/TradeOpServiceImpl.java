@@ -4,6 +4,7 @@ import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
@@ -14,6 +15,7 @@ import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.common.utils.ZZRiskToSSFRiskUtils;
 import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProducer;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
@@ -276,7 +278,8 @@ public class TradeOpServiceImpl implements TradeOpService {
         break;
       }
     }
-    riskLevel = userBankInfo.getRiskLevel();
+    riskLevel = ZZRiskToSSFRiskUtils.getZZRiskAbilityFromSSFRisk(UserRiskLevelEnum.get(userBankInfo
+        .getRiskLevel())).getRiskLevel();
 
     if(StringUtils.isEmpty(userPid)){
       logger.error("this user: "+financeProdBuyInfo.getUserId()+" personal id is not in "
