@@ -45,7 +45,7 @@ import org.springframework.util.StringUtils;
 public class BroadcastMessageConsumers {
     private static final Logger logger = LoggerFactory.getLogger(BroadcastMessageConsumers.class);
 
-    private final CountDownLatch latch = new CountDownLatch(1);
+
 
     @Autowired
     UiProductDetailRepo uiProductDetailRepo;
@@ -101,7 +101,7 @@ public class BroadcastMessageConsumers {
         } catch (IOException e) {
             logger.error("exception:",e);
         }
-        latch.countDown();
+
         
     }
 
@@ -159,7 +159,7 @@ public class BroadcastMessageConsumers {
         } catch (IOException e) {
             logger.error("exception:",e);
         }
-        latch.countDown();
+
 
     }
 
@@ -352,7 +352,7 @@ public class BroadcastMessageConsumers {
         } catch (IOException e) {
             logger.error("exception:",e);
         }
-        latch.countDown();
+
 
     }
 
@@ -393,7 +393,7 @@ public class BroadcastMessageConsumers {
             logger.error("exception:", e);
             logger.error("exception:",e);
         }
-        latch.countDown();
+
 
     }
 

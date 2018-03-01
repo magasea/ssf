@@ -36,7 +36,7 @@ public class FundInfoServiceTest {
 			System.out.println(result);
 			Assert.assertNotNull(result);
 		} catch (JsonProcessingException e) {
-			logger.error("exception:",ex);
+			e.printStackTrace();
 		}
 	}
 
