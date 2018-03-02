@@ -1579,16 +1579,15 @@ public class UserInfoController {
 		@ApiImplicitParam(paramType="path",name="userUuid",dataType="String",required=true,value="用户uuid"),
 		@ApiImplicitParam(paramType="path",name="prodId",dataType="Long",required=true,value="产品ID")
 	})
-	@RequestMapping(value = "/users/{userUuid}/orders/{prodId}/status/{operType}", method =
+	@RequestMapping(value = "/users/{userUuid}/orders/{prodId}/status", method =
 			RequestMethod.GET)
 	public ResponseEntity<Map> getUserStatus(
 			@PathVariable String userUuid,
-			@PathVariable Long prodId,
-			@PathVariable Integer operType
+			@PathVariable Long prodId
 			) throws Exception {
 		Map<String,Object> result = new HashMap<String,Object>();
 		List<Map<String, Object>> resultMap = new ArrayList();
-		resultMap = userInfoService.getTradeLogStatus(userUuid, prodId, operType);
+		resultMap = userInfoService.getTradeLogStatus(userUuid, prodId);
 		if(resultMap == null){
 			resultMap = new ArrayList();
 		}

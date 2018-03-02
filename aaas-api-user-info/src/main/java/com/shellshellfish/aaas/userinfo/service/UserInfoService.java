@@ -81,8 +81,6 @@ public interface UserInfoService {
 
 	List<Map<String, Object>> getTradeLogStatus(String uuid, Long userProdId) throws Exception;
 
-	List<Map<String, Object>> getTradeLogStatus(String uuid, Long userProdId, Integer operType)
-			throws Exception;
 
 	List<MongoUiTrdLogDTO> getTradeLogs(String uuid) throws Exception;
 

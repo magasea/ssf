@@ -665,66 +665,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		return portfolioInfo;
 	}
 
-	@Override
-	public List<Map<String, Object>> getTradeLogStatus(String uuid, Long userProdId, Integer operType)
-			throws Exception {
-		Long userId = getUserIdFromUUID(uuid);
-		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService
-				.findByUserProdIdAndOperType(userProdId, operType);
-		Map<Integer, Map<String, Object>> resultMap = new HashMap<>();
-		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
-		if (trdLogList != null && trdLogList.size() > 0) {
-			for (int i = 0; i < trdLogList.size(); i++) {
-				Map<String, Object> resultMap2 = new HashMap<String, Object>();
-				MongoUiTrdLogDTO trdLog = trdLogList.get(i);
-				int status = trdLog.getTradeStatus();
-				long lastModifiedDate = 0;
-				if(trdLog.getTradeDate() !=null && trdLog.getTradeDate() > 0){
-					lastModifiedDate = trdLog.getTradeDate();
-				} else if (trdLog.getLastModifiedDate() != 0) {
-					lastModifiedDate = trdLog.getLastModifiedDate();
-				}
-				String dateTime = TradeUtil.getReadableDateTime(lastModifiedDate);
-				LocalDateTime localDateTime = LocalDateTime
-						.ofInstant(Instant.ofEpochMilli(lastModifiedDate), ZoneOffset.systemDefault());
-				if (resultMap.containsKey(status)) {
-					resultMap2 = resultMap.get(status);
-					if (Long.parseLong(resultMap2.get("lastModified") + "") < lastModifiedDate) {
-						resultMap2.put("lastModified", lastModifiedDate);
-//						resultMap2.put("date",
-//								localDateTime.getYear() + "." + localDateTime.getMonthValue() + "." + localDateTime
-//										.getDayOfMonth());
-						resultMap2.put("date", dateTime.split("T")[0]);
-//						resultMap2.put("time", localDateTime.getHour() + ":" + localDateTime.getMinute());
-						resultMap2.put("time", dateTime.split("T")[1].substring(0, 8));
-//						resultMap2.put("status", status + "");
-						resultMap.put(status, resultMap2);
-					}
-				} else {
-					resultMap2.put("lastModified", lastModifiedDate);
-					resultMap2.put("date", dateTime.split("T")[0]);
-//						resultMap2.put("time", localDateTime.getHour() + ":" + localDateTime.getMinute());
-					resultMap2.put("time", dateTime.split("T")[1]);
-//					resultMap2.put("status", status + "");
-					resultMap.put(status, resultMap2);
-				}
-			}
 
-			for (Map.Entry<Integer, Map<String, Object>> entry : resultMap.entrySet()) {
-				Map value = entry.getValue();
-				try {
-					value.put("status", TrdOrderStatusEnum.getComment(entry.getKey()));
-				}catch (Exception ex){
-					logger.error("exception:",ex);
-
-					value.put("status", "");
-				}
-				result.add(value);
-			}
-
-		}
-		return result;
-	}
 
 
 	@Deprecated
