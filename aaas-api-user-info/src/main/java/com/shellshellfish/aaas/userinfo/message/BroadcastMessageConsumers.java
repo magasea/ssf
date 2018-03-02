@@ -23,6 +23,7 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
 import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
 import com.shellshellfish.aaas.userinfo.service.PayGrpcService;
+import com.shellshellfish.aaas.userinfo.service.impl.CalculateConfirmedAsset;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -67,6 +68,9 @@ public class BroadcastMessageConsumers {
 
     @Autowired
     PayGrpcService payGrpcService;
+
+    @Autowired
+    CalculateConfirmedAsset calculateConfirmedAsset;
 
     @Transactional
     @RabbitListener(bindings = @QueueBinding(
@@ -554,5 +558,28 @@ public class BroadcastMessageConsumers {
         }
         logger.error("Failed to find unit net for :{} and tradeDate:{}",fundCode, tradeDate);
         return -1L;
+    }
+
+    @Transactional
+    @RabbitListener(bindings = @QueueBinding(
+        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
+            .OPERATION_TYPE_CACULATE_UIACCECTS, durable = "false"),
+        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_UPDATEPROD)
+    )
+    public void receiveConfirmInfoUpdateAssects(MongoUiTrdZZInfo mongoUiTrdZZInfo, Channel channel,
+        @Header
+        (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
+        try {
+            // now update correspond product_detail for quantity of fund
+            logger.info("received mongoUiTrdZZInfo to update assects with userProdId:{} "
+                    + "userId:{} fundCode:{} ", mongoUiTrdZZInfo.getUserProdId(),
+                mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getFundCode());
+            calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo.getUserProdId(),
+                mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getFundCode());
+        }catch(Exception ex){
+            logger.error("Exception:", ex);
+        }
+
     }
 }

@@ -33,6 +33,7 @@ public class RabbitMQConstants {
   public final static String OPERATION_TYPE_UPDATE_UIPROD = "update_uiprod";
   public final static String OPERATION_TYPE_UPDATE_UITRDLOG = "update_uitrdlog";
   public final static String OPERATION_TYPE_UPDATE_UITRDCONFIRMINFO = "update_uitrdconfirminfo";
+  public final static String OPERATION_TYPE_CACULATE_UIACCECTS = "caculate_userassect";
   public final static String OPERATION_TYPE_UPDATE_UIPRODQUANTITY = "update_uiprodquantity";
   public final static String OPERATION_TYPE_CHECKSELL_ROLLBACK = "update_checksell_rollback";
   public final static String OPERATION_TYPE_UPDATE_ORDER = "update_order";
