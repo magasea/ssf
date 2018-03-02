@@ -484,7 +484,7 @@ public class BroadcastMessageConsumers {
             (mongoUiTrdZZInfo.getUserId(), cardNumber);
         String userPid = uiBankcards.get(0).getUserPid();
 
-
+        productDetail.setStatus(TrdOrderStatusEnum.SELLCONFIRMED.getStatus());
         if(productDetail.getFundQuantityTrade() != null && productDetail
             .getFundQuantityTrade() < 0){
             logger.error("abnormal situation appeared the userProdId:" + mongoUiTrdZZInfo
@@ -510,6 +510,7 @@ public class BroadcastMessageConsumers {
             }
             productDetail.setFundQuantity(remainQty.intValue());
             productDetail.setFundQuantityTrade(remainQty.intValue());
+
         }else{
             Long remainQty = productDetail.getFundQuantity() - mongoUiTrdZZInfo
                 .getTradeConfirmShare();
