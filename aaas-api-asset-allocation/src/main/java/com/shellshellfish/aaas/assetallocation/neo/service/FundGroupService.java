@@ -1254,10 +1254,9 @@ public class FundGroupService {
                 continue;
             }
 
-            List<FundNetVal> fundNetValues = this.getNavadjNew(id, subGroupId);
-            if (CollectionUtils.isEmpty(fundNetValues)) {
-                return fgi;
-            }
+            Map<String, String> query1 = new HashMap<>();
+            query1.put("fund_code", intervalCode.getFund_id());
+            List<FundNetVal> fundNetValues = fundGroupMapper.getFundNetValue(query1);
 
             List<Map<String, Object>> listFund = new ArrayList<>();
             if (!CollectionUtils.isEmpty(fundNetValues)) {
