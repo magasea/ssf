@@ -37,6 +37,7 @@ spring:
      topicPay: shellshellfish.pay
      topicOrder: shellshellfish.order
      topicUserinfo: shellshellfish.userinfo
+     topicDailyCalculateAsset: com-ssf-topic-calculate-asset
   redis:
     host: 192.168.1.10
     port: 6379

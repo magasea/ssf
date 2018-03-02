@@ -537,7 +537,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				ZoneId.systemDefault()).toLocalDate();
 		String startDay = InstantDateUtil.format(startLocalDate, "yyyyMMdd");
 
-		String endDay = InstantDateUtil.format(LocalDate.now().plusDays(-1), "yyyyMMdd");
+		String endDay = InstantDateUtil.format(LocalDate.now(), "yyyyMMdd");
 
 		if (flag) {
 			//完全确认
@@ -633,12 +633,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 		OrderResult orderResult = rpcOrderService
 				.getOrderInfoByProdIdAndOrderStatus(prodId, TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
-		logger.info(
-				"=======================================================================================");
-		logger.info("\n\n{}\n\n", orderResult.getPayAmount());
-		logger.info(
-				"=======================================================================================");
-
 		BigDecimal applyAsset = BigDecimal.valueOf(orderResult.getPayAmount())
 				.divide(BigDecimal.valueOf(100));
 
@@ -717,10 +711,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}
 			}
 
-
-			for(Map.Entry<Integer, Map<String, Object>> entry : resultMap.entrySet()) {
+			for (Map.Entry<Integer, Map<String, Object>> entry : resultMap.entrySet()) {
 				Map value = entry.getValue();
-				try{
+				try {
 					value.put("status", TrdOrderStatusEnum.getComment(entry.getKey()));
 				}catch (Exception ex){
 					logger.error("exception:",ex);
@@ -1026,7 +1019,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 				tradLogsMap.put(ufoKey, map);
 			} catch (Exception ex) {
-
+				logger.error(ex.getMessage());
 				logger.error("exception:",ex);
 				continue;
 			}

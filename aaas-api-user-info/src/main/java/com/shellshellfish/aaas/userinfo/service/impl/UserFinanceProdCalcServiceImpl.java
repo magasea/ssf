@@ -9,7 +9,6 @@ import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.BonusInfo;
 import com.shellshellfish.aaas.userinfo.model.ConfirmResult;
@@ -42,7 +41,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -69,7 +67,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 @Service
 public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcService {
@@ -549,7 +546,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 			dailyAmountAggregationOfOneDayBefore = DailyAmountAggregation.getEmptyInstance();
 		}
 
-
 		//区间结束日前一天数据
 		Optional<DailyAmountAggregation> dailyAmountAggregationOfOneDayBeforeOptional = Optional
 				.ofNullable(dailyAmountAggregationOfOneDayBefore);
@@ -739,24 +735,28 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 				List<UiProductDetail> prodDetails = uiProductDetailRepo.findAllByUserProdId(prod.getId());
 				for (UiProductDetail detail : prodDetails) {
-
-					String fundCode = detail.getFundCode();
-					initDailyAmount(user.getUuid(), prod.getProdId(), detail.getUserProdId(), date, fundCode);
-					try {
-						//计算当日总资产
-						calcDailyAsset2(user.getUuid(), prod.getProdId(), detail.getUserProdId(), fundCode,
-								date, detail);
-
-						//获取当日分红，以及确认购买和赎回的金额
-						calcIntervalAmount2(user.getUuid(), prod.getProdId(),
-								detail.getUserProdId(), fundCode, date);
-					} catch (Exception e) {
-						logger.error("计算{用户:{},基金code:{},基金名称：{}}日收益出错", detail.getCreateBy(),
-								detail.getFundCode(), detail.getFundName(), e);
-						//FIXME  记录错误数据 并返回
-					}
+					calculateProductAsset(detail, user.getUuid(), prod.getProdId(), date);
 				}
 			}
+		}
+	}
+
+	@Override
+	public void calculateProductAsset(UiProductDetail detail, String uuid, Long prodId, String date) {
+
+		String fundCode = detail.getFundCode();
+		initDailyAmount(uuid, prodId, detail.getUserProdId(), date, fundCode);
+		try {
+			//计算当日总资产
+			calcDailyAsset2(uuid, prodId, detail.getUserProdId(), fundCode,
+					date, detail);
+
+			//获取当日分红，以及确认购买和赎回的金额
+			calcIntervalAmount2(uuid, prodId, detail.getUserProdId(), fundCode, date);
+		} catch (Exception e) {
+			logger.error("计算{用户:{},基金code:{},基金名称：{}}日收益出错", detail.getCreateBy(),
+					detail.getFundCode(), detail.getFundName(), e);
+			//FIXME  记录错误数据 并返回
 		}
 	}
 
