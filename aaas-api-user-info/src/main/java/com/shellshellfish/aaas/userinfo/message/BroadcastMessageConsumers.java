@@ -420,7 +420,9 @@ public class BroadcastMessageConsumers {
     public void receiveConfirmInfoUpdateProdQty(MongoUiTrdZZInfo mongoUiTrdZZInfo, Channel channel, @Header
         (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
         try {
-            // now update correspond product_detail for quantity of fund
+            logger.info("received mongoUiTrdZZInfo to update assects with userProdId:{} "
+                    + "userId:{} fundCode:{} ", mongoUiTrdZZInfo.getUserProdId(),
+                mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getFundCode());
             if (mongoUiTrdZZInfo.getTradeType() == TrdOrderOpTypeEnum.BUY.getOperation()) {
                 updateBuyProductQty(mongoUiTrdZZInfo);
             } else if (mongoUiTrdZZInfo.getTradeType() == TrdOrderOpTypeEnum.REDEEM
