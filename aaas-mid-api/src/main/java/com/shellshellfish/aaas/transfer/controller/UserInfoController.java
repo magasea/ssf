@@ -801,7 +801,11 @@ public class UserInfoController {
 				} else {
 					result.put("statusList", new ArrayList());
 				}
-				result.put("bankinfo", bankName + "(" + bankCard + ")");
+				if (StringUtils.isEmpty(bankName) || StringUtils.isEmpty(bankCard)) {
+					result.put("bankinfo", "");
+				} else {
+					result.put("bankinfo", bankName + "(" + bankCard.substring(bankCard.length() - 4) + ")");
+				}
 				// 获取产品组合信息
 				String url2 = userinfoUrl + "/api/userinfo/product/" + prodId;
 				Map productResult = restTemplate.getForEntity(url2, Map.class).getBody();
