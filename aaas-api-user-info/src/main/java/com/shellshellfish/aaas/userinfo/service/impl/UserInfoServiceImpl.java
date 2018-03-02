@@ -679,6 +679,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				Map<String, Object> resultMap2 = new HashMap<String, Object>();
 				MongoUiTrdLogDTO trdLog = trdLogList.get(i);
 				int status = trdLog.getTradeStatus();
+				int operation = trdLog.getOperations();
 				long lastModifiedDate = 0;
 				 if(trdLog.getTradeDate() !=null && trdLog.getTradeDate() > 0){
 					lastModifiedDate = trdLog.getTradeDate();
@@ -698,15 +699,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 						resultMap2.put("date", dateTime.split("T")[0]);
 //						resultMap2.put("time", localDateTime.getHour() + ":" + localDateTime.getMinute());
 						resultMap2.put("time", dateTime.split("T")[1].substring(0, 8));
+						resultMap2.put("operation", operation);
 //						resultMap2.put("status", status + "");
 						resultMap.put(status, resultMap2);
 					}
 				} else {
 					resultMap2.put("lastModified", lastModifiedDate);
 					resultMap2.put("date", dateTime.split("T")[0]);
-//						resultMap2.put("time", localDateTime.getHour() + ":" + localDateTime.getMinute());
 					resultMap2.put("time", dateTime.split("T")[1]);
-//					resultMap2.put("status", status + "");
+					resultMap2.put("operation", operation);
 					resultMap.put(status, resultMap2);
 				}
 			}
