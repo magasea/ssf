@@ -77,7 +77,7 @@ public class BroadcastMessageConsumers {
 
         }catch (Exception ex){
             logger.error("exception:",ex);
-            logger.error(ex.getMessage());
+
         }
     }
 
@@ -95,7 +95,7 @@ public class BroadcastMessageConsumers {
 //            tradeOpService.buyPreOrderProduct(trdPayFlow);
 //        }catch (Exception ex){
 //            logger.error("exception:",ex);
-//            logger.error(ex.getMessage());
+//
 //        }
 //    }
 }

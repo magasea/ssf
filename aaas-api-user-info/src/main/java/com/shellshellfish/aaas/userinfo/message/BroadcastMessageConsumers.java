@@ -92,7 +92,7 @@ public class BroadcastMessageConsumers {
                 uiProductDetailRepo.save(uiProductDetail);
             }catch (Exception ex){
                 logger.error("exception:",ex);
-                logger.error(ex.getMessage());
+
             }
         }
 
@@ -152,7 +152,7 @@ public class BroadcastMessageConsumers {
             mongoUserTrdLogMsgRepo.save(mongoUiTrdLog);
         }catch (Exception ex){
             logger.error("exception:",ex);
-            logger.error(ex.getMessage());
+
         }
         try {
             channel.basicAck(tag, true);
@@ -186,7 +186,7 @@ public class BroadcastMessageConsumers {
 //            mongoUserTrdLogMsgRepo.save(mongoUiTrdLog);
 //        }catch (Exception ex){
 //            logger.error("exception:",ex);
-//            logger.error(ex.getMessage());
+//
 //        }
 //        try {
 //            channel.basicAck(tag, true);
@@ -210,92 +210,98 @@ public class BroadcastMessageConsumers {
         logger.info("receiveAndCheckSell Received fanout 1 message: " + trdPayFlow);
         logger.info("this consumer only controll redeem payFlow message");
         //if sell failed then update ui_product_details product number back
-        UiProductDetail uiProductDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
-            (trdPayFlow.getUserProdId(), trdPayFlow.getFundCode());
-        String cardNumber = orderRpcService.getBankCardNumberByUserProdId(trdPayFlow.getUserProdId());
-        List<UiBankcard> uiBankcards =  null;
-        if(trdPayFlow.getUserId() == SystemUserEnum.SYSTEM_USER_ENUM.getUserId()){
-            uiBankcards =  userInfoBankCardsRepository.findAllByCardNumber(cardNumber);
-        }else{
-            uiBankcards =  userInfoBankCardsRepository.findAllByUserIdAndCardNumber
-                (trdPayFlow.getUserId(), cardNumber);
-        }
-        if(CollectionUtils.isEmpty(uiBankcards)){
-            logger.error("failed to find bankCard for this trdPayFlow message with trdPayFlow.getUserProdId():" + trdPayFlow
-                .getUserProdId());
-            return;
-        }
-
-        String userPid = uiBankcards.get(0).getUserPid();
-        if(!StringUtils.isEmpty(trdPayFlow.getApplySerial()) && trdPayFlow.getApplySerial().equals
-            (uiProductDetail.getLastestSerial())){
-            logger.error("repeated trdPayFlow message received, just ignore it");
-        }
-        else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.REDEEMFAILED.getStatus() &&
-            trdPayFlow.getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation() &&
-            uiProductDetail.getStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()){
-            //记住 要和payService里面sellProd的做法一致，发送方也得用这个字段存储赎回基金数量
-
-            //赎回失败情况下把数量加回去，前提是状态已经是等待赎回， 否则作为重复请求忽略掉这个信息
-            Long fundQuantity = trdPayFlow.getTradeTargetShare();
-            Long caculatedFundQty = fundQuantity;
-            if(MonetaryFundEnum.containsCode(trdPayFlow.getFundCode())){
-                //monetary fund should caculate quantity by NetValue
-
-                List<FundNetInfo> fundNetInfos = payGrpcService.getFundNetInfosFromZZ(userPid,
-                    trdPayFlow.getFundCode(), 10);
-                Long fundUnitNet= getFundUnitNet(trdPayFlow.getFundCode(), fundNetInfos,
-                    TradeUtil.getReadableDateTime(trdPayFlow.getCreateDate()).split("T")[0]
-                        .replace("-",""));
-                caculatedFundQty = TradeUtil.getBigDecimalNumWithDivOfTwoLong(fundQuantity,
-                    fundUnitNet).longValueExact();
+        try {
+            UiProductDetail uiProductDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
+                (trdPayFlow.getUserProdId(), trdPayFlow.getFundCode());
+            String cardNumber = orderRpcService
+                .getBankCardNumberByUserProdId(trdPayFlow.getUserProdId());
+            List<UiBankcard> uiBankcards = null;
+            if (trdPayFlow.getUserId() == SystemUserEnum.SYSTEM_USER_ENUM.getUserId()) {
+                uiBankcards = userInfoBankCardsRepository.findAllByCardNumber(cardNumber);
+            } else {
+                uiBankcards = userInfoBankCardsRepository.findAllByUserIdAndCardNumber
+                    (trdPayFlow.getUserId(), cardNumber);
+            }
+            if (CollectionUtils.isEmpty(uiBankcards)) {
+                logger.error(
+                    "failed to find bankCard for this trdPayFlow message with trdPayFlow.getUserProdId():"
+                        + trdPayFlow
+                        .getUserProdId());
+                return;
             }
 
+            String userPid = uiBankcards.get(0).getUserPid();
+            if (!StringUtils.isEmpty(trdPayFlow.getApplySerial()) && trdPayFlow.getApplySerial()
+                .equals
+                    (uiProductDetail.getLastestSerial())) {
+                logger.error("repeated trdPayFlow message received, just ignore it");
+            } else if (trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.REDEEMFAILED.getStatus() &&
+                trdPayFlow.getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation() &&
+                uiProductDetail.getStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()) {
+                //记住 要和payService里面sellProd的做法一致，发送方也得用这个字段存储赎回基金数量
 
-            logger.info("now set the fund quantity back with userProdId:" + trdPayFlow.getUserProdId
-                () + " fundQuantity:" + fundQuantity);
-            uiProductDetail.setFundQuantityTrade(uiProductDetail.getFundQuantityTrade() +
-                caculatedFundQty.intValue());
-            uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
-            uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
-            uiProductDetail.setStatus(trdPayFlow.getTrdStatus());
-            uiProductDetailRepo.save(uiProductDetail);
+                //赎回失败情况下把数量加回去，前提是状态已经是等待赎回， 否则作为重复请求忽略掉这个信息
+                Long fundQuantity = trdPayFlow.getTradeTargetShare();
+                Long caculatedFundQty = fundQuantity;
+                if (MonetaryFundEnum.containsCode(trdPayFlow.getFundCode())) {
+                    //monetary fund should caculate quantity by NetValue
+
+                    List<FundNetInfo> fundNetInfos = payGrpcService.getFundNetInfosFromZZ(userPid,
+                        trdPayFlow.getFundCode(), 10);
+                    Long fundUnitNet = getFundUnitNet(trdPayFlow.getFundCode(), fundNetInfos,
+                        TradeUtil.getReadableDateTime(trdPayFlow.getCreateDate()).split("T")[0]
+                            .replace("-", ""));
+                    caculatedFundQty = TradeUtil.getBigDecimalNumWithDivOfTwoLong(fundQuantity,
+                        fundUnitNet).longValueExact();
+                }
+
+                logger.info(
+                    "now set the fund quantity back with userProdId:" + trdPayFlow.getUserProdId
+                        () + " fundQuantity:" + fundQuantity);
+                uiProductDetail.setFundQuantityTrade(uiProductDetail.getFundQuantityTrade() +
+                    caculatedFundQty.intValue());
+                uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+                uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
+                uiProductDetail.setStatus(trdPayFlow.getTrdStatus());
+                uiProductDetailRepo.save(uiProductDetail);
 //            uiProductDetailRepo.updateByAddBackQuantity(fundQuantity, TradeUtil.getUTCTime(),
 //                SystemUserEnum.SYSTEM_USER_ENUM.getUserId(), trdPayFlow.getUserProdId(),
 //                trdPayFlow.getFundCode(), trdPayFlow.getTrdStatus(), TrdOrderStatusEnum.WAITSELL.getStatus());
-        }else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus() && trdPayFlow
-            .getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
-            logger.info("now update the product status to SELLWAITCONFIRM");
-            uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
-            uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
-            uiProductDetail.setStatus(trdPayFlow.getTrdStatus());
-            boolean haveSerialInPayFlow = true;
-            if(StringUtils.isEmpty(trdPayFlow.getApplySerial())){
-                logger.error("the apply serial is empty so it is an error ");
-                haveSerialInPayFlow = false;
-            }
-            if(StringUtils.isEmpty(uiProductDetail.getLastestSerial())){
-                if(haveSerialInPayFlow) {
-                   uiProductDetail.setLastestSerial(trdPayFlow.getApplySerial());
+            } else if (trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus()
+                && trdPayFlow
+                .getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()) {
+                logger.info("now update the product status to SELLWAITCONFIRM");
+                uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
+                uiProductDetail.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+                uiProductDetail.setStatus(trdPayFlow.getTrdStatus());
+                boolean haveSerialInPayFlow = true;
+                if (StringUtils.isEmpty(trdPayFlow.getApplySerial())) {
+                    logger.error("the apply serial is empty so it is an error ");
+                    haveSerialInPayFlow = false;
                 }
-            }else{
-                if(haveSerialInPayFlow && !uiProductDetail.getLastestSerial().contains(trdPayFlow
-                    .getApplySerial())){
-                    Set<String> resultSet = TradeUtil.getSetFromString(uiProductDetail
-                            .getLastestSerial(), "\\|");
-                    StringBuilder sb = new StringBuilder();
-                    resultSet.forEach(item-> sb.append(item).append("|"));
-                    if(!resultSet.contains(trdPayFlow.getApplySerial())){
-                       sb.append(trdPayFlow.getApplySerial());
+                if (StringUtils.isEmpty(uiProductDetail.getLastestSerial())) {
+                    if (haveSerialInPayFlow) {
+                        uiProductDetail.setLastestSerial(trdPayFlow.getApplySerial());
                     }
-                    uiProductDetail.setLastestSerial(sb.toString());
+                } else {
+                    if (haveSerialInPayFlow && !uiProductDetail.getLastestSerial()
+                        .contains(trdPayFlow
+                            .getApplySerial())) {
+                        Set<String> resultSet = TradeUtil.getSetFromString(uiProductDetail
+                            .getLastestSerial(), "\\|");
+                        StringBuilder sb = new StringBuilder();
+                        resultSet.forEach(item -> sb.append(item).append("|"));
+                        if (!resultSet.contains(trdPayFlow.getApplySerial())) {
+                            sb.append(trdPayFlow.getApplySerial());
+                        }
+                        uiProductDetail.setLastestSerial(sb.toString());
+                    }
                 }
-            }
-            uiProductDetailRepo.save(uiProductDetail);
+                uiProductDetailRepo.save(uiProductDetail);
 //            uiProductDetailRepo.updateByParamForStatus(TradeUtil.getUTCTime(),
 //                SystemUserEnum.SYSTEM_USER_ENUM.getUserId(), trdPayFlow.getUserProdId(),
 //                trdPayFlow.getFundCode(), trdPayFlow.getTrdStatus());
-        }//这段逻辑已经实现在receiveConfirmInfo里面，
+            }//这段逻辑已经实现在receiveConfirmInfo里面，
 //        else if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus() && trdPayFlow
 //            .getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
 //            int status = trdPayFlow.getTrdStatus();
@@ -342,9 +348,12 @@ public class BroadcastMessageConsumers {
 //            }
 //
 //        }
-        else{
-            logger.error("havent handling this kind of trdPayflow: of trdType:"+ trdPayFlow
-                .getTrdType() + " status:" + trdPayFlow.getTrdStatus());
+            else {
+                logger.error("havent handling this kind of trdPayflow: of trdType:" + trdPayFlow
+                    .getTrdType() + " status:" + trdPayFlow.getTrdStatus());
+            }
+        }catch (Exception ex){
+            logger.error("Exception:", ex);
         }
 
         try {
@@ -384,7 +393,7 @@ public class BroadcastMessageConsumers {
             }
         }catch (Exception ex){
             logger.error("exception:",ex);
-            logger.error(ex.getMessage());
+
         }
 
         try {

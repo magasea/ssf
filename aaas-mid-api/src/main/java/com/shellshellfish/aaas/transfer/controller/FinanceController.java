@@ -1112,7 +1112,7 @@ public class FinanceController {
 		} catch (Exception ex) {
 			result = new HashMap<String, Object>();
 			logger.error("exception:",ex);
-			logger.error(ex.getMessage());
+
 			String str = new ReturnedException(ex).getErrorMsg();
 			result.put("error", "restTemplate获取预期组合收益率走势图失败:" + str);
 		}
