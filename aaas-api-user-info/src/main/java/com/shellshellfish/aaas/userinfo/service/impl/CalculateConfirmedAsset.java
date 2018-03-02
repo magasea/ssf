@@ -31,8 +31,9 @@ public class CalculateConfirmedAsset {
 	@Autowired
 	UserInfoRepository userInfoRepository;
 
-
-	@RabbitListener(queues = "${spring.rabbitmq.topicDailyCalculateAsset}", containerFactory = "rabbitListenerContainerFactory")
+	/**
+	 * 当有申购或者赎回确认的消息时 ,重新计算资产
+	 */
 	public void calculateConfirmedAsset(Long userProdId, Long userId, String fundCode) {
 		UiProductDetail uiProductDetail = uiProductDetailRepo
 				.findByUserProdIdAndFundCode(userProdId, fundCode);
