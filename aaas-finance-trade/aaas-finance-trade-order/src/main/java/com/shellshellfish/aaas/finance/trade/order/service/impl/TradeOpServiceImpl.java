@@ -703,7 +703,13 @@ public class TradeOpServiceImpl implements TradeOpService {
 			logger.error("详情信息数据不存在.");
 			throw new Exception("详情信息数据不存在.");
 		}
-		result.put("orderStatus", TrdOrderStatusEnum.getComment(trdOrder.getOrderStatus()));
+		int baseStatus = 100;
+		for(TrdOrderDetail trdOrderDetail: trdOrderDetailList){
+		  if(trdOrderDetail.getOrderDetailStatus() < baseStatus){
+		    baseStatus = trdOrderDetail.getOrderDetailStatus();
+      }
+    }
+		result.put("orderStatus", TrdOrderStatusEnum.getComment(baseStatus));
 //		TrdOrderStatusEnum[] trdOrderStatusEnum = TrdOrderStatusEnum.values();
 //		for (TrdOrderStatusEnum trdOrderStatus : trdOrderStatusEnum) {
 //			if (trdOrder.getOrderStatus() == trdOrderStatus.getStatus()) {
@@ -777,7 +783,8 @@ public class TradeOpServiceImpl implements TradeOpService {
 
 			String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 1);
 
-			LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(InstantDateUtil.getEpochSecondOfZero(date)), ZoneOffset.UTC);
+			LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(InstantDateUtil
+          .getEpochSecondOfZero(date)), ZoneOffset.systemDefault());
 			String dayOfWeek = InstantDateUtil.getDayOfWeekName(localDateTime);
 
 			detailMap.put("funddate", date);

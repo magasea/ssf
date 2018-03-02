@@ -236,8 +236,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
             fundResult = fundTradeApiService.buyFund(userId4Pay, trdAcco, payAmount,
                 sbOutsideOrderno.toString(), trdOrderDetail.getFundCode());
           }catch(Exception exagain){
-            exagain.printStackTrace();
-            logger.error(exagain.getMessage());
+
+            logger.error("Exception:",exagain);
             errs.add(exagain);
           }
         }

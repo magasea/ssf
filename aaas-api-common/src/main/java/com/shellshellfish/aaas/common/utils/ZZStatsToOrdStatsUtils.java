@@ -49,7 +49,7 @@ public class ZZStatsToOrdStatsUtils {
       trdZZCheckStatusEnum = TrdZZCheckStatusEnum.valueOf(inputEnumVal);
     }catch (Exception ex){
       logger.error("exception:",ex);
-      
+
     }
 
     switch (trdZZCheckStatusEnum){
