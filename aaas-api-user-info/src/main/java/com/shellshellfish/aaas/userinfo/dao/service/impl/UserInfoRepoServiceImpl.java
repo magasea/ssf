@@ -256,6 +256,17 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		List<MongoUiTrdLogDTO> mongoUiTrdLogDtoList = MyBeanUtils.convertList(mongoUiTrdLogList, MongoUiTrdLogDTO.class);
 		return mongoUiTrdLogDtoList;
 	}
+
+	@Override
+	public List<MongoUiTrdLogDTO> findByUserProdIdAndOperType(Long userProdId, Integer operType)
+			throws
+			IllegalAccessException, InstantiationException {
+		List<MongoUiTrdLog> mongoUiTrdLogList = mongoUserTrdLogMsgRepo.findAllByUserProdIdAndOperations
+				(userProdId, operType);
+		List<MongoUiTrdLogDTO> mongoUiTrdLogDtoList = MyBeanUtils.convertList(mongoUiTrdLogList, MongoUiTrdLogDTO.class);
+		return mongoUiTrdLogDtoList;
+	}
+
 	@Override
 	public List<MongoUiTrdLogDTO> findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(Long userId,Long userProdId,int operations,int tradeStatus) throws IllegalAccessException, InstantiationException {
 		List<MongoUiTrdLog> mongoUiTrdLogList = mongoUserTrdLogMsgRepo.findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(userId,userProdId,operations,tradeStatus);
