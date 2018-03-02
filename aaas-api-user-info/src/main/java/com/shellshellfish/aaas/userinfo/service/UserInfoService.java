@@ -14,6 +14,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import io.swagger.models.auth.In;
 import java.util.List;
 import java.util.Map;
 import org.springframework.data.domain.Page;
@@ -79,6 +80,7 @@ public interface UserInfoService {
 			throws Exception;
 
 	List<Map<String, Object>> getTradeLogStatus(String uuid, Long userProdId) throws Exception;
+
 
 	List<MongoUiTrdLogDTO> getTradeLogs(String uuid) throws Exception;
 

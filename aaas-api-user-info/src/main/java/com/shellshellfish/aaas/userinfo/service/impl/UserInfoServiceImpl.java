@@ -537,7 +537,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				ZoneId.systemDefault()).toLocalDate();
 		String startDay = InstantDateUtil.format(startLocalDate, "yyyyMMdd");
 
-		String endDay = InstantDateUtil.format(LocalDate.now().plusDays(-1), "yyyyMMdd");
+		String endDay = InstantDateUtil.format(LocalDate.now(), "yyyyMMdd");
 
 		if (flag) {
 			//完全确认
@@ -633,12 +633,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 		OrderResult orderResult = rpcOrderService
 				.getOrderInfoByProdIdAndOrderStatus(prodId, TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
-		logger.info(
-				"=======================================================================================");
-		logger.info("\n\n{}\n\n", orderResult.getPayAmount());
-		logger.info(
-				"=======================================================================================");
-
 		BigDecimal applyAsset = BigDecimal.valueOf(orderResult.getPayAmount())
 				.divide(BigDecimal.valueOf(100));
 
@@ -672,6 +666,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 
+
+
+	@Deprecated
 	@Override
 	public List<Map<String, Object>> getTradeLogStatus(String uuid, Long userProdId)
 			throws Exception {
@@ -685,6 +682,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				Map<String, Object> resultMap2 = new HashMap<String, Object>();
 				MongoUiTrdLogDTO trdLog = trdLogList.get(i);
 				int status = trdLog.getTradeStatus();
+				int operation = trdLog.getOperations();
 				long lastModifiedDate = 0;
 				 if(trdLog.getTradeDate() !=null && trdLog.getTradeDate() > 0){
 					lastModifiedDate = trdLog.getTradeDate();
@@ -704,23 +702,22 @@ public class UserInfoServiceImpl implements UserInfoService {
 						resultMap2.put("date", dateTime.split("T")[0]);
 //						resultMap2.put("time", localDateTime.getHour() + ":" + localDateTime.getMinute());
 						resultMap2.put("time", dateTime.split("T")[1].substring(0, 8));
+						resultMap2.put("operation", operation);
 //						resultMap2.put("status", status + "");
 						resultMap.put(status, resultMap2);
 					}
 				} else {
 					resultMap2.put("lastModified", lastModifiedDate);
 					resultMap2.put("date", dateTime.split("T")[0]);
-//						resultMap2.put("time", localDateTime.getHour() + ":" + localDateTime.getMinute());
 					resultMap2.put("time", dateTime.split("T")[1]);
-//					resultMap2.put("status", status + "");
+					resultMap2.put("operation", operation);
 					resultMap.put(status, resultMap2);
 				}
 			}
 
-
-			for(Map.Entry<Integer, Map<String, Object>> entry : resultMap.entrySet()) {
+			for (Map.Entry<Integer, Map<String, Object>> entry : resultMap.entrySet()) {
 				Map value = entry.getValue();
-				try{
+				try {
 					value.put("status", TrdOrderStatusEnum.getComment(entry.getKey()));
 				}catch (Exception ex){
 					logger.error("exception:",ex);
@@ -1026,7 +1023,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 				tradLogsMap.put(ufoKey, map);
 			} catch (Exception ex) {
-
+				logger.error(ex.getMessage());
 				logger.error("exception:",ex);
 				continue;
 			}
