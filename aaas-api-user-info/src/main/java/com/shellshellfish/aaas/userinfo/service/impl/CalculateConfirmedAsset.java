@@ -37,7 +37,7 @@ public class CalculateConfirmedAsset {
 	public void calculateConfirmedAsset(Long userProdId, Long userId, String fundCode) {
 		UiProductDetail uiProductDetail = uiProductDetailRepo
 				.findByUserProdIdAndFundCode(userProdId, fundCode);
-		UiProducts uiProducts = uiProductRepo.findByProdId(uiProductDetail.getUserProdId());
+		UiProducts uiProducts = uiProductRepo.findById(uiProductDetail.getUserProdId());
 
 		String uuid = Optional.ofNullable(userInfoRepository.findById(userId)).map(m -> m.getUuid())
 				.orElse("-1");
