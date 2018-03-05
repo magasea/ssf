@@ -28,9 +28,18 @@ public class ZZStatsToOrdStatsUtils {
           return TrdOrderStatusEnum.SELLWAITCONFIRM;
         }
       case CONFIRMSUCCESS:
-        return TrdOrderStatusEnum.CONFIRMED;
+        if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.BUY.getOperation()){
+          return TrdOrderStatusEnum.CONFIRMED;
+        }else if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+          return TrdOrderStatusEnum.SELLCONFIRMED;
+        }
       case CONFIRMFAILED:
-        return TrdOrderStatusEnum.FAILED;
+        if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.BUY.getOperation()){
+          return TrdOrderStatusEnum.FAILED;
+        }else if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+          return TrdOrderStatusEnum.REDEEMFAILED;
+        }
+
       case REALTIMECONFIRMSUCESS:
         return TrdOrderStatusEnum.CONFIRMED;
       case PARTCONFIRMED:

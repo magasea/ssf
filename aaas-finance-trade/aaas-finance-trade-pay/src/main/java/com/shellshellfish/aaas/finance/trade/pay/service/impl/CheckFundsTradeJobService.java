@@ -261,7 +261,8 @@ public class CheckFundsTradeJobService {
                         BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
                         trdPayFlowRepository.save(trdPayFlow);
                         broadcastMessageProducers.sendMessage(trdPayFlowMsg);
-                        if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()){
+                        if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()
+                            || trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.SELLCONFIRMED.getStatus()){
                             trdPayFlowListToGetConfirmInfo.add(trdPayFlow);
                         }
                     }
