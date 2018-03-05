@@ -432,6 +432,9 @@ public class BroadcastMessageConsumers {
                 logger.error("cannot handle this mongoUiTrdZZInfo with trdType:{}", mongoUiTrdZZInfo
                     .getTradeType());
             }
+
+            calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo.getUserProdId(),
+                mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getFundCode());
         }catch(Exception ex){
             logger.error("Exception:", ex);
         }
@@ -568,26 +571,26 @@ public class BroadcastMessageConsumers {
         return -1L;
     }
 
-    @Transactional
-    @RabbitListener(bindings = @QueueBinding(
-        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
-            .OPERATION_TYPE_CACULATE_UIACCECTS, durable = "false"),
-        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
-            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_UPDATEPROD)
-    )
-    public void receiveConfirmInfoUpdateAssects(MongoUiTrdZZInfo mongoUiTrdZZInfo, Channel channel,
-        @Header
-        (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
-        try {
-            // now update correspond product_detail for quantity of fund
-            logger.info("received mongoUiTrdZZInfo to update assects with userProdId:{} "
-                    + "userId:{} fundCode:{} ", mongoUiTrdZZInfo.getUserProdId(),
-                mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getFundCode());
-            calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo.getUserProdId(),
-                mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getFundCode());
-        }catch(Exception ex){
-            logger.error("Exception:", ex);
-        }
-
-    }
+//    @Transactional
+//    @RabbitListener(bindings = @QueueBinding(
+//        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
+//            .OPERATION_TYPE_CACULATE_UIACCECTS, durable = "false"),
+//        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+//            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_UPDATEPROD)
+//    )
+//    public void receiveConfirmInfoUpdateAssects(MongoUiTrdZZInfo mongoUiTrdZZInfo, Channel channel,
+//        @Header
+//        (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
+//        try {
+//            // now update correspond product_detail for quantity of fund
+//            logger.info("received mongoUiTrdZZInfo to update assects with userProdId:{} "
+//                    + "userId:{} fundCode:{} ", mongoUiTrdZZInfo.getUserProdId(),
+//                mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getFundCode());
+//            calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo.getUserProdId(),
+//                mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getFundCode());
+//        }catch(Exception ex){
+//            logger.error("Exception:", ex);
+//        }
+//
+//    }
 }

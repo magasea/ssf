@@ -9,6 +9,8 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import java.time.LocalDate;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class CalculateConfirmedAsset {
+
+	Logger logger = LoggerFactory.getLogger(CalculateConfirmedAsset.class);
 
 	@Autowired
 	UserFinanceProdCalcService userFinanceProdCalcService;
@@ -37,6 +41,8 @@ public class CalculateConfirmedAsset {
 	public void calculateConfirmedAsset(Long userProdId, Long userId, String fundCode) {
 		UiProductDetail uiProductDetail = uiProductDetailRepo
 				.findByUserProdIdAndFundCode(userProdId, fundCode);
+		logger.info("uiProductDetail userProdId:{} quantity:{}", uiProductDetail.getUserProdId(),
+				uiProductDetail.getFundQuantity());
 		UiProducts uiProducts = uiProductRepo.findById(uiProductDetail.getUserProdId());
 
 		String uuid = Optional.ofNullable(userInfoRepository.findById(userId)).map(m -> m.getUuid())
