@@ -436,6 +436,11 @@ public class BroadcastMessageConsumers {
             logger.error("Exception:", ex);
         }
 
+        try {
+            channel.basicAck(tag, true);
+        } catch (IOException e) {
+            logger.error("exception:", e);
+        }
     }
 
     private boolean updateBuyProductQty(MongoUiTrdZZInfo mongoUiTrdZZInfo){
