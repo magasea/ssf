@@ -432,15 +432,13 @@ public class BroadcastMessageConsumers {
                 logger.error("cannot handle this mongoUiTrdZZInfo with trdType:{}", mongoUiTrdZZInfo
                     .getTradeType());
             }
+
+            calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo.getUserProdId(),
+                mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getFundCode());
         }catch(Exception ex){
             logger.error("Exception:", ex);
         }
 
-        try {
-            channel.basicAck(tag, true);
-        } catch (IOException e) {
-            logger.error("exception:", e);
-        }
     }
 
     private boolean updateBuyProductQty(MongoUiTrdZZInfo mongoUiTrdZZInfo){
@@ -519,13 +517,14 @@ public class BroadcastMessageConsumers {
         }else{
             Long remainQty = productDetail.getFundQuantity() - mongoUiTrdZZInfo
                 .getTradeConfirmShare();
-            if(remainQty <= 0 ){
+            if(remainQty < 0 ){
                 logger.error("abnormal situation appeared for the userProdId:{} current "
                     + "quantity:{} the redeem confirm quantity:{}", mongoUiTrdZZInfo
                     .getUserProdId(), productDetail.getFundQuantity(), mongoUiTrdZZInfo
                     .getTradeConfirmShare());
-                return false;
             }
+            productDetail.setFundQuantityTrade(remainQty.intValue());
+            productDetail.setFundQuantity(remainQty.intValue());
         }
         if(StringUtils.isEmpty(mongoUiTrdZZInfo.getApplySerial())){
             logger.error("abnormal message of mongoUiTrdZZInfo, there is no applySerial in "
@@ -567,26 +566,26 @@ public class BroadcastMessageConsumers {
         return -1L;
     }
 
-    @Transactional
-    @RabbitListener(bindings = @QueueBinding(
-        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
-            .OPERATION_TYPE_CACULATE_UIACCECTS, durable = "false"),
-        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
-            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_UPDATEPROD)
-    )
-    public void receiveConfirmInfoUpdateAssects(MongoUiTrdZZInfo mongoUiTrdZZInfo, Channel channel,
-        @Header
-        (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
-        try {
-            // now update correspond product_detail for quantity of fund
-            logger.info("received mongoUiTrdZZInfo to update assects with userProdId:{} "
-                    + "userId:{} fundCode:{} ", mongoUiTrdZZInfo.getUserProdId(),
-                mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getFundCode());
-            calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo.getUserProdId(),
-                mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getFundCode());
-        }catch(Exception ex){
-            logger.error("Exception:", ex);
-        }
-
-    }
+//    @Transactional
+//    @RabbitListener(bindings = @QueueBinding(
+//        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
+//            .OPERATION_TYPE_CACULATE_UIACCECTS, durable = "false"),
+//        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+//            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_UPDATEPROD)
+//    )
+//    public void receiveConfirmInfoUpdateAssects(MongoUiTrdZZInfo mongoUiTrdZZInfo, Channel channel,
+//        @Header
+//        (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
+//        try {
+//            // now update correspond product_detail for quantity of fund
+//            logger.info("received mongoUiTrdZZInfo to update assects with userProdId:{} "
+//                    + "userId:{} fundCode:{} ", mongoUiTrdZZInfo.getUserProdId(),
+//                mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getFundCode());
+//            calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo.getUserProdId(),
+//                mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getFundCode());
+//        }catch(Exception ex){
+//            logger.error("Exception:", ex);
+//        }
+//
+//    }
 }

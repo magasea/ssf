@@ -4,6 +4,7 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory.CacheMode;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +40,8 @@ public class MessageRabbitConfig {
         connectionFactory.setPort(rabbitPort);
         connectionFactory.setVirtualHost(rabbitVH);
         connectionFactory.setRequestedHeartBeat(60);
+        connectionFactory.setCacheMode(CacheMode.CONNECTION);
+        connectionFactory.setChannelCacheSize(25);
         return connectionFactory;
     }
 
