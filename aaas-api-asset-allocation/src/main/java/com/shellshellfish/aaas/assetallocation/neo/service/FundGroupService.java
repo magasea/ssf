@@ -1009,7 +1009,9 @@ public class FundGroupService {
 								resultList.add(incomeMap);
 							}
 						}
-						itemsMap.put("income", resultList);
+//						itemsMap.put("income", resultList);
+						fgi.set_items(resultList);
+						fgi.set_total(resultList.size());
 					}
 				}
 			}
