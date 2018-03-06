@@ -30,9 +30,9 @@ public class IndexController {
 
 	@ApiOperation("理财产品 首页")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID", defaultValue = ""),
-		@ApiImplicitParam(paramType = "query", name = "isTestFlag", dataType = "String", required = false, value = "是否测评", defaultValue = ""),
-		@ApiImplicitParam(paramType = "query", name = "testResult", dataType = "String", required = false, value = "测评结果", defaultValue = "")
+		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID"),
+		@ApiImplicitParam(paramType = "query", name = "isTestFlag", dataType = "String", required = false, value = "是否测评"),
+		@ApiImplicitParam(paramType = "query", name = "testResult", dataType = "String", required = false, value = "测评结果")
     })
 	@ApiResponses({
 		@ApiResponse(code=200,message="OK"),
@@ -44,9 +44,9 @@ public class IndexController {
     })	
 	@RequestMapping(value = "/product-groups/homepage", method = RequestMethod.GET)
 	public ResponseEntity<?> homepage(
-			@RequestParam(value = "uuid") String uuid,
-			@RequestParam(value = "isTestFlag") String isTestFlag,
-			@RequestParam(value = "testResult") String testResult
+			@RequestParam(value = "uuid",required = false) String uuid,
+			@RequestParam(value = "isTestFlag",required = false) String isTestFlag,
+			@RequestParam(value = "testResult",required = false) String testResult
 //			@RequestParam(value = "productType") String productType
 			) throws Exception {
 		// FundReturn fundReturn =
