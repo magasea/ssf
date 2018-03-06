@@ -116,6 +116,7 @@ public class FinanceController {
 							//历史收益率
 							if (objMap.get("income6month") != null) {
 								Map income6monthMap = (Map) objMap.get("income6month");
+								List<Double> maxminList = new ArrayList<Double>();
 								if (income6monthMap.get("_items") != null) {
 									List itemList = (List) income6monthMap.get("_items");
 									for (int i = 0; i < itemList.size(); i++) {
@@ -123,18 +124,23 @@ public class FinanceController {
 										Double value = (Double) itemMap.get("value");
 										value = EasyKit.getDecimal(new BigDecimal(value));
 										itemMap.put("value", value);
+										maxminList.add(value);
 									}
 								}
-								Map maxminMap = (Map) income6monthMap.get("maxMinMap");
-								if (!CollectionUtils.isEmpty(maxminMap)) {
-									Double min = (Double) maxminMap.get("minValue");
-									Double max = (Double) maxminMap.get("maxValue");
-									Double minValue = EasyKit.getDecimal(new BigDecimal(min));
-									Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
-									maxminMap.put("minValue", minValue);
-									maxminMap.put("maxValue", maxValue);
-									income6monthMap.put("maxMinMap", maxminMap);
-								}
+//								Map maxminMap = (Map) income6monthMap.get("maxMinMap");
+//								if (!CollectionUtils.isEmpty(maxminMap)) {
+//									Double min = (Double) maxminMap.get("minValue");
+//									Double max = (Double) maxminMap.get("maxValue");
+//									Double minValue = EasyKit.getDecimal(new BigDecimal(min));
+//									Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
+//									maxminMap.put("minValue", minValue);
+//									maxminMap.put("maxValue", maxValue);
+//									income6monthMap.put("maxMinMap", maxminMap);
+//								}
+								Map maxminMap = new HashMap();
+								maxminMap.put("minValue", Collections.min(maxminList));
+								maxminMap.put("maxValue", Collections.max(maxminList));
+								income6monthMap.put("maxMinMap", maxminMap);
 							}
 						}
 						if (objMap.containsKey("product_list")) {
