@@ -120,6 +120,17 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 						+ user);
 		return user;
 	}
+	
+	@Override
+	public UserBaseInfoDTO getUserInfo(String uuid) {
+		UiUser uiUser = userInfoRepository.findByUuid(uuid);
+		logger.info("==>" + uiUser);
+		UserBaseInfoDTO user = new UserBaseInfoDTO();
+		if (uiUser != null) {
+			BeanUtils.copyProperties(uiUser, user);
+		}
+		return user;
+	}
 
 	@Override
 	public UserInfoAssectsBriefDTO getUserInfoAssectsBrief(Long userId) {

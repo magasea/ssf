@@ -124,7 +124,7 @@ public class FundGroupServiceImpl implements FundGroupService {
 			BigDecimal todayIncome = getFundInome(fundCode, uiProductDetailDTO.getUserProdId());
 			fundIncomeInfo.put("todayIncome", todayIncome.setScale(2, RoundingMode.HALF_UP));
 			fundIncomes.add(fundIncomeInfo);
-			dailyIncome.add(todayIncome);
+			dailyIncome = dailyIncome.add(todayIncome);
 		}
 		result.put("fundIncomes", fundIncomes);
 		result.put("dailyIncome", dailyIncome.setScale(2, RoundingMode.HALF_UP));
