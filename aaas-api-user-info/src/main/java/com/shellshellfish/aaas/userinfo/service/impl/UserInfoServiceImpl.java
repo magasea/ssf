@@ -373,9 +373,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 			BeanUtils.copyProperties(result, applyResult);
 			return applyResult;
 		} catch (InterruptedException e) {
-			logger.error("exception:",e);
+			logger.error("exception:", e);
 		} catch (ExecutionException e) {
-			logger.error("exception:",e);
+			logger.error("exception:", e);
 			logger.error(e.getMessage());
 			return null;
 		}
@@ -613,7 +613,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				.calculateProductValue(uuid, prodId, startDay, endDay);
 
 		List<MongoUiTrdZZInfo> mongoUiTrdZZinfoList = mongoUiTrdZZInfoRepo
-				.findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(userId, prodId,
+				.findAllByUserIdAndUserProdIdAndTradeTypeAndTradeStatus(userId, prodId,
 						TrdOrderOpTypeEnum.BUY.getOperation(),
 						TrdOrderStatusEnum.CONFIRMED.getStatus());
 
@@ -666,8 +666,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 
-
-
 	@Deprecated
 	@Override
 	public List<Map<String, Object>> getTradeLogStatus(String uuid, Long userProdId)
@@ -684,11 +682,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 				int status = trdLog.getTradeStatus();
 				int operation = trdLog.getOperations();
 				long lastModifiedDate = 0;
-				 if(trdLog.getTradeDate() !=null && trdLog.getTradeDate() > 0){
+				if (trdLog.getTradeDate() != null && trdLog.getTradeDate() > 0) {
 					lastModifiedDate = trdLog.getTradeDate();
 				} else if (trdLog.getLastModifiedDate() != 0) {
-					 lastModifiedDate = trdLog.getLastModifiedDate();
-				 }
+					lastModifiedDate = trdLog.getLastModifiedDate();
+				}
 				String dateTime = TradeUtil.getReadableDateTime(lastModifiedDate);
 				LocalDateTime localDateTime = LocalDateTime
 						.ofInstant(Instant.ofEpochMilli(lastModifiedDate), ZoneOffset.systemDefault());
@@ -719,8 +717,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 				Map value = entry.getValue();
 				try {
 					value.put("status", TrdOrderStatusEnum.getComment(entry.getKey()));
-				}catch (Exception ex){
-					logger.error("exception:",ex);
+				} catch (Exception ex) {
+					logger.error("exception:", ex);
 
 					value.put("status", "");
 				}
@@ -835,7 +833,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		try {
 			uiUser = userInfoRepoService.getUserInfoByUserUUID(userId);
 		} catch (Exception e) {
-			logger.error("exception:",e);
+			logger.error("exception:", e);
 		}
 		Optional<UiUser> userOptional = Optional.ofNullable(uiUser);
 		return userOptional.map(m -> m.getRiskLevel()).orElse(-1);
@@ -940,22 +938,22 @@ public class UserInfoServiceImpl implements UserInfoService {
 //				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 //				Date date = new Date(dateLong);
 //				String dateTime = simpleDateFormat.format(date);
-				if(mongoUiTrdLogDTO.getTradeDate() != null && mongoUiTrdLogDTO.getTradeDate() > 0){
+				if (mongoUiTrdLogDTO.getTradeDate() != null && mongoUiTrdLogDTO.getTradeDate() > 0) {
 					dateStr = TradeUtil.getReadableDateTime(mongoUiTrdLogDTO.getTradeDate());
 					dateLong = mongoUiTrdLogDTO.getTradeDate();
-				}else if(mongoUiTrdLogDTO.getLastModifiedDate() != null && mongoUiTrdLogDTO.getLastModifiedDate() > 0){
+				} else if (mongoUiTrdLogDTO.getLastModifiedDate() != null
+						&& mongoUiTrdLogDTO.getLastModifiedDate() > 0) {
 					dateStr = TradeUtil.getReadableDateTime(mongoUiTrdLogDTO.getLastModifiedDate());
 					dateLong = mongoUiTrdLogDTO.getLastModifiedDate();
-				}else{
-					logger.error("This tradeLog is with no time:"+ mongoUiTrdLogDTO.getCreatedDate());
+				} else {
+					logger.error("This tradeLog is with no time:" + mongoUiTrdLogDTO.getCreatedDate());
 					continue;
 				}
-
 
 				map.put("date", dateStr.split("T")[0]);
 				dateLong = dateLong / 1000;
 				map.put("dateLong", dateLong);
-				String ufoKey = userProdId + "-" + fundCode + "-" + operation ;
+				String ufoKey = userProdId + "-" + fundCode + "-" + operation;
 				if (tradLogsMap.containsKey(ufoKey)) {
 					if (tradLogsMap.get(ufoKey) != null) {
 						Map<String, Object> map2 = tradLogsMap.get(ufoKey);
@@ -995,26 +993,26 @@ public class UserInfoServiceImpl implements UserInfoService {
 					map.put("prodName", "");
 				}
 				Long sumFromLog = null;
-				if(mongoUiTrdLogDTO.getTradeConfirmSum() != null && mongoUiTrdLogDTO.getTradeConfirmSum()
-						> 0){
+				if (mongoUiTrdLogDTO.getTradeConfirmSum() != null && mongoUiTrdLogDTO.getTradeConfirmSum()
+						> 0) {
 					sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum();
 //					logger.info("sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum():{}",sumFromLog);
-				}else if(mongoUiTrdLogDTO.getTradeTargetSum() != null && mongoUiTrdLogDTO
-						.getTradeTargetSum() > 0){
+				} else if (mongoUiTrdLogDTO.getTradeTargetSum() != null && mongoUiTrdLogDTO
+						.getTradeTargetSum() > 0) {
 					sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum();
 //					logger.info("sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum():{}",sumFromLog);
-				}else if(mongoUiTrdLogDTO.getTradeConfirmShare() != null && mongoUiTrdLogDTO
-						.getTradeConfirmShare() > 0){
+				} else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null && mongoUiTrdLogDTO
+						.getTradeConfirmShare() > 0) {
 					sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
 //					logger.info("sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare():{}",sumFromLog);
-				}else if(mongoUiTrdLogDTO.getTradeTargetShare() != null && mongoUiTrdLogDTO
-						.getTradeTargetShare() > 0){
+				} else if (mongoUiTrdLogDTO.getTradeTargetShare() != null && mongoUiTrdLogDTO
+						.getTradeTargetShare() > 0) {
 					sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
 //					logger.info("sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare():{}",sumFromLog);
-				}else if(mongoUiTrdLogDTO.getAmount() != null ){
+				} else if (mongoUiTrdLogDTO.getAmount() != null) {
 					sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount());
 //					logger.info("sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount()):{}",sumFromLog);
-				}else{
+				} else {
 					logger.error("havent find trade money or quantity info for userProdId:{} and "
 							+ "fundCode:{}", mongoUiTrdLogDTO.getUserProdId(), mongoUiTrdLogDTO.getFundCode());
 					sumFromLog = 0L;
@@ -1024,7 +1022,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				tradLogsMap.put(ufoKey, map);
 			} catch (Exception ex) {
 				logger.error(ex.getMessage());
-				logger.error("exception:",ex);
+				logger.error("exception:", ex);
 				continue;
 			}
 			// tradeLogs.add(map);
@@ -1034,16 +1032,17 @@ public class UserInfoServiceImpl implements UserInfoService {
 			for (Map.Entry<String, Map<String, Object>> entry : tradLogsMap.entrySet()) {
 
 				String[] params = entry.getKey().split("-");
-				String uoKey = String.format("%s-%s",params[0], params[2]);
+				String uoKey = String.format("%s-%s", params[0], params[2]);
 				Map<String, Object> valueMap = entry.getValue();
-
 
 				if (!tradLogsSum.containsKey(uoKey)) {
 					if (valueMap.get("tradeStatusValue") != null) {
-						TrdOrderStatusEnum trdOrderStatus = TrdOrderStatusEnum.getTrdOrderStatusEnum(Integer.parseInt(valueMap
-								.get("tradeStatusValue")	+ ""));
-						valueMap.put("tradeStatus", TrdStatusToCombStatusUtils.getCSEFromTSE(trdOrderStatus).getComment());
-						logger.info("tradeStatusValue:{} trdOrderStatus:{} ",valueMap.get("tradeStatusValue"));
+						TrdOrderStatusEnum trdOrderStatus = TrdOrderStatusEnum
+								.getTrdOrderStatusEnum(Integer.parseInt(valueMap
+										.get("tradeStatusValue") + ""));
+						valueMap.put("tradeStatus",
+								TrdStatusToCombStatusUtils.getCSEFromTSE(trdOrderStatus).getComment());
+						logger.info("tradeStatusValue:{} trdOrderStatus:{} ", valueMap.get("tradeStatusValue"));
 					}
 					tradLogsSum.put(uoKey, valueMap);
 				} else {
@@ -1058,8 +1057,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 					}
 
 					if (trad.get("tradeStatusValue") != null) {
-						TrdOrderStatusEnum trdOrderStatusEnumOld = TrdOrderStatusEnum.getTrdOrderStatusEnum(Integer
-								.parseInt(trad.get("tradeStatusValue") + ""));
+						TrdOrderStatusEnum trdOrderStatusEnumOld = TrdOrderStatusEnum
+								.getTrdOrderStatusEnum(Integer
+										.parseInt(trad.get("tradeStatusValue") + ""));
 						TrdOrderStatusEnum trdOrderStatusEnumNew = TrdOrderStatusEnum.getTrdOrderStatusEnum
 								(Integer.parseInt(valueMap.get("tradeStatusValue") + ""));
 						if ((trdOrderStatusEnumOld == TrdOrderStatusEnum.FAILED)
@@ -1088,9 +1088,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}
 			}
 
-
 			if (!CollectionUtils.isEmpty(tradLogsSum)) {
-				tradLogsSum.forEach((k,v)->tradeLogs.add(v));
+				tradLogsSum.forEach((k, v) -> tradeLogs.add(v));
 			}
 		}
 		Collections.sort(tradeLogs, new Comparator<Map<String, Object>>() {
