@@ -8,6 +8,7 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,18 +40,16 @@ public class CalculateConfirmedAsset {
 	 * 当有申购或者赎回确认的消息时 ,重新计算资产
 	 */
 	public void calculateConfirmedAsset(Long userProdId, Long userId, String fundCode) {
-		UiProductDetail uiProductDetail = uiProductDetailRepo
-				.findByUserProdIdAndFundCode(userProdId, fundCode);
-		logger.info("uiProductDetail userProdId:{} quantity:{}", uiProductDetail.getUserProdId(),
-				uiProductDetail.getFundQuantity());
-		UiProducts uiProducts = uiProductRepo.findById(uiProductDetail.getUserProdId());
+		UiProducts uiProducts = uiProductRepo.findById(userProdId);
+		List<UiProductDetail> uiProductDetailList = uiProductDetailRepo
+				.findAllByUserProdId(userProdId);
 
+		String date = InstantDateUtil.format(LocalDate.now(), "yyyyMMdd");
 		String uuid = Optional.ofNullable(userInfoRepository.findById(userId)).map(m -> m.getUuid())
 				.orElse("-1");
-		String date = InstantDateUtil.format(LocalDate.now(), "yyyyMMdd");
-		userFinanceProdCalcService
-				.calculateProductAsset(uiProductDetail, uuid, uiProducts.getProdId(), date);
-
-
+		for (UiProductDetail uiProductDetail : uiProductDetailList) {
+			userFinanceProdCalcService
+					.calculateProductAsset(uiProductDetail, uuid, uiProducts.getProdId(), date);
+		}
 	}
 }
