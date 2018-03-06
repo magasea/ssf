@@ -12,8 +12,8 @@ public interface MongoUiTrdZZInfoRepo extends MongoRepository<MongoUiTrdZZInfo, 
 
 	List<MongoUiTrdZZInfo> findAllByUserIdAndUserProdId(Long userId, Long userProdId);
 
-	List<MongoUiTrdZZInfo> findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(Long userId,
-			Long userProdId, int operations, int tradeStatus);
+	List<MongoUiTrdZZInfo> findAllByUserIdAndUserProdIdAndTradeTypeAndTradeStatus(Long userId,
+			Long userProdId, int tradeType, int tradeStatus);
 
 	List<MongoUiTrdZZInfo> findAllByUserId(Long userId);
 
