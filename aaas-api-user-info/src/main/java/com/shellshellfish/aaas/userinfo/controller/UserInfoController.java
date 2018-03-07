@@ -62,7 +62,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Info;
 
 @RestController
 @RequestMapping("/api/userinfo")
@@ -177,6 +176,7 @@ public class UserInfoController {
 		Map<String, Object> links = new HashMap<>();
 		List<Map> relateList = new ArrayList<Map>();
 		if(StringUtils.isEmpty(cardNumber)){
+			logger.error("no cardNumber in params");
 			throw new ServletRequestBindingException("no cardNumber in params");
 		}else{
 			BankCardDTO bankCard =  userInfoService.getUserInfoBankCard(cardNumber);
@@ -217,18 +217,17 @@ public class UserInfoController {
 	@AopLinkResources
 	public ResponseEntity<?> getUserPersonalInfo(
 			@Valid @NotNull(message = "用户Uuid不能为空") @PathVariable("Uuid") String userUuid)throws Exception {
-		logger.info("getUserPersonalInfo method run..");
+		logger.info("UserInfoController.getUserPersonalInfo===>:getUserPersonalInfo method run..");
 		if(StringUtils.isEmpty(userUuid)){
 			//return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			logger.error("not vaild userUuid:{}", userUuid);
 			throw new Exception("not vaild userUuid:" + userUuid);
 		}else{
 			UserBaseInfoDTO userBaseInfo=null;
 			try{
 			 userBaseInfo =  userInfoService.getUserInfoBase(userUuid);
 			}catch(Exception e){
-				logger.error("exception:",e);
-				logger.error("========="+userUuid);
-				logger.error("========="+e.getMessage());
+				logger.error("无法获取到uid={} 用户的个人信息数据", userUuid, e);
 				throw new UserInfoException("404","无法获取到uid="+userUuid+" 用户的个人信息数据");
 			}
 			
@@ -439,6 +438,7 @@ public class UserInfoController {
 		String bankName = BankUtil.getNameOfBank(bankcardNum);
 		String bankCode = BankUtil.getCodeOfBank(bankcardNum);
 		if("".equals(bankName)||"".equals(bankCode)||bankName==null||bankCode==null){
+			logger.error("没有找到卡号对应的机构名称和机构号");
 			throw  new UserInfoException("404","没有找到卡号对应的机构名称和机构号");
 		}
 		result.put("bankName", bankName);
@@ -746,7 +746,8 @@ public class UserInfoController {
 		try{
 		userSysMsgs = userInfoService.getUserSysMsg(userUuid);
 		}catch(Exception e){
-			throw new UserInfoException("404", "无法获取uid="+userUuid+" 客户的消息");
+			logger.error("无法获取到uid={} 客户的消息", userUuid, e);
+			throw new UserInfoException("404", "无法获取uid=" + userUuid + " 客户的消息");
 		}
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> links = new HashMap<>();
@@ -1140,9 +1141,10 @@ public class UserInfoController {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		//id message ID
 		Boolean result =  userInfoService.deleteBankCard(userUuid, bankcardId);
-		if(!result){
+		if (!result) {
 			/*resultMap.put("status", "Fail");
 			return new ResponseEntity<Map>(resultMap,HttpStatus.UNAUTHORIZED);*/
+			logger.error("解绑银行卡失败");
 			throw new UserInfoException("404", "解绑银行卡失败");
 		} else {
 			//return new ResponseEntity<Object>(URL_HEAD+"/message/updateinvestmentmessages/investmentmessages?userUuid="+userUuid , HttpStatus.OK);
@@ -1229,6 +1231,7 @@ public class UserInfoController {
 		UserBaseInfoDTO result =  userInfoService.selectUiUser(cellphone);
 		if(result==null&&result.getId()==null){
 			resultMap.put("status", "NG");
+			logger.error("用户不存在");
 			throw new Exception("用户不存在");
 		} else {
 			//return new ResponseEntity<Object>(URL_HEAD+"/message/updateinvestmentmessages/investmentmessages?userUuid="+userUuid , HttpStatus.OK);
@@ -1558,7 +1561,8 @@ public class UserInfoController {
 			) throws Exception {
 		BigDecimal asserts = userFinanceProdCalcService.getAssert(userUuid, Long.valueOf(prodId));
 		
-		if(totalAmount.compareTo(asserts)==1){
+		if (totalAmount.compareTo(asserts) == 1) {
+			logger.error("金额输入过大，请重新输入");
 			throw new Exception("金额输入过大，请重新输入");
 		}
 		Map<String,Object> result = new HashMap<String,Object>();

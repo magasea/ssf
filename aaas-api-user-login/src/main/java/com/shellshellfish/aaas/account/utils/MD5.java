@@ -6,15 +6,18 @@ package com.shellshellfish.aaas.account.utils;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest; 
 import java.security.NoSuchAlgorithmException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author chenyuan
  * @company shellshellfish
  */
 public class MD5 {
+	
+	public static final Logger logger = LoggerFactory.getLogger(MD5.class);
 	
 	private static Log log = LogFactory.getLog(MD5.class);
 	
@@ -37,6 +40,7 @@ public class MD5 {
 		try {
 			msgDigest = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
+			logger.error("System doesn't support MD5 algorithm.", e);
 			throw new IllegalStateException(
 					"System doesn't support MD5 algorithm.");
 		}
@@ -45,7 +49,7 @@ public class MD5 {
 			msgDigest.update(s.getBytes("utf-8"));    //注意改接口是按照utf-8编码形式加密
  
 		} catch (UnsupportedEncodingException e) {
-
+			logger.error("System doesn't support your  EncodingException.", e);
 			throw new IllegalStateException(
 					"System doesn't support your  EncodingException.");
 

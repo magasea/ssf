@@ -73,6 +73,7 @@ public class OneFundApiService implements FundTradeApiService {
 		} else {
 			String errno = jsonObject.getString("errno");
 			String msg = jsonObject.getString("msg");
+			logger.error("{}:{}", errno, msg);
 			throw new Exception(errno + ":" + msg);
 		}
 		return openAccountResult;
@@ -105,6 +106,7 @@ public class OneFundApiService implements FundTradeApiService {
 		} else {
 			String errno = jsonObject.getString("errno");
 			String msg = jsonObject.getString("msg");
+			logger.error("{}:{}", errno, msg);
 			throw new Exception(errno + ":" + msg);
 		}
 
@@ -145,6 +147,7 @@ public class OneFundApiService implements FundTradeApiService {
 		} else {
 			String errno = jsonObject.getString("errno");
 			String msg = jsonObject.getString("msg");
+			logger.error("{}:{}", errno, msg);
 			throw new Exception(errno + ":" + msg);
 		}
 
@@ -171,6 +174,7 @@ public class OneFundApiService implements FundTradeApiService {
 		} else {
 			String errno = jsonObject.getString("errno");
 			String msg = jsonObject.getString("msg");
+			logger.error("{}:{}", errno, msg);
 			throw new Exception(errno + ":" + msg);
 		}
 
@@ -359,6 +363,7 @@ public class OneFundApiService implements FundTradeApiService {
 		logger.info(json);
 		JSONObject jsonObject = JSONObject.parseObject(json);
 		if (!jsonObject.getInteger("status").equals(1)) {
+			logger.error(jsonObject.getString("msg"));
 			throw new Exception(jsonObject.getString("msg"));
 		}
 
@@ -457,6 +462,7 @@ public class OneFundApiService implements FundTradeApiService {
 		logger.info(json);
 		JSONObject jsonObject = JSONObject.parseObject(json);
 		if (!jsonObject.getInteger("status").equals(1)) {
+			logger.error(jsonObject.getString("msg"));
 			throw new Exception(jsonObject.getString("msg"));
 		}
 
@@ -479,6 +485,7 @@ public class OneFundApiService implements FundTradeApiService {
 		logger.info(json);
 		JSONObject jsonObject = JSONObject.parseObject(json);
 		if (!jsonObject.getInteger("status").equals(1)) {
+			logger.error(jsonObject.getString("msg"));
 			throw new Exception(jsonObject.getString("msg"));
 		}
 
@@ -636,6 +643,7 @@ public class OneFundApiService implements FundTradeApiService {
 		JSONObject jsonObject = (JSONObject) JSONObject.parse(json);
 		Integer status = jsonObject.getInteger("status");
 		if (!status.equals(1)) {
+			logger.error(jsonObject.getString("msg"));
 			throw new Exception(jsonObject.getString("msg"));
 		}
 
@@ -660,6 +668,7 @@ public class OneFundApiService implements FundTradeApiService {
 				return BigDecimal.valueOf(rate);
 			}
 		}
+		logger.error("no rate found");
 		throw new Exception("no rate found");
 	}
 
@@ -697,6 +706,7 @@ public class OneFundApiService implements FundTradeApiService {
 		JSONObject jsonObject = (JSONObject) JSONObject.parse(json);
 		Integer status = jsonObject.getInteger("status");
 		if (!status.equals(1)) {
+			logger.error(jsonObject.getString("msg"));
 			throw new Exception(jsonObject.getString("msg"));
 		}
 
@@ -726,6 +736,7 @@ public class OneFundApiService implements FundTradeApiService {
 		JSONObject jsonObject = (JSONObject) JSONObject.parse(json);
 		Integer status = jsonObject.getInteger("status");
 		if (!status.equals(1)) {
+			logger.error(jsonObject.getString("msg"));
 			throw new Exception(jsonObject.getString("msg"));
 		}
 
@@ -753,6 +764,7 @@ public class OneFundApiService implements FundTradeApiService {
 		JSONObject jsonObject = (JSONObject) JSONObject.parse(json);
 		Integer status = jsonObject.getInteger("status");
 		if (!status.equals(1)) {
+			logger.error(jsonObject.getString("msg"));
 			throw new Exception(jsonObject.getString("msg"));
 		}
 
@@ -791,6 +803,7 @@ public class OneFundApiService implements FundTradeApiService {
 		JSONObject jsonObject = (JSONObject) JSONObject.parse(json);
 		Integer status = jsonObject.getInteger("status");
 		if (!status.equals(1)) {
+			logger.error(jsonObject.getString("msg"));
 			throw new Exception(jsonObject.getString("msg"));
 		}
 

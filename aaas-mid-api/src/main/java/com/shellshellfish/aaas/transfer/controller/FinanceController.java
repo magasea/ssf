@@ -182,6 +182,7 @@ public class FinanceController {
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -347,6 +348,7 @@ public class FinanceController {
 			}
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 		return new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", result);
@@ -733,10 +735,11 @@ public class FinanceController {
 			}
 		} catch (Exception e) {
 			// 获取list失败直接返回
-			logger.error("未来收益走势图数据发生错误", e);
+//			logger.error("未来收益走势图数据发生错误", e);
 			/*String message = e.getMessage();
 			result.put("错误原因", message + ",未来收益走势图数据发生错误！"); */
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error("未来收益走势图数据发生错误", e);
 			return new JsonResult(JsonResult.Fail, "未来收益走势图数据失败", JsonResult.EMPTYRESULT);
 		}
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
@@ -1117,9 +1120,8 @@ public class FinanceController {
 			}
 		} catch (Exception ex) {
 			result = new HashMap<String, Object>();
-			logger.error("exception:",ex);
-
 			String str = new ReturnedException(ex).getErrorMsg();
+			logger.error("restTemplate获取预期组合收益率走势图失败:{}", str, ex);
 			result.put("error", "restTemplate获取预期组合收益率走势图失败:" + str);
 		}
 		return result;
@@ -1206,6 +1208,7 @@ public class FinanceController {
 					service.getOptAdjustment(riskLevel, invstTerm));
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 
@@ -1287,6 +1290,7 @@ public class FinanceController {
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -1314,6 +1318,7 @@ public class FinanceController {
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -1341,6 +1346,7 @@ public class FinanceController {
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -1368,6 +1374,7 @@ public class FinanceController {
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}

@@ -90,7 +90,9 @@ public class TradeSellServiceImpl implements TradeSellService {
   public TrdOrder sellProduct(ProdSellPageDTO prodSellPageDTO)
       throws Exception {
     if(CollectionUtils.isEmpty(prodSellPageDTO.getProdDtlSellPageDTOList())){
-      logger.error("failed to generate sell information because input information is not complete");
+	  logger.error(
+		  "failed to generate sell information because input information is not complete,prodSellPageDTO.getProdDtlSellPageDTOList():{} ",
+		  prodSellPageDTO.getProdDtlSellPageDTOList());
       throw new IllegalArgumentException("赎回输入信息不完整，无法赎回, prodSellPageDTO"
           + ".getProdDtlSellPageDTOList():" + prodSellPageDTO.getProdDtlSellPageDTOList());
     }else{
@@ -228,6 +230,7 @@ public class TradeSellServiceImpl implements TradeSellService {
       SellProductsResult results = userInfoService.checkSellProducts(spBuilder.build());
       if(results.getErrInfo() != null && results.getErrInfo().getErrCode() < 0){
         ErrInfo errInfo = results.getErrInfo();
+		logger.error("赎回失败:{}", errInfo.getErrMsg());
         throw new Exception(String.format("赎回失败:%s", errInfo.getErrMsg()));
       }
 //      for( SellProductDetailResult sellProductDetail: results.getSellProductDetailResultsList()){
@@ -303,7 +306,7 @@ public class TradeSellServiceImpl implements TradeSellService {
       trdOrder = trdOrderRepository.save(trdOrder);
       TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
       if(CollectionUtils.isEmpty(prodSellDTO.getProdDtlSellDTOList())){
-        logger.error("prodSellDTO.getProdDtlSellDTOList() is empty:"+ prodSellDTO.getProdDtlSellDTOList());
+        logger.error("prodSellDTO.getProdDtlSellDTOList() is empty:{}", prodSellDTO.getProdDtlSellDTOList());
         throw new IllegalArgumentException("赎回信息输入不完整 prodSellDTO.getProdDtlSellDTOList()：" +
             prodSellDTO.getProdDtlSellDTOList());
       }
@@ -339,6 +342,7 @@ public class TradeSellServiceImpl implements TradeSellService {
       for(Exception err: errors){
         sb.append(err.getMessage()+"\n");
       }
+      logger.error(sb.toString(), ex);
       throw new Exception(sb.toString());
     }
 

@@ -2,7 +2,6 @@ package com.shellshellfish.aaas.userinfo.utils;
 
 import java.math.BigDecimal;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,15 +13,18 @@ import java.util.Random;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.util.CollectionUtils;
 
 public class UserInfoUtils {
 
+  final static Logger logger = LoggerFactory.getLogger(UserInfoUtils.class);
+	
   /**
    * 将2个hushMap 进行合并
    * @param map1
@@ -98,6 +100,7 @@ public class UserInfoUtils {
   public static int getRandomNumberInRange(int min, int max) {
 
     if (min >= max) {
+      logger.error("max must be greater than min");
       throw new IllegalArgumentException("max must be greater than min");
     }
 
