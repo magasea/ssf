@@ -1,4 +1,4 @@
-package com.shellshellfish.datamanager.repositories;
+package com.shellshellfish.datamanager.repositories.mongo;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import com.shellshellfish.datamanager.model.MongoFinanceAll;

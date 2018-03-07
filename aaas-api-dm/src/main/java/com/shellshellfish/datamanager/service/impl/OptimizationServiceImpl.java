@@ -1,5 +1,6 @@
-package com.shellshellfish.datamanager.service;
+package com.shellshellfish.datamanager.service.impl;
 
+import com.shellshellfish.datamanager.service.OptimizationService;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +23,7 @@ import com.shellshellfish.datamanager.exception.ReturnedException;
 import com.shellshellfish.datamanager.model.FinanceProductCompo;
 import com.shellshellfish.datamanager.model.JsonResult;
 import com.shellshellfish.datamanager.model.MongoFinanceAll;
-import com.shellshellfish.datamanager.repositories.MongoFinanceALLRepository;
+import com.shellshellfish.datamanager.repositories.mongo.MongoFinanceALLRepository;
 
 @Service
 public class OptimizationServiceImpl implements OptimizationService {
@@ -145,9 +146,9 @@ public class OptimizationServiceImpl implements OptimizationService {
 			}
 			mongoFinanceALLRepository.save(mongoFinanceAll);
 			System.out.println(date + "--数据插入成功，"+jsonResult.getResult().toString());
-			logger.info("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.financeFront() success..");
+			logger.info("run com.shellshellfish.datamanager.service.impl.OptimizationServiceImpl.financeFront() success..");
 		} else {
-			logger.info("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.financeFront() fail..\n");
+			logger.info("run com.shellshellfish.datamanager.service.impl.OptimizationServiceImpl.financeFront() fail..\n");
 			logger.info("jsonResult 结果为空");
 		}
 		return jsonResult;
@@ -282,7 +283,7 @@ public class OptimizationServiceImpl implements OptimizationService {
 			result.setHead(mongoFinanceAll.getHead());
 			result.setResult(mongoFinanceAll.getResult());
 		} else {
-			logger.error("com.shellshellfish.datamanager.service.OptimizationServiceImpl.getFinanceFront() 数据获取为空");
+			logger.error("com.shellshellfish.datamanager.service.impl.OptimizationServiceImpl.getFinanceFront() 数据获取为空");
 		}
 		return result;
 	}
