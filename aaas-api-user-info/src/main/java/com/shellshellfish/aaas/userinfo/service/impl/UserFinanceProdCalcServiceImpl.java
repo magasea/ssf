@@ -760,6 +760,41 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		}
 	}
 
+	@Override
+	public void calculateFromZzInfo(UiProductDetail detail, String uuid, Long prodId, String date)
+			throws Exception {
+
+		String fundCode = detail.getFundCode();
+		addDailyAmount(uuid, date, fundCode, prodId, detail.getUserProdId());
+		//计算当日总资产
+		calcDailyAsset2(uuid, prodId, detail.getUserProdId(), fundCode,
+				date, detail);
+
+	}
+
+	private void addDailyAmount(String userUuid, String date, String fundCode, Long prodId,
+			Long userProdId) {
+
+		Query query = new Query();
+		query.addCriteria(Criteria.where("userUuid").is(userUuid))
+				.addCriteria(Criteria.where("date").is(date))
+				.addCriteria(Criteria.where("fundCode").is(fundCode))
+				.addCriteria(Criteria.where("prodId").is(prodId))
+				.addCriteria(Criteria.where("userProdId").is(userProdId));
+
+		DailyAmount dailyAmount1 = zhongZhengMongoTemplate.findOne(query, DailyAmount.class);
+		if (dailyAmount1 == null) {
+			DailyAmount dailyAmount = new DailyAmount();
+			dailyAmount.setUserUuid(userUuid);
+			dailyAmount.setDate(date);
+			dailyAmount.setFundCode(fundCode);
+			dailyAmount.setProdId(prodId);
+			dailyAmount.setUserProdId(userProdId);
+			zhongZhengMongoTemplate.save(dailyAmount);
+			logger.info("save  dailyAmount ：{}", dailyAmount);
+		}
+	}
+
 	/**
 	 * FIXME date:2018-01-27 author: pierre  threadNum 表示线程数量而不是每个线程处理的数据量
 	 */
