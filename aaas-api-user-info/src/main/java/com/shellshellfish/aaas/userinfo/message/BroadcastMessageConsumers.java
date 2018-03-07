@@ -404,7 +404,7 @@ public class BroadcastMessageConsumers {
             channel.basicAck(tag, true);
         } catch (IOException e) {
             logger.error("exception:", e);
-            logger.error("exception:",e);
+
         }
 
 
@@ -510,9 +510,10 @@ public class BroadcastMessageConsumers {
                     + "quantity:{} the redeem confirm quantity:{}", mongoUiTrdZZInfo
                     .getUserProdId(), productDetail.getFundQuantity(), mongoUiTrdZZInfo
                     .getTradeConfirmShare());
+                return false;
             }
-            productDetail.setFundQuantity(remainQty.intValue());
-            productDetail.setFundQuantityTrade(remainQty.intValue());
+            productDetail.setFundQuantity(0);
+            productDetail.setFundQuantityTrade(0);
 
         }else{
             Long remainQty = productDetail.getFundQuantity() - mongoUiTrdZZInfo
@@ -522,9 +523,10 @@ public class BroadcastMessageConsumers {
                     + "quantity:{} the redeem confirm quantity:{}", mongoUiTrdZZInfo
                     .getUserProdId(), productDetail.getFundQuantity(), mongoUiTrdZZInfo
                     .getTradeConfirmShare());
+                return false;
             }
-            productDetail.setFundQuantityTrade(remainQty.intValue());
-            productDetail.setFundQuantity(remainQty.intValue());
+            productDetail.setFundQuantityTrade(0);
+            productDetail.setFundQuantity(0);
         }
         if(StringUtils.isEmpty(mongoUiTrdZZInfo.getApplySerial())){
             logger.error("abnormal message of mongoUiTrdZZInfo, there is no applySerial in "
@@ -536,8 +538,10 @@ public class BroadcastMessageConsumers {
             logger.error("received repeated confirm message :" + mongoUiTrdZZInfo.getApplySerial());
             return false;
         }else if(StringUtils.isEmpty(productDetail.getLastestSerial())){
-            logger.info("it is initial, let's handle this message ");
-            uiProductDetailRepo.save(productDetail);
+            logger.info("this serial:{} already handled, let's ignore this message ",
+                mongoUiTrdZZInfo.getApplySerial());
+            return false;
+//            uiProductDetailRepo.save(productDetail);
         }else if(!StringUtils.isEmpty(productDetail.getLastestSerial()) && productDetail
             .getLastestSerial().contains(mongoUiTrdZZInfo.getApplySerial())){
             String[] serials = productDetail.getLastestSerial().split("\\|");
