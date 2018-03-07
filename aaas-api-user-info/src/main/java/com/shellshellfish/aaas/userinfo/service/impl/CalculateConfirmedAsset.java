@@ -65,7 +65,7 @@ public class CalculateConfirmedAsset {
 				userFinanceProdCalcService
 						.calculateFromZzInfo(uiProductDetail, uuid, uiProducts.getProdId(), date);
 			} catch (Exception e) {
-				logger.error("calculate dailyAmount failed:{}", uiProductDetail);
+				logger.error("calculate dailyAmount failed:{}", uiProductDetail, e);
 			}
 		}
 		updateDailyAmountFromZzInfo(uuid, uiProducts.getProdId(), uiProducts.getId(),
