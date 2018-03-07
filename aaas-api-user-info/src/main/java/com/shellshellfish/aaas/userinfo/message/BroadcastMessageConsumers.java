@@ -538,7 +538,7 @@ public class BroadcastMessageConsumers {
             logger.error("received repeated confirm message :" + mongoUiTrdZZInfo.getApplySerial());
             return false;
         }else if(StringUtils.isEmpty(productDetail.getLastestSerial())){
-            logger.info("this serial:{} already handled, let's handle this message ",
+            logger.info("this serial:{} already handled, let's ignore this message ",
                 mongoUiTrdZZInfo.getApplySerial());
             return false;
 //            uiProductDetailRepo.save(productDetail);
