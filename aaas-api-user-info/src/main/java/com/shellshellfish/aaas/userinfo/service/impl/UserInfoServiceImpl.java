@@ -151,12 +151,14 @@ public class UserInfoServiceImpl implements UserInfoService {
 		try {
 			userId = getUserIdFromUUID(userUuid);
 		} catch (Exception e) {
+			logger.error("该用户不存在", e);
 			throw new UserInfoException("404", "该用户不存在");
 		}
 		List<BankCardDTO> bankcards = null;
 		try {
 			bankcards = userInfoRepoService.getUserInfoBankCards(userId);
 		} catch (Exception e) {
+			logger.error("该用户暂时没有绑定银行卡", e);
 			throw new UserInfoException("404", "该用户暂时没有绑定银行卡");
 		}
 		// List<BankCard> bankCardsDto = new ArrayList<>();
@@ -922,6 +924,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		List<MongoUiTrdLogDTO> tradeLogList = this.getTradeLogs(userUuid);
 		List<Map<String, Object>> tradeLogs = new ArrayList<Map<String, Object>>();
 		if (tradeLogList == null || tradeLogList.size() == 0) {
+			logger.error("交易记录为空");
 			throw new UserInfoException("404", "交易记录为空");
 		}
 		Map<String, Map<String, Object>> tradLogsMap = new HashMap<String, Map<String, Object>>();

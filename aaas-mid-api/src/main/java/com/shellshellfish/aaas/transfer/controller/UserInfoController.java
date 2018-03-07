@@ -120,6 +120,7 @@ public class UserInfoController {
 			}
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -166,6 +167,7 @@ public class UserInfoController {
 			 * "400"); result.add(map);
 			 */
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -197,6 +199,7 @@ public class UserInfoController {
 			 * "400");
 			 */
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -226,6 +229,7 @@ public class UserInfoController {
 			return new JsonResult(JsonResult.SUCCESS, "获取个人信息成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -270,6 +274,7 @@ public class UserInfoController {
 			 * map.put("errorCode", "400");
 			 */
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -322,6 +327,7 @@ public class UserInfoController {
 			 * map.put("errorCode", "400");
 			 */
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -345,6 +351,7 @@ public class UserInfoController {
 			return new JsonResult(JsonResult.SUCCESS, "解绑银行卡成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -412,6 +419,7 @@ public class UserInfoController {
 			return new JsonResult(JsonResult.SUCCESS, "交易记录成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -445,6 +453,7 @@ public class UserInfoController {
 			}
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -521,6 +530,7 @@ public class UserInfoController {
 			return new JsonResult(JsonResult.SUCCESS, "资产总览成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -560,6 +570,7 @@ public class UserInfoController {
 			return new JsonResult(JsonResult.SUCCESS, "交易结果成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -643,6 +654,7 @@ public class UserInfoController {
 			return new JsonResult(JsonResult.SUCCESS, "交易结果成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -728,9 +740,10 @@ public class UserInfoController {
 			}
 			return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result);
 		} catch (Exception ex) {
-			logger.error("产品详情页面接口失败");
-			logger.error("exception:",ex);
+//			logger.error("产品详情页面接口失败");
+//			logger.error("exception:",ex);
 			String str = new ReturnedException(ex).getErrorMsg();
+			logger.error(str, ex);
 			return new JsonResult(JsonResult.Fail, "产品详情页面失败", JsonResult.EMPTYRESULT);
 		}
 	}
@@ -836,9 +849,10 @@ public class UserInfoController {
 			}
 			return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result);
 		} catch (Exception ex) {
-			logger.error("产品详情页面接口失败");
-			logger.error("exception:",ex);
+//			logger.error("产品详情页面接口失败");
+//			logger.error("exception:",ex);
 			String str = new ReturnedException(ex).getErrorMsg();
+			logger.error(str, ex);
 			return new JsonResult(JsonResult.Fail, "产品详情页面失败", JsonResult.EMPTYRESULT);
 		}
 	}

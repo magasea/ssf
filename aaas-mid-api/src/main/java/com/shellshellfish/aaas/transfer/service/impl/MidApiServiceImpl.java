@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.databind.node.BigIntegerNode;
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.utils.SSFDateUtils;
 import com.shellshellfish.aaas.common.utils.URLutils;
@@ -299,6 +296,7 @@ public class MidApiServiceImpl implements MidApiService {
 					}
 				}
 			} catch (Exception e) {
+				logger.error("获取调整方案Map的Field值失败，可能Map为空", e);
 				throw new Exception("获取调整方案Map的Field值失败，可能Map为空");
 			}
 			//计算模拟历史收益
@@ -324,6 +322,7 @@ public class MidApiServiceImpl implements MidApiService {
 					}
 				} catch (Exception e) {
 					String str = new ReturnedException(e).getErrorMsg();
+					logger.error(str, e);
 					throw e;
 				}
 			}
@@ -360,6 +359,7 @@ public class MidApiServiceImpl implements MidApiService {
 		if (result.keySet().contains("status")) {
 			//返回状态码表示出现错误
 			String errorMessage = result.get("message").toString();
+			logger.error(errorMessage);
 			throw new RuntimeException(errorMessage);
 		}
 		return result;

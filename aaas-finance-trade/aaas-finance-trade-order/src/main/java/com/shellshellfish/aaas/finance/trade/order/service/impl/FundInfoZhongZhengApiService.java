@@ -136,6 +136,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
         logger.info(json);
         JSONObject jsonObject = JSONObject.parseObject(json);
         if (!jsonObject.getInteger("status").equals(1)) {
+        	logger.error(jsonObject.getString("msg"));
             throw new Exception(jsonObject.getString("msg"));
         }
 
@@ -289,6 +290,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
         JSONObject jsonObject = (JSONObject) JSONObject.parse(json);
         Integer status = jsonObject.getInteger("status");
         if (!status.equals(1)){
+        	logger.error(jsonObject.getString("msg"));
             throw new Exception(jsonObject.getString("msg"));
         }
 
@@ -312,6 +314,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
                 return BigDecimal.valueOf(rate);
             }
         }
+        logger.error("no rate found");
         throw new Exception("no rate found");
     }
 
@@ -327,6 +330,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
                 return BigDecimal.valueOf(rate);
             }
         }
+        logger.error("no rate found");
         throw new Exception("no rate found");
     }
 
@@ -362,9 +366,10 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
 
         JSONObject jsonObject = (JSONObject) JSONObject.parse(json);
         Integer status = jsonObject.getInteger("status");
-        if (!status.equals(1)){
-            throw new Exception(jsonObject.getString("msg"));
-        }
+		if (!status.equals(1)) {
+			logger.error(jsonObject.getString("msg"));
+			throw new Exception(jsonObject.getString("msg"));
+		}
 
         List<UserBank> userBanks = new ArrayList<>();
         JSONArray jsonArray = jsonObject.getJSONArray("data");

@@ -59,6 +59,7 @@ public class RiskAssessmentController {
 		if (surveyResults != null && surveyResults.size() > 0) {
 			surveyResult = surveyResults.get(surveyResults.size() - 1);
 		} else {
+			log.error("未找到评测记录");
 			throw new Exception("未找到评测记录");
 		}
 		

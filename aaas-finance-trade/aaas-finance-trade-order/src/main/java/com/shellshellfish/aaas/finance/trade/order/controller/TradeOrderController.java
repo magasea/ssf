@@ -70,6 +70,7 @@ public class TradeOrderController {
 		financeProdBuyInfo.setUserId(userId);
 
 		if(userInfo.getRiskLevel() < 0){
+			logger.error("用户未做风险评测，请做完风险评测再购买理财产品");
 			throw new Exception("用户未做风险评测，请做完风险评测再购买理财产品");
 		}
 		financeProdBuyInfo.setMoney(financeProdBuyInfo.getMoney());
@@ -135,6 +136,7 @@ public class TradeOrderController {
 		//最大金额最小金额判断
 		boolean result = financeProdCalcService.getMaxMinResult(productList, totalAmount);
 		if (!result) {
+			logger.error("输入金额数不在最大最小限制内，请重新输入");
 			throw new Exception("输入金额数不在最大最小限制内，请重新输入");
 		}
 		DistributionResult distributionResult = financeProdCalcService.getPoundageOfBuyFund(totalAmount, productList);
@@ -194,7 +196,7 @@ public class TradeOrderController {
 		logger.error("method buyDetails run ..");
 		Map<String, Object> result = new HashMap<String, Object>();
 		if (StringUtils.isEmpty(orderId)) {
-			logger.error("购买详情不存在:" + orderId);
+			logger.error("购买详情不存在:{} ", orderId);
 			throw new Exception("购买详情不存在:" + orderId);
 		}
 		TrdOrder trdOrder = orderService.getOrderByOrderId(orderId);

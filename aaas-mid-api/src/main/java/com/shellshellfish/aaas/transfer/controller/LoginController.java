@@ -162,8 +162,8 @@ public class LoginController {
 			result.put("testResult", resultCount.get("testResult"));
 			return new JsonResult(JsonResult.SUCCESS, "登陆成功", result);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
 			String errorMsg = new ReturnedException(e).getErrorMsg();
+			logger.error(errorMsg, e);
 			return new JsonResult(JsonResult.Fail, errorMsg, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -185,8 +185,9 @@ public class LoginController {
 			result.remove("_schemaVersion");
 			return new JsonResult(JsonResult.SUCCESS, "发送成功", result);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+//			logger.error(e.getMessage());
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 
@@ -250,6 +251,7 @@ public class LoginController {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -273,6 +275,7 @@ public class LoginController {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 
@@ -316,6 +319,7 @@ public class LoginController {
 			String str = new ReturnedException(e).getErrorMsg();
 			System.out.println(str);
 			result.put("error", e.getResponseBodyAsString());
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		} catch (Exception e) {
 			return new JsonResult(JsonResult.Fail, "Fail", JsonResult.EMPTYRESULT);
@@ -336,6 +340,7 @@ public class LoginController {
 			return new JsonResult(JsonResult.SUCCESS, result, JsonResult.EMPTYRESULT);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 
@@ -356,6 +361,7 @@ public class LoginController {
 			return new JsonResult(JsonResult.SUCCESS, "用户退出成功", JsonResult.EMPTYRESULT);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 

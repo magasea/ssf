@@ -7,6 +7,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,8 @@ import com.shellshellfish.aaas.finance.util.FishLinks;
 @Transactional
 public class IndexServiceImpl implements IndexService {
 
+	private static final Logger logger = LoggerFactory.getLogger(IndexServiceImpl.class);
+	
 	@Autowired
 	AssetAllocationServiceImpl assetAllocationService;
 	
@@ -123,6 +127,7 @@ public class IndexServiceImpl implements IndexService {
 					//--------------------------------------
 					FundReturn fundReturn = assetAllocationService.selectById(groupId,subGroupId);
 					if(fundReturn==null){
+						logger.error("产品不存在.");
 						throw new Exception("产品不存在.");
 					}
 					resultC.put("name", fundReturn.getName());
@@ -170,6 +175,7 @@ public class IndexServiceImpl implements IndexService {
 				result.put("productTypeList", riskList);
 			}
 		} else {
+			logger.error("产品类型不存在.");
 			throw new Exception("产品类型不存在.");
 		}
 		
