@@ -373,7 +373,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		List<MongoUiTrdZZInfo> mongoUiTrdZZInfoSell = mongoUiTrdZZInfoRepo
 				.findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
 						fundCode, TrdOrderOpTypeEnum.REDEEM.getOperation(),
-						TrdOrderStatusEnum.CONFIRMED.getStatus(), startDate);
+						TrdOrderStatusEnum.SELLCONFIRMED.getStatus(), startDate);
 
 		Query query = new Query();
 		query.addCriteria(Criteria.where("userUuid").is(userUuid))
