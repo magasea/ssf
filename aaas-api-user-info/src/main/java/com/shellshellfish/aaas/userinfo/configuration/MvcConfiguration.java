@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.configuration;
 
+import java.lang.management.ManagementFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
@@ -31,6 +32,12 @@ public class MvcConfiguration  extends WebMvcConfigurerAdapter {
   @Bean
   public RestTemplate restTemplate() {
     return new RestTemplate();
+  }
+
+  @Bean
+  public ManagementFactory mbeanServer(){
+    ManagementFactory managementFactory = (ManagementFactory) ManagementFactory.getPlatformMBeanServer();
+    return managementFactory;
   }
 
 }
