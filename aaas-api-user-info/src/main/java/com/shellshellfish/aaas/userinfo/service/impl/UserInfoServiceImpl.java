@@ -42,6 +42,7 @@ import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.OrderResult;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
@@ -765,6 +766,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 					.getProductDetailsByProdId(products.getId());
 			Integer count = 0;
 			Integer fails = 0;
+			Integer status = 0;
 			if (productDetailsList != null && productDetailsList.size() > 0) {
 				fails = 0;
 				count = 0;
@@ -776,6 +778,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.REDEEMFAILED.getStatus()
 								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.CANCEL.getStatus()) {
 							count++;
+							if (!StringUtils.isEmpty(uiProductDetailDTO.getStatus())) {
+								status = uiProductDetailDTO.getStatus();
+							}
 						} else if (uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()
 								|| uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.REDEEMFAILED.getStatus()) {
 							fails++;
@@ -790,7 +795,14 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}
 				resultMap.put("count", count);
 				if (count > 0) {
-					resultMap.put("title2", "* 您有" + count + "支基金正在确认中");
+					List<OrderDetail> orderDetails = rpcOrderService.getOrderDetails(products.getId(), status);
+					String type = "";
+					if (orderDetails != null && !orderDetails.isEmpty()) {
+						OrderDetail orderDetail = orderDetails.get(0);
+						int tradeType = orderDetail.getTradeType();
+						type = TrdOrderOpTypeEnum.getComment(tradeType);
+					}
+					resultMap.put("title2", "* 您有" + count + "支基金正在" + type + "确认中");
 				}
 			}
 
