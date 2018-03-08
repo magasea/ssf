@@ -5,13 +5,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.shellshellfish</groupId>
-  <artifactId>aaas-api-data-manager</artifactId>
+  <artifactId>aaas-app-checkfunds</artifactId>
   <version>1.0.0</version>
   <packaging>jar</packaging>
 
-  <name>aaas-api-data-manager</name>
+  <name>aaas-app-checkfunds</name>
 
-  <description>aaas-api-data-manager</description>
+  <description>aaas-app-checkfunds</description>
 
   <parent>
     <groupId>com.shellshellfish</groupId>
@@ -171,7 +171,7 @@
     </dependency>
   </dependencies>
   <build>
-    <finalName>aaas-api-data-manager</finalName> 
+    <finalName>aaas-app-checkfunds</finalName>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>
@@ -227,7 +227,7 @@
               <all>
                 <property>
                   <name>app</name>
-                  <value>aaas-api-data-manager</value>
+                  <value>aaas-app-checkfunds</value>
                 </property>
                 <property>
                   <name>hystrix.enabled</name>
