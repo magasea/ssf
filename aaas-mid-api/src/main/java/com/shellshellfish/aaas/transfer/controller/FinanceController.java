@@ -127,16 +127,6 @@ public class FinanceController {
 										maxminList.add(value);
 									}
 								}
-//								Map maxminMap = (Map) income6monthMap.get("maxMinMap");
-//								if (!CollectionUtils.isEmpty(maxminMap)) {
-//									Double min = (Double) maxminMap.get("minValue");
-//									Double max = (Double) maxminMap.get("maxValue");
-//									Double minValue = EasyKit.getDecimal(new BigDecimal(min));
-//									Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
-//									maxminMap.put("minValue", minValue);
-//									maxminMap.put("maxValue", maxValue);
-//									income6monthMap.put("maxMinMap", maxminMap);
-//								}
 								Map maxminMap = new HashMap();
 								maxminMap.put("minValue", Collections.min(maxminList));
 								maxminMap.put("maxValue", Collections.max(maxminList));

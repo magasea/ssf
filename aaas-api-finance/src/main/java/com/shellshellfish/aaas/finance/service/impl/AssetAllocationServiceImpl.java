@@ -163,8 +163,7 @@ public class AssetAllocationServiceImpl implements AssetAllocationService {
 		MultiValueMap<String, String> requestEntity = new LinkedMultiValueMap<>();
 		requestEntity.add("riskLevel", cust_risk);
 		requestEntity.add("investmentPeriod", investment_horizon);
-		return restTemplate.postForEntity(url + "/api/asset-allocation/product-groups/" + id, requestEntity,
-				PerformanceVolatilityReturn.class).getBody();
+		return restTemplate.postForEntity(url + "/api/asset-allocation/product-groups", requestEntity, PerformanceVolatilityReturn.class).getBody();
 	}
 
 	/**

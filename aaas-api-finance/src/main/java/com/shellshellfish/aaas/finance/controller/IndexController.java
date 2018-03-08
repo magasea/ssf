@@ -51,7 +51,7 @@ public class IndexController {
 			) throws Exception {
 		// FundReturn fundReturn =
 		// assetAllocationService.selectById(groupId,subGroupId);
-		Map<String, Object> resultMap = indexService.homepage(uuid,isTestFlag,testResult);
+		Map<String, Object> resultMap = indexService.homepage(uuid, isTestFlag, testResult);
 
 		return new ResponseEntity<>(resultMap, HttpStatus.OK);
 	}
