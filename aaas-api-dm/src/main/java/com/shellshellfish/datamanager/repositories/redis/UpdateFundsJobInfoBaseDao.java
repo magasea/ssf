@@ -1,7 +1,6 @@
 package com.shellshellfish.datamanager.repositories.redis;
 
 import com.shellshellfish.aaas.common.constants.RedisConstants;
-import com.shellshellfish.aaas.userinfo.model.redis.UserBaseInfoRedis;
 import com.shellshellfish.datamanager.model.redis.UpdateFundsJobBaseInfoRedis;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
@@ -16,7 +15,7 @@ public class UpdateFundsJobInfoBaseDao {
 
 	private static final String KEY = RedisConstants.DATAMANAGE_KEY + "UpdateFundsJob";
 
-	private static final int timeout = 7200; //记得用timeunit 为second
+	private static final int timeout = 28800; //记得用timeunit 为second
 
 	private HashOperations<String, String, UpdateFundsJobBaseInfoRedis> hashOps;
 
@@ -32,18 +31,23 @@ public class UpdateFundsJobInfoBaseDao {
 	public void addUserBaseInfo(UpdateFundsJobBaseInfoRedis updateFundsJobBaseInfoRedis) {
 		hashOps.putIfAbsent(KEY , updateFundsJobBaseInfoRedis.getFileUpdateTime().toString(),
 				updateFundsJobBaseInfoRedis);
-		redisTemplate.expire(KEY + userBaseInfoRedis.getUuid(), timeout, TimeUnit.SECONDS);
+		redisTemplate.expire(KEY , timeout, TimeUnit.SECONDS);
 	}
 
 	@Transactional
 	public void updateUserBaseInfo(UpdateFundsJobBaseInfoRedis updateFundsJobBaseInfoRedis) {
-		hashOps.put(KEY + userBaseInfoRedis.getUuid(), userBaseInfoRedis.getUuid(), userBaseInfoRedis);
-		redisTemplate.expire(KEY + userBaseInfoRedis.getUuid(), timeout, TimeUnit.SECONDS);
+		hashOps.put(KEY , updateFundsJobBaseInfoRedis.getFileUpdateTime().toString(),
+				updateFundsJobBaseInfoRedis);
+		redisTemplate.expire(KEY , timeout, TimeUnit.SECONDS);
 
 	}
 
-	public UserBaseInfoRedis get(String userUUID) {
-		return hashOps.get(KEY + userUUID, userUUID);
+	public UpdateFundsJobBaseInfoRedis get(Long fileUpdateTime) {
+		return hashOps.get(KEY , fileUpdateTime.toString());
+	}
+
+	public void del() {
+		redisTemplate.delete(KEY);
 	}
 
 }
