@@ -765,7 +765,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 						if (uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.CONFIRMED.getStatus()
 								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.FAILED.getStatus()
 								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.REDEEMFAILED.getStatus()
-								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.CANCEL.getStatus()) {
+								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.CANCEL.getStatus()
+								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.SELLCONFIRMED.getStatus()) {
 							count++;
 							if (!StringUtils.isEmpty(uiProductDetailDTO.getStatus())) {
 								status = uiProductDetailDTO.getStatus();
