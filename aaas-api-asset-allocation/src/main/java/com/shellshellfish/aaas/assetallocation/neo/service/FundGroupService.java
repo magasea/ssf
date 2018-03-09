@@ -13,6 +13,9 @@ import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
 import com.shellshellfish.aaas.assetallocation.neo.util.*;
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
+
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1008,7 +1011,10 @@ public class FundGroupService {
 					if (incomeList != null && incomeList.size() > 0) {
 						for (Map<String, Object> incomeMap : incomeList) {
 							String time = incomeMap.get("time") + "";
-							if (starttime.equals(time) || resultList.size() > 0) {
+//							if (starttime.equals(time) || resultList.size() > 0) {
+							starttime = starttime.replaceAll("-", "");
+							time = time.replaceAll("-", "");
+							if (TradeUtil.getLongNumWithMul100(time) - TradeUtil.getLongNumWithMul100(starttime) >= 0 || resultList.size() > 0) {
 								resultList.add(incomeMap);
 							}
 						}
