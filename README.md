@@ -116,14 +116,14 @@ http://192.168.1.10:7015/（备用）
 对应数据库 ： choice
 
 打包对于名称如下：   
-1、aaas-api-asset-allocation-1.0.0.jar
-2、aaas-api-data-manager.jar
-3、aaas-funds-datacollection-server-1.0.0.jar
-4、aaas-api-finance-1.0.0.jar
-5、aaas-finance-trade-order-1.0.0.jar
-6、aaas-finance-trade-pay-1.0.0.jar
-7、aaas-api-gateway-0.0.1-SNAPSHOT.jar
-8、mid-api-0.0.1-SNAPSHOT.jar
-9、aaas-api-risk-assessment-0.0.1-SNAPSHOT.jar
-10、aaas-api-user-info-1.0.0.jar
-11、aaas-api-user-login.jar
+- aaas-api-asset-allocation-1.0.0.jar
+- aaas-api-data-manager.jar
+- aaas-funds-datacollection-server-1.0.0.jar
+- aaas-api-finance-1.0.0.jar
+- aaas-finance-trade-order-1.0.0.jar
+- aaas-finance-trade-pay-1.0.0.jar
+- aaas-api-gateway-0.0.1-SNAPSHOT.jar
+- mid-api-0.0.1-SNAPSHOT.jar
+- aaas-api-risk-assessment-0.0.1-SNAPSHOT.jar
+- aaas-api-user-info-1.0.0.jar
+- aaas-api-user-login.jar
