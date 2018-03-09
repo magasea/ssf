@@ -178,7 +178,7 @@ public class FinanceController {
 	}
 
 	@ApiOperation("进入理财页面后的数据（暂时不用）")
-	@RequestMapping(value = "/financeFrontPage2", method = RequestMethod.POST)
+	//@RequestMapping(value = "/financeFrontPage2", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult financeModule2() {
 		Map returnMap = new HashMap<>();
@@ -285,8 +285,8 @@ public class FinanceController {
 
 	@ApiOperation("理财产品查看详情页面")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "4"),
-			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "4009"),
+			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "8"),
+			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "80048"),
 	})
 	@RequestMapping(value = "/checkPrdDetails", method = RequestMethod.POST)
 	@ResponseBody
@@ -299,8 +299,10 @@ public class FinanceController {
 
 		Map expAnnReturn = getExpAnnReturn(groupId, subGroupId);
 		Map expMaxReturn = getExpMaxReturn(groupId, subGroupId);
+		Map simulateHistoricalReturn = getSimulateHistoricalReturn(groupId, subGroupId);
 		result.put("expAnnReturn", expAnnReturn);
 		result.put("expMaxDrawDown", expMaxReturn);
+		result.put("simulateHistoricalVolatility", simulateHistoricalReturn);
 		//饼图（返回单个基金组合产品信息）
 		try {
 			String url =
@@ -1019,6 +1021,36 @@ public class FinanceController {
 			String url =
 					assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
 							+ subGroupId + "/opt?returntype=" + "1";
+			String str = "{\"returnType\":\"" + "1" + "\"}";
+			result = (Map) restTemplate.postForEntity(url, getHttpEntity(str), Map.class).getBody();
+			/*result.remove("_total");
+			result.remove("_name");
+			result.remove("_links");
+			result.remove("_serviceId");
+			result.remove("_schemaVersion");*/
+			if (result.get("value") != null) {
+				Double value = (Double) result.get("value");
+				if (!StringUtils.isEmpty(value)) {
+					value = EasyKit.getDecimal(new BigDecimal(value));
+					result.put("value", value + EasyKit.PERCENT);
+				}
+			}
+		} catch (Exception e) {
+			result = new HashMap<String, Object>();
+			result.put("error", "restTemplate获取预期年化收益失败");
+		}
+		return result;
+	}
+	
+	/**
+	 *模拟历史年化波动率（/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt，参数+3）
+	 */
+	protected Map<String, Object> getSimulateHistoricalReturn(String groupId, String subGroupId) {
+		Map<String, Object> result = new HashMap<>();
+		try {
+			String url =
+					assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
+							+ subGroupId + "/opt?returntype=" + "3";
 			String str = "{\"returnType\":\"" + "1" + "\"}";
 			result = (Map) restTemplate.postForEntity(url, getHttpEntity(str), Map.class).getBody();
 			/*result.remove("_total");
