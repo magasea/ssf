@@ -440,7 +440,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 										.put(key, totalIncome.add(income).setScale(2, RoundingMode.HALF_UP));
 							}
 						} else {
-							portfolioInfoMap.put(key, totalIncome.setScale(2, RoundingMode.HALF_UP));
+							portfolioInfoMap.put(key, Optional.ofNullable(totalIncome).orElse(BigDecimal.ZERO)
+									.setScale(2, RoundingMode.HALF_UP));
 						}
 					}
 				}
