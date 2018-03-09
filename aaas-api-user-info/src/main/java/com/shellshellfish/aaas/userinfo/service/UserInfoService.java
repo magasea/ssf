@@ -26,7 +26,7 @@ public interface UserInfoService {
 
 	UserInfoAssectsBriefDTO getUserInfoAssectsBrief(String userUuid) throws Exception;
 
-	List<BankCardDTO> getUserInfoBankCards(String userUuid) ;
+	List<BankCardDTO> getUserInfoBankCards(String userUuid);
 
 	List<UserPortfolioDTO> getUserPortfolios(String userUuid) throws Exception;
 
@@ -72,6 +72,9 @@ public interface UserInfoService {
 
 	ApplyResult queryTrdResultByOrderDetailId(Long userId, Long orderDetailId);
 
+	/**
+	 * 用户累计收益走势图
+	 */
 	Map<String, Object> getTrendYield(String uuid) throws Exception;
 
 	Map<String, Object> getTotalAssets(String uuid) throws Exception;
@@ -88,10 +91,12 @@ public interface UserInfoService {
 
 	Integer getUserRishLevel(String uuid);
 
-	Map<String, Object> getProducts(Long prodId) throws IllegalAccessException, InstantiationException;
+	Map<String, Object> getProducts(Long prodId)
+			throws IllegalAccessException, InstantiationException;
 
 	List<Map<String, Object>> getTradLogsOfUser(String userUuid) throws Exception;
 
-	Map<String, PortfolioInfo> getCalculateTotalAndRate(String uuid, Long userId, ProductsDTO products);
+	Map<String, PortfolioInfo> getCalculateTotalAndRate(String uuid, Long userId,
+			ProductsDTO products);
 
 }

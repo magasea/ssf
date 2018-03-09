@@ -391,7 +391,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		List<ProductsDTO> productsList = this.findProductInfos(userUuid);
 		if (productsList == null || productsList.size() == 0) {
 			logger.error("我的智投组合暂时不存在");
-			return new HashMap<String, Object>();
+			return new HashMap<>();
 		}
 		ProductsDTO products;
 		Integer fails = 0;
@@ -425,27 +425,22 @@ public class UserInfoServiceImpl implements UserInfoService {
 			portfolioInfoList.add(portfolioInfoMap);
 		}
 
-		Map<String, Object> portfolioInfoMap = new HashMap<String, Object>();
+		Map<String, BigDecimal> portfolioInfoMap = new HashMap<>();
 		if (portfolioInfoList != null && portfolioInfoList.size() > 0) {
 			for (int i = 0; i < portfolioInfoList.size(); i++) {
 				//循环单个组合的map
 				Map<String, PortfolioInfo> portMap = portfolioInfoList.get(i);
 				if (portMap != null && portMap.size() > 0) {
 					for (String key : portMap.keySet()) {
-						PortfolioInfo portfolioInfo = portMap.get(key);
-						BigDecimal value = portfolioInfo.getTotalIncome();
-						if (value != null) {
-							value = value.setScale(2, BigDecimal.ROUND_HALF_UP);
-						}
+						BigDecimal totalIncome = portMap.get(key).getTotalIncome();
 						if (portfolioInfoMap.containsKey(key)) {
-							BigDecimal income = new BigDecimal(portfolioInfoMap.get(key) + "");
-							if (value != null) {
-								BigDecimal totalIncome = new BigDecimal(value + "");
-								totalIncome = totalIncome.add(income);
-								portfolioInfoMap.put(key, totalIncome);
+							BigDecimal income = portfolioInfoMap.get(key);
+							if (totalIncome != null) {
+								portfolioInfoMap
+										.put(key, totalIncome.add(income).setScale(2, RoundingMode.HALF_UP));
 							}
 						} else {
-							portfolioInfoMap.put(key, value);
+							portfolioInfoMap.put(key, totalIncome.setScale(2, RoundingMode.HALF_UP));
 						}
 					}
 				}
@@ -453,22 +448,20 @@ public class UserInfoServiceImpl implements UserInfoService {
 		}
 		List<Map<String, Object>> portfolioList = new ArrayList<Map<String, Object>>();
 		if (portfolioInfoMap != null && portfolioInfoMap.size() > 0) {
-			Map<String, Object> portfolioMap = new HashMap<String, Object>();
+			Map<String, Object> portfolioMap;
 			if (portfolioInfoMap != null && portfolioInfoMap.size() > 0) {
 				for (String key : portfolioInfoMap.keySet()) {
-					portfolioMap = new HashMap<String, Object>();
+					portfolioMap = new HashMap<>();
 					portfolioMap.put("date", key);
 					portfolioMap.put("value", portfolioInfoMap.get(key));
 					portfolioList.add(portfolioMap);
 				}
 			}
 		}
-		Collections.sort(portfolioList, new Comparator<Map<String, Object>>() {
-			public int compare(Map<String, Object> o1, Map<String, Object> o2) {
-				int map1value = Integer.parseInt(o1.get("date") + "");
-				int map2value = Integer.parseInt(o2.get("date") + "");
-				return map1value - map2value;
-			}
+		Collections.sort(portfolioList, (o1, o2) -> {
+			int map1value = Integer.parseInt(o1.get("date") + "");
+			int map2value = Integer.parseInt(o2.get("date") + "");
+			return map1value - map2value;
 		});
 		resultMap.put("trendYield", portfolioList);
 		return resultMap;
@@ -579,9 +572,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 				ZoneId.systemDefault()).toLocalDate();
 		String startDay = InstantDateUtil.format(startLocalDate, "yyyyMMdd");
 
-		int i = 1;
-		String endDay = InstantDateUtil.format(LocalDate.now().plusDays(-i), "yyyyMMdd");
-		while (true) {
+		LocalDate endLocalDate = LocalDate.now().plusDays(-1);
+		while (startLocalDate.isBefore(endLocalDate) || startLocalDate.isEqual(endLocalDate)) {
+			String endDay = InstantDateUtil.format(endLocalDate, "yyyyMMdd");
 			PortfolioInfo portfolioInfo;
 			if (flag) {
 				//完全确认
@@ -595,12 +588,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				portfolioInfo = getPartConfirmFundInfo(uuid, userId, products.getId(), startDay, endDay);
 			}
 			result.put(endDay, portfolioInfo);
-
-			i++;
-			endDay = InstantDateUtil.format(LocalDate.now().plusDays(-i), "yyyyMMdd");
-			if (TradeUtil.getLongNumWithMul100(startDay) - TradeUtil.getLongNumWithMul100(endDay) >= 0) {
-				break;
-			}
+			endLocalDate = endLocalDate.plusDays(-1);
 		}
 		return result;
 
@@ -795,7 +783,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}
 				resultMap.put("count", count);
 				if (count > 0) {
-					List<OrderDetail> orderDetails = rpcOrderService.getOrderDetails(products.getId(), status);
+					List<OrderDetail> orderDetails = rpcOrderService
+							.getOrderDetails(products.getId(), status);
 					String type = "";
 					if (orderDetails != null && !orderDetails.isEmpty()) {
 						OrderDetail orderDetail = orderDetails.get(0);
