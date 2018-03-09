@@ -114,4 +114,16 @@ http://192.168.1.10:7015/（备用）
 2、ID: ssf08    AD:192.168.1.10  密码： t5MqqozQDNramNHh   
  拥有权限为：select,insert,update,create,index,References    
 对应数据库 ： choice
-  
+
+打包对于名称如下：   
+- aaas-api-asset-allocation-1.0.0.jar
+- aaas-api-data-manager.jar
+- aaas-funds-datacollection-server-1.0.0.jar
+- aaas-api-finance-1.0.0.jar
+- aaas-finance-trade-order-1.0.0.jar
+- aaas-finance-trade-pay-1.0.0.jar
+- aaas-api-gateway-0.0.1-SNAPSHOT.jar
+- mid-api-0.0.1-SNAPSHOT.jar
+- aaas-api-risk-assessment-0.0.1-SNAPSHOT.jar
+- aaas-api-user-info-1.0.0.jar
+- aaas-api-user-login.jar
