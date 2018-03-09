@@ -281,9 +281,12 @@ public class FundGroupService {
             if (returntype.equalsIgnoreCase("1")) {
                 map.put("name", "预期年化收益");
                 map.put("value", interval.getExpected_annualized_return());
-            } else {
+            } else if (returntype.equalsIgnoreCase("2")) {
                 map.put("name", "预期最大回撤");
                 map.put("value", interval.getExpected_max_retracement());
+            } else if (returntype.equalsIgnoreCase("3")) {
+            	map.put("name", "模拟历史年化波动率");
+                map.put("value", interval.getSimulate_historical_volatility());
             }
         }
         return map;
