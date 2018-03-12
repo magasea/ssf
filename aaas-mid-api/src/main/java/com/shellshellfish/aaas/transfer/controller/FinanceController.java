@@ -283,14 +283,14 @@ public class FinanceController {
 	}
 
 
-	@ApiOperation("理财产品查看详情页面")
+	@ApiOperation("理财产品查看详情页面(暂时不用)")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "8"),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "80048"),
 	})
-	@RequestMapping(value = "/checkPrdDetails", method = RequestMethod.POST)
+	//@RequestMapping(value = "/checkPrdDetails", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getPrdDetails(String groupId, String subGroupId) {
+	public JsonResult getPrdDetails2(String groupId, String subGroupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		result = service.getPrdNPVList(groupId, subGroupId);
 		if (result == null) {
@@ -344,6 +344,22 @@ public class FinanceController {
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 		return new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", result);
+	}
+	
+	@ApiOperation("理财产品查看详情页面")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "8"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "80048"),
+	})
+	@RequestMapping(value = "/checkPrdDetails", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult getPrdDetails(String groupId, String subGroupId) {
+		// 先获取全部产品
+		JsonResult result = restTemplate
+				.getForEntity(dataManagerUrl + "/api/datamanager/getCheckPrdDetails?groupId=" + groupId + "&subGroupId="
+						+ subGroupId, JsonResult.class).getBody();
+
+		return result;
 	}
 
 	@ApiOperation("历史业绩")

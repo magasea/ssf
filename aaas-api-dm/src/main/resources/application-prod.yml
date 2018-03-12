@@ -42,3 +42,4 @@ datasource:
       dialect: org.hibernate.dialect.MySQLDialect
 shellshellfish:
   asset-alloction-url: "http://localhost:10020"
+  userinfo-url: "http://localhost:10060"
