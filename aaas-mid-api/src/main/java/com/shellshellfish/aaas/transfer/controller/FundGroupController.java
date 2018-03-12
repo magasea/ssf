@@ -3,12 +3,15 @@ package com.shellshellfish.aaas.transfer.controller;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,6 +47,9 @@ public class FundGroupController {
 
 	@Value("${shellshellfish.user-user-info}")
 	private String userinfoUrl;
+
+	@Value("${shellshellfish.data-manager-url}")
+	private String datamanagerUrl;
 
 	@Value("${shellshellfish.trade-order-url}")
 	private String tradeOrderUrl;
@@ -77,7 +84,8 @@ public class FundGroupController {
 		params.put("prodId", prodId);
 
 		ResponseEntity<Map> entity = restTemplate.postForEntity(
-				URLutils.prepareParameters(userinfoUrl + methodUrl, params), HttpEntity.EMPTY, Map.class, params);
+				URLutils.prepareParameters(userinfoUrl + methodUrl, params), HttpEntity.EMPTY, Map.class,
+				params);
 		if (HttpStatus.OK.equals(entity.getStatusCode())) {
 			result = entity.getBody();
 			result.put("groupId", groupId);
@@ -86,9 +94,10 @@ public class FundGroupController {
 			result.put("totals", totals == null ? "" : totals);
 			result.put("totalIncome", totalIncome == null ? "" : totalIncome);
 			result.put("totalIncomeRate", totalIncomeRate == null ? "" : totalIncomeRate);
-			
+
 			Map bankNumResult = restTemplate
-					.getForEntity(tradeOrderUrl + "/api/trade/funds/banknums/" + uuid + "?prodId=" + prodId, Map.class)
+					.getForEntity(tradeOrderUrl + "/api/trade/funds/banknums/" + uuid + "?prodId=" + prodId,
+							Map.class)
 					.getBody();
 			if (bankNumResult.get("bankNum") != null) {
 				String bankNum = bankNumResult.get("bankNum") + "";
@@ -96,7 +105,8 @@ public class FundGroupController {
 //				String bankShortNum = "";
 				String telNum = "";
 				List bankList = restTemplate
-						.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/bankcards", List.class).getBody();
+						.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/bankcards", List.class)
+						.getBody();
 				if (bankList != null) {
 					for (int i = 0; i < bankList.size(); i++) {
 						Map bankMap = (Map) bankList.get(i);
@@ -114,7 +124,7 @@ public class FundGroupController {
 					result.put("bankName", bankName);
 				}
 			}
-			
+
 			if (result.get("accumulationIncomes") != null) {
 				List<Map> accumulationIncomesList = (List<Map>) result.get("accumulationIncomes");
 				if (accumulationIncomesList != null) {
@@ -122,12 +132,14 @@ public class FundGroupController {
 					for (int i = 0; i < accumulationIncomesList.size(); i++) {
 						Map accumulationIncomesMap = accumulationIncomesList.get(i);
 						if (accumulationIncomesMap.get("value") != null) {
-							BigDecimal value = new BigDecimal(accumulationIncomesMap.get("value")+"");
+							BigDecimal value = new BigDecimal(accumulationIncomesMap.get("value") + "");
 							value = value.setScale(2, BigDecimal.ROUND_HALF_UP);
 //								accumulationIncomesMap.put("value", EasyKit.getDecimal(value));
 							accumulationIncomesMap.put("value", value);
 							String dateStr1 = (String) accumulationIncomesMap.get("date");
-							String dateStr2 = String.format("%s-%s-%s", dateStr1.substring(0,4), dateStr1.substring(4,6), dateStr1.substring(6,8));
+							String dateStr2 = String
+									.format("%s-%s-%s", dateStr1.substring(0, 4), dateStr1.substring(4, 6),
+											dateStr1.substring(6, 8));
 							accumulationIncomesMap.put("date", dateStr2);
 							maxMinValueList.add(value.doubleValue());
 						}
@@ -138,7 +150,7 @@ public class FundGroupController {
 					}
 				}
 			}
-			
+
 			if (StringUtils.isEmpty(count) || "0".equals(count)) {
 				result.put("title", "");
 			} else {
@@ -146,16 +158,16 @@ public class FundGroupController {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				Date dateTime;
 				try {
-					if(!buyDate.contains(" ") && !buyDate.contains("-") && !buyDate.contains(":")){
+					if (!buyDate.contains(" ") && !buyDate.contains("-") && !buyDate.contains(":")) {
 						dateTime = new Date(Long.valueOf(buyDate));
-					}else{
+					} else {
 						dateTime = format.parse(buyDate);
 					}
 					String date = InstantDateUtil.getTplusNDayNWeekendOfWork(dateTime.getTime(), 2);
 					result.put("title", "资产含购买确认中" + totals + "元，将于" + date + "确认");
 				} catch (ParseException ex) {
 					logger.error("资产含购买确认中===" + ex.getMessage());
-					logger.error("exception:",ex);
+					logger.error("exception:", ex);
 				}
 			}
 		} else {
@@ -164,6 +176,27 @@ public class FundGroupController {
 		}
 
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
+	}
+
+	@ApiOperation("获取组合基准数据")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "long", required = true, value = "组合ID", defaultValue = "1"),
+			@ApiImplicitParam(name = "endDate", value = "截止日期", paramType = "query", dataType = "String", defaultValue = "yyyy-MM-dd"),
+			@ApiImplicitParam(name = "period", value = "区间 1:3个月,2:6个月 3:一年 4:三年  5:组合成立以来", paramType = "query", dataType = "int", defaultValue = "1")
+	})
+	@GetMapping(value = "/getGroupBaseLine")
+	public Map<String, Object> getGroupBaseLine(
+			@NotNull(message = "组合ID不能为空") @RequestParam(value = "groupId") Long groupId,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "period", required = false) Integer period) {
+		String methodUrl = "/api/datamanager/getGroupBaseLine";
+		Map params = new HashMap();
+		params.put("groupId", String.valueOf(groupId));
+		params.put("endDate", Optional.ofNullable(endDate).orElse(""));
+		params.put("period", String.valueOf(Optional.ofNullable(period).orElse(-1)));
+		return restTemplate
+				.getForEntity(URLutils.prepareParameters(datamanagerUrl + methodUrl, params), Map.class)
+				.getBody();
 	}
 
 }

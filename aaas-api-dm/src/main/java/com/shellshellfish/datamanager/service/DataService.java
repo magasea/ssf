@@ -3,6 +3,7 @@ package com.shellshellfish.datamanager.service;
 import com.shellshellfish.datamanager.model.FundCodes;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public interface DataService {
@@ -25,5 +26,7 @@ public interface DataService {
 
 	//基金价值指标信息:日涨幅,近一年涨幅,净值,分级类型,评级
 	HashMap<String, Object> getFundValueInfo(String code, String date);
+
+	Map<String, Object> getGroupBaseLine(Long groupId, Long startTime, Long endTime);
 
 }

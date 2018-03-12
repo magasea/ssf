@@ -1,10 +1,8 @@
 package com.shellshellfish.datamanager.service;
 
 
-import com.shellshellfish.aaas.common.enums.FundRiskLevelEnum;
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
-import com.shellshellfish.datamanager.commons.DateUtil;
 import com.shellshellfish.datamanager.model.CoinFundYieldRate;
 import com.shellshellfish.datamanager.model.FundBaseClose;
 import com.shellshellfish.datamanager.model.FundBaseList;
@@ -14,30 +12,28 @@ import com.shellshellfish.datamanager.model.FundManagers;
 import com.shellshellfish.datamanager.model.FundRate;
 import com.shellshellfish.datamanager.model.FundResources;
 import com.shellshellfish.datamanager.model.FundYearIndicator;
+import com.shellshellfish.datamanager.model.GroupBase;
 import com.shellshellfish.datamanager.repositories.MongoFundBaseCloseRepository;
 import com.shellshellfish.datamanager.repositories.MongoFundBaseListRepository;
 import com.shellshellfish.datamanager.repositories.MongoFundCodesRepository;
 import com.shellshellfish.datamanager.repositories.MongoFundCompanysRepository;
 import com.shellshellfish.datamanager.repositories.MongoFundManagersRepository;
 import com.shellshellfish.datamanager.repositories.MongoFundYearIndicatorRepository;
+import com.shellshellfish.datamanager.repositories.MongoGroupBaseRepository;
 import com.shellshellfish.datamanager.repositories.MongoListedFundCodesRepository;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -50,7 +46,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 @Service
 public class DataServiceImpl implements DataService {
@@ -76,6 +71,9 @@ public class DataServiceImpl implements DataService {
 
 	@Autowired
 	MongoFundBaseListRepository mongoFundBaseListRepository;
+
+	@Autowired
+	MongoGroupBaseRepository mongoGroupBaseRepository;
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
@@ -402,7 +400,7 @@ public class DataServiceImpl implements DataService {
 			hnmap.replace(key, arrayCopy);
 
 		} catch (ParseException e) {
-			logger.error("exception:",e);
+			logger.error("exception:", e);
 			return false;
 		}
 
@@ -683,7 +681,7 @@ public class DataServiceImpl implements DataService {
 	}
 
 	/**
-	 * 获取基准数据
+	 * 获取单个基准数据
 	 */
 	private void getBaseLine(Map result, String fundCode, Long startTime, Long endTime) {
 		//银行一年定存固定为1.5
@@ -768,6 +766,98 @@ public class DataServiceImpl implements DataService {
 		}
 
 		result.put("baselinehistoryprofitlist", baseLineList);//基准历史收益走势
+	}
+
+	/**
+	 * 获取组合基准
+	 */
+	@Override
+	public Map<String, Object> getGroupBaseLine(Long groupId, Long startTime, Long endTime) {
+		//银行一年定存固定为1.5
+		Map<String, Object> result = new HashMap();
+		final String oneYearRateOfBank = "1.5";
+		BigDecimal oneDayRate = BigDecimal.valueOf(1.5)
+				.divide(BigDecimal.valueOf(365), MathContext.DECIMAL128);
+		List baseLineList = new ArrayList();//基准历史收益走势
+		GroupBase groupBase = mongoGroupBaseRepository.findFirstByGroupId(groupId);
+		if (groupBase == null) {
+			return null;
+		}
+		result.put("baseName", groupBase.getBaseName());
+		result.put("baseCode", groupBase.getBaseLine());
+		if (oneYearRateOfBank.equals(groupBase.getBaseLine())) {
+			LocalDate startDate = InstantDateUtil.toLocalDate(startTime);
+			LocalDate endDate = InstantDateUtil.toLocalDate(endTime);
+
+			// 过滤工作日
+			BigDecimal dayNum = BigDecimal.ZERO;
+			while (startDate.isBefore(endDate.plusDays(1))) {
+				Map map = new HashMap(2);
+				map.put("date", InstantDateUtil.format(startDate));
+				map.put("dayup", oneDayRate.multiply(dayNum).setScale(2, BigDecimal.ROUND_HALF_UP));
+				dayNum = dayNum.add(BigDecimal.ONE);
+				startDate = startDate.plusDays(1);
+				baseLineList.add(map);
+			}
+		} else {
+			List<FundBaseClose> fundBaseCloseList = mongoFundBaseCloseRepository
+					.findByQueryDateBetween(startTime, endTime, new Sort(Direction.ASC, "querydate"));
+
+			FundBaseClose startBaseClose = fundBaseCloseList.get(0);
+
+			for (int i = 0; i < fundBaseCloseList.size(); i++) {
+				FundBaseClose fundBaseClose = fundBaseCloseList.get(i);
+
+				Map map = new HashMap(2);
+				map.put("date", fundBaseClose.getQueryDateStr());
+				BigDecimal dayUp = BigDecimal.ZERO;
+				String baseName = groupBase.getBaseLine();
+
+				switch (baseName) {
+					case "GDAXIGI":
+						dayUp = fundBaseClose.getGDAXIGI()
+								.subtract(startBaseClose.getGDAXIGI())
+								.divide(startBaseClose.getGDAXIGI(), MathContext.DECIMAL128);
+						break;
+					case "000300SH":
+						dayUp = fundBaseClose.getSH300()
+								.subtract(startBaseClose.getSH300())
+								.divide(startBaseClose.getSH300(), MathContext.DECIMAL128);
+						break;
+					case "300SH_6_CSI_4":
+						dayUp = fundBaseClose.getSH300_6_CSI_4()
+								.subtract(startBaseClose.getSH300_6_CSI_4())
+								.divide(startBaseClose.getSH300_6_CSI_4(), MathContext.DECIMAL128);
+						break;
+					case "300SH_4_CSI_6":
+						dayUp = fundBaseClose.getSH300_4_CSI_6()
+								.subtract(startBaseClose.getSH300_4_CSI_6())
+								.divide(startBaseClose.getSH300_4_CSI_6(), MathContext.DECIMAL128);
+						break;
+					case "300SH_5_CSI_5":
+						dayUp = fundBaseClose.getSH300_5_CSI_5()
+								.subtract(startBaseClose.getSH300_5_CSI_5())
+								.divide(startBaseClose.getSH300_5_CSI_5(), MathContext.DECIMAL128);
+						break;
+					case "H11001CSI":
+						dayUp = fundBaseClose.getH11001CSI()
+								.subtract(startBaseClose.getH11001CSI())
+								.divide(startBaseClose.getH11001CSI(), MathContext.DECIMAL128);
+						break;
+					case "000905SH":
+						dayUp = fundBaseClose.getSH905()
+								.subtract(startBaseClose.getSH905())
+								.divide(startBaseClose.getSH905(), MathContext.DECIMAL128);
+						break;
+					default:
+				}
+				map.put("dayup",
+						dayUp.multiply(ONE_HUNDRED).setScale(2, BigDecimal.ROUND_HALF_UP));
+				baseLineList.add(map);
+			}
+		}
+		result.put("date", baseLineList);
+		return result;
 	}
 
 	/**
