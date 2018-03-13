@@ -1358,12 +1358,7 @@ public class UserInfoController {
 		// 累计收益率
 		resultMap.put("totalRevenueRate", totalRevenueRate);
 		//收益走势图
-		Map<String, Object> trendYieldMap = userInfoService.getTrendYield(userUuid);
-		if (trendYieldMap != null && trendYieldMap.size() > 0) {
-			resultMap.put("trendYield", trendYieldMap.get("trendYield"));
-		} else {
-			resultMap.put("trendYield", new ArrayList<Map<String, Object>>());
-		}
+		resultMap.put("trendYield", userInfoService.getTrendYield(userUuid));
 		resultMap.put("trendYieldTitle", "累计收益走势图 ");
 		//每日收益
 
