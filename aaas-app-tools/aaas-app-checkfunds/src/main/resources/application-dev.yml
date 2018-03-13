@@ -1,6 +1,6 @@
 ---
 server:
-  port: 10030
+  port: 10150
   contextPath: /
 ---
 spring:
@@ -10,6 +10,8 @@ spring:
         database: funds
         host: 192.168.1.10
         port: 27017
+        toolsdb: aaas_tools
+
   http:
     multipart:
       max-file-size: 2MB
@@ -33,10 +35,15 @@ datasource:
       dialect: org.hibernate.dialect.MySQLDialect
 shellshellfish:
   asset-alloction-url: "http://localhost:10020"
-  csvFilePath: temp
-  csvFileOriginName: csvFundsInfo
+  csvFilePath: /temp
+  csvFundFileOriginName: csvFundsInfo
+  csvBaseFileOriginName: csvBaseInfo
 cron:
   frequency:
     #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
     # 	Every 10 minutes
-    jobwithcrontrigger: 0 0/2 0 ? * * *
+    jobCheckFunds: 0 0/2 0 ? * * *
+grpc:
+  pythonServer:
+    ip: 192.168.1.65
+    port: 10161

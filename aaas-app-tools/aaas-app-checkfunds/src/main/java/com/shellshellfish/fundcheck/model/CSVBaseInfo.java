@@ -1,23 +1,19 @@
 package com.shellshellfish.fundcheck.model;
 
-import com.opencsv.bean.CsvBindByName;
-
 /**
  * Created by chenwei on 2018- 三月 - 07
  */
 public class CSVBaseInfo {
 
 
+  private String date;//from yyyy-mm-dd to yyyy/MM/dd
 
-  @CsvBindByName(column = "代码", required = true)
   private String code; //基准代码
 
-  @CsvBindByName(column = "基准名称", required = true)
-  private String baseName;
 
-  @CsvBindByName(column = "日期", required = true)
-  private String navlatestdate; //最新净值日期
-  @CsvBindByName(column = "收盘价", required = true)
+
+
+
   private String close; //单位净值
 
   public String getCode() {
@@ -28,27 +24,36 @@ public class CSVBaseInfo {
     this.code = code;
   }
 
-  public String getBaseName() {
-    return baseName;
-  }
 
-  public void setBaseName(String baseName) {
-    this.baseName = baseName;
-  }
 
-  public String getNavlatestdate() {
-    return navlatestdate;
-  }
-
-  public void setNavlatestdate(String navlatestdate) {
-    this.navlatestdate = navlatestdate;
-  }
 
   public String getClose() {
     return close;
   }
 
   public void setClose(String close) {
+    this.close = close;
+  }
+
+  public String getDate() {
+    return date;
+  }
+
+  public void setDate(String date) {
+    this.date = date;
+  }
+
+  public CSVBaseInfo(String date, String code,  String close) {
+//    if(date.contains("-")){
+//      this.date = date.replace("-","\\/");
+//    }else{
+//      this.date = date;
+//    }
+    String[] dateItems = date.split("\\/");
+    this.date = String.format("%04d-%02d-%02d",Integer.parseInt(dateItems[0]),Integer.parseInt
+        (dateItems[1]),Integer.parseInt(dateItems[2]));
+    this.code = code;
+
     this.close = close;
   }
 }

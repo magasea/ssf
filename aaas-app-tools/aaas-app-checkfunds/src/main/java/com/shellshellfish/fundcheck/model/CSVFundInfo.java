@@ -1,8 +1,5 @@
 package com.shellshellfish.fundcheck.model;
 
-import org.springframework.data.mongodb.core.mapping.Field;
-import com.opencsv.bean.CsvBindByName;
-
 /**
  * Created by chenwei on 2018- 三月 - 07
  */
@@ -10,53 +7,20 @@ public class CSVFundInfo {
 
 
 
-  @CsvBindByName(column = "代码", required = true)
+
   private String code; //基金代码
 
-  @CsvBindByName(column = "基金名称", required = true)
-  private String fundName;
 
-  @CsvBindByName(column = "日期", required = true)
-  private String navlatestdate; //最新净值日期
-  @CsvBindByName(column = "单位净值", required = true)
-  private String navunit; //单位净值
-  @CsvBindByName(column = "累计单位净值", required = true)
-  private String navaccum; //累计单位净值
 
-  @CsvBindByName(column = "复权单位净值", required = true)
-  private String navadj;  //复权单位净值
 
-  public String getNavadj() {
-    return navadj;
-  }
+  private String date; //最新净值日期
 
-  public void setNavadj(String navadj) {
-    this.navadj = navadj;
-  }
+  private String unitNav; //单位净值
 
-  public String getNavlatestdate() {
-    return navlatestdate;
-  }
+  private String accumuLatedNav; //累计单位净值
 
-  public void setNavlatestdate(String navlatestdate) {
-    this.navlatestdate = navlatestdate;
-  }
 
-  public String getNavunit() {
-    return navunit;
-  }
-
-  public void setNavunit(String navunit) {
-    this.navunit = navunit;
-  }
-
-  public String getNavaccum() {
-    return navaccum;
-  }
-
-  public void setNavaccum(String navaccum) {
-    this.navaccum = navaccum;
-  }
+  private String adjustedNav;  //复权单位净值
 
   public String getCode() {
     return code;
@@ -66,11 +30,49 @@ public class CSVFundInfo {
     this.code = code;
   }
 
-  public String getFundName() {
-    return fundName;
+
+
+  public String getDate() {
+    return date;
   }
 
-  public void setFundName(String fundName) {
-    this.fundName = fundName;
+  public void setDate(String date) {
+    this.date = date;
+  }
+
+  public String getUnitNav() {
+    return unitNav;
+  }
+
+  public void setUnitNav(String unitNav) {
+    this.unitNav = unitNav;
+  }
+
+  public String getAccumuLatedNav() {
+    return accumuLatedNav;
+  }
+
+  public void setAccumuLatedNav(String accumuLatedNav) {
+    this.accumuLatedNav = accumuLatedNav;
+  }
+
+  public String getAdjustedNav() {
+    return adjustedNav;
+  }
+
+  public void setAdjustedNav(String adjustedNav) {
+    this.adjustedNav = adjustedNav;
+  }
+
+  public CSVFundInfo(String date, String code, String unitNav,
+      String accumuLatedNav, String adjustedNav) {
+    this.code = code;
+    String[] dateItems = date.split("\\/");
+
+    this.date = String.format("%04d-%02d-%02d",Integer.parseInt(dateItems[0]),Integer.parseInt
+        (dateItems[1]),Integer.parseInt(dateItems[2]));
+    this.unitNav = unitNav;
+    this.accumuLatedNav = accumuLatedNav;
+    this.adjustedNav = adjustedNav;
   }
 }

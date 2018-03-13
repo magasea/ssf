@@ -32,11 +32,9 @@ public class SpringQrtzScheduler {
     @Autowired
     private ApplicationContext applicationContext;
 
-    @Value("${cron.frequency.jobwithcrontrigger}")
-    String cronExpr;
 
-    @Value("${cron.frequency.jobpreorderpayflowcheck}")
-    String cronExprJobpreorderpayflowcheck;
+    @Value("${cron.frequency.jobCheckFunds}")
+    String cronExprJobCheckFunds;
 
     @PostConstruct
     public void init() {
@@ -52,34 +50,18 @@ public class SpringQrtzScheduler {
         return jobFactory;
     }
 
-//
-//    @Bean
-//    public JobDetailFactoryBean jobDetail() {
-//
-//        JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
-//        jobDetailFactory.setJobClass(CheckFundsBuyJob.class);
-//        jobDetailFactory.setName("Qrtz_Job_Detail");
-//        jobDetailFactory.setDescription("Invoke Sample Job service...");
-//        jobDetailFactory.setDurability(true);
-//        return jobDetailFactory;
-//    }
+
 
 
     @Bean
-    public Scheduler scheduler(Trigger triggerGetZZConfirmInfoToUpdatePayFlow, JobDetail
-        jobGetZZConfirmInfoToUpdatePayFlow, Trigger triggerGetZZConfirmInfoToTrggerPreOrder, JobDetail jobGetZZConfirmInfoToTrggerPreOrder) throws
+    public Scheduler scheduler(Trigger triggerCheckFunds, JobDetail
+        jobCheckFunds) throws
         SchedulerException, IOException {
-
         StdSchedulerFactory factory = new StdSchedulerFactory();
-//        factory.initialize(new ClassPathResource("quartz.properties").getInputStream());
-
         logger.debug("Getting a handle to the Scheduler");
         Scheduler scheduler = factory.getScheduler();
         scheduler.setJobFactory(springBeanJobFactory());
-
-        //schedule getZZConfirmInfoToUpdatePayFlow
-        scheduler.scheduleJob(jobGetZZConfirmInfoToUpdatePayFlow, triggerGetZZConfirmInfoToUpdatePayFlow);
-        scheduler.scheduleJob(jobGetZZConfirmInfoToTrggerPreOrder, triggerGetZZConfirmInfoToTrggerPreOrder);
+        scheduler.scheduleJob(jobCheckFunds, triggerCheckFunds);
         logger.debug("Starting Scheduler threads");
         scheduler.start();
         return scheduler;
@@ -92,21 +74,21 @@ public class SpringQrtzScheduler {
 //    }
 
     @Bean
-    public JobDetail jobGetZZConfirmInfoToUpdatePayFlow() {
-        JobKey jobKey = new JobKey("Qrtz_Job_GetZZConfirmInfoToUpdatePayFlow", "pay");
+    public JobDetail jobCheckFunds() {
+        JobKey jobKey = new JobKey("Qrtz_Job_CheckFunds", "checkers");
         JobDetail job = JobBuilder.newJob(CheckFundsCSVInfoJob.class).withIdentity(jobKey)
-            .withDescription("Invoke GetZZConfirmInfoToUpdatePayFlow Job service...").build();
+            .withDescription("Invoke Qrtz_Job_CheckFunds Job service...").build();
         return  job;
     }
 
     @Bean
-    public Trigger  triggerGetZZConfirmInfoToUpdatePayFlow() {
+    public Trigger  triggerCheckFunds() {
 
 
         Trigger trigger = TriggerBuilder
             .newTrigger()
-            .withIdentity("Qrtz_Trigger_GetZZConfirmInfoToUpdatePayFlow", "pay")
-            .withSchedule(CronScheduleBuilder.cronSchedule(cronExpr))
+            .withIdentity("Qrtz_Job_CheckFunds", "checkers")
+            .withSchedule(CronScheduleBuilder.cronSchedule(cronExprJobCheckFunds))
             .build();
         return trigger;
     }

@@ -13,8 +13,7 @@ import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @Configuration
-@EnableMongoRepositories(basePackages = {
-		"com.shellshellfish.datamanager.repositories"})
+@EnableMongoRepositories(basePackages = {"com.shellshellfish.fundcheck.repositories.mongo"})
 public class MongodbConfig {
 
 	@Value("${spring.data.mongodb.host}")
@@ -25,6 +24,9 @@ public class MongodbConfig {
 
 	@Value("${spring.data.mongodb.database}")
 	String database;
+
+	@Value("${spring.data.mongodb.toolsdb}")
+	String toolsdb;
 
 	@Bean
 	public MongoTemplate mongoTemplate() {
@@ -38,6 +40,17 @@ public class MongodbConfig {
 		return mongoTemplate;
 	}
 
+	@Bean
+	public MongoTemplate mongoToolsTemplate() {
+		MongoTemplate mongoTemplate = new MongoTemplate(new MongoClient(host, port),
+				toolsdb);
+
+		MappingMongoConverter mongoMapping = (MappingMongoConverter) mongoTemplate.getConverter();
+		mongoMapping
+				.setCustomConversions(customConversions()); // tell mongodb to use the custom converters
+		mongoMapping.afterPropertiesSet();
+		return mongoTemplate;
+	}
 	/**
 	 * Returns the list of custom converters that will be used by the MongoDB template
 	 **/
