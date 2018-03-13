@@ -109,9 +109,11 @@ public class CalculateUserDailyIncome {
 
 
 	private void calculateUserDailyIncome(List<UiUser> uiUserList, LocalDate date) {
+		logger.info("{} start", Thread.currentThread().getName());
 		for (UiUser uiUser : uiUserList) {
 			calculateUserDailyIncome(uiUser, date);
 		}
+		logger.info("{} end", Thread.currentThread().getName());
 	}
 
 	/**
