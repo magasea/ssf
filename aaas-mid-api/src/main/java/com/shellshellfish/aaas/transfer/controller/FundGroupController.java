@@ -30,6 +30,8 @@ import org.springframework.web.client.RestTemplate;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.URLutils;
 import com.shellshellfish.aaas.model.JsonResult;
+import com.shellshellfish.aaas.transfer.aop.AopTimeResources;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -67,6 +69,7 @@ public class FundGroupController {
 			@ApiImplicitParam(paramType = "query", name = "count", dataType = "String", required = false, value = "统计数量")})
 	@RequestMapping(value = "/getMyProductDetail", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getProductDetail(@RequestParam String uuid, @RequestParam String prodId,
 			@RequestParam String groupId, @RequestParam String subGroupId,
 			@RequestParam(required = false) String buyDate, @RequestParam(required = false) String totals,

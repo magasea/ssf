@@ -26,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.model.JsonResult;
+import com.shellshellfish.aaas.transfer.aop.AopTimeResources;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
 import com.shellshellfish.aaas.transfer.utils.EasyKit;
@@ -362,6 +363,7 @@ public class UserInfoController {
 			@ApiImplicitParam(paramType = "query", name = "type", dataType = "Integer", required = false, value = "类型（1：购买，2：赎回）") })
 	@RequestMapping(value = "/traderecords", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult tradeLogsOfUser(@RequestParam String uuid, @RequestParam(required = false) Integer type) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
@@ -467,6 +469,7 @@ public class UserInfoController {
 			@ApiImplicitParam(paramType = "query", name = "totalRevenueRate", dataType = "String", required = true, value = "累计收益率", defaultValue = "") })
 	@RequestMapping(value = "/asset", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult assetView(@RequestParam String uuid, @RequestParam("totalAssets") BigDecimal totalAssets,
 			@RequestParam("dailyReturn") BigDecimal dailyReturn, @RequestParam("totalRevenue") BigDecimal totalRevenue,
 			@RequestParam("totalRevenueRate") String totalRevenueRate) {

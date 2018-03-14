@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.model.JsonResult;
+import com.shellshellfish.aaas.transfer.aop.AopTimeResources;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
 
@@ -60,6 +61,7 @@ public class FundDetailedController {
 	})
 	@RequestMapping(value = "/getFundDetails", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getFundInfoByCodes(@RequestParam String code, @RequestParam(required = false) String date) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
@@ -133,6 +135,7 @@ public class FundDetailedController {
 	})
 	@RequestMapping(value = "/getHistoryNetvalue", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getHistoryNetvalue(@RequestParam String code, @RequestParam String type, @RequestParam(required = false) String date) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
@@ -277,6 +280,7 @@ public class FundDetailedController {
 	@ApiIgnore
 	@RequestMapping(value = "/getFundTradeNotices", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getFundTradeNotices(@RequestParam String code) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
@@ -303,6 +307,7 @@ public class FundDetailedController {
 	})
 	@RequestMapping(value = "/getFundInfoBycode", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getFundInfo(@RequestParam String code) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
@@ -329,6 +334,7 @@ public class FundDetailedController {
 	})
 	@RequestMapping(value = "/getFundManager", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getFundManager(@RequestParam String name) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
@@ -355,6 +361,7 @@ public class FundDetailedController {
 	})
 	@RequestMapping(value = "/getFundCompanyDetailInfo", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getFundCompanyDetailInfo(@RequestParam String name) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
@@ -383,6 +390,7 @@ public class FundDetailedController {
 	})
 	//@RequestMapping(value = "/getFundCompany", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getFundCompany(@RequestParam String code) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
@@ -409,6 +417,7 @@ public class FundDetailedController {
 	})
 	@RequestMapping(value = "/getFundNotices", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getFundNotices(@RequestParam String code) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {

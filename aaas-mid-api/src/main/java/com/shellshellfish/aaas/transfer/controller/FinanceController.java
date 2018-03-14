@@ -30,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
 import com.shellshellfish.aaas.dto.FinanceProductCompo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
+import com.shellshellfish.aaas.transfer.aop.AopTimeResources;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 import com.shellshellfish.aaas.transfer.utils.EasyKit;
 
@@ -75,6 +76,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/finance-home", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult financeHome(
 			@RequestParam(required = false) String uuid,
 			@RequestParam(required = false) String isTestFlag,
@@ -274,15 +276,11 @@ public class FinanceController {
 	@ApiOperation("进入理财页面后的数据")
 	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult financeModule() {
-		long startTime = System.currentTimeMillis();
-		logger.info("（进入理财页面后页面）开始时间：" + startTime);
 		// 先获取全部产品
 		JsonResult result = restTemplate
 				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage", JsonResult.class).getBody();
-		long endTime = System.currentTimeMillis();
-		logger.info("（进入理财页面后页面）结束时间：" + endTime);
-		logger.info("该方法执行时间为: " + (endTime - startTime));
 		return result;
 	}
 
@@ -357,16 +355,12 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/checkPrdDetails", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getPrdDetails(String groupId, String subGroupId) {
-		long startTime = System.currentTimeMillis();
-		logger.info("（理财产品查看详情页面）开始时间：" + startTime);
 		// 先获取全部产品
 		JsonResult result = restTemplate
 				.getForEntity(dataManagerUrl + "/api/datamanager/getCheckPrdDetails?groupId=" + groupId + "&subGroupId="
 						+ subGroupId, JsonResult.class).getBody();
-		long endTime = System.currentTimeMillis();
-		logger.info("（理财产品查看详情页面）结束时间：" + endTime);
-		logger.info("该方法执行时间为: " + (endTime - startTime));
 		return result;
 	}
 
@@ -378,6 +372,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/historicalPerformancePage", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getHistoricalPerformance(@RequestParam(required = false) String groupId,
 			@RequestParam(required = false) String subGroupId,
 			@RequestParam(required = false) String productName) {
@@ -621,6 +616,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/futureExpectationPage", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getFutureExpectation(@RequestParam(required = false) String uuid,
 			@RequestParam String groupId, @RequestParam String subGroupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -776,6 +772,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/riskMangementPage", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getRiskManagement(@RequestParam(required = false) String uuid,
 			@RequestParam String groupId, @RequestParam String subGroupId,
 			@RequestParam(required = false) String productName) {
@@ -952,6 +949,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/globalConfigurationPage", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getGlobalConfiguration(@RequestParam(required = false) String uuid,
 			@RequestParam String groupId, @RequestParam String subGroupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -1009,6 +1007,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/getExpAnnualAndMaxReturn", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getExpAnnualAndMaxReturn(String groupId, String subGroupId) {
 		return new JsonResult(JsonResult.SUCCESS, "请求成功",
 				service.getExpAnnualAndMaxReturn(groupId, subGroupId));
@@ -1198,6 +1197,7 @@ public class FinanceController {
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "子产品组ID", defaultValue = "4009")})
 	@RequestMapping(value = "/contributions", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult contributions(@RequestParam String groupId, @RequestParam String subGroupId) {
 
 		String CONTRIBUTIONS_URL = "/api/asset-allocation/product-groups/{0}/sub-groups/{1}/contributions";
@@ -1212,6 +1212,7 @@ public class FinanceController {
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "子产品组ID", defaultValue = "4009")})
 	//@RequestMapping(value = "/portfolioYield", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult portfolioYield(@RequestParam String groupId, @RequestParam String subGroupId) {
 
 		String PORFOLIO_YIELD_URL = "/api/asset-allocation/product-groups/{0}/sub-groups/{1}/portfolio-yield";
@@ -1225,6 +1226,7 @@ public class FinanceController {
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "子产品组ID", defaultValue = "4009")})
 	//@RequestMapping(value = "/portfolioYieldWeek", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult portfolioYieldWeek(@RequestParam String groupId,
 			@RequestParam String subGroupId) {
 
@@ -1239,6 +1241,7 @@ public class FinanceController {
 			@ApiImplicitParam(paramType = "query", name = "productId", dataType = "String", required = true, value = "产品组ID", defaultValue = "1")})
 	//@RequestMapping(value = "/riskNotifications", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult riskNotifications(@RequestParam String productId) {
 
 		String PORFOLIO_YIELD_WEEK_URL = "/api/asset-allocation/products/{0}/risk-notifications";
@@ -1254,6 +1257,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/optAdjustment", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getOptAdjustment(String invstTerm, String riskLevel) {
 		try {
 			return new JsonResult(JsonResult.SUCCESS, "请求成功",
@@ -1321,6 +1325,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/optimizations", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult Optimizations(@RequestParam String groupId, @RequestParam String riskPointValue,
 			@RequestParam String incomePointValue) {
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -1353,6 +1358,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/inComeSlidebarPoints", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult inComeSlidebarPoints(@RequestParam String groupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
@@ -1381,6 +1387,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/riskSlidebarPoints", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult riskSlidebarPoints(@RequestParam String groupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
@@ -1409,6 +1416,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/effectiveFrontierPoints", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult effectiveFrontierPoints(@RequestParam String groupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
