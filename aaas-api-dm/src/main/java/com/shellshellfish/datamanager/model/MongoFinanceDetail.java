@@ -22,10 +22,10 @@ public class MongoFinanceDetail implements Serializable {
 	@Field(value = "subGroupId")
 	private String subGroupId;
 
-	@Field(value = "head")
-	private Head head;
+//	@Field(value = "head")
+//	private Head head;
 
-	@Field(value = "jonResult")
+	@Field(value = "result")
 	private Object result;
 
 	@Column(name = "last_modified_by")
@@ -47,13 +47,13 @@ public class MongoFinanceDetail implements Serializable {
 		this.date = date;
 	}
 
-	public Head getHead() {
-		return head;
-	}
-
-	public void setHead(Head head) {
-		this.head = head;
-	}
+//	public Head getHead() {
+//		return head;
+//	}
+//
+//	public void setHead(Head head) {
+//		this.head = head;
+//	}
 
 	public Object getResult() {
 		return result;

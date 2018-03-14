@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -53,7 +54,7 @@ public class OptimizationApiController {
 	public JsonResult getFinanceModule() {
 		JsonResult result = optimizationService.getFinanceFront();
 		if (result != null) {
-			if(result.getHead()==null){
+			if (StringUtils.isEmpty(result)) {
 				optimizationService.financeFront();
 				result = optimizationService.getFinanceFront();
 			}
@@ -73,7 +74,7 @@ public class OptimizationApiController {
 	public JsonResult prdDetails() {
 		JsonResult jsonResult = null;
 		Boolean result = true;
-		mongoFinanceDetailRepository.deleteAll();
+//		mongoFinanceDetailRepository.deleteAll();
 		for(int i = 1;i < 16; i++){
 			String groupId = i + "";
 			String subGroupId = i + "0048";
