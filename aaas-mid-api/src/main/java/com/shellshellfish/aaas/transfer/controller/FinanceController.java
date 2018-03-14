@@ -275,10 +275,14 @@ public class FinanceController {
 	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult financeModule() {
+		long startTime = System.currentTimeMillis();
+		logger.info("（进入理财页面后页面）开始时间：" + startTime);
 		// 先获取全部产品
 		JsonResult result = restTemplate
 				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage", JsonResult.class).getBody();
-
+		long endTime = System.currentTimeMillis();
+		logger.info("（进入理财页面后页面）结束时间：" + endTime);
+		logger.info("该方法执行时间为: " + (endTime - startTime));
 		return result;
 	}
 
@@ -354,11 +358,15 @@ public class FinanceController {
 	@RequestMapping(value = "/checkPrdDetails", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getPrdDetails(String groupId, String subGroupId) {
+		long startTime = System.currentTimeMillis();
+		logger.info("（理财产品查看详情页面）开始时间：" + startTime);
 		// 先获取全部产品
 		JsonResult result = restTemplate
 				.getForEntity(dataManagerUrl + "/api/datamanager/getCheckPrdDetails?groupId=" + groupId + "&subGroupId="
 						+ subGroupId, JsonResult.class).getBody();
-
+		long endTime = System.currentTimeMillis();
+		logger.info("（理财产品查看详情页面）结束时间：" + endTime);
+		logger.info("该方法执行时间为: " + (endTime - startTime));
 		return result;
 	}
 
@@ -373,6 +381,8 @@ public class FinanceController {
 	public JsonResult getHistoricalPerformance(@RequestParam(required = false) String groupId,
 			@RequestParam(required = false) String subGroupId,
 			@RequestParam(required = false) String productName) {
+		long startTime = System.currentTimeMillis();
+		logger.info("历史业绩：" + startTime);
 		// 先获取全部产品
 		String url = assetAlloctionUrl
 				+ "/api/asset-allocation/product-groups/historicalPer-formance?fund_group_id=" + groupId
@@ -596,6 +606,10 @@ public class FinanceController {
 			return new JsonResult(JsonResult.SUCCESS, "获取收益率失败", result);
 		}
 		result.put("title", title);
+		
+		long endTime = System.currentTimeMillis();
+		logger.info("（历史业绩）结束时间：" + endTime);
+		logger.info("该方法执行时间为: " + (endTime - startTime));
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 	}
 
