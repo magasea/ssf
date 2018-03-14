@@ -156,7 +156,8 @@ public class OptimizationServiceImpl implements OptimizationService {
 			MongoFinanceAll mongoFinanceCount = mongoFinanceALLRepository.findAllByDate(date);
 			if(mongoFinanceCount!=null){
 				logger.info("已存在，删除后重新插入");
-				mongoFinanceALLRepository.deleteAllByDate(date);
+//				mongoFinanceALLRepository.deleteAllByDate(date);
+				mongoFinanceALLRepository.deleteAll();
 			}
 			mongoFinanceALLRepository.save(mongoFinanceAll);
 			System.out.println(date + "--数据插入成功，"+jsonResult.getResult().toString());
@@ -375,7 +376,8 @@ public class OptimizationServiceImpl implements OptimizationService {
 			MongoFinanceDetail mongoFinanceCount = mongoFinanceDetailRepository.findAllByDateAndGroupIdAndSubGroupId(date, groupId, subGroupId);
 			if(mongoFinanceCount!=null){
 				logger.info("已存在，删除后重新插入");
-				mongoFinanceDetailRepository.deleteAllByDate(date);
+//				mongoFinanceDetailRepository.deleteAllByDate(date);
+				mongoFinanceDetailRepository.deleteAll();
 			}
 			mongoFinanceDetailRepository.save(mongoFinanceDetail);
 			System.out.println(date + "--数据插入成功，"+jsonResult.getResult().toString());
