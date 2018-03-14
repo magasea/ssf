@@ -59,7 +59,7 @@ public class CalculateUserDailyIncome {
 	@Value("${daily-finance-calculate-thread}")
 
 	private Integer threadNum;
-	private static ExecutorService threadPool = Executors.newCachedThreadPool();
+	private ExecutorService threadPool = Executors.newCachedThreadPool();
 
 	public void dailyCalculateIncome(LocalDate date) {
 		List<UiUser> users = userInfoRepository.findAll();
@@ -73,20 +73,24 @@ public class CalculateUserDailyIncome {
 		if (size <= threadNum * 2) {
 			calculateUserDailyIncome(users, date);
 		} else {
-			int averageSize;
-			if (size % threadNum == 0) {
-				averageSize = size / threadNum;
-			} else {
-				averageSize = size / threadNum + 1;
-			}
-
+			int averageSize = size / threadNum;
 			CountDownLatch countDownLatch = new CountDownLatch(threadNum);
 			for (int i = 0; i < threadNum; i++) {
 				int fromIndex = i * averageSize;
-				int toIndex = (i + 1) * averageSize <= size ? (i + 1) * averageSize : size;
+				int toIndex;
+				if (i == threadNum - 1) {
+					toIndex = size;
+				} else {
+					toIndex = (i + 1) * averageSize;
+				}
 				threadPool.submit(() -> {
-							calculateUserDailyIncome(users.subList(fromIndex, toIndex), date);
-							countDownLatch.countDown();
+							try {
+								calculateUserDailyIncome(users.subList(fromIndex, toIndex), date);
+							} catch (Exception e) {
+								logger.error("calculate daily income error  date :{}", date, e);
+							} finally {
+								countDownLatch.countDown();
+							}
 						},
 						countDownLatch);
 			}
