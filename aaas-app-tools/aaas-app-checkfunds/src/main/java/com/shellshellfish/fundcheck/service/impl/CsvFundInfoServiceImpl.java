@@ -1,36 +1,30 @@
 package com.shellshellfish.fundcheck.service.impl;
 
 
-import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.fundcheck.commons.CheckFundsEnum;
 import com.shellshellfish.fundcheck.commons.FundTablesIndexEnum;
 import com.shellshellfish.fundcheck.model.BaseCheckRecord;
 import com.shellshellfish.fundcheck.model.CSVBaseInfo;
 import com.shellshellfish.fundcheck.model.CSVFundInfo;
-import com.shellshellfish.fundcheck.model.DailyFunds;
 import com.shellshellfish.fundcheck.model.FundCheckRecord;
 import com.shellshellfish.fundcheck.model.FundYieldRate;
 import com.shellshellfish.fundcheck.service.CsvFundInfoService;
 import com.shellshellfish.fundcheck.service.FundGrpcService;
 import com.shellshellfish.fundcheck.utils.CSVParser;
+import com.shellshellfish.fundcheck.utils.CheckerUtils;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.io.Reader;
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CodingErrorAction;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,7 +111,70 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
     }
     fundGrpcService.checkFunds(codes, beginDate, endDate, FundTablesIndexEnum.FUND_YIELDRATE
         .getIndex());
+    checkAndUpdateToolsFundRecords();
   }
+
+  private void checkAndUpdateToolsFundRecords() {
+
+    Query query = new Query();
+    Criteria criteriaResult = Criteria.where("result").lte(CheckFundsEnum.DIFFERENT.getStatus());
+    query.addCriteria(criteriaResult);
+    List<FundCheckRecord> fundCheckRecords = mongoToolsTemplate.find(query, FundCheckRecord
+        .class, "fund_check_record");
+    if(CollectionUtils.isEmpty(fundCheckRecords)){
+      logger.info("there is no record need check for baseRecords");
+      return;
+    }
+    for(FundCheckRecord fundCheckRecord: fundCheckRecords){
+      query = new Query();
+      Criteria criteriaCode = Criteria.where("querydatestr").is(fundCheckRecord.getDate().replace
+          ("-","/")).and
+          ("code").is(fundCheckRecord.getCode());
+      query.addCriteria(criteriaCode);
+      List<FundYieldRate> results = mongoTemplate.find(query, FundYieldRate.class,
+          "fund_yieldrate");
+      if(CollectionUtils.isEmpty(results)){
+        logger.info("failed to find FundYieldRate for date:{} and code:{}",fundCheckRecord
+            .getDate(), fundCheckRecord.getCode());
+        continue;
+      }
+      FundYieldRate fundYieldRate =  results.get(0);
+      if(compareRecordAndDbData(fundCheckRecord, fundYieldRate)!= 0){
+        fundCheckRecord.setUnitNav(fundYieldRate.getNavunit().toString());
+        fundCheckRecord.setAdjustedNav(fundYieldRate.getNavadj().toString());
+        fundCheckRecord.setAccumulatedNav(fundYieldRate.getNavaccum().toString());
+        fundCheckRecord.setResult(CheckFundsEnum.UPDATEFAILED.getStatus());
+      }else{
+        fundCheckRecord.setUnitNav(fundYieldRate.getNavunit().toString());
+        fundCheckRecord.setAdjustedNav(fundYieldRate.getNavadj().toString());
+        fundCheckRecord.setAccumulatedNav(fundYieldRate.getNavaccum().toString());
+        fundCheckRecord.setResult(CheckFundsEnum.UPDATESUCCESS.getStatus());
+      }
+      mongoToolsTemplate.save(fundCheckRecord);
+    }
+
+  }
+
+  private int compareRecordAndDbData(FundCheckRecord fundCheckRecord, FundYieldRate fundYieldRate) {
+    if(fundCheckRecord.getAccumulatedNav() == null || fundCheckRecord.getAdjustedNav() == null ||
+        fundCheckRecord.getUnitNav() == null){
+      return -1;
+    }
+    if(!CheckerUtils.rundUpCheckEq(fundCheckRecord.getCsvAccumulatedNav(), fundYieldRate.getNavaccum
+        ().toString())) {
+      return -1;
+    }
+    if(!CheckerUtils.rundUpCheckEq(fundCheckRecord.getCsvAdjustedNav(), fundYieldRate.getNavadj()
+        .toString())) {
+      return -1;
+    }
+    if(!CheckerUtils.rundUpCheckEq(fundCheckRecord.getCsvUnitNav(), fundYieldRate.getNavunit()
+        .toString())) {
+      return -1;
+    }
+    return 0;
+  }
+
 
   private void processBaseInfoSync() {
     Query queryUpdate = new Query();
@@ -141,12 +198,73 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
       if(!StringUtils.isEmpty(endDate) && endDate.compareTo(baseCheckRecord.getDate()) < 0){
         endDate = baseCheckRecord.getDate();
       }
-      codes.add(baseCheckRecord.getCode());
+//      codes.add(baseCheckRecord.getCode());
+
     }
+    codes.add("all");
     fundGrpcService.checkFunds(codes, beginDate, endDate, FundTablesIndexEnum.FUNDBASECLOSE
         .getIndex());
-
+    checkAndUpdateToolsBaseRecords();
+//    updateToolsBaseRecords(codes, beginDate, endDate, FundTablesIndexEnum.FUND_YIELDRATE
+//        .getIndex());
   }
+
+  public void checkAndUpdateToolsBaseRecords(){
+    Set<String> queryDatesStrs = new HashSet<>();
+    Query query = new Query();
+    Criteria criteriaResult = Criteria.where("result").lte(CheckFundsEnum.DIFFERENT.getStatus());
+    query.addCriteria(criteriaResult);
+    List<BaseCheckRecord> baseCheckRecords = mongoToolsTemplate.find(query, BaseCheckRecord
+        .class, "base_check_record");
+    if(!CollectionUtils.isEmpty(baseCheckRecords)){
+      baseCheckRecords.forEach(item-> queryDatesStrs.add(item.getDate()));
+    }else{
+      logger.info("there is no record need check for baseRecords");
+      return;
+    }
+
+    Map<String, Map<String, Object>> fundBaseCloses = new HashMap<>();
+    for(String queryDate : queryDatesStrs){
+      query = new Query();
+      Criteria criteriaCode = Criteria.where("querydatestr").is(queryDate);
+      query.addCriteria(criteriaCode);
+      List<Map> results = mongoTemplate.find(query, Map.class,
+          "fundbaseclose");
+      if(CollectionUtils.isEmpty(results)){
+        logger.info("failed to find fundBaseClose for date:{}",queryDate);
+        continue;
+      }else{
+        logger.info("find {} fundBaseClose for date:{}",results.size(), queryDate);
+        fundBaseCloses.put(queryDate, results.get(0));
+      }
+    }
+    for(BaseCheckRecord baseCheckRecord: baseCheckRecords){
+      Map<String, Object> fundBaseCloseMap =  fundBaseCloses.get(baseCheckRecord.getDate());
+      if(fundBaseCloseMap == null){
+        logger.error("there is no fundBaseClose info for date:{}", baseCheckRecord.getDate());
+        continue;
+      }
+      String localTempCode = baseCheckRecord.getCode().replace(".","");
+      Double fundBaseCloseInDB = (Double)fundBaseCloseMap.get(localTempCode);
+      if(fundBaseCloseInDB != null && baseCheckRecord.getCsvClose() !=null && CheckerUtils
+          .rundUpCheckEq(fundBaseCloseInDB.toString(),
+          baseCheckRecord.getCsvClose())){
+        baseCheckRecord.setClose(fundBaseCloseInDB.toString());
+        baseCheckRecord.setResult(CheckFundsEnum.UPDATESUCCESS.getStatus());
+      }else{
+        if(fundBaseCloseInDB != null){
+          baseCheckRecord.setClose(fundBaseCloseInDB.toString());
+        }else{
+          logger.error("failed find fundBaseCloseInDB for code:{} and date:{}",baseCheckRecord
+              .getCode(), baseCheckRecord.getDate());
+        }
+
+        baseCheckRecord.setResult(CheckFundsEnum.UPDATEFAILED.getStatus());
+      }
+      mongoToolsTemplate.save(baseCheckRecord);
+    }
+  }
+
 
 
   private void handleBaseInfo(BufferedReader reader) {
@@ -185,8 +303,8 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
             + "fundbaseclose", item.getDate(), item.getCode());
         needMakeRecord = true;
       }else{
-        if(!item.getClose().equals(
-        ((Double)fundbasecloses.get(0).get(item.getCode())).toString())){
+        if(!CheckerUtils.rundUpCheckEq(item.getClose(),((Double)fundbasecloses.get(0).get(item
+            .getCode())).toString())){
           logger.error("this date:{} code:{} in fundbaseclose is inconsistent csv:{}, db:{}", item
               .getDate(), item.getCode(), item.getClose(),fundbasecloses.get(0).get(item.getCode()) );
 
@@ -251,7 +369,12 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
     Query query = new Query();
     Criteria criteria = Criteria.where("querydatestr");
     Criteria criteriaCode = Criteria.where("code");
-    query.addCriteria(criteria.is(item.getDate()));
+    if(item.getDate().contains("-")){
+      query.addCriteria(criteria.is(item.getDate().replace("-","/")));
+    }else{
+      query.addCriteria(criteria.is(item.getDate()));
+    }
+
     query.addCriteria(criteriaCode.is(item.getCode()));
     List<FundYieldRate> dailyFunds = null;
     dailyFunds = mongoTemplate.find(query, FundYieldRate.class, "fund_yieldrate");
@@ -261,73 +384,26 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
       findAndModifyFundCheck(item, null);
     }else{
       FundYieldRate fundYieldRate = dailyFunds.get(0);
-        if(!item.getAccumuLatedNav().equals(fundYieldRate.getNavaccum().toString())|| !item.getAdjustedNav()
-            .equals(fundYieldRate.getNavadj().toString())||!item.getUnitNav().equals(fundYieldRate
-            .getNavunit().toString()))
-        {
-          logger.error("this date:{} code:{} in fund_yieldrate is inconsistent csv:{} {} {}, "
-                  + "db:{} {} {}",
-              item.getDate(), item.getCode(), item.getAccumuLatedNav(),item.getAdjustedNav(), item
-                  .getUnitNav(), fundYieldRate.getNavaccum(), fundYieldRate.getNavadj(),
-              fundYieldRate.getNavunit() );
-          int checkNotLikely = 0;
-          if(!item.getAdjustedNav().equals(fundYieldRate.getNavadj().toString())){
-            String fyrNavAdj = fundYieldRate.getNavadj().toString();
-            String subStr = fyrNavAdj.substring(0, fyrNavAdj.length() -1);
-            if(item.getAdjustedNav().startsWith(subStr)){
-              int dbNumber = Integer.parseInt(fyrNavAdj.substring(fyrNavAdj.length() -
-                  1,fyrNavAdj.length()));
-              int checkNumber = Integer.parseInt(item.getAdjustedNav().substring(fyrNavAdj.length
-                  () - 1,fyrNavAdj.length() ));
-              if(Math.abs(dbNumber - checkNumber) <= 1){
-                logger.info("fyrNavAdj:{} is like  checkAdjNav:{}", fyrNavAdj, item.getAdjustedNav());
-              }else{
-                checkNotLikely =+ 1;
-              }
-            }else{
-              checkNotLikely =+ 1;
-            }
-          }
-          else if(!item.getUnitNav().equals(fundYieldRate
-            .getNavunit().toString())){
-            String fyrNavUnit = fundYieldRate.getNavunit().toString();
-            String subStr = fyrNavUnit.substring(0, fyrNavUnit.length() -1);
-            if(item.getUnitNav().startsWith(subStr)){
-              int dbNumber = Integer.parseInt(fyrNavUnit.substring(fyrNavUnit.length() -
-                  1,fyrNavUnit.length()));
-              int checkNumber = Integer.parseInt(item.getAdjustedNav().substring(fyrNavUnit.length
-                  () - 1,fyrNavUnit.length()));
-              if(Math.abs(dbNumber - checkNumber) <= 1){
-                logger.info("fyrNavUnit:{} is like  checkNavUnit:{}", fyrNavUnit, item.getUnitNav());
-              }else{
-                checkNotLikely =+ 1;
-              }
-          }else{
-              checkNotLikely =+ 1;
-            }
-          }
-          else if(!item.getAccumuLatedNav().equals(fundYieldRate.getNavaccum().toString())){
-            String fyrNavaccum = fundYieldRate.getNavaccum().toString();
-            String subStr = fyrNavaccum.substring(0, fyrNavaccum.length() -1);
-            if(item.getUnitNav().startsWith(subStr)){
-              int dbNumber = Integer.parseInt(fyrNavaccum.substring(fyrNavaccum.length() -
-                  1,fyrNavaccum.length()));
-              int checkNumber = Integer.parseInt(item.getAccumuLatedNav().substring(fyrNavaccum.length
-                  () - 1,fyrNavaccum.length()));
-              if(Math.abs(dbNumber - checkNumber) <= 1){
-                logger.info("fyrNavaccum:{} is like  checkAccumUnit:{}", fyrNavaccum, item.getAccumuLatedNav());
-              }else{
-                checkNotLikely =+ 1;
-              }
-            }else{
-              checkNotLikely =+ 1;
-            }
-          }
-          if(checkNotLikely > 0){
-            findAndModifyFundCheck(item, fundYieldRate);
-          }
-        }
+      int checkNotLikely = compareCsvAndDbData(item, fundYieldRate);
+
+      if(checkNotLikely != 0){
+        findAndModifyFundCheck(item, fundYieldRate);
+      }
     }
+  }
+
+  private int compareCsvAndDbData(CSVFundInfo item, FundYieldRate fundYieldRate) {
+    if(!CheckerUtils.rundUpCheckEq(item.getAccumuLatedNav(), fundYieldRate.getNavaccum
+        ().toString())) {
+      return -1;
+    }
+    if(!CheckerUtils.rundUpCheckEq(item.getAdjustedNav(), fundYieldRate.getNavadj().toString())) {
+      return -1;
+    }
+    if(!CheckerUtils.rundUpCheckEq(item.getUnitNav(), fundYieldRate.getNavunit().toString())) {
+      return -1;
+    }
+    return 0;
   }
 
   private void findAndModifyFundCheck(CSVFundInfo csvFundInfo, FundYieldRate fundYieldRate){

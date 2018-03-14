@@ -45,5 +45,6 @@ cron:
     jobCheckFunds: 0 0/2 0 ? * * *
 grpc:
   pythonServer:
+#    ip: localhost
     ip: 192.168.1.65
     port: 10161

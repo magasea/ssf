@@ -33,7 +33,7 @@ public class FundGrpcServiceImpl implements FundGrpcService {
         dfqBuilder.setNavLatestDateStart(beginDate);
         dfqBuilder.setNavLatestDateEnd(endDate);
         try{
-        fundCheckRpcServiceBlockingStub.checkFunds(dfqBuilder.build());
+          fundCheckRpcServiceBlockingStub.checkFunds(dfqBuilder.build());
         }catch (Exception ex){
           logger.error("Exception:", ex);
         }

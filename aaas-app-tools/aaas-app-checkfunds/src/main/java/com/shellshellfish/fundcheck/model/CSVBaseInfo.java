@@ -44,12 +44,12 @@ public class CSVBaseInfo {
   }
 
   public CSVBaseInfo(String date, String code,  String close) {
-//    if(date.contains("-")){
-//      this.date = date.replace("-","\\/");
-//    }else{
-//      this.date = date;
-//    }
-    String[] dateItems = date.split("\\/");
+    String[] dateItems = null;
+    if(date.contains("/")){
+      dateItems = date.split("\\/");
+    }else if(date.contains("-")){
+      dateItems = date.split("\\-");
+    }
     this.date = String.format("%04d-%02d-%02d",Integer.parseInt(dateItems[0]),Integer.parseInt
         (dateItems[1]),Integer.parseInt(dateItems[2]));
     this.code = code;

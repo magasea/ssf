@@ -67,7 +67,13 @@ public class CSVFundInfo {
   public CSVFundInfo(String date, String code, String unitNav,
       String accumuLatedNav, String adjustedNav) {
     this.code = code;
-    String[] dateItems = date.split("\\/");
+    String[] dateItems = null;
+    if(date.contains("/")){
+      dateItems = date.split("\\/");
+    }else if(date.contains("-")){
+      dateItems = date.split("\\-");
+    }
+
 
     this.date = String.format("%04d-%02d-%02d",Integer.parseInt(dateItems[0]),Integer.parseInt
         (dateItems[1]),Integer.parseInt(dateItems[2]));
