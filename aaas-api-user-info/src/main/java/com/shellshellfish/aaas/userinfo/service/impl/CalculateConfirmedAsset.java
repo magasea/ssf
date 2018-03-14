@@ -94,7 +94,7 @@ public class CalculateConfirmedAsset {
 		}
 
 		DailyAmount dailyAmount = zhongZhengMongoTemplate
-				.findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
+				.findAndModify(query, update, new FindAndModifyOptions().returnNew(true),
 						DailyAmount.class);
 		logger.info(
 				"set buyAmount and sell Amount ==> dailyAmount:{}", dailyAmount);

@@ -784,14 +784,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
 		DailyAmount dailyAmount1 = zhongZhengMongoTemplate.findOne(query, DailyAmount.class);
 		if (dailyAmount1 == null) {
-			DailyAmount dailyAmount = new DailyAmount();
-			dailyAmount.setUserUuid(userUuid);
-			dailyAmount.setDate(date);
-			dailyAmount.setFundCode(fundCode);
-			dailyAmount.setProdId(prodId);
-			dailyAmount.setUserProdId(userProdId);
-			zhongZhengMongoTemplate.save(dailyAmount);
-			logger.info("save  dailyAmount ：{}", dailyAmount);
+			initDailyAmount(userUuid, prodId, userProdId, date, fundCode);
 		}
 	}
 
