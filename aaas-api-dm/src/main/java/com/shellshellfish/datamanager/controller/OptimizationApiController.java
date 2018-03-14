@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.shellshellfish.datamanager.model.JsonResult;
+import com.shellshellfish.datamanager.repositories.MongoFinanceDetailRepository;
 import com.shellshellfish.datamanager.service.OptimizationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -27,6 +28,9 @@ public class OptimizationApiController {
 
 	@Autowired
 	OptimizationService optimizationService;
+	
+	@Autowired
+	MongoFinanceDetailRepository mongoFinanceDetailRepository;
 
 	@ApiOperation("进入理财页面后的数据")
 	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
@@ -69,6 +73,7 @@ public class OptimizationApiController {
 	public JsonResult prdDetails() {
 		JsonResult jsonResult = null;
 		Boolean result = true;
+		mongoFinanceDetailRepository.deleteAll();
 		for(int i = 1;i < 16; i++){
 			String groupId = i + "";
 			String subGroupId = i + "0048";

@@ -153,12 +153,14 @@ public class OptimizationServiceImpl implements OptimizationService {
 			mongoFinanceAll.setResult(jsonResult.getResult());
 			System.out.println("---\n" + jsonResult.getResult().toString());
 			mongoFinanceAll.setLastModifiedBy(utcTime + "");
-			MongoFinanceAll mongoFinanceCount = mongoFinanceALLRepository.findAllByDate(date);
-			if(mongoFinanceCount!=null){
-				logger.info("已存在，删除后重新插入");
+//			MongoFinanceAll mongoFinanceCount = mongoFinanceALLRepository.findAllByDate(date);
+//			if(mongoFinanceCount!=null){
+//				logger.info("已存在，删除后重新插入");
 //				mongoFinanceALLRepository.deleteAllByDate(date);
-				mongoFinanceALLRepository.deleteAll();
-			}
+//				mongoFinanceALLRepository.deleteAll();
+//			}
+			mongoFinanceALLRepository.deleteAll();
+			
 			mongoFinanceALLRepository.save(mongoFinanceAll);
 			System.out.println(date + "--数据插入成功，"+jsonResult.getResult().toString());
 			logger.info("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.financeFront() success..");
@@ -373,12 +375,14 @@ public class OptimizationServiceImpl implements OptimizationService {
 			mongoFinanceDetail.setResult(jsonResult.getResult());
 			System.out.println("---\n" + jsonResult.getResult().toString());
 			mongoFinanceDetail.setLastModifiedBy(utcTime + "");
-			MongoFinanceDetail mongoFinanceCount = mongoFinanceDetailRepository.findAllByDateAndGroupIdAndSubGroupId(date, groupId, subGroupId);
-			if(mongoFinanceCount!=null){
-				logger.info("已存在，删除后重新插入");
+//			MongoFinanceDetail mongoFinanceCount = mongoFinanceDetailRepository.findAllByDateAndGroupIdAndSubGroupId(date, groupId, subGroupId);
+//			if(mongoFinanceCount!=null){
+//				logger.info("已存在，删除后重新插入");
 //				mongoFinanceDetailRepository.deleteAllByDate(date);
-				mongoFinanceDetailRepository.deleteAll();
-			}
+//				mongoFinanceDetailRepository.deleteAll();
+//			}
+//			mongoFinanceDetailRepository.deleteAll();
+			
 			mongoFinanceDetailRepository.save(mongoFinanceDetail);
 			System.out.println(date + "--数据插入成功，"+jsonResult.getResult().toString());
 			logger.info("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.checkPrdDetails() success..");
