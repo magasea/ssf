@@ -23,7 +23,19 @@ public class UserProdChangeLogServiceImpl implements UserProdChangeLogService{
   }
 
   @Override
-  public List<UserProdChgDetail> getDegailChangeLogs(Long prodId, Long changeSeq) {
+  public List<UserProdChgDetail> getDetailChangeLogs(Long prodId, Long changeSeq) {
     return null;
   }
+
+  @Override
+  public boolean insertGeneralChangeLogs(List<UserProdChg> userProdChgs) {
+    return false;
+  }
+
+  @Override
+  public boolean insertDetailChangeLogs(List<UserProdChgDetail> userProdChgDetails) {
+    return false;
+  }
+
+
 }
