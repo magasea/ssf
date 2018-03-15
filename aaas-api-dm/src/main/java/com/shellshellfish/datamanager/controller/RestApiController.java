@@ -3,7 +3,7 @@ package com.shellshellfish.datamanager.controller;
 
 import com.shellshellfish.datamanager.model.FundCodes;
 import com.shellshellfish.datamanager.service.DataService;
-import com.shellshellfish.datamanager.service.DataServiceImpl;
+import com.shellshellfish.datamanager.service.impl.DataServiceImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;

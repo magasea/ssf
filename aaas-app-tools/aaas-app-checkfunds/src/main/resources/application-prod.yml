@@ -1,0 +1,57 @@
+---
+server:
+  port: 10150
+  contextPath: /
+---
+spring:
+#  profiles: local, default
+datasource:
+  sampleapp:
+    url: jdbc:h2:~/test
+    username: SA
+    password:
+    driverClassName: org.h2.Driver
+    defaultSchema:
+    maxPoolSize: 10
+    hibernate:
+      hbm2ddl.method: create-drop
+      show_sql: true
+      format_sql: true
+      dialect: org.hibernate.dialect.H2Dialect
+  
+---
+spring:
+#  profiles: prod
+  data:
+      mongodb:
+        database: funds
+        host: localhost
+        port: 27017
+  http:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 10MB
+  redis:
+    host: localhost
+    port: 6379
+    password: redis123
+datasource:
+  sampleapp:
+    url: jdbc:mysql://localhost:3306/ssftrdorder?useUnicode=true&characterEncoding=utf-8
+    username: sa
+    password: 1qaz@WSX
+    driverClassName: com.mysql.jdbc.Driver
+    defaultSchema:
+    maxPoolSize: 20
+    hibernate:
+      hbm2ddl.method: update
+      show_sql: true
+      format_sql: true
+      dialect: org.hibernate.dialect.MySQLDialect
+shellshellfish:
+  asset-alloction-url: "http://localhost:10020"
+cron:
+  frequency:
+    #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
+    # 	Every 10 minutes
+    jobwithcrontrigger: 0 0/10 0 ? * * *
