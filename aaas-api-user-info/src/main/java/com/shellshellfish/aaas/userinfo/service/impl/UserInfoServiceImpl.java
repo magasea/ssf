@@ -23,6 +23,7 @@ import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoUserDailyIncome;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
@@ -45,6 +46,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
+import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoUserDailyIncomeRepository;
 import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
 import com.shellshellfish.aaas.userinfo.service.UiProductService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
@@ -111,6 +113,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Autowired
 	@Qualifier("zhongZhengMongoTemplate")
 	private MongoTemplate mongoTemplate;
+
+	@Autowired
+	MongoUserDailyIncomeRepository mongoUserDailyIncomeRepository;
 
 	PayRpcServiceFutureStub payRpcServiceFutureStub;
 
@@ -393,21 +398,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Override
 	public List<TrendYield> getTrendYield(String userUuid) throws Exception {
-		Aggregation agg = newAggregation(
-				match(Criteria.where("userId").is(getUserIdFromUUID(userUuid))),
-				group("createDateStr")
-						.first("createDateStr").as("date")
-						.sum("dailyIncome").as("value"));
 
-		List<TrendYield> list = mongoTemplate.aggregate(agg, "user_daily_income", TrendYield.class)
-				.getMappedResults();
+		List<MongoUserDailyIncome> list = mongoUserDailyIncomeRepository
+				.findByUserId(getUserIdFromUUID(userUuid));
 		if (CollectionUtils.isEmpty(list)) {
 			return new ArrayList<>(0);
 		}
-		List<TrendYield> result = new ArrayList<>(list);
-		for (TrendYield trendYield : result) {
-			String date = trendYield.getDate().replace("-", "");
+		List<TrendYield> result = new ArrayList<>(list.size());
+		for (MongoUserDailyIncome mongoUserDailyIncome : list) {
+			String date = mongoUserDailyIncome.getCreateDateStr().replace("-", "");
+			TrendYield trendYield = new TrendYield();
 			trendYield.setDate(date);
+			trendYield.setValue(mongoUserDailyIncome.getAccumulativeIncome());
+			result.add(trendYield);
 		}
 		Collections
 				.sort(result, Comparator.comparing(o -> InstantDateUtil.format(o.getDate(), "yyyyMMdd")));
