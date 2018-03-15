@@ -33,7 +33,7 @@ public class UserProdChangeLogServiceImpl implements UserProdChangeLogService{
   }
 
   @Override
-  public List<UserProdChgDetail> getDetailChangeLogs(Long prodId, Long changeSeq) {
+  public List<UserProdChgDetail> getDetailChangeLogs(Long prodId, Integer changeSeq) {
     Criteria criteria = Criteria.where("prodId").is(prodId).and("modifySeq").is(changeSeq);
     Query query = new Query(criteria);
     query.with(new Sort(Sort.DEFAULT_DIRECTION.ASC, "fundType"));
@@ -64,12 +64,10 @@ public class UserProdChangeLogServiceImpl implements UserProdChangeLogService{
         UserProdChg userProdChg = new UserProdChg();
         userProdChg = userProdChgList.get(i);
         // 获取UserProdChgDetail数据
-        List<UserProdChgDetail> userProdChgDetailsList =
-            this.getDetailChangeLogs(15L, userProdChg.getModifySeq());
+        List<UserProdChgDetail> userProdChgDetailsList = this.getDetailChangeLogs(15L, userProdChg.getModifySeq());
         if (userProdChgDetailsList != null && !userProdChgDetailsList.isEmpty()) {
           for (int j = 0; j < userProdChgDetailsList.size(); j++) {
             UserProdChgDetail userProdChgDetail = userProdChgDetailsList.get(j);
-            
             subdivisionMap.put("", userProdChgDetail.getId());
             
           }
