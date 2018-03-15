@@ -405,8 +405,12 @@ public class UserInfoServiceImpl implements UserInfoService {
 			return new ArrayList<>(0);
 		}
 		List<TrendYield> result = new ArrayList<>(list);
-		Collections.sort(result, Comparator.comparing(o -> InstantDateUtil.format(o.getDate())));
-
+		for (TrendYield trendYield : result) {
+			String date = trendYield.getDate().replace("-", "");
+			trendYield.setDate(date);
+		}
+		Collections
+				.sort(result, Comparator.comparing(o -> InstantDateUtil.format(o.getDate(), "yyyyMMdd")));
 		return result;
 	}
 
