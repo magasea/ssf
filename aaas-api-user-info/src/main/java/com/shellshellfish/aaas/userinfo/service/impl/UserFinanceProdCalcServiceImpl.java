@@ -478,7 +478,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 				prodId);
 
 		if (dailyAmountAggregation == null) {
-			return new PortfolioInfo();
+			return PortfolioInfo.getNullInstance();
 		}
 		//区间结束日前一天数据
 		LocalDate startLocalDate = InstantDateUtil.format(startDate, FORMAT_PATTERN);
@@ -523,7 +523,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		}
 
 		if (dailyAmountAggregationOfEndDay == null) {
-			return new PortfolioInfo();
+			return PortfolioInfo.getNullInstance();
 		}
 
 		//区间数据
