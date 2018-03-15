@@ -16,6 +16,6 @@ public interface UserProdChangeLogService {
 
   boolean insertGeneralChangeLogs(List<UserProdChg> userProdChgs);
 
-  boolean insertDetailChangeLogs(List<UserProdChgDetail>);
-  
+  boolean insertDetailChangeLogs(List<UserProdChgDetail> userProdChgDetails);
+
 }
