@@ -398,19 +398,21 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Override
 	public List<TrendYield> getTrendYield(String userUuid) throws Exception {
+		Aggregation agg = newAggregation(
+				match(Criteria.where("userId").is(getUserIdFromUUID(userUuid))),
+				group("createDateStr")
+						.first("createDateStr").as("date")
+						.sum("accumulativeIncome").as("value"));
 
-		List<MongoUserDailyIncome> list = mongoUserDailyIncomeRepository
-				.findByUserId(getUserIdFromUUID(userUuid));
+		List<TrendYield> list = mongoTemplate.aggregate(agg, "user_daily_income", TrendYield.class)
+				.getMappedResults();
 		if (CollectionUtils.isEmpty(list)) {
 			return new ArrayList<>(0);
 		}
-		List<TrendYield> result = new ArrayList<>(list.size());
-		for (MongoUserDailyIncome mongoUserDailyIncome : list) {
-			String date = mongoUserDailyIncome.getCreateDateStr().replace("-", "");
-			TrendYield trendYield = new TrendYield();
+		List<TrendYield> result = new ArrayList<>(list);
+		for (TrendYield trendYield : result) {
+			String date = trendYield.getDate().replace("-", "");
 			trendYield.setDate(date);
-			trendYield.setValue(mongoUserDailyIncome.getAccumulativeIncome());
-			result.add(trendYield);
 		}
 		Collections
 				.sort(result, Comparator.comparing(o -> InstantDateUtil.format(o.getDate(), "yyyyMMdd")));
