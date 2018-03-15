@@ -107,4 +107,14 @@ public class UserProdChgDetail {
   public void setModifyTime(Long modifyTime) {
     this.modifyTime = modifyTime;
   }
+
+  public String getFundTypeName() {
+    return fundTypeName;
+  }
+
+  public void setFundTypeName(String fundTypeName) {
+    this.fundTypeName = fundTypeName;
+  }
+  
+  
 }

@@ -70,6 +70,7 @@ public class UserProdChangeLogServiceImplTest {
     userProdChgDetail1.setCode("000217.OF");
     userProdChgDetail1.setFundName("华安黄金易ETF联接C");
     userProdChgDetail1.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail1.setFundTypeName(FundClassEnum.COMMERSIAL.getFundClassComment());
     userProdChgDetail1.setModifySeq(1);
     userProdChgDetail1.setPercentAfter(3320L);
     userProdChgDetail1.setPercentBefore(0L);
@@ -79,6 +80,7 @@ public class UserProdChangeLogServiceImplTest {
     UserProdChgDetail userProdChgDetail2 = new UserProdChgDetail();
     userProdChgDetail2.setCode("000614.OF");
     userProdChgDetail2.setFundName("华安德国30(DAX)ETF联接(QDII)");
+    userProdChgDetail2.setFundTypeName(FundClassEnum.QDII.getFundClassComment());
     userProdChgDetail2.setFundType(FundClassEnum.QDII.getFundClassId());
     userProdChgDetail2.setModifySeq(1);
     userProdChgDetail2.setPercentAfter(2750L);
@@ -89,7 +91,8 @@ public class UserProdChangeLogServiceImplTest {
     UserProdChgDetail userProdChgDetail3 = new UserProdChgDetail();
     userProdChgDetail3.setCode("000696.OF");
     userProdChgDetail3.setFundName("汇添富环保行业股票");
-    userProdChgDetail3.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail3.setFundType(FundClassEnum.COMMONSTOCK.getFundClassId());
+    userProdChgDetail3.setFundTypeName(FundClassEnum.COMMONSTOCK.getFundClassComment());
     userProdChgDetail3.setModifySeq(1);
     userProdChgDetail3.setPercentAfter(900L);
     userProdChgDetail3.setPercentBefore(0L);
@@ -97,9 +100,10 @@ public class UserProdChangeLogServiceImplTest {
     userProdChgDetails.add(userProdChgDetail3);
 
     UserProdChgDetail userProdChgDetail4 = new UserProdChgDetail();
-    userProdChgDetail4.setCode("L001541.OF");
+    userProdChgDetail4.setCode("001541.OF");
     userProdChgDetail4.setFundName("汇添富民营新动力股票");
-    userProdChgDetail4.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail4.setFundType(FundClassEnum.COMMONSTOCK.getFundClassId());
+    userProdChgDetail4.setFundTypeName(FundClassEnum.COMMONSTOCK.getFundClassComment());
     userProdChgDetail4.setModifySeq(1);
     userProdChgDetail4.setPercentAfter(930L);
     userProdChgDetail4.setPercentBefore(0L);
@@ -110,7 +114,8 @@ public class UserProdChangeLogServiceImplTest {
     UserProdChgDetail userProdChgDetail5 = new UserProdChgDetail();
     userProdChgDetail5.setCode("470007.OF");
     userProdChgDetail5.setFundName("汇添富上证综合指数");
-    userProdChgDetail5.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail5.setFundType(FundClassEnum.PASIDX.getFundClassId());
+    userProdChgDetail5.setFundTypeName(FundClassEnum.PASIDX.getFundClassComment());
     userProdChgDetail5.setModifySeq(1);
     userProdChgDetail5.setPercentAfter(400L);
     userProdChgDetail5.setPercentBefore(0L);
@@ -120,17 +125,30 @@ public class UserProdChangeLogServiceImplTest {
     UserProdChgDetail userProdChgDetail6 = new UserProdChgDetail();
     userProdChgDetail6.setCode("000248.OF");
     userProdChgDetail6.setFundName("汇添富中证主要消费ETF联接");
-    userProdChgDetail6.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail6.setFundType(FundClassEnum.PASIDX.getFundClassId());
+    userProdChgDetail6.setFundTypeName(FundClassEnum.PASIDX.getFundClassComment());
     userProdChgDetail6.setModifySeq(1);
     userProdChgDetail6.setPercentAfter(400L);
     userProdChgDetail6.setPercentBefore(0L);
     userProdChgDetail6.setProdId(userProdChg1.getProdId());
     userProdChgDetails.add(userProdChgDetail6);
+    
+    UserProdChgDetail userProdChgDetail7 = new UserProdChgDetail();
+    userProdChgDetail7.setCode("000248.OF");
+    userProdChgDetail7.setFundName("汇添富中证主要消费ETF联接");
+    userProdChgDetail7.setFundType(FundClassEnum.ENHANCEIDX.getFundClassId());
+    userProdChgDetail7.setFundTypeName(FundClassEnum.ENHANCEIDX.getFundClassComment());
+    userProdChgDetail7.setModifySeq(1);
+    userProdChgDetail7.setPercentAfter(800L);
+    userProdChgDetail7.setPercentBefore(0L);
+    userProdChgDetail7.setProdId(userProdChg1.getProdId());
+    userProdChgDetails.add(userProdChgDetail7);
 
     UserProdChgDetail userProdChgDetail8 = new UserProdChgDetail();
     userProdChgDetail8.setCode("400013.OF");
     userProdChgDetail8.setFundName("东方成长收益灵活配置混合");
-    userProdChgDetail8.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail8.setFundType(FundClassEnum.LIKESTOK.getFundClassId());
+    userProdChgDetail8.setFundTypeName(FundClassEnum.LIKESTOK.getFundClassComment());
     userProdChgDetail8.setModifySeq(1);
     userProdChgDetail8.setPercentAfter(250L);
     userProdChgDetail8.setPercentBefore(0L);
@@ -140,7 +158,8 @@ public class UserProdChangeLogServiceImplTest {
     UserProdChgDetail userProdChgDetail9 = new UserProdChgDetail();
     userProdChgDetail9.setCode("001694.OF");
     userProdChgDetail9.setFundName("华安沪港深外延增长灵活配置混合");
-    userProdChgDetail9.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail9.setFundType(FundClassEnum.LIKESTOK.getFundClassId());
+    userProdChgDetail9.setFundTypeName(FundClassEnum.LIKESTOK.getFundClassComment());
     userProdChgDetail9.setModifySeq(1);
     userProdChgDetail9.setPercentAfter(250L);
     userProdChgDetail9.setPercentBefore(0L);
@@ -161,6 +180,7 @@ public class UserProdChangeLogServiceImplTest {
     userProdChgDetail21.setCode("000217.OF");
     userProdChgDetail21.setFundName("华安黄金易ETF联接C");
     userProdChgDetail21.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail21.setFundTypeName(FundClassEnum.COMMERSIAL.getFundClassComment());
     userProdChgDetail21.setModifySeq(2);
     userProdChgDetail21.setPercentAfter(3320L);
     userProdChgDetail21.setPercentBefore(0L);
@@ -170,8 +190,9 @@ public class UserProdChangeLogServiceImplTest {
     UserProdChgDetail userProdChgDetail22 = new UserProdChgDetail();
     userProdChgDetail22.setCode("000614.OF");
     userProdChgDetail22.setFundName("华安德国30(DAX)ETF联接(QDII)");
+    userProdChgDetail22.setFundTypeName(FundClassEnum.QDII.getFundClassComment());
     userProdChgDetail22.setFundType(FundClassEnum.QDII.getFundClassId());
-    userProdChgDetail22.setModifySeq(1);
+    userProdChgDetail22.setModifySeq(2);
     userProdChgDetail22.setPercentAfter(2750L);
     userProdChgDetail22.setPercentBefore(0L);
     userProdChgDetail22.setProdId(userProdChg1.getProdId());
@@ -180,7 +201,8 @@ public class UserProdChangeLogServiceImplTest {
     UserProdChgDetail userProdChgDetail23 = new UserProdChgDetail();
     userProdChgDetail23.setCode("000696.OF");
     userProdChgDetail23.setFundName("汇添富环保行业股票");
-    userProdChgDetail23.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail23.setFundType(FundClassEnum.COMMONSTOCK.getFundClassId());
+    userProdChgDetail23.setFundTypeName(FundClassEnum.COMMONSTOCK.getFundClassComment());
     userProdChgDetail23.setModifySeq(2);
     userProdChgDetail23.setPercentAfter(900L);
     userProdChgDetail23.setPercentBefore(0L);
@@ -188,9 +210,10 @@ public class UserProdChangeLogServiceImplTest {
     userProdChgDetails.add(userProdChgDetail23);
 
     UserProdChgDetail userProdChgDetail24 = new UserProdChgDetail();
-    userProdChgDetail24.setCode("L001541.OF");
+    userProdChgDetail24.setCode("001541.OF");
     userProdChgDetail24.setFundName("汇添富民营新动力股票");
-    userProdChgDetail24.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail24.setFundType(FundClassEnum.COMMONSTOCK.getFundClassId());
+    userProdChgDetail24.setFundTypeName(FundClassEnum.COMMONSTOCK.getFundClassComment());
     userProdChgDetail24.setModifySeq(2);
     userProdChgDetail24.setPercentAfter(930L);
     userProdChgDetail24.setPercentBefore(0L);
@@ -201,7 +224,8 @@ public class UserProdChangeLogServiceImplTest {
     UserProdChgDetail userProdChgDetail25 = new UserProdChgDetail();
     userProdChgDetail25.setCode("470007.OF");
     userProdChgDetail25.setFundName("汇添富上证综合指数");
-    userProdChgDetail25.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail25.setFundType(FundClassEnum.PASIDX.getFundClassId());
+    userProdChgDetail25.setFundTypeName(FundClassEnum.PASIDX.getFundClassComment());
     userProdChgDetail25.setModifySeq(2);
     userProdChgDetail25.setPercentAfter(400L);
     userProdChgDetail25.setPercentBefore(0L);
@@ -211,17 +235,19 @@ public class UserProdChangeLogServiceImplTest {
     UserProdChgDetail userProdChgDetail26 = new UserProdChgDetail();
     userProdChgDetail26.setCode("000248.OF");
     userProdChgDetail26.setFundName("汇添富中证主要消费ETF联接");
-    userProdChgDetail26.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail26.setFundType(FundClassEnum.ENHANCEIDX.getFundClassId());
+    userProdChgDetail26.setFundTypeName(FundClassEnum.ENHANCEIDX.getFundClassComment());
     userProdChgDetail26.setModifySeq(2);
-    userProdChgDetail26.setPercentAfter(400L);
-    userProdChgDetail26.setPercentBefore(0L);
+    userProdChgDetail26.setPercentAfter(0L);
+    userProdChgDetail26.setPercentBefore(800L);
     userProdChgDetail26.setProdId(userProdChg1.getProdId());
     userProdChgDetails.add(userProdChgDetail26);
 
     UserProdChgDetail userProdChgDetail27 = new UserProdChgDetail();
     userProdChgDetail27.setCode("400013.OF");
     userProdChgDetail27.setFundName("东方成长收益灵活配置混合");
-    userProdChgDetail27.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail27.setFundType(FundClassEnum.LIKESTOK.getFundClassId());
+    userProdChgDetail27.setFundTypeName(FundClassEnum.LIKESTOK.getFundClassComment());
     userProdChgDetail27.setModifySeq(2);
     userProdChgDetail27.setPercentAfter(250L);
     userProdChgDetail27.setPercentBefore(0L);
@@ -231,7 +257,8 @@ public class UserProdChangeLogServiceImplTest {
     UserProdChgDetail userProdChgDetail28 = new UserProdChgDetail();
     userProdChgDetail28.setCode("001694.OF");
     userProdChgDetail28.setFundName("华安沪港深外延增长灵活配置混合");
-    userProdChgDetail28.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail28.setFundType(FundClassEnum.LIKESTOK.getFundClassId());
+    userProdChgDetail28.setFundTypeName(FundClassEnum.LIKESTOK.getFundClassComment());
     userProdChgDetail28.setModifySeq(2);
     userProdChgDetail28.setPercentAfter(250L);
     userProdChgDetail28.setPercentBefore(0L);
@@ -239,51 +266,67 @@ public class UserProdChangeLogServiceImplTest {
     userProdChgDetails.add(userProdChgDetail28);
 
     UserProdChgDetail userProdChgDetail20 = new UserProdChgDetail();
-    userProdChgDetail20.setCode("001694.OF");
-    userProdChgDetail20.setFundName("华安沪港深外延增长灵活配置混合");
-    userProdChgDetail20.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail20.setCode("000406.OF");
+    userProdChgDetail20.setFundName("汇添富双利增强债券A");
+    userProdChgDetail20.setFundType(FundClassEnum.COMB2.getFundClassId());
+    userProdChgDetail20.setFundTypeName(FundClassEnum.COMB2.getFundClassComment());
     userProdChgDetail20.setModifySeq(2);
-    userProdChgDetail20.setPercentAfter(250L);
+    userProdChgDetail20.setPercentAfter(850L);
     userProdChgDetail20.setPercentBefore(0L);
     userProdChgDetail20.setProdId(userProdChg1.getProdId());
     userProdChgDetails.add(userProdChgDetail20);
+    
+    UserProdChgDetail userProdChgDetail29 = new UserProdChgDetail();
+    userProdChgDetail29.setCode("400016.OF");
+    userProdChgDetail29.setFundName("东方强化收益债券");
+    userProdChgDetail29.setFundType(FundClassEnum.COMB2.getFundClassId());
+    userProdChgDetail29.setFundTypeName(FundClassEnum.COMB2.getFundClassComment());
+    userProdChgDetail29.setModifySeq(2);
+    userProdChgDetail29.setPercentAfter(750L);
+    userProdChgDetail29.setPercentBefore(0L);
+    userProdChgDetail29.setProdId(userProdChg1.getProdId());
+    userProdChgDetails.add(userProdChgDetail29);
 
     UserProdChgDetail userProdChgDetail31 = new UserProdChgDetail();
-    userProdChgDetail31.setCode("001694.OF");
-    userProdChgDetail31.setFundName("华安沪港深外延增长灵活配置混合");
-    userProdChgDetail31.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail31.setCode("400020.OF");
+    userProdChgDetail31.setFundName("东方安心收益保本");
+    userProdChgDetail31.setFundType(FundClassEnum.PROTECTBASE.getFundClassId());
+    userProdChgDetail31.setFundTypeName(FundClassEnum.PROTECTBASE.getFundClassComment());
     userProdChgDetail31.setModifySeq(2);
-    userProdChgDetail31.setPercentAfter(250L);
+    userProdChgDetail31.setPercentAfter(800L);
     userProdChgDetail31.setPercentBefore(0L);
     userProdChgDetail31.setProdId(userProdChg1.getProdId());
     userProdChgDetails.add(userProdChgDetail31);
 
     UserProdChgDetail userProdChgDetail32 = new UserProdChgDetail();
-    userProdChgDetail32.setCode("001694.OF");
-    userProdChgDetail32.setFundName("华安沪港深外延增长灵活配置混合");
-    userProdChgDetail32.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail32.setCode("400009.OF");
+    userProdChgDetail32.setFundName("东方稳健回报债券");
+    userProdChgDetail32.setFundType(FundClassEnum.COMB1.getFundClassId());
+    userProdChgDetail32.setFundTypeName(FundClassEnum.COMB1.getFundClassComment());
     userProdChgDetail32.setModifySeq(2);
-    userProdChgDetail32.setPercentAfter(250L);
+    userProdChgDetail32.setPercentAfter(800L);
     userProdChgDetail32.setPercentBefore(0L);
     userProdChgDetail32.setProdId(userProdChg1.getProdId());
     userProdChgDetails.add(userProdChgDetail32);
 
     UserProdChgDetail userProdChgDetail33 = new UserProdChgDetail();
-    userProdChgDetail33.setCode("001694.OF");
-    userProdChgDetail33.setFundName("华安沪港深外延增长灵活配置混合");
-    userProdChgDetail33.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail33.setCode("000248.OF");
+    userProdChgDetail33.setFundName("汇添富中证主要消费ETF联接");
+    userProdChgDetail33.setFundType(FundClassEnum.PASIDX.getFundClassId());
+    userProdChgDetail33.setFundTypeName(FundClassEnum.PASIDX.getFundClassComment());
     userProdChgDetail33.setModifySeq(2);
-    userProdChgDetail33.setPercentAfter(250L);
-    userProdChgDetail33.setPercentBefore(0L);
+    userProdChgDetail33.setPercentAfter(300L);
+    userProdChgDetail33.setPercentBefore(400L);
     userProdChgDetail33.setProdId(userProdChg1.getProdId());
     userProdChgDetails.add(userProdChgDetail33);
 
     UserProdChgDetail userProdChgDetail34 = new UserProdChgDetail();
-    userProdChgDetail34.setCode("001694.OF");
-    userProdChgDetail34.setFundName("华安沪港深外延增长灵活配置混合");
-    userProdChgDetail34.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail34.setCode("000366.OF");
+    userProdChgDetail34.setFundName("汇添富添富通货币A");
+    userProdChgDetail34.setFundType(FundClassEnum.MONEY.getFundClassId());
+    userProdChgDetail34.setFundTypeName(FundClassEnum.MONEY.getFundClassComment());
     userProdChgDetail34.setModifySeq(2);
-    userProdChgDetail34.setPercentAfter(250L);
+    userProdChgDetail34.setPercentAfter(340L);
     userProdChgDetail34.setPercentBefore(0L);
     userProdChgDetail34.setProdId(userProdChg1.getProdId());
     userProdChgDetails.add(userProdChgDetail34);
