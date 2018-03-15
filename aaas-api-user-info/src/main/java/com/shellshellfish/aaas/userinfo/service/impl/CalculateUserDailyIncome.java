@@ -143,8 +143,9 @@ public class CalculateUserDailyIncome {
 						.getChicombinationAssets(uiUser.getUuid(), uiUser.getId(), productsDTO, date, true);
 				MongoUserDailyIncome mongoUserDailyIncome = new MongoUserDailyIncome();
 				mongoUserDailyIncome.setUserId(uiUser.getId());
-				mongoUserDailyIncome.setUseProdId(productsDTO.getId());
+				mongoUserDailyIncome.setUserProdId(productsDTO.getId());
 				mongoUserDailyIncome.setDailyIncome(portfolioInfo.getDailyIncome());
+				mongoUserDailyIncome.setAccumulativeIncome(portfolioInfo.getTotalIncome());
 				mongoUserDailyIncome.setCreateDate(System.currentTimeMillis());
 				mongoUserDailyIncome.setUpdateDate(System.currentTimeMillis());
 				mongoUserDailyIncome.setCreateDateStr(InstantDateUtil.format(date));
@@ -170,6 +171,9 @@ public class CalculateUserDailyIncome {
 		update.set("updateDate", mongoUserDailyIncome.getUpdateDate());
 		update.set("dailyIncome", Optional.ofNullable(mongoUserDailyIncome.getDailyIncome()).orElse(
 				BigDecimal.ZERO));
+		update.set("accumulativeIncome",
+				Optional.ofNullable(mongoUserDailyIncome.getAccumulativeIncome()).orElse(
+						BigDecimal.ZERO));
 		zhongZhengMongoTemplate
 				.findAndModify(query, update, FindAndModifyOptions.options().upsert(true),
 						MongoUserDailyIncome.class);

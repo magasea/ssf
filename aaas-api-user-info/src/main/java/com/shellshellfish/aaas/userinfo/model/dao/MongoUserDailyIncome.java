@@ -26,6 +26,8 @@ public class MongoUserDailyIncome implements Serializable {
 	@Field(value = "dailyIncome")
 	private BigDecimal dailyIncome;
 
+	@Field(value = "accumulativeIncome")
+	private BigDecimal accumulativeIncome;
 	@Field(value = "createDate")
 	private Long createDate;
 
@@ -51,12 +53,28 @@ public class MongoUserDailyIncome implements Serializable {
 		this.userId = userId;
 	}
 
+	public Long getUserProdId() {
+		return userProdId;
+	}
+
+	public void setUserProdId(Long userProdId) {
+		this.userProdId = userProdId;
+	}
+
 	public BigDecimal getDailyIncome() {
 		return dailyIncome;
 	}
 
 	public void setDailyIncome(BigDecimal dailyIncome) {
 		this.dailyIncome = dailyIncome;
+	}
+
+	public BigDecimal getAccumulativeIncome() {
+		return accumulativeIncome;
+	}
+
+	public void setAccumulativeIncome(BigDecimal accumulativeIncome) {
+		this.accumulativeIncome = accumulativeIncome;
 	}
 
 	public Long getCreateDate() {
@@ -67,14 +85,6 @@ public class MongoUserDailyIncome implements Serializable {
 		this.createDate = createDate;
 	}
 
-	public Long getUpdateDate() {
-		return updateDate;
-	}
-
-	public void setUpdateDate(Long updateDate) {
-		this.updateDate = updateDate;
-	}
-
 	public String getCreateDateStr() {
 		return createDateStr;
 	}
@@ -83,23 +93,23 @@ public class MongoUserDailyIncome implements Serializable {
 		this.createDateStr = createDateStr;
 	}
 
-	public Long getUserProdId() {
-		return userProdId;
+	public Long getUpdateDate() {
+		return updateDate;
 	}
 
-	public void setUseProdId(Long userProdId) {
-		this.userProdId = userProdId;
+	public void setUpdateDate(Long updateDate) {
+		this.updateDate = updateDate;
 	}
 
 	@Override
 	public String toString() {
 		return "MongoUserDailyIncome{" +
-				"id='" + id + '\'' +
 				", userId=" + userId +
-				", dailyIncome=" + dailyIncome +
 				", userProdId=" + userProdId +
+				", dailyIncome=" + dailyIncome +
+				", accumulativeIncome=" + accumulativeIncome +
 				", createDate=" + createDate +
-				", createDateStr=" + createDateStr +
+				", createDateStr='" + createDateStr + '\'' +
 				", updateDate=" + updateDate +
 				'}';
 	}

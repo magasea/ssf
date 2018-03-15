@@ -23,6 +23,7 @@ import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoUserDailyIncome;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
@@ -45,6 +46,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
+import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoUserDailyIncomeRepository;
 import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
 import com.shellshellfish.aaas.userinfo.service.UiProductService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
@@ -111,6 +113,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Autowired
 	@Qualifier("zhongZhengMongoTemplate")
 	private MongoTemplate mongoTemplate;
+
+	@Autowired
+	MongoUserDailyIncomeRepository mongoUserDailyIncomeRepository;
 
 	PayRpcServiceFutureStub payRpcServiceFutureStub;
 
@@ -397,7 +402,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				match(Criteria.where("userId").is(getUserIdFromUUID(userUuid))),
 				group("createDateStr")
 						.first("createDateStr").as("date")
-						.sum("dailyIncome").as("value"));
+						.sum("accumulativeIncome").as("value"));
 
 		List<TrendYield> list = mongoTemplate.aggregate(agg, "user_daily_income", TrendYield.class)
 				.getMappedResults();
