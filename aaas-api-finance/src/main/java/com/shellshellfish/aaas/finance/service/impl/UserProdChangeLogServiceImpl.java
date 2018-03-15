@@ -29,11 +29,17 @@ public class UserProdChangeLogServiceImpl implements UserProdChangeLogService{
 
   @Override
   public boolean insertGeneralChangeLogs(List<UserProdChg> userProdChgs) {
-    return false;
+    for(UserProdChg userProdChg: userProdChgs){
+      mongoTemplate.save(userProdChg);
+    }
+    return true;
   }
 
   @Override
   public boolean insertDetailChangeLogs(List<UserProdChgDetail> userProdChgDetails) {
+    for(UserProdChgDetail userProdChgDetail: userProdChgDetails){
+      mongoTemplate.save(userProdChgDetail);
+    }
     return false;
   }
 

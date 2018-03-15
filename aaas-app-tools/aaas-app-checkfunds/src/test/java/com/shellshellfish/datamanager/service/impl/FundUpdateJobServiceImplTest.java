@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationHome;
+
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
@@ -37,10 +37,7 @@ public class FundUpdateJobServiceImplTest {
 
   @Test
   public void checkAndUpdateFunds() throws Exception {
-    ApplicationHome home = new ApplicationHome(this.getClass());
 
-    File jarDir = home.getDir();
-    Path path = Paths.get( jarDir.getAbsolutePath(),csvFilePath,csvFundFileOriginName);
 
     String pathFile = "D:\\working\\aaas\\temp\\csvFundsInfo";
     String targetFile = pathFile + ".updated";

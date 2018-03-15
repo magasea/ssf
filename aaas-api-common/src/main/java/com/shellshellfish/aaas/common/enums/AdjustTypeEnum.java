@@ -16,4 +16,20 @@ public enum AdjustTypeEnum {
     this.typeId = typeId;
     this.typeComment = typeComment;
   }
+
+  public int getTypeId() {
+    return typeId;
+  }
+
+  public void setTypeId(int typeId) {
+    this.typeId = typeId;
+  }
+
+  public String getTypeComment() {
+    return typeComment;
+  }
+
+  public void setTypeComment(String typeComment) {
+    this.typeComment = typeComment;
+  }
 }

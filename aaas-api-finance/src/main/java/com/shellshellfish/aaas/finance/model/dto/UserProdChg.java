@@ -12,15 +12,15 @@ public class UserProdChg {
   String id;
 
   Integer groupId;
-  Integer prodId;
+  Long prodId;
 
-  Long modifySeq;
+  Integer modifySeq;
 
   Integer userProdId;
 
   Long modifyTime;
   String modifyComment;
-  Long modifyType;
+  Integer modifyType;
   String modifyTypeComment;
   Long createTime;
 
@@ -40,19 +40,19 @@ public class UserProdChg {
     this.groupId = groupId;
   }
 
-  public Integer getProdId() {
+  public Long getProdId() {
     return prodId;
   }
 
-  public void setProdId(Integer prodId) {
+  public void setProdId(Long prodId) {
     this.prodId = prodId;
   }
 
-  public Long getModifySeq() {
+  public Integer getModifySeq() {
     return modifySeq;
   }
 
-  public void setModifySeq(Long modifySeq) {
+  public void setModifySeq(Integer modifySeq) {
     this.modifySeq = modifySeq;
   }
 
@@ -80,11 +80,11 @@ public class UserProdChg {
     this.modifyComment = modifyComment;
   }
 
-  public Long getModifyType() {
+  public Integer getModifyType() {
     return modifyType;
   }
 
-  public void setModifyType(Long modifyType) {
+  public void setModifyType(Integer modifyType) {
     this.modifyType = modifyType;
   }
 

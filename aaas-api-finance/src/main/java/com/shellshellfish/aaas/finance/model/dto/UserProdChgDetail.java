@@ -17,11 +17,12 @@ public class UserProdChgDetail {
   Long userProdId;
   Long prodId;
 
-  Long modifySeq;
+  Integer modifySeq;
 
   String code;
   String fundName;
-  String fundType;
+  Integer fundType;
+  String fundTypeName;
 
   Long percentBefore;
   Long percentAfter;
@@ -51,11 +52,11 @@ public class UserProdChgDetail {
     this.prodId = prodId;
   }
 
-  public Long getModifySeq() {
+  public Integer getModifySeq() {
     return modifySeq;
   }
 
-  public void setModifySeq(Long modifySeq) {
+  public void setModifySeq(Integer modifySeq) {
     this.modifySeq = modifySeq;
   }
 
@@ -75,11 +76,11 @@ public class UserProdChgDetail {
     this.fundName = fundName;
   }
 
-  public String getFundType() {
+  public Integer getFundType() {
     return fundType;
   }
 
-  public void setFundType(String fundType) {
+  public void setFundType(Integer fundType) {
     this.fundType = fundType;
   }
 
