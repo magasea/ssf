@@ -2,16 +2,13 @@ syntax = "proto3";
 
 option java_multiple_files = true;
 option java_package = "com.shellshellfish.aaas.tools.checkfunds";
-option java_outer_classname = "FundCheckerService";
-option objc_class_prefix = "FCS";
+option java_outer_classname = "FundCheckerServiceRpc";
+option objc_class_prefix = "FCSR";
 
 service FundCheckerService {
-    rpc CheckFunds (DailyFundsQuery) returns () {
+    rpc CheckFunds (DailyFundsQuery) returns (CheckResult) {
     }
-    rpc GetFundsPrice (FundCodes) returns (FundInfos) {
-    }
-    rpc getGrowthRateOfMonetaryFundsList (MonetaryFundsQueryItem) returns (GrowthRateOfMonetaryFundCollection) {
-    }
+
 }
 
 message DailyFundsQuery {
@@ -21,3 +18,6 @@ message DailyFundsQuery {
     int32 check_table_idx = 4;
 }
 
+message CheckResult{
+   int32 result = 1;
+}

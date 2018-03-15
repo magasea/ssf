@@ -30,7 +30,8 @@ datasource:
 shellshellfish:
   asset-alloction-url: "http://localhost:10020"
   csvFilePath: temp
-  csvFileOriginName: csvFundsInfo
+  csvFundFileOriginName: csvFundsInfo
+  csvBaseFileOriginName: csvBaseInfo
 cron:
   frequency:
     #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year

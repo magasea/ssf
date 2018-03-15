@@ -193,7 +193,9 @@ public class TradeUtil {
   public static BigDecimal getBigDecimalNumWithRoundUp2Digit(String origin){
     return MathUtil.round(new BigDecimal(origin),2,true);
   }
-
+  public static BigDecimal getBigDecimalNumWithRoundUpNDigit(String origin, int n){
+    return MathUtil.round(new BigDecimal(origin),n,true);
+  }
 
   public static BigDecimal getBigDecimalNumWithDiv10000(Long originNum){
     return new BigDecimal(originNum).divide(BigDecimal.valueOf(10000));
