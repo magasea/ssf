@@ -12,5 +12,10 @@ public interface UserProdChangeLogService {
 
   List<UserProdChg> getGeneralChangeLogs(Long prodId);
 
-  List<UserProdChgDetail> getDegailChangeLogs(Long prodId, Long changeSeq);
+  List<UserProdChgDetail> getDetailChangeLogs(Long prodId, Long changeSeq);
+
+  boolean insertGeneralChangeLogs(List<UserProdChg> userProdChgs);
+
+  boolean insertDetailChangeLogs(List<UserProdChgDetail>);
+  
 }
