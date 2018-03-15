@@ -28,6 +28,22 @@ public class PortfolioInfo {
 
 	private BigDecimal assetOfOneDayBefore;
 
+	public static PortfolioInfo getNullInstance() {
+		PortfolioInfo instance = new PortfolioInfo();
+		instance.setTotalIncome(BigDecimal.ZERO);
+		instance.setAssetOfOneDayBefore(BigDecimal.ZERO);
+		instance.setSellAmountOfEndDay(BigDecimal.ZERO);
+		instance.setBuyAmountOfEndDay(BigDecimal.ZERO);
+		instance.setBuyAmount(BigDecimal.ZERO);
+		instance.setBuyAmountOfEndDay(BigDecimal.ZERO);
+		instance.setBonusOfEndDay(BigDecimal.ZERO);
+		instance.setBonus(BigDecimal.ZERO);
+		instance.setSellAmount(BigDecimal.ZERO);
+		instance.setTotalIncomeRate(BigDecimal.ZERO);
+		instance.setTotalAssets(BigDecimal.ZERO);
+		return instance;
+	}
+
 	public BigDecimal getTotalAssets() {
 		return totalAssets;
 	}
@@ -117,6 +133,7 @@ public class PortfolioInfo {
 	public void setAssetOfOneDayBefore(BigDecimal assetOfOneDayBefore) {
 		this.assetOfOneDayBefore = assetOfOneDayBefore;
 	}
+
 
 	@Override
 	public String toString() {
