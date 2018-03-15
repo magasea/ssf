@@ -5,4 +5,6 @@ import com.shellshellfish.datamanager.model.JsonResult;
 public interface OptimizationService {
 	JsonResult financeFront();
 	JsonResult getFinanceFront();
+	JsonResult checkPrdDetails(String groupId, String subGroupId);
+	JsonResult getPrdDetails(String groupId, String subGroupId);
 }

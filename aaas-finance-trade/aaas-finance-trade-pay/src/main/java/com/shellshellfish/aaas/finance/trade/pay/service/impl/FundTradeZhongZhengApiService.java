@@ -18,7 +18,6 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
-
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
@@ -70,6 +69,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         } else {
             String errno = jsonObject.getString("errno");
             String msg = jsonObject.getString("msg");
+			logger.error("{}:{}", errno, msg);
             throw new Exception(errno + ":" + msg);
         }
         return openAccountResult;
@@ -108,6 +108,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         } else {
             String errno = jsonObject.getString("errno");
             String msg = jsonObject.getString("msg");
+            logger.error("{}:{}", errno, msg);
             throw new Exception(errno + ":" + msg);
         }
 
@@ -141,6 +142,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         } else {
             String errno = jsonObject.getString("errno");
             String msg = jsonObject.getString("msg");
+            logger.error("{}:{}", errno, msg);
             throw new Exception(errno + ":" + msg);
         }
 
@@ -159,6 +161,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         logger.info("{}", json);
         ZZWorkDayCompond zzWorkDayCompond = gson.fromJson(json, ZZWorkDayCompond.class);
         if(!zzWorkDayCompond.getStatus().equals("1")){
+        	logger.error(zzWorkDayCompond.getMsg());
             throw new Exception(zzWorkDayCompond.getMsg());
         }
         return zzWorkDayCompond.getData();
@@ -193,6 +196,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         } else {
             String errno = jsonObject.getString("errno");
             String msg = jsonObject.getString("msg");
+            logger.error("{}:{}", errno, msg);
             throw new Exception(errno + ":" + msg);
         }
 
@@ -219,6 +223,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         } else {
             String errno = jsonObject.getString("errno");
             String msg = jsonObject.getString("msg");
+            logger.error("{}:{}", errno, msg);
             throw new Exception(errno + ":" + msg);
         }
 
@@ -279,6 +284,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
         ConfirmCompondResult confirmCompondResult = gson.fromJson(json, ConfirmCompondResult.class);
         if(!confirmCompondResult.getStatus().equals("1")){
+        	logger.error(confirmCompondResult.getMsg());
             throw new Exception(confirmCompondResult.getMsg());
         }
         return confirmCompondResult.getData();
@@ -415,6 +421,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         logger.info(json);
         JSONObject jsonObject = JSONObject.parseObject(json);
         if (!jsonObject.getInteger("status").equals(1)) {
+        	logger.error(jsonObject.getString("msg"));
             throw new Exception(jsonObject.getString("msg"));
         }
 
@@ -537,6 +544,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         JSONObject jsonObject = (JSONObject) JSONObject.parse(json);
         Integer status = jsonObject.getInteger("status");
         if (!status.equals(1)){
+        	logger.error(jsonObject.getString("msg"));
             throw new Exception(jsonObject.getString("msg"));
         }
 
@@ -556,6 +564,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
                 return BigDecimal.valueOf(rate);
             }
         }
+        logger.error("no rate found");
         throw new Exception("no rate found");
     }
 
@@ -592,6 +601,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         JSONObject jsonObject = (JSONObject) JSONObject.parse(json);
         Integer status = jsonObject.getInteger("status");
         if (!status.equals(1)){
+        	logger.error(jsonObject.getString("msg"));
             throw new Exception(jsonObject.getString("msg"));
         }
 
@@ -619,6 +629,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         JSONObject jsonObject = (JSONObject) JSONObject.parse(json);
         Integer status = jsonObject.getInteger("status");
         if (!status.equals(1)){
+        	logger.error(jsonObject.getString("msg"));
             throw new Exception(jsonObject.getString("msg"));
         }
 
@@ -761,7 +772,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         logger.info("{}", json);
         ZZFundNetCompond zzFundNetCompond = gson.fromJson(json, ZZFundNetCompond.class);
         if(!zzFundNetCompond.getStatus().equals("1")){
-            logger.error(zzFundNetCompond.getErrno()+":" + zzFundNetCompond.getMsg());
+			logger.error("{}:{}", zzFundNetCompond.getErrno(), zzFundNetCompond.getMsg());
             throw new Exception(zzFundNetCompond.getErrno()+":" + zzFundNetCompond.getMsg());
         }
         return zzFundNetCompond.getData();

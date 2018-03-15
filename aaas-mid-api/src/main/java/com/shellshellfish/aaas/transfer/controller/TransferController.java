@@ -139,6 +139,7 @@ public class TransferController {
 			logger.error(e.getMessage());
 			logger.error("exception:",e);
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -163,7 +164,7 @@ public class TransferController {
 			verify = service.verifyMSGCode(telNum, msgCode);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
-			logger.error(str);
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, "手机验证失败，申购失败", JsonResult.EMPTYRESULT);
 		}
 		// 验证码不通过则直接返回失败
@@ -205,9 +206,10 @@ public class TransferController {
 			String error = myJson.getString("message");
 			return new JsonResult(JsonResult.Fail, error, JsonResult.EMPTYRESULT);
 		} catch (Exception e) {
-			logger.error("购买基金调用购买接口失败" + e.getMessage());
-			logger.error("exception:",e);
+//			logger.error("购买基金调用购买接口失败" + e.getMessage());
+//			logger.error("exception:",e);
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -246,9 +248,10 @@ public class TransferController {
 			String error = myJson.getString("message");
 			return new JsonResult(JsonResult.Fail, error, JsonResult.EMPTYRESULT);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			logger.error("exception:",e);
+//			logger.error(e.getMessage());
+//			logger.error("exception:",e);
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -278,7 +281,7 @@ public class TransferController {
 			verify = service.verifyMSGCode(telNum, verifyCode);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
-			logger.error(str);
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, "手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
 		}
 		// 验证码不通过则直接返回失败
@@ -372,9 +375,10 @@ public class TransferController {
 			}
 			return new JsonResult(JsonResult.SUCCESS, "调用成功", result);
 		} catch (Exception ex) {
-			logger.error("赎回页面接口调用失败");
-			logger.error("exception:",ex);
+//			logger.error("赎回页面接口调用失败");
+//			logger.error("exception:",ex);
 			String str = new ReturnedException(ex).getErrorMsg();
+			logger.error(str, ex);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}

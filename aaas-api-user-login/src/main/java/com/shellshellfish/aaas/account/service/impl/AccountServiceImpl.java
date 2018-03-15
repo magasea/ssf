@@ -69,6 +69,7 @@ public class AccountServiceImpl implements AccountService {
 		String passwordhash = loginBodyDTO.getPassword();
 		List<User> userListPhone = userRepository.findByCellPhone(cellphone);
 		if(userListPhone==null||userListPhone.size()==0){
+			logger.error("登录用户账号不正确");
 			throw new UserException("101", "登录用户账号不正确");
 		}
 		List<User> userList = userRepository.findByCellPhoneAndPasswordHash(cellphone, passwordhash);
@@ -78,6 +79,7 @@ public class AccountServiceImpl implements AccountService {
 			return userList;
 		} else {
 			//return new ArrayList<User>();
+			logger.error("密码不正确");
 			throw new UserException("101", "密码不正确");
 		}
 	}
@@ -106,6 +108,7 @@ public class AccountServiceImpl implements AccountService {
 				String currentPWD = user.getPasswordHash();
 				String pwd = MD5.getMD5(pwdconfirm);
 				if (currentPWD == null || currentPWD.equals(pwd)) {
+					logger.error("不可与原密码一致");
 					throw new UserException("101", "不可与原密码一致");
 				}
 				user.setPasswordHash(MD5.getMD5(pwdconfirm));
@@ -116,9 +119,11 @@ public class AccountServiceImpl implements AccountService {
 				String userId = user.getId()+"";
 				return userId;
 			} else {
+				logger.error("密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合");
 				throw new UserException("102", "密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合");
 			}
 		} else {
+			logger.error("两次密码需要一致");
 			throw new UserException("103", "两次密码需要一致");
 		}
 	}
@@ -182,6 +187,7 @@ public class AccountServiceImpl implements AccountService {
 		String verfiedcode = registrationBodyDTO.getIdentifyingcode();
 		String password = registrationBodyDTO.getPassword();
 		if (password.length() < 6 || password.length() > 20) {
+			logger.error("密码长度至少为6~20位，请重新输入.");
 			throw new UserException("101", "密码长度至少为6~20位，请重新输入.");
 		}
 		List<Object[]> reslst=smsVerificationRepositoryCustom.getSmsVerification(cellphone, verfiedcode);
@@ -190,6 +196,7 @@ public class AccountServiceImpl implements AccountService {
 			// TODO 临时注释2018-01-22 
 			/**********************start****************************/
 			if(!"123456".equals(verfiedcode)){
+				logger.error("验证码不正确，请重新输入");
 				throw new UserException("101", "验证码不正确，请重新输入");
 			}
 			/**********************end******************************/
@@ -197,6 +204,7 @@ public class AccountServiceImpl implements AccountService {
 		}
 		User user = new User();
 		if(!registrationBodyDTO.getPassword().equals(registrationBodyDTO.getPwdconfirm())){
+			logger.error("两次密码不一致");
 			throw new UserException("101", "两次密码不一致");
 		}
 		List<User> userList = userRepository.findByCellPhone(cellphone);
@@ -293,9 +301,11 @@ public class AccountServiceImpl implements AccountService {
 		UserDTO userDto = this.getUserInfo(uuid);
 		User user = new User();
 		if(userDto == null){
+			logger.error("用户不存在");
 			throw new UserException("404", "用户不存在");
 		} else {
 			if(!password.equals(userDto.getPasswordHash())){
+				logger.error("用户与原密码不一致，请重新输入");
 				throw new UserException("404", "用户与原密码不一致，请重新输入");
 			}
 			userDto.setPasswordHash(newPassword);

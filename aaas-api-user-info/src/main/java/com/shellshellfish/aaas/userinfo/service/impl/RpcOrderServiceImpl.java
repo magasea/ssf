@@ -107,6 +107,7 @@ public class RpcOrderServiceImpl implements RpcOrderService {
 		if (object == null || "".equals(object)) {
 			object = BankUtil.getNameOfBank(params.get("cardNumber").toString());
 			if (StringUtils.isEmpty(object)) {
+				logger.error("银行卡号不正确");
 				throw new UserInfoException("404", "银行卡号不正确");
 			}
 		}
@@ -116,6 +117,7 @@ public class RpcOrderServiceImpl implements RpcOrderService {
 		UiUser uiUser = userInfoRepository.findByUuid(bankcardDetailVo.getUserUuid());
 
 		if (uiUser == null) {
+			logger.error("当前用户不存在");
 			throw new UserInfoException("404", "当前用户不存在");
 		}
 
@@ -123,12 +125,14 @@ public class RpcOrderServiceImpl implements RpcOrderService {
 		params.put("userId",uiUser.getId());
 		params.forEach((k, v) -> {
 			if (null == v || StringUtils.isEmpty(v.toString())) {
+				logger.error("no {}'s value in params", k.toString());
 				throw new IllegalArgumentException("no " + k.toString() + "'s value in params");
 			}
 		});
 
 		BankCardDTO bankIsExist = userInfoService.getUserInfoBankCard(bankcardDetailVo.getCardNumber());
 		if (bankIsExist != null && bankIsExist.getCardNumber() != null) {
+			logger.error("银行卡号已经存在，请重新输入");
 			throw new UserInfoException("404", "银行卡号已经存在，请重新输入");
 		}
 

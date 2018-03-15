@@ -178,6 +178,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         notifyPay(trdPayFlowMsg);
       }
     if(errs.size() > 0){
+      logger.error("meet errors in pay api services");
       throw new Exception("meet errors in pay api services");
     }
     return trdPayFlowMsg;
@@ -272,6 +273,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
     }
     if(errs.size() > 0){
+      logger.error("meet errors in pay api services");
       throw new Exception("meet errors in pay api services");
     }
     return payOrderDto;
@@ -321,6 +323,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
             }
           }
         } catch (Exception e1) {
+          logger.error(e1.getMessage(), e1);
           e1.printStackTrace();
           throw e1;
         }
@@ -675,6 +678,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       payNewOrderDetail(trdOrderDetail, trdAcco, userProdId, userUUID, trdBrokerId, payOrderDto.getUserPid());
     }
     if(errs.size() > 0){
+      logger.error("meet errors in pay api services");
       throw new Exception("meet errors in pay api services");
     }
     return payOrderDto;
@@ -826,6 +830,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       }
     }
     if(errs.size() > 0){
+      logger.error("meet errors in pay api services");
       throw new Exception("meet errors in pay api services");
     }
     return payPreOrderDto;

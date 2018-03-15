@@ -43,4 +43,7 @@ public interface UserFinanceProdCalcService {
 			throws Exception;
 
 	void calculateProductAsset(UiProductDetail detail, String uuid, Long prodId, String date);
+
+	void calculateFromZzInfo(UiProductDetail detail, String uuid, Long prodId, String date)
+			throws Exception;
 }

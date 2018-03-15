@@ -141,8 +141,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     List<ProductMakeUpInfo> productMakeUpInfos =  financeProdInfoService.getFinanceProdMakeUpInfo
         (productBaseInfo);
     if(productMakeUpInfos.size() <=0 ){
-      logger.info("没有发现产品组成信息 prodId:"+ productBaseInfo.getProdId() + " groupId:"+
-          productBaseInfo.getGroupId());
+      logger.info("没有发现产品组成信息 prodId:{} groupId:{}", productBaseInfo.getProdId(), productBaseInfo.getGroupId());
       throw new Exception("没有发现产品组成信息 prodId:"+ productBaseInfo.getProdId() + " groupId:"+
           productBaseInfo.getGroupId());
     }
@@ -168,7 +167,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     Long userProdId = userInfoServiceFutureStub.genUserProdsFromOrder(requestBuilder
         .build()).get().getUserProdId();
     if(userProdId == -1L){
-      logger.error("userProdId is not greater than 0, means some error happened" + userProdId);
+      logger.error("userProdId is not greater than 0, means some error happened,userPord:{} ", userProdId);
       throw new Exception("Failed to create userProd and userProdDetail");
     }
     return userProdId;
@@ -184,7 +183,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     PayOrderDto payOrderDto = new PayOrderDto();
     Map brokerWithTradeAcco = getOrMakeTradeAcco(financeProdBuyInfo);
     if(CollectionUtils.isEmpty(brokerWithTradeAcco)){
-      logger.error("Failed to make trade account for user:"+ financeProdBuyInfo.getUserId());
+      logger.error("Failed to make trade account for user:{} " , financeProdBuyInfo.getUserId());
       throw new Exception("Failed to make trade account for user:"+ financeProdBuyInfo.getUserId());
     }
     //默认用第一组数据， 因为现在只有一个交易平台
@@ -269,7 +268,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     int riskLevel;
     UserBankInfo userBankInfo = userInfoService.getUserBankInfo(financeProdBuyInfo.getUuid());
     if(CollectionUtils.isEmpty(userBankInfo.getCardNumbersList())){
-      logger.error("failed to find user:" + financeProdBuyInfo.getUserId() +" have binded cards");
+      logger.error("failed to find user:{} have binded cards", financeProdBuyInfo.getUserId());
       throw new Exception("用户未绑卡，请绑卡后再购买理财产品");
     }
     for(CardInfo cardInfo:userBankInfo.getCardNumbersList()){
@@ -282,8 +281,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         .getRiskLevel())).getRiskLevel();
 
     if(StringUtils.isEmpty(userPid)){
-      logger.error("this user: "+financeProdBuyInfo.getUserId()+" personal id is not in "
-          + "ui_bankcard" );
+      logger.error("this user:{} personal id is not in ui_bankcard", financeProdBuyInfo.getUserId());
       throw new Exception("用户: "+financeProdBuyInfo.getUserId()+" 的绑卡信息有误，没有身份证号");
     }
     if(!CollectionUtils.isEmpty(trdBrokerUsers)){
@@ -314,8 +312,8 @@ public class TradeOpServiceImpl implements TradeOpService {
 
 
       if(null == trdTradeBankDic){
-        logger.error("this bank name:"+bankName+" with brokerId"+ TradeBrokerIdEnum
-            .ZhongZhenCaifu.getTradeBrokerId()+" is not in table:");
+		logger.error("this bank name:{} with brokerId:{} is not in table:", bankName,
+				TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
         throw new Exception("this bank name:"+bankName
             + " with brokerId"+ TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId()+" is not in table:");
       }
@@ -380,7 +378,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       trdOrderDetail = trdOrderDetailRepository.findByTradeApplySerial(tradeApplySerial);
     }
     if(trdOrderDetail == null){
-      logger.error("failed to find orderDetail by id:"+ id + " tradeApplySerial:" + tradeApplySerial);
+      logger.error("failed to find orderDetail by id:{} tradeApplySerial:{} ", id, tradeApplySerial);
       throw new Exception("failed to find orderDetail by id:"+ id + " tradeApplySerial:" + tradeApplySerial);
     }
     trdOrderDetail.setUpdateDate(TradeUtil.getUTCTime());
@@ -456,7 +454,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     List<ProductMakeUpInfo> productMakeUpInfos =  financeProdInfoService.getFinanceProdMakeUpInfo
         (productBaseInfo);
     if(productMakeUpInfos.size() <=0 ){
-      logger.info("failed to get prod make up informations!");
+      logger.error("failed to get prod make up informations!");
       throw new Exception("failed to get prod make up informations!");
     }
     //需要先用preOrder去调中证接口去发起扣款交易
@@ -480,6 +478,7 @@ public class TradeOpServiceImpl implements TradeOpService {
           productMakeUpInfos, preOrderPayResult.getPreOrderId() );
       return trdOrder;
     }else{
+      logger.error("申购失败：{} ", preOrderPayResult.getErrMsg());
       throw new Exception("申购失败："+ preOrderPayResult.getErrMsg());
     }
 
@@ -495,7 +494,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 
     if(trdOrder == null || trdPreOrders.size() <= 0){
       logger.error("Failed to precess preOrder order process, because there is no history "
-          + "information there in trdOrderRepository with preOrderId:"+ preOrderId);
+          + "information there in trdOrderRepository with preOrderId:{}", preOrderId);
       throw new Exception("Failed to precess preOrder order process, because there is no history "
           + "information there in trdOrderRepository with preOrderId:"+ preOrderId);
     }else{
@@ -558,7 +557,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     PayOrderDto payOrderDto = new PayOrderDto();
     Map brokerWithTradeAcco = getOrMakeTradeAcco(financeProdInfo);
     if(CollectionUtils.isEmpty(brokerWithTradeAcco)){
-      logger.error("Failed to make trade account for user:"+ financeProdInfo.getUserId());
+      logger.error("Failed to make trade account for user:{}", financeProdInfo.getUserId());
       throw new Exception("Failed to make trade account for user:"+ financeProdInfo.getUserId());
     }
     //默认用第一组数据， 因为现在只有一个交易平台
@@ -683,7 +682,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 	public Map<String, Object> sellorbuyDeatils(String orderId) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
 		if (StringUtils.isEmpty(orderId)) {
-			logger.error("详情信息数据不存在:" + orderId);
+			logger.error("详情信息数据不存在:{}", orderId);
 			throw new Exception("详情信息数据不存在:" + orderId);
 		}
 		logger.info("详情信息数据为:" + orderId);

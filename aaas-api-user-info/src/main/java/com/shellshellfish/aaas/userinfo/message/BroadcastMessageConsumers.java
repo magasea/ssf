@@ -8,7 +8,6 @@ import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.message.order.MongoUiTrdZZInfo;
-import com.shellshellfish.aaas.common.message.order.OrderStatusChangeDTO;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
@@ -27,7 +26,6 @@ import com.shellshellfish.aaas.userinfo.service.impl.CalculateConfirmedAsset;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.Exchange;
@@ -106,7 +104,7 @@ public class BroadcastMessageConsumers {
             logger.error("exception:",e);
         }
 
-        
+
     }
 
 
@@ -433,8 +431,7 @@ public class BroadcastMessageConsumers {
                     .getTradeType());
             }
 
-            calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo.getUserProdId(),
-                mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getFundCode());
+            calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo);
         }catch(Exception ex){
             logger.error("Exception:", ex);
         }

@@ -143,11 +143,11 @@ public class AliSms {
     	try {
     	     response = sendSms(phonenum);
     	     if(response.getCode() == null || !response.getCode().equals("OK")) {
+    	    	 logger.error(response.getMessage());
     	    	 throw new UserException("400", response.getMessage());
     	     }
     	}catch (ClientException e) {
-    	
-        	logger.debug(e.getErrMsg());
+        	logger.debug(e.getErrMsg(), e);
         	throw new UserException(e.getErrCode(), e.getErrMsg());
         	//return null;
         	

@@ -13,6 +13,7 @@ import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
 import com.shellshellfish.aaas.assetallocation.neo.util.*;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,13 +22,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-
 import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.*;
 //import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.MONGO_DB_COLLECTION;
 
@@ -281,9 +280,12 @@ public class FundGroupService {
             if (returntype.equalsIgnoreCase("1")) {
                 map.put("name", "预期年化收益");
                 map.put("value", interval.getExpected_annualized_return());
-            } else {
+            } else if (returntype.equalsIgnoreCase("2")) {
                 map.put("name", "预期最大回撤");
                 map.put("value", interval.getExpected_max_retracement());
+            } else if (returntype.equalsIgnoreCase("3")) {
+            	map.put("name", "模拟历史年化波动率");
+                map.put("value", interval.getSimulate_historical_volatility());
             }
         }
         return map;
@@ -1005,7 +1007,10 @@ public class FundGroupService {
 					if (incomeList != null && incomeList.size() > 0) {
 						for (Map<String, Object> incomeMap : incomeList) {
 							String time = incomeMap.get("time") + "";
-							if (starttime.equals(time) || resultList.size() > 0) {
+//							if (starttime.equals(time) || resultList.size() > 0) {
+							starttime = starttime.replaceAll("-", "");
+							time = time.replaceAll("-", "");
+							if (TradeUtil.getLongNumWithMul100(time) - TradeUtil.getLongNumWithMul100(starttime) >= 0 || resultList.size() > 0) {
 								resultList.add(incomeMap);
 							}
 						}

@@ -6,8 +6,8 @@ import javax.persistence.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-@Document(collection = "ui_finance_all")
-public class MongoFinanceAll implements Serializable {
+@Document(collection = "ui_finance_detail")
+public class MongoFinanceDetail implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
@@ -15,13 +15,16 @@ public class MongoFinanceAll implements Serializable {
 
 	@Field(value = "date")
 	private String date;
+	
+	@Field(value = "groupId")
+	private String groupId;
+	
+	@Field(value = "subGroupId")
+	private String subGroupId;
 
 //	@Field(value = "head")
 //	private Head head;
-//
-//	@Field(value = "jonResult")
-//	private Object result;
-	
+
 	@Field(value = "result")
 	private Object result;
 
@@ -51,19 +54,11 @@ public class MongoFinanceAll implements Serializable {
 //	public void setHead(Head head) {
 //		this.head = head;
 //	}
-//
-//	public Object getResult() {
-//		return result;
-//	}
-//
-//	public void setResult(Object result) {
-//		this.result = result;
-//	}
-	
+
 	public Object getResult() {
 		return result;
 	}
-	
+
 	public void setResult(Object result) {
 		this.result = result;
 	}
@@ -72,9 +67,23 @@ public class MongoFinanceAll implements Serializable {
 		return lastModifiedBy;
 	}
 
-
 	public void setLastModifiedBy(String lastModifiedBy) {
 		this.lastModifiedBy = lastModifiedBy;
 	}
 
+	public String getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
+	}
+
+	public String getSubGroupId() {
+		return subGroupId;
+	}
+
+	public void setSubGroupId(String subGroupId) {
+		this.subGroupId = subGroupId;
+	}
 }

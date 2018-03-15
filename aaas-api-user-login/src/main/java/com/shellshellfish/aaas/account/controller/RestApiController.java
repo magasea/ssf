@@ -234,6 +234,7 @@ public class RestApiController {
 			}
 			String code = accountService.getSmsMessage(id);
 			if (StringUtils.isEmpty(code)) {
+				logger.error("手机验证码为空");
 				throw new UserException("102", "手机验证码为空");
 			}
 			result.put("identifyingCode", code);
@@ -275,6 +276,7 @@ public class RestApiController {
 		String telnum = loginBodyDTO.getTelnum();
 		String password = loginBodyDTO.getPassword();
 		if (telnum.length() != 11) {
+			logger.error("电话长度必须是11位的数字");
 			throw new UserException("100", "电话长度必须是11位的数字");
 		}
 		Pattern p = Pattern.compile(
@@ -344,9 +346,11 @@ public class RestApiController {
 		if ("checkDupTelNum".equals(action)) {
 			List<UserDTO> userList = accountService.isRegisterredTel(registrationBody);
 			if (userList != null && userList.size() > 0) {
+				logger.error("抱歉，此电话号码已注册");
 				throw new UserException("103", "抱歉，此电话号码已注册");
 			}
 		} else {
+			logger.error("不支持此动作");
 			throw new UserException("104", "不支持此动作");
 		}
 		result.put("result", "OK");
@@ -419,6 +423,7 @@ public class RestApiController {
 		String args[] = new String[] { telnum, identifyingcode };
 		// 进行短信验证
 		if (!accountService.doSmsVerification(verificationBody)) {
+			logger.error("输入验证码不正确");
 			throw new UserException("101", "输入验证码不正确");
 		}
 
@@ -714,6 +719,7 @@ public class RestApiController {
 			) throws IllegalAccessException, InstantiationException {
 		Map<String,Object> result = new HashMap<String,Object>();
 		if (newpassword.length() < 6 || newpassword.length() > 20) {
+			logger.error("密码长度至少为6~20位，请重新输入.");
 			throw new UserException("101", "密码长度至少为6~20位，请重新输入.");
 		}
 		password = MD5.getMD5(password);

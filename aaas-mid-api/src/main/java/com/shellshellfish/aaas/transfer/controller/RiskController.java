@@ -93,6 +93,7 @@ public class RiskController {
 			result.put("errorCode", "400");
 			result.put("error", "");*/
 			String str=new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -158,9 +159,10 @@ public class RiskController {
 			result = new HashMap<>();
 			result.put("errorCode", "400");
 			result.put("error", "");
-			logger.error("exception:",ex);
+//			logger.error("exception:",ex);
 
 			String str = new ReturnedException(ex).getErrorMsg();
+			logger.error(str, ex);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}

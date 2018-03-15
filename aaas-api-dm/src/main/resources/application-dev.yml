@@ -29,11 +29,5 @@ datasource:
       dialect: org.hibernate.dialect.MySQLDialect
 shellshellfish:
   asset-alloction-url: "http://localhost:10020"
-  csvFilePath: temp
-  csvFundFileOriginName: csvFundsInfo
-  csvBaseFileOriginName: csvBaseInfo
-cron:
-  frequency:
-    #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
-    # 	Every 10 minutes
-    jobwithcrontrigger: 0 0/10 0 ? * * *
+  userinfo-url: "http://localhost:10060"
+

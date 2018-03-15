@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import com.shellshellfish.aaas.common.message.order.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.userinfo.UserInfoApp;
 import com.shellshellfish.aaas.userinfo.service.DayIndicatorService;
 import org.junit.Test;
@@ -23,7 +24,8 @@ public class CalculateConfirmedAssetTest {
 		String fundCode = "000312.OF";
 		Long userId = 5611L;
 		Long userProdId = 27L;
-		calculateConfirmedAsset.calculateConfirmedAsset(userProdId, userId, fundCode);
+		MongoUiTrdZZInfo mongoUiTrdZZInfo = new MongoUiTrdZZInfo();
+		calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo);
 	}
 
 }
