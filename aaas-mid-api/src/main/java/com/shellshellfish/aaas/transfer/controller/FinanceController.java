@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.dto.FinanceProductCompo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
@@ -1437,5 +1438,56 @@ public class FinanceController {
 			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
+	}
+	
+	
+	@ApiOperation("调仓记录")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "8"),
+			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "80048"),
+	})
+	@RequestMapping(value = "/warehouse-records", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult getwarehouseRecords(String groupId, String subGroupId) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		try {
+			String url = financeUrl + "/api/ssf-finance/product-groups/warehouse-records?prodId=" + groupId
+					+ "&groupId=" + subGroupId;
+			result = restTemplate.getForEntity(url, Map.class).getBody();
+			if (result == null) {
+				logger.error("调仓记录为空");
+			} else {
+				if (result != null && result.size() > 0) {
+					List<Map> resultList = new ArrayList<>();
+					List<Map> resultListBak = new ArrayList<>();
+					resultList = (List<Map>) result.get("result");
+					for (int i = 0; i < resultList.size(); i++) {
+						Object userProdChg = resultList.get(i);
+						if (userProdChg != null) {
+							Map userProdChgMap = (HashMap) userProdChg;
+							if (userProdChgMap.get("modifySeq") != null && userProdChgMap.get("modifyType") != null) {
+								if (userProdChgMap.get("modifyTime") != null) {
+									Long modifyTime = (Long) userProdChgMap.get("modifyTime");
+									String time = TradeUtil.getReadableDateTime(modifyTime);
+									userProdChgMap.put("modifyTime", time.split("T")[0]);
+									userProdChgMap.remove("id");
+									userProdChgMap.remove("modifySeq");
+									userProdChgMap.remove("userProdId");
+									userProdChgMap.remove("modifyType");
+									userProdChgMap.remove("createTime");
+									resultListBak.add(userProdChgMap);
+								}
+							}
+						}
+					}
+					result.put("result", resultListBak);
+				}
+			}
+		} catch (Exception e) {
+			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}
+		return new JsonResult(JsonResult.SUCCESS, "调仓记录成功", result);
 	}
 }

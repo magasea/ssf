@@ -20,4 +20,6 @@ public interface UserProdChangeLogService {
   boolean insertDetailChangeLogs(List<UserProdChgDetail> userProdChgDetails);
 
   List<Map> getWarehouseRecords();
+
+  List<UserProdChg> getGeneralChangeLogs(Long prodId, Long groupId);
 }
