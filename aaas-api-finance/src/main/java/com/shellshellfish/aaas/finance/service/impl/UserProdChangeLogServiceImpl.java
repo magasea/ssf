@@ -83,6 +83,7 @@ public class UserProdChangeLogServiceImpl implements UserProdChangeLogService{
           firstMap.put("adjustAfter", userProdChgDetail.getPercentAfter());
 
           secondMap.put("code", userProdChgDetail.getCode());
+//          secondMap.put("fundTypeName", userProdChgDetail.getFundTypeName());
           secondMap.put("fundName", userProdChgDetail.getFundName());
           secondMap.put("percentBefore", userProdChgDetail.getPercentBefore());
           secondMap.put("percentAfter", userProdChgDetail.getPercentAfter());
@@ -101,10 +102,10 @@ public class UserProdChangeLogServiceImpl implements UserProdChangeLogService{
             }
             if (firstMap.get("adjustAfter") != null) {
               Long afterValue = (Long) firstMap.get("adjustAfter");
-              firstMap.put("adjustAfter", userProdChgDetail.getPercentBefore() + afterValue);
+              firstMap.put("adjustAfter", userProdChgDetail.getPercentAfter() + afterValue);
             }
 
-            secondMap.put("fundTypeName", userProdChgDetail.getFundTypeName());
+//            secondMap.put("fundTypeName", userProdChgDetail.getFundTypeName());
             secondMap.put("code", userProdChgDetail.getCode());
             secondMap.put("fundName", userProdChgDetail.getFundName());
             secondMap.put("percentBefore", userProdChgDetail.getPercentBefore());
