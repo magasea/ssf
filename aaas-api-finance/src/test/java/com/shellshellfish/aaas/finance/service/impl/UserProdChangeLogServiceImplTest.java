@@ -27,12 +27,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class UserProdChangeLogServiceImplTest {
   
   private static final String C000217 = "华安黄金易ETF联接C";
+  private static final String C000248 = "汇添富中证主要消费ETF联接";
   private static final String C000366 = "汇添富添富通货币A";
   private static final String C000406 = "汇添富双利增强债券A";
   private static final String C000614 = "华安德国30(DAX)ETF联接(QDII)";
   private static final String C000696 = "汇添富环保行业股票";
   private static final String C001541 = "汇添富民营新动力股票";
-  private static final String C000248 = "汇添富中证主要消费ETF联接";
   private static final String C001694 = "华安沪港深外延增长灵活配置混合";
   private static final String C400009 = "东方稳健回报债券";
   private static final String C400013 = "东方成长收益灵活配置混合";
@@ -231,7 +231,7 @@ public class UserProdChangeLogServiceImplTest {
     userProdChgDetail24.setFundTypeName(FundClassEnum.COMMONSTOCK.getFundClassComment());
     userProdChgDetail24.setModifySeq(2);
     userProdChgDetail24.setPercentAfter(600L);
-    userProdChgDetail24.setPercentBefore(9300L);
+    userProdChgDetail24.setPercentBefore(930L);
     userProdChgDetail24.setProdId(userProdChg1.getProdId());
     userProdChgDetails.add(userProdChgDetail24);
 
@@ -672,7 +672,7 @@ public class UserProdChangeLogServiceImplTest {
     userProdChgDetail005.setFundTypeName(FundClassEnum.QDII.getFundClassComment());
     userProdChgDetail005.setModifySeq(5);
     userProdChgDetail005.setPercentAfter(4100L);
-    userProdChgDetail005.setPercentBefore(3600L);
+    userProdChgDetail005.setPercentBefore(3360L);
     userProdChgDetail005.setProdId(userProdChg1.getProdId());
     userProdChgDetails.add(userProdChgDetail005);
     //5.2
@@ -690,8 +690,8 @@ public class UserProdChangeLogServiceImplTest {
     userProdChgDetail005 = new UserProdChgDetail();
     userProdChgDetail005.setCode("400013.OF");
     userProdChgDetail005.setFundName(C400013);
-    userProdChgDetail005.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
-    userProdChgDetail005.setFundTypeName(FundClassEnum.COMMERSIAL.getFundClassComment());
+    userProdChgDetail005.setFundType(FundClassEnum.LIKESTOK.getFundClassId());
+    userProdChgDetail005.setFundTypeName(FundClassEnum.LIKESTOK.getFundClassComment());
     userProdChgDetail005.setModifySeq(5);
     userProdChgDetail005.setPercentAfter(1220L);
     userProdChgDetail005.setPercentBefore(750L);
@@ -798,7 +798,7 @@ public class UserProdChangeLogServiceImplTest {
     userProdChgDetails.add(userProdChgDetail006);
     //6.2
     userProdChgDetail006 = new UserProdChgDetail();
-    userProdChgDetail006.setCode("400020");
+    userProdChgDetail006.setCode("400020.OF");
     userProdChgDetail006.setFundName(C400020);
     userProdChgDetail006.setFundType(FundClassEnum.PROTECTBASE.getFundClassId());
     userProdChgDetail006.setFundTypeName(FundClassEnum.PROTECTBASE.getFundClassComment());
@@ -809,7 +809,7 @@ public class UserProdChangeLogServiceImplTest {
     userProdChgDetails.add(userProdChgDetail006);
     //6.3
     userProdChgDetail006 = new UserProdChgDetail();
-    userProdChgDetail006.setCode("000366");
+    userProdChgDetail006.setCode("000366.OF");
     userProdChgDetail006.setFundName(C000366);
     userProdChgDetail006.setFundType(FundClassEnum.MONEY.getFundClassId());
     userProdChgDetail006.setFundTypeName(FundClassEnum.MONEY.getFundClassComment());
@@ -820,10 +820,10 @@ public class UserProdChangeLogServiceImplTest {
     userProdChgDetails.add(userProdChgDetail006);
     //6.4
     userProdChgDetail006 = new UserProdChgDetail();
-    userProdChgDetail006.setCode("000217");
+    userProdChgDetail006.setCode("000217.OF");
     userProdChgDetail006.setFundName(C000217);
-    userProdChgDetail006.setFundType(FundClassEnum.MONEY.getFundClassId());
-    userProdChgDetail006.setFundTypeName(FundClassEnum.MONEY.getFundClassComment());
+    userProdChgDetail006.setFundType(FundClassEnum.COMMERSIAL.getFundClassId());
+    userProdChgDetail006.setFundTypeName(FundClassEnum.COMMERSIAL.getFundClassComment());
     userProdChgDetail006.setModifySeq(6);
     userProdChgDetail006.setPercentAfter(860L);
     userProdChgDetail006.setPercentBefore(1260L);
@@ -831,7 +831,7 @@ public class UserProdChangeLogServiceImplTest {
     userProdChgDetails.add(userProdChgDetail006);
     //6.4
     userProdChgDetail006 = new UserProdChgDetail();
-    userProdChgDetail006.setCode("000248");
+    userProdChgDetail006.setCode("000248.OF");
     userProdChgDetail006.setFundName(C000248);
     userProdChgDetail006.setFundType(FundClassEnum.PASIDX.getFundClassId());
     userProdChgDetail006.setFundTypeName(FundClassEnum.PASIDX.getFundClassComment());
@@ -842,18 +842,18 @@ public class UserProdChangeLogServiceImplTest {
     userProdChgDetails.add(userProdChgDetail006);
     //6.5
     userProdChgDetail006 = new UserProdChgDetail();
-    userProdChgDetail006.setCode("400013");
+    userProdChgDetail006.setCode("400013.OF");
     userProdChgDetail006.setFundName(C400013);
-    userProdChgDetail006.setFundType(FundClassEnum.PASIDX.getFundClassId());
-    userProdChgDetail006.setFundTypeName(FundClassEnum.PASIDX.getFundClassComment());
+    userProdChgDetail006.setFundType(FundClassEnum.LIKESTOK.getFundClassId());
+    userProdChgDetail006.setFundTypeName(FundClassEnum.LIKESTOK.getFundClassComment());
     userProdChgDetail006.setModifySeq(6);
     userProdChgDetail006.setPercentAfter(720L);
-    userProdChgDetail006.setPercentBefore(1120L);
+    userProdChgDetail006.setPercentBefore(1220L);
     userProdChgDetail006.setProdId(userProdChg1.getProdId());
     userProdChgDetails.add(userProdChgDetail006);
     //6.6
     userProdChgDetail006 = new UserProdChgDetail();
-    userProdChgDetail006.setCode("000696");
+    userProdChgDetail006.setCode("000696.OF");
     userProdChgDetail006.setFundName(C000696);
     userProdChgDetail006.setFundType(FundClassEnum.COMMONSTOCK.getFundClassId());
     userProdChgDetail006.setFundTypeName(FundClassEnum.COMMONSTOCK.getFundClassComment());
@@ -864,21 +864,21 @@ public class UserProdChangeLogServiceImplTest {
     userProdChgDetails.add(userProdChgDetail006);
     //6.7
     userProdChgDetail006 = new UserProdChgDetail();
-    userProdChgDetail006.setCode("001541");
+    userProdChgDetail006.setCode("001541.OF");
     userProdChgDetail006.setFundName(C001541);
     userProdChgDetail006.setFundType(FundClassEnum.COMMONSTOCK.getFundClassId());
     userProdChgDetail006.setFundTypeName(FundClassEnum.COMMONSTOCK.getFundClassComment());
     userProdChgDetail006.setModifySeq(6);
-    userProdChgDetail006.setPercentAfter(340L);
-    userProdChgDetail006.setPercentBefore(500L);
+    userProdChgDetail006.setPercentAfter(200L);
+    userProdChgDetail006.setPercentBefore(400L);
     userProdChgDetail006.setProdId(userProdChg1.getProdId());
     userProdChgDetails.add(userProdChgDetail006);
     //6.8
     userProdChgDetail006 = new UserProdChgDetail();
-    userProdChgDetail006.setCode("000248");
+    userProdChgDetail006.setCode("000248.OF");
     userProdChgDetail006.setFundName(C000248);
-    userProdChgDetail006.setFundType(FundClassEnum.COMMONSTOCK.getFundClassId());
-    userProdChgDetail006.setFundTypeName(FundClassEnum.COMMONSTOCK.getFundClassComment());
+    userProdChgDetail006.setFundType(FundClassEnum.ENHANCEIDX.getFundClassId());
+    userProdChgDetail006.setFundTypeName(FundClassEnum.ENHANCEIDX.getFundClassComment());
     userProdChgDetail006.setModifySeq(6);
     userProdChgDetail006.setPercentAfter(148L);
     userProdChgDetail006.setPercentBefore(370L);
@@ -921,8 +921,8 @@ public class UserProdChangeLogServiceImplTest {
     userProdChgDetail007 = new UserProdChgDetail();
     userProdChgDetail007.setCode("400020.OF");
     userProdChgDetail007.setFundName(C400020);
-    userProdChgDetail007.setFundType(FundClassEnum.MONEY.getFundClassId());
-    userProdChgDetail007.setFundTypeName(FundClassEnum.MONEY.getFundClassComment());
+    userProdChgDetail007.setFundType(FundClassEnum.PROTECTBASE.getFundClassId());
+    userProdChgDetail007.setFundTypeName(FundClassEnum.PROTECTBASE.getFundClassComment());
     userProdChgDetail007.setModifySeq(7);
     userProdChgDetail007.setPercentAfter(2000L);
     userProdChgDetail007.setPercentBefore(2200L);
