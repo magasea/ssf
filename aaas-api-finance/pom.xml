@@ -140,7 +140,7 @@
 							<all>
 								<property>
 									<name>app</name>
-									<value>aaas-api-asset-allocation</value>
+									<value>aaas-api-finance</value>
 								</property>
 								<property>
 									<name>hystrix.enabled</name>
