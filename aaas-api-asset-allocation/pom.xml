@@ -313,7 +313,7 @@
                         <id>fmp</id>
                         <phase>deploy</phase>
                         <goals>
-                            <goal>resource</goal>
+                            <goal>deploy</goal>
                         </goals>
                     </execution>
                 </executions>
