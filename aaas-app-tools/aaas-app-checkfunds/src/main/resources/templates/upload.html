@@ -1,13 +1,139 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<body>
+<head>
+    <title>abnormal sync status</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="/webjars/angularjs/1.6.9/angular.js"></script>
+    <script src="/js/controller.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
 
-<h1>手工更新基金信息</h1>
+</head>
+<body>
+<div class="container" ng-app="app">
+    <div class="row col-md-6">
+    <h3 style="color:blue">手工更新基金信息</h3>
+
+
+
 
 <form method="POST" action="/upload" enctype="multipart/form-data">
     <input type="file" name="file" /><br/><br/>
     <input type="submit" value="Submit" />
 </form>
 
+        </div>
+
+
+    <h3 style="color:blue">基金同步异常状态查看</h3>
+
+    <div class="row col-md-6">
+
+        <!-- ###################### -->
+        <!-- POST CONTROLLER -->
+        <!-- ###################### -->
+        <!--<div ng-controller="postcontroller">-->
+        <!--<form name="customerForm" ng-submit="addCustomer()">-->
+        <!--&lt;!&ndash; NAME &ndash;&gt;-->
+        <!--<div class="form-group">-->
+        <!--<label for="name">Name:</label>-->
+        <!--<input type="text" class="form-control" id="name" placeholder="Enter Name" ng-model="formCust.name"/>-->
+        <!--</div>-->
+        <!--&lt;!&ndash; AGE &ndash;&gt;-->
+        <!--<div class="form-group">-->
+        <!--<label for="age">Age:</label>-->
+        <!--<input type="number"  min="18" max="100" class="form-control" id="age" placeholder="Enter Age" ng-model="formCust.age"/>-->
+        <!--</div>-->
+        <!--&lt;!&ndash; ################### &ndash;&gt;-->
+        <!--&lt;!&ndash; ADDRESS &ndash;&gt;-->
+        <!--&lt;!&ndash; ################### &ndash;&gt;-->
+
+        <!--&lt;!&ndash; STREET &ndash;&gt;-->
+        <!--<div class="form-group">-->
+        <!--<label for="street">Street:</label>-->
+        <!--<input type="text" class="form-control" id="street" placeholder="Enter Street" ng-model="formCust.address.street"/>-->
+        <!--</div>-->
+        <!--&lt;!&ndash; POSTCODE &ndash;&gt;-->
+        <!--<div class="form-group">-->
+        <!--<label for="postcode">PostCode:</label>-->
+        <!--<input type="text" class="form-control" id="postcode" placeholder="Enter Postcode" ng-model="formCust.address.postcode"/>-->
+        <!--</div>-->
+        <!--<button type="submit" class="btn btn-default">Add Customer</button>-->
+        <!--</form>-->
+
+        <!--<div class="table-responsive" ng-if="listCustomers.length">-->
+        <!--<table class="table table-bordered table-hover">-->
+        <!--<tr>-->
+        <!--<th>No</th>-->
+        <!--<th>Name</th>-->
+        <!--<th>Age</th>-->
+        <!--<th>Street</th>-->
+        <!--<th>PostCode</th>-->
+        <!--</tr>-->
+        <!--<tr ng-repeat="cust in listCustomers | orderBy : 'name'"-->
+        <!--ng-class-even="'info'" ng-class-odd="'success'">-->
+        <!--<td>{{ $index + 1 }}</td>-->
+        <!--<td>{{ cust.name | uppercase}}</td>-->
+        <!--<td>{{ cust.age}}</td>-->
+        <!--<td>{{ cust.address.street}}</td>-->
+        <!--<td>{{ cust.address.postcode}}</td>-->
+
+        <!--&lt;!&ndash; DELETE ACTION &ndash;&gt;-->
+        <!--<td class="text-center">-->
+        <!--<a href="#" ng-click="deleteItem($index)">-->
+        <!--<span class="glyphicon glyphicon-remove"></span>-->
+        <!--</a>-->
+        <!--</td>-->
+        <!--</tr>-->
+        <!--</table>-->
+
+        <!--<div>-->
+        <!--<button type="button" class="btn btn-default" ng-click="postListCustsFunc()">Submit Customers</button>-->
+        <!--</div>-->
+        <!--</div>-->
+
+        <!--<div style="margin:10px 0px 10px 0px;" ng-if="postDivAvailable">-->
+        <!--<p style='background-color:#7FA7B0; color:white; padding:20px 20px 20px 20px'>-->
+        <!--Post Successfully!-->
+        <!--</p>-->
+        <!--</div>-->
+
+        <!--</div>-->
+        <!-- ###################### -->
+        <!-- GET CONTROLLER -->
+        <!-- ###################### -->
+
+        <div style="margin-top:5px" ng-controller="getcontroller">
+            <button ng-click="getBaseInfofunction()" type="button" class="btn btn-default"
+                    style="margin:10px 0px 10px 0px;">基准信息同步异常情况查看
+            </button>
+            <div style="background-color:#67597E; color:white; padding:20px 20px 20px 20px" ng-if="getDivAvailable">
+                <ul>
+                    <li ng-repeat="fundBase in response">{{"{code: " + fundBase.code + ", date: " +
+                        fundBase.date +", close: " + fundBase.close + ", csvClose: " +
+                        fundBase.csvClose + "}"}}</li>
+                </ul>
+            </div>
+        </div>
+        <div style="margin-top:5px" ng-controller="getcontroller">
+            <button ng-click="getFundInfofunction()" type="button" class="btn btn-default"
+                    style="margin:10px 0px 10px 0px;">基金信息同步异常情况查看
+            </button>
+            <div style="background-color:#67597E; color:white; padding:20px 20px 20px 20px" ng-if="getDivAvailable">
+                <ul>
+                    <li ng-repeat="fundInfo in response">{{"{code: " + fundInfo.code + ", date: " +
+                        fundInfo.date +", accumulatedNav: " + fundInfo.accumulatedNav + ", csvAccumulatedNav: " +
+                        fundInfo.csvAccumulatedNav +
+                        ", adjustedNav: " + fundInfo.adjustedNav + ", csvAdjustedNav: " +
+                        fundInfo.csvAdjustedNav +
+                        ", unitNav: " + fundInfo.unitNav + ", csvUnitNav: " +
+                        fundInfo.csvUnitNav +
+                        "}"}}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
 </body>
 </html>

@@ -1,30 +1,27 @@
-package com.shellshellfish.datamanager.service.impl;
+package com.shellshellfish.aaas.tools.fundcheck.scheduler;
 
 import com.shellshellfish.aaas.tools.fundcheck.FundCheckServiceApplication;
 import com.shellshellfish.aaas.tools.fundcheck.service.FundUpdateJobService;
-import com.shellshellfish.aaas.tools.fundcheck.utils.FileUtils;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.nio.file.Paths;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Created by chenwei on 2018- 三月 - 08
+ * Created by chenwei on 2018- 三月 - 13
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = FundCheckServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles="dev")
-public class FundUpdateJobServiceImplTest {
-
-  @Autowired
-  FundUpdateJobService fundUpdateJobService;
+public class CheckFundsCSVInfoJobTest {
+  Logger logger = LoggerFactory.getLogger(getClass());
 
   @Value("${shellshellfish.csvFilePath}")
   String csvFilePath;
@@ -32,22 +29,22 @@ public class FundUpdateJobServiceImplTest {
   @Value("${shellshellfish.csvFundFileOriginName}")
   String csvFundFileOriginName;
 
+  @Value("${shellshellfish.csvBaseFileOriginName}")
+  String csvBaseFileOriginName;
+
+  @Autowired
+  private FundUpdateJobService fundUpdateJobService;
+
   @Test
-  public void checkAndUpdateFunds() throws Exception {
+  public void execute() throws Exception {
+    fundUpdateJobService.checkAndUpdateFunds(Paths.get(csvFilePath, csvFundFileOriginName)
+        .toString());
 
+    fundUpdateJobService.checkAndUpdateFunds(Paths.get(csvFilePath, csvBaseFileOriginName)
+        .toString());
 
-    String pathFile = "D:\\working\\aaas\\temp\\csvFundsInfo";
-    String targetFile = pathFile + ".updated";
-    FileUtils.trimFile(pathFile, targetFile);
-    FileInputStream fis = new FileInputStream(pathFile);
-    InputStreamReader isr = new InputStreamReader(fis);
-
-    // the name of the character encoding returned
-    String test= "12345";
-    System.out.println(test.substring(0, test.length() -1));
-    System.out.print("Character Encoding: "+isr.getEncoding());
-    fundUpdateJobService.checkAndUpdateFunds(targetFile);
   }
+
 
 
 }
