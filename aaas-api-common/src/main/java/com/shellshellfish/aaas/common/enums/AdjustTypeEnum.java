@@ -6,7 +6,7 @@ package com.shellshellfish.aaas.common.enums;
 
 public enum AdjustTypeEnum {
   ESTABLISH(1, "组合建立"), INCREASE_DEBET(2,"调高偏债类资产配置"), REBALANCE(3,"资产配置再平衡"),
-  RISKSTART_USA(4,"启动美股风控"), RISKCONTINUE_USA(5, "启动美股风控"), RISKSTOK(6, "股票市场波动较大"),
+  RISKSTART_USA(4,"启动美股风控"), RISKCONTINUE_USA(5, "美股风险持续"), RISKSTOK(6, "股票市场波动较大"),
   RISKDISMISS_END(7, "美股波动减弱，本轮风控结束");
 
   int typeId;

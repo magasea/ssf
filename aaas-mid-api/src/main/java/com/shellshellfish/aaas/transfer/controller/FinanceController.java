@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.transfer.controller;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.dto.FinanceProductCompo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
@@ -67,6 +69,8 @@ public class FinanceController {
 
 	@Autowired
 	private MidApiService service;
+	
+	private static final DecimalFormat decimalFormat = new DecimalFormat(".00"); //保留 5 位
 
 	@ApiOperation("1.首页")
 	@ApiImplicitParams({
@@ -1437,5 +1441,158 @@ public class FinanceController {
 			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
+	}
+	
+	
+	@ApiOperation("调仓记录")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "1"),
+//			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "80048"),
+	})
+	@RequestMapping(value = "/warehouse-records", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult getwarehouseRecords(String groupId) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		try {
+			String url = financeUrl + "/api/ssf-finance/product-groups/warehouse-records?prodId=" + groupId;
+			result = restTemplate.getForEntity(url, Map.class).getBody();
+			if (result == null) {
+				logger.error("调仓记录为空");
+			} else {
+				if (result != null && result.size() > 0) {
+					List<Map> resultList = new ArrayList<>();
+					List<Map> resultListBak = new ArrayList<>();
+					resultList = (List<Map>) result.get("result");
+					for (int i = 0; i < resultList.size(); i++) {
+						Object userProdChg = resultList.get(i);
+						if (userProdChg != null) {
+							Map userProdChgMap = (HashMap) userProdChg;
+							if (userProdChgMap.get("modifySeq") != null && userProdChgMap.get("modifyType") != null) {
+								if (userProdChgMap.get("modifyTime") != null) {
+									Long modifyTime = (Long) userProdChgMap.get("modifyTime");
+									String time = TradeUtil.getReadableDateTime(modifyTime);
+									userProdChgMap.put("modifyTime", time.split("T")[0]);
+									userProdChgMap.remove("id");
+//									userProdChgMap.remove("modifySeq");
+									userProdChgMap.remove("userProdId");
+									userProdChgMap.remove("modifyType");
+									userProdChgMap.remove("createTime");
+									resultListBak.add(userProdChgMap);
+								}
+							}
+						}
+					}
+					result.put("result", resultListBak);
+				}
+			}
+		} catch (Exception e) {
+			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}
+		return new JsonResult(JsonResult.SUCCESS, "调仓记录成功", result);
+	}
+	
+	@ApiOperation("调仓记录-详情页面")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = false, value = "groupId", defaultValue = "1"),
+		@ApiImplicitParam(paramType = "query", name = "modifySeq", dataType = "Integer", required = false, value = "modifySeq", defaultValue = "1"),
+	})
+	@RequestMapping(value = "/warehouse-record-details", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult getwarehouseRecordDetails(Long groupId, Integer modifySeq) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> topResult = new HashMap<String, Object>();
+		List<Map<String, Object>> topList = new ArrayList();
+		try {
+			String url = financeUrl + "/api/ssf-finance/product-groups/warehouse-record-details?prodId=" + groupId
+					+ "&modifySeq=" + modifySeq;
+			result = restTemplate.getForEntity(url, Map.class).getBody();
+			if (result == null) {
+				logger.error("调仓记录详情为空");
+			} else {
+				if (result != null && result.size() > 0) {
+					List<Map> resultList = new ArrayList<>();
+					resultList = (List<Map>) result.get("result");
+					for (int i = 0; i < resultList.size(); i++) {
+						topResult = new HashMap<String, Object>();
+						Object obj = resultList.get(i);
+						if (obj != null) {
+							Map resultMap = (Map) obj;
+							if (resultMap.get("adjustBefore") != null) {
+								String value = resultMap.get("adjustBefore") + "";
+								Float adjustBefore = Float.valueOf(value);
+								String adjustBeforeStr = "";
+								if (adjustBefore == 0) {
+									adjustBeforeStr = "0.00%";
+								} else {
+									adjustBefore = adjustBefore / 100;
+									adjustBeforeStr = decimalFormat.format(adjustBefore) + "%";
+								}
+								resultMap.put("adjustBefore", adjustBeforeStr);
+							}
+							if (resultMap.get("adjustAfter") != null) {
+								String value = resultMap.get("adjustAfter") + "";
+								Float adjustAfter = Float.valueOf(value);
+								String adjustAfterStr = "";
+								if (adjustAfter == 0) {
+									adjustAfterStr = "0.00%";
+								} else {
+									adjustAfter = adjustAfter / 100;
+									adjustAfterStr = decimalFormat.format(adjustAfter) + "%";
+								}
+								resultMap.put("adjustAfter", adjustAfterStr);
+								
+								topResult.put("adjustAfter", adjustAfterStr);
+								topResult.put("fundTypeName", resultMap.get("fundTypeName"));
+								topResult.put("fundType", resultMap.get("fundType"));
+								topList.add(topResult);
+							}
+							if (resultMap.get("fundList") != null) {
+								List fundList = (List) resultMap.get("fundList");
+								if (fundList != null && fundList.size() > 0) {
+									for (int j = 0; j < fundList.size(); j++) {
+										Map fundMap = (Map) fundList.get(j);
+										if (fundMap.get("percentBefore") != null) {
+											String value = fundMap.get("percentBefore") + "";
+											Float percentBefore = Float.valueOf(value);
+											String percentBeforeStr = "";
+											if (percentBefore == 0) {
+												percentBeforeStr = "0.00%";
+											} else {
+												percentBefore = percentBefore / 100;
+												percentBeforeStr = decimalFormat.format(percentBefore) + "%";
+											}
+											fundMap.put("percentBefore", percentBeforeStr);
+										}
+										if (fundMap.get("percentAfter") != null) {
+											String value = fundMap.get("percentAfter") + "";
+											Float percentAfter = Float.valueOf(value);
+											String percentAfterStr = "";
+											if (percentAfter == 0) {
+												percentAfterStr = "0.00%";
+											} else {
+												percentAfter = percentAfter / 100;
+												percentAfterStr = decimalFormat.format(percentAfter) + "%";
+											}
+											fundMap.put("percentAfter", percentAfterStr);
+										}
+									}
+								}
+							}
+
+						}
+					}
+					result.put("detailData", result.get("result"));
+					result.put("topData", topList);
+					result.remove("result");
+				}
+			}
+		} catch (Exception e) {
+			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}
+		return new JsonResult(JsonResult.SUCCESS, "调仓记录成功", result);
 	}
 }

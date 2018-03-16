@@ -31,4 +31,14 @@ public enum FundClassEnum {
   public void setFundClassComment(String fundClassComment) {
     this.fundClassComment = fundClassComment;
   }
+  
+  public static String getComment(int fundClassId){
+
+    for (FundClassEnum enumItem : FundClassEnum.values()) {
+      if (enumItem.getFundClassId() == fundClassId) {
+        return enumItem.getFundClassComment();
+      }
+    }
+    throw new IllegalArgumentException("input operation:"+fundClassId+" is illeagal");
+  }
 }

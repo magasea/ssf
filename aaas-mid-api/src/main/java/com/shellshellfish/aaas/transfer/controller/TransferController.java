@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.transfer.controller;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -190,8 +192,15 @@ public class TransferController {
 			resultMap.put("orderId", buyProductSuccess.get("orderId").toString());
 			resultMap.put("bankName", bankName);
 			resultMap.put("bankCard", bankCard);
+			if(StringUtils.isEmpty(poundage) || "0".equals(poundage)){
+				resultMap.put("poundage", "0.00");
+			} else {
+				DecimalFormat decimalFormat = new DecimalFormat("0.00");
+				resultMap.put("poundage", decimalFormat.format(poundage));
+			}
+			
 			resultMap.put("buyfee", buyfee);
-			resultMap.put("poundage", poundage);
+//			resultMap.put("poundage", poundage);
 			return new JsonResult(JsonResult.SUCCESS, "订单已受理，申购中...", resultMap);
 		} catch (HttpClientErrorException e) {
 			logger.error("购买基金调用购买接口失败" + e.getMessage());
@@ -382,5 +391,4 @@ public class TransferController {
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
-
 }

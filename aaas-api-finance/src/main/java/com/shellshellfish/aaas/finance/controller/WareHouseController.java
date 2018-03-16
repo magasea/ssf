@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -31,8 +32,8 @@ public class WareHouseController {
 
 	@ApiOperation("调仓记录")
 	@ApiImplicitParams({
-//		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID"),
-//		@ApiImplicitParam(paramType = "query", name = "isTestFlag", dataType = "String", required = false, value = "是否测评"),
+		@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "Long", required = false, value = "用户groupId"),
+//		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = false, value = "用户subGroupId"),
 //		@ApiImplicitParam(paramType = "query", name = "testResult", dataType = "String", required = false, value = "测评结果")
     })
 	@ApiResponses({
@@ -45,18 +46,20 @@ public class WareHouseController {
     })	
 	@RequestMapping(value = "/product-groups/warehouse-records", method = RequestMethod.GET)
 	public ResponseEntity<?> warehouseRecords(
-//			@RequestParam(value = "uuid",required = false) String uuid,
-//			@RequestParam(value = "isTestFlag",required = false) String isTestFlag,
+			@RequestParam(value = "prodId",required = false) Long prodId
+//			@RequestParam(value = "groupId",required = false) Long groupId
 //			@RequestParam(value = "testResult",required = false) String testResult
 			) throws Exception {
-		List<UserProdChg> resultList = userProdChangeLogService.getGeneralChangeLogs(15L);
-		
-		return new ResponseEntity<>(resultList, HttpStatus.OK);
+	  List<UserProdChg> resultList = userProdChangeLogService.getGeneralChangeLogs(prodId);
+	  Map<String, Object> result = new HashMap<String, Object>();
+	  result.put("result", resultList);
+	  return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 	
 	@ApiOperation("调仓记录-详细页面")
 	@ApiImplicitParams({
-//		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID"),
+	  @ApiImplicitParam(paramType = "query", name = "prodId", dataType = "Long", required = false, value = "用户groupId"),
+	  @ApiImplicitParam(paramType = "query", name = "modifySeq", dataType = "Integer", required = false, value = "选择其对应的Seq"),
 //		@ApiImplicitParam(paramType = "query", name = "isTestFlag", dataType = "String", required = false, value = "是否测评"),
 //		@ApiImplicitParam(paramType = "query", name = "testResult", dataType = "String", required = false, value = "测评结果")
 	})
@@ -70,12 +73,14 @@ public class WareHouseController {
 	})	
 	@RequestMapping(value = "/product-groups/warehouse-record-details", method = RequestMethod.GET)
 	public ResponseEntity<?> warehouseRecordDetails(
-//			@RequestParam(value = "uuid",required = false) String uuid,
+	    @RequestParam(value = "prodId",required = false) Long prodId,
+	    @RequestParam(value = "modifySeq",required = false) Integer modifySeq
 //			@RequestParam(value = "isTestFlag",required = false) String isTestFlag,
 //			@RequestParam(value = "testResult",required = false) String testResult
 	    ) throws Exception {
-	  List<Map> resultList = userProdChangeLogService.getWarehouseRecords();
-	  
-	  return new ResponseEntity<>(resultList, HttpStatus.OK);
+	  List<Map> resultList = userProdChangeLogService.getWarehouseRecords(prodId, modifySeq);
+	  Map<String,List> result = new HashMap<>();
+	  result.put("result", resultList);
+	  return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 }

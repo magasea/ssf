@@ -13,11 +13,13 @@ public interface UserProdChangeLogService {
 
   List<UserProdChg> getGeneralChangeLogs(Long prodId);
 
-  List<UserProdChgDetail> getDetailChangeLogs(Long prodId, Long changeSeq);
+  List<UserProdChgDetail> getDetailChangeLogs(Long prodId, Integer changeSeq);
 
   boolean insertGeneralChangeLogs(List<UserProdChg> userProdChgs);
 
   boolean insertDetailChangeLogs(List<UserProdChgDetail> userProdChgDetails);
 
-  List<Map> getWarehouseRecords();
+  List<Map> getWarehouseRecords(Long prodId,Integer modifySeq);
+
+  List<UserProdChg> getGeneralChangeLogs(Long prodId, Long groupId);
 }
