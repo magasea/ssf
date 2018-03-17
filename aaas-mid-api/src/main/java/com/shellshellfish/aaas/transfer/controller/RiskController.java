@@ -86,7 +86,7 @@ public class RiskController {
 			}
  			result.remove("_links");
 			result.remove("_schemaVersion");
-			result.put("title", "尊敬的客户您好！欢迎来到贝贝鱼风险测评...");
+			result.put("title", "尊敬的客户您好！欢迎来到兰州银行风险测评...");
 			return new JsonResult(JsonResult.SUCCESS, "风险测评成功", result);
 		} catch (Exception e) {
 			/*result = new HashMap<>();

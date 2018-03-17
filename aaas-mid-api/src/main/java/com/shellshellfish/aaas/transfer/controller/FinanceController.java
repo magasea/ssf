@@ -1463,7 +1463,7 @@ public class FinanceController {
 					List<Map> resultList = new ArrayList<>();
 					List<Map> resultListBak = new ArrayList<>();
 					resultList = (List<Map>) result.get("result");
-					for (int i = 0; i < resultList.size(); i++) {
+					for (int i = resultList.size()-1; i > 0; i--) {
 						Object userProdChg = resultList.get(i);
 						if (userProdChg != null) {
 							Map userProdChgMap = (HashMap) userProdChg;
@@ -1484,6 +1484,21 @@ public class FinanceController {
 					}
 					result.put("result", resultListBak);
 				}
+				
+				url = assetAlloctionUrl + "/api/asset-allocation/products";
+				Map<String, Object> prodcutResult = new HashMap<String, Object>();
+				result.put("name", "贝贝鱼调仓记录详情");
+				if(!StringUtils.isEmpty(groupId)){
+					String subGroupId = groupId + "0048";
+					url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId;
+					Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
+					if(productMap!=null){
+						if(productMap.get("name")!=null){
+							result.put("name", productMap.get("name"));
+						}
+					}
+				}
+				
 			}
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
