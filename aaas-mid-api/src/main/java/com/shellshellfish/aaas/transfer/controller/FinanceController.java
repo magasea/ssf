@@ -1601,6 +1601,20 @@ public class FinanceController {
 					result.put("detailData", result.get("result"));
 					result.put("topData", topList);
 					result.remove("result");
+					
+					url = assetAlloctionUrl + "/api/asset-allocation/products";
+					Map<String, Object> prodcutResult = new HashMap<String, Object>();
+					result.put("name", "贝贝鱼调仓记录详情");
+					if(!StringUtils.isEmpty(groupId)){
+						String subGroupId = groupId + "0048";
+						url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId;
+						Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
+						if(productMap!=null){
+							if(productMap.get("name")!=null){
+								result.put("name", productMap.get("name"));
+							}
+						}
+					}
 				}
 			}
 		} catch (Exception e) {

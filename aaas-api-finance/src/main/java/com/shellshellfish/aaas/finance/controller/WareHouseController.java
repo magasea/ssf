@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.shellshellfish.aaas.finance.model.dto.UserProdChg;
-import com.shellshellfish.aaas.finance.service.IndexService;
 import com.shellshellfish.aaas.finance.service.UserProdChangeLogService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
