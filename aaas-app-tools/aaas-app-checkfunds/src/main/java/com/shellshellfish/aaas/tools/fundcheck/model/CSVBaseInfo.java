@@ -52,7 +52,11 @@ public class CSVBaseInfo {
     }
     this.date = String.format("%04d-%02d-%02d",Integer.parseInt(dateItems[0]),Integer.parseInt
         (dateItems[1]),Integer.parseInt(dateItems[2]));
-    this.code = code;
+    if(code.contains(".")){
+      this.code = code.replace(".","");
+    }else {
+      this.code = code;
+    }
 
     this.close = close;
   }
