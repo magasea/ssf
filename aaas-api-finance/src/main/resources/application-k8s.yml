@@ -58,3 +58,5 @@ application:
         licenseUrl:
 
 api-data-manager-url: http://aaas-api-data-manager:10030
+shellshellfish:
+  asset-allocation-url: "http://localhost:10020"

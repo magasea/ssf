@@ -1078,7 +1078,7 @@ public class UserProdChangeLogServiceImplTest {
     UserProdChg userProdChg9 = new UserProdChg();
     MyBeanUtils.mapEntityIntoDTO(userProdChg, userProdChg9);
     userProdChg9.setModifyType(AdjustTypeEnum.RISKDISMISS_END.getTypeId());
-    userProdChg9.setModifyComment("美股波动减弱，本轮风控结束，恢复合适的风险配置比例");
+    userProdChg9.setModifyComment("美股波动减弱，本轮风控结束，恢复合适的配置比例");
     userProdChg9.setModifyTypeComment(AdjustTypeEnum.RISKDISMISS_END.getTypeComment());
     userProdChg9.setModifySeq(9);
     userProdChg9.setModifyTime(TradeUtil.getUTCTimeOfSpecificTime(2018,3,1,0,0));

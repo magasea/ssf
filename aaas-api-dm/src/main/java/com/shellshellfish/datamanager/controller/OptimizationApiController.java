@@ -53,11 +53,9 @@ public class OptimizationApiController {
 	@ResponseBody
 	public JsonResult getFinanceModule() {
 		JsonResult result = optimizationService.getFinanceFront();
-		if (result != null) {
-			if (StringUtils.isEmpty(result)) {
-				optimizationService.financeFront();
-				result = optimizationService.getFinanceFront();
-			}
+		if (result == null) {
+			optimizationService.financeFront();
+			result = optimizationService.getFinanceFront();
 			logger.info(
 					"run com.shellshellfish.datamanager.controller.OptimizationApiController.getFinanceModule() success..");
 		} else {
@@ -101,11 +99,9 @@ public class OptimizationApiController {
 	@ResponseBody
 	public JsonResult getPrdDetails(String groupId, String subGroupId) {
 		JsonResult result = optimizationService.getPrdDetails(groupId, subGroupId);
-		if (result != null) {
-			if(result.getHead()==null){
-				this.prdDetails();
-				result = optimizationService.getPrdDetails(groupId, subGroupId);
-			}
+		if (result == null) {
+			this.prdDetails();
+			result = optimizationService.getPrdDetails(groupId, subGroupId);
 			logger.info(
 					"run com.shellshellfish.datamanager.controller.OptimizationApiController.getFinanceModule() success..");
 		} else {
