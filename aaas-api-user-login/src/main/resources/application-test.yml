@@ -7,7 +7,7 @@ spring:
   profiles: test
 datasource:
   sampleapp:
-    url: jdbc:mysql://192.168.1.10:3306/ssflogin?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://192.168.1.10:30006/ssflogin?useUnicode=true&characterEncoding=utf-8
     username: sa
     password: N4eTVr89lX9BaPcx
     driverClassName: com.mysql.jdbc.Driver
@@ -28,8 +28,8 @@ ali:
 app:
     debug: true
 redis:
-    host: localhost
-    port: 6379
+    host: 192.168.1.249
+    port: 16379
     pwd: redis123
 sms:
     signcode: SMS_117526841
