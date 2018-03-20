@@ -1513,12 +1513,18 @@ public class FundGroupService {
         for (Map map : dataMapList) {
             mapList.add(map);
             if (mapList.size() == BATCH_SIZE_NUM) {
-                fundGroupMapper.batchInsertFundGroupHistory(mapList);
+                for(Map mapSub: mapList){
+                    fundGroupMapper.insertGroupNavadj(mapSub);
+                }
+//                fundGroupMapper.batchInsertFundGroupHistory(mapList);
                 mapList.clear();
             }
         }
         if (!CollectionUtils.isEmpty(mapList)) {
-            fundGroupMapper.batchInsertFundGroupHistory(mapList);
+            for(Map mapSub: mapList){
+                fundGroupMapper.insertGroupNavadj(mapSub);
+            }
+//            fundGroupMapper.batchInsertFundGroupHistory(mapList);
         }
         return;
     }
@@ -1531,12 +1537,18 @@ public class FundGroupService {
         for (Map map : dataMapList) {
             mapList.add(map);
             if (mapList.size() == BATCH_SIZE_NUM) {
-                fundGroupMapper.batchUpdateMaximumRetracement(mapList);
+                for(Map mapSub: mapList){
+                    fundGroupMapper.updateMaximumRetracement(mapSub);
+                }
+//                fundGroupMapper.batchUpdateMaximumRetracement(mapList);
                 mapList.clear();
             }
         }
         if (!CollectionUtils.isEmpty(mapList)) {
-            fundGroupMapper.batchUpdateMaximumRetracement(mapList);
+            for(Map mapSub: mapList){
+                fundGroupMapper.updateMaximumRetracement(mapSub);
+            }
+//            fundGroupMapper.batchUpdateMaximumRetracement(mapList);
         }
         return;
     }
