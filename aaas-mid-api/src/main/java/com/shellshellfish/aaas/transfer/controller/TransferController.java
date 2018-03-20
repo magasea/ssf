@@ -196,7 +196,8 @@ public class TransferController {
 				resultMap.put("poundage", "0.00");
 			} else {
 				DecimalFormat decimalFormat = new DecimalFormat("0.00");
-				resultMap.put("poundage", decimalFormat.format(poundage));
+				logger.info("poundage==>:{}",poundage);
+				resultMap.put("poundage", decimalFormat.format(new Float(poundage)));
 			}
 			
 			resultMap.put("buyfee", buyfee);
