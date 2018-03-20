@@ -6,8 +6,8 @@ mybatis:
 spring:
     datasource:
         driverClassName: com.mysql.jdbc.Driver
-        password: t5MqqozQDNramNHh
-        url: jdbc:mysql://192.168.1.10:3306/choice?useUnicode=true&characterEncoding=utf-8
+        password: 1rIQ9wi!@g3P$Qh*
+        url: jdbc:mysql://192.168.1.10:30006/choice?useUnicode=true&characterEncoding=utf-8
         username: ssf08
     jpa:
       hibernate:
