@@ -35,8 +35,8 @@ spring:
  #           hibernate.cache.region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
     data:
         mongodb:
-            host: 192.168.1.10
-            port: 27017
+            host: 192.168.1.249
+            port: 30005
             database: zhongzheng
 
 server:
