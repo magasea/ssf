@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.tools.fundcheck.controller;
 
+import com.shellshellfish.aaas.common.http.HttpJsonResult;
 import com.shellshellfish.aaas.tools.fundcheck.model.BaseCheckRecord;
 import com.shellshellfish.aaas.tools.fundcheck.model.FundCheckRecord;
 import com.shellshellfish.aaas.tools.fundcheck.model.JsonResult;
@@ -19,12 +20,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -40,6 +43,29 @@ public class UploadController {
 
     @Value("${shellshellfish.csvBaseFileOriginName}")
     String csvBaseFileOriginName;
+
+//    asset-allocation-insertdf-url: "http://localhost:10020/api/asset-allocation/job/insertDailyFund"
+//    asset-allocation-inithistory-url:
+//        "http://localhost:10020/api/asset-allocation/job/getAllIdAndSubId"
+//
+//    asset-allocation-initpyamongo-url: "http://localhost:10020/api/asset-allocation/job/getFundGroupIncomeAllToMongoDb"
+//    data-manager-initcache-url: "http://localhost:10030/api/datamanager/financeFrontPage"
+//    data-manager-initcache-detail-url: "http://localhost:10030/api/datamanager/checkPrdDetails"
+
+    @Value("${shellshellfish.asset-allocation-insertdf-url}")
+    String assetAllocationInsertdf;
+
+    @Value("${shellshellfish.asset-allocation-inithistory-url}")
+    String assetAllocationInithistory;
+
+    @Value("${shellshellfish.asset-allocation-initpyamongo-url}")
+    String assetAllocationInitpyamongo;
+
+    @Value("${shellshellfish.data-manager-initcache-url}")
+    String assetAllocationInitcache;
+
+    @Value("${shellshellfish.data-manager-initcache-detail-url}")
+    String assetAllocationInitcacheDetail;
 
     final static String CNST_BASE = "CLOSE";
 
@@ -113,8 +139,50 @@ public class UploadController {
             logger.error("Exception:", e);
             throw e;
         }
+        makeSequenceInitCalls();
 
         return "redirect:/uploadStatus";
+    }
+
+    private boolean makeSequenceInitCalls(){
+        RestTemplate restTemplate = new RestTemplate();
+        try{
+            HttpJsonResult jsonResult1 = restTemplate.getForObject(assetAllocationInsertdf,
+                HttpJsonResult.class);
+            Thread.sleep(10000);
+            if(jsonResult1 != null){
+                logger.info(jsonResult1.toString());
+            }
+            HttpJsonResult jsonResult2 = restTemplate.getForObject(assetAllocationInithistory,
+                HttpJsonResult.class);
+            Thread.sleep(10000);
+            if(jsonResult2 != null){
+                logger.info(jsonResult2.toString());
+            }
+            HttpJsonResult jsonResult3 = restTemplate.getForObject(assetAllocationInitpyamongo
+                , HttpJsonResult.class);
+            Thread.sleep(60000);
+            if(jsonResult3 != null){
+                logger.info(jsonResult3.toString());
+            }
+            ResponseEntity<HttpJsonResult> jsonResult4 = restTemplate.postForEntity(assetAllocationInitcache,
+                (Object) null, HttpJsonResult.class);
+            Thread.sleep(10000);
+            if(jsonResult4 != null){
+                logger.info(jsonResult4.toString());
+            }
+            ResponseEntity<HttpJsonResult> jsonResult5 = restTemplate.postForEntity(assetAllocationInitcacheDetail,
+                (Object) null, HttpJsonResult.class);
+            Thread.sleep(10000);
+            if(jsonResult5 != null){
+                logger.info(jsonResult5.toString());
+            }
+
+        }catch (Exception ex){
+            logger.error("Exception:", ex);
+        }
+
+        return true;
     }
 
     @GetMapping("uploadStatus")

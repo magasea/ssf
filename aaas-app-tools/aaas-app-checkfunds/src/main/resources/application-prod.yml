@@ -33,7 +33,13 @@ datasource:
       format_sql: true
       dialect: org.hibernate.dialect.MySQLDialect
 shellshellfish:
-  asset-alloction-url: "http://localhost:10020"
+  asset-allocation-insertdf-url: "http://localhost:10020/api/asset-allocation/job/insertDailyFund"
+  asset-allocation-inithistory-url:
+  "http://localhost:10020/api/asset-allocation/job/getAllIdAndSubId"
+
+  asset-allocation-initpyamongo-url: "http://localhost:10020/api/asset-allocation/job/getFundGroupIncomeAllToMongoDb"
+  data-manager-initcache-url: "http://localhost:10030/api/datamanager/financeFrontPage"
+  data-manager-initcache-detail-url: "http://localhost:10030/api/datamanager/checkPrdDetails"
   csvFilePath: /temp
   csvFundFileOriginName: csvFundsInfo
   csvBaseFileOriginName: csvBaseInfo
