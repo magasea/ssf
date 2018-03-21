@@ -24,6 +24,8 @@ public class TrdStatusToCombStatusUtils {
         return CombinedStatusEnum.WAITCONFIRM;
       case WAITPAY:
         return CombinedStatusEnum.WAITCONFIRM;
+      case SELLCONFIRMED:
+        return CombinedStatusEnum.CONFIRMED;
       default:
         return CombinedStatusEnum.CONFIRMEDFAILED;
     }
