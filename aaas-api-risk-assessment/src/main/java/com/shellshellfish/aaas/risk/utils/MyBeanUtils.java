@@ -2,6 +2,9 @@ package com.shellshellfish.aaas.risk.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -15,7 +18,7 @@ import com.shellshellfish.aaas.risk.model.dto.QuestionDTO;
 import com.shellshellfish.aaas.risk.model.dto.SurveyTemplateDTO;
 
 public class MyBeanUtils {
-
+	private static final Logger logger = LoggerFactory.getLogger(MyBeanUtils.class);
 	public static <A, B> List<B> convertList(List<A> sourceList, Class<B> targetClass)
 			throws IllegalAccessException, InstantiationException {
 		List<B> targetList = new ArrayList<>();
@@ -73,8 +76,10 @@ public class MyBeanUtils {
 				questionDTO.setOptionItems(optionItemDtoList);
 			}
 		} catch (IllegalAccessException e) {
+			logger.error(e.getMessage(), e);
 			e.printStackTrace();
 		} catch (InstantiationException e) {
+			logger.error(e.getMessage(), e);
 			e.printStackTrace();
 		}
 

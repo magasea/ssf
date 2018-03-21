@@ -373,7 +373,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		List<MongoUiTrdZZInfo> mongoUiTrdZZInfoSell = mongoUiTrdZZInfoRepo
 				.findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
 						fundCode, TrdOrderOpTypeEnum.REDEEM.getOperation(),
-						TrdOrderStatusEnum.CONFIRMED.getStatus(), startDate);
+						TrdOrderStatusEnum.SELLCONFIRMED.getStatus(), startDate);
 
 		Query query = new Query();
 		query.addCriteria(Criteria.where("userUuid").is(userUuid))
@@ -478,7 +478,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 				prodId);
 
 		if (dailyAmountAggregation == null) {
-			return new PortfolioInfo();
+			return PortfolioInfo.getNullInstance();
 		}
 		//区间结束日前一天数据
 		LocalDate startLocalDate = InstantDateUtil.format(startDate, FORMAT_PATTERN);
@@ -523,7 +523,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 		}
 
 		if (dailyAmountAggregationOfEndDay == null) {
-			return new PortfolioInfo();
+			return PortfolioInfo.getNullInstance();
 		}
 
 		//区间数据
@@ -757,6 +757,34 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 			logger.error("计算{用户:{},基金code:{},基金名称：{}}日收益出错", detail.getCreateBy(),
 					detail.getFundCode(), detail.getFundName(), e);
 			//FIXME  记录错误数据 并返回
+		}
+	}
+
+	@Override
+	public void calculateFromZzInfo(UiProductDetail detail, String uuid, Long prodId, String date)
+			throws Exception {
+
+		String fundCode = detail.getFundCode();
+		addDailyAmount(uuid, date, fundCode, prodId, detail.getUserProdId());
+		//计算当日总资产
+		calcDailyAsset2(uuid, prodId, detail.getUserProdId(), fundCode,
+				date, detail);
+
+	}
+
+	private void addDailyAmount(String userUuid, String date, String fundCode, Long prodId,
+			Long userProdId) {
+
+		Query query = new Query();
+		query.addCriteria(Criteria.where("userUuid").is(userUuid))
+				.addCriteria(Criteria.where("date").is(date))
+				.addCriteria(Criteria.where("fundCode").is(fundCode))
+				.addCriteria(Criteria.where("prodId").is(prodId))
+				.addCriteria(Criteria.where("userProdId").is(userProdId));
+
+		DailyAmount dailyAmount1 = zhongZhengMongoTemplate.findOne(query, DailyAmount.class);
+		if (dailyAmount1 == null) {
+			initDailyAmount(userUuid, prodId, userProdId, date, fundCode);
 		}
 	}
 

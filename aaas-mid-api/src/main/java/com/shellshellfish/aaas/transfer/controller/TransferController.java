@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.transfer.controller;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -139,6 +141,7 @@ public class TransferController {
 			logger.error(e.getMessage());
 			logger.error("exception:",e);
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -163,7 +166,7 @@ public class TransferController {
 			verify = service.verifyMSGCode(telNum, msgCode);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
-			logger.error(str);
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, "手机验证失败，申购失败", JsonResult.EMPTYRESULT);
 		}
 		// 验证码不通过则直接返回失败
@@ -189,8 +192,16 @@ public class TransferController {
 			resultMap.put("orderId", buyProductSuccess.get("orderId").toString());
 			resultMap.put("bankName", bankName);
 			resultMap.put("bankCard", bankCard);
+			if(StringUtils.isEmpty(poundage) || "0".equals(poundage)){
+				resultMap.put("poundage", "0.00");
+			} else {
+				DecimalFormat decimalFormat = new DecimalFormat("0.00");
+				logger.info("poundage==>:{}",poundage);
+				resultMap.put("poundage", decimalFormat.format(new Float(poundage)));
+			}
+			
 			resultMap.put("buyfee", buyfee);
-			resultMap.put("poundage", poundage);
+//			resultMap.put("poundage", poundage);
 			return new JsonResult(JsonResult.SUCCESS, "订单已受理，申购中...", resultMap);
 		} catch (HttpClientErrorException e) {
 			logger.error("购买基金调用购买接口失败" + e.getMessage());
@@ -205,9 +216,10 @@ public class TransferController {
 			String error = myJson.getString("message");
 			return new JsonResult(JsonResult.Fail, error, JsonResult.EMPTYRESULT);
 		} catch (Exception e) {
-			logger.error("购买基金调用购买接口失败" + e.getMessage());
-			logger.error("exception:",e);
+//			logger.error("购买基金调用购买接口失败" + e.getMessage());
+//			logger.error("exception:",e);
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -246,9 +258,10 @@ public class TransferController {
 			String error = myJson.getString("message");
 			return new JsonResult(JsonResult.Fail, error, JsonResult.EMPTYRESULT);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			logger.error("exception:",e);
+//			logger.error(e.getMessage());
+//			logger.error("exception:",e);
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -278,7 +291,7 @@ public class TransferController {
 			verify = service.verifyMSGCode(telNum, verifyCode);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
-			logger.error(str);
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, "手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
 		}
 		// 验证码不通过则直接返回失败
@@ -372,11 +385,11 @@ public class TransferController {
 			}
 			return new JsonResult(JsonResult.SUCCESS, "调用成功", result);
 		} catch (Exception ex) {
-			logger.error("赎回页面接口调用失败");
-			logger.error("exception:",ex);
+//			logger.error("赎回页面接口调用失败");
+//			logger.error("exception:",ex);
 			String str = new ReturnedException(ex).getErrorMsg();
+			logger.error(str, ex);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
-
 }

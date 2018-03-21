@@ -315,6 +315,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		if(userBaseInfoRedis == null){
 			uiUser = userInfoRepository.findByUuid(userUuid);
 			if (null == uiUser) {
+				logger.error("not vaild userUuid:{}", userUuid);
 				throw new Exception("not vaild userUuid:" + userUuid);
 			} else {
 				userId = uiUser.getId();
@@ -407,7 +408,8 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		}
 		List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserIdAndCardNumber(userId, cardNumber);
 		if (CollectionUtils.isEmpty(bankcardList)) {
-			throw new UserInfoException("404", String.format("用户:%s, 要解绑的银行卡:%s 不存在",userId, cardNumber));
+			logger.error("用户:{}, 要解绑的银行卡:{} 不存在", userId, cardNumber);
+			throw new UserInfoException("404", String.format("用户:%s, 要解绑的银行卡:%s 不存在", userId, cardNumber));
 		}
 		//用状态来控制银行卡
 		userInfoBankCardsRepository.setBankCardInvalid(userId, cardNumber);
@@ -608,11 +610,13 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	@Override
 	public ProductsDTO findByProdId(String prodId) {
 		if(StringUtils.isEmpty(prodId)){
+			logger.error("智投组合产品id不能为空");
 			throw new UserInfoException("404", "智投组合产品id不能为空");
 		}
 		UiProducts productsData = uiProductRepo.findById(Long.valueOf(prodId));
 		if (productsData == null) {
-			throw new UserInfoException("404", "智投组合产品："+prodId+"为空");
+			logger.error("智投组合产品：{}为空", prodId);
+			throw new UserInfoException("404", "智投组合产品：" + prodId + "为空");
 		}
 		ProductsDTO product = new ProductsDTO();
 		BeanUtils.copyProperties(productsData, product);
@@ -622,6 +626,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	@Override
 	public List<ProductsDTO> findTradeLogDtoByUserId(String uuid) throws IllegalAccessException, InstantiationException {
 		if(StringUtils.isEmpty(uuid)){
+			logger.error("用户uuid不能为空");
 			throw new UserInfoException("404", "用户uuid不能为空");
 		}
 		Long userId = null;
@@ -801,6 +806,8 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			}
 			if(currentProductDetail.getStatus() != null && currentProductDetail.getStatus() ==
 					TrdOrderStatusEnum.WAITSELL.getStatus()){
+				logger.error("fundCode:{} is in WAITSELL status:{}", currentProductDetail.getFundCode(),
+						currentProductDetail.getStatus());
 				throw new Exception(String.format("fundCode:%s is in WAITSELL status:%s",
 						currentProductDetail.getFundCode(), currentProductDetail.getStatus()));
 			}
@@ -882,6 +889,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		if(userBaseInfoRedis == null){
 			uiUser = userInfoRepository.findByUuid(userUUID);
 			if (null == uiUser) {
+				logger.error("not vaild userUuid:{}", userUUID);
 				throw new Exception("not vaild userUuid:" + userUUID);
 			} else {
 				userBaseInfoRedis = new UserBaseInfoRedis();

@@ -48,6 +48,7 @@ public class EasyKit {
 			result.put("maxValue", Collections.max(valueList));
 			result.put("minValue", Collections.min(valueList));
 		} else {
+			log.error("List为空值，无法解析time-value组合");
 			throw new RuntimeException("List为空值，无法解析time-value组合");
 		}
 		return result;

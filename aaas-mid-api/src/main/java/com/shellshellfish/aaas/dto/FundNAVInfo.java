@@ -48,8 +48,6 @@ public class FundNAVInfo {
 	private Map yieldof7daysMap;
 
 	private Map tenKiloUnitYieldMap;
-
-	private final static Logger logger = LoggerFactory.getLogger(FundNAVInfo.class);
 	
 	public Map getIncrementMinMaxValueMap() {
 		return incrementMinMaxValueMap;
@@ -263,14 +261,19 @@ public class FundNAVInfo {
 								setMethod.invoke(infoA, infoBValue);
 							}
 						} catch (NoSuchMethodException ex) {
+							Logger logger = LoggerFactory.getLogger(FundNAVInfo.class);
 							logger.error("exception:",ex);
 						} catch (SecurityException ex) {
+							Logger logger = LoggerFactory.getLogger(FundNAVInfo.class);
 							logger.error("exception:",ex);
 						} catch (IllegalAccessException ex) {
+							Logger logger = LoggerFactory.getLogger(FundNAVInfo.class);
 							logger.error("exception:",ex);
 						} catch (IllegalArgumentException ex) {
+							Logger logger = LoggerFactory.getLogger(FundNAVInfo.class);
 							logger.error("exception:",ex);
 						} catch (InvocationTargetException ex) {
+							Logger logger = LoggerFactory.getLogger(FundNAVInfo.class);
 							logger.error("exception:",ex);
 						}
 					}

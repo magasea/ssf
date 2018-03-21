@@ -1,8 +1,58 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+
+import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
+import com.shellshellfish.aaas.common.enums.CombinedStatusEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.utils.TrdStatusToCombStatusUtils;
+import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
+import com.shellshellfish.aaas.finance.trade.order.OrderResult;
+import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
+import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
+import com.shellshellfish.aaas.finance.trade.pay.ZhongZhengQueryByOrderDetailId;
+import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
+import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
+import com.shellshellfish.aaas.userinfo.model.DailyAmount;
+import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoUserDailyIncome;
+import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
+import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
+import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
+import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
+import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
+import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.TrendYield;
+import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfoDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
+import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoUserDailyIncomeRepository;
+import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
+import com.shellshellfish.aaas.userinfo.service.UiProductService;
+import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
+import com.shellshellfish.aaas.userinfo.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.utils.BankUtil;
+import io.grpc.ManagedChannel;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -29,53 +79,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
-import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
-import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
-import com.shellshellfish.aaas.common.enums.CombinedStatusEnum;
-import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
-import com.shellshellfish.aaas.common.utils.InstantDateUtil;
-import com.shellshellfish.aaas.common.utils.MyBeanUtils;
-import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.finance.trade.order.OrderResult;
-import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
-import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
-import com.shellshellfish.aaas.finance.trade.pay.ZhongZhengQueryByOrderDetailId;
-import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
-import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
-import com.shellshellfish.aaas.userinfo.model.DailyAmount;
-import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
-import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
-import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
-import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
-import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfoDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
-import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
-import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
-import com.shellshellfish.aaas.userinfo.service.UiProductService;
-import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
-import com.shellshellfish.aaas.userinfo.service.UserInfoService;
-import com.shellshellfish.aaas.userinfo.utils.BankUtil;
-import io.grpc.ManagedChannel;
 
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
@@ -104,6 +113,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Autowired
 	@Qualifier("zhongZhengMongoTemplate")
 	private MongoTemplate mongoTemplate;
+
+	@Autowired
+	MongoUserDailyIncomeRepository mongoUserDailyIncomeRepository;
 
 	PayRpcServiceFutureStub payRpcServiceFutureStub;
 
@@ -151,12 +163,14 @@ public class UserInfoServiceImpl implements UserInfoService {
 		try {
 			userId = getUserIdFromUUID(userUuid);
 		} catch (Exception e) {
+			logger.error("该用户不存在", e);
 			throw new UserInfoException("404", "该用户不存在");
 		}
 		List<BankCardDTO> bankcards = null;
 		try {
 			bankcards = userInfoRepoService.getUserInfoBankCards(userId);
 		} catch (Exception e) {
+			logger.error("该用户暂时没有绑定银行卡", e);
 			throw new UserInfoException("404", "该用户暂时没有绑定银行卡");
 		}
 		// List<BankCard> bankCardsDto = new ArrayList<>();
@@ -383,92 +397,26 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public Map<String, Object> getTrendYield(String userUuid) throws Exception {
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		List<ProductsDTO> productsList = this.findProductInfos(userUuid);
-		if (productsList == null || productsList.size() == 0) {
-			logger.error("我的智投组合暂时不存在");
-			return new HashMap<String, Object>();
-		}
-		ProductsDTO products;
-		Integer fails = 0;
-		List<Map<String, PortfolioInfo>> portfolioInfoList = new ArrayList<Map<String, PortfolioInfo>>();
-		for (int i = 0; i < productsList.size(); i++) {
-			products = productsList.get(i);
-			// 状态(0-待确认 1-已确认 -1-交易失败)
-			List<UiProductDetailDTO> productDetailsList = uiProductService
-					.getProductDetailsByProdId(products.getId());
-			if (productDetailsList != null && productDetailsList.size() > 0) {
-				fails = 0;
-				for (int j = 0; j < productDetailsList.size(); j++) {
-					UiProductDetailDTO uiProductDetailDTO = productDetailsList.get(j);
-					if (uiProductDetailDTO.getStatus() != null) {
-						if (uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()) {
-							fails++;
-						}
-					} else {
-						fails++;
-					}
-				}
-				if (fails == productDetailsList.size()) {
-					//若组合中全部失败，则不显示
-					continue;
-				}
-			}
-			Long userId = getUserIdFromUUID(userUuid);
-			// 总资产
-			Map<String, PortfolioInfo> portfolioInfoMap = this
-					.getCalculateTotalAndRate(userUuid, userId, products);
-			portfolioInfoList.add(portfolioInfoMap);
-		}
+	public List<TrendYield> getTrendYield(String userUuid) throws Exception {
+		Aggregation agg = newAggregation(
+				match(Criteria.where("userId").is(getUserIdFromUUID(userUuid))),
+				group("createDateStr")
+						.first("createDateStr").as("date")
+						.sum("accumulativeIncome").as("value"));
 
-		Map<String, Object> portfolioInfoMap = new HashMap<String, Object>();
-		if (portfolioInfoList != null && portfolioInfoList.size() > 0) {
-			for (int i = 0; i < portfolioInfoList.size(); i++) {
-				//循环单个组合的map
-				Map<String, PortfolioInfo> portMap = portfolioInfoList.get(i);
-				if (portMap != null && portMap.size() > 0) {
-					for (String key : portMap.keySet()) {
-						PortfolioInfo portfolioInfo = portMap.get(key);
-						BigDecimal value = portfolioInfo.getTotalIncome();
-						if (value != null) {
-							value = value.setScale(2, BigDecimal.ROUND_HALF_UP);
-						}
-						if (portfolioInfoMap.containsKey(key)) {
-							BigDecimal income = new BigDecimal(portfolioInfoMap.get(key) + "");
-							if (value != null) {
-								BigDecimal totalIncome = new BigDecimal(value + "");
-								totalIncome = totalIncome.add(income);
-								portfolioInfoMap.put(key, totalIncome);
-							}
-						} else {
-							portfolioInfoMap.put(key, value);
-						}
-					}
-				}
-			}
+		List<TrendYield> list = mongoTemplate.aggregate(agg, "user_daily_income", TrendYield.class)
+				.getMappedResults();
+		if (CollectionUtils.isEmpty(list)) {
+			return new ArrayList<>(0);
 		}
-		List<Map<String, Object>> portfolioList = new ArrayList<Map<String, Object>>();
-		if (portfolioInfoMap != null && portfolioInfoMap.size() > 0) {
-			Map<String, Object> portfolioMap = new HashMap<String, Object>();
-			if (portfolioInfoMap != null && portfolioInfoMap.size() > 0) {
-				for (String key : portfolioInfoMap.keySet()) {
-					portfolioMap = new HashMap<String, Object>();
-					portfolioMap.put("date", key);
-					portfolioMap.put("value", portfolioInfoMap.get(key));
-					portfolioList.add(portfolioMap);
-				}
-			}
+		List<TrendYield> result = new ArrayList<>(list);
+		for (TrendYield trendYield : result) {
+			String date = trendYield.getDate().replace("-", "");
+			trendYield.setDate(date);
 		}
-		Collections.sort(portfolioList, new Comparator<Map<String, Object>>() {
-			public int compare(Map<String, Object> o1, Map<String, Object> o2) {
-				int map1value = Integer.parseInt(o1.get("date") + "");
-				int map2value = Integer.parseInt(o2.get("date") + "");
-				return map1value - map2value;
-			}
-		});
-		resultMap.put("trendYield", portfolioList);
-		return resultMap;
+		Collections
+				.sort(result, Comparator.comparing(o -> InstantDateUtil.format(o.getDate(), "yyyyMMdd")));
+		return result;
 	}
 
 	@Override
@@ -515,7 +463,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 		return resultMap;
 	}
 
-
 	/**
 	 * 计算组合的累计净值，累计收益，累计收益率 ，日收益，日收益率
 	 */
@@ -524,7 +471,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 		List<UiProductDetail> uiProductDetailList = uiProductDetailRepo
 				.findAllByUserProdIdAndStatusIn(products.getId(),
-						TrdOrderStatusEnum.WAITPAY.getStatus(), TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
+						TrdOrderStatusEnum.WAITPAY.getStatus(),
+						TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
 		//完全确认标志
 		boolean flag = false;
@@ -532,12 +480,21 @@ public class UserInfoServiceImpl implements UserInfoService {
 			flag = true;
 		}
 
+		return getChicombinationAssets(uuid, userId, products, LocalDate.now(), flag);
+
+	}
+
+	/**
+	 * 计算组合的累计净值，累计收益，累计收益率 ，日收益，日收益率
+	 */
+	@Override
+	public PortfolioInfo getChicombinationAssets(String uuid, Long userId, ProductsDTO products,
+			LocalDate endDate, boolean flag) {
 		Long startDate = products.getCreateDate();
 		LocalDate startLocalDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(startDate),
 				ZoneId.systemDefault()).toLocalDate();
 		String startDay = InstantDateUtil.format(startLocalDate, "yyyyMMdd");
-
-		String endDay = InstantDateUtil.format(LocalDate.now(), "yyyyMMdd");
+		String endDay = InstantDateUtil.format(endDate, "yyyyMMdd");
 
 		if (flag) {
 			//完全确认
@@ -550,8 +507,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 			products.setStatus(TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
 			return getPartConfirmFundInfo(uuid, userId, products.getId(), startDay, endDay);
 		}
-
-
 	}
 
 	/**
@@ -560,10 +515,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Override
 	public Map<String, PortfolioInfo> getCalculateTotalAndRate(String uuid, Long userId,
 			ProductsDTO products) {
-		Map<String, PortfolioInfo> result = new HashMap<String, PortfolioInfo>();
+		Map<String, PortfolioInfo> result = new HashMap<>();
 		List<UiProductDetail> uiProductDetailList = uiProductDetailRepo
 				.findAllByUserProdIdAndStatusIn(products.getId(),
-						TrdOrderStatusEnum.WAITPAY.getStatus(), TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
+						TrdOrderStatusEnum.WAITPAY.getStatus(),
+						TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
 		//完全确认标志
 		boolean flag = false;
@@ -574,35 +530,16 @@ public class UserInfoServiceImpl implements UserInfoService {
 		Long startDate = products.getCreateDate();
 		LocalDate startLocalDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(startDate),
 				ZoneId.systemDefault()).toLocalDate();
-		String startDay = InstantDateUtil.format(startLocalDate, "yyyyMMdd");
 
-		int i = 1;
-		String endDay = InstantDateUtil.format(LocalDate.now().plusDays(-i), "yyyyMMdd");
-		while (true) {
-			PortfolioInfo portfolioInfo;
-			if (flag) {
-				//完全确认
-				products.setStatus(TrdOrderStatusEnum.CONFIRMED.getStatus());
-				portfolioInfo = userFinanceProdCalcService
-						.calculateProductValue(uuid, products.getId(), startDay, endDay);
-			} else {
-				//部分确认
-				logger.info("\n未完全确认数据 userProdId :{}\n", products.getId());
-				products.setStatus(TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
-				portfolioInfo = getPartConfirmFundInfo(uuid, userId, products.getId(), startDay, endDay);
-			}
-			result.put(endDay, portfolioInfo);
-
-			i++;
-			endDay = InstantDateUtil.format(LocalDate.now().plusDays(-i), "yyyyMMdd");
-			if (TradeUtil.getLongNumWithMul100(startDay) - TradeUtil.getLongNumWithMul100(endDay) >= 0) {
-				break;
-			}
+		LocalDate endLocalDate = LocalDate.now();
+		while (startLocalDate.isBefore(endLocalDate) || startLocalDate.isEqual(endLocalDate)) {
+			String endDay = InstantDateUtil.format(endLocalDate, "yyyyMMdd");
+			result.put(endDay, getChicombinationAssets(uuid, userId, products, endLocalDate, flag));
+			endLocalDate = endLocalDate.plusDays(-1);
 		}
 		return result;
 
 	}
-
 
 	/**
 	 * 计算组合部分确认的资产和收益
@@ -634,7 +571,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 		}
 
 		OrderResult orderResult = rpcOrderService
-				.getOrderInfoByProdIdAndOrderStatus(prodId, TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
+				.getOrderInfoByProdIdAndOrderStatus(prodId,
+						TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
 		BigDecimal applyAsset = BigDecimal.valueOf(orderResult.getPayAmount())
 				.divide(BigDecimal.valueOf(100));
@@ -667,7 +605,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 		return portfolioInfo;
 	}
-
 
 	@Deprecated
 	@Override
@@ -763,19 +700,17 @@ public class UserInfoServiceImpl implements UserInfoService {
 					.getProductDetailsByProdId(products.getId());
 			Integer count = 0;
 			Integer fails = 0;
+			Integer status = 0;
 			if (productDetailsList != null && productDetailsList.size() > 0) {
 				fails = 0;
 				count = 0;
 				for (int j = 0; j < productDetailsList.size(); j++) {
 					UiProductDetailDTO uiProductDetailDTO = productDetailsList.get(j);
 					if (uiProductDetailDTO.getStatus() != null) {
-						if (uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.CONFIRMED.getStatus()
-								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.FAILED.getStatus()
-								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.REDEEMFAILED.getStatus()
-								&& uiProductDetailDTO.getStatus() != TrdOrderStatusEnum.CANCEL.getStatus()) {
+						if (TrdOrderStatusEnum.isInWaiting(uiProductDetailDTO.getStatus())) {
 							count++;
-						} else if (uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()
-								|| uiProductDetailDTO.getStatus() == TrdOrderStatusEnum.REDEEMFAILED.getStatus()) {
+							status = uiProductDetailDTO.getStatus();
+						} else if (TrdOrderStatusEnum.isFailed(uiProductDetailDTO.getStatus())) {
 							fails++;
 						}
 					} else {
@@ -788,7 +723,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}
 				resultMap.put("count", count);
 				if (count > 0) {
-					resultMap.put("title2", "* 您有" + count + "支基金正在确认中");
+					List<OrderDetail> orderDetails = rpcOrderService
+							.getOrderDetails(products.getId(), status);
+					String type = "";
+					if (orderDetails != null && !orderDetails.isEmpty()) {
+						OrderDetail orderDetail = orderDetails.get(0);
+						int tradeType = orderDetail.getTradeType();
+						type = TrdOrderOpTypeEnum.getComment(tradeType);
+					}
+					resultMap.put("title2", "* 您有" + count + "支基金正在" + type + "确认中");
 				}
 			}
 
@@ -899,7 +842,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 		return resultMap;
 	}
 
-
 	@Override
 	public Map<String, Object> getProducts(Long prodId)
 			throws IllegalAccessException, InstantiationException {
@@ -922,6 +864,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		List<MongoUiTrdLogDTO> tradeLogList = this.getTradeLogs(userUuid);
 		List<Map<String, Object>> tradeLogs = new ArrayList<Map<String, Object>>();
 		if (tradeLogList == null || tradeLogList.size() == 0) {
+			logger.error("交易记录为空");
 			throw new UserInfoException("404", "交易记录为空");
 		}
 		Map<String, Map<String, Object>> tradLogsMap = new HashMap<String, Map<String, Object>>();
@@ -973,7 +916,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 					map.put("operationsStatus", 1);
 				} else if (mongoUiTrdLogDTO.getOperations() == 2) {
 					map.put("operationsStatus", 2);
-				} else if (mongoUiTrdLogDTO.getOperations() == 3 || mongoUiTrdLogDTO.getOperations() == 4) {
+				} else if (mongoUiTrdLogDTO.getOperations() == 3
+						|| mongoUiTrdLogDTO.getOperations() == 4) {
 					map.put("operationsStatus", 3);
 				} else {
 					map.put("operationsStatus", 4);
@@ -1045,7 +989,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 										.get("tradeStatusValue") + ""));
 						valueMap.put("tradeStatus",
 								TrdStatusToCombStatusUtils.getCSEFromTSE(trdOrderStatus).getComment());
-						logger.info("tradeStatusValue:{} trdOrderStatus:{} ", valueMap.get("tradeStatusValue"));
+						logger
+								.info("tradeStatusValue:{} trdOrderStatus:{} ", valueMap.get("tradeStatusValue"));
 					}
 					tradLogsSum.put(uoKey, valueMap);
 				} else {
@@ -1095,12 +1040,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 				tradLogsSum.forEach((k, v) -> tradeLogs.add(v));
 			}
 		}
-		Collections.sort(tradeLogs, new Comparator<Map<String, Object>>() {
-			public int compare(Map<String, Object> o1, Map<String, Object> o2) {
-				Long map1value = (Long) o1.get("dateLong");
-				Long map2value = (Long) o2.get("dateLong");
-				return map2value.compareTo(map1value);
-			}
+		Collections.sort(tradeLogs, (o1, o2) -> {
+			Long map1value = (Long) o1.get("dateLong");
+			Long map2value = (Long) o2.get("dateLong");
+			return map2value.compareTo(map1value);
 		});
 
 		return tradeLogs;

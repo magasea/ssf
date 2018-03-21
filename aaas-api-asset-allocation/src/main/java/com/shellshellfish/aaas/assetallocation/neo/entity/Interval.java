@@ -8,6 +8,7 @@ public class Interval extends FundGroupDetails {
     private double income_risk_num;//具体值
     private double expected_annualized_return;//预期年化收益
     private double expected_max_retracement;//预期最大回撤
+    private double simulate_historical_volatility;//预期最大回撤
 
     public String getIncome_risk_type() {
         return income_risk_type;
@@ -40,4 +41,12 @@ public class Interval extends FundGroupDetails {
     public void setExpected_max_retracement(double expected_max_retracement) {
         this.expected_max_retracement = expected_max_retracement;
     }
+
+	public double getSimulate_historical_volatility() {
+		return simulate_historical_volatility;
+	}
+
+	public void setSimulate_historical_volatility(double simulate_historical_volatility) {
+		this.simulate_historical_volatility = simulate_historical_volatility;
+	}
 }

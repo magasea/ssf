@@ -6,11 +6,14 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Map;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AnnotationHelper {
 
+	private static final Logger logger = LoggerFactory.getLogger(AnnotationHelper.class);
+	
 	@SuppressWarnings("unchecked")
     public static Object changeAnnotationValue(Annotation annotation, String key, Object newValue){
         Object handler = Proxy.getInvocationHandler(annotation);
@@ -18,6 +21,7 @@ public class AnnotationHelper {
         try {
             f = handler.getClass().getDeclaredField("memberValues");
         } catch (NoSuchFieldException | SecurityException e) {
+			logger.error(e.getMessage(), e);
             throw new IllegalStateException(e);
         }
         f.setAccessible(true);
@@ -25,10 +29,12 @@ public class AnnotationHelper {
         try {
             memberValues = (Map<String, Object>) f.get(handler);
         } catch (IllegalArgumentException | IllegalAccessException e) {
+        	logger.error(e.getMessage(), e);
             throw new IllegalStateException(e);
         }
         Object oldValue = memberValues.get(key);
         if (oldValue == null || oldValue.getClass() != newValue.getClass()) {
+        	logger.error((new IllegalArgumentException()).getMessage());
             throw new IllegalArgumentException();
         }
         memberValues.put(key,newValue);
@@ -65,6 +71,7 @@ public class AnnotationHelper {
                     (Map<Class<? extends Annotation>, Annotation>) annotations.get(clazzToLookFor);
                 map.put(annotationToAlter, annotationValue);
             } catch (Exception  ex) {
+				logger.error(ex.getMessage(), ex);
                 ex.printStackTrace();
             }
         } else {
@@ -83,6 +90,7 @@ public class AnnotationHelper {
                     (Map<Class<? extends Annotation>, Annotation>) annotations.get(annotationData);
                 map.put(annotationToAlter, annotationValue);
             } catch (Exception  e) {
+            	logger.error(e.getMessage(), e);
                 e.printStackTrace();
             }
         }

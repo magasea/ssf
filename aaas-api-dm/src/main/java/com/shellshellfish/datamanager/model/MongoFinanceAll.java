@@ -16,10 +16,13 @@ public class MongoFinanceAll implements Serializable {
 	@Field(value = "date")
 	private String date;
 
-	@Field(value = "head")
-	private Head head;
-
-	@Field(value = "jonResult")
+//	@Field(value = "head")
+//	private Head head;
+//
+//	@Field(value = "jonResult")
+//	private Object result;
+	
+	@Field(value = "result")
 	private Object result;
 
 	@Column(name = "last_modified_by")
@@ -41,18 +44,26 @@ public class MongoFinanceAll implements Serializable {
 		this.date = date;
 	}
 
-	public Head getHead() {
-		return head;
-	}
-
-	public void setHead(Head head) {
-		this.head = head;
-	}
-
+//	public Head getHead() {
+//		return head;
+//	}
+//
+//	public void setHead(Head head) {
+//		this.head = head;
+//	}
+//
+//	public Object getResult() {
+//		return result;
+//	}
+//
+//	public void setResult(Object result) {
+//		this.result = result;
+//	}
+	
 	public Object getResult() {
 		return result;
 	}
-
+	
 	public void setResult(Object result) {
 		this.result = result;
 	}
@@ -60,6 +71,7 @@ public class MongoFinanceAll implements Serializable {
 	public String getLastModifiedBy() {
 		return lastModifiedBy;
 	}
+
 
 	public void setLastModifiedBy(String lastModifiedBy) {
 		this.lastModifiedBy = lastModifiedBy;

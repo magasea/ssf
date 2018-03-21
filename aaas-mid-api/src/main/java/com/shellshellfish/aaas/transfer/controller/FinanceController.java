@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.transfer.controller;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,9 +28,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.dto.FinanceProductCompo;
 import com.shellshellfish.aaas.model.JsonResult;
 import com.shellshellfish.aaas.service.MidApiService;
+import com.shellshellfish.aaas.transfer.aop.AopTimeResources;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 import com.shellshellfish.aaas.transfer.utils.EasyKit;
 
@@ -66,6 +69,8 @@ public class FinanceController {
 
 	@Autowired
 	private MidApiService service;
+	
+	private static final DecimalFormat decimalFormat = new DecimalFormat(".00"); //保留 5 位
 
 	@ApiOperation("1.首页")
 	@ApiImplicitParams({
@@ -75,6 +80,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/finance-home", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult financeHome(
 			@RequestParam(required = false) String uuid,
 			@RequestParam(required = false) String isTestFlag,
@@ -127,16 +133,6 @@ public class FinanceController {
 										maxminList.add(value);
 									}
 								}
-//								Map maxminMap = (Map) income6monthMap.get("maxMinMap");
-//								if (!CollectionUtils.isEmpty(maxminMap)) {
-//									Double min = (Double) maxminMap.get("minValue");
-//									Double max = (Double) maxminMap.get("maxValue");
-//									Double minValue = EasyKit.getDecimal(new BigDecimal(min));
-//									Double maxValue = EasyKit.getDecimal(new BigDecimal(max));
-//									maxminMap.put("minValue", minValue);
-//									maxminMap.put("maxValue", maxValue);
-//									income6monthMap.put("maxMinMap", maxminMap);
-//								}
 								Map maxminMap = new HashMap();
 								maxminMap.put("minValue", Collections.min(maxminList));
 								maxminMap.put("maxValue", Collections.max(maxminList));
@@ -182,12 +178,13 @@ public class FinanceController {
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
 
 	@ApiOperation("进入理财页面后的数据（暂时不用）")
-	@RequestMapping(value = "/financeFrontPage2", method = RequestMethod.POST)
+	//@RequestMapping(value = "/financeFrontPage2", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult financeModule2() {
 		Map returnMap = new HashMap<>();
@@ -283,23 +280,23 @@ public class FinanceController {
 	@ApiOperation("进入理财页面后的数据")
 	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult financeModule() {
 		// 先获取全部产品
 		JsonResult result = restTemplate
 				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage", JsonResult.class).getBody();
-
 		return result;
 	}
 
 
-	@ApiOperation("理财产品查看详情页面")
+	@ApiOperation("理财产品查看详情页面(暂时不用)")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "4"),
-			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "4009"),
+			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "8"),
+			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "80048"),
 	})
-	@RequestMapping(value = "/checkPrdDetails", method = RequestMethod.POST)
+	//@RequestMapping(value = "/checkPrdDetails", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getPrdDetails(String groupId, String subGroupId) {
+	public JsonResult getPrdDetails2(String groupId, String subGroupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		result = service.getPrdNPVList(groupId, subGroupId);
 		if (result == null) {
@@ -308,8 +305,10 @@ public class FinanceController {
 
 		Map expAnnReturn = getExpAnnReturn(groupId, subGroupId);
 		Map expMaxReturn = getExpMaxReturn(groupId, subGroupId);
+		Map simulateHistoricalReturn = getSimulateHistoricalReturn(groupId, subGroupId);
 		result.put("expAnnReturn", expAnnReturn);
 		result.put("expMaxDrawDown", expMaxReturn);
+		result.put("simulateHistoricalVolatility", simulateHistoricalReturn);
 		//饼图（返回单个基金组合产品信息）
 		try {
 			String url =
@@ -347,9 +346,26 @@ public class FinanceController {
 			}
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 		return new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", result);
+	}
+	
+	@ApiOperation("理财产品查看详情页面")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "8"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "80048"),
+	})
+	@RequestMapping(value = "/checkPrdDetails", method = RequestMethod.POST)
+	@ResponseBody
+	@AopTimeResources
+	public JsonResult getPrdDetails(String groupId, String subGroupId) {
+		// 先获取全部产品
+		JsonResult result = restTemplate
+				.getForEntity(dataManagerUrl + "/api/datamanager/getCheckPrdDetails?groupId=" + groupId + "&subGroupId="
+						+ subGroupId, JsonResult.class).getBody();
+		return result;
 	}
 
 	@ApiOperation("历史业绩")
@@ -360,9 +376,12 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/historicalPerformancePage", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getHistoricalPerformance(@RequestParam(required = false) String groupId,
 			@RequestParam(required = false) String subGroupId,
 			@RequestParam(required = false) String productName) {
+		long startTime = System.currentTimeMillis();
+		logger.info("历史业绩：" + startTime);
 		// 先获取全部产品
 		String url = assetAlloctionUrl
 				+ "/api/asset-allocation/product-groups/historicalPer-formance?fund_group_id=" + groupId
@@ -586,6 +605,10 @@ public class FinanceController {
 			return new JsonResult(JsonResult.SUCCESS, "获取收益率失败", result);
 		}
 		result.put("title", title);
+		
+		long endTime = System.currentTimeMillis();
+		logger.info("（历史业绩）结束时间：" + endTime);
+		logger.info("该方法执行时间为: " + (endTime - startTime));
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 	}
 
@@ -597,6 +620,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/futureExpectationPage", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getFutureExpectation(@RequestParam(required = false) String uuid,
 			@RequestParam String groupId, @RequestParam String subGroupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -733,10 +757,11 @@ public class FinanceController {
 			}
 		} catch (Exception e) {
 			// 获取list失败直接返回
-			logger.error("未来收益走势图数据发生错误", e);
+//			logger.error("未来收益走势图数据发生错误", e);
 			/*String message = e.getMessage();
 			result.put("错误原因", message + ",未来收益走势图数据发生错误！"); */
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error("未来收益走势图数据发生错误", e);
 			return new JsonResult(JsonResult.Fail, "未来收益走势图数据失败", JsonResult.EMPTYRESULT);
 		}
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
@@ -751,6 +776,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/riskMangementPage", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getRiskManagement(@RequestParam(required = false) String uuid,
 			@RequestParam String groupId, @RequestParam String subGroupId,
 			@RequestParam(required = false) String productName) {
@@ -927,6 +953,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/globalConfigurationPage", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getGlobalConfiguration(@RequestParam(required = false) String uuid,
 			@RequestParam String groupId, @RequestParam String subGroupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -984,6 +1011,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/getExpAnnualAndMaxReturn", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getExpAnnualAndMaxReturn(String groupId, String subGroupId) {
 		return new JsonResult(JsonResult.SUCCESS, "请求成功",
 				service.getExpAnnualAndMaxReturn(groupId, subGroupId));
@@ -1026,6 +1054,36 @@ public class FinanceController {
 			String url =
 					assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
 							+ subGroupId + "/opt?returntype=" + "1";
+			String str = "{\"returnType\":\"" + "1" + "\"}";
+			result = (Map) restTemplate.postForEntity(url, getHttpEntity(str), Map.class).getBody();
+			/*result.remove("_total");
+			result.remove("_name");
+			result.remove("_links");
+			result.remove("_serviceId");
+			result.remove("_schemaVersion");*/
+			if (result.get("value") != null) {
+				Double value = (Double) result.get("value");
+				if (!StringUtils.isEmpty(value)) {
+					value = EasyKit.getDecimal(new BigDecimal(value));
+					result.put("value", value + EasyKit.PERCENT);
+				}
+			}
+		} catch (Exception e) {
+			result = new HashMap<String, Object>();
+			result.put("error", "restTemplate获取预期年化收益失败");
+		}
+		return result;
+	}
+	
+	/**
+	 *模拟历史年化波动率（/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt，参数+3）
+	 */
+	protected Map<String, Object> getSimulateHistoricalReturn(String groupId, String subGroupId) {
+		Map<String, Object> result = new HashMap<>();
+		try {
+			String url =
+					assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
+							+ subGroupId + "/opt?returntype=" + "3";
 			String str = "{\"returnType\":\"" + "1" + "\"}";
 			result = (Map) restTemplate.postForEntity(url, getHttpEntity(str), Map.class).getBody();
 			/*result.remove("_total");
@@ -1117,9 +1175,8 @@ public class FinanceController {
 			}
 		} catch (Exception ex) {
 			result = new HashMap<String, Object>();
-			logger.error("exception:",ex);
-
 			String str = new ReturnedException(ex).getErrorMsg();
+			logger.error("restTemplate获取预期组合收益率走势图失败:{}", str, ex);
 			result.put("error", "restTemplate获取预期组合收益率走势图失败:" + str);
 		}
 		return result;
@@ -1144,6 +1201,7 @@ public class FinanceController {
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "子产品组ID", defaultValue = "4009")})
 	@RequestMapping(value = "/contributions", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult contributions(@RequestParam String groupId, @RequestParam String subGroupId) {
 
 		String CONTRIBUTIONS_URL = "/api/asset-allocation/product-groups/{0}/sub-groups/{1}/contributions";
@@ -1158,6 +1216,7 @@ public class FinanceController {
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "子产品组ID", defaultValue = "4009")})
 	//@RequestMapping(value = "/portfolioYield", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult portfolioYield(@RequestParam String groupId, @RequestParam String subGroupId) {
 
 		String PORFOLIO_YIELD_URL = "/api/asset-allocation/product-groups/{0}/sub-groups/{1}/portfolio-yield";
@@ -1171,6 +1230,7 @@ public class FinanceController {
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "子产品组ID", defaultValue = "4009")})
 	//@RequestMapping(value = "/portfolioYieldWeek", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult portfolioYieldWeek(@RequestParam String groupId,
 			@RequestParam String subGroupId) {
 
@@ -1185,6 +1245,7 @@ public class FinanceController {
 			@ApiImplicitParam(paramType = "query", name = "productId", dataType = "String", required = true, value = "产品组ID", defaultValue = "1")})
 	//@RequestMapping(value = "/riskNotifications", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult riskNotifications(@RequestParam String productId) {
 
 		String PORFOLIO_YIELD_WEEK_URL = "/api/asset-allocation/products/{0}/risk-notifications";
@@ -1200,12 +1261,14 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/optAdjustment", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult getOptAdjustment(String invstTerm, String riskLevel) {
 		try {
 			return new JsonResult(JsonResult.SUCCESS, "请求成功",
 					service.getOptAdjustment(riskLevel, invstTerm));
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 
@@ -1266,6 +1329,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/optimizations", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult Optimizations(@RequestParam String groupId, @RequestParam String riskPointValue,
 			@RequestParam String incomePointValue) {
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -1287,6 +1351,7 @@ public class FinanceController {
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -1297,6 +1362,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/inComeSlidebarPoints", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult inComeSlidebarPoints(@RequestParam String groupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
@@ -1314,6 +1380,7 @@ public class FinanceController {
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -1324,6 +1391,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/riskSlidebarPoints", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult riskSlidebarPoints(@RequestParam String groupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
@@ -1341,6 +1409,7 @@ public class FinanceController {
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
@@ -1351,6 +1420,7 @@ public class FinanceController {
 	})
 	@RequestMapping(value = "/effectiveFrontierPoints", method = RequestMethod.POST)
 	@ResponseBody
+	@AopTimeResources
 	public JsonResult effectiveFrontierPoints(@RequestParam String groupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
@@ -1368,7 +1438,190 @@ public class FinanceController {
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
+	}
+	
+	
+	@ApiOperation("调仓记录")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "1"),
+//			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "80048"),
+	})
+	@RequestMapping(value = "/warehouse-records", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult getwarehouseRecords(String groupId) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		try {
+			String url = financeUrl + "/api/ssf-finance/product-groups/warehouse-records?prodId=" + groupId;
+			result = restTemplate.getForEntity(url, Map.class).getBody();
+			if (result == null) {
+				logger.error("调仓记录为空");
+			} else {
+				if (result != null && result.size() > 0) {
+					List<Map> resultList = new ArrayList<>();
+					List<Map> resultListBak = new ArrayList<>();
+					resultList = (List<Map>) result.get("result");
+					for (int i = resultList.size()-1; i > 0; i--) {
+						Object userProdChg = resultList.get(i);
+						if (userProdChg != null) {
+							Map userProdChgMap = (HashMap) userProdChg;
+							if (userProdChgMap.get("modifySeq") != null && userProdChgMap.get("modifyType") != null) {
+								if (userProdChgMap.get("modifyTime") != null) {
+									Long modifyTime = (Long) userProdChgMap.get("modifyTime");
+									String time = TradeUtil.getReadableDateTime(modifyTime);
+									userProdChgMap.put("modifyTime", time.split("T")[0]);
+									userProdChgMap.remove("id");
+//									userProdChgMap.remove("modifySeq");
+									userProdChgMap.remove("userProdId");
+									userProdChgMap.remove("modifyType");
+									userProdChgMap.remove("createTime");
+									resultListBak.add(userProdChgMap);
+								}
+							}
+						}
+					}
+					result.put("result", resultListBak);
+				}
+				
+				url = assetAlloctionUrl + "/api/asset-allocation/products";
+				Map<String, Object> prodcutResult = new HashMap<String, Object>();
+				result.put("name", "贝贝鱼调仓记录详情");
+				if(!StringUtils.isEmpty(groupId)){
+					String subGroupId = groupId + "0048";
+					url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId;
+					Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
+					if(productMap!=null){
+						if(productMap.get("name")!=null){
+							result.put("name", productMap.get("name"));
+						}
+					}
+				}
+				
+			}
+		} catch (Exception e) {
+			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}
+		return new JsonResult(JsonResult.SUCCESS, "调仓记录成功", result);
+	}
+	
+	@ApiOperation("调仓记录-详情页面")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = false, value = "groupId", defaultValue = "1"),
+		@ApiImplicitParam(paramType = "query", name = "modifySeq", dataType = "Integer", required = false, value = "modifySeq", defaultValue = "1"),
+	})
+	@RequestMapping(value = "/warehouse-record-details", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult getwarehouseRecordDetails(Long groupId, Integer modifySeq) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> topResult = new HashMap<String, Object>();
+		List<Map<String, Object>> topList = new ArrayList();
+		try {
+			String url = financeUrl + "/api/ssf-finance/product-groups/warehouse-record-details?prodId=" + groupId
+					+ "&modifySeq=" + modifySeq;
+			result = restTemplate.getForEntity(url, Map.class).getBody();
+			if (result == null) {
+				logger.error("调仓记录详情为空");
+			} else {
+				if (result != null && result.size() > 0) {
+					List<Map> resultList = new ArrayList<>();
+					resultList = (List<Map>) result.get("result");
+					for (int i = 0; i < resultList.size(); i++) {
+						topResult = new HashMap<String, Object>();
+						Object obj = resultList.get(i);
+						if (obj != null) {
+							Map resultMap = (Map) obj;
+							if (resultMap.get("adjustBefore") != null) {
+								String value = resultMap.get("adjustBefore") + "";
+								Float adjustBefore = Float.valueOf(value);
+								String adjustBeforeStr = "";
+								if (adjustBefore == 0) {
+									adjustBeforeStr = "0.00%";
+								} else {
+									adjustBefore = adjustBefore / 100;
+									adjustBeforeStr = decimalFormat.format(adjustBefore) + "%";
+								}
+								resultMap.put("adjustBefore", adjustBeforeStr);
+							}
+							if (resultMap.get("adjustAfter") != null) {
+								String value = resultMap.get("adjustAfter") + "";
+								Float adjustAfter = Float.valueOf(value);
+								String adjustAfterStr = "";
+								if (adjustAfter == 0) {
+									adjustAfterStr = "0.00%";
+								} else {
+									adjustAfter = adjustAfter / 100;
+									adjustAfterStr = decimalFormat.format(adjustAfter) + "%";
+								}
+								resultMap.put("adjustAfter", adjustAfterStr);
+								
+								topResult.put("adjustAfter", adjustAfterStr);
+								topResult.put("fundTypeName", resultMap.get("fundTypeName"));
+								topResult.put("fundType", resultMap.get("fundType"));
+								topList.add(topResult);
+							}
+							if (resultMap.get("fundList") != null) {
+								List fundList = (List) resultMap.get("fundList");
+								if (fundList != null && fundList.size() > 0) {
+									for (int j = 0; j < fundList.size(); j++) {
+										Map fundMap = (Map) fundList.get(j);
+										if (fundMap.get("percentBefore") != null) {
+											String value = fundMap.get("percentBefore") + "";
+											Float percentBefore = Float.valueOf(value);
+											String percentBeforeStr = "";
+											if (percentBefore == 0) {
+												percentBeforeStr = "0.00%";
+											} else {
+												percentBefore = percentBefore / 100;
+												percentBeforeStr = decimalFormat.format(percentBefore) + "%";
+											}
+											fundMap.put("percentBefore", percentBeforeStr);
+										}
+										if (fundMap.get("percentAfter") != null) {
+											String value = fundMap.get("percentAfter") + "";
+											Float percentAfter = Float.valueOf(value);
+											String percentAfterStr = "";
+											if (percentAfter == 0) {
+												percentAfterStr = "0.00%";
+											} else {
+												percentAfter = percentAfter / 100;
+												percentAfterStr = decimalFormat.format(percentAfter) + "%";
+											}
+											fundMap.put("percentAfter", percentAfterStr);
+										}
+									}
+								}
+							}
+
+						}
+					}
+					result.put("detailData", result.get("result"));
+					result.put("topData", topList);
+					result.remove("result");
+					
+					url = assetAlloctionUrl + "/api/asset-allocation/products";
+					Map<String, Object> prodcutResult = new HashMap<String, Object>();
+					result.put("name", "贝贝鱼调仓记录详情");
+					if(!StringUtils.isEmpty(groupId)){
+						String subGroupId = groupId + "0048";
+						url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId;
+						Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
+						if(productMap!=null){
+							if(productMap.get("name")!=null){
+								result.put("name", productMap.get("name"));
+							}
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}
+		return new JsonResult(JsonResult.SUCCESS, "调仓记录成功", result);
 	}
 }

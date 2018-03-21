@@ -7,6 +7,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.TrendYield;
 import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfoDTO;
@@ -14,7 +15,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
-import io.swagger.models.auth.In;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import org.springframework.data.domain.Page;
@@ -26,7 +27,7 @@ public interface UserInfoService {
 
 	UserInfoAssectsBriefDTO getUserInfoAssectsBrief(String userUuid) throws Exception;
 
-	List<BankCardDTO> getUserInfoBankCards(String userUuid) ;
+	List<BankCardDTO> getUserInfoBankCards(String userUuid);
 
 	List<UserPortfolioDTO> getUserPortfolios(String userUuid) throws Exception;
 
@@ -72,7 +73,10 @@ public interface UserInfoService {
 
 	ApplyResult queryTrdResultByOrderDetailId(Long userId, Long orderDetailId);
 
-	Map<String, Object> getTrendYield(String uuid) throws Exception;
+	/**
+	 * 用户累计收益走势图
+	 */
+	List<TrendYield> getTrendYield(String uuid) throws Exception;
 
 	Map<String, Object> getTotalAssets(String uuid) throws Exception;
 
@@ -88,10 +92,15 @@ public interface UserInfoService {
 
 	Integer getUserRishLevel(String uuid);
 
-	Map<String, Object> getProducts(Long prodId) throws IllegalAccessException, InstantiationException;
+	Map<String, Object> getProducts(Long prodId)
+			throws IllegalAccessException, InstantiationException;
 
 	List<Map<String, Object>> getTradLogsOfUser(String userUuid) throws Exception;
 
-	Map<String, PortfolioInfo> getCalculateTotalAndRate(String uuid, Long userId, ProductsDTO products);
+	PortfolioInfo getChicombinationAssets(String uuid, Long userId, ProductsDTO products,
+			LocalDate endDate, boolean flag);
+
+	Map<String, PortfolioInfo> getCalculateTotalAndRate(String uuid, Long userId,
+			ProductsDTO products);
 
 }
