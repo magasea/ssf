@@ -26,6 +26,7 @@
         <module>aaas-mid-api</module>
         <module>aaas-funds-datacollection-server</module>
         <module>aaas-api-dm</module>
+        <module>aaas-app-tools</module>
     </modules>
 
 </project>

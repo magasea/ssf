@@ -1,10 +1,14 @@
 package com.shellshellfish.datamanager.controller;
 
+import com.shellshellfish.aaas.common.http.HttpJsonResult;
+import jdk.nashorn.internal.objects.annotations.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -31,17 +35,17 @@ public class OptimizationApiController {
 	MongoFinanceDetailRepository mongoFinanceDetailRepository;
 
 	@ApiOperation("进入理财页面后的数据")
-	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
+	@GetMapping(value = "/financeFrontPage")
 	@ResponseBody
-	public JsonResult financeModule() {
+	public HttpJsonResult financeModule() {
 		JsonResult jsonResult = optimizationService.financeFront();
 		if (jsonResult != null) {
 			logger.info(
 					"run com.shellshellfish.datamanager.controller.OptimizationApiController.financeModule() success..");
 			System.out.println("run success");
-			return new JsonResult(JsonResult.SUCCESS, "OK", JsonResult.EMPTYRESULT);
+			return new HttpJsonResult (HttpStatus.OK.value(),"OK", JsonResult.EMPTYRESULT);
 		} else {
-			return new JsonResult(JsonResult.Fail, "NG:没有获取到产品", JsonResult.EMPTYRESULT);
+			return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:没有获取到产品", JsonResult.EMPTYRESULT);
 		}
 	}
 
@@ -64,9 +68,9 @@ public class OptimizationApiController {
 	}
 	
 	@ApiOperation("理财产品详情页面")
-	@RequestMapping(value = "/checkPrdDetails", method = RequestMethod.POST)
+	@GetMapping(value = "/checkPrdDetails")
 	@ResponseBody
-	public JsonResult prdDetails() {
+	public HttpJsonResult prdDetails() {
 		JsonResult jsonResult = null;
 		Boolean result = true;
 //		mongoFinanceDetailRepository.deleteAll();
@@ -81,13 +85,14 @@ public class OptimizationApiController {
 //				return new JsonResult(JsonResult.SUCCESS, "OK", JsonResult.EMPTYRESULT);
 			} else {
 				result = false;
-				return new JsonResult(JsonResult.Fail, "NG:没有获取到产品:subGroupId为-->"+subGroupId, JsonResult.EMPTYRESULT);
+				return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:没有获取到产品:subGroupId为-->"+subGroupId,
+						JsonResult.EMPTYRESULT);
 			}
 		}
 		if (result) {
-			return new JsonResult(JsonResult.SUCCESS, "OK", JsonResult.EMPTYRESULT);
+			return new HttpJsonResult(HttpStatus.OK.value(), "OK", JsonResult.EMPTYRESULT);
 		} else {
-			return new JsonResult(JsonResult.Fail, "NG:没有获取到产品", JsonResult.EMPTYRESULT);
+			return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:没有获取到产品", JsonResult.EMPTYRESULT);
 		}
 	}
 	
