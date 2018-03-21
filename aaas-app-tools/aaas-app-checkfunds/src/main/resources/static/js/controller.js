@@ -76,7 +76,22 @@ app.controller('postcontroller', function($scope, $http, $location) {
 //#######################
 
 app.controller('getcontroller', function($scope, $http, $location) {
-	
+
+  $scope.syncChoice = function(){
+    // get URL
+    var url = $location.absUrl() + "/api/fundcheck/syncChoice";
+
+    // do getting
+    $http.get(url).then(function (response) {
+      // turn on flag for get successfully
+      $scope.getDivAvailable = true;
+
+      $scope.response = response.data;
+    }, function error(response) {
+      $scope.postResultMessage = "Error Status: " +  response.statusText;
+    });
+  }
+
 	$scope.getBaseInfofunction = function(){
 		// get URL
 		var url = $location.absUrl() + "/api/fundcheck/statusBase";
