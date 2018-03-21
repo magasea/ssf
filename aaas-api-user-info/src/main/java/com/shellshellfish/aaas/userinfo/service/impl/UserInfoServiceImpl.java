@@ -1020,7 +1020,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 										&& (trdOrderStatusEnumNew == TrdOrderStatusEnum.CONFIRMED)) {
 									trad.put("tradeStatusValue", TrdOrderStatusEnum.CONFIRMED.getStatus());
 									trad.put("tradeStatus", CombinedStatusEnum.CONFIRMED.getComment());
-								} else {
+  								}else if ((trdOrderStatusEnumOld == TrdOrderStatusEnum.SELLCONFIRMED)
+                                      && (trdOrderStatusEnumNew == TrdOrderStatusEnum.SELLCONFIRMED)) {
+                                  trad.put("tradeStatusValue", TrdOrderStatusEnum.SELLCONFIRMED.getStatus());
+                                  trad.put("tradeStatus", CombinedStatusEnum.CONFIRMED.getComment());
+                                } else {
 									trad.put("tradeStatusValue", TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
 									trad.put("tradeStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
 								}
