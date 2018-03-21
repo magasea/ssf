@@ -1,7 +1,6 @@
 ---
 server:
   port: 10150
-  contextPath: /
 ---
 spring:
   profiles: dev
@@ -14,8 +13,6 @@ spring:
 
   http:
     multipart:
-      max-file-size: 2MB
-      max-request-size: 10MB
   redis:
     host: 192.168.1.10
     port: 6379
@@ -35,10 +32,8 @@ datasource:
       dialect: org.hibernate.dialect.MySQLDialect
 shellshellfish:
   asset-allocation-insertdf-url: "http://localhost:10020/api/asset-allocation/job/insertDailyFund"
-  asset-allocation-inithistory-url:
-  "http://localhost:10020/api/asset-allocation/job/getAllIdAndSubId"
-
-  asset-allocation-initpyamongo-url: "http://localhost:10020/api/asset-allocation/job/getFundGroupIncomeAllToMongoDb"
+  asset-allocation-inithistory-url: "http://localhost:10020/api/asset-allocation/job/getAllIdAndSubId"
+  asset-allocation-initpyamongo-url: "http://localhost:10020//api/asset-allocation/job/getFundGroupIncomeAllToMongoDb"
   data-manager-initcache-url: "http://localhost:10030/api/datamanager/financeFrontPage"
   data-manager-initcache-detail-url: "http://localhost:10030/api/datamanager/checkPrdDetails"
   csvFilePath: /temp
@@ -62,6 +57,6 @@ cron:
     jobCheckFunds: 0 0/2 0 ? * * *
 grpc:
   pythonServer:
-#    ip: localhost
-    ip: 192.168.1.65
+    ip: localhost
+#    ip: 192.168.1.65
     port: 10161
