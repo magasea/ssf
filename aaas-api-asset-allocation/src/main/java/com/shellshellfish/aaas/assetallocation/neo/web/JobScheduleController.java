@@ -31,10 +31,11 @@ public class JobScheduleController {
     @ApiOperation("每日接口获取数据定时任务")
     @RequestMapping(value = "/api/asset-allocation/job/insertDailyFund", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public JobResult insertDailyFund() {
-        ExecutorService pool = ThreadPoolUtil.getThreadPool();
-        pool.execute(() -> {
-            jobScheduleService.insertDailyFundJobSchedule();
-        });
+        jobScheduleService.insertDailyFundJobSchedule();
+//        ExecutorService pool = ThreadPoolUtil.getThreadPool();
+//        pool.execute(() -> {
+//            jobScheduleService.insertDailyFundJobSchedule();
+//        });
         return new JobResult<>().returnSuccess();
     }
 
