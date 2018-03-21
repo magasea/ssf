@@ -24,7 +24,6 @@
         <module>aaas-api-risk-assessment</module>
         <module>aaas-api-gateway</module>
         <module>aaas-mid-api</module>
-        <module>aaas-mid-apii</module>
         <module>aaas-funds-datacollection-server</module>
         <module>aaas-api-dm</module>
     </modules>

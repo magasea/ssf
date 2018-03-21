@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.tools.fundcheck.controller;
 
 
+import com.shellshellfish.aaas.common.http.HttpJsonResult;
 import com.shellshellfish.aaas.tools.fundcheck.model.BaseCheckRecord;
 import com.shellshellfish.aaas.tools.fundcheck.model.FundCheckRecord;
 import com.shellshellfish.aaas.tools.fundcheck.model.FundCodes;
@@ -27,7 +28,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -39,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -49,13 +54,27 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Validated
 @Api("fundcheck summary")
 public class RestApiController {
-	//public static final Logger logger = LoggerFactory.getLogger(RestApiController.class);
+	public static final Logger logger = LoggerFactory.getLogger(RestApiController.class);
 
 	final static String CNST_BASE = "CLOSE";
 
 	@Autowired
 	private FundUpdateJobService fundUpdateJobService;
 
+	@Value("${shellshellfish.asset-allocation-insertdf-url}")
+	String assetAllocationInsertdf;
+
+	@Value("${shellshellfish.asset-allocation-inithistory-url}")
+	String assetAllocationInithistory;
+
+	@Value("${shellshellfish.asset-allocation-initpyamongo-url}")
+	String assetAllocationInitpyamongo;
+
+	@Value("${shellshellfish.data-manager-initcache-url}")
+	String assetAllocationInitcache;
+
+	@Value("${shellshellfish.data-manager-initcache-detail-url}")
+	String assetAllocationInitcacheDetail;
 
 
 	@GetMapping("/statusBase")
@@ -74,6 +93,15 @@ public class RestApiController {
 
 	}
 
+	@GetMapping("/syncChoice") // //new annotation since 4.3
+	public String syncChoice() throws Exception {
+
+
+		makeSequenceInitCalls();
+
+		return "redirect:/uploadStatus";
+	}
+
 	@GetMapping("statusFund")
 	public List<FundCheckRecord> statusFund() {
 
@@ -88,6 +116,47 @@ public class RestApiController {
 //        jsonResult.setResult(totalList);
 		return fundCheckRecordList;
 
+	}
+
+	private boolean makeSequenceInitCalls(){
+		RestTemplate restTemplate = new RestTemplate();
+		try{
+			HttpJsonResult jsonResult1 = restTemplate.getForObject(assetAllocationInsertdf,
+					HttpJsonResult.class);
+			Thread.sleep(10);
+			if(jsonResult1 != null){
+				logger.info(jsonResult1.toString());
+			}
+			HttpJsonResult jsonResult2 = restTemplate.getForObject(assetAllocationInithistory,
+					HttpJsonResult.class);
+			Thread.sleep(10);
+			if(jsonResult2 != null){
+				logger.info(jsonResult2.toString());
+			}
+			HttpJsonResult jsonResult3 = restTemplate.getForObject(assetAllocationInitpyamongo
+					, HttpJsonResult.class);
+			Thread.sleep(10);
+			if(jsonResult3 != null){
+				logger.info(jsonResult3.toString());
+			}
+			ResponseEntity<HttpJsonResult> jsonResult4 = restTemplate.postForEntity(assetAllocationInitcache,
+					(Object) null, HttpJsonResult.class);
+			Thread.sleep(10);
+			if(jsonResult4 != null){
+				logger.info(jsonResult4.toString());
+			}
+			ResponseEntity<HttpJsonResult> jsonResult5 = restTemplate.postForEntity(assetAllocationInitcacheDetail,
+					(Object) null, HttpJsonResult.class);
+			Thread.sleep(10);
+			if(jsonResult5 != null){
+				logger.info(jsonResult5.toString());
+			}
+
+		}catch (Exception ex){
+			logger.error("Exception:", ex);
+		}
+
+		return true;
 	}
 
 }

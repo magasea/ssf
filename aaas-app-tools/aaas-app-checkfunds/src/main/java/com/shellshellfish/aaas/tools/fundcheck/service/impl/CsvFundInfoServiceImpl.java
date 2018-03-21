@@ -336,7 +336,7 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
       baseCheckRecord.setCsvClose(item.getClose());
       baseCheckRecord.setCode(item.getCode());
       if(!CollectionUtils.isEmpty(fundbasecloses)){
-        baseCheckRecord.setClose((String) fundbasecloses.get(0).get(item.getCode()));
+        baseCheckRecord.setClose(fundbasecloses.get(0).get(item.getCode()).toString());
         findAndModifyBaseCheck(item, fundbasecloses.get(0));
         return;
       }
@@ -360,7 +360,7 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
       baseCheckRecord =recordsInDb.get(0);
     }
     if(baseCheck != null){
-      baseCheckRecord.setClose((String) baseCheck.get(csvBaseInfo.getCode()));
+      baseCheckRecord.setClose( baseCheck.get(csvBaseInfo.getCode()).toString());
     }
 
     baseCheckRecord.setCsvClose(csvBaseInfo.getClose());
