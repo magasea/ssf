@@ -118,7 +118,7 @@
         <if test="investment_horizon != null and investment_horizon !=''">
             and a.investment_horizon = #{investment_horizon}
         </if>
-        ORDER BY b.simulate_historical_year_performance
+        ORDER BY b.id
     </select>
 
     <select id="getRevenueContribution" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.Interval">
