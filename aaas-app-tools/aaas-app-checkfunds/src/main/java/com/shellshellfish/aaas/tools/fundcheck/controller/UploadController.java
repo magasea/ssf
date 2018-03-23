@@ -84,8 +84,8 @@ public class UploadController {
             if(!filePath.exists()){
                 filePath.mkdir();
             }
-            Files.write(Paths.get(path.toString(),csvFundFileOriginName), bytes);
-            String tempFilePath = Paths.get( csvFilePath, csvFundFileOriginName).toString();
+            Files.write(Paths.get(path.toString(),"temp"), bytes);
+            String tempFilePath = Paths.get( csvFilePath, "temp").toString();
             FileInputStream readerHelp = new FileInputStream(tempFilePath);
 
             Reader reader = new InputStreamReader(readerHelp, "utf-8");

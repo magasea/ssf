@@ -94,12 +94,16 @@ public class RestApiController {
 	}
 
 	@GetMapping("/syncChoice") // //new annotation since 4.3
-	public String syncChoice() throws Exception {
+	public HttpJsonResult syncChoice()  {
+		HttpJsonResult result = new HttpJsonResult();
+		try {
+			makeSequenceInitCalls();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return HttpJsonResult.returnFail(e.getMessage());
+		}
 
-
-		makeSequenceInitCalls();
-
-		return "redirect:/uploadStatus";
+		return HttpJsonResult.returnSuccess();
 	}
 
 	@GetMapping("statusFund")
@@ -118,7 +122,7 @@ public class RestApiController {
 
 	}
 
-	private boolean makeSequenceInitCalls(){
+	private boolean makeSequenceInitCalls() throws Exception {
 		RestTemplate restTemplate = new RestTemplate();
 		try{
 			HttpJsonResult jsonResult1 = restTemplate.getForObject(assetAllocationInsertdf,
@@ -153,6 +157,7 @@ public class RestApiController {
 
 		}catch (Exception ex){
 			logger.error("Exception:", ex);
+			throw ex;
 		}
 
 		return true;

@@ -10,8 +10,8 @@ public class CheckerUtilsTest {
 
   @Test
   public void check(){
-    String origin = "1.999999999";
-    String target = "2.00";
+    String origin = "1.0";
+    String target = "1";
     System.out.println(CheckerUtils.rundUpCheckEq(origin, target));
 
   }

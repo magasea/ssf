@@ -23,29 +23,31 @@ public class HttpJsonResult<T> {
         this.data = data;
     }
 
-    public HttpJsonResult returnSuccess() {
-        this.code = HttpStatus.OK.value();
-        this.msg = HttpStatus.OK.getReasonPhrase();
-        return this;
+    public static HttpJsonResult returnSuccess() {
+        HttpJsonResult result = new HttpJsonResult();
+        result.setCode(HttpStatus.OK.value());
+        result.setMsg(HttpStatus.OK.getReasonPhrase());
+        return result;
     }
 
     public HttpJsonResult returnSuccess(T data) {
-        this.data = data;
-        this.code = HttpStatus.OK.value();
-        this.msg = HttpStatus.OK.getReasonPhrase();
-        return this;
+        HttpJsonResult result = this.returnSuccess();
+        result.setData(data);
+        return result;
     }
 
-    public HttpJsonResult returnFail() {
-        this.code = -1;
-        this.msg = "error";
-        return this;
+    public static HttpJsonResult returnFail() {
+        HttpJsonResult result = new HttpJsonResult();
+        result.setCode(HttpStatus.FAILED_DEPENDENCY.value());
+        result.setMsg("failed");
+        return result;
     }
 
-    public HttpJsonResult returnFail(String msg) {
-        this.code = -1;
-        this.msg = msg;
-        return this;
+    public static HttpJsonResult returnFail(String msg) {
+        HttpJsonResult result = new HttpJsonResult();
+        result.setCode(HttpStatus.FAILED_DEPENDENCY.value());
+        result.setMsg(msg);
+        return result;
     }
 
     public int getCode() {
