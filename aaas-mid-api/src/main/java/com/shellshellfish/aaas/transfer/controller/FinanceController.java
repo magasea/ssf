@@ -1527,8 +1527,16 @@ public class FinanceController {
 				logger.error("调仓记录详情为空");
 			} else {
 				if (result != null && result.size() > 0) {
-					List<Map> resultList = new ArrayList<>();
-					resultList = (List<Map>) result.get("result");
+					List<Map<String, Object>> resultList = new ArrayList<>();
+					resultList = (List<Map<String, Object>>) result.get("result");
+					Collections.sort(resultList, new Comparator<Map<String, Object>>() {
+						public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+							Float map1value = Float.parseFloat((o1.get("adjustAfter") + "").replaceAll("%", ""));
+							Float map2value = Float.parseFloat((o2.get("adjustAfter") + "").replaceAll("%", ""));
+							return map2value.compareTo(map1value);
+						}
+					});
+					
 					for (int i = 0; i < resultList.size(); i++) {
 						topResult = new HashMap<String, Object>();
 						Object obj = resultList.get(i);

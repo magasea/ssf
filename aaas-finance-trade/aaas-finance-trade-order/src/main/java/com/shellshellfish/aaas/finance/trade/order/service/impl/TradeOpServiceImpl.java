@@ -809,9 +809,12 @@ public class TradeOpServiceImpl implements TradeOpService {
 	@Override
 	public Map<String, Object> getOrderInfos(String uuid,Long prodId) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
+		logger.info("getUserInfoByUserUUID："+TradeUtil.getUTCTime()+" start");
 		UserInfo userInfo = tradeOpService.getUserInfoByUserUUID(uuid);
+		logger.info("getUserInfoByUserUUID："+TradeUtil.getUTCTime()+" end");
 		Long userId = userInfo.getId();
 		TrdOrder trdOrder = orderService.findOrderByUserProdIdAndUserId(prodId, userId);
+		logger.info("findOrderByUserProdIdAndUserId："+TradeUtil.getUTCTime()+" end");
 		String bankNum = trdOrder.getBankCardNum();
 		String orderId = trdOrder.getOrderId();
 		result.put("bankNum", bankNum);
@@ -828,6 +831,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 				}
 			}
 		}
+		logger.info("getOrderInfos："+TradeUtil.getUTCTime()+" end");
 		result.put("buyFee", buyFee);
 		return result;
 	}

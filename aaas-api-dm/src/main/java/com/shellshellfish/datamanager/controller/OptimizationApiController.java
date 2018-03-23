@@ -73,7 +73,7 @@ public class OptimizationApiController {
 	public HttpJsonResult prdDetails() {
 		JsonResult jsonResult = null;
 		Boolean result = true;
-//		mongoFinanceDetailRepository.deleteAll();
+		mongoFinanceDetailRepository.deleteAll();
 		for(int i = 1;i < 16; i++){
 			String groupId = i + "";
 			String subGroupId = i + "0048";
