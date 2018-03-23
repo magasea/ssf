@@ -836,6 +836,9 @@ public class FundGroupService {
             fgi.setMaxMinMap(maxMinValueMap);
             fgi.setMaxMinBenchmarkMap(maxMinBenchmarkMap);
             return fgi;
+        }else{
+            logger.info("fundGroupHistoryList is empty for groupId:{} and subGroupId:{}",
+                groupId, subGroupId);
         }
 
         List maxMinValueList = new ArrayList();
@@ -843,6 +846,7 @@ public class FundGroupService {
         if (returnType.equalsIgnoreCase("income")) {
             List<FundNetVal> fundNetVals = this.getNavadjNew(groupId, subGroupId);
             if (CollectionUtils.isEmpty(fundNetVals)) {
+                logger.info("fundNetVals is empty for groupId:{} subGroupId:{}", groupId, subGroupId);
                 return fgi;
             }
 
@@ -875,6 +879,7 @@ public class FundGroupService {
             allMap.put("incomeBenchmark", listBenchmark);
             list.add(allMap);
             fgi.setName("组合收益率走势图");
+            logger.info("maxMinBenchmarkMap got");
         } else {
             List<Map<String, Object>> listFund = new ArrayList<>();
             for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
@@ -905,6 +910,7 @@ public class FundGroupService {
             allMap.put("incomeBenchmark", listBenchmark);
             list.add(allMap);
             fgi.setName("组合最大回撤走势图");
+            logger.info("maxMinBenchmarkMap got");
         }
         fgi.set_total(list.size());
         fgi.set_items(list);
@@ -1448,8 +1454,8 @@ public class FundGroupService {
             long beginGetNewMaxDrawDown = System.currentTimeMillis();
             Double maximumRetracement = getMaxdrawdownFromNetVals(fundNetValList);
             long endGetNewMaxDrawDown = System.currentTimeMillis();
-            logger.info("calculate MaxDrawDown elapse : {}", endGetNewMaxDrawDown - beginGetNewMaxDrawDown);
-            logger.info("MaxDrawDown: {}", maximumRetracement);
+//            logger.info("calculate MaxDrawDown elapse : {}", endGetNewMaxDrawDown - beginGetNewMaxDrawDown);
+//            logger.info("MaxDrawDown: {}", maximumRetracement);
 
             Map<String, Object> updateParam = new HashMap<>();
             updateParam.put("fund_group_id", group_id);
@@ -1473,6 +1479,8 @@ public class FundGroupService {
             batchUpdateMaximumRetracement(updateMapList);
             long endBatchUpdate = System.currentTimeMillis();
             logger.info("batch update elapse : {}", endBatchUpdate - beginBatchUpdate);
+        }else{
+            logger.info("updateMapList is empty");
         }
 
         logger.info("getNavadj end");
@@ -1533,6 +1541,7 @@ public class FundGroupService {
         if (CollectionUtils.isEmpty(dataMapList)) {
             return;
         }
+        logger.info("dataMapList size:{}", dataMapList.size());
         List<Map> mapList = new ArrayList<>();
         for (Map map : dataMapList) {
             mapList.add(map);

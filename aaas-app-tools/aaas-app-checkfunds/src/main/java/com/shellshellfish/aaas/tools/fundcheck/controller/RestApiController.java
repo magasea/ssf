@@ -139,14 +139,13 @@ public class RestApiController {
 			if(jsonResult3 != null){
 				logger.info(jsonResult3.toString());
 			}
-			ResponseEntity<HttpJsonResult> jsonResult4 = restTemplate.postForEntity(assetAllocationInitcache,
-					(Object) null, HttpJsonResult.class);
+			HttpJsonResult jsonResult4 = restTemplate.getForObject(assetAllocationInitcache, HttpJsonResult.class);
 			Thread.sleep(10);
 			if(jsonResult4 != null){
 				logger.info(jsonResult4.toString());
 			}
-			ResponseEntity<HttpJsonResult> jsonResult5 = restTemplate.postForEntity(assetAllocationInitcacheDetail,
-					(Object) null, HttpJsonResult.class);
+			HttpJsonResult jsonResult5 = restTemplate.getForObject
+					(assetAllocationInitcacheDetail, HttpJsonResult.class);
 			Thread.sleep(10);
 			if(jsonResult5 != null){
 				logger.info(jsonResult5.toString());

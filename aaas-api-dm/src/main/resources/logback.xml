@@ -1,4 +1,4 @@
-<configuration scan="true" scanPeriod="10 seconds" debug="true">
+<configuration scan="false" scanPeriod="10 seconds" debug="true">
 	<property resource="logback.properties" />
 	
 	<contextName>${context.name}</contextName>                         <!-- 本项目的名字 -->

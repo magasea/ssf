@@ -3,7 +3,12 @@ server:
   port: 10150
 ---
 spring:
-  profiles: dev
+  security:
+    basic:
+      enabled: false
+  management:
+    security:
+      enabled: false
   data:
       mongodb:
         database: funds

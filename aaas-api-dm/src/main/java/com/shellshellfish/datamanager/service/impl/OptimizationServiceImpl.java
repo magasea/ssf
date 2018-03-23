@@ -144,7 +144,7 @@ public class OptimizationServiceImpl implements OptimizationService {
 		}
 		returnMap.put("data", resultList);
 		JsonResult jsonResult = new JsonResult(JsonResult.SUCCESS, "获取成功", returnMap);
-		if(returnMap !=null ){
+		if(returnMap !=null && !returnMap.isEmpty() ){
 			MongoFinanceAll mongoFinanceAll = new MongoFinanceAll();
 			Long utcTime = TradeUtil.getUTCTime();
 			String dateTime = TradeUtil.getReadableDateTime(utcTime);
@@ -155,22 +155,23 @@ public class OptimizationServiceImpl implements OptimizationService {
 //			mongoFinanceAll.setResult(jsonResult.getResult());
 			mongoFinanceAll.setResult(returnMap);
 			mongoFinanceAll.setLastModifiedBy(utcTime + "");
-			MongoFinanceAll mongoFinanceCount = mongoFinanceALLRepository.findAllByDate(date);
-			if(mongoFinanceCount!=null){
-				logger.info("已存在，删除后重新插入");
-				mongoFinanceALLRepository.deleteAllByDate(date);
-//				mongoFinanceALLRepository.deleteAll();
-			}
+			mongoFinanceALLRepository.deleteAll();
+//			MongoFinanceAll mongoFinanceCount = mongoFinanceALLRepository.findAllByDate(date);
+//			if(mongoFinanceCount!=null){
+//				logger.info("已存在，删除后重新插入");
+//				mongoFinanceALLRepository.deleteAllByDate(date);
+////				mongoFinanceALLRepository.deleteAll();
+//			}
 //			mongoFinanceALLRepository.deleteAll();
 			
 			mongoFinanceALLRepository.save(mongoFinanceAll);
 
-			System.out.println(date + "--数据插入成功，"+returnMap.values());
+			System.out.println(date + "--数据插入成功");
 			logger.info("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.financeFront() success..");
 
 		} else {
-			logger.info("run com.shellshellfish.datamanager.service.impl.OptimizationServiceImpl.financeFront() fail..\n");
-			logger.info("jsonResult 结果为空");
+			logger.error("run com.shellshellfish.datamanager.service.impl.OptimizationServiceImpl.financeFront() fail..\n");
+			logger.error("jsonResult 结果为空");
 		}
 		return jsonResult;
 	}
@@ -301,6 +302,7 @@ public class OptimizationServiceImpl implements OptimizationService {
 		String dateTime = TradeUtil.getReadableDateTime(utcTime);
 		String date = dateTime.split("T")[0].replaceAll("-", "");
 		MongoFinanceAll mongoFinanceAll = mongoFinanceALLRepository.findAllByDate(date);
+//		List<MongoFinanceAll> mongoFinanceCountList = mongoFinanceALLRepository.findAll();
 		if (mongoFinanceAll != null) {
 			jsonResult = new JsonResult(JsonResult.SUCCESS, "获取成功", mongoFinanceAll.getResult());
 		} else {
@@ -365,7 +367,7 @@ public class OptimizationServiceImpl implements OptimizationService {
 		}
 		
 		JsonResult jsonResult = new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", result);
-		if(jsonResult !=null ){
+		if(result !=null && !result.isEmpty()){
 			MongoFinanceDetail mongoFinanceDetail = new MongoFinanceDetail();
 			Long utcTime = TradeUtil.getUTCTime();
 			String dateTime = TradeUtil.getReadableDateTime(utcTime);
@@ -378,20 +380,21 @@ public class OptimizationServiceImpl implements OptimizationService {
 			mongoFinanceDetail.setResult(result);
 			System.out.println("---\n" + jsonResult.getResult().toString());
 			mongoFinanceDetail.setLastModifiedBy(utcTime + "");
-			MongoFinanceDetail mongoFinanceCount = mongoFinanceDetailRepository.findAllByDateAndGroupIdAndSubGroupId(date, groupId, subGroupId);
-			if (mongoFinanceCount != null) {
-				logger.info("已存在，删除后重新插入");
-				mongoFinanceDetailRepository.deleteAllByDate(date);
-//				mongoFinanceDetailRepository.deleteAll();
-			}
+//			mongoFinanceDetailRepository.deleteAll();
+//			MongoFinanceDetail mongoFinanceCount = mongoFinanceDetailRepository.findAllByDateAndGroupIdAndSubGroupId(date, groupId, subGroupId);
+//			if (mongoFinanceCount != null) {
+//				logger.info("已存在，删除后重新插入");
+//				mongoFinanceDetailRepository.deleteAllByDate(date);
+////				mongoFinanceDetailRepository.deleteAll();
+//			}
 //			mongoFinanceDetailRepository.deleteAll();
 			
 			mongoFinanceDetailRepository.save(mongoFinanceDetail);
-			System.out.println(date + "--数据插入成功，"+jsonResult.getResult().toString());
+			logger.info(date + "--数据插入成功，groupId:{},subGroupId:{}",groupId,subGroupId);
 			logger.info("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.checkPrdDetails() success..");
 		} else {
-			logger.info("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.checkPrdDetails() fail..\n");
-			logger.info("jsonResult 结果为空");
+			logger.error("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.checkPrdDetails() fail..\n");
+			logger.error("jsonResult 结果为空");
 		}
 		return jsonResult;
 	}
@@ -738,6 +741,7 @@ public class OptimizationServiceImpl implements OptimizationService {
 		String dateTime = TradeUtil.getReadableDateTime(utcTime);
 		String date = dateTime.split("T")[0].replaceAll("-", "");
 		MongoFinanceDetail mongoFinanceDetail = mongoFinanceDetailRepository.findAllByDateAndGroupIdAndSubGroupId(date, groupId, subGroupId);
+//		MongoFinanceDetail mongoFinanceDetail = mongoFinanceDetailRepository.findAllByGroupIdAndSubGroupId(groupId, subGroupId);
 		if(mongoFinanceDetail!=null){
 			jsonResult = new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", mongoFinanceDetail.getResult());
 			logger.info("获取信息成功");
