@@ -57,7 +57,7 @@ public class CalculateConfirmedAsset {
 		UiProducts uiProducts = uiProductRepo.findById(mongoUiTrdZZInfo.getUserProdId());
 		List<UiProductDetail> uiProductDetailList = uiProductDetailRepo
 				.findAllByUserProdId(mongoUiTrdZZInfo.getUserProdId());
-		String date = InstantDateUtil.format(LocalDate.now(), "yyyyMMdd");
+		String date = mongoUiTrdZZInfo.getConfirmDate();
 		String uuid = Optional.ofNullable(userInfoRepository.findById(mongoUiTrdZZInfo.getUserId()))
 				.map(m -> m.getUuid()).orElse("-1");
 		for (UiProductDetail uiProductDetail : uiProductDetailList) {
