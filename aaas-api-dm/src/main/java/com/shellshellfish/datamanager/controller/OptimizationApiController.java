@@ -1,7 +1,6 @@
 package com.shellshellfish.datamanager.controller;
 
 import com.shellshellfish.aaas.common.http.HttpJsonResult;
-import jdk.nashorn.internal.objects.annotations.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +73,7 @@ public class OptimizationApiController {
 		JsonResult jsonResult = null;
 		Boolean result = true;
 		mongoFinanceDetailRepository.deleteAll();
+		
 		for(int i = 1;i < 16; i++){
 			String groupId = i + "";
 			String subGroupId = i + "0048";
