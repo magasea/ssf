@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.tools.fundcheck.service.impl;
 
 
+import com.shellshellfish.aaas.common.http.HttpJsonResult;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.tools.fundcheck.model.BaseCheckRecord;
 import com.shellshellfish.aaas.tools.fundcheck.model.CSVBaseInfo;
@@ -29,6 +30,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -38,6 +40,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Created by chenwei on 2018- 三月 - 07
@@ -55,6 +58,21 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
 
   @Autowired
   FundGrpcService fundGrpcService;
+
+  @Value("${shellshellfish.asset-allocation-insertdf-url}")
+  String assetAllocationInsertdf;
+
+  @Value("${shellshellfish.asset-allocation-inithistory-url}")
+  String assetAllocationInithistory;
+
+  @Value("${shellshellfish.asset-allocation-initpyamongo-url}")
+  String assetAllocationInitpyamongo;
+
+  @Value("${shellshellfish.data-manager-initcache-url}")
+  String assetAllocationInitcache;
+
+  @Value("${shellshellfish.data-manager-initcache-detail-url}")
+  String assetAllocationInitcacheDetail;
 
   final static String CNST_BASE = "CLOSE";
 
@@ -110,6 +128,46 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
         .class, "base_check_record");
     return recordsInDb;
 
+  }
+
+  @Override
+  public void restApiCall() throws InterruptedException {
+    RestTemplate restTemplate = new RestTemplate();
+    try{
+      HttpJsonResult jsonResult1 = restTemplate.getForObject(assetAllocationInsertdf,
+          HttpJsonResult.class);
+      Thread.sleep(10);
+      if(jsonResult1 != null){
+        logger.info(jsonResult1.toString());
+      }
+      HttpJsonResult jsonResult2 = restTemplate.getForObject(assetAllocationInithistory,
+          HttpJsonResult.class);
+      Thread.sleep(10);
+      if(jsonResult2 != null){
+        logger.info(jsonResult2.toString());
+      }
+      HttpJsonResult jsonResult3 = restTemplate.getForObject(assetAllocationInitpyamongo
+          , HttpJsonResult.class);
+      Thread.sleep(10);
+      if(jsonResult3 != null){
+        logger.info(jsonResult3.toString());
+      }
+      HttpJsonResult jsonResult4 = restTemplate.getForObject(assetAllocationInitcache, HttpJsonResult.class);
+      Thread.sleep(10);
+      if(jsonResult4 != null){
+        logger.info(jsonResult4.toString());
+      }
+      HttpJsonResult jsonResult5 = restTemplate.getForObject
+          (assetAllocationInitcacheDetail, HttpJsonResult.class);
+      Thread.sleep(10);
+      if(jsonResult5 != null){
+        logger.info(jsonResult5.toString());
+      }
+
+    }catch (Exception ex){
+      logger.error("Exception:", ex);
+      throw ex;
+    }
   }
 
   private void processFundInfoSync() {

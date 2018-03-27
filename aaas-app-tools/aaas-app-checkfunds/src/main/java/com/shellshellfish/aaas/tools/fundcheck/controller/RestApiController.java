@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.common.http.HttpJsonResult;
 import com.shellshellfish.aaas.tools.fundcheck.model.BaseCheckRecord;
 import com.shellshellfish.aaas.tools.fundcheck.model.FundCheckRecord;
 import com.shellshellfish.aaas.tools.fundcheck.model.FundCodes;
+import com.shellshellfish.aaas.tools.fundcheck.service.CsvFundInfoService;
 import com.shellshellfish.aaas.tools.fundcheck.service.DataService;
 import com.shellshellfish.aaas.tools.fundcheck.service.FundUpdateJobService;
 import com.shellshellfish.aaas.tools.fundcheck.service.impl.DataServiceImpl;
@@ -61,20 +62,9 @@ public class RestApiController {
 	@Autowired
 	private FundUpdateJobService fundUpdateJobService;
 
-	@Value("${shellshellfish.asset-allocation-insertdf-url}")
-	String assetAllocationInsertdf;
+	@Autowired
+	private CsvFundInfoService csvFundInfoService;
 
-	@Value("${shellshellfish.asset-allocation-inithistory-url}")
-	String assetAllocationInithistory;
-
-	@Value("${shellshellfish.asset-allocation-initpyamongo-url}")
-	String assetAllocationInitpyamongo;
-
-	@Value("${shellshellfish.data-manager-initcache-url}")
-	String assetAllocationInitcache;
-
-	@Value("${shellshellfish.data-manager-initcache-detail-url}")
-	String assetAllocationInitcacheDetail;
 
 
 	@GetMapping("/statusBase")
@@ -123,43 +113,7 @@ public class RestApiController {
 	}
 
 	private boolean makeSequenceInitCalls() throws Exception {
-		RestTemplate restTemplate = new RestTemplate();
-		try{
-			HttpJsonResult jsonResult1 = restTemplate.getForObject(assetAllocationInsertdf,
-					HttpJsonResult.class);
-			Thread.sleep(10);
-			if(jsonResult1 != null){
-				logger.info(jsonResult1.toString());
-			}
-			HttpJsonResult jsonResult2 = restTemplate.getForObject(assetAllocationInithistory,
-					HttpJsonResult.class);
-			Thread.sleep(10);
-			if(jsonResult2 != null){
-				logger.info(jsonResult2.toString());
-			}
-			HttpJsonResult jsonResult3 = restTemplate.getForObject(assetAllocationInitpyamongo
-					, HttpJsonResult.class);
-			Thread.sleep(10);
-			if(jsonResult3 != null){
-				logger.info(jsonResult3.toString());
-			}
-			HttpJsonResult jsonResult4 = restTemplate.getForObject(assetAllocationInitcache, HttpJsonResult.class);
-			Thread.sleep(10);
-			if(jsonResult4 != null){
-				logger.info(jsonResult4.toString());
-			}
-			HttpJsonResult jsonResult5 = restTemplate.getForObject
-					(assetAllocationInitcacheDetail, HttpJsonResult.class);
-			Thread.sleep(10);
-			if(jsonResult5 != null){
-				logger.info(jsonResult5.toString());
-			}
-
-		}catch (Exception ex){
-			logger.error("Exception:", ex);
-			throw ex;
-		}
-
+		csvFundInfoService.restApiCall();
 		return true;
 	}
 
