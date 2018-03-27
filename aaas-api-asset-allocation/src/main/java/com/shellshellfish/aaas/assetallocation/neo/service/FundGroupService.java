@@ -1003,8 +1003,18 @@ public class FundGroupService {
 //
 //        ReturnType fgi = this.getFundGroupIncomeFromListAndType(fundGroupHistoryList, returnType);
         ReturnType fgi = this.getFundGroupIncomeAllFromMongo(groupId, subGroupId, returnType);
-//		if (fgi != null) {
-//			List<Map<String, Object>> _items = fgi.get_items();
+		if (fgi != null) {
+			List<Map<String, Object>> _items = fgi.get_items();
+			if (_items != null && !_items.isEmpty()) {
+              Map<String, Object> itemsMap = _items.get(0);
+              if (itemsMap != null && itemsMap.get("income") != null) {
+                  List<Map<String, Object>> incomeList = (List<Map<String, Object>>) itemsMap.get("income");
+                  if (incomeList != null && incomeList.size() > 0) {
+                      fgi.set_items(incomeList);
+                      fgi.set_total(incomeList.size());
+                  }
+              }
+          }
 //			if (_items != null && !_items.isEmpty()) {
 //				Map<String, Object> itemsMap = _items.get(0);
 //				if (itemsMap != null && itemsMap.get("income") != null) {
@@ -1026,7 +1036,7 @@ public class FundGroupService {
 //					}
 //				}
 //			}
-//		}
+		}
         return fgi;
     }
 
