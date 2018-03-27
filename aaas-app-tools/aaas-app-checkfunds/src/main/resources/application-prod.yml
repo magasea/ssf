@@ -1,7 +1,6 @@
 ---
 server:
   port: 10150
-  contextPath: /
 ---
 spring:
   data:
@@ -13,8 +12,6 @@ spring:
 
   http:
     multipart:
-      max-file-size: 2MB
-      max-request-size: 10MB
   redis:
     host: 192.168.1.10
     port: 6379
@@ -57,7 +54,10 @@ cron:
   frequency:
     #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
     # 	Every 10 minutes
-    jobCheckFunds: 0 0/2 0 ? * * *
+    jobCheckFunds: 0 0/30 * 1/1 * ? *
+using:
+  spring:
+    schedulerFactory: true
 grpc:
   pythonServer:
 #    ip: localhost

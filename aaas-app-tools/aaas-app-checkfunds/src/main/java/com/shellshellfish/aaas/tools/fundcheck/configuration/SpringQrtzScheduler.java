@@ -1,8 +1,5 @@
 package com.shellshellfish.aaas.tools.fundcheck.configuration;
 
-
-import static org.quartz.JobBuilder.newJob;
-
 import com.shellshellfish.aaas.tools.fundcheck.scheduler.CheckFundsCSVInfoJob;
 import java.io.IOException;
 import javax.annotation.PostConstruct;
@@ -23,6 +20,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 
 @Configuration
@@ -37,10 +35,12 @@ public class SpringQrtzScheduler {
     @Value("${cron.frequency.jobCheckFunds}")
     String cronExpr;
 
+//    @Value("${cron.frequency.jobpreorderpayflowcheck}")
+//    String cronExprJobpreorderpayflowcheck;
 
     @PostConstruct
     public void init() {
-        logger.info("Hello world from Spring...");
+        logger.info("Hello world from Spring...:{}",cronExpr);
     }
 
     @Bean
@@ -52,17 +52,17 @@ public class SpringQrtzScheduler {
         return jobFactory;
     }
 
-//
-//    @Bean
-//    public JobDetailFactoryBean jobDetail() {
-//
-//        JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
-//        jobDetailFactory.setJobClass(CheckFundsBuyJob.class);
-//        jobDetailFactory.setName("Qrtz_Job_Detail");
-//        jobDetailFactory.setDescription("Invoke Sample Job service...");
-//        jobDetailFactory.setDurability(true);
-//        return jobDetailFactory;
-//    }
+
+    @Bean
+    public JobDetailFactoryBean jobDetail() {
+
+        JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
+        jobDetailFactory.setJobClass(CheckFundsCSVInfoJob.class);
+        jobDetailFactory.setName("Qrtz_Job_Detail");
+        jobDetailFactory.setDescription("Invoke Sample Job service...");
+        jobDetailFactory.setDurability(true);
+        return jobDetailFactory;
+    }
 
 
     @Bean
@@ -79,7 +79,7 @@ public class SpringQrtzScheduler {
 
         //schedule getZZConfirmInfoToUpdatePayFlow
         scheduler.scheduleJob(jobGetZZConfirmInfoToUpdatePayFlow, triggerGetZZConfirmInfoToUpdatePayFlow);
-
+//        scheduler.scheduleJob(jobGetZZConfirmInfoToTrggerPreOrder, triggerGetZZConfirmInfoToTrggerPreOrder);
         logger.debug("Starting Scheduler threads");
         scheduler.start();
         return scheduler;
@@ -94,7 +94,7 @@ public class SpringQrtzScheduler {
     @Bean
     public JobDetail jobGetZZConfirmInfoToUpdatePayFlow() {
         JobKey jobKey = new JobKey("Qrtz_Job_GetZZConfirmInfoToUpdatePayFlow", "pay");
-        JobDetail job = JobBuilder.newJob(CheckFundsCSVInfoJob.class).withIdentity(jobKey)
+        JobDetail job = JobBuilder.newJob(CheckFundsCSVInfoJob.class).withIdentity(jobKey).storeDurably()
             .withDescription("Invoke GetZZConfirmInfoToUpdatePayFlow Job service...").build();
         return  job;
     }
@@ -111,7 +111,20 @@ public class SpringQrtzScheduler {
         return trigger;
     }
 
+//    @Bean
+//    public JobDetail jobGetZZConfirmInfoToTrggerPreOrder() {
+//
+//        return newJob().ofType(CheckPreOrderStatus2TriggerBuyJob.class).storeDurably().withIdentity(JobKey.jobKey("Qrtz_Job_GetZZConfirmInfoToTrggerPreOrder")).withDescription("Invoke GetZZConfirmInfoToTrggerPreOrder Job service...").build();
+//    }
 
-
-
+//    @Bean
+//    public Trigger triggerGetZZConfirmInfoToTrggerPreOrder() {
+//
+//        Trigger trigger = TriggerBuilder
+//            .newTrigger()
+//            .withIdentity("Qrtz_Trigger_GetZZConfirmInfoToTrggerPreOrder", "pay")
+//            .withSchedule(CronScheduleBuilder.cronSchedule(cronExprJobpreorderpayflowcheck))
+//            .build();
+//        return trigger;
+//    }
 }

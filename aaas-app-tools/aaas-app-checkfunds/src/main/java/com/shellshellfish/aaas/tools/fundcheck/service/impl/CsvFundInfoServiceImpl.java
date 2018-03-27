@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.tools.fundcheck.service.impl;
 
 
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.tools.fundcheck.model.BaseCheckRecord;
 import com.shellshellfish.aaas.tools.fundcheck.model.CSVBaseInfo;
 import com.shellshellfish.aaas.tools.fundcheck.model.FundYieldRate;
@@ -18,14 +19,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 
@@ -52,6 +57,9 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
   FundGrpcService fundGrpcService;
 
   final static String CNST_BASE = "CLOSE";
+
+
+
 
   @Override
   public List<CSVFundInfo> getFundsInfoFromCsvFile(String csvFile) throws IOException {
@@ -131,6 +139,10 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
     fundGrpcService.checkFunds(codes, beginDate, endDate, FundTablesIndexEnum.FUND_YIELDRATE
         .getIndex());
     checkAndUpdateToolsFundRecords();
+  }
+
+  public void updateFundInfo(){
+
   }
 
   private void checkAndUpdateToolsFundRecords() {
