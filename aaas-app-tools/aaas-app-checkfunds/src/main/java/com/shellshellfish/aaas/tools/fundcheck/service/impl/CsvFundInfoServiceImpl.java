@@ -132,6 +132,7 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
 
   @Override
   public void restApiCall() throws InterruptedException {
+
     RestTemplate restTemplate = new RestTemplate();
     try{
       HttpJsonResult jsonResult1 = restTemplate.getForObject(assetAllocationInsertdf,
