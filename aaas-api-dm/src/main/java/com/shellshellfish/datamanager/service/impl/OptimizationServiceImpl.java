@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.common.utils.SSFDateUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.utils.URLutils;
 import com.shellshellfish.datamanager.commons.EasyKit;
+import com.shellshellfish.datamanager.controller.GroupController;
 import com.shellshellfish.datamanager.exception.ReturnedException;
 import com.shellshellfish.datamanager.model.FinanceProductCompo;
 import com.shellshellfish.datamanager.model.FundNAVInfo;
@@ -52,6 +53,9 @@ public class OptimizationServiceImpl implements OptimizationService {
 
 	@Autowired
 	private RestTemplate restTemplate;
+
+	@Autowired
+	GroupController groupController;
 
 	private Logger logger = LoggerFactory.getLogger(OptimizationServiceImpl.class);
 
@@ -128,11 +132,12 @@ public class OptimizationServiceImpl implements OptimizationService {
 						if (expAnnReturn.containsKey("value")) {
 							expAnnReturn.put("value", expAnnReturn.get("value"));
 						}
-						// Map ExpMaxReturn=getExpMaxReturn(groupId,subGroupId);
+						// Map ExpMaxReturn=getExpMaxReturn(g,subGroupId);
 						// 将结果封装进实体类
+						Map baseLine = groupController.getFundValueInfo(Long.parseLong(groupId),null,5);
 						FinanceProductCompo prd = new FinanceProductCompo(groupId, subGroupId, prdName,
 								expAnnReturn.size() > 0 ? expAnnReturn.get("value").toString() : null, productCompo,
-								histYieldRate);
+								histYieldRate,baseLine);
 						resultList.add(prd);
 					}
 				} catch (Exception e) {
