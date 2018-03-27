@@ -1003,30 +1003,30 @@ public class FundGroupService {
 //
 //        ReturnType fgi = this.getFundGroupIncomeFromListAndType(fundGroupHistoryList, returnType);
         ReturnType fgi = this.getFundGroupIncomeAllFromMongo(groupId, subGroupId, returnType);
-		if (fgi != null) {
-			List<Map<String, Object>> _items = fgi.get_items();
-			if (_items != null && !_items.isEmpty()) {
-				Map<String, Object> itemsMap = _items.get(0);
-				if (itemsMap != null && itemsMap.get("income") != null) {
-					List<Map<String, Object>> incomeList = (List<Map<String, Object>>) itemsMap.get("income");
-					List<Map<String, Object>> resultList = new ArrayList<>();
-					if (incomeList != null && incomeList.size() > 0) {
-						for (Map<String, Object> incomeMap : incomeList) {
-							String time = incomeMap.get("time") + "";
-//							if (starttime.equals(time) || resultList.size() > 0) {
-							starttime = starttime.replaceAll("-", "");
-							time = time.replaceAll("-", "");
-							if (TradeUtil.getLongNumWithMul100(time) - TradeUtil.getLongNumWithMul100(starttime) >= 0 || resultList.size() > 0) {
-								resultList.add(incomeMap);
-							}
-						}
-//						itemsMap.put("income", resultList);
-						fgi.set_items(resultList);
-						fgi.set_total(resultList.size());
-					}
-				}
-			}
-		}
+//		if (fgi != null) {
+//			List<Map<String, Object>> _items = fgi.get_items();
+//			if (_items != null && !_items.isEmpty()) {
+//				Map<String, Object> itemsMap = _items.get(0);
+//				if (itemsMap != null && itemsMap.get("income") != null) {
+//					List<Map<String, Object>> incomeList = (List<Map<String, Object>>) itemsMap.get("income");
+//					List<Map<String, Object>> resultList = new ArrayList<>();
+//					if (incomeList != null && incomeList.size() > 0) {
+//						for (Map<String, Object> incomeMap : incomeList) {
+//							String time = incomeMap.get("time") + "";
+////							if (starttime.equals(time) || resultList.size() > 0) {
+//							starttime = starttime.replaceAll("-", "");
+//							time = time.replaceAll("-", "");
+//							if (TradeUtil.getLongNumWithMul100(time) - TradeUtil.getLongNumWithMul100(starttime) >= 0 || resultList.size() > 0) {
+//								resultList.add(incomeMap);
+//							}
+//						}
+////						itemsMap.put("income", resultList);
+//						fgi.set_items(resultList);
+//						fgi.set_total(resultList.size());
+//					}
+//				}
+//			}
+//		}
         return fgi;
     }
 
