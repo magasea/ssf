@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.tools.fundcheck.scheduler;
 
 
+import com.shellshellfish.aaas.tools.fundcheck.service.CsvFundInfoService;
 import com.shellshellfish.aaas.tools.fundcheck.service.FundUpdateJobService;
 import java.nio.file.Paths;
 import org.quartz.Job;
@@ -29,6 +30,9 @@ public class CheckFundsCSVInfoJob implements Job {
     @Autowired
     private FundUpdateJobService fundUpdateJobService;
 
+    @Autowired
+    private CsvFundInfoService csvFundInfoService;
+
     public void execute(JobExecutionContext context) throws JobExecutionException {
 
         logger.info("Job ** {} ** fired @ {}", context.getJobDetail().getKey().getName(), context.getFireTime());
@@ -40,6 +44,12 @@ public class CheckFundsCSVInfoJob implements Job {
 //            csvBaseFileOriginName).toString());
 
         fundUpdateJobService.pullInfoBaseOnFundAndBaseKeyInfo();
+
+        try {
+            csvFundInfoService.restApiCall();
+        } catch (InterruptedException e) {
+            logger.error("Exception:", e);
+        }
 
         logger.info("Next job scheduled @ {}", context.getNextFireTime());
     }
