@@ -33,11 +33,13 @@ public class CheckFundsCSVInfoJob implements Job {
 
         logger.info("Job ** {} ** fired @ {}", context.getJobDetail().getKey().getName(), context.getFireTime());
 
-        fundUpdateJobService.checkAndUpdateFunds(Paths.get( csvFilePath,
-            csvFundFileOriginName).toString());
+//        fundUpdateJobService.checkAndUpdateFunds(Paths.get( csvFilePath,
+//            csvFundFileOriginName).toString());
+//
+//        fundUpdateJobService.checkAndUpdateFunds(Paths.get( csvFilePath,
+//            csvBaseFileOriginName).toString());
 
-        fundUpdateJobService.checkAndUpdateFunds(Paths.get( csvFilePath,
-            csvBaseFileOriginName).toString());
+        fundUpdateJobService.pullInfoBaseOnFundAndBaseKeyInfo();
 
         logger.info("Next job scheduled @ {}", context.getNextFireTime());
     }
