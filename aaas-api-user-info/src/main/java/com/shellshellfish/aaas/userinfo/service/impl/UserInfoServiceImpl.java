@@ -647,7 +647,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				} else {
 					resultMap2.put("lastModified", lastModifiedDate);
 					resultMap2.put("date", dateTime.split("T")[0]);
-					resultMap2.put("time", dateTime.split("T")[1]);
+					resultMap2.put("time", dateTime.split("T")[1].substring(0, 8));
 					resultMap2.put("operation", operation);
 					resultMap.put(status, resultMap2);
 				}

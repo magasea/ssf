@@ -34,6 +34,9 @@ public class IndexServiceImpl implements IndexService {
 	
 	@Autowired
 	AssetAllocationServiceImpl assetAllocationService;
+
+	@Autowired
+	DataManagerService dataManagerService;
 	
 	private final String CONSERV = "保守型";
 	private final String STABLE = "稳健型";
@@ -124,8 +127,9 @@ public class IndexServiceImpl implements IndexService {
 				resultC.put("product_list", proportionOneList);
 			}
 			//近6个月收益图
-			ReturnType returnType = assetAllocationService.getPortfolioYield(groupId, subGroupId, new Integer(-6), "income");
-			resultC.put("income6month", returnType);			
+			ReturnType returnType = assetAllocationService.getPortfolioYield(groupId, subGroupId, 0, "income");
+			resultC.put("income6month", returnType);
+			resultC.put("baseLine",dataManagerService.getBaseLine(Long.parseLong(groupId),5));
 			result.put("C5", resultC);
 			
 			riskList.add(investmentHorizonMap);
@@ -218,19 +222,17 @@ public class IndexServiceImpl implements IndexService {
 							resultC.put("product_list", proportionOneList);
 						}
 						//近6个月收益图
-						ReturnType returnType = assetAllocationService.getPortfolioYield(groupId, subGroupId, new Integer(-6), "income");
+						ReturnType returnType = assetAllocationService.getPortfolioYield(groupId, subGroupId, 0, "income");
 						resultC.put("income6month", returnType);
-						
+						resultC.put("baseLine",dataManagerService.getBaseLine(Long.parseLong(groupId),5));
 						result.put(key+"", resultC);
 					}
 					
-					Collections.sort(riskList, new Comparator<Map<String, Object>>() {
-						public int compare(Map<String, Object> o1, Map<String, Object> o2) {
-							int map1value = (Integer) o1.get("id");
-							int map2value = (Integer) o2.get("id");
-							return map1value - map2value;
-						}
-					});
+					Collections.sort(riskList, (o1, o2) -> {
+                        int map1value = (Integer) o1.get("id");
+                        int map2value = (Integer) o2.get("id");
+                        return map1value - map2value;
+                    });
 					
 					
 					result.put("productTypeList", riskList);

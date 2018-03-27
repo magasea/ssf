@@ -857,7 +857,7 @@ public class DataServiceImpl implements DataService {
 				baseLineList.add(map);
 			}
 		}
-		result.put("date", baseLineList);
+		result.put("value", baseLineList);
 		return result;
 	}
 
