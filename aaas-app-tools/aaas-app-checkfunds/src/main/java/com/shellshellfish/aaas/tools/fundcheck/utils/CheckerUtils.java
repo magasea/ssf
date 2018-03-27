@@ -15,6 +15,9 @@ public class CheckerUtils {
     boolean roundUpForOrigin = true;
     if(originDouble.contains(".")){
       shortestSmallNum = originDouble.length() - 1 - originDouble.indexOf('.');
+    }else{
+      shortestSmallNum = 0;
+      System.out.println(String.format("originDouble:{} targetDouble:{}", originDouble, targetDouble));
     }
     if(targetDouble.contains(".")){
       int tempNum = targetDouble.length() -1 - targetDouble.indexOf('.');
@@ -22,6 +25,9 @@ public class CheckerUtils {
         shortestSmallNum = tempNum;
         roundUpForOrigin = false;
       }
+    }else{
+      shortestSmallNum = 0;
+      System.out.println(String.format("originDouble:{} targetDouble:{}", originDouble, targetDouble));
     }
     BigDecimal origBigDecimal = new BigDecimal(originDouble);
     BigDecimal targBigDecimal = new BigDecimal(targetDouble);

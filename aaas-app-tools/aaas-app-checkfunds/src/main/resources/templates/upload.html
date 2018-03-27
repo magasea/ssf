@@ -21,7 +21,8 @@
     <input type="file" name="file" /><br/>
     <input type="submit" value="submit" />
     <div style="margin-top:5px" ng-controller="getcontroller">
-        <button ng-click="syncChoice()" type="button" class="btn btn-default"
+        <button ng-click="syncChoice()" ng-disabled="isProcessing" type="button"
+                class="btn btn-default"
                 style="margin:10px 0px 10px 0px;">同步choice和dataManager等模块信息
         </button>
     </div>
