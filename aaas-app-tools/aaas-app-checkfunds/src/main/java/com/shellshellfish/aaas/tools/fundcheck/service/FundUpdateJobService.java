@@ -16,4 +16,6 @@ public interface FundUpdateJobService {
 
   List<BaseCheckRecord> getBaseFundCheckRecord();
 
+  public void pullInfoBaseOnFundAndBaseKeyInfo();
+
 }

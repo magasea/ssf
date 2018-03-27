@@ -19,7 +19,7 @@ public class CheckFundsBuyJobServiceTest {
 
 
   @Autowired
-  private CheckFundsBuyJobService jobService;
+  private CheckFundsTradeJobService jobService;
   @Test
   public void executeSampleJob() throws Exception {
     jobService.executeSampleJob();
