@@ -56,12 +56,12 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- 引入Druid依赖 -->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
-            <version>1.1.5</version>
-        </dependency>
+        <!--&lt;!&ndash; 引入Druid依赖 &ndash;&gt;-->
+        <!--<dependency>-->
+            <!--<groupId>com.alibaba</groupId>-->
+            <!--<artifactId>druid</artifactId>-->
+            <!--<version>1.1.5</version>-->
+        <!--</dependency>-->
 
         <!--<dependency>-->
             <!--<groupId>org.mongodb</groupId>-->
@@ -180,7 +180,12 @@
             <groupId>com.matlab</groupId>
             <artifactId>matlab-javabuilder</artifactId>
             <version>0.0.1</version>
-            <classifier>linux-x86_64</classifier>
+            <classifier>${os.detected.classifier}</classifier>
+        </dependency>
+        <!-- Add Hikari Connection Pooling support -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
         </dependency>
 
         <dependency>
@@ -212,12 +217,12 @@
             </extension>
         </extensions>
         <plugins>
-            <!--<plugin>-->
-                <!--<artifactId>maven-jar-plugin</artifactId>-->
-                <!--<configuration>-->
-                    <!--<classifier>${os.detected.classifier}</classifier>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <classifier>${os.detected.classifier}</classifier>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.0.2</version>
@@ -266,10 +271,10 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.springframework.boot</groupId>-->
+                <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
+            <!--</plugin>-->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>

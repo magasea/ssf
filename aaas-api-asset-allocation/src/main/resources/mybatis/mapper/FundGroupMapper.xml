@@ -265,25 +265,25 @@
     </select>
 
     <insert id="insertGroupNavadj">
-        insert into fund_group_history (fund_group_sub_id,fund_group_id,income_num,time)
+        insert ignore into fund_group_history (fund_group_sub_id,fund_group_id,income_num,time)
         VALUES (#{subGroupId},#{fund_group_id},#{num},#{time})
     </insert>
 
     <insert id="batchInsertFundGroupHistory" parameterType="java.util.Map">
         <foreach collection="list" item="item" separator=";">
-            insert into fund_group_history (fund_group_sub_id,fund_group_id,income_num,time)
+            insert ignore into fund_group_history (fund_group_sub_id,fund_group_id,income_num,time)
             VALUES (#{item.subGroupId},#{item.fundGroupId},#{item.incomeNum},#{item.time})
         </foreach>
     </insert>
 
     <insert id="insertGroupNavadjBenchmark">
-        insert into fund_group_history (fund_group_id,income_num,time)
+        insert ignore into fund_group_history (fund_group_id,income_num,time)
         VALUES (#{risk_level},#{num},#{time})
     </insert>
 
     <insert id="batchInsertFundGroupHistoryBenchmark">
         <foreach collection="list" item="item" separator=";">
-            insert into fund_group_history (fund_group_id,income_num,time)
+            insert ignore into fund_group_history (fund_group_id,income_num,time)
             VALUES (#{item.risk_level},#{item.incomeNum},#{item.time})
         </foreach>
     </insert>
