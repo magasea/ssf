@@ -738,6 +738,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 			Long userId = getUserIdFromUUID(uuid);
 			// 总资产
 			PortfolioInfo portfolioInfo = this.getChicombinationAssets(uuid, userId, products);
+			if(portfolioInfo == null || portfolioInfo.getTotalAssets() == null || portfolioInfo.getTotalAssets().compareTo(BigDecimal.ZERO)<=0){
+			  continue;
+			}
+			
 			resultMap
 					.put("totalAssets",
 							Optional.ofNullable(portfolioInfo).map(m -> m.getTotalAssets())
