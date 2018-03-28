@@ -295,7 +295,7 @@
         and time = #{time}
     </update>
 
-    <update id="batchUpdateMaximumRetracement" parameterType="java.util.Map">
+    <update id="batchUpdateMaximumRetracement" parameterType="java.util.List">
         <!-- 接收list参数，循环组装sql语句，注意for循环的写法
              separator=";" 代表着每次循环完，在sql后面放一个分号
              item="item" 循环List的每条的结果集

@@ -14,6 +14,10 @@ import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
 import com.shellshellfish.aaas.assetallocation.neo.util.*;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1517,22 +1521,23 @@ public class FundGroupService {
         if (CollectionUtils.isEmpty(dataMapList)) {
             return;
         }
+        logger.info("dataMapList size:{}", dataMapList.size());
         List<Map> mapList = new ArrayList<>();
         for (Map map : dataMapList) {
             mapList.add(map);
             if (mapList.size() == BATCH_SIZE_NUM) {
-                for(Map mapSub: mapList){
-                    fundGroupMapper.insertGroupNavadj(mapSub);
-                }
-//                fundGroupMapper.batchInsertFundGroupHistory(mapList);
+//                for(Map mapSub: mapList){
+//                    fundGroupMapper.insertGroupNavadj(mapSub);
+//                }
+                fundGroupMapper.batchInsertFundGroupHistory(mapList);
                 mapList.clear();
             }
         }
         if (!CollectionUtils.isEmpty(mapList)) {
-            for(Map mapSub: mapList){
-                fundGroupMapper.insertGroupNavadj(mapSub);
-            }
-//            fundGroupMapper.batchInsertFundGroupHistory(mapList);
+//            for(Map mapSub: mapList){
+//                fundGroupMapper.insertGroupNavadj(mapSub);
+//            }
+            fundGroupMapper.batchInsertFundGroupHistory(mapList);
         }
         return;
     }
@@ -1546,18 +1551,18 @@ public class FundGroupService {
         for (Map map : dataMapList) {
             mapList.add(map);
             if (mapList.size() == BATCH_SIZE_NUM) {
-                for(Map mapSub: mapList){
-                    fundGroupMapper.updateMaximumRetracement(mapSub);
-                }
-//                fundGroupMapper.batchUpdateMaximumRetracement(mapList);
+//                for(Map mapSub: mapList){
+//                    fundGroupMapper.updateMaximumRetracement(mapSub);
+//                }
+                fundGroupMapper.batchUpdateMaximumRetracement(mapList);
                 mapList.clear();
             }
         }
         if (!CollectionUtils.isEmpty(mapList)) {
-            for(Map mapSub: mapList){
-                fundGroupMapper.updateMaximumRetracement(mapSub);
-            }
-//            fundGroupMapper.batchUpdateMaximumRetracement(mapList);
+//            for(Map mapSub: mapList){
+//                fundGroupMapper.updateMaximumRetracement(mapSub);
+//            }
+            fundGroupMapper.batchUpdateMaximumRetracement(mapList);
         }
         return;
     }
@@ -1936,7 +1941,15 @@ public class FundGroupService {
     private void fundGroupIdTasks() {
         try {
             final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
-            ExecutorService pool = ThreadPoolUtil.getThreadPool();
+            ThreadPoolExecutor pool = new ThreadPoolExecutor(
+                15,
+                15,
+                0L,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(15),
+                Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.AbortPolicy());
+//            ExecutorService pool = ThreadPoolUtil.getThreadPool();
             for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
                 int fundGroupId = index;
                 pool.execute(() -> {
