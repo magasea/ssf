@@ -1,0 +1,241 @@
+syntax = "proto3";
+import "common.proto";
+
+option java_multiple_files = true;
+option java_package = "com.shellshellfish.aaas.finance.trade.pay";
+option java_outer_classname = "payRpcService";
+option objc_class_prefix = "PRS";
+
+service PayRpcService {
+    rpc BindBankCard (BindBankCardQuery) returns (BindBankCardResult) {
+    }
+
+
+    /**
+    * 中证接口查询，输入流水号和用户id或者流水号和外部订单号查询交易状态
+    */
+    rpc QueryZhongzhengTradeInfoBySerial(ZhongZhengQueryBySerial) returns(ApplyResult){
+    }
+    /**
+    * 中证接口查询，输入流水号和用户id或者流水号和外部订单号查询交易状态
+    */
+    rpc QueryZhongzhengTradeInfoByOrderDetailId(ZhongZhengQueryByOrderDetailId) returns(ApplyResult)
+    {
+    }
+    /**
+    * 订单状态是待支付，所以调用pay模块，1. 检查是否已经支付(看子订单对应有没有apply_serial)
+    * 2. 检查交易状态
+    * 如果交易1.不满足 就重新发起支付，如果交易失败而且需要交易的基金数量大于0，那么再次发起交易
+    */
+    rpc OrderJob2Pay(OrderPayReq) returns(OrderPayResult){
+    }
+    /**
+    * 老板要求直接生成订单包含调中证接口
+    */
+    rpc Order2Pay(OrderPayReq) returns(OrderPayResult){
+    }
+    
+    /**
+    * 老板要求直接生成购买货币基金的预订单包含调中证接口
+    */
+    rpc PreOrder2Pay(PreOrderPayReq) returns(PreOrderPayResult){
+    }
+
+    /**
+    * 用中证提供的接口获取交易基金的净值
+    */
+    rpc GetLatestFundNet(FundNetQuery) returns (FundNetInfos){}
+}
+//绑定银行卡
+message BindBankCardQuery{
+  int64 userId = 1;//用户ID
+  string userPid = 2;//用户身份证号
+  string bankCardNum = 3;//用户银行卡号
+  string cellphone = 4;//用户手机号
+  string userName = 5;//用户名称
+  string bankCode = 6;//银行在交易系统的编码
+  string tradeBrokerName = 7;//交易系统名称
+  int64 tradeBrokerId = 8;//交易系统Id
+  int32 riskLevel = 9;//用户贝贝鱼的风险评测值
+}
+
+//绑定银行卡的结果
+message BindBankCardResult{
+  string tradeacco = 1;//交易账户号
+  ErrInfo err_info = 2;//绑卡失败信息
+}
+
+//中证接口查询入参
+message ZhongZhengQueryBySerial{
+  int64 user_id = 1;//用户ID
+  string apply_serial = 2;//外部流水号
+}
+
+//中证接口查询入参
+message ZhongZhengQueryByOrderDetailId{
+  int64 user_id = 1;//用户ID
+  int64 order_detail_id = 2;//订单号
+}
+
+//中证交易查询接口返回结果
+message ApplyResult{
+  string identityno = 1;//
+  string tradeacco = 2;//
+  string fundacco = 3;//
+  string fundcode = 4;//
+  string fundname = 5;//
+  string callingcode = 6;//
+  string branchno = 7;//
+  string applyserial = 8;//
+  string sharetype = 9;//
+  string applydate = 10;//
+  string applytime = 11;//
+  string applyshare = 12;//
+  string applysum = 13;//
+  string balancecoin = 14;//
+  string targetfundcode = 15;//
+  string targetfundname = 16;//
+  string targetsharetype = 17;//
+  string oppfundcode = 18;//
+  string oppsaler = 19;//
+  string opptrusteebranch = 20;//
+  string mintredeem = 21;//
+  string commisiondiscount = 22;//
+  string melonmethod = 23;//
+  string freezemethod = 24;//
+  string originalapplyserial = 25;//
+  string confirmflag = 26;//
+  string confirmstat = 27;//
+  string capitalmode = 28;//
+  string comefrom = 29;//
+  string kkstat = 30;//
+  string enddiscount = 31;//
+  string otherdiscount = 32;//
+  string oriapplydate = 33;//
+  string trademethod = 34;//
+  string accepttime = 35;//
+  string riskmatch = 36;//
+  string bankacco = 37;//
+  string bankname = 38;//
+  string businflagStr = 39;//
+  string occurbankacco = 40;//
+  string bankSerial = 41;//
+  string outsideorderno = 42;//
+  string tradeconfirmshare = 43;//
+  string tradeconfirmsum = 44;//
+  string xyh = 45;//
+  string poundage = 46;//
+  string fixflag = 47;//
+}
+
+//发起交易请求参数， 尽量和RabbitMq的传参一致
+message OrderPayReq {
+  string trdAccount = 1;//交易账户
+  int32 trdBrokerId = 2;//交易平台ID
+  int64 userProdId = 3;//用户已购理财产品ID
+  string userUuid = 4;//用户UUID
+  int64 userId = 5; //用户UserId
+  string user_pid = 6; //用户PID
+  repeated OrderDetailPayReq orderDetailPayReq = 7;//子订单信息串
+}
+
+//子订单信息
+message OrderDetailPayReq {
+  int64 id = 1;
+  int64 orderDetailId = 2;
+  string tradeApplySerial = 3;
+  int64 boughtDate = 4;
+  int32 tradeType = 5;
+  int64 payAmount = 6;
+  int64 payFee = 7;
+  int64 userId = 8;
+  int64 userProdId = 9;
+  string fundCode = 10;
+  int64 fundSum  = 11;
+  int64 fundSumConfirmed  = 12;
+  int64 fundNum = 13;
+  int64 fundNumConfirmed = 14;
+  int64 buyFee = 15;
+  int64 buyDiscount = 16;
+  int32 orderDetailStatus = 17;
+  int64 createBy = 18;
+  int64 createDate = 19;
+  int64 updateBy = 20;
+  int64 updateDate = 21;
+  string bankCardNum = 22;
+  int64 fundQuantity = 23;
+  int32 orderStatus = 24;
+  string prodCode = 25;
+}
+
+//订单支付结果
+message OrderPayResult{
+  int32 result = 1; // 1- 成功；2-失败
+  repeated OrderPayResultDetail orderPayResultDetail = 2;//支付详情
+}
+
+//订单支付结果详情 结构按照TrdOrderDetail来, 改变的就是applySerial 和 orderStatus, 和update系列
+message OrderPayResultDetail{
+  int64 id = 1;
+  int64 orderDetailId = 2;
+  string tradeApplySerial = 3;
+  int64 boughtDate = 4;
+  int32 tradeType = 5;
+  int64 payAmount = 6;
+  int64 payFee = 7;
+  int64 userId = 8;
+  int64 userProdId = 9;
+  string fundCode = 10;
+  int64 fundSum  = 11;
+  int64 fundSumConfirmed  = 12;
+  int64 fundNum = 13;
+  int64 fundNumConfirmed = 14;
+  int64 buyFee = 15;
+  int64 buyDiscount = 16;
+  int32 orderDetailStatus = 17;
+  int64 createBy = 18;
+  int64 createDate = 19;
+  int64 updateBy = 20;
+  int64 updateDate = 21;
+  string bankCardNum = 22;
+  int64 fundQuantity = 23;
+  int32 orderStatus = 24;
+  string prodCode = 25;
+}
+//预订单支付请求 
+message PreOrderPayReq{
+  int64 pre_order_id = 1;
+  string bank_card_num = 2;
+  int32 order_type = 3; //preorder
+  int64 pay_amount = 4;
+  string fund_code = 5;//基金代码
+  int64 pay_fee = 6;
+  int64 user_id = 7;
+  string user_pid = 8; //用户身份证件编码
+  int64 prod_id = 9;
+  int32 trd_broker_id = 10; //交易平台ID
+  string trade_account = 11; //交易账户
+}
+//预订单支付结果
+message PreOrderPayResult{
+  int64 pre_order_id = 1; //预订单ID
+  string apply_serial = 2; //交易流水号
+  string err_msg = 3; // 错误消息
+}
+
+message FundNetQuery{
+  string user_pid = 1; //用户身份证件编码
+  repeated string fund_code = 2; //交易的基金代码列
+  int32 trade_days = 3; //交易日期数
+}
+message FundNetInfos{
+  repeated FundNetInfo fundNetInfo = 1; //基金净值信息
+}
+message FundNetInfo{
+  string fund_code = 1; //基金代码
+  string unit_net = 2; //单位净值
+  string accum_net = 3; //累计单位净值
+  string chng_pct = 4; //变化率
+  string tradedate = 5; //交易日期
+}
+

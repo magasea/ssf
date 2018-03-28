@@ -23,6 +23,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -34,7 +35,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @ComponentScan
 @Configuration
-@ConfigurationProperties(prefix="spring.datasource")
+//@ConfigurationProperties(prefix="spring.datasource")
 
 
 
@@ -87,12 +88,13 @@ public class DataSourceConfig {
         factoryBean.setDataSource(dataSource());
         factoryBean.setPackagesToScan(new String[] { "com.shellshellfish.aaas.assetallocation" });
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter());
-//        factoryBean.setJpaProperties(jpaProperties());
+        factoryBean.setJpaProperties(jpaProperties());
 
 
 
         return factoryBean;
     }
+
 
     /*
      * Provider specific adapter.
@@ -106,17 +108,17 @@ public class DataSourceConfig {
     /*
      * Here you can specify any provider specific properties.
      */
-//    private java.util.Properties jpaProperties() {
-//        java.util.Properties properties = new Properties();
-//        properties.put("hibernate.dialect", environment.getRequiredProperty("datasource.sampleapp.hibernate.dialect"));
-//        properties.put("hibernate.hbm2ddl.auto", environment.getRequiredProperty("datasource.sampleapp.hibernate.hbm2ddl.method"));
-//        properties.put("hibernate.show_sql", environment.getRequiredProperty("datasource.sampleapp.hibernate.show_sql"));
-//        properties.put("hibernate.format_sql", environment.getRequiredProperty("datasource.sampleapp.hibernate.format_sql"));
-//        if(StringUtils.isNotEmpty(environment.getRequiredProperty("datasource.sampleapp.defaultSchema"))){
-//            properties.put("hibernate.default_schema", environment.getRequiredProperty("datasource.sampleapp.defaultSchema"));
-//        }
-//        return properties;
-//    }
+    private java.util.Properties jpaProperties() {
+        java.util.Properties properties = new Properties();
+        properties.put("hibernate.dialect", environment.getRequiredProperty("datasource.sampleapp.hibernate.dialect"));
+        properties.put("hibernate.hbm2ddl.auto", environment.getRequiredProperty("datasource.sampleapp.hibernate.hbm2ddl.method"));
+        properties.put("hibernate.show_sql", environment.getRequiredProperty("datasource.sampleapp.hibernate.show_sql"));
+        properties.put("hibernate.format_sql", environment.getRequiredProperty("datasource.sampleapp.hibernate.format_sql"));
+        if(StringUtils.isNotEmpty(environment.getRequiredProperty("datasource.sampleapp.defaultSchema"))){
+            properties.put("hibernate.default_schema", environment.getRequiredProperty("datasource.sampleapp.defaultSchema"));
+        }
+        return properties;
+    }
 
     @Bean
     @Autowired
