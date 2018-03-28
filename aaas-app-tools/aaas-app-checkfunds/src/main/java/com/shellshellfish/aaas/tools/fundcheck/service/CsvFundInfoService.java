@@ -14,4 +14,5 @@ public interface CsvFundInfoService {
   List<CSVFundInfo> getFundsInfoFromCsvFile(String csvFile) throws IOException;
   List<FundCheckRecord> getInconsistFundInfos();
   List<BaseCheckRecord> getInconsistBaseInfos();
+  void restApiCall() throws InterruptedException;
 }
