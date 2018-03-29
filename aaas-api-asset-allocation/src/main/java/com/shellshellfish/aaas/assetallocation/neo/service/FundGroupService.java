@@ -1949,24 +1949,40 @@ public class FundGroupService {
     }
 
     private void fundGroupIdTasks() {
-        //            final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
-//            ThreadPoolExecutor pool = new ThreadPoolExecutor(
-//                15,
-//                15,
-//                0L,
-//                TimeUnit.MILLISECONDS,
-//                new LinkedBlockingQueue<>(15),
-//                Executors.defaultThreadFactory(),
-//                new ThreadPoolExecutor.AbortPolicy());
-//            ExecutorService pool = ThreadPoolUtil.getThreadPool();
-        for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
-            int fundGroupId = index;
+        final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(
+            15,
+            15,
+            0L,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(15),
+            Executors.defaultThreadFactory(),
+            new ThreadPoolExecutor.AbortPolicy());
 
-             fundGroupIdTask(fundGroupId);
+        for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
+
+            int fundGroupId = index;
+            try {
+                pool.execute(() -> {
+                    fundGroupIdTask(fundGroupId);
+                });
+            }catch(Exception ex){
+                logger.error("Ex:", ex);
+
+            }catch (Error err){
+                logger.error("Ex:", err);
+            }
+            finally {
+                countDownLatch.countDown();
+            }
 
 
         }
-        this.sleep(1000);
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void fundGroupIdTask(int fundGroupId) {
@@ -1986,9 +2002,9 @@ public class FundGroupService {
     }
 
     public void fundGroupIdAndSubIdTask(String fundGroupId, String subGroupId) {
-        getNavadj(fundGroupId, subGroupId);
-        updateExpectedMaxRetracement(fundGroupId, subGroupId);
         try{
+            getNavadj(fundGroupId, subGroupId);
+            updateExpectedMaxRetracement(fundGroupId, subGroupId);
             sharpeRatio(fundGroupId, subGroupId);
         }catch (Exception ex){
             logger.error("sharpeRatio err:", ex);
