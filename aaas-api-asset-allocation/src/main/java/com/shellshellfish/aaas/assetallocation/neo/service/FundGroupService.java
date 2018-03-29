@@ -1993,7 +1993,11 @@ public class FundGroupService {
     public void fundGroupIdAndSubIdTask(String fundGroupId, String subGroupId) {
         getNavadj(fundGroupId, subGroupId);
         updateExpectedMaxRetracement(fundGroupId, subGroupId);
-        sharpeRatio(fundGroupId, subGroupId);
+        try{
+            sharpeRatio(fundGroupId, subGroupId);
+        }catch (Exception ex){
+            logger.error("sharpeRatio err:", ex);
+        }
     }
 
     /**
