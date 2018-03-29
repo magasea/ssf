@@ -1,14 +1,19 @@
 server:
-  port: 10030
+  port: 10150
   contextPath: /
 
 spring:
   profiles: it
   data:
-      mongodb:
-        database: funds
-        host: 192.168.1.249
-        port: 27017
+    mongodb:
+      database: funds
+      host: 192.168.1.249
+      port: 27017
+      toolsdb: aaas_tools
+  redis:
+    host: 192.168.1.10
+    port: 6379
+    password: redis123
 datasource:
   sampleapp:
     url: jdbc:mysql://192.168.1.249:3306/ssftrdorder?useUnicode=true&characterEncoding=utf-8
@@ -24,3 +29,17 @@ datasource:
       dialect: org.hibernate.dialect.MySQLDialect
 shellshellfish:
   asset-alloction-url: "http://localhost:10020"
+  asset-allocation-insertdf-url: "http://localhost:10020/api/asset-allocation/job/insertDailyFund"
+  asset-allocation-inithistory-url: "http://localhost:10020/api/asset-allocation/job/getAllIdAndSubId"
+
+  asset-allocation-initpyamongo-url: "http://localhost:10020/api/asset-allocation/job/getFundGroupIncomeAllToMongoDb"
+  data-manager-initcache-url: "http://localhost:10030/api/datamanager/financeFrontPage"
+  data-manager-initcache-detail-url: "http://localhost:10030/api/datamanager/checkPrdDetails"
+  csvFilePath: /temp
+  csvFundFileOriginName: csvFundsInfo
+  csvBaseFileOriginName: csvBaseInfo
+grpc:
+  pythonServer:
+#    ip: localhost
+    ip: 192.168.1.45
+    port: 10161
