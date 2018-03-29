@@ -28,24 +28,4 @@
         <module>aaas-api-dm</module>
         <module>aaas-app-tools</module>
     </modules>
-    <build>
-      <plugins>
-         <plugin>
-                           <groupId>io.fabric8</groupId>
-                           <artifactId>fabric8-maven-plugin</artifactId>
-                           <version>3.5.28</version>
-                           <configuration>
-                                 <composeFile>docker-compose.yml</composeFile>
-                           </configuration>
-                           <executions>
-                                 <execution>
-                                        <goals>
-                                               <goal>resource</goal>
-                                               <goal>build</goal>
-                                        </goals>
-                                 </execution>
-                           </executions>
-         </plugin>    
-       </plugins>
-    </build>
 </project>
