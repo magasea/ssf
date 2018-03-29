@@ -1949,29 +1949,24 @@ public class FundGroupService {
     }
 
     private void fundGroupIdTasks() {
-        try {
-            final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
-            ThreadPoolExecutor pool = new ThreadPoolExecutor(
-                15,
-                15,
-                0L,
-                TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(15),
-                Executors.defaultThreadFactory(),
-                new ThreadPoolExecutor.AbortPolicy());
+        //            final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
+//            ThreadPoolExecutor pool = new ThreadPoolExecutor(
+//                15,
+//                15,
+//                0L,
+//                TimeUnit.MILLISECONDS,
+//                new LinkedBlockingQueue<>(15),
+//                Executors.defaultThreadFactory(),
+//                new ThreadPoolExecutor.AbortPolicy());
 //            ExecutorService pool = ThreadPoolUtil.getThreadPool();
-            for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
-                int fundGroupId = index;
-                pool.execute(() -> {
-                    fundGroupIdTask(fundGroupId);
-                    countDownLatch.countDown();
-                });
-            }
-            this.sleep(1000);
-            countDownLatch.await();
-        } catch (InterruptedException e) {
-            logger.error("exception:",e);
+        for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
+            int fundGroupId = index;
+
+             fundGroupIdTask(fundGroupId);
+
+
         }
+        this.sleep(1000);
     }
 
     private void fundGroupIdTask(int fundGroupId) {
