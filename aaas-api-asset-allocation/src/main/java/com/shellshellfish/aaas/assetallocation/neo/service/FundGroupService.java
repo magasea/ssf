@@ -1992,6 +1992,8 @@ public class FundGroupService {
             sharpeRatio(fundGroupId, subGroupId);
         }catch (Exception ex){
             logger.error("sharpeRatio err:", ex);
+        }catch (Error error){
+            logger.error("sharpeRatio err:", error);
         }
     }
 
