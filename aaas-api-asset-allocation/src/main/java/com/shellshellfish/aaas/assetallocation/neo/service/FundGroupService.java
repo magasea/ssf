@@ -660,6 +660,13 @@ public class FundGroupService {
         return aReturn;
     }
 
+    /**
+     * 剔除基金数据不全（周末或者节假日可能只有部分基金有数据）的时间点，
+     * 返回基金数据完整的时间点
+     * @param groupId
+     * @param subGroupId
+     * @return
+     */
     public List<Date> getNavlatestdateCount(String groupId, String subGroupId) {
         List<String> codeList = fundGroupService.getFundGroupCodes(groupId, subGroupId);
         int codeSize = codeList.size();
@@ -1424,7 +1431,7 @@ public class FundGroupService {
 
     /**
      * 计算组合单位收益净值和最大回撤
-     *
+     *TODO
      * @param group_id
      * @param subGroupId
      */
@@ -1458,6 +1465,7 @@ public class FundGroupService {
         Date groupStartDate = DateUtil.getDateFromFormatStr(startTime);
 
         List<FundNetVal> fundNetValList = null;
+        //此处可以直接去用上面得到的组合净值数据
         if (date.getTime() > groupStartDate.getTime()) {
             query.put("endTime", DateUtil.formatDate(ca.getTime()));
             fundNetValList = fundGroupMapper.getNavadj(query);
@@ -1465,12 +1473,7 @@ public class FundGroupService {
 
         long startMaxRetracement = System.currentTimeMillis();
         for ( ; !CollectionUtils.isEmpty(fundNetValList) && date.getTime() > groupStartDate.getTime(); ) {
-            long beginGetNewMaxDrawDown = System.currentTimeMillis();
             Double maximumRetracement = getMaxdrawdownFromNetVals(fundNetValList);
-            long endGetNewMaxDrawDown = System.currentTimeMillis();
-//            logger.info("calculate MaxDrawDown elapse : {}", endGetNewMaxDrawDown - beginGetNewMaxDrawDown);
-//            logger.info("MaxDrawDown: {}", maximumRetracement);
-
             Map<String, Object> updateParam = new HashMap<>();
             updateParam.put("fund_group_id", group_id);
             updateParam.put("subGroupId", subGroupId);
@@ -2003,8 +2006,11 @@ public class FundGroupService {
 
     public void fundGroupIdAndSubIdTask(String fundGroupId, String subGroupId) {
         try{
+            //计算组合复权单位净值，和最大回撤  （数据存放在fund_group_histroy.incomeNum  , maximum_retracement）
             getNavadj(fundGroupId, subGroupId);
+            //更新预期最大回撤 fund_group_sub.expected_max_retracement
             updateExpectedMaxRetracement(fundGroupId, subGroupId);
+            //跟新夏普比率  fund_group_sub.sharpRatio
             sharpeRatio(fundGroupId, subGroupId);
         }catch (Exception ex){
             logger.error("sharpeRatio err:", ex);
@@ -2031,10 +2037,6 @@ public class FundGroupService {
         map.put("expected_max_retracement", retracement);
         fundGroupMapper.updateExpectedMaximumRetracement(map);
         logger.info("updateExpectedMaxRetracement end");
-    }
-
-    public int deleteData(String tableName){
-        return fundGroupMapper.deleteData(tableName);
     }
 
     /**

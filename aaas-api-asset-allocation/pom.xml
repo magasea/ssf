@@ -195,12 +195,6 @@
             </extension>
         </extensions>
         <plugins>
-            <!--<plugin>-->
-                <!--<artifactId>maven-jar-plugin</artifactId>-->
-                <!--<configuration>-->
-                    <!--<classifier>${os.detected.classifier}</classifier>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.0.2</version>
@@ -252,6 +246,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <classifier>${os.detected.classifier}</classifier>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
