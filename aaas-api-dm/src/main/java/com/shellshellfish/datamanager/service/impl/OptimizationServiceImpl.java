@@ -1,5 +1,6 @@
 package com.shellshellfish.datamanager.service.impl;
 
+import com.shellshellfish.aaas.common.enums.FundClassEnum;
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.utils.SSFDateUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
@@ -323,7 +324,7 @@ public class OptimizationServiceImpl implements OptimizationService {
 		if (result == null) {
 			return new JsonResult(JsonResult.Fail, "获取净值增长值活净值增长率为空", JsonResult.EMPTYRESULT);
 		}
-
+		
 		Map expAnnReturn = getExpAnnReturn(groupId, subGroupId);
 		Map expMaxReturn = getExpMaxReturn(groupId, subGroupId);
 		Map simulateHistoricalReturn = getSimulateHistoricalReturn(groupId, subGroupId);
@@ -402,6 +403,98 @@ public class OptimizationServiceImpl implements OptimizationService {
 			logger.error("jsonResult 结果为空");
 		}
 		return jsonResult;
+	}
+	
+	@Override
+	public JsonResult checkPrdDetails2(String groupId, String subGroupId) {
+      Map<String, Object> result = new HashMap<String, Object>();
+      // 饼图（返回单个基金组合产品信息）
+      Map<Integer, Object> assetsRatiosMap = new HashMap<Integer, Object>();
+      try {
+        String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
+            + "/sub-groups/" + subGroupId;
+        Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
+        if (productMap == null) {
+          logger.info("单个基金组合产品信息为空");
+        } else {
+          if (productMap.get("assetsRatios") != null) {
+            List<Map> assetList = (List<Map>) productMap.get("assetsRatios");
+            Double count = 0D;
+            Double value = 0D;
+            for (int i = 0; i < assetList.size(); i++) {
+              Map<String, Object> assetMap = assetList.get(i);
+              if (assetMap.get("value") != null) {
+                if (i == assetList.size() - 1) {
+                  value = 100D - count;
+                  BigDecimal bigValue = new BigDecimal(value);
+                  value = bigValue.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                } else {
+                  value = (Double) assetMap.get("value");
+                  value = EasyKit.getDecimal(new BigDecimal(value));
+                  count = count + value;
+                }
+                if (value != null) {
+                  assetMap.put("value", value);
+                } else {
+                  assetMap.put("value", "0.00");
+                }
+                String type = assetMap.get("type") + "";
+                assetsRatiosMap.put(FundClassEnum.getFundClassId(type), assetMap.get("value"));
+              }
+            }
+          }
+        }
+  
+        result = this.getPrdNPVList2(groupId, subGroupId, assetsRatiosMap);
+        if (result == null) {
+          return new JsonResult(JsonResult.Fail, "获取净值增长值活净值增长率为空", JsonResult.EMPTYRESULT);
+        }
+        result.put("assetsRatios", productMap.get("assetsRatios"));
+        Map expAnnReturn = getExpAnnReturn(groupId, subGroupId);
+        Map expMaxReturn = getExpMaxReturn(groupId, subGroupId);
+        Map simulateHistoricalReturn = getSimulateHistoricalReturn(groupId, subGroupId);
+        result.put("expAnnReturn", expAnnReturn);
+        result.put("expMaxDrawDown", expMaxReturn);
+        result.put("simulateHistoricalVolatility", simulateHistoricalReturn);
+      } catch (Exception e) {
+        String str = new ReturnedException(e).getErrorMsg();
+        logger.error(str, e);
+        return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+      }
+      
+      
+	  JsonResult jsonResult = new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", result);
+	  if(result !=null && !result.isEmpty()){
+	    MongoFinanceDetail mongoFinanceDetail = new MongoFinanceDetail();
+	    Long utcTime = TradeUtil.getUTCTime();
+	    String dateTime = TradeUtil.getReadableDateTime(utcTime);
+	    String date = dateTime.split("T")[0].replaceAll("-", "");
+	    mongoFinanceDetail.setDate(date);
+	    mongoFinanceDetail.setGroupId(groupId);
+	    mongoFinanceDetail.setSubGroupId(subGroupId);
+	    System.out.println("---\n" + date);
+//			mongoFinanceDetail.setHead(jsonResult.getHead());
+	    mongoFinanceDetail.setResult(result);
+	    System.out.println("---\n" + jsonResult.getResult().toString());
+	    mongoFinanceDetail.setLastModifiedBy(utcTime + "");
+//			mongoFinanceDetailRepository.deleteAll();
+//			MongoFinanceDetail mongoFinanceCount = mongoFinanceDetailRepository.findAllByDateAndGroupIdAndSubGroupId(date, groupId, subGroupId);
+//			if (mongoFinanceCount != null) {
+//				logger.info("已存在，删除后重新插入");
+//				mongoFinanceDetailRepository.deleteAllByDate(date);
+////				mongoFinanceDetailRepository.deleteAll();
+//			}
+//			mongoFinanceDetailRepository.deleteAll();
+	    
+	    mongoFinanceDetailRepository.save(mongoFinanceDetail);
+	    logger.info(date + "--数据插入成功，groupId:{},subGroupId:{}",groupId,subGroupId);
+	    logger.info("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.checkPrdDetails() success..");
+	  } else {
+	    logger.error("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.checkPrdDetails() fail..\n");
+	    logger.error("jsonResult 结果为空");
+	  }
+      
+	  return jsonResult;
 	}
 	
 	/**
@@ -517,6 +610,76 @@ public class OptimizationServiceImpl implements OptimizationService {
 		return resultMap;
 	}
 	
+	public Map<String, Object> getPrdNPVList2(String groupId, String subGroupId, Map<Integer, Object> assetsRatiosMap) {
+	  Map<String, Object> result = new HashMap<String, Object>();
+	  List<FundNAVInfo> resultList = new ArrayList<>();
+	  //获取所有产品净值增长值的list
+	  List<FundNAVInfo> listA = getNPVIncrement(groupId, subGroupId);
+	  //获取所有产品净值增长率的list
+	  List<FundNAVInfo> listB = getNPVIncrementRate(groupId, subGroupId);
+	  Map<Integer, List<FundNAVInfo>> resultMap = new HashMap<Integer, List<FundNAVInfo>>();
+	  //遍历每一个对象进行对比
+	  if (listA == null || listB == null) {
+	    logger.error("获取净值增长值活净值增长率为null");
+	    return null;
+	  } else {
+	    List<FundNAVInfo> fundNAVInfosList = new ArrayList<>();
+	    for (int i = 0;i < listA.size(); i++) {
+	      fundNAVInfosList = new ArrayList<>();
+	      FundNAVInfo info = listA.get(i);
+	      FundNAVInfo infoB = listB.get(i);
+	      info.setAvgIncreRate(infoB.getAvgIncreRate());
+	      info.setNPVIncreRate(infoB.getNPVIncreRate());
+	      info.setIncrementRateMinMaxValueMap(infoB.getIncrementRateMinMaxValueMap());
+	      
+	      getGrowthOfMonetaryFunds(info);
+	      List<Map> yieldof7days = info.getYieldof7days();
+          Map<String,Object> maxMinValue = new HashMap();
+          if (yieldof7days != null && yieldof7days.size() > 0) {
+            List<Double> maxMinValueList = new ArrayList<Double>();
+            for (int j = 0; j < yieldof7days.size(); j++) {
+              Map yieldof7daysMap = yieldof7days.get(j);
+              if(yieldof7daysMap.get("value")!=null){
+                maxMinValueList.add(Double.parseDouble(yieldof7daysMap.get("value")+""));
+              }
+            }
+            maxMinValue.put("maxValue", Collections.max(maxMinValueList));
+            maxMinValue.put("minValue", Collections.min(maxMinValueList));
+          }
+          info.setYieldof7daysMap(maxMinValue);
+          
+          List<Map> tenKiloUnitYieldList = info.getTenKiloUnitYield();
+          maxMinValue = new HashMap();
+          if (tenKiloUnitYieldList != null && tenKiloUnitYieldList.size() > 0) {
+            List<Double> maxMinValueList = new ArrayList<Double>();
+            for (int k = 0; k < tenKiloUnitYieldList.size(); k++) {
+              Map tenKiloUnitYieldMap = tenKiloUnitYieldList.get(k);
+              if(tenKiloUnitYieldMap.get("value")!=null){
+                maxMinValueList.add(Double.parseDouble(tenKiloUnitYieldMap.get("value")+""));
+              }
+            }
+            maxMinValue.put("maxValue", Collections.max(maxMinValueList));
+            maxMinValue.put("minValue", Collections.min(maxMinValueList));
+          }
+          info.setTenKiloUnitYieldMap(maxMinValue);
+          
+          Integer fundClassId = info.getFundClassId();
+          info.setTotalIncreRate(assetsRatiosMap.get(fundClassId) + EasyKit.PERCENT);
+          if(resultMap.containsKey(fundClassId)){
+            fundNAVInfosList = resultMap.get(fundClassId);
+            fundNAVInfosList.add(info);
+            resultMap.put(fundClassId, fundNAVInfosList);
+          } else {
+            fundNAVInfosList.add(info);
+            resultMap.put(fundClassId, fundNAVInfosList);
+          }
+	    }
+	  }
+	  result.put("fundListMap", resultMap);
+	  result.put("total", resultList.size());
+	  return result;
+	}
+	
 	/**
 	 * 获取全部产品的NPV增值
 	 *
@@ -565,8 +728,9 @@ public class OptimizationServiceImpl implements OptimizationService {
 				return null;
 			}
 			mapItem = (Map) prd;
-			FundNAVInfo infoA = mapToFundNAVInfo(mapItem, "1");//增长值
 
+			FundNAVInfo infoA = mapToFundNAVInfo(mapItem, "1");//增长值
+			infoA.setFundClassId(FundClassEnum.getFundClassId(infoA.getFundType()));
 			resultList.add(infoA);
 		}
 		return resultList;
@@ -756,4 +920,3 @@ public class OptimizationServiceImpl implements OptimizationService {
 		return jsonResult;
 	}
 }
-

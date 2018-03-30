@@ -681,6 +681,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 	@Override
 	public Map<String, Object> sellorbuyDeatils(String orderId) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
+		List<String> serialList = new ArrayList<String>();
 		if (StringUtils.isEmpty(orderId)) {
 			logger.error("详情信息数据不存在:{}", orderId);
 			throw new Exception("详情信息数据不存在:" + orderId);
@@ -801,8 +802,14 @@ public class TradeOpServiceImpl implements TradeOpService {
 //				}
 //			}
 			detailList.add(detailMap);
+			
+			String serial = trdOrderDetail.getTradeApplySerial();
+			if(!StringUtils.isEmpty(serial)){
+			  serialList.add(serial);
+			}
 		}
 		result.put("detailList", detailList);
+		result.put("serialList", serialList);
 		return result;
 	}
 

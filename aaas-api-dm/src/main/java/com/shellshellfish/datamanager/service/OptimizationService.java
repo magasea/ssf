@@ -7,4 +7,5 @@ public interface OptimizationService {
 	JsonResult getFinanceFront();
 	JsonResult checkPrdDetails(String groupId, String subGroupId);
 	JsonResult getPrdDetails(String groupId, String subGroupId);
+    JsonResult checkPrdDetails2(String groupId, String subGroupId);
 }
