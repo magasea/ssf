@@ -784,6 +784,7 @@ public class UserInfoController {
 			} else {
 
 				List detail = (List) result.get("detailList");
+				List serialList = (List) result.get("serialList");
 				if (detail != null || detail.size() != 0) {
 					for (int i = 0; i < detail.size(); i++) {
 						if (detail.get(i) != null) {
@@ -824,6 +825,18 @@ public class UserInfoController {
 						}
 						for(int i = 0; i < resultStatusList.size(); i++){
 							Map<String, Object> resultStatusMap = resultStatusList.get(i);
+							
+							if(resultStatusMap.get("serial")!=null){
+								String serial = (String) resultStatusMap.get("serial");
+								if(StringUtils.isEmpty(serial) || !serialList.contains(serial)){
+									continue;
+								}
+								resultStatusMap.remove("serial");
+							} else {
+								continue;
+							}
+							
+							
 							int operation = 0;
 							if(resultStatusMap.get("operation")!=null){
 								operation = (int) resultStatusMap.get("operation");
@@ -835,8 +848,10 @@ public class UserInfoController {
 						}
 					}
 					result.put("statusList", resultStatusTemp);
+					result.remove("serialList");
 				} else {
 					result.put("statusList", new ArrayList());
+					result.remove("serialList");
 				}
 				if (StringUtils.isEmpty(bankName) || StringUtils.isEmpty(bankCard)) {
 					result.put("bankinfo", "");

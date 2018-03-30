@@ -66,9 +66,9 @@ public class OptimizationApiController {
 		return result;
 	}
 	
-	@ApiOperation("理财产品详情页面")
-	@GetMapping(value = "/checkPrdDetails")
-	@ResponseBody
+//	@ApiOperation("理财产品详情页面")
+//	@GetMapping(value = "/checkPrdDetails")
+//	@ResponseBody
 	public HttpJsonResult prdDetails() {
 		JsonResult jsonResult = null;
 		Boolean result = true;
@@ -94,6 +94,37 @@ public class OptimizationApiController {
 		} else {
 			return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:没有获取到产品", JsonResult.EMPTYRESULT);
 		}
+	}
+	
+	@ApiOperation("理财产品详情页面")
+	@GetMapping(value = "/checkPrdDetails")
+	@ResponseBody
+	public HttpJsonResult prdDetails2() {
+	  JsonResult jsonResult = null;
+	  Boolean result = true;
+	  mongoFinanceDetailRepository.deleteAll();
+	  
+	  for(int i = 1;i < 16; i++){
+	    String groupId = i + "";
+	    String subGroupId = i + "0048";
+	    jsonResult = optimizationService.checkPrdDetails2(groupId, subGroupId);
+	    if (jsonResult != null) {
+	      logger.info(
+	          "run com.shellshellfish.datamanager.controller.OptimizationApiController.getPrdDetails() success..");
+	      System.out.println("groupId：" + groupId + " , subGroupId:" + subGroupId + " -->OK");
+//				return new JsonResult(JsonResult.SUCCESS, "OK", JsonResult.EMPTYRESULT);
+	    } else {
+	      result = false;
+	      return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:没有获取到产品:subGroupId为-->"+subGroupId,
+	          JsonResult.EMPTYRESULT);
+	    }
+	  }
+	  if (result) {
+//	    return new HttpJsonResult(HttpStatus.OK.value(), "OK", jsonResult);
+	    return new HttpJsonResult(HttpStatus.OK.value(), "OK", JsonResult.EMPTYRESULT);
+	  } else {
+	    return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:没有获取到产品", JsonResult.EMPTYRESULT);
+	  }
 	}
 	
 	@ApiOperation("获取理财产品详情页面的数据")

@@ -608,19 +608,22 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Deprecated
 	@Override
-	public List<Map<String, Object>> getTradeLogStatus(String uuid, Long userProdId)
+	public Map<String, Object> getTradeLogStatus(String uuid, Long userProdId)
 			throws Exception {
+	    Map<String, Object> res = new HashMap<String, Object>();
 		Long userId = getUserIdFromUUID(uuid);
 		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService
 				.findByUserIdAndProdId(userId, userProdId);
 		Map<Integer, Map<String, Object>> resultMap = new HashMap<>();
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		if (trdLogList != null && trdLogList.size() > 0) {
+		    String serial = ""; 
 			for (int i = 0; i < trdLogList.size(); i++) {
 				Map<String, Object> resultMap2 = new HashMap<String, Object>();
 				MongoUiTrdLogDTO trdLog = trdLogList.get(i);
 				int status = trdLog.getTradeStatus();
 				int operation = trdLog.getOperations();
+				serial = trdLog.getApplySerial();
 				long lastModifiedDate = 0;
 				if (trdLog.getTradeDate() != null && trdLog.getTradeDate() > 0) {
 					lastModifiedDate = trdLog.getTradeDate();
@@ -641,6 +644,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 //						resultMap2.put("time", localDateTime.getHour() + ":" + localDateTime.getMinute());
 						resultMap2.put("time", dateTime.split("T")[1].substring(0, 8));
 						resultMap2.put("operation", operation);
+						resultMap2.put("serial", serial);
 //						resultMap2.put("status", status + "");
 						resultMap.put(status, resultMap2);
 					}
@@ -649,6 +653,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 					resultMap2.put("date", dateTime.split("T")[0]);
 					resultMap2.put("time", dateTime.split("T")[1].substring(0, 8));
 					resultMap2.put("operation", operation);
+					resultMap2.put("serial", serial);
 					resultMap.put(status, resultMap2);
 				}
 			}
@@ -664,9 +669,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 				}
 				result.add(value);
 			}
-
+			res.put("result", result);
+			res.put("serial", serial);
 		}
-		return result;
+		return res;
 	}
 
 	@Override
