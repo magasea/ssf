@@ -243,15 +243,16 @@
     </select>
 
     <select id="getNavlatestdateCount" parameterType="java.util.Map" resultType="java.util.Map">
+        select count(a.navDate) as count, a.navDate as navDate from(
         select count(NAVLATESTDATE) as count, NAVLATESTDATE as navDate from fund_net_value where
         code in (
-            <foreach collection="list" separator="," item="item">
-                #{item}
+            <foreach collection="list" separator="," item="item">#{item}
             </foreach>
         )
         and NAVLATESTDATE >= #{minNavDate}
-        group by NAVLATESTDATE
+        group by NAVLATESTDATE, code
         order by NAVLATESTDATE asc
+        ) as a group by a.navDate
     </select>
 
     <select id="getNavadjBenchmark" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">

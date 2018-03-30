@@ -1986,6 +1986,7 @@ public class FundGroupService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        logger.info("fundGroupIdTasks finished");
     }
 
     private void fundGroupIdTask(int fundGroupId) {
@@ -2013,9 +2014,9 @@ public class FundGroupService {
             //跟新夏普比率  fund_group_sub.sharpRatio
             sharpeRatio(fundGroupId, subGroupId);
         }catch (Exception ex){
-            logger.error("sharpeRatio err:", ex);
+            logger.error("ex:", ex);
         }catch (Error error){
-            logger.error("sharpeRatio err:", error);
+            logger.error("err:", error);
         }
     }
 
