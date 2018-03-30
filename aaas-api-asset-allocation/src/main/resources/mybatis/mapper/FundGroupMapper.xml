@@ -250,7 +250,7 @@
             </foreach>
         )
         and NAVLATESTDATE >= #{minNavDate}
-        group by NAVLATESTDATE
+        group by NAVLATESTDATE, code
         order by NAVLATESTDATE asc
         ) as a group by a.navDate
     </select>
