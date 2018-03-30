@@ -101,10 +101,10 @@ public class FinanceControllerIT {
 
 	@Test
 	public void financeHomeTest() {
-		String uuid = "1";
+		String uuid = "66e35442-a9f6-4854-8f87-dd3e9eb47f2c";
 		// 0:未做 1:已做
-		String isTestFlag = "0";
-		String testResult = "平衡型";
+		String isTestFlag = "1";
+		String testResult = "%E6%88%90%E9%95%BF%E5%9E%8B";
 
 		given().filter(new ResponseLoggingFilter())
 				.param("uuid", uuid)
@@ -122,7 +122,7 @@ public class FinanceControllerIT {
 	@Test
 	public void contributionsTest() {
 		String groupId = "6";
-		String subGroupId = "111111";
+		String subGroupId = "60048";
 
 
 		given().filter(new ResponseLoggingFilter())

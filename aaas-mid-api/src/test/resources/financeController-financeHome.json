@@ -50,19 +50,23 @@
               },
               "investmentHorizon": {
                 "type": "string"
+              },
+              "id":{
+                "type":"string"
               }
             },
             "required": [
               "investmentHorizonCode",
-              "investmentHorizon"
+              "investmentHorizon",
+              "id"
             ]
           }
         },
-        "C5": {
+        "C3": {
           "type": "object",
           "properties": {
             "income6month": {
-              "type": "object",
+              "type": "array",
               "properties": {
                 "_total": {
                   "type": "integer"
@@ -180,51 +184,11 @@
             "product_list",
             "historicalvolatility"
           ]
-        },
-        "historicReturn": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "hisAnnualPerformanceSimu": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "histAnnualVolaSimu": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "maxDeficit": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "groupId": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "subGroupId": {
-          "type": [
-            "string",
-            "null"
-          ]
         }
       },
       "required": [
         "uuid",
-        "C1",
-        "C2",
-        "C3",
-        "C4",
-        "C5",
+        [ "C1","C2","C3","C4","C5"],
         "banner_list",
         "name",
         "productTypeList"

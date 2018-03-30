@@ -1949,29 +1949,41 @@ public class FundGroupService {
     }
 
     private void fundGroupIdTasks() {
-        try {
-            final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
-            ThreadPoolExecutor pool = new ThreadPoolExecutor(
-                15,
-                15,
-                0L,
-                TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(15),
-                Executors.defaultThreadFactory(),
-                new ThreadPoolExecutor.AbortPolicy());
-//            ExecutorService pool = ThreadPoolUtil.getThreadPool();
-            for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
-                int fundGroupId = index;
+        final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(
+            15,
+            15,
+            0L,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(15),
+            Executors.defaultThreadFactory(),
+            new ThreadPoolExecutor.AbortPolicy());
+
+        for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
+
+            int fundGroupId = index;
+            try {
                 pool.execute(() -> {
                     fundGroupIdTask(fundGroupId);
-                    countDownLatch.countDown();
                 });
+            }catch(Exception ex){
+                logger.error("Ex:", ex);
+
+            }catch (Error err){
+                logger.error("Ex:", err);
             }
-            this.sleep(1000);
+            finally {
+                countDownLatch.countDown();
+            }
+
+
+        }
+        try {
             countDownLatch.await();
         } catch (InterruptedException e) {
-            logger.error("exception:",e);
+            e.printStackTrace();
         }
+        logger.info("fundGroupIdTasks finished");
     }
 
     private void fundGroupIdTask(int fundGroupId) {
@@ -1991,9 +2003,15 @@ public class FundGroupService {
     }
 
     public void fundGroupIdAndSubIdTask(String fundGroupId, String subGroupId) {
-        getNavadj(fundGroupId, subGroupId);
-        updateExpectedMaxRetracement(fundGroupId, subGroupId);
-        sharpeRatio(fundGroupId, subGroupId);
+        try{
+            getNavadj(fundGroupId, subGroupId);
+            updateExpectedMaxRetracement(fundGroupId, subGroupId);
+            sharpeRatio(fundGroupId, subGroupId);
+        }catch (Exception ex){
+            logger.error("ex:", ex);
+        }catch (Error error){
+            logger.error("err:", error);
+        }
     }
 
     /**
