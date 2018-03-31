@@ -118,14 +118,14 @@ public class FinanceProductServiceImpl  extends
     if (intervalList.size()>0){
       for (Interval interval : intervalList) {
         ProductMakeUpInfo productMakeUpInfo = new ProductMakeUpInfo();
-        productMakeUpInfo.setFundCode(interval.getFund_id());
+        productMakeUpInfo.setFundCode(interval.getFundCode());
         productMakeUpInfo.setGroupId(Long.parseLong(interval.getFund_group_sub_id()));
         Integer result = Long.valueOf(Math.round(Double.valueOf(interval.getProportion()*100000)
             /10D)).intValue();
         if(result > 0){
-          shareOfCodes.put(interval.getFund_id(), result);
+          shareOfCodes.put(interval.getFundCode(), result);
         }
-        logger.info("before adjust fundShare of: "+interval.getFund_id()+" :" + interval
+        logger.info("before adjust fundShare of: "+interval.getFundCode()+" :" + interval
             .getProportion() + "result:"+result);
         productMakeUpInfo.setFundShare(result);
         productMakeUpInfo.setProdName(interval.getFund_group_name());

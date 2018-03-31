@@ -4,20 +4,36 @@ mybatis:
     config-locations: classpath:mybatis/mybatis-config.xml
     mapper-locations: classpath:mybatis/mapper/*.xml
 spring:
-    datasource:
-        driverClassName: com.mysql.jdbc.Driver
-        password: R489cfRKfEY7LNM9
-        url: jdbc:mysql://192.168.1.249:3306/choice?useUnicode=true&characterEncoding=utf-8
-        username: ssf01
-    jpa:
-      hibernate:
-        ddl-auto: update
-    data:
-        mongodb:
-          database: funds
-          host: 192.168.1.249
-          port: 27017
-          collection: portfolio_yield_all
+  jpa:
+    hibernate:
+      ddl-auto: update
+  data:
+    mongodb:
+      database: funds
+      host: 192.168.1.249
+      port: 27017
+      collection: portfolio_yield_all
+
+
+datasource:
+  sampleapp:
+    url: jdbc:mysql://192.168.1.249:3306/choice?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
+    username: ssf01
+    password: R489cfRKfEY7LNM9
+    driverClassName: com.mysql.jdbc.Driver
+    defaultSchema: ssfuser
+    maxPoolSize: 20
+    hibernate:
+      connection:
+        useUnicode: true
+        characterEncoding: UTF-8
+      jdbc:
+        batch_size: 50
+      hbm2ddl.method: update
+      show_sql: true
+      format_sql: true
+      dialect: org.hibernate.dialect.MySQLDialect
+
 grpc:
   host: localhost
   port: 10021
