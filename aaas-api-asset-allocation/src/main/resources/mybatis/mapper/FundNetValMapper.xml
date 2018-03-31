@@ -95,9 +95,8 @@
         WHERE code=#{code}
     </select>
 
-    <insert id="insertDailyDataToFundNetVal"
-            parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
-        INSERT INTO fund_net_value
+    <insert id="insertDailyDataToFundNetVal" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
+        INSERT IGNORE INTO fund_net_value
         (CODE,NAVLATESTDATE,UNITNAV,NAVACCUM,NAVADJ,YIELDOF7DAYS,MILLION_REVENUE,LAST_MOD_TIME)
         <foreach collection="list" item="dailyData" index="index" separator="union all">
             ( SELECT

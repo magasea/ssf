@@ -30,6 +30,12 @@
 11. 我们采用的restful思想进行url设计,任何资源默认支持crud操作,url 的资源从大到小排序从主到次进行排列： 
 比如：api/userinfo/user/{userUuid}/bankcards/{bankcardNum}
 12. redis key定义规范:{主模块名字}_{模块名字}_{具体变量名字} 比如 aaas_userinfo_userid
+13. git 分支开发原则：
+ - 平时开发在dev上进行，如果有大规模改动用，姓名_tapd编号_yyyyMMdd,比如：cw_1000246_20180330
+ - 提交测试请求，同意后代码merge到test分支（这步在人员少的情况下可以简化为dev测试通过后merge到test分支）
+ - 测试通过后，merge到prod分支
+ - test 和 prod分支不能直接提交改动，改动必须在dev或者紧急修复分支上完成然后merge到test, test分支上的提交
+ 测试通过后可以merge 到prod分支
 
 ### 项目端口规范约定
 * aaas-api-asset-allocation 
