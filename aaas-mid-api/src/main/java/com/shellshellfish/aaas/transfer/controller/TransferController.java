@@ -65,6 +65,9 @@ public class TransferController {
 
 	@Value("${shellshellfish.data-manager-url}")
 	private String dataManagerUrl;
+	
+	@Value("${shellshellfish.asset-alloction-url}")
+	private String assetAlloctionUrl;
 
 	@Autowired
 	RiskService riskService;
@@ -318,6 +321,14 @@ public class TransferController {
 				}
 			}
 			resultMap.put("banks", result);
+			
+			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId;
+			Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
+			if(productMap!=null){
+				if(productMap.get("name")!=null){
+					resultMap.put("name", productMap.get("name"));
+				}
+			}
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", resultMap);
 		} catch (HttpClientErrorException e) {
 			String str = e.getResponseBodyAsString();

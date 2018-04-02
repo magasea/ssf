@@ -13,10 +13,10 @@ spring:
         fail-on-empty-beans: false
 
 #    datasource:
-#        url: jdbc:mysql://192.168.1.10/ssffinance?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&useSSL=false
+#        url: jdbc:mysql://192.168.1.249:30006/ssffinance?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&useSSL=false
 #        name:
 #        username: sa
-#        password: abcd1234
+#        password: N4eTVr89lX9BaPcx
 #        maximum-pool-size: 2000
 #        hikari:
 #            data-source-properties:
@@ -35,8 +35,8 @@ spring:
  #           hibernate.cache.region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
     data:
         mongodb:
-            host: 192.168.1.10
-            port: 27017
+            host: 192.168.1.249
+            port: 30005
             database: zhongzheng
 
 server:
