@@ -101,7 +101,7 @@ public class UserInfoControllerIT {
 
 	@Test
 	public void assetTest() {
-		String uuid = "1";
+		String uuid = "69ad9732-f9cd-49e9-a71f-0462cc6b4d8e";
 		String totalAssets = "1";
 		String dailyReturn = "1";
 		String totalRevenue = "1";
@@ -146,7 +146,7 @@ public class UserInfoControllerIT {
 
 	@Test
 	public void chiCombinationTest() {
-		String uuid = "69ad9732-f9cd-49e9-a71f-0462cc6b4d8e";
+		String uuid = "3a0bc5f0-c491-4718-a6c2-dc716ae308f9";
 
 
 		given()
@@ -193,7 +193,7 @@ public class UserInfoControllerIT {
 
 	@Test
 	public void selectBanksTest() {
-		String uuid = "3ed64c5d-1cdf-4837-b06c-be8c28537cf1";
+		String uuid = "3a0bc5f0-c491-4718-a6c2-dc716ae308f9";
 
 
 		given()
@@ -213,11 +213,11 @@ public class UserInfoControllerIT {
 
 	@Test
 	public void sellresultTest() {
-		String uuid = "1";
-		String prodId = "1";
-		String buyfee = "1";
-		String bankName = "1";
-		String bankCard = "1";
+		String uuid = "69ad9732-f9cd-49e9-a71f-0462cc6b4d8e";
+		String prodId = "21";
+		String buyfee = "100";
+		String bankName = "中国银行";
+		String bankCard = "0859";
 
 
 		given()

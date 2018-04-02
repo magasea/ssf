@@ -141,7 +141,7 @@ public class FundDetailedControllerIT {
 
 		String code = "000614.OF";
 		String type = "1";
-		String date = "2017-12-28";
+		String date = "2018-04-02";
 
 		given()
 				.param("code", code)

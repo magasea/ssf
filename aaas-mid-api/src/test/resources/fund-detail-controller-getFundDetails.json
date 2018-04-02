@@ -29,7 +29,7 @@
           "type": "string"
         },
         "navreturnrankingp": {
-          "type": "string"
+          "type": "integer"
         },
         "dayIncrease": {
           "type": "string"
