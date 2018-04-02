@@ -44,6 +44,8 @@ public class DailyFundService {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     private List<String> benchmarkCode;
+    private Map<String, String> benchMarkCodeNameMap;
+    private Map<String, String> benchMarkNameCodeMap;
 
     /*
      * 获取基金每日数据并insert into：fund_net_value 以及 fund_basic
@@ -59,6 +61,13 @@ public class DailyFundService {
 
         //查询 fund_group_basic ，获取 基准 code
         benchmarkCode = fundGroupMapper.findBenchmarkCode();
+
+        if(!CollectionUtils.isEmpty(benchmarkCode)){
+            benchMarkCodeNameMap = new HashMap<>();
+            benchMarkNameCodeMap = new HashMap<>();
+            benchmarkCode.forEach(item->benchMarkCodeNameMap.put(item, item.replace(".","")));
+            benchmarkCode.forEach(item->benchMarkNameCodeMap.put(item.replace(".",""), item));
+        }
 
         for (String code : codeList) {
             //根据 code 查询fund_net_val 中已有数据的最近净值日期
@@ -86,7 +95,12 @@ public class DailyFundService {
             DailyFundsQuery.Builder builder = DailyFundsQuery.newBuilder();
             builder.setNavLatestDateStart(startDate);
             builder.setNavLatestDateEnd(endDate);
-            builder.addCodes(code);
+            if(benchMarkCodeNameMap.containsKey(code )){
+                builder.addCodes(benchMarkCodeNameMap.get(code));
+            }else{
+                builder.addCodes(code);
+            }
+
             dailyFundsList = fundInfoService.getDailyFunds(builder.build()); // grpc
         } catch(Exception e) {
             logger.error("调用每日接口获取数据失败：code=" + code + ", startDate=" + startDate + ", endDate=" + endDate, e);
@@ -102,7 +116,7 @@ public class DailyFundService {
             String basicCode = fundNetValMapper.findBasicDataByCode(code);
             if ((benchmarkCode != null && !benchmarkCode.contains(code))  && !code.equals(basicCode)) {
                 Dailyfunds dailyfunds = new Dailyfunds();
-                dailyfunds.setCode(dailyFundsList.get(0).getCode());//基金代码
+                dailyfunds.setCode(code);//基金代码
                 dailyfunds.setFname(dailyFundsList.get(0).getFname());//基金简称
                 dailyfunds.setFundTypeOne(dailyFundsList.get(dailyFundsList.size() - 1).getFirstInvestType());//一级分类
                 dailyfunds.setFundTypeTwo(dailyFundsList.get(dailyFundsList.size() - 1).getSecondInvestType());//二级分类
@@ -121,7 +135,8 @@ public class DailyFundService {
                 Dailyfunds dailyfunds = new Dailyfunds();
                 //每日数据日期格式转换(取 NavLatestDate)
                 dailyfunds.setNavLatestDate(DateUtil.getDateFromFormatStr(SSFDateUtils.getDateStrFromLong(dailyFunds.getNavLatestDate())));
-                dailyfunds.setCode(dailyFunds.getCode());
+//                dailyfunds.setCode(dailyFunds.getCode());
+                dailyfunds.setCode(code);
                 dailyfunds.setNavUnit(dailyFunds.getNavunit());
                 dailyfunds.setNavAccum(dailyFunds.getNavaccum());
                 dailyfunds.setNavAdj(dailyFunds.getNavadj());
@@ -152,32 +167,34 @@ public class DailyFundService {
             }
         }
         //插入前先检查该日期是否有记录如果有就先插入再更新，如果没有就直接插入
-        dateSet.forEach((key, value)->{
-            logger.info("key:{}", key);
-            Map<String, Object> params = new HashMap<>();
-            params.put("selectDate", key);
-            List<FundNetVal> fundNetVals = fundNetValMapper.getAllByDate(params);
-            try {
-                if(CollectionUtils.isEmpty(fundNetVals)){
-                    logger.info("fundNetVals is empty of:{}",key);
-                    Integer effectRows = fundNetValMapper.insertDailyDataToFundNetVal(value);
-
-                }else{
-//                    if(fundNetVals.size() == value.size()){
-//                        //说明数据库里面该日期的基金数据已经有了，可以批量更新
-//                        logger.info("fundNetVals.size() == value.size() of:{}",key);
-//                        Integer effectRows = fundNetValMapper.batchUpdateDailyDataToFundNetVal(value);
-//                    }else{
-                        //说明数据库里面该日期的基金不一定有，先做强制插入在做批量更新
-                    logger.info("fundNetVals.size() != value.size() of:{}", key);
-                    Integer effectRows = fundNetValMapper.insertDailyDataToFundNetVal(value);
-                    effectRows = fundNetValMapper.batchUpdateDailyDataToFundNetVal(value);
-//                    }
-                }
-            } catch (Exception e) {
-                logger.error("Failed: Insert into fund_net_val by call getFundDataOfDay!",e);
-            }
-        });
+        Integer effectRows = fundNetValMapper.insertDailyDataToFundNetVal(dailyFundsDetailList);
+        effectRows = fundNetValMapper.batchUpdateDailyDataToFundNetVal(dailyFundsDetailList);
+//        dateSet.forEach((key, value)->{
+//            logger.info("key:{}", key);
+//            Map<String, Object> params = new HashMap<>();
+//            params.put("selectDate", key);
+//            List<FundNetVal> fundNetVals = fundNetValMapper.getAllByDate(params);
+//            try {
+//                if(CollectionUtils.isEmpty(fundNetVals)){
+//                    logger.info("fundNetVals is empty of:{}",key);
+//                    Integer effectRows = fundNetValMapper.insertDailyDataToFundNetVal(value);
+//
+//                }else{
+////                    if(fundNetVals.size() == value.size()){
+////                        //说明数据库里面该日期的基金数据已经有了，可以批量更新
+////                        logger.info("fundNetVals.size() == value.size() of:{}",key);
+////                        Integer effectRows = fundNetValMapper.batchUpdateDailyDataToFundNetVal(value);
+////                    }else{
+//                        //说明数据库里面该日期的基金不一定有，先做强制插入在做批量更新
+//                    logger.info("fundNetVals.size() != value.size() of:{}", key);
+//                    Integer effectRows = fundNetValMapper.insertDailyDataToFundNetVal(value);
+//                    effectRows = fundNetValMapper.batchUpdateDailyDataToFundNetVal(value);
+////                    }
+//                }
+//            } catch (Exception e) {
+//                logger.error("Failed: Insert into fund_net_val by call getFundDataOfDay!",e);
+//            }
+//        });
 
 //        if (!CollectionUtils.isEmpty(dailyFundsDetailList)) {
 //            //数据插入 fund_net_val
