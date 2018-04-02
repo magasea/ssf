@@ -2041,10 +2041,6 @@ public class FundGroupService {
         logger.info("updateExpectedMaxRetracement end");
     }
 
-    public int deleteData(String tableName){
-        return fundGroupMapper.deleteData(tableName);
-    }
-
     /**
      * 计算所有组合中基金收益贡献比
      */
