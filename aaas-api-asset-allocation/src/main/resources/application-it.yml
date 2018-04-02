@@ -4,16 +4,15 @@ mybatis:
     config-locations: classpath:mybatis/mybatis-config.xml
     mapper-locations: classpath:mybatis/mapper/*.xml
 spring:
-  jpa:
-    hibernate:
-      ddl-auto: update
-  data:
-    mongodb:
-      database: funds
-      host: 192.168.1.249
-      port: 27017
-      collection: portfolio_yield_all
-
+    jpa:
+      hibernate:
+        ddl-auto: update
+    data:
+        mongodb:
+          database: funds
+          host: 192.168.1.249
+          port: 27017
+          collection: portfolio_yield_all
 
 datasource:
   sampleapp:
@@ -33,7 +32,6 @@ datasource:
       show_sql: true
       format_sql: true
       dialect: org.hibernate.dialect.MySQLDialect
-
 grpc:
   host: localhost
   port: 10021
