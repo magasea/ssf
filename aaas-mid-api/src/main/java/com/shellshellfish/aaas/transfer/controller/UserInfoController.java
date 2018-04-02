@@ -698,6 +698,7 @@ public class UserInfoController {
 			} else {
 
 				List detail = (List) result.get("detailList");
+				List serialList = (List) result.get("serialList");
 				if (detail != null || detail.size() != 0) {
 					for (int i = 0; i < detail.size(); i++) {
 						if (detail.get(i) != null) {
@@ -728,11 +729,45 @@ public class UserInfoController {
 				}
 				String url = userinfoUrl + "/api/userinfo/users/" + userUuid + "/orders/" + prodId + "/status";
 				Map resultStatus = restTemplate.getForEntity(url, Map.class).getBody();
-				if (resultStatus != null) {
-					result.put("statusList", resultStatus.get("result"));
+				if (resultStatus != null && resultStatus.get("result") != null) {
+					List<Map<String, Object>> resultStatusList = (List<Map<String, Object>>) resultStatus.get("result");
+					List<Map<String, Object>> resultStatusTemp = new ArrayList<>();
+					if (resultStatusList != null && resultStatusList.size() > 0) {
+						String orderType = "";
+						if (result.get("orderType") != null) {
+							orderType = result.get("orderType") + "";
+						}
+						for(int i = 0; i < resultStatusList.size(); i++){
+							Map<String, Object> resultStatusMap = resultStatusList.get(i);
+							
+							if(resultStatusMap.get("serial")!=null){
+								String serial = (String) resultStatusMap.get("serial");
+								if(StringUtils.isEmpty(serial) || !serialList.contains(serial)){
+									continue;
+								}
+								resultStatusMap.remove("serial");
+							} else {
+								continue;
+							}
+							
+							
+							int operation = 0;
+							if(resultStatusMap.get("operation")!=null){
+								operation = (int) resultStatusMap.get("operation");
+							}
+							String operationType = TrdOrderOpTypeEnum.getComment(operation);
+							if(operationType.equals(orderType)){
+								resultStatusTemp.add(resultStatusMap);
+							}
+						}
+					}
+					result.put("statusList", resultStatusTemp);
+					result.remove("serialList");
 				} else {
 					result.put("statusList", new ArrayList());
+					result.remove("serialList");
 				}
+				
 				result.put("bankinfo", bankName + "(" + bankCard + ")");
 				// 获取产品组合信息
 				String url2 = userinfoUrl + "/api/userinfo/product/" + prodId;

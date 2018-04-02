@@ -3,56 +3,6 @@ package com.shellshellfish.aaas.userinfo.service.impl;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
-
-import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
-import com.shellshellfish.aaas.common.enums.CombinedStatusEnum;
-import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
-import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
-import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
-import com.shellshellfish.aaas.common.utils.InstantDateUtil;
-import com.shellshellfish.aaas.common.utils.MyBeanUtils;
-import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.common.utils.TrdStatusToCombStatusUtils;
-import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
-import com.shellshellfish.aaas.finance.trade.order.OrderResult;
-import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
-import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
-import com.shellshellfish.aaas.finance.trade.pay.ZhongZhengQueryByOrderDetailId;
-import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
-import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
-import com.shellshellfish.aaas.userinfo.model.DailyAmount;
-import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.MongoUserDailyIncome;
-import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
-import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
-import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
-import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
-import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
-import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.TrendYield;
-import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfoDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
-import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
-import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
-import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoUserDailyIncomeRepository;
-import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
-import com.shellshellfish.aaas.userinfo.service.UiProductService;
-import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
-import com.shellshellfish.aaas.userinfo.service.UserInfoService;
-import com.shellshellfish.aaas.userinfo.utils.BankUtil;
-import io.grpc.ManagedChannel;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -85,6 +35,54 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
+import com.shellshellfish.aaas.common.enums.CombinedStatusEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.common.utils.TrdStatusToCombStatusUtils;
+import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
+import com.shellshellfish.aaas.finance.trade.order.OrderResult;
+import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
+import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
+import com.shellshellfish.aaas.finance.trade.pay.ZhongZhengQueryByOrderDetailId;
+import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
+import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
+import com.shellshellfish.aaas.userinfo.model.DailyAmount;
+import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
+import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
+import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
+import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
+import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
+import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.TrendYield;
+import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfoDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
+import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoUserDailyIncomeRepository;
+import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
+import com.shellshellfish.aaas.userinfo.service.UiProductService;
+import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
+import com.shellshellfish.aaas.userinfo.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.utils.BankUtil;
+import io.grpc.ManagedChannel;
 
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
@@ -661,7 +659,21 @@ public class UserInfoServiceImpl implements UserInfoService {
 			for (Map.Entry<Integer, Map<String, Object>> entry : resultMap.entrySet()) {
 				Map value = entry.getValue();
 				try {
-					value.put("status", TrdOrderStatusEnum.getComment(entry.getKey()));
+				    int status = entry.getKey();
+				    Map resultStatusMap = entry.getValue();
+				    String operation = "";
+				    if(resultStatusMap.get("operation")!=null){
+				      operation = resultStatusMap.get("operation") + "";
+				    }
+				    
+				    if(TrdOrderStatusEnum.CONFIRMED.getStatus() == status || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == status){
+				      value.put("status", CombinedStatusEnum.CONFIRMED.getComment());
+		            } else if(TrdOrderStatusEnum.FAILED.getStatus() == status || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == status){
+		              value.put("status", CombinedStatusEnum.CONFIRMEDFAILED.getComment());
+		            } else {
+		              value.put("status", CombinedStatusEnum.WAITCONFIRM.getComment());
+		            }
+//					value.put("status", TrdOrderStatusEnum.getComment(entry.getKey()));
 				} catch (Exception ex) {
 					logger.error("exception:", ex);
 
