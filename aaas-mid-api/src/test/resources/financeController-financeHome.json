@@ -50,25 +50,40 @@
               },
               "investmentHorizon": {
                 "type": "string"
+              },
+              "id":{
+                "type":"integer"
               }
             },
             "required": [
               "investmentHorizonCode",
-              "investmentHorizon"
+              "investmentHorizon",
+              "id"
             ]
           }
         },
-        "C5": {
+        "C3": {
           "type": "object",
           "properties": {
             "income6month": {
-              "type": "object",
+              "type": ["object","null"],
               "properties": {
                 "_total": {
                   "type": "integer"
                 },
                 "_items": {
-                  "type": "array"
+                  "type": "array",
+                  "items":{
+                    "type":"object",
+                    "properties":{
+                      "time":{
+                        "type":"string"
+                      },
+                      "value":{
+                        "type":"number"
+                      }
+                    }
+                  }
                 },
                 "name": {
                   "type": [
@@ -180,51 +195,11 @@
             "product_list",
             "historicalvolatility"
           ]
-        },
-        "historicReturn": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "hisAnnualPerformanceSimu": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "histAnnualVolaSimu": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "maxDeficit": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "groupId": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "subGroupId": {
-          "type": [
-            "string",
-            "null"
-          ]
         }
       },
       "required": [
         "uuid",
-        "C1",
-        "C2",
         "C3",
-        "C4",
-        "C5",
         "banner_list",
         "name",
         "productTypeList"

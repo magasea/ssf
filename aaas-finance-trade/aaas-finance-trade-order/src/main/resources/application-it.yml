@@ -26,6 +26,16 @@ spring:
       host: 192.168.1.249
       port: 27017
       database: zhongzheng
+  redis:
+      host: localhost
+      port: 6379
+      password: redis123
+      timeout: 0
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
 
 datasource:
   sampleapp:

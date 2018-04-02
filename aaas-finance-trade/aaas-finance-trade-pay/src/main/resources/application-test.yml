@@ -11,8 +11,8 @@ spring:
 #  data:
 #    mongodb:
 #      database: test1
-#      host: 192.168.1.10
-#      port: 27017
+#      host: 192.168.1.249
+#      port: 30005
   rabbitmq:
     listener:
       simple:
@@ -20,7 +20,7 @@ spring:
     username: ssf
     password: shellshellfish
     host: 192.168.1.249
-    port: 15672
+    port: 35672
     virtual-host: aaas
     topicQueuePayName: com-ssf-topic-name-pay
     topicQueueOrderName: com-ssf-topic-name-order
@@ -79,8 +79,8 @@ org:
         threadsInheritContextClassLoaderOfInitializingThread: true
 cron:
   frequency:
-    #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
-    #     0	0	5,17,22	?	*	*	*
+    #Seconds  Minutes Hours Day Of Month  Month Day Of Week Year
+    #     0 0 5,17,22 ? * * *
     jobwithcrontrigger: 0 0 5,13,17,22 ? * * *
     jobpreorderpayflowcheck: 0 0 5,13,17,22 ? * * *
 #--- multithread

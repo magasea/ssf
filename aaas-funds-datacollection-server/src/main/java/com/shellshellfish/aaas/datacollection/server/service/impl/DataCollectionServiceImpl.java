@@ -142,11 +142,12 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
 					codeIsCoinFund = true;
 				}
 				query = new Query();
-				query.addCriteria(Criteria.where("code").is(code).andOperator(
-						Criteria.where("querydate").gt(DateUtil.getDateLongVal
-								(navLatestDateStart) / 1000),
-						Criteria.where("querydate").lte(DateUtil.getDateLongVal
-								(navLatestDateEnd) / 1000)));
+				query.addCriteria(Criteria.where("code").is(code));
+				query.addCriteria(Criteria.where("querydate").gt(DateUtil.getDateLongVal
+						(navLatestDateStart) / 1000).lte(DateUtil.getDateLongVal
+						(navLatestDateEnd) / 1000));
+
+
 				partialFundsList = mongoTemplate.find(query, DailyFunds.class, "fund_yieldrate");
 				if (!CollectionUtils.isEmpty(partialFundsList)) {
 					codeIsNormalFund = true;
@@ -181,8 +182,7 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
 //      String dateStart = DateUtil.getDateStrFromLong(Long.parseLong(navLatestDateStart));
 //      String dateEnd = DateUtil.getDateStrFromLong(Long.parseLong(navLatestDateEnd));
 					query.addCriteria(Criteria.where
-							("querydate").gt((DateUtil.getDateLongVal(navLatestDateStart) / 1000)).andOperator
-							(Criteria.where("querydate").lte(DateUtil.getDateLongVal(navLatestDateEnd) / 1000)));
+							("querydate").gt((DateUtil.getDateLongVal(navLatestDateStart) / 1000)).lte(DateUtil.getDateLongVal(navLatestDateEnd) / 1000));
 					fundbasecloses = mongoTemplate.find(query, Map.class, "fundbaseclose");
 					if (!CollectionUtils.isEmpty(fundbasecloses)) {
 						fundbaseclosesAll.addAll(fundbasecloses);

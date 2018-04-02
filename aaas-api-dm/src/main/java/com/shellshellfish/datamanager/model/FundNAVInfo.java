@@ -19,6 +19,7 @@ import com.shellshellfish.datamanager.commons.EasyKit;
 public class FundNAVInfo {
 	/*平均增长率*/
 	private String avgIncreRate;
+	private String totalIncreRate;
 	/*基金名*/
 	private String name;
 	/*基金代码*/
@@ -29,6 +30,7 @@ public class FundNAVInfo {
 	private List<Map> NPVIncreRate;
 	/*基金类型*/
 	private String fundType;
+	private Integer fundClassId;
 	/*净值增长最小最大值*/
 	private Map incrementMinMaxValueMap;
 
@@ -77,13 +79,29 @@ public class FundNAVInfo {
 	}
 
 
-	public String getAvgIncreRate() {
-		return avgIncreRate;
+	public Integer getFundClassId() {
+		return fundClassId;
 	}
 
-
+	public void setFundClassId(Integer fundClassId) {
+		this.fundClassId = fundClassId;
+	}
+	
+	public String getAvgIncreRate() {
+	  return avgIncreRate;
+	}
+	
+	
 	public void setAvgIncreRate(String avgIncreRate) {
-		this.avgIncreRate = avgIncreRate;
+	  this.avgIncreRate = avgIncreRate;
+	}
+	
+	public String getTotalIncreRate() {
+	  return totalIncreRate;
+	}
+	
+	public void setTotalIncreRate(String totalIncreRate) {
+	  this.totalIncreRate = totalIncreRate;
 	}
 
 
