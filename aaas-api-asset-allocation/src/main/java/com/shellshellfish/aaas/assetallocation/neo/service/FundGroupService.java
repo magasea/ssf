@@ -660,6 +660,13 @@ public class FundGroupService {
         return aReturn;
     }
 
+    /**
+     * 剔除基金数据不全（周末或者节假日可能只有部分基金有数据）的时间点，
+     * 返回基金数据完整的时间点
+     * @param groupId
+     * @param subGroupId
+     * @return
+     */
     public List<Date> getNavlatestdateCount(String groupId, String subGroupId) {
         List<String> codeList = fundGroupService.getFundGroupCodes(groupId, subGroupId);
         int codeSize = codeList.size();
@@ -1424,7 +1431,7 @@ public class FundGroupService {
 
     /**
      * 计算组合单位收益净值和最大回撤
-     *
+     *TODO
      * @param group_id
      * @param subGroupId
      */
@@ -2032,10 +2039,6 @@ public class FundGroupService {
         map.put("expected_max_retracement", retracement);
         fundGroupMapper.updateExpectedMaximumRetracement(map);
         logger.info("updateExpectedMaxRetracement end");
-    }
-
-    public int deleteData(String tableName){
-        return fundGroupMapper.deleteData(tableName);
     }
 
     /**
