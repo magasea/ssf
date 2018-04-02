@@ -43,7 +43,13 @@
       WHERE A.NAVLATESTDATE>=#{navDate}
       ORDER BY NAVLATESTDATE DESC
     </select>
-
+    <select id="getAllByDate"  resultMap="FundNetValMap">
+        SELECT
+        *
+        FROM fund_net_value
+        WHERE NAVLATESTDATE>=#{selectDate}
+        ORDER BY NAVLATESTDATE DESC
+    </select>
     <select id="getLatestNavAdj" resultType="java.math.BigDecimal">
         SELECT
           NAVADJ

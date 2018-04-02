@@ -34,7 +34,7 @@ public class FundGroupServiceImplTest {
   public void testCalculateGroupNavadj(){
     String groupId = "1";
     String subGroupId = "16000";
-    fundGroupService.calculateGroupNavadj(groupId,subGroupId);
+    fundGroupService.calculateGroupNavadj(groupId,subGroupId,null);
   }
 
 }
