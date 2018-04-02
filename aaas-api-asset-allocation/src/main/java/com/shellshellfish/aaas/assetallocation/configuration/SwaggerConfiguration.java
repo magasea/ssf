@@ -29,8 +29,7 @@ public class SwaggerConfiguration {
     public Docket productApi() {
         return new Docket(DocumentationType.SWAGGER_2)
             .select()
-            .apis(RequestHandlerSelectors.basePackage("com.shellshellfish"
-                + ".aaas.account.controller"))
+            .apis(RequestHandlerSelectors.basePackage("com.shellshellfish.aaas.assetallocation.neo"))
             .paths(regex("/api.*"))
             .build()
             .apiInfo(metaData());

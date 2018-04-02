@@ -163,16 +163,16 @@ public class DailyFundService {
                     Integer effectRows = fundNetValMapper.insertDailyDataToFundNetVal(value);
 
                 }else{
-                    if(fundNetVals.size() == value.size()){
-                        //说明数据库里面该日期的基金数据已经有了，可以批量更新
-                        logger.info("fundNetVals.size() == value.size() of:{}",key);
-                        Integer effectRows = fundNetValMapper.batchUpdateDailyDataToFundNetVal(value);
-                    }else{
+//                    if(fundNetVals.size() == value.size()){
+//                        //说明数据库里面该日期的基金数据已经有了，可以批量更新
+//                        logger.info("fundNetVals.size() == value.size() of:{}",key);
+//                        Integer effectRows = fundNetValMapper.batchUpdateDailyDataToFundNetVal(value);
+//                    }else{
                         //说明数据库里面该日期的基金不一定有，先做强制插入在做批量更新
-                        logger.info("fundNetVals.size() != value.size() of:{}", key);
-                        Integer effectRows = fundNetValMapper.insertDailyDataToFundNetVal(value);
-                        effectRows = fundNetValMapper.batchUpdateDailyDataToFundNetVal(value);
-                    }
+                    logger.info("fundNetVals.size() != value.size() of:{}", key);
+                    Integer effectRows = fundNetValMapper.insertDailyDataToFundNetVal(value);
+                    effectRows = fundNetValMapper.batchUpdateDailyDataToFundNetVal(value);
+//                    }
                 }
             } catch (Exception e) {
                 logger.error("Failed: Insert into fund_net_val by call getFundDataOfDay!",e);

@@ -41,7 +41,7 @@ public class TestDemo {
 	}
 
 	String groupId = "6";
-	String subGroupId = "111111";
+	String subGroupId = "60048";
 
 	@Test
 	public void testDemo2() {

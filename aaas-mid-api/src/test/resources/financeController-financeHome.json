@@ -52,7 +52,7 @@
                 "type": "string"
               },
               "id":{
-                "type":"string"
+                "type":"integer"
               }
             },
             "required": [
@@ -66,13 +66,24 @@
           "type": "object",
           "properties": {
             "income6month": {
-              "type": "array",
+              "type": ["object","null"],
               "properties": {
                 "_total": {
                   "type": "integer"
                 },
                 "_items": {
-                  "type": "array"
+                  "type": "array",
+                  "items":{
+                    "type":"object",
+                    "properties":{
+                      "time":{
+                        "type":"string"
+                      },
+                      "value":{
+                        "type":"number"
+                      }
+                    }
+                  }
                 },
                 "name": {
                   "type": [
@@ -188,7 +199,7 @@
       },
       "required": [
         "uuid",
-        [ "C1","C2","C3","C4","C5"],
+        "C3",
         "banner_list",
         "name",
         "productTypeList"
