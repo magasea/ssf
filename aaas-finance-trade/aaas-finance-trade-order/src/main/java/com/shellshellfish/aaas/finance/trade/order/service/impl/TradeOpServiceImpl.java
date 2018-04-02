@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import com.shellshellfish.aaas.common.enums.CombinedStatusEnum;
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
@@ -709,7 +710,14 @@ public class TradeOpServiceImpl implements TradeOpService {
 		    baseStatus = trdOrderDetail.getOrderDetailStatus();
       }
     }
-		result.put("orderStatus", TrdOrderStatusEnum.getComment(baseStatus));
+		if(TrdOrderStatusEnum.CONFIRMED.getStatus() == baseStatus || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == baseStatus){
+		  result.put("orderStatus", CombinedStatusEnum.CONFIRMED.getComment());
+		} else if(TrdOrderStatusEnum.FAILED.getStatus() == baseStatus || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == baseStatus){
+          result.put("orderStatus", CombinedStatusEnum.CONFIRMEDFAILED.getComment());
+        } else {
+          result.put("orderStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
+        }
+//		result.put("orderStatus", TrdOrderStatusEnum.getComment(baseStatus));
 //		TrdOrderStatusEnum[] trdOrderStatusEnum = TrdOrderStatusEnum.values();
 //		for (TrdOrderStatusEnum trdOrderStatus : trdOrderStatusEnum) {
 //			if (trdOrder.getOrderStatus() == trdOrderStatus.getStatus()) {
@@ -755,7 +763,15 @@ public class TradeOpServiceImpl implements TradeOpService {
 		for (int i = 0; i < trdOrderDetailList.size(); i++) {
 			detailMap = new HashMap<String, Object>();
 			TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
-      detailMap.put("fundstatus", TrdOrderStatusEnum.getComment(trdOrderDetail.getOrderDetailStatus()));
+			int detailStatus = trdOrderDetail.getOrderDetailStatus();
+			if(TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus){
+			  detailMap.put("fundstatus", CombinedStatusEnum.CONFIRMED.getComment());
+	        } else if(TrdOrderStatusEnum.FAILED.getStatus() == detailStatus || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus){
+	          detailMap.put("fundstatus", CombinedStatusEnum.CONFIRMEDFAILED.getComment());
+	        } else {
+	          detailMap.put("fundstatus", CombinedStatusEnum.WAITCONFIRM.getComment());
+	        }
+//      detailMap.put("fundstatus", TrdOrderStatusEnum.getComment(trdOrderDetail.getOrderDetailStatus()));
 //			TrdOrderStatusEnum[] trdOrderStatusEnum2 = TrdOrderStatusEnum.values();
 //			for (TrdOrderStatusEnum trdOrderStatus2 : trdOrderStatusEnum2) {
 //				if (trdOrderDetail.getOrderDetailStatus() == trdOrderStatus2.getStatus()) {
