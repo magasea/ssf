@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Author: yongquan.xiong
@@ -21,6 +22,9 @@ public interface FundNetValMapper {
 
     //根据时间以及code查询净值表数据
     List<FundNetVal> getAllDataByCodeAndDate(HashMap<String,Object> codeMap);
+
+    //根据时间查询净值表数据
+    List<FundNetVal> getAllByDate(Map<String,Object> codeMap);
 
     //根据时间查询阶段扫描最大时间
     Date getMaxNavDateByDate(Date selectDate);
@@ -39,6 +43,12 @@ public interface FundNetValMapper {
 
     //将通过rpc获取到的每日基金数据插入 fund_net_value
     Integer insertDailyDataToFundNetVal(List<Dailyfunds> dailyfundsList);
+
+    //将通过rpc获取到的每日基金数据批量更新到 fund_net_value
+    Integer batchUpdateDailyDataToFundNetVal(List<Dailyfunds> dailyfundsList);
+
+    //将通过rpc获取到的每日基金数据更新到 fund_net_value
+    Integer updateDailyDataToFundNetVal(Dailyfunds dailyfunds);
 
     //将通过rpc获取到的每日基金基础数据插入 fund_basic
     Integer insertBasicDataToFundBasic(Dailyfunds dailyfunds);

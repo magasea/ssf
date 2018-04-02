@@ -13,8 +13,8 @@ spring:
         acknowledge-mode: auto
     username: ssf
     password: shellshellfish
-    host: 192.168.1.22
-    port: 5672
+    host: 192.168.1.249
+    port: 35672
     virtual-host: aaas
     topicQueuePayName: com-ssf-topic-queue-pay
     topicQueueOrderName: com-ssf-topic-queue-order
@@ -23,12 +23,12 @@ spring:
     topicOrder: shellshellfish.order
   data:
     mongodb:
-      host: 192.168.1.10
-      port: 27017
+      host: 192.168.1.249
+      port: 30005
       database: zhongzheng
   redis:
-    host: 192.168.1.10
-    port: 6379
+    host: 192.168.1.249
+    port: 16379
     password: redis123
     timeout: 0
     pool:
@@ -38,7 +38,7 @@ spring:
       min-idle: 0
 datasource:
   sampleapp:
-    url: jdbc:mysql://192.168.1.10:3306/ssftrdorder?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
+    url: jdbc:mysql://192.168.1.249:30006/ssftrdorder?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
     username: sa
     password: N4eTVr89lX9BaPcx
     driverClassName: com.mysql.jdbc.Driver

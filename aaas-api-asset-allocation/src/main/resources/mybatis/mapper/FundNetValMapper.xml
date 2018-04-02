@@ -107,8 +107,38 @@
         </foreach>
     </insert>
 
-    <insert id="insertBasicDataToFundBasic"
-            parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
+    <update id="batchUpdateDailyDataToFundNetVal"
+      parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
+        <foreach collection="list" item="dailyData" index="index" separator=";">
+        UPDATE fund_net_value SET
+            UNITNAV = #{dailyData.navUnit},
+            NAVACCUM = #{dailyData.navAccum},
+            NAVADJ = #{dailyData.navAdj},
+            YIELDOF7DAYS = #{dailyData.yieldOf7Days},
+            MILLION_REVENUE = #{dailyData.millionRevenue},
+            LAST_MOD_TIME = #{dailyData.createDate}
+        WHERE
+            CODE = #{dailyData.code} AND NAVLATESTDATE = #{dailyData.navLatestDate}
+        </foreach>
+    </update>
+
+    <update id="updateDailyDataToFundNetVal"
+      parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
+
+            UPDATE fund_net_value SET
+            UNITNAV = #{dailyData.navUnit},
+            NAVACCUM = #{dailyData.navAccum},
+            NAVADJ = #{dailyData.navAdj},
+            YIELDOF7DAYS = #{dailyData.yieldOf7Days},
+            MILLION_REVENUE = #{dailyData.millionRevenue},
+            LAST_MOD_TIME = #{dailyData.createDate}
+            WHERE
+            CODE = #{dailyData.code} AND NAVLATESTDATE = #{dailyData.navLatestDate}
+
+    </update>
+
+
+    <insert id="insertBasicDataToFundBasic" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
         INSERT INTO fund_basic (code,fname,fund_type_one,fund_type_two,fund_scale,bm_index_chgpct)
         VALUES (
         #{code},#{fname},#{fundTypeOne},#{fundTypeTwo},#{fundScale},#{bmIndexChgPct}

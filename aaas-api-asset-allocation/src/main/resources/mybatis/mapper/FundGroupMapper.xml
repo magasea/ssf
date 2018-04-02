@@ -105,7 +105,7 @@
     <select id="getRiskController" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.RiskController">
         select * from riskcontroller where fund_group_id = #{id} and fund_group_sub_id = #{subGroupId}
     </select>
-
+    
     <select id="getScaleMark" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.RiskIncomeInterval">
         select id,risk_num,income_num from fund_group_sub where fund_group_id=#{fundGroupId}
         <if test="subGroupId != null and subGroupId != ''">
@@ -372,7 +372,7 @@
         SELECT DISTINCT code FROM fund_group_basic WHERE group_id !='0' AND is_valid='1'
     </select>
 
-    <select id="findBenchmarkCode" resultType="java.lang.String">
+    <select id="findBenchmarkCode"  resultType="java.lang.String">
         SELECT code FROM fund_group_basic WHERE group_id ='0' AND is_valid='1'
     </select>
 
