@@ -14,7 +14,10 @@ import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
 import com.shellshellfish.aaas.assetallocation.neo.util.*;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
-
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,13 +26,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-
 import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.*;
 //import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.MONGO_DB_COLLECTION;
 
@@ -839,6 +840,9 @@ public class FundGroupService {
             fgi.setMaxMinMap(maxMinValueMap);
             fgi.setMaxMinBenchmarkMap(maxMinBenchmarkMap);
             return fgi;
+        }else{
+            logger.info("fundGroupHistoryList is empty for groupId:{} and subGroupId:{}",
+                groupId, subGroupId);
         }
 
         List maxMinValueList = new ArrayList();
@@ -846,6 +850,7 @@ public class FundGroupService {
         if (returnType.equalsIgnoreCase("income")) {
             List<FundNetVal> fundNetVals = this.getNavadjNew(groupId, subGroupId);
             if (CollectionUtils.isEmpty(fundNetVals)) {
+                logger.info("fundNetVals is empty for groupId:{} subGroupId:{}", groupId, subGroupId);
                 return fgi;
             }
 
@@ -878,6 +883,7 @@ public class FundGroupService {
             allMap.put("incomeBenchmark", listBenchmark);
             list.add(allMap);
             fgi.setName("组合收益率走势图");
+            logger.info("maxMinBenchmarkMap got");
         } else {
             List<Map<String, Object>> listFund = new ArrayList<>();
             for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
@@ -908,6 +914,7 @@ public class FundGroupService {
             allMap.put("incomeBenchmark", listBenchmark);
             list.add(allMap);
             fgi.setName("组合最大回撤走势图");
+            logger.info("maxMinBenchmarkMap got");
         }
         fgi.set_total(list.size());
         fgi.set_items(list);
@@ -1003,25 +1010,36 @@ public class FundGroupService {
 		if (fgi != null) {
 			List<Map<String, Object>> _items = fgi.get_items();
 			if (_items != null && !_items.isEmpty()) {
-				Map<String, Object> itemsMap = _items.get(0);
-				if (itemsMap != null && itemsMap.get("income") != null) {
-					List<Map<String, Object>> incomeList = (List<Map<String, Object>>) itemsMap.get("income");
-					List<Map<String, Object>> resultList = new ArrayList<>();
-					if (incomeList != null && incomeList.size() > 0) {
-						for (Map<String, Object> incomeMap : incomeList) {
-							String time = incomeMap.get("time") + "";
-							starttime = starttime.replaceAll("-", "");
-							time = time.replaceAll("-", "");
-							if (TradeUtil.getLongNumWithMul100(time) - TradeUtil.getLongNumWithMul100(starttime) >= 0 || resultList.size() > 0) {
-								resultList.add(incomeMap);
-							}
-						}
-//						itemsMap.put("income", resultList);
-						fgi.set_items(resultList);
-						fgi.set_total(resultList.size());
-					}
-				}
-			}
+              Map<String, Object> itemsMap = _items.get(0);
+              if (itemsMap != null && itemsMap.get("income") != null) {
+                  List<Map<String, Object>> incomeList = (List<Map<String, Object>>) itemsMap.get("income");
+                  if (incomeList != null && incomeList.size() > 0) {
+                      fgi.set_items(incomeList);
+                      fgi.set_total(incomeList.size());
+                  }
+              }
+          }
+//			if (_items != null && !_items.isEmpty()) {
+//				Map<String, Object> itemsMap = _items.get(0);
+//				if (itemsMap != null && itemsMap.get("income") != null) {
+//					List<Map<String, Object>> incomeList = (List<Map<String, Object>>) itemsMap.get("income");
+//					List<Map<String, Object>> resultList = new ArrayList<>();
+//					if (incomeList != null && incomeList.size() > 0) {
+//						for (Map<String, Object> incomeMap : incomeList) {
+//							String time = incomeMap.get("time") + "";
+////							if (starttime.equals(time) || resultList.size() > 0) {
+//							starttime = starttime.replaceAll("-", "");
+//							time = time.replaceAll("-", "");
+//							if (TradeUtil.getLongNumWithMul100(time) - TradeUtil.getLongNumWithMul100(starttime) >= 0 || resultList.size() > 0) {
+//								resultList.add(incomeMap);
+//							}
+//						}
+////						itemsMap.put("income", resultList);
+//						fgi.set_items(resultList);
+//						fgi.set_total(resultList.size());
+//					}
+//				}
+//			}
 		}
         return fgi;
     }
@@ -1450,8 +1468,8 @@ public class FundGroupService {
             long beginGetNewMaxDrawDown = System.currentTimeMillis();
             Double maximumRetracement = getMaxdrawdownFromNetVals(fundNetValList);
             long endGetNewMaxDrawDown = System.currentTimeMillis();
-            logger.info("calculate MaxDrawDown elapse : {}", endGetNewMaxDrawDown - beginGetNewMaxDrawDown);
-            logger.info("MaxDrawDown: {}", maximumRetracement);
+//            logger.info("calculate MaxDrawDown elapse : {}", endGetNewMaxDrawDown - beginGetNewMaxDrawDown);
+//            logger.info("MaxDrawDown: {}", maximumRetracement);
 
             Map<String, Object> updateParam = new HashMap<>();
             updateParam.put("fund_group_id", group_id);
@@ -1475,6 +1493,8 @@ public class FundGroupService {
             batchUpdateMaximumRetracement(updateMapList);
             long endBatchUpdate = System.currentTimeMillis();
             logger.info("batch update elapse : {}", endBatchUpdate - beginBatchUpdate);
+        }else{
+            logger.info("updateMapList is empty");
         }
 
         logger.info("getNavadj end");
@@ -1511,15 +1531,22 @@ public class FundGroupService {
         if (CollectionUtils.isEmpty(dataMapList)) {
             return;
         }
+        logger.info("dataMapList size:{}", dataMapList.size());
         List<Map> mapList = new ArrayList<>();
         for (Map map : dataMapList) {
             mapList.add(map);
             if (mapList.size() == BATCH_SIZE_NUM) {
+//                for(Map mapSub: mapList){
+//                    fundGroupMapper.insertGroupNavadj(mapSub);
+//                }
                 fundGroupMapper.batchInsertFundGroupHistory(mapList);
                 mapList.clear();
             }
         }
         if (!CollectionUtils.isEmpty(mapList)) {
+//            for(Map mapSub: mapList){
+//                fundGroupMapper.insertGroupNavadj(mapSub);
+//            }
             fundGroupMapper.batchInsertFundGroupHistory(mapList);
         }
         return;
@@ -1529,22 +1556,23 @@ public class FundGroupService {
         if (CollectionUtils.isEmpty(dataMapList)) {
             return;
         }
+        logger.info("dataMapList size:{}", dataMapList.size());
         List<Map> mapList = new ArrayList<>();
         for (Map map : dataMapList) {
             mapList.add(map);
             if (mapList.size() == BATCH_SIZE_NUM) {
-                for(Map mapSub: mapList){
-                    fundGroupMapper.updateMaximumRetracement(mapSub);
-                }
-//                fundGroupMapper.batchUpdateMaximumRetracement(mapList);
+//                for(Map mapSub: mapList){
+//                    fundGroupMapper.updateMaximumRetracement(mapSub);
+//                }
+                fundGroupMapper.batchUpdateMaximumRetracement(mapList);
                 mapList.clear();
             }
         }
         if (!CollectionUtils.isEmpty(mapList)) {
-            for(Map mapSub: mapList){
-                fundGroupMapper.updateMaximumRetracement(mapSub);
-            }
-//            fundGroupMapper.batchUpdateMaximumRetracement(mapList);
+//            for(Map mapSub: mapList){
+//                fundGroupMapper.updateMaximumRetracement(mapSub);
+//            }
+            fundGroupMapper.batchUpdateMaximumRetracement(mapList);
         }
         return;
     }
@@ -1921,21 +1949,41 @@ public class FundGroupService {
     }
 
     private void fundGroupIdTasks() {
-        try {
-            final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
-            ExecutorService pool = ThreadPoolUtil.getThreadPool();
-            for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
-                int fundGroupId = index;
+        final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(
+            15,
+            15,
+            0L,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(15),
+            Executors.defaultThreadFactory(),
+            new ThreadPoolExecutor.AbortPolicy());
+
+        for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
+
+            int fundGroupId = index;
+            try {
                 pool.execute(() -> {
                     fundGroupIdTask(fundGroupId);
-                    countDownLatch.countDown();
                 });
+            }catch(Exception ex){
+                logger.error("Ex:", ex);
+
+            }catch (Error err){
+                logger.error("Ex:", err);
             }
-            this.sleep(1000);
+            finally {
+                countDownLatch.countDown();
+            }
+
+
+        }
+        try {
             countDownLatch.await();
         } catch (InterruptedException e) {
-            logger.error("exception:",e);
+            e.printStackTrace();
         }
+        logger.info("fundGroupIdTasks finished");
     }
 
     private void fundGroupIdTask(int fundGroupId) {
@@ -1955,9 +2003,15 @@ public class FundGroupService {
     }
 
     public void fundGroupIdAndSubIdTask(String fundGroupId, String subGroupId) {
-        getNavadj(fundGroupId, subGroupId);
-        updateExpectedMaxRetracement(fundGroupId, subGroupId);
-        sharpeRatio(fundGroupId, subGroupId);
+        try{
+            getNavadj(fundGroupId, subGroupId);
+            updateExpectedMaxRetracement(fundGroupId, subGroupId);
+            sharpeRatio(fundGroupId, subGroupId);
+        }catch (Exception ex){
+            logger.error("ex:", ex);
+        }catch (Error error){
+            logger.error("err:", error);
+        }
     }
 
     /**

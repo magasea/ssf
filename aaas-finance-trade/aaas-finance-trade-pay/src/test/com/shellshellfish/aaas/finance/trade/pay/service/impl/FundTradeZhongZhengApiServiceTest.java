@@ -10,6 +10,8 @@ import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -22,6 +24,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(classes = PayServiceApplication.class)
 @ActiveProfiles(profiles = "dev")
 public class FundTradeZhongZhengApiServiceTest {
+  Logger logger = LoggerFactory.getLogger(FundTradeZhongZhengApiServiceTest.class);
 
   @Test
   public void getFundNets() throws Exception {
@@ -40,6 +43,13 @@ public class FundTradeZhongZhengApiServiceTest {
     ApplyResult applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo(openId,
         outsideOrderno);
     System.out.println(applyResult.getConfirmflag());
+  }
+
+  @Test
+  public void testGetAllFundsInfo() throws Exception {
+    List<String> allFunds = fundTradeApiService.getAllFundsInfo();
+    allFunds.forEach(System.out::println);
+    logger.debug("allFunds: {}", allFunds);
   }
 
   @Autowired

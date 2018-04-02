@@ -5,11 +5,11 @@ mybatis:
     config-locations: classpath:mybatis/mybatis-config.xml
     mapper-locations: classpath:mybatis/mapper/*.xml
 spring:
-  datasource:
-      driverClassName: com.mysql.jdbc.Driver
-      password: 1rIQ9wi!@g3P$Qh*
-      url: jdbc:mysql://localhost:3306/choice?useUnicode=true&characterEncoding=utf-8
-      username: ssf08
+#  datasource:
+#      driverClassName: com.mysql.jdbc.Driver
+#      password: 1rIQ9wi!@g3P$Qh*
+#      url: jdbc:mysql://localhost:3306/choice?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
+#      username: ssf08
 #        password: uCIPzdEJzbeoFAMj
 #        url: jdbc:mysql://172.16.128.72:3306/choicecopy?useUnicode=true&characterEncoding=utf-8
 #        username: ssf09
@@ -22,6 +22,26 @@ spring:
       host: localhost
       port: 27017
       collection: portfolio_yield_all
+
+datasource:
+  sampleapp:
+    url: jdbc:mysql://localhost:3306/choice?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
+    username: ssf08
+    password: 1rIQ9wi!@g3P$Qh*
+    driverClassName: com.mysql.jdbc.Driver
+    defaultSchema: ssfuser
+    maxPoolSize: 20
+    hibernate:
+      connection:
+        useUnicode: true
+        characterEncoding: UTF-8
+      jdbc:
+        batch_size: 50
+      hbm2ddl.method: update
+      show_sql: true
+      format_sql: true
+      dialect: org.hibernate.dialect.MySQLDialect
+
 grpc:
   host: localhost
   port: 10021

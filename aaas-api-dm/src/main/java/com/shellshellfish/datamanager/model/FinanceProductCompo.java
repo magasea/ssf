@@ -23,22 +23,12 @@ public class FinanceProductCompo {
 	private List productCompo;
 	/*产品历史收益率*/
 	private Map<String,Object> histYieldRate;
+	private Map<String,Object> baseLine;
 	public FinanceProductCompo(){}
+
 	
 	public FinanceProductCompo(String groupId, String subGroupId, String prdName, String expAnnReturn,
-			String expMaxDrawDown, List productCompo, Map<String, Object> histYieldRate) {
-		super();
-		this.groupId = groupId;
-		this.subGroupId = subGroupId;
-		this.prdName = prdName;
-		this.expAnnReturn = expAnnReturn;
-		this.expMaxDrawDown = expMaxDrawDown;
-		this.productCompo = productCompo;
-		this.histYieldRate = histYieldRate;
-	}
-	
-	public FinanceProductCompo(String groupId, String subGroupId, String prdName, String expAnnReturn,
-			List productCompo, Map<String, Object> histYieldRate) {
+			List productCompo, Map<String, Object> histYieldRate,Map baseLine) {
 		super();
 		this.groupId = groupId;
 		this.subGroupId = subGroupId;
@@ -46,6 +36,7 @@ public class FinanceProductCompo {
 		this.expAnnReturn = expAnnReturn;
 		this.productCompo = productCompo;
 		this.histYieldRate = histYieldRate;
+		this.baseLine= baseLine;
 	}
 	public String getExpAnnReturn() {
 		return expAnnReturn;
@@ -91,13 +82,27 @@ public class FinanceProductCompo {
 	public void setPrdName(String prdName) {
 		this.prdName = prdName;
 	}
+
+	public Map<String, Object> getBaseLine() {
+		return baseLine;
+	}
+
+	public void setBaseLine(Map<String, Object> baseLine) {
+		this.baseLine = baseLine;
+	}
+
+
 	@Override
 	public String toString() {
-		return "FinanceProductCompo [groupId=" + groupId + ", subGroupId=" + subGroupId + ", prdName=" + prdName
-				+ ", expAnnReturn=" + expAnnReturn + ", expMaxDrawDown=" + expMaxDrawDown + ", productCompo="
-				+ productCompo + ", histYieldRate=" + histYieldRate + "]";
+		return "FinanceProductCompo{" +
+				"groupId='" + groupId + '\'' +
+				", subGroupId='" + subGroupId + '\'' +
+				", prdName='" + prdName + '\'' +
+				", expAnnReturn='" + expAnnReturn + '\'' +
+				", expMaxDrawDown='" + expMaxDrawDown + '\'' +
+				", productCompo=" + productCompo +
+				", histYieldRate=" + histYieldRate +
+				", baseLine=" + baseLine +
+				'}';
 	}
-	
-	
-
 }

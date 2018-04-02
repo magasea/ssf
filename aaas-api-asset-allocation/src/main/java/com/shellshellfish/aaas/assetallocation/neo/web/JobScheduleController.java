@@ -31,10 +31,11 @@ public class JobScheduleController {
     @ApiOperation("每日接口获取数据定时任务")
     @RequestMapping(value = "/api/asset-allocation/job/insertDailyFund", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public JobResult insertDailyFund() {
-        ExecutorService pool = ThreadPoolUtil.getThreadPool();
-        pool.execute(() -> {
-            jobScheduleService.insertDailyFundJobSchedule();
-        });
+        jobScheduleService.insertDailyFundJobSchedule();
+//        ExecutorService pool = ThreadPoolUtil.getThreadPool();
+//        pool.execute(() -> {
+//            jobScheduleService.insertDailyFundJobSchedule();
+//        });
         return new JobResult<>().returnSuccess();
     }
 
@@ -46,10 +47,10 @@ public class JobScheduleController {
     @ApiOperation("计算每周收益率以及风险率数据")
     @RequestMapping(value = "/api/asset-allocation/job/calculateYieldAndRiskOfWeek", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public JobResult calculateYieldAndRiskOfWeek() {
-        ExecutorService pool = ThreadPoolUtil.getThreadPool();
-        pool.execute(() -> {
+//        ExecutorService pool = ThreadPoolUtil.getThreadPool();
+//        pool.execute(() -> {
             jobScheduleService.calculateYieldAndRiskOfWeekJobSchedule();
-        });
+//        });
         return new JobResult<>().returnSuccess();
     }
 
@@ -61,10 +62,10 @@ public class JobScheduleController {
     @ApiOperation("计算产品组合数据(产品组合风险率、收益率、权重)")
     @RequestMapping(value = "/api/asset-allocation/job/insertFundGroupData", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public JobResult insertFundGroupData() {
-        ExecutorService pool = ThreadPoolUtil.getThreadPool();
-        pool.execute(() -> {
+//        ExecutorService pool = ThreadPoolUtil.getThreadPool();
+//        pool.execute(() -> {
             jobScheduleService.insertFundGroupDataJobSchedule();
-        });
+//        });
         return new JobResult<>().returnSuccess();
     }
 
@@ -76,10 +77,10 @@ public class JobScheduleController {
     @ApiOperation("计算 单位收益净值、最大回撤、夏普比率、基金收益贡献比，运行时间较长")
     @RequestMapping(value = "/api/asset-allocation/job/getAllIdAndSubId", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public JobResult getAllIdAndSubId() {
-        ExecutorService pool = ThreadPoolUtil.getThreadPool();
-        pool.execute(() -> {
+//        ExecutorService pool = ThreadPoolUtil.getThreadPool();
+//        pool.execute(() -> {
             jobScheduleService.getAllIdAndSubIdJobSchedule();
-        });
+//        });
         return new JobResult<>().returnSuccess();
     }
 

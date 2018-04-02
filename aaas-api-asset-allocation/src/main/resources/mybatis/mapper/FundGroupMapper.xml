@@ -243,15 +243,16 @@
     </select>
 
     <select id="getNavlatestdateCount" parameterType="java.util.Map" resultType="java.util.Map">
+        select count(a.navDate) as count, a.navDate as navDate from(
         select count(NAVLATESTDATE) as count, NAVLATESTDATE as navDate from fund_net_value where
         code in (
-            <foreach collection="list" separator="," item="item">
-                #{item}
+            <foreach collection="list" separator="," item="item">#{item}
             </foreach>
         )
         and NAVLATESTDATE >= #{minNavDate}
-        group by NAVLATESTDATE
+        group by NAVLATESTDATE, code
         order by NAVLATESTDATE asc
+        ) as a group by a.navDate
     </select>
 
     <select id="getNavadjBenchmark" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
@@ -265,25 +266,25 @@
     </select>
 
     <insert id="insertGroupNavadj">
-        insert into fund_group_history (fund_group_sub_id,fund_group_id,income_num,time)
+        INSERT ignore INTO fund_group_history (fund_group_sub_id,fund_group_id,income_num,time)
         VALUES (#{subGroupId},#{fund_group_id},#{num},#{time})
     </insert>
 
     <insert id="batchInsertFundGroupHistory" parameterType="java.util.Map">
         <foreach collection="list" item="item" separator=";">
-            insert into fund_group_history (fund_group_sub_id,fund_group_id,income_num,time)
+            insert ignore into fund_group_history (fund_group_sub_id,fund_group_id,income_num,time)
             VALUES (#{item.subGroupId},#{item.fundGroupId},#{item.incomeNum},#{item.time})
         </foreach>
     </insert>
 
     <insert id="insertGroupNavadjBenchmark">
-        insert into fund_group_history (fund_group_id,income_num,time)
+        insert ignore into fund_group_history (fund_group_id,income_num,time)
         VALUES (#{risk_level},#{num},#{time})
     </insert>
 
     <insert id="batchInsertFundGroupHistoryBenchmark">
         <foreach collection="list" item="item" separator=";">
-            insert into fund_group_history (fund_group_id,income_num,time)
+            insert ignore into fund_group_history (fund_group_id,income_num,time)
             VALUES (#{item.risk_level},#{item.incomeNum},#{item.time})
         </foreach>
     </insert>
@@ -295,7 +296,7 @@
         and time = #{time}
     </update>
 
-    <update id="batchUpdateMaximumRetracement" parameterType="java.util.Map">
+    <update id="batchUpdateMaximumRetracement" parameterType="java.util.List">
         <!-- 接收list参数，循环组装sql语句，注意for循环的写法
              separator=";" 代表着每次循环完，在sql后面放一个分号
              item="item" 循环List的每条的结果集

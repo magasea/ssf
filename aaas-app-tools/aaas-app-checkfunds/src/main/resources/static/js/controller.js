@@ -78,6 +78,7 @@ app.controller('postcontroller', function($scope, $http, $location) {
 app.controller('getcontroller', function($scope, $http, $location) {
 
   $scope.syncChoice = function(){
+  	$scope.isProcessing = true;
     // get URL
     var url = $location.absUrl() + "/api/fundcheck/syncChoice";
 
@@ -87,8 +88,10 @@ app.controller('getcontroller', function($scope, $http, $location) {
       $scope.getDivAvailable = true;
 
       $scope.response = response.data;
+      $scope.isProcessing = false;
     }, function error(response) {
       $scope.postResultMessage = "Error Status: " +  response.statusText;
+      $scope.isProcessing = false;
     });
   }
 

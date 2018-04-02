@@ -1,10 +1,13 @@
 package com.shellshellfish.datamanager.controller;
 
+import com.shellshellfish.aaas.common.http.HttpJsonResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -31,17 +34,17 @@ public class OptimizationApiController {
 	MongoFinanceDetailRepository mongoFinanceDetailRepository;
 
 	@ApiOperation("进入理财页面后的数据")
-	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
+	@GetMapping(value = "/financeFrontPage")
 	@ResponseBody
-	public JsonResult financeModule() {
+	public HttpJsonResult financeModule() {
 		JsonResult jsonResult = optimizationService.financeFront();
 		if (jsonResult != null) {
 			logger.info(
 					"run com.shellshellfish.datamanager.controller.OptimizationApiController.financeModule() success..");
 			System.out.println("run success");
-			return new JsonResult(JsonResult.SUCCESS, "OK", JsonResult.EMPTYRESULT);
+			return new HttpJsonResult (HttpStatus.OK.value(),"OK", JsonResult.EMPTYRESULT);
 		} else {
-			return new JsonResult(JsonResult.Fail, "NG:没有获取到产品", JsonResult.EMPTYRESULT);
+			return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:没有获取到产品", JsonResult.EMPTYRESULT);
 		}
 	}
 
@@ -63,13 +66,14 @@ public class OptimizationApiController {
 		return result;
 	}
 	
-	@ApiOperation("理财产品详情页面")
-	@RequestMapping(value = "/checkPrdDetails", method = RequestMethod.POST)
-	@ResponseBody
-	public JsonResult prdDetails() {
+//	@ApiOperation("理财产品详情页面")
+//	@GetMapping(value = "/checkPrdDetails")
+//	@ResponseBody
+	public HttpJsonResult prdDetails() {
 		JsonResult jsonResult = null;
 		Boolean result = true;
-//		mongoFinanceDetailRepository.deleteAll();
+		mongoFinanceDetailRepository.deleteAll();
+		
 		for(int i = 1;i < 16; i++){
 			String groupId = i + "";
 			String subGroupId = i + "0048";
@@ -81,14 +85,46 @@ public class OptimizationApiController {
 //				return new JsonResult(JsonResult.SUCCESS, "OK", JsonResult.EMPTYRESULT);
 			} else {
 				result = false;
-				return new JsonResult(JsonResult.Fail, "NG:没有获取到产品:subGroupId为-->"+subGroupId, JsonResult.EMPTYRESULT);
+				return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:没有获取到产品:subGroupId为-->"+subGroupId,
+						JsonResult.EMPTYRESULT);
 			}
 		}
 		if (result) {
-			return new JsonResult(JsonResult.SUCCESS, "OK", JsonResult.EMPTYRESULT);
+			return new HttpJsonResult(HttpStatus.OK.value(), "OK", JsonResult.EMPTYRESULT);
 		} else {
-			return new JsonResult(JsonResult.Fail, "NG:没有获取到产品", JsonResult.EMPTYRESULT);
+			return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:没有获取到产品", JsonResult.EMPTYRESULT);
 		}
+	}
+	
+	@ApiOperation("理财产品详情页面")
+	@GetMapping(value = "/checkPrdDetails")
+	@ResponseBody
+	public HttpJsonResult prdDetails2() {
+	  JsonResult jsonResult = null;
+	  Boolean result = true;
+	  mongoFinanceDetailRepository.deleteAll();
+	  
+	  for(int i = 1;i < 16; i++){
+	    String groupId = i + "";
+	    String subGroupId = i + "0048";
+	    jsonResult = optimizationService.checkPrdDetails2(groupId, subGroupId);
+	    if (jsonResult != null) {
+	      logger.info(
+	          "run com.shellshellfish.datamanager.controller.OptimizationApiController.getPrdDetails() success..");
+	      System.out.println("groupId：" + groupId + " , subGroupId:" + subGroupId + " -->OK");
+//				return new JsonResult(JsonResult.SUCCESS, "OK", JsonResult.EMPTYRESULT);
+	    } else {
+	      result = false;
+	      return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:没有获取到产品:subGroupId为-->"+subGroupId,
+	          JsonResult.EMPTYRESULT);
+	    }
+	  }
+	  if (result) {
+//	    return new HttpJsonResult(HttpStatus.OK.value(), "OK", jsonResult);
+	    return new HttpJsonResult(HttpStatus.OK.value(), "OK", JsonResult.EMPTYRESULT);
+	  } else {
+	    return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:没有获取到产品", JsonResult.EMPTYRESULT);
+	  }
 	}
 	
 	@ApiOperation("获取理财产品详情页面的数据")

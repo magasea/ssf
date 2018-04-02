@@ -5,6 +5,7 @@ import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,9 @@ public class TransferController {
 
 	@Autowired
 	private RestTemplate restTemplate;
+	
+	@Value("${shellshellfish.user-user-info}")
+	private String userinfoUrl;
 
 	@Value("${shellshellfish.trade-order-url}")
 	private String tradeOrderUrl;
@@ -260,6 +264,72 @@ public class TransferController {
 		} catch (Exception e) {
 //			logger.error(e.getMessage());
 //			logger.error("exception:",e);
+			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}
+	}
+	
+	@ApiOperation("购买方案初始页面")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "12"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "120049") })
+	@RequestMapping(value = "/purchase-plan", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult getBuyInitial(String uuid, String groupId, String subGroupId) {
+		Map resultMap = null;
+		try {
+			String url = tradeOrderUrl + "/api/trade/funds/maxminValue?groupId=" + groupId + "&subGroupId="
+					+ subGroupId;
+			resultMap = restTemplate.getForEntity(url, Map.class).getBody();
+			if (resultMap.get("min") != null) {
+				Double min = (Double) resultMap.get("min");
+				BigDecimal minValue = new BigDecimal(min);
+				resultMap.put("min", minValue.setScale(0, BigDecimal.ROUND_UP));
+			}
+			if (resultMap.get("min") != null) {
+				Double max = (Double) resultMap.get("max");
+				BigDecimal maxValue = new BigDecimal(max);
+				resultMap.put("max", maxValue.setScale(0, BigDecimal.ROUND_DOWN));
+			}
+			
+			List<Map> resultOriginList = new ArrayList();
+			List<Map> result = new ArrayList();
+
+			resultOriginList = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid +
+					"/bankcards", List.class)
+					.getBody();
+
+			if (resultOriginList != null && resultOriginList.size() > 0) {
+				for (int i = 0; i < resultOriginList.size(); i++) {
+					Map resultOriginMap = resultOriginList.get(i);
+					if (resultOriginMap.get("bankCode") != null) {
+						Map bankMap = new HashMap();
+						bankMap = restTemplate.getForEntity(
+								tradeOrderUrl + "/api/trade/funds/banks?bankShortName=" + resultOriginMap.get("bankCode"),
+								Map.class).getBody();
+						if (!StringUtils.isEmpty(bankMap.get("bankName"))) {
+							resultOriginMap.put("bankShortName", bankMap.get("bankName"));
+							resultOriginMap.put("bankName", bankMap.get("bankName"));
+							result.add(resultOriginMap);
+						}
+					}
+				}
+			}
+			resultMap.put("banks", result);
+			return new JsonResult(JsonResult.SUCCESS, "获取成功", resultMap);
+		} catch (HttpClientErrorException e) {
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		} catch (HttpServerErrorException e) {
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			JSONObject myJson = JSONObject.parseObject(str);
+			String error = myJson.getString("message");
+			return new JsonResult(JsonResult.Fail, error, JsonResult.EMPTYRESULT);
+		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
 			logger.error(str, e);
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
