@@ -26,7 +26,7 @@
           "type": "string"
         },
         "avgearningrate": {
-          "type": "number"
+          "type": "string"
         },
         "fundnum": {
           "type": "integer"
@@ -43,7 +43,7 @@
                 "type": "string"
               },
               "earingrate": {
-                "type": "number"
+                "type": "string"
               }
             },
             "required": [

@@ -19,6 +19,8 @@ import com.shellshellfish.aaas.transfer.TransferServiceApplication;
 import io.restassured.RestAssured;
 import io.restassured.filter.log.ResponseLoggingFilter;
 
+import java.nio.charset.Charset;
+
 /**
  * @Author pierre
  * 17-12-19
@@ -101,15 +103,15 @@ public class FinanceControllerIT {
 
 	@Test
 	public void financeHomeTest() {
-		String uuid = "1";
+		String uuid = "66e35442-a9f6-4854-8f87-dd3e9eb47f2c";
 		// 0:未做 1:已做
-		String isTestFlag = "0";
-		String testResult = "平衡型";
-
+		String isTestFlag = "1";
+		String testResult =new String("平衡型".getBytes(),Charset.forName("ISO-8859-1"));
 		given().filter(new ResponseLoggingFilter())
 				.param("uuid", uuid)
 				.param("isTestFlag", isTestFlag)
 				.param("testResult", testResult)
+				.when()
 				.post(FINANCE_HOME)
 				.then()
 				.log().all()
@@ -122,7 +124,7 @@ public class FinanceControllerIT {
 	@Test
 	public void contributionsTest() {
 		String groupId = "6";
-		String subGroupId = "111111";
+		String subGroupId = "60048";
 
 
 		given().filter(new ResponseLoggingFilter())
@@ -140,7 +142,7 @@ public class FinanceControllerIT {
 	@Test
 	public void checkPrdDetailsTest() {
 		String groupId = "2";
-		String subGroupId = "2000";
+		String subGroupId = "20048";
 
 		given().filter(new ResponseLoggingFilter())
 				.param("groupId", groupId)
@@ -239,11 +241,13 @@ public class FinanceControllerIT {
 	@Test
 	public void historicalPerformancePageTest() {
 
-		String groupId = "6";
-		String subGroupId = "111111";
+		String groupId = "4";
+		String subGroupId = "40048";
+		String productName = "贝贝鱼1号“御?安守”组合";
 		given().filter(new ResponseLoggingFilter())
 				.param("groupId", groupId)
 				.param("subGroupId", subGroupId)
+				.param("productName",productName)
 				.post(HISTORICAL_PERFORMANCE_PAGE)
 				.then()
 				.log().all()

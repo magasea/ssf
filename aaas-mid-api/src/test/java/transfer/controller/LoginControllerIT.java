@@ -105,6 +105,7 @@ public class LoginControllerIT {
 
 
 		String verifyCode = getVerifyCode(registration_login_phone_number);
+
 		given().filter(new ResponseLoggingFilter())
 				.param("telNum", registration_login_phone_number)
 				.param("password", registration_login_password)
@@ -151,8 +152,13 @@ public class LoginControllerIT {
 	@Test
 	public void c_forgetPswTest() {
 		String password = RandomStringUtils.randomAlphanumeric(DEFAULT_PASSWORD_LENGTH);
-		String verifyCode = getVerifyCode(registration_login_phone_number);
+		try {
+			Thread.sleep(60000);
+		}catch (Exception e){
+			System.out.println("错误信息："+e);
+		}
 
+		String verifyCode = getVerifyCode(registration_login_phone_number);
 		given().filter(new ResponseLoggingFilter())
 				.param("telNum", registration_login_phone_number)
 				.param("password", password)
@@ -238,7 +244,7 @@ public class LoginControllerIT {
 	 * @return
 	 */
 	private String getVerifyCode(String phone_number) {
-		Map<String, String> result = (HashMap) loginController.sendVerifyCode(phone_number).getResult();
+		Map<String, String> result =  (HashMap) loginController.sendVerifyCode(phone_number).getResult();
 		return result.get("identifyingCode");
 	}
 

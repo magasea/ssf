@@ -3,6 +3,7 @@ package transfer.controller;
 import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
+import javafx.scene.media.SubtitleTrack;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,11 +45,15 @@ public class FundGroupControllerIT {
 
 	@Test
 	public void getProductDetailTest() {
-		String uuid = "shellshellfish";
-		String prodId = "41";
+		String uuid = "1";
+		String prodId = "178";
+		String groupId = "6";
+		String subGroupId = "60048";
 		given()
 				.param("uuid", uuid)
 				.param("prodId", prodId)
+				//.param("groupId",groupId)
+				//.param("subGroupId", subGroupId)
 				.filter(new ResponseLoggingFilter())
 				.when()
 				.post(GET_MY_PRODUCT_DETAIL)

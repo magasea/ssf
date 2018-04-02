@@ -29,10 +29,24 @@
           "type": "number"
         },
         "_items": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "array",
+          "items":{
+            "type":"object",
+            "properties":{
+              "name":{
+                "type":"string"
+              },
+              "id":{
+                "type":"integer"
+              },
+              "time":{
+                "type":"string"
+              },
+              "value":{
+                "type":"number"
+              }
+            }
+          }
         },
         "name": {
           "type": [
@@ -41,10 +55,7 @@
           ]
         },
         "_links": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "object"
         },
         "maxMinMap": {
           "type": [
