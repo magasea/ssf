@@ -83,7 +83,7 @@ public interface UserInfoService {
 	PortfolioInfo getChicombinationAssets(String uuid, Long userid, ProductsDTO productsDTO)
 			throws Exception;
 
-	List<Map<String, Object>> getTradeLogStatus(String uuid, Long userProdId) throws Exception;
+	Map<String, Object> getTradeLogStatus(String uuid, Long userProdId) throws Exception;
 
 
 	List<MongoUiTrdLogDTO> getTradeLogs(String uuid) throws Exception;
