@@ -10,6 +10,7 @@ import com.shellshellfish.aaas.assetallocation.neo.enmu.SlidebarTypeEnmu;
 import com.shellshellfish.aaas.assetallocation.neo.enmu.StandardTypeEnmu;
 import com.shellshellfish.aaas.assetallocation.neo.entity.*;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupDetailsMapper;
+import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupHistoryMapper;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
@@ -49,6 +50,9 @@ public class FundGroupService {
     private FundGroupDetailsMapper fundGroupDetailsMapper;
     @Autowired
     private FundGroupService fundGroupService;
+
+    @Autowired
+    FundGroupHistoryMapper fundGroupHistoryMapper;
 
     @Autowired
     MongoDatabase mongoDatabase;
@@ -1482,12 +1486,7 @@ public class FundGroupService {
 
         long startMaxRetracement = System.currentTimeMillis();
         for (; !CollectionUtils.isEmpty(fundNetValList) && date.getTime() > groupStartDate.getTime(); ) {
-            long beginGetNewMaxDrawDown = System.currentTimeMillis();
             Double maximumRetracement = getMaxdrawdownFromNetVals(fundNetValList);
-            long endGetNewMaxDrawDown = System.currentTimeMillis();
-//            logger.info("calculate MaxDrawDown elapse : {}", endGetNewMaxDrawDown - beginGetNewMaxDrawDown);
-//            logger.info("MaxDrawDown: {}", maximumRetracement);
-
             Map<String, Object> updateParam = new HashMap<>();
             updateParam.put("fund_group_id", group_id);
             updateParam.put("subGroupId", subGroupId);
@@ -1517,6 +1516,65 @@ public class FundGroupService {
         logger.info("getNavadj end");
     }
 
+    /**
+     * 计算基金组合的最大回撤
+     *
+     * @param groupId
+     * @param subGroupId
+     */
+    public void calculateMaxRetracement(String groupId, String subGroupId) {
+        List<FundGroupHistory> fundGroupHistorySrc = fundGroupHistoryMapper.findAllByDateBefore(LocalDate.now().plusDays(1), groupId, subGroupId);
+
+        if (CollectionUtils.isEmpty(fundGroupHistorySrc))
+            return;
+        List<FundGroupHistory> fundGroupHistoryDest = new ArrayList<>(fundGroupHistorySrc.size());
+        FundGroupHistory start = fundGroupHistorySrc.get(0);
+        fundGroupHistoryDest.add(new FundGroupHistory(groupId, subGroupId, start.getIncome_num(), 0L, start.getTime()));
+
+        List<Double> values = new ArrayList<>(fundGroupHistorySrc.size());
+        values.add(start.getIncome_num());
+        for (int i = 1; i < fundGroupHistorySrc.size(); i++) {
+            FundGroupHistory fundGroupHistoryPre = fundGroupHistorySrc.get(i - 1);
+            FundGroupHistory fundGroupHistory = fundGroupHistorySrc.get(i);
+            values.add(fundGroupHistory.getIncome_num());
+            Double maxRetracement = 0D;
+            if (fundGroupHistory.getIncome_num() > fundGroupHistoryPre.getIncome_num()) {
+                maxRetracement = fundGroupHistoryDest.get(i - 1).getMaximum_retracement();
+            } else {
+                maxRetracement = CalculateMaxdrawdowns.calculateMaxdrawdown(values);
+            }
+            fundGroupHistoryDest.add(new FundGroupHistory(groupId, subGroupId, fundGroupHistory.getIncome_num(), maxRetracement, fundGroupHistory.getTime()));
+        }
+        fundGroupHistoryMapper.updateMaxDrawDownFromList(fundGroupHistoryDest, groupId, subGroupId);
+    }
+
+
+    /**
+     * 计算基金组合特定日期最大回撤
+     *
+     * @param groupId
+     * @param subGroupId
+     * @param date
+     */
+    public void calculateMaxRetracement(String groupId, String subGroupId, LocalDate date) {
+
+        List<FundGroupHistory> fundGroupHistoryOrigin = fundGroupHistoryMapper.findAllByDateBefore(LocalDate.now().plusDays(1), groupId, subGroupId);
+        List<Double> values = new ArrayList<>(fundGroupHistoryOrigin.size());
+        for (FundGroupHistory fundGroupHistory : fundGroupHistoryOrigin) {
+            values.add(fundGroupHistory.getIncome_num());
+        }
+        Double maxDrawdown = CalculateMaxdrawdowns.calculateMaxdrawdown(values);
+        FundGroupHistory fundGroupHistory = new FundGroupHistory();
+        fundGroupHistory.setFund_group_id(groupId);
+        fundGroupHistory.setFund_group_sub_id(subGroupId);
+        fundGroupHistory.setTime(InstantDateUtil.localDate2Date(date));
+        fundGroupHistory.setMaximum_retracement(maxDrawdown);
+        fundGroupHistoryMapper.updateMaxDrawDown(fundGroupHistory);
+    }
+
+    /**
+     * 　计算组合复权单位净值
+     */
     public void calculateGroupNavadj(LocalDate date) {
         List<Interval> fundGroupDetails = fundGroupMapper.getAllIdAndSubId();
         for (Interval interval : fundGroupDetails) {
@@ -1793,6 +1851,7 @@ public class FundGroupService {
      * @param list
      * @return
      */
+    @Deprecated
     public double getMaxdrawdowns(List<FundNetVal> list) {
         double[] temp = new double[list.size()];
         for (int i = 0; i < list.size(); i++) {
@@ -1835,8 +1894,7 @@ public class FundGroupService {
             }
         }
         Double maximumRetracement = 0d;
-        int length = data.size();
-        if (length > 1) {
+        if (data.size() > 1) {
             maximumRetracement = CalculateMaxdrawdowns.calculateMaxdrawdown(data);
         }
         return maximumRetracement;

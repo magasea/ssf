@@ -19,22 +19,36 @@ import java.util.List;
 @SpringBootTest
 @ActiveProfiles("it")
 public class FundGroupServiceImplTest {
-  @Autowired
-  FundGroupService fundGroupService;
+    @Autowired
+    FundGroupService fundGroupService;
 
-  @Test
-  public void getDailyFunds() throws Exception {
-    String groupId = "1";
-    String subGroupId = "10058";
-    List<LocalDate> result = fundGroupService.getNavlatestdateCount(groupId,subGroupId);
-    Assert.assertNotNull("数据为空",result);
-  }
+    @Test
+    public void getNavlatestdateCount() throws Exception {
+        String groupId = "1";
+        String subGroupId = "10058";
+        List<LocalDate> result = fundGroupService.getNavlatestdateCount(groupId, subGroupId);
+        Assert.assertNotNull("数据为空", result);
+    }
 
-  @Test
-  public void testCalculateGroupNavadj(){
-    String groupId = "1";
-    String subGroupId = "16000";
-    fundGroupService.calculateGroupNavadj(groupId,subGroupId,null);
-  }
+    @Test
+    public void testCalculateGroupNavadj() {
+        String groupId = "1";
+        String subGroupId = "1000";
+        fundGroupService.calculateGroupNavadj(groupId, subGroupId, null);
+    }
+
+    @Test
+    public void testCalculateMaxRetracement() {
+        String groupId = "1";
+        String subGroupId = "1000";
+        fundGroupService.calculateMaxRetracement(groupId, subGroupId, LocalDate.now().plusDays(-1));
+    }
+
+    @Test
+    public void testCalculateMaxRetracementFromList() {
+        String groupId = "1";
+        String subGroupId = "1000";
+        fundGroupService.calculateMaxRetracement(groupId, subGroupId);
+    }
 
 }
