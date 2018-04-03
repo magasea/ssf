@@ -30,6 +30,7 @@ import java.math.MathContext;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -1607,7 +1608,7 @@ public class FundGroupService {
 
         List<FundGroupHistory> fundGroupHistoryList = new LinkedList<>();
         //依次计算每只基金在组合中所占份额，然后求和
-        for (LocalDate date = startDate; date.isBefore(LocalDate.now().plusDays(1)); date = date.plusDays(1)) {
+        for (LocalDate date = startDate; date.isBefore(LocalDate.now(ZoneId.systemDefault()).plusDays(1)); date = date.plusDays(1)) {
             //非交易日不处理
             if (!TradingDayUtils.isTradingDay(date))
                 continue;
