@@ -13,6 +13,7 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -58,20 +59,26 @@ public class CalculateConfirmedAsset {
 		List<UiProductDetail> uiProductDetailList = uiProductDetailRepo
 				.findAllByUserProdId(mongoUiTrdZZInfo.getUserProdId());
 		String date = mongoUiTrdZZInfo.getConfirmDate();
-		String uuid = Optional.ofNullable(userInfoRepository.findById(mongoUiTrdZZInfo.getUserId()))
-				.map(m -> m.getUuid()).orElse("-1");
-		for (UiProductDetail uiProductDetail : uiProductDetailList) {
-			try {
-				userFinanceProdCalcService
-						.calculateFromZzInfo(uiProductDetail, uuid, uiProducts.getProdId(), date);
-			} catch (Exception e) {
-				logger.error("calculate dailyAmount failed:{}", uiProductDetail, e);
+
+		LocalDate  now = LocalDate.now(ZoneId.systemDefault()).plusDays(1);
+		LocalDate confirmDate = InstantDateUtil.format(date,"yyyyMMdd");
+		for (;confirmDate.isBefore(now);confirmDate=confirmDate.plusDays(1)){
+			//从确认日期开始到当前时间的数据都要修正（此处默认此次确认到当前时间没有其他操作）
+			String uuid = Optional.ofNullable(userInfoRepository.findById(mongoUiTrdZZInfo.getUserId()))
+					.map(m -> m.getUuid()).orElse("-1");
+			for (UiProductDetail uiProductDetail : uiProductDetailList) {
+				try {
+					userFinanceProdCalcService
+							.calculateFromZzInfo(uiProductDetail, uuid, uiProducts.getProdId(), date);
+				} catch (Exception e) {
+					logger.error("calculate dailyAmount failed:{}", uiProductDetail, e);
+				}
 			}
+			updateDailyAmountFromZzInfo(uuid, uiProducts.getProdId(), uiProducts.getId(),
+					mongoUiTrdZZInfo.getFundCode(), date,
+					TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZInfo.getTradeConfirmSum()),
+					mongoUiTrdZZInfo.getTradeType());
 		}
-		updateDailyAmountFromZzInfo(uuid, uiProducts.getProdId(), uiProducts.getId(),
-				mongoUiTrdZZInfo.getFundCode(), date,
-				TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZInfo.getTradeConfirmSum()),
-				mongoUiTrdZZInfo.getTradeType());
 	}
 
 	private void updateDailyAmountFromZzInfo(String userUuid, Long prodId, Long userProdId,
