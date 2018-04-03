@@ -74,7 +74,7 @@ public class GroupController {
                 startLocalDate = LocalDate.MIN;
         }
         if (startDate != null)
-            startLocalDate = startDate;
+            startLocalDate = startDate.plusDays(-1);
 
         return dataService
                 .getGroupBaseLine(groupId, InstantDateUtil.getEpochSecondOfZero(startLocalDate),

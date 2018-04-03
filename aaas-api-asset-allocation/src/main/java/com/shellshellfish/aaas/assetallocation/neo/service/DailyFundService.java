@@ -128,25 +128,21 @@ public class DailyFundService {
         }
 
         List<Dailyfunds> dailyFundsDetailList = new ArrayList<>();
-        Map<Date, List<Dailyfunds>> dateSet = new HashMap<>();
+
         //判断 是否 取用 收盘价
         if (benchmarkCode != null && benchmarkCode.contains(code)) {
             for (DailyFunds dailyFunds : dailyFundsList) {
                 Dailyfunds dailyfunds = new Dailyfunds();
                 //每日数据日期格式转换(取 NavLatestDate)
                 dailyfunds.setNavLatestDate(DateUtil.getDateFromFormatStr(SSFDateUtils.getDateStrFromLong(dailyFunds.getNavLatestDate())));
-//                dailyfunds.setCode(dailyFunds.getCode());
+
                 dailyfunds.setCode(code);
                 dailyfunds.setNavUnit(dailyFunds.getNavunit());
                 dailyfunds.setNavAccum(dailyFunds.getNavaccum());
                 dailyfunds.setNavAdj(dailyFunds.getNavadj());
                 dailyfunds.setCreateDate(new Date());
                 dailyFundsDetailList.add(dailyfunds);
-                if(!dateSet.containsKey(dailyfunds.getNavLatestDate())){
-                    List<Dailyfunds> dailyfundsArrayList = new ArrayList<>();
-                    dateSet.put(dailyfunds.getNavLatestDate(), dailyfundsArrayList);
-                }
-                dateSet.get(dailyfunds.getNavLatestDate()).add(dailyfunds);
+
             }
         } else {
             for (DailyFunds dailyFunds : dailyFundsList) {
@@ -159,56 +155,13 @@ public class DailyFundService {
                 dailyfunds.setNavAdj(dailyFunds.getNavadj());
                 dailyfunds.setCreateDate(new Date());
                 dailyFundsDetailList.add(dailyfunds);
-                if(!dateSet.containsKey(dailyfunds.getNavLatestDate())){
-                    List<Dailyfunds> dailyfundsArrayList = new ArrayList<>();
-                    dateSet.put(dailyfunds.getNavLatestDate(), dailyfundsArrayList);
-                }
-                dateSet.get(dailyfunds.getNavLatestDate()).add(dailyfunds);
+
             }
         }
         //插入前先检查该日期是否有记录如果有就先插入再更新，如果没有就直接插入
         Integer effectRows = fundNetValMapper.insertDailyDataToFundNetVal(dailyFundsDetailList);
         effectRows = fundNetValMapper.batchUpdateDailyDataToFundNetVal(dailyFundsDetailList);
-//        dateSet.forEach((key, value)->{
-//            logger.info("key:{}", key);
-//            Map<String, Object> params = new HashMap<>();
-//            params.put("selectDate", key);
-//            List<FundNetVal> fundNetVals = fundNetValMapper.getAllByDate(params);
-//            try {
-//                if(CollectionUtils.isEmpty(fundNetVals)){
-//                    logger.info("fundNetVals is empty of:{}",key);
-//                    Integer effectRows = fundNetValMapper.insertDailyDataToFundNetVal(value);
-//
-//                }else{
-////                    if(fundNetVals.size() == value.size()){
-////                        //说明数据库里面该日期的基金数据已经有了，可以批量更新
-////                        logger.info("fundNetVals.size() == value.size() of:{}",key);
-////                        Integer effectRows = fundNetValMapper.batchUpdateDailyDataToFundNetVal(value);
-////                    }else{
-//                        //说明数据库里面该日期的基金不一定有，先做强制插入在做批量更新
-//                    logger.info("fundNetVals.size() != value.size() of:{}", key);
-//                    Integer effectRows = fundNetValMapper.insertDailyDataToFundNetVal(value);
-//                    effectRows = fundNetValMapper.batchUpdateDailyDataToFundNetVal(value);
-////                    }
-//                }
-//            } catch (Exception e) {
-//                logger.error("Failed: Insert into fund_net_val by call getFundDataOfDay!",e);
-//            }
-//        });
 
-//        if (!CollectionUtils.isEmpty(dailyFundsDetailList)) {
-//            //数据插入 fund_net_val
-//            try {
-//                Integer effectRows = fundNetValMapper.insertDailyDataToFundNetVal(dailyFundsDetailList);
-//                if (effectRows == null) {
-//                    doSuccess = false;
-//                }
-//                logger.debug("Succeed: Insert into fund_net_val by call getFundDataOfDay!");
-//            } catch (Exception e) {
-//                logger.error("Failed: Insert into fund_net_val by call getFundDataOfDay!",e);
-//            }
-//
-//        }
 
         return doSuccess;
     }

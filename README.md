@@ -37,6 +37,20 @@
  - test 和 prod分支不能直接提交改动，改动必须在dev或者紧急修复分支上完成然后merge到test, test分支上的提交
  测试通过后可以merge 到prod分支
 
+14. git merge 原则
+ - test 和 prod分支属于受到保护的分支，不允许直接push
+ - 如果test 和 prod 上需要提交merge, 请直接登录 192.168.1.10 gitlab 网页提交merge 请求: http://192.168.1.10/java/aaas/merge_requests/new
+ - 选择branch src , 选择branch target, 提交merge comment，提交merge
+ - 如果有冲突: 假设本地是dev, 要往test分支merge 那么
+   1. git pull origin dev
+   2. git checkout test
+   3. git pull origin test
+   4. git merge dev
+   5. git checkout dev
+   6. git merge test
+   7. git push origin dev
+   然后到网页去提交merge
+   
 ### 项目端口规范约定
 * aaas-api-asset-allocation 
   - 自身 10020
