@@ -79,8 +79,8 @@ org:
         threadsInheritContextClassLoaderOfInitializingThread: true
 cron:
   frequency:
-    #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
-    #     0	0	5,17,22	?	*	*	*
+    #Seconds  Minutes Hours Day Of Month  Month Day Of Week Year
+    #     0 0 5,17,22 ? * * *
     jobwithcrontrigger: 0 0 5,13,17,22 ? * * *
     jobpreorderpayflowcheck: 0 0 5,13,17,22 ? * * *
 #--- multithread
