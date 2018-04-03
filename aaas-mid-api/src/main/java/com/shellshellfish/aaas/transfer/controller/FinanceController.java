@@ -30,8 +30,8 @@ import org.springframework.web.client.RestTemplate;
 
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.dto.FinanceProductCompo;
-import com.shellshellfish.aaas.model.JsonResult;
-import com.shellshellfish.aaas.service.MidApiService;
+import com.shellshellfish.aaas.oeminfo.model.JsonResult;
+import com.shellshellfish.aaas.oeminfo.service.MidApiService;
 import com.shellshellfish.aaas.transfer.aop.AopTimeResources;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 import com.shellshellfish.aaas.transfer.utils.EasyKit;

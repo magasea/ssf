@@ -16,6 +16,7 @@
   </parent>
   <modules>
     <module>aaas-app-checkfunds</module>
+    <module>aaas-app-oeminfo</module>
   </modules>
 
 </project>
