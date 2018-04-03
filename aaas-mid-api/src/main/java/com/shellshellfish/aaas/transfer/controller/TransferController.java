@@ -29,8 +29,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.dto.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
-import com.shellshellfish.aaas.model.JsonResult;
-import com.shellshellfish.aaas.service.MidApiService;
+import com.shellshellfish.aaas.oeminfo.model.JsonResult;
+import com.shellshellfish.aaas.oeminfo.service.MidApiService;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 import com.shellshellfish.aaas.transfer.service.RiskService;
 
