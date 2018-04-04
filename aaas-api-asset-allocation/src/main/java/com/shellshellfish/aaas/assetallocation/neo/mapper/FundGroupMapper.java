@@ -2,7 +2,7 @@ package com.shellshellfish.aaas.assetallocation.neo.mapper;
 
 import com.shellshellfish.aaas.assetallocation.neo.entity.*;
 import org.apache.ibatis.annotations.Param;
-
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +32,10 @@ public interface FundGroupMapper {
     List<Interval> getFundCode(Map map);
 
     List<String> getFundGroupCodeList(Map map);
+    
+    List<String> getGroupCodeList(Map map);
+    
+    List<Date> getGroupDateList(Map map);
 
     List<Interval> getInterval(Map map);
 
