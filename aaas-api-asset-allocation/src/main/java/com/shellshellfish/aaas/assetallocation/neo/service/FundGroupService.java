@@ -9,15 +9,13 @@ import com.mongodb.client.model.Filters;
 import com.shellshellfish.aaas.assetallocation.neo.enmu.SlidebarTypeEnmu;
 import com.shellshellfish.aaas.assetallocation.neo.enmu.StandardTypeEnmu;
 import com.shellshellfish.aaas.assetallocation.neo.entity.*;
+import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupDetailsMapper;
+import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupHistoryMapper;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
 import com.shellshellfish.aaas.assetallocation.neo.util.*;
-import com.shellshellfish.aaas.common.utils.TradeUtil;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,12 +24,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.*;
+import java.util.concurrent.*;
+
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.BATCH_SIZE_NUM;
+import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.RISK_LEVEL_COUNT;
 //import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.MONGO_DB_COLLECTION;
 
 /**
