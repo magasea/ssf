@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.notNullValue;
 
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,12 +77,13 @@ public class UserInfoControllerIT {
 
 	@Test
 	public void addBankCardsTest() {
-		String uuid = "3a0bc5f0-c491-4718-a6c2-dc716ae308f9";
+		String uuid = "61f34f2f-4c06-4a58-a517-d1f16a15bfb8";
 		String name = "zhangsan";
 		String bankCard = RandomPhoneNumUtil.generateBankCardNoMatchingLuhn();
 		String idcard = "11022619850127211X";
 		String mobile = RandomPhoneNumUtil.generatePhoneNumber();
 		String verifyCode = getVerifyCode(mobile);
+
 
 		given()
 				.param("uuid", uuid)
@@ -101,11 +103,11 @@ public class UserInfoControllerIT {
 
 	@Test
 	public void assetTest() {
-		String uuid = "69ad9732-f9cd-49e9-a71f-0462cc6b4d8e";
-		String totalAssets = "1";
-		String dailyReturn = "1";
-		String totalRevenue = "1";
-		String totalRevenueRate = "1";
+		String uuid = "shellshellfish";
+		String totalAssets = "946.91";
+		String dailyReturn = "-24.85";
+		String totalRevenue = "-31.04";
+		String totalRevenueRate = "0";
 
 
 		given()
@@ -157,16 +159,15 @@ public class UserInfoControllerIT {
 				.then().log().all()
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body("result.result", notNullValue())
-				.body("result.result.totalIncome[0]", notNullValue())
-				.body("result.result.updateDate[0]", notNullValue())
-				.body("result.result.totalAssets[0]", notNullValue())
-				.body("result.result.dailyIncome[0]", notNullValue())
-				.body("result.result.totalIncomeRate[0]", notNullValue())
-				.body("result.result.prodId[0]", notNullValue())
-				.body("result.result.title[0]", notNullValue())
-				.body("result.result.createDate[0]", notNullValue())
-				.body("result.result.status[0]", notNullValue());
+				.body("result", notNullValue())
+				.body("result.totalIncome[0]", notNullValue())
+				.body("result.updateDate[0]", notNullValue())
+				.body("result.totalAssets[0]", notNullValue())
+				.body("result.dailyIncome[0]", notNullValue())
+				.body("result.totalIncomeRate[0]", notNullValue())
+				.body("result.prodId[0]", notNullValue())
+				.body("result.title[0]", notNullValue())
+				.body("result.createDate[0]", notNullValue());
 	}
 
 	@Test
