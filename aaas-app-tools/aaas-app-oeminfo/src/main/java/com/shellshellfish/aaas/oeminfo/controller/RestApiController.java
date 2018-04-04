@@ -20,7 +20,7 @@ import com.shellshellfish.aaas.oeminfo.service.UserService;
 import com.shellshellfish.aaas.oeminfo.util.CustomErrorType;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("AaasOemInfo/api")
 public class RestApiController {
 
 	public static final Logger logger = LoggerFactory.getLogger(RestApiController.class);

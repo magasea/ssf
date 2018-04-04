@@ -410,6 +410,8 @@ public class TransferController {
 
 	@ApiOperation("赎回页面")
 	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "query", name = "oemId", dataType = "String", required = true,
+					value = "归属id", defaultValue = "1"),
 			@ApiImplicitParam(paramType = "query", name = "userUuid", dataType = "String", required = true, value = "客户uuid", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupID", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = ""),
@@ -423,7 +425,8 @@ public class TransferController {
 			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "String", required = true, value = "总金额", defaultValue = "") })
 	@RequestMapping(value = "/sellFundPage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult sellFundPage(String userUuid, String groupId, String subGroupId, String bankNum, String bankName,
+	public JsonResult sellFundPage(String oemId, String userUuid, String groupId, String subGroupId,
+			String bankNum, String bankName,
 			String telNum, String combinationName, String userProdId, String prodId, String totalAmount) {
 		Map result = null;
 		try {
