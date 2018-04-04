@@ -45,15 +45,15 @@ public class FundGroupControllerIT {
 
 	@Test
 	public void getProductDetailTest() {
-		String uuid = "1";
-		String prodId = "178";
-		String groupId = "6";
-		String subGroupId = "60048";
+		String uuid = "3a0bc5f0-c491-4718-a6c2-dc716ae308f9";
+		String prodId = "12";
+		String groupId = "12";
+		String subGroupId = "120048";
 		given()
 				.param("uuid", uuid)
 				.param("prodId", prodId)
-				//.param("groupId",groupId)
-				//.param("subGroupId", subGroupId)
+				.param("groupId",groupId)
+				.param("subGroupId", subGroupId)
 				.filter(new ResponseLoggingFilter())
 				.when()
 				.post(GET_MY_PRODUCT_DETAIL)

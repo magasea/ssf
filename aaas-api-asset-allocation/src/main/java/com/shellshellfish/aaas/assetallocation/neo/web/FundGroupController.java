@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -243,8 +244,9 @@ public class FundGroupController {
         if (returnType.equalsIgnoreCase("income")) {
             return fundGroupService.getFundGroupIncomeAllFromMongo(groupId, subGroupId, returnType);
         }
-
-        return fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, returnType);
+        List<Date> dateList = fundGroupService.getRecentDateInfo();
+        
+        return fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, returnType, dateList);
     }
 
     /**
