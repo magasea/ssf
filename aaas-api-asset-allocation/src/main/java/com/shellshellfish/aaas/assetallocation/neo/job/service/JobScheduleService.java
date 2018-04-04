@@ -20,6 +20,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+import com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal;
 import com.shellshellfish.aaas.assetallocation.neo.job.entity.JobTimeRecord;
 import com.shellshellfish.aaas.assetallocation.neo.returnType.ReturnType;
 import com.shellshellfish.aaas.assetallocation.neo.service.CovarianceCalculateService;
@@ -202,6 +203,8 @@ public class JobScheduleService {
 //    @Scheduled(cron = "0 30 6 * * ?")        //每天 凌晨 6:30 点 执行
     public void getFundGroupIncomeAllJobSchedule() {
         try {
+            List<Date> dateList = fundGroupService.getRecentDateInfo();
+            List<Date> arrayList = new ArrayList<>();
             MongoCollection<Document> collection = mongoDatabase.getCollection(collectionName);
             logger.info(collectionName + "集合选择成功");
 
@@ -209,10 +212,13 @@ public class JobScheduleService {
             String returnType = "income";
             String subfix = SUB_GROUP_ID_SUBFIX;
             for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
+                arrayList = new ArrayList<>();
+                arrayList.addAll(dateList);
+                
                 String groupId = String.valueOf(index);
                 String subGroupId = String.valueOf(index + subfix);
                 String key = groupId + "_" + subGroupId;
-                ReturnType rt = fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, returnType);
+                ReturnType rt = fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, returnType, arrayList);
                 Document document = returnTypeToDocument(key, rt);
                 documents.add(document);
             }

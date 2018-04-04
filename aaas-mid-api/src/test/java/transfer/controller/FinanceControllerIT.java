@@ -141,8 +141,8 @@ public class FinanceControllerIT {
 
 	@Test
 	public void checkPrdDetailsTest() {
-		String groupId = "2";
-		String subGroupId = "20048";
+		String groupId = "8";
+		String subGroupId = "80048";
 
 		given().filter(new ResponseLoggingFilter())
 				.param("groupId", groupId)
