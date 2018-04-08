@@ -16,7 +16,7 @@ public interface RpcOrderService {
 
 	List<OrderDetail> getOrderDetails(Long userProdId, Integer orderDetailStatus);
 
-	String openAccount(BankcardDetailBodyDTO bankcardDetailBodyDTO);
+	String openAccount(BankcardDetailBodyDTO bankcardDetailBodyDTO) throws Exception;
 
-	BankCardDTO createBankCard(BankcardDetailBodyDTO bankcardDetailBodyDTO);
+	BankCardDTO createBankCard(BankcardDetailBodyDTO bankcardDetailBodyDTO) throws Exception;
 }

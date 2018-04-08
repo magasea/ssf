@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.userinfo.service.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.finance.trade.order.BindCardInfo;
+import com.shellshellfish.aaas.finance.trade.order.BindCardResult;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetailQueryInfo;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetailResult;
@@ -71,8 +72,8 @@ public class RpcOrderServiceImpl implements RpcOrderService {
 	}
 
 	@Override
-	public String openAccount(BankcardDetailBodyDTO bankcardDetailBodyDTO) {
-		final String errMsg = "-1";
+	public String openAccount(BankcardDetailBodyDTO bankcardDetailBodyDTO) throws Exception {
+
 		BindCardInfo.Builder bankCardInfo = BindCardInfo.newBuilder();
 		bankCardInfo.setBankName(bankcardDetailBodyDTO.getBankName());
 		bankCardInfo.setCardNo(bankcardDetailBodyDTO.getCardNumber());
@@ -85,18 +86,18 @@ public class RpcOrderServiceImpl implements RpcOrderService {
 		if(null != uiUser.getRiskLevel()){
 			bankCardInfo.setRiskLevel(uiUser.getRiskLevel());
 		}
-		String tradeacco = orderRpcServiceBlockingStub.openAccount(bankCardInfo.build())
-				.getTradeacco();
+		BindCardResult bindCardResult = orderRpcServiceBlockingStub.openAccount(bankCardInfo.build());
+		String tradeacco = bindCardResult.getTradeacco();
 
-		if (tradeacco == null || errMsg.equals(tradeacco)) {
-			return errMsg;
+		if (tradeacco == null || tradeacco.equals("-1")) {
+			throw new Exception(bindCardResult.getErrInfo().getErrMsg());
 		}
 
 		return tradeacco;
 	}
 
 	@Override
-	public BankCardDTO createBankCard(BankcardDetailBodyDTO bankcardDetailVo) {
+	public BankCardDTO createBankCard(BankcardDetailBodyDTO bankcardDetailVo) throws Exception {
 		logger.info("addBankCardWithDetailInfo method run..");
 		Map<String, Object> result = new HashMap<>();
 		ObjectMapper mapper = new ObjectMapper();

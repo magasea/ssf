@@ -139,4 +139,9 @@ public class TradeUtilTest {
     System.out.println(test);
   }
 
+  @Test
+  public void testLongParseNagativeStr(){
+    String orig = "-10000";
+    System.out.println(Long.parseLong(orig));
+  }
 }
