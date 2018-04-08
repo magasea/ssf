@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,13 +19,14 @@ public class DataManagerService {
     private RestTemplate restTemplate;
 
 
-    public Map<String,Object> getBaseLine(Long groupId, Integer peroid){
-        String methodUrl ="/api/datamanager/getGroupBaseLine";
+    public Map<String, Object> getBaseLine(Long groupId, Integer period, LocalDate startDate) {
+        String methodUrl = "/api/datamanager/getGroupBaseLine";
         Map params = new HashMap();
-        params.put("groupId",groupId.toString());
-        params.put("period",peroid.toString());
+        params.put("groupId", groupId.toString());
+        params.put("period", period.toString());
+        params.put("startDate", startDate.toString());
 
-        Map result = restTemplate.getForEntity(URLutils.prepareParameters(url+methodUrl,params),Map.class).getBody();
+        Map result = restTemplate.getForEntity(URLutils.prepareParameters(url + methodUrl, params), Map.class).getBody();
         return result;
     }
 
