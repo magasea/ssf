@@ -56,6 +56,12 @@ public class FundDetailedControllerIT {
 	}
 
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/getFundCompanyDetailInfo
+	 * 接口作用：根据基金公司的名称获取该公司相应的基金数据
+	 * 参数：{name ：基金公司名称}
+	 */
 	@Test
 	public void getFundCompanyTest() {
 		String name = "天弘基金管理有限公司";
@@ -70,6 +76,13 @@ public class FundDetailedControllerIT {
 				.body(matchesJsonSchemaInClasspath(GET_FUND_COMPANY_DETAIL_INFO_SCHEMA_NAME));
 	}
 
+
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/getFundDetails
+	 * 接口作用：根据基金编码与日期获取该基金的详细数据
+	 * 参数：{code ：基金编码，date ：日期}
+	 */
 	@Test
 	public void getFundDetailsTest() {
 		String code = "000216.OF";
@@ -88,6 +101,13 @@ public class FundDetailedControllerIT {
 				.body(matchesJsonSchemaInClasspath(GET_FUND_DETAILS_SCHEMA_NAME));
 	}
 
+
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/getFundInfoBycode
+	 * 接口作用：根据基金编码获取基金的大概数据
+	 * 参数：{code ：基金编码}
+	 */
 	@Test
 	public void getFundInfoBycodeTest() {
 
@@ -104,6 +124,13 @@ public class FundDetailedControllerIT {
 				.body(matchesJsonSchemaInClasspath(GET_FUND_INFO_BY_CODE_SCHEMA_NAME));
 	}
 
+
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/getFundManager
+	 * 接口作用：根据金金经理的姓名获取他管理的基金数据
+	 * 参数：{name ：基金经理姓名}
+	 */
 	@Test
 	public void getFundManagerTest() throws UnsupportedEncodingException {
 
@@ -120,6 +147,13 @@ public class FundDetailedControllerIT {
 				.body(matchesJsonSchemaInClasspath(GET_FUND_MANAGER_SCHEMA_NAME));
 	}
 
+
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/getFundNotices
+	 * 接口作用：根据基金编码获取该基金的公告信息数据
+	 * 参数：{code ：基金编码}
+	 */
 	@Test
 	public void getFundNoticesTest() {
 
@@ -136,6 +170,13 @@ public class FundDetailedControllerIT {
 				.body(matchesJsonSchemaInClasspath(GET_FUND_NOTICES_SCHEMA_NAME));
 	}
 
+
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/getHistoryNetvalue
+	 * 接口作用：根据参数指定基金的收益走势&历史净值
+	 * 参数：{code ：基金编码，type ：类型(1: 3month,2: 6month,3: 1year,4: 3year)，date ：日期}
+	 */
 	@Test
 	public void getHistoryNetvalueTest() {
 
