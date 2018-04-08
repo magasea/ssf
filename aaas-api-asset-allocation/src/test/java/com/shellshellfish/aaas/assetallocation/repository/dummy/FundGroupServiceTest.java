@@ -118,8 +118,8 @@ public class FundGroupServiceTest {
 
     @Test
     public void getFundGroupIncomeTest() throws ParseException {
-        ReturnType e = fundGroupService.getFundGroupIncomeAll("14", "140049", "income");
-        System.out.println(e);
+        //ReturnType e = fundGroupService.getFundGroupIncomeAll("14", "140049", "income");
+        //System.out.println(e);
     }
 
     @Test
