@@ -28,6 +28,11 @@ public class OemInfoServiceImpl extends OemInfoServiceImplBase implements OemInf
   public void getOemInfoByOemId(com.shellshellfish.aaas.tools.oeminfo.OemInfoQuery request,
       io.grpc.stub.StreamObserver<com.shellshellfish.aaas.tools.oeminfo.OemInfoResult> responseObserver) {
 
+      getOemInfo((long) request.getOemId()).forEach(
+          (key, value) ->{
+
+          }
+      );
   }
 
   @Override
