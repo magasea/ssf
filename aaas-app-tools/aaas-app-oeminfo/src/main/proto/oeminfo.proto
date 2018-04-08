@@ -11,7 +11,7 @@ service OemInfoService {
 }
 
 message OemInfoQuery {
-    int32 oemId = 1;
+    int64 oemId = 1;
 }
 
 message OemInfoResult{
