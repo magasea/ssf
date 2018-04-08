@@ -66,3 +66,4 @@ nohup java -jar -Dspring.profiles.active=dev ${aal_work}/${aal_file_name} 2>&1 &
 cd ${dcl_work}
 nohup java -jar -Dspring.profiles.active=dev ${dcl_work}/${dcl_file_name} 2>&1 &
 
+exit

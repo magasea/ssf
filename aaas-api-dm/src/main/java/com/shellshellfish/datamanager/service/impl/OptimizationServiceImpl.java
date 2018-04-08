@@ -134,6 +134,7 @@ public class OptimizationServiceImpl implements OptimizationService {
                         // Map ExpMaxReturn=getExpMaxReturn(g,subGroupId);
                         // 将结果封装进实体类
                         Map baseLine = groupController.getGroupBaseLine(Long.parseLong(groupId), null, InstantDateUtil.format(startDate), 5);
+                        baseLine = align(histYieldRate, baseLine);
                         FinanceProductCompo prd = new FinanceProductCompo(groupId, subGroupId, prdName,
                                 expAnnReturn.size() > 0 ? expAnnReturn.get("value").toString() : null, productCompo,
                                 histYieldRate, baseLine);
@@ -178,6 +179,32 @@ public class OptimizationServiceImpl implements OptimizationService {
             logger.error("jsonResult 结果为空");
         }
         return jsonResult;
+    }
+
+
+    private Map align(Map src, Map target) {
+
+        List<Map<String, Object>> srcList = Optional.ofNullable(src.get("_items"))
+                .map(m -> ((List) m).get(0))
+                .map(m -> (List<Map<String, Object>>) (((Map) m).get("income")))
+                .orElse(new ArrayList<>(0));
+        List<Map<String, Object>> targetList = (List<Map<String, Object>>) target.get("value");
+        Set<String> set = new TreeSet<>();
+
+        for (Map<String, Object> map : srcList) {
+            set.add((String) map.get("time"));
+        }
+
+
+        Iterator<Map<String, Object>> it = targetList.iterator();
+        while (it.hasNext()) {
+            String date = Optional.of(it.next()).map(m -> m.get("date")).orElse("").toString();
+            if (!set.contains(date))
+                it.remove();
+        }
+
+        target.put("value", targetList);
+        return target;
     }
 
     /**
@@ -471,7 +498,7 @@ public class OptimizationServiceImpl implements OptimizationService {
 //			mongoFinanceDetail.setHead(jsonResult.getHead());
             mongoFinanceDetail.setResult(result);
 //          System.out.println("---\n" + jsonResult.getResult().toString());
-            System.out.println("groupId:"+groupId+", subGroupId:"+subGroupId);
+            System.out.println("groupId:" + groupId + ", subGroupId:" + subGroupId);
             mongoFinanceDetail.setLastModifiedBy(utcTime + "");
 //			mongoFinanceDetailRepository.deleteAll();
 //			MongoFinanceDetail mongoFinanceCount = mongoFinanceDetailRepository.findAllByDateAndGroupIdAndSubGroupId(date, groupId, subGroupId);

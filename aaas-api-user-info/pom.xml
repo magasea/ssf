@@ -31,7 +31,7 @@
 		<maven-surefire-plugin.version>2.11</maven-surefire-plugin.version>
 		<maven-surefire-report-plugin.version>2.11</maven-surefire-report-plugin.version>
 		<jxr-maven-plugin.version>2.3</jxr-maven-plugin.version>
-		<grpc.version>1.8.0</grpc.version><!-- CURRENT_GRPC_VERSION -->
+		<grpc.version>1.10.0</grpc.version><!-- CURRENT_GRPC_VERSION -->
 		<swagger.version>2.7.0</swagger.version>
 		<quartz.version>2.2.3</quartz.version>
 	</properties>

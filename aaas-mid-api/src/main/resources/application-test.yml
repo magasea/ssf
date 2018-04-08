@@ -4,6 +4,9 @@ server:
 grpc:
   host: localhost
   port: 10131
+  oeminfo:
+    host: localhost
+    port: 10161
 logging:
   level:
     org.hibernate.SQL: DEBUG
