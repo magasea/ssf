@@ -82,8 +82,9 @@ public class RpcOrderServiceImpl implements RpcOrderService {
 
 		bankCardInfo.setUserPhone(bankcardDetailBodyDTO.getCardCellphone());
 		UiUser uiUser = userInfoRepository.findById(bankcardDetailBodyDTO.getUserId());
-		bankCardInfo.setRiskLevel(uiUser.getRiskLevel());
-
+		if(null != uiUser.getRiskLevel()){
+			bankCardInfo.setRiskLevel(uiUser.getRiskLevel());
+		}
 		String tradeacco = orderRpcServiceBlockingStub.openAccount(bankCardInfo.build())
 				.getTradeacco();
 
