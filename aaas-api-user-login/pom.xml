@@ -29,7 +29,7 @@
 		<junit.version>4.12</junit.version>
 		<lombok.version>1.16.10</lombok.version>
 
-		<grpc.version>1.8.0</grpc.version><!-- CURRENT_GRPC_VERSION -->
+		<grpc.version>1.10.0</grpc.version><!-- CURRENT_GRPC_VERSION -->
     <fabric8.generator.from>fabric8/s2i-java</fabric8.generator.from>
 	</properties>
 

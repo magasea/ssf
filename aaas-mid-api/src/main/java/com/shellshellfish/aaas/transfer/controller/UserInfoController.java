@@ -23,9 +23,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.shellshellfish.aaas.common.enums.CombinedStatusEnum;
+import com.shellshellfish.aaas.common.enums.TradeResultStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.utils.BankUtil;
-import com.shellshellfish.aaas.model.JsonResult;
+import com.shellshellfish.aaas.oeminfo.model.JsonResult;
 import com.shellshellfish.aaas.transfer.aop.AopTimeResources;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
@@ -609,6 +611,31 @@ public class UserInfoController {
 				result.put("bankName", bankName == null ? "" : bankName);
 				result.put("bankCard", bankCard == null ? "" : bankCard);
 				result.put("poundage", poundage == null ? "" : poundage);
+				
+				Map<Object, Object> sellDetailMap = restTemplate.getForEntity(tradeOrderUrl + "/api/trade/funds/sellDetails/" + orderId, Map.class).getBody();
+				if (sellDetailMap.get("detailList") == null) {
+					logger.error("产品详情-detailList-获取失败");
+				} else {
+					Map<Object,Object> statusMap = new HashMap();
+					List detail = (List) sellDetailMap.get("detailList");
+					if (detail != null || detail.size() != 0) {
+						Object status = "";
+						for (int i = 0; i < detail.size(); i++) {
+							Map map = (Map) detail.get(i);
+							status = map.get("fundstatus");
+							statusMap.put(status, status);
+						}
+						if(statusMap.size()==1){
+							if(CombinedStatusEnum.CONFIRMED.getComment().equals(status)){
+								result.put("status", TradeResultStatusEnum.SUCCESS.getComment());
+							} else if(CombinedStatusEnum.CONFIRMEDFAILED.getComment().equals(status)){
+								result.put("status", TradeResultStatusEnum.FAIL.getComment());
+							} 
+						} else {
+							result.put("status", TradeResultStatusEnum.SOMESUCCESS.getComment());
+						}
+					}
+				}
 
 				if (result.get("date1") != null) {
 					String date1 = result.get("date1") + "";

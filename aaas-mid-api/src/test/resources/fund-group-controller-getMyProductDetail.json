@@ -40,10 +40,7 @@
                 ]
               },
               "todayIncome": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": "number"
               },
               "fundCode": {
                 "type": [

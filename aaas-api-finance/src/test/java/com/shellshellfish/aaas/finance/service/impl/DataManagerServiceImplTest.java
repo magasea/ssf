@@ -18,27 +18,23 @@ import java.util.Map;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = FinanceApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-@ActiveProfiles(profiles="dev")
+@ActiveProfiles(profiles = "dev")
 public class DataManagerServiceImplTest {
-  
 
 
-  @Autowired
-  DataManagerService dataManagerService;
+    @Autowired
+    DataManagerService dataManagerService;
 
-  @Test
-  public void testGetBaseline() throws Exception {
-  Long groupId = 1L;
-  Integer  period = 5;
+    @Test
+    public void testGetBaseline() {
+        Long groupId = 1L;
+        Integer period = 5;
 
-  Map map =dataManagerService.getBaseLine(groupId,period);
-    Assert.assertNotNull("不为空",map);
-    Assert.assertNotEquals(new HashMap(),map);
-    System.out.println(map.size());
-  }
-
-
-
+        Map map = dataManagerService.getBaseLine(groupId, period, null);
+        Assert.assertNotNull("不为空", map);
+        Assert.assertNotEquals(new HashMap(), map);
+        System.out.println(map.size());
+    }
 
 
 }

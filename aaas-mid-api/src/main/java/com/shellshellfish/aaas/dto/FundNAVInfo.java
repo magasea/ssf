@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.shellshellfish.aaas.model.MonetaryFund;
+import com.shellshellfish.aaas.oeminfo.model.MonetaryFund;
 import com.shellshellfish.aaas.transfer.utils.EasyKit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

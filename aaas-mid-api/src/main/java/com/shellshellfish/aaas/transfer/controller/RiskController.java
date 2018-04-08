@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.shellshellfish.aaas.dto.SurveyResult;
-import com.shellshellfish.aaas.model.JsonResult;
+import com.shellshellfish.aaas.oeminfo.model.JsonResult;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 
 import io.swagger.annotations.Api;
