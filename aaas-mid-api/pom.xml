@@ -323,22 +323,7 @@
                             <outputDirectory>src/main/proto</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>../../proto/pay/</directory>
-                                </resource>
-                                <resource>
-                                    <directory>../../proto/trade/</directory>
-                                </resource>
-                                <resource>
-                                    <directory>../../proto/finance/</directory>
-                                </resource>
-                                <resource>
-                                    <directory>../../proto/order/</directory>
-                                </resource>
-                                <resource>
-                                    <directory>../../proto/userinfo/</directory>
-                                </resource>
-                                <resource>
-                                    <directory>../../proto/datacollection/</directory>
+                                    <directory>../proto/app-tools/oeminfo/</directory>
                                 </resource>
                                 <resource>
                                     <directory>../../proto/common/</directory>

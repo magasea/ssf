@@ -3,6 +3,7 @@ package com.shellshellfish.aaas;
 import com.shellshellfish.aaas.oeminfo.configuration.JpaConfiguration;
 import io.grpc.Server;
 import java.io.IOException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -16,6 +17,7 @@ public class AaasOEMInfoApp {
 
 
 
+	@Autowired
 	private static Server server;
 
 	public static void main(String[] args) throws IOException, InterruptedException {

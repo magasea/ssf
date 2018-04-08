@@ -85,7 +85,7 @@ daily-finance-calculate-thread: 8
 
 #oeminfo
 oem_info:
-  - oem_id: 1
+  oem_id: 1
     oem_name: 贝贝鱼
-  - oem_id: 2
+  oem_id: 2
     oem_name: 百合

@@ -129,7 +129,10 @@ public class IndexServiceImpl implements IndexService {
             Map first = returnType.get_items().get(0);
             LocalDate date = InstantDateUtil.format((String) first.get("time"));
 
-            resultC.put("baseLine", dataManagerService.getBaseLine(Long.parseLong(groupId), 5, date));
+
+            Map baseLine = dataManagerService.getBaseLine(Long.parseLong(groupId), 5, date);
+            resultC.put("baseLine", baseLine);
+            align(returnType, baseLine, resultC);
             result.put("C5", resultC);
 
             riskList.add(investmentHorizonMap);
@@ -228,8 +231,10 @@ public class IndexServiceImpl implements IndexService {
                         Map first = returnType.get_items().get(0);
                         LocalDate date = InstantDateUtil.format((String) first.get("time"));
 
-                        resultC.put("baseLine", dataManagerService.getBaseLine(Long.parseLong(groupId), 5, date));
+                        Map baseLine = dataManagerService.getBaseLine(Long.parseLong(groupId), 5, date);
+                        resultC.put("baseLine", baseLine);
                         result.put(key + "", resultC);
+                        align(returnType, baseLine, resultC);
                     }
 
                     Collections.sort(riskList, (o1, o2) -> {
@@ -257,6 +262,31 @@ public class IndexServiceImpl implements IndexService {
 
         return result;
     }
+
+
+    private void align(ReturnType returnType, Map target, Map result) {
+
+        List<Map<String, Object>> srcList = returnType.get_items();
+        List<Map<String, Object>> targetList = (List<Map<String, Object>>) target.get("value");
+        Set<String> set = new TreeSet<>();
+
+        for (Map<String, Object> map : srcList) {
+            set.add((String) map.get("time"));
+        }
+
+
+        Iterator<Map<String, Object>> it = targetList.iterator();
+        while (it.hasNext()) {
+            String date = Optional.of(it.next()).map(m -> m.get("date")).orElse("").toString();
+            if (!set.contains(date))
+                it.remove();
+        }
+
+        target.put("value", targetList);
+        result.put("baseLine", target);
+
+    }
+
 
     @Override
     public ChartResource getChart() {

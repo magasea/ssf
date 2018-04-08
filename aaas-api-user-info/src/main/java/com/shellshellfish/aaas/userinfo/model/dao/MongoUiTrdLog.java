@@ -9,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import org.springframework.data.mongodb.core.index.IndexDirection;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -37,7 +39,9 @@ public class MongoUiTrdLog implements Serializable {
 
   @Field( value = "last_modified_date")
   private Long lastModifiedDate;
-
+  
+  @Indexed(direction = IndexDirection.DESCENDING)
+  @Field( value = "operations")
   private int operations;
 
   @Field( value = "user_prod_id")
@@ -51,6 +55,7 @@ public class MongoUiTrdLog implements Serializable {
   private int tradeStatus;
 
   @Field( value = "user_id")
+  @Indexed(direction = IndexDirection.DESCENDING)
   private Long userId;
 
   @Field( value = "fund_code")
