@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestTemplate;
 
-import com.shellshellfish.aaas.service.MidApiService;
+import com.shellshellfish.aaas.oeminfo.service.MidApiService;
 import com.shellshellfish.aaas.transfer.service.impl.MidApiServiceImpl;
 
 

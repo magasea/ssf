@@ -3,7 +3,6 @@ package com.shellshellfish.aaas.transfer.controller;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -29,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.URLutils;
-import com.shellshellfish.aaas.model.JsonResult;
+import com.shellshellfish.aaas.oeminfo.model.JsonResult;
 import com.shellshellfish.aaas.transfer.aop.AopTimeResources;
 
 import io.swagger.annotations.Api;
