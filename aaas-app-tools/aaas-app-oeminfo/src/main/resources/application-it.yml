@@ -58,6 +58,7 @@ datasource:
       dialect: org.hibernate.dialect.MySQLDialect
   
 grpc:
+  port: 10161
   userinfo:
     host: localhost
     port: 10061
@@ -81,3 +82,9 @@ api-asset-alloction-url: http://localhost:10020
 
 # 每日收益计算 多线程
 daily-finance-calculate-thread: 8
+
+oem_info:
+  oem_id: 1
+    oem_name: 贝贝鱼
+  oem_id: 2
+    oem_name: 百合

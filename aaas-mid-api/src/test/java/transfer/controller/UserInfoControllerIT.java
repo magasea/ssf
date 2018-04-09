@@ -279,14 +279,16 @@ public class UserInfoControllerIT {
 	public void sellresultTest() {
 		String uuid = "69ad9732-f9cd-49e9-a71f-0462cc6b4d8e";
 		String prodId = "21";
+		String orderId = "1892340001000001514963111416";
 		String buyfee = "100";
-		String bankName = "中国银行";
+		String bankName = new String("中国银行".getBytes(), Charset.forName("ISO-8859-1"));
 		String bankCard = "0859";
 
 
 		given()
 				.param("uuid", uuid)
 				.param("prodId", prodId)
+				.param("orderId",orderId)
 				.param("buyfee", buyfee)
 				.param("bankName", bankName)
 				.param("bankCard", bankCard)
