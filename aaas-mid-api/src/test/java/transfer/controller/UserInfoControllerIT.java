@@ -75,6 +75,16 @@ public class UserInfoControllerIT {
 	}
 
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/addBankCards
+	 * 接口作用：添加银行卡
+	 * 参数：{
+	 *     uuid ：用户ID，name ：用户姓名
+	 *     bankCard ：银行卡号，idcard ：身份证号
+	 *     mobile ：手机号，verifyCode ：验证码
+	 * }
+	 */
 	@Test
 	public void addBankCardsTest() {
 		String uuid = "61f34f2f-4c06-4a58-a517-d1f16a15bfb8";
@@ -101,6 +111,17 @@ public class UserInfoControllerIT {
 				.body("result.status", notNullValue());
 	}
 
+
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/asset
+	 * 接口作用：获取用户的资产总览数据
+	 * 参数：{
+	 *     uuid ：用户ID，totalAssets ：总资产
+	 *     dailyReturn ：日收益，totalRevenue ：累计收益
+	 *     totalRevenueRate ：累计收益率
+	 * }
+	 */
 	@Test
 	public void assetTest() {
 		String uuid = "shellshellfish";
@@ -130,6 +151,14 @@ public class UserInfoControllerIT {
 				.body("result.trendYield.value[0]", notNullValue());
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/banks
+	 * 接口作用：根据银行卡号获得银行卡名称
+	 * 参数：{
+	 *     bankNum :银行卡号
+	 * }
+	 */
 	@Test
 	public void banksTest() {
 		String bankNum = "6210986802084484920";
@@ -146,6 +175,14 @@ public class UserInfoControllerIT {
 				.body("result.bankName", notNullValue());
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/chicombination
+	 * 接口作用：获得用户的智投组合数据
+	 * 参数：{
+	 *     uuid ：用户ID
+	 * }
+	 */
 	@Test
 	public void chiCombinationTest() {
 		String uuid = "3a0bc5f0-c491-4718-a6c2-dc716ae308f9";
@@ -170,6 +207,14 @@ public class UserInfoControllerIT {
 				.body("result.createDate[0]", notNullValue());
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/personalInformation
+	 * 接口作用：获得个人信息数据
+	 * 参数：{
+	 *     uuid ：用户ID
+	 * }
+	 */
 	@Test
 	public void personalInformationTest() {
 		String uuid = "3a0bc5f0-c491-4718-a6c2-dc716ae308f9";
@@ -192,6 +237,14 @@ public class UserInfoControllerIT {
 				.body("result.userBaseInfo", hasKey("riskLevel"));
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/selectbanks
+	 * 接口作用：获得用户的银行卡列表
+	 * 参数：{
+	 *     uuid ：用户ID
+	 * }
+	 */
 	@Test
 	public void selectBanksTest() {
 		String uuid = "3a0bc5f0-c491-4718-a6c2-dc716ae308f9";
@@ -212,6 +265,16 @@ public class UserInfoControllerIT {
 				.body("result.bankcardSecurity[0]", notNullValue());
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/sellresult
+	 * 接口作用：根据用户、产品编号等得到交易结果（赎回）
+	 * 参数：{
+	 *     uuid ：用户ID，prodId ：产品ID
+	 *     buyfee ：预计费用，bankName ：银行卡名称
+	 *     bankCard ：银行卡号
+	 * }
+	 */
 	@Test
 	public void sellresultTest() {
 		String uuid = "69ad9732-f9cd-49e9-a71f-0462cc6b4d8e";
@@ -239,6 +302,14 @@ public class UserInfoControllerIT {
 				.body("result.date1", notNullValue());
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/systemMsg
+	 * 接口作用：获得系统消息
+	 * 参数：{
+	 *     uuid ：用户ID
+	 * }
+	 */
 	@Test
 	public void systemMsgTest() {
 		String uuid = "3a0bc5f0-c491-4718-a6c2-dc716ae308f9";
@@ -273,6 +344,16 @@ public class UserInfoControllerIT {
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS));
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/traderesult
+	 * 接口作用：根据用户ID、产品ID等数据获得指定的交易结果（购买）
+	 * 参数：{
+	 *     uuid ：用户ID，prodId ：产品ID
+	 *     buyfee ：预计费用，bankName ：银行卡名称
+	 *     bankCard ：银行卡号
+	 * }
+	 */
 	@Test
 	public void tradeResultTest() {
 
@@ -299,6 +380,14 @@ public class UserInfoControllerIT {
 				.body("result.buyfee", notNullValue());
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/invationFriends
+	 * 接口作用：获得智投推送消息
+	 * 参数：{
+	 *     uuid ：用户ID
+	 * }
+	 */
 	@Test
 	public void invationFriendsTest() {
 		String uuid = "3a0bc5f0-c491-4718-a6c2-dc716ae308f9";
