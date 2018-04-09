@@ -76,7 +76,8 @@ public class FinanceController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID"),
 			@ApiImplicitParam(paramType = "query", name = "isTestFlag", dataType = "String", required = false, value = "是否测评（1-已做 0-未做）"),
-			@ApiImplicitParam(paramType = "query", name = "testResult", dataType = "String", required = false, value = "测评结果", defaultValue = "平衡型")
+			@ApiImplicitParam(paramType = "query", name = "testResult", dataType = "String", required = false, value = "测评结果", defaultValue = "平衡型"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "1")
 	})
 	@RequestMapping(value = "/finance-home", method = RequestMethod.POST)
 	@ResponseBody
@@ -84,7 +85,8 @@ public class FinanceController {
 	public JsonResult financeHome(
 			@RequestParam(required = false) String uuid,
 			@RequestParam(required = false) String isTestFlag,
-			@RequestParam(required = false) String testResult) {
+			@RequestParam(required = false) String testResult,
+			@RequestParam(required = false) Long oemid) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		logger.info("mid financeHome method run..");
 		try {
@@ -107,6 +109,19 @@ public class FinanceController {
 				/*result.put("msg", "获取失败");*/
 				return new JsonResult(JsonResult.SUCCESS, "没有获取到产品", JsonResult.EMPTYRESULT);
 			} else {
+				List bannerList = new ArrayList();
+				if (oemid == null || oemid == 1) {
+					bannerList.add("http://47.96.164.161:81/1.png");
+					bannerList.add("http://47.96.164.161:81/2.png");
+					bannerList.add("http://47.96.164.161:81/3.png");
+					bannerList.add("http://47.96.164.161:81/4.png");
+				} else if(oemid == 2){
+					bannerList.add("http://47.96.164.161/1.png");
+					bannerList.add("http://47.96.164.161/2.png");
+					bannerList.add("http://47.96.164.161/3.png");
+					bannerList.add("http://47.96.164.161/4.png");
+				}
+				result.put("banner_list", bannerList);
 				for (Object obj : result.values()) {
 					if (obj != null && obj instanceof Map) {
 						Map objMap = (Map) obj;
@@ -138,7 +153,7 @@ public class FinanceController {
 								maxminMap.put("maxValue", Collections.max(maxminList));
 								income6monthMap.put("maxMinMap", maxminMap);
 							}
-						}
+						} 
 						if (objMap.containsKey("product_list")) {
 							List productList = (List) objMap.get("product_list");
 							if (productList != null && productList.size() > 0) {
@@ -278,13 +293,35 @@ public class FinanceController {
 	}
 	
 	@ApiOperation("进入理财页面后的数据")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "1")
+	})
 	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
-	public JsonResult financeModule() {
+	public JsonResult financeModule(@RequestParam(required = false) Long oemid) {
 		// 先获取全部产品
 		JsonResult result = restTemplate
 				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage", JsonResult.class).getBody();
+		Object obj = result.getResult();
+		if(obj!=null){
+			HashMap resultMap = (HashMap) obj;
+			List bannerList = new ArrayList();
+			if (oemid == null || oemid == 1) {
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner01.png");
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner02.png");
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner03.png");
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner04.png");
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner05.png");
+			} else if(oemid == 2){
+				bannerList.add("http://47.96.164.161/APP-invest-banner01.png");
+				bannerList.add("http://47.96.164.161/APP-invest-banner02.png");
+				bannerList.add("http://47.96.164.161/APP-invest-banner03.png");
+				bannerList.add("http://47.96.164.161/APP-invest-banner04.png");
+				bannerList.add("http://47.96.164.161/APP-invest-banner05.png");
+			}
+			resultMap.put("banner_list", bannerList);
+		}
 		return result;
 	}
 

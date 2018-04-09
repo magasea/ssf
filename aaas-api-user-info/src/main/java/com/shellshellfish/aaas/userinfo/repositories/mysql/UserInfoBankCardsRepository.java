@@ -23,8 +23,8 @@ public interface UserInfoBankCardsRepository extends
 
 	List<UiBankcard> findAllByCardNumber(String cardNumber);
 
-	@Override
-	UiBankcard findOne(Long userId);
+
+//	UiBankcard findOne(Long userId);
 
 	//  @Query("select u from ui_bankcard u where u.bank_name = ?1")
 	List<UiBankcard> findByBankName(String bankName);
