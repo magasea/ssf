@@ -24,8 +24,6 @@ shellshellfish:
   data-manager-url: "http://localhost:10030"
   
 
-
-
 security:
   basic:
     enabled: false
