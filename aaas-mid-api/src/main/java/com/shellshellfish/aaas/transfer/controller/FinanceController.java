@@ -111,10 +111,10 @@ public class FinanceController {
 			} else {
 				List bannerList = new ArrayList();
 				if (oemid == null || oemid == 1) {
-					bannerList.add("http://47.96.164.161/1.png");
-					bannerList.add("http://47.96.164.161/2.png");
-					bannerList.add("http://47.96.164.161/3.png");
-					bannerList.add("http://47.96.164.161/4.png");
+					bannerList.add("http://47.96.164.161:81/1.png");
+					bannerList.add("http://47.96.164.161:81/2.png");
+					bannerList.add("http://47.96.164.161:81/3.png");
+					bannerList.add("http://47.96.164.161:81/4.png");
 				} else if(oemid == 2){
 					bannerList.add("http://47.96.164.161/1.png");
 					bannerList.add("http://47.96.164.161/2.png");
@@ -308,11 +308,11 @@ public class FinanceController {
 			HashMap resultMap = (HashMap) obj;
 			List bannerList = new ArrayList();
 			if (oemid == null || oemid == 1) {
-				bannerList.add("http://47.96.164.161/APP-invest-banner01.png");
-				bannerList.add("http://47.96.164.161/APP-invest-banner02.png");
-				bannerList.add("http://47.96.164.161/APP-invest-banner03.png");
-				bannerList.add("http://47.96.164.161/APP-invest-banner04.png");
-				bannerList.add("http://47.96.164.161/APP-invest-banner05.png");
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner01.png");
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner02.png");
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner03.png");
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner04.png");
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner05.png");
 			} else if(oemid == 2){
 				bannerList.add("http://47.96.164.161/APP-invest-banner01.png");
 				bannerList.add("http://47.96.164.161/APP-invest-banner02.png");
