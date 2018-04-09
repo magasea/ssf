@@ -11,17 +11,56 @@ import org.springframework.validation.annotation.Validated;
  * Created by chenwei on 2018- 四月 - 04
  */
 @Component
-@ConfigurationProperties(prefix="oeminfo")
+@ConfigurationProperties(prefix = "oem-info")
 public class OemInfoProperties {
-  List<Map<String, String>> oemInfo;
+  List<OemInfo> oemInfos;
 
-  public List<Map<String, String>> getOemInfo() {
-    return oemInfo;
+
+  public static class OemInfo{
+    String oemId;
+    String oemName;
+    String prodName;
+    String bankPhone;
+
+    public String getOemId() {
+      return oemId;
+    }
+
+    public void setOemId(String oemId) {
+      this.oemId = oemId;
+    }
+
+    public String getOemName() {
+      return oemName;
+    }
+
+    public void setOemName(String oemName) {
+      this.oemName = oemName;
+    }
+
+    public String getProdName() {
+      return prodName;
+    }
+
+    public void setProdName(String prodName) {
+      this.prodName = prodName;
+    }
+
+    public String getBankPhone() {
+      return bankPhone;
+    }
+
+    public void setBankPhone(String bankPhone) {
+      this.bankPhone = bankPhone;
+    }
   }
 
-  public void setOemInfo(List<Map<String, String>> oemInfo) {
-    this.oemInfo = oemInfo;
+  public List<OemInfo> getOemInfos() {
+    return oemInfos;
   }
 
-
+  public void setOemInfos(
+      List<OemInfo> oemInfos) {
+    this.oemInfos = oemInfos;
+  }
 }

@@ -75,7 +75,8 @@ api-asset-alloction-url: http://localhost:10020
 daily-finance-calculate-thread: 8
 
 #oeminfo
-oem_info:
+oem-info:
+  oemInfos:
    - oem_id: 1
      oem_name: 贝贝鱼
      bank_phone: xxxxxxxx
