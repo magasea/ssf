@@ -408,68 +408,77 @@ public class TransferController {
 		return new JsonResult(JsonResult.SUCCESS, "赎回成功", result);
 	}
 	
-	@ApiOperation("产品百分比赎回")
+	@ApiOperation("产品赎回")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "telNum", dataType = "String", required = true, value = "手机号", defaultValue = ""),
-		@ApiImplicitParam(paramType = "query", name = "verifyCode", dataType = "String", required = true, value = "验证码", defaultValue = ""),
-		@ApiImplicitParam(paramType = "query", name = "userProdId", dataType = "String", required = true, value = "产品Id", defaultValue = "1"),
-		@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品的groupId", defaultValue = "12"),
-		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "产品的subGroupId", defaultValue = "120049"),
+		@ApiImplicitParam(paramType = "query", name = "oemId", dataType = "String", required = true,
+				value = "归属id", defaultValue = "1"),
 		@ApiImplicitParam(paramType = "query", name = "userUuid", dataType = "String", required = true, value = "客户uuid", defaultValue = ""),
-		@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = false, value = "银行名称"),
-		@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"),
-		@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = false, value = "预计费用"),
-		@ApiImplicitParam(paramType = "query", name = "poundage", dataType = "String", required = false, value = "手续费") })
-	@RequestMapping(value = "/sellPersentProduct", method = RequestMethod.POST)
-	@ResponseBody
-	public JsonResult sellPersentProduct(@RequestParam String telNum, @RequestParam String verifyCode,
-			@RequestParam String userProdId, @RequestParam String prodId, @RequestParam String groupId,
-			@RequestParam String userUuid, @RequestParam(required = false) String bankName,
-			@RequestParam(required = false) String bankCard, @RequestParam(required = false) String buyfee,
-			@RequestParam(required = false) String poundage, @RequestBody List<FinanceProdSellInfo> infoList) {
-		// 首先调用手机验证码
-		String verify = null;
-		try {
-			verify = service.verifyMSGCode(telNum, verifyCode);
-		} catch (Exception e) {
-			String str = new ReturnedException(e).getErrorMsg();
-			logger.error(str, e);
-			return new JsonResult(JsonResult.Fail, "手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
-		}
-		// 验证码不通过则直接返回失败
-		if ("验证失败".equals(verify)) {
-			// TODO 临时注释2018-01-22
-			/********************** start ****************************/
-			if (!"123456".equals(verifyCode)) {
-				return new JsonResult(JsonResult.Fail, "手机验证失败，申购失败", JsonResult.EMPTYRESULT);
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupID", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "bankNum", dataType = "String", required = true, value = "银行卡号", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = true, value = "银行名称", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "telNum", dataType = "String", required = true, value = "手机号码", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "combinationName", dataType = "String", required = true, value = "组合名称", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品id", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "userProdId", dataType = "String", required =
+				true, value = "用户产品id", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "String", required = true, value = "总金额", defaultValue = "") 
+		})
+		@RequestMapping(value = "/sellFundPage", method = RequestMethod.POST)
+		@ResponseBody
+		public JsonResult sellFundPage(String oemId, String userUuid, String groupId, String subGroupId,
+				String bankNum, String bankName,
+				String telNum, String combinationName, String userProdId, String prodId, String totalAmount) {
+			Map result = null;
+			try {
+				result = service.sellFundPage(groupId, subGroupId, totalAmount);
+				if (result != null) {
+					result.put("userUuid", userUuid);
+					result.put("bankNum", bankNum);
+					result.put("bankName", bankName);
+					result.put("totalAmount", totalAmount);
+					result.put("combinationName", combinationName);
+					result.put("prodId", prodId);
+					result.put("telNum", telNum);
+					result.put("title1", "依据最优比例分配赎回金额");
+					result.put("title2", "贝贝鱼依据最优比例分配赎回金额");
+					long startTime = System.currentTimeMillis();
+					if (!InstantDateUtil.isDealDay(startTime)) {
+						// 交易日
+						LocalDateTime localDateTime = LocalDateTime.now();
+						LocalDateTime localDateTimeLimit = LocalDateTime.of(localDateTime.toLocalDate(),
+								LocalTime.of(15, 0));
+						if (localDateTime.isAfter(localDateTimeLimit)) {
+							String date = InstantDateUtil.getTplusNDayNWeekendOfWork(startTime, 1);
+							date = date.replaceAll("-", ".");
+							result.put("sellAmountDate", date);
+						} else {
+							// 3点以前
+							String time = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+							time = time.replaceAll("-", ".");
+							result.put("sellAmountDate", time);
+						}
+					} else {
+						String date = InstantDateUtil.getTplusNDayNWeekendOfWork(startTime, 1);
+						date = date.replaceAll("-", ".");
+						result.put("sellAmountDate", date);
+					}
+					if (bankNum != null && bankNum.length() > 4) {
+						result.put("bankinfo", bankName + "(" + bankNum.substring(bankNum.length() - 4) + ")");
+						result.put("bankNum", bankNum);
+					}
+				}
+				return new JsonResult(JsonResult.SUCCESS, "调用成功", result);
+			} catch (Exception ex) {
+		//		logger.error("赎回页面接口调用失败");
+		//		logger.error("exception:",ex);
+				String str = new ReturnedException(ex).getErrorMsg();
+				logger.error(str, ex);
+				return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 			}
-			/********************** end ******************************/
-			// return new JsonResult(JsonResult.Fail, "手机验证失败，赎回失败",
-			// JsonResult.EMPTYRESULT);
 		}
-		// 调用赎回口
-		Map result = new HashMap();
-		try {
-			result = service.sellFund(userProdId, prodId, groupId, userUuid, infoList);
-		} catch (Exception e) {
-			logger.error("调用赎回接口发生错误");
-			logger.error(e.getMessage());
-			return new JsonResult(JsonResult.Fail, "赎回失败", JsonResult.EMPTYRESULT);
-		}
-		if (result != null) {
-			if (result.get("payAmount") != null) {
-				BigDecimal payAmount = new BigDecimal(result.get("payAmount") + "");
-				result.put("payAmount", payAmount.setScale(2, BigDecimal.ROUND_HALF_UP));
-			}
-			result.put("poundage", poundage);
-			result.put("buyfee", buyfee);
-			result.put("bankName", bankName);
-			result.put("bankCard", bankCard);
-		}
-		return new JsonResult(JsonResult.SUCCESS, "赎回成功", result);
-	}
 
-	@ApiOperation("赎回页面")
+	@ApiOperation("赎回百分比例页面")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "oemId", dataType = "String", required = true,
 					value = "归属id", defaultValue = "1"),
@@ -486,9 +495,9 @@ public class TransferController {
 			@ApiImplicitParam(paramType = "query", name = "persent", dataType = "BigDecimal", required = true, value = "赎回比例", defaultValue = "1"),
 			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "String", required = true, value = "总金额", defaultValue = "") 
 			})
-	@RequestMapping(value = "/sellFundPage", method = RequestMethod.POST)
+	@RequestMapping(value = "/sellPersentFundPage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult sellFundPage(String oemId, String userUuid, String groupId, String subGroupId,
+	public JsonResult sellPersentFundPage(String oemId, String userUuid, String groupId, String subGroupId,
 			String bankNum, String bankName,
 			String telNum, String combinationName, String userProdId, String prodId, BigDecimal persent, String totalAmount) {
 		Map result = null;
@@ -500,7 +509,7 @@ public class TransferController {
 				result.put("userUuid", userUuid);
 				result.put("bankNum", bankNum);
 				result.put("bankName", bankName);
-				result.put("totalAmount", totalAmount);
+				result.put("totalAmount", amount);
 				result.put("combinationName", combinationName);
 				result.put("prodId", prodId);
 				result.put("telNum", telNum);
