@@ -408,7 +408,7 @@ public class TransferController {
 		return new JsonResult(JsonResult.SUCCESS, "赎回成功", result);
 	}
 	
-	@ApiOperation("产品赎回")
+	@ApiOperation("赎回页面")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "query", name = "oemId", dataType = "String", required = true,
 				value = "归属id", defaultValue = "1"),
