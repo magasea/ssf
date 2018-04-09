@@ -11,4 +11,17 @@
         historical_annual_volatility = #{historicalAnnualVolatility}
     </update>
 
+    <select id="findByGroupIdAndSubGroupId"
+            resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupIndex">
+      SELECT
+       id,
+       fund_group_id as fundGroupId,
+       fund_group_sub_id as fundGroupSubId,
+       historical_annual_yield as historicalAnnualYield,
+       historical_annual_volatility as historicalAnnualVolatility
+       from fund_group_index
+      WHERE
+      fund_group_id = #{groupId}
+      AND fund_group_sub_id =#{subGroupId}
+    </select>
 </mapper>

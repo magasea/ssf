@@ -45,11 +45,11 @@ public class FundCalculateService {
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-    private int countOfWeek=0;
+    private int countOfWeek = 0;
 
-    private Map<String,FundNetVal> monthMap = new HashMap<>();
+    private Map<String, FundNetVal> monthMap = new HashMap<>();
 
-    private Map<String,FundNetVal> yearMap = new HashMap<>();
+    private Map<String, FundNetVal> yearMap = new HashMap<>();
 
     /*
      * 根据时间查询净值表中复权单位净值数据
@@ -58,7 +58,7 @@ public class FundCalculateService {
         List<FundNetVal> fundNetValList = null;
         //查询产品组合中 code
         List<String> codeList = fundGroupMapper.findGroupCode();
-        HashMap<String,Object> codeMap = new HashMap<>();
+        HashMap<String, Object> codeMap = new HashMap<>();
         codeMap.put("codeList", codeList);
         codeMap.put("selectDate", selectDate);
         try {
@@ -66,7 +66,7 @@ public class FundCalculateService {
             fundNetValList = fundNetValMapper.getAllDataByCodeAndDate(codeMap);
         } catch (Exception e) {
             logger.error("查询净值数据失败!");
-            logger.error("exception:",e);
+            logger.error("exception:", e);
         }
         //根据基金代码分组(按净值日期倒序排列)
         Map<String, List<FundNetVal>> fundListMap = new HashMap<>();
@@ -93,6 +93,7 @@ public class FundCalculateService {
     /*
      * 计算每日的收益率以及风险率,insert into table:fund_calculate_data_day
      */
+    @Deprecated
     public void calculateDataOfData() {
         //查询计算风险率所需参数（取值数量）
         Integer number = getNumberFromSysConfig(TYPE_OF_DAY);
@@ -123,7 +124,7 @@ public class FundCalculateService {
                     continue;
                 }
 
-                for(int i = 0; i < fundList.size() - 1; i++) {
+                for (int i = 0; i < fundList.size() - 1; i++) {
                     try {
                         int tempNum = i;
                         //取该天数据（没有则往之前时间递推）
@@ -148,19 +149,19 @@ public class FundCalculateService {
                         fundCalculateData.setCode(code); //基金代码
                         fundCalculateData.setNavDate(fundNetVal1.getNavLatestDate()); //净值日期
                         fundCalculateData.setYieldRatio(yieldRatio == null ? 0d : yieldRatio); //收益率
-                        fundCalculateData.setRiskRatio(riskRatio == null ? 0d: riskRatio); //风险率
+                        fundCalculateData.setRiskRatio(riskRatio == null ? 0d : riskRatio); //风险率
                         fundCalculateData.setSemiVariance(semiVariance == null ? 0d : semiVariance); //半方差
                         fundCalculateData.setNavadj(fundNetVal1.getNavadj()); //复权单位净值
                         try {
                             fundCalculateDataMapper.insertFundCalculateDataDay(fundCalculateData);
                         } catch (Exception e) {
                             logger.error("插入基金日计算数据失败：fundCalculateData=" + fundCalculateData.toString());
-                            logger.error("exception:",e);
+                            logger.error("exception:", e);
                         }
 
                     } catch (Exception e) {
-                        logger.error("计算基金日收益率以及风险率失败：code="+code);
-                        logger.error("exception:",e);
+                        logger.error("计算基金日收益率以及风险率失败：code=" + code);
+                        logger.error("exception:", e);
                     }
 
                 }
@@ -247,12 +248,12 @@ public class FundCalculateService {
                             }
                         } catch (Exception e) {
                             logger.error("插入基金周计算数据失败：fundCalculateData=" + fundCalculateData.toString());
-                            logger.error("exception:",e);
+                            logger.error("exception:", e);
                         }
 
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         logger.error("计算基金周收益率以及风险率失败：code=" + code);
-                        logger.error("exception:",e);
+                        logger.error("exception:", e);
                     }
 
                 }
@@ -269,6 +270,7 @@ public class FundCalculateService {
     /*
      * 计算每月的收益率以及风险率, insert into table:fund_calculate_data_month
      */
+    @Deprecated
     public void calculateDataOfMonth() {
         //查询计算风险率所需参数（取值数量）
         Integer number = getNumberFromSysConfig(TYPE_OF_MONTH);
@@ -332,12 +334,12 @@ public class FundCalculateService {
                             fundCalculateDataMapper.insertFundCalculateDataMonth(fundCalculateData);
                         } catch (Exception e) {
                             logger.error("插入基金月计算数据失败：fundCalculateData=" + fundCalculateData.toString());
-                            logger.error("exception:",e);
+                            logger.error("exception:", e);
                         }
 
                     } catch (Exception e) {
                         logger.error("计算基金月收益率以及风险率失败：code=" + code);
-                        logger.error("exception:",e);
+                        logger.error("exception:", e);
                     }
 
                 }
@@ -354,6 +356,7 @@ public class FundCalculateService {
     /*
      * 计算每年的收益率以及风险率, insert into table:fund_calculate_data_year
      */
+    @Deprecated
     public void calculateDataOfYear() {
         //查询计算风险率所需参数（取值数量）
         Integer number = getNumberFromSysConfig(TYPE_OF_YEAR);
@@ -363,7 +366,7 @@ public class FundCalculateService {
         JobTimeRecord jobTimeRecord = jobTimeService.selectJobTimeRecord(CALCULATE_DATA_OF_YEAR);
         if (jobTimeRecord == null || jobTimeRecord.getTriggerTime() == null) {
             selectDate = DateUtil.getDateFromFormatStr(START_QUERY_DATE);
-        }else{
+        } else {
             selectDate = jobTimeRecord.getTriggerTime();
         }
         //查询净值数据
@@ -381,11 +384,11 @@ public class FundCalculateService {
                     continue;
                 }
 
-                Double navadj1=null;//该年年底净值
-                Double navadj2=null;//前一年年底净值
-                Double yieldRatio=null;//收益率
-                Double riskRatio=null;//风险率
-                Double semiVariance=0d;//半方差
+                Double navadj1 = null;//该年年底净值
+                Double navadj2 = null;//前一年年底净值
+                Double yieldRatio = null;//收益率
+                Double riskRatio = null;//风险率
+                Double semiVariance = 0d;//半方差
                 for (int i = 0; i < fundList.size() - 1; i++) {
                     try {
                         int tempNum = i;
@@ -418,12 +421,12 @@ public class FundCalculateService {
                             fundCalculateDataMapper.insertFundCalculateDataYear(fundCalculateData);
                         } catch (Exception e) {
                             logger.error("插入基金年计算数据失败：fundCalculateData=" + fundCalculateData.toString());
-                            logger.error("exception:",e);
+                            logger.error("exception:", e);
                         }
 
                     } catch (Exception e) {
                         logger.error("计算基金年收益率以及风险率失败：code=" + code);
-                        logger.error("exception:",e);
+                        logger.error("exception:", e);
                     }
 
                 }
@@ -577,7 +580,7 @@ public class FundCalculateService {
             return null;
         }
         countOfWeek = 0;
-        FundNetVal tempFundNetVal = getEffectData(tempNum-2, fundList); //一周之内找不到周五数据，则取该周周尾有效数据
+        FundNetVal tempFundNetVal = getEffectData(tempNum - 2, fundList); //一周之内找不到周五数据，则取该周周尾有效数据
         return tempFundNetVal;
     }
 
@@ -594,7 +597,7 @@ public class FundCalculateService {
 
         String tag = navLatestDateArr[0] + navLatestDateArr[1];
         if (monthMap.get(tag) == null) {
-            monthMap.put(tag,fundNetVal);
+            monthMap.put(tag, fundNetVal);
             return fundNetVal;
         }
 
@@ -604,7 +607,7 @@ public class FundCalculateService {
     /*
      * 取每年年底数据
      */
-    public FundNetVal  getYearData(List<FundNetVal> fundList, Date navLatestDate, int tempNum) {
+    public FundNetVal getYearData(List<FundNetVal> fundList, Date navLatestDate, int tempNum) {
         FundNetVal fundNetVal = fundList.get(tempNum);
         String navLatestDateStr = sdf.format(navLatestDate);
         String[] navLatestDateArr = navLatestDateStr.split("-");
@@ -679,13 +682,13 @@ public class FundCalculateService {
 
 
     //计算风险率(样本标准差 (n-1) )
-    public  Double StandardDiviation(Double[] x) {
+    public Double StandardDiviation(Double[] x) {
         int m = x.length;
         double sum = 0;
         for (int i = 0; i < m; i++) { //求和
             sum += x[i];
         }
-        double dAve=sum / m; //求平均值
+        double dAve = sum / m; //求平均值
         double dVar = 0;
         for (int i = 0; i < m; i++) { //求方差
             dVar += (x[i] - dAve) * (x[i] - dAve);

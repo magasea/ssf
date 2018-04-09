@@ -92,15 +92,5 @@ public class JobScheduleController {
         return new JobResult<>().returnSuccess();
     }
 
-    /**
-     * 组合收益率(最大回撤)走势图-自组合基金成立以来的每天
-     */
-    @ApiOperation("计算组合复权单位净值")
-    @PostMapping(value = "/api/asset-allocation/job/calculateFundGroupNavAjd")
-    public HttpStatus calculateFundGroupNavAjd(@RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        fundGroupService.calculateGroupNavadj(date);
-        return HttpStatus.OK;
-    }
-
 
 }

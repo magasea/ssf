@@ -6,8 +6,8 @@ import java.util.List;
 /**
  * Created by wangyinuo on 2017/11/16.
  */
-public class FundGroupDetails extends FundGroup{
-    private String fundCode;//基金ID
+public class FundGroupDetails extends FundGroup {
+    private String fund_code;//基金ID
     private String fund_group_id;//基金組合ID
     private double proportion;//权重
     private double revenue_contribution;//配置收益贡献
@@ -15,12 +15,12 @@ public class FundGroupDetails extends FundGroup{
     private Date details_last_mod_time;//最后一次修改时间
     private List<FundGroupDetails> fundGroupDetailsList;
 
-    public String getFundCode() {
-        return fundCode;
+    public String getFund_code() {
+        return fund_code;
     }
 
-    public void setFundCode(String fundCode) {
-        this.fundCode = fundCode;
+    public void setFund_code(String fund_code) {
+        this.fund_code = fund_code;
     }
 
     @Override

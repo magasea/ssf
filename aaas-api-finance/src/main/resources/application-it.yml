@@ -34,6 +34,12 @@ application:
     license:
     licenseUrl:
 
+grpc:
+  asset-allocation:
+    host: localhost
+    port: 10021
+
+
 cors:
   allowed-origins: "*"
   allowed-methods: GET, PUT, POST, DELETE, OPTIONS, HEAD

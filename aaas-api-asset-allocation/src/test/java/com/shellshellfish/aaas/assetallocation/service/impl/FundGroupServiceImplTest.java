@@ -33,15 +33,19 @@ public class FundGroupServiceImplTest {
     @Test
     public void testCalculateGroupNavadj() {
         String groupId = "1";
-        String subGroupId = "1000";
-        fundGroupService.calculateGroupNavadj(groupId, subGroupId, null);
+        String subGroupId = "10048";
+        for (int i = 1; i < 16; i++) {
+            fundGroupService.calculateGroupNavadj(String.valueOf(i), String.valueOf(i) + "0048", null);
+        }
     }
 
     @Test
     public void testCalculateMaxRetracement() {
         String groupId = "1";
         String subGroupId = "1000";
-        fundGroupService.calculateMaxRetracement(groupId, subGroupId, LocalDate.now().plusDays(-1));
+        for (int i = 1; i < 16; i++) {
+            fundGroupService.calculateMaxRetracement(groupId, subGroupId, LocalDate.now().plusDays(-1));
+        }
     }
 
     @Test
