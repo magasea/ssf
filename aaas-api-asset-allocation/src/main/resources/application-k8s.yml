@@ -13,7 +13,12 @@ spring:
     jpa:
       hibernate:
         ddl-auto: update
-
+    data:
+      mongodb:
+        database: funds
+        host: 192.168.1.10
+        port: 27017
+        collection: portfolio_yield_all
 
 datasource:
   sampleapp:

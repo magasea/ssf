@@ -104,7 +104,7 @@ public class SpringQrtzScheduler {
     @Bean
     public JobDetail jobGetZZConfirmInfoToUpdatePayFlow() {
         JobKey jobKey = new JobKey("Qrtz_Job_GetZZConfirmInfoToUpdatePayFlow", "pay");
-        JobDetail job = JobBuilder.newJob(CheckFundsBuyJob.class).withIdentity(jobKey)
+        JobDetail job = JobBuilder.newJob(CheckFundsBuyJob.class).withIdentity(jobKey).storeDurably()
             .withDescription("Invoke GetZZConfirmInfoToUpdatePayFlow Job service...").build();
         return  job;
     }

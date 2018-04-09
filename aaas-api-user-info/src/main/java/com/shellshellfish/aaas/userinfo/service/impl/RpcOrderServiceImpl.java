@@ -22,6 +22,7 @@ import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,9 +83,9 @@ public class RpcOrderServiceImpl implements RpcOrderService {
 		bankCardInfo.setUserId(bankcardDetailBodyDTO.getUserId());
 
 		bankCardInfo.setUserPhone(bankcardDetailBodyDTO.getCardCellphone());
-		UiUser uiUser = userInfoRepository.findById(bankcardDetailBodyDTO.getUserId());
-		if(null != uiUser.getRiskLevel()){
-			bankCardInfo.setRiskLevel(uiUser.getRiskLevel());
+		Optional<UiUser> uiUser = userInfoRepository.findById(bankcardDetailBodyDTO.getUserId());
+		if(null != uiUser.get().getRiskLevel()){
+			bankCardInfo.setRiskLevel(uiUser.get().getRiskLevel());
 		}
 		BindCardResult bindCardResult = orderRpcServiceBlockingStub.openAccount(bankCardInfo.build());
 		String tradeacco = bindCardResult.getTradeacco();
