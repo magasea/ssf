@@ -16,6 +16,7 @@ import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.ProdDtlSellPageDTO;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.ProdSellPageDTO;
+import com.shellshellfish.aaas.finance.trade.order.model.vo.ProdSellPercentDTO;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdBrokerUserRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderDetailRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderRepository;
@@ -192,6 +193,11 @@ public class TradeSellServiceImpl implements TradeSellService {
     prodSellDTO.setUserPid(userPid);
     broadcastMessageProducer.sendSellMessages(prodSellDTO);
     return result;
+  }
+
+  @Override
+  public TrdOrder sellProductPercent(ProdSellPercentDTO prodSellPercentDTO) {
+    return null;
   }
 
 

@@ -327,16 +327,20 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           e1.printStackTrace();
           throw e1;
         }
+      }else{
+        throw e;
       }
     }
     //风险评估再设置一下
 //    UserInfo userInfo = userInfoService.getUserInfoByUserId(bindBankCard.getUserId());
-    ZZRiskAbilityEnum zzRiskAbilityEnum = ZZRiskToSSFRiskUtils.getZZRiskAbilityFromSSFRisk(
-        UserRiskLevelEnum.get(bindBankCard.getRiskLevel()));
-    logger.info("now set the user:"+ bindBankCard.getUserPid() + " risk level:" +
-        zzRiskAbilityEnum.getRiskLevel());
-    fundTradeApiService.commitRisk(TradeUtil.getZZOpenId(bindBankCard.getUserPid()),
-        zzRiskAbilityEnum.getRiskLevel());
+    if(bindBankCard.getRiskLevel() > 0){
+      ZZRiskAbilityEnum zzRiskAbilityEnum = ZZRiskToSSFRiskUtils.getZZRiskAbilityFromSSFRisk(
+          UserRiskLevelEnum.get(bindBankCard.getRiskLevel()));
+      logger.info("now set the user:"+ bindBankCard.getUserPid() + " risk level:" +
+          zzRiskAbilityEnum.getRiskLevel());
+      fundTradeApiService.commitRisk(TradeUtil.getZZOpenId(bindBankCard.getUserPid()),
+          zzRiskAbilityEnum.getRiskLevel());
+    }
     return tradeAcco;
   }
 
@@ -544,6 +548,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 			logger.error("failed to bind card with UserName:" + bindBankCard.getUserName() + " pid:" +
 					bindBankCard.getUserPid() + "bankCode:" + bindBankCard.getBankCode() +
 					"userId:" + bindBankCard.getUserId());
+			trdAcco = "-1";
 		}
 
 		builder.setTradeacco(trdAcco);

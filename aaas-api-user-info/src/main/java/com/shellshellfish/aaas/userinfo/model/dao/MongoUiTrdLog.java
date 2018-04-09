@@ -39,7 +39,7 @@ public class MongoUiTrdLog implements Serializable {
 
   @Field( value = "last_modified_date")
   private Long lastModifiedDate;
-  
+
   @Indexed(direction = IndexDirection.DESCENDING)
   @Field( value = "operations")
   private int operations;

@@ -397,8 +397,16 @@ public class UserInfoController {
 			@RequestBody BankcardDetailBodyDTO bankcardDetailVo) throws Exception {
 
 		bankcardDetailVo.setUserUuid(userUuid);
-		BankCardDTO bankCard = rpcOrderService.createBankCard(bankcardDetailVo);
+		BankCardDTO bankCard = null;
 		Map<String, Object> result = new HashMap<>();
+		try {
+
+			bankCard = rpcOrderService.createBankCard(bankcardDetailVo);
+		}catch (Exception ex){
+			result.put("msg","绑卡失败："+ex.getMessage());
+			return new ResponseEntity<>(result, HttpStatus.FAILED_DEPENDENCY);
+		}
+
 		if (bankCard == null) {
 			logger.error("addBankCardWithDetailInfo method 添加失败..");
 //			return new ResponseEntity<Object>(

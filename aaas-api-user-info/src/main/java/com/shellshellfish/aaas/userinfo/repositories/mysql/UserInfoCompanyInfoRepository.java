@@ -8,8 +8,8 @@ import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 public interface UserInfoCompanyInfoRepository extends PagingAndSortingRepository<UiCompanyInfo,
     Long> {
 
-  @Override
-  UiCompanyInfo findOne(Long id);
+
+//  UiCompanyInfo findOne(Long id);
 
   List<UiCompanyInfo> findAll();
 }

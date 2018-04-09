@@ -12,8 +12,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.embedded.LocalServerPort;
+
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -55,6 +56,12 @@ public class RishControllerTest {
 	}
 
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/surveyresults
+	 * 接口作用：得到风险测评的结果
+	 * 参数：{bankUuid ：银行卡ID，userUuid ：用户ID，surveyResult ：测评结果BODY(选项、分数)}
+	 */
 	@Test
 	public void surveyresultsTest() {
 		String bankUuid = "1";
@@ -91,6 +98,12 @@ public class RishControllerTest {
 	}
 
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/surveytemplates/latest
+	 * 接口作用：得到风险测评试题
+	 * 参数：{bankId ：银行卡ID}
+	 */
 	@Test
 	public void surveyTemplatesLatestTest() {
 		String bankId = "1";
