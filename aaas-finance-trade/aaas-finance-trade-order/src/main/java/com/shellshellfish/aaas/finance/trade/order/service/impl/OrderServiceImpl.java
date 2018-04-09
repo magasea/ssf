@@ -310,16 +310,16 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 				logger.error("exception:",e);
 				logger.error(e.getMessage());
 				if(e.getMessage().contains("|")){
-					int errCode = Integer.parseInt(e.getMessage().split("|")[0]);
-					String errMsg = e.getMessage().split("|")[1];
+					String errCodeStr = e.getMessage().split("\\|")[0];
+					Long errCode = Long.parseLong(errCodeStr);
+					String errMsg = e.getMessage().split("\\|")[1];
 					ErrInfo.Builder eiBuilder = ErrInfo.newBuilder();
 					eiBuilder.setErrCode(errCode);
 					eiBuilder.setErrMsg(errMsg);
 					resultBuilder.setErrInfo(eiBuilder.build());
+					tradeNo = "-1";
 				}
 			}
-		} else {
-			tradeNo = errorMsg;
 		}
 		resultBuilder.setTradeacco(tradeNo);
 		responseObserver.onNext(resultBuilder.build());
