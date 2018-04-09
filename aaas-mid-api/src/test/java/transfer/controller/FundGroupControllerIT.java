@@ -43,6 +43,15 @@ public class FundGroupControllerIT {
 	}
 
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/getMyProductDetail
+	 * 接口作用：根据参数获取我的智投组合详情数据
+	 * 参数：{
+	 *     uuid ：用户ID，prodId ：产品ID，
+	 *     groupId ：产品组ID，stbGroupId ：子产品组ID
+	 * }
+	 */
 	@Test
 	public void getProductDetailTest() {
 		String uuid = "3a0bc5f0-c491-4718-a6c2-dc716ae308f9";

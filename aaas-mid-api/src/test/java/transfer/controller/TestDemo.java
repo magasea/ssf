@@ -43,6 +43,9 @@ public class TestDemo {
 	String groupId = "6";
 	String subGroupId = "60048";
 
+	/**
+	 * 目的：测试demo
+	 */
 	@Test
 	public void testDemo2() {
 
@@ -58,6 +61,9 @@ public class TestDemo {
 
 
 	}
+	/**
+	 * 目的：测试demo
+	 */
 	@Test
 	public void jsonSchemaTestDemo() {
 
@@ -73,6 +79,9 @@ public class TestDemo {
 
 	}
 
+	/**
+	 * 目的：测试demo
+	 */
 	@Test
 	public void getJsonTestDemo() {
 
