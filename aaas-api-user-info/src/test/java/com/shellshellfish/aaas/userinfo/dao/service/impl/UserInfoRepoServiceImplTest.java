@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
 import com.mongodb.WriteResult;
+import com.mongodb.client.result.UpdateResult;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.userinfo.UserInfoApp;
@@ -27,6 +28,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,7 +118,7 @@ public class UserInfoRepoServiceImplTest {
     query.addCriteria(Criteria.where("id").in(msgs).and("userId").is("1"));
     Update update = new Update();
     update.set("readed", Boolean.FALSE);
-    WriteResult result = mongoTemplate.updateMulti(query, update, UiPersonMsg.class);
+    UpdateResult result = mongoTemplate.updateMulti(query, update, UiPersonMsg.class);
     System.out.println(result);
   }
 
@@ -219,7 +221,7 @@ public class UserInfoRepoServiceImplTest {
   @org.junit.Test
   public void getUserInfoBase() throws Exception {
       long userId = Long.valueOf(1);
-      UiUser uiUser =userInfoRepository.findOne(userId);
+      UiUser uiUser =userInfoRepository.findById(userId);
       System.out.println(uiUser);
   }
 
@@ -230,11 +232,11 @@ public class UserInfoRepoServiceImplTest {
   @org.junit.Test
   public void getUserInfoBankCards() throws Exception {
 //    BigInteger userId = BigInteger.valueOf(1);
-    UiBankcard uiBankcard= userInfoBankCardsRepository.findOne(1L);
-    System.out.println(uiBankcard);
+    Optional<UiBankcard> uiBankcard= userInfoBankCardsRepository.findById(1L);
+    System.out.println(uiBankcard.get());
     String bankName = "工商银行";
     List<UiBankcard> uiBankcards= userInfoBankCardsRepository.findByBankName(bankName);
-    System.out.println(uiBankcard);
+    System.out.println(uiBankcard.get());
   }
 
   @org.junit.Test

@@ -135,7 +135,7 @@ public class OneFundApiServiceTest {
 
 		if (orderAggregate != null) {
 			System.out.println("Output ====>" + orderAggregate.getRawResults().get("result"));
-			System.out.println("Output ====>" + orderAggregate.getRawResults().toMap());
+			System.out.println("Output ====>" + orderAggregate.getRawResults().toJson());
 		}
 
 	}

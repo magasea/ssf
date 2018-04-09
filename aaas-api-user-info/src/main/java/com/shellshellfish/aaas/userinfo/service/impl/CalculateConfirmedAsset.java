@@ -56,7 +56,7 @@ public class CalculateConfirmedAsset {
    */
   public void calculateConfirmedAsset(MongoUiTrdZZInfo mongoUiTrdZZInfo) {
     final String pattern = "yyyyMMdd";
-    UiProducts uiProducts = uiProductRepo.findById(mongoUiTrdZZInfo.getUserProdId());
+    Optional<UiProducts> uiProducts = uiProductRepo.findById(mongoUiTrdZZInfo.getUserProdId());
     List<UiProductDetail> uiProductDetailList = uiProductDetailRepo
         .findAllByUserProdId(mongoUiTrdZZInfo.getUserProdId());
     String date = mongoUiTrdZZInfo.getConfirmDate();
@@ -66,17 +66,17 @@ public class CalculateConfirmedAsset {
     for (; confirmDate.isBefore(now); confirmDate = confirmDate.plusDays(1)) {
       //从确认日期开始到当前时间的数据都要修正（此处默认此次确认到当前时间没有其他操作）
       String uuid = Optional.ofNullable(userInfoRepository.findById(mongoUiTrdZZInfo.getUserId()))
-          .map(m -> m.getUuid()).orElse("-1");
+          .map(m -> m.get().getUuid()).orElse("-1");
       for (UiProductDetail uiProductDetail : uiProductDetailList) {
         try {
           userFinanceProdCalcService
-              .calculateFromZzInfo(uiProductDetail, uuid, uiProducts.getProdId(),
+              .calculateFromZzInfo(uiProductDetail, uuid, uiProducts.get().getProdId(),
                   InstantDateUtil.format(confirmDate, pattern));
         } catch (Exception e) {
           logger.error("calculate dailyAmount failed:{}", uiProductDetail, e);
         }
       }
-      updateDailyAmountFromZzInfo(uuid, uiProducts.getProdId(), uiProducts.getId(),
+      updateDailyAmountFromZzInfo(uuid, uiProducts.get().getProdId(), uiProducts.get().getId(),
           mongoUiTrdZZInfo.getFundCode(), InstantDateUtil.format(confirmDate, pattern),
           TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZInfo.getTradeConfirmSum()),
           mongoUiTrdZZInfo.getTradeType());
