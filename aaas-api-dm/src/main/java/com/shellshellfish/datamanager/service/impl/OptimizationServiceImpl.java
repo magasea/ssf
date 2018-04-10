@@ -236,12 +236,14 @@ public class OptimizationServiceImpl implements OptimizationService {
 //			}
 //			mongoFinanceALLRepository.deleteAll();
             mongoFinanceAll.setSerial(serial);
-            mongoFinanceALLRepository.save(mongoFinanceAll);
             if (result != null) {
               object = result.get("_items");
               if (object instanceof List) {
                   // 转换成List
                   prdList = (List<Map<String, Object>>) object;
+                  Integer total = prdList.size();
+                  mongoFinanceAll.setTotal(total);
+                  mongoFinanceALLRepository.save(mongoFinanceAll);
                   try {
                       for (Map<String, Object> productMap : prdList) {
                           returnMap = new HashMap<>();
@@ -499,6 +501,14 @@ public class OptimizationServiceImpl implements OptimizationService {
           for(int i = 0; i < mongoFinanceCountList.size(); i++){
             if(i == 0){
               mongoFinanceAll = mongoFinanceCountList.get(0);
+              Integer total = mongoFinanceAll.getTotal();
+              if(total != 0){
+                logger.error("no data");
+                return new JsonResult(JsonResult.Fail, "no data", JsonResult.EMPTYRESULT);
+              } else {
+                Integer totalPage = total/size + 1;
+                mongoFinanceAll.setTotalPage(totalPage);
+              }
             } else {
               MongoFinanceAll mongoFinanceTemp = new MongoFinanceAll();
               mongoFinanceTemp  = mongoFinanceCountList.get(i);
