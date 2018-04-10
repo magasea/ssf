@@ -245,7 +245,7 @@ public class FundGroupController {
             return fundGroupService.getFundGroupIncomeAllFromMongo(groupId, subGroupId, returnType);
         }
         List<Date> dateList = fundGroupService.getRecentDateInfo();
-        
+
         return fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, returnType, dateList);
     }
 

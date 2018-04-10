@@ -12,7 +12,19 @@
         WHERE
           fund_group_id = #{groupId}
           AND  fund_group_sub_id = #{subGroupId}
+          AND  time >= #{date}
         order by time
+    </select>
+
+    <select id="getMaxDrawDown" resultType="Double">
+        SELECT maximum_retracement
+        FROM
+        fund_group_history
+        WHERE
+          fund_group_id = #{groupId}
+          AND  fund_group_sub_id = #{subGroupId}
+        ORDER BY time DESC
+        limit 1
     </select>
 
     <select id="getLatestNavAdj" resultType="Double">

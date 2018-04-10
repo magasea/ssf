@@ -280,12 +280,14 @@ public class FundGroupService {
 
     /**
      * 预期年化收益(action=calcExpectedAnnualizedReturn), 预期最大回撤(action=calcExpectedMaxPullback)
+     * 　已经被grpc 方法替代
      *
      * @param id
      * @param returntype
      * @param subGroupId
      * @return
      */
+    @Deprecated
     public Map<String, Object> selectReturnAndPullback(String id, String returntype, String subGroupId) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", id);
@@ -1693,7 +1695,7 @@ public class FundGroupService {
      * 替代<code>getNavadj(String group_id, String subGroupId)</code>
      */
     public void calculateMaxRetracement(String groupId, String subGroupId) {
-        List<FundGroupHistory> fundGroupHistorySrc = fundGroupHistoryMapper.findAllByDateBefore(LocalDate.now().plusDays(1), groupId, subGroupId);
+        List<FundGroupHistory> fundGroupHistorySrc = fundGroupHistoryMapper.findAllByDateBefore(FundGroupService.GROUP_START_DATE, groupId, subGroupId);
 
         if (CollectionUtils.isEmpty(fundGroupHistorySrc))
             return;
@@ -1728,7 +1730,7 @@ public class FundGroupService {
      */
     public void calculateMaxRetracement(String groupId, String subGroupId, LocalDate date) {
 
-        List<FundGroupHistory> fundGroupHistoryOrigin = fundGroupHistoryMapper.findAllByDateBefore(LocalDate.now().plusDays(1), groupId, subGroupId);
+        List<FundGroupHistory> fundGroupHistoryOrigin = fundGroupHistoryMapper.findAllByDateBefore(FundGroupService.GROUP_START_DATE, groupId, subGroupId);
         List<Double> values = new ArrayList<>(fundGroupHistoryOrigin.size());
         for (FundGroupHistory fundGroupHistory : fundGroupHistoryOrigin) {
             values.add(fundGroupHistory.getIncome_num());

@@ -19,4 +19,7 @@ public interface FundGroupHistoryMapper {
 
     //批量更新最大回撤
     int updateMaxDrawDownFromList(@Param("fundGroupHistoryList") List<FundGroupHistory> fundGroupHistoryList, @Param("groupId") String groupId, @Param("subGroupId") String subGroupId);
+
+    //获取最大回撤值
+    Double getMaxDrawDown(@Param("groupId") String groupId, @Param("subGroupId") String subGroupId);
 }
