@@ -84,8 +84,35 @@ api-asset-alloction-url: http://localhost:10020
 daily-finance-calculate-thread: 8
 
 #oeminfo
-oem_info:
-  oem_id: 1
-    oem_name: 贝贝鱼
-  oem_id: 2
-    oem_name: 百合
+oem-info:
+  oemInfos:
+   - oem_id: 1
+     oem_name: 贝贝鱼
+     bank_phone: xxxxxxxx
+     prod_name: 贝贝鱼智投
+     home_page1: http://47.96.164.161:81/1.png
+     home_page2: http://47.96.164.161:81/2.png
+     home_page3: http://47.96.164.161:81/3.png
+     home_page4: http://47.96.164.161:81/4.png
+     combination1: http://47.96.164.161:81/APP-invest-banner01.png
+     combination2: http://47.96.164.161:81/APP-invest-banner02.png
+     combination3: http://47.96.164.161:81/APP-invest-banner03.png
+     combination4: http://47.96.164.161:81/APP-invest-banner04.png
+     combination5: http://47.96.164.161:81/APP-invest-banner05.png
+     me_headphoto: http://47.96.164.161:81/icon_me_headphoto2.png
+     about_logo: http://47.96.164.161:81/icon_about_logo2.png
+   - oem_id: 2
+     oem_name: 百合
+     bank_phone: 400-88-96799
+     prod_name: 百合智投
+     home_page1: http://47.96.164.161/1.png
+     home_page2: http://47.96.164.161/2.png
+     home_page3: http://47.96.164.161/3.png
+     home_page4: http://47.96.164.161/4.png
+     combination1: http://47.96.164.161/APP-invest-banner01.png
+     combination2: http://47.96.164.161/APP-invest-banner02.png
+     combination3: http://47.96.164.161/APP-invest-banner03.png
+     combination4: http://47.96.164.161/APP-invest-banner04.png
+     combination5: http://47.96.164.161/APP-invest-banner05.png
+     me_headphoto: http://47.96.164.161/icon_me_headphoto.png
+     about_logo: http://47.96.164.161/icon_about_logo.png
