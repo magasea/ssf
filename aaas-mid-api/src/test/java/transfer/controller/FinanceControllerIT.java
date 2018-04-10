@@ -2,8 +2,7 @@ package transfer.controller;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -91,6 +90,7 @@ public class FinanceControllerIT {
 
 	private static final String REQUEST_IS_SUCCESS = "1";
 
+	private static final long TIMEOUT = 60000L;
 
 	@LocalServerPort
 	private int port;
@@ -125,6 +125,7 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(FINANCE_HOME_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
@@ -149,6 +150,7 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(CONTRIBUTIONS_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
@@ -173,6 +175,7 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(CHECK_PRD_DETAILS_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
@@ -194,6 +197,7 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(EFFECTIVE_FRONTIER_POINTS_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
@@ -213,6 +217,7 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(FINANCE_FRONT_PAGE_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
@@ -238,6 +243,7 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(FUTURE_EXPECTATION_PAGE_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
@@ -261,6 +267,7 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(GET_EXPANNUAL_AND_MAX_RETURN_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
@@ -285,7 +292,8 @@ public class FinanceControllerIT {
 				.log().all()
 				.body(matchesJsonSchemaInClasspath(GLOBAL_CONFIGURATION_PAGE_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body("result", notNullValue());
+				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT));
 	}
 
 	/**
@@ -310,6 +318,7 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(HISTORICAL_PERFORMANCE_PAGE_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
@@ -331,6 +340,7 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(INCOME_SLIDEBAR_POINTS_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
@@ -354,6 +364,7 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(OPT_ADJUSTMENT_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
@@ -379,6 +390,7 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(OPTIMIZATIONS_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
@@ -404,6 +416,7 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(RISK_MANGEMENT_PAGE_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
@@ -425,6 +438,7 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(RISK_SLIDEBAR_POINTS_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 

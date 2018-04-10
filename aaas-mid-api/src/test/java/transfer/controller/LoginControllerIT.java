@@ -2,6 +2,7 @@ package transfer.controller;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.HashMap;
@@ -62,6 +63,7 @@ public class LoginControllerIT {
 
 	private static final int DEFAULT_PASSWORD_LENGTH = 10;
 
+	private static final long TIMEOUT = 60000L;
 
 	//注册 登录所用的手机号  初始值随机生成
 	private static String registration_login_phone_number = null;
@@ -117,6 +119,7 @@ public class LoginControllerIT {
 				.log().all()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
@@ -136,7 +139,8 @@ public class LoginControllerIT {
 				.then()
 				.log().all()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body("result", notNullValue());
+				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT));
 
 
 		String body = given().filter(new ResponseLoggingFilter())
@@ -180,7 +184,8 @@ public class LoginControllerIT {
 				.then()
 				.log().all()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body("result", notNullValue());
+				.body("result", notNullValue())
+				.time(lessThan(120000L));
 
 		registration_login_password = password;
 
@@ -206,7 +211,8 @@ public class LoginControllerIT {
 				.then()
 				.log().all()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body("result", notNullValue());
+				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT));
 
 		registration_login_password = newPWD;
 
@@ -230,7 +236,8 @@ public class LoginControllerIT {
 				.then()
 				.log().all()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body("result", notNullValue());
+				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT));
 
 	}
 
@@ -251,7 +258,8 @@ public class LoginControllerIT {
 				.then()
 				.log().all()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body("result.identifyingCode", notNullValue());
+				.body("result.identifyingCode", notNullValue())
+				.time(lessThan(TIMEOUT));
 
 	}
 
@@ -274,7 +282,8 @@ public class LoginControllerIT {
 				.then()
 				.log().all()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body("result", notNullValue());
+				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT));
 
 	}
 

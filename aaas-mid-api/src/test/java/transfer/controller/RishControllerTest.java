@@ -3,6 +3,7 @@ package transfer.controller;
 import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ public class RishControllerTest {
 
 	private static final String REQUEST_IS_SUCCESS = "1";
 
+	private static final long TIMEOUT = 60000L;
 
 	@LocalServerPort
 	public int port;
@@ -94,7 +96,8 @@ public class RishControllerTest {
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result.riskLevel", notNullValue())
-				.body("result.msg", notNullValue());
+				.body("result.msg", notNullValue())
+				.time(lessThan(TIMEOUT));
 	}
 
 
@@ -116,7 +119,8 @@ public class RishControllerTest {
 				.then().log().all()
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body(matchesJsonSchemaInClasspath(SURVEY_TEMPLATES_LATEST_JSON_SCHEMA));
+				.body(matchesJsonSchemaInClasspath(SURVEY_TEMPLATES_LATEST_JSON_SCHEMA))
+				.time(lessThan(TIMEOUT));
 	}
 
 }

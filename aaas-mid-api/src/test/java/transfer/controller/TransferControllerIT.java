@@ -3,6 +3,7 @@ package transfer.controller;
 import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
 
 import org.junit.Before;
@@ -45,6 +46,7 @@ public class TransferControllerIT {
 
 	private static final String REQUEST_IS_SUCCESS = "1";
 
+	private static final long TIMEOUT = 60000L;
 
 	@LocalServerPort
 	public int port;
@@ -77,7 +79,8 @@ public class TransferControllerIT {
 				.then().log().all()
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body(matchesJsonSchemaInClasspath(GET_EST_PUR_AMOUNT_JSON_SCHEMA));
+				.body(matchesJsonSchemaInClasspath(GET_EST_PUR_AMOUNT_JSON_SCHEMA))
+				.time(lessThan(TIMEOUT));
 	}
 
 
@@ -104,7 +107,8 @@ public class TransferControllerIT {
 				.then().log().all()
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body(matchesJsonSchemaInClasspath(SELL_FUND_PAGE_JSON_SCHEMA));
+				.body(matchesJsonSchemaInClasspath(SELL_FUND_PAGE_JSON_SCHEMA))
+				.time(lessThan(TIMEOUT));
 	}
 
 	//	@Test
@@ -123,7 +127,8 @@ public class TransferControllerIT {
 				.then().log().all()
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body(matchesJsonSchemaInClasspath(SELL_PRODUCT_JSON_SCHEMA));
+				.body(matchesJsonSchemaInClasspath(SELL_PRODUCT_JSON_SCHEMA))
+				.time(lessThan(TIMEOUT));
 	}
 
 	//	@Test
@@ -142,7 +147,8 @@ public class TransferControllerIT {
 				.then().log().all()
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body(matchesJsonSchemaInClasspath(SUBSCRIBE_FUND_JSON_SCHEMA));
+				.body(matchesJsonSchemaInClasspath(SUBSCRIBE_FUND_JSON_SCHEMA))
+				.time(lessThan(TIMEOUT));
 	}
 
 
@@ -165,7 +171,8 @@ public class TransferControllerIT {
 				.then().log().all()
 				.assertThat()
 				.body("head.status",equalTo(REQUEST_IS_SUCCESS))
-				.body("result",notNullValue());
+				.body("result",notNullValue())
+				.time(lessThan(TIMEOUT));
 	}
 
 
@@ -190,7 +197,8 @@ public class TransferControllerIT {
 				.then().log().all()
 				.assertThat()
 				.body("head.status",equalTo(REQUEST_IS_SUCCESS))
-				.body("result",notNullValue());
+				.body("result",notNullValue())
+				.time(lessThan(TIMEOUT));
 	}
 
 
