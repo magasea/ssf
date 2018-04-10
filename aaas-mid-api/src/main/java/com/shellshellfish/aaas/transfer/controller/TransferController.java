@@ -492,8 +492,8 @@ public class TransferController {
 			@ApiImplicitParam(paramType = "query", name = "telNum", dataType = "String", required = true, value = "手机号码", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "combinationName", dataType = "String", required = true, value = "组合名称", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品id", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "userProdId", dataType = "String", required =
-					true, value = "用户产品id", defaultValue = ""),
+//			@ApiImplicitParam(paramType = "query", name = "userProdId", dataType = "String", required =
+//					true, value = "用户产品id", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "persent", dataType = "BigDecimal", required = true, value = "赎回比例", defaultValue = "1"),
 			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "String", required = true, value = "总金额", defaultValue = "") 
 			})
@@ -501,7 +501,9 @@ public class TransferController {
 	@ResponseBody
 	public JsonResult sellPersentFundPage(String oemId, String userUuid, String groupId, String subGroupId,
 			String bankNum, String bankName,
-			String telNum, String combinationName, String userProdId, String prodId, BigDecimal persent, String totalAmount) {
+			String telNum, String combinationName, 
+//			String userProdId, 
+			String prodId, BigDecimal persent, String totalAmount) {
 		Map result = null;
 		try {
 			BigDecimal amount = new BigDecimal(totalAmount);
