@@ -17,7 +17,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.embedded.LocalServerPort;
+
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.context.ActiveProfiles;
@@ -82,7 +82,7 @@ public class LoginControllerIT {
 	TestRestTemplate restTemplate;
 
 
-	@LocalServerPort
+
 	public int port;
 
 	@BeforeClass
@@ -98,12 +98,14 @@ public class LoginControllerIT {
 	}
 
 	/**
-	 * registration
+	 * 注意：该测试必须要从头至尾，按顺序测试！
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/registration
+	 * 接口作用：用户注册
+	 * 参数：{telNum ：手机号码，password ：密码，verifyCode ：验证码}
 	 **/
 	@Test
 	public void a_registrationTest() {
-
-
 		String verifyCode = getVerifyCode(registration_login_phone_number);
 
 		given().filter(new ResponseLoggingFilter())
@@ -119,7 +121,11 @@ public class LoginControllerIT {
 	}
 
 	/**
-	 * login
+	 * 注意：该测试必须要从头至尾，按顺序测试！
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/userlogin
+	 * 接口作用：用户登录
+	 * 参数：{telNum ：手机号码，password ：密码}
 	 **/
 	@Test
 	public void b_userLoginTest() {
@@ -149,6 +155,13 @@ public class LoginControllerIT {
 	}
 
 
+	/**
+	 * 注意：该测试必须要从头至尾，按顺序测试！
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/forgottenPsw
+	 * 接口作用：忘记密码后重置密码
+	 * 参数：{telNum ：手机号码，password ：密码，verifyCode ：验证码}
+	 **/
 	@Test
 	public void c_forgetPswTest() {
 		String password = RandomStringUtils.randomAlphanumeric(DEFAULT_PASSWORD_LENGTH);
@@ -174,6 +187,13 @@ public class LoginControllerIT {
 	}
 
 
+	/**
+	 * 注意：该测试必须要从头至尾，按顺序测试！
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/resetPsw
+	 * 接口作用：修改密码
+	 * 参数：{telNum ：手机号码，newPWD ：新密码，oldPWD ：旧密码}
+	 **/
 	@Test
 	public void d_resetPswTest() {
 		String newPWD = RandomStringUtils.randomAlphanumeric(DEFAULT_PASSWORD_LENGTH);
@@ -193,6 +213,13 @@ public class LoginControllerIT {
 	}
 
 
+	/**
+	 * 注意：该测试必须要从头至尾，按顺序测试！
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/logout
+	 * 接口作用：用户推出
+	 * 参数：{uuid ：用户ID，token ：用户口令}
+	 **/
 	@Test
 	public void e_logoutTest() {
 
@@ -207,6 +234,13 @@ public class LoginControllerIT {
 
 	}
 
+	/**
+	 * 注意：该测试必须要从头至尾，按顺序测试！
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/requestVerifyCode
+	 * 接口作用：发送验证码
+	 * 参数：{telNum ：手机号码}
+	 **/
 	@Test
 	public void requestVerifyCodeTest() {
 		String telNum = RandomPhoneNumUtil.generatePhoneNumber();
@@ -221,6 +255,13 @@ public class LoginControllerIT {
 
 	}
 
+	/**
+	 * 注意：该测试必须要从头至尾，按顺序测试！
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/verifyMsgCode
+	 * 接口作用：验证手机号与验证码是否正确
+	 * 参数：{telNum ：手机号码，msgCode ：验证码}
+	 **/
 	@Test
 	public void verifyMsgCodeTest() {
 		String telNum = RandomPhoneNumUtil.generatePhoneNumber();

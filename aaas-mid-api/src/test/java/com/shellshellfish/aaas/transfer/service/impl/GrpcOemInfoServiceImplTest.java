@@ -24,6 +24,8 @@ public class GrpcOemInfoServiceImplTest {
 
   @Test
   public void getOemInfo(){
+
+
     Long oemId = 1L;
     Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemId);
     oemInfos.forEach(

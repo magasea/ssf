@@ -374,7 +374,7 @@ public class TradeOpServiceImpl implements TradeOpService {
       throws Exception {
     TrdOrderDetail trdOrderDetail;
     if(id > 0){
-      trdOrderDetail = trdOrderDetailRepository.findOne(id);
+      trdOrderDetail = trdOrderDetailRepository.findById(id).get();
     }else{
       trdOrderDetail = trdOrderDetailRepository.findByTradeApplySerial(tradeApplySerial);
     }

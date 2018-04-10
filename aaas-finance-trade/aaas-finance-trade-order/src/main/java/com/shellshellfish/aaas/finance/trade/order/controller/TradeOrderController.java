@@ -10,6 +10,7 @@ import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.ProdSellPageDTO;
+import com.shellshellfish.aaas.finance.trade.order.model.vo.ProdSellPercentDTO;
 import com.shellshellfish.aaas.finance.trade.order.service.*;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import io.swagger.annotations.*;
@@ -106,6 +107,34 @@ public class TradeOrderController {
 		return new ResponseEntity<Object>(trdOrder, HttpStatus.OK);
 	}
 
+
+	/**
+	 * 赎回理财产品 页面
+	 *
+	 * @param prodSellPageDTO
+	 * @return
+	 */
+	@ApiOperation("理财赎回")
+	@ApiResponses({
+			@ApiResponse(code = 200, message = "OK"),
+			@ApiResponse(code = 400, message = "请求参数没填好"),
+			@ApiResponse(code = 401, message = "未授权用户"),
+			@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")
+	})
+	@RequestMapping(value = "/funds/sellpersent", method = RequestMethod.POST)
+	public ResponseEntity<?> sellFinanceProdPersent(@RequestBody ProdSellPercentDTO prodSellPercentDTO)
+			throws Exception {
+		if (prodSellPercentDTO.getUserId() == 0L) {
+			logger.info("input userId is empty, need retrieve userId");
+			Long userId = tradeOpService.getUserId(prodSellPercentDTO.getUserUuid());
+			prodSellPercentDTO.setUserId(userId);
+		}
+//		Long userId = tradeOpService.getUserId(financeProdBuyInfo.getUuid());
+//		financeProdBuyInfo.setUserId(userId);
+		TrdOrder trdOrder = tradeSellService.sellProductPercent(prodSellPercentDTO);
+		return new ResponseEntity<Object>(trdOrder, HttpStatus.OK);
+	}
 
 	/**
 	 * 购买理财产品 购买
