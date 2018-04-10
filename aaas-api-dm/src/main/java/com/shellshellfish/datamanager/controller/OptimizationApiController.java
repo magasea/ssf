@@ -51,11 +51,11 @@ public class OptimizationApiController {
 	@ApiOperation("获取进入理财页面后的数据")
 	@RequestMapping(value = "/getFinanceFrontPage", method = RequestMethod.GET)
 	@ResponseBody
-	public JsonResult getFinanceModule() {
-		JsonResult result = optimizationService.getFinanceFront();
+	public JsonResult getFinanceModule(Integer size, Integer pageSize) {
+		JsonResult result = optimizationService.getFinanceFront(size, pageSize);
 		if (result == null) {
 			optimizationService.financeFront();
-			result = optimizationService.getFinanceFront();
+			result = optimizationService.getFinanceFront(size, pageSize);
 			logger.info(
 					"run com.shellshellfish.datamanager.controller.OptimizationApiController.getFinanceModule() success..");
 		} else {

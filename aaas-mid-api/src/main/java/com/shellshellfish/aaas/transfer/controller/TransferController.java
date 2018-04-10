@@ -420,15 +420,17 @@ public class TransferController {
 		@ApiImplicitParam(paramType = "query", name = "telNum", dataType = "String", required = true, value = "手机号码", defaultValue = ""),
 		@ApiImplicitParam(paramType = "query", name = "combinationName", dataType = "String", required = true, value = "组合名称", defaultValue = ""),
 		@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品id", defaultValue = ""),
-		@ApiImplicitParam(paramType = "query", name = "userProdId", dataType = "String", required =
-				true, value = "用户产品id", defaultValue = ""),
+//		@ApiImplicitParam(paramType = "query", name = "userProdId", dataType = "String", required =
+//				true, value = "用户产品id", defaultValue = ""),
 		@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "String", required = true, value = "总金额", defaultValue = "") 
 		})
 		@RequestMapping(value = "/sellFundPage", method = RequestMethod.POST)
 		@ResponseBody
 		public JsonResult sellFundPage(String oemId, String userUuid, String groupId, String subGroupId,
 				String bankNum, String bankName,
-				String telNum, String combinationName, String userProdId, String prodId, String totalAmount) {
+				String telNum, String combinationName, 
+//				String userProdId, 
+				String prodId, String totalAmount) {
 			Map result = null;
 			try {
 				result = service.sellFundPage(groupId, subGroupId, totalAmount);
