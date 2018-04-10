@@ -63,12 +63,13 @@ public class CalculateConfirmedAsset {
                 .findAllByUserProdId(mongoUiTrdZZInfo.getUserProdId());
         String date = mongoUiTrdZZInfo.getConfirmDate();
 
+        //从确认日期开始到当前时间的数据都要修正（此处默认此次确认到当前时间没有其他操作）
+        String uuid = Optional.ofNullable(userInfoRepository.findById(mongoUiTrdZZInfo.getUserId()))
+                .map(m -> m.get().getUuid()).orElse("-1");
+
         LocalDate now = LocalDate.now(ZoneId.systemDefault()).plusDays(1);
         LocalDate confirmDate = InstantDateUtil.format(date, pattern);
         for (LocalDate startDate = confirmDate; startDate.isBefore(now); startDate = startDate.plusDays(1)) {
-            //从确认日期开始到当前时间的数据都要修正（此处默认此次确认到当前时间没有其他操作）
-            String uuid = Optional.ofNullable(userInfoRepository.findById(mongoUiTrdZZInfo.getUserId()))
-                    .map(m -> m.get().getUuid()).orElse("-1");
             for (UiProductDetail uiProductDetail : uiProductDetailList) {
                 try {
                     userFinanceProdCalcService
@@ -78,14 +79,13 @@ public class CalculateConfirmedAsset {
                     logger.error("calculate dailyAmount failed:{}", uiProductDetail, e);
                 }
             }
-            if (confirmDate.equals(startDate)) {
-                //确认日期才更新
-                updateDailyAmountFromZzInfo(uuid, uiProducts.get().getProdId(), uiProducts.get().getId(),
-                        mongoUiTrdZZInfo.getFundCode(), InstantDateUtil.format(confirmDate, pattern),
-                        TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZInfo.getTradeConfirmSum()),
-                        mongoUiTrdZZInfo.getTradeType());
-            }
         }
+        //确认日期才更新
+        updateDailyAmountFromZzInfo(uuid, uiProducts.get().getProdId(), uiProducts.get().getId(),
+                mongoUiTrdZZInfo.getFundCode(), InstantDateUtil.format(confirmDate, pattern),
+                TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZInfo.getTradeConfirmSum()),
+                mongoUiTrdZZInfo.getTradeType());
+
     }
 
     private void updateDailyAmountFromZzInfo(String userUuid, Long prodId, Long userProdId,
@@ -102,9 +102,11 @@ public class CalculateConfirmedAsset {
 
         if (TrdOrderOpTypeEnum.BUY.getOperation() == type) {
             update.set("buyAmount", amount);
+            logger.info("buyAmount:{}", amount);
         }
         if (TrdOrderOpTypeEnum.REDEEM.getOperation() == type) {
             update.set("sellAmount", amount);
+            logger.info("sellAmount:{}", amount);
         }
 
         DailyAmount dailyAmount = zhongZhengMongoTemplate
