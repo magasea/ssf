@@ -13,10 +13,6 @@ public interface FundGroupMapper {
 
     List<Interval> selectFundGroup(Map map);
 
-    int insertRecommendHistory(Map map);
-
-    List<Interval> selectAllFundGroup();
-
     List<Interval> selectAllFundGroupNum();
 
     List<Interval> selectById(Map map);
@@ -32,18 +28,12 @@ public interface FundGroupMapper {
     List<Interval> getFundCode(Map map);
 
     List<String> getFundGroupCodeList(Map map);
-    
+
     List<String> getGroupCodeList(Map map);
-    
+
     List<Date> getGroupDateList(Map map);
 
     List<Interval> getInterval(Map map);
-
-    int updateStatus(Map map);
-
-    int insertFundGroup(FundGroup fundGroup);
-
-    int insertFundGroupDetail(List<FundGroupDetails> fundGroupDetailslist);
 
     Interval selectReturnAndPullback(Map map);
 
@@ -58,8 +48,6 @@ public interface FundGroupMapper {
     List<RiskIncomeInterval> getScaleMarkFromChoose(@Param("id") String id,
                                                     @Param("slidebarType") String slidebarType,
                                                     @Param("standardType") String standardType);
-
-    List<FundGroupBuy> getFundGroupBuy(@Param("id") String id);
 
     String getFundGroupNameById(@Param("id") String id);
 
@@ -91,11 +79,9 @@ public interface FundGroupMapper {
 
     List<FundGroupHistory> selectMaximumRetracement(Map map);
 
-    int insertGroupNavadj(Map map);
+    int insertFundGroupHistory(@Param("fundGroupHistoryList") List<FundGroupHistory> fundGroupHistoryList);
 
     int batchInsertFundGroupHistory(List<Map> mapList);
-
-    int insertGroupNavadjBenchmark(Map map);
 
     int batchInsertFundGroupHistoryBenchmark(List<Map> mapList);
 
@@ -111,8 +97,6 @@ public interface FundGroupMapper {
 
     List<EfficientFrontier> getEfficientFrontier(Map map);
 
-    List<EfficientFrontier> getEfficientFrontierDetail(String id);
-
     List<FundNetVal> getNavadjStartTime(Map map);
 
     List<FundNetVal> getNavadjFromStartDate(Map map);
@@ -124,9 +108,6 @@ public interface FundGroupMapper {
     List<Interval> getAllIdAndSubId();
 
     String getRiskNum(@Param("id") String id);
-
-
-    int updateContribution(Map map);
 
     int batchUpdateContribution(List<Map> mapList);
 
@@ -163,6 +144,4 @@ public interface FundGroupMapper {
 
     //将 fund_group_sub 中 数据 删除
     Integer deleteFundGroupSub();
-
-
 }
