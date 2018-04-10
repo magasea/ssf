@@ -502,11 +502,11 @@ public class OptimizationServiceImpl implements OptimizationService {
             if(i == 0){
               mongoFinanceAll = mongoFinanceCountList.get(0);
               Integer total = mongoFinanceAll.getTotal();
-              if(total != 0){
+              if(total == 0){
                 logger.error("no data");
                 return new JsonResult(JsonResult.Fail, "no data", JsonResult.EMPTYRESULT);
               } else {
-                Integer totalPage = total/size + 1;
+                Integer totalPage = total/size;
                 mongoFinanceAll.setTotalPage(totalPage);
               }
             } else {
