@@ -53,13 +53,14 @@ public class CovarianceCalculateService {
 
     private int countOfWeek = 0;
 
-    private Map<String,CovarianceModel> monthMap = new HashMap<>();
+    private Map<String, CovarianceModel> monthMap = new HashMap<>();
 
-    private Map<String,CovarianceModel> yearMap = new HashMap<>();
+    private Map<String, CovarianceModel> yearMap = new HashMap<>();
 
     /*
      * 计算基金两两组合之间的协方差(周期：日)insert into table:fund_covariance_day
      */
+    @Deprecated
     public void calculateCovarianceOfDay() {
         CovarianceModel covarianceModel = new CovarianceModel(); //组合对象
 
@@ -174,7 +175,7 @@ public class CovarianceCalculateService {
                     covarianceModel.setCovariance(cov);
 
                     //插入基金组合周协方差数据
-                    try{
+                    try {
                         Integer effectRow = covarianceMapper.insertCovarianceOfWeek(covarianceModel);
                         if (effectRow == null) {
                             doSuccess = false;
@@ -198,6 +199,7 @@ public class CovarianceCalculateService {
     /*
      * 计算基金两两组合之间的协方差(周期：月)insert into table:fund_covariance_month
      */
+    @Deprecated
     public void calculateCovarianceOfMonth() {
         CovarianceModel covarianceModel = new CovarianceModel(); //组合对象
 
@@ -221,8 +223,8 @@ public class CovarianceCalculateService {
             //根据code组合查找基金数据
             for (int i = 0; i < codeListOfMonth.size(); i++) {
                 String[] listArr = codeListOfMonth.get(i);
-                String codeA=listArr[0];
-                String codeB=listArr[1];
+                String codeA = listArr[0];
+                String codeB = listArr[1];
 
                 covarianceModel.setCodeA(codeA);
                 covarianceModel.setCodeB(codeB);
@@ -262,7 +264,7 @@ public class CovarianceCalculateService {
      * 计算基金两两组合之间的协方差(周期：年)insert into table:fund_covariance_year
      */
     public void calculateCovarianceOfYear() {
-        CovarianceModel covarianceModel=new CovarianceModel();//组合对象
+        CovarianceModel covarianceModel = new CovarianceModel();//组合对象
 
         Date selectDate = null;
         //查询TriggerJob 上次执行时间
@@ -323,9 +325,10 @@ public class CovarianceCalculateService {
 
     /**
      * 组合选择
-     * @param dataList 待选列表
-     * @param dataIndex 待选开始索引
-     * @param resultList 前面（resultIndex-1）个的组合结果
+     *
+     * @param dataList    待选列表
+     * @param dataIndex   待选开始索引
+     * @param resultList  前面（resultIndex-1）个的组合结果
      * @param resultIndex 选择索引，从0开始
      */
     private void combinationSelect(String[] dataList, int dataIndex, String[] resultList, int resultIndex, String type) {
@@ -343,7 +346,7 @@ public class CovarianceCalculateService {
             } else if (TYPE_OF_YEAR.equals(type)) {
                 codeListOfYear.add(resultList.clone());
             }
-            return ;
+            return;
         }
 
         // 递归选择下一个
@@ -401,7 +404,6 @@ public class CovarianceCalculateService {
     }
 
 
-
     /*
      * 取周五数据，若无则往前递推
      */
@@ -423,7 +425,7 @@ public class CovarianceCalculateService {
             return null;
         } else {
             countOfWeek = 0;
-            CovarianceModel tempCovarianceModel = this.getEffectData(tempNum-2, covModelList); //一周之内找不到周五数据，则取该天有效数据
+            CovarianceModel tempCovarianceModel = this.getEffectData(tempNum - 2, covModelList); //一周之内找不到周五数据，则取该天有效数据
             return tempCovarianceModel;
         }
     }
@@ -528,12 +530,12 @@ public class CovarianceCalculateService {
         Covariance covariance = new Covariance();
         double[] Xd = new double[xArray.length];
         for (int i = 0; i < xArray.length; i++) {
-            Xd[i] =  xArray[i];
+            Xd[i] = xArray[i];
         }
 
         double[] Yd = new double[yArray.length];
         for (int i = 0; i < yArray.length; i++) {
-            Yd[i] =  yArray[i];
+            Yd[i] = yArray[i];
         }
 
         //调用Common Math 计算协方差, 且 须 （Yd）Xd.length>=2

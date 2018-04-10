@@ -5,42 +5,36 @@
 
     <!--净值数据 -->
     <resultMap id="FundNetValMap" type="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
-        <result property="yieldOf7days" column="YIELDOF7DAYS" />
-        <result property="unitNav" column="UNITNAV" />
-        <result property="navUnitReturn" column="NAVUNITRETURN" />
-        <result property="navadj" column="NAVADJ" />
-        <result property="navadjReturn" column="NAVADJRETURN"  />
+        <result property="yieldOf7days" column="YIELDOF7DAYS"/>
+        <result property="unitNav" column="UNITNAV"/>
+        <result property="navUnitReturn" column="NAVUNITRETURN"/>
+        <result property="navadj" column="NAVADJ"/>
+        <result property="navadjReturn" column="NAVADJRETURN"/>
         <result property="adjustEdnav" column="ADJUSTEDNAV"/>
         <result property="adjustedFactor" column="ADJUSTEDFACTOR"/>
         <result property="navAccum" column="NAVACCUM"/>
-        <result property="navAccumReturn" column="NAVACCUMRETURN" />
-        <result property="accumulatEdnav" column="ACCUMULATEDNAV" />
-        <result property="millionRevenue" column="MILLION_REVENUE" />
-        <result property="navLatestDate" column="NAVLATESTDATE" />
-        <result property="navCurrency" column="NAVCURRENCY" />
-        <result property="code" column="CODE" />
-        <result property="id" column="ID" />
-        <result property="lastModTime" column="LAST_MOD_TIME" />
+        <result property="navAccumReturn" column="NAVACCUMRETURN"/>
+        <result property="accumulatEdnav" column="ACCUMULATEDNAV"/>
+        <result property="millionRevenue" column="MILLION_REVENUE"/>
+        <result property="navLatestDate" column="NAVLATESTDATE"/>
+        <result property="navCurrency" column="NAVCURRENCY"/>
+        <result property="code" column="CODE"/>
+        <result property="id" column="ID"/>
+        <result property="lastModTime" column="LAST_MOD_TIME"/>
     </resultMap>
 
     <!--关联查询净值数据 -->
     <resultMap id="covarianceModelMap" type="com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel">
-        <result property="navDate" column="NAVLATESTDATE" />
-        <result property="codeA" column="A_CODE" />
-        <result property="navadjA" column="A_NAVADJ" />
-        <result property="codeB" column="B_CODE" />
-        <result property="navadjB" column="B_NAVADJ" />
+        <result property="navDate" column="NAVLATESTDATE"/>
+        <result property="codeA" column="A_CODE"/>
+        <result property="navadjA" column="A_NAVADJ"/>
+        <result property="codeB" column="B_CODE"/>
+        <result property="navadjB" column="B_NAVADJ"/>
     </resultMap>
 
-    <select id="getAllCodeByDate"  resultType="java.lang.String">
-        SELECT
-        code
-        FROM fund_net_value
-        GROUP BY code
-    </select>
 
-
-    <select id="getDataByCodeAndDate" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel" resultMap="covarianceModelMap">
+    <select id="getDataByCodeAndDate" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel"
+            resultMap="covarianceModelMap">
       SELECT A.NAVLATESTDATE NAVLATESTDATE,A.CODE A_CODE,A.NAVADJ A_NAVADJ,B.CODE B_CODE,B.NAVADJ B_NAVADJ FROM
       (SELECT* FROM fund_net_value a where a.CODE=#{codeA})AS A
       INNER JOIN
@@ -49,7 +43,6 @@
       WHERE A.NAVLATESTDATE>=#{navDate}
       ORDER BY NAVLATESTDATE DESC
     </select>
-
     <select id="getAllByDate"  resultMap="FundNetValMap">
         SELECT
         *
@@ -57,8 +50,18 @@
         WHERE NAVLATESTDATE>=#{selectDate}
         ORDER BY NAVLATESTDATE DESC
     </select>
+    <select id="getLatestNavAdj" resultType="java.math.BigDecimal">
+        SELECT
+          NAVADJ
+        FROM fund_net_value
+        WHERE CODE = #{code}
+        AND
+            NAVLATESTDATE <![CDATA[<=]]> #{date}
+        ORDER BY NAVLATESTDATE DESC
+        LIMIT 1
+    </select>
 
-    <select id="getAllDataByCodeAndDate"  resultMap="FundNetValMap">
+    <select id="getAllDataByCodeAndDate" resultMap="FundNetValMap">
         SELECT
         *
         FROM fund_net_value fnv
@@ -71,14 +74,14 @@
         ORDER BY NAVLATESTDATE DESC
     </select>
 
-    <select id="getMaxNavDateByDate"  resultType="java.util.Date">
+    <select id="getMaxNavDateByDate" resultType="java.util.Date">
         SELECT
         MAX(NAVLATESTDATE)
         FROM fund_net_value
         WHERE NAVLATESTDATE>=#{selectDate}
     </select>
 
-    <select id="getNumberFromSysConfig"  resultType="java.lang.Integer">
+    <select id="getNumberFromSysConfig" resultType="java.lang.Integer">
         SELECT
         number
         FROM system_config
@@ -91,7 +94,7 @@
         WHERE ID=#{id}
     </update>
 
-    <select id="getMaxNavDateByCode"  resultType="java.util.Date">
+    <select id="getMaxNavDateByCode" resultType="java.util.Date">
         SELECT
         MAX(NAVLATESTDATE)
         FROM fund_net_value
@@ -149,14 +152,14 @@
     </insert>
 
 
-    <select id="findBasicDataByCode"  resultType="java.lang.String">
+    <select id="findBasicDataByCode" resultType="java.lang.String">
         SELECT
         code
         FROM fund_basic
         WHERE code=#{code}
     </select>
 
-    <select id="getMinNavDateByCodeList"  resultType="java.util.Date">
+    <select id="getMinNavDateByCodeList" resultType="java.util.Date">
         SELECT MAX(a.minDate) FROM
         ( SELECT MIN(NAVLATESTDATE) minDate
         FROM fund_net_value
@@ -167,15 +170,15 @@
         GROUP BY code ) as a
     </select>
 
-    <select id="getMaxNavDateByCodeList"  resultType="java.util.Date">
+    <select id="getMaxNavDateByCodeList" resultType="java.util.Date">
         SELECT MIN(a.maxDate) FROM
         ( SELECT MAX(NAVLATESTDATE) maxDate
-          FROM fund_net_value
-          WHERE CODE IN
-          <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+        FROM fund_net_value
+        WHERE CODE IN
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
             #{item}
-          </foreach>
-          GROUP BY code
+        </foreach>
+        GROUP BY code
         ) as a
     </select>
 
