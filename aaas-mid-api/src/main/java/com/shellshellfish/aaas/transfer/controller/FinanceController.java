@@ -34,6 +34,7 @@ import com.shellshellfish.aaas.oeminfo.model.JsonResult;
 import com.shellshellfish.aaas.oeminfo.service.MidApiService;
 import com.shellshellfish.aaas.transfer.aop.AopTimeResources;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+import com.shellshellfish.aaas.transfer.service.GrpcOemInfoService;
 import com.shellshellfish.aaas.transfer.utils.EasyKit;
 
 import io.swagger.annotations.Api;
@@ -69,6 +70,9 @@ public class FinanceController {
 
 	@Autowired
 	private MidApiService service;
+	
+	@Autowired
+	GrpcOemInfoService grpcOemInfoService;
 	
 	private static final DecimalFormat decimalFormat = new DecimalFormat(".00"); //保留 5 位
 
@@ -110,17 +114,26 @@ public class FinanceController {
 				return new JsonResult(JsonResult.SUCCESS, "没有获取到产品", JsonResult.EMPTYRESULT);
 			} else {
 				List bannerList = new ArrayList();
-				if (oemid == null || oemid == 1) {
-					bannerList.add("http://47.96.164.161:81/1.png");
-					bannerList.add("http://47.96.164.161:81/2.png");
-					bannerList.add("http://47.96.164.161:81/3.png");
-					bannerList.add("http://47.96.164.161:81/4.png");
-				} else if(oemid == 2){
-					bannerList.add("http://47.96.164.161/1.png");
-					bannerList.add("http://47.96.164.161/2.png");
-					bannerList.add("http://47.96.164.161/3.png");
-					bannerList.add("http://47.96.164.161/4.png");
-				}
+//				if (oemid == null) {
+//					oemid = 1L;
+//				}
+				oemid = oemid == null ? 1L : oemid;
+				Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
+				bannerList.add(oemInfos.get("home_page1"));
+				bannerList.add(oemInfos.get("home_page2"));
+				bannerList.add(oemInfos.get("home_page3"));
+				bannerList.add(oemInfos.get("home_page4"));
+//				if (oemid == null || oemid == 1) {
+//					bannerList.add("http://47.96.164.161:81/1.png");
+//					bannerList.add("http://47.96.164.161:81/2.png");
+//					bannerList.add("http://47.96.164.161:81/3.png");
+//					bannerList.add("http://47.96.164.161:81/4.png");
+//				} else if(oemid == 2){
+//					bannerList.add("http://47.96.164.161/1.png");
+//					bannerList.add("http://47.96.164.161/2.png");
+//					bannerList.add("http://47.96.164.161/3.png");
+//					bannerList.add("http://47.96.164.161/4.png");
+//				}
 				result.put("banner_list", bannerList);
 				for (Object obj : result.values()) {
 					if (obj != null && obj instanceof Map) {
@@ -328,13 +341,13 @@ public class FinanceController {
 	@ApiOperation("进入理财页面后的数据")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "1"),
-		@ApiImplicitParam(paramType = "query", name = "size", dataType = "Integer", required = true, value = "每页显示数（至少大于1）", defaultValue = "3"),
+		@ApiImplicitParam(paramType = "query", name = "size", dataType = "Integer", required = true, value = "每页显示数（至少大于1）", defaultValue = "15"),
 		@ApiImplicitParam(paramType = "query", name = "pageSize", dataType = "Integer", required = true, value = "显示页数（从0开始）", defaultValue = "0"),
 	})
 	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
-	public JsonResult financeModule(@RequestParam(required = false) Long oemid,@RequestParam Integer size,@RequestParam Integer pageSize) {
+	public JsonResult financeModule(@RequestParam(required = false) Long oemid,@RequestParam(defaultValue="15") Integer size,@RequestParam(defaultValue="0") Integer pageSize) {
 		// 先获取全部产品
 		JsonResult result = restTemplate
 				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage?size=" + size + "&pageSize=" + pageSize, JsonResult.class).getBody();
@@ -342,20 +355,33 @@ public class FinanceController {
 		if(obj!=null){
 			HashMap resultMap = (HashMap) obj;
 			List bannerList = new ArrayList();
-			if (oemid == null || oemid == 1) {
-				bannerList.add("http://47.96.164.161:81/APP-invest-banner01.png");
-				bannerList.add("http://47.96.164.161:81/APP-invest-banner02.png");
-				bannerList.add("http://47.96.164.161:81/APP-invest-banner03.png");
-				bannerList.add("http://47.96.164.161:81/APP-invest-banner04.png");
-				bannerList.add("http://47.96.164.161:81/APP-invest-banner05.png");
-			} else if(oemid == 2){
-				bannerList.add("http://47.96.164.161/APP-invest-banner01.png");
-				bannerList.add("http://47.96.164.161/APP-invest-banner02.png");
-				bannerList.add("http://47.96.164.161/APP-invest-banner03.png");
-				bannerList.add("http://47.96.164.161/APP-invest-banner04.png");
-				bannerList.add("http://47.96.164.161/APP-invest-banner05.png");
-			}
+//			if (oemid == null) {
+//				oemid = 1L;
+//			}
+			oemid = oemid == null ? 1L : oemid;
+			
+			Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
+			bannerList.add(oemInfos.get("combination1"));
+			bannerList.add(oemInfos.get("combination2"));
+			bannerList.add(oemInfos.get("combination3"));
+			bannerList.add(oemInfos.get("combination4"));
+			bannerList.add(oemInfos.get("combination5"));
+//			if (oemid == null || oemid == 1) {
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner01.png");
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner02.png");
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner03.png");
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner04.png");
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner05.png");
+//			} else if(oemid == 2){
+//				bannerList.add("http://47.96.164.161/APP-invest-banner01.png");
+//				bannerList.add("http://47.96.164.161/APP-invest-banner02.png");
+//				bannerList.add("http://47.96.164.161/APP-invest-banner03.png");
+//				bannerList.add("http://47.96.164.161/APP-invest-banner04.png");
+//				bannerList.add("http://47.96.164.161/APP-invest-banner05.png");
+//			}
 			resultMap.put("bannerList", bannerList);
+			resultMap.put("title1", "组合");
+			resultMap.put("title2", "比较基准");
 		}
 		return result;
 	}

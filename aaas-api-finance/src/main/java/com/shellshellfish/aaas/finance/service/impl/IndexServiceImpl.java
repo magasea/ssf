@@ -246,6 +246,8 @@ public class IndexServiceImpl implements IndexService {
         result.put("banner_list", banner_list);
 
         result.put("name", "理财产品 首页");
+        result.put("title1", "组合");
+        result.put("title2", "比较基准");
         result.put("_links", linksMap);
         result.put("uuid", uuid);
 

@@ -486,6 +486,14 @@ public class OptimizationServiceImpl implements OptimizationService {
           jsonResult = new JsonResult(JsonResult.SUCCESS, "此页无数据", JsonResult.EMPTYRESULT);
           logger.info("com.shellshellfish.datamanager.service.impl.OptimizationServiceImpl.getFinanceFront() 数据获取为空");
         } else {
+          Collections.sort(mongoFinanceCountList, new Comparator<MongoFinanceAll>() {
+            public int compare(MongoFinanceAll o1, MongoFinanceAll o2) {
+              Double name1 = Double.valueOf(o1.getSerial());//name1是从你list里面拿出来的一个
+              Double name2 = Double.valueOf(o2.getSerial()); //name1是从你list里面拿出来的第二个name
+              return name1.compareTo(name2);
+            }
+          });
+          
           MongoFinanceAll mongoFinanceAll = new MongoFinanceAll();
           List finaceList = new ArrayList<>();
           for(int i = 0; i < mongoFinanceCountList.size(); i++){
