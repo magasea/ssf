@@ -334,7 +334,7 @@ public class FinanceController {
 	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
-	public JsonResult financeModule(@RequestParam(required = false) Long oemid,@RequestParam Integer size,@RequestParam Integer pageSize) {
+	public JsonResult financeModule(@RequestParam(required = false) Long oemid,@RequestParam(defaultValue="15") Integer size,@RequestParam(defaultValue="0") Integer pageSize) {
 		// 先获取全部产品
 		JsonResult result = restTemplate
 				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage?size=" + size + "&pageSize=" + pageSize, JsonResult.class).getBody();
