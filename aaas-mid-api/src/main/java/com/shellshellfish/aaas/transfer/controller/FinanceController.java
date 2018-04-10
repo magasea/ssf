@@ -328,7 +328,7 @@ public class FinanceController {
 	@ApiOperation("进入理财页面后的数据")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "1"),
-		@ApiImplicitParam(paramType = "query", name = "size", dataType = "Integer", required = true, value = "每页显示数（至少大于1）", defaultValue = "3"),
+		@ApiImplicitParam(paramType = "query", name = "size", dataType = "Integer", required = true, value = "每页显示数（至少大于1）", defaultValue = "15"),
 		@ApiImplicitParam(paramType = "query", name = "pageSize", dataType = "Integer", required = true, value = "显示页数（从0开始）", defaultValue = "0"),
 	})
 	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
