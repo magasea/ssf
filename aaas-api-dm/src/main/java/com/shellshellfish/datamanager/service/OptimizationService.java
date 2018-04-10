@@ -8,4 +8,5 @@ public interface OptimizationService {
 	JsonResult checkPrdDetails(String groupId, String subGroupId);
 	JsonResult getPrdDetails(String groupId, String subGroupId);
     JsonResult checkPrdDetails2(String groupId, String subGroupId);
+    JsonResult getFinanceFront(int size, int pageSize);
 }
