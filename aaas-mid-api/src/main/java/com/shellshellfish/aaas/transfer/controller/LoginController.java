@@ -171,15 +171,8 @@ public class LoginController {
 			Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
 			// 我的（logo）
 			// 关于我们（logo、文案、电话）
-			if(oemid == 1){
-				//贝贝鱼
-				result.put("version","V.1.0");
-				result.put("phone","021-80270119");
-			} else if(oemid == 2){
-				//闪尖
-				result.put("version","V.1.0");
-				result.put("phone","400-88-96799");
-			}
+			result.put("version", oemInfos.get("version"));
+			result.put("phone", oemInfos.get("bankPhone"));
 			result.put("me_headphoto", oemInfos.get("me_headphoto"));
 			result.put("about_logo", oemInfos.get("about_logo"));
 			result.put("title",oemInfos.get("prodName"));

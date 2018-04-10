@@ -79,7 +79,8 @@ oem-info:
   oemInfos:
    - oem_id: 1
      oem_name: 贝贝鱼
-     bank_phone: xxxxxxxx
+     bankPhone: 021-80270119
+     version: V.1.0
      prod_name: 贝贝鱼智投
      home_page1: http://47.96.164.161:81/1.png
      home_page2: http://47.96.164.161:81/2.png
@@ -94,7 +95,8 @@ oem-info:
      about_logo: http://47.96.164.161:81/icon_about_logo2.png
    - oem_id: 2
      oem_name: 百合
-     bank_phone: 400-88-96799
+     bankPhone: 400-88-96799
+     version: V.1.0
      prod_name: 百合智投
      home_page1: http://47.96.164.161/1.png
      home_page2: http://47.96.164.161/2.png

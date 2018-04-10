@@ -21,6 +21,7 @@ public class OemInfoProperties {
     String oemName;
     String prodName;
     String bankPhone;
+    String version;
     String home_page1;
     String home_page2;
     String home_page3;
@@ -63,6 +64,14 @@ public class OemInfoProperties {
 
     public void setBankPhone(String bankPhone) {
       this.bankPhone = bankPhone;
+    }
+
+    public String getVersion() {
+      return version;
+    }
+
+    public void setVersion(String version) {
+      this.version = version;
     }
 
     public String getHome_page1() {
