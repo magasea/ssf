@@ -91,6 +91,12 @@
 * mid-apii -- 外包
   - 自身 10140
   - GRPC 10141
+* aaas-app-checkfunds 自动更新10数据库的基金和组合基本信息
+  - 自身 10150
+  - GRPC 10151
+* aaas-app-oeminfo 多银行的基础信息提供模块
+  - 自身 10160
+  - GRPC 10161    
 * rabbitmq: 5672
 * reddit: 6379
 
