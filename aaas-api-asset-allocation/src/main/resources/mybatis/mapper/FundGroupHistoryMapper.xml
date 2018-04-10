@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupHistoryMapper">
+
+
+    <select id="findAllByDateBefore" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupHistory">
+        SELECT
+          time,
+          income_num
+        FROM
+          fund_group_history
+        WHERE
+          fund_group_id = #{groupId}
+          AND  fund_group_sub_id = #{subGroupId}
+        order by time
+    </select>
+
+    <select id="getLatestNavAdj" resultType="Double">
+        SELECT income_num
+        FROM
+        fund_group_history
+        WHERE
+          fund_group_id = #{groupId}
+          AND fund_group_sub_id = #{subGroupId}
+          AND
+          time >= #{date}
+        ORDER BY  TIME
+        limit 1
+
+    </select>
+    <update id="updateMaxDrawDown" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupHistory">
+      update fund_group_history
+      SET
+      maximum_retracement = #{maximum_retracement}
+      WHERE
+        fund_group_id=#{fund_group_id}
+        AND fund_group_sub_id = #{fund_group_sub_id}
+        AND time = #{time}
+    </update>
+
+    <update id="updateMaxDrawDownFromList"
+            parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupHistory">
+        update fund_group_history
+        SET maximum_retracement=
+        <foreach collection="fundGroupHistoryList" item="item" index="index"
+                 separator=" " open="case DATE_FORMAT(time,'%Y%M%d')" close=" end">
+            when DATE_FORMAT(#{item.time},'%Y%M%d') then #{item.maximum_retracement}
+        </foreach>
+        where
+        fund_group_id = #{groupId}
+        AND
+        fund_group_sub_id = #{subGroupId}
+
+    </update>
+
+</mapper>

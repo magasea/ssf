@@ -60,11 +60,17 @@ datasource:
       dialect: org.hibernate.dialect.MySQLDialect
 
 grpc:
-  finance_prod_client:
-    host: localhost
-    port: 10030
   host: localhost
   port: 10111
+  finance_prod_client:
+    host: localhost
+    port: 10031
+  userinfo_client:
+    host: localhost
+    port: 10061
+  order_client:
+    host: localhost
+    port: 10101
 using:
   spring:
     schedulerFactory: true

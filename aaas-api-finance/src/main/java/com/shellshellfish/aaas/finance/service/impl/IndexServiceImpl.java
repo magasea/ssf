@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.service.impl;
 
+import com.shellshellfish.aaas.asset.allocation.FundGroupIndexResult;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.finance.model.ChartResource;
 import com.shellshellfish.aaas.finance.returnType.FundReturn;
@@ -33,6 +34,9 @@ public class IndexServiceImpl implements IndexService {
 
     @Autowired
     DataManagerService dataManagerService;
+
+    @Autowired
+    AllocationRpcService allocationRpcService;
 
     private final String CONSERV = "保守型";
     private final String STABLE = "稳健型";
@@ -94,26 +98,11 @@ public class IndexServiceImpl implements IndexService {
             }
             resultC.put("name", fundReturn.getName());
             //--------------------------------------
-            double historicalYearPerformance = 0;
-            double historicalvolatility = 0;
-            PerformanceVolatilityReturn performanceVolatilityReturn = assetAllocationService.getPerformanceVolatility(groupId, CUST_RISK, INVESTMENT_HORIZON);
-            if (performanceVolatilityReturn != null) {
-                // .getPerformanceVolatility(cust_risk, investment_horizon);
-                List<Map<String, Object>> list = performanceVolatilityReturn.get_items();
-                if (list != null) {
-                    for (int i = 0; i < list.size(); i++) {
-                        Map<String, Object> map = list.get(i);
-                        Integer id = (Integer) map.get("id");
-                        if (id == 1) {
-                            historicalYearPerformance = (double) map.get("value");
-                        } else if (id == 2) {
-                            historicalvolatility = (double) map.get("value");
-                        }
-                    }
-                }
-            }
-            resultC.put("historicalYearPerformance", historicalYearPerformance);
-            resultC.put("historicalvolatility", historicalvolatility);
+
+            //历史年化收益率和历史年化波动率
+            FundGroupIndexResult fundGroupIndex = allocationRpcService.getAnnualVolatilityAndAnnualYield(groupId, subGroupId);
+            resultC.put("historicalYearPerformance", fundGroupIndex.getHistoricalAnnualYeild());
+            resultC.put("historicalvolatility", fundGroupIndex.getHistoricalAnnualVolatility());
             resultC.put("groupId", groupId);
             resultC.put("subGroupId", subGroupId);
 
