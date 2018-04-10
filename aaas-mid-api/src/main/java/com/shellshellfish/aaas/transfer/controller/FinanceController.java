@@ -292,17 +292,52 @@ public class FinanceController {
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", returnMap);
 	}
 	
+//	@ApiOperation("进入理财页面后的数据")
+//	@ApiImplicitParams({
+//		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "1")
+//	})
+//	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
+//	@ResponseBody
+//	@AopTimeResources
+//	public JsonResult financeModule(@RequestParam(required = false) Long oemid) {
+//		// 先获取全部产品
+//		JsonResult result = restTemplate
+//				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage", JsonResult.class).getBody();
+//		Object obj = result.getResult();
+//		if(obj!=null){
+//			HashMap resultMap = (HashMap) obj;
+//			List bannerList = new ArrayList();
+//			if (oemid == null || oemid == 1) {
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner01.png");
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner02.png");
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner03.png");
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner04.png");
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner05.png");
+//			} else if(oemid == 2){
+//				bannerList.add("http://47.96.164.161/APP-invest-banner01.png");
+//				bannerList.add("http://47.96.164.161/APP-invest-banner02.png");
+//				bannerList.add("http://47.96.164.161/APP-invest-banner03.png");
+//				bannerList.add("http://47.96.164.161/APP-invest-banner04.png");
+//				bannerList.add("http://47.96.164.161/APP-invest-banner05.png");
+//			}
+//			resultMap.put("bannerList", bannerList);
+//		}
+//		return result;
+//	}
+	
 	@ApiOperation("进入理财页面后的数据")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "1")
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "1"),
+		@ApiImplicitParam(paramType = "query", name = "size", dataType = "Integer", required = true, value = "每页显示数（至少大于1）", defaultValue = "3"),
+		@ApiImplicitParam(paramType = "query", name = "pageSize", dataType = "Integer", required = true, value = "显示页数（从0开始）", defaultValue = "0"),
 	})
 	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
-	public JsonResult financeModule(@RequestParam(required = false) Long oemid) {
+	public JsonResult financeModule(@RequestParam(required = false) Long oemid,@RequestParam Integer size,@RequestParam Integer pageSize) {
 		// 先获取全部产品
 		JsonResult result = restTemplate
-				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage", JsonResult.class).getBody();
+				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage?size=" + size + "&pageSize=" + pageSize, JsonResult.class).getBody();
 		Object obj = result.getResult();
 		if(obj!=null){
 			HashMap resultMap = (HashMap) obj;
@@ -320,7 +355,7 @@ public class FinanceController {
 				bannerList.add("http://47.96.164.161/APP-invest-banner04.png");
 				bannerList.add("http://47.96.164.161/APP-invest-banner05.png");
 			}
-			resultMap.put("banner_list", bannerList);
+			resultMap.put("bannerList", bannerList);
 		}
 		return result;
 	}
@@ -1383,7 +1418,6 @@ public class FinanceController {
 				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 			}
 
-			result.remove("_links");
 			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {

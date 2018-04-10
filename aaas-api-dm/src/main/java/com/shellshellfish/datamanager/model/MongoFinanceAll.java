@@ -8,73 +8,83 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "ui_finance_all")
 public class MongoFinanceAll implements Serializable {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	@Id
-	private String id;
+  @Id
+  private String id;
 
-	@Field(value = "date")
-	private String date;
+  @Field(value = "serial")
+  private Integer serial;
 
-//	@Field(value = "head")
-//	private Head head;
-//
-//	@Field(value = "jonResult")
-//	private Object result;
-	
-	@Field(value = "result")
-	private Object result;
+  @Field(value = "date")
+  private String date;
 
-	@Column(name = "last_modified_by")
-	private String lastModifiedBy;
+  // @Field(value = "head")
+  // private Head head;
+  //
+  // @Field(value = "jonResult")
+  // private Object result;
 
-	public String getId() {
-		return id;
-	}
+  @Field(value = "result")
+  private Object result;
 
-	public void setId(String id) {
-		this.id = id;
-	}
+  @Column(name = "last_modified_by")
+  private String lastModifiedBy;
 
-	public String getDate() {
-		return date;
-	}
+  public String getId() {
+    return id;
+  }
 
-	public void setDate(String date) {
-		this.date = date;
-	}
+  public void setId(String id) {
+    this.id = id;
+  }
 
-//	public Head getHead() {
-//		return head;
-//	}
-//
-//	public void setHead(Head head) {
-//		this.head = head;
-//	}
-//
-//	public Object getResult() {
-//		return result;
-//	}
-//
-//	public void setResult(Object result) {
-//		this.result = result;
-//	}
-	
-	public Object getResult() {
-		return result;
-	}
-	
-	public void setResult(Object result) {
-		this.result = result;
-	}
+  public String getDate() {
+    return date;
+  }
 
-	public String getLastModifiedBy() {
-		return lastModifiedBy;
-	}
+  public void setDate(String date) {
+    this.date = date;
+  }
+
+  // public Head getHead() {
+  // return head;
+  // }
+  //
+  // public void setHead(Head head) {
+  // this.head = head;
+  // }
+  //
+  // public Object getResult() {
+  // return result;
+  // }
+  //
+  // public void setResult(Object result) {
+  // this.result = result;
+  // }
+
+  public Object getResult() {
+    return result;
+  }
+
+  public void setResult(Object result) {
+    this.result = result;
+  }
+
+  public String getLastModifiedBy() {
+    return lastModifiedBy;
+  }
 
 
-	public void setLastModifiedBy(String lastModifiedBy) {
-		this.lastModifiedBy = lastModifiedBy;
-	}
+  public void setLastModifiedBy(String lastModifiedBy) {
+    this.lastModifiedBy = lastModifiedBy;
+  }
 
+  public Integer getSerial() {
+    return serial;
+  }
+
+  public void setSerial(Integer serial) {
+    this.serial = serial;
+  }
 }
