@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.assetallocation.neo.entity.Interval;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
 import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupService;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -92,11 +95,9 @@ public class FundGroupMapperTest {
         Map<String, Object> query = new HashMap<>();
         query.put("fund_group_id", "2");
         query.put("subGroupId", "20048");
-        String startTime = null;
         String groupStartTime = fundGroupMapper.getFundGroupHistoryTime(query);
         if (StringUtils.isEmpty(groupStartTime)) {
             groupStartTime = fundGroupMapper.getGroupStartTime(query);
-            startTime = groupStartTime;
         }
         query.put("startTime", groupStartTime);
         List<FundNetVal> list = fundGroupMapper.getNavadj(query);
@@ -144,7 +145,7 @@ public class FundGroupMapperTest {
         String groupId = "9";
         String subGroupId = "90048";
 
-        List<Date> navDateList = fundGroupService.getNavlatestdateCount(groupId, subGroupId);
+        List<LocalDate> navDateList = fundGroupService.getNavlatestdateCount(groupId, subGroupId);
 
         Map query = new HashMap();
         query.put("groupId", groupId);
@@ -152,9 +153,7 @@ public class FundGroupMapperTest {
         query.put("list", navDateList);
         List<FundNetVal> fundNetVals = fundGroupMapper.getNavadjByNavDates(query);
 
-        if (!CollectionUtils.isEmpty(fundNetVals)) {
-            System.out.println(fundNetVals.size());
-        }
+        Assert.assertNotNull("数据为空",fundNetVals);
     }
 
 }

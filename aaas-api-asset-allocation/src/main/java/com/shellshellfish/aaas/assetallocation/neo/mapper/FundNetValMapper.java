@@ -3,7 +3,10 @@ package com.shellshellfish.aaas.assetallocation.neo.mapper;
 import com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel;
 import com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds;
 import com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal;
+import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -59,4 +62,5 @@ public interface FundNetValMapper {
     // 根据 codeList 查询基金最近的净值更新日期
     Date getMaxNavDateByCodeList(List<String> codeList);
 
+    BigDecimal getLatestNavAdj(@Param("code") String code,@Param("date") LocalDate date);
 }

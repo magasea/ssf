@@ -14,16 +14,17 @@ import java.util.List;
 public class MVO {
 
     /**
-     *计算有效前沿线值
-     * @param ExpReturn 期望收益率
+     * 计算有效前沿线值
+     *
+     * @param ExpReturn     期望收益率
      * @param ExpCovariance 协方差矩阵
-     * @param count 有效前沿线生成的点数
+     * @param count         有效前沿线生成的点数
      * @return
      */
-    public synchronized static List<float [][]> efficientFrontier(Double [] ExpReturn, Double[][] ExpCovariance, int count, Double lb, Double ub) {
+    public synchronized static List<float[][]> efficientFrontier(Double[] ExpReturn, Double[][] ExpCovariance, int count, Double lb, Double ub) {
         Object[] resust = null;
-        List<float [][]> list = new ArrayList<>();
-        try{
+        List<float[][]> list = new ArrayList<>();
+        try {
             double[] lowBound = new double[ExpReturn.length];
             double[] upBound = new double[ExpReturn.length];
             for (int i = 0; i < lowBound.length; i++) {
@@ -33,12 +34,12 @@ public class MVO {
 
             MATLAB ml = new MATLAB();
             resust = ml.efficientFrontier(3, ExpReturn, ExpCovariance, count, lowBound, upBound);
-            MWNumericArray temp = (MWNumericArray)resust[0];
-            float [][] weights = (float[][])temp.toFloatArray();
-            MWNumericArray temp1 = (MWNumericArray)resust[1];
-            float [][] weights1 = (float[][])temp1.toFloatArray();
-            MWNumericArray temp2 = (MWNumericArray)resust[2];
-            float [][] weights2 = (float[][])temp2.toFloatArray();
+            MWNumericArray temp = (MWNumericArray) resust[0];
+            float[][] weights = (float[][]) temp.toFloatArray();
+            MWNumericArray temp1 = (MWNumericArray) resust[1];
+            float[][] weights1 = (float[][]) temp1.toFloatArray();
+            MWNumericArray temp2 = (MWNumericArray) resust[2];
+            float[][] weights2 = (float[][]) temp2.toFloatArray();
             list.add(weights);
             list.add(weights1);
             list.add(weights2);
@@ -51,21 +52,23 @@ public class MVO {
 
     /**
      * TODO   预期年华收益率=预期收益率  历史波动率=预期风险率
-     *已知组合收益率，协方差，权重计算组合预期收益率，预期风险率
-     * @param ExpReturn 期望收益率
+     * 已知组合收益率，协方差，权重计算组合预期收益率，预期风险率
+     *
+     * @param ExpReturn     期望收益率
      * @param ExpCovariance 协方差矩阵
-     * @param PortWts 权重
+     * @param PortWts       权重
      * @return
      */
-    public synchronized static Object[] incomeAndRisk(Double [] ExpReturn,Double[][] ExpCovariance,Double [] PortWts){
+    @Deprecated
+    public synchronized static Object[] incomeAndRisk(Double[] ExpReturn, Double[][] ExpCovariance, Double[] PortWts) {
         Object[] resust = null;
-        try{
+        try {
             MATLAB ml = new MATLAB();
             resust = ml.riskAndIncome(2, ExpReturn, ExpCovariance, PortWts);
-            MWNumericArray temp = (MWNumericArray)resust[0];
-            float [][] weights = (float[][])temp.toFloatArray();
-            MWNumericArray temp1 = (MWNumericArray)resust[1];
-            float [][] weights1 = (float[][])temp1.toFloatArray();
+            MWNumericArray temp = (MWNumericArray) resust[0];
+            float[][] weights = (float[][]) temp.toFloatArray();
+            MWNumericArray temp1 = (MWNumericArray) resust[1];
+            float[][] weights1 = (float[][]) temp1.toFloatArray();
             resust[0] = weights;
             resust[1] = weights1;
             ml.dispose();
@@ -77,8 +80,9 @@ public class MVO {
 
     /**
      * 计算夏普比率
+     *
      * @param asset 每天基金复权单位净值*权重相加
-     * @param cash 0.0013
+     * @param cash  0.0013
      * @return
      */
     public synchronized static Object sharpeRatio(Double[] asset, Double cash) {

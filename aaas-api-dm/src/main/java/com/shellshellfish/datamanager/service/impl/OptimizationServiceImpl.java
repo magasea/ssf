@@ -1,5 +1,6 @@
 package com.shellshellfish.datamanager.service.impl;
 
+import com.shellshellfish.aaas.asset.allocation.FundGroupIndexResult;
 import com.shellshellfish.aaas.common.enums.FundClassEnum;
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
@@ -9,12 +10,7 @@ import com.shellshellfish.aaas.common.utils.URLutils;
 import com.shellshellfish.datamanager.commons.EasyKit;
 import com.shellshellfish.datamanager.controller.GroupController;
 import com.shellshellfish.datamanager.exception.ReturnedException;
-import com.shellshellfish.datamanager.model.FinanceProductCompo;
-import com.shellshellfish.datamanager.model.FundNAVInfo;
-import com.shellshellfish.datamanager.model.JsonResult;
-import com.shellshellfish.datamanager.model.MonetaryFund;
-import com.shellshellfish.datamanager.model.MongoFinanceAll;
-import com.shellshellfish.datamanager.model.MongoFinanceDetail;
+import com.shellshellfish.datamanager.model.*;
 import com.shellshellfish.datamanager.repositories.MongoFinanceDetailRepository;
 import com.shellshellfish.datamanager.repositories.mongo.MongoFinanceALLRepository;
 import com.shellshellfish.datamanager.service.OptimizationService;
@@ -31,6 +27,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 
@@ -41,6 +38,9 @@ public class OptimizationServiceImpl implements OptimizationService {
     MongoFinanceALLRepository mongoFinanceALLRepository;
     @Autowired
     MongoFinanceDetailRepository mongoFinanceDetailRepository;
+
+    @Autowired
+    AllocationRpcService grpcAssetAllocationService;
 
     @Value("${shellshellfish.asset-alloction-url}")
     private String assetAlloctionUrl;
@@ -287,29 +287,13 @@ public class OptimizationServiceImpl implements OptimizationService {
      * subGroupId}/opt，参数+1）
      */
     protected Map<String, Object> getExpAnnReturn(String groupId, String subGroupId) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
-                    + subGroupId + "/opt?returntype=" + "1";
-            String str = "{\"returnType\":\"" + "1" + "\"}";
-            result = (Map) restTemplate.postForEntity(url, getHttpEntity(str), Map.class).getBody();
-            /*
-             * result.remove("_total"); result.remove("_name");
-             * result.remove("_links"); result.remove("_serviceId");
-             * result.remove("_schemaVersion");
-             */
-            if (result.get("value") != null) {
-                Double value = (Double) result.get("value");
-                if (!StringUtils.isEmpty(value)) {
-                    value = EasyKit.getDecimal(new BigDecimal(value));
-                    result.put("value", value + EasyKit.PERCENT);
-                }
-            }
-        } catch (Exception e) {
-            result = new HashMap<String, Object>();
-            result.put("error", "restTemplate获取预期年化收益失败");
-        }
-        return result;
+        FundGroupIndexResult fundGroupIndexResult = grpcAssetAllocationService.getFundGroupIndex(groupId, subGroupId);
+        Map map = new HashMap(4);
+        map.put("id", groupId);
+        map.put("subGroupId", subGroupId);
+        map.put("name", "预期年化收益");
+        map.put("value", BigDecimal.valueOf(fundGroupIndexResult.getHistoricalAnnualYeild()).multiply(new BigDecimal(100)).setScale(2, RoundingMode.HALF_UP).toString() + EasyKit.PERCENT);
+        return map;
     }
 
     /**
