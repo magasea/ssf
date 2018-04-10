@@ -172,8 +172,8 @@ public class LoginController {
 			// 关于我们（logo、文案、电话）
 			if(oemid == 1){
 				//贝贝鱼
-				result.put("me_headphoto","http://47.96.164.161:81/icon_me_headphoto 2.png");
-				result.put("about_logo","http://47.96.164.161:81/icon_about_logo 2.png");
+				result.put("me_headphoto","http://47.96.164.161:81/icon_me_headphoto2.png");
+				result.put("about_logo","http://47.96.164.161:81/icon_about_logo2.png");
 				result.put("version","V.1.0");
 				result.put("phone","021-80270119");
 			} else if(oemid == 2){
