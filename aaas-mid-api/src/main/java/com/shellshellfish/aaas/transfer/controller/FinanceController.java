@@ -119,10 +119,14 @@ public class FinanceController {
 //				}
 				oemid = oemid == null ? 1L : oemid;
 				Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
-				bannerList.add(oemInfos.get("home_page1"));
-				bannerList.add(oemInfos.get("home_page2"));
-				bannerList.add(oemInfos.get("home_page3"));
-				bannerList.add(oemInfos.get("home_page4"));
+				logger.info("oemInfos====home_page1" + oemInfos.get("home_page1"));
+				logger.info("oemInfos====home_page2" + oemInfos.get("home_page2"));
+				logger.info("oemInfos====home_page3" + oemInfos.get("home_page3"));
+				logger.info("oemInfos====home_page4" + oemInfos.get("home_page4"));
+//				bannerList.add(oemInfos.get("home_page1"));
+//				bannerList.add(oemInfos.get("home_page2"));
+//				bannerList.add(oemInfos.get("home_page3"));
+//				bannerList.add(oemInfos.get("home_page4"));
 				if (oemid == null || oemid == 1) {
 					bannerList.add("http://47.96.164.161:81/1.png");
 					bannerList.add("http://47.96.164.161:81/2.png");
@@ -361,11 +365,16 @@ public class FinanceController {
 			oemid = oemid == null ? 1L : oemid;
 			
 			Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
-			bannerList.add(oemInfos.get("combination1"));
-			bannerList.add(oemInfos.get("combination2"));
-			bannerList.add(oemInfos.get("combination3"));
-			bannerList.add(oemInfos.get("combination4"));
-			bannerList.add(oemInfos.get("combination5"));
+			logger.info("oemInfos====combination1" + oemInfos.get("combination1"));
+			logger.info("oemInfos====combination2" + oemInfos.get("combination2"));
+			logger.info("oemInfos====combination3" + oemInfos.get("combination3"));
+			logger.info("oemInfos====combination4" + oemInfos.get("combination4"));
+			logger.info("oemInfos====combination5" + oemInfos.get("combination5"));
+//			bannerList.add(oemInfos.get("combination1"));
+//			bannerList.add(oemInfos.get("combination2"));
+//			bannerList.add(oemInfos.get("combination3"));
+//			bannerList.add(oemInfos.get("combination4"));
+//			bannerList.add(oemInfos.get("combination5"));
 			if (oemid == null || oemid == 1) {
 				bannerList.add("http://47.96.164.161:81/APP-invest-banner01.png");
 				bannerList.add("http://47.96.164.161:81/APP-invest-banner02.png");
