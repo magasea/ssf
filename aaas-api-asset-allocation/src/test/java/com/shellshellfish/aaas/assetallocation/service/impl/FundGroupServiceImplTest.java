@@ -1,6 +1,6 @@
 package com.shellshellfish.aaas.assetallocation.service.impl;
 
-import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupService;
+import com.shellshellfish.aaas.assetallocation.service.impl.FundGroupService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

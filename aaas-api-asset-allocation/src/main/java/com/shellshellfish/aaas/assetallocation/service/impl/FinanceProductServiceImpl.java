@@ -1,8 +1,8 @@
 package com.shellshellfish.aaas.assetallocation.service.impl;
 
 import com.shellshellfish.aaas.assetallocation.service.FinanceProductService;
-import com.shellshellfish.aaas.assetallocation.neo.entity.Interval;
-import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
+import com.shellshellfish.aaas.assetallocation.entity.Interval;
+import com.shellshellfish.aaas.assetallocation.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductDetailInfoPage;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductDetailQueryInfo;

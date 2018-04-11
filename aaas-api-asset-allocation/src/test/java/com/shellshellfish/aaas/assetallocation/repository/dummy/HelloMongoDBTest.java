@@ -7,9 +7,9 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
-import com.shellshellfish.aaas.assetallocation.neo.returnType.ReturnType;
-import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupService;
-import com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil;
+import com.shellshellfish.aaas.assetallocation.returnType.ReturnType;
+import com.shellshellfish.aaas.assetallocation.service.impl.FundGroupService;
+import com.shellshellfish.aaas.assetallocation.util.ConstantUtil;
 import org.bson.Document;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.*;
-import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.MONGO_DB_COLLECTION;
+import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.*;
+import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.MONGO_DB_COLLECTION;
 
 /**
  * Author: hongming
