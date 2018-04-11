@@ -236,45 +236,47 @@ public class OptimizationServiceImpl implements OptimizationService {
 //			}
 //			mongoFinanceALLRepository.deleteAll();
             mongoFinanceAll.setSerial(serial);
-            mongoFinanceALLRepository.save(mongoFinanceAll);
             if (result != null) {
-                object = result.get("_items");
-                if (object instanceof List) {
-                    // 转换成List
-                    prdList = (List<Map<String, Object>>) object;
-                    try {
-                        for (Map<String, Object> productMap : prdList) {
-                            returnMap = new HashMap<>();
-                            // 获取goupid和subGroupId
-                            String groupId = (productMap.get("groupId")) == null ? null
-                                    : (productMap.get("groupId")).toString();
-                            String subGroupId = (productMap.get("subGroupId")) == null ? null
-                                    : (productMap.get("subGroupId")).toString();
-                            String prdName = productMap.get("name") == null ? null : (productMap.get("name")).toString();
-                            List productCompo = (List) productMap.get("assetsRatios");
-                            if (productCompo != null && productCompo.size() > 0) {
-                                Double count = 0D;
-                                Double value = 0D;
-                                for (int i = 0; i < productCompo.size(); i++) {
-                                    Map pMap = (Map) productCompo.get(i);
-                                    if (pMap.get("value") != null) {
-                                        if (i == productCompo.size() - 1) {
-                                            value = 100D - count;
-                                            BigDecimal bigValue = new BigDecimal(value);
-                                            value = bigValue.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-                                        } else {
-                                            value = (Double) pMap.get("value");
-                                            value = EasyKit.getDecimal(new BigDecimal(value));
-                                            count = count + value;
-                                        }
-                                        if (value != null) {
-                                            pMap.put("value", value);
-                                        } else {
-                                            pMap.put("value", "0.00");
-                                        }
-                                    }
-                                }
-                            }
+              object = result.get("_items");
+              if (object instanceof List) {
+                  // 转换成List
+                  prdList = (List<Map<String, Object>>) object;
+                  Integer total = prdList.size();
+                  mongoFinanceAll.setTotal(total);
+                  mongoFinanceALLRepository.save(mongoFinanceAll);
+                  try {
+                      for (Map<String, Object> productMap : prdList) {
+                          returnMap = new HashMap<>();
+                          // 获取goupid和subGroupId
+                          String groupId = (productMap.get("groupId")) == null ? null
+                                  : (productMap.get("groupId")).toString();
+                          String subGroupId = (productMap.get("subGroupId")) == null ? null
+                                  : (productMap.get("subGroupId")).toString();
+                          String prdName = productMap.get("name") == null ? null : (productMap.get("name")).toString();
+                          List productCompo = (List) productMap.get("assetsRatios");
+                          if (productCompo != null && productCompo.size() > 0) {
+                              Double count = 0D;
+                              Double value = 0D;
+                              for (int i = 0; i < productCompo.size(); i++) {
+                                  Map pMap = (Map) productCompo.get(i);
+                                  if (pMap.get("value") != null) {
+                                      if (i == productCompo.size() - 1) {
+                                          value = 100D - count;
+                                          BigDecimal bigValue = new BigDecimal(value);
+                                          value = bigValue.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                                      } else {
+                                          value = (Double) pMap.get("value");
+                                          value = EasyKit.getDecimal(new BigDecimal(value));
+                                          count = count + value;
+                                      }
+                                      if (value != null) {
+                                          pMap.put("value", value);
+                                      } else {
+                                          pMap.put("value", "0.00");
+                                      }
+                                  }
+                              }
+                          }
 
                             // 去另一接口获取历史收益率图表的数据
                             Map histYieldRate = getCombYieldRate(groupId, subGroupId);
@@ -486,36 +488,44 @@ public class OptimizationServiceImpl implements OptimizationService {
             jsonResult = new JsonResult(JsonResult.SUCCESS, "此页无数据", JsonResult.EMPTYRESULT);
             logger.info("com.shellshellfish.datamanager.service.impl.OptimizationServiceImpl.getFinanceFront() 数据获取为空");
         } else {
-            Collections.sort(mongoFinanceCountList, new Comparator<MongoFinanceAll>() {
-                public int compare(MongoFinanceAll o1, MongoFinanceAll o2) {
-                    Double name1 = Double.valueOf(o1.getSerial());//name1是从你list里面拿出来的一个
-                    Double name2 = Double.valueOf(o2.getSerial()); //name1是从你list里面拿出来的第二个name
-                    return name1.compareTo(name2);
-                }
-            });
-
-            MongoFinanceAll mongoFinanceAll = new MongoFinanceAll();
-            List finaceList = new ArrayList<>();
-            for (int i = 0; i < mongoFinanceCountList.size(); i++) {
-                if (i == 0) {
-                    mongoFinanceAll = mongoFinanceCountList.get(0);
-                } else {
-                    MongoFinanceAll mongoFinanceTemp = new MongoFinanceAll();
-                    mongoFinanceTemp = mongoFinanceCountList.get(i);
-                    Object objTemp = mongoFinanceTemp.getResult();
-                    Map finaceMapTemp = (Map) objTemp;
-                    if (finaceMapTemp != null) {
-                        List finaceListTemp = (List) finaceMapTemp.get("data");
-                        finaceList.add(finaceListTemp.get(0));
-                    }
-                }
+          Collections.sort(mongoFinanceCountList, new Comparator<MongoFinanceAll>() {
+            public int compare(MongoFinanceAll o1, MongoFinanceAll o2) {
+              Double name1 = Double.valueOf(o1.getSerial());//name1是从你list里面拿出来的一个
+              Double name2 = Double.valueOf(o2.getSerial()); //name1是从你list里面拿出来的第二个name
+              return name1.compareTo(name2);
             }
-            if (finaceList != null && finaceList.size() > 0) {
-                Object obj = mongoFinanceAll.getResult();
-                Map financeMap = (Map) obj;
-                financeMap.put("data", finaceList);
+          });
+          
+          MongoFinanceAll mongoFinanceAll = new MongoFinanceAll();
+          List finaceList = new ArrayList<>();
+          for(int i = 0; i < mongoFinanceCountList.size(); i++){
+            if(i == 0){
+              mongoFinanceAll = mongoFinanceCountList.get(0);
+              Integer total = mongoFinanceAll.getTotal();
+              if(total == 0){
+                logger.error("no data");
+                return new JsonResult(JsonResult.Fail, "no data", JsonResult.EMPTYRESULT);
+              } else {
+                Integer totalPage = total/size;
+                mongoFinanceAll.setTotalPage(totalPage);
+              }
+            } else {
+              MongoFinanceAll mongoFinanceTemp = new MongoFinanceAll();
+              mongoFinanceTemp  = mongoFinanceCountList.get(i);
+              Object objTemp = mongoFinanceTemp.getResult();
+              Map finaceMapTemp = (Map) objTemp;
+              if(finaceMapTemp!=null){
+                List finaceListTemp = (List) finaceMapTemp.get("data");
+                finaceList.add(finaceListTemp.get(0));
+              }
             }
-            jsonResult = new JsonResult(JsonResult.SUCCESS, "获取成功", mongoFinanceAll.getResult());
+          }
+          if(finaceList != null&&finaceList.size() > 0){
+            Object obj = mongoFinanceAll.getResult();
+            Map financeMap = (Map) obj;
+            financeMap.put("data",finaceList);
+          }
+          jsonResult = new JsonResult(JsonResult.SUCCESS, "获取成功", mongoFinanceAll.getResult());
         }
         return jsonResult;
     }
