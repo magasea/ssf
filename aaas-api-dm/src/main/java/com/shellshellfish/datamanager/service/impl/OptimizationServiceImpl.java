@@ -710,7 +710,7 @@ public class OptimizationServiceImpl implements OptimizationService {
         FundGroupIndexResult fundGroupIndexResult = grpcAssetAllocationService.getFundGroupIndex(groupId, subGroupId);
         Map map = new HashMap(4);
 
-        map.put("name", "预期年化收益");
+        map.put("name", "历史最大回撤");
         map.put("value", BigDecimal.valueOf(fundGroupIndexResult.getMaxRetracement()).multiply(new BigDecimal(100)).setScale(2, RoundingMode.HALF_UP).toString() + EasyKit.PERCENT);
         return map;
     }
@@ -722,7 +722,7 @@ public class OptimizationServiceImpl implements OptimizationService {
         FundGroupIndexResult fundGroupIndexResult = grpcAssetAllocationService.getFundGroupIndex(groupId, subGroupId);
         Map map = new HashMap(4);
 
-        map.put("name", "预期年化收益");
+        map.put("name", "历史波动率");
         map.put("value", BigDecimal.valueOf(fundGroupIndexResult.getHistoricalAnnualVolatility()).multiply(new BigDecimal(100)).setScale(2, RoundingMode.HALF_UP).toString() + EasyKit.PERCENT);
         return map;
     }
