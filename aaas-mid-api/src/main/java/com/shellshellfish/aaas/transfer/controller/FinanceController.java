@@ -118,22 +118,22 @@ public class FinanceController {
 //					oemid = 1L;
 //				}
 				oemid = oemid == null ? 1L : oemid;
-				Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
-				bannerList.add(oemInfos.get("home_page1"));
-				bannerList.add(oemInfos.get("home_page2"));
-				bannerList.add(oemInfos.get("home_page3"));
-				bannerList.add(oemInfos.get("home_page4"));
-//				if (oemid == null || oemid == 1) {
-//					bannerList.add("http://47.96.164.161:81/1.png");
-//					bannerList.add("http://47.96.164.161:81/2.png");
-//					bannerList.add("http://47.96.164.161:81/3.png");
-//					bannerList.add("http://47.96.164.161:81/4.png");
-//				} else if(oemid == 2){
-//					bannerList.add("http://47.96.164.161/1.png");
-//					bannerList.add("http://47.96.164.161/2.png");
-//					bannerList.add("http://47.96.164.161/3.png");
-//					bannerList.add("http://47.96.164.161/4.png");
-//				}
+//				Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
+//				bannerList.add(oemInfos.get("home_page1"));
+//				bannerList.add(oemInfos.get("home_page2"));
+//				bannerList.add(oemInfos.get("home_page3"));
+//				bannerList.add(oemInfos.get("home_page4"));
+				if (oemid == null || oemid == 1) {
+					bannerList.add("http://47.96.164.161:81/1.png");
+					bannerList.add("http://47.96.164.161:81/2.png");
+					bannerList.add("http://47.96.164.161:81/3.png");
+					bannerList.add("http://47.96.164.161:81/4.png");
+				} else if(oemid == 2){
+					bannerList.add("http://47.96.164.161/1.png");
+					bannerList.add("http://47.96.164.161/2.png");
+					bannerList.add("http://47.96.164.161/3.png");
+					bannerList.add("http://47.96.164.161/4.png");
+				}
 				result.put("banner_list", bannerList);
 				for (Object obj : result.values()) {
 					if (obj != null && obj instanceof Map) {
@@ -360,25 +360,25 @@ public class FinanceController {
 //			}
 			oemid = oemid == null ? 1L : oemid;
 			
-			Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
-			bannerList.add(oemInfos.get("combination1"));
-			bannerList.add(oemInfos.get("combination2"));
-			bannerList.add(oemInfos.get("combination3"));
-			bannerList.add(oemInfos.get("combination4"));
-			bannerList.add(oemInfos.get("combination5"));
-//			if (oemid == null || oemid == 1) {
-//				bannerList.add("http://47.96.164.161:81/APP-invest-banner01.png");
-//				bannerList.add("http://47.96.164.161:81/APP-invest-banner02.png");
-//				bannerList.add("http://47.96.164.161:81/APP-invest-banner03.png");
-//				bannerList.add("http://47.96.164.161:81/APP-invest-banner04.png");
-//				bannerList.add("http://47.96.164.161:81/APP-invest-banner05.png");
-//			} else if(oemid == 2){
-//				bannerList.add("http://47.96.164.161/APP-invest-banner01.png");
-//				bannerList.add("http://47.96.164.161/APP-invest-banner02.png");
-//				bannerList.add("http://47.96.164.161/APP-invest-banner03.png");
-//				bannerList.add("http://47.96.164.161/APP-invest-banner04.png");
-//				bannerList.add("http://47.96.164.161/APP-invest-banner05.png");
-//			}
+//			Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
+//			bannerList.add(oemInfos.get("combination1"));
+//			bannerList.add(oemInfos.get("combination2"));
+//			bannerList.add(oemInfos.get("combination3"));
+//			bannerList.add(oemInfos.get("combination4"));
+//			bannerList.add(oemInfos.get("combination5"));
+			if (oemid == null || oemid == 1) {
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner01.png");
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner02.png");
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner03.png");
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner04.png");
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner05.png");
+			} else if(oemid == 2){
+				bannerList.add("http://47.96.164.161/APP-invest-banner01.png");
+				bannerList.add("http://47.96.164.161/APP-invest-banner02.png");
+				bannerList.add("http://47.96.164.161/APP-invest-banner03.png");
+				bannerList.add("http://47.96.164.161/APP-invest-banner04.png");
+				bannerList.add("http://47.96.164.161/APP-invest-banner05.png");
+			}
 			resultMap.put("bannerList", bannerList);
 			resultMap.put("title1", "组合");
 			resultMap.put("title2", "比较基准");
