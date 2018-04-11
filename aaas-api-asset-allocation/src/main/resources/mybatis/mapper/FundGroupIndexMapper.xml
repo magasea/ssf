@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupIndexMapper">
+<mapper namespace="com.shellshellfish.aaas.assetallocation.mapper.FundGroupIndexMapper">
 
     <update id="saveOrUpdate"
-            parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupIndex">
+            parameterType="com.shellshellfish.aaas.assetallocation.entity.FundGroupIndex">
         insert into fund_group_index(fund_group_id, fund_group_sub_id, historical_annual_yield,historical_annual_volatility)
         VALUES (#{fundGroupId},#{fundGroupSubId},#{historicalAnnualYield},#{historicalAnnualVolatility})
         ON DUPLICATE KEY UPDATE
@@ -12,7 +12,7 @@
     </update>
 
     <select id="findByGroupIdAndSubGroupId"
-            resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupIndex">
+            resultType="com.shellshellfish.aaas.assetallocation.entity.FundGroupIndex">
       SELECT
        id,
        fund_group_id as fundGroupId,

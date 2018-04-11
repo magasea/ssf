@@ -236,12 +236,14 @@ public class OptimizationServiceImpl implements OptimizationService {
 //			}
 //			mongoFinanceALLRepository.deleteAll();
             mongoFinanceAll.setSerial(serial);
-            mongoFinanceALLRepository.save(mongoFinanceAll);
             if (result != null) {
               object = result.get("_items");
               if (object instanceof List) {
                   // 转换成List
                   prdList = (List<Map<String, Object>>) object;
+                  Integer total = prdList.size();
+                  mongoFinanceAll.setTotal(total);
+                  mongoFinanceALLRepository.save(mongoFinanceAll);
                   try {
                       for (Map<String, Object> productMap : prdList) {
                           returnMap = new HashMap<>();
@@ -276,42 +278,42 @@ public class OptimizationServiceImpl implements OptimizationService {
                               }
                           }
 
-                          // 去另一接口获取历史收益率图表的数据
-                          Map histYieldRate = getCombYieldRate(groupId, subGroupId);
+                            // 去另一接口获取历史收益率图表的数据
+                            Map histYieldRate = getCombYieldRate(groupId, subGroupId);
 
-                          String startDate = histYieldRate.get("startDate").toString();
-                          // 去另一个接口获取预期年化，预期最大回撤
-                          Map expAnnReturn = getExpAnnReturn(groupId, subGroupId);
-                          if (expAnnReturn.containsKey("value")) {
-                              expAnnReturn.put("value", expAnnReturn.get("value"));
-                          }
-                          // Map ExpMaxReturn=getExpMaxReturn(g,subGroupId);
-                          // 将结果封装进实体类
-                          Map baseLine = groupController.getGroupBaseLine(Long.parseLong(groupId), null, InstantDateUtil.format(startDate), 5);
-                          baseLine = align(histYieldRate, baseLine);
-                          FinanceProductCompo prd = new FinanceProductCompo(groupId, subGroupId, prdName,
-                                  expAnnReturn.size() > 0 ? expAnnReturn.get("value").toString() : null, productCompo,
-                                  histYieldRate, baseLine);
-                          resultList = new ArrayList<FinanceProductCompo>();
-                          resultList.add(prd);
-                          
-                          returnMap.put("data", resultList);
-                          jsonResult = new JsonResult(JsonResult.SUCCESS, "获取成功", returnMap);
+                            String startDate = histYieldRate.get("startDate").toString();
+                            // 去另一个接口获取预期年化，预期最大回撤
+                            Map expAnnReturn = getExpAnnReturn(groupId, subGroupId);
+                            if (expAnnReturn.containsKey("value")) {
+                                expAnnReturn.put("value", expAnnReturn.get("value"));
+                            }
+                            // Map ExpMaxReturn=getExpMaxReturn(g,subGroupId);
+                            // 将结果封装进实体类
+                            Map baseLine = groupController.getGroupBaseLine(Long.parseLong(groupId), null, InstantDateUtil.format(startDate), 5);
+                            baseLine = align(histYieldRate, baseLine);
+                            FinanceProductCompo prd = new FinanceProductCompo(groupId, subGroupId, prdName,
+                                    expAnnReturn.size() > 0 ? expAnnReturn.get("value").toString() : null, productCompo,
+                                    histYieldRate, baseLine);
+                            resultList = new ArrayList<FinanceProductCompo>();
+                            resultList.add(prd);
+
+                            returnMap.put("data", resultList);
+                            jsonResult = new JsonResult(JsonResult.SUCCESS, "获取成功", returnMap);
 //                          jsonResult.setHead(null);
-                          mongoFinanceAll.setResult(jsonResult.getResult());
-                          mongoFinanceAll.setId(null);
-                          mongoFinanceAll.setSerial(++serial);
-                          mongoFinanceALLRepository.save(mongoFinanceAll);
-                          System.out.println(date + "--数据插入成功：groupId："+groupId+"subGroupId:"+subGroupId);
-                          logger.info("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.financeFront() success..");
-                      }
-                  } catch (Exception e) {
-                      return new JsonResult(JsonResult.Fail, "获取产品的field属性失败", JsonResult.EMPTYRESULT);
-                  }
-              }
-          } else {
-              return new JsonResult(JsonResult.Fail, "没有获取到产品", JsonResult.EMPTYRESULT);
-          }
+                            mongoFinanceAll.setResult(jsonResult.getResult());
+                            mongoFinanceAll.setId(null);
+                            mongoFinanceAll.setSerial(++serial);
+                            mongoFinanceALLRepository.save(mongoFinanceAll);
+                            System.out.println(date + "--数据插入成功：groupId：" + groupId + "subGroupId:" + subGroupId);
+                            logger.info("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.financeFront() success..");
+                        }
+                    } catch (Exception e) {
+                        return new JsonResult(JsonResult.Fail, "获取产品的field属性失败", JsonResult.EMPTYRESULT);
+                    }
+                }
+            } else {
+                return new JsonResult(JsonResult.Fail, "没有获取到产品", JsonResult.EMPTYRESULT);
+            }
         } else {
             logger.error("run com.shellshellfish.datamanager.service.impl.OptimizationServiceImpl.financeFront() fail..\n");
             logger.error("jsonResult 结果为空");
@@ -460,7 +462,7 @@ public class OptimizationServiceImpl implements OptimizationService {
         }
         return jsonResult;
     }
-    
+
     @Override
     public JsonResult getFinanceFront(int size, int pageSize) {
         JsonResult jsonResult = null;
@@ -477,8 +479,8 @@ public class OptimizationServiceImpl implements OptimizationService {
         //MongoFinanceAll mongoFinanceAll = mongoFinanceALLRepository.findAllByDate(date);
         List<Integer> serialList = new ArrayList<>();
         serialList.add(0);
-        int begin = size * pageSize + 1; 
-        for(int i=0;i<size;i++){
+        int begin = size * pageSize + 1;
+        for (int i = 0; i < size; i++) {
             serialList.add(begin + i);
         }
         List<MongoFinanceAll> mongoFinanceCountList = mongoFinanceALLRepository.findBySerialIn(serialList);
@@ -493,12 +495,20 @@ public class OptimizationServiceImpl implements OptimizationService {
               return name1.compareTo(name2);
             }
           });
-          
+
           MongoFinanceAll mongoFinanceAll = new MongoFinanceAll();
           List finaceList = new ArrayList<>();
           for(int i = 0; i < mongoFinanceCountList.size(); i++){
             if(i == 0){
               mongoFinanceAll = mongoFinanceCountList.get(0);
+              Integer total = mongoFinanceAll.getTotal();
+              if(total == 0){
+                logger.error("no data");
+                return new JsonResult(JsonResult.Fail, "no data", JsonResult.EMPTYRESULT);
+              } else {
+                Integer totalPage = total/size;
+                mongoFinanceAll.setTotalPage(totalPage);
+              }
             } else {
               MongoFinanceAll mongoFinanceTemp = new MongoFinanceAll();
               mongoFinanceTemp  = mongoFinanceCountList.get(i);
@@ -707,56 +717,24 @@ public class OptimizationServiceImpl implements OptimizationService {
      * 获取预期最大回撤（/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt，参数+2）
      */
     protected Map<String, Object> getExpMaxReturn(String groupId, String subGroupId) {
-        Map result = null;
-        try {
-            String url =
-                    assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
-                            + subGroupId + "/opt?returntype=" + "2";
-//			String str="{\"returnType\":\""+"2"+"\"}";
-            result = (Map) restTemplate.postForEntity(url, null, Map.class).getBody();
+        FundGroupIndexResult fundGroupIndexResult = grpcAssetAllocationService.getFundGroupIndex(groupId, subGroupId);
+        Map map = new HashMap(4);
 
-            if (result.get("value") != null) {
-                Double value = (Double) result.get("value");
-                if (!StringUtils.isEmpty(value)) {
-                    value = EasyKit.getDecimal(new BigDecimal(value));
-                    result.put("value", value + EasyKit.PERCENT);
-                }
-            }
-        } catch (Exception e) {
-            result = new HashMap<String, Object>();
-            result.put("error", "restTemplate获取预期最大回撤失败");
-        }
-        return result;
+        map.put("name", "历史最大回撤");
+        map.put("value", BigDecimal.valueOf(fundGroupIndexResult.getMaxRetracement()).multiply(new BigDecimal(100)).setScale(2, RoundingMode.HALF_UP).toString() + EasyKit.PERCENT);
+        return map;
     }
 
     /**
      * 模拟历史年化波动率（/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt，参数+3）
      */
     protected Map<String, Object> getSimulateHistoricalReturn(String groupId, String subGroupId) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            String url =
-                    assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
-                            + subGroupId + "/opt?returntype=" + "3";
-            String str = "{\"returnType\":\"" + "1" + "\"}";
-            result = (Map) restTemplate.postForEntity(url, getHttpEntity(str), Map.class).getBody();
-			/*result.remove("_total");
-			result.remove("_name");
-			result.remove("_links");
-			result.remove("_serviceId");
-			result.remove("_schemaVersion");*/
-            if (result.get("value") != null) {
-                Double value = (Double) result.get("value");
-                if (!StringUtils.isEmpty(value)) {
-                    value = EasyKit.getDecimal(new BigDecimal(value));
-                    result.put("value", value + EasyKit.PERCENT);
-                }
-            }
-        } catch (Exception e) {
-            result = new HashMap<String, Object>();
-            result.put("error", "restTemplate获取预期年化收益失败");
-        }
-        return result;
+        FundGroupIndexResult fundGroupIndexResult = grpcAssetAllocationService.getFundGroupIndex(groupId, subGroupId);
+        Map map = new HashMap(4);
+
+        map.put("name", "历史波动率");
+        map.put("value", BigDecimal.valueOf(fundGroupIndexResult.getHistoricalAnnualVolatility()).multiply(new BigDecimal(100)).setScale(2, RoundingMode.HALF_UP).toString() + EasyKit.PERCENT);
+        return map;
     }
 
     public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) {

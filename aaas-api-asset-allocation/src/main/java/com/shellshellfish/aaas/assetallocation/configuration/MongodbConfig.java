@@ -1,17 +1,14 @@
 package com.shellshellfish.aaas.assetallocation.configuration;
 
-import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.MONGO_DB_DATABASE_NAME;
-import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.MONGO_DB_HOST;
-import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.MONGO_DB_PORT;
-
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
-import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+
+import javax.annotation.PostConstruct;
 
 @Configuration
 @EnableMongoRepositories(basePackages = {"com.shellshellfish.aaas.assetallocation"}, mongoTemplateRef = "mongoTemplate")
