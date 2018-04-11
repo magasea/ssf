@@ -531,6 +531,7 @@ public class OptimizationServiceImpl implements OptimizationService {
             financeMap.put("data",finaceList);
             financeMap.put("totalPage", mongoFinanceAll.getTotalPage());
             financeMap.put("totalRecord", mongoFinanceAll.getTotal());
+            financeMap.put("currentPage", pageSize);
           }
           jsonResult = new JsonResult(JsonResult.SUCCESS, "获取成功", mongoFinanceAll.getResult());
         }
