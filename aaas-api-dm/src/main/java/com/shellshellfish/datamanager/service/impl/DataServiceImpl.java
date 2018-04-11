@@ -667,7 +667,7 @@ public class DataServiceImpl implements DataService {
 
             dmap[i].put("navunit", navUnit.setScale(4, BigDecimal.ROUND_HALF_UP)); //单位净值
             dmap[i].put("navaccum", navAccum.setScale(4, RoundingMode.HALF_UP));//累计净值
-            dmap[i].put("navAdj", navAdj.setScale(4, RoundingMode.HALF_UP));//累计净值
+            dmap[i].put("navAdj", navAdj.setScale(4, RoundingMode.HALF_UP));//复权单位净值
 
             dmap[i].put("date", qd);
             dmap[i].put("dayup", dayup.setScale(2, BigDecimal.ROUND_HALF_UP).toString() + "%");
