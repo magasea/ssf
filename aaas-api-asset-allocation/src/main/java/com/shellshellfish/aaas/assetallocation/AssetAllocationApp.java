@@ -20,7 +20,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableAutoConfiguration(exclude = {MongoAutoConfiguration.class})
 @EnableConfigurationProperties({Properties.class})
-@MapperScan("com.shellshellfish.aaas.assetallocation.neo.mapper")
+@MapperScan("com.shellshellfish.aaas.assetallocation.mapper")
 
 public class AssetAllocationApp {
 
