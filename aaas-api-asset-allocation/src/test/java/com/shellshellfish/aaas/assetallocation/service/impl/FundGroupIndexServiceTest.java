@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.assetallocation.service.impl;
 
 import com.shellshellfish.aaas.assetallocation.AssetAllocationApp;
-import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupIndexService;
+import com.shellshellfish.aaas.assetallocation.service.FundGroupIndexService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

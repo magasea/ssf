@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper">
+<mapper namespace="com.shellshellfish.aaas.assetallocation.mapper.FundNetValMapper">
 
     <!--净值数据 -->
-    <resultMap id="FundNetValMap" type="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
+    <resultMap id="FundNetValMap" type="com.shellshellfish.aaas.assetallocation.entity.FundNetVal">
         <result property="yieldOf7days" column="YIELDOF7DAYS"/>
         <result property="unitNav" column="UNITNAV"/>
         <result property="navUnitReturn" column="NAVUNITRETURN"/>
@@ -24,7 +24,7 @@
     </resultMap>
 
     <!--关联查询净值数据 -->
-    <resultMap id="covarianceModelMap" type="com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel">
+    <resultMap id="covarianceModelMap" type="com.shellshellfish.aaas.assetallocation.entity.CovarianceModel">
         <result property="navDate" column="NAVLATESTDATE"/>
         <result property="codeA" column="A_CODE"/>
         <result property="navadjA" column="A_NAVADJ"/>
@@ -33,7 +33,7 @@
     </resultMap>
 
 
-    <select id="getDataByCodeAndDate" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel"
+    <select id="getDataByCodeAndDate" parameterType="com.shellshellfish.aaas.assetallocation.entity.CovarianceModel"
             resultMap="covarianceModelMap">
       SELECT A.NAVLATESTDATE NAVLATESTDATE,A.CODE A_CODE,A.NAVADJ A_NAVADJ,B.CODE B_CODE,B.NAVADJ B_NAVADJ FROM
       (SELECT* FROM fund_net_value a where a.CODE=#{codeA})AS A
@@ -88,7 +88,7 @@
         where type =#{type}
     </select>
 
-    <update id="updateAdjustedFactor" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal">
+    <update id="updateAdjustedFactor" parameterType="com.shellshellfish.aaas.assetallocation.entity.FundNetVal">
         UPDATE fund_net_value
         SET ADJUSTEDFACTOR=#{adjustedFactor}
         WHERE ID=#{id}
@@ -101,7 +101,7 @@
         WHERE code=#{code}
     </select>
 
-    <insert id="insertDailyDataToFundNetVal" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
+    <insert id="insertDailyDataToFundNetVal" parameterType="com.shellshellfish.aaas.assetallocation.entity.Dailyfunds">
         INSERT IGNORE INTO fund_net_value
         (CODE,NAVLATESTDATE,UNITNAV,NAVACCUM,NAVADJ,YIELDOF7DAYS,MILLION_REVENUE,LAST_MOD_TIME)
         <foreach collection="list" item="dailyData" index="index" separator="union all">
@@ -114,7 +114,7 @@
     </insert>
 
     <update id="batchUpdateDailyDataToFundNetVal"
-      parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
+      parameterType="com.shellshellfish.aaas.assetallocation.entity.Dailyfunds">
         <foreach collection="list" item="dailyData" index="index" separator=";">
         UPDATE fund_net_value SET
             UNITNAV = #{dailyData.navUnit},
@@ -129,7 +129,7 @@
     </update>
 
     <update id="updateDailyDataToFundNetVal"
-      parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
+      parameterType="com.shellshellfish.aaas.assetallocation.entity.Dailyfunds">
 
             UPDATE fund_net_value SET
             UNITNAV = #{dailyData.navUnit},
@@ -144,7 +144,7 @@
     </update>
 
 
-    <insert id="insertBasicDataToFundBasic" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.Dailyfunds">
+    <insert id="insertBasicDataToFundBasic" parameterType="com.shellshellfish.aaas.assetallocation.entity.Dailyfunds">
         INSERT INTO fund_basic (code,fname,fund_type_one,fund_type_two,fund_scale,bm_index_chgpct)
         VALUES (
         #{code},#{fname},#{fundTypeOne},#{fundTypeTwo},#{fundScale},#{bmIndexChgPct}

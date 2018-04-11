@@ -1,10 +1,10 @@
 package com.shellshellfish.aaas.assetallocation.repository.dummy;
 
-import com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal;
-import com.shellshellfish.aaas.assetallocation.neo.entity.Interval;
-import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
-import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
-import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupService;
+import com.shellshellfish.aaas.assetallocation.entity.FundNetVal;
+import com.shellshellfish.aaas.assetallocation.entity.Interval;
+import com.shellshellfish.aaas.assetallocation.mapper.FundGroupMapper;
+import com.shellshellfish.aaas.assetallocation.mapper.FundNetValMapper;
+import com.shellshellfish.aaas.assetallocation.service.impl.FundGroupService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,7 +15,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 

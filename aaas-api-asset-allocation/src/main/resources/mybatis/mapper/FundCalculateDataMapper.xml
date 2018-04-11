@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.shellshellfish.aaas.assetallocation.neo.mapper.FundCalculateDataMapper">
+<mapper namespace="com.shellshellfish.aaas.assetallocation.mapper.FundCalculateDataMapper">
 
     <!--关联查询净值数据 -->
-    <resultMap id="fundCalculateDataMap" type="com.shellshellfish.aaas.assetallocation.neo.entity.FundCalculateData">
+    <resultMap id="fundCalculateDataMap" type="com.shellshellfish.aaas.assetallocation.entity.FundCalculateData">
 
         <result property="id" column="id" />
         <result property="code" column="code" />
@@ -18,7 +18,7 @@
     </resultMap>
 
 
-    <insert id="insertFundCalculateDataDay" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCalculateData" >
+    <insert id="insertFundCalculateDataDay" parameterType="com.shellshellfish.aaas.assetallocation.entity.FundCalculateData" >
         INSERT INTO
         fund_calculate_data_day
         (code,yield_ratio,risk_ratio,nav_date,semi_variance,navadj,create_time)
@@ -26,7 +26,7 @@
         (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance},#{navadj},#{createDate})
     </insert>
 
-    <insert id="insertFundCalculateDataWeek" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCalculateData" >
+    <insert id="insertFundCalculateDataWeek" parameterType="com.shellshellfish.aaas.assetallocation.entity.FundCalculateData" >
         INSERT INTO
         fund_calculate_data_week
         (code,yield_ratio,risk_ratio,nav_date,semi_variance,navadj,create_time)
@@ -34,7 +34,7 @@
         (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance},#{navadj},#{createDate})
     </insert>
 
-    <insert id="insertFundCalculateDataMonth" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCalculateData" >
+    <insert id="insertFundCalculateDataMonth" parameterType="com.shellshellfish.aaas.assetallocation.entity.FundCalculateData" >
         INSERT INTO
         fund_calculate_data_month
         (code,yield_ratio,risk_ratio,nav_date,semi_variance,navadj,create_time)
@@ -42,7 +42,7 @@
         (#{code},#{yieldRatio},#{riskRatio},#{navDate},#{semiVariance},#{navadj},#{createDate})
     </insert>
 
-    <insert id="insertFundCalculateDataYear" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundCalculateData" >
+    <insert id="insertFundCalculateDataYear" parameterType="com.shellshellfish.aaas.assetallocation.entity.FundCalculateData" >
         INSERT INTO
         fund_calculate_data_year
         (code,yield_ratio,risk_ratio,nav_date,semi_variance,navadj,create_time)

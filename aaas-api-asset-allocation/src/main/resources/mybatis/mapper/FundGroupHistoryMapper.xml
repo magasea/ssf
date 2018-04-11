@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupHistoryMapper">
+<mapper namespace="com.shellshellfish.aaas.assetallocation.mapper.FundGroupHistoryMapper">
 
 
-    <select id="findAllByDateBefore" resultType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupHistory">
+    <select id="findAllByDateBefore" resultType="com.shellshellfish.aaas.assetallocation.entity.FundGroupHistory">
         SELECT
           time,
           income_num
@@ -12,7 +12,19 @@
         WHERE
           fund_group_id = #{groupId}
           AND  fund_group_sub_id = #{subGroupId}
+          AND  time >= #{date}
         order by time
+    </select>
+
+    <select id="getMaxDrawDown" resultType="Double">
+        SELECT maximum_retracement
+        FROM
+        fund_group_history
+        WHERE
+          fund_group_id = #{groupId}
+          AND  fund_group_sub_id = #{subGroupId}
+        ORDER BY time DESC
+        limit 1
     </select>
 
     <select id="getLatestNavAdj" resultType="Double">
@@ -28,7 +40,7 @@
         limit 1
 
     </select>
-    <update id="updateMaxDrawDown" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupHistory">
+    <update id="updateMaxDrawDown" parameterType="com.shellshellfish.aaas.assetallocation.entity.FundGroupHistory">
       update fund_group_history
       SET
       maximum_retracement = #{maximum_retracement}
@@ -39,7 +51,7 @@
     </update>
 
     <update id="updateMaxDrawDownFromList"
-            parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupHistory">
+            parameterType="com.shellshellfish.aaas.assetallocation.entity.FundGroupHistory">
         update fund_group_history
         SET maximum_retracement=
         <foreach collection="fundGroupHistoryList" item="item" index="index"

@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.assetallocation.repository.dummy;
 
-import com.shellshellfish.aaas.assetallocation.neo.entity.FundGroupDetails;
-import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupDetailsMapper;
+import com.shellshellfish.aaas.assetallocation.entity.FundGroupDetails;
+import com.shellshellfish.aaas.assetallocation.mapper.FundGroupDetailsMapper;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

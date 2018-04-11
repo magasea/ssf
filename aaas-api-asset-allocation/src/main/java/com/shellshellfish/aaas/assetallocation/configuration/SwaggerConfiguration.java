@@ -23,12 +23,13 @@ public class SwaggerConfiguration {
     @Bean
     public Docket productApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-            .select()
-            .apis(RequestHandlerSelectors.basePackage("com.shellshellfish.aaas.assetallocation.neo"))
-            .paths(regex("/api.*"))
-            .build()
-            .apiInfo(metaData());
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.shellshellfish.aaas.assetallocation"))
+                .paths(regex("/api.*"))
+                .build()
+                .apiInfo(metaData());
     }
+
     private ApiInfo metaData() {
         ApiInfo apiInfo = ApiInfo.DEFAULT;
         return apiInfo;

@@ -18,4 +18,5 @@ message FundGroupIndexQuery {
 message FundGroupIndexResult {
     double historicalAnnualYeild = 1;
     double historicalAnnualVolatility = 2;
+    double maxRetracement = 3;
 }
