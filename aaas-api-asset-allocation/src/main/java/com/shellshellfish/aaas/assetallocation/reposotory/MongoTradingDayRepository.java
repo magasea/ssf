@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.assetallocation.mapper;
+package com.shellshellfish.aaas.assetallocation.reposotory;
 
 import com.shellshellfish.aaas.assetallocation.entity.MongoTradingDay;
 import org.springframework.data.mongodb.repository.MongoRepository;
