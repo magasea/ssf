@@ -506,7 +506,12 @@ public class OptimizationServiceImpl implements OptimizationService {
                 logger.error("no data");
                 return new JsonResult(JsonResult.Fail, "no data", JsonResult.EMPTYRESULT);
               } else {
-                Integer totalPage = total/size;
+                Integer totalPage = 0;
+                if(total%size == 0){
+                  totalPage = total/size;
+                } else {
+                  totalPage = total/size + 1;
+                }
                 mongoFinanceAll.setTotalPage(totalPage);
               }
             } else {
@@ -524,6 +529,8 @@ public class OptimizationServiceImpl implements OptimizationService {
             Object obj = mongoFinanceAll.getResult();
             Map financeMap = (Map) obj;
             financeMap.put("data",finaceList);
+            financeMap.put("totalPage", mongoFinanceAll.getTotalPage());
+            financeMap.put("totalRecord", mongoFinanceAll.getTotal());
           }
           jsonResult = new JsonResult(JsonResult.SUCCESS, "获取成功", mongoFinanceAll.getResult());
         }
