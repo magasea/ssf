@@ -169,12 +169,17 @@ public class LoginController {
 //			}
 			oemid = oemid == null ? 1L : oemid;
 			Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
+			oemInfos.forEach(
+		        (key, value) ->{
+		        	logger.info("oemInfos: "+key+"==="+value);
+		        }
+		    );
 //			// 我的（logo）
 //			// 关于我们（logo、文案、电话）
-			result.put("version1", oemInfos.get("version"));
-			result.put("phone1", oemInfos.get("bankPhone"));
-			result.put("me_headphoto1", oemInfos.get("me_headphoto"));
-			result.put("about_logo1", oemInfos.get("about_logo"));
+//			result.put("version", oemInfos.get("version"));
+//			result.put("phone", oemInfos.get("bankPhone"));
+//			result.put("me_headphoto", oemInfos.get("me_headphoto"));
+//			result.put("about_logo", oemInfos.get("about_logo"));
 			if(oemid == 1){
 				result.put("me_headphoto","http://47.96.164.161:81/icon_me_headphoto2.png");
 				result.put("about_logo","http://47.96.164.161:81/icon_about_logo2.png");
