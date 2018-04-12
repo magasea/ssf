@@ -339,6 +339,7 @@ public class DataServiceImpl implements DataService {
      */
     public boolean amendResults(Map hnmap, String key) {
 
+        final String baseKey = "historynetlist";
         // Amend values
         Object target = hnmap.get(key);
 
@@ -350,14 +351,30 @@ public class DataServiceImpl implements DataService {
         } else {
             return false;
         }
-
         //以基金净值为基准进行数据对齐
-        Map<String, Object>[] baselineList = (Map<String, Object>[]) hnmap.get("historynetlist");
+        Map<String, Object>[] baselineList;
+        Object base = hnmap.get(baseKey);
+        if (base instanceof Map[]) {
+            baselineList = (Map<String, Object>[]) base;
+        } else if (base instanceof List) {
+            List<Map<String, Object>> list = (List<Map<String, Object>>) base;
+            baselineList = new HashMap[list.size()];
+            list.toArray(baselineList);
+        } else {
+            return false;
+        }
+
 
         HashSet<String> baseHashSet = new HashSet<>(baselineList.length);
+        List<Map<String, Object>> targetBaseList = new ArrayList<>();
         for (Map<String, Object> map : baselineList) {
-            baseHashSet.add(map.get("date").toString());
+            String date = map.get("date").toString();
+            if (!baseHashSet.contains(date)) {
+                baseHashSet.add(date);
+                targetBaseList.add(map);
+            }
         }
+
 
         for (Iterator iterator = targetList.iterator(); iterator.hasNext(); ) {
             Map<String, Object> map = (Map<String, Object>) iterator.next();
@@ -366,6 +383,7 @@ public class DataServiceImpl implements DataService {
                 iterator.remove();
             }
         }
+        hnmap.replace(baseKey, targetBaseList);
         hnmap.replace(key, targetList);
         return true;
     }
