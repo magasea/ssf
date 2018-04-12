@@ -656,13 +656,13 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			logger.error("智投组合产品id不能为空");
 			throw new UserInfoException("404", "智投组合产品id不能为空");
 		}
-		UiProducts productsData = uiProductRepo.findById(Long.valueOf(prodId)).get();
-		if (productsData == null) {
+		Optional<UiProducts> productsData = uiProductRepo.findById(Long.valueOf(prodId));
+		if (!productsData.isPresent()) {
 			logger.error("智投组合产品：{}为空", prodId);
 			throw new UserInfoException("404", "智投组合产品：" + prodId + "为空");
 		}
 		ProductsDTO product = new ProductsDTO();
-		BeanUtils.copyProperties(productsData, product);
+		BeanUtils.copyProperties(productsData.get(), product);
 		return product;
 	}
 
