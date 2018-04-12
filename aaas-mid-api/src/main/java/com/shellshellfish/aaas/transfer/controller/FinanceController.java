@@ -81,7 +81,7 @@ public class FinanceController {
 			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID"),
 			@ApiImplicitParam(paramType = "query", name = "isTestFlag", dataType = "String", required = false, value = "是否测评（1-已做 0-未做）"),
 			@ApiImplicitParam(paramType = "query", name = "testResult", dataType = "String", required = false, value = "测评结果", defaultValue = "平衡型"),
-			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "1")
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "oemid（贝贝鱼:0,兰州银行：2）")
 	})
 	@RequestMapping(value = "/finance-home", method = RequestMethod.POST)
 	@ResponseBody
@@ -118,11 +118,15 @@ public class FinanceController {
 //					oemid = 1L;
 //				}
 				oemid = oemid == null ? 1L : oemid;
-//				Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
-//				bannerList.add(oemInfos.get("home_page1"));
-//				bannerList.add(oemInfos.get("home_page2"));
-//				bannerList.add(oemInfos.get("home_page3"));
-//				bannerList.add(oemInfos.get("home_page4"));
+				Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
+				logger.info("oemInfos====home_page1:" + oemInfos.get("homePageImgOne"));
+				logger.info("oemInfos====home_page2:" + oemInfos.get("homePageImgTwo"));
+				logger.info("oemInfos====home_page3:" + oemInfos.get("homePageImgThree"));
+				logger.info("oemInfos====home_page4:" + oemInfos.get("homePageImgFour"));
+//				bannerList.add(oemInfos.get("homePageImgOne"));
+//				bannerList.add(oemInfos.get("homePageImgTwo"));
+//				bannerList.add(oemInfos.get("homePageImgThree"));
+//				bannerList.add(oemInfos.get("homePageImgFour"));
 				if (oemid == null || oemid == 1) {
 					bannerList.add("http://47.96.164.161:81/1.png");
 					bannerList.add("http://47.96.164.161:81/2.png");
@@ -340,7 +344,7 @@ public class FinanceController {
 	
 	@ApiOperation("进入理财页面后的数据")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "1"),
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "oemid（贝贝鱼:0,兰州银行：2）"),
 		@ApiImplicitParam(paramType = "query", name = "size", dataType = "Integer", required = true, value = "每页显示数（至少大于1）", defaultValue = "15"),
 		@ApiImplicitParam(paramType = "query", name = "pageSize", dataType = "Integer", required = true, value = "显示页数（从0开始）", defaultValue = "0"),
 	})
@@ -360,12 +364,17 @@ public class FinanceController {
 //			}
 			oemid = oemid == null ? 1L : oemid;
 			
-//			Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
-//			bannerList.add(oemInfos.get("combination1"));
-//			bannerList.add(oemInfos.get("combination2"));
-//			bannerList.add(oemInfos.get("combination3"));
-//			bannerList.add(oemInfos.get("combination4"));
-//			bannerList.add(oemInfos.get("combination5"));
+			Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
+			logger.info("oemInfos====combination1:" + oemInfos.get("combinationOne"));
+			logger.info("oemInfos====combination2:" + oemInfos.get("combinationTwo"));
+			logger.info("oemInfos====combination3:" + oemInfos.get("combinationThree"));
+			logger.info("oemInfos====combination4:" + oemInfos.get("combinationFour"));
+			logger.info("oemInfos====combination5:" + oemInfos.get("combinationFive"));
+//			bannerList.add(oemInfos.get("combinationOne"));
+//			bannerList.add(oemInfos.get("combinationTwo"));
+//			bannerList.add(oemInfos.get("combinationThree"));
+//			bannerList.add(oemInfos.get("combinationFour"));
+//			bannerList.add(oemInfos.get("combinationFive"));
 			if (oemid == null || oemid == 1) {
 				bannerList.add("http://47.96.164.161:81/APP-invest-banner01.png");
 				bannerList.add("http://47.96.164.161:81/APP-invest-banner02.png");

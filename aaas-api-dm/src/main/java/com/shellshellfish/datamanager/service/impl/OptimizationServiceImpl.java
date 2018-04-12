@@ -453,7 +453,8 @@ public class OptimizationServiceImpl implements OptimizationService {
         Long utcTime = TradeUtil.getUTCTime();
         String dateTime = TradeUtil.getReadableDateTime(utcTime);
         String date = dateTime.split("T")[0].replaceAll("-", "");
-        MongoFinanceAll mongoFinanceAll = mongoFinanceALLRepository.findAllByDate(date);
+//        MongoFinanceAll mongoFinanceAll = mongoFinanceALLRepository.findAllByDate(date);
+        MongoFinanceAll mongoFinanceAll = null;
 //		List<MongoFinanceAll> mongoFinanceCountList = mongoFinanceALLRepository.findAll();
         if (mongoFinanceAll != null) {
             jsonResult = new JsonResult(JsonResult.SUCCESS, "获取成功", mongoFinanceAll.getResult());
@@ -477,6 +478,10 @@ public class OptimizationServiceImpl implements OptimizationService {
         String dateTime = TradeUtil.getReadableDateTime(utcTime);
         String date = dateTime.split("T")[0].replaceAll("-", "");
         //MongoFinanceAll mongoFinanceAll = mongoFinanceALLRepository.findAllByDate(date);
+        List<MongoFinanceAll> mongoFinanceList = mongoFinanceALLRepository.findAllByDate(date);
+        if(mongoFinanceList==null || mongoFinanceList.size() == 0){
+          return null;
+        }
         List<Integer> serialList = new ArrayList<>();
         serialList.add(0);
         int begin = size * pageSize + 1;
@@ -506,7 +511,12 @@ public class OptimizationServiceImpl implements OptimizationService {
                 logger.error("no data");
                 return new JsonResult(JsonResult.Fail, "no data", JsonResult.EMPTYRESULT);
               } else {
-                Integer totalPage = total/size;
+                Integer totalPage = 0;
+                if(total%size == 0){
+                  totalPage = total/size;
+                } else {
+                  totalPage = total/size + 1;
+                }
                 mongoFinanceAll.setTotalPage(totalPage);
               }
             } else {
@@ -524,6 +534,9 @@ public class OptimizationServiceImpl implements OptimizationService {
             Object obj = mongoFinanceAll.getResult();
             Map financeMap = (Map) obj;
             financeMap.put("data",finaceList);
+            financeMap.put("totalPage", mongoFinanceAll.getTotalPage());
+            financeMap.put("totalRecord", mongoFinanceAll.getTotal());
+            financeMap.put("currentPage", pageSize);
           }
           jsonResult = new JsonResult(JsonResult.SUCCESS, "获取成功", mongoFinanceAll.getResult());
         }
@@ -1093,7 +1106,12 @@ public class OptimizationServiceImpl implements OptimizationService {
         Long utcTime = TradeUtil.getUTCTime();
         String dateTime = TradeUtil.getReadableDateTime(utcTime);
         String date = dateTime.split("T")[0].replaceAll("-", "");
-        MongoFinanceDetail mongoFinanceDetail = mongoFinanceDetailRepository.findAllByDateAndGroupIdAndSubGroupId(date, groupId, subGroupId);
+        List<MongoFinanceDetail> mongoFinanceDetailList = mongoFinanceDetailRepository.findAllByDate(date);
+        if(mongoFinanceDetailList == null || mongoFinanceDetailList.size() == 0){
+          return null;
+        }
+        
+        MongoFinanceDetail mongoFinanceDetail = mongoFinanceDetailRepository.findAllByGroupIdAndSubGroupId(groupId, subGroupId);
 //		MongoFinanceDetail mongoFinanceDetail = mongoFinanceDetailRepository.findAllByGroupIdAndSubGroupId(groupId, subGroupId);
         if (mongoFinanceDetail != null) {
             jsonResult = new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", mongoFinanceDetail.getResult());
