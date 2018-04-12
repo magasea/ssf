@@ -111,7 +111,7 @@ public class TradeOrderController {
 	/**
 	 * 赎回理财产品 页面
 	 *
-	 * @param prodSellPageDTO
+	 * @param prodSellPercentDTO
 	 * @return
 	 */
 	@ApiOperation("理财赎回")

@@ -17,6 +17,7 @@ import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
 import com.shellshellfish.aaas.common.message.order.ProdDtlSellDTO;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
+import com.shellshellfish.aaas.common.message.order.ProdSellPercentMsg;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
@@ -960,6 +961,86 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     }
   }
 
+  @Override
+  public boolean sellPercentProd(ProdSellPercentMsg prodSellPercentMsg) {
+    logger.info("sell prod with: userId:" + prodSellPercentMsg.getUserId()+ "" + prodSellPercentMsg.getUserUuid
+        ()+ prodSellPercentMsg.getTrdAcco());
+    String openId = TradeUtil.getZZOpenId(prodSellPercentMsg.getUserPid());
+    String tradeAcco = prodSellPercentMsg.getTrdAcco();
+    if(CollectionUtils.isEmpty(prodSellPercentMsg.getProdDtlSellDTOList())){
+      logger.error("empty ProdDtlSellDTOList list");
+      return false;
+    }
+    for(ProdDtlSellDTO prodDtlSellDTO: prodSellPercentMsg.getProdDtlSellDTOList()){
+      int sellNum = prodDtlSellDTO.getFundQuantity();
+      String fundCode = prodDtlSellDTO.getFundCode();
+      String outsideOrderNo = prodSellPercentMsg.getOrderId()+prodDtlSellDTO.getOrderDetailId();
+      logger.info("sell prod with fundCode :"+fundCode
+          +"sell fund quantity:"+ sellNum + " sell  account:"+ tradeAcco + " outsideOrderNo:" +
+          outsideOrderNo);
+      TrdPayFlow trdPayFlow = new TrdPayFlow();
+      trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
+      trdPayFlow.setCreateBy(0L);
+      trdPayFlow.setTrdStatus(TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus());
+      trdPayFlow.setUserProdId(prodSellPercentMsg.getUserProdId());
+      trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
+      trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+      BigDecimal sellAmount = BigDecimal.valueOf(0);
+      if(MonetaryFundEnum.containsCode(fundCode)){
+        //如果是货币基金 ， 就直接用
+        sellAmount = prodDtlSellDTO.getTargetSellAmount();
+      }else {
+        sellAmount = TradeUtil.getBigDecimalNumWithDiv100(Long.valueOf(sellNum));
+      }
+      try{
+        SellFundResult sellFundResult = fundTradeApiService.sellFund(openId, sellAmount,
+            outsideOrderNo, tradeAcco, fundCode);
+        if(null != sellFundResult){
+          trdPayFlow.setApplySerial(sellFundResult.getApplySerial());
+          trdPayFlow.setTrdStatus(TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus());
+          trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+          trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
+          trdPayFlow.setTradeTargetShare(prodDtlSellDTO.getFundQuantity());
+          trdPayFlow.setTradeTargetSum(TradeUtil.getLongNumWithMul100(prodDtlSellDTO
+              .getTargetSellAmount()));
+          trdPayFlow.setFundCode(prodDtlSellDTO.getFundCode());
+          trdPayFlow.setOutsideOrderno(outsideOrderNo);
+          trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
+          trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
+          trdPayFlow.setCreateBy(prodSellPercentMsg.getUserId());
+          trdPayFlow.setUpdateBy(prodSellPercentMsg.getUserId());
+          trdPayFlow.setTradeAcco(prodSellPercentMsg.getTrdAcco());
+          trdPayFlow.setUserProdId(prodSellPercentMsg.getUserProdId());
+          trdPayFlow.setUserId(prodSellPercentMsg.getUserId());
+          trdPayFlow.setTradeBrokeId(prodSellPercentMsg.getTrdBrokerId());
+          TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
+          com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
+              .shellshellfish.aaas.common.message.order.TrdPayFlow();
+          BeanUtils.copyProperties(trdPayFlowResult, trdPayFlowMsg);
+          notifySell(trdPayFlowMsg);
+        }else{
+          //赎回请求失败，需要把扣减的基金数量加回去
+          notifyRollback(trdPayFlow, prodDtlSellDTO, sellNum);
+        }
+      }catch (Exception ex){
+        logger.error("exception:",ex);
+
+        logger.error("because of error:" + ex.getMessage() + " we need send out rollback notification");
+        //赎回请求失败，需要把扣减的基金数量加回去
+        if(!StringUtils.isEmpty(ex.getMessage())){
+          if(ex.getMessage().split(":").length >= 2){
+            trdPayFlow.setErrCode(ex.getMessage().split(":")[0]);
+            trdPayFlow.setErrCode(ex.getMessage().split(":")[1]);
+          }else{
+            logger.error("strange err message from ZZ:"+ ex.getMessage());
+          }
+        }
+        notifyRollback(trdPayFlow, prodDtlSellDTO, sellNum);
+      }
+    }
+//    fundTradeApiService.sellFund(userUuid, sellNum, outsideOrderNo, tradeAcco, fundCode);
+    return false;
+  }
 
 
   private List<MongoFundNetInfo> initMongoFundNetInfo(String fundCode, int days, String

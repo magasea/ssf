@@ -18,6 +18,7 @@ private long userProdId;
   private long userId;
   private String userUuid;
   private String userBankNum;
+  private BigDecimal sellTargetPercent;
 
   public BigDecimal getSellTargetPercent() {
     return sellTargetPercent;
@@ -26,11 +27,6 @@ private long userProdId;
   public void setSellTargetPercent(BigDecimal sellTargetPercent) {
     this.sellTargetPercent = sellTargetPercent;
   }
-
-  private BigDecimal sellTargetPercent;
-
-
-
 
   public long getUserProdId() {
     return userProdId;

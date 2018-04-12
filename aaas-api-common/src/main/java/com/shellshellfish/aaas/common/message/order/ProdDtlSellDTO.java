@@ -16,6 +16,7 @@ public class ProdDtlSellDTO implements Serializable {
   private int fundShare;
   private int fundQuantity;
   private long orderDetailId;
+  //目标金额
   private BigDecimal targetSellAmount;
 
 

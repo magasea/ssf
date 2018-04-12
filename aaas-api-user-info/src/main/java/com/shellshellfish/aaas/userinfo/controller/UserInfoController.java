@@ -110,7 +110,7 @@ public class UserInfoController {
 			@ApiImplicitParam(paramType = "path", name = "userUuid", dataType = "String", required = true, value = "userUuid", defaultValue = "")
 	})
 	@RequestMapping(value = "/users/{userUuid}/initpage", method = RequestMethod.GET)
-	@AopLinkResources
+//	@AopLinkResources
 	public ResponseEntity<Object> getUserBaseInfo(
 			@Valid @NotNull(message = "userUuid不能为空") @PathVariable("userUuid") String userUuid
 	) throws Exception {
@@ -211,7 +211,7 @@ public class UserInfoController {
 	})
 	@ApiImplicitParam(paramType = "path", name = "Uuid", dataType = "String", required = true, value = "用户Uuid", defaultValue = "")
 	@RequestMapping(value = "/users/{Uuid}", method = RequestMethod.GET)
-	@AopLinkResources
+//	@AopLinkResources
 	public ResponseEntity<?> getUserPersonalInfo(
 			@Valid @NotNull(message = "用户Uuid不能为空") @PathVariable("Uuid") String userUuid)
 			throws Exception {
@@ -826,7 +826,7 @@ public class UserInfoController {
 			@ApiImplicitParam(paramType = "query", name = "sort", dataType = "String", value = "排序条件", defaultValue = "id")
 	})
 	//@RequestMapping(value = "/users/{userUuid}/traderecords", method = RequestMethod.GET)
-	@AopPageResources
+//	@AopPageResources
 	public ResponseEntity<PageWrapper<TradeLogDTO>> getTradLogsOfUser(
 			@PathVariable String userUuid, Pageable pageable,
 			@RequestParam(value = "size") Long size,
