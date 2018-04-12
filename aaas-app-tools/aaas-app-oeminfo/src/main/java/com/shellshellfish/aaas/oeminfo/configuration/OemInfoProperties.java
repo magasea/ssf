@@ -1,11 +1,8 @@
 package com.shellshellfish.aaas.oeminfo.configuration;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
-import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
-import org.springframework.validation.annotation.Validated;
 
 /**
  * Created by chenwei on 2018- 四月 - 04
@@ -21,18 +18,18 @@ public class OemInfoProperties {
     String oemName;
     String prodName;
     String bankPhone;
-    String version;
-    String home_page1;
-    String home_page2;
-    String home_page3;
-    String home_page4;
-    String combination1;
-    String combination2;
-    String combination3;
-    String combination4;
-    String combination5;
-    String me_headphoto;
-    String about_logo;
+    String oemVersion;
+    String homePageImgOne;
+    String homePageImgTwo;
+    String homePageImgThree;
+    String homePageImgFour;
+    String combinationOne;
+    String combinationTwo;
+    String combinationThree;
+    String combinationFour;
+    String combinationFive;
+    String meHeadImg;
+    String aboutLogo;
 
     public String getOemId() {
       return oemId;
@@ -66,100 +63,100 @@ public class OemInfoProperties {
       this.bankPhone = bankPhone;
     }
 
-    public String getVersion() {
-      return version;
+    public String getOemVersion() {
+      return oemVersion;
     }
 
-    public void setVersion(String version) {
-      this.version = version;
+    public void setOemVersion(String oemVersion) {
+      this.oemVersion = oemVersion;
     }
 
-    public String getHome_page1() {
-      return home_page1;
+    public String getHomePageImgOne() {
+      return homePageImgOne;
     }
 
-    public void setHome_page1(String home_page1) {
-      this.home_page1 = home_page1;
+    public void setHomePageImgOne(String homePageImgOne) {
+      this.homePageImgOne = homePageImgOne;
     }
 
-    public String getHome_page2() {
-      return home_page2;
+    public String getHomePageImgTwo() {
+      return homePageImgTwo;
     }
 
-    public void setHome_page2(String home_page2) {
-      this.home_page2 = home_page2;
+    public void setHomePageImgTwo(String homePageImgTwo) {
+      this.homePageImgTwo = homePageImgTwo;
     }
 
-    public String getHome_page3() {
-      return home_page3;
+    public String getHomePageImgThree() {
+      return homePageImgThree;
     }
 
-    public void setHome_page3(String home_page3) {
-      this.home_page3 = home_page3;
+    public void setHomePageImgThree(String homePageImgThree) {
+      this.homePageImgThree = homePageImgThree;
     }
 
-    public String getHome_page4() {
-      return home_page4;
+    public String getHomePageImgFour() {
+      return homePageImgFour;
     }
 
-    public void setHome_page4(String home_page4) {
-      this.home_page4 = home_page4;
+    public void setHomePageImgFour(String homePageImgFour) {
+      this.homePageImgFour = homePageImgFour;
     }
 
-    public String getCombination1() {
-      return combination1;
+    public String getCombinationOne() {
+      return combinationOne;
     }
 
-    public void setCombination1(String combination1) {
-      this.combination1 = combination1;
+    public void setCombinationOne(String combinationOne) {
+      this.combinationOne = combinationOne;
     }
 
-    public String getCombination2() {
-      return combination2;
+    public String getCombinationTwo() {
+      return combinationTwo;
     }
 
-    public void setCombination2(String combination2) {
-      this.combination2 = combination2;
+    public void setCombinationTwo(String combinationTwo) {
+      this.combinationTwo = combinationTwo;
     }
 
-    public String getCombination3() {
-      return combination3;
+    public String getCombinationThree() {
+      return combinationThree;
     }
 
-    public void setCombination3(String combination3) {
-      this.combination3 = combination3;
+    public void setCombinationThree(String combinationThree) {
+      this.combinationThree = combinationThree;
     }
 
-    public String getCombination4() {
-      return combination4;
+    public String getCombinationFour() {
+      return combinationFour;
     }
 
-    public void setCombination4(String combination4) {
-      this.combination4 = combination4;
+    public void setCombinationFour(String combinationFour) {
+      this.combinationFour = combinationFour;
     }
 
-    public String getCombination5() {
-      return combination5;
+    public String getCombinationFive() {
+      return combinationFive;
     }
 
-    public void setCombination5(String combination5) {
-      this.combination5 = combination5;
+    public void setCombinationFive(String combinationFive) {
+      this.combinationFive = combinationFive;
     }
 
-    public String getMe_headphoto() {
-      return me_headphoto;
+    public String getMeHeadImg() {
+      return meHeadImg;
     }
 
-    public void setMe_headphoto(String me_headphoto) {
-      this.me_headphoto = me_headphoto;
+    public void setMeHeadImg(String meHeadImg) {
+      this.meHeadImg = meHeadImg;
     }
 
-    public String getAbout_logo() {
-      return about_logo;
+    public String getAboutLogo() {
+      return aboutLogo;
     }
 
-    public void setAbout_logo(String about_logo) {
-      this.about_logo = about_logo;
+    public void setAboutLogo(String aboutLogo) {
+      this.aboutLogo = aboutLogo;
     }
   }
 
