@@ -4,7 +4,8 @@ server:
   contextPath: /
 ---
 spring:
-  profiles: dev
+  jpa:
+    open-in-view: false
   data:
       mongodb:
         database: funds
