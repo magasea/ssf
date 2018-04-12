@@ -126,7 +126,7 @@ public class InstantDateUtil {
      */
     public static Long getEpochSecondOfZero(LocalDate date) {
         LocalDateTime time = date.atTime(0, 0, 0);
-        return time.toEpochSecond(OffsetDateTime.now().getOffset());
+        return time.toEpochSecond(OffsetDateTime.now(ZoneId.systemDefault()).getOffset());
     }
 
 

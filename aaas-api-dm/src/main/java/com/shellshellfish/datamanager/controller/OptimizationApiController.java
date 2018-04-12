@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.shellshellfish.datamanager.model.JsonResult;
@@ -51,7 +52,7 @@ public class OptimizationApiController {
 	@ApiOperation("获取进入理财页面后的数据")
 	@RequestMapping(value = "/getFinanceFrontPage", method = RequestMethod.GET)
 	@ResponseBody
-	public JsonResult getFinanceModule(Integer size, Integer pageSize) {
+	public JsonResult getFinanceModule(@RequestParam(defaultValue="15") Integer size, @RequestParam(defaultValue="0") Integer pageSize) {
 		JsonResult result = optimizationService.getFinanceFront(size, pageSize);
 		if (result == null) {
 			optimizationService.financeFront();
