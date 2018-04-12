@@ -322,8 +322,8 @@ public class DataServiceImpl implements DataService {
 			//获取净值收益走势
 			getHistoryNetValue(hnmap, code, startTime, endTime);
 			//货币基金没有这两条数据
-			amendResults(hnmap, "historynetlist");
-			amendResults(hnmap, "historyprofitlist");
+//			amendResults(hnmap, "historynetlist");
+//			amendResults(hnmap, "historyprofitlist");
 
 		}
 		hnmap.put("isMontaryFund", isMontaryFund);
