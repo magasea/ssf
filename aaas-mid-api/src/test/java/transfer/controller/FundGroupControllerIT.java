@@ -8,8 +8,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.embedded.LocalServerPort;
+
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -43,17 +44,26 @@ public class FundGroupControllerIT {
 	}
 
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/getMyProductDetail
+	 * 接口作用：根据参数获取我的智投组合详情数据
+	 * 参数：{
+	 *     uuid ：用户ID，prodId ：产品ID，
+	 *     groupId ：产品组ID，stbGroupId ：子产品组ID
+	 * }
+	 */
 	@Test
 	public void getProductDetailTest() {
-		String uuid = "1";
-		String prodId = "178";
-		String groupId = "6";
-		String subGroupId = "60048";
+		String uuid = "3a0bc5f0-c491-4718-a6c2-dc716ae308f9";
+		String prodId = "12";
+		String groupId = "12";
+		String subGroupId = "120048";
 		given()
 				.param("uuid", uuid)
 				.param("prodId", prodId)
-				//.param("groupId",groupId)
-				//.param("subGroupId", subGroupId)
+				.param("groupId",groupId)
+				.param("subGroupId", subGroupId)
 				.filter(new ResponseLoggingFilter())
 				.when()
 				.post(GET_MY_PRODUCT_DETAIL)

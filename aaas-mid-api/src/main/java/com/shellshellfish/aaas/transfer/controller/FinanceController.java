@@ -30,10 +30,11 @@ import org.springframework.web.client.RestTemplate;
 
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.dto.FinanceProductCompo;
-import com.shellshellfish.aaas.model.JsonResult;
-import com.shellshellfish.aaas.service.MidApiService;
+import com.shellshellfish.aaas.oeminfo.model.JsonResult;
+import com.shellshellfish.aaas.oeminfo.service.MidApiService;
 import com.shellshellfish.aaas.transfer.aop.AopTimeResources;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+import com.shellshellfish.aaas.transfer.service.GrpcOemInfoService;
 import com.shellshellfish.aaas.transfer.utils.EasyKit;
 
 import io.swagger.annotations.Api;
@@ -70,13 +71,17 @@ public class FinanceController {
 	@Autowired
 	private MidApiService service;
 	
+	@Autowired
+	GrpcOemInfoService grpcOemInfoService;
+	
 	private static final DecimalFormat decimalFormat = new DecimalFormat(".00"); //保留 5 位
 
 	@ApiOperation("1.首页")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID"),
 			@ApiImplicitParam(paramType = "query", name = "isTestFlag", dataType = "String", required = false, value = "是否测评（1-已做 0-未做）"),
-			@ApiImplicitParam(paramType = "query", name = "testResult", dataType = "String", required = false, value = "测评结果", defaultValue = "平衡型")
+			@ApiImplicitParam(paramType = "query", name = "testResult", dataType = "String", required = false, value = "测评结果", defaultValue = "平衡型"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "oemid（贝贝鱼:0,兰州银行：2）")
 	})
 	@RequestMapping(value = "/finance-home", method = RequestMethod.POST)
 	@ResponseBody
@@ -84,7 +89,8 @@ public class FinanceController {
 	public JsonResult financeHome(
 			@RequestParam(required = false) String uuid,
 			@RequestParam(required = false) String isTestFlag,
-			@RequestParam(required = false) String testResult) {
+			@RequestParam(required = false) String testResult,
+			@RequestParam(required = false) Long oemid) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		logger.info("mid financeHome method run..");
 		try {
@@ -107,6 +113,32 @@ public class FinanceController {
 				/*result.put("msg", "获取失败");*/
 				return new JsonResult(JsonResult.SUCCESS, "没有获取到产品", JsonResult.EMPTYRESULT);
 			} else {
+				List bannerList = new ArrayList();
+//				if (oemid == null) {
+//					oemid = 1L;
+//				}
+				oemid = oemid == null ? 1L : oemid;
+				Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
+				logger.info("oemInfos====home_page1" + oemInfos.get("home_page1"));
+				logger.info("oemInfos====home_page2" + oemInfos.get("home_page2"));
+				logger.info("oemInfos====home_page3" + oemInfos.get("home_page3"));
+				logger.info("oemInfos====home_page4" + oemInfos.get("home_page4"));
+//				bannerList.add(oemInfos.get("home_page1"));
+//				bannerList.add(oemInfos.get("home_page2"));
+//				bannerList.add(oemInfos.get("home_page3"));
+//				bannerList.add(oemInfos.get("home_page4"));
+				if (oemid == null || oemid == 1) {
+					bannerList.add("http://47.96.164.161:81/1.png");
+					bannerList.add("http://47.96.164.161:81/2.png");
+					bannerList.add("http://47.96.164.161:81/3.png");
+					bannerList.add("http://47.96.164.161:81/4.png");
+				} else if(oemid == 2){
+					bannerList.add("http://47.96.164.161/1.png");
+					bannerList.add("http://47.96.164.161/2.png");
+					bannerList.add("http://47.96.164.161/3.png");
+					bannerList.add("http://47.96.164.161/4.png");
+				}
+				result.put("banner_list", bannerList);
 				for (Object obj : result.values()) {
 					if (obj != null && obj instanceof Map) {
 						Map objMap = (Map) obj;
@@ -138,7 +170,7 @@ public class FinanceController {
 								maxminMap.put("maxValue", Collections.max(maxminList));
 								income6monthMap.put("maxMinMap", maxminMap);
 							}
-						}
+						} 
 						if (objMap.containsKey("product_list")) {
 							List productList = (List) objMap.get("product_list");
 							if (productList != null && productList.size() > 0) {
@@ -277,14 +309,89 @@ public class FinanceController {
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", returnMap);
 	}
 	
+//	@ApiOperation("进入理财页面后的数据")
+//	@ApiImplicitParams({
+//		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "1")
+//	})
+//	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
+//	@ResponseBody
+//	@AopTimeResources
+//	public JsonResult financeModule(@RequestParam(required = false) Long oemid) {
+//		// 先获取全部产品
+//		JsonResult result = restTemplate
+//				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage", JsonResult.class).getBody();
+//		Object obj = result.getResult();
+//		if(obj!=null){
+//			HashMap resultMap = (HashMap) obj;
+//			List bannerList = new ArrayList();
+//			if (oemid == null || oemid == 1) {
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner01.png");
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner02.png");
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner03.png");
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner04.png");
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner05.png");
+//			} else if(oemid == 2){
+//				bannerList.add("http://47.96.164.161/APP-invest-banner01.png");
+//				bannerList.add("http://47.96.164.161/APP-invest-banner02.png");
+//				bannerList.add("http://47.96.164.161/APP-invest-banner03.png");
+//				bannerList.add("http://47.96.164.161/APP-invest-banner04.png");
+//				bannerList.add("http://47.96.164.161/APP-invest-banner05.png");
+//			}
+//			resultMap.put("bannerList", bannerList);
+//		}
+//		return result;
+//	}
+	
 	@ApiOperation("进入理财页面后的数据")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "oemid（贝贝鱼:0,兰州银行：2）"),
+		@ApiImplicitParam(paramType = "query", name = "size", dataType = "Integer", required = true, value = "每页显示数（至少大于1）", defaultValue = "15"),
+		@ApiImplicitParam(paramType = "query", name = "pageSize", dataType = "Integer", required = true, value = "显示页数（从0开始）", defaultValue = "0"),
+	})
 	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
-	public JsonResult financeModule() {
+	public JsonResult financeModule(@RequestParam(required = false) Long oemid,@RequestParam(defaultValue="15") Integer size,@RequestParam(defaultValue="0") Integer pageSize) {
 		// 先获取全部产品
 		JsonResult result = restTemplate
-				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage", JsonResult.class).getBody();
+				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage?size=" + size + "&pageSize=" + pageSize, JsonResult.class).getBody();
+		Object obj = result.getResult();
+		if(obj!=null){
+			HashMap resultMap = (HashMap) obj;
+			List bannerList = new ArrayList();
+//			if (oemid == null) {
+//				oemid = 1L;
+//			}
+			oemid = oemid == null ? 1L : oemid;
+			
+			Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
+			logger.info("oemInfos====combination1" + oemInfos.get("combination1"));
+			logger.info("oemInfos====combination2" + oemInfos.get("combination2"));
+			logger.info("oemInfos====combination3" + oemInfos.get("combination3"));
+			logger.info("oemInfos====combination4" + oemInfos.get("combination4"));
+			logger.info("oemInfos====combination5" + oemInfos.get("combination5"));
+//			bannerList.add(oemInfos.get("combination1"));
+//			bannerList.add(oemInfos.get("combination2"));
+//			bannerList.add(oemInfos.get("combination3"));
+//			bannerList.add(oemInfos.get("combination4"));
+//			bannerList.add(oemInfos.get("combination5"));
+			if (oemid == null || oemid == 1) {
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner01.png");
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner02.png");
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner03.png");
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner04.png");
+				bannerList.add("http://47.96.164.161:81/APP-invest-banner05.png");
+			} else if(oemid == 2){
+				bannerList.add("http://47.96.164.161/APP-invest-banner01.png");
+				bannerList.add("http://47.96.164.161/APP-invest-banner02.png");
+				bannerList.add("http://47.96.164.161/APP-invest-banner03.png");
+				bannerList.add("http://47.96.164.161/APP-invest-banner04.png");
+				bannerList.add("http://47.96.164.161/APP-invest-banner05.png");
+			}
+			resultMap.put("bannerList", bannerList);
+			resultMap.put("title1", "组合");
+			resultMap.put("title2", "比较基准");
+		}
 		return result;
 	}
 
@@ -1346,7 +1453,6 @@ public class FinanceController {
 				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 			}
 
-			result.remove("_links");
 			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {

@@ -1,35 +1,83 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
-import com.mongodb.WriteResult;
+import com.mongodb.client.result.UpdateResult;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.exceptions.ErrorConstants;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.grpc.common.ErrInfo;
 import com.shellshellfish.aaas.grpc.common.UserProdId;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
-import com.shellshellfish.aaas.userinfo.grpc.*;
+import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
+import com.shellshellfish.aaas.userinfo.grpc.SellProductDetail;
+import com.shellshellfish.aaas.userinfo.grpc.SellProductDetailResult;
+import com.shellshellfish.aaas.userinfo.grpc.SellProducts;
+import com.shellshellfish.aaas.userinfo.grpc.SellProductsResult;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductsResult.Builder;
-import com.shellshellfish.aaas.userinfo.model.dao.*;
-import com.shellshellfish.aaas.userinfo.model.dto.*;
+import com.shellshellfish.aaas.userinfo.grpc.UpdateUserProdReq;
+import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
+import com.shellshellfish.aaas.userinfo.grpc.UserId;
+import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
+import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
+import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
+import com.shellshellfish.aaas.userinfo.grpc.UserUUID;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdLog;
+import com.shellshellfish.aaas.userinfo.model.dao.UiAsset;
+import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
+import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
+import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.UiFriendRule;
+import com.shellshellfish.aaas.userinfo.model.dao.UiPersonMsg;
+import com.shellshellfish.aaas.userinfo.model.dao.UiPortfolio;
+import com.shellshellfish.aaas.userinfo.model.dao.UiProdMsg;
+import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
+import com.shellshellfish.aaas.userinfo.model.dao.UiProducts;
+import com.shellshellfish.aaas.userinfo.model.dao.UiSysMsg;
+import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
+import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
+import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserProdMsgDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.redis.UserBaseInfoRedis;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserAssectsRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserPersonMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserProdMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserSysMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserTrdLogMsgRepo;
-import com.shellshellfish.aaas.userinfo.repositories.mysql.*;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoAssetsRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoCompanyInfoRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoFriendRuleRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserPortfolioRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UserTradeLogRepository;
 import com.shellshellfish.aaas.userinfo.repositories.redis.UserInfoBaseDao;
 import com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl;
-import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.userinfo.utils.MongoUiTrdLogUtil;
 import io.grpc.stub.StreamObserver;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +93,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @Service
 public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
@@ -111,10 +154,10 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		logger.info(
 				"com.shellshellfish.aaas.userinfo.dao.service.impl.UserInfoRepoServiceImpl.getUserInfoBase(Long)  start"
 						+ id);
-		UiUser uiUser = userInfoRepository.findById(id);
+		Optional<UiUser> uiUser = userInfoRepository.findById(id);
 		logger.info("==>" + uiUser);
 		UserBaseInfoDTO user = new UserBaseInfoDTO();
-		BeanUtils.copyProperties(uiUser, user);
+		BeanUtils.copyProperties(uiUser.get(), user);
 		logger.info(
 				"com.shellshellfish.aaas.userinfo.dao.service.impl.UserInfoRepoServiceImpl.getUserInfoBase(Long)  end"
 						+ user);
@@ -249,9 +292,9 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		query.addCriteria(Criteria.where("id").is(msg).and("userId").is(userId.toString()));
 		Update update = new Update();
 		update.set("readed", readedStatus);
-		WriteResult result = mongoTemplate.updateMulti(query, update, UiPersonMsg.class);
+		UpdateResult result = mongoTemplate.updateMulti(query, update, UiPersonMsg.class);
 		System.out.println(result);
-		return result.isUpdateOfExisting();
+		return result.isModifiedCountAvailable();
 	}
 
 	@Override
@@ -353,7 +396,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	@Override
 	public Iterable<TradeLogDTO> addUiTrdLog(List<UiTrdLog> trdLogs)
 			throws IllegalAccessException, InstantiationException {
-		userTradeLogRepository.save(trdLogs);
+		userTradeLogRepository.saveAll(trdLogs);
 		// FIXME
 		List<TradeLogDTO> trdLogsDtoList = MyBeanUtils.convertList(trdLogs, TradeLogDTO.class);
 		return trdLogsDtoList;
@@ -613,13 +656,13 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 			logger.error("智投组合产品id不能为空");
 			throw new UserInfoException("404", "智投组合产品id不能为空");
 		}
-		UiProducts productsData = uiProductRepo.findById(Long.valueOf(prodId));
+		Optional<UiProducts> productsData = uiProductRepo.findById(Long.valueOf(prodId));
 		if (productsData == null) {
 			logger.error("智投组合产品：{}为空", prodId);
 			throw new UserInfoException("404", "智投组合产品：" + prodId + "为空");
 		}
 		ProductsDTO product = new ProductsDTO();
-		BeanUtils.copyProperties(productsData, product);
+		BeanUtils.copyProperties(productsData.get(), product);
 		return product;
 	}
 
@@ -664,9 +707,9 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public String findUserUUIDByUserId(Long userId) {
-		UiUser uiUser =  userInfoRepository.findById(userId);
+		Optional<UiUser> uiUser =  userInfoRepository.findById(userId);
 		if(null != uiUser){
-			return uiUser.getUuid();
+			return uiUser.get().getUuid();
 		}else{
 			logger.error("failed to find user by userId:" + userId);
 			return null;
@@ -878,7 +921,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public UiUser getUserInfoByUserId(Long userId) {
-		return userInfoRepository.findById(userId);
+		return userInfoRepository.findById(userId).get();
 	}
 
 	@Override

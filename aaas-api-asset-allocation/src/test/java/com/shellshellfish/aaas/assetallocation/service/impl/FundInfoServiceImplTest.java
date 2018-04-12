@@ -1,7 +1,5 @@
 package com.shellshellfish.aaas.assetallocation.service.impl;
 
-import static org.junit.Assert.*;
-
 import com.shellshellfish.aaas.assetallocation.service.FundInfoService;
 import com.shellshellfish.aaas.datacollect.DailyFunds;
 import com.shellshellfish.aaas.datacollect.DailyFundsQuery;

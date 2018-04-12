@@ -44,7 +44,9 @@ server:
 grpc:
 #  host: localhost
   port: 10121
-    
+  asset-allocation:
+    host: localhost
+    port: 10021
 application:
     swagger:
         title: SSF Platform API

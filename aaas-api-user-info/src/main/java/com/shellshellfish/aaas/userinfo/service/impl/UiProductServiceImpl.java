@@ -7,6 +7,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import com.shellshellfish.aaas.userinfo.service.UiProductService;
+import java.util.Optional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,10 +46,10 @@ public class UiProductServiceImpl implements UiProductService {
 	@Override
 	public UiProductDTO getProductByProdId(Long prodId) {
 
-		UiProducts uiProducts = uiProductRepo.findById(prodId);
+		Optional<UiProducts> uiProducts = uiProductRepo.findById(prodId);
 		UiProductDTO uiProductDTO = new UiProductDTO();
 		if (uiProducts != null) {
-			BeanUtils.copyProperties(uiProducts, uiProductDTO);
+			BeanUtils.copyProperties(uiProducts.get(), uiProductDTO);
 		}
 		return  uiProductDTO;
 	}
