@@ -88,33 +88,33 @@ oem-info:
   oemInfos:
    - oem_id: 1
      oem_name: 贝贝鱼
-     bankPhone: 021-80270119
-     version: V.1.0
+     bank_phone: 021-80270119
+     oem_version: V.1.0
      prod_name: 贝贝鱼智投
-     home_page1: http://47.96.164.161:81/1.png
-     home_page2: http://47.96.164.161:81/2.png
-     home_page3: http://47.96.164.161:81/3.png
-     home_page4: http://47.96.164.161:81/4.png
-     combination1: http://47.96.164.161:81/APP-invest-banner01.png
-     combination2: http://47.96.164.161:81/APP-invest-banner02.png
-     combination3: http://47.96.164.161:81/APP-invest-banner03.png
-     combination4: http://47.96.164.161:81/APP-invest-banner04.png
-     combination5: http://47.96.164.161:81/APP-invest-banner05.png
-     me_headphoto: http://47.96.164.161:81/icon_me_headphoto2.png
+     home_page_img_one: http://47.96.164.161:81/1.png
+     home_page_img_two: http://47.96.164.161:81/2.png
+     home_page_img_three: http://47.96.164.161:81/3.png
+     home_page_img_four: http://47.96.164.161:81/4.png
+     combination_one: http://47.96.164.161:81/APP-invest-banner01.png
+     combination_two: http://47.96.164.161:81/APP-invest-banner02.png
+     combination_three: http://47.96.164.161:81/APP-invest-banner03.png
+     combination_four: http://47.96.164.161:81/APP-invest-banner04.png
+     combination_five: http://47.96.164.161:81/APP-invest-banner05.png
+     me_head_img: http://47.96.164.161:81/icon_me_headphoto2.png
      about_logo: http://47.96.164.161:81/icon_about_logo2.png
    - oem_id: 2
      oem_name: 百合
-     bankPhone: 400-88-96799
-     version: V.1.0
+     bank_phone: 400-88-96799
+     oem_version: V.1.0
      prod_name: 百合智投
-     home_page1: http://47.96.164.161/1.png
-     home_page2: http://47.96.164.161/2.png
-     home_page3: http://47.96.164.161/3.png
-     home_page4: http://47.96.164.161/4.png
-     combination1: http://47.96.164.161/APP-invest-banner01.png
-     combination2: http://47.96.164.161/APP-invest-banner02.png
-     combination3: http://47.96.164.161/APP-invest-banner03.png
-     combination4: http://47.96.164.161/APP-invest-banner04.png
-     combination5: http://47.96.164.161/APP-invest-banner05.png
-     me_headphoto: http://47.96.164.161/icon_me_headphoto.png
+     home_page_img_one: http://47.96.164.161/1.png
+     home_page_img_two: http://47.96.164.161/2.png
+     home_page_img_three: http://47.96.164.161/3.png
+     home_page_img_four: http://47.96.164.161/4.png
+     combination_one: http://47.96.164.161/APP-invest-banner01.png
+     combination_two: http://47.96.164.161/APP-invest-banner02.png
+     combination_three: http://47.96.164.161/APP-invest-banner03.png
+     combination_four: http://47.96.164.161/APP-invest-banner04.png
+     combination_five: http://47.96.164.161/APP-invest-banner05.png
+     me_head_img: http://47.96.164.161/icon_me_headphoto.png
      about_logo: http://47.96.164.161/icon_about_logo.png

@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.assetallocation.util;
 
 import com.shellshellfish.aaas.assetallocation.entity.MongoTradingDay;
-import com.shellshellfish.aaas.assetallocation.mapper.MongoTradingDayRepository;
+import com.shellshellfish.aaas.assetallocation.reposotory.MongoTradingDayRepository;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
