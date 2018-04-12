@@ -22,6 +22,8 @@ datasource:
 ---
 spring:
 #  profiles: prod
+  jpa:
+    open-in-view: false
   data:
       mongodb:
         database: funds
