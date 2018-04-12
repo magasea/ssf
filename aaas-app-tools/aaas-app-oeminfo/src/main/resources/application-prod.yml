@@ -61,7 +61,6 @@ datasource:
 grpc:
   port: 10161
 
-
 aaas-api-finance-url: http://localhost:10120
 
 api-asset-alloction-url: http://localhost:10020
