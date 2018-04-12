@@ -29,15 +29,7 @@ import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -329,7 +321,7 @@ public class DataServiceImpl implements DataService {
             //获取净值收益走势
             getHistoryNetValue(hnmap, code, startTime, endTime);
             //货币基金没有这两条数据
-            amendResults(hnmap, "historynetlist");
+            amendResults(hnmap, "baselinehistoryprofitlist");
             amendResults(hnmap, "historyprofitlist");
 
         }
@@ -338,75 +330,61 @@ public class DataServiceImpl implements DataService {
         return hnmap;
     }
 
+    /**
+     * 所有数据以基金净值为基准对齐
+     *
+     * @param hnmap
+     * @param key
+     * @return
+     */
     public boolean amendResults(Map hnmap, String key) {
 
+        final String baseKey = "historynetlist";
         // Amend values
-        Map<String, Object>[] historyNetValueList = (Map<String, Object>[]) hnmap.get(key);
-        List<Map<String, Object>> baselineHistoryProfitList = (List<Map<String, Object>>) hnmap
-                .get("baselinehistoryprofitlist");
+        Object target = hnmap.get(key);
 
-        try {
-            List<Date> datesToAmend = new ArrayList<Date>();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-            for (Map<String, Object> baseline : baselineHistoryProfitList) {
-                String baselineDateStr = baseline.get("date").toString();
-                Date baselineDate = sdf.parse(baselineDateStr);
-
-                int i = 0;
-                for (i = 0; i < historyNetValueList.length; i++) {
-                    String valueDateStr = historyNetValueList[i].get("date").toString();
-                    Date valueDate = sdf.parse(valueDateStr);
-                    if (valueDate.equals(baselineDate)) {
-                        break;
-                    }
-                }
-
-                if (i == historyNetValueList.length) {
-                    // not found, amend
-                    datesToAmend.add(baselineDate);
-                }
-
-            }
-
-            List<Map<String, Object>> listCopy = new LinkedList<Map<String, Object>>();
-            for (int i = 0; i < historyNetValueList.length; i++) {
-                listCopy.add(historyNetValueList[i]);
-            }
-
-            int amendCount = 0;
-            int tmp = 0;
-            for (Date date : datesToAmend) {
-                for (int i = tmp; i < historyNetValueList.length; i++) {
-                    Date valueDate = sdf.parse(historyNetValueList[i].get("date").toString());
-                    // TODO: historyNetValueList must be ascend order
-                    if (valueDate.after(date)) {
-                        Map<String, Object> dateCopy;
-                        if (i > 0) {
-                            dateCopy = new HashMap<String, Object>(
-                                    listCopy.get(i + amendCount - 1));
-                        } else {
-                            dateCopy = new HashMap<String, Object>(
-                                    listCopy.get(i + amendCount));
-                        }
-                        dateCopy.replace("date", sdf.format(date));
-                        listCopy.add(i + amendCount, dateCopy);
-                        amendCount++;
-                        tmp = i;
-                        break;
-                    }
-                }
-            }
-
-            Map<String, Object>[] arrayCopy = (Map<String, Object>[]) listCopy
-                    .toArray(new Map[listCopy.size()]);
-            hnmap.replace(key, arrayCopy);
-
-        } catch (ParseException e) {
-            logger.error("exception:", e);
+        List<Map<String, Object>> targetList;
+        if (target instanceof Map[]) {
+            targetList = CollectionUtils.arrayToList(target);
+        } else if (target instanceof List) {
+            targetList = (List<Map<String, Object>>) target;
+        } else {
+            return false;
+        }
+        //以基金净值为基准进行数据对齐
+        Map<String, Object>[] baselineList;
+        Object base = hnmap.get(baseKey);
+        if (base instanceof Map[]) {
+            baselineList = (Map<String, Object>[]) base;
+        } else if (base instanceof List) {
+            List<Map<String, Object>> list = (List<Map<String, Object>>) base;
+            baselineList = new HashMap[list.size()];
+            list.toArray(baselineList);
+        } else {
             return false;
         }
 
+
+        HashSet<String> baseHashSet = new HashSet<>(baselineList.length);
+        List<Map<String, Object>> targetBaseList = new ArrayList<>();
+        for (Map<String, Object> map : baselineList) {
+            String date = map.get("date").toString();
+            if (!baseHashSet.contains(date)) {
+                baseHashSet.add(date);
+                targetBaseList.add(map);
+            }
+        }
+
+
+        for (Iterator iterator = targetList.iterator(); iterator.hasNext(); ) {
+            Map<String, Object> map = (Map<String, Object>) iterator.next();
+            String date = map.get("date").toString();
+            if (!baseHashSet.contains(date)) {
+                iterator.remove();
+            }
+        }
+        hnmap.replace(baseKey, targetBaseList);
+        hnmap.replace(key, targetList);
         return true;
     }
 

@@ -387,6 +387,22 @@ public class UserInfoController {
 						if (detail.get(i) != null) {
 							Map map = (Map) detail.get(i);
 							int operationsStatus = (int) map.get("operationsStatus");
+							Map<String,String> tradeStatusMap = (Map) map.get("tradeStatusMap");
+							if(tradeStatusMap != null && tradeStatusMap.size() > 0){
+								if(tradeStatusMap.size() != 1){
+									if(tradeStatusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())){
+										map.put("tradeStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
+									}
+								} else {
+									for(String key : tradeStatusMap.keySet()){
+										if(tradeStatusMap.size() == 1){
+											map.put("tradeStatus", key);
+										}
+										break;
+									}
+								}
+								map.remove("tradeStatusMap");
+							}
 							if (map.get("prodId") != null) {
 								Integer prodId = (Integer) map.get("prodId");
 								Map orderResult = restTemplate.getForEntity(
