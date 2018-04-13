@@ -14,6 +14,7 @@ import com.shellshellfish.aaas.assetallocation.mapper.FundGroupHistoryMapper;
 import com.shellshellfish.aaas.assetallocation.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.mapper.FundNetValMapper;
 import com.shellshellfish.aaas.assetallocation.returnType.*;
+import com.shellshellfish.aaas.assetallocation.service.FundGroupIndexService;
 import com.shellshellfish.aaas.assetallocation.util.*;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import org.bson.Document;
@@ -31,6 +32,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -57,6 +59,9 @@ public class FundGroupService {
 
     @Autowired
     MongoDatabase mongoDatabase;
+
+    @Autowired
+    FundGroupIndexService fundGroupIndexService;
 
     //所有组合开始日期  2016-03-09
     public static final LocalDate GROUP_START_DATE = LocalDate.of(2016, 3, 9);
@@ -2314,11 +2319,24 @@ public class FundGroupService {
         try {
             //计算组合复权单位净值，和最大回撤  （数据存放在fund_group_histroy.incomeNum  , maximum_retracement）
             // 此处已经由新的方法替代 （基金组合净值的计算方法更新）
-            getNavadj(fundGroupId, subGroupId);
+//            getNavadj(fundGroupId, subGroupId);
+            //计算基金组合复权单位净值
+            calculateGroupNavadj(InstantDateUtil.now());
+            //计算组合最大回撤
+            calculateMaxRetracement(fundGroupId, subGroupId, InstantDateUtil.now());
+
+
             //更新预期最大回撤 fund_group_sub.expected_max_retracement
             updateExpectedMaxRetracement(fundGroupId, subGroupId);
             //跟新夏普比率  fund_group_sub.sharpRatio
             sharpeRatio(fundGroupId, subGroupId);
+
+            LocalDate endDayOfMonth = InstantDateUtil.now().with(TemporalAdjusters.lastDayOfMonth());
+            //每月月末计算历史年化收益和年化历史波动率
+            if (InstantDateUtil.now().equals(endDayOfMonth)) {
+                fundGroupIndexService.calculateAnnualVolatilityAndAnnualYield(fundGroupId, subGroupId, GROUP_START_DATE);
+            }
+
         } catch (Exception ex) {
             logger.error("ex:", ex);
         } catch (Error error) {
