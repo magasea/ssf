@@ -1111,11 +1111,18 @@ public class OptimizationServiceImpl implements OptimizationService {
           return null;
         }
         
-        MongoFinanceDetail mongoFinanceDetail = mongoFinanceDetailRepository.findAllByGroupIdAndSubGroupId(groupId, subGroupId);
+        List<MongoFinanceDetail> mongoFinanceDetails = mongoFinanceDetailRepository
+            .findAllByGroupIdAndSubGroupId(groupId, subGroupId);
 //		MongoFinanceDetail mongoFinanceDetail = mongoFinanceDetailRepository.findAllByGroupIdAndSubGroupId(groupId, subGroupId);
-        if (mongoFinanceDetail != null) {
-            jsonResult = new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", mongoFinanceDetail.getResult());
+        if(!CollectionUtils.isEmpty(mongoFinanceDetails)){
+        if (mongoFinanceDetails.size() == 1) {
+
             logger.info("获取信息成功");
+        }else{
+            logger.error("有重复数据：groupId {} subGoupI {}", groupId, subGroupId);
+        }
+            jsonResult = new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", mongoFinanceDetails
+                .get(0).getResult());
         } else {
             logger.error("com.shellshellfish.datamanager.service.OptimizationServiceImpl.getPrdDetails() 数据获取为空");
         }

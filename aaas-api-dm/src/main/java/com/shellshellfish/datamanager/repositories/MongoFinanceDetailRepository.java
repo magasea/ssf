@@ -8,5 +8,5 @@ public interface MongoFinanceDetailRepository extends MongoRepository<MongoFinan
 	List<MongoFinanceDetail> findAllByDate(String date);
 	void deleteAllByDate(String date);
 	MongoFinanceDetail findAllByDateAndGroupIdAndSubGroupId(String date, String groupId, String subGroupId);
-    MongoFinanceDetail findAllByGroupIdAndSubGroupId(String groupId, String subGroupId);
+    List<MongoFinanceDetail> findAllByGroupIdAndSubGroupId(String groupId, String subGroupId);
 }
