@@ -6,6 +6,7 @@ import com.shellshellfish.aaas.common.constants.RabbitMQConstants;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
+import com.shellshellfish.aaas.common.message.order.ProdSellPercentMsg;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,22 @@ public class BroadcastMessageConsumers {
 
     }
 
+
+    @RabbitListener( containerFactory = "jsaFactory",bindings = @QueueBinding(
+        value = @Queue(value = RabbitMQConstants.QUEUE_PAY_BASE+ "-"+ RabbitMQConstants
+            .OPERATION_TYPE_SELPERCENT_PROD, durable = "false"),
+        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_SELLPERCENT)
+    )
+    public void receiveSellPercentMessage(ProdSellPercentMsg prodSellPercentMsg) {
+        try {
+            boolean payDto = payService.sellPercentProd(prodSellPercentMsg);
+        }catch (Exception ex){
+            logger.error("exception:",ex);
+
+        }
+
+    }
 
 //    @RabbitListener( containerFactory = "jsaFactory",bindings = @QueueBinding(
 //        value = @Queue(value = RabbitMQConstants.QUEUE_PAY_BASE+ "-"+ RabbitMQConstants

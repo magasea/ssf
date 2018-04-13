@@ -1,27 +1,11 @@
 ---
 server:
   port: 10030
-  contextPath: /
----
-spring:
-#  profiles: local, default
-datasource:
-  sampleapp:
-    url: jdbc:h2:~/test
-    username: SA
-    password:
-    driverClassName: org.h2.Driver
-    defaultSchema:
-    maxPoolSize: 10
-    hibernate:
-      hbm2ddl.method: create-drop
-      show_sql: true
-      format_sql: true
-      dialect: org.hibernate.dialect.H2Dialect
-  
----
+#  contextPath: /
 spring:
 #  profiles: prod
+  jpa:
+    open-in-view: false
   data:
       mongodb:
         database: funds
@@ -29,21 +13,21 @@ spring:
         port: 27017
   http:
     multipart:
-      max-file-size: 2MB
-      max-request-size: 10MB
-datasource:
-  sampleapp:
-    url: jdbc:mysql://localhost:3306/ssftrdorder?useUnicode=true&characterEncoding=utf-8
-    username: sa
-    password: 1qaz@WSX
-    driverClassName: com.mysql.jdbc.Driver
-    defaultSchema:
-    maxPoolSize: 20
-    hibernate:
-      hbm2ddl.method: update
-      show_sql: true
-      format_sql: true
-      dialect: org.hibernate.dialect.MySQLDialect
+#      max-file-size: 2MB
+#      max-request-size: 10MB
+#datasource:
+#  sampleapp:
+#    url: jdbc:mysql://localhost:3306/ssftrdorder?useUnicode=true&characterEncoding=utf-8
+#    username: sa
+#    password: 1qaz@WSX
+#    driverClassName: com.mysql.jdbc.Driver
+#    defaultSchema:
+#    maxPoolSize: 20
+#    hibernate:
+#      hbm2ddl.method: update
+#      show_sql: true
+#      format_sql: true
+#      dialect: org.hibernate.dialect.MySQLDialect
 shellshellfish:
   asset-alloction-url: "http://localhost:10020"
   userinfo-url: "http://localhost:10060"

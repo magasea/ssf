@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.common.message.order.OrderStatusChangeDTO;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
+import com.shellshellfish.aaas.common.message.order.ProdSellPercentMsg;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,11 @@ public class BroadcastMessageProducer {
     public void sendSellMessages(ProdSellDTO prodSellDTO) {
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
             .ROUTING_KEY_SELL, prodSellDTO);
+    }
+
+    public void sendSellPercentMessages(ProdSellPercentMsg prodSellPercentMsg) {
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
+            .ROUTING_KEY_SELLPERCENT, prodSellPercentMsg);
     }
 
     public void sendOrderStatusChangeMessages(OrderStatusChangeDTO orderStatusChangeDTO) {

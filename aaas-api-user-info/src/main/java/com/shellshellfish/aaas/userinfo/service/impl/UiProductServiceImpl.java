@@ -48,8 +48,9 @@ public class UiProductServiceImpl implements UiProductService {
 
 		Optional<UiProducts> uiProducts = uiProductRepo.findById(prodId);
 		UiProductDTO uiProductDTO = new UiProductDTO();
+		uiProducts.ifPresent(m->BeanUtils.copyProperties(m, uiProductDTO));
 		if (uiProducts != null) {
-			BeanUtils.copyProperties(uiProducts.get(), uiProductDTO);
+			;
 		}
 		return  uiProductDTO;
 	}
