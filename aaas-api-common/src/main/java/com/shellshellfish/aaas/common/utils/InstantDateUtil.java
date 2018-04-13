@@ -10,6 +10,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 /**
@@ -47,6 +48,10 @@ public class InstantDateUtil {
      */
     public static long getDaysBetween(String fromDate, String toDate) {
         return getDaysBetween(fromDate, toDate, DEFAULT_DATE_FORMAT_PATTERN);
+    }
+
+    public static LocalDate now() {
+        return LocalDate.now(ZoneId.systemDefault());
     }
 
     /**
@@ -253,7 +258,7 @@ public class InstantDateUtil {
 
 
     public static void main(String[] args) {
-        System.out.println(getTplusNDayNWeekendOfWork(System.currentTimeMillis(), 6));
+        System.out.println(InstantDateUtil.now().with(TemporalAdjusters.lastDayOfMonth()));
     }
 
 }
