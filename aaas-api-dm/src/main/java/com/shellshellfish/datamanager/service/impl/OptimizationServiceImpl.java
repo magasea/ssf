@@ -607,10 +607,10 @@ public class OptimizationServiceImpl implements OptimizationService {
             mongoFinanceDetail.setDate(date);
             mongoFinanceDetail.setGroupId(groupId);
             mongoFinanceDetail.setSubGroupId(subGroupId);
-            System.out.println("---\n" + date);
+//            System.out.println("---\n" + date);
 //			mongoFinanceDetail.setHead(jsonResult.getHead());
             mongoFinanceDetail.setResult(result);
-            System.out.println("---\n" + jsonResult.getResult().toString());
+//            System.out.println("---\n" + jsonResult.getResult().toString());
             mongoFinanceDetail.setLastModifiedBy(utcTime + "");
 //			mongoFinanceDetailRepository.deleteAll();
 //			MongoFinanceDetail mongoFinanceCount = mongoFinanceDetailRepository.findAllByDateAndGroupIdAndSubGroupId(date, groupId, subGroupId);
