@@ -17,6 +17,8 @@ import com.shellshellfish.datamanager.model.JsonResult;
 import com.shellshellfish.datamanager.repositories.MongoFinanceDetailRepository;
 import com.shellshellfish.datamanager.service.OptimizationService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
 @Configuration
@@ -40,8 +42,7 @@ public class OptimizationApiController {
 	public HttpJsonResult financeModule() {
 		JsonResult jsonResult = optimizationService.financeFront();
 		if (jsonResult != null) {
-			logger.info(
-					"run com.shellshellfish.datamanager.controller.OptimizationApiController.financeModule() success..");
+			logger.info("run OptimizationApiController.financeModule() success..");
 			System.out.println("run success");
 			return new HttpJsonResult (HttpStatus.OK.value(),"OK", JsonResult.EMPTYRESULT);
 		} else {
@@ -50,6 +51,10 @@ public class OptimizationApiController {
 	}
 
 	@ApiOperation("获取进入理财页面后的数据")
+	@ApiImplicitParams({
+      @ApiImplicitParam(paramType = "query", name = "size", dataType = "Integer", required = true, value = "每页显示数（至少大于1）", defaultValue = "15"),
+      @ApiImplicitParam(paramType = "query", name = "pageSize", dataType = "Integer", required = true, value = "显示页数（从0开始）", defaultValue = "0"),
+    })
 	@RequestMapping(value = "/getFinanceFrontPage", method = RequestMethod.GET)
 	@ResponseBody
 	public JsonResult getFinanceModule(@RequestParam(defaultValue="15") Integer size, @RequestParam(defaultValue="0") Integer pageSize) {
@@ -57,12 +62,8 @@ public class OptimizationApiController {
 		if (result == null) {
 			optimizationService.financeFront();
 			result = optimizationService.getFinanceFront(size, pageSize);
-			logger.info(
-					"run com.shellshellfish.datamanager.controller.OptimizationApiController.getFinanceModule() success..");
-		} else {
-			logger.info(
-					"run com.shellshellfish.datamanager.controller.OptimizationApiController.getFinanceModule() fail..");
 		}
+		logger.info("getFinanceFrontPage info: size:{}-pageSize:{}-Ok", size, pageSize);
 		System.out.println("run success");
 		return result;
 	}
@@ -110,11 +111,11 @@ public class OptimizationApiController {
 	    String subGroupId = i + "0048";
 	    jsonResult = optimizationService.checkPrdDetails2(groupId, subGroupId);
 	    if (jsonResult != null) {
-	      logger.info(
-	          "run com.shellshellfish.datamanager.controller.OptimizationApiController.getPrdDetails() success..");
-	      System.out.println("groupId：" + groupId + " , subGroupId:" + subGroupId + " -->OK");
+	      logger.info("groupId:{}-subGroupId:{}-Ok", groupId, subGroupId);
+//	      System.out.println("groupId：" + groupId + " , subGroupId:" + subGroupId + " -->OK");
 //				return new JsonResult(JsonResult.SUCCESS, "OK", JsonResult.EMPTYRESULT);
 	    } else {
+	      logger.warn("groupId:{}-subGroupId:{}-no data", groupId, subGroupId);
 	      result = false;
 	      return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:没有获取到产品:subGroupId为-->"+subGroupId,
 	          JsonResult.EMPTYRESULT);
@@ -136,12 +137,8 @@ public class OptimizationApiController {
 		if (result == null) {
 			this.prdDetails();
 			result = optimizationService.getPrdDetails(groupId, subGroupId);
-			logger.info(
-					"run com.shellshellfish.datamanager.controller.OptimizationApiController.getFinanceModule() success..");
-		} else {
-			logger.info(
-					"run com.shellshellfish.datamanager.controller.OptimizationApiController.getFinanceModule() fail..");
 		}
+		logger.info("getCheckPrdDetails info: groupId:{}-subGroupId:{}-Ok", groupId, subGroupId);
 		System.out.println("run success");
 		return result;
 	}
