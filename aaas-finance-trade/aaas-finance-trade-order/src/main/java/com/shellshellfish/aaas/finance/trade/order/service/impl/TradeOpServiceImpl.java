@@ -763,21 +763,21 @@ public class TradeOpServiceImpl implements TradeOpService {
 //		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(instanceLong), ZoneOffset.UTC);
 		Map<String, String> statusMap = new HashMap<>();
 		for (int i = 0; i < trdOrderDetailList.size(); i++) {
-        detailMap = new HashMap<String, Object>();
-        TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
-        int detailStatus = trdOrderDetail.getOrderDetailStatus();
-        String status = "";
-        if (TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus
-            || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus) {
-          status = CombinedStatusEnum.CONFIRMED.getComment();
-        } else if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
-            || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
-          status = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
-        } else {
-          status = CombinedStatusEnum.WAITCONFIRM.getComment();
-        }
-        detailMap.put("fundstatus", status);
-        statusMap.put(status, status);
+          detailMap = new HashMap<String, Object>();
+          TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
+          int detailStatus = trdOrderDetail.getOrderDetailStatus();
+          String status = "";
+          if (TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus
+              || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus) {
+            status = CombinedStatusEnum.CONFIRMED.getComment();
+          } else if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
+              || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
+            status = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
+          } else {
+            status = CombinedStatusEnum.WAITCONFIRM.getComment();
+          }
+          detailMap.put("fundstatus", status);
+          statusMap.put(status, status);
 //      detailMap.put("fundstatus", TrdOrderStatusEnum.getComment(trdOrderDetail.getOrderDetailStatus()));
 //			TrdOrderStatusEnum[] trdOrderStatusEnum2 = TrdOrderStatusEnum.values();
 //			for (TrdOrderStatusEnum trdOrderStatus2 : trdOrderStatusEnum2) {
