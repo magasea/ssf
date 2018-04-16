@@ -21,6 +21,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -63,7 +64,7 @@ public class LoginControllerIT {
 
 	private static final int DEFAULT_PASSWORD_LENGTH = 10;
 
-	private static final long TIMEOUT = 60000L;
+	private static final long TIMEOUT = 3000L;
 
 	//注册 登录所用的手机号  初始值随机生成
 	private static String registration_login_phone_number = null;
@@ -84,7 +85,7 @@ public class LoginControllerIT {
 	TestRestTemplate restTemplate;
 
 
-
+	@LocalServerPort
 	public int port;
 
 	@BeforeClass
@@ -104,7 +105,7 @@ public class LoginControllerIT {
 	 * 目的：校验接口是否返回数据与数据格式是否正确
 	 * 接口：/phoneapi-ssf/registration
 	 * 接口作用：用户注册
-	 * 参数：{telNum ：手机号码，password ：密码，verifyCode ：验证码}
+	 * 参数：{telNum ：手机号码，password ：密码，verifyCode ：发送的验证码}
 	 **/
 	@Test
 	public void a_registrationTest() {
@@ -164,7 +165,7 @@ public class LoginControllerIT {
 	 * 目的：校验接口是否返回数据与数据格式是否正确
 	 * 接口：/phoneapi-ssf/forgottenPsw
 	 * 接口作用：忘记密码后重置密码
-	 * 参数：{telNum ：手机号码，password ：密码，verifyCode ：验证码}
+	 * 参数：{telNum ：手机号码，password ：密码，verifyCode ：发送的验证码}
 	 **/
 	@Test
 	public void c_forgetPswTest() {

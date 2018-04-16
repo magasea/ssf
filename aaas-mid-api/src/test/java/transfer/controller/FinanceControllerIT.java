@@ -90,7 +90,7 @@ public class FinanceControllerIT {
 
 	private static final String REQUEST_IS_SUCCESS = "1";
 
-	private static final long TIMEOUT = 60000L;
+	private static final long TIMEOUT = 3000L;
 
 	@LocalServerPort
 	private int port;
@@ -175,7 +175,7 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(CHECK_PRD_DETAILS_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
-				.time(lessThan(TIMEOUT))
+				.time(lessThan(6000L))
 				.using();
 	}
 

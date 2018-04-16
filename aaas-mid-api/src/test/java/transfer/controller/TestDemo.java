@@ -33,7 +33,7 @@ import io.restassured.filter.log.ResponseLoggingFilter;
 @EnableAutoConfiguration
 public class TestDemo {
 
-	private static final long TIMEOUT = 60000L;
+	private static final long TIMEOUT = 3000L;
 
 	@LocalServerPort
 	public int port;

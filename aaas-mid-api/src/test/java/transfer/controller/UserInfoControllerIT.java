@@ -61,7 +61,7 @@ public class UserInfoControllerIT {
 
 	private static final String REQUEST_IS_SUCCESS = "1";
 
-	private static final long TIMEOUT = 60000L;
+	private static final long TIMEOUT = 3000L;
 
 	@LocalServerPort
 	public int port;
