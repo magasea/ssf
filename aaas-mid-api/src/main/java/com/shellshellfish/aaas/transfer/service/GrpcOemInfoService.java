@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.transfer.service;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -9,5 +10,7 @@ import java.util.Map;
 public interface GrpcOemInfoService {
 
   Map<String, String> getOemInfoById(Long oem);
+  
+  List<String> getOemInfoBankName();
 
 }

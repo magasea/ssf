@@ -135,7 +135,7 @@ public class OptimizationApiController {
 	public JsonResult getPrdDetails(String groupId, String subGroupId) {
 		JsonResult result = optimizationService.getPrdDetails(groupId, subGroupId);
 		if (result == null) {
-			this.prdDetails();
+			this.prdDetails2();
 			result = optimizationService.getPrdDetails(groupId, subGroupId);
 		}
 		logger.info("getCheckPrdDetails info: groupId:{}-subGroupId:{}-Ok", groupId, subGroupId);
