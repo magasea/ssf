@@ -14,7 +14,7 @@ spring:
       ddl-auto: update
   data:
     mongodb:
-      database: test1
+      database: ssfui
       host: localhost
       port: 27017
       zhongzheng: "zhongzheng"

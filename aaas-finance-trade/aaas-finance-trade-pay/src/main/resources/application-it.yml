@@ -10,7 +10,7 @@ logging:
 spring:
 #  data:
 #    mongodb:
-#      database: test1
+#      database: ssfui
 #      host: 192.168.1.10
 #      port: 27017
   rabbitmq:
