@@ -175,11 +175,11 @@ public class OptimizationServiceImpl implements OptimizationService {
 
             System.out.println(date + "--数据插入成功");
             logger.info(
-                    "run com.shellshellfish.datamanager.service.OptimizationServiceImpl.financeFront() success..");
+                    "run OptimizationServiceImpl.financeFront() success..");
 
         } else {
             logger.error(
-                    "run com.shellshellfish.datamanager.service.impl.OptimizationServiceImpl.financeFront() fail..\n");
+                    "run OptimizationServiceImpl.financeFront() fail..\n");
             logger.error("jsonResult 结果为空");
         }
         return jsonResult;
@@ -305,7 +305,8 @@ public class OptimizationServiceImpl implements OptimizationService {
                             mongoFinanceAll.setSerial(++serial);
                             mongoFinanceALLRepository.save(mongoFinanceAll);
                             System.out.println(date + "--数据插入成功：groupId：" + groupId + "subGroupId:" + subGroupId);
-                            logger.info("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.financeFront() success..");
+                            logger.info("run OptimizationServiceImpl.financeFront() success..");
+                            logger.info("date:{}-groupId:{}-subGroupId:{}", date, groupId, subGroupId);
                         }
                     } catch (Exception e) {
                         return new JsonResult(JsonResult.Fail, "获取产品的field属性失败", JsonResult.EMPTYRESULT);
@@ -622,8 +623,7 @@ public class OptimizationServiceImpl implements OptimizationService {
 //			mongoFinanceDetailRepository.deleteAll();
 
             mongoFinanceDetailRepository.save(mongoFinanceDetail);
-            logger.info(date + "--数据插入成功，groupId:{},subGroupId:{}", groupId, subGroupId);
-            logger.info("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.checkPrdDetails() success..");
+            logger.info("date:{}--数据插入成功，groupId:{},subGroupId:{}", date, groupId, subGroupId);
         } else {
             logger.error("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.checkPrdDetails() fail..\n");
             logger.error("jsonResult 结果为空");
@@ -717,9 +717,9 @@ public class OptimizationServiceImpl implements OptimizationService {
 
             mongoFinanceDetailRepository.save(mongoFinanceDetail);
             logger.info(date + "--数据插入成功，groupId:{},subGroupId:{}", groupId, subGroupId);
-            logger.info("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.checkPrdDetails() success..");
+            logger.info("run OptimizationServiceImpl.checkPrdDetails() success..");
         } else {
-            logger.error("run com.shellshellfish.datamanager.service.OptimizationServiceImpl.checkPrdDetails() fail..\n");
+            logger.error("run OptimizationServiceImpl.checkPrdDetails() fail..\n");
             logger.error("jsonResult 结果为空");
         }
 

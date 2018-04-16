@@ -61,4 +61,10 @@ public class FundTradeZhongZhengApiServiceTest {
     fundTradeApiService.commitRisk(openId, 4);
   }
 
+  @Test
+  public void getAllFundInfo() throws Exception {
+    String openId = TradeUtil.getZZOpenId("362522198709220031");
+    fundTradeApiService.getAllFundsInfo();
+  }
+
 }

@@ -1022,7 +1022,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 						if (valueMap.get("amount") != null) {
 							amountTotal = amountTotal.add(new BigDecimal(valueMap.get("amount") + ""));
 						}
-						trad.put("amount", amountTotal);
+						valueMap.put("amount", amountTotal);
 						logger.info("now uoKey:{} amountTotal:{}", uoKey, amountTotal);
 					}
 					if (trad.get("tradeStatusValue") != null && trad.get("tradeStatusMap")!=null) {
