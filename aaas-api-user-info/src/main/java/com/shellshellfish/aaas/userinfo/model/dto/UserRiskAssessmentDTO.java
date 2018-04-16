@@ -1,23 +1,19 @@
-package com.shellshellfish.aaas.risk.model.dao;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+package com.shellshellfish.aaas.userinfo.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Document
-public class UserRiskAssessment {
+public class UserRiskAssessmentDTO {
 	@JsonIgnore
-	@Id
 	private String id;
+	@JsonIgnore
 	private String userUuid;
 	private String assessmentResult;
 	
-	public UserRiskAssessment() {
+	public UserRiskAssessmentDTO() {
 		
 	}
 	
-	public UserRiskAssessment(String userUuid, String assessmentResult) {
+	public UserRiskAssessmentDTO(String userUuid, String assessmentResult) {
 		super();
 		this.userUuid = userUuid;
 		this.assessmentResult = assessmentResult;

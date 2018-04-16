@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import com.shellshellfish.aaas.transfer.TransferServiceApplication;
 import com.shellshellfish.aaas.transfer.service.GrpcOemInfoService;
+
+import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +36,11 @@ public class GrpcOemInfoServiceImplTest {
           System.out.println(value);
         }
     );
+  }
+  @Test
+  public void getOemInfoBankName(){
+	  List<String> oemInfos = grpcOemInfoService.getOemInfoBankName();
+	  System.out.println(oemInfos);
   }
 
 }

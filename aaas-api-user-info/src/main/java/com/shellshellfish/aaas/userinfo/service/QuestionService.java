@@ -1,13 +1,12 @@
-package com.shellshellfish.aaas.risk.service;
+package com.shellshellfish.aaas.userinfo.service;
 
-import java.util.List;
-
+import com.shellshellfish.aaas.userinfo.model.dao.Question;
+import com.shellshellfish.aaas.userinfo.model.dto.QuestionDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.SurveyTemplateDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.shellshellfish.aaas.risk.model.dao.Question;
-import com.shellshellfish.aaas.risk.model.dto.QuestionDTO;
-import com.shellshellfish.aaas.risk.model.dto.SurveyTemplateDTO;
+import java.util.List;
 
 public interface QuestionService {
     QuestionDTO convertToQuestionDTO(Question question);

@@ -3,7 +3,8 @@ package com.shellshellfish.aaas.transfer.service.impl;
     import com.shellshellfish.aaas.tools.oeminfo.OemInfoItem;
     import com.shellshellfish.aaas.tools.oeminfo.OemInfoQuery;
     import com.shellshellfish.aaas.tools.oeminfo.OemInfoServiceGrpc.OemInfoServiceBlockingStub;
-    import com.shellshellfish.aaas.transfer.service.GrpcOemInfoService;
+import com.shellshellfish.aaas.tools.oeminfo.OemQuery;
+import com.shellshellfish.aaas.transfer.service.GrpcOemInfoService;
     import io.grpc.ManagedChannel;
     import java.util.HashMap;
     import java.util.List;
@@ -33,4 +34,11 @@ public class GrpcOemInfoServiceImpl implements GrpcOemInfoService{
     );
     return oemInfos;
   }
+
+	@Override
+	public List<String> getOemInfoBankName() {
+		OemQuery.Builder oemBuilder = OemQuery.newBuilder();
+		List<String> oemInfoItemList = oemInfoServiceBlockingStub.getOemBankNameList(oemBuilder.build()).getOemNameList();
+		return oemInfoItemList;
+	}
 }
