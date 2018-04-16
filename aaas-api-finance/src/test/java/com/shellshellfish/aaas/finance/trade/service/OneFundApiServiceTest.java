@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
@@ -30,6 +31,7 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
+@ActiveProfiles("dev")
 //@Ignore
 public class OneFundApiServiceTest {
     private static final Logger logger = LoggerFactory.getLogger(OneFundApiService.class);
@@ -437,7 +439,7 @@ public class OneFundApiServiceTest {
 //        info.put("sign", sign);
 //
 //        HttpEntity<Map<String, Object>> request = new HttpEntity<>(info);
-//        String url = "https://onetest.51fa.la/v2/internet/fundapi/open_account";
+//        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/open_account";
 //        RestTemplate restTemplate = new RestTemplate();
 //        String json = restTemplate.postForObject(url, info, String.class);
 //        System.out.println(json);

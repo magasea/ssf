@@ -44,6 +44,7 @@ import org.springframework.util.CollectionUtils;
 
 @Service
 public class DataServiceImpl implements DataService {
+    Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     MongoFundCodesRepository mongoFundCodesRepository;
@@ -73,7 +74,7 @@ public class DataServiceImpl implements DataService {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    private Logger logger = LoggerFactory.getLogger(DataServiceImpl.class);
+
 
 
     public static final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100);
@@ -89,6 +90,7 @@ public class DataServiceImpl implements DataService {
         HashMap<String, Object> fmmap = null;
         List<FundManagers> lst = mongoFundManagersRepository.findByManagername(name);
         if (lst == null || lst.size() == 0) {
+            logger.info("will return empty result for:{}", name);
             return new HashMap<String, Object>();
         } else {
             fmmap = new HashMap<String, Object>();
@@ -127,7 +129,9 @@ public class DataServiceImpl implements DataService {
         HashMap<String, Object> dmap = new HashMap<String, Object>();
 
         if (lst == null || lst.size() == 0) {
+            logger.info("will return empty result for:{}", code);
             return new HashMap<String, Object>();
+
         } else {
 
             dmap.put("fundcompany", lst.get(0).getCompanyname());//公司名称
@@ -165,6 +169,7 @@ public class DataServiceImpl implements DataService {
         HashMap<String, Object> fmmap = null;
         List<FundCompanys> lst = mongoFundCompanysRepository.findByCompanyname(name);
         if (lst == null || lst.size() == 0) {
+            logger.info("will return empty result for:{}", name);
             return new HashMap<String, Object>();
         } else {
             fmmap = new HashMap<String, Object>();
@@ -361,6 +366,7 @@ public class DataServiceImpl implements DataService {
             baselineList = new HashMap[list.size()];
             list.toArray(baselineList);
         } else {
+            logger.error("base is not Map or list:{}", base.getClass());
             return false;
         }
 
@@ -436,6 +442,8 @@ public class DataServiceImpl implements DataService {
             oneyearup = getUprate(code, curdayval, stdate, 6).toString() + "%"; //1 year ago
             threeyearup = getUprate(code, curdayval, stdate, 7).toString() + "%"; //3 year ago
 
+        }else{
+            logger.error("fundYearIndicator is null");
         }
 
         dmap[0] = new HashMap<String, String>();
@@ -566,6 +574,8 @@ public class DataServiceImpl implements DataService {
         if (!CollectionUtils.isEmpty(list) && list.get(0) != null && !list.get(0)
                 .getShstockstar3ycomrat().isEmpty()) {
             rate = list.get(0).getShstockstar3ycomrat();
+        }else{
+            logger.error("no fundRate found for code:{}", code);
         }
 
         return rate;
@@ -578,6 +588,13 @@ public class DataServiceImpl implements DataService {
         List<FundResources> list = mongoTemplate.find(query, FundResources.class);
         if (list != null && list.size() == 1) {
             return list.get(0).getName();
+        }else{
+            if(CollectionUtils.isEmpty(list)){
+                logger.error("FundResources is empty for code:{}", code);
+            }else{
+                logger.error("FundResources have multi records for code:{} and size:{}", code,
+                    list.size());
+            }
         }
 
         return "";
@@ -590,6 +607,13 @@ public class DataServiceImpl implements DataService {
         List<FundBaseList> list = mongoTemplate.find(query, FundBaseList.class);
         if (list != null && list.size() == 1) {
             return list.get(0).getBaseName();
+        }else{
+            if(CollectionUtils.isEmpty(list)){
+                logger.error("FundBaseList is empty for code:{}", code);
+            }else{
+                logger.error("FundBaseList have multi records for code:{} and size:{}", code,
+                    list.size());
+            }
         }
 
         return "";
@@ -608,7 +632,9 @@ public class DataServiceImpl implements DataService {
         query.with(new Sort(Sort.DEFAULT_DIRECTION.ASC, "querydate"));
         List<FundYearIndicator> list = mongoTemplate.find(query, FundYearIndicator.class);
 
-        if (list == null || list.size() == 0) {
+        if (CollectionUtils.isEmpty(list)) {
+            logger.error("empty list for FundYearIndicator with code:{} and time between:{} and :{}",
+                code, startTime, endTime);
             return;
         }
 
@@ -672,6 +698,7 @@ public class DataServiceImpl implements DataService {
         List baseLineList = new ArrayList();//基准历史收益走势
         FundBaseList fundBase = mongoFundBaseListRepository.findFirstByCode(fundCode);
         if (fundBase == null) {
+            logger.error("empty FundBaseList for fundCode:{}", fundCode);
             return;
         }
         if (oneYearRateOfBank.equals(fundBase.getBaseLine())) {
@@ -693,7 +720,7 @@ public class DataServiceImpl implements DataService {
                     .findByQueryDateBetween(startTime, endTime, new Sort(Direction.ASC, "querydate"));
 
             FundBaseClose startBaseClose = fundBaseCloseList.get(0);
-
+            logger.info("fundBaseCloseList.size():{}", fundBaseCloseList.size());
             for (int i = 0; i < fundBaseCloseList.size(); i++) {
                 FundBaseClose fundBaseClose = fundBaseCloseList.get(i);
 
@@ -857,6 +884,11 @@ public class DataServiceImpl implements DataService {
 
         List<BigDecimal> yieldOf7DaysList = new ArrayList();
         List<BigDecimal> yieldOfTenKiloUnitYieldList = new ArrayList();
+        if(CollectionUtils.isEmpty(coinFundYieldRateList)){
+            logger.error("coinFundYieldRateList is empty for code:{} startTime:{}, endTime:{}",
+                code, startTime, endTime);
+        }
+        logger.info("coinFundYieldRateList size:{}", coinFundYieldRateList.size());
         for (int i = 0; i < coinFundYieldRateList.size(); i++) {
 
             Map map = new HashMap<String, Object>(3);

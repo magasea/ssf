@@ -61,7 +61,7 @@ public class OneFundApiService implements FundTradeApiService {
 
 		postInit(info);
 
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/open_account";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/open_account";
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
 
@@ -93,7 +93,7 @@ public class OneFundApiService implements FundTradeApiService {
 		//info.put("platform_openid", "88048");
 
 		postInit(info);
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/buy_fund";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/buy_fund";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -134,7 +134,7 @@ public class OneFundApiService implements FundTradeApiService {
 		info.put("sell_type", 0);
 
 		postInit(info);
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/sell_fund";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/sell_fund";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -161,7 +161,7 @@ public class OneFundApiService implements FundTradeApiService {
 		info.put("applyserial", applySerial);
 
 		postInit(info);
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/cancel_trade";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/cancel_trade";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -187,7 +187,7 @@ public class OneFundApiService implements FundTradeApiService {
 		Map<String, Object> info = init(userUuid);
 		info.put("applyserial", applySerial);
 		postInit(info);
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_apply_list";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_apply_list";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -205,7 +205,7 @@ public class OneFundApiService implements FundTradeApiService {
 		Map<String, Object> info = init(userUuid);
 		info.put("outsideorderno", outsideOrderNo);
 		postInit(info);
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_apply_list";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_apply_list";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -235,7 +235,7 @@ public class OneFundApiService implements FundTradeApiService {
 		Map<String, Object> info = init(userUuid);
 
 		postInit(info);
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_apply_list";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_apply_list";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -249,7 +249,7 @@ public class OneFundApiService implements FundTradeApiService {
 		Map<String, Object> info = init(userUuid);
 		info.put("applyserial", applySerial);
 		postInit(info);
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_confirm_list";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_confirm_list";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -267,7 +267,7 @@ public class OneFundApiService implements FundTradeApiService {
 		Map<String, Object> info = init(userUuid);
 		info.put("outsideorderno", outsideOrderNo);
 		postInit(info);
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_confirm_list";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_confirm_list";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -330,7 +330,7 @@ public class OneFundApiService implements FundTradeApiService {
 		}
 
 		postInit(info);
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_confirm_list";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_confirm_list";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -358,7 +358,7 @@ public class OneFundApiService implements FundTradeApiService {
 
 		postInit(info);
 
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_notice";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_notice";
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info(json);
 		JSONObject jsonObject = JSONObject.parseObject(json);
@@ -380,7 +380,7 @@ public class OneFundApiService implements FundTradeApiService {
 		Map<String, Object> info = init();
 
 		postInit(info);
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_exam_content";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_exam_content";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -393,7 +393,7 @@ public class OneFundApiService implements FundTradeApiService {
 		Map<String, Object> info = init(userUuid);
 		info.put("risk_ability", 3);
 		postInit(info);
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/commit_risk";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/commit_risk";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -427,7 +427,7 @@ public class OneFundApiService implements FundTradeApiService {
 		info.put("fake_answer", objectMapper.writeValueAsString(fakeAnswer));
 
 		postInit(info);
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/commit_fake_answer";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/commit_fake_answer";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -440,7 +440,7 @@ public class OneFundApiService implements FundTradeApiService {
 		Map<String, Object> info = init(userUuid);
 
 		postInit(info);
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_user_risk_list";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_user_risk_list";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -457,7 +457,7 @@ public class OneFundApiService implements FundTradeApiService {
 
 		postInit(info);
 
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_fund_info";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_fund_info";
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info(json);
 		JSONObject jsonObject = JSONObject.parseObject(json);
@@ -480,7 +480,7 @@ public class OneFundApiService implements FundTradeApiService {
 
 		postInit(info);
 
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_fund_info";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_fund_info";
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info(json);
 		JSONObject jsonObject = JSONObject.parseObject(json);
@@ -525,7 +525,7 @@ public class OneFundApiService implements FundTradeApiService {
 		info.put("buinflag", businFlag);
 		postInit(info);
 
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_rate";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_rate";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -569,7 +569,7 @@ public class OneFundApiService implements FundTradeApiService {
 		info.put("buinflag", businFlag);
 		postInit(info);
 
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_trade_limit";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_trade_limit";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -585,7 +585,7 @@ public class OneFundApiService implements FundTradeApiService {
 		info.put("buinflag", businFlag);
 		postInit(info);
 
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_trade_limit";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_trade_limit";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -618,7 +618,7 @@ public class OneFundApiService implements FundTradeApiService {
 		info.put("businflag", businFlag);
 		postInit(info);
 
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_trade_discount";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_trade_discount";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -635,7 +635,7 @@ public class OneFundApiService implements FundTradeApiService {
 		info.put("businflag", businFlag);
 		postInit(info);
 
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_trade_discount";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_trade_discount";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -698,7 +698,7 @@ public class OneFundApiService implements FundTradeApiService {
 		info.put("fundcode", fundCode);
 		postInit(info);
 
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_user_bank_list";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_user_bank_list";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -728,7 +728,7 @@ public class OneFundApiService implements FundTradeApiService {
 		info.put("startdate", startDate);
 		postInit(info);
 
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_bonus_list";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_bonus_list";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -756,7 +756,7 @@ public class OneFundApiService implements FundTradeApiService {
 		info.put("fundcode", fundCode);
 		postInit(info);
 
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_fund_share";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_fund_share";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -795,7 +795,7 @@ public class OneFundApiService implements FundTradeApiService {
 		info.put("datetime", datetime);
 		postInit(info);
 
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_incomes";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_incomes";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
@@ -849,7 +849,7 @@ public class OneFundApiService implements FundTradeApiService {
 		info.put("limit_right", count);
 		postInit(info);
 
-		String url = "https://onetest.51fa.la/v2/internet/fundapi/get_all_net";
+		String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_all_net";
 
 		String json = restTemplate.postForObject(url, info, String.class);
 		logger.info("{}", json);
