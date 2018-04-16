@@ -58,22 +58,9 @@ datasource:
       format_sql: true
       dialect: org.hibernate.dialect.MySQLDialect
   
+
 grpc:
-  userinfo:
-    host: localhost
-    port: 10061
-  data-manager-rpc:
-    host: localhost
-    port: 10031
-  finance-trade-order-rpc:
-    host: localhost
-    port: 10101
-  finance-trade-pay-rpc:
-    host: localhost
-    port: 10111
-  datacollection-server-rpc:
-    host: localhost
-    port: 10091
+  port: 10161
 
 
 aaas-api-finance-url: http://localhost:10120
@@ -84,8 +71,37 @@ api-asset-alloction-url: http://localhost:10020
 daily-finance-calculate-thread: 8
 
 #oeminfo
-oem_info:
-  oem_id: 1
-    oem_name: 贝贝鱼
-  oem_id: 2
-    oem_name: 百合
+oem-info:
+  oemInfos:
+   - oem_id: 1
+     oem_name: 贝贝鱼
+     bank_phone: 021-80270119
+     oem_version: V.1.0
+     prod_name: 贝贝鱼智投
+     home_page_img_one: http://47.96.164.161:81/1.png
+     home_page_img_two: http://47.96.164.161:81/2.png
+     home_page_img_three: http://47.96.164.161:81/3.png
+     home_page_img_four: http://47.96.164.161:81/4.png
+     combination_one: http://47.96.164.161:81/APP-invest-banner01.png
+     combination_two: http://47.96.164.161:81/APP-invest-banner02.png
+     combination_three: http://47.96.164.161:81/APP-invest-banner03.png
+     combination_four: http://47.96.164.161:81/APP-invest-banner04.png
+     combination_five: http://47.96.164.161:81/APP-invest-banner05.png
+     me_head_img: http://47.96.164.161:81/icon_me_headphoto2.png
+     about_logo: http://47.96.164.161:81/icon_about_logo2.png
+   - oem_id: 2
+     oem_name: 百合
+     bank_phone: 400-88-96799
+     oem_version: V.1.0
+     prod_name: 百合智投
+     home_page_img_one: http://47.96.164.161/1.png
+     home_page_img_two: http://47.96.164.161/2.png
+     home_page_img_three: http://47.96.164.161/3.png
+     home_page_img_four: http://47.96.164.161/4.png
+     combination_one: http://47.96.164.161/APP-invest-banner01.png
+     combination_two: http://47.96.164.161/APP-invest-banner02.png
+     combination_three: http://47.96.164.161/APP-invest-banner03.png
+     combination_four: http://47.96.164.161/APP-invest-banner04.png
+     combination_five: http://47.96.164.161/APP-invest-banner05.png
+     me_head_img: http://47.96.164.161/icon_me_headphoto.png
+     about_logo: http://47.96.164.161/icon_about_logo.png

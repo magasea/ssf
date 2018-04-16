@@ -387,6 +387,22 @@ public class UserInfoController {
 						if (detail.get(i) != null) {
 							Map map = (Map) detail.get(i);
 							int operationsStatus = (int) map.get("operationsStatus");
+							Map<String,String> tradeStatusMap = (Map) map.get("tradeStatusMap");
+							if(tradeStatusMap != null && tradeStatusMap.size() > 0){
+								if(tradeStatusMap.size() != 1){
+									if(tradeStatusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())){
+										map.put("tradeStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
+									}
+								} else {
+									for(String key : tradeStatusMap.keySet()){
+										if(tradeStatusMap.size() == 1){
+											map.put("tradeStatus", key);
+										}
+										break;
+									}
+								}
+								map.remove("tradeStatusMap");
+							}
 							if (map.get("prodId") != null) {
 								Integer prodId = (Integer) map.get("prodId");
 								Map orderResult = restTemplate.getForEntity(
@@ -406,7 +422,14 @@ public class UserInfoController {
 										bankName = bankName.substring(0, bankName.indexOf("·"));
 									}
 									map.put("orderId", orderId);
-									map.put("poundage", orderResult.get("buyFee"));
+									if(orderResult.get("buyFee")!=null){
+										BigDecimal buyFee = new BigDecimal(orderResult.get("buyFee") + "");
+										buyFee = buyFee.divide(new BigDecimal("100"));
+										Double buyFeeValue = buyFee.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+										map.put("poundage", buyFeeValue);
+									} else {
+										map.put("poundage", BigDecimal.ZERO);
+									}
 									map.put("bankName", bankName);
 									map.put("bankcardNum", bankcardNum);
 									map.put("bankinfo", bankName + "(" + bankcardNum.substring(bankcardNum.length() - 4) + ")");
@@ -794,8 +817,12 @@ public class UserInfoController {
 					result.put("statusList", new ArrayList());
 					result.remove("serialList");
 				}
-				
-				result.put("bankinfo", bankName + "(" + bankCard + ")");
+				if (StringUtils.isEmpty(bankName) || StringUtils.isEmpty(bankCard)) {
+					result.put("bankinfo", "");
+				} else {
+					result.put("bankinfo", bankName + "(" + bankCard.substring(bankCard.length() - 4) + ")");
+				}
+//				result.put("bankinfo", bankName + "(" + bankCard + ")");
 				// 获取产品组合信息
 				String url2 = userinfoUrl + "/api/userinfo/product/" + prodId;
 				Map productResult = restTemplate.getForEntity(url2, Map.class).getBody();

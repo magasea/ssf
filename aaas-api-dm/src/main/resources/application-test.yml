@@ -30,3 +30,9 @@ datasource:
 shellshellfish:
   asset-alloction-url: "http://localhost:10020"
   userinfo-url: "http://localhost:10060"
+
+
+grpc:
+  asset-allocation:
+    host: localhost
+    port: 10021

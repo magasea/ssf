@@ -1,7 +1,5 @@
 package com.shellshellfish.aaas.userinfo.controller;
 
-import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
-import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -34,8 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
-import com.shellshellfish.aaas.userinfo.aop.AopLinkResources;
-import com.shellshellfish.aaas.userinfo.aop.AopPageResources;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
@@ -50,7 +46,9 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPersonalMsgBodyDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
 import com.shellshellfish.aaas.userinfo.service.PayGrpcService;
+import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
 import com.shellshellfish.aaas.userinfo.service.UiProductService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
@@ -110,7 +108,7 @@ public class UserInfoController {
 			@ApiImplicitParam(paramType = "path", name = "userUuid", dataType = "String", required = true, value = "userUuid", defaultValue = "")
 	})
 	@RequestMapping(value = "/users/{userUuid}/initpage", method = RequestMethod.GET)
-	@AopLinkResources
+//	@AopLinkResources
 	public ResponseEntity<Object> getUserBaseInfo(
 			@Valid @NotNull(message = "userUuid不能为空") @PathVariable("userUuid") String userUuid
 	) throws Exception {
@@ -211,7 +209,7 @@ public class UserInfoController {
 	})
 	@ApiImplicitParam(paramType = "path", name = "Uuid", dataType = "String", required = true, value = "用户Uuid", defaultValue = "")
 	@RequestMapping(value = "/users/{Uuid}", method = RequestMethod.GET)
-	@AopLinkResources
+//	@AopLinkResources
 	public ResponseEntity<?> getUserPersonalInfo(
 			@Valid @NotNull(message = "用户Uuid不能为空") @PathVariable("Uuid") String userUuid)
 			throws Exception {
@@ -826,7 +824,7 @@ public class UserInfoController {
 			@ApiImplicitParam(paramType = "query", name = "sort", dataType = "String", value = "排序条件", defaultValue = "id")
 	})
 	//@RequestMapping(value = "/users/{userUuid}/traderecords", method = RequestMethod.GET)
-	@AopPageResources
+//	@AopPageResources
 	public ResponseEntity<PageWrapper<TradeLogDTO>> getTradLogsOfUser(
 			@PathVariable String userUuid, Pageable pageable,
 			@RequestParam(value = "size") Long size,

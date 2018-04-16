@@ -1004,15 +1004,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 				String uoKey = String.format("%s-%s", params[0], params[2]);
 				Map<String, Object> valueMap = entry.getValue();
 
+				Map<String,String> tradeStatusMap = new HashMap<>();
 				if (!tradLogsSum.containsKey(uoKey)) {
 					if (valueMap.get("tradeStatusValue") != null) {
-						TrdOrderStatusEnum trdOrderStatus = TrdOrderStatusEnum
-								.getTrdOrderStatusEnum(Integer.parseInt(valueMap
-										.get("tradeStatusValue") + ""));
-						valueMap.put("tradeStatus",
-								TrdStatusToCombStatusUtils.getCSEFromTSE(trdOrderStatus).getComment());
-						logger
-								.info("tradeStatusValue:{} trdOrderStatus:{} ", valueMap.get("tradeStatusValue"));
+						TrdOrderStatusEnum trdOrderStatus = TrdOrderStatusEnum.getTrdOrderStatusEnum(Integer.parseInt(valueMap.get("tradeStatusValue") + ""));
+						String comment = TrdStatusToCombStatusUtils.getCSEFromTSE(trdOrderStatus).getComment();
+						tradeStatusMap.put(comment, comment);
+						valueMap.put("tradeStatusMap", tradeStatusMap);
+						valueMap.put("tradeStatus", comment);
+						logger.info("tradeStatusValue:{} trdOrderStatus:{} ", valueMap.get("tradeStatusValue"));
 					}
 					tradLogsSum.put(uoKey, valueMap);
 				} else {
@@ -1022,43 +1022,23 @@ public class UserInfoServiceImpl implements UserInfoService {
 						if (valueMap.get("amount") != null) {
 							amountTotal = amountTotal.add(new BigDecimal(valueMap.get("amount") + ""));
 						}
-						trad.put("amount", amountTotal);
+						valueMap.put("amount", amountTotal);
 						logger.info("now uoKey:{} amountTotal:{}", uoKey, amountTotal);
 					}
-
-					if (trad.get("tradeStatusValue") != null) {
-						TrdOrderStatusEnum trdOrderStatusEnumOld = TrdOrderStatusEnum
-								.getTrdOrderStatusEnum(Integer
-										.parseInt(trad.get("tradeStatusValue") + ""));
-						TrdOrderStatusEnum trdOrderStatusEnumNew = TrdOrderStatusEnum.getTrdOrderStatusEnum
-								(Integer.parseInt(valueMap.get("tradeStatusValue") + ""));
-						if ((trdOrderStatusEnumOld == TrdOrderStatusEnum.FAILED)
-								|| trdOrderStatusEnumNew == TrdOrderStatusEnum.FAILED) {
-							trad.put("tradeStatusValue", TrdOrderStatusEnum.FAILED.getStatus());
-							trad.put("tradeStatus", CombinedStatusEnum.CONFIRMEDFAILED.getComment());
-						} else {
-							if (valueMap.get("tradeStatusValue") != null) {
-								if ((trdOrderStatusEnumOld == TrdOrderStatusEnum.CONFIRMED)
-										&& (trdOrderStatusEnumNew == TrdOrderStatusEnum.CONFIRMED)) {
-									trad.put("tradeStatusValue", TrdOrderStatusEnum.CONFIRMED.getStatus());
-									trad.put("tradeStatus", CombinedStatusEnum.CONFIRMED.getComment());
-  								}else if ((trdOrderStatusEnumOld == TrdOrderStatusEnum.SELLCONFIRMED)
-                                      && (trdOrderStatusEnumNew == TrdOrderStatusEnum.SELLCONFIRMED)) {
-                                  trad.put("tradeStatusValue", TrdOrderStatusEnum.SELLCONFIRMED.getStatus());
-                                  trad.put("tradeStatus", CombinedStatusEnum.CONFIRMED.getComment());
-                                } else {
-									trad.put("tradeStatusValue", TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
-									trad.put("tradeStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
-								}
-							} else {
-								trad.put("tradeStatusValue", TrdOrderStatusEnum.FAILED.getStatus());
-								trad.put("tradeStatus", CombinedStatusEnum.CONFIRMEDFAILED.getComment());
-							}
-						}
+					if (trad.get("tradeStatusValue") != null && trad.get("tradeStatusMap")!=null) {
+					  tradeStatusMap = (Map<String, String>) trad.get("tradeStatusMap");
+					  TrdOrderStatusEnum trdOrderStatus = TrdOrderStatusEnum.getTrdOrderStatusEnum(Integer.parseInt(valueMap.get("tradeStatusValue") + ""));
+					  String comment = TrdStatusToCombStatusUtils.getCSEFromTSE(trdOrderStatus).getComment();
+					  tradeStatusMap.put(comment, comment);
+                      valueMap.put("tradeStatusMap", tradeStatusMap);
+                      valueMap.put("tradeStatus", comment);
 					} else {
-						trad.put("tradeStatusValue", TrdOrderStatusEnum.FAILED.getStatus());
-						trad.put("tradeStatus", CombinedStatusEnum.CONFIRMEDFAILED.getComment());
+					  String comment = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
+                      tradeStatusMap.put(comment, comment);
+                      valueMap.put("tradeStatusMap", tradeStatusMap);
+                      valueMap.put("tradeStatus", comment);
 					}
+					tradLogsSum.put(uoKey, valueMap);
 				}
 			}
 

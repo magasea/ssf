@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.shellshellfish.aaas.asset.allocation";
+option java_outer_classname = "AllocationService";
+option objc_class_prefix = "AA";
+
+service AssetAllocationService {
+    rpc GetAnnualVolatilityAndAnnualYield (FundGroupIndexQuery) returns (FundGroupIndexResult) {
+    }
+}
+
+
+message FundGroupIndexQuery {
+    string groupId = 1;
+    string subGroupId = 2;
+}
+message FundGroupIndexResult {
+    double historicalAnnualYeild = 1;
+    double historicalAnnualVolatility = 2;
+    double maxRetracement = 3;
+}

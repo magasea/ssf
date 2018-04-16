@@ -1,10 +1,10 @@
 package com.shellshellfish.aaas.assetallocation.repository.dummy;
 
-import com.shellshellfish.aaas.assetallocation.neo.service.CovarianceCalculateService;
-import com.shellshellfish.aaas.assetallocation.neo.service.DailyFundService;
-import com.shellshellfish.aaas.assetallocation.neo.service.FundCalculateService;
-import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupDataService;
-import com.shellshellfish.aaas.assetallocation.neo.util.CalculateMaxdrawdowns;
+import com.shellshellfish.aaas.assetallocation.service.impl.CovarianceCalculateService;
+import com.shellshellfish.aaas.assetallocation.service.impl.DailyFundService;
+import com.shellshellfish.aaas.assetallocation.service.impl.FundCalculateService;
+import com.shellshellfish.aaas.assetallocation.service.impl.FundGroupDataService;
+import com.shellshellfish.aaas.assetallocation.util.CalculateMaxdrawdowns;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

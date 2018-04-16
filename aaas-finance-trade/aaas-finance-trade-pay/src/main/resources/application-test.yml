@@ -29,6 +29,7 @@ spring:
     topicExchangeName: com-ssf-topic-exchange
     topicPay: shellshellfish.pay
     topicOrder: shellshellfish.order
+    topicUserinfo: shellshellfish.userinfo
   data:
     mongodb:
       host: 192.168.1.249
@@ -60,11 +61,17 @@ datasource:
       dialect: org.hibernate.dialect.MySQLDialect
 
 grpc:
-  finance_prod_client:
-    host: localhost
-    port: 10030
   host: localhost
   port: 10111
+  finance_prod_client:
+    host: localhost
+    port: 10031
+  userinfo_client:
+    host: localhost
+    port: 10061
+  order_client:
+    host: localhost
+    port: 10101
 using:
   spring:
     schedulerFactory: true
@@ -79,10 +86,11 @@ org:
         threadsInheritContextClassLoaderOfInitializingThread: true
 cron:
   frequency:
-    #Seconds  Minutes Hours Day Of Month  Month Day Of Week Year
-    #     0 0 5,17,22 ? * * *
+    #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
+    #     0	0	5,17,22	?	*	*	*
     jobwithcrontrigger: 0 0 5,13,17,22 ? * * *
     jobpreorderpayflowcheck: 0 0 5,13,17,22 ? * * *
+
 #--- multithread
 multithread:
   pool:

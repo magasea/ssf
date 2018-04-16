@@ -34,6 +34,7 @@ import com.shellshellfish.aaas.oeminfo.model.JsonResult;
 import com.shellshellfish.aaas.oeminfo.service.MidApiService;
 import com.shellshellfish.aaas.transfer.aop.AopTimeResources;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+import com.shellshellfish.aaas.transfer.service.GrpcOemInfoService;
 import com.shellshellfish.aaas.transfer.utils.EasyKit;
 
 import io.swagger.annotations.Api;
@@ -70,6 +71,9 @@ public class FinanceController {
 	@Autowired
 	private MidApiService service;
 	
+	@Autowired
+	GrpcOemInfoService grpcOemInfoService;
+	
 	private static final DecimalFormat decimalFormat = new DecimalFormat(".00"); //保留 5 位
 
 	@ApiOperation("1.首页")
@@ -77,7 +81,7 @@ public class FinanceController {
 			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID"),
 			@ApiImplicitParam(paramType = "query", name = "isTestFlag", dataType = "String", required = false, value = "是否测评（1-已做 0-未做）"),
 			@ApiImplicitParam(paramType = "query", name = "testResult", dataType = "String", required = false, value = "测评结果", defaultValue = "平衡型"),
-			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "1")
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "oemid（贝贝鱼:0,兰州银行：2）")
 	})
 	@RequestMapping(value = "/finance-home", method = RequestMethod.POST)
 	@ResponseBody
@@ -110,6 +114,19 @@ public class FinanceController {
 				return new JsonResult(JsonResult.SUCCESS, "没有获取到产品", JsonResult.EMPTYRESULT);
 			} else {
 				List bannerList = new ArrayList();
+//				if (oemid == null) {
+//					oemid = 1L;
+//				}
+				oemid = oemid == null ? 1L : oemid;
+				Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
+				logger.info("oemInfos====home_page1:" + oemInfos.get("homePageImgOne"));
+				logger.info("oemInfos====home_page2:" + oemInfos.get("homePageImgTwo"));
+				logger.info("oemInfos====home_page3:" + oemInfos.get("homePageImgThree"));
+				logger.info("oemInfos====home_page4:" + oemInfos.get("homePageImgFour"));
+//				bannerList.add(oemInfos.get("homePageImgOne"));
+//				bannerList.add(oemInfos.get("homePageImgTwo"));
+//				bannerList.add(oemInfos.get("homePageImgThree"));
+//				bannerList.add(oemInfos.get("homePageImgFour"));
 				if (oemid == null || oemid == 1) {
 					bannerList.add("http://47.96.164.161:81/1.png");
 					bannerList.add("http://47.96.164.161:81/2.png");
@@ -292,21 +309,72 @@ public class FinanceController {
 		return new JsonResult(JsonResult.SUCCESS, "获取成功", returnMap);
 	}
 	
+//	@ApiOperation("进入理财页面后的数据")
+//	@ApiImplicitParams({
+//		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "1")
+//	})
+//	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
+//	@ResponseBody
+//	@AopTimeResources
+//	public JsonResult financeModule(@RequestParam(required = false) Long oemid) {
+//		// 先获取全部产品
+//		JsonResult result = restTemplate
+//				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage", JsonResult.class).getBody();
+//		Object obj = result.getResult();
+//		if(obj!=null){
+//			HashMap resultMap = (HashMap) obj;
+//			List bannerList = new ArrayList();
+//			if (oemid == null || oemid == 1) {
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner01.png");
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner02.png");
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner03.png");
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner04.png");
+//				bannerList.add("http://47.96.164.161:81/APP-invest-banner05.png");
+//			} else if(oemid == 2){
+//				bannerList.add("http://47.96.164.161/APP-invest-banner01.png");
+//				bannerList.add("http://47.96.164.161/APP-invest-banner02.png");
+//				bannerList.add("http://47.96.164.161/APP-invest-banner03.png");
+//				bannerList.add("http://47.96.164.161/APP-invest-banner04.png");
+//				bannerList.add("http://47.96.164.161/APP-invest-banner05.png");
+//			}
+//			resultMap.put("bannerList", bannerList);
+//		}
+//		return result;
+//	}
+	
 	@ApiOperation("进入理财页面后的数据")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "1")
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "oemid（贝贝鱼:0,兰州银行：2）"),
+		@ApiImplicitParam(paramType = "query", name = "size", dataType = "Integer", required = true, value = "每页显示数（至少大于1）", defaultValue = "15"),
+		@ApiImplicitParam(paramType = "query", name = "pageSize", dataType = "Integer", required = true, value = "显示页数（从0开始）", defaultValue = "0"),
 	})
 	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
-	public JsonResult financeModule(@RequestParam(required = false) Long oemid) {
+	public JsonResult financeModule(@RequestParam(required = false) Long oemid,@RequestParam(defaultValue="15") Integer size,@RequestParam(defaultValue="0") Integer pageSize) {
 		// 先获取全部产品
 		JsonResult result = restTemplate
-				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage", JsonResult.class).getBody();
+				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage?size=" + size + "&pageSize=" + pageSize, JsonResult.class).getBody();
 		Object obj = result.getResult();
 		if(obj!=null){
 			HashMap resultMap = (HashMap) obj;
 			List bannerList = new ArrayList();
+//			if (oemid == null) {
+//				oemid = 1L;
+//			}
+			oemid = oemid == null ? 1L : oemid;
+			
+			Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
+			logger.info("oemInfos====combination1:" + oemInfos.get("combinationOne"));
+			logger.info("oemInfos====combination2:" + oemInfos.get("combinationTwo"));
+			logger.info("oemInfos====combination3:" + oemInfos.get("combinationThree"));
+			logger.info("oemInfos====combination4:" + oemInfos.get("combinationFour"));
+			logger.info("oemInfos====combination5:" + oemInfos.get("combinationFive"));
+//			bannerList.add(oemInfos.get("combinationOne"));
+//			bannerList.add(oemInfos.get("combinationTwo"));
+//			bannerList.add(oemInfos.get("combinationThree"));
+//			bannerList.add(oemInfos.get("combinationFour"));
+//			bannerList.add(oemInfos.get("combinationFive"));
 			if (oemid == null || oemid == 1) {
 				bannerList.add("http://47.96.164.161:81/APP-invest-banner01.png");
 				bannerList.add("http://47.96.164.161:81/APP-invest-banner02.png");
@@ -320,7 +388,9 @@ public class FinanceController {
 				bannerList.add("http://47.96.164.161/APP-invest-banner04.png");
 				bannerList.add("http://47.96.164.161/APP-invest-banner05.png");
 			}
-			resultMap.put("banner_list", bannerList);
+			resultMap.put("bannerList", bannerList);
+			resultMap.put("title1", "组合");
+			resultMap.put("title2", "比较基准");
 		}
 		return result;
 	}
@@ -1383,7 +1453,6 @@ public class FinanceController {
 				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 			}
 
-			result.remove("_links");
 			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {

@@ -16,5 +16,5 @@ public interface TradeSellService {
   TrdOrder sellProduct(ProdSellPageDTO prodSellPageDTO)
       throws Exception;
 
-  TrdOrder sellProductPercent(ProdSellPercentDTO prodSellPercentDTO);
+  TrdOrder sellProductPercent(ProdSellPercentDTO prodSellPercentDTO) throws Exception;
 }

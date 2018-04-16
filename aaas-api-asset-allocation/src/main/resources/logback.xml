@@ -128,4 +128,8 @@
         <appender-ref ref="tio-client-trace-log-appender"/>
     </logger>
 
+    <logger name="mybatis.mapper" level="DEBUG">
+        <appender-ref ref="console"/>
+    </logger>
+
 </configuration>
