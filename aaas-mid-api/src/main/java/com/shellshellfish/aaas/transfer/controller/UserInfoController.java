@@ -422,7 +422,14 @@ public class UserInfoController {
 										bankName = bankName.substring(0, bankName.indexOf("·"));
 									}
 									map.put("orderId", orderId);
-									map.put("poundage", orderResult.get("buyFee"));
+									if(orderResult.get("buyFee")!=null){
+										BigDecimal buyFee = new BigDecimal(orderResult.get("buyFee") + "");
+										buyFee = buyFee.divide(new BigDecimal("100"));
+										Double buyFeeValue = buyFee.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+										map.put("poundage", buyFeeValue);
+									} else {
+										map.put("poundage", BigDecimal.ZERO);
+									}
 									map.put("bankName", bankName);
 									map.put("bankcardNum", bankcardNum);
 									map.put("bankinfo", bankName + "(" + bankcardNum.substring(bankcardNum.length() - 4) + ")");
