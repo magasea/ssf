@@ -94,3 +94,8 @@ cron:
 multithread:
   pool:
     size: 8
+
+management:
+  endpoints:
+    web:
+      base-path: /

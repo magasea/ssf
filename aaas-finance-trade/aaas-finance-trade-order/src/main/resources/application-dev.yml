@@ -91,3 +91,8 @@ cron:
   frequency:
     #每天10：45分开始
     jobwithcrontrigger: 0 45 10 ? * * *
+
+management:
+  endpoints:
+    web:
+      base-path: /
