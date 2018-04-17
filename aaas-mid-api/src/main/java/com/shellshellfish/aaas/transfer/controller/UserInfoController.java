@@ -969,8 +969,8 @@ public class UserInfoController {
 	}
 	
 	
-	@ApiOperation("获取项目银行名称")
-	@RequestMapping(value = "/getProjectBankNames", method = RequestMethod.GET)
+	@ApiOperation("获取所有项目的银行名称")
+	@RequestMapping(value = "/getProjectBankNames", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getProjectBankNames() {
 		List<String> bankNameList = new ArrayList<String>();

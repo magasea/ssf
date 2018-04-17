@@ -18,7 +18,7 @@ public class SwaggerConfig {
     public Docket productApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.shellshellfish"
+                .apis(RequestHandlerSelectors.basePackage("com.shellshellfish.aaas"
                     + ".datamanager.controller"))
                 .paths(regex("/api.*"))
                 .build()
