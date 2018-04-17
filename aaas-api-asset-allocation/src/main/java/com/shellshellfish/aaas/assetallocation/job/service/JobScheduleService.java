@@ -147,12 +147,12 @@ public class JobScheduleService {
      * 计算 单位收益净值、最大回撤、夏普比率、基金收益贡献比
      */
 //    @Scheduled(cron = "0 0 4 * * ?")				//每天 凌晨 4 点执行
-    public void getAllIdAndSubIdJobSchedule() {
+    public void getAllIdAndSubIdJobSchedule(int oemId) {
         logger.info("计算 单位收益净值、最大回撤、夏普比率、基金收益贡献比 定时任务启动..." + sdf.format(new Date()));
         Boolean doSuccess = true;
         Integer status = SUCCESSFUL_STATUS;
         try {
-            fundGroupService.getAllIdAndSubId();
+            fundGroupService.getAllIdAndSubId(oemId);
         } catch (Exception e) {
             doSuccess = false;
             logger.error("计算 单位收益净值、最大回撤、夏普比率、基金收益贡献比 定时任务启动失败..." + sdf.format(new Date()), e);
@@ -172,12 +172,12 @@ public class JobScheduleService {
      * 更新所有基金组合的最大亏损额
      */
 //    @Scheduled(cron = "0 0 6 * * ?")        //每天 凌晨 6 点执行
-    public void updateAllMaximumLossesJobSchedule() {
+    public void updateAllMaximumLossesJobSchedule(int oemId) {
         logger.info("计算 更新所有基金组合的最大亏损额 定时任务启动..." + sdf.format(new Date()));
         Boolean doSuccess = true;
         Integer status = SUCCESSFUL_STATUS;
         try {
-            fundGroupService.updateAllMaximumLosses();
+            fundGroupService.updateAllMaximumLosses(oemId);
         } catch (Exception e) {
             doSuccess = false;
             logger.error("计算 更新所有基金组合的最大亏损额 定时任务启动失败..." + sdf.format(new Date()), e);
@@ -197,7 +197,7 @@ public class JobScheduleService {
      * 组合收益率(最大回撤)走势图-自组合基金成立以来的每天
      */
 //    @Scheduled(cron = "0 30 6 * * ?")        //每天 凌晨 6:30 点 执行
-    public void getFundGroupIncomeAllJobSchedule() {
+    public void getFundGroupIncomeAllJobSchedule(int oemId) {
         try {
             List<Date> dateList = fundGroupService.getRecentDateInfo();
             List<Date> arrayList = new ArrayList<>();
@@ -214,7 +214,8 @@ public class JobScheduleService {
                 String groupId = String.valueOf(index);
                 String subGroupId = String.valueOf(index + subfix);
                 String key = groupId + "_" + subGroupId;
-                ReturnType rt = fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, returnType, arrayList);
+                ReturnType rt = fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, oemId,
+                    returnType, arrayList);
                 Document document = returnTypeToDocument(key, rt);
                 documents.add(document);
             }

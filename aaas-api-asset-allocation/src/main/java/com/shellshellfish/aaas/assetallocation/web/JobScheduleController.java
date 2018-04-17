@@ -61,8 +61,11 @@ public class JobScheduleController {
      */
     @ApiOperation("计算 单位收益净值、最大回撤、夏普比率、基金收益贡献比，运行时间较长")
     @RequestMapping(value = "/api/asset-allocation/job/getAllIdAndSubId", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public JobResult getAllIdAndSubId() {
-        jobScheduleService.getAllIdAndSubIdJobSchedule();
+    public JobResult getAllIdAndSubId(@RequestParam(defaultValue = "1") Integer oemId) {
+        if(oemId < 0 || oemId > 1000){
+            throw new IllegalArgumentException("oemId:"+ oemId);
+        }
+        jobScheduleService.getAllIdAndSubIdJobSchedule(oemId);
         return new JobResult<>().returnSuccess();
     }
 
@@ -70,11 +73,15 @@ public class JobScheduleController {
      * 更新所有基金组合的最大亏损额
      */
     @ApiOperation("更新所有基金组合的最大亏损额")
-    @RequestMapping(value = "/api/asset-allocation/job/updateAllMaximumLosses", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public JobResult updateAllMaximumLosses() {
+    @RequestMapping(value = "/api/asset-allocation/job/updateAllMaximumLosses/", method =
+        RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public JobResult updateAllMaximumLosses(@RequestParam(defaultValue = "1") Integer oemId) {
+        if(oemId < 0 || oemId > 1000){
+            throw new IllegalArgumentException("oemId:"+oemId);
+        }
         ExecutorService pool = ThreadPoolUtil.getThreadPool();
         pool.execute(() -> {
-            jobScheduleService.updateAllMaximumLossesJobSchedule();
+            jobScheduleService.updateAllMaximumLossesJobSchedule(oemId);
         });
         return new JobResult<>().returnSuccess();
     }
@@ -84,8 +91,9 @@ public class JobScheduleController {
      */
     @ApiOperation("组合收益率(最大回撤)走势图-自组合基金成立以来的每天")
     @RequestMapping(value = "/api/asset-allocation/job/getFundGroupIncomeAllToMongoDb", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public JobResult getFundGroupIncomeAllToMongoDb() {
-        jobScheduleService.getFundGroupIncomeAllJobSchedule();
+    public JobResult getFundGroupIncomeAllToMongoDb(@RequestParam(defaultValue = "1") Integer
+        oemId) {
+        jobScheduleService.getFundGroupIncomeAllJobSchedule(oemId);
         return new JobResult<>().returnSuccess();
     }
 

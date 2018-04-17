@@ -13,7 +13,7 @@ public interface FundGroupMapper {
 
     List<Interval> selectFundGroup(Map map);
 
-    List<Interval> selectAllFundGroupNum();
+    List<Interval> selectAllFundGroupNum(Map param);
 
     List<Interval> selectById(Map map);
 
@@ -49,7 +49,7 @@ public interface FundGroupMapper {
                                                     @Param("slidebarType") String slidebarType,
                                                     @Param("standardType") String standardType);
 
-    String getFundGroupNameById(@Param("id") String id);
+    String getFundGroupNameById(@Param("id") String id, @Param("oemId") int oemId);
 
     String getFundGroupHistoryTime(Map map);
 
@@ -79,7 +79,8 @@ public interface FundGroupMapper {
 
     List<FundGroupHistory> selectMaximumRetracement(Map map);
 
-    int insertFundGroupHistory(@Param("fundGroupHistoryList") List<FundGroupHistory> fundGroupHistoryList);
+    int insertFundGroupHistory(@Param("fundGroupHistoryList") List<FundGroupHistory>
+        fundGroupHistoryList, @Param("oemId") Integer oemId);
 
     int batchInsertFundGroupHistory(List<Map> mapList);
 
@@ -105,7 +106,7 @@ public interface FundGroupMapper {
 
     List<FundNetVal> getNavadjEndTime(Map map);
 
-    List<Interval> getAllIdAndSubId();
+    List<Interval> getAllIdAndSubId(@Param("oemId") Integer oemId);
 
     String getRiskNum(@Param("id") String id);
 

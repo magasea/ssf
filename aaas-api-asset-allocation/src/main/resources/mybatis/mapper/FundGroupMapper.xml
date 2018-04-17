@@ -21,7 +21,7 @@
     </select>
 
     <select id="selectAllFundGroupNum" resultType="com.shellshellfish.aaas.assetallocation.entity.Interval">
-        select id fund_group_id,fund_group_name from fund_group
+        select id fund_group_id,fund_group_name from fund_group_${oemId}
     </select>
 
     <select id="selectById" resultType="com.shellshellfish.aaas.assetallocation.entity.Interval">
@@ -56,7 +56,7 @@
     <select id="getProportionGroupByFundTypeTwo"
             resultType="com.shellshellfish.aaas.assetallocation.entity.Interval">
         select c.fund_type_two, b.fund_group_id, sum(b.proportion) proportion
-        from fund_basic c, fund_group_details b
+        from fund_basic c, fund_group_details_${oemId} b
         where c.code = b.fund_code
         and b.fund_group_id = #{groupId}
         and b.fund_group_sub_id = #{subGroupId}
@@ -65,7 +65,8 @@
 
     <select id="getFnameAndProportion" resultType="com.shellshellfish.aaas.assetallocation.entity.Interval">
         select a.fname, a.fund_type_one, a.fund_type_two, a.fund_group_id, proportion, a.fund_code from (select * from fund_basic a,
-        fund_group_details b where a.code = b.fund_code and fund_group_id = #{id} and fund_group_sub_id = #{subId}) a
+        fund_group_details_${oemId} b where a.code = b.fund_code and fund_group_id = #{id} and
+        fund_group_sub_id = #{subId}) a
     </select>
 
     <select id="getFundGroupCodeList" resultType="java.lang.String">
@@ -97,12 +98,12 @@
     </select>
 
     <select id="selectReturnAndPullback" resultType="com.shellshellfish.aaas.assetallocation.entity.Interval">
-        select * from fund_group_sub where fund_group_id = #{id} and id=#{subGroupId}
+        select * from fund_group_sub_${oemId} where fund_group_id = #{id} and id=#{subGroupId}
     </select>
 
     <select id="getPerformanceVolatility"
             resultType="com.shellshellfish.aaas.assetallocation.entity.RiskIncomeInterval">
-        select * from fund_group_sub b,strategy a where a.fund_group_id=b.fund_group_id
+        select * from fund_group_sub_${oemId} b,strategy a where a.fund_group_id=b.fund_group_id
         <if test="subGroupId != null and subGroupId != ''">
             and b.id=#{subGroupId}
         </if>
@@ -119,9 +120,11 @@
     </select>
 
     <select id="getRevenueContribution" resultType="com.shellshellfish.aaas.assetallocation.entity.Interval">
-        select d.fund_type_two fund_type_two,sum(d.revenue_contribution) revenue_contribution,(select interval_last_mod_time from fund_group_sub
+        select d.fund_type_two fund_type_two,sum(d.revenue_contribution)
+        revenue_contribution,(select interval_last_mod_time from fund_group_sub_${oemId}
         where fund_group_id=#{id} and id=#{subGroupId}) details_last_mod_time from
-        (select a.revenue_contribution,c.fund_type_two from fund_group_details a,fund_group_sub b,fund_basic c
+        (select a.revenue_contribution,c.fund_type_two from fund_group_details_${oemId}
+        a,fund_group_sub_${oemId} b,fund_basic c
         where a.fund_group_id = b.fund_group_id and a.fund_group_sub_id = b.id and a.fund_code = c.code and b.fund_group_id=#{id}
         and b.id=#{subGroupId}) d GROUP BY d.fund_type_two
     </select>
@@ -131,7 +134,8 @@
     </select>
 
     <select id="getScaleMark" resultType="com.shellshellfish.aaas.assetallocation.entity.RiskIncomeInterval">
-        select id,risk_num,income_num from fund_group_sub where fund_group_id=#{fundGroupId}
+        select id,risk_num,income_num from fund_group_sub_${oemId} where
+        fund_group_id=#{fundGroupId}
         <if test="subGroupId != null and subGroupId != ''">
             and id=#{subGroupId}
         </if>
@@ -150,11 +154,11 @@
     </select>
 
     <select id="getFundGroupNameById" resultType="java.lang.String">
-        select fund_group_name from fund_group where id=#{id}
+        select fund_group_name from fund_group_${oemId} where id=#{id}
     </select>
 
     <select id="getFundGroupHistoryTime" resultType="java.lang.String">
-        select time from fund_group_history
+        select time from fund_group_history_${oemId}
         <where>
             <if test="fund_group_id != null and fund_group_id != ''">
                 and fund_group_id=#{fund_group_id}
@@ -167,7 +171,7 @@
     </select>
 
     <select id="getFundGroupHistoryTimeByRiskLevel" resultType="java.lang.String">
-        select time from fund_group_history
+        select time from fund_group_history_${oemId}
         <where>
             <if test="risk_level != null and risk_level != ''">
                 and fund_group_id=#{risk_level}
@@ -224,7 +228,8 @@
     </select>
 
     <select id="getNavadjByNavDates" resultType="com.shellshellfish.aaas.assetallocation.entity.FundNetVal">
-        select sum(a.navadj*b.proportion) navadj,a.navlatestdate from fund_net_value a,fund_group_details b
+        select sum(a.navadj*b.proportion) navadj,a.navlatestdate from fund_net_value
+        a,fund_group_details_${oemId} b
         where b.fund_group_id = #{groupId}
         and b.fund_group_sub_id = #{subGroupId}
         and a.code=b.fund_code
@@ -262,7 +267,8 @@
 
     <insert id="insertFundGroupHistory"
             parameterType="com.shellshellfish.aaas.assetallocation.entity.FundGroupHistory">
-        insert ignore into fund_group_history (fund_group_sub_id,fund_group_id,income_num,time)
+        insert ignore into fund_group_history_${oemId} (fund_group_sub_id,fund_group_id,income_num,
+        time)
         VALUES
         <foreach collection="fundGroupHistoryList" item="item" separator=",">
             (#{item.fund_group_sub_id},#{item.fund_group_id},#{item.income_num},#{item.time})
@@ -341,7 +347,8 @@
     </select>
 
     <select id="getNavadjFromStartDate" resultType="com.shellshellfish.aaas.assetallocation.entity.FundNetVal">
-        select DISTINCT a.fund_code code,b.navadj*a.proportion navadj from fund_group_details a,fund_net_value b
+        select DISTINCT a.fund_code code,b.navadj*a.proportion navadj from
+        fund_group_details_${oemId} a,fund_net_value b
         where a.fund_group_id=#{fund_group_id}
         and a.fund_group_sub_id=#{subGroupId}
         and a.fund_code=b.code
@@ -349,7 +356,8 @@
     </select>
 
     <select id="getNavadjByNavDate" resultType="com.shellshellfish.aaas.assetallocation.entity.FundNetVal">
-        select DISTINCT a.fund_code code,b.navadj*a.proportion navadj from fund_group_details a,fund_net_value b
+        select DISTINCT a.fund_code code,b.navadj*a.proportion navadj from
+        fund_group_details_${oemId} a,fund_net_value b
         where a.fund_group_id=#{fund_group_id}
         and a.fund_group_sub_id=#{subGroupId}
         and a.fund_code=b.code
@@ -365,7 +373,7 @@
     </select>
 
     <select id="getAllIdAndSubId" resultType="com.shellshellfish.aaas.assetallocation.entity.Interval">
-        select id,fund_group_id from fund_group_sub
+        select id,fund_group_id from fund_group_sub_${oemId}
     </select>
 
     <select id="getRiskNum" resultType="java.lang.String">
@@ -387,7 +395,8 @@
     </update>
 
     <update id="updateMaximumLosses">
-        update fund_group_sub set maximum_losses = #{maximum_losses} where fund_group_id = #{id} and id=#{subGroupId}
+        update fund_group_sub_${oemId} set maximum_losses = #{maximum_losses} where fund_group_id =
+        #{id} and id=#{subGroupId}
     </update>
 
     <update id="updateExpectedMaximumRetracement">

@@ -73,12 +73,18 @@ public class FundGroupServiceTest {
 
   @Test
   public void getProductTest() {
-    FundAllReturn fundAllReturn = fundGroupService.selectAllFundGroup();
+    int oemId = 1;
+    FundAllReturn fundAllReturn = fundGroupService.selectAllFundGroup(oemId);
   }
 
   @Test
   public void selectReturnAndPullbackTest() {
     Map<String, Object> map = fundGroupService.selectReturnAndPullback("1", "1", "1");
+  }
+
+  @Test
+  public void selectReturnAndPullbackWithOemIdTest() {
+    Map<String, Object> map = fundGroupService.selectReturnAndPullback("1", "1", "1", 1);
   }
 
   @Test
@@ -145,7 +151,8 @@ public class FundGroupServiceTest {
 
   @Test
   public void getNavadjTest() {
-    fundGroupService.getNavadj("1", "1000");
+    Integer oemId = 1;
+    fundGroupService.getNavadj("1", "1000", oemId);
   }
 
   @Test

@@ -10,7 +10,8 @@ import java.util.List;
  */
 public interface FundGroupDetailsMapper {
 
- List<FundGroupDetails> getFundProportion(@Param("groupId") String groupId, @Param("subGroupId") String subGroupId);
+ List<FundGroupDetails> getFundProportion(@Param("groupId") String groupId, @Param("subGroupId")
+     String subGroupId, @Param("oemId") Integer oemId);
 
 
 }
