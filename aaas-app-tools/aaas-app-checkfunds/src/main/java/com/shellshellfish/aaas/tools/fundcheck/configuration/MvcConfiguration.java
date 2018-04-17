@@ -3,8 +3,6 @@ package com.shellshellfish.aaas.tools.fundcheck.configuration;
 import java.lang.management.ManagementFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.web.firewall.HttpFirewall;
-import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -42,13 +40,7 @@ public class MvcConfiguration extends WebMvcConfigurerAdapter {
     return managementFactory;
   }
 
-  @Bean
-  public HttpFirewall allowUrlEncodedSlashHttpFirewall() {
-    StrictHttpFirewall firewall = new StrictHttpFirewall();
-    firewall.setAllowUrlEncodedSlash(true);
-    firewall.setAllowSemicolon(true);
-    return firewall;
-  }
+
 
 
 }

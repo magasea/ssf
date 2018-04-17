@@ -12,7 +12,6 @@ logging:
     
 shellshellfish:
   user-login-url: "http://aaas-api-user-login:10070"
-  risk-assessment-url: "http://aaas-api-risk-assessment:10050"
   userinfo-url: "http://aaas-api-user-info:10060"
   finance-url: "http://aaas-api-finance:10120"
   asset-alloction-url: "http://aaas-api-asset-allocation:10020"

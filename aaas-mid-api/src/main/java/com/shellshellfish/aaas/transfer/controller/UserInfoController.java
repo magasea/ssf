@@ -30,6 +30,7 @@ import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.oeminfo.model.JsonResult;
 import com.shellshellfish.aaas.transfer.aop.AopTimeResources;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+import com.shellshellfish.aaas.transfer.service.GrpcOemInfoService;
 import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
 import com.shellshellfish.aaas.transfer.utils.EasyKit;
 import io.swagger.annotations.Api;
@@ -59,6 +60,9 @@ public class UserInfoController {
 
 	@Value("${shellshellfish.asset-alloction-url}")
 	private String assetAlloctionUrl;
+	
+	@Autowired
+	GrpcOemInfoService grpcOemInfoService;
 
 	@Autowired
 	private RestTemplate restTemplate;
@@ -422,7 +426,14 @@ public class UserInfoController {
 										bankName = bankName.substring(0, bankName.indexOf("·"));
 									}
 									map.put("orderId", orderId);
-									map.put("poundage", orderResult.get("buyFee"));
+									if(orderResult.get("buyFee")!=null){
+										BigDecimal buyFee = new BigDecimal(orderResult.get("buyFee") + "");
+										buyFee = buyFee.divide(new BigDecimal("100"));
+										Double buyFeeValue = buyFee.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+										map.put("poundage", buyFeeValue);
+									} else {
+										map.put("poundage", BigDecimal.ZERO);
+									}
 									map.put("bankName", bankName);
 									map.put("bankcardNum", bankcardNum);
 									map.put("bankinfo", bankName + "(" + bankcardNum.substring(bankcardNum.length() - 4) + ")");
@@ -951,6 +962,22 @@ public class UserInfoController {
 		} catch (Exception ex) {
 //			logger.error("产品详情页面接口失败");
 //			logger.error("exception:",ex);
+			String str = new ReturnedException(ex).getErrorMsg();
+			logger.error(str, ex);
+			return new JsonResult(JsonResult.Fail, "产品详情页面失败", JsonResult.EMPTYRESULT);
+		}
+	}
+	
+	
+	@ApiOperation("获取项目银行名称")
+	@RequestMapping(value = "/getProjectBankNames", method = RequestMethod.GET)
+	@ResponseBody
+	public JsonResult getProjectBankNames() {
+		List<String> bankNameList = new ArrayList<String>();
+		try {
+			bankNameList = grpcOemInfoService.getOemInfoBankName();
+			return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", bankNameList);
+		} catch (Exception ex) {
 			String str = new ReturnedException(ex).getErrorMsg();
 			logger.error(str, ex);
 			return new JsonResult(JsonResult.Fail, "产品详情页面失败", JsonResult.EMPTYRESULT);

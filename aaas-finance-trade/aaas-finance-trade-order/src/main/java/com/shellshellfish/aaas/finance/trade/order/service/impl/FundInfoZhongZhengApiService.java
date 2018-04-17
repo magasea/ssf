@@ -52,7 +52,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
         Map<String, Object> info = init();
 
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_exam_content";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_exam_content";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -65,7 +65,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
         Map<String, Object> info = init(userUuid);
         info.put("risk_ability", 3);
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/commit_risk";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/commit_risk";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -99,7 +99,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
         info.put("fake_answer", objectMapper.writeValueAsString(fakeAnswer));
 
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/commit_fake_answer";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/commit_fake_answer";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -112,7 +112,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
         Map<String, Object> info = init(userUuid);
 
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_user_risk_list";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_user_risk_list";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -131,7 +131,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
 
         postInit(info);
 
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_fund_info";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_fund_info";
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info(json);
         JSONObject jsonObject = JSONObject.parseObject(json);
@@ -185,7 +185,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
         info.put("businflag", businFlag);
         postInit(info);
 
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_rate";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_rate";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -236,7 +236,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
             info.put("businflag", businFlag);
             postInit(info);
 
-            String url = "https://onetest.51fa.la/v2/internet/fundapi/get_trade_limit";
+            String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_trade_limit";
 
             json = restTemplate.postForObject(url, info, String.class);
         }
@@ -280,7 +280,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
             info.put("businflag", businFlag);
             postInit(info);
 
-            String url = "https://onetest.51fa.la/v2/internet/fundapi/get_trade_discount";
+            String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_trade_discount";
 
             json = restTemplate.postForObject(url, info, String.class);
         }
@@ -359,7 +359,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
         info.put("fundcode", fundCode);
         postInit(info);
 
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_user_bank_list";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_user_bank_list";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
