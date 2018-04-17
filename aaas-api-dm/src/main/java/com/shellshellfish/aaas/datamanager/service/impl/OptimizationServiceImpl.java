@@ -500,8 +500,16 @@ public class OptimizationServiceImpl implements OptimizationService {
         String dateTime = TradeUtil.getReadableDateTime(utcTime);
         String date = dateTime.split("T")[0].replaceAll("-", "");
         //MongoFinanceAll mongoFinanceAll = mongoFinanceALLRepository.findAllByDate(date);
-        List<MongoFinanceAll> mongoFinanceList = mongoFinanceALLRepository.findAllByDate(date);
-        if(mongoFinanceList==null || mongoFinanceList.size() == 0){
+//        List<MongoFinanceAll> mongoFinanceList = mongoFinanceALLRepository.findAllByDate(date);
+//        if(mongoFinanceList==null || mongoFinanceList.size() == 0){
+//          return null;
+//        }
+        Criteria criteria = new Criteria();
+        criteria.where("date").is(date);
+        Query query = Query.query(criteria);
+        long count = mongoTemplate.count(query, MongoFinanceAll.class);
+        if(count == 0){
+          logger.warn("今日暂无组合列表数据，正在重新更新数据中...");
           return null;
         }
         List<Integer> serialList = new ArrayList<>();
@@ -1136,6 +1144,7 @@ public class OptimizationServiceImpl implements OptimizationService {
         Query query = Query.query(criteria);
         long count = mongoTemplate.count(query, MongoFinanceDetail.class);
         if(count == 0){
+          logger.warn("今日暂无组合详情数据，正在重新更新数据中...");
           return null;
         }
         
