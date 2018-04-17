@@ -55,4 +55,8 @@ shellshellfish:
     - /v1/api/bankaccounts/**
     - /phoneapi-ssf/**
     - /heartbeat/
-  
+
+management:
+  endpoints:
+    web:
+      base-path: /

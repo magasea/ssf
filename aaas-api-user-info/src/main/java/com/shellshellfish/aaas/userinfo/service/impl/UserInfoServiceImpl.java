@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -35,6 +36,13 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.CombinedStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
@@ -111,6 +119,12 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Autowired
 	@Qualifier("zhongZhengMongoTemplate")
 	private MongoTemplate mongoTemplate;
+	
+	@Autowired
+    MongoClient mongoClient;
+
+    @Autowired
+    MongoDatabase mongoDatabase;
 
 	@Autowired
 	MongoUserDailyIncomeRepository mongoUserDailyIncomeRepository;
@@ -693,6 +707,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 		List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService.findByUserId(userId);
 		return trdLogList;
 	}
+	
+	public List<MongoUiTrdLogDTO> getTradeLogsByUserProdId(List dataList) throws Exception {
+      List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService.findByUserProdIdIn(dataList);;
+      return trdLogList;
+    }
 
 	@Override
 	public List<Map<String, Object>> getMyCombinations(String uuid) throws Exception {
@@ -1054,4 +1073,212 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 		return tradeLogs;
 	}
+
+  @Override
+  public List<Map<String, Object>> getTradLogsOfUser2(String userUuid, Integer pageSize, Integer pageIndex) {
+      Long userId = 0L;
+      List<Map<String, Object>> tradeLogs = new ArrayList<Map<String, Object>>();
+      try {
+        userId = getUserIdFromUUID(userUuid);
+  
+        List dataList = this.getUsersOfUserProdIds(userId);
+        Integer total = dataList.size();
+        Integer totalPage = 0;
+        if (total % pageSize == 0) {
+          totalPage = total / pageSize;
+        } else {
+          totalPage = total / pageSize + 1;
+        }
+        List data = new ArrayList<>();
+        int begin = pageSize * pageIndex;
+        for (int i = 0; i < pageSize; i++) {
+          data.add(dataList.get(begin++));
+        }
+        if(data == null || data.size() == 0){
+          return tradeLogs;
+        }
+        List<MongoUiTrdLogDTO> tradeLogList = this.getTradeLogsByUserProdId(data);
+        if (tradeLogList == null || tradeLogList.size() == 0) {
+          logger.error("交易记录为空");
+          throw new UserInfoException("404", "交易记录为空");
+        }
+        Map<String, Map<String, Object>> tradLogsMap = new HashMap<String, Map<String, Object>>();
+        Map<String, Map<String, Object>> tradLogsSum = new HashMap<String, Map<String, Object>>();
+        // 获取最新一天的单个基金的信息
+        String dateStr = null;
+        for (MongoUiTrdLogDTO mongoUiTrdLogDTO : tradeLogList) {
+          Map<String, Object> map = new HashMap<String, Object>();
+          try {
+            Long userProdId = mongoUiTrdLogDTO.getUserProdId();
+            if (mongoUiTrdLogDTO.getFundCode() == null) {
+              continue;
+            }
+            String fundCode = mongoUiTrdLogDTO.getFundCode();
+            int operation = mongoUiTrdLogDTO.getOperations();
+            Long dateLong = null;
+            if (mongoUiTrdLogDTO.getTradeDate() != null && mongoUiTrdLogDTO.getTradeDate() > 0) {
+              dateStr = TradeUtil.getReadableDateTime(mongoUiTrdLogDTO.getTradeDate());
+              dateLong = mongoUiTrdLogDTO.getTradeDate();
+            } else if (mongoUiTrdLogDTO.getLastModifiedDate() != null
+                && mongoUiTrdLogDTO.getLastModifiedDate() > 0) {
+              dateStr = TradeUtil.getReadableDateTime(mongoUiTrdLogDTO.getLastModifiedDate());
+              dateLong = mongoUiTrdLogDTO.getLastModifiedDate();
+            } else {
+              logger.error("This tradeLog is with no time:" + mongoUiTrdLogDTO.getCreatedDate());
+              continue;
+            }
+  
+            map.put("date", dateStr.split("T")[0]);
+            dateLong = dateLong / 1000;
+            map.put("dateLong", dateLong);
+            String ufoKey = userProdId + "-" + fundCode + "-" + operation;
+            if (tradLogsMap.containsKey(ufoKey)) {
+              if (tradLogsMap.get(ufoKey) != null) {
+                Map<String, Object> map2 = tradLogsMap.get(ufoKey);
+                if (map2.get("dateLong") != null) {
+                  long dateLongold = (long) map2.get("dateLong");
+                  if (dateLong < dateLongold) {
+                    continue;
+                  }
+                }
+              }
+            }
+            map.put("operations", TrdOrderOpTypeEnum.getComment(mongoUiTrdLogDTO.getOperations()));
+            if (mongoUiTrdLogDTO.getOperations() == 1) {
+              map.put("operationsStatus", 1);
+            } else if (mongoUiTrdLogDTO.getOperations() == 2) {
+              map.put("operationsStatus", 2);
+            } else if (mongoUiTrdLogDTO.getOperations() == 3
+                || mongoUiTrdLogDTO.getOperations() == 4) {
+              map.put("operationsStatus", 3);
+            } else {
+              map.put("operationsStatus", 4);
+            }
+            map.put("tradeStatusValue", mongoUiTrdLogDTO.getTradeStatus());
+            map.put("prodId", userProdId);
+            if (mongoUiTrdLogDTO.getTradeStatus() == -1) {
+              logger.error("mongoUiTrdLogDTO.getTradeStatus()为-1，prodId：" + userProdId + "--UserId:"
+                  + mongoUiTrdLogDTO.getUserId());
+            }
+            if (userProdId != null && userProdId != 0) {
+              ProductsDTO products = this.findByProdId(userProdId + "");
+              // logger.info("理财产品findByProdId查询end");
+              if (products == null) {
+                map.put("prodName", "");
+              } else {
+                map.put("prodName", products.getProdName());
+              }
+            } else {
+              map.put("prodName", "");
+            }
+            Long sumFromLog = null;
+            if (mongoUiTrdLogDTO.getTradeConfirmSum() != null
+                && mongoUiTrdLogDTO.getTradeConfirmSum() > 0) {
+              sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum();
+            } else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
+                && mongoUiTrdLogDTO.getTradeTargetSum() > 0) {
+              sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum();
+            } else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
+                && mongoUiTrdLogDTO.getTradeConfirmShare() > 0) {
+              sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
+            } else if (mongoUiTrdLogDTO.getTradeTargetShare() != null
+                && mongoUiTrdLogDTO.getTradeTargetShare() > 0) {
+              sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
+            } else if (mongoUiTrdLogDTO.getAmount() != null) {
+              sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount());
+            } else {
+              logger.error(
+                  "havent find trade money or quantity info for userProdId:{} and " + "fundCode:{}",
+                  mongoUiTrdLogDTO.getUserProdId(), mongoUiTrdLogDTO.getFundCode());
+              sumFromLog = 0L;
+            }
+            map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(sumFromLog));
+  
+            tradLogsMap.put(ufoKey, map);
+          } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            logger.error("exception:", ex);
+            continue;
+          }
+        }
+  
+        if (tradLogsMap != null && tradLogsMap.size() > 0) {
+          for (Map.Entry<String, Map<String, Object>> entry : tradLogsMap.entrySet()) {
+  
+            String[] params = entry.getKey().split("-");
+            String uoKey = String.format("%s-%s", params[0], params[2]);
+            Map<String, Object> valueMap = entry.getValue();
+  
+            Map<String, String> tradeStatusMap = new HashMap<>();
+            if (!tradLogsSum.containsKey(uoKey)) {
+              if (valueMap.get("tradeStatusValue") != null) {
+                TrdOrderStatusEnum trdOrderStatus = TrdOrderStatusEnum
+                    .getTrdOrderStatusEnum(Integer.parseInt(valueMap.get("tradeStatusValue") + ""));
+                String comment =
+                    TrdStatusToCombStatusUtils.getCSEFromTSE(trdOrderStatus).getComment();
+                tradeStatusMap.put(comment, comment);
+                valueMap.put("tradeStatusMap", tradeStatusMap);
+                valueMap.put("tradeStatus", comment);
+                logger.info("tradeStatusValue:{} trdOrderStatus:{} ",
+                    valueMap.get("tradeStatusValue"));
+              }
+              tradLogsSum.put(uoKey, valueMap);
+            } else {
+              Map<String, Object> trad = tradLogsSum.get(uoKey);
+              if (trad.get("amount") != null) {
+                BigDecimal amountTotal = new BigDecimal(trad.get("amount") + "");
+                if (valueMap.get("amount") != null) {
+                  amountTotal = amountTotal.add(new BigDecimal(valueMap.get("amount") + ""));
+                }
+                valueMap.put("amount", amountTotal);
+                logger.info("now uoKey:{} amountTotal:{}", uoKey, amountTotal);
+              }
+              if (trad.get("tradeStatusValue") != null && trad.get("tradeStatusMap") != null) {
+                tradeStatusMap = (Map<String, String>) trad.get("tradeStatusMap");
+                TrdOrderStatusEnum trdOrderStatus = TrdOrderStatusEnum
+                    .getTrdOrderStatusEnum(Integer.parseInt(valueMap.get("tradeStatusValue") + ""));
+                String comment =
+                    TrdStatusToCombStatusUtils.getCSEFromTSE(trdOrderStatus).getComment();
+                tradeStatusMap.put(comment, comment);
+                valueMap.put("tradeStatusMap", tradeStatusMap);
+                valueMap.put("tradeStatus", comment);
+              } else {
+                String comment = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
+                tradeStatusMap.put(comment, comment);
+                valueMap.put("tradeStatusMap", tradeStatusMap);
+                valueMap.put("tradeStatus", comment);
+              }
+              tradLogsSum.put(uoKey, valueMap);
+            }
+          }
+  
+          if (!CollectionUtils.isEmpty(tradLogsSum)) {
+            tradLogsSum.forEach((k, v) -> tradeLogs.add(v));
+          }
+        }
+        Collections.sort(tradeLogs, (o1, o2) -> {
+          Long map1value = (Long) o1.get("dateLong");
+          Long map2value = (Long) o2.get("dateLong");
+          return map2value.compareTo(map1value);
+        });
+  
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    
+    return tradeLogs;
+  }
+  
+  public List getUsersOfUserProdIds(Long userId) {
+    List dataList = new ArrayList<>();
+    try {
+      DBObject dbObject = new BasicDBObject();
+      dbObject.put("user_id", userId);
+      DB db = mongoClient.getDB(mongoDatabase.getName());
+      dataList = db.getCollection("ui_trdlog").distinct("user_prod_id", dbObject);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return dataList;
+  }
 }

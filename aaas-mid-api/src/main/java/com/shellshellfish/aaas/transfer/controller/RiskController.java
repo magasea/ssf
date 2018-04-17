@@ -39,9 +39,7 @@ public class RiskController {
 	
 	Logger logger = LoggerFactory.getLogger(UserInfoController.class);
 	
-	@Value("${shellshellfish.risk-assessment-url}")
-	private String url;
-	
+
 	@Value("${shellshellfish.user-login-url}")
 	private String loginUrl;
 	
@@ -69,7 +67,7 @@ public class RiskController {
 	public JsonResult getSurveyTemplate(@RequestParam(required = false) String bankId,@RequestParam(required = false) Long oemid) {
 		Map<String, Object> result = null;
 		try {
-			result = restTemplate.getForEntity(url + "/api/riskassessments/banks/" + bankId + "/surveytemplates/latest", Map.class)
+			result = restTemplate.getForEntity(userinfoUrl + "/api/riskassessments/banks/" + bankId + "/surveytemplates/latest", Map.class)
 					.getBody();
 			List questionList=  (List) result.get("questions");
 			for(int i=0;i<questionList.size();i++){
@@ -125,7 +123,7 @@ public class RiskController {
 			) {
 		Map<String, Object> result = null;
 		try {
-			result = restTemplate.postForEntity(url + "/api/riskassessments/banks/" + bankUuid + "/users/"+userUuid+"/surveyresults",surveyResult, Map.class)
+			result = restTemplate.postForEntity(userinfoUrl + "/api/riskassessments/banks/" + bankUuid + "/users/"+userUuid+"/surveyresults",surveyResult, Map.class)
 					.getBody();
 			result.put("msg", "风险测评-结果成功");
 			result.remove("_links");

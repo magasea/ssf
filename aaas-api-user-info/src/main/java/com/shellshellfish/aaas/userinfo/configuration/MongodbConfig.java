@@ -1,6 +1,8 @@
 package com.shellshellfish.aaas.userinfo.configuration;
 
 import com.mongodb.MongoClient;
+import com.mongodb.client.MongoDatabase;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +21,19 @@ public class MongodbConfig {
 
 	@Value("${spring.data.mongodb.database}")
 	String database;
+	
+	// 连接到 mongodb 服务
+    @Bean
+    MongoClient mongoClient() {
+        return new MongoClient(host, port);
+    }
+
+    @Bean
+    @PostConstruct
+    MongoDatabase mongoDatabase() {
+        // 连接到数据库
+        return mongoClient().getDatabase(database);
+    }
 
 	@Bean
 	public MongoTemplate mongoTemplate(){

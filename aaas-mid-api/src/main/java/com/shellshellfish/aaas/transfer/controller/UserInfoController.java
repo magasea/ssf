@@ -30,6 +30,7 @@ import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.oeminfo.model.JsonResult;
 import com.shellshellfish.aaas.transfer.aop.AopTimeResources;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
+import com.shellshellfish.aaas.transfer.service.GrpcOemInfoService;
 import com.shellshellfish.aaas.transfer.utils.CalculatorFunctions;
 import com.shellshellfish.aaas.transfer.utils.EasyKit;
 import io.swagger.annotations.Api;
@@ -59,6 +60,9 @@ public class UserInfoController {
 
 	@Value("${shellshellfish.asset-alloction-url}")
 	private String assetAlloctionUrl;
+	
+	@Autowired
+	GrpcOemInfoService grpcOemInfoService;
 
 	@Autowired
 	private RestTemplate restTemplate;
@@ -370,6 +374,103 @@ public class UserInfoController {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
 			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/traderecords", Map.class)
+					.getBody();
+			if (result == null || result.size() == 0) {
+				logger.error("系统消息获取失败");
+				return new JsonResult(JsonResult.Fail, "交易记录获取失败", JsonResult.EMPTYRESULT);
+			} else {
+				type = type == null ? 0 : type;
+				if (type > 4) {
+					logger.error("输入类型:" + type + "不正确，请重新输入");
+					return new JsonResult(JsonResult.Fail, "输入类型不正确，请重新输入", JsonResult.EMPTYRESULT);
+				}
+				List<Map> detailBak = new ArrayList<Map>();
+				List detail = (List) result.get("tradeLogs");
+				if (detail != null || detail.size() != 0) {
+					for (int i = 0; i < detail.size(); i++) {
+						if (detail.get(i) != null) {
+							Map map = (Map) detail.get(i);
+							int operationsStatus = (int) map.get("operationsStatus");
+							Map<String,String> tradeStatusMap = (Map) map.get("tradeStatusMap");
+							if(tradeStatusMap != null && tradeStatusMap.size() > 0){
+								if(tradeStatusMap.size() != 1){
+									if(tradeStatusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())){
+										map.put("tradeStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
+									}
+								} else {
+									for(String key : tradeStatusMap.keySet()){
+										if(tradeStatusMap.size() == 1){
+											map.put("tradeStatus", key);
+										}
+										break;
+									}
+								}
+								map.remove("tradeStatusMap");
+							}
+							if (map.get("prodId") != null) {
+								Integer prodId = (Integer) map.get("prodId");
+								Map orderResult = restTemplate.getForEntity(
+										tradeOrderUrl + "/api/trade/funds/banknums/" + uuid + "?prodId=" + prodId,
+										Map.class).getBody();
+								if (orderResult.get("orderId") != null) {
+									String orderId = orderResult.get("orderId") + "";
+									if(!StringUtils.isEmpty(orderId)){
+										orderId = orderId.trim();
+										orderId = orderId.replaceAll("-", "");
+									}
+									String bankName = "";
+									String bankcardNum = "";
+									if (orderResult.get("bankNum") != null) {
+										bankcardNum = orderResult.get("bankNum") + "";
+										bankName = BankUtil.getNameOfBank(bankcardNum);
+										bankName = bankName.substring(0, bankName.indexOf("·"));
+									}
+									map.put("orderId", orderId);
+									if(orderResult.get("buyFee")!=null){
+										BigDecimal buyFee = new BigDecimal(orderResult.get("buyFee") + "");
+										buyFee = buyFee.divide(new BigDecimal("100"));
+										Double buyFeeValue = buyFee.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+										map.put("poundage", buyFeeValue);
+									} else {
+										map.put("poundage", BigDecimal.ZERO);
+									}
+									map.put("bankName", bankName);
+									map.put("bankcardNum", bankcardNum);
+									map.put("bankinfo", bankName + "(" + bankcardNum.substring(bankcardNum.length() - 4) + ")");
+									if (type == operationsStatus || type == 0) {
+										detailBak.add(map);
+									}
+								}
+							}
+						}
+					}
+					result.put("tradeLogs", detailBak);
+				}
+			}
+			return new JsonResult(JsonResult.SUCCESS, "交易记录成功", result);
+		} catch (Exception e) {
+			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}
+	}
+	@ApiOperation("交易记录-new")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户uuid", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "type", dataType = "Integer", required = false, value = "类型（1：购买，2：赎回）"),
+		@ApiImplicitParam(paramType = "query", name = "pageSize", dataType = "Integer", required = true, value = "每页显示数（至少大于1）", defaultValue = "3"),
+		@ApiImplicitParam(paramType = "query", name = "pageIndex", dataType = "Integer", required = true, value = "显示页数（从0开始）", defaultValue = "0"),
+		})
+	@RequestMapping(value = "/traderecords-ver2", method = RequestMethod.POST)
+	@ResponseBody
+	@AopTimeResources
+	public JsonResult tradeLogsOfUser2(@RequestParam String uuid, 
+			@RequestParam(required = false) Integer type, 
+			@RequestParam(defaultValue="3") Integer pageSize,
+			@RequestParam(defaultValue="0") Integer pageIndex) {
+		Map<Object, Object> result = new HashMap<Object, Object>();
+		try {
+			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/traderecords2?pageSize="+ pageSize + "&pageIndex=" + pageIndex, Map.class)
 					.getBody();
 			if (result == null || result.size() == 0) {
 				logger.error("系统消息获取失败");
@@ -958,6 +1059,22 @@ public class UserInfoController {
 		} catch (Exception ex) {
 //			logger.error("产品详情页面接口失败");
 //			logger.error("exception:",ex);
+			String str = new ReturnedException(ex).getErrorMsg();
+			logger.error(str, ex);
+			return new JsonResult(JsonResult.Fail, "产品详情页面失败", JsonResult.EMPTYRESULT);
+		}
+	}
+	
+	
+	@ApiOperation("获取所有项目的银行名称")
+	@RequestMapping(value = "/getProjectBankNames", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult getProjectBankNames() {
+		List<String> bankNameList = new ArrayList<String>();
+		try {
+			bankNameList = grpcOemInfoService.getOemInfoBankName();
+			return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", bankNameList);
+		} catch (Exception ex) {
 			String str = new ReturnedException(ex).getErrorMsg();
 			logger.error(str, ex);
 			return new JsonResult(JsonResult.Fail, "产品详情页面失败", JsonResult.EMPTYRESULT);

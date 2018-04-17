@@ -15,7 +15,7 @@ spring:
       ddl-auto: update
   data:
     mongodb:
-      database: test1
+      database: ssfui
       host: 192.168.1.249
       port: 30005
       zhongzheng: "zhongzheng"
@@ -82,3 +82,8 @@ api-asset-alloction-url: http://localhost:10020
 
 # 每日收益计算 多线程
 daily-finance-calculate-thread: 8
+
+management:
+  endpoints:
+    web:
+      base-path: /

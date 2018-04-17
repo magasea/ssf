@@ -1026,5 +1026,21 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		}
 		return spBuilder.build();
 	}
+
+  @Override
+  public List<MongoUiTrdLogDTO> findByUserProdIdIn(List dataList) {
+    List<MongoUiTrdLogDTO> mongoUiTrdLogDtoList = new ArrayList<>();
+    try {
+      List<MongoUiTrdLog> mongoUiTrdLogList = mongoUserTrdLogMsgRepo.findByUserProdIdIn(dataList);
+      List<MongoUiTrdLog> uiTrdLogsUnique = MongoUiTrdLogUtil.getDistinct(mongoUiTrdLogList);
+      mongoUiTrdLogDtoList =
+          MyBeanUtils.convertList(uiTrdLogsUnique, MongoUiTrdLogDTO.class);
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+    } catch (InstantiationException e) {
+      e.printStackTrace();
+    }
+    return mongoUiTrdLogDtoList;
+  }
 }
 
