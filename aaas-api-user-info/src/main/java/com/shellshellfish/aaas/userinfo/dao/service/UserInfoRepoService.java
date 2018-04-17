@@ -104,4 +104,6 @@ public interface UserInfoRepoService {
 
 	UserBaseInfoDTO getUserInfo(String uuid);
 
+    List<MongoUiTrdLogDTO> findByUserProdIdIn(List dataList);
+
 }

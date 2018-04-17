@@ -103,4 +103,6 @@ public interface UserInfoService {
 	Map<String, PortfolioInfo> getCalculateTotalAndRate(String uuid, Long userId,
 			ProductsDTO products);
 
+    List<Map<String, Object>> getTradLogsOfUser2(String userUuid, Integer pageSize, Integer pageIndex);
+
 }
