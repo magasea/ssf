@@ -176,21 +176,21 @@ public class LoginController {
 		    );
 //			// 我的（logo）
 //			// 关于我们（logo、文案、电话）
-//			result.put("version", oemInfos.get("oemVersion"));
-//			result.put("phone", oemInfos.get("bankPhone"));
-//			result.put("me_headphoto", oemInfos.get("meHeadImg"));
-//			result.put("about_logo", oemInfos.get("aboutLogo"));
-			if(oemid == 1){
-				result.put("me_headphoto","http://47.96.164.161:81/icon_me_headphoto2.png");
-				result.put("about_logo","http://47.96.164.161:81/icon_about_logo2.png");
-				result.put("version","V.1.0");
-				result.put("phone","021-80270119");
-			} else if(oemid == 2){
-				result.put("me_headphoto","http://47.96.164.161/icon_me_headphoto.png");
-				result.put("about_logo","http://47.96.164.161/icon_about_logo.png");
-				result.put("version","V.1.0");
-				result.put("phone","400-88-96799");
-			}
+			result.put("version", oemInfos.get("oemVersion"));
+			result.put("phone", oemInfos.get("bankPhone"));
+			result.put("me_headphoto", oemInfos.get("meHeadImg"));
+			result.put("about_logo", oemInfos.get("aboutLogo"));
+//			if(oemid == 1){
+//				result.put("me_headphoto","http://47.96.164.161:81/icon_me_headphoto2.png");
+//				result.put("about_logo","http://47.96.164.161:81/icon_about_logo2.png");
+//				result.put("version","V.1.0");
+//				result.put("phone","021-80270119");
+//			} else if(oemid == 2){
+//				result.put("me_headphoto","http://47.96.164.161/icon_me_headphoto.png");
+//				result.put("about_logo","http://47.96.164.161/icon_about_logo.png");
+//				result.put("version","V.1.0");
+//				result.put("phone","400-88-96799");
+//			}
 			result.put("title",oemInfos.get("prodName"));
 			
 			return new JsonResult(JsonResult.SUCCESS, "登陆成功", result);
