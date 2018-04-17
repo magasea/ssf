@@ -73,3 +73,8 @@ grpc:
   userinfo_client:
     host: aaas-api-user-info
     port: 10061
+
+management:
+  endpoints:
+    web:
+      base-path: /

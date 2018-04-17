@@ -64,3 +64,7 @@ shellshellfish:
     - /phoneapii-ssf/**
     - /heartbeat/
   
+management:
+  endpoints:
+    web:
+      base-path: /

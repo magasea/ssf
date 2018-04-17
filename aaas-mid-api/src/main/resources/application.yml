@@ -20,3 +20,7 @@ shellshellfish:
   data-manager-url: "http://localhost:10030"
   
 
+management:
+  endpoints:
+    web:
+      base-path: /
