@@ -3,7 +3,4 @@ server:
 grpc:
   host: localhost
   port: 10091
-security:
-  basic:
-    enable: false
-  ignored: /**
+

@@ -74,3 +74,8 @@ grpc:
   userinfo_client:
     host: localhost
     port: 10061
+
+management:
+  endpoints:
+    web:
+      base-path: /

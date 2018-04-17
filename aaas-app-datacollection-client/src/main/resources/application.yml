@@ -3,3 +3,11 @@ server:
 grpc:
   host: localhost
   port: 10030
+
+management:
+  endpoints:
+    web:
+      base-path: /
+
+
+
