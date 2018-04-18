@@ -81,12 +81,12 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
     }
 
     @Override
-    public void calculateAnnualVolatilityAndAnnualYield(LocalDate startDate) {
+    public void calculateAnnualVolatilityAndAnnualYield(LocalDate startDate, int oemId) {
         if (startDate == null) {
             startDate = FundGroupService.GROUP_START_DATE;
         }
 
-        List<Interval> list = fundGroupMapper.getAllIdAndSubId();
+        List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
         for (Interval interval : list) {
             String id = interval.getId();
             if (id.endsWith("48")) {

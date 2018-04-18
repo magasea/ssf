@@ -31,8 +31,8 @@ public class JobScheduleController {
      */
     @ApiOperation("每日接口获取数据定时任务")
     @RequestMapping(value = "/api/asset-allocation/job/insertDailyFund", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public JobResult insertDailyFund() {
-        jobScheduleService.insertDailyFundJobSchedule();
+    public JobResult insertDailyFund(@RequestParam(defaultValue = "1") Integer oemId) {
+        jobScheduleService.insertDailyFundJobSchedule(oemId);
         return new JobResult<>().returnSuccess();
     }
 
@@ -41,8 +41,8 @@ public class JobScheduleController {
      */
     @ApiOperation("计算每周收益率以及风险率数据")
     @RequestMapping(value = "/api/asset-allocation/job/calculateYieldAndRiskOfWeek", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public JobResult calculateYieldAndRiskOfWeek() {
-        jobScheduleService.calculateYieldAndRiskOfWeekJobSchedule();
+    public JobResult calculateYieldAndRiskOfWeek(@RequestParam(defaultValue = "1") Integer oemId) {
+        jobScheduleService.calculateYieldAndRiskOfWeekJobSchedule(oemId);
         return new JobResult<>().returnSuccess();
     }
 
@@ -51,8 +51,8 @@ public class JobScheduleController {
      */
     @ApiOperation("计算产品组合数据(产品组合风险率、收益率、权重)")
     @RequestMapping(value = "/api/asset-allocation/job/insertFundGroupData", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public JobResult insertFundGroupData() {
-        jobScheduleService.insertFundGroupDataJobSchedule();
+    public JobResult insertFundGroupData(@RequestParam(defaultValue = "1") Integer oemId) {
+        jobScheduleService.insertFundGroupDataJobSchedule(oemId);
         return new JobResult<>().returnSuccess();
     }
 
