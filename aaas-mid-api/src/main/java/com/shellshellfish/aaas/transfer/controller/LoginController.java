@@ -48,7 +48,7 @@ public class LoginController {
 	private String loginUrl;
 
 	//@Autowired
-	@Value("${shellshellfish.user-user-info}")
+	@Value("${shellshellfish.userinfo-url}")
 	private String userinfoUrl;
 	
 	@Autowired

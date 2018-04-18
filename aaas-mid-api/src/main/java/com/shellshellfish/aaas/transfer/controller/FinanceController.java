@@ -50,7 +50,7 @@ public class FinanceController {
 	Logger logger = LoggerFactory.getLogger(UserInfoController.class);
 
 	// @Autowired
-	@Value("${shellshellfish.user-user-info}")
+	@Value("${shellshellfish.userinfo-url}")
 	private String userinfoUrl;
 
 	@Value("${shellshellfish.user-login-url}")

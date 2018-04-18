@@ -3,12 +3,14 @@ package transfer.controller;
 import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.lessThan;
 
 import java.io.UnsupportedEncodingException;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.omg.CORBA.TIMEOUT;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,6 +49,7 @@ public class FundDetailedControllerIT {
 	private String GET_HISTORY_NET_VALUE_SCHEMA_NAME = "fund-detail-controller-getHistoryNetValue.json";
 
 	private static final String REQUEST_IS_SUCCESS = "1";
+	private static final long TIMEOUT = 3000L;
 
 	@LocalServerPort
 	public int port;
@@ -74,7 +77,8 @@ public class FundDetailedControllerIT {
 				.post(GET_FUND_COMPANY_DETAIL_INFO)
 				.then().log().all()
 				.assertThat()
-				.body(matchesJsonSchemaInClasspath(GET_FUND_COMPANY_DETAIL_INFO_SCHEMA_NAME));
+				.body(matchesJsonSchemaInClasspath(GET_FUND_COMPANY_DETAIL_INFO_SCHEMA_NAME))
+				.time(lessThan(TIMEOUT));
 	}
 
 
@@ -99,7 +103,8 @@ public class FundDetailedControllerIT {
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body(matchesJsonSchemaInClasspath(GET_FUND_DETAILS_SCHEMA_NAME));
+				.body(matchesJsonSchemaInClasspath(GET_FUND_DETAILS_SCHEMA_NAME))
+				.time(lessThan(TIMEOUT));
 	}
 
 
@@ -122,7 +127,8 @@ public class FundDetailedControllerIT {
 				.then().log().all()
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body(matchesJsonSchemaInClasspath(GET_FUND_INFO_BY_CODE_SCHEMA_NAME));
+				.body(matchesJsonSchemaInClasspath(GET_FUND_INFO_BY_CODE_SCHEMA_NAME))
+				.time(lessThan(TIMEOUT));
 	}
 
 
@@ -145,7 +151,8 @@ public class FundDetailedControllerIT {
 				.then().log().all()
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body(matchesJsonSchemaInClasspath(GET_FUND_MANAGER_SCHEMA_NAME));
+				.body(matchesJsonSchemaInClasspath(GET_FUND_MANAGER_SCHEMA_NAME))
+				.time(lessThan(TIMEOUT));
 	}
 
 
@@ -168,7 +175,8 @@ public class FundDetailedControllerIT {
 				.then().log().all()
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body(matchesJsonSchemaInClasspath(GET_FUND_NOTICES_SCHEMA_NAME));
+				.body(matchesJsonSchemaInClasspath(GET_FUND_NOTICES_SCHEMA_NAME))
+				.time(lessThan(TIMEOUT));
 	}
 
 
@@ -195,7 +203,8 @@ public class FundDetailedControllerIT {
 				.then().log().all()
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body(matchesJsonSchemaInClasspath(GET_HISTORY_NET_VALUE_SCHEMA_NAME));
+				.body(matchesJsonSchemaInClasspath(GET_HISTORY_NET_VALUE_SCHEMA_NAME))
+				.time(lessThan(TIMEOUT));
 	}
 
 }

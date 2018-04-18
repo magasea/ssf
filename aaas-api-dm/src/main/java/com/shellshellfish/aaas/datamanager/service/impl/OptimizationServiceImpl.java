@@ -754,6 +754,133 @@ public class OptimizationServiceImpl implements OptimizationService {
 
         return jsonResult;
     }
+    
+    @Override
+    public JsonResult checkPrdDetailsVer2(String groupId, String subGroupId) {
+      Map<String, Object> result = new HashMap<String, Object>();
+      // 饼图（返回单个基金组合产品信息）
+      Map<Integer, Object> assetsRatiosMap = new HashMap<Integer, Object>();
+      try {
+        String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
+            + "/sub-groups/" + subGroupId;
+        Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
+        if (productMap == null) {
+          logger.info("单个基金组合产品信息为空");
+        } else {
+          if (productMap.get("assetsRatios") != null) {
+            List<Map> assetList = (List<Map>) productMap.get("assetsRatios");
+            Double count = 0D;
+            Double value = 0D;
+            for (int i = 0; i < assetList.size(); i++) {
+              Map<String, Object> assetMap = assetList.get(i);
+              if (assetMap.get("value") != null) {
+                if (i == assetList.size() - 1) {
+                  value = 100D - count;
+                  BigDecimal bigValue = new BigDecimal(value);
+                  value = bigValue.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                } else {
+                  value = (Double) assetMap.get("value");
+                  value = EasyKit.getDecimal(new BigDecimal(value));
+                  count = count + value;
+                }
+                if (value != null) {
+                  assetMap.put("value", value);
+                } else {
+                  assetMap.put("value", "0.00");
+                }
+                String type = assetMap.get("type") + "";
+                assetsRatiosMap.put(FundClassEnum.getFundClassId(type), assetMap.get("value"));
+              }
+            }
+          }
+        }
+        
+        result = this.getPrdNPVList2(groupId, subGroupId, assetsRatiosMap);
+        if (result == null) {
+          return new JsonResult(JsonResult.Fail, "获取净值增长值活净值增长率为空", JsonResult.EMPTYRESULT);
+        }
+        result.put("assetsRatios", productMap.get("assetsRatios"));
+        Map expAnnReturn = getExpAnnReturn(groupId, subGroupId);
+        Map expMaxReturn = getExpMaxReturn(groupId, subGroupId);
+        Map simulateHistoricalReturn = getSimulateHistoricalReturn(groupId, subGroupId);
+        result.put("expAnnReturn", expAnnReturn);
+        result.put("expMaxDrawDown", expMaxReturn);
+        result.put("simulateHistoricalVolatility", simulateHistoricalReturn);
+        result.put("title1", "组合");
+        result.put("title2", "比较基准");
+      } catch (Exception e) {
+        String str = new ReturnedException(e).getErrorMsg();
+        logger.error(str, e);
+        return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+      }
+      
+      
+      JsonResult jsonResult = new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", result);
+      if (result != null && !result.isEmpty()) {
+        Integer serial = new Integer(0);        
+        MongoFinanceDetail mongoFinanceDetail = new MongoFinanceDetail();
+        Long utcTime = TradeUtil.getUTCTime();
+        String dateTime = TradeUtil.getReadableDateTime(utcTime);
+        String date = dateTime.split("T")[0].replaceAll("-", "");
+        mongoFinanceDetail.setDate(date);
+        mongoFinanceDetail.setGroupId(groupId);
+        mongoFinanceDetail.setSubGroupId(subGroupId);
+        mongoFinanceDetail.setSerial(serial);
+        System.out.println("---\n" + date);
+//			mongoFinanceDetail.setHead(jsonResult.getHead());
+        mongoFinanceDetail.setResult(result);
+//          System.out.println("---\n" + jsonResult.getResult().toString());
+        System.out.println("groupId:" + groupId + ", subGroupId:" + subGroupId);
+        mongoFinanceDetail.setLastModifiedBy(utcTime + "");
+//			mongoFinanceDetailRepository.deleteAll();
+//			MongoFinanceDetail mongoFinanceCount = mongoFinanceDetailRepository.findAllByDateAndGroupIdAndSubGroupId(date, groupId, subGroupId);
+//			if (mongoFinanceCount != null) {
+//				logger.info("已存在，删除后重新插入");
+//				mongoFinanceDetailRepository.deleteAllByDate(date);
+////				mongoFinanceDetailRepository.deleteAll();
+//			}
+//			mongoFinanceDetailRepository.deleteAll();
+        
+        Object object = result.get("fundListMap");
+        Map<Integer, List> fundListMap = new HashMap<Integer, List>();
+        if(object != null){
+          fundListMap = (HashMap<Integer, List>) object;
+          result.remove("fundListMap");
+        }
+        mongoFinanceDetailRepository.save(mongoFinanceDetail);
+        
+        for(Integer key : fundListMap.keySet()){
+          List fundList = new ArrayList(); 
+          fundList = (List) fundListMap.get(key);
+          if(!CollectionUtils.isEmpty(fundList)){
+             for(int i = 0; i < fundList.size(); i++){
+               Object obj = fundList.get(i);
+               
+               Map<String, Object> fundResult = new HashMap<String, Object>();
+               Map<Integer, List> fundOutMap = new HashMap<Integer, List>();
+               List fundInnerList = new ArrayList(); 
+               fundInnerList.add(obj);
+               fundOutMap.put(key, fundInnerList);
+               
+               fundResult.put("fundListMap", fundOutMap);
+               mongoFinanceDetail.setSerial(++serial);
+               mongoFinanceDetail.setResult(fundResult);
+               mongoFinanceDetail.setId(null);
+               mongoFinanceDetailRepository.save(mongoFinanceDetail);
+             }
+          }
+        }
+        
+        
+        logger.info(date + "--数据插入成功，groupId:{},subGroupId:{}", groupId, subGroupId);
+        logger.info("run OptimizationServiceImpl.checkPrdDetails() success..");
+      } else {
+        logger.error("run OptimizationServiceImpl.checkPrdDetails() fail..\n");
+        logger.error("jsonResult 结果为空");
+      }
+      
+      return jsonResult;
+    }
 
     /**
      * 获取预期最大回撤（/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt，参数+2）
@@ -890,19 +1017,20 @@ public class OptimizationServiceImpl implements OptimizationService {
                 info.setTenKiloUnitYieldMap(maxMinValue);
 
                 Integer fundClassId = info.getFundClassId();
-                info.setTotalIncreRate(assetsRatiosMap.get(fundClassId) + EasyKit.PERCENT);
                 if (resultMap.containsKey(fundClassId)) {
                     fundNAVInfosList = resultMap.get(fundClassId);
+                    info.setTotalIncreRate("");
                     fundNAVInfosList.add(info);
                     resultMap.put(fundClassId, fundNAVInfosList);
                 } else {
+                    info.setTotalIncreRate(assetsRatiosMap.get(fundClassId) + EasyKit.PERCENT);
                     fundNAVInfosList.add(info);
                     resultMap.put(fundClassId, fundNAVInfosList);
                 }
             }
         }
         result.put("fundListMap", resultMap);
-        result.put("total", resultList.size());
+        result.put("total", listA.size());
         return result;
     }
 
@@ -1163,5 +1291,53 @@ public class OptimizationServiceImpl implements OptimizationService {
               "com.shellshellfish.datamanager.service.OptimizationServiceImpl.getPrdDetails() 数据获取为空");
         }
         return jsonResult;
+    }
+    
+    @Override
+    public JsonResult getPrdDetailsVer2(String groupId, String subGroupId, Integer pageSize, Integer pageIndex) {
+      JsonResult jsonResult = null;
+      Long utcTime = TradeUtil.getUTCTime();
+      String dateTime = TradeUtil.getReadableDateTime(utcTime);
+      String date = dateTime.split("T")[0].replaceAll("-", "");
+      Criteria criteria = new Criteria();
+      criteria.where("date").is(date);
+      Query query = Query.query(criteria);
+      long count = mongoTemplate.count(query, MongoFinanceDetail.class);
+      if(count == 0){
+        logger.warn("今日暂无组合详情数据，正在重新更新数据中...");
+        return null;
+      }
+      List<Integer> serialList = new ArrayList<>();
+      serialList.add(0);
+      int begin = pageSize * pageIndex + 1;
+      for (int i = 0; i < pageSize; i++) {
+          serialList.add(begin + i);
+      }
+      List<MongoFinanceDetail> mongoFinanceDetails = mongoFinanceDetailRepository.findAllByGroupIdAndSubGroupIdAndSerialIn(groupId, subGroupId,serialList);
+      MongoFinanceDetail detail = new MongoFinanceDetail();
+      if (!CollectionUtils.isEmpty(mongoFinanceDetails)) {
+        detail = mongoFinanceDetails.get(0);
+        if(mongoFinanceDetails.size() > 1){
+          for(int i = 1;i < mongoFinanceDetails.size(); i++){
+            
+          }
+        }
+        
+        
+        
+        
+        
+        if (mongoFinanceDetails.size() == 1) {
+          logger.info("获取信息成功");
+        } else {
+          logger.error("有重复数据：groupId {} subGoupI {}", groupId, subGroupId);
+        }
+        jsonResult =
+            new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", mongoFinanceDetails.get(0).getResult());
+      } else {
+        logger.error(
+            "com.shellshellfish.datamanager.service.OptimizationServiceImpl.getPrdDetails() 数据获取为空");
+      }
+      return jsonResult;
     }
 }

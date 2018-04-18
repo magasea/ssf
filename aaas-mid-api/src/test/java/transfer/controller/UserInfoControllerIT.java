@@ -1,9 +1,7 @@
 package transfer.controller;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -63,6 +61,7 @@ public class UserInfoControllerIT {
 
 	private static final String REQUEST_IS_SUCCESS = "1";
 
+	private static final long TIMEOUT = 3000L;
 
 	@LocalServerPort
 	public int port;
@@ -109,7 +108,8 @@ public class UserInfoControllerIT {
 				.then().log().all()
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body("result.status", notNullValue());
+				.body("result.status", notNullValue())
+				.time(lessThan(TIMEOUT));
 	}
 
 
@@ -149,7 +149,8 @@ public class UserInfoControllerIT {
 				.body("result.dailyReturn", notNullValue())
 				.body("result.totalRevenue", notNullValue())
 				.body("result.trendYield.date[0]", notNullValue())
-				.body("result.trendYield.value[0]", notNullValue());
+				.body("result.trendYield.value[0]", notNullValue())
+				.time(lessThan(TIMEOUT));
 	}
 
 	/**
@@ -173,7 +174,8 @@ public class UserInfoControllerIT {
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result.bankCode", notNullValue())
-				.body("result.bankName", notNullValue());
+				.body("result.bankName", notNullValue())
+				.time(lessThan(TIMEOUT));
 	}
 
 	/**
@@ -205,7 +207,8 @@ public class UserInfoControllerIT {
 				.body("result.totalIncomeRate[0]", notNullValue())
 				.body("result.prodId[0]", notNullValue())
 				.body("result.title[0]", notNullValue())
-				.body("result.createDate[0]", notNullValue());
+				.body("result.createDate[0]", notNullValue())
+				.time(lessThan(TIMEOUT));
 	}
 
 	/**
@@ -235,7 +238,8 @@ public class UserInfoControllerIT {
 				.body("result.userBaseInfo", hasKey("birthAge"))
 				.body("result.userBaseInfo", hasKey("occupation"))
 				.body("result.userBaseInfo", hasKey("passwordhash"))
-				.body("result.userBaseInfo", hasKey("riskLevel"));
+				.body("result.userBaseInfo", hasKey("riskLevel"))
+				.time(lessThan(TIMEOUT));
 	}
 
 	/**
@@ -263,7 +267,8 @@ public class UserInfoControllerIT {
 				.body("result.bankcardNum[0]", notNullValue())
 				.body("result.bankType[0]", notNullValue())
 				.body("result.bankName[0]", notNullValue())
-				.body("result.bankcardSecurity[0]", notNullValue());
+				.body("result.bankcardSecurity[0]", notNullValue())
+				.time(lessThan(TIMEOUT));
 	}
 
 	/**
@@ -280,14 +285,16 @@ public class UserInfoControllerIT {
 	public void sellresultTest() {
 		String uuid = "69ad9732-f9cd-49e9-a71f-0462cc6b4d8e";
 		String prodId = "21";
+		String orderId = "1892340001000001514963111416";
 		String buyfee = "100";
-		String bankName = "中国银行";
+		String bankName = new String("中国银行".getBytes(), Charset.forName("ISO-8859-1"));
 		String bankCard = "0859";
 
 
 		given()
 				.param("uuid", uuid)
 				.param("prodId", prodId)
+				.param("orderId",orderId)
 				.param("buyfee", buyfee)
 				.param("bankName", bankName)
 				.param("bankCard", bankCard)
@@ -300,7 +307,8 @@ public class UserInfoControllerIT {
 				.body("result.bankInfo", notNullValue())
 				.body("result.buyfee", notNullValue())
 				.body("result.date2", notNullValue())
-				.body("result.date1", notNullValue());
+				.body("result.date1", notNullValue())
+				.time(lessThan(TIMEOUT));
 	}
 
 	/**
@@ -326,7 +334,8 @@ public class UserInfoControllerIT {
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result._items.date[0]", notNullValue())
 				.body("result._items.content[0]", notNullValue())
-				.body("result.uuid", notNullValue());
+				.body("result.uuid", notNullValue())
+				.time(lessThan(TIMEOUT));
 	}
 
 	//	@Test
@@ -342,7 +351,8 @@ public class UserInfoControllerIT {
 				.post(TRADE_RECORDS)
 				.then().log().all()
 				.assertThat()
-				.body("head.status", equalTo(REQUEST_IS_SUCCESS));
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
+				.time(lessThan(TIMEOUT));
 	}
 
 	/**
@@ -378,7 +388,8 @@ public class UserInfoControllerIT {
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result.date", notNullValue())
 				.body("result.bankInfo", notNullValue())
-				.body("result.buyfee", notNullValue());
+				.body("result.buyfee", notNullValue())
+				.time(lessThan(TIMEOUT));
 	}
 
 	/**
@@ -403,7 +414,8 @@ public class UserInfoControllerIT {
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result.uuid", notNullValue())
-				.body("result._items", notNullValue());
+				.body("result._items", notNullValue())
+				.time(lessThan(TIMEOUT));
 
 	}
 

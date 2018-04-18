@@ -273,7 +273,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public List<UserPersonMsgDTO> getUiPersonMsg(Long userId) throws IllegalAccessException, InstantiationException {
-		List<UiPersonMsg> uiPersonMsgList = mongoUserPersonMsgRepo.getUiPersonMsgsByUserIdAndReaded(userId,
+		List<UiPersonMsg> uiPersonMsgList = mongoUserPersonMsgRepo.findByUserIdAndReadedOrderByCreatedDateDesc(userId.toString(),
 				Boolean.FALSE);
 		List<UserPersonMsgDTO> personMsgDtoList = MyBeanUtils.convertList(uiPersonMsgList, UserPersonMsgDTO.class);
 		return personMsgDtoList;
@@ -299,7 +299,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public List<UserSysMsgDTO> getUiSysMsg() throws IllegalAccessException, InstantiationException {
-		List<UiSysMsg> uiSysMsgList = mongoUserSysMsgRepo.findAllByOrderByDateDesc();
+		List<UiSysMsg> uiSysMsgList = mongoUserSysMsgRepo.findAllByOrderByCreatedDateDesc();
 		List<UserSysMsgDTO> uiSysMsgDtoList = MyBeanUtils.convertList(uiSysMsgList, UserSysMsgDTO.class);
 		return uiSysMsgDtoList;
 	}
