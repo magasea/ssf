@@ -37,6 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -65,6 +68,9 @@ public class OptimizationServiceImpl implements OptimizationService {
 
     @Autowired
     private RestTemplate restTemplate;
+    
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Autowired
     GroupController groupController;
@@ -494,8 +500,16 @@ public class OptimizationServiceImpl implements OptimizationService {
         String dateTime = TradeUtil.getReadableDateTime(utcTime);
         String date = dateTime.split("T")[0].replaceAll("-", "");
         //MongoFinanceAll mongoFinanceAll = mongoFinanceALLRepository.findAllByDate(date);
-        List<MongoFinanceAll> mongoFinanceList = mongoFinanceALLRepository.findAllByDate(date);
-        if(mongoFinanceList==null || mongoFinanceList.size() == 0){
+//        List<MongoFinanceAll> mongoFinanceList = mongoFinanceALLRepository.findAllByDate(date);
+//        if(mongoFinanceList==null || mongoFinanceList.size() == 0){
+//          return null;
+//        }
+        Criteria criteria = new Criteria();
+        criteria.where("date").is(date);
+        Query query = Query.query(criteria);
+        long count = mongoTemplate.count(query, MongoFinanceAll.class);
+        if(count == 0){
+          logger.warn("今日暂无组合列表数据，正在重新更新数据中...");
           return null;
         }
         List<Integer> serialList = new ArrayList<>();
@@ -1121,25 +1135,32 @@ public class OptimizationServiceImpl implements OptimizationService {
         Long utcTime = TradeUtil.getUTCTime();
         String dateTime = TradeUtil.getReadableDateTime(utcTime);
         String date = dateTime.split("T")[0].replaceAll("-", "");
-        List<MongoFinanceDetail> mongoFinanceDetailList = mongoFinanceDetailRepository.findAllByDate(date);
-        if(mongoFinanceDetailList == null || mongoFinanceDetailList.size() == 0){
+//        List<MongoFinanceDetail> mongoFinanceDetailList = mongoFinanceDetailRepository.findAllByDate(date);
+//        if(mongoFinanceDetailList == null || mongoFinanceDetailList.size() == 0){
+//          return null;
+//        }
+        Criteria criteria = new Criteria();
+        criteria.where("date").is(date);
+        Query query = Query.query(criteria);
+        long count = mongoTemplate.count(query, MongoFinanceDetail.class);
+        if(count == 0){
+          logger.warn("今日暂无组合详情数据，正在重新更新数据中...");
           return null;
         }
         
-        List<MongoFinanceDetail> mongoFinanceDetails = mongoFinanceDetailRepository
-            .findAllByGroupIdAndSubGroupId(groupId, subGroupId);
+        List<MongoFinanceDetail> mongoFinanceDetails = mongoFinanceDetailRepository.findAllByGroupIdAndSubGroupId(groupId, subGroupId);
 //		MongoFinanceDetail mongoFinanceDetail = mongoFinanceDetailRepository.findAllByGroupIdAndSubGroupId(groupId, subGroupId);
-        if(!CollectionUtils.isEmpty(mongoFinanceDetails)){
-        if (mongoFinanceDetails.size() == 1) {
-
+        if (!CollectionUtils.isEmpty(mongoFinanceDetails)) {
+          if (mongoFinanceDetails.size() == 1) {
             logger.info("获取信息成功");
-        }else{
+          } else {
             logger.error("有重复数据：groupId {} subGoupI {}", groupId, subGroupId);
-        }
-            jsonResult = new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", mongoFinanceDetails
-                .get(0).getResult());
+          }
+          jsonResult =
+              new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", mongoFinanceDetails.get(0).getResult());
         } else {
-            logger.error("com.shellshellfish.datamanager.service.OptimizationServiceImpl.getPrdDetails() 数据获取为空");
+          logger.error(
+              "com.shellshellfish.datamanager.service.OptimizationServiceImpl.getPrdDetails() 数据获取为空");
         }
         return jsonResult;
     }

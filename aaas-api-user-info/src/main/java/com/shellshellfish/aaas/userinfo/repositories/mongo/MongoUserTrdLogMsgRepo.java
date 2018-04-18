@@ -15,4 +15,6 @@ public interface MongoUserTrdLogMsgRepo extends MongoRepository<MongoUiTrdLog, L
   List<MongoUiTrdLog> findAllByUserIdAndUserProdIdAndOperationsAndTradeStatus(Long userId, Long userProdId,int operations,int tradeStatus);
 
   List<MongoUiTrdLog> findAllByUserProdIdAndOperations(Long userProdId, Integer operations);
+
+  List<MongoUiTrdLog> findByUserProdIdIn(List dataList);
 }
