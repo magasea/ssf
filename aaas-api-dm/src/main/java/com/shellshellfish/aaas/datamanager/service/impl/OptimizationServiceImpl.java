@@ -847,27 +847,22 @@ public class OptimizationServiceImpl implements OptimizationService {
           fundListMap = (HashMap<Integer, List>) object;
           result.remove("fundListMap");
         }
+        mongoFinanceDetail.setTotal(fundListMap.size());
         mongoFinanceDetailRepository.save(mongoFinanceDetail);
         
         for(Integer key : fundListMap.keySet()){
           List fundList = new ArrayList(); 
           fundList = (List) fundListMap.get(key);
           if(!CollectionUtils.isEmpty(fundList)){
-             for(int i = 0; i < fundList.size(); i++){
-               Object obj = fundList.get(i);
-               
                Map<String, Object> fundResult = new HashMap<String, Object>();
                Map<Integer, List> fundOutMap = new HashMap<Integer, List>();
                List fundInnerList = new ArrayList(); 
-               fundInnerList.add(obj);
-               fundOutMap.put(key, fundInnerList);
-               
+               fundOutMap.put(key, fundList);
                fundResult.put("fundListMap", fundOutMap);
                mongoFinanceDetail.setSerial(++serial);
                mongoFinanceDetail.setResult(fundResult);
                mongoFinanceDetail.setId(null);
                mongoFinanceDetailRepository.save(mongoFinanceDetail);
-             }
           }
         }
         
@@ -1313,31 +1308,62 @@ public class OptimizationServiceImpl implements OptimizationService {
       for (int i = 0; i < pageSize; i++) {
           serialList.add(begin + i);
       }
-      List<MongoFinanceDetail> mongoFinanceDetails = mongoFinanceDetailRepository.findAllByGroupIdAndSubGroupIdAndSerialIn(groupId, subGroupId,serialList);
+      List<MongoFinanceDetail> mongoFinanceDetailsList = mongoFinanceDetailRepository.findAllByGroupIdAndSubGroupIdAndSerialIn(groupId, subGroupId,serialList);
+      if(mongoFinanceDetailsList == null || mongoFinanceDetailsList.size() == 1){
+        jsonResult = new JsonResult(JsonResult.SUCCESS, "此页无数据", JsonResult.EMPTYRESULT);
+        logger.info("OptimizationServiceImpl.getPrdDetails() 数据获取为空");
+      } else {
+        Collections.sort(mongoFinanceDetailsList, new Comparator<MongoFinanceDetail>() {
+          public int compare(MongoFinanceDetail o1, MongoFinanceDetail o2) {
+            Double name1 = Double.valueOf(o1.getSerial());//name1是从你list里面拿出来的一个
+            Double name2 = Double.valueOf(o2.getSerial()); //name1是从你list里面拿出来的第二个name
+            return name1.compareTo(name2);
+          }
+        });
+      }
       MongoFinanceDetail detail = new MongoFinanceDetail();
-      if (!CollectionUtils.isEmpty(mongoFinanceDetails)) {
-        detail = mongoFinanceDetails.get(0);
-        if(mongoFinanceDetails.size() > 1){
-          for(int i = 1;i < mongoFinanceDetails.size(); i++){
+      for(int i = 0; i < mongoFinanceDetailsList.size(); i++){
+        if(i == 0){
+          detail = new MongoFinanceDetail();
+          Integer total = detail.getTotal();
+          if(total == 0){
+            logger.error("no data");
+            return new JsonResult(JsonResult.Fail, "no data", JsonResult.EMPTYRESULT);
+          } else {
+            Integer totalPage = 0;
+            if(total % pageSize == 0){
+              totalPage = total /pageSize;
+            } else {
+              totalPage = total / pageSize + 1;
+            }
+            detail.setTotalPage(totalPage);
+          }
+        } else {
+          MongoFinanceDetail mongoFinanceDetailTemp = new MongoFinanceDetail();
+          mongoFinanceDetailTemp = mongoFinanceDetailsList.get(i);
+          Object obj = mongoFinanceDetailTemp.getResult();
+          Map finaceDetailMapTemp = (Map) obj;
+          if(finaceDetailMapTemp != null){
             
           }
+          
         }
-        
-        
-        
-        
-        
-        if (mongoFinanceDetails.size() == 1) {
-          logger.info("获取信息成功");
-        } else {
-          logger.error("有重复数据：groupId {} subGoupI {}", groupId, subGroupId);
-        }
-        jsonResult =
-            new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", mongoFinanceDetails.get(0).getResult());
-      } else {
-        logger.error(
-            "com.shellshellfish.datamanager.service.OptimizationServiceImpl.getPrdDetails() 数据获取为空");
       }
+      
+      
+      
+//      if (!CollectionUtils.isEmpty(mongoFinanceDetails)) {
+//        if (mongoFinanceDetails.size() == 1) {
+//          logger.info("获取信息成功");
+//        } else {
+//          logger.error("有重复数据：groupId {} subGoupI {}", groupId, subGroupId);
+//        }
+//        jsonResult =
+//            new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", mongoFinanceDetails.get(0).getResult());
+//      } else {
+//        logger.error(
+//            "com.shellshellfish.datamanager.service.OptimizationServiceImpl.getPrdDetails() 数据获取为空");
+//      }
       return jsonResult;
     }
 }
