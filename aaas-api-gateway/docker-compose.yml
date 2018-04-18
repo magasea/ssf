@@ -1,0 +1,17 @@
+version: "2"
+
+
+services:
+  aaas-api-gateway:
+    image: aaas-api-gateway:1.0.0 
+    labels:
+      - "aaas-api-gateway"
+    ports:
+      - "10040:10040"
+      - "10040:10041"
+    environment:
+      - SPRING_PROFILES_ACTIVE=k8s
+      - AVA_OPTIONS=-Xmx256m
+      
+      
+      
