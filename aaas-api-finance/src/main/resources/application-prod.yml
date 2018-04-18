@@ -63,3 +63,8 @@ api-data-manager-url: http://localhost:10030
 
 shellshellfish:
   asset-allocation-url: "http://localhost:10020"
+
+management:
+  endpoints:
+    web:
+      base-path: /

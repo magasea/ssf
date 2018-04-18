@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.oeminfo.service;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -7,4 +8,6 @@ import java.util.Map;
  */
 public interface OemInfoService {
   Map<String, String> getOemInfo(Long oemId);
+
+  List<String> getOemInfoBankName();
 }

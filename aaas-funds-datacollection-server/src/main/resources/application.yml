@@ -15,3 +15,8 @@ spring:
 grpc:
   host: localhost
   port: 10091
+
+management:
+  endpoints:
+    web:
+      base-path: /

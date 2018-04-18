@@ -2,8 +2,6 @@ package com.shellshellfish.aaas.risk.service.impl;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.shellshellfish.aaas.risk.model.dao.SurveyTemplate;
@@ -25,9 +23,4 @@ public class SurveyTemplateServiceImpl implements SurveyTemplateService{
 		return surveyTemplateDTO;
 	}
 
-	@Override
-	public Page<SurveyTemplateDTO> findByTitleAndVersion(Pageable page, String title, String version) {
-		Page<SurveyTemplate> questionPage = surveyTemplateRepository.findByTitleAndVersion(title,version, page);
-		return null;
-	}
 }
