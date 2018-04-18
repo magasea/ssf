@@ -47,7 +47,7 @@ public class FundDetailedController {
 	@Value("${shellshellfish.data-manager-url}")
 	private String dataManagerUrl;
 	
-	@Value("${shellshellfish.user-user-info}")
+	@Value("${shellshellfish.userinfo-url}")
 	private String userinfoUrl;
 
 	@Autowired
