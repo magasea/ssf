@@ -1,0 +1,17 @@
+version: "2"
+
+
+services:
+  aaas-api-asset-allocation:
+    image: aaas-api-asset-allocation:1.0.0 
+    labels:
+      - "aaas-api-asset-allocation"
+    ports:
+      - "10020:10020"
+      - "10021:10021"
+    environment:
+      - SPRING_PROFILES_ACTIVE=k8s
+      - AVA_OPTIONS=-Xmx256m
+      
+      
+      
