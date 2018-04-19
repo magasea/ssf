@@ -57,7 +57,7 @@ public class TransferController {
 	@Autowired
 	private RestTemplate restTemplate;
 	
-	@Value("${shellshellfish.user-user-info}")
+	@Value("${shellshellfish.userinfo-url}")
 	private String userinfoUrl;
 
 	@Value("${shellshellfish.trade-order-url}")
