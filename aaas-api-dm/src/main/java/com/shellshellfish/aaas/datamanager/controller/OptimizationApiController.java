@@ -184,7 +184,7 @@ public class OptimizationApiController {
 	@RequestMapping(value = "/getCheckPrdDetails-ver2", method = RequestMethod.GET)
 	@ResponseBody
 	public JsonResult getPrdDetailsVer2(String groupId, String subGroupId, @RequestParam(defaultValue="2") Integer pageSize, @RequestParam(defaultValue="0") Integer pageIndex) {
-	  JsonResult result = optimizationService.getPrdDetails(groupId, subGroupId);
+	  JsonResult result = optimizationService.getPrdDetailsVer2(groupId, subGroupId, pageSize, pageIndex);
 	  if (result == null) {
 	    this.prdDetails2();
 	    result = optimizationService.getPrdDetailsVer2(groupId, subGroupId, pageSize, pageIndex);
