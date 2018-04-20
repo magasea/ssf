@@ -1,19 +1,19 @@
 ---
 server:
-  port: 10160
+  port: 10060
+
 logging:
   level:
     org.hibernate.SQL: info
     org.hibernate.type.descriptor.sql.BasicBinder: info
     org.springframework.data: info
 
----
 
 spring:
   data:
     mongodb:
       database: ssfui
-      host: 192.168.1.249
+      host: 192.168.1.10
       port: 27017
       zhongzheng: "zhongzheng"
       funds: "funds"
@@ -26,17 +26,10 @@ spring:
          acknowledge-mode: auto
      username: ssf
      password: shellshellfish
-     host: 192.168.1.249
+     host: 192.168.1.65
      port: 5672
      virtual-host: aaas
-     topicQueuePayName: com-ssf-topic-queue-pay
-     topicQueueOrderName: com-ssf-topic-queue-order
-     topicQueueUserinfoName: com-ssf-topic-queue-userinfo
-     topicExchangeName: com-ssf-topic-exchange
-     topicPay: shellshellfish.pay
-     topicOrder: shellshellfish.order
-     topicUserinfo: shellshellfish.userinfo
-     topicDailyCalculateAsset: com-ssf-topic-calculate-asset
+
   redis:
     host: 192.168.1.10
     port: 6379
@@ -46,9 +39,9 @@ spring:
 
 datasource:
   sampleapp:
-    url: jdbc:mysql://192.168.1.249:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
-    username: ssf01
-    password: R489cfRKfEY7LNM9
+    url: jdbc:mysql://192.168.1.10:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
+    username: sa
+    password: N4eTVr89lX9BaPcx
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema: ssfuser
     maxPoolSize: 20
@@ -64,7 +57,21 @@ datasource:
       dialect: org.hibernate.dialect.MySQLDialect
 
 grpc:
-  port: 10161
+  userinfo:
+    host: localhost
+    port: 10061
+  data-manager-rpc:
+    host: localhost
+    port: 10031
+  finance-trade-order-rpc:
+    host: localhost
+    port: 10101
+  finance-trade-pay-rpc:
+    host: localhost
+    port: 10111
+  datacollection-server-rpc:
+    host: localhost
+    port: 10091
 
 
 aaas-api-finance-url: http://localhost:10120
@@ -74,14 +81,7 @@ api-asset-alloction-url: http://localhost:10020
 # 每日收益计算 多线程
 daily-finance-calculate-thread: 8
 
-#oeminfo
-oem-info:
-  oemInfos:
-   - oem_id: 1
-     oem_name: 贝贝鱼
-     bank_phone: xxxxxxxx
-     prod_name: 贝贝鱼智投
-   - oem_id: 2
-     oem_name: 百合
-     bank_phone: 400-88-96799
-     prod_name: 百合智投
+management:
+  endpoints:
+    web:
+      base-path: /

@@ -46,7 +46,7 @@ public class FundGroupController {
 	@Autowired
 	RestTemplate restTemplate;
 
-	@Value("${shellshellfish.user-user-info}")
+	@Value("${shellshellfish.userinfo-url}")
 	private String userinfoUrl;
 
 	@Value("${shellshellfish.data-manager-url}")

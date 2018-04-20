@@ -12,6 +12,15 @@ public class MongoFinanceDetail implements Serializable {
 
 	@Id
 	private String id;
+	
+	@Field(value = "serial")
+	private Integer serial;
+	
+	@Field(value = "total")
+	private Integer total;
+	
+	@Field(value = "totalPage")
+	private Integer totalPage;
 
 	@Field(value = "date")
 	private String date;
@@ -86,4 +95,28 @@ public class MongoFinanceDetail implements Serializable {
 	public void setSubGroupId(String subGroupId) {
 		this.subGroupId = subGroupId;
 	}
+
+    public Integer getSerial() {
+      return serial;
+    }
+  
+    public void setSerial(Integer serial) {
+      this.serial = serial;
+    }
+
+    public Integer getTotal() {
+      return total;
+    }
+
+    public void setTotal(Integer total) {
+      this.total = total;
+    }
+
+    public Integer getTotalPage() {
+      return totalPage;
+    }
+
+    public void setTotalPage(Integer totalPage) {
+      this.totalPage = totalPage;
+    }
 }

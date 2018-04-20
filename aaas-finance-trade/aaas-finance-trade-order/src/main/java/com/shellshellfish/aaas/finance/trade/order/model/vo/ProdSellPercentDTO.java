@@ -32,9 +32,7 @@ private long userProdId;
     return userProdId;
   }
 
-  public void setUserProId(long userProdId) {
-    this.userProdId = userProdId;
-  }
+
 
   public long getProdId() {
     return prodId;
