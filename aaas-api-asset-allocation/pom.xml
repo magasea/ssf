@@ -290,7 +290,7 @@
                 <artifactId>protobuf-maven-plugin</artifactId>
                 <version>0.5.1</version>
                 <configuration>
-                    <checkStaleness>true</checkStaleness>
+                    <clearOutputDirectory>false</clearOutputDirectory>
                     <protocArtifact>com.google.protobuf:protoc:3.4.0:exe:${os.detected.classifier}</protocArtifact>
                     <pluginId>grpc-java</pluginId>
                     <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
@@ -329,7 +329,7 @@
                             <all>
                                 <property>
                                     <name>app</name>
-                                    <value>aaas-api-asset-allocation</value>
+                                    <value>${artifactId}-${version}</value>
                                 </property>
                                 <property>
                                     <name>hystrix.enabled</name>
