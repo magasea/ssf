@@ -9,6 +9,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StopWatch;
+import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
@@ -27,38 +28,23 @@ public class SwaggerConfiguration {
     public static final String DEFAULT_INCLUDE_PATTERN = "/api/.*";
 
     @Bean
-    public Docket swaggerSpringfoxDocket(Properties properties) {
-        log.debug("Starting Swagger");
-        StopWatch watch = new StopWatch();
-        watch.start();
-        Contact contact = new Contact(
-            properties.getSwagger().getContactName(),
-            properties.getSwagger().getContactUrl(),
-            properties.getSwagger().getContactEmail());
-
-        ApiInfo apiInfo = new ApiInfo(
-            properties.getSwagger().getTitle(),
-            properties.getSwagger().getDescription(),
-            properties.getSwagger().getVersion(),
-            properties.getSwagger().getTermsOfServiceUrl(),
-            contact,
-            properties.getSwagger().getLicense(),
-            properties.getSwagger().getLicenseUrl());
-
-        Docket docket = new Docket(DocumentationType.SWAGGER_2)
-            .apiInfo(apiInfo)
-            .forCodeGeneration(true)
-            .genericModelSubstitutes(ResponseEntity.class)
-            .ignoredParameterTypes(Pageable.class)
-            .ignoredParameterTypes(java.sql.Date.class)
-            .directModelSubstitute(java.time.LocalDate.class, java.sql.Date.class)
-            .directModelSubstitute(java.time.ZonedDateTime.class, Date.class)
-            .directModelSubstitute(java.time.LocalDateTime.class, Date.class)
+    public Docket productApi() {
+        return new Docket(DocumentationType.SWAGGER_2)
             .select()
-            .paths(regex(DEFAULT_INCLUDE_PATTERN))
-            .build();
-        watch.stop();
-        log.debug("Started Swagger in {} ms", watch.getTotalTimeMillis());
-        return docket;
+            .apis(RequestHandlerSelectors.basePackage("com.shellshellfish"
+                + ".aaas.userinfo.controller"))
+            .paths(regex("/api.*"))
+            .build()
+            .apiInfo(metaData());
+    }
+    private ApiInfo metaData() {
+        ApiInfo apiInfo = new ApiInfo(
+            "Spring Boot REST API",
+            "Spring Boot REST API for Online Store",
+            "1.0",
+            "Terms of service",
+            "chen wei", "https://www.shellshellfish.com/about/",
+            "david.chen@shellshellfish.com" );
+        return apiInfo;
     }
 }

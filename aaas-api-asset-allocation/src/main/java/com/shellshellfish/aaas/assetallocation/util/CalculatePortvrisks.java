@@ -1,47 +1,35 @@
 package com.shellshellfish.aaas.assetallocation.util;
 
-import com.mathworks.toolbox.javabuilder.MWException;
-
-import com.yihui.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.junit.Assert;
 
 
 /**
- * Author: yongquan.xiong
- * Date: 2017/11/29
- * Desc:计算组合最大可能损失（使用 MATLAB）
+ * @Author: yongquan.xiong
+ * @Updated: pierre.chen
+ * @Date: 2018-04-20
+ * @Description:计算组合最大可能损失
  */
 public class CalculatePortvrisks {
-
-    private static final Logger logger = LoggerFactory.getLogger(CalculatePortvrisks.class);
-
-
-    /*
+    /**
      * 计算组合最大可能损失
-     * params:
-     *        portReturn   每个投资组合在该期间的预期收益
-     *        portRisk     每个项目组合的标准偏差
-     *        confidenceInterval  置信区间
-     *        riskThreshold    损失概率= 1 - 置信区间
-     *        portValue   资产组合的总价值
+     * portReturn   每个投资组合在该期间的预期收益
+     * portRisk     每个项目组合的标准偏差
+     * confidenceInterval  置信区间
+     * portValue   资产组合的总价值
      */
     public static Double calculatePortvrisk(double portReturn, double portRisk, double confidenceInterval, double portValue) {
-        Double portvrisk = null;
-        Object[] result = null;
-        Double riskThreshold = 1 - confidenceInterval;
-        try {
-            MATLAB matLab = new MATLAB();
-            result = matLab.calculatePortvrisk(1, portReturn, portRisk, riskThreshold, portValue);
-            if (result != null && result[0] != null) {
-                portvrisk = Double.parseDouble(result[0].toString());
-            }
-            matLab.dispose();
-        } catch (MWException e) {
-            logger.error("Failed to calculatePortvrisk!");
-            logger.error("exception:",e);
-        }
-        return portvrisk;
+        NormalDistribution n = new NormalDistribution(portReturn, portRisk);
+        double x = n.inverseCumulativeProbability(confidenceInterval);
+        double probability = 2 * portReturn - x;
+        return portValue * probability;
     }
 
+    public static void main(String[] args) {
+        NormalDistribution n = new NormalDistribution();
+        Assert.assertEquals(n.getMean(), 0L, 0.000001D);
+        Assert.assertEquals(n.getStandardDeviation(), 1L, 0.000001D);
+        Assert.assertEquals(1.9, n.inverseCumulativeProbability(0.9713), 0.001D);
+        Assert.assertEquals(0.9713, n.cumulativeProbability(1.9), 0.001);
+    }
 }

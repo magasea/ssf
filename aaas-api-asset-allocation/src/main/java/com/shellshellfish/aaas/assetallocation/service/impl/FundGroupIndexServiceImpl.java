@@ -46,6 +46,8 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
      */
     @Override
     public void calculateAnnualVolatilityAndAnnualYield(String groupId, String subGroupId, LocalDate startDate) {
+        logger.info("start to calculate historical annual yield and Historical annual volatility   groupId:{} ," +
+            "subGroupId:{}", groupId, subGroupId);
         if (startDate == null) {
             startDate = FundGroupService.GROUP_START_DATE;
         }
@@ -82,18 +84,20 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
 
     @Override
     public void calculateAnnualVolatilityAndAnnualYield(LocalDate startDate) {
+        logger.info("start to  calculate historical annual yield and Historical annual volatility   startDate:{}",
+            startDate);
+        long startTime = System.currentTimeMillis();
         if (startDate == null) {
             startDate = FundGroupService.GROUP_START_DATE;
         }
 
         List<Interval> list = fundGroupMapper.getAllIdAndSubId();
         for (Interval interval : list) {
-            String id = interval.getId();
-            if (id.endsWith("48")) {
-                //目前只用到48组合　所以可以只算他们的数据
-                calculateAnnualVolatilityAndAnnualYield(interval.getFund_group_id(), id, startDate);
-            }
+            calculateAnnualVolatilityAndAnnualYield(interval.getFund_group_id(), interval.getId(), startDate);
         }
+        long endTime = System.currentTimeMillis();
+        logger.info("finish to calculate historical annual yield and Historical annual volatility   startDate:{}," +
+            "costTime:{}ms", startDate, endTime - startTime);
     }
 
 }

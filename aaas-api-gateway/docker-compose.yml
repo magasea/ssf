@@ -11,7 +11,7 @@ services:
       - "10040:10041"
     environment:
       - SPRING_PROFILES_ACTIVE=k8s
-      - AVA_OPTIONS=-Xmx256m
+      - JAVA_OPTIONS=-Xmx256m
       
       
       

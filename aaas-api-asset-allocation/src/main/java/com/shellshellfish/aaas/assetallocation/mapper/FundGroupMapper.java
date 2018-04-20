@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.assetallocation.mapper;
 
 import com.shellshellfish.aaas.assetallocation.entity.*;
 import org.apache.ibatis.annotations.Param;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,8 @@ import java.util.Map;
  * Created by wangyinuo on 2017/11/16.
  */
 public interface FundGroupMapper {
+
+    List<String> getSubGroupIdByGroupId(String fundGroupId);
 
     List<Interval> selectFundGroup(Map map);
 
@@ -111,7 +114,7 @@ public interface FundGroupMapper {
 
     int batchUpdateContribution(List<Map> mapList);
 
-    int updateMaximumLosses(Map map);
+    int updateMaxLoss(@Param("fundGroupId") String fundGroupId, @Param("subGroupId") String subGroupId, @Param("maxLoss") Double maxLoss);
 
     int updateExpectedMaximumRetracement(Map map);
 

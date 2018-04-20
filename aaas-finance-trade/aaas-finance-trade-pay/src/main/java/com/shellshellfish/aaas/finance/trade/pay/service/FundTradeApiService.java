@@ -78,4 +78,6 @@ public interface FundTradeApiService {
 
     public String getWorkDay(String openId, String direction, int day)
         throws Exception;
+
+    List<BankZhongZhenInfo> getSupportedBank() throws Exception;
 }

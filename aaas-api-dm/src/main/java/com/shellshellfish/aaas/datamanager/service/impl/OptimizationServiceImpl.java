@@ -1324,7 +1324,7 @@ public class OptimizationServiceImpl implements OptimizationService {
       MongoFinanceDetail detail = new MongoFinanceDetail();
       for(int i = 0; i < mongoFinanceDetailsList.size(); i++){
         if(i == 0){
-          detail = new MongoFinanceDetail();
+          detail = mongoFinanceDetailsList.get(0);
           Integer total = detail.getTotal();
           if(total == 0){
             logger.error("no data");
@@ -1344,12 +1344,12 @@ public class OptimizationServiceImpl implements OptimizationService {
           Object obj = mongoFinanceDetailTemp.getResult();
           Map finaceDetailMapTemp = (Map) obj;
           if(finaceDetailMapTemp != null){
+            //setMap..getClass().getName().
             
           }
-          
         }
       }
-      
+      //detail.setResult(result);
       
       
 //      if (!CollectionUtils.isEmpty(mongoFinanceDetails)) {
