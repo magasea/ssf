@@ -5,6 +5,9 @@ package com.shellshellfish.aaas.finance.trade.order.service;
  */
 public interface BankDicService {
 
+  /**
+   * check zhongzhen api to get the current bank
+   */
   public void checkZhongZhenSupportedBanks();
 
 }
