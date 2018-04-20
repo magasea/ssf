@@ -4,7 +4,7 @@
 
 	<groupId>com.shellshellfish</groupId>
 	<artifactId>aaas-finance-trade-order</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<parent>
 		<groupId>com.shellshellfish</groupId>
