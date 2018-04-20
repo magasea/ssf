@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.oeminfo.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -92,5 +93,16 @@ public interface MidApiService {
 	 * @throws Exception
 	 */
 	Map sellFund(String userProdId, String prodId, String groupId, String userId, List<FinanceProdSellInfo> infoList) throws Exception;
+
+	/**
+	 * 按百分比赎回
+	 * 
+	 * @param userProdId
+	 * @param prodId
+	 * @param groupId
+	 * @param userUuid
+	 * @return
+	 */
+	Map sellFundPersent(String userProdId, String prodId, String groupId, String userUuid, String userBankNum, BigDecimal sellTargetPercent) throws Exception ;
 
 }
