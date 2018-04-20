@@ -46,7 +46,7 @@ public class UserInfoController {
 	Logger logger = LoggerFactory.getLogger(UserInfoController.class);
 	private final static String FUND_TYPE_TWO = "QDII基金";
 	// @Autowired
-	@Value("${shellshellfish.user-user-info}")
+	@Value("${shellshellfish.userinfo-url}")
 	private String userinfoUrl;
 
 	@Value("${shellshellfish.user-login-url}")

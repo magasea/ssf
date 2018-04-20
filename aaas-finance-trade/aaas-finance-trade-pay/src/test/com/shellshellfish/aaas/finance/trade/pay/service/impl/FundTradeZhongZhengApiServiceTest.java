@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.PayServiceApplication;
+import com.shellshellfish.aaas.finance.trade.pay.model.BankZhongZhenInfo;
 import com.shellshellfish.aaas.finance.trade.pay.model.FundNetZZInfo;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import java.util.List;
@@ -24,6 +25,19 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(classes = PayServiceApplication.class)
 @ActiveProfiles(profiles = "dev")
 public class FundTradeZhongZhengApiServiceTest {
+
+  @Test
+  public void getSupportedBank() throws Exception {
+
+    for(BankZhongZhenInfo bankZhongZhenInfo: fundTradeApiService.getSupportedBank()){
+      System.out.println(bankZhongZhenInfo.getBankName());
+      System.out.println(bankZhongZhenInfo.getBankSerial());
+      System.out.println(bankZhongZhenInfo.getCapitalModel());
+      System.out.println(bankZhongZhenInfo.getMoneyLimitDay());
+      System.out.println(bankZhongZhenInfo.getMoneyLimitOne());
+    };
+  }
+
   Logger logger = LoggerFactory.getLogger(FundTradeZhongZhengApiServiceTest.class);
 
   @Test

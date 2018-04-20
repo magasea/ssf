@@ -5,10 +5,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.model.*;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
+import java.lang.reflect.Type;
 import org.apache.commons.codec.digest.UnixCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -777,5 +779,19 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         }
         return zzFundNetCompond.getData();
 
+    }
+
+    @Override
+    public List<BankZhongZhenInfo> getSupportedBank() throws Exception {
+        Map<String, Object> info = init();
+        postInit(info);
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_support_bank_list";
+        String json = restTemplate.postForObject(url,info, String.class);
+        System.out.println(json);
+        Gson gson = new Gson();
+        Type ZZGeneralRespT = new TypeToken<ZZGeneralResp<BankZhongZhenInfo>>() {}.getType();
+        ZZGeneralResp<BankZhongZhenInfo> zhongZhenInfoZZGeneralResp =  gson.fromJson(json,
+            ZZGeneralRespT);
+        return zhongZhenInfoZZGeneralResp.getData();
     }
 }

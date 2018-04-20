@@ -110,8 +110,12 @@ public class RpcOrderServiceImpl implements RpcOrderService {
 		if (object == null || "".equals(object)) {
 			object = BankUtil.getNameOfBank(params.get("cardNumber").toString());
 			if (StringUtils.isEmpty(object)) {
-				logger.error("银行卡号不正确");
-				throw new UserInfoException("404", "银行卡号不正确");
+				logger.error("此卡暂不支持!");
+				throw new UserInfoException("404", "此卡暂不支持!");
+			}
+			if(!BankUtil.Luhn(params.get("cardNumber").toString())){
+				logger.error("输入的银行卡号不正确!");
+				throw new UserInfoException("404", "输入的银行卡号不正确!");
 			}
 		}
 		params.put("bankName", object.toString());

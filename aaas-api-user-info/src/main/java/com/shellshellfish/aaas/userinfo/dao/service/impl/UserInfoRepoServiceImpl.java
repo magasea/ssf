@@ -1,10 +1,13 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
+import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
+
 import com.mongodb.client.result.UpdateResult;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
+import com.shellshellfish.aaas.common.enums.grpc.ItemStatus;
 import com.shellshellfish.aaas.common.exceptions.ErrorConstants;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
@@ -14,6 +17,7 @@ import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
+import com.shellshellfish.aaas.userinfo.grpc.SellPersentProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductDetail;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductDetailResult;
 import com.shellshellfish.aaas.userinfo.grpc.SellProducts;
@@ -273,7 +277,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public List<UserPersonMsgDTO> getUiPersonMsg(Long userId) throws IllegalAccessException, InstantiationException {
-		List<UiPersonMsg> uiPersonMsgList = mongoUserPersonMsgRepo.getUiPersonMsgsByUserIdAndReaded(userId,
+		List<UiPersonMsg> uiPersonMsgList = mongoUserPersonMsgRepo.findByUserIdAndReadedOrderByCreatedDateDesc(userId.toString(),
 				Boolean.FALSE);
 		List<UserPersonMsgDTO> personMsgDtoList = MyBeanUtils.convertList(uiPersonMsgList, UserPersonMsgDTO.class);
 		return personMsgDtoList;
@@ -299,7 +303,7 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public List<UserSysMsgDTO> getUiSysMsg() throws IllegalAccessException, InstantiationException {
-		List<UiSysMsg> uiSysMsgList = mongoUserSysMsgRepo.findAllByOrderByDateDesc();
+		List<UiSysMsg> uiSysMsgList = mongoUserSysMsgRepo.findAllByOrderByCreatedDateDesc();
 		List<UserSysMsgDTO> uiSysMsgDtoList = MyBeanUtils.convertList(uiSysMsgList, UserSysMsgDTO.class);
 		return uiSysMsgDtoList;
 	}
@@ -1042,5 +1046,84 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
     }
     return mongoUiTrdLogDtoList;
   }
+
+	@Override
+	@Transactional
+	public Builder updateProductQuantity(SellPersentProducts request) throws Exception {
+		Long percent = request.getPercent();
+		if(percent < 0 || percent > 10000){
+			logger.error("percent:{} is out of range", percent);
+			throw new Exception(String.format("percent:{} is out of range", percent));
+		}
+		//检查出售的每个基金在当前用户拥有的产品有足够的份额
+		UiProducts uiProducts = uiProductRepo.findById(request.getUserProductId());
+		List<UiProductDetail> uiProductDetails = uiProductDetailRepo.findAllByUserProdId(request
+				.getUserProductId());
+		Map<String, UiProductDetail> currentAvailableFunds = new HashMap<>();
+//		Map<String, Integer> currentFundsStatus = new HashMap<>();
+		for(UiProductDetail uiProductDetail: uiProductDetails){
+			if(uiProductDetail.getFundQuantityTrade() == null || uiProductDetail.getFundQuantityTrade() <=
+					0){
+				continue;
+			}
+			if(uiProductDetail.getStatus() != null && uiProductDetail.getStatus() ==
+					TrdOrderStatusEnum.WAITSELL.getStatus()){
+				logger.error("fundCode:{} is in WAITSELL status:{}", uiProductDetail.getFundCode(),
+						uiProductDetail.getStatus());
+				throw new Exception(String.format("fundCode:%s is in WAITSELL status:%s",
+						uiProductDetail.getFundCode(), uiProductDetail.getStatus()));
+			}
+			currentAvailableFunds.put(uiProductDetail.getFundCode(), uiProductDetail);
+//			currentFundsStatus.put(uiProductDetail.getFundCode(), uiProductDetail.getStatus());
+		}
+		SellProductsResult.Builder sprBuilder = SellProductsResult.newBuilder();
+		SellProductDetailResult.Builder spdrBuilder = SellProductDetailResult.newBuilder();
+		for(Map.Entry<String, UiProductDetail> entryItem : currentAvailableFunds.entrySet()){
+			spdrBuilder.setFundCode(entryItem.getKey());
+			Long quantity = TradeUtil.getLongFromNumWithDiv10000 (entryItem.getValue()
+					.getFundQuantityTrade()*percent);
+
+			Long quantityRemain = entryItem.getValue().getFundQuantityTrade() - quantity;
+			if(quantityRemain < 100){
+				logger.error("quantityRemain:{} is too small", quantityRemain);
+				//按百分比份额赎回如果剩余的份额不足一份， 则把剩余份额全部赎回
+				quantity = new Long( entryItem.getValue().getFundQuantityTrade());
+				quantityRemain = 0L;
+				spdrBuilder.setFundQuantityTrade(quantity);
+				spdrBuilder.setFundQuantityTradeRemain(quantityRemain);
+			}else{
+				spdrBuilder.setFundQuantityTrade(quantity);
+				spdrBuilder.setFundQuantityTradeRemain(quantityRemain);
+			}
+			spdrBuilder.setResult(ItemStatus.SUCCESS.ordinal());
+			sprBuilder.addSellProductDetailResults(spdrBuilder);
+			uiProductDetailRepo.updateByParamDeductTrade(quantityRemain, TradeUtil.getUTCTime(),
+					request.getUserId(), request.getUserProductId(), entryItem.getValue().getFundCode(),
+					TrdOrderStatusEnum.WAITSELL.getStatus() );
+			spdrBuilder.clear();
+		}
+		return sprBuilder;
+	}
+
+
+	/**
+	 */
+	@Override
+	public void sellPersentUserProducts(com.shellshellfish.aaas.userinfo.grpc.SellPersentProducts request,
+			io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.SellProductsResult> responseObserver) {
+		SellProductsResult.Builder result = null;
+		try {
+			result = updateProductQuantity(request);
+		} catch (Exception e) {
+			logger.error("exception:",e);
+			ErrInfo.Builder eiBuilder = ErrInfo.newBuilder();
+			eiBuilder.setErrCode(ErrorConstants.GRPC_ERROR_UI_CHECKSELL_FAIL_GENERAL);
+			eiBuilder.setErrMsg(e.getMessage());
+			result.setErrInfo(eiBuilder);
+		}
+		responseObserver.onNext(result.build());
+		responseObserver.onCompleted();
+
+	}
 }
 
