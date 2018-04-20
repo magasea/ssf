@@ -220,7 +220,11 @@ public class JobScheduleService {
                 documents.add(document);
             }
             // 删除所有符合条件的文档
-            collection.deleteMany(Filters.eq("title", collectionName));
+            Document filter = new Document(); 
+            filter.append("title", collectionName);
+            filter.append("oemId", oemId);
+//            collection.deleteMany(Filters.eq("title", collectionName), Filters.eq("oemId", oemId));
+            collection.deleteMany(filter);
             collection.insertMany(documents);
             logger.info("文档插入成功");
         } catch (Exception e) {
@@ -258,7 +262,8 @@ public class JobScheduleService {
                 append("lowPercentMaxIncomeSizeMap", lowPercentMaxIncomeSizeMap).
                 append("lowPercentMinIncomeSizeMap", lowPercentMinIncomeSizeMap).
                 append("_schemaVersion", _schemaVersion).
-                append("_serviceId", _serviceId);
+                append("_serviceId", _serviceId).
+		        append("oemId", oemId);
 
         return document;
     }

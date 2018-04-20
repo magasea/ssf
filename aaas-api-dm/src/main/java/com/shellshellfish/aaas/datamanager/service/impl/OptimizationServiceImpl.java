@@ -37,6 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -65,6 +68,9 @@ public class OptimizationServiceImpl implements OptimizationService {
 
     @Autowired
     private RestTemplate restTemplate;
+    
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Autowired
     GroupController groupController;
@@ -139,7 +145,7 @@ public class OptimizationServiceImpl implements OptimizationService {
                         }
 
                         // 去另一接口获取历史收益率图表的数据
-                        Map histYieldRate = getCombYieldRate(groupId, subGroupId);
+                        Map histYieldRate = getCombYieldRate(groupId, subGroupId, null);
 
                         String startDate = histYieldRate.get("startDate").toString();
                         // 去另一个接口获取预期年化，预期最大回撤
@@ -200,7 +206,7 @@ public class OptimizationServiceImpl implements OptimizationService {
         return jsonResult;
     }
 
-    public JsonResult financeFront() {
+    public JsonResult financeFront(Integer oemid) {
         Map returnMap = new HashMap<>();
         // BANNER LIST
         List<String> bannerList = new ArrayList<>();
@@ -212,7 +218,7 @@ public class OptimizationServiceImpl implements OptimizationService {
         returnMap.put("bannerList", bannerList);
 
         // 先获取全部产品
-        String url = assetAlloctionUrl + "/api/asset-allocation/products";
+        String url = assetAlloctionUrl + "/api/asset-allocation/products/"+oemid;
         Map result = null;// 中间容器
 
         Object object = null;
@@ -242,7 +248,8 @@ public class OptimizationServiceImpl implements OptimizationService {
 //			mongoFinanceAll.setResult(jsonResult.getResult());
             mongoFinanceAll.setResult(returnMap);
             mongoFinanceAll.setLastModifiedBy(utcTime + "");
-            mongoFinanceALLRepository.deleteAll();
+            mongoFinanceAll.setOemid(oemid);
+            mongoFinanceALLRepository.deleteAllByOemid(oemid);
 //			MongoFinanceAll mongoFinanceCount = mongoFinanceALLRepository.findAllByDate(date);
 //			if(mongoFinanceCount!=null){
 //				logger.info("已存在，删除后重新插入");
@@ -294,7 +301,7 @@ public class OptimizationServiceImpl implements OptimizationService {
                           }
 
                             // 去另一接口获取历史收益率图表的数据
-                            Map histYieldRate = getCombYieldRate(groupId, subGroupId);
+                            Map histYieldRate = getCombYieldRate(groupId, subGroupId, oemid);
 
                             String startDate = histYieldRate.get("startDate").toString();
                             // 去另一个接口获取预期年化，预期最大回撤
@@ -366,12 +373,12 @@ public class OptimizationServiceImpl implements OptimizationService {
     /**
      * 根据groupid和subgroupid获取产品组合的组合收益率
      */
-    protected Map<String, Object> getCombYieldRate(String groupId, String subgroupId) {
+    protected Map<String, Object> getCombYieldRate(String groupId, String subgroupId,Integer oemId) {
         Map result;
         try {
             // 准备调用asset-allocation接口的方法，获取组合组合收益率(最大回撤)走势图-每天
             String url = assetAlloctionUrl
-                    + "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield-all?returnType=income";
+                    + "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield-all?returnType=income&oemId=" + oemId;
             result = restTemplate.getForEntity(url, Map.class, groupId, subgroupId).getBody();
             result.remove("_total");
             result.remove("_name");
@@ -481,7 +488,7 @@ public class OptimizationServiceImpl implements OptimizationService {
     }
 
     @Override
-    public JsonResult getFinanceFront(int size, int pageSize) {
+    public JsonResult getFinanceFront(Integer size, Integer pageSize, Integer oemid) {
         JsonResult jsonResult = null;
         if(size <= 0){
           logger.error("输入本页显示数不正确，请重新输入");
@@ -494,17 +501,28 @@ public class OptimizationServiceImpl implements OptimizationService {
         String dateTime = TradeUtil.getReadableDateTime(utcTime);
         String date = dateTime.split("T")[0].replaceAll("-", "");
         //MongoFinanceAll mongoFinanceAll = mongoFinanceALLRepository.findAllByDate(date);
-        List<MongoFinanceAll> mongoFinanceList = mongoFinanceALLRepository.findAllByDate(date);
-        if(mongoFinanceList==null || mongoFinanceList.size() == 0){
-          return null;
+//        List<MongoFinanceAll> mongoFinanceList = mongoFinanceALLRepository.findAllByDate(date);
+//        if(mongoFinanceList==null || mongoFinanceList.size() == 0){
+//          return null;
+//        }
+        Criteria criteria = new Criteria();
+        criteria.where("date").is(date);
+        criteria.where("oemid").is(oemid);
+        Query query = Query.query(criteria);
+        long count = mongoTemplate.count(query, MongoFinanceAll.class);
+        if(count == 0){
+        	logger.warn("今日暂无组合列表数据，正在重新更新数据中...");
+        	return null;
         }
+        
         List<Integer> serialList = new ArrayList<>();
         serialList.add(0);
         int begin = size * pageSize + 1;
         for (int i = 0; i < size; i++) {
             serialList.add(begin + i);
         }
-        List<MongoFinanceAll> mongoFinanceCountList = mongoFinanceALLRepository.findBySerialIn(serialList);
+//        List<MongoFinanceAll> mongoFinanceCountList = mongoFinanceALLRepository.findBySerialIn(serialList);
+        List<MongoFinanceAll> mongoFinanceCountList = mongoFinanceALLRepository.findBySerialInAndOemid(serialList, oemid);
         if(mongoFinanceCountList == null || mongoFinanceCountList.size() == 1){
           jsonResult = new JsonResult(JsonResult.SUCCESS, "此页无数据", JsonResult.EMPTYRESULT);
           logger.info("OptimizationServiceImpl.getFinanceFront() 数据获取为空");
@@ -647,13 +665,13 @@ public class OptimizationServiceImpl implements OptimizationService {
     }
 
     @Override
-    public JsonResult checkPrdDetails2(String groupId, String subGroupId) {
+    public JsonResult checkPrdDetails2(String groupId, String subGroupId, Integer oemid) {
         Map<String, Object> result = new HashMap<String, Object>();
         // 饼图（返回单个基金组合产品信息）
         Map<Integer, Object> assetsRatiosMap = new HashMap<Integer, Object>();
         try {
             String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
-                    + "/sub-groups/" + subGroupId;
+                    + "/sub-groups/" + subGroupId + "/" + oemid;
             Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
             if (productMap == null) {
                 logger.info("单个基金组合产品信息为空");
@@ -686,7 +704,7 @@ public class OptimizationServiceImpl implements OptimizationService {
                 }
             }
 
-            result = this.getPrdNPVList2(groupId, subGroupId, assetsRatiosMap);
+            result = this.getPrdNPVList2(groupId, subGroupId, assetsRatiosMap, oemid);
             if (result == null) {
                 return new JsonResult(JsonResult.Fail, "获取净值增长值活净值增长率为空", JsonResult.EMPTYRESULT);
             }
@@ -714,6 +732,7 @@ public class OptimizationServiceImpl implements OptimizationService {
             String date = dateTime.split("T")[0].replaceAll("-", "");
             mongoFinanceDetail.setDate(date);
             mongoFinanceDetail.setGroupId(groupId);
+            mongoFinanceDetail.setOemid(oemid);
             mongoFinanceDetail.setSubGroupId(subGroupId);
             System.out.println("---\n" + date);
 //			mongoFinanceDetail.setHead(jsonResult.getHead());
@@ -769,9 +788,9 @@ public class OptimizationServiceImpl implements OptimizationService {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         List<FundNAVInfo> resultList = new ArrayList<>();
         //获取所有产品净值增长值的list
-        List<FundNAVInfo> listA = getNPVIncrement(groupId, subGroupId);
+        List<FundNAVInfo> listA = getNPVIncrement(groupId, subGroupId, null);
         //获取所有产品净值增长率的list
-        List<FundNAVInfo> listB = getNPVIncrementRate(groupId, subGroupId);
+        List<FundNAVInfo> listB = getNPVIncrementRate(groupId, subGroupId, null);
         //遍历每一个对象进行对比
         if (listA == null || listB == null) {
             logger.error("获取净值增长值活净值增长率为null");
@@ -822,13 +841,13 @@ public class OptimizationServiceImpl implements OptimizationService {
         return resultMap;
     }
 
-    public Map<String, Object> getPrdNPVList2(String groupId, String subGroupId, Map<Integer, Object> assetsRatiosMap) {
+    public Map<String, Object> getPrdNPVList2(String groupId, String subGroupId, Map<Integer, Object> assetsRatiosMap, Integer oemid) {
         Map<String, Object> result = new HashMap<String, Object>();
         List<FundNAVInfo> resultList = new ArrayList<>();
         //获取所有产品净值增长值的list
-        List<FundNAVInfo> listA = getNPVIncrement(groupId, subGroupId);
+        List<FundNAVInfo> listA = getNPVIncrement(groupId, subGroupId, oemid);
         //获取所有产品净值增长率的list
-        List<FundNAVInfo> listB = getNPVIncrementRate(groupId, subGroupId);
+        List<FundNAVInfo> listB = getNPVIncrementRate(groupId, subGroupId, oemid);
         Map<Integer, List<FundNAVInfo>> resultMap = new HashMap<Integer, List<FundNAVInfo>>();
         //遍历每一个对象进行对比
         if (listA == null || listB == null) {
@@ -899,13 +918,13 @@ public class OptimizationServiceImpl implements OptimizationService {
      * @param subGroupId
      * @return
      */
-    private List<FundNAVInfo> getNPVIncrement(String groupId, String subGroupId) {
+    private List<FundNAVInfo> getNPVIncrement(String groupId, String subGroupId, Integer oemid) {
         FundNAVInfo info = new FundNAVInfo();
         Map result = new HashMap<>();
         List<FundNAVInfo> resultList = new ArrayList<FundNAVInfo>();
         try {
             //调用组合各种类型净值收益，参数为1，获取净值走势
-            String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/fund-navadj?returnType=1&id=" + groupId + "&subGroupId=" + subGroupId;
+            String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/fund-navadj?returnType=1&oemId=" + oemid;
             result = restTemplate.getForEntity(url, Map.class).getBody();
         } catch (Exception e) {
             logger.error("调用restTemplate查询净值增长数据获取失败", e.getMessage());
@@ -955,13 +974,13 @@ public class OptimizationServiceImpl implements OptimizationService {
      * @param subGroupId
      * @return
      */
-    private List<FundNAVInfo> getNPVIncrementRate(String groupId, String subGroupId) {
+    private List<FundNAVInfo> getNPVIncrementRate(String groupId, String subGroupId, Integer oemid) {
         FundNAVInfo info = new FundNAVInfo();
         Map result = new HashMap<>();
         List<FundNAVInfo> resultList = new ArrayList<FundNAVInfo>();
         try {
             //调用组合各种类型净值收益，参数为1，获取净值走势
-            String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/fund-navadj?returnType=2&id=" + groupId + "&subGroupId=" + subGroupId;
+            String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/fund-navadj?returnType=2&oemId=" + oemid;
             result = restTemplate.getForEntity(url, Map.class).getBody();
         } catch (Exception e) {
             logger.error("调用restTemplate查询净值增长数据获取失败", e.getMessage());
@@ -1116,28 +1135,34 @@ public class OptimizationServiceImpl implements OptimizationService {
     }
 
     @Override
-    public JsonResult getPrdDetails(String groupId, String subGroupId) {
+    public JsonResult getPrdDetails(String groupId, String subGroupId, Integer oemid) {
         JsonResult jsonResult = null;
         Long utcTime = TradeUtil.getUTCTime();
         String dateTime = TradeUtil.getReadableDateTime(utcTime);
         String date = dateTime.split("T")[0].replaceAll("-", "");
-        List<MongoFinanceDetail> mongoFinanceDetailList = mongoFinanceDetailRepository.findAllByDate(date);
-        if(mongoFinanceDetailList == null || mongoFinanceDetailList.size() == 0){
-          return null;
+//        List<MongoFinanceDetail> mongoFinanceDetailList = mongoFinanceDetailRepository.findAllByDate(date);
+//        if(mongoFinanceDetailList == null || mongoFinanceDetailList.size() == 0){
+//          return null;
+//        }
+        Criteria criteria = new Criteria();
+        criteria.where("date").is(date);
+        criteria.where("oemid").is(oemid);
+        Query query = Query.query(criteria);
+        long count = mongoTemplate.count(query, MongoFinanceDetail.class);
+        if(count == 0){
+        	logger.warn("今日暂无组合详情数据，正在重新更新数据中...");
+        	return null;
         }
         
-        List<MongoFinanceDetail> mongoFinanceDetails = mongoFinanceDetailRepository
-            .findAllByGroupIdAndSubGroupId(groupId, subGroupId);
+        List<MongoFinanceDetail> mongoFinanceDetails = mongoFinanceDetailRepository.findAllByGroupIdAndSubGroupIdAndOemid(groupId, subGroupId, oemid);
 //		MongoFinanceDetail mongoFinanceDetail = mongoFinanceDetailRepository.findAllByGroupIdAndSubGroupId(groupId, subGroupId);
         if(!CollectionUtils.isEmpty(mongoFinanceDetails)){
-        if (mongoFinanceDetails.size() == 1) {
-
-            logger.info("获取信息成功");
-        }else{
-            logger.error("有重复数据：groupId {} subGoupI {}", groupId, subGroupId);
-        }
-            jsonResult = new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", mongoFinanceDetails
-                .get(0).getResult());
+	        if (mongoFinanceDetails.size() == 1) {
+	            logger.info("获取信息成功");
+	        }else{
+	            logger.error("有重复数据：groupId {} subGoupI {}", groupId, subGroupId);
+	        }
+	        jsonResult = new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", mongoFinanceDetails.get(0).getResult());
         } else {
             logger.error("com.shellshellfish.datamanager.service.OptimizationServiceImpl.getPrdDetails() 数据获取为空");
         }

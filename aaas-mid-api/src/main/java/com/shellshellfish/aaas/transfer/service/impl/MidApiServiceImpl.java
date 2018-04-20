@@ -58,13 +58,13 @@ public class MidApiServiceImpl implements MidApiService {
 
 	//获取产品详情的所有数据
 	@Override
-	public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) {
+	public Map<String, Object> getPrdNPVList(String groupId, String subGroupId, Integer oemid) {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		List<FundNAVInfo> resultList = new ArrayList<>();
 		//获取所有产品净值增长值的list
-		List<FundNAVInfo> listA = getNPVIncrement(groupId, subGroupId);
+		List<FundNAVInfo> listA = getNPVIncrement(groupId, subGroupId, oemid);
 		//获取所有产品净值增长率的list
-		List<FundNAVInfo> listB = getNPVIncrementRate(groupId, subGroupId);
+		List<FundNAVInfo> listB = getNPVIncrementRate(groupId, subGroupId, oemid);
 		//遍历每一个对象进行对比
 		if (listA == null || listB == null) {
 			logger.error("获取净值增长值活净值增长率为null");
@@ -117,12 +117,12 @@ public class MidApiServiceImpl implements MidApiService {
 
 
 	@Override
-	public Map<String, Object> getExpAnnualAndMaxReturn(String groupId, String subGroupId) {
+	public Map<String, Object> getExpAnnualAndMaxReturn(String groupId, String subGroupId, Integer oemid) {
 		Map resultMap = new HashMap<>();
 		String expAnnRate = null;
 		String expMaxReturn = null;
 		try {
-			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/opt?returntype=1";
+			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/opt/" + oemid + "?returntype=1";
 			String str = "{\"returntype\":\"" + "1" + "\"}";
 			Map result = (Map) restTemplate.postForEntity(url, getHttpEntity(str), Map.class).getBody();
 			expAnnRate = result.get("value").toString();
@@ -131,7 +131,7 @@ public class MidApiServiceImpl implements MidApiService {
 			resultMap.put("expAnnRate", "");
 		}
 		try {
-			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/opt?returntype=2";
+			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/opt/" + oemid + "?returntype=2";
 			String str = "{\"returntype\":\"" + "2" + "\"}";
 			Map result = (Map) restTemplate.postForEntity(url, getHttpEntity(str), Map.class).getBody();
 			expMaxReturn = result.get("value").toString();
@@ -253,7 +253,7 @@ public class MidApiServiceImpl implements MidApiService {
 
 
 	@Override
-	public Map<String, Object> getOptAdjustment(String riskLevel, String invstTerm) throws Exception {
+	public Map<String, Object> getOptAdjustment(String riskLevel, String invstTerm, Integer oemid) throws Exception {
 		String[] field = {"模拟历史年化业绩", "模拟历史年化波动率", "置信区间", "最大亏损额", "夏普比率"};//记录要获取的数据的属性值
 		String[] valueInEnglish = {"hisAnnualPerformanceSimu", "histAnnualVolaSimu", "confInterval", "maxDeficit", "sharpeRatio"}; //记录对应属性值的英文字段
 		Map relationMap = new HashMap<>();//关系表
@@ -269,7 +269,7 @@ public class MidApiServiceImpl implements MidApiService {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		Map container = null;
 		try {
-			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/";
+			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + oemid;
 			MultiValueMap map = new LinkedMultiValueMap<>();
 			map.add("riskLevel", riskLevel);
 			map.add("investmentPeriod", invstTerm);
@@ -310,7 +310,7 @@ public class MidApiServiceImpl implements MidApiService {
 				try {
 					String groupId = (String) container.get("productGroupId");
 					String subGroupId = (String) container.get("productSubGroupId");
-					url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId;
+					url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/" + oemid;
 					Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
 					if (productMap == null) {
 						logger.info("单个基金组合产品信息为空");
@@ -430,13 +430,13 @@ public class MidApiServiceImpl implements MidApiService {
 	 * @param subGroupId
 	 * @return
 	 */
-	private List<FundNAVInfo> getNPVIncrement(String groupId, String subGroupId) {
+	private List<FundNAVInfo> getNPVIncrement(String groupId, String subGroupId, Integer oemid) {
 		FundNAVInfo info = new FundNAVInfo();
 		Map result = new HashMap<>();
 		List<FundNAVInfo> resultList = new ArrayList<FundNAVInfo>();
 		try {
 			//调用组合各种类型净值收益，参数为1，获取净值走势
-			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/fund-navadj?returnType=1&id=" + groupId + "&subGroupId=" + subGroupId;
+			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/fund-navadj?returnType=1&oemId=" + oemid;
 			result = restTemplate.getForEntity(url, Map.class).getBody();
 		} catch (Exception e) {
 			logger.error("调用restTemplate查询净值增长数据获取失败", e.getMessage());
@@ -486,13 +486,13 @@ public class MidApiServiceImpl implements MidApiService {
 	 * @param subGroupId
 	 * @return
 	 */
-	private List<FundNAVInfo> getNPVIncrementRate(String groupId, String subGroupId) {
+	private List<FundNAVInfo> getNPVIncrementRate(String groupId, String subGroupId, Integer oemid) {
 		FundNAVInfo info = new FundNAVInfo();
 		Map result = new HashMap<>();
 		List<FundNAVInfo> resultList = new ArrayList<FundNAVInfo>();
 		try {
 			//调用组合各种类型净值收益，参数为1，获取净值走势
-			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/fund-navadj?returnType=2&id=" + groupId + "&subGroupId=" + subGroupId;
+			String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/fund-navadj?returnType=2&oemId=" + oemid;
 			result = restTemplate.getForEntity(url, Map.class).getBody();
 		} catch (Exception e) {
 			logger.error("调用restTemplate查询净值增长数据获取失败", e.getMessage());

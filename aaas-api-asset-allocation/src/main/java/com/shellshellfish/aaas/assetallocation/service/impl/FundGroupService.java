@@ -248,13 +248,13 @@ public class FundGroupService {
         return fr;
     }
 
-    public ReturnType getPerformanceVolatilityHomePage() {
+    public ReturnType getPerformanceVolatilityHomePage(Integer oemId) {
         ReturnType fr = new ReturnType();
         List<Map<String, Object>> listMap = new ArrayList<>();
         Map<String, String> _links = new HashMap<>();
         Map<String, Object> map = new HashMap<>();
         for (int i = 1; i <= RISK_LEVEL_COUNT; i++) {
-            PerformanceVolatilityReturn pfvr = getPerformanceVolatility("C" + i, "2");
+            PerformanceVolatilityReturn pfvr = getPerformanceVolatility("C" + i, "2", oemId);
             map.put("C" + i, pfvr);
         }
         listMap.add(map);
@@ -564,7 +564,7 @@ public class FundGroupService {
      * @param investment_horizon
      * @return
      */
-    public PerformanceVolatilityReturn getPerformanceVolatility(String cust_risk, String investment_horizon) {
+    public PerformanceVolatilityReturn getPerformanceVolatility(String cust_risk, String investment_horizon, Integer oemId) {
         Map<String, Object> map = new HashMap<>();
         Map<String, String> _links = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
@@ -579,6 +579,7 @@ public class FundGroupService {
         } else {
             map.put("investment_horizon", investment_horizon);
         }
+        map.put("oemId", "" + oemId);
         List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getPerformanceVolatility(map);
         if (CollectionUtils.isEmpty(riskIncomeIntervals)) {
             aReturn.setName("模拟数据");

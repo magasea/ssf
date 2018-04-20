@@ -75,9 +75,9 @@ public class FundGroupController {
      * @return
      */
     @ApiOperation("返回首页五个产品")
-    @RequestMapping(value = "/api/asset-allocation/products/home-page", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType getPerformanceVolatilityHomePage() {
-        return fundGroupService.getPerformanceVolatilityHomePage();
+    @RequestMapping(value = "/api/asset-allocation/products/home-page/{oemId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ReturnType getPerformanceVolatilityHomePage(@PathVariable("oemId") Integer oemId) {
+        return fundGroupService.getPerformanceVolatilityHomePage(oemId);
     }
 
     /**
@@ -102,9 +102,9 @@ public class FundGroupController {
      * @return
      */
     @ApiOperation("预期年化收益(action=calcExpectedAnnualizedReturn), 预期最大回撤(action=calcExpectedMaxPullback)")
-    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Object>> selectReturnAndPullback(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="1") String returntype) {
-        Map<String, Object> map = fundGroupService.selectReturnAndPullback(groupId, returntype, subGroupId);
+    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt/{oemId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Object>> selectReturnAndPullback(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="1") String returntype, @PathVariable("oemId") Integer oemId) {
+        Map<String, Object> map = fundGroupService.selectReturnAndPullback(groupId, returntype, subGroupId, oemId);
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
@@ -194,9 +194,9 @@ public class FundGroupController {
      * @return
      */
     @ApiOperation("模拟历史年化业绩与模拟历史年化波动率")
-    @RequestMapping(value = "/api/asset-allocation/product-groups", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public PerformanceVolatilityReturn getPerformanceVolatility(@RequestParam(defaultValue="C1") String riskLevel, @RequestParam(defaultValue="1") String investmentPeriod) {
-        return fundGroupService.getPerformanceVolatility(riskLevel, investmentPeriod);
+    @RequestMapping(value = "/api/asset-allocation/product-groups/{oemId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public PerformanceVolatilityReturn getPerformanceVolatility(@RequestParam(defaultValue="C1") String riskLevel, @RequestParam(defaultValue="1") String investmentPeriod, @PathVariable("oemId") Integer oemId) {
+        return fundGroupService.getPerformanceVolatility(riskLevel, investmentPeriod, oemId);
     }
 
     /**
@@ -206,7 +206,7 @@ public class FundGroupController {
      * @return
      */
     @ApiOperation("历史业绩")
-    @RequestMapping(value = "/api/asset-allocation/product-groups/historicalPer-formance/",
+    @RequestMapping(value = "/api/asset-allocation/product-groups/historicalPer-formance",
         method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public PerformanceVolatilityReturn getHistoricalPerformance(@RequestParam(defaultValue="6")
         String fund_group_id, @RequestParam(defaultValue="6000") String subGroupId, @RequestParam
@@ -313,9 +313,9 @@ public class FundGroupController {
      */
     @ApiOperation("组合各种类型净值收益")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/fund-navadj", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType getFundNetValue(String id, String subGroupId, @RequestParam(defaultValue="1") String returnType
+    public ReturnType getFundNetValue(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="1") String returnType
         ,@RequestParam(defaultValue = "1") Integer oemId) {
-        return fundGroupService.getFundNetValue(id, subGroupId, oemId, returnType);
+        return fundGroupService.getFundNetValue(groupId, subGroupId, oemId, returnType);
     }
 
     /**

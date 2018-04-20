@@ -611,13 +611,15 @@ public class UserInfoController {
 			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = false, value = "预计费用"),
 			@ApiImplicitParam(paramType = "query", name = "poundage", dataType = "String", required = false, value = "手续费"),
 			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = false, value = "银行名称"),
-			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"), })
+			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1")})
 	@RequestMapping(value = "/sellresult", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getSellRecords(@RequestParam String uuid, @RequestParam String prodId,
 			@RequestParam(required = false) String orderId, @RequestParam(required = false) String buyfee,
 			@RequestParam(required = false) String poundage, @RequestParam(required = false) String bankName,
-			@RequestParam(required = false) String bankCard) {
+			@RequestParam(required = false) String bankCard,
+			@RequestParam(required = true) Integer oemid) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
 			String url = userinfoUrl + "/api/userinfo/users/" + uuid + "/orders/" + prodId + "/sell-records?buyfee="
@@ -676,7 +678,7 @@ public class UserInfoController {
 									String subGroupId = productResult.get("subGroupId") + "";
 									// 获取二级分类
 									String url3 = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
-											+ "/sub-groups/" + subGroupId;
+											+ "/sub-groups/" + subGroupId + "/" + oemid;
 									Map productMap = restTemplate.getForEntity(url3, Map.class).getBody();
 									if (productMap == null) {
 										logger.info("单个基金组合产品信息为空");

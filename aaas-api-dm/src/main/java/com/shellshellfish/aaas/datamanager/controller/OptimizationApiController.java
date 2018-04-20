@@ -34,34 +34,45 @@ public class OptimizationApiController {
 	OptimizationService optimizationService;
 	
 	@Autowired
-  MongoFinanceDetailRepository mongoFinanceDetailRepository;
+	MongoFinanceDetailRepository mongoFinanceDetailRepository;
 
 	@ApiOperation("进入理财页面后的数据")
 	@GetMapping(value = "/financeFrontPage")
 	@ResponseBody
 	public HttpJsonResult financeModule() {
-		JsonResult jsonResult = optimizationService.financeFront();
-		if (jsonResult != null) {
-			logger.info("run OptimizationApiController.financeModule() success..");
+		JsonResult jsonResult1 = optimizationService.financeFront(1);
+		if (jsonResult1 != null) {
+			logger.info("run OptimizationApiController.financeModule() success1..");
 			System.out.println("run success");
-			return new HttpJsonResult (HttpStatus.OK.value(),"OK", JsonResult.EMPTYRESULT);
+			logger.info("贝贝鱼数据：OK");
 		} else {
-			return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:没有获取到产品", JsonResult.EMPTYRESULT);
+			return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:没有获取到贝贝鱼数据产品", JsonResult.EMPTYRESULT);
 		}
+		
+		jsonResult1 = optimizationService.financeFront(2);
+		if (jsonResult1 != null) {
+			logger.info("run OptimizationApiController.financeModule() success2..");
+			System.out.println("run success");
+			logger.info("兰州银行数据：OK");
+		} else {
+			return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:没有获取到兰州银行数据产品", JsonResult.EMPTYRESULT);
+		}
+		return new HttpJsonResult (HttpStatus.OK.value(),"OK", JsonResult.EMPTYRESULT);
 	}
 
 	@ApiOperation("获取进入理财页面后的数据")
 	@ApiImplicitParams({
       @ApiImplicitParam(paramType = "query", name = "size", dataType = "Integer", required = true, value = "每页显示数（至少大于1）", defaultValue = "15"),
       @ApiImplicitParam(paramType = "query", name = "pageSize", dataType = "Integer", required = true, value = "显示页数（从0开始）", defaultValue = "0"),
+      @ApiImplicitParam(paramType = "query", name = "oemid", dataType = "oemid", required = true, value = "oemid", defaultValue = "1"),
     })
 	@RequestMapping(value = "/getFinanceFrontPage", method = RequestMethod.GET)
 	@ResponseBody
-	public JsonResult getFinanceModule(@RequestParam(defaultValue="15") Integer size, @RequestParam(defaultValue="0") Integer pageSize) {
-		JsonResult result = optimizationService.getFinanceFront(size, pageSize);
+	public JsonResult getFinanceModule(@RequestParam(defaultValue="15") Integer size, @RequestParam(defaultValue="0") Integer pageSize, @RequestParam(defaultValue="1") Integer oemid) {
+		JsonResult result = optimizationService.getFinanceFront(size, pageSize, oemid);
 		if (result == null) {
-			optimizationService.financeFront();
-			result = optimizationService.getFinanceFront(size, pageSize);
+			optimizationService.financeFront(oemid);
+			result = optimizationService.getFinanceFront(size, pageSize, oemid);
 		}
 		logger.info("getFinanceFrontPage info: size:{}-pageSize:{}-Ok", size, pageSize);
 		System.out.println("run success");
@@ -106,21 +117,35 @@ public class OptimizationApiController {
 	  Boolean result = true;
 	  mongoFinanceDetailRepository.deleteAll();
 	  
-	  for(int i = 1;i < 16; i++){
-	    String groupId = i + "";
-	    String subGroupId = i + "0048";
-	    jsonResult = optimizationService.checkPrdDetails2(groupId, subGroupId);
-	    if (jsonResult != null) {
-	      logger.info("groupId:{}-subGroupId:{}-Ok", groupId, subGroupId);
-//	      System.out.println("groupId：" + groupId + " , subGroupId:" + subGroupId + " -->OK");
-//				return new JsonResult(JsonResult.SUCCESS, "OK", JsonResult.EMPTYRESULT);
-	    } else {
-	      logger.warn("groupId:{}-subGroupId:{}-no data", groupId, subGroupId);
-	      result = false;
-	      return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:没有获取到产品:subGroupId为-->"+subGroupId,
-	          JsonResult.EMPTYRESULT);
-	    }
+	  for(int oemid = 1 ; oemid < 3;oemid++){
+		  for(int i = 1;i < 16; i++){
+			  String groupId = i + "";
+			  String subGroupId = i + "0048";
+			  jsonResult = optimizationService.checkPrdDetails2(groupId, subGroupId, oemid);
+			  if(oemid == 1){
+				  if (jsonResult != null) {
+					  logger.info("贝贝鱼：groupId:{}-subGroupId:{}-Ok", groupId, subGroupId);
+				  } else {
+					  logger.warn("贝贝鱼：groupId:{}-subGroupId:{}-no data", groupId, subGroupId);
+					  result = false;
+					  break;
+//					  return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:贝贝鱼没有获取到产品:subGroupId为-->"+subGroupId,
+//							  JsonResult.EMPTYRESULT);
+				  }
+			  } else if(oemid == 2) {
+				  if (jsonResult != null) {
+					  logger.info("兰州银行：groupId:{}-subGroupId:{}-Ok", groupId, subGroupId);
+				  } else {
+					  logger.warn("兰州银行：groupId:{}-subGroupId:{}-no data", groupId, subGroupId);
+					  result = false;
+					  break;
+//					  return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:兰州银行没有获取到产品:subGroupId为-->"+subGroupId,
+//							  JsonResult.EMPTYRESULT);
+				  }
+			  }
+		  }
 	  }
+	  
 	  if (result) {
 //	    return new HttpJsonResult(HttpStatus.OK.value(), "OK", jsonResult);
 	    return new HttpJsonResult(HttpStatus.OK.value(), "OK", JsonResult.EMPTYRESULT);
@@ -132,11 +157,11 @@ public class OptimizationApiController {
 	@ApiOperation("获取理财产品详情页面的数据")
 	@RequestMapping(value = "/getCheckPrdDetails", method = RequestMethod.GET)
 	@ResponseBody
-	public JsonResult getPrdDetails(String groupId, String subGroupId) {
-		JsonResult result = optimizationService.getPrdDetails(groupId, subGroupId);
+	public JsonResult getPrdDetails(String groupId, String subGroupId, Integer oemid) {
+		JsonResult result = optimizationService.getPrdDetails(groupId, subGroupId, oemid);
 		if (result == null) {
 			this.prdDetails();
-			result = optimizationService.getPrdDetails(groupId, subGroupId);
+			result = optimizationService.getPrdDetails(groupId, subGroupId, oemid);
 		}
 		logger.info("getCheckPrdDetails info: groupId:{}-subGroupId:{}-Ok", groupId, subGroupId);
 		System.out.println("run success");

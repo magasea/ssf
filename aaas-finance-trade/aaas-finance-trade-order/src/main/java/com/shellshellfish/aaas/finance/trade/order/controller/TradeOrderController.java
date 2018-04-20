@@ -435,7 +435,8 @@ public class TradeOrderController {
 	@ApiOperation("获取购买的最大值最小值")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = true, value = "groupId", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "Long", required = true, value = "subGroupId", defaultValue = "")
+			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "Long", required = true, value = "subGroupId", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1")
 	})
 	@ApiResponses({
 			@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
@@ -445,12 +446,14 @@ public class TradeOrderController {
 	@RequestMapping(value = "/funds/maxminValue", method = RequestMethod.GET)
 	public ResponseEntity<Map> getMaxMinValue(
 			@RequestParam(value = "groupId") Long groupId,
-			@RequestParam(value = "subGroupId") Long subGroupId)
+			@RequestParam(value = "subGroupId") Long subGroupId,
+			@RequestParam(value = "oemid") Integer oemid)
 			throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
 		ProductBaseInfo productBaseInfo = new ProductBaseInfo();
 		productBaseInfo.setProdId(groupId);
 		productBaseInfo.setGroupId(subGroupId);
+		productBaseInfo.setOemId(oemid);
 		List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
 		BigDecimal min = financeProdCalcService.getMinBuyAmount(productList);
 		BigDecimal max = financeProdCalcService.getMaxBuyAmount(productList);

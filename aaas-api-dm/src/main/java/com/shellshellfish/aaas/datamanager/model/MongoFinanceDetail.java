@@ -19,8 +19,13 @@ public class MongoFinanceDetail implements Serializable {
 	@Field(value = "groupId")
 	private String groupId;
 	
+	@Field(value = "oemid")
+	private Integer oemid;
+	
 	@Field(value = "subGroupId")
 	private String subGroupId;
+	
+	
 
 //	@Field(value = "head")
 //	private Head head;
@@ -85,5 +90,13 @@ public class MongoFinanceDetail implements Serializable {
 
 	public void setSubGroupId(String subGroupId) {
 		this.subGroupId = subGroupId;
+	}
+
+	public Integer getOemid() {
+		return oemid;
+	}
+
+	public void setOemid(Integer oemid) {
+		this.oemid = oemid;
 	}
 }
