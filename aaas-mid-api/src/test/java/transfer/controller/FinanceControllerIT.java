@@ -205,12 +205,19 @@ public class FinanceControllerIT {
 	 * 目的：校验接口是否返回数据与数据格式是否正确
 	 * 接口：/phoneapi-ssf/financeFrontPage
 	 * 接口作用：获取理财页面的数据
-	 * 参数：{}
+	 * 参数：{oemid:2兰州银行，size:每页显示数，pageSize:显示的页数}
 	 */
 	@Test
 	public void financeFrontPageTest() {
 
+		Long oemid = 2L;
+		Integer size = 2;
+		Integer pageSize = 1;
+
 		given().filter(new ResponseLoggingFilter())
+				.param("oemid",oemid)
+				.param("size",size)
+				.param("pageSize",pageSize)
 				.post(FINANCE_FRONT_PAGE)
 				.then()
 				.log().all()

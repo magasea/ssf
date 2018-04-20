@@ -25,10 +25,12 @@ import com.shellshellfish.aaas.assetallocation.service.impl.FundCalculateService
 import com.shellshellfish.aaas.assetallocation.service.impl.FundGroupDataService;
 import com.shellshellfish.aaas.assetallocation.service.impl.FundGroupService;
 import com.shellshellfish.aaas.assetallocation.util.ConstantUtil;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +71,7 @@ public class JobScheduleService {
 
     @Value("${spring.data.mongodb.collection}")
     String collectionName;
+
     /*
      * 调用每日接口
      */
@@ -105,7 +108,7 @@ public class JobScheduleService {
         try {
             doSuccess = fundCalculateService.calculateDataOfWeek();
         } catch (Exception e) {
-            logger.error("计算每周收益率以及风险率数据 定时任务启动失败..." + sdf.format(new Date()),e);
+            logger.error("计算每周收益率以及风险率数据 定时任务启动失败..." + sdf.format(new Date()), e);
         }
 
         if (doSuccess) {
@@ -210,7 +213,7 @@ public class JobScheduleService {
             for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
                 arrayList = new ArrayList<>();
                 arrayList.addAll(dateList);
-                
+
                 String groupId = String.valueOf(index);
                 String subGroupId = String.valueOf(index + subfix);
                 String key = groupId + "_" + subGroupId;
@@ -244,20 +247,20 @@ public class JobScheduleService {
         String _serviceId = JSON.toJSONString(rt.get_serviceId());
 
         Document document = new Document("title", MONGO_DB_COLLECTION).
-                append("key", key).
-                append("_total", _total).
-                append("_items", _items).
-                append("name", name).
-                append("_links", _links).
-                append("maxMinMap", maxMinMap).
-                append("maxMinBenchmarkMap", maxMinBenchmarkMap).
-                append("expectedIncomeSizeMap", expectedIncomeSizeMap).
-                append("highPercentMaxIncomeSizeMap", highPercentMaxIncomeSizeMap).
-                append("highPercentMinIncomeSizeMap", highPercentMinIncomeSizeMap).
-                append("lowPercentMaxIncomeSizeMap", lowPercentMaxIncomeSizeMap).
-                append("lowPercentMinIncomeSizeMap", lowPercentMinIncomeSizeMap).
-                append("_schemaVersion", _schemaVersion).
-                append("_serviceId", _serviceId);
+            append("key", key).
+            append("_total", _total).
+            append("_items", _items).
+            append("name", name).
+            append("_links", _links).
+            append("maxMinMap", maxMinMap).
+            append("maxMinBenchmarkMap", maxMinBenchmarkMap).
+            append("expectedIncomeSizeMap", expectedIncomeSizeMap).
+            append("highPercentMaxIncomeSizeMap", highPercentMaxIncomeSizeMap).
+            append("highPercentMinIncomeSizeMap", highPercentMinIncomeSizeMap).
+            append("lowPercentMaxIncomeSizeMap", lowPercentMaxIncomeSizeMap).
+            append("lowPercentMinIncomeSizeMap", lowPercentMinIncomeSizeMap).
+            append("_schemaVersion", _schemaVersion).
+            append("_serviceId", _serviceId);
 
         return document;
     }

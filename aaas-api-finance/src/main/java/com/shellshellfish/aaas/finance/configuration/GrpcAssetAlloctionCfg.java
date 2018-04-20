@@ -20,22 +20,23 @@ public class GrpcAssetAlloctionCfg {
     @Value("${grpc.asset-allocation.port}")
     int assetAllocationPort;
 
+
     @Bean
-    ManagedChannelBuilder<?> allocationChannelBuilder() {
+    ManagedChannelBuilder<?> grpcAAChannelBuilder() {
         return ManagedChannelBuilder.forAddress(assetAllocationHost, assetAllocationPort);
     }
 
     @Bean
     @PostConstruct
-    ManagedChannel allocationManagedChannel() {
-        ManagedChannel managedChannel = allocationChannelBuilder().usePlaintext(true).build();
+    ManagedChannel managedAAChannel() {
+        ManagedChannel managedChannel = grpcAAChannelBuilder().usePlaintext(true).build();
         return managedChannel;
     }
 
     @Bean
     @PostConstruct
-    AssetAllocationServiceBlockingStub allocationBlockingStub() {
-        return AssetAllocationServiceGrpc.newBlockingStub(allocationManagedChannel());
+    AssetAllocationServiceBlockingStub assetAllocationServiceBlockingStub() {
+        return AssetAllocationServiceGrpc.newBlockingStub(managedAAChannel());
     }
 
 }

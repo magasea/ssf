@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.dao.service;
 
+import com.shellshellfish.aaas.userinfo.grpc.SellPersentProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductsResult.Builder;
 import com.shellshellfish.aaas.userinfo.model.dao.UiSysMsg;
@@ -106,4 +107,5 @@ public interface UserInfoRepoService {
 
     List<MongoUiTrdLogDTO> findByUserProdIdIn(List dataList);
 
+	public Builder updateProductQuantity(SellPersentProducts request) throws Exception;
 }

@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.common.utils;
 
+
 import com.google.common.hash.Hashing;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
@@ -147,6 +148,11 @@ public class TradeUtil {
     Calendar calendar = Calendar.getInstance(timeZone);
     calendar.set(9999,12,31);
     System.out.println(calendar.getTimeInMillis());
+
+    Long num1 = 12126212L;
+    Long num2 = 10000L;
+    System.out.println(num1/num2);
+
   }
 
   /**
@@ -199,6 +205,17 @@ public class TradeUtil {
 
   public static BigDecimal getBigDecimalNumWithDiv10000(Long originNum){
     return new BigDecimal(originNum).divide(BigDecimal.valueOf(10000));
+  }
+
+  public static Long getLongFromNumWithDiv10000(Long originNum){
+    BigDecimal result =  new BigDecimal(originNum).divide(BigDecimal.valueOf(10000));
+    result = round(result, 0, true);
+    return result.longValue();
+  }
+
+  public static BigDecimal round(BigDecimal d, int scale, boolean roundUp) {
+    int mode = (roundUp) ? BigDecimal.ROUND_UP : BigDecimal.ROUND_DOWN;
+    return d.setScale(scale, mode);
   }
 
   public static BigDecimal getBigDecimalNumWithDiv10000(Integer originNum){
