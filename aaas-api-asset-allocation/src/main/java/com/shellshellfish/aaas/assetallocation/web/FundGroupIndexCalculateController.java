@@ -37,7 +37,7 @@ public class FundGroupIndexCalculateController {
     @ApiOperation("计算特定组合历史波动率和历史收益率")
     @GetMapping(value = "/calculateAnnualVolatilityAndAnnualYield")
     public HttpStatus calculateAnnualVolatilityAndAnnualYeild(@RequestParam(value = "groupId") String groupId, @RequestParam("subGroupId")
-            String subGroupId, @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate) {
+        String subGroupId, @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate) {
         fundGroupIndexService.calculateAnnualVolatilityAndAnnualYield(groupId, subGroupId, startDate);
         return HttpStatus.OK;
     }
