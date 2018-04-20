@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.shellshellfish.account</groupId>
     <artifactId>aaas-mid-api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>aaas-mid-api</name>
@@ -13,7 +13,7 @@
     <parent>
         <groupId>com.shellshellfish</groupId>
         <artifactId>aaas</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -197,7 +197,7 @@
         <dependency>
             <groupId>com.shellshellfish</groupId>
             <artifactId>aaas-api-common</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/io.rest-assured/rest-assured -->
         <dependency>
