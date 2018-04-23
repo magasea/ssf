@@ -19,7 +19,7 @@ public class AccountServiceTest {
 
     @Test
     public void testSendMessage() {
-        String result = accountService.sendSmsMessage("18817573489");
+        String result = accountService.sendSmsMessage("15200341254");
         Assert.assertNotNull(result, "短信发送失败！");
     }
 }
