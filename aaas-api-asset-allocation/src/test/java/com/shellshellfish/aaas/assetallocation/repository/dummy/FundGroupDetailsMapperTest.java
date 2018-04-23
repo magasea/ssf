@@ -31,7 +31,7 @@ public class FundGroupDetailsMapperTest {
     public void getFundGroupHistoryTimeTest() {
         String groupId = "5";
         String subGroupId = "50059";
-        List<FundGroupDetails> result = fundGroupDetailsMapper.getFundProportion(groupId,subGroupId);
+        List<FundGroupDetails> result = fundGroupDetailsMapper.getFundProportion(groupId,subGroupId,1);
         Assert.assertNotNull("结果为空",result);
         Assert.assertTrue("结果集大小为零",result.size()>0);
     }

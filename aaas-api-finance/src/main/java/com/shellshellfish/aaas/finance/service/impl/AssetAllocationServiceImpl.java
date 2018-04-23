@@ -203,7 +203,7 @@ public class AssetAllocationServiceImpl implements AssetAllocationService {
 	 * @return
 	 */
 	@Override
-	public ReturnType getPerformanceVolatilityHomePage() {
-		return restTemplate.getForEntity(url + "/api/asset-allocation/products/home-page",ReturnType.class).getBody();
+	public ReturnType getPerformanceVolatilityHomePage(Integer oemid) {
+		return restTemplate.getForEntity(url + "/api/asset-allocation/products/home-page/" + oemid ,ReturnType.class).getBody();
 	}
 }

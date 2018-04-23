@@ -51,7 +51,7 @@ public class DataCalculateTest {
 //        String endDate="2018-01-12";
 //        dailyFundService.insertDailyData(code,startDate,endDate);
 
-        dailyFundService.insertDailyFund();
+        dailyFundService.insertDailyFund(1);
 
         long end = System.currentTimeMillis();
         long elapse = end - start;
@@ -67,7 +67,7 @@ public class DataCalculateTest {
         long start = System.currentTimeMillis();
         System.out.println("start: " + start);
 
-        fundCalculateService.calculateDataOfWeek();
+        fundCalculateService.calculateDataOfWeek(1);
 
         long end = System.currentTimeMillis();
         long elapse = end - start;
@@ -80,7 +80,7 @@ public class DataCalculateTest {
         long start = System.currentTimeMillis();
         System.out.println("start: " + start);
 
-        fundGroupDataService.insertFundGroupData();
+        fundGroupDataService.insertFundGroupData(1);
 
         long end = System.currentTimeMillis();
         long elapse = end - start;
