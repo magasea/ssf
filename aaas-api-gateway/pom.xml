@@ -138,7 +138,7 @@
 							<all>
 								<property>
 									<name>app</name>
-									<value>aaas-api-gateway</value>
+									<value>${artifactId}-${version}</value>
 								</property>
 								<property>
 									<name>hystrix.enabled</name>

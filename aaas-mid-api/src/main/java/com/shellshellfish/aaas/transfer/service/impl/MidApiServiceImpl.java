@@ -422,6 +422,21 @@ public class MidApiServiceImpl implements MidApiService {
 		Map result = restTemplate.postForEntity(url, getHttpEntity(str), Map.class).getBody();
 		return result;
 	}
+	
+	@Override
+	public Map sellFundPersent(String userProdId, String groupId, String subGroupId, String userUuid, String userBankNum, BigDecimal sellTargetPercent) throws Exception {
+		String url = tradeOrderUrl + "/api/trade/funds/sellpersent";
+		Map map = new HashMap();
+		map.put("groupId", subGroupId);
+		map.put("prodId", groupId);
+		map.put("sellTargetPercent", sellTargetPercent);
+		map.put("userBankNum", userBankNum);
+		map.put("userProdId", userProdId);
+		map.put("userUuid", userUuid);
+		String str = JSONObject.toJSONString(map);
+		Map result = restTemplate.postForEntity(url, getHttpEntity(str), Map.class).getBody();
+		return result;
+	}
 
 	/**
 	 * 获取全部产品的NPV增值
