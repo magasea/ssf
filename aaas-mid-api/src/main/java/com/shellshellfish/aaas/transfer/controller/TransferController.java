@@ -418,18 +418,24 @@ public class TransferController {
 		@ApiImplicitParam(paramType = "query", name = "userUuid", dataType = "String", required = true, value = "客户uuid", defaultValue = ""),
 		@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = false, value = "银行名称"),
 		@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"),
-		@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = false, value = "预计费用"),
+//		@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = false, value = "预计费用"),
 		@ApiImplicitParam(paramType = "query", name = "poundage", dataType = "String", required = false, value = "手续费"),
-		@ApiImplicitParam(paramType = "query", name = "sellTargetPercent", dataType = "BigDecimal", required = true, value = "百分比(默认100%)"),
+		@ApiImplicitParam(paramType = "query", name = "sellTargetPercent", dataType = "BigDecimal", required = true, value = "百分比(默认100%)", defaultValue = "100"),
 		})
-	@RequestMapping(value = "/sellProduct", method = RequestMethod.POST)
+	@RequestMapping(value = "/sellPersentProduct", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult sellPersentProduct(@RequestParam String telNum, @RequestParam String verifyCode,
-			@RequestParam String userProdId, @RequestParam String groupId, @RequestParam String subGroupId,
-			@RequestParam String userUuid, @RequestParam(required = false) String bankName,
-			@RequestParam(required = false) String bankCard, @RequestParam(required = false) String buyfee,
+	public JsonResult sellPersentProduct(
+			@RequestParam String telNum, 
+			@RequestParam String verifyCode,
+			@RequestParam String userProdId, 
+			@RequestParam String groupId, 
+			@RequestParam String subGroupId,
+			@RequestParam String userUuid, 
+			@RequestParam(required = false) String bankName,
+			@RequestParam(required = false) String bankCard, 
+//			@RequestParam(required = false) String buyfee,
 			@RequestParam(required = false) String poundage,
-			@RequestParam(defaultValue="100") BigDecimal sellTargetPercent) {
+			@RequestParam BigDecimal sellTargetPercent) {
 		// 首先调用手机验证码
 		String verify = null;
 		try {
@@ -465,9 +471,11 @@ public class TransferController {
 				result.put("payAmount", payAmount.setScale(2, BigDecimal.ROUND_HALF_UP));
 			}
 			result.put("poundage", poundage);
-			result.put("buyfee", buyfee);
+//			result.put("buyfee", buyfee);
 			result.put("bankName", bankName);
+			result.put("prodId", userProdId);
 			result.put("bankCard", bankCard);
+			result.put("sellTargetPercent", sellTargetPercent);
 		}
 		return new JsonResult(JsonResult.SUCCESS, "赎回成功", result);
 	}

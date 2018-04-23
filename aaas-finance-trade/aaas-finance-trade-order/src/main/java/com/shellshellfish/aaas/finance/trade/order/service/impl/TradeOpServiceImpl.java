@@ -680,7 +680,7 @@ public class TradeOpServiceImpl implements TradeOpService {
   }
 
 	@Override
-	public Map<String, Object> sellorbuyDeatils(String orderId) throws Exception {
+	public Map<String, Object> buyDeatils(String orderId) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
 		List<String> serialList = new ArrayList<String>();
 		if (StringUtils.isEmpty(orderId)) {
@@ -848,6 +848,121 @@ public class TradeOpServiceImpl implements TradeOpService {
 		result.put("detailList", detailList);
 		result.put("serialList", serialList);
 		return result;
+	}
+	
+	@Override
+	public Map<String, Object> sellDeatils(String orderId) throws Exception {
+	  Map<String, Object> result = new HashMap<String, Object>();
+	  List<String> serialList = new ArrayList<String>();
+	  if (StringUtils.isEmpty(orderId)) {
+	    logger.error("详情信息数据不存在:{}", orderId);
+	    throw new Exception("详情信息数据不存在:" + orderId);
+	  }
+	  logger.info("详情信息数据为:" + orderId);
+	  TrdOrder trdOrder = orderService.getOrderByOrderId(orderId);
+	  List<TrdOrderDetail> trdOrderDetailList = new ArrayList<TrdOrderDetail>();
+	  logger.info("trdOrder ===>"+trdOrder);
+	  if (trdOrder != null && trdOrder.getOrderId() != null) {
+	    logger.info("trdOrder.getOrderId()===>"+trdOrder.getOrderId());
+	    result.put("prodId", trdOrder.getUserProdId());
+	    trdOrderDetailList = orderService.findOrderDetailByOrderId(orderId);
+	  } else {
+	    logger.error("详情信息数据不存在.");
+	    throw new Exception("详情信息数据不存在.");
+	  }
+	  if (trdOrderDetailList == null || trdOrderDetailList.isEmpty()) {
+	    logger.error("详情信息数据不存在.");
+	    throw new Exception("详情信息数据不存在.");
+	  }
+	  
+	  result.put("orderType", TrdOrderOpTypeEnum.getComment(trdOrder.getOrderType()));
+	  //金额
+	  long amount = trdOrder.getPayAmount();
+	  BigDecimal bigDecimalAmount = BigDecimal.ZERO;
+	  if (amount != 0) {
+	    bigDecimalAmount = TradeUtil.getBigDecimalNumWithDiv100(amount);
+	  }
+	  
+	  result.put("amount", bigDecimalAmount);
+	  //手续费
+	  if (trdOrder.getPayFee() == null) {
+	    result.put("payfee", "");
+	  } else {
+	    BigDecimal bigDecimalPayFee = BigDecimal.ZERO;
+	    result.put("payfee", TradeUtil.getBigDecimalNumWithDiv100(trdOrder.getPayFee()));
+	  }
+	  //状态详情
+	  List<Map<String, Object>> detailList = new ArrayList<Map<String, Object>>();
+	  Map<String, Object> detailMap = new HashMap<String, Object>();
+	  Map<String, String> statusMap = new HashMap<>();
+	  for (int i = 0; i < trdOrderDetailList.size(); i++) {
+	    detailMap = new HashMap<String, Object>();
+	    TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
+	    int detailStatus = trdOrderDetail.getOrderDetailStatus();
+	    String status = "";
+	    if (TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus
+	        || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus) {
+	      status = CombinedStatusEnum.CONFIRMED.getComment();
+	    } else if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
+	        || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
+	      status = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
+	    } else {
+	      status = CombinedStatusEnum.WAITCONFIRM.getComment();
+	    }
+	    detailMap.put("fundstatus", status);
+	    statusMap.put(status, status);
+	    Long instanceLong = trdOrderDetail.getCreateDate();
+	    detailMap.put("fundCode", trdOrderDetail.getFundCode());
+//	    //基金费用
+//	    detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
+	    //基金份额
+	    detailMap.put("fundnum", trdOrderDetail.getFundNum());
+	    //交易金额
+	    Long fundSum = 0L;
+	    if(trdOrderDetail.getFundSumConfirmed() != null && trdOrderDetail.getFundSumConfirmed() > 0){
+	      fundSum = trdOrderDetail.getFundSumConfirmed();
+	    }else if(trdOrderDetail.getFundSum() != null && trdOrderDetail.getFundSum() > 0){
+	      fundSum = trdOrderDetail.getFundSum();
+	    }else{
+	      fundSum = trdOrderDetail.getFundMoneyQuantity();
+	    }
+	    detailMap.put("fundSum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
+	    
+	    String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 1);
+	    
+	    LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(InstantDateUtil.getEpochSecondOfZero(date)), ZoneOffset.systemDefault());
+	    String dayOfWeek = InstantDateUtil.getDayOfWeekName(localDateTime);
+	    
+	    detailMap.put("funddate", date);
+	    logger.info("dayOfWeek value is :" + dayOfWeek);
+	    logger.info("date value is :" + date);
+	    detailMap.put("fundTitle", "将于" + date + "(" + dayOfWeek + ")确认");
+	    detailMap.put("fundTradeType", TrdOrderOpTypeEnum.getComment(trdOrderDetail.getTradeType()));
+	    detailList.add(detailMap);
+	    
+	    String serial = trdOrderDetail.getTradeApplySerial();
+	    if(!StringUtils.isEmpty(serial)){
+	      serialList.add(serial);
+	    }
+	  }
+	  
+	  if (statusMap != null && statusMap.size() > 0) {
+	    if (statusMap.size() != 1) {
+	      if(statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())){
+	        result.put("orderStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
+	      }
+	    } else {
+	      for (String key : statusMap.keySet()) {
+	        if (statusMap.size() == 1) {
+	          result.put("orderStatus", key);
+	        }
+	      }
+	    }
+	  }
+	  
+	  result.put("detailList", detailList);
+	  result.put("serialList", serialList);
+	  return result;
 	}
 
 	@Override
