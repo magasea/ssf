@@ -336,7 +336,7 @@ public class TradeOrderController {
 			// @PathVariable(value = "groupId") Long uuid,
 			@PathVariable(value = "orderId") String orderId) throws Exception {
 		logger.error("method buyDetails run ..");
-		Map<String, Object> result = tradeOpService.sellorbuyDeatils(orderId);
+		Map<String, Object> result = tradeOpService.buyDeatils(orderId);
 		
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
@@ -361,7 +361,7 @@ public class TradeOrderController {
 			// @PathVariable(value = "groupId") Long uuid,
 			@PathVariable(value = "orderId") String orderId) throws Exception {
 		logger.error("method sellDetails run ..");
-		Map<String, Object> result = tradeOpService.sellorbuyDeatils(orderId);
+		Map<String, Object> result = tradeOpService.sellDeatils(orderId);
 //		Map<String, Object> result = new HashMap<String, Object>();
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
