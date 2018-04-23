@@ -277,10 +277,12 @@ public class TransferController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = ""),
 		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "12"),
-		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "120049") })
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "120049"),
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1")
+	})
 	@RequestMapping(value = "/purchase-plan", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getBuyInitial(String uuid, String groupId, String subGroupId) {
+	public JsonResult getBuyInitial(String uuid, String groupId, String subGroupId, Integer oemid) {
 		Map resultMap = null;
 		try {
 			String url = tradeOrderUrl + "/api/trade/funds/maxminValue?groupId=" + groupId + "&subGroupId="
@@ -322,7 +324,7 @@ public class TransferController {
 			}
 			resultMap.put("banks", result);
 			
-			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId;
+			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/" + oemid;
 			Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
 			if(productMap!=null){
 				if(productMap.get("name")!=null){
@@ -482,7 +484,7 @@ public class TransferController {
 	
 	@ApiOperation("赎回页面")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "oemId", dataType = "String", required = true,
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true,
 				value = "归属id", defaultValue = "1"),
 		@ApiImplicitParam(paramType = "query", name = "userUuid", dataType = "String", required = true, value = "客户uuid", defaultValue = ""),
 		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupID", defaultValue = ""),
@@ -498,14 +500,14 @@ public class TransferController {
 		})
 		@RequestMapping(value = "/sellFundPage", method = RequestMethod.POST)
 		@ResponseBody
-		public JsonResult sellFundPage(String oemId, String userUuid, String groupId, String subGroupId,
+		public JsonResult sellFundPage(Integer oemid, String userUuid, String groupId, String subGroupId,
 				String bankNum, String bankName,
 				String telNum, String combinationName, 
 //				String userProdId, 
 				String prodId, String totalAmount) {
 			Map result = null;
 			try {
-				result = service.sellFundPage(groupId, subGroupId, totalAmount);
+				result = service.sellFundPage(groupId, subGroupId, totalAmount, oemid);
 				if (result != null) {
 					result.put("userUuid", userUuid);
 					result.put("bankNum", bankNum);
@@ -554,8 +556,7 @@ public class TransferController {
 
 	@ApiOperation("赎回百分比例页面")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "oemId", dataType = "String", required = true,
-					value = "归属id", defaultValue = "1"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "归属id", defaultValue = "1"),
 			@ApiImplicitParam(paramType = "query", name = "userUuid", dataType = "String", required = true, value = "客户uuid", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupID", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = ""),
@@ -571,7 +572,7 @@ public class TransferController {
 			})
 	@RequestMapping(value = "/sellPersentFundPage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult sellPersentFundPage(String oemId, String userUuid, String groupId, String subGroupId,
+	public JsonResult sellPersentFundPage(Integer oemid, String userUuid, String groupId, String subGroupId,
 			String bankNum, String bankName,
 			String telNum, String combinationName, 
 //			String userProdId, 
@@ -579,18 +580,19 @@ public class TransferController {
 		Map result = null;
 		try {
 			BigDecimal amount = new BigDecimal(totalAmount);
-			amount = amount.multiply(persent);
-			result = service.sellFundPage(groupId, subGroupId, amount + "");
+			amount = amount.multiply(persent).divide(new BigDecimal("100"));
+			result = service.sellFundPage(groupId, subGroupId, amount + "", oemid);
 			if (result != null) {
 				result.put("userUuid", userUuid);
 				result.put("bankNum", bankNum);
 				result.put("bankName", bankName);
 				result.put("totalAmount", amount);
 				result.put("combinationName", combinationName);
+				result.put("sellTargetPercent", persent);
 				result.put("prodId", prodId);
 				result.put("telNum", telNum);
-				result.put("title1", "依据最优比例分配赎回金额");
-				result.put("title2", "贝贝鱼依据最优比例分配赎回金额");
+				result.put("title1", "依据最优比例分配赎回比例");
+//				result.put("title2", "贝贝鱼依据最优比例分配赎回金额");
 				long startTime = System.currentTimeMillis();
 				if (!InstantDateUtil.isDealDay(startTime)) {
 					// 交易日
