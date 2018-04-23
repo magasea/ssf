@@ -20,6 +20,7 @@ service FinanceProductService {
 message FinanceProdInfoQuery {
   int64 prod_id = 1;//理财产品Id,
   int64 group_id = 2;//理财产品类组id
+  int32 oem_id = 3; //oemId 银行客户
 }
 
 message FinanceProdInfoCollection{
