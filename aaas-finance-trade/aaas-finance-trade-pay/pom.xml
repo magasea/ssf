@@ -275,7 +275,7 @@
 							<all>
 								<property>
 									<name>app</name>
-									<value>aaas-finance-trade-pay</value>
+									<value>${artifactId}-${version}</value>
 								</property>
 								<property>
 									<name>hystrix.enabled</name>

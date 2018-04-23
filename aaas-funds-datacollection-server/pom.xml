@@ -239,7 +239,7 @@
                             <all>
                                 <property>
                                     <name>app</name>
-                                    <value>aaas-funds-datacollection-server</value>
+                                    <value>${artifactId}-${version}</value>
                                 </property>
                                 <property>
                                     <name>hystrix.enabled</name>
