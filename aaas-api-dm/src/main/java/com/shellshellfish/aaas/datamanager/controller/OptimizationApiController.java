@@ -154,6 +154,47 @@ public class OptimizationApiController {
 	  }
 	}
 	
+  @ApiOperation("理财产品详情页面")
+  @GetMapping(value = "/checkPrdDetails-ver2")
+  @ResponseBody
+  public HttpJsonResult prdDetailsVer2() {
+    JsonResult jsonResult = null;
+    Boolean result = true;
+    mongoFinanceDetailRepository.deleteAll();
+
+    for (int oemid = 1; oemid < 3; oemid++) {
+      for (int i = 1; i < 16; i++) {
+        String groupId = i + "";
+        String subGroupId = i + "0048";
+        jsonResult = optimizationService.checkPrdDetailsVer2(groupId, subGroupId, oemid);
+        if (oemid == 1) {
+          if (jsonResult != null) {
+            logger.info("贝贝鱼：groupId:{}-subGroupId:{}-Ok", groupId, subGroupId);
+          } else {
+            logger.warn("贝贝鱼：groupId:{}-subGroupId:{}-no data", groupId, subGroupId);
+            result = false;
+            break;
+          }
+        } else if (oemid == 2) {
+          if (jsonResult != null) {
+            logger.info("兰州银行：groupId:{}-subGroupId:{}-Ok", groupId, subGroupId);
+          } else {
+            logger.warn("兰州银行：groupId:{}-subGroupId:{}-no data", groupId, subGroupId);
+            result = false;
+            break;
+          }
+        }
+      }
+    }
+
+    if (result) {
+      return new HttpJsonResult(HttpStatus.OK.value(), "OK", JsonResult.EMPTYRESULT);
+    } else {
+      return new HttpJsonResult(HttpStatus.NOT_FOUND.value(), "NG:没有获取到产品", JsonResult.EMPTYRESULT);
+    }
+  }
+	
+	
 	@ApiOperation("获取理财产品详情页面的数据")
 	@RequestMapping(value = "/getCheckPrdDetails", method = RequestMethod.GET)
 	@ResponseBody
@@ -166,5 +207,30 @@ public class OptimizationApiController {
 		logger.info("getCheckPrdDetails info: groupId:{}-subGroupId:{}-Ok", groupId, subGroupId);
 		System.out.println("run success");
 		return result;
+	}
+	
+	@ApiOperation("获取理财产品详情页面的数据-ver2")
+    @ApiImplicitParams({
+      @ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "12"),
+      @ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "120048"),
+      @ApiImplicitParam(paramType = "query", name = "pageSize", dataType = "Integer", required = true, value = "每页显示数（至少大于1）", defaultValue = "2"),
+      @ApiImplicitParam(paramType = "query", name = "pageIndex", dataType = "Integer", required = true, value = "显示页数（从0开始）", defaultValue = "0"),
+      @ApiImplicitParam(paramType = "query", name = "oemid", dataType = "oemid", required = true, value = "oemid", defaultValue = "1"),
+    })
+    @RequestMapping(value = "/getCheckPrdDetails-ver2", method = RequestMethod.GET)
+    @ResponseBody
+	public JsonResult getPrdDetailsVer2(String groupId, 
+	    String subGroupId, 
+	    @RequestParam(defaultValue="2") Integer pageSize, 
+	    @RequestParam(defaultValue="0") Integer pageIndex, 
+	    @RequestParam(defaultValue="1") Integer oemid) {
+	  JsonResult result = optimizationService.getPrdDetailsVer2(groupId, subGroupId, pageSize, pageIndex, oemid);
+	  if (result == null) {
+	    this.prdDetailsVer2();
+	    result = optimizationService.getPrdDetailsVer2(groupId, subGroupId, pageSize, pageIndex, oemid);
+	  }
+	  logger.info("getCheckPrdDetails info: groupId:{}-subGroupId:{}-Ok", groupId, subGroupId);
+	  System.out.println("run success");
+	  return result;
 	}
 }

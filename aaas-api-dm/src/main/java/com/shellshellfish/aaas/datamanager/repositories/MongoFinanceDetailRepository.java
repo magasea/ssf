@@ -10,4 +10,6 @@ public interface MongoFinanceDetailRepository extends MongoRepository<MongoFinan
 	MongoFinanceDetail findAllByDateAndGroupIdAndSubGroupId(String date, String groupId, String subGroupId);
     List<MongoFinanceDetail> findAllByGroupIdAndSubGroupId(String groupId, String subGroupId);
 	List<MongoFinanceDetail> findAllByGroupIdAndSubGroupIdAndOemid(String groupId, String subGroupId, Integer oemid);
+    List<MongoFinanceDetail> findAllByGroupIdAndSubGroupIdAndOemidAndSerialIn(String groupId,
+        String subGroupId, Integer oemid, List<Integer> serialList);
 }
