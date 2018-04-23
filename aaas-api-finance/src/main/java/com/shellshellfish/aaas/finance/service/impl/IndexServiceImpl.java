@@ -45,7 +45,7 @@ public class IndexServiceImpl implements IndexService {
     private final String AGGRESSIVE = "进取型";
 
     @Override
-    public Map<String, Object> homepage(String uuid, String isTestFlag, String testResult) throws Exception {
+    public Map<String, Object> homepage(String uuid, String isTestFlag, String testResult, Integer oemid) throws Exception {
         Map<String, Object> result = new HashMap<String, Object>();
         Map<String, Object> resultC = new HashMap<String, Object>();
         Map<String, Object> linksMap = new HashMap<String, Object>();
@@ -91,7 +91,7 @@ public class IndexServiceImpl implements IndexService {
             String groupId = GROUP_ID;
             String subGroupId = SUB_GROUP_ID;
             //--------------------------------------
-            FundReturn fundReturn = assetAllocationService.selectById(groupId, subGroupId);
+            FundReturn fundReturn = assetAllocationService.selectById(groupId, subGroupId, oemid);
             if (fundReturn == null) {
                 logger.error("产品不存在.");
                 throw new Exception("产品不存在.");
@@ -106,13 +106,13 @@ public class IndexServiceImpl implements IndexService {
             resultC.put("groupId", groupId);
             resultC.put("subGroupId", subGroupId);
 
-            ReturnType proportionOne = assetAllocationService.getProportionOne(groupId, subGroupId);
+            ReturnType proportionOne = assetAllocationService.getProportionOne(groupId, subGroupId, oemid);
             if (proportionOne != null) {
                 List<Map<String, Object>> proportionOneList = proportionOne.get_items();
                 resultC.put("product_list", proportionOneList);
             }
             //近6个月收益图
-            ReturnType returnType = assetAllocationService.getPortfolioYield(groupId, subGroupId, 0, "income");
+            ReturnType returnType = assetAllocationService.getPortfolioYield(groupId, subGroupId, 0, "income", oemid);
             resultC.put("income6month", returnType);
 
             Map first = returnType.get_items().get(0);
@@ -182,7 +182,7 @@ public class IndexServiceImpl implements IndexService {
                         String subGroupId = (String) obj.get("productSubGroupId");
 
                         //--------------------------------------
-                        FundReturn fundReturn = assetAllocationService.selectById(groupId, subGroupId);
+                        FundReturn fundReturn = assetAllocationService.selectById(groupId, subGroupId, oemid);
                         if (fundReturn == null) {
                             logger.error("产品不存在.");
                             throw new Exception("产品不存在.");
@@ -208,13 +208,13 @@ public class IndexServiceImpl implements IndexService {
                         resultC.put("groupId", groupId);
                         resultC.put("subGroupId", subGroupId);
 
-                        ReturnType proportionOne = assetAllocationService.getProportionOne(groupId, subGroupId);
+                        ReturnType proportionOne = assetAllocationService.getProportionOne(groupId, subGroupId, oemid);
                         if (proportionOne != null) {
                             List<Map<String, Object>> proportionOneList = proportionOne.get_items();
                             resultC.put("product_list", proportionOneList);
                         }
                         //近6个月收益图
-                        ReturnType returnType = assetAllocationService.getPortfolioYield(groupId, subGroupId, 0, "income");
+                        ReturnType returnType = assetAllocationService.getPortfolioYield(groupId, subGroupId, 0, "income", oemid);
                         resultC.put("income6month", returnType);
 
                         Map first = returnType.get_items().get(0);
@@ -295,14 +295,14 @@ public class IndexServiceImpl implements IndexService {
     }
 
     @Override
-    public Map<String, Object> getRiskInfo(String risktype) {
+    public Map<String, Object> getRiskInfo(String risktype, Integer oemid) {
         Map<String, Object> result = new HashMap<String, Object>();
         Map<String, Object> linksMap = new HashMap<String, Object>();
         PerformanceVolatilityReturn performanceVolatilityReturn = assetAllocationService.getPerformanceVolatility("1",
                 risktype, null);
         String groupId = performanceVolatilityReturn.getProductGroupId();
         String subGroupId = performanceVolatilityReturn.getProductSubGroupId();
-        FundReturn fundReturn = assetAllocationService.selectById(groupId, subGroupId);
+        FundReturn fundReturn = assetAllocationService.selectById(groupId, subGroupId, oemid);
         if (fundReturn == null) {
             result.put("error", "404 DATA NOT FOUND.");
             return result;

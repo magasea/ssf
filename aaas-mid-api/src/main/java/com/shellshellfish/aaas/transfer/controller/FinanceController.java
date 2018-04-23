@@ -81,7 +81,7 @@ public class FinanceController {
 			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID"),
 			@ApiImplicitParam(paramType = "query", name = "isTestFlag", dataType = "String", required = false, value = "是否测评（1-已做 0-未做）"),
 			@ApiImplicitParam(paramType = "query", name = "testResult", dataType = "String", required = false, value = "测评结果", defaultValue = "平衡型"),
-			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "oemid（贝贝鱼:0,兰州银行：2）")
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid（贝贝鱼:1,兰州银行：2）", defaultValue = "1")
 	})
 	@RequestMapping(value = "/finance-home", method = RequestMethod.POST)
 	@ResponseBody
@@ -90,7 +90,7 @@ public class FinanceController {
 			@RequestParam(required = false) String uuid,
 			@RequestParam(required = false) String isTestFlag,
 			@RequestParam(required = false) String testResult,
-			@RequestParam(required = false) Long oemid) {
+			@RequestParam(required = true, defaultValue="1") Integer oemid) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		logger.info("mid financeHome method run..");
 		try {
@@ -108,7 +108,7 @@ public class FinanceController {
 			testResult = testResult == null ? "" : testResult;
 			result = restTemplate
 					.getForEntity(financeUrl + "/api/ssf-finance/product-groups/homepage?uuid=" + uuid
-							+ "&isTestFlag=" + isTestFlag + "&testResult=" + testResult, Map.class).getBody();
+							+ "&isTestFlag=" + isTestFlag + "&testResult=" + testResult + "&oemid=" + oemid, Map.class).getBody();
 			if (result == null || result.size() == 0) {
 				/*result.put("msg", "获取失败");*/
 				return new JsonResult(JsonResult.SUCCESS, "没有获取到产品", JsonResult.EMPTYRESULT);
@@ -117,8 +117,8 @@ public class FinanceController {
 //				if (oemid == null) {
 //					oemid = 1L;
 //				}
-				oemid = oemid == null ? 1L : oemid;
-				Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
+				oemid = oemid == null ? 1 : oemid;
+				Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(Long.parseLong(oemid + ""));
 				logger.info("oemInfos====home_page1:" + oemInfos.get("homePageImgOne"));
 				logger.info("oemInfos====home_page2:" + oemInfos.get("homePageImgTwo"));
 				logger.info("oemInfos====home_page3:" + oemInfos.get("homePageImgThree"));
