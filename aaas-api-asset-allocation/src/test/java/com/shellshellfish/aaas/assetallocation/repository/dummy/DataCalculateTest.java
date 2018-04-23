@@ -90,7 +90,8 @@ public class DataCalculateTest {
 
     @Test
     public void calculateCovarianceOfWeekTest() {
-        covarianceCalculateService.calculateCovarianceOfWeek();
+        int oemId = 1;
+        covarianceCalculateService.calculateCovarianceOfWeek(oemId);
     }
 
     @Test

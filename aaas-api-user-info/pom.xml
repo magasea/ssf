@@ -4,7 +4,7 @@
 
 	<groupId>com.shellshellfish</groupId>
 	<artifactId>aaas-api-user-info</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>aaas-api-user-info</name>
@@ -289,7 +289,7 @@
 				<artifactId>protobuf-maven-plugin</artifactId>
 				<version>0.5.1</version>
 				<configuration>
-					<checkStaleness>true</checkStaleness>
+					<clearOutputDirectory>false</clearOutputDirectory>
 					<protocArtifact>com.google.protobuf:protoc:3.4.0:exe:${os.detected.classifier}</protocArtifact>
 					<pluginId>grpc-java</pluginId>
 					<pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
@@ -366,7 +366,7 @@
 							<all>
 								<property>
 									<name>app</name>
-									<value>aaas-api-user-info</value>
+									<value>${artifactId}-${version}</value>
 								</property>
 								<property>
 									<name>hystrix.enabled</name>

@@ -53,10 +53,10 @@ public class FundCalculateService {
     /*
      * 根据时间查询净值表中复权单位净值数据
      */
-    public Map<String, List<FundNetVal>> selectFundNetValueByDate(Date selectDate) {
+    public Map<String, List<FundNetVal>> selectFundNetValueByDate(Date selectDate, int oemId) {
         List<FundNetVal> fundNetValList = null;
         //查询产品组合中 code
-        List<String> codeList = fundGroupMapper.findGroupCode();
+        List<String> codeList = fundGroupMapper.findGroupCode(oemId);
         HashMap<String, Object> codeMap = new HashMap<>();
         codeMap.put("codeList", codeList);
         codeMap.put("selectDate", selectDate);
@@ -93,7 +93,7 @@ public class FundCalculateService {
      * 计算每日的收益率以及风险率,insert into table:fund_calculate_data_day
      */
     @Deprecated
-    public void calculateDataOfData() {
+    public void calculateDataOfData(int oemId) {
         //查询计算风险率所需参数（取值数量）
         Integer number = getNumberFromSysConfig(TYPE_OF_DAY);
 
@@ -106,7 +106,7 @@ public class FundCalculateService {
             selectDate = jobTimeRecord.getTriggerTime();
         }
         //查询净值数据
-        Map<String, List<FundNetVal>> fundListMap = selectFundNetValueByDate(selectDate);
+        Map<String, List<FundNetVal>> fundListMap = selectFundNetValueByDate(selectDate, oemId);
         if (!CollectionUtils.isEmpty(fundListMap)) {
             Iterator<Map.Entry<String, List<FundNetVal>>> entries = fundListMap.entrySet().iterator();
             while (entries.hasNext()) {
@@ -178,7 +178,7 @@ public class FundCalculateService {
     /*
      * 计算每周的收益率以及风险率,insert into table:fund_calculate_data_week
      */
-    public Boolean calculateDataOfWeek() {
+    public Boolean calculateDataOfWeek(int oemId) {
         Boolean doSuccess = true;
         //查询计算风险率所需参数（取值数量）
         Integer number = this.getNumberFromSysConfig(TYPE_OF_WEEK);
@@ -192,7 +192,8 @@ public class FundCalculateService {
             triggerTime = jobTimeRecord.getTriggerTime();
         }
         //查询净值数据
-        Map<String, List<FundNetVal>> fundNetValListMap = this.selectFundNetValueByDate(triggerTime);
+        Map<String, List<FundNetVal>> fundNetValListMap = this.selectFundNetValueByDate
+            (triggerTime, oemId);
         if (!CollectionUtils.isEmpty(fundNetValListMap)) {
             //过滤数据（取周五数据）
             Map<String, List<FundNetVal>> fundFriListMap = this.filterData(fundNetValListMap, TYPE_OF_WEEK);
@@ -270,7 +271,7 @@ public class FundCalculateService {
      * 计算每月的收益率以及风险率, insert into table:fund_calculate_data_month
      */
     @Deprecated
-    public void calculateDataOfMonth() {
+    public void calculateDataOfMonth(int oemId) {
         //查询计算风险率所需参数（取值数量）
         Integer number = getNumberFromSysConfig(TYPE_OF_MONTH);
 
@@ -283,7 +284,7 @@ public class FundCalculateService {
             selectDate = jobTimeRecord.getTriggerTime();
         }
         //查询净值数据
-        Map<String, List<FundNetVal>> fundListMap = selectFundNetValueByDate(selectDate);
+        Map<String, List<FundNetVal>> fundListMap = selectFundNetValueByDate(selectDate, oemId);
         if (!CollectionUtils.isEmpty(fundListMap)) {
             //过滤数据（取每月底数据）
             Map<String, List<FundNetVal>> fundFriListMap = filterData(fundListMap, TYPE_OF_MONTH);
@@ -356,7 +357,7 @@ public class FundCalculateService {
      * 计算每年的收益率以及风险率, insert into table:fund_calculate_data_year
      */
     @Deprecated
-    public void calculateDataOfYear() {
+    public void calculateDataOfYear(int oemId) {
         //查询计算风险率所需参数（取值数量）
         Integer number = getNumberFromSysConfig(TYPE_OF_YEAR);
 
@@ -369,7 +370,7 @@ public class FundCalculateService {
             selectDate = jobTimeRecord.getTriggerTime();
         }
         //查询净值数据
-        Map<String, List<FundNetVal>> fundListMap = selectFundNetValueByDate(selectDate);
+        Map<String, List<FundNetVal>> fundListMap = selectFundNetValueByDate(selectDate, oemId);
         //查询基金净值数据
         if (!CollectionUtils.isEmpty(fundListMap)) {
             //过滤数据（取每年年底数据）

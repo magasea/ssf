@@ -33,9 +33,10 @@ public class FundGroupController {
      * @return
      */
     @ApiOperation("返回所有基金组合产品信息")
-    @RequestMapping(value = "/api/asset-allocation/products", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public FundAllReturn selectAllFundGroup() {
-        return fundGroupService.selectAllFundGroup();
+    @RequestMapping(value = "/api/asset-allocation/products/{oemId}", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    public FundAllReturn selectAllFundGroup(@PathVariable("oemId") Integer oemId) {
+        return fundGroupService.selectAllFundGroup(oemId);
     }
 
     /**
@@ -46,8 +47,9 @@ public class FundGroupController {
      */
     @ApiOperation("产品类别比重")
     @RequestMapping(value = "/api/asset-allocation/products/{groupId}/sub-groups/{subGroupId}/one-type", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType getProportionOne(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId) {
-        return fundGroupService.getProportionOne(groupId, subGroupId);
+    public ReturnType getProportionOne(@PathVariable("groupId") String groupId, @PathVariable
+        ("subGroupId") String subGroupId, @RequestParam(defaultValue = "1") Integer oemId) {
+        return fundGroupService.getProportionOne(groupId, subGroupId, oemId);
     }
 
     /**
@@ -57,9 +59,15 @@ public class FundGroupController {
      * @return
      */
     @ApiOperation("组合内基金名称及其百分比")
-    @RequestMapping(value = "/api/asset-allocation/products/{groupId}/sub-groups/{subGroupId}/fname-proportion", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType getFnameAndProportion(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId) {
-        return fundGroupService.getFnameAndProportion(groupId, subGroupId);
+    @RequestMapping(value = "/api/asset-allocation/products/{groupId}/sub-groups/{subGroupId"
+        + "}/fname-proportion/{oemId}", method = RequestMethod.GET, produces = MediaType
+        .APPLICATION_JSON_VALUE)
+    public ReturnType getFnameAndProportion(@PathVariable("groupId") String groupId,
+        @PathVariable("subGroupId") String subGroupId, @PathVariable("oemId") Integer oemId) {
+        if(oemId < 0 || oemId > 1000){
+            throw new IllegalArgumentException("oemId:"+oemId);
+        }
+        return fundGroupService.getFnameAndProportion(groupId, subGroupId, oemId);
     }
 
     /**
@@ -67,9 +75,9 @@ public class FundGroupController {
      * @return
      */
     @ApiOperation("返回首页五个产品")
-    @RequestMapping(value = "/api/asset-allocation/products/home-page", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType getPerformanceVolatilityHomePage() {
-        return fundGroupService.getPerformanceVolatilityHomePage();
+    @RequestMapping(value = "/api/asset-allocation/products/home-page/{oemId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ReturnType getPerformanceVolatilityHomePage(@PathVariable("oemId") Integer oemId) {
+        return fundGroupService.getPerformanceVolatilityHomePage(oemId);
     }
 
     /**
@@ -78,9 +86,12 @@ public class FundGroupController {
      * @return
      */
     @ApiOperation("返回单个基金组合产品信息")
-    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public FundReturn selectById(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId) {
-        return fundGroupService.getProportionGroupByFundTypeTwo(groupId, subGroupId);
+    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups"
+        + "/{subGroupId}/{oemId}", method = RequestMethod.GET, produces = MediaType
+        .APPLICATION_JSON_VALUE)
+    public FundReturn selectById(@PathVariable("groupId") String groupId, @PathVariable
+        ("subGroupId") String subGroupId, @PathVariable("oemId") Integer oemId) {
+        return fundGroupService.getProportionGroupByFundTypeTwo(groupId, subGroupId, oemId);
     }
 
     /**
@@ -91,9 +102,9 @@ public class FundGroupController {
      * @return
      */
     @ApiOperation("预期年化收益(action=calcExpectedAnnualizedReturn), 预期最大回撤(action=calcExpectedMaxPullback)")
-    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Object>> selectReturnAndPullback(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="1") String returntype) {
-        Map<String, Object> map = fundGroupService.selectReturnAndPullback(groupId, returntype, subGroupId);
+    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt/{oemId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Object>> selectReturnAndPullback(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="1") String returntype, @PathVariable("oemId") Integer oemId) {
+        Map<String, Object> map = fundGroupService.selectReturnAndPullback(groupId, returntype, subGroupId, oemId);
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
@@ -102,9 +113,15 @@ public class FundGroupController {
      * @return
      */
     @ApiOperation("配置收益贡献")
-    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/contributions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType getRevenueContribution(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId) {
-        return fundGroupService.getRevenueContribution(groupId, subGroupId);
+    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups"
+        + "/{subGroupId}/contributions/{oemId}", method = RequestMethod.GET, produces = MediaType
+        .APPLICATION_JSON_VALUE)
+    public ReturnType getRevenueContribution(@PathVariable("groupId") String groupId,
+        @PathVariable("subGroupId") String subGroupId, @PathVariable("oemId") Integer oemId) {
+        if(oemId < 0 || oemId > 1000){
+            throw new IllegalArgumentException("oemId:"+oemId+"is not leagual");
+        }
+        return fundGroupService.getRevenueContribution(groupId, subGroupId, oemId);
     }
 
     /**
@@ -112,9 +129,11 @@ public class FundGroupController {
      * @return
      */
     @ApiOperation("有效前沿线")
-    @RequestMapping(value = "/api/asset-allocation/products/{groupId}/effective-frontier-points", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType efficientFrontier(@PathVariable("groupId") String groupId) {
-        return fundGroupService.efficientFrontier(groupId);
+    @RequestMapping(value = "/api/asset-allocation/products/{groupId}/effective-frontier-points"
+        + "/{oemId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ReturnType efficientFrontier(@PathVariable("groupId") String groupId, @PathVariable
+        ("oemId") Integer oemId) {
+        return fundGroupService.efficientFrontier(groupId, oemId);
     }
 
     /**
@@ -126,8 +145,10 @@ public class FundGroupController {
      */
     @ApiOperation("预期收益率调整 风险率调整  最优组合(有效前沿线)")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/optimizations", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public FundReturn getInterval(@PathVariable("groupId") String groupId, @RequestParam(defaultValue="0.13") String riskValue, @RequestParam(defaultValue="0.15") String returnValue) {
-        return fundGroupService.getInterval(groupId, riskValue, returnValue);
+    public FundReturn getInterval(@PathVariable("groupId") String groupId,  @RequestParam
+        (defaultValue="0.13") String riskValue, @RequestParam(defaultValue="0.15") String
+        returnValue, @RequestParam(defaultValue = "1") Integer oemId) {
+        return fundGroupService.getInterval(groupId, oemId, riskValue, returnValue);
     }
 
     /**
@@ -173,9 +194,9 @@ public class FundGroupController {
      * @return
      */
     @ApiOperation("模拟历史年化业绩与模拟历史年化波动率")
-    @RequestMapping(value = "/api/asset-allocation/product-groups", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public PerformanceVolatilityReturn getPerformanceVolatility(@RequestParam(defaultValue="C1") String riskLevel, @RequestParam(defaultValue="1") String investmentPeriod) {
-        return fundGroupService.getPerformanceVolatility(riskLevel, investmentPeriod);
+    @RequestMapping(value = "/api/asset-allocation/product-groups/{oemId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public PerformanceVolatilityReturn getPerformanceVolatility(@RequestParam(defaultValue="C1") String riskLevel, @RequestParam(defaultValue="1") String investmentPeriod, @PathVariable("oemId") Integer oemId) {
+        return fundGroupService.getPerformanceVolatility(riskLevel, investmentPeriod, oemId);
     }
 
     /**
@@ -185,9 +206,15 @@ public class FundGroupController {
      * @return
      */
     @ApiOperation("历史业绩")
-    @RequestMapping(value = "/api/asset-allocation/product-groups/historicalPer-formance", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public PerformanceVolatilityReturn getHistoricalPerformance(@RequestParam(defaultValue="6") String fund_group_id, @RequestParam(defaultValue="6000") String subGroupId) {
-        return fundGroupService.getHistoricalPerformance(fund_group_id, subGroupId);
+    @RequestMapping(value = "/api/asset-allocation/product-groups/historicalPer-formance",
+        method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public PerformanceVolatilityReturn getHistoricalPerformance(@RequestParam(defaultValue="6")
+        String fund_group_id, @RequestParam(defaultValue="6000") String subGroupId, @RequestParam
+        (defaultValue= "1") Integer oemId) {
+        if(oemId< 0 || oemId>1000){
+            throw new IllegalArgumentException("oemId:"+oemId);
+        }
+        return fundGroupService.getHistoricalPerformance(fund_group_id, subGroupId, oemId);
     }
 
     /**
@@ -197,9 +224,11 @@ public class FundGroupController {
      * @return
      */
     @ApiOperation("滑动条分段数据")
-    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/slidebar-points", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType getScaleMark(@PathVariable("groupId") String groupId, String slidebarType) {
-        return fundGroupService.getScaleMark(groupId, slidebarType);
+    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/slidebar-points/{oemId}",
+        method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ReturnType getScaleMark(@PathVariable("groupId") String groupId, String slidebarType,
+        @PathVariable("oemId") Integer oemId) {
+        return fundGroupService.getScaleMark(groupId, slidebarType, oemId);
     }
 
     /**
@@ -225,8 +254,11 @@ public class FundGroupController {
      */
     @ApiOperation("组合收益率(最大回撤)走势图-每天")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType getFundGroupIncome(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="-1") int mouth, @RequestParam(defaultValue="income") String returnType) {
-        return fundGroupService.getFundGroupIncome(groupId, subGroupId, mouth, returnType);
+    public ReturnType getFundGroupIncome(@PathVariable("groupId") String groupId, @PathVariable
+        ("subGroupId") String subGroupId,  @RequestParam(defaultValue="-1") int mouth,
+        @RequestParam(defaultValue="income") String returnType, @RequestParam(defaultValue = "1")
+        Integer oemId) {
+        return fundGroupService.getFundGroupIncome(groupId, subGroupId, oemId,  mouth, returnType);
     }
 
     /**
@@ -240,13 +272,17 @@ public class FundGroupController {
      */
     @ApiOperation("组合收益率(最大回撤)走势图-自组合基金成立以来的每天")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield-all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType getFundGroupIncomeAll(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="income") String returnType) {
+    public ReturnType getFundGroupIncomeAll(@PathVariable("groupId") String groupId,
+        @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="income")
+        String returnType, @RequestParam(defaultValue = "1") Integer oemId) {
         if (returnType.equalsIgnoreCase("income")) {
-            return fundGroupService.getFundGroupIncomeAllFromMongo(groupId, subGroupId, returnType);
+            return fundGroupService.getFundGroupIncomeAllFromMongo(groupId, subGroupId,oemId,
+                returnType);
         }
-        List<Date> dateList = fundGroupService.getRecentDateInfo();
+        List<Date> dateList = fundGroupService.getRecentDateInfo(oemId);
 
-        return fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, returnType, dateList);
+        return fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, oemId,  returnType,
+            dateList);
     }
 
     /**
@@ -259,8 +295,13 @@ public class FundGroupController {
      */
     @ApiOperation("组合收益率(最大回撤)走势图-每天(一周以来)")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield-week", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType getFundGroupIncomeWeek(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="income") String returnType) {
-        return fundGroupService.getFundGroupIncomeWeek(groupId, subGroupId, returnType);
+    public ReturnType getFundGroupIncomeWeek(@PathVariable("groupId") String groupId,
+        @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue = "1")
+        Integer oemId, @RequestParam(defaultValue="income") String returnType) {
+        if(oemId < 0 || oemId > 1000){
+            throw new IllegalArgumentException("oemId:"+oemId);
+        }
+        return fundGroupService.getFundGroupIncomeWeek(groupId, subGroupId, oemId, returnType);
     }
 
     /**
@@ -272,8 +313,9 @@ public class FundGroupController {
      */
     @ApiOperation("组合各种类型净值收益")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/fund-navadj", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType getFundNetValue(String id, String subGroupId, @RequestParam(defaultValue="1") String returnType) {
-        return fundGroupService.getFundNetValue(id, subGroupId, returnType);
+    public ReturnType getFundNetValue(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="1") String returnType
+        ,@RequestParam(defaultValue = "1") Integer oemId) {
+        return fundGroupService.getFundNetValue(groupId, subGroupId, oemId, returnType);
     }
 
     /**
@@ -285,14 +327,15 @@ public class FundGroupController {
      */
     @ApiOperation("未来收益走势图")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/expected-income", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ReturnType getExpectedIncome(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId) {
-        return fundGroupService.getExpectedIncome(groupId, subGroupId);
+    public ReturnType getExpectedIncome(@PathVariable("groupId") String groupId, @PathVariable
+        ("subGroupId") String subGroupId, @RequestParam(defaultValue = "1") Integer oemId) {
+        return fundGroupService.getExpectedIncome(groupId, subGroupId, oemId);
     }
 
     @ApiOperation("拉数据所需基金代码")
     @RequestMapping(value = "/api/asset-allocation/product-groups/fund-code", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<String> findAllGroupCode() {
-        return fundGroupService.findAllGroupCode();
+    public List<String> findAllGroupCode(@RequestParam(defaultValue = "1") Integer oemId) {
+        return fundGroupService.findAllGroupCode(oemId);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.oeminfo.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +34,7 @@ public interface MidApiService {
 	 * @param subGroupId
 	 * @return
 	 */
-	Map<String, Object> getPrdNPVList(String groupId, String subGroupId);
+	Map<String, Object> getPrdNPVList(String groupId, String subGroupId, Integer oemid);
 
 	/**
 	 * 获取产品的年收益率和最大回撤率
@@ -42,7 +43,7 @@ public interface MidApiService {
 	 * @param subGroupId
 	 * @return
 	 */
-	Map<String, Object> getExpAnnualAndMaxReturn(String groupId, String subGroupId);
+	Map<String, Object> getExpAnnualAndMaxReturn(String groupId, String subGroupId, Integer oemid);
 
 	/**
 	 * 获取优化方案后的结果
@@ -51,7 +52,7 @@ public interface MidApiService {
 	 * @param invstTerm
 	 * @return
 	 */
-	Map<String, Object> getOptAdjustment(String riskLevel, String invstTerm) throws Exception;
+	Map<String, Object> getOptAdjustment(String riskLevel, String invstTerm, Integer oemid) throws Exception;
 
 	/**
 	 * 购买基金
@@ -83,7 +84,7 @@ public interface MidApiService {
 	 * @return
 	 * @throws Exception
 	 */
-	Map sellFundPage(String groupId, String subGroupId, String totalAmount) throws Exception;
+	Map sellFundPage(String groupId, String subGroupId, String totalAmount, Integer oemid) throws Exception;
 
 	/**
 	 * 赎回基金确认
@@ -92,5 +93,16 @@ public interface MidApiService {
 	 * @throws Exception
 	 */
 	Map sellFund(String userProdId, String prodId, String groupId, String userId, List<FinanceProdSellInfo> infoList) throws Exception;
+
+	/**
+	 * 按百分比赎回
+	 * 
+	 * @param userProdId
+	 * @param prodId
+	 * @param groupId
+	 * @param userUuid
+	 * @return
+	 */
+	Map sellFundPersent(String userProdId, String prodId, String groupId, String userUuid, String userBankNum, BigDecimal sellTargetPercent) throws Exception ;
 
 }

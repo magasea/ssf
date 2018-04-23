@@ -1489,17 +1489,17 @@ public class UserInfoController {
 			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")
 	})
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "path", name = "userUuid", dataType = "String", required = true, value = "用户uuid", defaultValue = ""),
-			@ApiImplicitParam(paramType = "path", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = true, value = "赎回费用", defaultValue = ""),
+//			@ApiImplicitParam(paramType = "path", name = "userUuid", dataType = "String", required = true, value = "用户uuid", defaultValue = ""),
+//			@ApiImplicitParam(paramType = "path", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = ""),
+//			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = true, value = "赎回费用", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = true, value = "银行名称", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = true, value = "银行卡号", defaultValue = ""),
 	})
 	@RequestMapping(value = "/users/{userUuid}/orders/{prodId}/sell-records", method = RequestMethod.GET)
 	public ResponseEntity<Map> getSellRecords(
-			@PathVariable String userUuid,
-			@PathVariable String prodId,
-			@RequestParam String buyfee,
+//			@PathVariable String userUuid,
+//			@PathVariable String prodId,
+//			@RequestParam String buyfee,
 			@RequestParam String bankName,
 			@RequestParam String bankCard
 	) throws Exception {
@@ -1513,7 +1513,7 @@ public class UserInfoController {
 		date1 = date1.substring(5).replace("-", ".");
 		date2 = date2.substring(5).replace("-", ".");
 
-		result.put("buyfee", buyfee);
+//		result.put("buyfee", buyfee);
 		bankCard = bankCard.substring(bankCard.length() - 4, bankCard.length());
 		result.put("bankInfo", bankName + "(" + bankCard + ")");
 		return new ResponseEntity<>(result, HttpStatus.OK);

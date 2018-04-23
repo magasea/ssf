@@ -60,6 +60,7 @@ public class FundGroupMapperTest {
         query.put("subGroupId", "50059");
         query.put("retracement", -0.014); //-0.014
         query.put("time", "2017-12-18");
+        query.put("oemId", 1);
         Integer effectRow = fundGroupMapper.updateMaximumRetracement(query);
         System.out.println(effectRow);
     }
@@ -94,6 +95,7 @@ public class FundGroupMapperTest {
         Map<String, Object> query = new HashMap<>();
         query.put("fund_group_id", "2");
         query.put("subGroupId", "20048");
+        query.put("oemId", 1);
         String groupStartTime = fundGroupMapper.getFundGroupHistoryTime(query);
         if (StringUtils.isEmpty(groupStartTime)) {
             groupStartTime = fundGroupMapper.getGroupStartTime(query);

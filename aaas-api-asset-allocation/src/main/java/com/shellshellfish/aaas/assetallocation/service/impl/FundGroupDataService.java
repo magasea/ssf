@@ -37,12 +37,12 @@ public class FundGroupDataService {
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-    public Boolean insertFundGroupData() {
+    public Boolean insertFundGroupData(int oemId) {
         Boolean doSuccess = true;
 
         HashMap<Integer, List<String>> groupCodeMap = new HashMap<>();
         //查询 fund_group_basic （基金组合基本表）中有效组合的code
-        List<FundCombination> groupIdList = fundGroupMapper.findAllGroupId();
+        List<FundCombination> groupIdList = fundGroupMapper.findAllGroupId(oemId);
         for (FundCombination fundCombination : groupIdList) {
             // 根据groupId 分组
             Integer groupId = fundCombination.getGroupId();
@@ -62,13 +62,13 @@ public class FundGroupDataService {
         }
 
         // 将 fund_group_details 中 数据 备份到 fund_group_details_history
-        Integer transToDetailsEffectRows = fundGroupMapper.transIntoFundGroupDetailsHistory();
+        Integer transToDetailsEffectRows = fundGroupMapper.transIntoFundGroupDetailsHistory(oemId);
         // 将 fund_group_sub 中 数据 备份到 fund_group_sub_history
-        Integer transToSubEffectRows = fundGroupMapper.transIntoFundGroupSubHistory();
+        Integer transToSubEffectRows = fundGroupMapper.transIntoFundGroupSubHistory(oemId);
         // 将 fund_group_details 中 数据 删除
-        Integer deleteDetailsEffectRows = fundGroupMapper.deleteFundGroupDetails();
+        Integer deleteDetailsEffectRows = fundGroupMapper.deleteFundGroupDetails(oemId);
         // 将 fund_group_sub 中 数据 删除
-        Integer deleteSubEffectRows = fundGroupMapper.deleteFundGroupSub();
+        Integer deleteSubEffectRows = fundGroupMapper.deleteFundGroupSub(oemId);
         if (transToDetailsEffectRows >= 0 && transToSubEffectRows >= 0 && deleteDetailsEffectRows >= 0 && deleteSubEffectRows >= 0) {
             //取出code
             if (CollectionUtils.isEmpty(groupCodeMap)) {
@@ -84,7 +84,7 @@ public class FundGroupDataService {
                 while (entries.hasNext()) {
                     final Map.Entry<Integer, List<String>> entry = entries.next();
                     completionService.submit(() -> {
-                        final Boolean taskRunSuccess = insertFundGroupDatasTask(entry);
+                        final Boolean taskRunSuccess = insertFundGroupDatasTask(entry, oemId);
                         countDownLatch.countDown();
                         return taskRunSuccess;
                     });
@@ -116,17 +116,17 @@ public class FundGroupDataService {
         }
     }
 
-    private Boolean insertFundGroupDatasTask(Map.Entry<Integer, List<String>> entry) {
+    private Boolean insertFundGroupDatasTask(Map.Entry<Integer, List<String>> entry, int oemId) {
         Integer groupId = entry.getKey(); // 组合id
         List<String> codeList = entry.getValue(); // 组合中所含基金代码
         //计算组合数据并入库
-        Boolean doSuccess = insertFundGroupDatas(groupId, codeList);
+        Boolean doSuccess = insertFundGroupDatas(groupId, codeList, oemId);
         return doSuccess;
     }
 
 
     // 调用 MVO 得出组合数据并入库
-    public Boolean insertFundGroupDatas(Integer groupId, List<String> codeList) {
+    public Boolean insertFundGroupDatas(Integer groupId, List<String> codeList, int oemId) {
         Boolean doSuccess = true;
         Double [] expReturn = null;
         Double[][] expCovariance = null;
@@ -198,7 +198,8 @@ public class FundGroupDataService {
                 fundCombination.setSubGroupDetails(subGroupDetails); //子组合详情
                 fundCombinationList.add(fundCombination);
                 //将组合数据插入fund_group_details
-                Integer effectRows = fundGroupMapper.insertIntoFundGroupDetails(fundCombination.getSubGroupDetails());
+                Integer effectRows = fundGroupMapper.insertIntoFundGroupDetails(fundCombination
+                    .getSubGroupDetails(), oemId);
                 if (effectRows == null) {
                     doSuccess = false;
                     return doSuccess;
@@ -206,7 +207,7 @@ public class FundGroupDataService {
             }
 
             // 将组合数据插入fund_group_sub
-            Integer effectRows = fundGroupMapper.insertIntoFundGroupSub(fundCombinationList);
+            Integer effectRows = fundGroupMapper.insertIntoFundGroupSub(fundCombinationList, oemId);
             if (effectRows == null) {
                 doSuccess = false;
             }

@@ -709,20 +709,23 @@ public class UserInfoController {
 			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户uuid", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "orderId", dataType = "String", required = false, value = "订单编号"),
-			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = false, value = "预计费用"),
+//			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = false, value = "预计费用"),
 			@ApiImplicitParam(paramType = "query", name = "poundage", dataType = "String", required = false, value = "手续费"),
 			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = false, value = "银行名称"),
-			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"), })
+			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"),
+			@ApiImplicitParam(paramType = "query", name = "sellTargetPercent", dataType = "BigDecimal", required = true, value = "百分比(默认100%)", defaultValue = "100"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1")})
 	@RequestMapping(value = "/sellresult", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getSellRecords(@RequestParam String uuid, @RequestParam String prodId,
-			@RequestParam(required = false) String orderId, @RequestParam(required = false) String buyfee,
+			@RequestParam(required = false) String orderId, 
+//			@RequestParam(required = false) String buyfee,
 			@RequestParam(required = false) String poundage, @RequestParam(required = false) String bankName,
-			@RequestParam(required = false) String bankCard) {
+			@RequestParam(required = false) String bankCard, @RequestParam BigDecimal sellTargetPercent,
+			@RequestParam(required = true) Integer oemid) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
-			String url = userinfoUrl + "/api/userinfo/users/" + uuid + "/orders/" + prodId + "/sell-records?buyfee="
-					+ buyfee + "&bankName=" + bankName + "&bankCard=" + bankCard;
+			String url = userinfoUrl + "/api/userinfo/users/" + uuid + "/orders/" + prodId + "/sell-records?bankName=" + bankName + "&bankCard=" + bankCard;
 			result = restTemplate.getForEntity(url, Map.class).getBody();
 			if (result == null || result.size() == 0) {
 				logger.error("交易结果获取失败");
@@ -731,10 +734,11 @@ public class UserInfoController {
 				result.put("uuid", uuid);
 				result.put("prodId", prodId);
 				result.put("orderId", orderId == null ? "" : orderId);
-				result.put("buyfee", buyfee == null ? "" : buyfee);
+//				result.put("buyfee", buyfee == null ? "" : buyfee);
 				result.put("bankName", bankName == null ? "" : bankName);
 				result.put("bankCard", bankCard == null ? "" : bankCard);
 				result.put("poundage", poundage == null ? "" : poundage);
+				result.put("sellTargetPercent", sellTargetPercent == null ? "" : sellTargetPercent);
 				
 				Map<Object, Object> sellDetailMap = restTemplate.getForEntity(tradeOrderUrl + "/api/trade/funds/sellDetails/" + orderId, Map.class).getBody();
 				if (sellDetailMap.get("detailList") == null) {
@@ -777,7 +781,7 @@ public class UserInfoController {
 									String subGroupId = productResult.get("subGroupId") + "";
 									// 获取二级分类
 									String url3 = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
-											+ "/sub-groups/" + subGroupId;
+											+ "/sub-groups/" + subGroupId + "/" + oemid;
 									Map productMap = restTemplate.getForEntity(url3, Map.class).getBody();
 									if (productMap == null) {
 										logger.info("单个基金组合产品信息为空");
@@ -945,15 +949,20 @@ public class UserInfoController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "userUuid", dataType = "String", required = true, value = "用户uuid", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "orderId", dataType = "String", required = true, value = "订单编号", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = false, value = "预计费用"),
+//			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = false, value = "预计费用"),
 			@ApiImplicitParam(paramType = "query", name = "poundage", dataType = "String", required = false, value = "手续费"),
 			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = false, value = "银行名称"),
-			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号") })
+			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"),
+			@ApiImplicitParam(paramType = "query", name = "sellTargetPercent", dataType = "BigDecimal", required = true, value = "百分比(默认100%)", defaultValue = "100"),
+	})
 	@RequestMapping(value = "/sellDetails", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult sellDetails(@RequestParam String userUuid, @RequestParam String orderId,
-			@RequestParam(required = false) String buyfee, @RequestParam(required = false) String poundage,
-			@RequestParam(required = false) String bankName, @RequestParam(required = false) String bankCard) {
+//			@RequestParam(required = false) String buyfee, 
+			@RequestParam(required = false) String poundage,
+			@RequestParam(required = false) String bankName, 
+			@RequestParam(required = false) String bankCard,
+			@RequestParam BigDecimal sellTargetPercent) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
 			result = restTemplate.getForEntity(tradeOrderUrl + "/api/trade/funds/sellDetails/" + orderId, Map.class)
@@ -962,10 +971,11 @@ public class UserInfoController {
 				logger.error("产品详情-result-获取失败");
 				return new JsonResult(JsonResult.Fail, "产品详情获取失败", JsonResult.EMPTYRESULT);
 			} else {
-				result.put("buyfee", buyfee == null ? "" : buyfee);
+//				result.put("buyfee", buyfee == null ? "" : buyfee);
 				result.put("poundage", poundage == null ? "" : poundage);
 				result.put("bankName", bankName == null ? "" : bankName);
 				result.put("bankCard", bankCard == null ? "" : bankCard);
+				result.put("sellTargetPercent", sellTargetPercent == null ? "" : sellTargetPercent);
 			}
 			if (result.get("detailList") == null) {
 				logger.error("产品详情-detailList-获取失败");
@@ -1025,7 +1035,6 @@ public class UserInfoController {
 							} else {
 								continue;
 							}
-							
 							
 							int operation = 0;
 							if(resultStatusMap.get("operation")!=null){
