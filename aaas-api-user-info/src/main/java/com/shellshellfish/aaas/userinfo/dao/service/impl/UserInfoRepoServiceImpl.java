@@ -1102,6 +1102,9 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 					TrdOrderStatusEnum.WAITSELL.getStatus() );
 			spdrBuilder.clear();
 		}
+		if(!StringUtils.isEmpty(uiProducts.getBankCardNum())){
+			sprBuilder.setUserBankNum(uiProducts.getBankCardNum());
+		}
 		return sprBuilder;
 	}
 
