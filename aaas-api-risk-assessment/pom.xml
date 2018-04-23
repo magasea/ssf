@@ -71,6 +71,14 @@
 			<artifactId>h2</artifactId>
 			<version>1.3.156</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.googlecode.jmockit/jmockit -->
+		<dependency>
+			<groupId>com.googlecode.jmockit</groupId>
+			<artifactId>jmockit</artifactId>
+			<version>1.7</version>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- junit surefire test -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -86,6 +94,9 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
+
+
+
 	</dependencies>
 
 	<build>
@@ -121,6 +132,48 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
+
+			<!-- junit surefire test-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven-surefire-plugin.version}</version>
+				<configuration>
+					<testFailureIgnore>true</testFailureIgnore>
+				</configuration>
+				<executions>
+					<execution>
+						<id>test</id>
+						<phase>test</phase>
+						<configuration>
+							<argLine>-Dfile.encoding=UTF-8</argLine>
+							<forkMode>once</forkMode>
+							<redirectTestOutputToFile>true</redirectTestOutputToFile>
+							<includes>
+								<include>**/*Test.java</include>
+							</includes>
+						</configuration>
+						<goals>
+							<goal>test</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>${maven-surefire-report-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>generate-test-report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -170,6 +223,11 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.19</version>
+			</plugin>
 		</plugins>
 	</build>
 	<!-- junit surefire test-->
@@ -185,7 +243,7 @@
 				<artifactId>jxr-maven-plugin</artifactId>
 				<version>${jxr-maven-plugin.version}</version>
 			</plugin>
-
+			<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-jxr-plugin -->
 		</plugins>
 	</reporting>
 </project>
