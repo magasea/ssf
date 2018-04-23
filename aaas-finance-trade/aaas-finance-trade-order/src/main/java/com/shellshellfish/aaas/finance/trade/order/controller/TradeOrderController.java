@@ -182,6 +182,7 @@ public class TradeOrderController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = true, value = "groupId", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "Long", required = true, value = "subGroupId", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1"),
 			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "BigDecimal", required = true, value = "赎回金额", defaultValue = "")})
 	@ApiResponses({
 			@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
@@ -192,11 +193,13 @@ public class TradeOrderController {
 	public ResponseEntity<DistributionResult> sellProduct(
 			@RequestParam(value = "groupId") Long groupId,
 			@RequestParam(value = "subGroupId") Long subGroupId,
+			@RequestParam(value = "oemid") Integer oemid,
 			@RequestParam(value = "totalAmount") BigDecimal totalAmount)
 			throws Exception {
 		ProductBaseInfo productBaseInfo = new ProductBaseInfo();
 		productBaseInfo.setProdId(groupId);
 		productBaseInfo.setGroupId(subGroupId);
+		productBaseInfo.setOemId(oemid);
 		List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
 		DistributionResult distributionResult = financeProdCalcService.getPoundageOfSellFund(totalAmount, productList);
 		return new ResponseEntity<DistributionResult>(distributionResult, HttpStatus.OK);

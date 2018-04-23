@@ -368,8 +368,8 @@ public class MidApiServiceImpl implements MidApiService {
 
 
 	@Override
-	public Map sellFundPage(String groupId, String subGroupId, String totalAmount) throws Exception {
-		String url = tradeOrderUrl + "api/trade/funds/sellProduct?groupId=" + groupId + "&subGroupId=" + subGroupId + "&totalAmount=" + totalAmount;
+	public Map sellFundPage(String groupId, String subGroupId, String totalAmount, Integer oemid) throws Exception {
+		String url = tradeOrderUrl + "api/trade/funds/sellProduct?groupId=" + groupId + "&subGroupId=" + subGroupId + "&totalAmount=" + totalAmount + "&oemid=" + oemid;
 		Map result = restTemplate.getForEntity(url, Map.class).getBody();
 		if(result!=null){
 			Object poundage = result.get("poundage");
