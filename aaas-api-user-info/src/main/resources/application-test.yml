@@ -1,7 +1,6 @@
 ---
 server:
   port: 10060
-  contextPath: /
 logging:
   level:
     org.hibernate.SQL: DEBUG
@@ -39,6 +38,11 @@ spring:
     host: 192.168.1.249
     port: 16379
     password: redis123
+      lettuce:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
 datasource:
   sampleapp:
     url: jdbc:mysql://192.168.1.249:30006/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8

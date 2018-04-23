@@ -34,8 +34,13 @@ spring:
     host: 192.168.1.10
     port: 6379
     password: redis123
-    timeout: 0
+    timeout: 50ms
     pool:
+      lettuce:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
 
 datasource:
   sampleapp:
