@@ -7,7 +7,7 @@
         SELECT
           fund_code,proportion
         FROM
-          fund_group_details
+          fund_group_details_${oemId}
         WHERE
           fund_group_id = #{groupId}
           AND  fund_group_sub_id = #{subGroupId}

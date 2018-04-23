@@ -277,10 +277,12 @@ public class TransferController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = ""),
 		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "12"),
-		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "120049") })
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "120049"),
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1")
+	})
 	@RequestMapping(value = "/purchase-plan", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getBuyInitial(String uuid, String groupId, String subGroupId) {
+	public JsonResult getBuyInitial(String uuid, String groupId, String subGroupId, Integer oemid) {
 		Map resultMap = null;
 		try {
 			String url = tradeOrderUrl + "/api/trade/funds/maxminValue?groupId=" + groupId + "&subGroupId="
@@ -322,7 +324,7 @@ public class TransferController {
 			}
 			resultMap.put("banks", result);
 			
-			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId;
+			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/" + oemid;
 			Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
 			if(productMap!=null){
 				if(productMap.get("name")!=null){
