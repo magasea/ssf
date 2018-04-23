@@ -128,7 +128,7 @@ public class IndexServiceImpl implements IndexService {
             result.put("productTypeList", riskList);
         } else {
             logger.info("进行风险评测时，显示其组合.");
-            ReturnType resultType = assetAllocationService.getPerformanceVolatilityHomePage();
+            ReturnType resultType = assetAllocationService.getPerformanceVolatilityHomePage(oemid);
             List<Map<String, Object>> items = resultType.get_items();
             Map<String, Object> itemMap = new HashMap<String, Object>();
             List<Map<String, Object>> investmentHorizonMap2 = new ArrayList<Map<String, Object>>();
