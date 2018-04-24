@@ -71,6 +71,9 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
   @Value("${shellshellfish.asset-allocation-initpyamongo-url}")
   String assetAllocationInitpyamongo;
 
+  @Value("${shellshellfish.asset-allocation-updateallmaximumlosses-url}")
+  String assetAllocationUpdateallmaximumlosses;
+
   @Value("${shellshellfish.data-manager-initcache-url}")
   String assetAllocationInitcache;
 
@@ -180,7 +183,14 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
     restTemplateHandler(assetAllocationInsertdf, 1, HttpMethod.GET);
     restTemplateHandler(assetAllocationInsertdf, 2, HttpMethod.GET);
     restTemplateHandler(assetAllocationInithistory, 1, HttpMethod.GET);
+    Thread.sleep(10000);
     restTemplateHandler(assetAllocationInithistory, 2, HttpMethod.GET);
+    Thread.sleep(10000);
+
+    restTemplateHandler(assetAllocationUpdateallmaximumlosses, 2, HttpMethod.GET);
+    Thread.sleep(10000);
+    restTemplateHandler(assetAllocationUpdateallmaximumlosses, 2, HttpMethod.GET);
+
     restTemplateHandler(assetAllocationInitpyamongo, 1, HttpMethod.GET);
     restTemplateHandler(assetAllocationInitpyamongo, 2, HttpMethod.GET);
 
