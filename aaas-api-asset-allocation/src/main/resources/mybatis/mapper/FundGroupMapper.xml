@@ -86,7 +86,7 @@
     <select id="getFundGroupCodeList" resultType="java.lang.String">
         select fund_code from fund_group_details where fund_group_id = #{fundGroupId} and fund_group_sub_id = #{subGroupId}
     </select>
-    <select id="getGroupCodeList" resultType= "java.lang.String">
+    <select id="getGroupCodeList" resultType="java.lang.String">
         select fund_code from fund_group_details_${oemId} where
         fund_group_id in (
         <foreach collection="list1" separator="," item="item1">
@@ -114,6 +114,13 @@
         select * from fund_group_sub_${oemId} where fund_group_id = #{id} and id=#{subGroupId}
     </select>
 
+    <select id="getMaxLoss" resultType="com.shellshellfish.aaas.assetallocation.entity.RiskIncomeInterval">
+                select * from fund_group_sub_${oemId} b,strategy a where a.fund_group_id=b.fund_group_id
+                AND b.id = a.fund_group_id*10000+48
+                and a.cust_risk = #{custRisk}
+                AND a.investment_horizon = #{investmentHorizon}
+                limit 1;
+    </select>
     <select id="getPerformanceVolatility"
             resultType="com.shellshellfish.aaas.assetallocation.entity.RiskIncomeInterval">
         select * from fund_group_sub_${oemId} b,strategy a where a.fund_group_id=b.fund_group_id

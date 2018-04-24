@@ -574,19 +574,10 @@ public class FundGroupService {
         Map<String, String> _links = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
         PerformanceVolatilityReturn aReturn = new PerformanceVolatilityReturn();
-        if (StringUtils.isEmpty(cust_risk)) {
-            map.put("cust_risk", "C3");
-        } else {
-            map.put("cust_risk", cust_risk);
-        }
-        if (StringUtils.isEmpty(investment_horizon)) {
-            map.put("investment_horizon", "2");
-        } else {
-            map.put("investment_horizon", investment_horizon);
-        }
-        map.put("oemId", "" + oemId);
-        List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getPerformanceVolatility(map);
-        if (CollectionUtils.isEmpty(riskIncomeIntervals)) {
+        RiskIncomeInterval riskIncomeInterval = fundGroupMapper.getMaxLoss(oemId,
+                Optional.ofNullable(cust_risk).orElse("C3"),
+                Optional.ofNullable(investment_horizon).orElse("2"));
+        if (riskIncomeInterval == null) {
             aReturn.setName("模拟数据");
             aReturn.setProductGroupId("");
             aReturn.setProductSubGroupId("");
@@ -597,9 +588,9 @@ public class FundGroupService {
             return aReturn;
         }
 
-        int index = (riskIncomeIntervals.size() - 1) / 2;
-        index = index > 0 ? index - 1 : 0;
-        RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(index);
+        FundGroupIndex fundGroupIndex = fundGroupIndexMapper.findByGroupIdAndSubGroupId(riskIncomeInterval
+                .getFund_group_id(), riskIncomeInterval.getId());
+
         aReturn.setName("模拟数据");
         aReturn.setProductGroupId(riskIncomeInterval.getFund_group_id());
         aReturn.setProductSubGroupId(riskIncomeInterval.getId());
@@ -608,11 +599,11 @@ public class FundGroupService {
             if (i == 0) {
                 maps.put("id", 1);
                 maps.put("name", "模拟历史年化业绩");
-                maps.put("value", riskIncomeInterval.getSimulate_historical_year_performance());
+                maps.put("value", fundGroupIndex.getHistoricalAnnualYield());
             } else if (i == 1) {
                 maps.put("id", 2);
                 maps.put("name", "模拟历史年化波动率");
-                maps.put("value", riskIncomeInterval.getSimulate_historical_volatility());
+                maps.put("value", fundGroupIndex.getHistoricalAnnualVolatility());
             } else if (i == 2) {
                 maps.put("id", 3);
                 maps.put("name", "置信区间");
