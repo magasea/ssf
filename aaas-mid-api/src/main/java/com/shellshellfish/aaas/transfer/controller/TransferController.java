@@ -192,7 +192,9 @@ public class TransferController {
 		if (!riskService.isAppropriateRishLevel(prdInfo.getUuid(), prdInfo.getProdId())) {
 			return new JsonResult(JsonResult.Fail, "风险等级低，不能购买当前产品", JsonResult.EMPTYRESULT);
 		}
-
+		if(prdInfo.getOemId() == null || prdInfo.getOemId() == 0){
+			prdInfo.setOemId(1);
+		}
 		try {
 			// 调用购买接口
 			Map buyProductSuccess = service.buyProduct(prdInfo);
