@@ -17,7 +17,7 @@ public class FinanceProdBuyInfo {
   String uuid; //用户 uuid
   String bankAcc;//银行账户
   String orderId;//订单号ID
-  Integer oemid = 1;
+  Integer oemId = 1;
 
   public String getUuid() {
     return uuid;
@@ -101,12 +101,12 @@ public class FinanceProdBuyInfo {
     this.userProdId = userProdId;
   }
   
-  public Integer getOemid() {
-    return oemid;
+  public Integer getOemId() {
+    return oemId;
   }
 
-  public void setOemid(Integer oemid) {
-    this.oemid = oemid;
+  public void setOemId(Integer oemId) {
+    this.oemId = oemId;
   }
 
 	@Override
