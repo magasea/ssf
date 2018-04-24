@@ -1846,13 +1846,13 @@ public class FundGroupService {
         try {
             final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
             ExecutorService pool = new ThreadPoolExecutor(
-                CORE_POOL_SIZE,
-                2 * CORE_POOL_SIZE,
-                5,
-                TimeUnit.MINUTES,
-                new LinkedBlockingQueue<>(20),
-                Executors.defaultThreadFactory(),
-                new ThreadPoolExecutor.AbortPolicy());
+                    CORE_POOL_SIZE,
+                    2 * CORE_POOL_SIZE,
+                    5,
+                    TimeUnit.MINUTES,
+                    new LinkedBlockingQueue<>(20),
+                    Executors.defaultThreadFactory(),
+                    new ThreadPoolExecutor.AbortPolicy());
             for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
                 String fundGroupId = String.valueOf(index);
                 pool.execute(() -> {
@@ -2260,14 +2260,11 @@ public class FundGroupService {
         query.put("subGroupId", subGroupId);
         query.put("fundGroupId", fundGroupId);
         query.put("oemId", oemId);
-        List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getScaleMark(query);
-        if (CollectionUtils.isEmpty(riskIncomeIntervals)) {
-            return;
-        }
-
-        Double maximumLosses = CalculatePortvrisks.calculatePortvrisk(riskIncomeIntervals.get(0).getIncome_num(),
-                riskIncomeIntervals.get(0).getRisk_num(), CONFIDENCE_LEVEL, PRINCIPAL);
+        FundGroupIndex fundGroupIndex = fundGroupIndexMapper.findByGroupIdAndSubGroupId(fundGroupId, subGroupId);
+        Double maximumLosses = CalculatePortvrisks.calculatePortvrisk(fundGroupIndex.getHistoricalAnnualYield(),
+                fundGroupIndex.getHistoricalAnnualVolatility(), CONFIDENCE_LEVEL, PRINCIPAL);
         query.put("maximum_losses", maximumLosses);
+        query.put("confidence_interval", CONFIDENCE_LEVEL);
         fundGroupMapper.updateMaximumLosses(query);
     }
 

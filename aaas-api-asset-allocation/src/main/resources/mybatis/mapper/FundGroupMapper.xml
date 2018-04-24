@@ -415,7 +415,8 @@
         update fund_group_sub set maximum_losses = #{maxLoss} where fund_group_id = #{fundGroupId} and id=#{subGroupId}
     </update>
     <update id="updateMaximumLosses">
-        update fund_group_sub_${oemId} set maximum_losses = #{maximum_losses} where fund_group_id =
+        update fund_group_sub_${oemId} set maximum_losses = #{maximum_losses},confidence_interval =#{confidence_interval} where
+        fund_group_id =
         #{fundGroupId} and id=#{subGroupId}
     </update>
 
