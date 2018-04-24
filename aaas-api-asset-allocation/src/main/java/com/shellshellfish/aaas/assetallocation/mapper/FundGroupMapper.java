@@ -6,7 +6,6 @@ import org.apache.ibatis.annotations.Param;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Created by wangyinuo on 2017/11/16.
@@ -42,6 +41,9 @@ public interface FundGroupMapper {
     Interval selectReturnAndPullback(Map map);
 
     List<RiskIncomeInterval> getPerformanceVolatility(Map map);
+
+    RiskIncomeInterval getMaxLoss(@Param("oemId") Integer oemId, @Param("custRisk") String custRisk,
+                                  @Param("investmentHorizon") String investmentHorizon);
 
     List<Interval> getRevenueContribution(Map map);
 
@@ -84,7 +86,7 @@ public interface FundGroupMapper {
     List<FundGroupHistory> selectMaximumRetracement(Map map);
 
     int insertFundGroupHistory(@Param("fundGroupHistoryList") List<FundGroupHistory>
-        fundGroupHistoryList, @Param("oemId") Integer oemId);
+                                       fundGroupHistoryList, @Param("oemId") Integer oemId);
 
     int batchInsertFundGroupHistory(List<Map> mapList, @Param("oemId") Integer oemId);
 

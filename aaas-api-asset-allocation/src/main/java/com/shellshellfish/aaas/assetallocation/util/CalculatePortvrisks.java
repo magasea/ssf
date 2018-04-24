@@ -27,8 +27,8 @@ public class CalculatePortvrisks {
 
     public static void main(String[] args) {
 
-        double portReturn = 0.0289;
-        double portRisk = 0.0922;
+        double portReturn = 0.019814685739371906;
+        double portRisk = 0.09329109964638341;
         double confidenceInterval = 0.97;
         double portValue = 10000;
         System.out.println(calculatePortvrisk(portReturn, portRisk, confidenceInterval, portValue));
