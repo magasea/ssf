@@ -76,14 +76,15 @@ public class TransferController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "2"),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "2000"),
-			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "String", required = true, value = "购买的总金额", defaultValue = "") })
+			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "String", required = true, value = "购买的总金额", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")})
 	@RequestMapping(value = "/getEstPurAmount", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getEstPurAmount(String groupId, String subGroupId, String totalAmount) {
+	public JsonResult getEstPurAmount(String groupId, String subGroupId, String totalAmount, @RequestParam(required=false, defaultValue="1")String oemid) {
 		Map resultMap = null;
 		try {
 			String url = tradeOrderUrl + "/api/trade/funds/buyProduct?groupId=" + groupId + "&subGroupId=" + subGroupId
-					+ "&totalAmount=" + totalAmount;
+					+ "&totalAmount=" + totalAmount + "&oemid=" + Integer.parseInt(oemid);
 			resultMap = restTemplate.getForEntity(url, Map.class).getBody();
 			BigDecimal poundage = BigDecimal.valueOf(Double.parseDouble(resultMap.get("poundage").toString()));
 			BigDecimal discount = BigDecimal.valueOf(Double.parseDouble(resultMap.get("discountSaving").toString()));
