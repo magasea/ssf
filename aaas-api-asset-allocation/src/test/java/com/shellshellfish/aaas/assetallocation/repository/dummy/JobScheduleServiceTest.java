@@ -23,7 +23,7 @@ public class JobScheduleServiceTest {
 
     @Test
     public void getFundGroupIncomeAllJobScheduleTest() {
-        jobScheduleService.getFundGroupIncomeAllJobSchedule();
+        jobScheduleService.getFundGroupIncomeAllJobSchedule(1);
     }
 
 }

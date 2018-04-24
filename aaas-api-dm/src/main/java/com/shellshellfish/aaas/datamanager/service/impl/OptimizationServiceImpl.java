@@ -578,9 +578,9 @@ public class OptimizationServiceImpl implements OptimizationService {
     }
 
     @Override
-    public JsonResult checkPrdDetails(String groupId, String subGroupId) {
+    public JsonResult checkPrdDetails(String groupId, String subGroupId, Integer oemid) {
         Map<String, Object> result = new HashMap<String, Object>();
-        result = this.getPrdNPVList(groupId, subGroupId);
+        result = this.getPrdNPVList(groupId, subGroupId, oemid);
         if (result == null) {
             return new JsonResult(JsonResult.Fail, "获取净值增长值活净值增长率为空", JsonResult.EMPTYRESULT);
         }
@@ -899,13 +899,13 @@ public class OptimizationServiceImpl implements OptimizationService {
         return map;
     }
 
-    public Map<String, Object> getPrdNPVList(String groupId, String subGroupId) {
+    public Map<String, Object> getPrdNPVList(String groupId, String subGroupId, Integer oemid) {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         List<FundNAVInfo> resultList = new ArrayList<>();
         //获取所有产品净值增长值的list
-        List<FundNAVInfo> listA = getNPVIncrement(groupId, subGroupId, null);
+        List<FundNAVInfo> listA = getNPVIncrement(groupId, subGroupId, oemid);
         //获取所有产品净值增长率的list
-        List<FundNAVInfo> listB = getNPVIncrementRate(groupId, subGroupId, null);
+        List<FundNAVInfo> listB = getNPVIncrementRate(groupId, subGroupId, oemid);
         //遍历每一个对象进行对比
         if (listA == null || listB == null) {
             logger.error("获取净值增长值活净值增长率为null");
