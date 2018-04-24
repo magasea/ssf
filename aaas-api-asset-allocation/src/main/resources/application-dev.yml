@@ -9,6 +9,15 @@ mybatis:
     config-locations: classpath:mybatis/mybatis-config.xml
     mapper-locations: classpath:mybatis/mapper/*.xml
 spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+  data:
+    mongodb:
+      database: ssf_asset_allo
+      host: 192.168.1.10
+      port: 27017
+      collection: portfolio_yield_all
 #  datasource:
 #      driverClassName: com.mysql.jdbc.Driver
 #      password: t5MqqozQDNramNHh
@@ -22,15 +31,7 @@ spring:
 #      password: 1xtZgrp#XzxGi$3OZ
 #      url: jdbc:mysql://192.168.1.15:3306/choicedebug?autoReconnect=true&allowMultiQueries=true&failOverReadOnly=false&useSSL=false&useUnicode=true&characterEncoding=utf-8
 #      username: ssf0015
-  jpa:
-    hibernate:
-      ddl-auto: update
-  data:
-    mongodb:
-      database: ssf_asset_allo
-      host: 192.168.1.10
-      port: 27017
-      collection: portfolio_yield_all
+
 
 
 

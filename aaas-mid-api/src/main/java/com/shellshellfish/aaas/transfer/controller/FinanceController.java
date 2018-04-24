@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.logging.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1568,12 +1569,12 @@ public class FinanceController {
 	@ApiOperation("调仓记录")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "1"),
-			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1")
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
 //			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "80048"),
 	})
 	@RequestMapping(value = "/warehouse-records", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getwarehouseRecords(String groupId, String oemid) {
+	public JsonResult getwarehouseRecords(String groupId, @RequestParam(required=false,defaultValue="1") String oemid) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			String url = financeUrl + "/api/ssf-finance/product-groups/warehouse-records?prodId=" + groupId;
@@ -1634,11 +1635,11 @@ public class FinanceController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = false, value = "groupId", defaultValue = "1"),
 		@ApiImplicitParam(paramType = "query", name = "modifySeq", dataType = "Integer", required = false, value = "modifySeq", defaultValue = "1"),
-		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1")
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
 	})
 	@RequestMapping(value = "/warehouse-record-details", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getwarehouseRecordDetails(Long groupId, Integer modifySeq, Integer oemid) {
+	public JsonResult getwarehouseRecordDetails(Long groupId, Integer modifySeq, @RequestParam(required=false,defaultValue="1") String oemid) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String, Object> topResult = new HashMap<String, Object>();
 		List<Map<String, Object>> topList = new ArrayList();
