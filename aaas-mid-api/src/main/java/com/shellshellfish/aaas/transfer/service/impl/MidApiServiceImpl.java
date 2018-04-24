@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.transfer.service.impl;
 
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,6 +56,7 @@ public class MidApiServiceImpl implements MidApiService {
 	@Value("${shellshellfish.userinfo-url}")
 	private String userInfoUrl;
 
+	private static final DecimalFormat decimalFormat = new DecimalFormat("0.00"); //保留 2 位
 
 	//获取产品详情的所有数据
 	@Override
@@ -287,6 +289,8 @@ public class MidApiServiceImpl implements MidApiService {
 							hisAnnualPerformanceSimuresult = value;
 						} else if ("最大亏损额".equals(name)) {
 							//存入数据表
+//							bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()
+							value = decimalFormat.format(Double.parseDouble(value));
 							resultMap.put(relationMap.get(name).toString(), value);
 							continue;
 						}
@@ -301,7 +305,9 @@ public class MidApiServiceImpl implements MidApiService {
 				throw new Exception("获取调整方案Map的Field值失败，可能Map为空");
 			}
 			//计算模拟历史收益
-			resultMap.put("historicReturn", CalculatorFunctions.getHistoricReturn("10000", hisAnnualPerformanceSimuresult));
+			String historicReturn = CalculatorFunctions.getHistoricReturn("10000", hisAnnualPerformanceSimuresult);
+			historicReturn = decimalFormat.format(Double.parseDouble(historicReturn));
+			resultMap.put("historicReturn", historicReturn);
 			resultMap.put("groupId", container.get("productGroupId"));
 			resultMap.put("subGroupId", container.get("productSubGroupId"));
 
