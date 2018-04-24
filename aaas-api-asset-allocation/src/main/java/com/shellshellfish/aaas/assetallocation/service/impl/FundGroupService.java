@@ -1621,7 +1621,7 @@ public class FundGroupService {
             map1.put("low_percent_max_income", fgei.getLow_percent_max_income());
             //低概率最低收益
             map1.put("low_percent_min_income", fgei.getLow_percent_min_income());
-            map.put("income_mounth_time", fgei.getIncome_mounth_time());
+            map.put("income_month_time", fgei.getincome_month_time());
             map.put("_item", map1);
             list.add(map);
             expectedIncomeSizeList.add(fgei.getExpected_income());
