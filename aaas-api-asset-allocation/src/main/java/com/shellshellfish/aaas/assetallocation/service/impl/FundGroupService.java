@@ -74,6 +74,8 @@ public class FundGroupService {
     //最大亏损计算假定本金
     private static final double PRINCIPAL = 10000;
 
+    private static final int CORE_POOL_SIZE = Runtime.getRuntime().availableProcessors() + 1;
+
     Logger logger = LoggerFactory.getLogger(FundGroupService.class);
 
     /**
@@ -1844,7 +1846,14 @@ public class FundGroupService {
         long startTime = System.currentTimeMillis();
         try {
             final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
-            ExecutorService pool = ThreadPoolUtil.getThreadPool();
+            ExecutorService pool = new ThreadPoolExecutor(
+                CORE_POOL_SIZE,
+                2 * CORE_POOL_SIZE,
+                5,
+                TimeUnit.MINUTES,
+                new LinkedBlockingQueue<>(20),
+                Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.AbortPolicy());
             for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
                 String fundGroupId = String.valueOf(index);
                 pool.execute(() -> {
