@@ -714,7 +714,7 @@ public class UserInfoController {
 			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = false, value = "银行名称"),
 			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"),
 			@ApiImplicitParam(paramType = "query", name = "sellTargetPercent", dataType = "BigDecimal", required = true, value = "百分比(默认100%)", defaultValue = "100"),
-			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1")})
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")})
 	@RequestMapping(value = "/sellresult", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getSellRecords(@RequestParam String uuid, @RequestParam String prodId,
@@ -722,7 +722,7 @@ public class UserInfoController {
 //			@RequestParam(required = false) String buyfee,
 			@RequestParam(required = false) String poundage, @RequestParam(required = false) String bankName,
 			@RequestParam(required = false) String bankCard, @RequestParam BigDecimal sellTargetPercent,
-			@RequestParam(required = true) Integer oemid) {
+			@RequestParam(required = false, defaultValue="1") String oemid) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
 			String url = userinfoUrl + "/api/userinfo/users/" + uuid + "/orders/" + prodId + "/sell-records?bankName=" + bankName + "&bankCard=" + bankCard;
@@ -781,7 +781,7 @@ public class UserInfoController {
 									String subGroupId = productResult.get("subGroupId") + "";
 									// 获取二级分类
 									String url3 = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
-											+ "/sub-groups/" + subGroupId + "/" + oemid;
+											+ "/sub-groups/" + subGroupId + "/" + Integer.parseInt(oemid);
 									Map productMap = restTemplate.getForEntity(url3, Map.class).getBody();
 									if (productMap == null) {
 										logger.info("单个基金组合产品信息为空");

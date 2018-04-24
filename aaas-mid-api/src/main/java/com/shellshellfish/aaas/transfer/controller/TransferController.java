@@ -286,7 +286,7 @@ public class TransferController {
 		Map resultMap = null;
 		try {
 			String url = tradeOrderUrl + "/api/trade/funds/maxminValue?groupId=" + groupId + "&subGroupId="
-					+ subGroupId;
+					+ subGroupId + "&oemid=" + Integer.parseInt(oemid);
 			resultMap = restTemplate.getForEntity(url, Map.class).getBody();
 			if (resultMap.get("min") != null) {
 				Double min = (Double) resultMap.get("min");
