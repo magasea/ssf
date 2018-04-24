@@ -73,6 +73,8 @@ public class FundGroupService {
     //最大亏损计算假定本金
     private static final double PRINCIPAL = 10000;
 
+    private static final int CORE_POOL_SIZE = Runtime.getRuntime().availableProcessors() + 1;
+
     Logger logger = LoggerFactory.getLogger(FundGroupService.class);
 
     /**
@@ -1620,7 +1622,7 @@ public class FundGroupService {
             map1.put("low_percent_max_income", fgei.getLow_percent_max_income());
             //低概率最低收益
             map1.put("low_percent_min_income", fgei.getLow_percent_min_income());
-            map.put("income_mounth_time", fgei.getIncome_mounth_time());
+            map.put("income_month_time", fgei.getincome_month_time());
             map.put("_item", map1);
             list.add(map);
             expectedIncomeSizeList.add(fgei.getExpected_income());
@@ -1843,7 +1845,14 @@ public class FundGroupService {
         long startTime = System.currentTimeMillis();
         try {
             final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
-            ExecutorService pool = ThreadPoolUtil.getThreadPool();
+            ExecutorService pool = new ThreadPoolExecutor(
+                CORE_POOL_SIZE,
+                2 * CORE_POOL_SIZE,
+                5,
+                TimeUnit.MINUTES,
+                new LinkedBlockingQueue<>(20),
+                Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.AbortPolicy());
             for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
                 String fundGroupId = String.valueOf(index);
                 pool.execute(() -> {

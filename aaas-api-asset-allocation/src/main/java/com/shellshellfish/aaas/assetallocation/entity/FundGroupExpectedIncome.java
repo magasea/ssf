@@ -11,7 +11,7 @@ public class FundGroupExpectedIncome {
     private float high_percent_min_income;//高概率最低收益
     private float low_percent_max_income;//低概率最高收益
     private float low_percent_min_income;//低概率最低收益
-    private String income_mounth_time;//收益月份
+    private String income_month_time;//收益月份
 
     public String getFund_group_id() {
         return fund_group_id;
@@ -69,11 +69,11 @@ public class FundGroupExpectedIncome {
         this.low_percent_min_income = low_percent_min_income;
     }
 
-    public String getIncome_mounth_time() {
-        return income_mounth_time;
+    public String getincome_month_time() {
+        return income_month_time;
     }
 
-    public void setIncome_mounth_time(String income_mounth_time) {
-        this.income_mounth_time = income_mounth_time;
+    public void setincome_month_time(String income_month_time) {
+        this.income_month_time = income_month_time;
     }
 }

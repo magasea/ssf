@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.logging.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -461,15 +462,16 @@ public class FinanceController {
 	
 	@ApiOperation("理财产品查看详情页面")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid（贝贝鱼:0,兰州银行：2）"),
-		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "8"),
-		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "80048"),
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = false, value = "oemid（贝贝鱼:1,兰州银行：2）"),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "12"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "120048"),
 	})
 	@RequestMapping(value = "/checkPrdDetails", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
-	public JsonResult getPrdDetails(@RequestParam(required = true) Integer oemid,@RequestParam(required = true) String groupId,@RequestParam(required = true) String subGroupId) {
+	public JsonResult getPrdDetails(@RequestParam(required = false) Integer oemid ,@RequestParam(required = true) String groupId,@RequestParam(required = true) String subGroupId) {
 		// 先获取全部产品
+		oemid = oemid == null ? 1 : oemid;
 		JsonResult result = restTemplate
 				.getForEntity(dataManagerUrl + "/api/datamanager/getCheckPrdDetails?groupId=" + groupId + "&subGroupId="
 						+ subGroupId + "&oemid=" + oemid, JsonResult.class).getBody();
@@ -1567,12 +1569,12 @@ public class FinanceController {
 	@ApiOperation("调仓记录")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "1"),
-			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1")
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
 //			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "80048"),
 	})
 	@RequestMapping(value = "/warehouse-records", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getwarehouseRecords(String groupId, String oemid) {
+	public JsonResult getwarehouseRecords(String groupId, @RequestParam(required=false,defaultValue="1") String oemid) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			String url = financeUrl + "/api/ssf-finance/product-groups/warehouse-records?prodId=" + groupId;
@@ -1633,11 +1635,11 @@ public class FinanceController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = false, value = "groupId", defaultValue = "1"),
 		@ApiImplicitParam(paramType = "query", name = "modifySeq", dataType = "Integer", required = false, value = "modifySeq", defaultValue = "1"),
-		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1")
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
 	})
 	@RequestMapping(value = "/warehouse-record-details", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getwarehouseRecordDetails(Long groupId, Integer modifySeq, Integer oemid) {
+	public JsonResult getwarehouseRecordDetails(Long groupId, Integer modifySeq, @RequestParam(required=false,defaultValue="1") String oemid) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String, Object> topResult = new HashMap<String, Object>();
 		List<Map<String, Object>> topList = new ArrayList();
