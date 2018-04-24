@@ -17,6 +17,7 @@ public class FinanceProdBuyInfo {
   String uuid; //用户 uuid
   String bankAcc;//银行账户
   String orderId;//订单号ID
+  Integer oemid = 1;
 
   public String getUuid() {
     return uuid;
@@ -99,13 +100,21 @@ public class FinanceProdBuyInfo {
   public void setUserProdId(Long userProdId) {
     this.userProdId = userProdId;
   }
+  
+  public Integer getOemid() {
+    return oemid;
+  }
 
-@Override
-public String toString() {
-	return "FinanceProdBuyInfo [money=" + money + ", prodId=" + prodId + ", userProdId=" + userProdId + ", prodCode="
-			+ prodCode + ", groupId=" + groupId + ", userId=" + userId + ", uuid=" + uuid + ", bankAcc=" + bankAcc
-			+ ", orderId=" + orderId + ", orderType=" + orderType + "]";
-}
+  public void setOemid(Integer oemid) {
+    this.oemid = oemid;
+  }
+
+	@Override
+	public String toString() {
+		return "FinanceProdBuyInfo [money=" + money + ", prodId=" + prodId + ", userProdId=" + userProdId + ", prodCode="
+				+ prodCode + ", groupId=" + groupId + ", userId=" + userId + ", uuid=" + uuid + ", bankAcc=" + bankAcc
+				+ ", orderId=" + orderId + ", orderType=" + orderType + "]";
+	}
   
   
   

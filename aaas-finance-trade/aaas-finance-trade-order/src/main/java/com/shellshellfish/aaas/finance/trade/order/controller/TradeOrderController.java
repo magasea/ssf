@@ -69,7 +69,6 @@ public class TradeOrderController {
 		UserInfo userInfo = tradeOpService.getUserInfoByUserUUID(financeProdBuyInfo.getUuid());;
 		Long userId = userInfo.getId();
 		financeProdBuyInfo.setUserId(userId);
-
 		if(userInfo.getRiskLevel() < 0){
 			logger.error("用户未做风险评测，请做完风险评测再购买理财产品");
 			throw new Exception("用户未做风险评测，请做完风险评测再购买理财产品");
