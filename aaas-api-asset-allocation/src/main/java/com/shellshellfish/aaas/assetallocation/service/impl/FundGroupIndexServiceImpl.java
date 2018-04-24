@@ -83,7 +83,7 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
     }
 
     @Override
-    public void calculateAnnualVolatilityAndAnnualYield(LocalDate startDate) {
+    public void calculateAnnualVolatilityAndAnnualYield(LocalDate startDate, int oemId) {
         logger.info("start to  calculate historical annual yield and Historical annual volatility   startDate:{}",
             startDate);
         long startTime = System.currentTimeMillis();
@@ -91,7 +91,7 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
             startDate = FundGroupService.GROUP_START_DATE;
         }
 
-        List<Interval> list = fundGroupMapper.getAllIdAndSubId();
+        List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
         for (Interval interval : list) {
             calculateAnnualVolatilityAndAnnualYield(interval.getFund_group_id(), interval.getId(), startDate);
         }

@@ -42,7 +42,7 @@ public class AdjustedFactorCalculateService {
     /*
      * 计算基金复权因子
      */
-    public void calculateAdjustedFactor() {
+    public void calculateAdjustedFactor(int oemId) {
         Date selectDate = null;
         //查询TriggerJob 上次执行时间
         JobTimeRecord jobTimeRecord = jobTimeService.selectJobTimeRecord(ADJUSTED_FACTOR_TRIGGER);
@@ -53,7 +53,8 @@ public class AdjustedFactorCalculateService {
         }
 
         //根据日期扫描查询数据
-        Map<String, List<FundNetVal>> fundListMap = fundCalculateService.selectFundNetValueByDate(selectDate);
+        Map<String, List<FundNetVal>> fundListMap = fundCalculateService.selectFundNetValueByDate
+            (selectDate, oemId);
         if (!CollectionUtils.isEmpty(fundListMap)) {
             Iterator<Map.Entry<String, List<FundNetVal>>> entries = fundListMap.entrySet().iterator();
             while (entries.hasNext()) {

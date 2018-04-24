@@ -289,7 +289,7 @@
                             <all>
                                 <property>
                                     <name>app</name>
-                                    <value>aaas-mid-api</value>
+                                    <value>${artifactId}-${version}</value>
                                 </property>
                                 <property>
                                     <name>hystrix.enabled</name>

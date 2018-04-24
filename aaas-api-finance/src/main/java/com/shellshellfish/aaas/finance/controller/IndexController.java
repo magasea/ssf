@@ -32,7 +32,8 @@ public class IndexController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID"),
 		@ApiImplicitParam(paramType = "query", name = "isTestFlag", dataType = "String", required = false, value = "是否测评"),
-		@ApiImplicitParam(paramType = "query", name = "testResult", dataType = "String", required = false, value = "测评结果")
+		@ApiImplicitParam(paramType = "query", name = "testResult", dataType = "String", required = false, value = "测评结果"),
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = false, value = "oemid（贝贝鱼:1,兰州银行：2）")
     })
 	@ApiResponses({
 		@ApiResponse(code=200,message="OK"),
@@ -46,12 +47,13 @@ public class IndexController {
 	public ResponseEntity<?> homepage(
 			@RequestParam(value = "uuid",required = false) String uuid,
 			@RequestParam(value = "isTestFlag",required = false) String isTestFlag,
-			@RequestParam(value = "testResult",required = false) String testResult
+			@RequestParam(value = "testResult",required = false) String testResult,
+			@RequestParam(required = true, defaultValue="1") Integer oemid
 //			@RequestParam(value = "productType") String productType
 			) throws Exception {
 		// FundReturn fundReturn =
 		// assetAllocationService.selectById(groupId,subGroupId);
-		Map<String, Object> resultMap = indexService.homepage(uuid, isTestFlag, testResult);
+		Map<String, Object> resultMap = indexService.homepage(uuid, isTestFlag, testResult, oemid);
 
 		return new ResponseEntity<>(resultMap, HttpStatus.OK);
 	}
@@ -71,9 +73,10 @@ public class IndexController {
     })	
 	@RequestMapping(value = "/product-groups/risktypes/{risktype}", method = RequestMethod.GET)
 	public ResponseEntity<Map> getRiskInfo(
-			@PathVariable String risktype
+			@PathVariable String risktype,
+			@RequestParam(required = true, defaultValue="1") Integer oemid
 			) {
-		Map<String, Object> resultMap = indexService.getRiskInfo(risktype);
+		Map<String, Object> resultMap = indexService.getRiskInfo(risktype , oemid);
 
 		return new ResponseEntity<>(resultMap, HttpStatus.OK);
 	}

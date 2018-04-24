@@ -44,9 +44,9 @@ public class AssetAllocationServiceImpl implements AssetAllocationService {
 	 * @return
 	 */
 	@Override
-	public FundReturn selectById(String id, String subGroupId) {
+	public FundReturn selectById(String id, String subGroupId, Integer oemid) {
 		return restTemplate
-				.getForEntity(url + "/api/asset-allocation/product-groups/" + id + "/sub-groups/" + subGroupId,
+				.getForEntity(url + "/api/asset-allocation/product-groups/" + id + "/sub-groups/" + subGroupId + "/" + oemid,
 						FundReturn.class)
 				.getBody();
 	}
@@ -58,9 +58,9 @@ public class AssetAllocationServiceImpl implements AssetAllocationService {
      * @return
      */
 	@Override
-	public ReturnType getProportionOne(String groupId, String subGroupId) {
+	public ReturnType getProportionOne(String groupId, String subGroupId, Integer oemid) {
 		return restTemplate
-				.getForEntity(url + "/api/asset-allocation/products/" + groupId + "/sub-groups/" + subGroupId+"/one-type",
+				.getForEntity(url + "/api/asset-allocation/products/" + groupId + "/sub-groups/" + subGroupId+"/one-type?oemid=" + oemid,
 						ReturnType.class)
 				.getBody();
 	}
@@ -189,9 +189,9 @@ public class AssetAllocationServiceImpl implements AssetAllocationService {
 	 * @return
 	 */
 	@Override
-	public ReturnType getPortfolioYield(String id,String subGroupId,int month,String returnType) {
+	public ReturnType getPortfolioYield(String id,String subGroupId,int month,String returnType,Integer oemid) {
 		return restTemplate.getForEntity(
-				url + "/api/asset-allocation/product-groups/"+id+"/sub-groups/"+subGroupId+"/portfolio-yield?mouth="+month+"&returnType="+returnType,
+				url + "/api/asset-allocation/product-groups/"+id+"/sub-groups/"+subGroupId+"/portfolio-yield?mouth="+month+"&returnType="+returnType+"&oemId=" + oemid,
 				ReturnType.class).getBody();
 	}
 	/**
@@ -203,7 +203,7 @@ public class AssetAllocationServiceImpl implements AssetAllocationService {
 	 * @return
 	 */
 	@Override
-	public ReturnType getPerformanceVolatilityHomePage() {
-		return restTemplate.getForEntity(url + "/api/asset-allocation/products/home-page",ReturnType.class).getBody();
+	public ReturnType getPerformanceVolatilityHomePage(Integer oemid) {
+		return restTemplate.getForEntity(url + "/api/asset-allocation/products/home-page/" + oemid ,ReturnType.class).getBody();
 	}
 }

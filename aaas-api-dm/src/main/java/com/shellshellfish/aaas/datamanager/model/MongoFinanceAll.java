@@ -16,6 +16,9 @@ public class MongoFinanceAll implements Serializable {
   @Field(value = "serial")
   private Integer serial;
   
+  @Field(value = "oemid")
+  private Integer oemid;
+  
   @Field(value = "total")
   private Integer total;
   
@@ -108,6 +111,14 @@ public class MongoFinanceAll implements Serializable {
 
   public void setTotalPage(Integer totalPage) {
     this.totalPage = totalPage;
+  }
+
+  public Integer getOemid() {
+	return oemid;
+  }
+
+  public void setOemid(Integer oemid) {
+	  this.oemid = oemid;
   }
   
 }

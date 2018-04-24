@@ -4,7 +4,7 @@
 
 	<groupId>com.shellshellfish</groupId>
 	<artifactId>aaas-finance-caculate</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>aaas-finance-caculate</name>
@@ -168,7 +168,7 @@
 							<all>
 								<property>
 									<name>app</name>
-									<value>aaas-finance-caculate</value>
+									<value>${artifactId}-${version}</value>
 								</property>
 								<property>
 									<name>hystrix.enabled</name>

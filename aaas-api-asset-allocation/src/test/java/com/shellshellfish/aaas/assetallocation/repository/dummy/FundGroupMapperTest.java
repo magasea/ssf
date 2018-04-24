@@ -60,6 +60,7 @@ public class FundGroupMapperTest {
         query.put("subGroupId", "50059");
         query.put("retracement", -0.014); //-0.014
         query.put("time", "2017-12-18");
+        query.put("oemId", 1);
         Integer effectRow = fundGroupMapper.updateMaximumRetracement(query);
         System.out.println(effectRow);
     }
@@ -85,7 +86,7 @@ public class FundGroupMapperTest {
 
     @Test
     public void getFundGroupNameByIdTest() {
-        String fundGroupName = fundGroupMapper.getFundGroupNameById("2");
+        String fundGroupName = fundGroupMapper.getFundGroupNameById("2",1);
         System.out.println(fundGroupName);
     }
 
@@ -94,6 +95,7 @@ public class FundGroupMapperTest {
         Map<String, Object> query = new HashMap<>();
         query.put("fund_group_id", "2");
         query.put("subGroupId", "20048");
+        query.put("oemId", 1);
         String groupStartTime = fundGroupMapper.getFundGroupHistoryTime(query);
         if (StringUtils.isEmpty(groupStartTime)) {
             groupStartTime = fundGroupMapper.getGroupStartTime(query);
@@ -107,7 +109,7 @@ public class FundGroupMapperTest {
     public void getNavlatestdateCountTest() {
         String group_id = "9";
         String subGroupId = "90048";
-        List<String> codeList = fundGroupService.getFundGroupCodes(group_id, subGroupId);
+        List<String> codeList = fundGroupService.getFundGroupCodes(group_id, subGroupId,1);
         int codeSize = codeList.size();
         Map query = new HashMap();
         query.put("list", codeList);
@@ -144,7 +146,7 @@ public class FundGroupMapperTest {
         String groupId = "9";
         String subGroupId = "90048";
 
-        List<LocalDate> navDateList = fundGroupService.getNavlatestdateCount(groupId, subGroupId);
+        List<LocalDate> navDateList = fundGroupService.getNavlatestdateCount(groupId, subGroupId,1);
 
         Map query = new HashMap();
         query.put("groupId", groupId);

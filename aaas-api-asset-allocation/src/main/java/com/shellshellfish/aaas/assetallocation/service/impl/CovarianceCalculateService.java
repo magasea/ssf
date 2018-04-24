@@ -61,7 +61,7 @@ public class CovarianceCalculateService {
      * 计算基金两两组合之间的协方差(周期：日)insert into table:fund_covariance_day
      */
     @Deprecated
-    public void calculateCovarianceOfDay() {
+    public void calculateCovarianceOfDay(int oemId) {
         CovarianceModel covarianceModel = new CovarianceModel(); //组合对象
 
         Date selectDate = null;
@@ -74,7 +74,7 @@ public class CovarianceCalculateService {
         }
 
         //获取组合中code
-        List<String> fundNetValArrList = fundGroupMapper.findGroupCode();
+        List<String> fundNetValArrList = fundGroupMapper.findGroupCode(oemId);
         //基金组合
         if (fundNetValArrList != null && fundNetValArrList.size() > 1) {
             //计算基金组合
@@ -124,7 +124,7 @@ public class CovarianceCalculateService {
     /*
      * 计算基金两两组合之间的协方差(周期：周)insert into table:fund_covariance_week
      */
-    public Boolean calculateCovarianceOfWeek() {
+    public Boolean calculateCovarianceOfWeek(int oemId) {
         Boolean doSuccess = true;
         CovarianceModel covarianceModel = new CovarianceModel();//组合对象
 
@@ -137,7 +137,7 @@ public class CovarianceCalculateService {
             selectDate = jobTimeRecord.getTriggerTime();
         }
 
-        List<String> fundNetValArrList = fundGroupMapper.findGroupCode();
+        List<String> fundNetValArrList = fundGroupMapper.findGroupCode(oemId);
         //基金组合
         if (fundNetValArrList != null && fundNetValArrList.size() > 1) {
             //计算基金组合
@@ -200,7 +200,7 @@ public class CovarianceCalculateService {
      * 计算基金两两组合之间的协方差(周期：月)insert into table:fund_covariance_month
      */
     @Deprecated
-    public void calculateCovarianceOfMonth() {
+    public void calculateCovarianceOfMonth(int oemId) {
         CovarianceModel covarianceModel = new CovarianceModel(); //组合对象
 
         Date selectDate = null;
@@ -212,7 +212,7 @@ public class CovarianceCalculateService {
             selectDate = jobTimeRecord.getTriggerTime();
         }
 
-        List<String> fundNetValArrList = fundGroupMapper.findGroupCode();
+        List<String> fundNetValArrList = fundGroupMapper.findGroupCode(oemId);
         //基金组合
         if (fundNetValArrList != null && fundNetValArrList.size() > 1) {
             //计算基金组合
@@ -263,7 +263,7 @@ public class CovarianceCalculateService {
     /*
      * 计算基金两两组合之间的协方差(周期：年)insert into table:fund_covariance_year
      */
-    public void calculateCovarianceOfYear() {
+    public void calculateCovarianceOfYear(int oemId) {
         CovarianceModel covarianceModel = new CovarianceModel();//组合对象
 
         Date selectDate = null;
@@ -275,7 +275,7 @@ public class CovarianceCalculateService {
             selectDate = jobTimeRecord.getTriggerTime();
         }
 
-        List<String> fundNetValArrList = fundGroupMapper.findGroupCode();
+        List<String> fundNetValArrList = fundGroupMapper.findGroupCode(oemId);
         //基金组合
         if (fundNetValArrList != null && fundNetValArrList.size() > 1) {
             //计算基金组合
