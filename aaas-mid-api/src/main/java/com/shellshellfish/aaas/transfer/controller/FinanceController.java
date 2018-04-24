@@ -461,15 +461,16 @@ public class FinanceController {
 	
 	@ApiOperation("理财产品查看详情页面")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid（贝贝鱼:0,兰州银行：2）"),
-		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "8"),
-		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "80048"),
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = false, value = "oemid（贝贝鱼:1,兰州银行：2）"),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "12"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "120048"),
 	})
 	@RequestMapping(value = "/checkPrdDetails", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
-	public JsonResult getPrdDetails(@RequestParam(required = true) Integer oemid,@RequestParam(required = true) String groupId,@RequestParam(required = true) String subGroupId) {
+	public JsonResult getPrdDetails(@RequestParam(required = false) Integer oemid ,@RequestParam(required = true) String groupId,@RequestParam(required = true) String subGroupId) {
 		// 先获取全部产品
+		oemid = oemid == null ? 1 : oemid;
 		JsonResult result = restTemplate
 				.getForEntity(dataManagerUrl + "/api/datamanager/getCheckPrdDetails?groupId=" + groupId + "&subGroupId="
 						+ subGroupId + "&oemid=" + oemid, JsonResult.class).getBody();

@@ -90,7 +90,7 @@ public class OptimizationApiController {
 		for(int i = 1;i < 16; i++){
 			String groupId = i + "";
 			String subGroupId = i + "0048";
-			jsonResult = optimizationService.checkPrdDetails(groupId, subGroupId);
+			jsonResult = optimizationService.checkPrdDetails(groupId, subGroupId, null);
 			if (jsonResult != null) {
 				logger.info(
 						"run OptimizationApiController.getPrdDetails() success..");
@@ -200,7 +200,7 @@ public class OptimizationApiController {
 	public JsonResult getPrdDetails(String groupId, String subGroupId, Integer oemid) {
 		JsonResult result = optimizationService.getPrdDetails(groupId, subGroupId, oemid);
 		if (result == null) {
-			this.prdDetails();
+			this.prdDetails2();
 			result = optimizationService.getPrdDetails(groupId, subGroupId, oemid);
 		}
 		logger.info("getCheckPrdDetails info: groupId:{}-subGroupId:{}-Ok", groupId, subGroupId);
