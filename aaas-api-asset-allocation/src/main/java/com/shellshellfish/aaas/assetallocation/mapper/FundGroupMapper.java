@@ -75,6 +75,8 @@ public interface FundGroupMapper {
 
     int updateSharpeRatio(Map map);
 
+    int updateAllSharpeRatio(@Param("sharpeRatios") List<Map> sharpeRatios, @Param("oemId") int oemId);
+
     List<FundNetVal> getNavadj(Map map);
 
     List<FundNetVal> getNavadjByNavDates(Map map);

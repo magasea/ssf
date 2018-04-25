@@ -236,6 +236,19 @@
         update fund_group_sub_${oemId} set sharpe_ratio = #{sharpeRatio} where id = #{id}
     </update>
 
+    <update id="updateAllSharpeRatio">
+        update fund_group_sub_${oemId} set sharpe_ratio =
+        CASE id
+        <foreach collection="sharpeRatios" item="item" separator=" ">
+            WHEN #{item.id} THEN #{item.sharpeRatio}
+        </foreach>
+        END
+        WHERE id in
+        <foreach collection="sharpeRatios" item="item" separator="," open="(" close=")">
+            #{item.id}
+        </foreach>
+    </update>
+
     <select id="getNavadj" resultType="com.shellshellfish.aaas.assetallocation.entity.FundNetVal">
         select sum(a.navadj*b.proportion) navadj,a.navlatestdate from fund_net_value
         a,fund_group_details_${oemId} b

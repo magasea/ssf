@@ -11,6 +11,15 @@
         historical_annual_volatility = #{historicalAnnualVolatility}
     </update>
 
+    <select id="findAll" resultType="com.shellshellfish.aaas.assetallocation.entity.FundGroupIndex">
+        SELECT
+        id,
+        fund_group_id as fundGroupId,
+        fund_group_sub_id as fundGroupSubId,
+        historical_annual_yield as historicalAnnualYield,
+        historical_annual_volatility as historicalAnnualVolatility
+        from fund_group_index
+    </select>
     <select id="findByGroupIdAndSubGroupId"
             resultType="com.shellshellfish.aaas.assetallocation.entity.FundGroupIndex">
       SELECT

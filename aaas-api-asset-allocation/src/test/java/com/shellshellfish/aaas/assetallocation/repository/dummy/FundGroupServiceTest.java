@@ -6,6 +6,7 @@ import com.shellshellfish.aaas.assetallocation.service.impl.FundGroupService;
 import com.shellshellfish.aaas.assetallocation.util.MVO;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -184,7 +185,7 @@ public class FundGroupServiceTest {
     @Test
     public void sharpeRatioTest() {
         int effectRow = fundGroupService.sharpeRatio("3", "30089", 1);
-        System.out.println(effectRow);
+        Assert.assertTrue(effectRow > 0);
     }
 
     @Test
