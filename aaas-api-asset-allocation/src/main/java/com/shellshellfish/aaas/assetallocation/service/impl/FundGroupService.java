@@ -72,6 +72,8 @@ public class FundGroupService {
     private static final double CONFIDENCE_LEVEL = 0.97;
     //最大亏损计算假定本金
     private static final double PRINCIPAL = 10000;
+    //无风险利率
+    private static final double SHARPE_CASH = 0.019;
 
     private static final int CORE_POOL_SIZE = Runtime.getRuntime().availableProcessors() + 1;
 
@@ -2192,53 +2194,44 @@ public class FundGroupService {
         return maximumRetracement;
     }
 
+    public int calculateAllSharpeRatio(int oemId) {
+        logger.info("start to calculate all group sharpe Ratio");
+        long startTime = System.currentTimeMillis();
+        List<FundGroupIndex> fundGroupIndexList = fundGroupIndexMapper.findAll();
+
+        List<Map> sharpeRatioList = new ArrayList<>(fundGroupIndexList.size());
+        for (FundGroupIndex fundGroupIndex : fundGroupIndexList) {
+            Map map = new HashMap(2);
+            Double yield = fundGroupIndex.getHistoricalAnnualYield() - SHARPE_CASH;
+            Double volatility = fundGroupIndex.getHistoricalAnnualVolatility();
+            Double sharpeRatio = yield / volatility;
+            map.put("id", fundGroupIndex.getFundGroupSubId());
+            map.put("sharpeRatio", sharpeRatio);
+            sharpeRatioList.add(map);
+        }
+
+        int effectRow = fundGroupMapper.updateAllSharpeRatio(sharpeRatioList, oemId);
+        long endTime = System.currentTimeMillis();
+        logger.info("end to calculate all group sharpe ratio  , cost time :{}ms", endTime - startTime);
+        return effectRow;
+    }
+
     /**
      * 计算夏普比率
-     *
-     * @param group_id
-     * @param subGroupId
-     * @return
      */
-    public int sharpeRatio(String group_id, String subGroupId, int oemId) {
-        logger.info("sharpeRatio begin");
+    public int sharpeRatio(String groupId, String subGroupId, int oemId) {
+        logger.info("calculate  sharpeRatio begin groupId:{},subGroupId:{}", groupId, subGroupId);
+        FundGroupIndex fundGroupIndex = fundGroupIndexMapper.findByGroupIdAndSubGroupId(groupId, subGroupId);
+        Double yield = fundGroupIndex.getHistoricalAnnualYield() - SHARPE_CASH;
+        Double volatility = fundGroupIndex.getHistoricalAnnualVolatility();
+        Double sharpeRatio = yield / volatility;
 
-        int effectRow = -1;
-        Double cash = 0.0135;
-        Map<String, String> query = new HashMap<>();
-        query.put("fund_group_id", group_id);
-        query.put("subGroupId", subGroupId);
-        query.put("oemId", "" + oemId);
-        List<FundNetVal> fundNetValList = fundGroupMapper.getSharpeRatio(query);
-        if (CollectionUtils.isEmpty(fundNetValList)) {
-            return effectRow;
-        }
-
-        List<FundNetVal> filteredFundNetVals = new ArrayList<>();
-        for (FundNetVal fundNetVal : fundNetValList) {
-            if (null == fundNetVal) {
-                continue;
-            }
-            filteredFundNetVals.add(fundNetVal);
-        }
-        if (CollectionUtils.isEmpty(filteredFundNetVals)) {
-            return effectRow;
-        }
-
-        Double[] asset = new Double[filteredFundNetVals.size()];
-        int i = 0;
-        for (FundNetVal fundNetVal : filteredFundNetVals) {
-            asset[i++] = fundNetVal.getNavadj();
-        }
-
-        double sharpeRatio = Double.parseDouble(MVO.sharpeRatio(asset, cash).toString());
         Map<String, Object> update = new HashMap<>();
         update.put("id", subGroupId);
         update.put("sharpeRatio", sharpeRatio);
         update.put("oemId", "" + oemId);
-        effectRow = fundGroupMapper.updateSharpeRatio(update);
-
-        logger.info("sharpeRatio end");
-
+        int effectRow = fundGroupMapper.updateSharpeRatio(update);
+        logger.info("calculate  sharpeRatio end groupId:{},subGroupId:{}", groupId, subGroupId);
         return effectRow;
     }
 
