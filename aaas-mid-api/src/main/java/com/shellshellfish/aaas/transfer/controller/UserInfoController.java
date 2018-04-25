@@ -118,7 +118,7 @@ public class UserInfoController {
 			logger.info("urlUid==" + str);
 			logger.info("str==" + str);
 			result = restTemplate.postForEntity(url, getHttpEntitySecond(str), Map.class).getBody();
-			if (result == null) {
+			if (!"".equals(result.get("msg"))) {
 				logger.info("添加银行卡失败");
 				return new JsonResult(JsonResult.Fail, "添加银行卡失败", result);
 			} else {
