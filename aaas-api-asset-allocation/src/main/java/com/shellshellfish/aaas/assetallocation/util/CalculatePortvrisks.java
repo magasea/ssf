@@ -26,10 +26,12 @@ public class CalculatePortvrisks {
     }
 
     public static void main(String[] args) {
-        NormalDistribution n = new NormalDistribution();
-        Assert.assertEquals(n.getMean(), 0L, 0.000001D);
-        Assert.assertEquals(n.getStandardDeviation(), 1L, 0.000001D);
-        Assert.assertEquals(1.9, n.inverseCumulativeProbability(0.9713), 0.001D);
-        Assert.assertEquals(0.9713, n.cumulativeProbability(1.9), 0.001);
+
+        double portReturn = 0.019814685739371906;
+        double portRisk = 0.09329109964638341;
+        double confidenceInterval = 0.97;
+        double portValue = 10000;
+        System.out.println(calculatePortvrisk(portReturn, portRisk, confidenceInterval, portValue));
+
     }
 }

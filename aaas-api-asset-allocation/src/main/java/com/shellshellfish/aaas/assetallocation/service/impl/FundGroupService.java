@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators.Filter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -87,7 +86,7 @@ public class FundGroupService {
         FundAllReturn far = new FundAllReturn();
         List<Map<String, Object>> list = new ArrayList<>();
         Map<String, String> params = new HashMap<>();
-        params.put("oemId",""+oemId);
+        params.put("oemId", "" + oemId);
         List<Interval> fundGroupNum = fundGroupMapper.selectAllFundGroupNum(params);
         if (CollectionUtils.isEmpty(fundGroupNum)) {
             Map<String, Object> _items = new HashMap<>();
@@ -109,7 +108,7 @@ public class FundGroupService {
             Map<String, Object> _items = new HashMap<>();
             Map<String, String> query = new HashMap<>();
             query.put("fund_group_id", interval.getFund_group_id());
-            query.put("oemId", ""+oemId);
+            query.put("oemId", "" + oemId);
             List<RiskIncomeInterval> riskIncomeIntervalList = fundGroupMapper.getPerformanceVolatility(query);
             if (CollectionUtils.isEmpty(riskIncomeIntervalList)) {
                 continue;
@@ -121,7 +120,7 @@ public class FundGroupService {
             RiskIncomeInterval riskIncomeInterval = riskIncomeIntervalList.get(index);
             query.put("groupId", riskIncomeInterval.getFund_group_id());
             query.put("subGroupId", riskIncomeInterval.getId());
-            query.put("oemId", ""+oemId);
+            query.put("oemId", "" + oemId);
             //基金组合内的各基金权重
             List<Interval> intervals = fundGroupMapper.getProportionGroupByFundTypeTwo(query);
             List<Map<String, Object>> listMap = this.intervalListToListMap(intervals);
@@ -173,7 +172,7 @@ public class FundGroupService {
         Map<String, String> query = new HashMap<>();
         query.put("id", fund_group_id);
         query.put("subId", fund_group_sub_id);
-        query.put("oemId", ""+oemId);
+        query.put("oemId", "" + oemId);
         List<Interval> intervals = fundGroupMapper.getProportionOne(query);
         long accum = 0L;
         long value = 0L;
@@ -210,7 +209,7 @@ public class FundGroupService {
         Map<String, String> query = new HashMap<>();
         query.put("id", groupId);
         query.put("subId", subGroupId);
-        query.put("oemId", ""+oemId);
+        query.put("oemId", "" + oemId);
         List<Interval> intervals = fundGroupMapper.getFnameAndProportion(query);
 
         ReturnType fr = new ReturnType();
@@ -293,7 +292,7 @@ public class FundGroupService {
         }
 
         String subGroupId = intervals.get(0).getFund_group_sub_id();
-        fr = getProportionGroupByFundTypeTwo(groupId, subGroupId,oemId);
+        fr = getProportionGroupByFundTypeTwo(groupId, subGroupId, oemId);
         return fr;
     }
 
@@ -339,7 +338,7 @@ public class FundGroupService {
      */
     @Deprecated
     public Map<String, Object> selectReturnAndPullback(String id, String returntype, String
-        subGroupId, int oemId) {
+            subGroupId, int oemId) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", id);
         map.put("subGroupId", subGroupId);
@@ -417,14 +416,14 @@ public class FundGroupService {
      * @return
      */
     public ReturnType efficientFrontier(String fundGroupId, int
-        oemId) {
+            oemId) {
         ReturnType aReturn = new ReturnType();
         Map<String, String> _links = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
         Map<String, Object> map = new HashMap<>();
         map.put("slidebarType", "risk_num");
         map.put("fundGroupId", fundGroupId);
-        map.put("oemId", ""+oemId);
+        map.put("oemId", "" + oemId);
         List<RiskIncomeInterval> riskIncomeIntervalList = fundGroupMapper.getScaleMark(map);
         if (CollectionUtils.isEmpty(riskIncomeIntervalList)) {
             aReturn.setName("有效前沿线数据");
@@ -575,19 +574,10 @@ public class FundGroupService {
         Map<String, String> _links = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
         PerformanceVolatilityReturn aReturn = new PerformanceVolatilityReturn();
-        if (StringUtils.isEmpty(cust_risk)) {
-            map.put("cust_risk", "C3");
-        } else {
-            map.put("cust_risk", cust_risk);
-        }
-        if (StringUtils.isEmpty(investment_horizon)) {
-            map.put("investment_horizon", "2");
-        } else {
-            map.put("investment_horizon", investment_horizon);
-        }
-        map.put("oemId", "" + oemId);
-        List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getPerformanceVolatility(map);
-        if (CollectionUtils.isEmpty(riskIncomeIntervals)) {
+        RiskIncomeInterval riskIncomeInterval = fundGroupMapper.getMaxLoss(oemId,
+                Optional.ofNullable(cust_risk).orElse("C3"),
+                Optional.ofNullable(investment_horizon).orElse("2"));
+        if (riskIncomeInterval == null) {
             aReturn.setName("模拟数据");
             aReturn.setProductGroupId("");
             aReturn.setProductSubGroupId("");
@@ -598,9 +588,9 @@ public class FundGroupService {
             return aReturn;
         }
 
-        int index = (riskIncomeIntervals.size() - 1) / 2;
-        index = index > 0 ? index - 1 : 0;
-        RiskIncomeInterval riskIncomeInterval = riskIncomeIntervals.get(index);
+        FundGroupIndex fundGroupIndex = fundGroupIndexMapper.findByGroupIdAndSubGroupId(riskIncomeInterval
+                .getFund_group_id(), riskIncomeInterval.getId());
+
         aReturn.setName("模拟数据");
         aReturn.setProductGroupId(riskIncomeInterval.getFund_group_id());
         aReturn.setProductSubGroupId(riskIncomeInterval.getId());
@@ -609,11 +599,11 @@ public class FundGroupService {
             if (i == 0) {
                 maps.put("id", 1);
                 maps.put("name", "模拟历史年化业绩");
-                maps.put("value", riskIncomeInterval.getSimulate_historical_year_performance());
+                maps.put("value", fundGroupIndex.getHistoricalAnnualYield());
             } else if (i == 1) {
                 maps.put("id", 2);
                 maps.put("name", "模拟历史年化波动率");
-                maps.put("value", riskIncomeInterval.getSimulate_historical_volatility());
+                maps.put("value", fundGroupIndex.getHistoricalAnnualVolatility());
             } else if (i == 2) {
                 maps.put("id", 3);
                 maps.put("name", "置信区间");
@@ -641,7 +631,7 @@ public class FundGroupService {
      * @return
      */
     public PerformanceVolatilityReturn getHistoricalPerformance(String groupId, String
-        subGroupId, int oemId) {
+            subGroupId, int oemId) {
         Map<String, String> _links = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
         PerformanceVolatilityReturn aReturn = new PerformanceVolatilityReturn();
@@ -768,7 +758,7 @@ public class FundGroupService {
         Map<String, Object> queryCodes = new HashMap<>();
         queryCodes.put("fundGroupId", groupId);
         queryCodes.put("subGroupId", subGroupId);
-        queryCodes.put("oemId",""+oemId);
+        queryCodes.put("oemId", "" + oemId);
         List<String> codeList = fundGroupMapper.getFundGroupCodeList(queryCodes);
         return codeList;
     }
@@ -788,10 +778,10 @@ public class FundGroupService {
         Map<String, Object> map = new HashMap<>();
         map.put("slidebarType", slidebarType);
         map.put("fundGroupId", fundGroupId);
-        map.put("oemId", ""+ oemId);
+        map.put("oemId", "" + oemId);
         List<RiskIncomeInterval> riskIncomeIntervalList = fundGroupMapper.getScaleMark(map);
         if (CollectionUtils.isEmpty(riskIncomeIntervalList)
-            || StringUtils.isEmpty(slidebarType)) {
+                || StringUtils.isEmpty(slidebarType)) {
             smk.setName(SlidebarTypeEnmu.getNameByType(slidebarType));
             smk.set_items(list);
             smk.set_total(0);
@@ -851,7 +841,7 @@ public class FundGroupService {
 
         String standtardType = StandardTypeEnmu.getStandardTypeBySlidebarType(slidebarType);
         List<RiskIncomeInterval> riskIncomeIntervalList =
-            fundGroupMapper.getScaleMarkFromChoose(groupId, slidebarType, standtardType);
+                fundGroupMapper.getScaleMarkFromChoose(groupId, slidebarType, standtardType);
         if (CollectionUtils.isEmpty(riskIncomeIntervalList)) {
             return smk;
         }
@@ -892,7 +882,7 @@ public class FundGroupService {
      * @throws ParseException
      */
     public ReturnType getFundGroupIncomeAll(String groupId, String subGroupId, int oemId, String
-        returnType, List<Date> dateList) {
+            returnType, List<Date> dateList) {
         ReturnType fgi = new ReturnType();
         List<Map<String, Object>> list = new ArrayList<>();
         Map<String, String> _links = new HashMap<>();
@@ -902,7 +892,7 @@ public class FundGroupService {
         Map<String, String> mapStr = new HashMap<>();
         mapStr.put("fund_group_id", groupId);
         mapStr.put("fund_group_sub_id", subGroupId);
-        mapStr.put("oemId", ""+oemId);
+        mapStr.put("oemId", "" + oemId);
         List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistoryAll(mapStr);
         if (CollectionUtils.isEmpty(fundGroupHistoryList)) {
             if (returnType.equalsIgnoreCase("income")) {
@@ -926,7 +916,7 @@ public class FundGroupService {
             return fgi;
         } else {
             logger.info("fundGroupHistoryList is empty for groupId:{} and subGroupId:{}",
-                groupId, subGroupId);
+                    groupId, subGroupId);
         }
 
         List maxMinValueList = new ArrayList();
@@ -973,7 +963,7 @@ public class FundGroupService {
             String riskNum = fundGroupMapper.getRiskNum(fundGroupHistoryList.get(0).getFund_group_id());
             mapStr.put("fund_group_id", riskNum);
             mapStr.remove("fund_group_sub_id");
-            mapStr.put("oemId", ""+oemId);
+            mapStr.put("oemId", "" + oemId);
             mapStr.put("time", DateUtil.formatDate(fundGroupHistoryList.get(0).getTime()));
             fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
             List<Map<String, Object>> listBenchmark = new ArrayList<>();
@@ -1005,7 +995,7 @@ public class FundGroupService {
             String riskNum = fundGroupMapper.getRiskNum(fundGroupHistoryList.get(0).getFund_group_id());
             mapStr.put("fund_group_id", riskNum);
             mapStr.remove("fund_group_sub_id");
-            mapStr.put("oemId", ""+oemId);
+            mapStr.put("oemId", "" + oemId);
             mapStr.put("time", DateUtil.formatDate(fundGroupHistoryList.get(0).getTime()));
             fundGroupHistoryList = fundGroupMapper.getHistory(mapStr);
             List<Map<String, Object>> listBenchmark = new ArrayList<>();
@@ -1041,7 +1031,7 @@ public class FundGroupService {
      * @throws ParseException
      */
     public ReturnType getFundGroupIncomeAll_bak(String groupId, String subGroupId, String
-        returnType, int oemId) {
+            returnType, int oemId) {
         ReturnType fgi = new ReturnType();
         List<Map<String, Object>> list = new ArrayList<>();
         Map<String, String> _links = new HashMap<>();
@@ -1051,7 +1041,7 @@ public class FundGroupService {
         Map<String, String> mapStr = new HashMap<>();
         mapStr.put("fund_group_id", groupId);
         mapStr.put("fund_group_sub_id", subGroupId);
-        mapStr.put("oemId", ""+oemId);
+        mapStr.put("oemId", "" + oemId);
         List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistoryAll(mapStr);
         if (CollectionUtils.isEmpty(fundGroupHistoryList)) {
             if (returnType.equalsIgnoreCase("income")) {
@@ -1075,7 +1065,7 @@ public class FundGroupService {
             return fgi;
         } else {
             logger.info("fundGroupHistoryList is empty for groupId:{} and subGroupId:{}",
-                groupId, subGroupId);
+                    groupId, subGroupId);
         }
 
         List maxMinValueList = new ArrayList();
@@ -1160,7 +1150,7 @@ public class FundGroupService {
     }
 
     public ReturnType getFundGroupIncomeAllFromMongo(String groupId, String subGroupId, int oemId,
-        String returnType) {
+                                                     String returnType) {
         ReturnType rt = null;
         try {
             MongoCollection<Document> collection = mongoDatabase.getCollection(collectionName);
@@ -1168,7 +1158,7 @@ public class FundGroupService {
 
             String key = groupId + "_" + subGroupId;
             FindIterable<Document> findIterable = collection.find(Filters.and(Filters.eq("key",
-                key), Filters.eq("oemId", oemId)));
+                    key), Filters.eq("oemId", oemId)));
             MongoCursor<Document> mongoCursor = findIterable.limit(1).iterator();
             while (mongoCursor.hasNext()) {
                 Document doc = mongoCursor.next();
@@ -1225,7 +1215,7 @@ public class FundGroupService {
      * @throws ParseException
      */
     public ReturnType getFundGroupIncome(String groupId, String subGroupId, int oemId, int mouth,
-        String returnType) {
+                                         String returnType) {
         Calendar ca = Calendar.getInstance();
         Date enddate = new Date();
         ca.setTime(enddate);
@@ -1243,7 +1233,7 @@ public class FundGroupService {
 //
 //        ReturnType fgi = this.getFundGroupIncomeFromListAndType(fundGroupHistoryList, returnType);
         ReturnType fgi = this.getFundGroupIncomeAllFromMongo(groupId, subGroupId, oemId,
-            returnType);
+                returnType);
         if (fgi != null) {
             List<Map<String, Object>> _items = fgi.get_items();
             if (_items != null && !_items.isEmpty()) {
@@ -1341,8 +1331,8 @@ public class FundGroupService {
      * @param subGroupId
      * @return
      */
-    public ReturnType getFundGroupIncomeWeek(String id, String subGroupId,int oemId, String
-        returnType) {
+    public ReturnType getFundGroupIncomeWeek(String id, String subGroupId, int oemId, String
+            returnType) {
         ReturnType fgi = new ReturnType();
         List<Map<String, Object>> list = new ArrayList<>();
         Map<String, String> _links = new HashMap<>();
@@ -1387,7 +1377,7 @@ public class FundGroupService {
         mapStr.put("fund_group_sub_id", subGroupId);
         mapStr.put("starttime", startTime);
         mapStr.put("endtime", endTime);
-        mapStr.put("oemId", ""+oemId);
+        mapStr.put("oemId", "" + oemId);
         List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistoryOne(mapStr);
         if (CollectionUtils.isEmpty(fundGroupHistoryList)) {
             if (returnType.equalsIgnoreCase("income")) {
@@ -1428,7 +1418,7 @@ public class FundGroupService {
             String riskNum = fundGroupMapper.getRiskNum(fundGroupHistoryList.get(0).getFund_group_id());
             mapStr.put("fund_group_id", riskNum);
             mapStr.remove("fund_group_sub_id");
-            mapStr.put("oemId", ""+oemId);
+            mapStr.put("oemId", "" + oemId);
             fundGroupHistoryList = fundGroupMapper.getHistoryOne(mapStr);
             List<Map<String, Object>> listBenchmark = new ArrayList<>();
             for (int i = 1; i < fundGroupHistoryList.size(); i++) {
@@ -1457,7 +1447,7 @@ public class FundGroupService {
             String riskNum = fundGroupMapper.getRiskNum(fundGroupHistoryList.get(0).getFund_group_id());
             mapStr.put("fund_group_id", riskNum);
             mapStr.remove("fund_group_sub_id");
-            mapStr.put("oemId", ""+oemId);
+            mapStr.put("oemId", "" + oemId);
             fundGroupHistoryList = fundGroupMapper.getHistoryOne(mapStr);
             List<Map<String, Object>> listBenchmark = new ArrayList<>();
             for (FundGroupHistory fundGroupHistory : fundGroupHistoryList) {
@@ -1493,7 +1483,7 @@ public class FundGroupService {
      * @throws ParseException
      */
     public ReturnType getFundNetValue(String id, String subGroupId, Integer oemId, String
-        returnType) {
+            returnType) {
         ReturnType fgi = new ReturnType();
         List<Map<String, Object>> list = new ArrayList<>();
         Map<String, String> _links = new HashMap<>();
@@ -1512,7 +1502,7 @@ public class FundGroupService {
         Map<String, String> query = new HashMap<>();
         query.put("id", id);
         query.put("subId", subGroupId);
-        query.put("oemId", ""+oemId);
+        query.put("oemId", "" + oemId);
         List<Interval> intervalProportionList = fundGroupMapper.getProportion(query);
         if (CollectionUtils.isEmpty(intervalProportionList)) {
             return fgi;
@@ -1534,14 +1524,14 @@ public class FundGroupService {
             Map<String, Object> map = new HashMap<>();
             for (Interval intervalProportion : intervalProportions) {
                 if (intervalCode.getFund_type_two().equalsIgnoreCase(intervalProportion.getFund_type_two())
-                    && intervalCode.getFund_code().equals(intervalProportion.getFund_code())) {
+                        && intervalCode.getFund_code().equals(intervalProportion.getFund_code())) {
                     map.put("type_value", intervalProportion.getProportion());
                     break;
                 }
             }
 
             if (StringUtils.isEmpty(map.get("type_value"))
-                || Double.parseDouble(map.get("type_value").toString()) == 0d) {
+                    || Double.parseDouble(map.get("type_value").toString()) == 0d) {
                 continue;
             }
 
@@ -1595,7 +1585,7 @@ public class FundGroupService {
         Map<String, String> query = new HashMap<>();
         query.put("fund_group_id", "1");
         query.put("subGroupId", "1");
-        query.put("oemId", ""+oemId);
+        query.put("oemId", "" + oemId);
         List<FundGroupExpectedIncome> fgeiList = fundGroupMapper.getExpectedIncome(query);
         if (CollectionUtils.isEmpty(fgeiList)) {
             return rt;
@@ -1651,13 +1641,13 @@ public class FundGroupService {
         return rt;
     }
 
-    public List<String> findAllGroupCode( int oemId) {
+    public List<String> findAllGroupCode(int oemId) {
         return fundGroupMapper.findAllGroupCode(oemId);
     }
 
     public List<FundNetVal> getNavadjNew(String groupId, String subGroupId, int oemId) {
         List<LocalDate> navDateList = fundGroupService.getNavlatestdateCount(groupId, subGroupId,
-            oemId);
+                oemId);
 
         Map query = new HashMap();
         query.put("groupId", groupId);
@@ -1748,7 +1738,7 @@ public class FundGroupService {
     /**
      * 计算所有组合成立日以来的最大回撤
      */
-    public void calculateMaxRetracement( int oemId) {
+    public void calculateMaxRetracement(int oemId) {
         logger.info("start to calculate all group maximum retracement");
         long startTime = System.currentTimeMillis();
         List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
@@ -1770,8 +1760,8 @@ public class FundGroupService {
             calculateMaxRetracement(interval.getFund_group_id(), interval.getId(), date);
         }
         long endTime = System.currentTimeMillis();
-        logger.info("group maximum retracement     all processor run over ...  date :{} ,cost time :{}ms",
-            date, endTime - startTime);
+        logger.info(" end group maximum retracement    date :{} ,cost time :{}ms",
+                date, endTime - startTime);
     }
 
     /**
@@ -1807,7 +1797,7 @@ public class FundGroupService {
         fundGroupHistoryMapper.updateMaxDrawDownFromList(fundGroupHistoryDest, groupId, subGroupId);
         long endTime = System.currentTimeMillis();
         logger.info("end calculate group maximum retracement groupId :{} ,subGroupId:{},cost time :{}ms",
-            groupId, subGroupId, endTime - startTime);
+                groupId, subGroupId, endTime - startTime);
     }
 
 
@@ -1820,7 +1810,7 @@ public class FundGroupService {
      */
     public void calculateMaxRetracement(String groupId, String subGroupId, LocalDate date) {
         logger.info("start to calculate group maximum retracement   groupId:{},subGroupId:{},date :{}", groupId,
-            subGroupId, date);
+                subGroupId, date);
         List<FundGroupHistory> fundGroupHistoryOrigin = fundGroupHistoryMapper.findAllByDateBefore(FundGroupService.GROUP_START_DATE, groupId, subGroupId);
         List<Double> values = new ArrayList<>(fundGroupHistoryOrigin.size());
         for (FundGroupHistory fundGroupHistory : fundGroupHistoryOrigin) {
@@ -1834,7 +1824,7 @@ public class FundGroupService {
         fundGroupHistory.setMaximum_retracement(maxDrawdown);
         fundGroupHistoryMapper.updateMaxDrawDown(fundGroupHistory);
         logger.info("end calculate group maximum retracement  groupId :{} ,subGroupId:{},cost date :{}",
-            groupId, subGroupId, date);
+                groupId, subGroupId, date);
 
     }
 
@@ -1847,13 +1837,13 @@ public class FundGroupService {
         try {
             final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
             ExecutorService pool = new ThreadPoolExecutor(
-                CORE_POOL_SIZE,
-                2 * CORE_POOL_SIZE,
-                5,
-                TimeUnit.MINUTES,
-                new LinkedBlockingQueue<>(20),
-                Executors.defaultThreadFactory(),
-                new ThreadPoolExecutor.AbortPolicy());
+                    CORE_POOL_SIZE,
+                    2 * CORE_POOL_SIZE,
+                    5,
+                    TimeUnit.MINUTES,
+                    new LinkedBlockingQueue<>(20),
+                    Executors.defaultThreadFactory(),
+                    new ThreadPoolExecutor.AbortPolicy());
             for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
                 String fundGroupId = String.valueOf(index);
                 pool.execute(() -> {
@@ -1868,7 +1858,7 @@ public class FundGroupService {
             countDownLatch.await();
             long endTime = System.currentTimeMillis();
             logger.info("calculate group navadj  all processor run over ...  startDate :{},cost time:{}ms",
-                startDate, endTime - startTime);
+                    startDate, endTime - startTime);
         } catch (InterruptedException e) {
             logger.error("exception:", e);
         }
@@ -1880,16 +1870,16 @@ public class FundGroupService {
      * 替代<code>getNavadj(String group_id, String subGroupId)</code>
      */
     public void calculateGroupNavadj(String groupId, String subGroupId, Integer oemId, LocalDate
-        startDate) {
+            startDate) {
         logger.info("start calculate group navadj groupId:{},subGroupId:{},startDate:{}", groupId, subGroupId,
-            startDate);
+                startDate);
         long startTime = System.currentTimeMillis();
         logger.info("calculateGroupNavadj start ");
         if (startDate == null)
             startDate = GROUP_START_DATE;
 
         List<FundGroupDetails> result = fundGroupDetailsMapper.getFundProportion(groupId,
-            subGroupId, oemId);
+                subGroupId, oemId);
         Map<String, BigDecimal> fundProportionMap = new HashMap();
         for (FundGroupDetails fundGroupDetails : result) {
             fundProportionMap.put(fundGroupDetails.getFund_code(), BigDecimal.valueOf(fundGroupDetails.getProportion()));
@@ -1926,13 +1916,13 @@ public class FundGroupService {
         fundGroupMapper.insertFundGroupHistory(fundGroupHistoryList, oemId);
         long endTime = System.currentTimeMillis();
         logger.info("end calculate group navadj  groupId:{},subGroupId:{},startDate:{},cost time :{}ms", groupId,
-            subGroupId, startDate, endTime - startTime);
+                subGroupId, startDate, endTime - startTime);
         logger.info("calculateGroupNavadj end ");
     }
 
 
     private void insertToFundGroupHistory(List<FundNetVal> fundNetValList, String fundGroupId,
-        String subGroupId,int oemId,  String startTime) {
+                                          String subGroupId, int oemId, String startTime) {
         List<Map> fundGroupHistoryMapList = new ArrayList<>();
         for (int i = 0; i < fundNetValList.size(); i++) {
             Map<String, Object> historyMap = new HashMap<>();
@@ -2085,7 +2075,7 @@ public class FundGroupService {
     }
 
     private void insertFundGroupHistoryBenchmark(List<FundNetVal> fundNetValList, String
-        risk_level, String startTime, int oemId) {
+            risk_level, String startTime, int oemId) {
         List<Map> benchmarkMapList = new ArrayList<>();
         for (int i = 0; i < fundNetValList.size(); i++) {
             Map<String, Object> benchmarkMap = new HashMap<>();
@@ -2217,7 +2207,7 @@ public class FundGroupService {
         Map<String, String> query = new HashMap<>();
         query.put("fund_group_id", group_id);
         query.put("subGroupId", subGroupId);
-        query.put("oemId", ""+oemId);
+        query.put("oemId", "" + oemId);
         List<FundNetVal> fundNetValList = fundGroupMapper.getSharpeRatio(query);
         if (CollectionUtils.isEmpty(fundNetValList)) {
             return effectRow;
@@ -2244,7 +2234,7 @@ public class FundGroupService {
         Map<String, Object> update = new HashMap<>();
         update.put("id", subGroupId);
         update.put("sharpeRatio", sharpeRatio);
-        update.put("oemId", ""+oemId);
+        update.put("oemId", "" + oemId);
         effectRow = fundGroupMapper.updateSharpeRatio(update);
 
         logger.info("sharpeRatio end");
@@ -2261,13 +2251,11 @@ public class FundGroupService {
         query.put("subGroupId", subGroupId);
         query.put("fundGroupId", fundGroupId);
         query.put("oemId", oemId);
-        List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getScaleMark(query);
-        if (CollectionUtils.isEmpty(riskIncomeIntervals)) {
-            return;
-        }
-
-        Double maximumLosses = CalculatePortvrisks.calculatePortvrisk(riskIncomeIntervals.get(0).getIncome_num(), riskIncomeIntervals.get(0).getRisk_num(), 0.975, 10000);
+        FundGroupIndex fundGroupIndex = fundGroupIndexMapper.findByGroupIdAndSubGroupId(fundGroupId, subGroupId);
+        Double maximumLosses = CalculatePortvrisks.calculatePortvrisk(fundGroupIndex.getHistoricalAnnualYield(),
+                fundGroupIndex.getHistoricalAnnualVolatility(), CONFIDENCE_LEVEL, PRINCIPAL);
         query.put("maximum_losses", maximumLosses);
+        query.put("confidence_interval", CONFIDENCE_LEVEL);
         fundGroupMapper.updateMaximumLosses(query);
     }
 
@@ -2319,14 +2307,14 @@ public class FundGroupService {
      * @return
      */
     public FundReturn getProportionGroupByFundTypeTwo(String groupId, String subGroupId, int
-        oemId) {
+            oemId) {
         FundReturn fr = new FundReturn();
         Map<String, String> _links = new HashMap<>();
 
         Map<String, String> query = new HashMap<>();
         query.put("groupId", groupId);
         query.put("subGroupId", subGroupId);
-        query.put("oemId", ""+oemId);
+        query.put("oemId", "" + oemId);
         //基金组合内的各基金权重
         List<Interval> intervals = fundGroupMapper.getProportionGroupByFundTypeTwo(query);
         if (CollectionUtils.isEmpty(intervals)) {
@@ -2395,13 +2383,13 @@ public class FundGroupService {
     private void fundGroupIdTasks(int oemId) {
         final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
         ThreadPoolExecutor pool = new ThreadPoolExecutor(
-            15,
-            15,
-            0L,
-            TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(15),
-            Executors.defaultThreadFactory(),
-            new ThreadPoolExecutor.AbortPolicy());
+                15,
+                15,
+                0L,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(15),
+                Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.AbortPolicy());
 
         for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
 
