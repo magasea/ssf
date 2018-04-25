@@ -119,14 +119,14 @@ public class UserInfoController {
 					+ mobile + "\",\"cardUserPid\":\"" + idcard + "\",\"cardUuId\":\"" + uuid + "\"}";
 			logger.info("urlUid==" + str);
 			logger.info("str==" + str);
-			ResponseEntity<Map> httpResult = (ResponseEntity<Map>) restTemplate.postForEntity(url,
-					getHttpEntitySecond(str), Map.class).getBody();
+			ResponseEntity<Map> httpResult = restTemplate.postForEntity(url,
+					getHttpEntitySecond(str), Map.class);
 			if (httpResult.getStatusCode() != HttpStatus.OK) {
 				logger.info("添加银行卡失败");
 				return new JsonResult(JsonResult.Fail, "添加银行卡失败", httpResult.getBody());
 			} else {
 				logger.info("添加银行卡成功");
-				return new JsonResult(JsonResult.SUCCESS, "添加银行卡成功", httpResult.getBody());
+				return new JsonResult(JsonResult.SUCCESS, "添加银行卡成功", null);
 			}
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
