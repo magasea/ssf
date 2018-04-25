@@ -69,7 +69,13 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         if (status.equals(1)) {
             openAccountResult = jsonObject.getObject("data", OpenAccountResult.class);
         } else {
+
             String errno = jsonObject.getString("errno");
+            if(!StringUtils.isEmpty(errno) && errno.equals("1009")){
+                openAccountResult = jsonObject.getObject("data", OpenAccountResult.class);
+                logger.info("the bind card user already had account:{}", openAccountResult.getTradeAcco());
+                return openAccountResult;
+            }
             String msg = jsonObject.getString("msg");
 			logger.error("{}:{}", errno, msg);
             throw new Exception(errno + ":" + msg);
