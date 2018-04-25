@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -117,13 +119,14 @@ public class UserInfoController {
 					+ mobile + "\",\"cardUserPid\":\"" + idcard + "\",\"cardUuId\":\"" + uuid + "\"}";
 			logger.info("urlUid==" + str);
 			logger.info("str==" + str);
-			result = restTemplate.postForEntity(url, getHttpEntitySecond(str), Map.class).getBody();
-			if (!"".equals(result.get("msg"))) {
+			ResponseEntity httpResult = (ResponseEntity) restTemplate.postForEntity(url, getHttpEntitySecond(str), Map
+					.class).getBody();
+			if (httpResult.getStatusCode() != HttpStatus.OK) {
 				logger.info("添加银行卡失败");
-				return new JsonResult(JsonResult.Fail, "添加银行卡失败", result);
+				return new JsonResult(JsonResult.Fail, "添加银行卡失败", httpResult);
 			} else {
 				logger.info("添加银行卡成功");
-				return new JsonResult(JsonResult.SUCCESS, "添加银行卡成功", result);
+				return new JsonResult(JsonResult.SUCCESS, "添加银行卡成功", httpResult);
 			}
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
