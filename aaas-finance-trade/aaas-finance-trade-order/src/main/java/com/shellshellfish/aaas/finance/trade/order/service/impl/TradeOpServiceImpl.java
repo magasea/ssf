@@ -793,6 +793,9 @@ public class TradeOpServiceImpl implements TradeOpService {
 			detailMap.put("fundCode", trdOrderDetail.getFundCode());
 			//基金费用
 			detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
+//			if(trdOrderDetail.getBuyFee() <= 0){
+//			  detailMap.put("fundstatus", CombinedStatusEnum.CONFIRMED.getComment());
+//			}
 			//交易金额
             Long fundSum = 0L;
             if(trdOrderDetail.getFundSumConfirmed() != null && trdOrderDetail.getFundSumConfirmed() > 0){

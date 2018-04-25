@@ -73,7 +73,7 @@ public class FinanceController {
 	@Autowired
 	GrpcOemInfoService grpcOemInfoService;
 	
-	private static final DecimalFormat decimalFormat = new DecimalFormat(".00"); //保留 5 位
+	private static final DecimalFormat decimalFormat = new DecimalFormat("0.00"); //保留 2 位
 
 	@ApiOperation("1.首页")
 	@ApiImplicitParams({
@@ -470,6 +470,32 @@ public class FinanceController {
 		JsonResult result = restTemplate
 				.getForEntity(dataManagerUrl + "/api/datamanager/getCheckPrdDetails?groupId=" + groupId + "&subGroupId="
 						+ subGroupId + "&oemid=" + Integer.parseInt(oemid), JsonResult.class).getBody();
+		return result;
+	}
+	
+	@ApiOperation("理财产品查看详情页面")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid（贝贝鱼:1,兰州银行：2）"),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "12"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "120048"),
+		@ApiImplicitParam(paramType = "query", name = "pageSize", dataType = "Integer", required = false, value = "每页显示数（至少大于1）", defaultValue = "2"),
+		@ApiImplicitParam(paramType = "query", name = "pageIndex", dataType = "Integer", required = false, value = "显示页数（从0开始）", defaultValue = "0"),
+	})
+	@RequestMapping(value = "/checkPrdDetails-ver2", method = RequestMethod.POST)
+	@ResponseBody
+	@AopTimeResources
+	public JsonResult getPrdDetailsVer2(
+			@RequestParam(required = false, defaultValue="1") String oemid ,
+			@RequestParam(required = true) String groupId,
+			@RequestParam(required = true) String subGroupId,
+			@RequestParam(required = false, defaultValue="1") Integer pageSize, 
+		    @RequestParam(required = false, defaultValue="0") Integer pageIndex) {
+		// 先获取全部产品
+		JsonResult result = restTemplate
+				.getForEntity(dataManagerUrl + "/api/datamanager/getCheckPrdDetails-ver2?groupId=" + groupId
+						+ "&subGroupId=" + subGroupId + "&oemid=" + Integer.parseInt(oemid) + "&pageSize=" + pageSize
+						+ "&pageIndex=" + pageIndex, JsonResult.class)
+				.getBody();
 		return result;
 	}
 

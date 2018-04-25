@@ -30,7 +30,7 @@ public class AssetAllServiceTest {
     }
     @Test
     public void selectById(){
-        FundReturn fundReturn = allocationService.selectById("1","1");
+        FundReturn fundReturn = allocationService.selectById("1","1",1);
         assertTrue(fundReturn.getName().equals("富国天成红利"));
     }
 

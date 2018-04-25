@@ -401,9 +401,9 @@ public class UserInfoController {
         try {
 
             bankCard = rpcOrderService.createBankCard(bankcardDetailVo);
-        } catch (Exception ex) {
-            result.put("msg", "绑卡失败：" + ex.getMessage());
-            return new ResponseEntity<>(result, HttpStatus.FAILED_DEPENDENCY);
+        } catch (UserInfoException ex) {
+            result.put("msg", "绑卡失败：" + ex.getMsg());
+            return new ResponseEntity<>(result, HttpStatus.OK);
         }
 
         if (bankCard == null) {
