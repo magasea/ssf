@@ -2451,9 +2451,11 @@ public class FundGroupService {
             sharpeRatio(fundGroupId, subGroupId, oemId);
 
             LocalDate endDayOfMonth = InstantDateUtil.now().with(TemporalAdjusters.lastDayOfMonth());
-            //每月月末计算历史年化收益和年化历史波动率
             if (InstantDateUtil.now().equals(endDayOfMonth)) {
+                //每月月末计算历史年化收益和年化历史波动率
                 fundGroupIndexService.calculateAnnualVolatilityAndAnnualYield(fundGroupId, subGroupId, GROUP_START_DATE);
+                //计算最大亏损
+                maximumLosses(fundGroupId, subGroupId, oemId);
             }
 
         } catch (Exception ex) {
