@@ -717,7 +717,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     public List<MongoUiTrdLogDTO> getTradeLogsByUserProdId(List dataList) throws Exception {
         List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService.findByUserProdIdIn(dataList);
-        ;
         return trdLogList;
     }
 
@@ -1103,7 +1102,10 @@ public class UserInfoServiceImpl implements UserInfoService {
             List data = new ArrayList<>();
             int begin = pageSize * pageIndex;
             for (int i = 0; i < pageSize; i++) {
-                data.add(dataList.get(begin++));
+              if(dataList.size() <= begin) {
+                break;
+              }
+              data.add(dataList.get(begin++));
             }
             if (data == null || data.size() == 0) {
                 return tradeLogs;
