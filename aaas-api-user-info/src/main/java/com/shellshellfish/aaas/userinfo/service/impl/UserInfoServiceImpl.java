@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -1280,12 +1281,17 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     public List getUsersOfUserProdIds(Long userId) {
-        List dataList = new ArrayList<>();
+        List<Long> dataList = new ArrayList<>();
         try {
             DBObject dbObject = new BasicDBObject();
             dbObject.put("user_id", userId);
             DB db = mongoClient.getDB(mongoDatabase.getName());
             dataList = db.getCollection("ui_trdlog").distinct("user_prod_id", dbObject);
+            Collections.sort(dataList, new Comparator<Long>() {
+              public int compare(Long o1, Long o2) {
+                  return o2.compareTo(o1);
+              }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
