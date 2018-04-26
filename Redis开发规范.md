@@ -3,9 +3,9 @@
 * ## key设计
 
   - 以业务名为前缀，用:分割
-  >
-       比如业务名:表名:id ugc:video:1
-  >
+      >
+        比如业务名:表名:id ugc:video:1
+      >
   - 保证语义明确的前提下，尽量控制key长度
   - 不能包含特殊字符
 
@@ -19,34 +19,34 @@
   - Redis事务功能较弱，不建议使用
   - 使用批量操作提高效率,但是要注意一次批量操作的数量
       >
-            原生命令：例如mget、mset。
-            非原生命令：可以使用pipeline提高效率。
+        原生命令：例如mget、mset。
+        非原生命令：可以使用pipeline提高效率。
       >
 
   - 对于必须要存储的大文本数据一定要压缩后存储
   - 冷热数据分离，不要将所有数据全部放入redis 中
   - 拒绝bigkey(防止网卡流量、慢查询)
        >
-            string类型控制在10KB以内，hash、list、set、zset元素个数不要超过5000。
+        string类型控制在10KB以内，hash、list、set、zset元素个数不要超过5000。
        >
 
    - 反例：
        >
-              一个包含200万个元素的list。
+         一个包含200万个元素的list。
        >
    - 注意：
        >
-             非字符串的bigkey，不要使用del删除，使用hscan、sscan、zscan方式渐进式删除，同时要注意防止bigkey过期时间自动删除问题
+         非字符串的bigkey，不要使用del删除，使用hscan、sscan、zscan方式渐进式删除，同时要注意防止bigkey过期时间自动删除问题
          (例如一个200万的zset设置1小时过期，会触发del操作，造成阻塞，而且该操作不会不出现在慢查询中(latency可查))，查找方法和删除方法
        >
 
 * ## 命令使用
    - O(N) 命令关注N的数量
        >
-            例如: hgetall、lrange、smembers、zrange、sinter等并非不能使用，但是需要明确N的值。
-            有遍历的需求可以使用hscan、sscan、zscan代替。
+         例如: hgetall、lrange、smembers、zrange、sinter等并非不能使用，但是需要明确N的值。
+         有遍历的需求可以使用hscan、sscan、zscan代替。
        >
    - 禁用命令
         >
-            禁止线上使用keys、flushall、flushdb等，通过redis的rename机制禁掉命令，或者使用scan的方式渐进式处理。
+         禁止线上使用keys、flushall、flushdb等，通过redis的rename机制禁掉命令，或者使用scan的方式渐进式处理。
         >
