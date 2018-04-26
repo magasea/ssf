@@ -3,33 +3,10 @@ package com.shellshellfish.aaas.datamanager.service.impl;
 
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
-import com.shellshellfish.aaas.datamanager.model.CoinFundYieldRate;
-import com.shellshellfish.aaas.datamanager.model.FundBaseClose;
-import com.shellshellfish.aaas.datamanager.model.FundBaseList;
-import com.shellshellfish.aaas.datamanager.model.FundCodes;
-import com.shellshellfish.aaas.datamanager.model.FundRate;
-import com.shellshellfish.aaas.datamanager.model.FundResources;
-import com.shellshellfish.aaas.datamanager.model.GroupBase;
+import com.shellshellfish.aaas.datamanager.model.*;
 import com.shellshellfish.aaas.datamanager.repositories.MongoGroupBaseRepository;
-import com.shellshellfish.aaas.datamanager.repositories.mongo.MongoFundBaseListRepository;
-import com.shellshellfish.aaas.datamanager.repositories.mongo.MongoFundManagersRepository;
-import com.shellshellfish.aaas.datamanager.repositories.mongo.MongoListedFundCodesRepository;
+import com.shellshellfish.aaas.datamanager.repositories.mongo.*;
 import com.shellshellfish.aaas.datamanager.service.DataService;
-import com.shellshellfish.aaas.datamanager.model.FundCompanys;
-import com.shellshellfish.aaas.datamanager.model.FundManagers;
-import com.shellshellfish.aaas.datamanager.model.FundYearIndicator;
-import com.shellshellfish.aaas.datamanager.repositories.mongo.MongoFundBaseCloseRepository;
-import com.shellshellfish.aaas.datamanager.repositories.mongo.MongoFundCodesRepository;
-import com.shellshellfish.aaas.datamanager.repositories.mongo.MongoFundCompanysRepository;
-import com.shellshellfish.aaas.datamanager.repositories.mongo.MongoFundYearIndicatorRepository;
-
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +17,13 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.*;
 
 @Service
 public class DataServiceImpl implements DataService {
@@ -347,12 +331,17 @@ public class DataServiceImpl implements DataService {
 
         List<Map<String, Object>> targetList;
         if (target instanceof Map[]) {
-            targetList = CollectionUtils.arrayToList(target);
+            Map<String, Object>[] maps = (Map[]) target;
+            targetList = new ArrayList<>(maps.length);
+            for (Map map : maps) {
+                targetList.add(map);
+            }
         } else if (target instanceof List) {
             targetList = (List<Map<String, Object>>) target;
         } else {
             return false;
         }
+
         //以基金净值为基准进行数据对齐
         Map<String, Object>[] baselineList;
         Object base = hnmap.get(baseKey);
@@ -378,13 +367,14 @@ public class DataServiceImpl implements DataService {
             }
         }
 
-
+        HashSet<String> targetHashSet = new HashSet<>(baseHashSet.size());
         for (Iterator iterator = targetList.iterator(); iterator.hasNext(); ) {
             Map<String, Object> map = (Map<String, Object>) iterator.next();
             String date = map.get("date").toString();
-            if (!baseHashSet.contains(date)) {
+            if (!baseHashSet.contains(date) || targetHashSet.contains(date)) {
                 iterator.remove();
             }
+            targetHashSet.add(date);
         }
         hnmap.replace(baseKey, targetBaseList);
         hnmap.replace(key, targetList);
