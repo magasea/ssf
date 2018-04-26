@@ -74,8 +74,6 @@ public class DataServiceImpl implements DataService {
     private MongoTemplate mongoTemplate;
 
 
-
-
     public static final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100);
 
 
@@ -294,7 +292,7 @@ public class DataServiceImpl implements DataService {
         hnmap.put("basename", basename);
 
         LocalDate endDate = InstantDateUtil.format(settingdate);
-        Long endTime = InstantDateUtil.getEpochSecondOfZero(endDate); //seconds
+        Long endTime = InstantDateUtil.getEpochSecondOfZero(endDate.plusDays(1)); //seconds
         LocalDate startDate = endDate.plusDays(-1);
         switch (type) {
             case "1":
@@ -441,7 +439,7 @@ public class DataServiceImpl implements DataService {
             oneyearup = getUprate(code, curdayval, stdate, 6).toString() + "%"; //1 year ago
             threeyearup = getUprate(code, curdayval, stdate, 7).toString() + "%"; //3 year ago
 
-        }else{
+        } else {
             logger.error("fundYearIndicator is null");
         }
 
@@ -573,7 +571,7 @@ public class DataServiceImpl implements DataService {
         if (!CollectionUtils.isEmpty(list) && list.get(0) != null && !list.get(0)
                 .getShstockstar3ycomrat().isEmpty()) {
             rate = list.get(0).getShstockstar3ycomrat();
-        }else{
+        } else {
             logger.error("no fundRate found for code:{}", code);
         }
 
@@ -587,12 +585,12 @@ public class DataServiceImpl implements DataService {
         List<FundResources> list = mongoTemplate.find(query, FundResources.class);
         if (list != null && list.size() == 1) {
             return list.get(0).getName();
-        }else{
-            if(CollectionUtils.isEmpty(list)){
+        } else {
+            if (CollectionUtils.isEmpty(list)) {
                 logger.error("FundResources is empty for code:{}", code);
-            }else{
+            } else {
                 logger.error("FundResources have multi records for code:{} and size:{}", code,
-                    list.size());
+                        list.size());
             }
         }
 
@@ -606,12 +604,12 @@ public class DataServiceImpl implements DataService {
         List<FundBaseList> list = mongoTemplate.find(query, FundBaseList.class);
         if (list != null && list.size() == 1) {
             return list.get(0).getBaseName();
-        }else{
-            if(CollectionUtils.isEmpty(list)){
+        } else {
+            if (CollectionUtils.isEmpty(list)) {
                 logger.error("FundBaseList is empty for code:{}", code);
-            }else{
+            } else {
                 logger.error("FundBaseList have multi records for code:{} and size:{}", code,
-                    list.size());
+                        list.size());
             }
         }
 
@@ -625,15 +623,15 @@ public class DataServiceImpl implements DataService {
      */
     private void getHistoryNetValue(Map result, String code, Long startTime, Long endTime) {
         //区间内查询
-        Criteria criteria = Criteria.where("code").is(code).and("querydate").gte(startTime)
-                .lte(endTime);
+        Criteria criteria = Criteria.where("code").is(code).and("querydate").gt(startTime)
+                .lt(endTime);
         Query query = new Query(criteria);
         query.with(new Sort(Sort.DEFAULT_DIRECTION.ASC, "querydate"));
         List<FundYearIndicator> list = mongoTemplate.find(query, FundYearIndicator.class);
 
         if (CollectionUtils.isEmpty(list)) {
             logger.error("empty list for FundYearIndicator with code:{} and time between:{} and :{}",
-                code, startTime, endTime);
+                    code, startTime, endTime);
             return;
         }
 
@@ -883,9 +881,9 @@ public class DataServiceImpl implements DataService {
 
         List<BigDecimal> yieldOf7DaysList = new ArrayList();
         List<BigDecimal> yieldOfTenKiloUnitYieldList = new ArrayList();
-        if(CollectionUtils.isEmpty(coinFundYieldRateList)){
+        if (CollectionUtils.isEmpty(coinFundYieldRateList)) {
             logger.error("coinFundYieldRateList is empty for code:{} startTime:{}, endTime:{}",
-                code, startTime, endTime);
+                    code, startTime, endTime);
         }
         logger.info("coinFundYieldRateList size:{}", coinFundYieldRateList.size());
         for (int i = 0; i < coinFundYieldRateList.size(); i++) {
