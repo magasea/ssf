@@ -6,5 +6,5 @@ public interface FundGroupIndexService {
 
     void calculateAnnualVolatilityAndAnnualYield(String groupId, String subGroupId, LocalDate startDate);
 
-    void calculateAnnualVolatilityAndAnnualYield(LocalDate startDate);
+    void calculateAnnualVolatilityAndAnnualYield(LocalDate startDate, int oemId);
 }

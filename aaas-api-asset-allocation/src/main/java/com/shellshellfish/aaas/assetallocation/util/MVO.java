@@ -51,7 +51,6 @@ public class MVO {
     }
 
     /**
-     * TODO   预期年华收益率=预期收益率  历史波动率=预期风险率
      * 已知组合收益率，协方差，权重计算组合预期收益率，预期风险率
      *
      * @param ExpReturn     期望收益率
@@ -85,6 +84,7 @@ public class MVO {
      * @param cash  0.0013
      * @return
      */
+    @Deprecated
     public synchronized static Object sharpeRatio(Double[] asset, Double cash) {
         Object result = null;
         try {

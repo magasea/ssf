@@ -49,16 +49,16 @@ public class DailyFundService {
      * 获取基金每日数据并insert into：fund_net_value 以及 fund_basic
      *
      */
-    public Boolean insertDailyFund() {
+    public Boolean insertDailyFund(int oemId) {
         Boolean doSuccess = true;
         //查询 fund_group_basic ，获取需要调用每日接口抓取数据的 code
-        List<String> codeList = fundGroupMapper.findAllGroupCode();
+        List<String> codeList = fundGroupMapper.findAllGroupCode(oemId);
         if (CollectionUtils.isEmpty(codeList)) {
             return doSuccess;
         }
 
         //查询 fund_group_basic ，获取 基准 code
-        benchmarkCode = fundGroupMapper.findBenchmarkCode();
+        benchmarkCode = fundGroupMapper.findBenchmarkCode(oemId);
 
         if(!CollectionUtils.isEmpty(benchmarkCode)){
             benchMarkCodeNameMap = new HashMap<>();

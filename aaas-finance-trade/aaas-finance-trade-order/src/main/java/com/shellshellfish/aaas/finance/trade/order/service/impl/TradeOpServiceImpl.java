@@ -793,6 +793,9 @@ public class TradeOpServiceImpl implements TradeOpService {
 			detailMap.put("fundCode", trdOrderDetail.getFundCode());
 			//基金费用
 			detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
+//			if(trdOrderDetail.getBuyFee() <= 0){
+//			  detailMap.put("fundstatus", CombinedStatusEnum.CONFIRMED.getComment());
+//			}
 			//交易金额
             Long fundSum = 0L;
             if(trdOrderDetail.getFundSumConfirmed() != null && trdOrderDetail.getFundSumConfirmed() > 0){
@@ -895,6 +898,8 @@ public class TradeOpServiceImpl implements TradeOpService {
 	  List<Map<String, Object>> detailList = new ArrayList<Map<String, Object>>();
 	  Map<String, Object> detailMap = new HashMap<String, Object>();
 	  Map<String, String> statusMap = new HashMap<>();
+	  
+	  Long totalNum = 0L;
 	  for (int i = 0; i < trdOrderDetailList.size(); i++) {
 	    detailMap = new HashMap<String, Object>();
 	    TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
@@ -916,7 +921,9 @@ public class TradeOpServiceImpl implements TradeOpService {
 //	    //基金费用
 //	    detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
 	    //基金份额
-	    detailMap.put("fundnum", trdOrderDetail.getFundNum());
+	    Long fundNum = trdOrderDetail.getFundNum();
+	    totalNum = totalNum + fundNum;
+	    detailMap.put("fundnum", fundNum);
 	    //交易金额
 	    Long fundSum = 0L;
 	    if(trdOrderDetail.getFundSumConfirmed() != null && trdOrderDetail.getFundSumConfirmed() > 0){
@@ -945,6 +952,8 @@ public class TradeOpServiceImpl implements TradeOpService {
 	      serialList.add(serial);
 	    }
 	  }
+	  
+	  result.put("totalNum", totalNum + " 份");
 	  
 	  if (statusMap != null && statusMap.size() > 0) {
 	    if (statusMap.size() != 1) {

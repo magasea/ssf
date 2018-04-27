@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -117,13 +119,14 @@ public class UserInfoController {
 					+ mobile + "\",\"cardUserPid\":\"" + idcard + "\",\"cardUuId\":\"" + uuid + "\"}";
 			logger.info("urlUid==" + str);
 			logger.info("str==" + str);
-			result = restTemplate.postForEntity(url, getHttpEntitySecond(str), Map.class).getBody();
-			if (result == null) {
+			ResponseEntity<Map> httpResult = restTemplate.postForEntity(url,
+					getHttpEntitySecond(str), Map.class);
+			if (httpResult.getStatusCode() != HttpStatus.OK) {
 				logger.info("添加银行卡失败");
-				return new JsonResult(JsonResult.Fail, "添加银行卡失败", result);
+				return new JsonResult(JsonResult.Fail, "添加银行卡失败", httpResult.getBody());
 			} else {
 				logger.info("添加银行卡成功");
-				return new JsonResult(JsonResult.SUCCESS, "添加银行卡成功", result);
+				return new JsonResult(JsonResult.SUCCESS, "添加银行卡成功", null);
 			}
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
@@ -714,14 +717,15 @@ public class UserInfoController {
 			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = false, value = "银行名称"),
 			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"),
 			@ApiImplicitParam(paramType = "query", name = "sellTargetPercent", dataType = "BigDecimal", required = true, value = "百分比(默认100%)", defaultValue = "100"),
-			})
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")})
 	@RequestMapping(value = "/sellresult", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getSellRecords(@RequestParam String uuid, @RequestParam String prodId,
 			@RequestParam(required = false) String orderId, 
 //			@RequestParam(required = false) String buyfee,
 			@RequestParam(required = false) String poundage, @RequestParam(required = false) String bankName,
-			@RequestParam(required = false) String bankCard, @RequestParam BigDecimal sellTargetPercent) {
+			@RequestParam(required = false) String bankCard, @RequestParam BigDecimal sellTargetPercent,
+			@RequestParam(required = false, defaultValue="1") String oemid) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
 			String url = userinfoUrl + "/api/userinfo/users/" + uuid + "/orders/" + prodId + "/sell-records?bankName=" + bankName + "&bankCard=" + bankCard;
@@ -780,7 +784,7 @@ public class UserInfoController {
 									String subGroupId = productResult.get("subGroupId") + "";
 									// 获取二级分类
 									String url3 = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
-											+ "/sub-groups/" + subGroupId;
+											+ "/sub-groups/" + subGroupId + "/" + Integer.parseInt(oemid);
 									Map productMap = restTemplate.getForEntity(url3, Map.class).getBody();
 									if (productMap == null) {
 										logger.info("单个基金组合产品信息为空");
