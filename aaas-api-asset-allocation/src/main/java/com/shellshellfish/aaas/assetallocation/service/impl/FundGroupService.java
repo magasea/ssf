@@ -2354,13 +2354,13 @@ public class FundGroupService {
 
         try {
             ThreadPoolExecutor pool = new ThreadPoolExecutor(
-                15,
-                15,
-                0L,
-                TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(15),
-                Executors.defaultThreadFactory(),
-                new ThreadPoolExecutor.AbortPolicy());
+                    15,
+                    15,
+                    0L,
+                    TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(15),
+                    Executors.defaultThreadFactory(),
+                    new ThreadPoolExecutor.AbortPolicy());
 
             final CountDownLatch countDownLatch = new CountDownLatch(RISK_LEVEL_COUNT);
 //            ExecutorService pool = ThreadPoolUtil.getThreadPool();
@@ -2442,7 +2442,7 @@ public class FundGroupService {
             // 此处已经由新的方法替代 （基金组合净值的计算方法更新）
 //            getNavadj(fundGroupId, subGroupId);
             //计算基金组合复权单位净值
-            calculateGroupNavadj(FundGroupService.GROUP_START_DATE, oemId);
+            calculateGroupNavadj(fundGroupId, subGroupId, oemId, FundGroupService.GROUP_START_DATE);
             //计算组合最大回撤
             calculateMaxRetracement(fundGroupId, subGroupId, InstantDateUtil.now());
 
@@ -2502,16 +2502,15 @@ public class FundGroupService {
         }
 
 
-
         try {
             ThreadPoolExecutor pool = new ThreadPoolExecutor(
-                15,
-                15,
-                0L,
-                TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(15),
-                Executors.defaultThreadFactory(),
-                new ThreadPoolExecutor.AbortPolicy());
+                    15,
+                    15,
+                    0L,
+                    TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(15),
+                    Executors.defaultThreadFactory(),
+                    new ThreadPoolExecutor.AbortPolicy());
             final CountDownLatch countDownLatch = new CountDownLatch(groupedMap.size());
 //            ExecutorService pool = ThreadPoolUtil.getThreadPool();
             for (List<Interval> groupedIntervals : groupedMap.values()) {
