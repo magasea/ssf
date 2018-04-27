@@ -591,7 +591,7 @@ public class FundGroupService {
         }
 
         FundGroupIndex fundGroupIndex = fundGroupIndexMapper.findByGroupIdAndSubGroupId(riskIncomeInterval
-                .getFund_group_id(), riskIncomeInterval.getId());
+                .getFund_group_id(), riskIncomeInterval.getId(), oemId);
 
         aReturn.setName("模拟数据");
         aReturn.setProductGroupId(riskIncomeInterval.getFund_group_id());
@@ -2197,7 +2197,7 @@ public class FundGroupService {
     public int calculateAllSharpeRatio(int oemId) {
         logger.info("start to calculate all group sharpe Ratio");
         long startTime = System.currentTimeMillis();
-        List<FundGroupIndex> fundGroupIndexList = fundGroupIndexMapper.findAll();
+        List<FundGroupIndex> fundGroupIndexList = fundGroupIndexMapper.findAll(oemId);
 
         List<Map> sharpeRatioList = new ArrayList<>(fundGroupIndexList.size());
         for (FundGroupIndex fundGroupIndex : fundGroupIndexList) {
@@ -2221,7 +2221,7 @@ public class FundGroupService {
      */
     public int sharpeRatio(String groupId, String subGroupId, int oemId) {
         logger.info("calculate  sharpeRatio begin groupId:{},subGroupId:{}", groupId, subGroupId);
-        FundGroupIndex fundGroupIndex = fundGroupIndexMapper.findByGroupIdAndSubGroupId(groupId, subGroupId);
+        FundGroupIndex fundGroupIndex = fundGroupIndexMapper.findByGroupIdAndSubGroupId(groupId, subGroupId, oemId);
         Double yield = fundGroupIndex.getHistoricalAnnualYield() - SHARPE_CASH;
         Double volatility = fundGroupIndex.getHistoricalAnnualVolatility();
         Double sharpeRatio = yield / volatility;
@@ -2244,7 +2244,7 @@ public class FundGroupService {
         query.put("subGroupId", subGroupId);
         query.put("fundGroupId", fundGroupId);
         query.put("oemId", oemId);
-        FundGroupIndex fundGroupIndex = fundGroupIndexMapper.findByGroupIdAndSubGroupId(fundGroupId, subGroupId);
+        FundGroupIndex fundGroupIndex = fundGroupIndexMapper.findByGroupIdAndSubGroupId(fundGroupId, subGroupId, oemId);
         Double maximumLosses = CalculatePortvrisks.calculatePortvrisk(fundGroupIndex.getHistoricalAnnualYield(),
                 fundGroupIndex.getHistoricalAnnualVolatility(), CONFIDENCE_LEVEL, PRINCIPAL);
         query.put("maximum_losses", maximumLosses);
@@ -2446,7 +2446,8 @@ public class FundGroupService {
             LocalDate endDayOfMonth = InstantDateUtil.now().with(TemporalAdjusters.lastDayOfMonth());
             if (InstantDateUtil.now().equals(endDayOfMonth)) {
                 //每月月末计算历史年化收益和年化历史波动率
-                fundGroupIndexService.calculateAnnualVolatilityAndAnnualYield(fundGroupId, subGroupId, GROUP_START_DATE);
+                fundGroupIndexService.calculateAnnualVolatilityAndAnnualYield(fundGroupId, subGroupId,
+                        GROUP_START_DATE, oemId);
                 //计算最大亏损
                 maximumLosses(fundGroupId, subGroupId, oemId);
             }

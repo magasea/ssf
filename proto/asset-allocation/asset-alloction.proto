@@ -12,8 +12,9 @@ service AssetAllocationService {
 
 
 message FundGroupIndexQuery {
-    string groupId = 1;
-    string subGroupId = 2;
+    int32 oemId = 1;
+    string groupId = 2;
+    string subGroupId = 3;
 }
 message FundGroupIndexResult {
     double historicalAnnualYeild = 1;

@@ -100,7 +100,8 @@ public class IndexServiceImpl implements IndexService {
             //--------------------------------------
 
             //历史年化收益率和历史年化波动率
-            FundGroupIndexResult fundGroupIndex = allocationRpcService.getAnnualVolatilityAndAnnualYield(groupId, subGroupId);
+            FundGroupIndexResult fundGroupIndex = allocationRpcService.getAnnualVolatilityAndAnnualYield(groupId,
+                    subGroupId, oemid);
             resultC.put("historicalYearPerformance", fundGroupIndex.getHistoricalAnnualYeild());
             resultC.put("historicalvolatility", fundGroupIndex.getHistoricalAnnualVolatility());
             resultC.put("groupId", groupId);
