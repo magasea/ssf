@@ -30,7 +30,7 @@
     <select id="getLatestNavAdj" resultType="Double">
         SELECT income_num
         FROM
-        fund_group_history
+        fund_group_history_${oemId}
         WHERE
           fund_group_id = #{groupId}
           AND fund_group_sub_id = #{subGroupId}

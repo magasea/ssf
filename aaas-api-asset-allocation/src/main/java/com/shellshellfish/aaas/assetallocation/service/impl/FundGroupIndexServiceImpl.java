@@ -45,7 +45,8 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
      * <／p>
      */
     @Override
-    public void calculateAnnualVolatilityAndAnnualYield(String groupId, String subGroupId, LocalDate startDate) {
+    public void calculateAnnualVolatilityAndAnnualYield(String groupId, String subGroupId,
+        LocalDate startDate, int oemId) {
         logger.info("start to calculate historical annual yield and Historical annual volatility   groupId:{} ," +
             "subGroupId:{}", groupId, subGroupId);
         if (startDate == null) {
@@ -55,7 +56,7 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
         List<Double> values = new LinkedList<>();
         LocalDate date = LocalDate.of(startDate.getYear(), startDate.getMonth(), 15);
         do {
-            Double value = fundGroupHistoryMapper.getLatestNavAdj(groupId, subGroupId, date);
+            Double value = fundGroupHistoryMapper.getLatestNavAdj(groupId, subGroupId, date, oemId);
             if (value != null)
                 values.add(value);
             date = date.plusMonths(1);

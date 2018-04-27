@@ -917,7 +917,7 @@ public class FundGroupService {
             fgi.setMaxMinBenchmarkMap(maxMinBenchmarkMap);
             return fgi;
         } else {
-            logger.info("fundGroupHistoryList is empty for groupId:{} and subGroupId:{}",
+            logger.info("fundGroupHistoryList is not empty for groupId:{} and subGroupId:{}",
                     groupId, subGroupId);
         }
 

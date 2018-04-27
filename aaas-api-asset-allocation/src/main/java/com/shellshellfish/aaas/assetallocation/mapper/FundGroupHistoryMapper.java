@@ -12,7 +12,8 @@ public interface FundGroupHistoryMapper {
     List<FundGroupHistory> findAllByDateBefore(@Param("date") LocalDate date, @Param("groupId") String groupId, @Param("subGroupId") String subGroupId);
 
     //获取特定日期的复权单位净值（没有就取后一天的数据 比如15号没有数据，那就取16号的数据）
-    Double getLatestNavAdj(@Param("groupId") String groupId, @Param("subGroupId") String subGroupId, @Param("date") LocalDate date);
+    Double getLatestNavAdj(@Param("groupId") String groupId, @Param("subGroupId") String
+        subGroupId, @Param("date") LocalDate date, @Param("oemId") Integer oemId);
 
     //更新最大回撤
     int updateMaxDrawDown(FundGroupHistory fundGroupHistory);
