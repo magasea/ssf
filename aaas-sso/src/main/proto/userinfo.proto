@@ -1,0 +1,126 @@
+syntax = "proto3";
+import "finance_prod.proto";
+import "common.proto";
+
+option java_multiple_files = true;
+option java_package = "com.shellshellfish.aaas.userinfo.grpc";
+option java_outer_classname = "UserInfoProto";
+option objc_class_prefix = "UIP";
+
+service UserInfoService {
+    rpc GetUserId (UserIdQuery) returns (UserId) {
+    }
+    rpc GetUserBankInfo(UserIdOrUUIDQuery) returns (UserBankInfo){
+    }
+    rpc GenUserProdsFromOrder(FinanceProdInfosQuery) returns (UserProdId){}
+
+    rpc GetUerUUIDByUserId (UserId) returns (UserUUID){}
+    rpc UpdateUserProd(UpdateUserProdReqs) returns(UserProdId){}
+    rpc GetUserInfo (UserId) returns (UserInfo){}
+    rpc GetUserInfoByUserUUID (UserIdQuery) returns (UserInfo){}
+    rpc SellUserProducts (SellProducts) returns (SellProductsResult){}
+    rpc RollbackUserProducts (SellProducts) returns (SellProducts){}
+    rpc sellPersentUserProducts (SellPersentProducts) returns (SellProductsResult){}
+}
+
+message SellPersentProducts{
+  int64 user_product_id = 1;//用户理财产品ID
+  int64 user_id = 2; //用户ID
+  string user_bank_num = 3;//用户产生该理财产品的时候用的银行卡号
+  int64 percent = 4; //卖出百分比 精确到万分之一的整型
+}
+
+
+message SellProducts{
+  int64 user_product_id = 1;//用户理财产品ID
+  int64 user_id = 2; //用户ID
+  string user_bank_num = 3;//用户产生该理财产品的时候用的银行卡号
+  repeated SellProductDetail sellProductDetails = 4;//出售基金明细；和结果
+}
+
+message SellProductsResult{
+  int64 user_product_id = 1;//用户理财产品ID
+  int64 user_id = 2; //用户ID
+  string user_bank_num = 3;//用户产生该理财产品的时候用的银行卡号
+  repeated SellProductDetailResult sellProductDetailResults = 4;//出售基金明细；和结果
+  ErrInfo errInfo = 5; //出错信息
+}
+
+message SellProductDetail{
+  string fund_code = 1;//基金代码
+  int64 fund_quantity_trade = 2; //出售基金份额，精确到百分之一的整数
+  int32 result = 3; //-1表示不符合条件不允许，1 - 表示可以
+}
+
+message SellProductDetailResult{
+  string fund_code = 1;//基金代码
+  int64 fund_quantity_trade = 2; //出售基金份额，精确到百分之一的整数
+  int64 fund_quantity_trade_remain = 3; //剩余基金份额
+  int32 result = 4; //-1表示不符合条件不允许，1 - 表示可以
+}
+
+message UserIdQuery {
+  string uuid = 1;
+  string telphone = 2;
+  string pid = 3;
+}
+
+message UserId{
+  int64 userId = 1;
+}
+
+message UserUUID{
+  string userUUID = 1;
+}
+
+message UserIdOrUUIDQuery{
+  int64 userId = 1;
+  string uuid = 2;
+}
+
+message UserBankInfo{
+  int64 userId = 1;
+  string uuid = 2;
+  string userName = 3;
+  string userPid = 4;
+  string cellphone = 5;
+  int32 risk_level = 6;//风险等级
+  repeated CardInfo cardNumbers = 7;
+}
+
+
+message FinanceProdInfosQuery{
+  int64 userId = 1; //用戶ID
+  string bank_card_num = 2; //该理财产品购买的时候用的银行卡
+  repeated FinanceProdInfo prodList = 3; //产品成分List
+}
+
+
+message UpdateUserProdReqs{
+  int64 user_id = 1; //用户id
+  int64 user_prod_id = 2; //用戶产品id
+  int64 prod_id = 3;//理財產品ID
+  int64 group_id = 4;//类别ID
+  repeated UpdateUserProdReq updateUserProdReq = 5; //更新的基金占比数列
+}
+
+message UpdateUserProdReq{
+  int32 fund_share = 1;//基金占比
+  int64 user_prod_id = 2; //用户理财产品id
+  string fund_code = 3; //基金code
+}
+message CardInfo{
+  string user_pid = 1; //身份证
+  string card_numbers = 2; //银行卡号
+}
+
+message UserInfo{
+  int64 id = 1;
+  string uuid = 2;
+  string cellPhone = 3;
+  string birthAge = 4;
+  string occupation = 5;
+  int32 activated = 6;
+  int32 isTestFlag = 7;
+  int32 riskLevel = 8;
+}

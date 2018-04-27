@@ -17,6 +17,7 @@
   <modules>
     <module>aaas-app-checkfunds</module>
     <module>aaas-app-oeminfo</module>
+    <module>aaas-app-zhongzhenapi</module>
   </modules>
 
 </project>

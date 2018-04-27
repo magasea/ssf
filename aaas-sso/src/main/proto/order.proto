@@ -1,0 +1,121 @@
+syntax = "proto3";
+import "common.proto";
+
+option java_multiple_files = true;
+option java_package = "com.shellshellfish.aaas.finance.trade.order";
+option java_outer_classname = "orderRpcService";
+option objc_class_prefix = "ORS";
+
+service OrderRpcService {
+  //获取交易用户PID
+  rpc GetPidFromTrdAccoBrokerId (GetPIDReq) returns (UserPID) {
+  };
+
+  rpc getOrderInfo (OrderQueryInfo) returns (OrderResult) {
+  };
+
+  rpc getOrderDetail (OrderDetailQueryInfo) returns (OrderDetailResult) {
+  };
+  rpc getBankCardNumByUserProdId(UserProdId) returns(UserBankCardNum);
+
+  rpc OpenAccount (BindCardInfo) returns (BindCardResult) {
+  }
+}
+
+//获取交易用户PID
+message GetPIDReq {
+  int32 trd_broker_id = 1; //交易系统ID
+  string trd_acco = 2; //交易账户
+  int64 user_id = 3; //用户ID
+}
+
+//用户PID信息
+message UserPID {
+  string user_pid = 1; //用户身份证
+  int64 user_id = 2; //用户 ID
+}
+
+
+message OrderQueryInfo {
+  int64 userProdId = 1;
+  int32 orderStatus = 2;
+}
+
+
+message OrderResult {
+  string order_id = 1;
+  int64 pre_order_id = 2;
+  string bank_card_num = 3;
+  int32 order_status = 4;
+  int64 order_date = 5;
+  int32 order_type = 6;
+  int64 pay_amount = 7;
+  int64 pay_fee = 8;
+  int64 user_id = 9;
+  int64 prod_id = 10;
+  int64 group_id = 11;
+  int64 user_prod_id = 12;
+  int64 create_by = 13;
+  int64 create_date = 14;
+  int64 update_by = 15;
+  int64 update_date = 16;
+}
+
+
+message OrderDetailQueryInfo {
+  int32 order_detail_status = 1;
+  int64 user_prod_id = 2;
+}
+
+message OrderDetailResult {
+  repeated OrderDetail order_detail_result = 1;
+}
+
+message OrderDetail {
+  string order_id = 2;
+  string trade_apply_serial = 3;
+  int64 buysell_date = 4;
+  int32 trade_type = 5;
+  int64 pay_amount = 6;
+  int64 pay_fee = 7;
+  int64 user_id = 8;
+  int64 user_prod_id = 9;
+  string fund_code = 10;
+  int64 fund_money_quantity = 11;
+  int64 fund_num = 12;
+  int64 fund_sum = 13;
+  int64 fund_num_confirmed = 14;
+  int64 fund_sum_confirmed = 15;
+  int32 fund_share = 16;
+  int64 buy_fee = 17;
+  int64 buy_discount = 18;
+  int32 order_detail_status = 19;
+  int64 create_by = 20;
+  int64 create_date = 21;
+  int64 update_by = 22;
+  int64 update_date = 23;
+  string bank_card_num = 24;
+  string err_msg = 25;
+  int64 fund_quantity = 26;
+  int64 prod_id = 27;
+}
+
+message UserBankCardNum {
+  //用户银行卡号
+  string user_bank_cardnum = 1;
+}
+
+message BindCardInfo {
+    string cardNo = 1; //银行卡号
+    string bankName = 2; //开户行名称
+    int64 userId = 3; //用户ID
+    string idCardNo = 4; //身份证号码
+    string userPhone = 5; //用户电话
+    string userName = 6; //用户名
+    int32 riskLevel = 7;//用户风险评级
+}
+
+message BindCardResult {
+    string tradeacco = 1; //交易帐号号
+    ErrInfo err_info = 2; //绑卡失败信息
+}
