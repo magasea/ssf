@@ -1,6 +1,8 @@
 package com.shellshellfish.aaas.finance.trade.order.config;
 
 import com.shellshellfish.aaas.finance.trade.order.service.impl.OrderServiceImpl;
+import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApiServiceGrpc;
+import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApiServiceGrpc.ZZApiServiceBlockingStub;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
@@ -33,6 +35,12 @@ public class GrpcServerConfig {
 	@Value("${grpc.datacollection_client.port}")
 	int dcPort;
 
+	@Value("${grpc.zhongzhengapi_client.host}")
+	String zzapiHost;
+
+	@Value("${grpc.zhongzhengapi_client.port}")
+	int zzapiPort;
+
 	@Bean
 	ManagedChannelBuilder<?> grpcFINChannelBuilder() {
 		return ManagedChannelBuilder.forAddress(finHost, finPort);
@@ -46,6 +54,11 @@ public class GrpcServerConfig {
 	@Bean
 	ManagedChannelBuilder<?> grpcDCChannelBuilder() {
 		return ManagedChannelBuilder.forAddress(dcHost, dcPort);
+	}
+
+	@Bean
+	ManagedChannelBuilder<?> grpcZZAPIChannelBuilder() {
+		return ManagedChannelBuilder.forAddress(zzapiHost, zzapiPort);
 	}
 
 	@Value("${grpc.userinfo_client.host}")
@@ -85,6 +98,19 @@ public class GrpcServerConfig {
 	ManagedChannel managedDCChannel() {
 		ManagedChannel managedChannel = grpcDCChannelBuilder().usePlaintext(true).build();
 		return managedChannel;
+	}
+
+	@Bean
+	@PostConstruct
+	ManagedChannel managedZZAPIChannel() {
+		ManagedChannel managedChannel = grpcZZAPIChannelBuilder().usePlaintext(true).build();
+		return managedChannel;
+	}
+
+	@Bean
+	@PostConstruct
+	ZZApiServiceBlockingStub zzApiServiceBlockingStub(ManagedChannel managedZZAPIChannel){
+		return ZZApiServiceGrpc.newBlockingStub(managedZZAPIChannel);
 	}
 
 	@Value("${grpc.order_server.port}")

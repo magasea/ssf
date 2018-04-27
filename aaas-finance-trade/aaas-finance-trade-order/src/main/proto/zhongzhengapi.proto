@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.shellshellfish.aaas.tools.zhongzhengapi";
+option java_outer_classname = "ZZApiServiceRpc";
+option objc_class_prefix = "ZZASR";
+
+service ZZApiService {
+    rpc GetSupportBankList (EmptyQuery) returns (BankZhongZhengInfoList) {
+    }
+}
+
+
+message BankZhongZhengInfoList{
+  repeated BankZhongZhengInfo bankZhongZhengInfo = 1;
+}
+
+message BankZhongZhengInfo{
+     string bankName = 1;
+     string bankSerial = 2;
+     string capitalModel = 3;
+     string moneyLimitOne = 4;
+     string moneyLimitDay = 5;
+}
+
+
+message EmptyQuery {
+}
+

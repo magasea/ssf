@@ -506,7 +506,11 @@ public class UserInfoController {
                 map.put("bankType", "储蓄卡");
                 map.put("bankcardSecurity", getBankcardNumber(bankCard.getCardNumber()));
                 map.put("bankcardNum", bankCard.getCardNumber());
-                map.put("bankShortName", bankName.substring(0, bankName.indexOf("·")));
+                if(bankName.contains("·")){
+                    map.put("bankShortName", bankName.substring(0, bankName.indexOf("·")));
+                }else{
+                    map.put("bankShortName", bankName);
+                }
                 map.put("bankCode", BankUtil.getCodeOfBank(bankCard.getCardNumber()));
                 bankList.add(map);
             }

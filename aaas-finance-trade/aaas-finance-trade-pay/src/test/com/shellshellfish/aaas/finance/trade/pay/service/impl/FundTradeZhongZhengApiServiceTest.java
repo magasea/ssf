@@ -26,6 +26,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ActiveProfiles(profiles = "dev")
 public class FundTradeZhongZhengApiServiceTest {
 
+
+
   @Test
   public void getSupportedBank() throws Exception {
 

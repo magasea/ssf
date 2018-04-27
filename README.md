@@ -96,7 +96,10 @@
   - GRPC 10151
 * aaas-app-oeminfo 多银行的基础信息提供模块
   - 自身 10160
-  - GRPC 10161    
+  - GRPC 10161   
+* aaas-app-zhongzhengapi 中证接口模块
+  - 自身 10170
+  - GRPC 10171    
 * rabbitmq: 5672
 * reddit: 6379
 

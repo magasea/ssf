@@ -30,13 +30,15 @@ spring:
     host: 192.168.1.249
     port: 16379
     password: redis123
-    timeout: -1ms
+    timeout: 1800000ms
     lettuce:
       pool:
         max-active: 8
-        max-wait: -1ms
+        max-wait: 1800000ms
         max-idle: 8
         min-idle: 0
+
+
 datasource:
   sampleapp:
     url: jdbc:mysql://192.168.1.249:30006/ssftrdorder?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
@@ -74,7 +76,9 @@ grpc:
   userinfo_client:
     host: localhost
     port: 10061
-
+  zhongzhengapi_client:
+    host: localhost
+    port: 10171
 management:
   endpoints:
     web:

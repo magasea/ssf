@@ -42,8 +42,7 @@ public class ZZStatsToOrdStatsUtils {
 
       case REALTIMECONFIRMSUCESS:
         return TrdOrderStatusEnum.CONFIRMED;
-      case PARTCONFIRMED:
-        return TrdOrderStatusEnum.PARTIALCONFIRMED;
+
       default:
         logger.error("input is not correct enum");
         return TrdOrderStatusEnum.FAILED;
@@ -73,9 +72,10 @@ public class ZZStatsToOrdStatsUtils {
       case CONFIRMFAILED:
         return TrdOrderStatusEnum.FAILED;
       case REALTIMECONFIRMSUCESS:
+      case ACTIONCONFIRMED:
         return TrdOrderStatusEnum.CONFIRMED;
-      case PARTCONFIRMED:
-        return TrdOrderStatusEnum.PARTIALCONFIRMED;
+      case CANCELED:
+        return TrdOrderStatusEnum.CANCELED;
       default:
         logger.error("input is not correct enums");
         return TrdOrderStatusEnum.FAILED;
