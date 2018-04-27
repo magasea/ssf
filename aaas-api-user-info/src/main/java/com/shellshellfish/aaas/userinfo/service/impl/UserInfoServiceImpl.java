@@ -1085,13 +1085,13 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public List<Map<String, Object>> getTradLogsOfUser2(String userUuid, Integer pageSize, Integer pageIndex) {
+    public List<Map<String, Object>> getTradLogsOfUser2(String userUuid, Integer pageSize, Integer pageIndex, Integer type) {
         Long userId = 0L;
         List<Map<String, Object>> tradeLogs = new ArrayList<Map<String, Object>>();
         try {
             userId = getUserIdFromUUID(userUuid);
 
-            List dataList = this.getUsersOfUserProdIds(userId);
+            List dataList = this.getUsersOfUserProdIds(userId, type);
             Integer total = dataList.size();
             Integer totalPage = 0;
             if (total % pageSize == 0) {
@@ -1282,11 +1282,14 @@ public class UserInfoServiceImpl implements UserInfoService {
         return tradeLogs;
     }
 
-    public List getUsersOfUserProdIds(Long userId) {
+    public List getUsersOfUserProdIds(Long userId, Integer type) {
         List<Long> dataList = new ArrayList<>();
         try {
             DBObject dbObject = new BasicDBObject();
             dbObject.put("user_id", userId);
+            if(type != 0){
+              dbObject.put("operations", type);
+            }
             DB db = mongoClient.getDB(mongoDatabase.getName());
             dataList = db.getCollection("ui_trdlog").distinct("user_prod_id", dbObject);
             Collections.sort(dataList, new Comparator<Long>() {
