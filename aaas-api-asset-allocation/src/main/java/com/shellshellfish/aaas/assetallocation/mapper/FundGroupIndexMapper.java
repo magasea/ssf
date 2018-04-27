@@ -11,7 +11,8 @@ public interface FundGroupIndexMapper {
 
     int saveOrUpdate(FundGroupIndex fundGroupIndex);
 
-    List<FundGroupIndex> findAll();
+    List<FundGroupIndex> findAll(int oemId);
 
-    FundGroupIndex findByGroupIdAndSubGroupId(@Param("groupId") String groupId, @Param("subGroupId") String subGroupId);
+    FundGroupIndex findByGroupIdAndSubGroupId(@Param("groupId") String groupId, @Param("subGroupId") String
+            subGroupId, @Param("oemId") int oemId);
 }

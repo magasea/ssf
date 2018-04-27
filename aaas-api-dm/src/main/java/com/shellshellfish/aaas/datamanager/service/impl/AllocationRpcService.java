@@ -14,10 +14,11 @@ public class AllocationRpcService {
     AssetAllocationServiceBlockingStub allocationBlockingStub;
 
 
-    public FundGroupIndexResult getFundGroupIndex(String groupId, String subGroupId) {
+    public FundGroupIndexResult getFundGroupIndex(String groupId, String subGroupId, int oemId) {
         FundGroupIndexQuery.Builder builder = FundGroupIndexQuery.newBuilder();
         builder.setGroupId(groupId);
         builder.setSubGroupId(subGroupId);
+        builder.setOemId(oemId);
         return allocationBlockingStub.getAnnualVolatilityAndAnnualYield(builder.build());
     }
 
