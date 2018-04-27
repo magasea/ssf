@@ -94,7 +94,8 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
 
         List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
         for (Interval interval : list) {
-            calculateAnnualVolatilityAndAnnualYield(interval.getFund_group_id(), interval.getId(), startDate);
+            calculateAnnualVolatilityAndAnnualYield(interval.getFund_group_id(), interval.getId()
+                , startDate, oemId);
         }
         long endTime = System.currentTimeMillis();
         logger.info("finish to calculate historical annual yield and Historical annual volatility   startDate:{}," +
