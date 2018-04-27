@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -716,7 +717,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     public List<MongoUiTrdLogDTO> getTradeLogsByUserProdId(List dataList) throws Exception {
         List<MongoUiTrdLogDTO> trdLogList = userInfoRepoService.findByUserProdIdIn(dataList);
-        ;
         return trdLogList;
     }
 
@@ -1102,7 +1102,10 @@ public class UserInfoServiceImpl implements UserInfoService {
             List data = new ArrayList<>();
             int begin = pageSize * pageIndex;
             for (int i = 0; i < pageSize; i++) {
-                data.add(dataList.get(begin++));
+              if(dataList.size() <= begin) {
+                break;
+              }
+              data.add(dataList.get(begin++));
             }
             if (data == null || data.size() == 0) {
                 return tradeLogs;
@@ -1280,12 +1283,17 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     public List getUsersOfUserProdIds(Long userId) {
-        List dataList = new ArrayList<>();
+        List<Long> dataList = new ArrayList<>();
         try {
             DBObject dbObject = new BasicDBObject();
             dbObject.put("user_id", userId);
             DB db = mongoClient.getDB(mongoDatabase.getName());
             dataList = db.getCollection("ui_trdlog").distinct("user_prod_id", dbObject);
+            Collections.sort(dataList, new Comparator<Long>() {
+              public int compare(Long o1, Long o2) {
+                  return o2.compareTo(o1);
+              }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
