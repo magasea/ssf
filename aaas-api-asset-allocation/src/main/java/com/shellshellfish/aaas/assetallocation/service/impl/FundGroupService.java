@@ -1875,7 +1875,7 @@ public class FundGroupService {
             startDate) {
         logger.info("start calculate group navadj groupId:{},subGroupId:{},startDate:{}", groupId, subGroupId,
                 startDate);
-        long startTime = System.currentTimeMillis();
+//        long startTime = System.currentTimeMillis();
         logger.info("calculateGroupNavadj start ");
         if (startDate == null)
             startDate = GROUP_START_DATE;
@@ -1916,10 +1916,10 @@ public class FundGroupService {
         if (CollectionUtils.isEmpty(fundGroupHistoryList))
             return;
         fundGroupMapper.insertFundGroupHistory(fundGroupHistoryList, oemId);
-        long endTime = System.currentTimeMillis();
-        logger.info("end calculate group navadj  groupId:{},subGroupId:{},startDate:{},cost time :{}ms", groupId,
-                subGroupId, startDate, endTime - startTime);
-        logger.info("calculateGroupNavadj end ");
+//        long endTime = System.currentTimeMillis();
+//        logger.info("end calculate group navadj  groupId:{},subGroupId:{},startDate:{},cost time :{}ms", groupId,
+//                subGroupId, startDate, endTime - startTime);
+//        logger.info("calculateGroupNavadj end ");
     }
 
 
@@ -2353,8 +2353,17 @@ public class FundGroupService {
         long start = System.currentTimeMillis();
 
         try {
+            ThreadPoolExecutor pool = new ThreadPoolExecutor(
+                15,
+                15,
+                0L,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(15),
+                Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.AbortPolicy());
+
             final CountDownLatch countDownLatch = new CountDownLatch(RISK_LEVEL_COUNT);
-            ExecutorService pool = ThreadPoolUtil.getThreadPool();
+//            ExecutorService pool = ThreadPoolUtil.getThreadPool();
             for (int index = 1; index <= RISK_LEVEL_COUNT; index++) {
                 String riskLevel = "C" + index;
                 pool.execute(() -> {
@@ -2433,7 +2442,7 @@ public class FundGroupService {
             // 此处已经由新的方法替代 （基金组合净值的计算方法更新）
 //            getNavadj(fundGroupId, subGroupId);
             //计算基金组合复权单位净值
-            calculateGroupNavadj(InstantDateUtil.now(), oemId);
+            calculateGroupNavadj(FundGroupService.GROUP_START_DATE, oemId);
             //计算组合最大回撤
             calculateMaxRetracement(fundGroupId, subGroupId, InstantDateUtil.now());
 
@@ -2492,9 +2501,19 @@ public class FundGroupService {
             return;
         }
 
+
+
         try {
+            ThreadPoolExecutor pool = new ThreadPoolExecutor(
+                15,
+                15,
+                0L,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(15),
+                Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.AbortPolicy());
             final CountDownLatch countDownLatch = new CountDownLatch(groupedMap.size());
-            ExecutorService pool = ThreadPoolUtil.getThreadPool();
+//            ExecutorService pool = ThreadPoolUtil.getThreadPool();
             for (List<Interval> groupedIntervals : groupedMap.values()) {
                 List<Interval> intervals = groupedIntervals;
                 pool.execute(() -> {

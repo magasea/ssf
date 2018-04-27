@@ -187,7 +187,7 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
     restTemplateHandler(assetAllocationInithistory, 2, HttpMethod.GET);
     Thread.sleep(10000);
 
-    restTemplateHandler(assetAllocationUpdateallmaximumlosses, 2, HttpMethod.GET);
+    restTemplateHandler(assetAllocationUpdateallmaximumlosses, 1, HttpMethod.GET);
     Thread.sleep(10000);
     restTemplateHandler(assetAllocationUpdateallmaximumlosses, 2, HttpMethod.GET);
 
