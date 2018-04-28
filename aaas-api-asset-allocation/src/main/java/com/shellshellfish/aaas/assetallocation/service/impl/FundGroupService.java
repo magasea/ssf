@@ -1927,7 +1927,7 @@ public class FundGroupService {
 
         List<FundGroupHistory> fundGroupHistoryList = new LinkedList<>();
         //依次计算每只基金在组合中所占份额，然后求和
-
+        LocalDate endDate = null;
         for (LocalDate date = startDate; date.isBefore(LocalDate.now(ZoneId.systemDefault()).plusDays(1)); date = date.plusDays(1)) {
             //非交易日不处理
             if (!TradingDayUtils.isTradingDay(date))
@@ -1944,6 +1944,7 @@ public class FundGroupService {
             fundGroupHistory.setIncome_num(navAdj.doubleValue());
             fundGroupHistory.setTime(DateUtil.getDateFromFormatStr(InstantDateUtil.format(date)));
             fundGroupHistoryList.add(fundGroupHistory);
+            endDate = date;
         }
 
         if (CollectionUtils.isEmpty(fundGroupHistoryList))
@@ -1951,8 +1952,8 @@ public class FundGroupService {
         fundGroupMapper.insertFundGroupHistory(fundGroupHistoryList, oemId);
         fundGroupHistoryList.clear();
 //        long endTime = System.currentTimeMillis();
-//        logger.info("end calculate group navadj  groupId:{},subGroupId:{},startDate:{},cost time :{}ms", groupId,
-//                subGroupId, startDate, endTime - startTime);
+        logger.info("end calculate group navadj  groupId:{},subGroupId:{},startDate:{},cost time :{}ms", groupId,
+                subGroupId, endDate);
 //        logger.info("calculateGroupNavadj end ");
     }
 
