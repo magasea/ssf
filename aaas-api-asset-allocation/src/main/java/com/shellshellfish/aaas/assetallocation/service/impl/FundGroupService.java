@@ -70,6 +70,8 @@ public class FundGroupService {
 
     private static Map<Integer, List> allSubGroupIds = new ConcurrentHashMap<>();
 
+    private static Map<String, List> allCodeList = new ConcurrentHashMap<>();
+
     //最大亏损计算要求置信水平
     private static final double CONFIDENCE_LEVEL = 0.97;
     //最大亏损计算假定本金
@@ -763,7 +765,17 @@ public class FundGroupService {
         queryCodes.put("fundGroupId", groupId);
         queryCodes.put("subGroupId", subGroupId);
         queryCodes.put("oemId", "" + oemId);
-        List<String> codeList = fundGroupMapper.getFundGroupCodeList(queryCodes);
+
+        //Todo: add map to cache
+        String key = String.format("{}:{}:{}", groupId, subGroupId,oemId);
+        List<String> codeList = null;
+        if(CollectionUtils.isEmpty(allCodeList) || !allSubGroupIds.containsKey(key)){
+            codeList = fundGroupMapper.getFundGroupCodeList(queryCodes);
+            allCodeList.put(key, codeList);
+        }else{
+            codeList = allCodeList.get(key);
+        }
+
         return codeList;
     }
 
@@ -1747,7 +1759,7 @@ public class FundGroupService {
         long startTime = System.currentTimeMillis();
 
         List<Interval> list = null;
-        if(CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)){
+        if(CollectionUtils.isEmpty(allSubGroupIds) || !allSubGroupIds.containsKey(oemId)){
             list = fundGroupMapper.getAllIdAndSubId(oemId);
             allSubGroupIds.put(oemId, list);
         }else{
@@ -1767,7 +1779,7 @@ public class FundGroupService {
         logger.info("start to calculate group maximum retracement   date:{}", date);
         long startTime = System.currentTimeMillis();
         List<Interval> list = null;
-        if(CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)){
+        if(CollectionUtils.isEmpty(allSubGroupIds) || !allSubGroupIds.containsKey(oemId)){
             list = fundGroupMapper.getAllIdAndSubId(oemId);
             allSubGroupIds.put(oemId, list);
         }else{
@@ -1915,6 +1927,7 @@ public class FundGroupService {
 
         List<FundGroupHistory> fundGroupHistoryList = new LinkedList<>();
         //依次计算每只基金在组合中所占份额，然后求和
+
         for (LocalDate date = startDate; date.isBefore(LocalDate.now(ZoneId.systemDefault()).plusDays(1)); date = date.plusDays(1)) {
             //非交易日不处理
             if (!TradingDayUtils.isTradingDay(date))
@@ -1936,6 +1949,7 @@ public class FundGroupService {
         if (CollectionUtils.isEmpty(fundGroupHistoryList))
             return;
         fundGroupMapper.insertFundGroupHistory(fundGroupHistoryList, oemId);
+        fundGroupHistoryList.clear();
 //        long endTime = System.currentTimeMillis();
 //        logger.info("end calculate group navadj  groupId:{},subGroupId:{},startDate:{},cost time :{}ms", groupId,
 //                subGroupId, startDate, endTime - startTime);
@@ -2218,7 +2232,7 @@ public class FundGroupService {
         logger.info("start to calculate all group sharpe Ratio");
         long startTime = System.currentTimeMillis();
         List<FundGroupIndex> fundGroupIndexList = null;
-        if (CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)) {
+        if (CollectionUtils.isEmpty(allSubGroupIds) || !allSubGroupIds.containsKey(oemId)) {
             fundGroupIndexList = fundGroupIndexMapper.findAll(oemId);
             allSubGroupIds.put(oemId, fundGroupIndexList);
         } else {
@@ -2610,7 +2624,7 @@ public class FundGroupService {
 
     private Map<String, List<Interval>> getGroupedMapIntervals(int oemId) {
         List<Interval> intervals = null;
-        if(CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)){
+        if(CollectionUtils.isEmpty(allSubGroupIds) || !allSubGroupIds.containsKey(oemId)){
             intervals = fundGroupMapper.getAllIdAndSubId(oemId);
             allSubGroupIds.put(oemId, intervals);
         }else{
