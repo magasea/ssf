@@ -1936,7 +1936,8 @@ public class FundGroupService {
             BigDecimal navAdj = BigDecimal.ZERO;
             for (String code : codeList) {
                 BigDecimal navAdjOfFund = fundNetValMapper.getLatestNavAdj(code, date);
-                navAdj = navAdj.add(navAdjOfFund.multiply(fundProportionMap.get(code), MathContext.DECIMAL32).divide(baseMap.get(code), MathContext.DECIMAL32));
+                navAdj = navAdj.add(navAdjOfFund.multiply(fundProportionMap.get(code),  
+                    MathContext.DECIMAL32).divide(baseMap.get(code), MathContext.DECIMAL32));
             }
             FundGroupHistory fundGroupHistory = new FundGroupHistory();
             fundGroupHistory.setFund_group_id(groupId);
@@ -1952,9 +1953,8 @@ public class FundGroupService {
         fundGroupMapper.insertFundGroupHistory(fundGroupHistoryList, oemId);
         fundGroupHistoryList.clear();
 //        long endTime = System.currentTimeMillis();
-        logger.info("end calculate group navadj  groupId:{},subGroupId:{},startDate:{},cost time :{}ms", groupId,
-                subGroupId, endDate);
-//        logger.info("calculateGroupNavadj end ");
+        logger.info("end calculate group navadj  groupId:{},subGroupId:{},startDate:{}, endDate :{}ms", groupId, subGroupId,startDate, endDate);
+        //        logger.info("calculateGroupNavadj end ");
     }
 
 
