@@ -1747,10 +1747,10 @@ public class FundGroupService {
         long startTime = System.currentTimeMillis();
 
         List<Interval> list = null;
-        if(CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)){
+        if (CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)) {
             list = fundGroupMapper.getAllIdAndSubId(oemId);
             allSubGroupIds.put(oemId, list);
-        }else{
+        } else {
             list = allSubGroupIds.get(oemId);
         }
         for (Interval interval : list) {
@@ -1767,10 +1767,10 @@ public class FundGroupService {
         logger.info("start to calculate group maximum retracement   date:{}", date);
         long startTime = System.currentTimeMillis();
         List<Interval> list = null;
-        if(CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)){
+        if (CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)) {
             list = fundGroupMapper.getAllIdAndSubId(oemId);
             allSubGroupIds.put(oemId, list);
-        }else{
+        } else {
             list = allSubGroupIds.get(oemId);
         }
         for (Interval interval : list) {
@@ -2360,7 +2360,7 @@ public class FundGroupService {
 
         this.fundGroupIdTasks(oemId);
         this.contribution(oemId);
-//        this.navadjBenchmark(oemId);
+        this.navadjBenchmark(oemId);
 
         long end = System.currentTimeMillis();
         logger.info("getAllIdAndSubId elapse : {}", end - start);
@@ -2381,7 +2381,7 @@ public class FundGroupService {
 
         try {
             ThreadPoolExecutor navadjBenchmarkPool = new ThreadPoolExecutor(
-                    4,
+                    10,
                     15,
                     0L,
                     TimeUnit.MILLISECONDS,
@@ -2389,7 +2389,7 @@ public class FundGroupService {
                     Executors.defaultThreadFactory(),
                     new ThreadPoolExecutor.AbortPolicy());
 
-            final CountDownLatch countDownLatch = new CountDownLatch(RISK_LEVEL_COUNT);
+            CountDownLatch countDownLatch = new CountDownLatch(RISK_LEVEL_COUNT);
 //            ExecutorService pool = ThreadPoolUtil.getThreadPool();
             for (int index = 1; index <= RISK_LEVEL_COUNT; index++) {
                 String riskLevel = "C" + index;
@@ -2410,38 +2410,27 @@ public class FundGroupService {
     }
 
     private void fundGroupIdTasks(int oemId) {
-        final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
-        ThreadPoolExecutor groupIndexPool = new ThreadPoolExecutor(
-                4,
-                15,
-                0L,
-                TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(15),
-                Executors.defaultThreadFactory(),
-                new ThreadPoolExecutor.AbortPolicy());
+        try {
+            CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
+            ThreadPoolExecutor groupIndexPool = new ThreadPoolExecutor(
+                    10,
+                    15,
+                    0L,
+                    TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(15),
+                    Executors.defaultThreadFactory(),
+                    new ThreadPoolExecutor.AbortPolicy());
 
-        for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
-
-            int fundGroupId = index;
-            try {
+            for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
+                int fundGroupId = index;
                 groupIndexPool.execute(() -> {
                     fundGroupIdTask(fundGroupId, oemId);
+                    countDownLatch.countDown();
                 });
-            } catch (Exception ex) {
-                logger.error("Ex:", ex);
-
-            } catch (Error err) {
-                logger.error("Ex:", err);
-            } finally {
-                countDownLatch.countDown();
             }
-
-
-        }
-        try {
             countDownLatch.await();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("{}", e);
         }
         logger.info("fundGroupIdTasks finished");
     }
@@ -2468,6 +2457,11 @@ public class FundGroupService {
             //计算组合复权单位净值，和最大回撤  （数据存放在fund_group_histroy.incomeNum  , maximum_retracement）
             // 此处已经由新的方法替代 （基金组合净值的计算方法更新）
 //            getNavadj(fundGroupId, subGroupId);
+
+            //FIXME 目前只用到４８　,如有需要，可以删除此限制条件
+            if (!subGroupId.endsWith("48")) {
+                return;
+            }
             //计算基金组合复权单位净值
             calculateGroupNavadj(fundGroupId, subGroupId, oemId, FundGroupService.GROUP_START_DATE);
             //计算组合最大回撤
@@ -2531,14 +2525,14 @@ public class FundGroupService {
 
         try {
             ThreadPoolExecutor contributionPool = new ThreadPoolExecutor(
-                    4,
+                    10,
                     15,
                     0L,
                     TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<>(15),
                     Executors.defaultThreadFactory(),
                     new ThreadPoolExecutor.AbortPolicy());
-            final CountDownLatch countDownLatch = new CountDownLatch(groupedMap.size());
+            CountDownLatch countDownLatch = new CountDownLatch(groupedMap.size());
 //            ExecutorService pool = ThreadPoolUtil.getThreadPool();
             for (List<Interval> groupedIntervals : groupedMap.values()) {
                 List<Interval> intervals = groupedIntervals;
@@ -2610,10 +2604,10 @@ public class FundGroupService {
 
     private Map<String, List<Interval>> getGroupedMapIntervals(int oemId) {
         List<Interval> intervals = null;
-        if(CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)){
+        if (CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)) {
             intervals = fundGroupMapper.getAllIdAndSubId(oemId);
             allSubGroupIds.put(oemId, intervals);
-        }else{
+        } else {
             intervals = allSubGroupIds.get(oemId);
         }
         if (CollectionUtils.isEmpty(intervals)) {
