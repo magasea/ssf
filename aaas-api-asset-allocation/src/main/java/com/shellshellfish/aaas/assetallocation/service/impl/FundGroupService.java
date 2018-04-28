@@ -1745,7 +1745,14 @@ public class FundGroupService {
     public void calculateMaxRetracement(int oemId) {
         logger.info("start to calculate all group maximum retracement");
         long startTime = System.currentTimeMillis();
-        List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
+
+        List<Interval> list = null;
+        if(CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)){
+            list = fundGroupMapper.getAllIdAndSubId(oemId);
+            allSubGroupIds.put(oemId, list);
+        }else{
+            list = allSubGroupIds.get(oemId);
+        }
         for (Interval interval : list) {
             calculateMaxRetracement(interval.getFund_group_id(), interval.getId(), oemId);
         }
@@ -1759,7 +1766,13 @@ public class FundGroupService {
     public void calculateMaxRetracement(LocalDate date, int oemId) {
         logger.info("start to calculate group maximum retracement   date:{}", date);
         long startTime = System.currentTimeMillis();
-        List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
+        List<Interval> list = null;
+        if(CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)){
+            list = fundGroupMapper.getAllIdAndSubId(oemId);
+            allSubGroupIds.put(oemId, list);
+        }else{
+            list = allSubGroupIds.get(oemId);
+        }
         for (Interval interval : list) {
             calculateMaxRetracement(interval.getFund_group_id(), interval.getId(), date, oemId);
         }
@@ -2596,7 +2609,13 @@ public class FundGroupService {
     }
 
     private Map<String, List<Interval>> getGroupedMapIntervals(int oemId) {
-        List<Interval> intervals = fundGroupMapper.getAllIdAndSubId(oemId);
+        List<Interval> intervals = null;
+        if(CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)){
+            intervals = fundGroupMapper.getAllIdAndSubId(oemId);
+            allSubGroupIds.put(oemId, intervals);
+        }else{
+            intervals = allSubGroupIds.get(oemId);
+        }
         if (CollectionUtils.isEmpty(intervals)) {
             return null;
         }
