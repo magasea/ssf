@@ -65,7 +65,8 @@ public class JobScheduleController {
         if(oemId < 0 || oemId > 1000){
             throw new IllegalArgumentException("oemId:"+ oemId);
         }
-        jobScheduleService.getAllIdAndSubIdJobSchedule(oemId);
+        jobScheduleService.getAllIdAndSubIdJobSchedule(1);
+        jobScheduleService.getAllIdAndSubIdJobSchedule(2);
         return new JobResult<>().returnSuccess();
     }
 
@@ -93,7 +94,8 @@ public class JobScheduleController {
     @RequestMapping(value = "/api/asset-allocation/job/getFundGroupIncomeAllToMongoDb", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public JobResult getFundGroupIncomeAllToMongoDb(@RequestParam(defaultValue = "1") Integer
         oemId) {
-        jobScheduleService.getFundGroupIncomeAllJobSchedule(oemId);
+        jobScheduleService.getFundGroupIncomeAllJobSchedule(1);
+        jobScheduleService.getFundGroupIncomeAllJobSchedule(2);
         return new JobResult<>().returnSuccess();
     }
 
