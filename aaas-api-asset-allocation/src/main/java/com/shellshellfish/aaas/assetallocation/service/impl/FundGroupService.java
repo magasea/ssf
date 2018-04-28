@@ -2358,13 +2358,13 @@ public class FundGroupService {
 
         try {
             ThreadPoolExecutor pool = new ThreadPoolExecutor(
-                15,
-                15,
-                0L,
-                TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(15),
-                Executors.defaultThreadFactory(),
-                new ThreadPoolExecutor.AbortPolicy());
+                    15,
+                    15,
+                    0L,
+                    TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(15),
+                    Executors.defaultThreadFactory(),
+                    new ThreadPoolExecutor.AbortPolicy());
 
             final CountDownLatch countDownLatch = new CountDownLatch(RISK_LEVEL_COUNT);
 //            ExecutorService pool = ThreadPoolUtil.getThreadPool();
@@ -2506,16 +2506,15 @@ public class FundGroupService {
         }
 
 
-
         try {
             ThreadPoolExecutor pool = new ThreadPoolExecutor(
-                15,
-                15,
-                0L,
-                TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(15),
-                Executors.defaultThreadFactory(),
-                new ThreadPoolExecutor.AbortPolicy());
+                    15,
+                    15,
+                    0L,
+                    TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(15),
+                    Executors.defaultThreadFactory(),
+                    new ThreadPoolExecutor.AbortPolicy());
             final CountDownLatch countDownLatch = new CountDownLatch(groupedMap.size());
 //            ExecutorService pool = ThreadPoolUtil.getThreadPool();
             for (List<Interval> groupedIntervals : groupedMap.values()) {

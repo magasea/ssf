@@ -468,12 +468,12 @@ public class UserInfoController {
 	@ResponseBody
 	@AopTimeResources
 	public JsonResult tradeLogsOfUser2(@RequestParam String uuid, 
-			@RequestParam(required = false) Integer type, 
+			@RequestParam(required = false, defaultValue="0") Integer type, 
 			@RequestParam(defaultValue="3") Integer pageSize,
 			@RequestParam(defaultValue="0") Integer pageIndex) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
-			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/traderecords2?pageSize="+ pageSize + "&pageIndex=" + pageIndex, Map.class)
+			result = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/traderecords2?pageSize="+ pageSize + "&pageIndex=" + pageIndex + "&type=" + type, Map.class)
 					.getBody();
 			if (result == null || result.size() == 0) {
 				logger.error("系统消息获取失败");
