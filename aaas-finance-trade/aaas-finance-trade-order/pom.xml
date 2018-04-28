@@ -222,6 +222,9 @@
 									<directory>../../proto/pay/</directory>
 								</resource>
 								<resource>
+									<directory>../../proto/app-tools/zhongzhengapi</directory>
+								</resource>
+								<resource>
 									<directory>../../proto/trade/</directory>
 								</resource>
 								<resource>

@@ -506,7 +506,11 @@ public class UserInfoController {
                 map.put("bankType", "储蓄卡");
                 map.put("bankcardSecurity", getBankcardNumber(bankCard.getCardNumber()));
                 map.put("bankcardNum", bankCard.getCardNumber());
-                map.put("bankShortName", bankName.substring(0, bankName.indexOf("·")));
+                if(bankName.contains("·")){
+                    map.put("bankShortName", bankName.substring(0, bankName.indexOf("·")));
+                }else{
+                    map.put("bankShortName", bankName);
+                }
                 map.put("bankCode", BankUtil.getCodeOfBank(bankCard.getCardNumber()));
                 bankList.add(map);
             }
@@ -1413,16 +1417,18 @@ public class UserInfoController {
             @ApiImplicitParam(paramType = "path", name = "userUuid", dataType = "String", required = true, value = "用户uuid", defaultValue = ""),
             @ApiImplicitParam(paramType = "query", name = "pageSize", dataType = "Integer", required = true, value = "每页显示数（至少大于1）", defaultValue = "15"),
             @ApiImplicitParam(paramType = "query", name = "pageIndex", dataType = "Integer", required = true, value = "显示页数（从0开始）", defaultValue = "0"),
+            @ApiImplicitParam(paramType = "query", name = "type", dataType = "Integer", required = true, value = "购买：1,赎回：2", defaultValue = "0"),
     })
     @RequestMapping(value = "/users/{userUuid}/traderecords2", method = RequestMethod.GET)
     public ResponseEntity<Map> getTradLogsOfUser2(
             @PathVariable String userUuid,
             @RequestParam(defaultValue = "15") Integer pageSize,
-            @RequestParam(defaultValue = "0") Integer pageIndex
+            @RequestParam(defaultValue = "0") Integer pageIndex,
+            @RequestParam(defaultValue = "0") Integer type
     ) throws Exception {
         Map<String, Object> result = new HashMap<String, Object>();
         logger.info("getTradLogsOfUser method run..");
-        List<Map<String, Object>> tradeLogs = userInfoService.getTradLogsOfUser2(userUuid, pageSize, pageIndex);
+        List<Map<String, Object>> tradeLogs = userInfoService.getTradLogsOfUser2(userUuid, pageSize, pageIndex, type);
         result.put("tradeLogs", tradeLogs);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

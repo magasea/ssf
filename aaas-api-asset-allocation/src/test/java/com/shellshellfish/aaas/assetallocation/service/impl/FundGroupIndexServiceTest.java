@@ -24,7 +24,8 @@ public class FundGroupIndexServiceTest {
         String groupId = "1";
         String subGroupId = "10048";
         for (int i = 1; i <= 15; i++) {
-            fundGroupIndexService.calculateAnnualVolatilityAndAnnualYield(String.valueOf(i), String.valueOf(i) + "0048", null);
+            fundGroupIndexService.calculateAnnualVolatilityAndAnnualYield(String.valueOf(i), String.valueOf(i) +
+                    "0048", null, 1);
         }
     }
 

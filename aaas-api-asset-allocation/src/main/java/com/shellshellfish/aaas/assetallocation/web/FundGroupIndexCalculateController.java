@@ -37,8 +37,9 @@ public class FundGroupIndexCalculateController {
     @ApiOperation("计算特定组合历史波动率和历史收益率")
     @GetMapping(value = "/calculateAnnualVolatilityAndAnnualYield")
     public HttpStatus calculateAnnualVolatilityAndAnnualYeild(@RequestParam(value = "groupId") String groupId, @RequestParam("subGroupId")
-            String subGroupId, @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate) {
-        fundGroupIndexService.calculateAnnualVolatilityAndAnnualYield(groupId, subGroupId, startDate);
+            String subGroupId, @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso =
+            DateTimeFormat.ISO.DATE) LocalDate startDate, @RequestParam(defaultValue = "1") Integer oemId) {
+        fundGroupIndexService.calculateAnnualVolatilityAndAnnualYield(groupId, subGroupId, startDate, oemId);
         return HttpStatus.OK;
     }
 
@@ -84,8 +85,8 @@ public class FundGroupIndexCalculateController {
     @ApiOperation("计算所有组合当日最大回撤（每日计算）")
     @GetMapping(value = "/calculateMaxRetracement")
     public HttpStatus calculateMaxRetracement(@RequestParam(value = "date", required = false)
-                                              @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date, @RequestParam(defaultValue =
-            "1") Integer oemId) {
+                                              @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                              @RequestParam(defaultValue = "1") Integer oemId) {
         if (date == null)
             date = LocalDate.now(ZoneId.systemDefault());
 

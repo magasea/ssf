@@ -128,7 +128,8 @@ public class FundGroupServiceTest {
 
     @Test
     public void getFundGroupIncomeTest() throws ParseException {
-        ReturnType e = fundGroupService.getFundGroupIncomeAll("14", "140049", 1, "income", null);
+        List<Date> dateList = fundGroupService.getRecentDateInfo(1);
+        ReturnType e = fundGroupService.getFundGroupIncomeAll("14", "140048", 1, "income", dateList);
         System.out.println(e);
     }
 

@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.assetallocation.entity;
 public class FundGroupIndex {
 
     private Long id;
+    private int oemId;
     private String fundGroupId;
     private String fundGroupSubId;
 
@@ -27,6 +28,14 @@ public class FundGroupIndex {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public int getOemId() {
+        return oemId;
+    }
+
+    public void setOemId(int oemId) {
+        this.oemId = oemId;
     }
 
     public String getFundGroupId() {

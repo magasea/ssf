@@ -161,12 +161,14 @@ public class TransferController {
 			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"),
 			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = false, value = "预计费用"),
 			@ApiImplicitParam(paramType = "query", name = "poundage", dataType = "String", required = false, value = "手续费"),
-			@ApiImplicitParam(paramType = "query", name = "msgCode", dataType = "String", required = true, value = "验证码", defaultValue = "") })
+			@ApiImplicitParam(paramType = "query", name = "msgCode", dataType = "String", required = true, value = "验证码", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid（贝贝鱼:1,兰州银行：2）", defaultValue = "1"),})
 	@RequestMapping(value = "/subscribeFund", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult doTransaction(@RequestParam String telNum, @RequestParam(required = false) String bankName,
 			@RequestParam(required = false) String bankCard, @RequestParam(required = false) String buyfee,
 			@RequestParam(required = false) String poundage, @RequestParam String msgCode,
+			@RequestParam(required = false, defaultValue="1") String oemid,
 			@RequestBody FinanceProdBuyInfo prdInfo) {
 		String verify = null;
 		// 首先验证验证码
@@ -193,7 +195,7 @@ public class TransferController {
 			return new JsonResult(JsonResult.Fail, "风险等级低，不能购买当前产品", JsonResult.EMPTYRESULT);
 		}
 		if(prdInfo.getOemId() == null || prdInfo.getOemId() == 0){
-			prdInfo.setOemId(1);
+			prdInfo.setOemId(Integer.parseInt(oemid));
 		}
 		try {
 			// 调用购买接口

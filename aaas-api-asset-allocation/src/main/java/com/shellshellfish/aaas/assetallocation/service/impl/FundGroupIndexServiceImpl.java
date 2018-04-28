@@ -45,9 +45,9 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
      * <／p>
      */
     @Override
-    public void calculateAnnualVolatilityAndAnnualYield(String groupId, String subGroupId, LocalDate startDate) {
+    public void calculateAnnualVolatilityAndAnnualYield(String groupId, String subGroupId, LocalDate startDate, int oemId) {
         logger.info("start to calculate historical annual yield and Historical annual volatility   groupId:{} ," +
-            "subGroupId:{}", groupId, subGroupId);
+                "subGroupId:{}", groupId, subGroupId);
         if (startDate == null) {
             startDate = FundGroupService.GROUP_START_DATE;
         }
@@ -55,7 +55,7 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
         List<Double> values = new LinkedList<>();
         LocalDate date = LocalDate.of(startDate.getYear(), startDate.getMonth(), 15);
         do {
-            Double value = fundGroupHistoryMapper.getLatestNavAdj(groupId, subGroupId, date);
+            Double value = fundGroupHistoryMapper.getLatestNavAdj(groupId, subGroupId, date, oemId);
             if (value != null)
                 values.add(value);
             date = date.plusMonths(1);
@@ -78,6 +78,7 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
         double historicalAnnualYield = StatUtils.mean(annualYieldArray);
         double historicalAnnualVolatility = FastMath.sqrt(StatUtils.variance(annualYieldArray));
         FundGroupIndex fundGroupIndex = new FundGroupIndex(groupId, subGroupId, historicalAnnualYield, historicalAnnualVolatility);
+        fundGroupIndex.setOemId(oemId);
         fundGroupIndexMapper.saveOrUpdate(fundGroupIndex);
         logger.info(" calculate historical annual yield and Historical annual volatility   groupId:{} ,subGroupId:{}", groupId, subGroupId);
     }
@@ -85,7 +86,7 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
     @Override
     public void calculateAnnualVolatilityAndAnnualYield(LocalDate startDate, int oemId) {
         logger.info("start to  calculate historical annual yield and Historical annual volatility   startDate:{}",
-            startDate);
+                startDate);
         long startTime = System.currentTimeMillis();
         if (startDate == null) {
             startDate = FundGroupService.GROUP_START_DATE;
@@ -93,11 +94,12 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
 
         List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
         for (Interval interval : list) {
-            calculateAnnualVolatilityAndAnnualYield(interval.getFund_group_id(), interval.getId(), startDate);
+            calculateAnnualVolatilityAndAnnualYield(interval.getFund_group_id(), interval.getId()
+                ,  startDate, oemId);
         }
         long endTime = System.currentTimeMillis();
         logger.info("finish to calculate historical annual yield and Historical annual volatility   startDate:{}," +
-            "costTime:{}ms", startDate, endTime - startTime);
+                "costTime:{}ms", startDate, endTime - startTime);
     }
 
 }
