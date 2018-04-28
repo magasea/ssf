@@ -27,15 +27,17 @@ spring:
       port: 27017
       database: zhongzheng
   redis:
-      host: localhost
-      port: 6379
-      password: redis123
-      timeout: 0
+    host: localhost
+    port: 6379
+    password: redis123
+    timeout: 1800000ms
+    lettuce:
       pool:
         max-active: 8
-        max-wait: -1
+        max-wait: 1800000ms
         max-idle: 8
         min-idle: 0
+
 
 datasource:
   sampleapp:
@@ -74,6 +76,9 @@ grpc:
   userinfo_client:
     host: localhost
     port: 10061
+  zhongzhengapi_client:
+    host: localhost
+    port: 10171
 
 management:
   endpoints:

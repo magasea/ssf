@@ -15,8 +15,9 @@ public class AllocationRpcService {
     /**
      * 获取组合历史波动率和历史风险率
      */
-    public FundGroupIndexResult getAnnualVolatilityAndAnnualYield(String groupId, String subGroupId) {
+    public FundGroupIndexResult getAnnualVolatilityAndAnnualYield(String groupId, String subGroupId, int oemId) {
         FundGroupIndexQuery.Builder builder = FundGroupIndexQuery.newBuilder();
+        builder.setOemId(oemId);
         builder.setGroupId(groupId);
         builder.setSubGroupId(subGroupId);
         return allocationBlockingStub.getAnnualVolatilityAndAnnualYield(builder.build());

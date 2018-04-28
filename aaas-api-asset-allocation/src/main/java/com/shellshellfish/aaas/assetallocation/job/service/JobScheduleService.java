@@ -25,10 +25,12 @@ import com.shellshellfish.aaas.assetallocation.service.impl.FundCalculateService
 import com.shellshellfish.aaas.assetallocation.service.impl.FundGroupDataService;
 import com.shellshellfish.aaas.assetallocation.service.impl.FundGroupService;
 import com.shellshellfish.aaas.assetallocation.util.ConstantUtil;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,16 +71,17 @@ public class JobScheduleService {
 
     @Value("${spring.data.mongodb.collection}")
     String collectionName;
+
     /*
      * 调用每日接口
      */
 //    @Scheduled(cron = "0 0 1 * * ?")    //每天凌晨1点执行
-    public void insertDailyFundJobSchedule() {
+    public void insertDailyFundJobSchedule(int oemId) {
         logger.info("调用每日接口获取数据定时任务启动..." + sdf.format(new Date()));
         Boolean doSuccess = false;
         Integer status = SUCCESSFUL_STATUS;
         try {
-            doSuccess = dailyFundService.insertDailyFund();
+            doSuccess = dailyFundService.insertDailyFund(oemId);
         } catch (Exception e) {
             logger.error("调用每日接口获取数据定时任务启动失败..." + sdf.format(new Date()), e);
         }
@@ -97,15 +100,15 @@ public class JobScheduleService {
      * 计算每周收益率以及风险率数据
      */
 //    @Scheduled(cron = "0 0 2 * 5 ?")       //每周五  凌晨 2 点执行
-    public void calculateYieldAndRiskOfWeekJobSchedule() {
+    public void calculateYieldAndRiskOfWeekJobSchedule(int oemId) {
         logger.info("计算每周收益率以及风险率数据定时任务启动..." + sdf.format(new Date()));
         Boolean doSuccess = false;
         Integer status = SUCCESSFUL_STATUS;
         //计算每周风险率以及收益率等数据
         try {
-            doSuccess = fundCalculateService.calculateDataOfWeek();
+            doSuccess = fundCalculateService.calculateDataOfWeek(oemId);
         } catch (Exception e) {
-            logger.error("计算每周收益率以及风险率数据 定时任务启动失败..." + sdf.format(new Date()),e);
+            logger.error("计算每周收益率以及风险率数据 定时任务启动失败..." + sdf.format(new Date()), e);
         }
 
         if (doSuccess) {
@@ -122,13 +125,13 @@ public class JobScheduleService {
      * 计算产品组合数据(产品组合风险率、收益率、权重)
      */
 //    @Scheduled(cron = "0 0 22 28 * ?")        //每月 28 号  晚上 10 点执行
-    public void insertFundGroupDataJobSchedule() {
+    public void insertFundGroupDataJobSchedule(int oemId) {
         logger.info("计算组合数据(产品组合风险率、收益率、权重)定时任务启动..." + sdf.format(new Date()));
         Boolean doSuccess = false;
         Integer status = SUCCESSFUL_STATUS;
         //计算组合数据
         try {
-            doSuccess = fundGroupDataService.insertFundGroupData();
+            doSuccess = fundGroupDataService.insertFundGroupData(oemId);
         } catch (Exception e) {
             logger.error("计算组合数据(产品组合风险率、收益率、权重) 定时任务启动失败..." + sdf.format(new Date()), e);
         }
@@ -147,12 +150,12 @@ public class JobScheduleService {
      * 计算 单位收益净值、最大回撤、夏普比率、基金收益贡献比
      */
 //    @Scheduled(cron = "0 0 4 * * ?")				//每天 凌晨 4 点执行
-    public void getAllIdAndSubIdJobSchedule() {
+    public void getAllIdAndSubIdJobSchedule(int oemId) {
         logger.info("计算 单位收益净值、最大回撤、夏普比率、基金收益贡献比 定时任务启动..." + sdf.format(new Date()));
         Boolean doSuccess = true;
         Integer status = SUCCESSFUL_STATUS;
         try {
-            fundGroupService.getAllIdAndSubId();
+            fundGroupService.getAllIdAndSubId(oemId);
         } catch (Exception e) {
             doSuccess = false;
             logger.error("计算 单位收益净值、最大回撤、夏普比率、基金收益贡献比 定时任务启动失败..." + sdf.format(new Date()), e);
@@ -172,12 +175,12 @@ public class JobScheduleService {
      * 更新所有基金组合的最大亏损额
      */
 //    @Scheduled(cron = "0 0 6 * * ?")        //每天 凌晨 6 点执行
-    public void updateAllMaximumLossesJobSchedule() {
+    public void updateAllMaximumLossesJobSchedule(int oemId) {
         logger.info("计算 更新所有基金组合的最大亏损额 定时任务启动..." + sdf.format(new Date()));
         Boolean doSuccess = true;
         Integer status = SUCCESSFUL_STATUS;
         try {
-            fundGroupService.updateAllMaximumLosses();
+            fundGroupService.updateAllMaximumLosses(oemId);
         } catch (Exception e) {
             doSuccess = false;
             logger.error("计算 更新所有基金组合的最大亏损额 定时任务启动失败..." + sdf.format(new Date()), e);
@@ -197,9 +200,9 @@ public class JobScheduleService {
      * 组合收益率(最大回撤)走势图-自组合基金成立以来的每天
      */
 //    @Scheduled(cron = "0 30 6 * * ?")        //每天 凌晨 6:30 点 执行
-    public void getFundGroupIncomeAllJobSchedule() {
+    public void getFundGroupIncomeAllJobSchedule(int oemId) {
         try {
-            List<Date> dateList = fundGroupService.getRecentDateInfo();
+            List<Date> dateList = fundGroupService.getRecentDateInfo(oemId);
             List<Date> arrayList = new ArrayList<>();
             MongoCollection<Document> collection = mongoDatabase.getCollection(collectionName);
             logger.info(collectionName + "集合选择成功");
@@ -210,17 +213,21 @@ public class JobScheduleService {
             for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
                 arrayList = new ArrayList<>();
                 arrayList.addAll(dateList);
-                
+
                 String groupId = String.valueOf(index);
                 String subGroupId = String.valueOf(index + subfix);
                 String key = groupId + "_" + subGroupId;
-                ReturnType rt = fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, returnType, arrayList);
-                Document document = returnTypeToDocument(key, rt);
+                ReturnType rt = fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, oemId,
+                    returnType, arrayList);
+                Document document = returnTypeToDocument(key, oemId,  rt);
                 documents.add(document);
             }
             // 删除所有符合条件的文档
-            collection.deleteMany(Filters.eq("title", collectionName));
-
+            Document filter = new Document(); 
+            filter.append("title", collectionName);
+            filter.append("oemId", oemId);
+//            collection.deleteMany(Filters.eq("title", collectionName), Filters.eq("oemId", oemId));
+            collection.deleteMany(filter);
             collection.insertMany(documents);
             logger.info("文档插入成功");
         } catch (Exception e) {
@@ -228,7 +235,7 @@ public class JobScheduleService {
         }
     }
 
-    private Document returnTypeToDocument(String key, ReturnType rt) {
+    private Document returnTypeToDocument(String key, int oemId, ReturnType rt) {
         String _total = JSON.toJSONString(rt.get_total());
         String _items = JSON.toJSONString(rt.get_items());
         String name = JSON.toJSONString(rt.getName());
@@ -257,7 +264,8 @@ public class JobScheduleService {
                 append("lowPercentMaxIncomeSizeMap", lowPercentMaxIncomeSizeMap).
                 append("lowPercentMinIncomeSizeMap", lowPercentMinIncomeSizeMap).
                 append("_schemaVersion", _schemaVersion).
-                append("_serviceId", _serviceId);
+                append("_serviceId", _serviceId).
+		        append("oemId", oemId);
 
         return document;
     }

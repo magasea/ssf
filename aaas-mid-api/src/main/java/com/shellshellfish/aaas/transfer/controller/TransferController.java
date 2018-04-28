@@ -57,7 +57,7 @@ public class TransferController {
 	@Autowired
 	private RestTemplate restTemplate;
 	
-	@Value("${shellshellfish.user-user-info}")
+	@Value("${shellshellfish.userinfo-url}")
 	private String userinfoUrl;
 
 	@Value("${shellshellfish.trade-order-url}")
@@ -76,14 +76,15 @@ public class TransferController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "2"),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "2000"),
-			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "String", required = true, value = "购买的总金额", defaultValue = "") })
+			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "String", required = true, value = "购买的总金额", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")})
 	@RequestMapping(value = "/getEstPurAmount", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getEstPurAmount(String groupId, String subGroupId, String totalAmount) {
+	public JsonResult getEstPurAmount(String groupId, String subGroupId, String totalAmount, @RequestParam(required=false, defaultValue="1")String oemid) {
 		Map resultMap = null;
 		try {
 			String url = tradeOrderUrl + "/api/trade/funds/buyProduct?groupId=" + groupId + "&subGroupId=" + subGroupId
-					+ "&totalAmount=" + totalAmount;
+					+ "&totalAmount=" + totalAmount + "&oemid=" + Integer.parseInt(oemid);
 			resultMap = restTemplate.getForEntity(url, Map.class).getBody();
 			BigDecimal poundage = BigDecimal.valueOf(Double.parseDouble(resultMap.get("poundage").toString()));
 			BigDecimal discount = BigDecimal.valueOf(Double.parseDouble(resultMap.get("discountSaving").toString()));
@@ -160,12 +161,14 @@ public class TransferController {
 			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"),
 			@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = false, value = "预计费用"),
 			@ApiImplicitParam(paramType = "query", name = "poundage", dataType = "String", required = false, value = "手续费"),
-			@ApiImplicitParam(paramType = "query", name = "msgCode", dataType = "String", required = true, value = "验证码", defaultValue = "") })
+			@ApiImplicitParam(paramType = "query", name = "msgCode", dataType = "String", required = true, value = "验证码", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid（贝贝鱼:1,兰州银行：2）", defaultValue = "1"),})
 	@RequestMapping(value = "/subscribeFund", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult doTransaction(@RequestParam String telNum, @RequestParam(required = false) String bankName,
 			@RequestParam(required = false) String bankCard, @RequestParam(required = false) String buyfee,
 			@RequestParam(required = false) String poundage, @RequestParam String msgCode,
+			@RequestParam(required = false, defaultValue="1") String oemid,
 			@RequestBody FinanceProdBuyInfo prdInfo) {
 		String verify = null;
 		// 首先验证验证码
@@ -191,7 +194,9 @@ public class TransferController {
 		if (!riskService.isAppropriateRishLevel(prdInfo.getUuid(), prdInfo.getProdId())) {
 			return new JsonResult(JsonResult.Fail, "风险等级低，不能购买当前产品", JsonResult.EMPTYRESULT);
 		}
-
+		if(prdInfo.getOemId() == null || prdInfo.getOemId() == 0){
+			prdInfo.setOemId(Integer.parseInt(oemid));
+		}
 		try {
 			// 调用购买接口
 			Map buyProductSuccess = service.buyProduct(prdInfo);
@@ -277,14 +282,16 @@ public class TransferController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = ""),
 		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "12"),
-		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "120049") })
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "120049"),
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
+	})
 	@RequestMapping(value = "/purchase-plan", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getBuyInitial(String uuid, String groupId, String subGroupId) {
+	public JsonResult getBuyInitial(String uuid, String groupId, String subGroupId, @RequestParam(required=false, defaultValue="1")String oemid) {
 		Map resultMap = null;
 		try {
 			String url = tradeOrderUrl + "/api/trade/funds/maxminValue?groupId=" + groupId + "&subGroupId="
-					+ subGroupId;
+					+ subGroupId + "&oemid=" + Integer.parseInt(oemid);
 			resultMap = restTemplate.getForEntity(url, Map.class).getBody();
 			if (resultMap.get("min") != null) {
 				Double min = (Double) resultMap.get("min");
@@ -322,7 +329,7 @@ public class TransferController {
 			}
 			resultMap.put("banks", result);
 			
-			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId;
+			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/" + Integer.parseInt(oemid);
 			Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
 			if(productMap!=null){
 				if(productMap.get("name")!=null){
@@ -408,10 +415,81 @@ public class TransferController {
 		return new JsonResult(JsonResult.SUCCESS, "赎回成功", result);
 	}
 	
+	@ApiOperation("产品百分比赎回")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "telNum", dataType = "String", required = true, value = "手机号", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "verifyCode", dataType = "String", required = true, value = "验证码", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "userProdId", dataType = "String", required = true, value = "产品Id", defaultValue = "1"),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "产品的groupId", defaultValue = "12"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "产品的subGroupId", defaultValue = "120049"),
+		@ApiImplicitParam(paramType = "query", name = "userUuid", dataType = "String", required = true, value = "客户uuid", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = false, value = "银行名称"),
+		@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"),
+//		@ApiImplicitParam(paramType = "query", name = "buyfee", dataType = "String", required = false, value = "预计费用"),
+		@ApiImplicitParam(paramType = "query", name = "poundage", dataType = "String", required = false, value = "手续费"),
+		@ApiImplicitParam(paramType = "query", name = "sellTargetPercent", dataType = "BigDecimal", required = true, value = "百分比(默认100%)", defaultValue = "100"),
+		})
+	@RequestMapping(value = "/sellPersentProduct", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult sellPersentProduct(
+			@RequestParam String telNum, 
+			@RequestParam String verifyCode,
+			@RequestParam String userProdId, 
+			@RequestParam String groupId, 
+			@RequestParam String subGroupId,
+			@RequestParam String userUuid, 
+			@RequestParam(required = false) String bankName,
+			@RequestParam(required = false) String bankCard, 
+//			@RequestParam(required = false) String buyfee,
+			@RequestParam(required = false) String poundage,
+			@RequestParam BigDecimal sellTargetPercent) {
+		// 首先调用手机验证码
+		String verify = null;
+		try {
+			verify = service.verifyMSGCode(telNum, verifyCode);
+		} catch (Exception e) {
+			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
+			return new JsonResult(JsonResult.Fail, "手机验证失败，赎回失败", JsonResult.EMPTYRESULT);
+		}
+		// 验证码不通过则直接返回失败
+		if ("验证失败".equals(verify)) {
+			// TODO 临时注释2018-01-22
+			/********************** start ****************************/
+			if (!"123456".equals(verifyCode)) {
+				return new JsonResult(JsonResult.Fail, "手机验证失败，申购失败", JsonResult.EMPTYRESULT);
+			}
+			/********************** end ******************************/
+			// return new JsonResult(JsonResult.Fail, "手机验证失败，赎回失败",
+			// JsonResult.EMPTYRESULT);
+		}
+		// 调用赎回口
+		Map result = new HashMap();
+		try {
+			result = service.sellFundPersent(userProdId, groupId, subGroupId, userUuid, bankCard, sellTargetPercent);
+		} catch (Exception e) {
+			logger.error("调用赎回接口发生错误");
+			logger.error(e.getMessage());
+			return new JsonResult(JsonResult.Fail, "赎回失败", JsonResult.EMPTYRESULT);
+		}
+		if (result != null) {
+			if (result.get("payAmount") != null) {
+				BigDecimal payAmount = new BigDecimal(result.get("payAmount") + "");
+				result.put("payAmount", payAmount.setScale(2, BigDecimal.ROUND_HALF_UP));
+			}
+			result.put("poundage", poundage);
+//			result.put("buyfee", buyfee);
+			result.put("bankName", bankName);
+			result.put("prodId", userProdId);
+			result.put("bankCard", bankCard);
+			result.put("sellTargetPercent", sellTargetPercent);
+		}
+		return new JsonResult(JsonResult.SUCCESS, "赎回成功", result);
+	}
+	
 	@ApiOperation("赎回页面")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "oemId", dataType = "String", required = true,
-				value = "归属id", defaultValue = "1"),
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "归属id", defaultValue = "1"),
 		@ApiImplicitParam(paramType = "query", name = "userUuid", dataType = "String", required = true, value = "客户uuid", defaultValue = ""),
 		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupID", defaultValue = ""),
 		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = ""),
@@ -426,14 +504,14 @@ public class TransferController {
 		})
 		@RequestMapping(value = "/sellFundPage", method = RequestMethod.POST)
 		@ResponseBody
-		public JsonResult sellFundPage(String oemId, String userUuid, String groupId, String subGroupId,
+		public JsonResult sellFundPage(@RequestParam(required=false, defaultValue="1")String oemid, String userUuid, String groupId, String subGroupId,
 				String bankNum, String bankName,
 				String telNum, String combinationName, 
 //				String userProdId, 
 				String prodId, String totalAmount) {
 			Map result = null;
 			try {
-				result = service.sellFundPage(groupId, subGroupId, totalAmount);
+				result = service.sellFundPage(groupId, subGroupId, totalAmount, Integer.parseInt(oemid));
 				if (result != null) {
 					result.put("userUuid", userUuid);
 					result.put("bankNum", bankNum);
@@ -482,8 +560,7 @@ public class TransferController {
 
 	@ApiOperation("赎回百分比例页面")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "oemId", dataType = "String", required = true,
-					value = "归属id", defaultValue = "1"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "归属id", defaultValue = "1"),
 			@ApiImplicitParam(paramType = "query", name = "userUuid", dataType = "String", required = true, value = "客户uuid", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupID", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = ""),
@@ -499,7 +576,7 @@ public class TransferController {
 			})
 	@RequestMapping(value = "/sellPersentFundPage", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult sellPersentFundPage(String oemId, String userUuid, String groupId, String subGroupId,
+	public JsonResult sellPersentFundPage(@RequestParam(required=false, defaultValue="1")String oemid, String userUuid, String groupId, String subGroupId,
 			String bankNum, String bankName,
 			String telNum, String combinationName, 
 //			String userProdId, 
@@ -507,18 +584,19 @@ public class TransferController {
 		Map result = null;
 		try {
 			BigDecimal amount = new BigDecimal(totalAmount);
-			amount = amount.multiply(persent);
-			result = service.sellFundPage(groupId, subGroupId, amount + "");
+			amount = amount.multiply(persent).divide(new BigDecimal("100"));
+			result = service.sellFundPage(groupId, subGroupId, amount + "", Integer.parseInt(oemid));
 			if (result != null) {
 				result.put("userUuid", userUuid);
 				result.put("bankNum", bankNum);
 				result.put("bankName", bankName);
 				result.put("totalAmount", amount);
 				result.put("combinationName", combinationName);
+				result.put("sellTargetPercent", persent);
 				result.put("prodId", prodId);
 				result.put("telNum", telNum);
-				result.put("title1", "依据最优比例分配赎回金额");
-				result.put("title2", "贝贝鱼依据最优比例分配赎回金额");
+				result.put("title1", "依据最优比例分配赎回比例");
+//				result.put("title2", "贝贝鱼依据最优比例分配赎回金额");
 				long startTime = System.currentTimeMillis();
 				if (!InstantDateUtil.isDealDay(startTime)) {
 					// 交易日

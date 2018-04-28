@@ -6,7 +6,7 @@
 
   <groupId>com.shellshellfish</groupId>
   <artifactId>aaas-app-checkfunds</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>aaas-app-checkfunds</name>
@@ -16,7 +16,7 @@
   <parent>
     <groupId>com.shellshellfish</groupId>
     <artifactId>aaas-app-tools</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -123,12 +123,24 @@
       <artifactId>springfox-swagger-ui</artifactId>
       <version>2.6.1</version>
       <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>guava</artifactId>
+          <groupId>com.google.guava</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>io.springfox</groupId>
       <artifactId>springfox-swagger2</artifactId>
       <version>2.6.1</version>
       <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>guava</artifactId>
+          <groupId>com.google.guava</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Add JPA support -->
@@ -184,7 +196,7 @@
     <dependency>
       <groupId>com.shellshellfish</groupId>
       <artifactId>aaas-api-common</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <version>1.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.quartz-scheduler</groupId>
@@ -213,7 +225,7 @@
 
   </dependencies>
   <build>
-    <finalName>aaas-app-checkfunds</finalName>
+
     <extensions>
       <extension>
       <groupId>kr.motd.maven</groupId>
@@ -249,7 +261,7 @@
       <plugin>
         <groupId>org.xolstice.maven.plugins</groupId>
         <artifactId>protobuf-maven-plugin</artifactId>
-        <version>0.5.0</version>
+        <version>0.5.1</version>
         <configuration>
           <protocArtifact>com.google.protobuf:protoc:3.4.0:exe:${os.detected.classifier}</protocArtifact>
           <pluginId>grpc-java</pluginId>
@@ -311,14 +323,14 @@
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-maven-plugin</artifactId>
-        <version>3.5.30</version>
+        <version>3.5.33</version>
         <configuration>
           <resources>
             <labels>
               <all>
                 <property>
                   <name>app</name>
-                  <value>aaas-app-checkfunds</value>
+                  <value>${artifactId}-${version}</value>
                 </property>
                 <property>
                   <name>hystrix.enabled</name>

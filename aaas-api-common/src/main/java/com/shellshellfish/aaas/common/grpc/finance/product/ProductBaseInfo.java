@@ -20,7 +20,16 @@ public class ProductBaseInfo {
     this.groupId = groupId;
   }
 
+  public Integer getOemId() {
+    return oemId;
+  }
+
+  public void setOemId(Integer oemId) {
+    this.oemId = oemId;
+  }
+
   Long prodId;
   Long groupId;
+  Integer oemId;
 
 }

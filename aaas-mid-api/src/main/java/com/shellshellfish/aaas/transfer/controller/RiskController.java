@@ -43,7 +43,7 @@ public class RiskController {
 	@Value("${shellshellfish.user-login-url}")
 	private String loginUrl;
 	
-	@Value("${shellshellfish.user-user-info}")
+	@Value("${shellshellfish.userinfo-url}")
 	private String userinfoUrl;
 	
 	@Autowired

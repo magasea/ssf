@@ -8,4 +8,6 @@ public interface MongoFinanceALLRepository extends MongoRepository<MongoFinanceA
 	List<MongoFinanceAll> findAllByDate(String date);
 	void deleteAllByDate(String date);
 	List<MongoFinanceAll> findBySerialIn(List<Integer> serial);
+	void deleteAllByOemid(Integer oemid);
+	List<MongoFinanceAll> findBySerialInAndOemid(List<Integer> serialList, Integer oemid);
 }

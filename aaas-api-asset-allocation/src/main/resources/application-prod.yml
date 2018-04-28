@@ -18,7 +18,7 @@ spring:
       ddl-auto: update
   data:
     mongodb:
-      database: funds
+      database: ssf_asset_allo
       host: localhost
       port: 27017
       collection: portfolio_yield_all

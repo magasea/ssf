@@ -63,7 +63,7 @@ public class HelloMongoDBTest {
                 String groupId = String.valueOf(index);
                 String subGroupId = String.valueOf(index + subfix);
                 String key = groupId + "_" + subGroupId;
-                ReturnType rt = fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, returnType, null);
+                ReturnType rt = fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, 1, returnType, null);
 
                 String _total = JSON.toJSONString(rt.get_total());
                 String _items = JSON.toJSONString(rt.get_items());

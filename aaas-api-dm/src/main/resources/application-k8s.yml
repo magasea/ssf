@@ -46,12 +46,12 @@ datasource:
       format_sql: true
       dialect: org.hibernate.dialect.MySQLDialect
 shellshellfish:
-  asset-alloction-url: "http://localhost:10020"
-  userinfo-url: "http://localhost:10060"
+  asset-alloction-url: "http://aaas-api-asset-allocation:10020"
+  userinfo-url: "http://aaas-api-user-info:10060"
 
 grpc:
   asset-allocation:
-    host: localhost
+    host: aaas-api-asset-allocation
     port: 10021
 
 management:

@@ -8,7 +8,7 @@
           time,
           income_num
         FROM
-          fund_group_history
+          fund_group_history_${oemId}
         WHERE
           fund_group_id = #{groupId}
           AND  fund_group_sub_id = #{subGroupId}
@@ -19,7 +19,7 @@
     <select id="getMaxDrawDown" resultType="Double">
         SELECT maximum_retracement
         FROM
-        fund_group_history
+        fund_group_history_${oemId}
         WHERE
           fund_group_id = #{groupId}
           AND  fund_group_sub_id = #{subGroupId}
@@ -30,7 +30,7 @@
     <select id="getLatestNavAdj" resultType="Double">
         SELECT income_num
         FROM
-        fund_group_history
+        fund_group_history_${oemId}
         WHERE
           fund_group_id = #{groupId}
           AND fund_group_sub_id = #{subGroupId}
@@ -41,7 +41,7 @@
 
     </select>
     <update id="updateMaxDrawDown" parameterType="com.shellshellfish.aaas.assetallocation.entity.FundGroupHistory">
-      update fund_group_history
+      update fund_group_history_${oemId}
       SET
       maximum_retracement = #{maximum_retracement}
       WHERE
@@ -52,7 +52,7 @@
 
     <update id="updateMaxDrawDownFromList"
             parameterType="com.shellshellfish.aaas.assetallocation.entity.FundGroupHistory">
-        update fund_group_history
+        update fund_group_history_${oemId}
         SET maximum_retracement=
         <foreach collection="fundGroupHistoryList" item="item" index="index"
                  separator=" " open="case DATE_FORMAT(time,'%Y%M%d')" close=" end">

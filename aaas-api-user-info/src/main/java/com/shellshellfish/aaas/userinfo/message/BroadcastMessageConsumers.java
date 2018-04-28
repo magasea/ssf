@@ -207,8 +207,7 @@ public class BroadcastMessageConsumers {
         exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
             durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_REDEEM)
     )
-    public void receiveAndCheckSell(TrdPayFlow trdPayFlow, Channel channel, @Header(AmqpHeaders
-        .DELIVERY_TAG) long tag) throws Exception {
+    public void receiveAndCheckSell(TrdPayFlow trdPayFlow) throws Exception {
         logger.info("receiveAndCheckSell Received fanout 1 message: " + trdPayFlow);
         logger.info("this consumer only controll redeem payFlow message");
         //if sell failed then update ui_product_details product number back
@@ -358,11 +357,6 @@ public class BroadcastMessageConsumers {
             logger.error("Exception:", ex);
         }
 
-        try {
-            channel.basicAck(tag, true);
-        } catch (IOException e) {
-            logger.error("exception:",e);
-        }
 
 
     }
@@ -374,9 +368,7 @@ public class BroadcastMessageConsumers {
         exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
             durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_USERINFO_CFMLOG)
     )
-    public void receiveConfirmInfo(MongoUiTrdZZInfo mongoUiTrdZZInfo, Channel
-        channel, @Header
-        (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
+    public void receiveConfirmInfo(MongoUiTrdZZInfo mongoUiTrdZZInfo) throws Exception {
         com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo mongoUiTrdZZInfoInDb = mongoUiTrdZZInfoRepo
         .findByUserProdIdAndUserIdAndApplySerial(mongoUiTrdZZInfo
             .getUserProdId(), mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getApplySerial());
@@ -398,12 +390,7 @@ public class BroadcastMessageConsumers {
 
         }
 
-        try {
-            channel.basicAck(tag, true);
-        } catch (IOException e) {
-            logger.error("exception:", e);
 
-        }
 
 
     }

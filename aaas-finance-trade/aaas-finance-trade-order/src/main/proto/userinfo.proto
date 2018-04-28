@@ -19,21 +19,22 @@ service UserInfoService {
     rpc GetUserInfo (UserId) returns (UserInfo){}
     rpc GetUserInfoByUserUUID (UserIdQuery) returns (UserInfo){}
     rpc SellUserProducts (SellProducts) returns (SellProductsResult){}
-    rpc SellPersentUserProducts (SellPersentProducts) returns (SellProductsResult){}
     rpc RollbackUserProducts (SellProducts) returns (SellProducts){}
-}
-message SellProducts{
-  int64 user_product_id = 1;//用户理财产品ID
-  int64 user_id = 2; //用户ID
-  string user_bank_num = 3;//用户产生该理财产品的时候用的银行卡号
-  repeated SellProductDetail sellProductDetails = 4;//出售基金明细；和结果
+    rpc sellPersentUserProducts (SellPersentProducts) returns (SellProductsResult){}
 }
 
 message SellPersentProducts{
   int64 user_product_id = 1;//用户理财产品ID
   int64 user_id = 2; //用户ID
   string user_bank_num = 3;//用户产生该理财产品的时候用的银行卡号
-  int64 percent = 4; //赎回的百分比：精确到万分之一的整型
+  int64 percent = 4; //卖出百分比 精确到万分之一的整型
+}
+
+message SellProducts{
+  int64 user_product_id = 1;//用户理财产品ID
+  int64 user_id = 2; //用户ID
+  string user_bank_num = 3;//用户产生该理财产品的时候用的银行卡号
+  repeated SellProductDetail sellProductDetails = 4;//出售基金明细；和结果
 }
 
 message SellProductsResult{

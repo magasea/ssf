@@ -16,11 +16,7 @@ spring:
     host: 192.168.1.249
     port: 5672
     virtual-host: aaas
-    topicQueuePayName: com-ssf-topic-queue-pay
-    topicQueueOrderName: com-ssf-topic-queue-order
-    topicExchangeName: com-ssf-topic-exchange
-    topicPay: shellshellfish.pay
-    topicOrder: shellshellfish.order
+
   data:
     mongodb:
       host: 192.168.1.10
@@ -30,12 +26,14 @@ spring:
     host: 192.168.1.10
     port: 6379
     password: redis123
-    timeout: 0
-    pool:
-      max-active: 8
-      max-wait: -1
-      max-idle: 8
-      min-idle: 0
+    timeout: 1800000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: 1800000ms
+        max-idle: 8
+        min-idle: 0
+
 
 datasource:
   sampleapp:
@@ -74,6 +72,9 @@ grpc:
   userinfo_client:
     host: localhost
     port: 10061
+  zhongzhengapi_client:
+    host: localhost
+    port: 10171
 
 using:
   spring:

@@ -3,6 +3,7 @@ package transfer.controller;
 import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
 
 import org.junit.Before;
@@ -32,6 +33,7 @@ import io.restassured.filter.log.ResponseLoggingFilter;
 @EnableAutoConfiguration
 public class TestDemo {
 
+	private static final long TIMEOUT = 3000L;
 
 	@LocalServerPort
 	public int port;
@@ -58,7 +60,8 @@ public class TestDemo {
 		.then()
 				.statusCode(HttpStatus.OK.value())
 				.body("result", notNullValue())
-				.body("result", hasKey("msg"));
+				.body("result", hasKey("msg"))
+				.time(lessThan(TIMEOUT));
 
 
 	}
@@ -75,7 +78,8 @@ public class TestDemo {
 				post("/phoneapi-ssf/contributions")
 		.then().log().all()
 				.assertThat()
-				.body(matchesJsonSchemaInClasspath("test-demo-schema.json"));
+				.body(matchesJsonSchemaInClasspath("test-demo-schema.json"))
+				.time(lessThan(TIMEOUT));
 
 
 	}

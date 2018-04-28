@@ -6,11 +6,20 @@ import java.util.Date;
  * Created by webrx on 2017/12/12 0012.
  */
 public class FundGroupHistory {
+    private Integer oemId;
     private String fund_group_sub_id;//基金组合分组id
     private String fund_group_id;//基金组合id
     private double income_num;//收益率
     private double maximum_retracement;//最大回撤
     private Date time;//时间
+
+    public Integer getOemId() {
+        return oemId;
+    }
+
+    public void setOemId(Integer oemId) {
+        this.oemId = oemId;
+    }
 
     public String getFund_group_sub_id() {
         return fund_group_sub_id;

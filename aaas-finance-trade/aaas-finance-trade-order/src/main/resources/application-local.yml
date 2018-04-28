@@ -1,0 +1,79 @@
+server:
+  port: 10100
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.data: debug
+spring:
+  rabbitmq:
+    listener:
+      simple:
+        acknowledge-mode: auto
+    username: ssf
+    password: shellshellfish
+    host: 192.168.1.65
+    port: 5672
+    virtual-host: aaas
+    topicQueuePayName: com-ssf-topic-queue-pay
+    topicQueueOrderName: com-ssf-topic-queue-order
+    topicExchangeName: com-ssf-topic-exchange
+    topicPay: shellshellfish.pay
+    topicOrder: shellshellfish.order
+  data:
+    mongodb:
+      host: 192.168.1.10
+      port: 27017
+      database: zhongzheng
+  redis:
+    host: 192.168.1.10
+    port: 6379
+    password: redis123
+    timeout: 1800000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: 1800000ms
+        max-idle: 8
+        min-idle: 0
+
+datasource:
+  sampleapp:
+    url: jdbc:mysql://192.168.1.10:3306/ssftrdorder?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
+    username: sa
+    password: N4eTVr89lX9BaPcx
+    driverClassName: com.mysql.jdbc.Driver
+    defaultSchema: ssftrdorder
+    maxPoolSize: 20
+    hibernate:
+      connection:
+        useUnicode: true
+        characterEncoding: UTF-8
+      jdbc:
+        batch_size: 50
+      hbm2ddl.method: update
+      show_sql: true
+      format_sql: true
+      dialect: org.hibernate.dialect.MySQL57Dialect
+      id.new_generator_mappings: false
+
+grpc:
+  finance_prod_client:
+    host: localhost
+    port: 10021
+  pay_client:
+    host: localhost
+    port: 10111
+  datacollection_client:
+    host: localhost
+    port: 10091
+  order_server:
+    host: localhost
+    port: 10101
+  userinfo_client:
+    host: localhost
+    port: 10061
+  zhongzhengapi_client:
+    host: localhost
+    port: 10171

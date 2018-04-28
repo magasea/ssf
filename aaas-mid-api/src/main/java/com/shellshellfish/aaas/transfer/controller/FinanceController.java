@@ -9,7 +9,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +49,7 @@ public class FinanceController {
 	Logger logger = LoggerFactory.getLogger(UserInfoController.class);
 
 	// @Autowired
-	@Value("${shellshellfish.user-user-info}")
+	@Value("${shellshellfish.userinfo-url}")
 	private String userinfoUrl;
 
 	@Value("${shellshellfish.user-login-url}")
@@ -74,14 +73,14 @@ public class FinanceController {
 	@Autowired
 	GrpcOemInfoService grpcOemInfoService;
 	
-	private static final DecimalFormat decimalFormat = new DecimalFormat(".00"); //保留 5 位
+	private static final DecimalFormat decimalFormat = new DecimalFormat("0.00"); //保留 2 位
 
 	@ApiOperation("1.首页")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID"),
 			@ApiImplicitParam(paramType = "query", name = "isTestFlag", dataType = "String", required = false, value = "是否测评（1-已做 0-未做）"),
 			@ApiImplicitParam(paramType = "query", name = "testResult", dataType = "String", required = false, value = "测评结果", defaultValue = "平衡型"),
-			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "oemid（贝贝鱼:0,兰州银行：2）")
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid（贝贝鱼:1,兰州银行：2）", defaultValue = "1")
 	})
 	@RequestMapping(value = "/finance-home", method = RequestMethod.POST)
 	@ResponseBody
@@ -90,7 +89,7 @@ public class FinanceController {
 			@RequestParam(required = false) String uuid,
 			@RequestParam(required = false) String isTestFlag,
 			@RequestParam(required = false) String testResult,
-			@RequestParam(required = false) Long oemid) {
+			@RequestParam(required = false, defaultValue="1") String oemid) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		logger.info("mid financeHome method run..");
 		try {
@@ -108,7 +107,7 @@ public class FinanceController {
 			testResult = testResult == null ? "" : testResult;
 			result = restTemplate
 					.getForEntity(financeUrl + "/api/ssf-finance/product-groups/homepage?uuid=" + uuid
-							+ "&isTestFlag=" + isTestFlag + "&testResult=" + testResult, Map.class).getBody();
+							+ "&isTestFlag=" + isTestFlag + "&testResult=" + testResult + "&oemid=" + Integer.parseInt(oemid), Map.class).getBody();
 			if (result == null || result.size() == 0) {
 				/*result.put("msg", "获取失败");*/
 				return new JsonResult(JsonResult.SUCCESS, "没有获取到产品", JsonResult.EMPTYRESULT);
@@ -117,8 +116,8 @@ public class FinanceController {
 //				if (oemid == null) {
 //					oemid = 1L;
 //				}
-				oemid = oemid == null ? 1L : oemid;
-				Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
+//				oemid = oemid == null ? 1 : oemid;
+				Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(Long.parseLong(oemid + ""));
 				logger.info("oemInfos====home_page1:" + oemInfos.get("homePageImgOne"));
 				logger.info("oemInfos====home_page2:" + oemInfos.get("homePageImgTwo"));
 				logger.info("oemInfos====home_page3:" + oemInfos.get("homePageImgThree"));
@@ -285,9 +284,9 @@ public class FinanceController {
 						}
 
 						//去另一接口获取历史收益率图表的数据
-						Map histYieldRate = getCombYieldRate(groupId, subGroupId);
+						Map histYieldRate = getCombYieldRate(groupId, subGroupId, null);
 						//去另一个接口获取预期年化，预期最大回撤
-						Map expAnnReturn = getExpAnnReturn(groupId, subGroupId);
+						Map expAnnReturn = getExpAnnReturn(groupId, subGroupId, null);
 						if (expAnnReturn.containsKey("value")) {
 							expAnnReturn.put("value", expAnnReturn.get("value"));
 						}
@@ -344,17 +343,17 @@ public class FinanceController {
 	
 	@ApiOperation("进入理财页面后的数据")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "oemid（贝贝鱼:0,兰州银行：2）"),
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid（贝贝鱼:1,兰州银行：2）"),
 		@ApiImplicitParam(paramType = "query", name = "size", dataType = "Integer", required = true, value = "每页显示数（至少大于1）", defaultValue = "15"),
 		@ApiImplicitParam(paramType = "query", name = "pageSize", dataType = "Integer", required = true, value = "显示页数（从0开始）", defaultValue = "0"),
 	})
 	@RequestMapping(value = "/financeFrontPage", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
-	public JsonResult financeModule(@RequestParam(required = false) Long oemid,@RequestParam(defaultValue="15") Integer size,@RequestParam(defaultValue="0") Integer pageSize) {
+	public JsonResult financeModule(@RequestParam(required = false, defaultValue="1") String oemid, @RequestParam(defaultValue="15") Integer size,@RequestParam(defaultValue="0") Integer pageSize) {
 		// 先获取全部产品
 		JsonResult result = restTemplate
-				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage?size=" + size + "&pageSize=" + pageSize, JsonResult.class).getBody();
+				.getForEntity(dataManagerUrl + "/api/datamanager/getFinanceFrontPage?size=" + size + "&pageSize=" + pageSize + "&oemid=" + oemid, JsonResult.class).getBody();
 		Object obj = result.getResult();
 		if(obj!=null){
 			HashMap resultMap = (HashMap) obj;
@@ -362,9 +361,7 @@ public class FinanceController {
 //			if (oemid == null) {
 //				oemid = 1L;
 //			}
-			oemid = oemid == null ? 1L : oemid;
-			
-			Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(oemid);
+			Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(Long.parseLong(oemid + ""));
 			logger.info("oemInfos====combination1:" + oemInfos.get("combinationOne"));
 			logger.info("oemInfos====combination2:" + oemInfos.get("combinationTwo"));
 			logger.info("oemInfos====combination3:" + oemInfos.get("combinationThree"));
@@ -405,14 +402,14 @@ public class FinanceController {
 	@ResponseBody
 	public JsonResult getPrdDetails2(String groupId, String subGroupId) {
 		Map<String, Object> result = new HashMap<String, Object>();
-		result = service.getPrdNPVList(groupId, subGroupId);
+		result = service.getPrdNPVList(groupId, subGroupId, null);
 		if (result == null) {
 			return new JsonResult(JsonResult.Fail, "获取净值增长值活净值增长率为空", JsonResult.EMPTYRESULT);
 		}
 
-		Map expAnnReturn = getExpAnnReturn(groupId, subGroupId);
-		Map expMaxReturn = getExpMaxReturn(groupId, subGroupId);
-		Map simulateHistoricalReturn = getSimulateHistoricalReturn(groupId, subGroupId);
+		Map expAnnReturn = getExpAnnReturn(groupId, subGroupId, null);
+		Map expMaxReturn = getExpMaxReturn(groupId, subGroupId, null);
+		Map simulateHistoricalReturn = getSimulateHistoricalReturn(groupId, subGroupId, null);
 		result.put("expAnnReturn", expAnnReturn);
 		result.put("expMaxDrawDown", expMaxReturn);
 		result.put("simulateHistoricalVolatility", simulateHistoricalReturn);
@@ -461,17 +458,44 @@ public class FinanceController {
 	
 	@ApiOperation("理财产品查看详情页面")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "8"),
-		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "80048"),
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid（贝贝鱼:1,兰州银行：2）"),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "12"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "120048"),
 	})
 	@RequestMapping(value = "/checkPrdDetails", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
-	public JsonResult getPrdDetails(String groupId, String subGroupId) {
+	public JsonResult getPrdDetails(@RequestParam(required = false, defaultValue="1") String oemid ,@RequestParam(required = true) String groupId,@RequestParam(required = true) String subGroupId) {
 		// 先获取全部产品
 		JsonResult result = restTemplate
 				.getForEntity(dataManagerUrl + "/api/datamanager/getCheckPrdDetails?groupId=" + groupId + "&subGroupId="
-						+ subGroupId, JsonResult.class).getBody();
+						+ subGroupId + "&oemid=" + Integer.parseInt(oemid), JsonResult.class).getBody();
+		return result;
+	}
+	
+	@ApiOperation("理财产品查看详情页面")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid（贝贝鱼:1,兰州银行：2）"),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "12"),
+		@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "120048"),
+		@ApiImplicitParam(paramType = "query", name = "pageSize", dataType = "Integer", required = false, value = "每页显示数（至少大于1）", defaultValue = "2"),
+		@ApiImplicitParam(paramType = "query", name = "pageIndex", dataType = "Integer", required = false, value = "显示页数（从0开始）", defaultValue = "0"),
+	})
+	@RequestMapping(value = "/checkPrdDetails-ver2", method = RequestMethod.POST)
+	@ResponseBody
+	@AopTimeResources
+	public JsonResult getPrdDetailsVer2(
+			@RequestParam(required = false, defaultValue="1") String oemid ,
+			@RequestParam(required = true) String groupId,
+			@RequestParam(required = true) String subGroupId,
+			@RequestParam(required = false, defaultValue="1") Integer pageSize, 
+		    @RequestParam(required = false, defaultValue="0") Integer pageIndex) {
+		// 先获取全部产品
+		JsonResult result = restTemplate
+				.getForEntity(dataManagerUrl + "/api/datamanager/getCheckPrdDetails-ver2?groupId=" + groupId
+						+ "&subGroupId=" + subGroupId + "&oemid=" + Integer.parseInt(oemid) + "&pageSize=" + pageSize
+						+ "&pageIndex=" + pageIndex, JsonResult.class)
+				.getBody();
 		return result;
 	}
 
@@ -479,20 +503,22 @@ public class FinanceController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "4"),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "4009"),
-			@ApiImplicitParam(paramType = "query", name = "productName", dataType = "String", required = false, value = "productName", defaultValue = "贝贝鱼1号“御•安守”组合")
+			@ApiImplicitParam(paramType = "query", name = "productName", dataType = "String", required = false, value = "productName", defaultValue = "贝贝鱼1号“御•安守”组合"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
 	})
 	@RequestMapping(value = "/historicalPerformancePage", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
 	public JsonResult getHistoricalPerformance(@RequestParam(required = false) String groupId,
 			@RequestParam(required = false) String subGroupId,
-			@RequestParam(required = false) String productName) {
+			@RequestParam(required = false) String productName,
+			@RequestParam(required = false, defaultValue="1") String oemid) {
 		long startTime = System.currentTimeMillis();
 		logger.info("历史业绩：" + startTime);
 		// 先获取全部产品
 		String url = assetAlloctionUrl
 				+ "/api/asset-allocation/product-groups/historicalPer-formance?fund_group_id=" + groupId
-				+ "&subGroupId=" + subGroupId;
+				+ "&subGroupId=" + subGroupId + "&oemId=" + Integer.parseInt(oemid);
 		Map<String, Object> result = new HashMap<String, Object>();// 中间容器
 		Map<String, Object> title = new HashMap<String, Object>();
 		Object object = null;
@@ -544,7 +570,7 @@ public class FinanceController {
 		//收益率走势图
 		//http://localhost:10020/api/asset-allocation/product-groups/6/sub-groups/111111/portfolio-yield-week?returnType=income
 		url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
-				+ subGroupId + "/portfolio-yield-week?returnType=income";
+				+ subGroupId + "/portfolio-yield-week?returnType=income&oemId=" + Integer.parseInt(oemid);
 		Map<String, Object> incomeResult = new HashMap<String, Object>();
 		incomeResult = restTemplate.getForEntity(url, Map.class).getBody();
 		// 如果成功获取内部值，再遍历获取每一个产品的年化收益(进入service)
@@ -628,7 +654,7 @@ public class FinanceController {
 		}
 		//最大回撤走势图
 		url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
-				+ subGroupId + "/portfolio-yield-week?returnType=1";
+				+ subGroupId + "/portfolio-yield-week?returnType=1&oemId=" + Integer.parseInt(oemid);
 		Map<String, Object> incomeResult1 = new HashMap<String, Object>();
 		incomeResult1 = restTemplate.getForEntity(url, Map.class).getBody();
 		// 如果成功获取内部值，再遍历获取每一个产品的年化收益(进入service)
@@ -724,18 +750,18 @@ public class FinanceController {
 			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID", defaultValue = "1"),
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "4"),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "4009"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1"),
 	})
 	@RequestMapping(value = "/futureExpectationPage", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
 	public JsonResult getFutureExpectation(@RequestParam(required = false) String uuid,
-			@RequestParam String groupId, @RequestParam String subGroupId) {
+			@RequestParam String groupId, @RequestParam String subGroupId, @RequestParam(required=false, defaultValue="1") String oemid) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		// 预期平均年化收益率
 		Map<String, Object> optMap = new HashMap<String, Object>();
 		String url =
-				assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
-						+ subGroupId + "/opt?returntype=1";
+				assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/opt/" + Integer.parseInt(oemid) + "?returntype=1";
 		optMap = restTemplate.postForEntity(url, null, Map.class).getBody();
 		if (optMap != null && !optMap.isEmpty()) {
 			logger.info("预期平均年化收益率获取成功");
@@ -757,7 +783,7 @@ public class FinanceController {
 		Object object = null;
 		List<Map<String, Object>> prdList = new ArrayList<Map<String, Object>>(); // 中间容器
 		url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
-				+ subGroupId + "/expected-income";
+				+ subGroupId + "/expected-income?oemId=" + Integer.parseInt(oemid);
 		try {
 			Map<String, Object> expectedIncomeMap = new HashMap<String, Object>();
 			expectedIncomeMap = restTemplate.getForEntity(url, Map.class).getBody();
@@ -879,14 +905,16 @@ public class FinanceController {
 			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID", defaultValue = "1"),
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "4"),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "4009"),
-			@ApiImplicitParam(paramType = "query", name = "productName", dataType = "String", required = false, value = "productName", defaultValue = "贝贝鱼1号“御•安守”组合")
+			@ApiImplicitParam(paramType = "query", name = "productName", dataType = "String", required = false, value = "productName", defaultValue = "贝贝鱼1号“御•安守”组合"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
 	})
 	@RequestMapping(value = "/riskMangementPage", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
 	public JsonResult getRiskManagement(@RequestParam(required = false) String uuid,
 			@RequestParam String groupId, @RequestParam String subGroupId,
-			@RequestParam(required = false) String productName) {
+			@RequestParam(required = false) String productName,
+			@RequestParam(required = false, defaultValue="1") String oemid) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String, Object> title = new HashMap<String, Object>();
 		// 最大回撤走势图
@@ -894,7 +922,7 @@ public class FinanceController {
 		try {
 			String url =
 					assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
-							+ subGroupId + "/portfolio-yield-week?returnType=1";
+							+ subGroupId + "/portfolio-yield-week?returnType=1&oemId=" + Integer.parseInt(oemid);
 			portfolioYieldWeekMap = restTemplate.getForEntity(url, Map.class).getBody();
 			if (portfolioYieldWeekMap != null && !portfolioYieldWeekMap.isEmpty()) {
 				logger.info("最大回撤走势图获取成功");
@@ -968,7 +996,7 @@ public class FinanceController {
 			title.put("header1", productName);
 			//预期最大回撤数
 			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
-					+ subGroupId + "/opt?returntype=2";
+					+ subGroupId + "/opt/" + Integer.parseInt(oemid) + "?returntype=2";
 			Map<String, Object> optResult = (Map) restTemplate.postForEntity(url, null, Map.class)
 					.getBody();
 			if (optResult != null) {
@@ -1057,19 +1085,20 @@ public class FinanceController {
 			@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = false, value = "用户ID", defaultValue = "1"),
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "4"),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "subGroupId", defaultValue = "4009"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
 	})
 	@RequestMapping(value = "/globalConfigurationPage", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
 	public JsonResult getGlobalConfiguration(@RequestParam(required = false) String uuid,
-			@RequestParam String groupId, @RequestParam String subGroupId) {
+			@RequestParam String groupId, @RequestParam String subGroupId, @RequestParam(required=false, defaultValue="1") String oemid) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		// 配置收益贡献
 		Map<String, Object> configurationBenefitContributionMap = new HashMap<String, Object>();
 		try {
 			String url =
 					assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
-							+ subGroupId + "/contributions";
+							+ subGroupId + "/contributions/" + Integer.parseInt(oemid);
 			configurationBenefitContributionMap = restTemplate.getForEntity(url, Map.class).getBody();
 			if (configurationBenefitContributionMap != null && !configurationBenefitContributionMap
 					.isEmpty()) {
@@ -1114,26 +1143,27 @@ public class FinanceController {
 	@ApiOperation("查询产品的历史收益率和最大回撤")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "4"),
-			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "4009")
+			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "4009"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
 	})
 	@RequestMapping(value = "/getExpAnnualAndMaxReturn", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
-	public JsonResult getExpAnnualAndMaxReturn(String groupId, String subGroupId) {
+	public JsonResult getExpAnnualAndMaxReturn(String groupId, String subGroupId, @RequestParam(required=false, defaultValue="1")String oemid) {
 		return new JsonResult(JsonResult.SUCCESS, "请求成功",
-				service.getExpAnnualAndMaxReturn(groupId, subGroupId));
+				service.getExpAnnualAndMaxReturn(groupId, subGroupId, Integer.parseInt(oemid)));
 	}
 
 
 	/**
 	 * 获取预期最大回撤（/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt，参数+2）
 	 */
-	protected Map<String, Object> getExpMaxReturn(String groupId, String subGroupId) {
+	protected Map<String, Object> getExpMaxReturn(String groupId, String subGroupId, Integer oemid) {
 		Map result = null;
 		try {
 			String url =
 					assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
-							+ subGroupId + "/opt?returntype=" + "2";
+							+ subGroupId + "/opt/"+ oemid + "?returntype=" + "2";
 //			String str="{\"returnType\":\""+"2"+"\"}";
 			result = (Map) restTemplate.postForEntity(url, null, Map.class).getBody();
 
@@ -1155,12 +1185,12 @@ public class FinanceController {
 	/**
 	 * 获取预期年化收益（/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt，参数+1）
 	 */
-	protected Map<String, Object> getExpAnnReturn(String groupId, String subGroupId) {
+	protected Map<String, Object> getExpAnnReturn(String groupId, String subGroupId, Integer oemid) {
 		Map<String, Object> result = new HashMap<>();
 		try {
 			String url =
 					assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
-							+ subGroupId + "/opt?returntype=" + "1";
+							+ subGroupId + "/opt/" + oemid + "?returntype=" + "1";
 			String str = "{\"returnType\":\"" + "1" + "\"}";
 			result = (Map) restTemplate.postForEntity(url, getHttpEntity(str), Map.class).getBody();
 			/*result.remove("_total");
@@ -1185,12 +1215,12 @@ public class FinanceController {
 	/**
 	 *模拟历史年化波动率（/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt，参数+3）
 	 */
-	protected Map<String, Object> getSimulateHistoricalReturn(String groupId, String subGroupId) {
+	protected Map<String, Object> getSimulateHistoricalReturn(String groupId, String subGroupId, Integer oemid) {
 		Map<String, Object> result = new HashMap<>();
 		try {
 			String url =
 					assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/"
-							+ subGroupId + "/opt?returntype=" + "3";
+							+ subGroupId + "/opt/" + oemid + "?returntype=" + "3";
 			String str = "{\"returnType\":\"" + "1" + "\"}";
 			result = (Map) restTemplate.postForEntity(url, getHttpEntity(str), Map.class).getBody();
 			/*result.remove("_total");
@@ -1216,12 +1246,12 @@ public class FinanceController {
 	/**
 	 * 根据groupid和subgroupid获取产品组合的组合收益率
 	 */
-	protected Map<String, Object> getCombYieldRate(String groupId, String subgroupId) {
+	protected Map<String, Object> getCombYieldRate(String groupId, String subgroupId, Integer oemid) {
 		Map result = null;
 		try {
 			//准备调用asset-allocation接口的方法，获取组合组合收益率(最大回撤)走势图-每天
 			String url = assetAlloctionUrl
-					+ "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield-all?returnType=income";
+					+ "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/portfolio-yield-all?returnType=income&oemId=" + oemid;
 			result = restTemplate.getForEntity(url, Map.class, groupId, subgroupId).getBody();
 			result.remove("_total");
 			result.remove("_name");
@@ -1305,13 +1335,14 @@ public class FinanceController {
 	@ApiOperation("2.配置收益贡献")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "产品组ID", defaultValue = "4"),
-			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "子产品组ID", defaultValue = "4009")})
+			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = true, value = "子产品组ID", defaultValue = "4009"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")})
 	@RequestMapping(value = "/contributions", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
-	public JsonResult contributions(@RequestParam String groupId, @RequestParam String subGroupId) {
+	public JsonResult contributions(@RequestParam String groupId, @RequestParam String subGroupId, @RequestParam(required=false, defaultValue="1") String oemid) {
 
-		String CONTRIBUTIONS_URL = "/api/asset-allocation/product-groups/{0}/sub-groups/{1}/contributions";
+		String CONTRIBUTIONS_URL = "/api/asset-allocation/product-groups/{0}/sub-groups/{1}/contributions/" + Integer.parseInt(oemid);
 
 		return postConnectFinaceUrl(CONTRIBUTIONS_URL, groupId, subGroupId);
 	}
@@ -1364,15 +1395,16 @@ public class FinanceController {
 	@ApiOperation("需求调整")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "invstTerm", dataType = "String", required = true, value = "投资期限", defaultValue = "1"),
-			@ApiImplicitParam(paramType = "query", name = "riskLevel", dataType = "String", required = true, value = "风险承受级别", defaultValue = "C1")
+			@ApiImplicitParam(paramType = "query", name = "riskLevel", dataType = "String", required = true, value = "风险承受级别", defaultValue = "C1"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
 	})
 	@RequestMapping(value = "/optAdjustment", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
-	public JsonResult getOptAdjustment(String invstTerm, String riskLevel) {
+	public JsonResult getOptAdjustment(String invstTerm, String riskLevel, @RequestParam(required=false, defaultValue="1")String oemid) {
 		try {
 			return new JsonResult(JsonResult.SUCCESS, "请求成功",
-					service.getOptAdjustment(riskLevel, invstTerm));
+					service.getOptAdjustment(riskLevel, invstTerm, Integer.parseInt(oemid)));
 		} catch (Exception e) {
 			String str = new ReturnedException(e).getErrorMsg();
 			logger.error(str, e);
@@ -1432,18 +1464,20 @@ public class FinanceController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "1"),
 			@ApiImplicitParam(paramType = "query", name = "riskPointValue", dataType = "String", required = false, value = "风险率", defaultValue = "0.0213"),
-			@ApiImplicitParam(paramType = "query", name = "incomePointValue", dataType = "String", required = false, value = "收益率", defaultValue = "0.0451")
+			@ApiImplicitParam(paramType = "query", name = "incomePointValue", dataType = "String", required = false, value = "收益率", defaultValue = "0.0451"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
 	})
 	@RequestMapping(value = "/optimizations", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
 	public JsonResult Optimizations(@RequestParam String groupId, @RequestParam String riskPointValue,
-			@RequestParam String incomePointValue) {
+			@RequestParam String incomePointValue, @RequestParam(required=false, defaultValue="1") String oemid) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			MultiValueMap<String, String> requestEntity = new LinkedMultiValueMap<>();
 			requestEntity.add("riskValue", riskPointValue);
 			requestEntity.add("returnValue", incomePointValue);
+			requestEntity.add("oemid", oemid);
 			result = restTemplate
 					.postForEntity(assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
 							+ "/optimizations", requestEntity, Map.class)
@@ -1465,16 +1499,17 @@ public class FinanceController {
 	@ApiOperation("2.获取（预期收益率调整）有多少个点")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "2"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
 	})
 	@RequestMapping(value = "/inComeSlidebarPoints", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
-	public JsonResult inComeSlidebarPoints(@RequestParam String groupId) {
+	public JsonResult inComeSlidebarPoints(@RequestParam String groupId, @RequestParam(required=false, defaultValue="1") String oemid) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			result = restTemplate
 					.getForEntity(assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
-							+ "/slidebar-points?slidebarType=income_num", Map.class)
+							+ "/slidebar-points/" + Integer.parseInt(oemid) + "?slidebarType=income_num", Map.class)
 					.getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
@@ -1494,23 +1529,23 @@ public class FinanceController {
 	@ApiOperation("3.获取（风险率调整）有多少个点")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "2"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
 	})
 	@RequestMapping(value = "/riskSlidebarPoints", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
-	public JsonResult riskSlidebarPoints(@RequestParam String groupId) {
+	public JsonResult riskSlidebarPoints(@RequestParam String groupId, @RequestParam(required=false, defaultValue="1") String oemid) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			result = restTemplate
 					.getForEntity(assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
-							+ "/slidebar-points?slidebarType=risk_num", Map.class)
+							+ "/slidebar-points/" + Integer.parseInt(oemid) + "?slidebarType=risk_num", Map.class)
 					.getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
 				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 			}
 
-			result.remove("_links");
 			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
@@ -1523,23 +1558,23 @@ public class FinanceController {
 	@ApiOperation("3.获取（最优组合）")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "2"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
 	})
 	@RequestMapping(value = "/effectiveFrontierPoints", method = RequestMethod.POST)
 	@ResponseBody
 	@AopTimeResources
-	public JsonResult effectiveFrontierPoints(@RequestParam String groupId) {
+	public JsonResult effectiveFrontierPoints(@RequestParam String groupId, @RequestParam(required=false, defaultValue="1") String oemid) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			result = restTemplate
 					.getForEntity(assetAlloctionUrl + "/api/asset-allocation/products/" + groupId
-							+ "/effective-frontier-points", Map.class)
+							+ "/effective-frontier-points/" + Integer.parseInt(oemid), Map.class)
 					.getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");
 				return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 			}
 
-			result.remove("_links");
 			result.remove("_links");
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 		} catch (Exception e) {
@@ -1553,11 +1588,12 @@ public class FinanceController {
 	@ApiOperation("调仓记录")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = false, value = "groupId", defaultValue = "1"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
 //			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "String", required = false, value = "subGroupId", defaultValue = "80048"),
 	})
 	@RequestMapping(value = "/warehouse-records", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getwarehouseRecords(String groupId) {
+	public JsonResult getwarehouseRecords(String groupId, @RequestParam(required=false,defaultValue="1") String oemid) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			String url = financeUrl + "/api/ssf-finance/product-groups/warehouse-records?prodId=" + groupId;
@@ -1591,12 +1627,12 @@ public class FinanceController {
 					result.put("result", resultListBak);
 				}
 				
-				url = assetAlloctionUrl + "/api/asset-allocation/products";
+//				url = assetAlloctionUrl + "/api/asset-allocation/products";
 				Map<String, Object> prodcutResult = new HashMap<String, Object>();
 				result.put("name", "贝贝鱼调仓记录详情");
 				if(!StringUtils.isEmpty(groupId)){
 					String subGroupId = groupId + "0048";
-					url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId;
+					url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/" + oemid;
 					Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
 					if(productMap!=null){
 						if(productMap.get("name")!=null){
@@ -1618,10 +1654,11 @@ public class FinanceController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = false, value = "groupId", defaultValue = "1"),
 		@ApiImplicitParam(paramType = "query", name = "modifySeq", dataType = "Integer", required = false, value = "modifySeq", defaultValue = "1"),
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
 	})
 	@RequestMapping(value = "/warehouse-record-details", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getwarehouseRecordDetails(Long groupId, Integer modifySeq) {
+	public JsonResult getwarehouseRecordDetails(Long groupId, Integer modifySeq, @RequestParam(required=false,defaultValue="1") String oemid) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String, Object> topResult = new HashMap<String, Object>();
 		List<Map<String, Object>> topList = new ArrayList();
@@ -1716,12 +1753,12 @@ public class FinanceController {
 					result.put("topData", topList);
 					result.remove("result");
 					
-					url = assetAlloctionUrl + "/api/asset-allocation/products";
+//					url = assetAlloctionUrl + "/api/asset-allocation/products";
 					Map<String, Object> prodcutResult = new HashMap<String, Object>();
 					result.put("name", "贝贝鱼调仓记录详情");
 					if(!StringUtils.isEmpty(groupId)){
 						String subGroupId = groupId + "0048";
-						url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId;
+						url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/" + oemid;
 						Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
 						if(productMap!=null){
 							if(productMap.get("name")!=null){

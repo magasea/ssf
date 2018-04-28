@@ -2,6 +2,7 @@ package transfer.controller;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.hamcrest.Matchers.lessThan;
 
 import javafx.scene.media.SubtitleTrack;
 import org.junit.Before;
@@ -34,6 +35,7 @@ public class FundGroupControllerIT {
 
 	private String GET_MY_PRODUCT_DETAIL_SCHEMA_NAME = "fund-group-controller-getMyProductDetail.json";
 
+	private static final long TIMEOUT = 3000L;
 
 	@LocalServerPort
 	public int port;
@@ -69,7 +71,7 @@ public class FundGroupControllerIT {
 				.post(GET_MY_PRODUCT_DETAIL)
 				.then().log().all()
 				.assertThat()
-				.body(matchesJsonSchemaInClasspath(GET_MY_PRODUCT_DETAIL_SCHEMA_NAME));
+				.body(matchesJsonSchemaInClasspath(GET_MY_PRODUCT_DETAIL_SCHEMA_NAME)).time(lessThan(TIMEOUT));
 	}
 
 

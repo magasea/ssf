@@ -1,8 +1,9 @@
 package com.shellshellfish.aaas.common.enums;
 
 public enum TrdZZCheckStatusEnum {
-  CONFIRMFAILED(0,"确认失败"), CONFIRMSUCCESS(1, "确认成功"), PARTCONFIRMED(2, "部分确认"),
-  REALTIMECONFIRMSUCESS(3, "实时确认成功"), NOTHANDLED(9, "未处理");
+  CONFIRMFAILED(0,"确认失败"), CONFIRMSUCCESS(1, "确认成功"),
+  REALTIMECONFIRMSUCESS(3, "实时确认成功"), CANCELED(4, "已经撤销"), ACTIONCONFIRMED(5,"行为确认"), NOTHANDLED(9,
+      "未处理"), NUMWAITCONFIRM(10, "份额待确认 - 过户订单暂未发起");
 
   public int getStatus() {
     return status;

@@ -104,7 +104,7 @@ public class FundUpdateJobServiceImpl implements FundUpdateJobService {
     String[] fundCodeArray = fundCodes.split(",");
     String[] baseCodeArray = baseCodes.split(",");
     String endDate = TradeUtil.getReadableDateTime(TradeUtil.getUTCTime()).split("T")[0];
-    String beginDate = TradeUtil.getReadableDateTime(TradeUtil.getUTCTimeNDayAfter(-3)).split
+    String beginDate = TradeUtil.getReadableDateTime(TradeUtil.getUTCTimeNDayAfter(-10)).split
         ("T")[0];
     logger.info("beginDate:{} endDate:{}", beginDate, endDate);
     fundGrpcService.checkFunds(Arrays.asList(fundCodeArray), beginDate, endDate, FundTablesIndexEnum

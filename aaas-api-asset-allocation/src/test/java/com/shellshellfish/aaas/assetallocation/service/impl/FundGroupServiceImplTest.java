@@ -1,6 +1,5 @@
 package com.shellshellfish.aaas.assetallocation.service.impl;
 
-import com.shellshellfish.aaas.assetallocation.service.impl.FundGroupService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +25,7 @@ public class FundGroupServiceImplTest {
     public void getNavlatestdateCount() throws Exception {
         String groupId = "1";
         String subGroupId = "10058";
-        List<LocalDate> result = fundGroupService.getNavlatestdateCount(groupId, subGroupId);
+        List<LocalDate> result = fundGroupService.getNavlatestdateCount(groupId, subGroupId, 1);
         Assert.assertNotNull("数据为空", result);
     }
 
@@ -35,7 +34,7 @@ public class FundGroupServiceImplTest {
         String groupId = "1";
         String subGroupId = "10048";
         for (int i = 1; i < 16; i++) {
-            fundGroupService.calculateGroupNavadj(String.valueOf(i), String.valueOf(i) + "0048", null);
+            fundGroupService.calculateGroupNavadj(String.valueOf(i), String.valueOf(i) + "0048", 1, null);
         }
     }
 
@@ -44,7 +43,7 @@ public class FundGroupServiceImplTest {
         String groupId = "1";
         String subGroupId = "1000";
         for (int i = 1; i < 16; i++) {
-            fundGroupService.calculateMaxRetracement(groupId, subGroupId, LocalDate.now().plusDays(-1));
+            fundGroupService.calculateMaxRetracement(groupId, subGroupId, LocalDate.now().plusDays(-1), 1);
         }
     }
 
@@ -52,7 +51,7 @@ public class FundGroupServiceImplTest {
     public void testCalculateMaxRetracementFromList() {
         String groupId = "1";
         String subGroupId = "1000";
-        fundGroupService.calculateMaxRetracement(groupId, subGroupId);
+        fundGroupService.calculateMaxRetracement(groupId, subGroupId, 1);
     }
 
 }

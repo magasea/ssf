@@ -37,13 +37,15 @@ public class FinanceProductServiceImpl extends
 
     @Override
     public List<ProductMakeUpInfo> getProductInfo(ProductBaseInfo productBaseInfo) {
-        logger.info("prodId:{} groupId:{}", productBaseInfo.getProdId(), productBaseInfo.getGroupId());
-        return generateTestData(productBaseInfo.getProdId().toString(), productBaseInfo.getGroupId().toString());
+        logger.info("prodId:{} groupId:{} oemId:{}", productBaseInfo.getProdId(), productBaseInfo
+            .getGroupId(), productBaseInfo.getOemId());
+        return generateData(productBaseInfo.getProdId().toString(), productBaseInfo.getGroupId()
+            .toString(), productBaseInfo.getOemId());
     }
 
     @Override
     public ProductDetailInfoPage getProductDetailInfo(ProductDetailQueryInfo productDetailQueryInfo) {
-        return generateTestData(productDetailQueryInfo);
+        return generateData(productDetailQueryInfo);
     }
 
 //  @Override
@@ -69,7 +71,7 @@ public class FinanceProductServiceImpl extends
 //    responseObserver.onCompleted();
 //  }
 
-    private ProductDetailInfoPage generateTestData(ProductDetailQueryInfo productDetailQueryInfo) {
+    private ProductDetailInfoPage generateData(ProductDetailQueryInfo productDetailQueryInfo) {
         ProductDetailInfoPage productDetailInfoPage = new ProductDetailInfoPage();
         productDetailInfoPage.setGroupId(productDetailQueryInfo.getGroupId());
         productDetailInfoPage.setPageNum(productDetailQueryInfo.getPageNum());
@@ -111,11 +113,12 @@ public class FinanceProductServiceImpl extends
         responseObserver.onCompleted();
     }
 
-    private List<ProductMakeUpInfo> generateTestData(String id, String subGroupId) {
+    private List<ProductMakeUpInfo> generateData(String id, String subGroupId, int oemId) {
         List<ProductMakeUpInfo> productMakeUpInfos = new ArrayList<>();
         Map<String, String> query = new HashMap<>();
         query.put("id", id);
         query.put("subGroupId", subGroupId);
+        query.put("oemId", ""+oemId);
         List<Interval> intervalList = fundGroupMapper.selectById(query);
         Map<String, Integer> shareOfCodes = new HashMap<>();
         if (intervalList.size() > 0) {

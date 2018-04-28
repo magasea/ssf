@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.tools.fundcheck.service.impl;
 
 
+import com.google.logging.type.HttpRequest;
 import com.shellshellfish.aaas.common.http.HttpJsonResult;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.tools.fundcheck.model.BaseCheckRecord;
@@ -37,10 +38,12 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Created by chenwei on 2018- 三月 - 07
@@ -68,6 +71,9 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
   @Value("${shellshellfish.asset-allocation-initpyamongo-url}")
   String assetAllocationInitpyamongo;
 
+  @Value("${shellshellfish.asset-allocation-updateallmaximumlosses-url}")
+  String assetAllocationUpdateallmaximumlosses;
+
   @Value("${shellshellfish.data-manager-initcache-url}")
   String assetAllocationInitcache;
 
@@ -77,7 +83,7 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
   final static String CNST_BASE = "CLOSE";
 
 
-
+  final RestTemplate restTemplate = new RestTemplate();
 
   @Override
   public List<CSVFundInfo> getFundsInfoFromCsvFile(String csvFile) throws IOException {
@@ -130,45 +136,61 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
 
   }
 
+  private void restTemplateHandler(String url, Integer oemId, HttpMethod httpType) {
+
+    if (httpType == HttpMethod.GET) {
+
+      try {
+        UriComponentsBuilder builder = UriComponentsBuilder
+            .fromUriString(url)
+            // Add query parameter
+            .queryParam("oemId", oemId);
+        HttpJsonResult jsonResult1 = restTemplate.getForObject(builder.toUriString(),
+            HttpJsonResult.class);
+        Thread.sleep(10);
+        if (jsonResult1 != null) {
+          logger.info(jsonResult1.toString());
+        }
+      } catch (Exception ex) {
+        logger.error("http request failed:{}", ex);
+      }
+    }
+  }
+
+  private void restTemplateHandler(String url, HttpMethod httpType) {
+
+    if (httpType == HttpMethod.GET) {
+
+      try {
+        UriComponentsBuilder builder = UriComponentsBuilder
+            .fromUriString(url);
+        HttpJsonResult jsonResult1 = restTemplate.getForObject(builder.toUriString(),
+            HttpJsonResult.class);
+        Thread.sleep(10);
+        if (jsonResult1 != null) {
+          logger.info(jsonResult1.toString());
+        }
+      } catch (Exception ex) {
+        logger.error("http request failed:{}", ex);
+      }
+    }
+  }
+
+
   @Override
   public void restApiCall() throws InterruptedException {
 
-    RestTemplate restTemplate = new RestTemplate();
-    try{
-      HttpJsonResult jsonResult1 = restTemplate.getForObject(assetAllocationInsertdf,
-          HttpJsonResult.class);
-      Thread.sleep(10);
-      if(jsonResult1 != null){
-        logger.info(jsonResult1.toString());
-      }
-      HttpJsonResult jsonResult2 = restTemplate.getForObject(assetAllocationInithistory,
-          HttpJsonResult.class);
-      Thread.sleep(10);
-      if(jsonResult2 != null){
-        logger.info(jsonResult2.toString());
-      }
-      HttpJsonResult jsonResult3 = restTemplate.getForObject(assetAllocationInitpyamongo
-          , HttpJsonResult.class);
-      Thread.sleep(10);
-      if(jsonResult3 != null){
-        logger.info(jsonResult3.toString());
-      }
-      HttpJsonResult jsonResult4 = restTemplate.getForObject(assetAllocationInitcache, HttpJsonResult.class);
-      Thread.sleep(10);
-      if(jsonResult4 != null){
-        logger.info(jsonResult4.toString());
-      }
-      HttpJsonResult jsonResult5 = restTemplate.getForObject
-          (assetAllocationInitcacheDetail, HttpJsonResult.class);
-      Thread.sleep(10);
-      if(jsonResult5 != null){
-        logger.info(jsonResult5.toString());
-      }
+    restTemplateHandler(assetAllocationInsertdf, 1, HttpMethod.GET);
+    restTemplateHandler(assetAllocationInsertdf, 2, HttpMethod.GET);
+    restTemplateHandler(assetAllocationInithistory, 1, HttpMethod.GET);
+    Thread.sleep(60000);
+    restTemplateHandler(assetAllocationInitpyamongo, 1, HttpMethod.GET);
 
-    }catch (Exception ex){
-      logger.error("Exception:", ex);
-      throw ex;
-    }
+    restTemplateHandler(assetAllocationInitcache, HttpMethod.GET);
+
+    restTemplateHandler(assetAllocationInitcacheDetail, HttpMethod.GET);
+
+
   }
 
   private void processFundInfoSync() {

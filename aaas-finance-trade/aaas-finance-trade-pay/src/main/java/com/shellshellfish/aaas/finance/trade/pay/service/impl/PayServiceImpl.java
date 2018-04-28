@@ -305,8 +305,14 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           bindBankCard.getBankCode());
       tradeAcco =  openAccountResult.getTradeAcco();
     } catch (Exception e) {
+      boolean canRetry = false;
       logger.error("exception:",e);
-      if(e.getMessage().contains("该商户下已有其他openid绑定该身份证") || e.getMessage().contains("此卡已存在")){
+      if(!StringUtils.isEmpty(e.getMessage()) && e.getMessage().contains(":")){
+        if(e.getMessage().split("\\:")[0].equals("1009")){
+          canRetry = true;
+        }
+      }
+      if(canRetry){
         //尝试用当前的userId去获取tradeAccount
         try {
           List<UserBank> userBanks =  fundTradeApiService.getUserBank(""+ TradeUtil.getZZOpenId(bindBankCard

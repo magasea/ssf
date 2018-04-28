@@ -1,0 +1,54 @@
+---
+server:
+  port: 10150
+
+---
+spring:
+  data:
+      mongodb:
+        database: funds
+        host: 192.168.1.10
+        port: 27017
+        toolsdb: aaas_tools
+
+  http:
+    multipart:
+
+  redis:
+    host: 192.168.1.10
+    port: 6379
+    password: redis123
+datasource:
+  sampleapp:
+    url: jdbc:mysql://192.168.1.10:3306/ssftrdorder?useUnicode=true&characterEncoding=utf-8
+    username: sa
+    password: abcd1234
+    driverClassName: com.mysql.jdbc.Driver
+    defaultSchema:
+    maxPoolSize: 20
+    hibernate:
+      hbm2ddl.method: update
+      show_sql: true
+      format_sql: true
+      dialect: org.hibernate.dialect.MySQLDialect
+shellshellfish:
+  asset-allocation-insertdf-url: "http://localhost:10020/api/asset-allocation/job/insertDailyFund"
+  asset-allocation-inithistory-url: "http://localhost:10020/api/asset-allocation/job/getAllIdAndSubId"
+  asset-allocation-initpyamongo-url: "http://localhost:10020/api/asset-allocation/job/getFundGroupIncomeAllToMongoDb"
+  data-manager-initcache-url: "http://192.168.1.45:10030/api/datamanager/financeFrontPage"
+  data-manager-initcache-detail-url: "http://192.168.1.45:10030/api/datamanager/checkPrdDetails"
+  csvFilePath: temp
+  csvFundFileOriginName: csvFundsInfo
+  csvBaseFileOriginName: csvBaseInfo
+cron:
+  frequency:
+    #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
+    # 	Every 3 hours
+    jobCheckFunds: 0 0 0/3 1/1 * ? *
+using:
+  spring:
+    schedulerFactory: true
+grpc:
+  pythonServer:
+    ip: 192.168.1.45
+    port: 10161
