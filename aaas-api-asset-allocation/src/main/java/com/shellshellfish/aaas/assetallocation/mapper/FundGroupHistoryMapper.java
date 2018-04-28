@@ -9,7 +9,8 @@ import java.util.List;
 
 @Mapper
 public interface FundGroupHistoryMapper {
-    List<FundGroupHistory> findAllByDateBefore(@Param("date") LocalDate date, @Param("groupId") String groupId, @Param("subGroupId") String subGroupId);
+    List<FundGroupHistory> findAllByDateBefore(@Param("date") LocalDate date, @Param("groupId")
+        String groupId, @Param("subGroupId") String subGroupId, @Param("oemId") Integer oemId);
 
     //获取特定日期的复权单位净值（没有就取后一天的数据 比如15号没有数据，那就取16号的数据）
     Double getLatestNavAdj(@Param("groupId") String groupId, @Param("subGroupId") String
@@ -19,7 +20,9 @@ public interface FundGroupHistoryMapper {
     int updateMaxDrawDown(FundGroupHistory fundGroupHistory);
 
     //批量更新最大回撤
-    int updateMaxDrawDownFromList(@Param("fundGroupHistoryList") List<FundGroupHistory> fundGroupHistoryList, @Param("groupId") String groupId, @Param("subGroupId") String subGroupId);
+    int updateMaxDrawDownFromList(@Param("fundGroupHistoryList") List<FundGroupHistory>
+        fundGroupHistoryList, @Param("groupId") String groupId, @Param("subGroupId") String
+        subGroupId, @Param("oemId") Integer oemId);
 
     //获取最大回撤值
     Double getMaxDrawDown(@Param("groupId") String groupId, @Param("subGroupId") String subGroupId);
