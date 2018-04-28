@@ -2368,7 +2368,7 @@ public class FundGroupService {
 
         try {
             ThreadPoolExecutor navadjBenchmarkPool = new ThreadPoolExecutor(
-                    Runtime.getRuntime().availableProcessors() + 2,
+                    4,
                     15,
                     0L,
                     TimeUnit.MILLISECONDS,
@@ -2399,7 +2399,7 @@ public class FundGroupService {
     private void fundGroupIdTasks(int oemId) {
         final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
         ThreadPoolExecutor groupIndexPool = new ThreadPoolExecutor(
-                Runtime.getRuntime().availableProcessors() + 2,
+                4,
                 15,
                 0L,
                 TimeUnit.MILLISECONDS,
@@ -2518,7 +2518,7 @@ public class FundGroupService {
 
         try {
             ThreadPoolExecutor contributionPool = new ThreadPoolExecutor(
-                    Runtime.getRuntime().availableProcessors() + 2,
+                    4,
                     15,
                     0L,
                     TimeUnit.MILLISECONDS,
