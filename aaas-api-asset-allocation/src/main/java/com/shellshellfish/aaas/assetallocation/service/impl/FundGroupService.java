@@ -68,6 +68,8 @@ public class FundGroupService {
     @Value("${spring.data.mongodb.collection}")
     String collectionName;
 
+    private static Map<Integer, List> allSubGroupIds = new ConcurrentHashMap<>();
+
     //最大亏损计算要求置信水平
     private static final double CONFIDENCE_LEVEL = 0.97;
     //最大亏损计算假定本金
@@ -2201,7 +2203,14 @@ public class FundGroupService {
     public int calculateAllSharpeRatio(int oemId) {
         logger.info("start to calculate all group sharpe Ratio");
         long startTime = System.currentTimeMillis();
-        List<FundGroupIndex> fundGroupIndexList = fundGroupIndexMapper.findAll(oemId);
+        List<FundGroupIndex> fundGroupIndexList = null;
+        if(CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)){
+            fundGroupIndexList  = fundGroupIndexMapper.findAll(oemId);
+            allSubGroupIds.put(oemId, fundGroupIndexList);
+        }else{
+            fundGroupIndexList = allSubGroupIds.get(oemId);
+        }
+
 
         List<Map> sharpeRatioList = new ArrayList<>(fundGroupIndexList.size());
         for (FundGroupIndex fundGroupIndex : fundGroupIndexList) {
