@@ -98,7 +98,6 @@ public interface FundGroupMapper {
 
     int batchUpdateMaximumRetracement(List<Map> mapList, @Param("oemId") Integer oemId);
 
-    int updateMaximumRetracementByRiskLevel(Map map);
 
     int batchUpdateMaximumRetracementByRiskLevel(List<Map> mapList, @Param("oemId") Integer oemId);
 

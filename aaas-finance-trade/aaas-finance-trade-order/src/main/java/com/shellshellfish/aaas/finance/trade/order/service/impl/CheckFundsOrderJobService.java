@@ -17,6 +17,7 @@ import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
 import com.shellshellfish.aaas.tools.zhongzhengapi.BankZhongZhengInfo;
 import com.shellshellfish.aaas.tools.zhongzhengapi.EmptyQuery;
+import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApiServiceGrpc;
 import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApiServiceGrpc.ZZApiServiceBlockingStub;
 import io.grpc.ManagedChannel;
 import java.time.ZoneId;
@@ -51,8 +52,10 @@ public class CheckFundsOrderJobService {
 
     @Autowired
     BroadcastMessageProducer broadcastMessageProducer;
+
     @Autowired
-    ZZApiServiceBlockingStub zzApiServiceBlockingStub;
+    ManagedChannel managedZZAPIChannel;
+
 
 
 
@@ -87,6 +90,7 @@ public class CheckFundsOrderJobService {
     public void executeCheckZZBankJob() {
 
         try {
+            ZZApiServiceBlockingStub zzApiServiceBlockingStub = ZZApiServiceGrpc.newBlockingStub(managedZZAPIChannel);
             List<BankZhongZhengInfo> bankZhongZhengInfos = zzApiServiceBlockingStub
                 .getSupportBankList(EmptyQuery.newBuilder().build()).getBankZhongZhengInfoList();
         }catch (Exception ex){

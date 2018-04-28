@@ -43,7 +43,7 @@ public class FundGroupServiceImplTest {
         String groupId = "1";
         String subGroupId = "1000";
         for (int i = 1; i < 16; i++) {
-            fundGroupService.calculateMaxRetracement(groupId, subGroupId, LocalDate.now().plusDays(-1));
+            fundGroupService.calculateMaxRetracement(groupId, subGroupId, LocalDate.now().plusDays(-1), 1);
         }
     }
 
@@ -51,7 +51,7 @@ public class FundGroupServiceImplTest {
     public void testCalculateMaxRetracementFromList() {
         String groupId = "1";
         String subGroupId = "1000";
-        fundGroupService.calculateMaxRetracement(groupId, subGroupId);
+        fundGroupService.calculateMaxRetracement(groupId, subGroupId, 1);
     }
 
 }
