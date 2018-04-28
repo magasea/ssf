@@ -1936,7 +1936,7 @@ public class FundGroupService {
             BigDecimal navAdj = BigDecimal.ZERO;
             for (String code : codeList) {
                 BigDecimal navAdjOfFund = fundNetValMapper.getLatestNavAdj(code, date);
-                navAdj = navAdj.add(navAdjOfFund.multiply(fundProportionMap.get(code),  
+                navAdj = navAdj.add(navAdjOfFund.multiply(fundProportionMap.get(code),
                     MathContext.DECIMAL32).divide(baseMap.get(code), MathContext.DECIMAL32));
             }
             FundGroupHistory fundGroupHistory = new FundGroupHistory();
