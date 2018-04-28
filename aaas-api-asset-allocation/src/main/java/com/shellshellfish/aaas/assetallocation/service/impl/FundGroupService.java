@@ -2367,7 +2367,7 @@ public class FundGroupService {
 
         try {
             ThreadPoolExecutor navadjBenchmarkPool = new ThreadPoolExecutor(
-                    Runtime.getRuntime().availableProcessors() + 2,
+                    4,
                     15,
                     0L,
                     TimeUnit.MILLISECONDS,
@@ -2517,7 +2517,7 @@ public class FundGroupService {
 
         try {
             ThreadPoolExecutor contributionPool = new ThreadPoolExecutor(
-                    Runtime.getRuntime().availableProcessors() + 2,
+                    4,
                     15,
                     0L,
                     TimeUnit.MILLISECONDS,
