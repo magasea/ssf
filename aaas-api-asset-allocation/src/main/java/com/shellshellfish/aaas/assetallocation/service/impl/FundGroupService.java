@@ -1876,7 +1876,7 @@ public class FundGroupService {
         logger.info("start calculate group navadj groupId:{},subGroupId:{},startDate:{}", groupId, subGroupId,
                 startDate);
 //        long startTime = System.currentTimeMillis();
-        logger.info("calculateGroupNavadj start ");
+//        logger.info("calculateGroupNavadj start ");
         if (startDate == null)
             startDate = GROUP_START_DATE;
 
@@ -2431,8 +2431,8 @@ public class FundGroupService {
             fundGroupIdAndSubIdTask(fundGroupId + "", riskIncomeInterval.getId(), oemId);
 
             long endTime = System.currentTimeMillis();
-            logger.info("fundGroupId : {} , subGroupId : {}", fundGroupId, riskIncomeInterval.getId());
-            logger.info("one loop elapse : {}", endTime - startTime);
+            logger.info("fundGroupId : {} , subGroupId : {} one loop elapse : {}", fundGroupId, riskIncomeInterval
+                .getId(), endTime - startTime);
         }
     }
 
@@ -2442,7 +2442,7 @@ public class FundGroupService {
             // 此处已经由新的方法替代 （基金组合净值的计算方法更新）
 //            getNavadj(fundGroupId, subGroupId);
             //计算基金组合复权单位净值
-            calculateGroupNavadj(FundGroupService.GROUP_START_DATE, oemId);
+            calculateGroupNavadj(fundGroupId, subGroupId, oemId, FundGroupService.GROUP_START_DATE);
             //计算组合最大回撤
             calculateMaxRetracement(fundGroupId, subGroupId, InstantDateUtil.now());
 
