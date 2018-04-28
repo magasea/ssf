@@ -28,7 +28,8 @@ public class GrpcFundGroupIndexService extends AssetAllocationServiceGrpc.AssetA
         String subGroupId = request.getSubGroupId();
         Integer oemId = request.getOemId();
         FundGroupIndex fundGroupIndex = fundGroupIndexMapper.findByGroupIdAndSubGroupId(groupId, subGroupId, oemId);
-        Double maxRetracement = Optional.ofNullable(fundGroupHistoryMapper.getMaxDrawDown(groupId, subGroupId)).orElse(0D);
+        Double maxRetracement = Optional.ofNullable(fundGroupHistoryMapper.getMaxDrawDown(groupId, subGroupId, oemId))
+                .orElse(0D);
         FundGroupIndexResult.Builder builder = FundGroupIndexResult.newBuilder();
         builder.setHistoricalAnnualVolatility(fundGroupIndex.getHistoricalAnnualVolatility());
         builder.setHistoricalAnnualYeild(fundGroupIndex.getHistoricalAnnualYield());

@@ -65,15 +65,6 @@ public class FundGroupMapperTest {
         System.out.println(effectRow);
     }
 
-    @Test
-    public void updateMaximumRetracementByRiskLevelTest() {
-        Map<String, Object> query = new HashMap<>();
-        query.put("retracement", -0.0397); //-0.0397
-        query.put("risk_level", "C1");
-        query.put("time", "2018-01-15");
-        Integer effectRow = fundGroupMapper.updateMaximumRetracementByRiskLevel(query);
-        System.out.println(effectRow);
-    }
 
     @Test
     public void getProportionGroupByFundTypeTwoTest() {
