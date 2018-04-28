@@ -2375,7 +2375,7 @@ public class FundGroupService {
 
         this.fundGroupIdTasks(oemId);
         this.contribution(oemId);
-//        this.navadjBenchmark(oemId);
+        this.navadjBenchmark(oemId);
 
         long end = System.currentTimeMillis();
         logger.info("getAllIdAndSubId elapse : {}", end - start);
