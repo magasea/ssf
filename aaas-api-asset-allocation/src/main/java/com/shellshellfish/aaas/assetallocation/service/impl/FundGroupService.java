@@ -2458,7 +2458,7 @@ public class FundGroupService {
             //计算基金组合复权单位净值
             calculateGroupNavadj(fundGroupId, subGroupId, oemId, FundGroupService.GROUP_START_DATE);
             //计算组合最大回撤
-            calculateMaxRetracement(fundGroupId, subGroupId, InstantDateUtil.now(), oemId);
+            calculateMaxRetracement(fundGroupId, subGroupId, oemId);
 
 
             //更新预期最大回撤 fund_group_sub.expected_max_retracement
