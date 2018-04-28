@@ -68,6 +68,8 @@ public class FundGroupService {
     @Value("${spring.data.mongodb.collection}")
     String collectionName;
 
+    private static Map<Integer, List> allSubGroupIds = new ConcurrentHashMap<>();
+
     //最大亏损计算要求置信水平
     private static final double CONFIDENCE_LEVEL = 0.97;
     //最大亏损计算假定本金
@@ -1745,7 +1747,7 @@ public class FundGroupService {
         long startTime = System.currentTimeMillis();
         List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
         for (Interval interval : list) {
-            calculateMaxRetracement(interval.getFund_group_id(), interval.getId());
+            calculateMaxRetracement(interval.getFund_group_id(), interval.getId(), oemId);
         }
         long endTime = System.currentTimeMillis();
         logger.info("group maximum retracement ,cost time :{}ms", endTime - startTime);
@@ -1759,7 +1761,7 @@ public class FundGroupService {
         long startTime = System.currentTimeMillis();
         List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
         for (Interval interval : list) {
-            calculateMaxRetracement(interval.getFund_group_id(), interval.getId(), date);
+            calculateMaxRetracement(interval.getFund_group_id(), interval.getId(), date, oemId);
         }
         long endTime = System.currentTimeMillis();
         logger.info(" end group maximum retracement    date :{} ,cost time :{}ms",
@@ -1771,10 +1773,11 @@ public class FundGroupService {
      * 计算组合最大回撤
      * 替代<code>getNavadj(String group_id, String subGroupId)</code>
      */
-    public void calculateMaxRetracement(String groupId, String subGroupId) {
+    public void calculateMaxRetracement(String groupId, String subGroupId, int oemId) {
         logger.info("start to calculate group maximum retracement   groupId:{},subGroupId:{}", groupId, subGroupId);
         long startTime = System.currentTimeMillis();
-        List<FundGroupHistory> fundGroupHistorySrc = fundGroupHistoryMapper.findAllByDateBefore(FundGroupService.GROUP_START_DATE, groupId, subGroupId);
+        List<FundGroupHistory> fundGroupHistorySrc = fundGroupHistoryMapper.findAllByDateBefore
+            (FundGroupService.GROUP_START_DATE, groupId, subGroupId, oemId);
 
         if (CollectionUtils.isEmpty(fundGroupHistorySrc))
             return;
@@ -1796,7 +1799,8 @@ public class FundGroupService {
             }
             fundGroupHistoryDest.add(new FundGroupHistory(groupId, subGroupId, fundGroupHistory.getIncome_num(), maxRetracement, fundGroupHistory.getTime()));
         }
-        fundGroupHistoryMapper.updateMaxDrawDownFromList(fundGroupHistoryDest, groupId, subGroupId);
+        fundGroupHistoryMapper.updateMaxDrawDownFromList(fundGroupHistoryDest, groupId,
+            subGroupId, oemId);
         long endTime = System.currentTimeMillis();
         logger.info("end calculate group maximum retracement groupId :{} ,subGroupId:{},cost time :{}ms",
                 groupId, subGroupId, endTime - startTime);
@@ -1810,10 +1814,12 @@ public class FundGroupService {
      * @param subGroupId
      * @param date
      */
-    public void calculateMaxRetracement(String groupId, String subGroupId, LocalDate date) {
-        logger.info("start to calculate group maximum retracement   groupId:{},subGroupId:{},date :{}", groupId,
-                subGroupId, date);
-        List<FundGroupHistory> fundGroupHistoryOrigin = fundGroupHistoryMapper.findAllByDateBefore(FundGroupService.GROUP_START_DATE, groupId, subGroupId);
+    public void calculateMaxRetracement(String groupId, String subGroupId, LocalDate date, int
+        oemId) {
+        logger.info("start to calculate group maximum retracement   groupId:{},subGroupId:{},date"
+                + " :{} oemId:{}", groupId, subGroupId, date, oemId);
+        List<FundGroupHistory> fundGroupHistoryOrigin = fundGroupHistoryMapper
+            .findAllByDateBefore(FundGroupService.GROUP_START_DATE, groupId, subGroupId, oemId);
         List<Double> values = new ArrayList<>(fundGroupHistoryOrigin.size());
         for (FundGroupHistory fundGroupHistory : fundGroupHistoryOrigin) {
             values.add(fundGroupHistory.getIncome_num());
@@ -1876,7 +1882,7 @@ public class FundGroupService {
         logger.info("start calculate group navadj groupId:{},subGroupId:{},startDate:{}", groupId, subGroupId,
                 startDate);
 //        long startTime = System.currentTimeMillis();
-        logger.info("calculateGroupNavadj start ");
+//        logger.info("calculateGroupNavadj start ");
         if (startDate == null)
             startDate = GROUP_START_DATE;
 
@@ -2197,7 +2203,14 @@ public class FundGroupService {
     public int calculateAllSharpeRatio(int oemId) {
         logger.info("start to calculate all group sharpe Ratio");
         long startTime = System.currentTimeMillis();
-        List<FundGroupIndex> fundGroupIndexList = fundGroupIndexMapper.findAll(oemId);
+        List<FundGroupIndex> fundGroupIndexList = null;
+        if(CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)){
+            fundGroupIndexList  = fundGroupIndexMapper.findAll(oemId);
+            allSubGroupIds.put(oemId, fundGroupIndexList);
+        }else{
+            fundGroupIndexList = allSubGroupIds.get(oemId);
+        }
+
 
         List<Map> sharpeRatioList = new ArrayList<>(fundGroupIndexList.size());
         for (FundGroupIndex fundGroupIndex : fundGroupIndexList) {
@@ -2431,8 +2444,8 @@ public class FundGroupService {
             fundGroupIdAndSubIdTask(fundGroupId + "", riskIncomeInterval.getId(), oemId);
 
             long endTime = System.currentTimeMillis();
-            logger.info("fundGroupId : {} , subGroupId : {}", fundGroupId, riskIncomeInterval.getId());
-            logger.info("one loop elapse : {}", endTime - startTime);
+            logger.info("fundGroupId : {} , subGroupId : {} one loop elapse : {}", fundGroupId, riskIncomeInterval
+                .getId(), endTime - startTime);
         }
     }
 
@@ -2444,7 +2457,7 @@ public class FundGroupService {
             //计算基金组合复权单位净值
             calculateGroupNavadj(fundGroupId, subGroupId, oemId, FundGroupService.GROUP_START_DATE);
             //计算组合最大回撤
-            calculateMaxRetracement(fundGroupId, subGroupId, InstantDateUtil.now());
+            calculateMaxRetracement(fundGroupId, subGroupId, InstantDateUtil.now(), oemId);
 
 
             //更新预期最大回撤 fund_group_sub.expected_max_retracement
@@ -2472,7 +2485,7 @@ public class FundGroupService {
      * 计算预期最大回撤值/模拟波动率
      */
     public void updateExpectedMaxRetracement(String fundGroupId, String subGroupId, int oemId) {
-        logger.info("updateExpectedMaxRetracement begin");
+//        logger.info("updateExpectedMaxRetracement begin");
         Map<String, Object> map = new HashMap<>();
         map.put("id", fundGroupId);
         map.put("subId", subGroupId);
@@ -2486,7 +2499,7 @@ public class FundGroupService {
         }
         map.put("expected_max_retracement", retracement);
         fundGroupMapper.updateExpectedMaximumRetracement(map);
-        logger.info("updateExpectedMaxRetracement end");
+//        logger.info("updateExpectedMaxRetracement end");
     }
 
     /**
