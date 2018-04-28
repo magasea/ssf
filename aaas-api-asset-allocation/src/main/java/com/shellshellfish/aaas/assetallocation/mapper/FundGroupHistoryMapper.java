@@ -17,7 +17,7 @@ public interface FundGroupHistoryMapper {
         subGroupId, @Param("date") LocalDate date, @Param("oemId") Integer oemId);
 
     //更新最大回撤
-    int updateMaxDrawDown(FundGroupHistory fundGroupHistory);
+    int updateMaxDrawDown(FundGroupHistory fundGroupHistory, @Param("oemId") Integer oemId);
 
     //批量更新最大回撤
     int updateMaxDrawDownFromList(@Param("fundGroupHistoryList") List<FundGroupHistory>

@@ -1830,7 +1830,7 @@ public class FundGroupService {
         fundGroupHistory.setFund_group_sub_id(subGroupId);
         fundGroupHistory.setTime(InstantDateUtil.localDate2Date(date));
         fundGroupHistory.setMaximum_retracement(maxDrawdown);
-        fundGroupHistoryMapper.updateMaxDrawDown(fundGroupHistory);
+        fundGroupHistoryMapper.updateMaxDrawDown(fundGroupHistory, oemId);
         logger.info("end calculate group maximum retracement  groupId :{} ,subGroupId:{},cost date :{}",
                 groupId, subGroupId, date);
 
