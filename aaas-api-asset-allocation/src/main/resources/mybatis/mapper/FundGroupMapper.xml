@@ -318,14 +318,14 @@
     </insert>
 
     <insert id="batchInsertFundGroupHistory" parameterType="java.util.Map">
-        <foreach collection="list" item="item" separator=";">
+        <foreach collection="mapList" item="item" separator=";">
             insert ignore into fund_group_history (fund_group_sub_id,fund_group_id,income_num,time)
             VALUES (#{item.subGroupId},#{item.fundGroupId},#{item.incomeNum},#{item.time})
         </foreach>
     </insert>
 
     <insert id="batchInsertFundGroupHistoryBenchmark">
-        <foreach collection="list" item="item" separator=";">
+        <foreach collection="mapList" item="item" separator=";">
             insert ignore into fund_group_history_${oemId} (fund_group_id,income_num,time)
             VALUES (#{item.risk_level},#{item.incomeNum},#{item.time})
         </foreach>

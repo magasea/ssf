@@ -2366,8 +2366,8 @@ public class FundGroupService {
         long start = System.currentTimeMillis();
 
         try {
-            ThreadPoolExecutor pool = new ThreadPoolExecutor(
-                    15,
+            ThreadPoolExecutor navadjBenchmarkPool = new ThreadPoolExecutor(
+                    Runtime.getRuntime().availableProcessors() + 2,
                     15,
                     0L,
                     TimeUnit.MILLISECONDS,
@@ -2379,7 +2379,7 @@ public class FundGroupService {
 //            ExecutorService pool = ThreadPoolUtil.getThreadPool();
             for (int index = 1; index <= RISK_LEVEL_COUNT; index++) {
                 String riskLevel = "C" + index;
-                pool.execute(() -> {
+                navadjBenchmarkPool.execute(() -> {
                     getNavadjBenchmark(riskLevel, oemId);
                     countDownLatch.countDown();
                 });
@@ -2397,8 +2397,8 @@ public class FundGroupService {
 
     private void fundGroupIdTasks(int oemId) {
         final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
-        ThreadPoolExecutor pool = new ThreadPoolExecutor(
-                15,
+        ThreadPoolExecutor groupIndexPool = new ThreadPoolExecutor(
+                Runtime.getRuntime().availableProcessors() + 2,
                 15,
                 0L,
                 TimeUnit.MILLISECONDS,
@@ -2410,7 +2410,7 @@ public class FundGroupService {
 
             int fundGroupId = index;
             try {
-                pool.execute(() -> {
+                groupIndexPool.execute(() -> {
                     fundGroupIdTask(fundGroupId, oemId);
                 });
             } catch (Exception ex) {
@@ -2463,7 +2463,6 @@ public class FundGroupService {
             //更新预期最大回撤 fund_group_sub.expected_max_retracement
             updateExpectedMaxRetracement(fundGroupId, subGroupId, oemId);
             //跟新夏普比率  fund_group_sub.sharpRatio
-            sharpeRatio(fundGroupId, subGroupId, oemId);
 
             LocalDate endDayOfMonth = InstantDateUtil.now().with(TemporalAdjusters.lastDayOfMonth());
             if (InstantDateUtil.now().equals(endDayOfMonth)) {
@@ -2472,6 +2471,7 @@ public class FundGroupService {
                         GROUP_START_DATE, oemId);
                 //计算最大亏损
                 maximumLosses(fundGroupId, subGroupId, oemId);
+                sharpeRatio(fundGroupId, subGroupId, oemId);
             }
 
         } catch (Exception ex) {
@@ -2516,8 +2516,8 @@ public class FundGroupService {
 
 
         try {
-            ThreadPoolExecutor pool = new ThreadPoolExecutor(
-                    15,
+            ThreadPoolExecutor contributionPool = new ThreadPoolExecutor(
+                    Runtime.getRuntime().availableProcessors() + 2,
                     15,
                     0L,
                     TimeUnit.MILLISECONDS,
@@ -2528,7 +2528,7 @@ public class FundGroupService {
 //            ExecutorService pool = ThreadPoolUtil.getThreadPool();
             for (List<Interval> groupedIntervals : groupedMap.values()) {
                 List<Interval> intervals = groupedIntervals;
-                pool.execute(() -> {
+                contributionPool.execute(() -> {
                     contributionTask(intervals, oemId);
                     countDownLatch.countDown();
                 });
