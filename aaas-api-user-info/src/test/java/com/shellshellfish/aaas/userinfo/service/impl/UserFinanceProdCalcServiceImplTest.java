@@ -60,28 +60,10 @@ public class UserFinanceProdCalcServiceImplTest {
 
     }
 
-    @After
-    public void tearDown() {
-//        mongoTemplate.dropCollection(DailyAmount.class);
-    }
 
     @Test
     public void testCalcTotalDailyAsset() throws Exception {
 
-    }
-
-    @Test
-    public void testCalcDailyAsset() throws Exception {
-        for(String fundCode:fundCodeList) {
-            userFinanceProdCalcService.calcDailyAsset("shellshellfish", 2000L, fundCode, "20171222");
-            userFinanceProdCalcService.calcDailyAsset("shellshellfish", 2000L, fundCode, "20171223");
-            userFinanceProdCalcService.calcDailyAsset("shellshellfish", 2000L, fundCode, "20171224");
-            userFinanceProdCalcService.calcDailyAsset("shellshellfish", 2000L, fundCode, "20171225");
-            userFinanceProdCalcService.calcDailyAsset("shellshellfish", 2000L, fundCode, "20171226");
-            userFinanceProdCalcService.calcDailyAsset("shellshellfish", 2000L, fundCode, "20171227");
-            userFinanceProdCalcService.calcDailyAsset("shellshellfish", 2000L, fundCode, "20171228");
-            userFinanceProdCalcService.calcDailyAsset("shellshellfish", 2000L, fundCode, "20171229");
-        }
     }
 
     @Test
@@ -91,11 +73,11 @@ public class UserFinanceProdCalcServiceImplTest {
         }
     }
 
-    @Test
-    public void testTotalDailyAsset() throws Exception {
-        BigDecimal dailyAsset = userFinanceProdCalcService.calcTotalDailyAsset("shellshellfish");
-        logger.info("dailyAsset:{}", dailyAsset);
-    }
+//    @Test
+//    public void testTotalDailyAsset() throws Exception {
+//        BigDecimal dailyAsset = userFinanceProdCalcService.calcTotalDailyAsset("shellshellfish");
+//        logger.info("dailyAsset:{}", dailyAsset);
+//    }
 
     @Test
     public void testDailyCalculationOfToday() throws Exception {
@@ -146,12 +128,12 @@ public class UserFinanceProdCalcServiceImplTest {
     @Test
     public void testTotalAssetYieldValue(){
         long start = System.currentTimeMillis();
-        BigDecimal yieldValue1 = userFinanceProdCalcService.calcYieldValue("shellshellfish","20171226", "20171231");
-        BigDecimal yieldValue2 = userFinanceProdCalcService.calcYieldValue("shellshellfish","20171231", "20180104");
-        BigDecimal yieldValue3 = userFinanceProdCalcService.calcYieldValue("shellshellfish","20171226", "20180104");
+//        BigDecimal yieldValue1 = userFinanceProdCalcService.calcYieldValue("shellshellfish","20171226", "20171231");
+//        BigDecimal yieldValue2 = userFinanceProdCalcService.calcYieldValue("shellshellfish","20171231", "20180104");
+//        BigDecimal yieldValue3 = userFinanceProdCalcService.calcYieldValue("shellshellfish","20171226", "20180104");
         long end = System.currentTimeMillis();
         logger.info("duration: {}", end - start);
-        logger.info("total asset yieldValue1: {}, yieldValue2: {}, yieldValue3: {}", yieldValue1, yieldValue2, yieldValue3);
+//        logger.info("total asset yieldValue1: {}, yieldValue2: {}, yieldValue3: {}", yieldValue1, yieldValue2, yieldValue3);
     }
 
     @Test

@@ -331,7 +331,8 @@ public class OptimizationServiceImpl implements OptimizationService {
                             mongoFinanceALLRepository.save(mongoFinanceAll);
                             System.out.println(date + "--数据插入成功：groupId：" + groupId + "subGroupId:" + subGroupId);
                             logger.info("run OptimizationServiceImpl.financeFront() success..");
-                            logger.info("date:{}-groupId:{}-subGroupId:{}", date, groupId, subGroupId);
+                            logger.info("date:{}-groupId:{}-subGroupId:{}-oemId:{}", date, groupId,
+                                subGroupId,oemId);
                         }
                     } catch (Exception e) {
                         return new JsonResult(JsonResult.Fail, "获取产品的field属性失败", JsonResult.EMPTYRESULT);

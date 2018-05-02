@@ -33,5 +33,6 @@
       WHERE
       fund_group_id = #{groupId}
       AND fund_group_sub_id =#{subGroupId}
+      limit 1
     </select>
 </mapper>

@@ -77,7 +77,8 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
   @Value("${shellshellfish.data-manager-initcache-url}")
   String assetAllocationInitcache;
 
-  @Value("${shellshellfish.data-manager-initcache-detail-url}")
+//  @Value("${shellshellfish.data-manager-initcache-detail-url}")
+  @Value("${shellshellfish.data-manager-initcache-detail-url-ver2}")
   String assetAllocationInitcacheDetail;
 
   final static String CNST_BASE = "CLOSE";

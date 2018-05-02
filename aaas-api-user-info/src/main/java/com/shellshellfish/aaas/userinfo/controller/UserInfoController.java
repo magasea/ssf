@@ -506,9 +506,9 @@ public class UserInfoController {
                 map.put("bankType", "储蓄卡");
                 map.put("bankcardSecurity", getBankcardNumber(bankCard.getCardNumber()));
                 map.put("bankcardNum", bankCard.getCardNumber());
-                if(bankName.contains("·")){
+                if (bankName.contains("·")) {
                     map.put("bankShortName", bankName.substring(0, bankName.indexOf("·")));
-                }else{
+                } else {
                     map.put("bankShortName", bankName);
                 }
                 map.put("bankCode", BankUtil.getCodeOfBank(bankCard.getCardNumber()));
@@ -1368,6 +1368,7 @@ public class UserInfoController {
         resultMap.put("totalRevenue", totalRevenue);
         // 累计收益率
         resultMap.put("totalRevenueRate", totalRevenueRate);
+        //TODO recentDate 使用总资产的计算时间
         resultMap.put("recentDate", InstantDateUtil.now().plusDays(-1).toString());
         //收益走势图
         resultMap.put("trendYield", userInfoService.getTrendYield(userUuid));
