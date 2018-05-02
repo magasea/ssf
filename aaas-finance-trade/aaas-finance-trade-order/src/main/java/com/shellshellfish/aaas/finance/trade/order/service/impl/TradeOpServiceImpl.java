@@ -815,7 +815,11 @@ public class TradeOpServiceImpl implements TradeOpService {
 			detailMap.put("funddate", date);
 			logger.info("dayOfWeek value is :" + dayOfWeek);
 			logger.info("date value is :" + date);
-			detailMap.put("fundTitle", "于" + date + "(" + dayOfWeek + ")确认");
+			if(status.equals(CombinedStatusEnum.WAITCONFIRM.getComment())){
+			  detailMap.put("fundTitle", "将于" + date + "(" + dayOfWeek + ")确认");
+			} else {
+			  detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
+			}
             detailMap.put("fundTradeType", TrdOrderOpTypeEnum.getComment(trdOrderDetail.getTradeType()));
 //			TrdOrderOpTypeEnum[] trdOrderOpTypeEnum = TrdOrderOpTypeEnum.values();
 //			for(TrdOrderOpTypeEnum trdOrder3 : trdOrderOpTypeEnum){
@@ -943,7 +947,12 @@ public class TradeOpServiceImpl implements TradeOpService {
 	    detailMap.put("funddate", date);
 	    logger.info("dayOfWeek value is :" + dayOfWeek);
 	    logger.info("date value is :" + date);
-	    detailMap.put("fundTitle", "于" + date + "(" + dayOfWeek + ")确认");
+	    if(status.equals(CombinedStatusEnum.WAITCONFIRM.getComment())){
+	      detailMap.put("fundTitle", "将于" + date + "(" + dayOfWeek + ")确认");
+	    } else {
+	      detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
+	    }
+//	    detailMap.put("fundTitle", "于" + date + "(" + dayOfWeek + ")确认");
 	    detailMap.put("fundTradeType", TrdOrderOpTypeEnum.getComment(trdOrderDetail.getTradeType()));
 	    detailList.add(detailMap);
 	    
