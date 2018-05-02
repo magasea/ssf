@@ -27,10 +27,10 @@ public interface MongoUiTrdZZInfoRepo extends MongoRepository<MongoUiTrdZZInfo, 
                                                              String applySerial);
 
     List<MongoUiTrdZZInfo> findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(
-            Long userProdId, String fundType, int tradeType, int tradeStatus, String confirmDate);
+            Long userProdId, String fundCode, int tradeType, int tradeStatus, String confirmDate);
 
-    List<MongoUiTrdZZInfo> findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateAfter(
-            Long userProdId, String fundType, int tradeType, int tradeStatus, LocalDate confirmDate);
+    List<MongoUiTrdZZInfo> findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateGreaterThan(
+            long userProdId, String fundCode, int tradeType, int tradeStatus, String confirmDate);
 
     List<MongoUiTrdZZInfo> findByTradeTypeAndTradeStatusAndConfirmDateGreaterThanEqual(
             int trdType, int tradeStatus, String confirmDate);

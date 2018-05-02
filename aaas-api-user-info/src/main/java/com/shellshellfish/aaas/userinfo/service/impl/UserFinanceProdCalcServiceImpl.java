@@ -190,10 +190,8 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
      */
     private BigDecimal calcDailyAsset2(String userUuid, Long prodId, Long userProdId, String fundCode,
                                        String date, UiProductDetail uiProductDetail) throws Exception {
-        LocalDate localDate = InstantDateUtil.format(date, yyyyMMdd);
-        BigDecimal share = getFundQuantityAtDate(fundCode, userProdId, localDate, uiProductDetail);
-
-        localDate = localDate.plusDays(1);
+        BigDecimal share = getFundQuantityAtDate(fundCode, userProdId, date, uiProductDetail);
+        LocalDate localDate = InstantDateUtil.format(date, yyyyMMdd).plusDays(1);
         BigDecimal netValue;
 
         if (MonetaryFundEnum.containsCode(fundCode)) {
@@ -256,20 +254,19 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
      *
      * @param fundCode
      * @param userProdId
-     * @param date
+     * @param date            pattern:yyyyMMdd
      * @param uiProductDetail
      * @return
      */
-    private BigDecimal getFundQuantityAtDate(String fundCode, Long userProdId, LocalDate date, UiProductDetail
+    private BigDecimal getFundQuantityAtDate(String fundCode, Long userProdId, String date, UiProductDetail
             uiProductDetail) {
         List<MongoUiTrdZZInfo> mongoUiTrdZZInfoOfBuy = mongoUiTrdZZInfoRepo
-                .findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateAfter(userProdId,
+                .findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateGreaterThan(userProdId,
                         fundCode, TrdOrderOpTypeEnum.BUY.getOperation(),
                         TrdOrderStatusEnum.CONFIRMED.getStatus(), date);
         List<MongoUiTrdZZInfo> mongoUiTrdZZInfoSell = mongoUiTrdZZInfoRepo
-                .findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateAfter(userProdId,
-                        fundCode, TrdOrderOpTypeEnum.REDEEM.getOperation(),
-                        TrdOrderStatusEnum.SELLCONFIRMED.getStatus(), date);
+                .findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateGreaterThan(userProdId,
+                        fundCode, TrdOrderOpTypeEnum.REDEEM.getOperation(), TrdOrderStatusEnum.SELLCONFIRMED.getStatus(), date);
 
         //赎回总份额
         Long sellAmount = 0L;
