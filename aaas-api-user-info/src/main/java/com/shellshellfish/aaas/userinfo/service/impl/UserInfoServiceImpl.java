@@ -1112,8 +1112,8 @@ public class UserInfoServiceImpl implements UserInfoService {
             }
             List<MongoUiTrdLogDTO> tradeLogList = this.getTradeLogsByUserProdId(data);
             if (tradeLogList == null || tradeLogList.size() == 0) {
-                logger.error("交易记录为空");
-                throw new UserInfoException("404", "交易记录为空");
+                logger.error("交易记录为空 userUuid:{}, type:{}",userUuid, type);
+                throw new UserInfoException("404", String.format("交易记录为空 userUuid:{}, type:{}",userUuid, type));
             }
             Map<String, Map<String, Object>> tradLogsMap = new HashMap<String, Map<String, Object>>();
             Map<String, Map<String, Object>> tradLogsSum = new HashMap<String, Map<String, Object>>();

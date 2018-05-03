@@ -28,12 +28,15 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
     try {
       TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(true, null);
       logMap(info);
-      String json = restTemplate.postForObject(ZhongZhengAPIConstants.ZZ_API_URL_SUPPORT_BANK_LIST, info, String.class);
-      Type ZZGeneralRespT = new TypeToken<ZZGeneralResp<BankZhongZhenInfo>>() {}.getType();
-      ZZGeneralResp<BankZhongZhenInfo> zhongZhenInfoZZGeneralResp =  gson.fromJson(json,
-          ZZGeneralRespT);
-      checkResult(zhongZhenInfoZZGeneralResp);
-      return zhongZhenInfoZZGeneralResp.getData();
+      ZZGeneralResp<BankZhongZhenInfo> resp =  callZZApi(ZhongZhengAPIConstants
+          .ZZ_API_URL_SUPPORT_BANK_LIST,BankZhongZhenInfo.class, info);
+      checkResult(resp);
+//      String json = restTemplate.postForObject(ZhongZhengAPIConstants.ZZ_API_URL_SUPPORT_BANK_LIST, info, String.class);
+//      Type ZZGeneralRespT = new TypeToken<ZZGeneralResp<BankZhongZhenInfo>>() {}.getType();
+//      ZZGeneralResp<BankZhongZhenInfo> zhongZhenInfoZZGeneralResp =  gson.fromJson(json,
+//          ZZGeneralRespT);
+      checkResult(resp);
+      return resp.getData();
     } catch (Exception e) {
       logger.error("Error:", e);
       e.printStackTrace();
