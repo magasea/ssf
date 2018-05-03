@@ -864,6 +864,8 @@ public class OptimizationServiceImpl implements OptimizationService {
                     mongoFinanceDetail.setResult(fundResult);
                     mongoFinanceDetail.setId(null);
                     mongoFinanceDetailRepository.save(mongoFinanceDetail);
+                }else{
+                    logger.error("fundList is empty for key:{}", key);
                 }
             }
 

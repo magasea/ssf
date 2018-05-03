@@ -9,7 +9,7 @@ spring:
   data:
       mongodb:
         database: funds
-        host: 47.96.164.161
+        host: 192.168.1.10
         port: 27017
   http:
     multipart:
