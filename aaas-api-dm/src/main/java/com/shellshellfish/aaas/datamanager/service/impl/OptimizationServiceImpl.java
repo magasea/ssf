@@ -844,14 +844,12 @@ public class OptimizationServiceImpl implements OptimizationService {
             mongoFinanceDetail.setLastModifiedBy(utcTime + "");
 
             Map<Integer, List> fundListMap = (Map<Integer, List>) result.get("fundListMap");
-//            Map<Integer, List> fundListMap = new HashMap<Integer, List>();
-//            if (object != null) {
-//                fundListMap = (HashMap<Integer, List>) object;
-//                result.remove("fundListMap");
-//            }
+
             mongoFinanceDetail.setTotal(fundListMap.size());
             mongoFinanceDetailRepository.save(mongoFinanceDetail);
-
+            if (fundListMap != null) {
+                result.remove("fundListMap");
+            }
             for (Integer key : fundListMap.keySet()) {
                 List fundList =  fundListMap.get(key);
                 if (!CollectionUtils.isEmpty(fundList)) {
