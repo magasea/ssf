@@ -165,3 +165,13 @@ http://192.168.1.249:4999/index.php?s=/2
 ## 贝贝鱼环境信息
 
 http://192.168.1.249:4999/index.php?s=/1&page_id=34
+
+## 数据库设计军规
+  先定义一些通用缩写
+ 1. user info - uinfo
+ 2. trade - trd
+ 3. order - ord
+ 4. finance - fin
+关系型数据库的表设计：
+- 库名缩写_模块名缩写_表名 或者 模块名缩写_表名
+- 其他请参考： http://192.168.1.249:4999/index.php?s=/10&page_id=43
