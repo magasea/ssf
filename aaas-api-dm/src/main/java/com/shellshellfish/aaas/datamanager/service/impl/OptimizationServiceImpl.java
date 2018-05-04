@@ -19,7 +19,7 @@ import com.shellshellfish.aaas.datamanager.model.MongoFinanceDetail;
 import com.shellshellfish.aaas.datamanager.repositories.MongoFinanceDetailRepository;
 import com.shellshellfish.aaas.datamanager.repositories.mongo.MongoFinanceALLRepository;
 import com.shellshellfish.aaas.datamanager.service.OptimizationService;
-
+import static org.hamcrest.CoreMatchers.instanceOf;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-
+import org.omg.PortableServer.POAPackage.ObjectAlreadyActive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -844,12 +844,15 @@ public class OptimizationServiceImpl implements OptimizationService {
             mongoFinanceDetail.setLastModifiedBy(utcTime + "");
 
             Map<Integer, List> fundListMap = (Map<Integer, List>) result.get("fundListMap");
-
+            if(fundListMap != null){
+              result.remove("fundListMap");
+            }
+            
             mongoFinanceDetail.setTotal(fundListMap.size());
             mongoFinanceDetailRepository.save(mongoFinanceDetail);
-            if (fundListMap != null) {
-                result.remove("fundListMap");
-            }
+//            if (fundListMap != null) {
+//                result.remove("fundListMap");
+//            }
             for (Integer key : fundListMap.keySet()) {
                 List fundList =  fundListMap.get(key);
                 if (!CollectionUtils.isEmpty(fundList)) {
@@ -1326,6 +1329,7 @@ public class OptimizationServiceImpl implements OptimizationService {
         }
         MongoFinanceDetail detail = new MongoFinanceDetail();
         List fundListMap = new ArrayList();
+        Map<String, Object> finaceListMap = new HashMap<>();
         for (int i = 0; i < mongoFinanceDetailsList.size(); i++) {
             if (i == 0) {
                 detail = mongoFinanceDetailsList.get(0);
@@ -1349,11 +1353,22 @@ public class OptimizationServiceImpl implements OptimizationService {
                 Map<String, HashMap> finaceDetailMapOne = (HashMap<String, HashMap>) obj;
                 Object fundListMapObj = finaceDetailMapOne.get("fundListMap");
                 if (fundListMapObj != null) {
-                    fundListMap.add(fundListMapObj);
+//                    fundListMap.add(fundListMapObj);
+                  Map<String, Object> finaceListMapTemp = (HashMap<String, Object>) fundListMapObj;
+                  for(String key : finaceListMapTemp.keySet()){
+                    finaceListMap.put(key, finaceListMapTemp.get(key));
+                  }
                 }
             }
         }
-        detail.setResult(fundListMap);
+        Object obj = detail.getResult();
+        if(obj !=null && obj instanceof Map){
+          Map<String, Map> objMap = (HashMap<String, Map>) obj;
+//          objMap.put("fundListMap", fundListMap);
+          objMap.put("fundListMap", finaceListMap);
+          detail.setResult(objMap);
+        }
+//        detail.setResult(fundListMap);
         jsonResult = new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", detail.getResult());
         return jsonResult;
     }
