@@ -4,11 +4,11 @@ package com.shellshellfish.aaas.zhongzhengapi.model;
  * Created by chenwei on 2018- 四月 - 20
  */
 
-public class ZZGeneralResp<T>  {
+public class ZZGeneralErrResp  {
   String status;
   String errno;
   String msg;
-  T data;
+  Object[] data;
 
 
 
@@ -36,11 +36,11 @@ public class ZZGeneralResp<T>  {
     this.msg = msg;
   }
 
-  public T getData() {
+  public Object[] getData() {
     return data;
   }
 
-  public void setData(T data) {
+  public void setData(Object[] data) {
     this.data = data;
   }
 

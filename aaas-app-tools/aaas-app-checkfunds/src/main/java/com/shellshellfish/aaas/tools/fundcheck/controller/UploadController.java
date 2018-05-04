@@ -64,6 +64,12 @@ public class UploadController {
         return "upload";
     }
 
+    @GetMapping("/synfunds")
+    public void synfunds() {
+
+        fundUpdateJobService.pullInfoBaseOnFundAndBaseKeyInfo();
+    }
+
     @PostMapping("/upload") // //new annotation since 4.3
     public String singleFileUpload(@RequestParam("file") MultipartFile file,
                                    RedirectAttributes redirectAttributes) throws Exception {

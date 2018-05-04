@@ -1,14 +1,18 @@
 package com.shellshellfish.aaas.zhongzhengapi.model;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.List;
+
 /**
  * Created by chenwei on 2018- 四月 - 20
  */
 
-public class ZZGeneralResp<T>  {
+public class ZZGeneralRespWithListData<T>  {
   String status;
   String errno;
   String msg;
-  T data;
+  List<T> data;
 
 
 
@@ -36,11 +40,11 @@ public class ZZGeneralResp<T>  {
     this.msg = msg;
   }
 
-  public T getData() {
+  public List<T> getData() {
     return data;
   }
 
-  public void setData(T data) {
+  public void setData(List<T> data) {
     this.data = data;
   }
 
