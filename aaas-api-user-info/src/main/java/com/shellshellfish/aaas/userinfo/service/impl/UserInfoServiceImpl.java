@@ -782,7 +782,9 @@ public class UserInfoServiceImpl implements UserInfoService {
             Long userId = getUserIdFromUUID(uuid);
             // 总资产
             PortfolioInfo portfolioInfo = this.getChicombinationAssets(uuid, userId, products);
-            if (portfolioInfo == null || portfolioInfo.getTotalAssets() == null || portfolioInfo.getTotalAssets().compareTo(BigDecimal.ZERO) <= 0) {
+//            if (portfolioInfo == null || portfolioInfo.getTotalAssets() == null || portfolioInfo.getTotalAssets().compareTo(BigDecimal.ZERO) <= 0) {
+            //TODO  需要确定产品生命周期，并明确显示的过滤规则;
+            if (portfolioInfo == null || portfolioInfo.getTotalAssets() == null) {
                 continue;
             }
 
@@ -1102,18 +1104,18 @@ public class UserInfoServiceImpl implements UserInfoService {
             List data = new ArrayList<>();
             int begin = pageSize * pageIndex;
             for (int i = 0; i < pageSize; i++) {
-              if(dataList.size() <= begin) {
-                break;
-              }
-              data.add(dataList.get(begin++));
+                if (dataList.size() <= begin) {
+                    break;
+                }
+                data.add(dataList.get(begin++));
             }
             if (data == null || data.size() == 0) {
                 return tradeLogs;
             }
             List<MongoUiTrdLogDTO> tradeLogList = this.getTradeLogsByUserProdId(data);
             if (tradeLogList == null || tradeLogList.size() == 0) {
-                logger.error("交易记录为空");
-                throw new UserInfoException("404", "交易记录为空");
+                logger.error("交易记录为空 userUuid:{}, type:{}", userUuid, type);
+                throw new UserInfoException("404", String.format("交易记录为空 userUuid:{}, type:{}", userUuid, type));
             }
             Map<String, Map<String, Object>> tradLogsMap = new HashMap<String, Map<String, Object>>();
             Map<String, Map<String, Object>> tradLogsSum = new HashMap<String, Map<String, Object>>();
@@ -1287,15 +1289,15 @@ public class UserInfoServiceImpl implements UserInfoService {
         try {
             DBObject dbObject = new BasicDBObject();
             dbObject.put("user_id", userId);
-            if(type != 0){
-              dbObject.put("operations", type);
+            if (type != 0) {
+                dbObject.put("operations", type);
             }
             DB db = mongoClient.getDB(mongoDatabase.getName());
             dataList = db.getCollection("ui_trdlog").distinct("user_prod_id", dbObject);
             Collections.sort(dataList, new Comparator<Long>() {
-              public int compare(Long o1, Long o2) {
-                  return o2.compareTo(o1);
-              }
+                public int compare(Long o1, Long o2) {
+                    return o2.compareTo(o1);
+                }
             });
         } catch (Exception e) {
             e.printStackTrace();

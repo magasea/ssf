@@ -1,8 +1,13 @@
 package com.shellshellfish.aaas.zhongzhengapi.service.impl;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApiServiceGrpc;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZGeneralResp;
+import com.shellshellfish.aaas.zhongzhengapi.util.ZhongZhengAPIConstants;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +21,8 @@ public abstract class AbstractZhongzhengApiService extends ZZApiServiceGrpc.ZZAp
   Logger logger = LoggerFactory.getLogger(getClass());
 
 
-
+  private final Gson gson = new Gson();
+  private RestTemplate restTemplate = new RestTemplate();
   void logMap(Map info){
     info.forEach(
         (key, value) ->{
@@ -32,14 +38,38 @@ public abstract class AbstractZhongzhengApiService extends ZZApiServiceGrpc.ZZAp
     }
   }
 
-//  void callZZApi<T> (String url, Map info, Class<T> classType){
-//    String json = restTemplate.postForObject(ZhongZhengAPIConstants.ZZ_API_URL_SUPPORT_BANK_LIST, info, String.class);
-//    Type ZZGeneralRespT = new TypeToken<ZZGeneralResp<T>>() {}.getType();
-//    ZZGeneralResp<BankZhongZhenInfo> zhongZhenInfoZZGeneralResp =  gsonBuilder.create().fromJson(json,
-//        ZZGeneralRespT);
-//    System.out.println(zhongZhenInfoZZGeneralResp.getData().size());
-//  }
+  protected <T> ZZGeneralResp<T> parseAbstractResponse(String json, TypeToken type) {
+    return new GsonBuilder()
+        .create()
+        .fromJson(json, type.getType());
+  }
 
+  <T> ZZGeneralResp<T> callZZApi(String url, Class<T> cl ,  Map info){
+    TypeToken<ZZGeneralResp<T>> typeToken = new TypeToken<ZZGeneralResp<T>>() {};
+    String json = restTemplate.postForObject(url, info, String.class);
+    ZZGeneralResp<T> responseBase = gson.fromJson(json, getType(ZZGeneralResp.class, cl));
+//    ZZGeneralResp<T> responseBase = parseAbstractResponse(json, typeToken);
+    return responseBase;
+  }
 
+  private Type getType(final Class<?> rawClass, final Class<?> parameterClass) {
+    return new ParameterizedType() {
+      @Override
+      public Type[] getActualTypeArguments() {
+        return new Type[]{parameterClass};
+      }
+
+      @Override
+      public Type getRawType() {
+        return rawClass;
+      }
+
+      @Override
+      public Type getOwnerType() {
+        return null;
+      }
+
+    };
+  }
 
 }

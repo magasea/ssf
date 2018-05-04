@@ -843,18 +843,15 @@ public class OptimizationServiceImpl implements OptimizationService {
             System.out.println("groupId:" + groupId + ", subGroupId:" + subGroupId);
             mongoFinanceDetail.setLastModifiedBy(utcTime + "");
 
-            Object object = result.get("fundListMap");
-            Map<Integer, List> fundListMap = new HashMap<Integer, List>();
-            if (object != null) {
-                fundListMap = (HashMap<Integer, List>) object;
-                result.remove("fundListMap");
-            }
+            Map<Integer, List> fundListMap = (Map<Integer, List>) result.get("fundListMap");
+
             mongoFinanceDetail.setTotal(fundListMap.size());
             mongoFinanceDetailRepository.save(mongoFinanceDetail);
-
+            if (fundListMap != null) {
+                result.remove("fundListMap");
+            }
             for (Integer key : fundListMap.keySet()) {
-                List fundList = new ArrayList();
-                fundList = (List) fundListMap.get(key);
+                List fundList =  fundListMap.get(key);
                 if (!CollectionUtils.isEmpty(fundList)) {
                     Map<String, Object> fundResult = new HashMap<String, Object>();
                     Map<Integer, List> fundOutMap = new HashMap<Integer, List>();
@@ -865,6 +862,8 @@ public class OptimizationServiceImpl implements OptimizationService {
                     mongoFinanceDetail.setResult(fundResult);
                     mongoFinanceDetail.setId(null);
                     mongoFinanceDetailRepository.save(mongoFinanceDetail);
+                }else{
+                    logger.error("fundList is empty for key:{}", key);
                 }
             }
 
