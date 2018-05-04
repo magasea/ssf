@@ -21,6 +21,7 @@ import com.shellshellfish.aaas.datamanager.repositories.mongo.MongoFinanceALLRep
 import com.shellshellfish.aaas.datamanager.service.OptimizationService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -304,6 +305,8 @@ public class OptimizationServiceImpl implements OptimizationService {
                             // 去另一接口获取历史收益率图表的数据
                             Map histYieldRate = getCombYieldRate(groupId, subGroupId, oemId);
 
+                            sort(histYieldRate);
+
                             String startDate = histYieldRate.get("startDate").toString();
                             // 去另一个接口获取预期年化，预期最大回撤
                             Map expAnnReturn = getExpAnnReturn(groupId, subGroupId, oemId);
@@ -330,7 +333,7 @@ public class OptimizationServiceImpl implements OptimizationService {
                             System.out.println(date + "--数据插入成功：groupId：" + groupId + "subGroupId:" + subGroupId);
                             logger.info("run OptimizationServiceImpl.financeFront() success..");
                             logger.info("date:{}-groupId:{}-subGroupId:{}-oemId:{}", date, groupId,
-                                subGroupId,oemId);
+                                    subGroupId, oemId);
                         }
                     } catch (Exception e) {
                         return new JsonResult(JsonResult.Fail, "获取产品的field属性失败", JsonResult.EMPTYRESULT);
@@ -346,6 +349,26 @@ public class OptimizationServiceImpl implements OptimizationService {
         return jsonResult;
     }
 
+    /**
+     * 对组合累计收益率按时间排序
+     *
+     * @param histYieldRate
+     */
+    private void sort(Map histYieldRate) {
+        List data = Optional.ofNullable(histYieldRate)
+                .map(m -> m.get("_items"))
+                .map(m -> ((List) m).get(0))
+                .map(m -> ((Map) m).get("income"))
+                .map(m -> ((List) m))
+                .orElse(new ArrayList(0));
+
+
+        Collections.sort(data, (o1, o2) -> {
+            LocalDate date1 = InstantDateUtil.format(((Map) o1).get("time").toString());
+            LocalDate date2 = InstantDateUtil.format(((Map) o2).get("time").toString());
+            return date1.compareTo(date2);
+        });
+    }
 
     private Map align(Map src, Map target) {
 
@@ -590,8 +613,8 @@ public class OptimizationServiceImpl implements OptimizationService {
         }
 
         Map expAnnReturn = getExpAnnReturn(groupId, subGroupId, oemId);
-        Map expMaxReturn = getExpMaxReturn(groupId, subGroupId,oemId);
-        Map simulateHistoricalReturn = getSimulateHistoricalReturn(groupId, subGroupId,oemId);
+        Map expMaxReturn = getExpMaxReturn(groupId, subGroupId, oemId);
+        Map simulateHistoricalReturn = getSimulateHistoricalReturn(groupId, subGroupId, oemId);
         result.put("expAnnReturn", expAnnReturn);
         result.put("expMaxDrawDown", expMaxReturn);
         result.put("simulateHistoricalVolatility", simulateHistoricalReturn);
@@ -714,8 +737,8 @@ public class OptimizationServiceImpl implements OptimizationService {
             }
             result.put("assetsRatios", productMap.get("assetsRatios"));
             Map expAnnReturn = getExpAnnReturn(groupId, subGroupId, oemId);
-            Map expMaxReturn = getExpMaxReturn(groupId, subGroupId,oemId);
-            Map simulateHistoricalReturn = getSimulateHistoricalReturn(groupId, subGroupId,oemId);
+            Map expMaxReturn = getExpMaxReturn(groupId, subGroupId, oemId);
+            Map simulateHistoricalReturn = getSimulateHistoricalReturn(groupId, subGroupId, oemId);
             result.put("expAnnReturn", expAnnReturn);
             result.put("expMaxDrawDown", expMaxReturn);
             result.put("simulateHistoricalVolatility", simulateHistoricalReturn);
@@ -810,8 +833,8 @@ public class OptimizationServiceImpl implements OptimizationService {
             }
             result.put("assetsRatios", productMap.get("assetsRatios"));
             Map expAnnReturn = getExpAnnReturn(groupId, subGroupId, oemId);
-            Map expMaxReturn = getExpMaxReturn(groupId, subGroupId,oemId);
-            Map simulateHistoricalReturn = getSimulateHistoricalReturn(groupId, subGroupId,oemId);
+            Map expMaxReturn = getExpMaxReturn(groupId, subGroupId, oemId);
+            Map simulateHistoricalReturn = getSimulateHistoricalReturn(groupId, subGroupId, oemId);
             result.put("expAnnReturn", expAnnReturn);
             result.put("expMaxDrawDown", expMaxReturn);
             result.put("simulateHistoricalVolatility", simulateHistoricalReturn);
@@ -852,7 +875,7 @@ public class OptimizationServiceImpl implements OptimizationService {
 //                result.remove("fundListMap");
 //            }
             for (Integer key : fundListMap.keySet()) {
-                List fundList =  fundListMap.get(key);
+                List fundList = fundListMap.get(key);
                 if (!CollectionUtils.isEmpty(fundList)) {
                     Map<String, Object> fundResult = new HashMap<String, Object>();
                     Map<Integer, List> fundOutMap = new HashMap<Integer, List>();
@@ -863,7 +886,7 @@ public class OptimizationServiceImpl implements OptimizationService {
                     mongoFinanceDetail.setResult(fundResult);
                     mongoFinanceDetail.setId(null);
                     mongoFinanceDetailRepository.save(mongoFinanceDetail);
-                }else{
+                } else {
                     logger.error("fundList is empty for key:{}", key);
                 }
             }
