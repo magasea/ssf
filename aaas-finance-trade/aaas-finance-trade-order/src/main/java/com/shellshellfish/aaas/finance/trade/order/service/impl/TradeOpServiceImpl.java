@@ -883,6 +883,8 @@ public class TradeOpServiceImpl implements TradeOpService {
 	  }
 	  
 	  result.put("orderType", TrdOrderOpTypeEnum.getComment(trdOrder.getOrderType()));
+	  result.put("sellTargetPercent", TradeUtil.getBigDecimalNumWithDiv100(trdOrder.getSellPercent
+        ()));
 	  //金额
 	  long amount = trdOrder.getPayAmount();
 	  BigDecimal bigDecimalAmount = BigDecimal.ZERO;

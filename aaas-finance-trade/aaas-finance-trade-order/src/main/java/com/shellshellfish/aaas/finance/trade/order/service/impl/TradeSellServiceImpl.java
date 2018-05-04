@@ -276,8 +276,8 @@ public class TradeSellServiceImpl implements TradeSellService {
     trdSellOrder.setOrderStatus(TrdOrderStatusEnum.WAITSELL.ordinal());
     trdSellOrder.setBankCardNum(results.getUserBankNum());
     //用这个字段记录赎回百分比
-    trdSellOrder.setPayAmount(percent);
-
+//    trdSellOrder.setPayAmount(percent);
+    trdSellOrder.setSellPercent(percent);
     ProdSellPercentMsg prodSellPercentMsg = new ProdSellPercentMsg();
 
     prodSellPercentMsg.setUserProdId(trdOrders.get(0).getUserProdId());
