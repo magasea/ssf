@@ -782,9 +782,7 @@ public class UserInfoServiceImpl implements UserInfoService {
             Long userId = getUserIdFromUUID(uuid);
             // 总资产
             PortfolioInfo portfolioInfo = this.getChicombinationAssets(uuid, userId, products);
-//            if (portfolioInfo == null || portfolioInfo.getTotalAssets() == null || portfolioInfo.getTotalAssets().compareTo(BigDecimal.ZERO) <= 0) {
-            //TODO  需要确定产品生命周期，并明确显示的过滤规则;
-            if (portfolioInfo == null || portfolioInfo.getTotalAssets() == null) {
+            if (portfolioInfo == null || portfolioInfo.getTotalAssets() == null || portfolioInfo.getTotalAssets().compareTo(BigDecimal.ZERO) <= 0) {
                 continue;
             }
 
