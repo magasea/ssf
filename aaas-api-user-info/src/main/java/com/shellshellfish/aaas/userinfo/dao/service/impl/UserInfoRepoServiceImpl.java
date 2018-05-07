@@ -102,7 +102,7 @@ import org.springframework.util.StringUtils;
 public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
 		implements UserInfoRepoService {
 
-	Logger logger = LoggerFactory.getLogger(getClass());
+	Logger logger = LoggerFactory.getLogger(UserInfoServiceImpl.class);
 
 	@Autowired
 	UserInfoBankCardsRepository userInfoBankCardsRepository;
