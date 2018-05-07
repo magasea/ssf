@@ -29,6 +29,7 @@ import com.shellshellfish.aaas.common.enums.CombinedStatusEnum;
 import com.shellshellfish.aaas.common.enums.TradeResultStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.utils.BankUtil;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.oeminfo.model.JsonResult;
 import com.shellshellfish.aaas.transfer.aop.AopTimeResources;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
@@ -922,7 +923,20 @@ public class UserInfoController {
 					result.put("statusList", resultStatusTemp);
 					result.remove("serialList");
 				} else {
-					result.put("statusList", new ArrayList());
+					List<Map<String, Object>> stautsMapList = new ArrayList();
+					Map<String, Object> statusMap = new HashMap();
+					Long orderDate = (Long) result.get("orderDate");
+					String dateTime = TradeUtil.getReadableDateTime(orderDate);
+					String date = dateTime.split("T")[0];
+					String time = dateTime.split("T")[1].substring(0, 8);
+					
+					statusMap.put("status", "申请已受理");
+					statusMap.put("date", date);
+					statusMap.put("lastModified", orderDate);
+					statusMap.put("operation", result.get("operation"));
+					statusMap.put("time", time);
+					stautsMapList.add(statusMap);
+					result.put("statusList", stautsMapList);
 					result.remove("serialList");
 				}
 				if (StringUtils.isEmpty(bankName) || StringUtils.isEmpty(bankCard)) {
@@ -1031,7 +1045,8 @@ public class UserInfoController {
 							
 							if(resultStatusMap.get("serial")!=null){
 								String serial = (String) resultStatusMap.get("serial");
-								if(StringUtils.isEmpty(serial) || !serialList.contains(serial)){
+								if(StringUtils.isEmpty(serial)){
+//									if(StringUtils.isEmpty(serial) || !serialList.contains(serial)){
 									continue;
 								}
 								resultStatusMap.remove("serial");
@@ -1048,11 +1063,42 @@ public class UserInfoController {
 								resultStatusTemp.add(resultStatusMap);
 							}
 						}
+						if(resultStatusTemp == null || resultStatusTemp.size() == 0) {
+							List<Map<String, Object>> stautsMapList = new ArrayList();
+							Map<String, Object> statusMap = new HashMap();
+							Long orderDate = (Long) result.get("orderDate");
+							String dateTime = TradeUtil.getReadableDateTime(orderDate);
+							String date = dateTime.split("T")[0];
+							String time = dateTime.split("T")[1].substring(0, 8);
+							
+							statusMap.put("status", "申请已受理");
+							statusMap.put("date", date);
+							statusMap.put("lastModified", orderDate);
+							statusMap.put("operation", result.get("operation"));
+							statusMap.put("time", time);
+							stautsMapList.add(statusMap);
+							result.put("statusList", stautsMapList);
+							result.remove("serialList");
+						} else {
+							result.put("statusList", resultStatusTemp);
+						}
 					}
-					result.put("statusList", resultStatusTemp);
 					result.remove("serialList");
 				} else {
-					result.put("statusList", new ArrayList());
+					List<Map<String, Object>> stautsMapList = new ArrayList();
+					Map<String, Object> statusMap = new HashMap();
+					Long orderDate = (Long) result.get("orderDate");
+					String dateTime = TradeUtil.getReadableDateTime(orderDate);
+					String date = dateTime.split("T")[0];
+					String time = dateTime.split("T")[1].substring(0, 8);
+					
+					statusMap.put("status", "申请已受理");
+					statusMap.put("date", date);
+					statusMap.put("lastModified", orderDate);
+					statusMap.put("operation", result.get("operation"));
+					statusMap.put("time", time);
+					stautsMapList.add(statusMap);
+					result.put("statusList", stautsMapList);
 					result.remove("serialList");
 				}
 				if (StringUtils.isEmpty(bankName) || StringUtils.isEmpty(bankCard)) {
