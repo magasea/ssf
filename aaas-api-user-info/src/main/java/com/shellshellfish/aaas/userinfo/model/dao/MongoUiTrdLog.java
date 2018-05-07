@@ -73,6 +73,9 @@ public class MongoUiTrdLog implements Serializable {
   @Field( value = "trade_target_sum")
   private Long tradeTargetSum;
 
+  @Field(value = "oemId")
+  private  Integer oemId;
+
   @Field( value = "apply_serial")
   private String applySerial;
 
@@ -216,5 +219,13 @@ public class MongoUiTrdLog implements Serializable {
 
   public void setApplySerial(String applySerial) {
     this.applySerial = applySerial;
+  }
+
+  public Integer getOemId() {
+    return oemId;
+  }
+
+  public void setOemId(Integer oemId) {
+    this.oemId = oemId;
   }
 }

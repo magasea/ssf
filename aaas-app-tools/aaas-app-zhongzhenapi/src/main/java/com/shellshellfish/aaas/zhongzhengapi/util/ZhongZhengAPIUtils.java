@@ -91,9 +91,9 @@ public class ZhongZhengAPIUtils {
     info.put("key", key);
 //    String encryptKey =
 //    info.put("key");
-    if(isDefault){
-      info.put("sign", makeDefaultMsg(info));
-    }
+//    if(isDefault){
+    info.put("sign", makeDefaultMsg(info));
+//    }
     return info;
   }
 
