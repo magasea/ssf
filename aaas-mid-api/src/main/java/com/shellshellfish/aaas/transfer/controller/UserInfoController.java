@@ -495,7 +495,16 @@ public class UserInfoController {
 							Map<String,String> tradeStatusMap = (Map) map.get("tradeStatusMap");
 							if(tradeStatusMap != null && tradeStatusMap.size() > 0){
 								if(tradeStatusMap.size() != 1){
-									if(tradeStatusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())){
+//									if(tradeStatusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())){
+//										map.put("tradeStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
+//									}
+									if (tradeStatusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())
+											&& tradeStatusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
+										map.put("tradeStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
+									}
+									if (tradeStatusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())
+											&& tradeStatusMap
+													.containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())) {
 										map.put("tradeStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
 									}
 								} else {
