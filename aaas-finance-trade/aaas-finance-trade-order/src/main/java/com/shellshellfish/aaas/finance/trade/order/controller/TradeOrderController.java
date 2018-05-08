@@ -163,6 +163,7 @@ public class TradeOrderController {
 		productBaseInfo.setProdId(groupId);
 		productBaseInfo.setGroupId(subGroupId);
 		productBaseInfo.setOemId(oemid);
+		logger.info("groupId:{} subGroupId:{} oemid:{}", groupId, subGroupId, oemid);
 		List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
 		//最大金额最小金额判断
 		boolean result = financeProdCalcService.getMaxMinResult(productList, totalAmount);

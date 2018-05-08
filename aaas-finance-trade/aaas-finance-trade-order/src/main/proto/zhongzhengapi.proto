@@ -6,7 +6,7 @@ option java_outer_classname = "ZZApiServiceRpc";
 option objc_class_prefix = "ZZASR";
 
 service ZZApiService {
-    rpc GetSupportBankList (EmptyQuery) returns (BankZhongZhengInfoList) {
+    rpc getSupportBankList (EmptyQuery) returns (BankZhongZhengInfoList) {
     }
 }
 

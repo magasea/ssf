@@ -1,15 +1,23 @@
 package com.shellshellfish.aaas.zhongzhengapi.service.impl;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
+import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApiServiceGrpc;
 import com.shellshellfish.aaas.zhongzhengapi.model.BankZhongZhenInfo;
 import com.shellshellfish.aaas.zhongzhengapi.model.CancelTradeResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.SellResult;
+import com.shellshellfish.aaas.zhongzhengapi.model.ZZGeneralErrResp;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZGeneralResp;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZGeneralRespWithListData;
 import com.shellshellfish.aaas.zhongzhengapi.service.ZhongZhengApiService;
 import com.shellshellfish.aaas.zhongzhengapi.util.ZhongZhengAPIConstants;
 import com.shellshellfish.aaas.zhongzhengapi.util.ZhongZhengAPIUtils;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +29,7 @@ import org.springframework.web.client.RestTemplate;
 public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService implements ZhongZhengApiService  {
   Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final Gson gson = new Gson();
-  private RestTemplate restTemplate = new RestTemplate();
+
 
   @Override
   public List<BankZhongZhenInfo> getSupportBankList() {
@@ -82,6 +89,7 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
       throw e;
     }
   }
+
 
 
 }
