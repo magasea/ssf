@@ -979,7 +979,7 @@ public class UserInfoController {
 			@ApiImplicitParam(paramType = "query", name = "poundage", dataType = "String", required = false, value = "手续费"),
 			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = false, value = "银行名称"),
 			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"),
-			@ApiImplicitParam(paramType = "query", name = "sellTargetPercent", dataType = "BigDecimal", required = true, value = "百分比(默认100%)", defaultValue = "100"),
+			@ApiImplicitParam(paramType = "query", name = "sellTargetPercent", dataType = "BigDecimal", required = false, value = "百分比(默认100%)", defaultValue = "100"),
 	})
 	@RequestMapping(value = "/sellDetails", method = RequestMethod.POST)
 	@ResponseBody
@@ -988,7 +988,7 @@ public class UserInfoController {
 			@RequestParam(required = false) String poundage,
 			@RequestParam(required = false) String bankName, 
 			@RequestParam(required = false) String bankCard,
-			@RequestParam BigDecimal sellTargetPercent) {
+			@RequestParam(required = false,defaultValue="100") BigDecimal sellTargetPercent) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
 			result = restTemplate.getForEntity(tradeOrderUrl + "/api/trade/funds/sellDetails/" + orderId, Map.class)
