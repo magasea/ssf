@@ -17,7 +17,7 @@ public class FinanceProdBuyInfo {
   String uuid; //用户 uuid
   String bankAcc;//银行账户
   String orderId;//订单号ID
-  Integer oemId = 1;
+  Integer oemId;
 
   public String getUuid() {
     return uuid;
