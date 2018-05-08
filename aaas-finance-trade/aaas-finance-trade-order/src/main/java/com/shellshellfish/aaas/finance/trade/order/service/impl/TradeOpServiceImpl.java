@@ -854,6 +854,8 @@ public class TradeOpServiceImpl implements TradeOpService {
 		
 		result.put("detailList", detailList);
 		result.put("serialList", serialList);
+		result.put("operation", trdOrder.getOrderStatus());
+        result.put("orderDate", trdOrder.getOrderDate());
 		return result;
 	}
 	
@@ -987,6 +989,8 @@ public class TradeOpServiceImpl implements TradeOpService {
 	  
 	  result.put("detailList", detailList);
 	  result.put("serialList", serialList);
+	  result.put("operation", trdOrder.getOrderStatus());
+      result.put("orderDate", trdOrder.getCreateDate());
 	  return result;
 	}
 
