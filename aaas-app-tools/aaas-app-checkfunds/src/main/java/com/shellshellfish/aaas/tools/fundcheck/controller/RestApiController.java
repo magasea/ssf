@@ -87,6 +87,7 @@ public class RestApiController {
 	public HttpJsonResult syncChoice()  {
 		HttpJsonResult result = new HttpJsonResult();
 		try {
+			fundUpdateJobService.pullInfoBaseOnFundAndBaseKeyInfo();
 			makeSequenceInitCalls();
 		} catch (Exception e) {
 			e.printStackTrace();
