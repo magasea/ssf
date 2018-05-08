@@ -139,8 +139,12 @@ public class TradeOpServiceImpl implements TradeOpService {
       throws Exception {
     ProductBaseInfo productBaseInfo = new ProductBaseInfo();
     BeanUtils.copyProperties(financeProdBuyInfo, productBaseInfo);
+    logger.info("oemId:{}",productBaseInfo.getOemId());
     List<ProductMakeUpInfo> productMakeUpInfos =  financeProdInfoService.getFinanceProdMakeUpInfo
         (productBaseInfo);
+    if(CollectionUtils.isEmpty(productMakeUpInfos)){
+      logger.info("productMakeUpInfos:{}",productMakeUpInfos.get(0).getProdName());
+    }
     if(productMakeUpInfos.size() <=0 ){
       logger.info("没有发现产品组成信息 prodId:{} groupId:{}", productBaseInfo.getProdId(), productBaseInfo.getGroupId());
       throw new Exception("没有发现产品组成信息 prodId:"+ productBaseInfo.getProdId() + " groupId:"+
