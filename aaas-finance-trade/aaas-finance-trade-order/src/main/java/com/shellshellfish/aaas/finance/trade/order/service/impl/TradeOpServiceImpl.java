@@ -844,8 +844,13 @@ public class TradeOpServiceImpl implements TradeOpService {
 		
         if (statusMap != null && statusMap.size() > 0) {
           if (statusMap.size() != 1) {
-            if(statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())){
+            if (statusMap.containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())
+                && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
               result.put("orderStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
+            }
+            if (statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())
+                && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
+              result.put("orderStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
             }
           } else {
             for (String key : statusMap.keySet()) {
@@ -979,9 +984,14 @@ public class TradeOpServiceImpl implements TradeOpService {
 	  
 	  if (statusMap != null && statusMap.size() > 0) {
 	    if (statusMap.size() != 1) {
-	      if(statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())){
-	        result.put("orderStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
-	      }
+          if (statusMap.containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())
+              && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
+            result.put("orderStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
+          }
+          if (statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())
+              && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
+            result.put("orderStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
+          }
 	    } else {
 	      for (String key : statusMap.keySet()) {
 	        if (statusMap.size() == 1) {

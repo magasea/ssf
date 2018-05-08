@@ -403,7 +403,7 @@ public class UserInfoController {
             bankCard = rpcOrderService.createBankCard(bankcardDetailVo);
         } catch (UserInfoException ex) {
             result.put("msg", "绑卡失败：" + ex.getMsg());
-            return new ResponseEntity<>(result, HttpStatus.OK);
+            return new ResponseEntity<>(result, HttpStatus.CONFLICT);
         }
 
         if (bankCard == null) {
