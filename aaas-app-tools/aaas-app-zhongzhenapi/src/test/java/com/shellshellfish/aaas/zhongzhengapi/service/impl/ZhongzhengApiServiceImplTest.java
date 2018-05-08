@@ -31,6 +31,12 @@ public class ZhongzhengApiServiceImplTest {
   public void getSupportBankList() throws Exception {
     List<BankZhongZhenInfo> bankZhongZhenInfoList =
     zhongZhengApiService.getSupportBankList();
+    StringBuilder sb = new StringBuilder();
+    bankZhongZhenInfoList.forEach(bank->{
+      sb.append(bank.getBankName()).append("|").append(bank.getBankSerial());
+      System.out.println(sb.toString());
+      sb.delete(0, sb.length());
+    });
     Assert.assertTrue(!CollectionUtils.isEmpty(bankZhongZhenInfoList));
 
 

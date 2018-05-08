@@ -1,5 +1,7 @@
 package com.shellshellfish.aaas.zhongzhengapi.service.impl;
 
+import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
+
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -19,7 +21,7 @@ import org.springframework.web.client.RestTemplate;
  * Created by chenwei on 2018- 四月 - 25
  */
 
-public abstract class AbstractZhongzhengApiService extends ZZApiServiceGrpc.ZZApiServiceImplBase {
+public abstract class AbstractZhongzhengApiService  {
   Logger logger = LoggerFactory.getLogger(getClass());
 
 
@@ -99,6 +101,11 @@ public abstract class AbstractZhongzhengApiService extends ZZApiServiceGrpc.ZZAp
 
     };
   }
+
+
+
+
+
 
 
 
