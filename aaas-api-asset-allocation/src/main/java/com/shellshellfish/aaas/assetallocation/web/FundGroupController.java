@@ -103,6 +103,7 @@ public class FundGroupController {
      */
     @ApiOperation("预期年化收益(action=calcExpectedAnnualizedReturn), 预期最大回撤(action=calcExpectedMaxPullback)")
     @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/opt/{oemId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Deprecated
     public ResponseEntity<Map<String, Object>> selectReturnAndPullback(@PathVariable("groupId") String groupId, @PathVariable("subGroupId") String subGroupId, @RequestParam(defaultValue="1") String returntype, @PathVariable("oemId") Integer oemId) {
         Map<String, Object> map = fundGroupService.selectReturnAndPullback(groupId, returntype, subGroupId, oemId);
         return new ResponseEntity<>(map, HttpStatus.OK);
