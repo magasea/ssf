@@ -813,8 +813,8 @@ public class TradeOpServiceImpl implements TradeOpService {
 			String dayOfWeek = InstantDateUtil.getDayOfWeekName(localDateTime);
 
 			detailMap.put("funddate", date);
-			logger.info("dayOfWeek value is :" + dayOfWeek);
-			logger.info("date value is :" + date);
+//			logger.info("dayOfWeek value is :" + dayOfWeek);
+//			logger.info("date value is :" + date);
 			if(status.equals(CombinedStatusEnum.WAITCONFIRM.getComment())){
 			  detailMap.put("fundTitle", "将于" + date + "(" + dayOfWeek + ")确认");
 			} else {
@@ -954,8 +954,8 @@ public class TradeOpServiceImpl implements TradeOpService {
 	    String dayOfWeek = InstantDateUtil.getDayOfWeekName(localDateTime);
 	    
 	    detailMap.put("funddate", date);
-	    logger.info("dayOfWeek value is :" + dayOfWeek);
-	    logger.info("date value is :" + date);
+//	    logger.info("dayOfWeek value is :" + dayOfWeek);
+//	    logger.info("date value is :" + date);
 	    if(status.equals(CombinedStatusEnum.WAITCONFIRM.getComment())){
 	      detailMap.put("fundTitle", "将于" + date + "(" + dayOfWeek + ")确认");
 	    } else {
@@ -997,12 +997,12 @@ public class TradeOpServiceImpl implements TradeOpService {
 	@Override
 	public Map<String, Object> getOrderInfos(String uuid,Long prodId) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
-		logger.info("getUserInfoByUserUUID："+TradeUtil.getUTCTime()+" start");
+
 		UserInfo userInfo = tradeOpService.getUserInfoByUserUUID(uuid);
-		logger.info("getUserInfoByUserUUID："+TradeUtil.getUTCTime()+" end");
+
 		Long userId = userInfo.getId();
 		TrdOrder trdOrder = orderService.findOrderByUserProdIdAndUserId(prodId, userId);
-		logger.info("findOrderByUserProdIdAndUserId："+TradeUtil.getUTCTime()+" end");
+
 		String bankNum = trdOrder.getBankCardNum();
 		String orderId = trdOrder.getOrderId();
 		result.put("bankNum", bankNum);
@@ -1019,7 +1019,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 				}
 			}
 		}
-		logger.info("getOrderInfos："+TradeUtil.getUTCTime()+" end");
+
 		result.put("buyFee", buyFee);
 		return result;
 	}
