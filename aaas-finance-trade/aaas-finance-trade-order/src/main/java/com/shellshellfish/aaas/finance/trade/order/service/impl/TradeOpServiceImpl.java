@@ -1009,13 +1009,13 @@ public class TradeOpServiceImpl implements TradeOpService {
 	}
 
 	@Override
-	public Map<String, Object> getOrderInfos(String uuid,Long prodId) throws Exception {
+	public Map<String, Object> getOrderInfos(String uuid,Long prodId, int orderType) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
 
 		UserInfo userInfo = tradeOpService.getUserInfoByUserUUID(uuid);
 
 		Long userId = userInfo.getId();
-		TrdOrder trdOrder = orderService.findOrderByUserProdIdAndUserId(prodId, userId);
+		TrdOrder trdOrder = orderService.findOrderByUserProdIdAndUserIdAndorderType(prodId, userId, orderType);
 
 		String bankNum = trdOrder.getBankCardNum();
 		String orderId = trdOrder.getOrderId();
