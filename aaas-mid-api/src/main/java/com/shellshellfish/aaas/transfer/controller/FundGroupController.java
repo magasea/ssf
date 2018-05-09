@@ -98,7 +98,7 @@ public class FundGroupController {
 			result.put("totalIncomeRate", totalIncomeRate == null ? "" : totalIncomeRate);
 
 			Map bankNumResult = restTemplate
-					.getForEntity(tradeOrderUrl + "/api/trade/funds/banknums/" + uuid + "?prodId=" + prodId,
+					.getForEntity(tradeOrderUrl + "/api/trade/funds/banknums/" + uuid + "?prodId=" + prodId + "&orderType=1",
 							Map.class)
 					.getBody();
 			if (bankNumResult.get("bankNum") != null) {
