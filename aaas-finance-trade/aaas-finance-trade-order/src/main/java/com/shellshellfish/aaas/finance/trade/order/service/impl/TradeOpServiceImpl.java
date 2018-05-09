@@ -831,7 +831,7 @@ public class TradeOpServiceImpl implements TradeOpService {
                 .getId() );
         continue;
       }
-      detailMap.put("fundum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
+      detailMap.put("fundNum", TradeUtil.getBigDecimalNumWithDiv100(fundNum));
       detailMap.put("targetSellPercent", trdOrder.getSellPercent());
 			String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 1);
 
@@ -965,7 +965,17 @@ public class TradeOpServiceImpl implements TradeOpService {
 //	    //基金费用
 //	    detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
 	    //基金份额
-	    Long fundNum = trdOrderDetail.getFundNum();
+      //交易金额
+      Long fundNum = 0L;
+      if(trdOrderDetail.getFundNumConfirmed() != null && trdOrderDetail.getFundNumConfirmed() > 0){
+        fundNum = trdOrderDetail.getFundNumConfirmed();
+      }else if(trdOrderDetail.getFundNum() != null && trdOrderDetail.getFundNum() > 0){
+        fundNum = trdOrderDetail.getFundNum();
+      }else{
+        logger.error("trdOrderDetail id:{} have no fundNum or fundNumConfirmed",trdOrderDetail
+            .getId());
+      }
+	    
       if(fundNum <= 0){
         logger.info("trdOrderDetail.getFundNum:{} trdOrderDetail.getFundNumConfirmed:{} of "
                 + "trdOrderDetail.getId:{}",
