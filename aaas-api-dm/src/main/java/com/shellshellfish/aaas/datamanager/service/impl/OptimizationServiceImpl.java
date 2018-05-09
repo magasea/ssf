@@ -21,6 +21,7 @@ import com.shellshellfish.aaas.datamanager.repositories.mongo.MongoFinanceALLRep
 import com.shellshellfish.aaas.datamanager.service.OptimizationService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.Collator;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,10 +31,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -803,6 +806,7 @@ public class OptimizationServiceImpl implements OptimizationService {
                     List<Map> assetList = (List<Map>) productMap.get("assetsRatios");
                     Double count = 0D;
                     Double value = 0D;
+                    listSort(assetList, "type");
                     for (int i = 0; i < assetList.size(); i++) {
                         Map<String, Object> assetMap = assetList.get(i);
                         if (assetMap.get("value") != null) {
@@ -812,7 +816,10 @@ public class OptimizationServiceImpl implements OptimizationService {
                                 value = bigValue.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
                             } else {
                                 value = (Double) assetMap.get("value");
-                                value = EasyKit.getDecimal(new BigDecimal(value));
+                                value = value * 100;
+                                BigDecimal bigValue = new BigDecimal(value);
+                                value = bigValue.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+//                                value = EasyKit.getDecimal(new BigDecimal(value));
                                 count = count + value;
                             }
                             if (value != null) {
@@ -1096,6 +1103,7 @@ public class OptimizationServiceImpl implements OptimizationService {
         }
         int count = 0;
         Double total = 0D;
+        listSort(prdList, "fund_type_two");
         for (Object prd : prdList) {
             count++;
             //创建对象
@@ -1152,6 +1160,7 @@ public class OptimizationServiceImpl implements OptimizationService {
         }
         int count = 0;
         Double total = 0D;
+        listSort(prdList, "fund_type_two");
         for (Object prd : prdList) {
             count++;
             //创建对象
@@ -1397,4 +1406,16 @@ public class OptimizationServiceImpl implements OptimizationService {
         jsonResult = new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", detail.getResult());
         return jsonResult;
     }
+    
+    public static void listSort(List<Map> resultList, String name) {  
+      Collections.sort(resultList, new Comparator<Map>() {  
+          public int compare(Map o1, Map o2) {  
+              String name1=MapUtils.getString(o1, name);  
+              String name2=MapUtils.getString(o2, name);  
+              Collator instance = Collator.getInstance(Locale.CHINA);  
+              return instance.compare(name1, name2);  
+
+          }  
+      });  
+  }
 }
