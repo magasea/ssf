@@ -854,20 +854,19 @@ public class TradeOpServiceImpl implements TradeOpService {
 	  if (trdOrder.getPayFee() == null) {
 	    result.put("payfee", "");
 	  } else {
-	    BigDecimal bigDecimalPayFee = BigDecimal.ZERO;
 	    result.put("payfee", TradeUtil.getBigDecimalNumWithDiv100(trdOrder.getPayFee()));
 	  }
 	  //状态详情
-	  List<Map<String, Object>> detailList = new ArrayList<Map<String, Object>>();
-	  Map<String, Object> detailMap = new HashMap<String, Object>();
+	  List<Map<String, Object>> detailList = new ArrayList<>();
+	  Map<String, Object> detailMap;
 	  Map<String, String> statusMap = new HashMap<>();
 
 	  Long totalNum = 0L;
 	  for (int i = 0; i < trdOrderDetailList.size(); i++) {
-	    detailMap = new HashMap<String, Object>();
+	    detailMap = new HashMap<>();
 	    TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
 	    int detailStatus = trdOrderDetail.getOrderDetailStatus();
-	    String status = "";
+	    String status;
 	    if (TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus
 	        || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus) {
 	      status = CombinedStatusEnum.CONFIRMED.getComment();
@@ -903,7 +902,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         continue;
       }
 	    totalNum = totalNum + fundNum;
-	    detailMap.put("fundnum", fundNum);
+	    detailMap.put("fundnum", TradeUtil.getBigDecimalNumWithDiv100(fundNum));
 
             //交易金额
             Long fundSum;
