@@ -988,7 +988,7 @@ public class UserInfoController {
 			@RequestParam(required = false) String poundage,
 			@RequestParam(required = false) String bankName, 
 			@RequestParam(required = false) String bankCard,
-			@RequestParam(required = false,defaultValue="100") BigDecimal sellTargetPercent) {
+			@RequestParam(required = false,defaultValue="100") String sellTargetPercent) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
 			result = restTemplate.getForEntity(tradeOrderUrl + "/api/trade/funds/sellDetails/" + orderId, Map.class)
