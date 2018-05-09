@@ -801,14 +801,14 @@ public class TradeOpServiceImpl implements TradeOpService {
 //			  detailMap.put("fundstatus", CombinedStatusEnum.CONFIRMED.getComment());
 //			}
 			//交易金额
-            Long fundSum = 0L;
-            if(trdOrderDetail.getFundSumConfirmed() != null && trdOrderDetail.getFundSumConfirmed() > 0){
-              fundSum = trdOrderDetail.getFundSumConfirmed();
-            }else if(trdOrderDetail.getFundSum() != null && trdOrderDetail.getFundSum() > 0){
-              fundSum = trdOrderDetail.getFundSum();
-            }else{
-              fundSum = trdOrderDetail.getFundMoneyQuantity();
-            }
+      Long fundSum = 0L;
+      if(trdOrderDetail.getFundSumConfirmed() != null && trdOrderDetail.getFundSumConfirmed() > 0){
+        fundSum = trdOrderDetail.getFundSumConfirmed();
+      }else if(trdOrderDetail.getFundSum() != null && trdOrderDetail.getFundSum() > 0){
+        fundSum = trdOrderDetail.getFundSum();
+      }else{
+        fundSum = trdOrderDetail.getFundMoneyQuantity();
+      }
       if(fundSum <= 0){
         logger.info("trdOrderDetail.getFundSumConfirmed:{} trdOrderDetail.getFundSum:{} of "
                 + "trdOrderDetail.getId:{}",
@@ -818,6 +818,21 @@ public class TradeOpServiceImpl implements TradeOpService {
       }
 			detailMap.put("fundSum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
 
+      Long fundNum = 0L;
+      if(trdOrderDetail.getFundNumConfirmed() != null && trdOrderDetail.getFundNumConfirmed() > 0){
+        fundNum = trdOrderDetail.getFundNumConfirmed();
+      }else if(trdOrderDetail.getFundNum() != null && trdOrderDetail.getFundNum() > 0){
+        fundNum = trdOrderDetail.getFundNum();
+      }
+      if(fundNum <= 0){
+        logger.info("trdOrderDetail.getFundNumConfirmed:{} trdOrderDetail.getFundNum:{} of "
+                + "trdOrderDetail.getId:{}",
+            trdOrderDetail.getFundNumConfirmed(), trdOrderDetail.getFundNum(), trdOrderDetail
+                .getId() );
+        continue;
+      }
+      detailMap.put("fundum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
+      detailMap.put("targetSellPercent", trdOrder.getSellPercent());
 			String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 1);
 
 			LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(InstantDateUtil.getEpochSecondOfZero(date)), ZoneOffset.systemDefault());
