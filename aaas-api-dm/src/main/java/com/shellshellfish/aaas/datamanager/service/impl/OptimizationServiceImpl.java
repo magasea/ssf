@@ -1384,9 +1384,13 @@ public class OptimizationServiceImpl implements OptimizationService {
         }
         Object obj = detail.getResult();
         if(obj !=null && obj instanceof Map){
-          Map<String, Map> objMap = (HashMap<String, Map>) obj;
+          Map<String, Object> objMap = (HashMap<String, Object>) obj;
+//          Map<String, Map> objMap = (HashMap<String, Map>) obj;
 //          objMap.put("fundListMap", fundListMap);
           objMap.put("fundListMap", finaceListMap);
+          objMap.put("totalPage", detail.getTotalPage());
+          objMap.put("totalRecord", detail.getTotal());
+          objMap.put("currentPage", pageSize);
           detail.setResult(objMap);
         }
 //        detail.setResult(fundListMap);
