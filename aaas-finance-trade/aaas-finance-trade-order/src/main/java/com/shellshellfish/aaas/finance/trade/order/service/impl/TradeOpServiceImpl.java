@@ -685,7 +685,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         }
         logger.info("详情信息数据为:" + orderId);
         TrdOrder trdOrder = orderService.getOrderByOrderId(orderId);
-        List<TrdOrderDetail> trdOrderDetailList = new ArrayList<TrdOrderDetail>();
+        List<TrdOrderDetail> trdOrderDetailList;
         logger.info("trdOrder ===>" + trdOrder);
         if (trdOrder != null && trdOrder.getOrderId() != null) {
             logger.info("trdOrder.getOrderId()===>" + trdOrder.getOrderId());
@@ -714,15 +714,14 @@ public class TradeOpServiceImpl implements TradeOpService {
         if (trdOrder.getPayFee() == null) {
             result.put("payfee", "");
         } else {
-            BigDecimal bigDecimalPayFee = BigDecimal.ZERO;
             result.put("payfee", TradeUtil.getBigDecimalNumWithDiv100(trdOrder.getPayFee()));
         }
         //状态详情
         List<Map<String, Object>> detailList = new ArrayList<Map<String, Object>>();
-        Map<String, Object> detailMap = new HashMap<String, Object>();
+        Map<String, Object> detailMap;
         Map<String, String> statusMap = new HashMap<>();
         for (int i = 0; i < trdOrderDetailList.size(); i++) {
-            detailMap = new HashMap<String, Object>();
+            detailMap = new HashMap<>();
             TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
             int detailStatus = trdOrderDetail.getOrderDetailStatus();
             String status = "";
@@ -738,10 +737,10 @@ public class TradeOpServiceImpl implements TradeOpService {
             detailMap.put("fundstatus", status);
             statusMap.put(status, status);
 
-			Long instanceLong = trdOrderDetail.getCreateDate();
-			detailMap.put("fundCode", trdOrderDetail.getFundCode());
-			//基金费用
-			detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
+            Long instanceLong = trdOrderDetail.getCreateDate();
+            detailMap.put("fundCode", trdOrderDetail.getFundCode());
+            //基金费用
+            detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
 //			if(trdOrderDetail.getBuyFee() <= 0){
 //			  detailMap.put("fundstatus", CombinedStatusEnum.CONFIRMED.getComment());
 //			}
@@ -809,7 +808,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         result.put("orderDate", trdOrder.getOrderDate());
 		return result;
 	}
-	
+
 	@Override
 	public Map<String, Object> sellDeatils(String orderId) throws Exception {
 	  Map<String, Object> result = new HashMap<String, Object>();
@@ -834,7 +833,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 	    logger.error("详情信息数据不存在.");
 	    throw new Exception("详情信息数据不存在.");
 	  }
-	  
+
 	  result.put("orderType", TrdOrderOpTypeEnum.getComment(trdOrder.getOrderType()));
 	  if(trdOrder.getSellPercent() > 0) {
       result.put("sellTargetPercent", TradeUtil.getBigDecimalNumWithDiv100(trdOrder.getSellPercent
@@ -849,7 +848,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 	  if (amount != 0) {
 	    bigDecimalAmount = TradeUtil.getBigDecimalNumWithDiv100(amount);
 	  }
-	  
+
 	  result.put("amount", bigDecimalAmount);
 	  //手续费
 	  if (trdOrder.getPayFee() == null) {
@@ -862,7 +861,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 	  List<Map<String, Object>> detailList = new ArrayList<Map<String, Object>>();
 	  Map<String, Object> detailMap = new HashMap<String, Object>();
 	  Map<String, String> statusMap = new HashMap<>();
-	  
+
 	  Long totalNum = 0L;
 	  for (int i = 0; i < trdOrderDetailList.size(); i++) {
 	    detailMap = new HashMap<String, Object>();
@@ -939,7 +938,7 @@ public class TradeOpServiceImpl implements TradeOpService {
             }
         }
 
-        result.put("totalNum", totalNum);
+        result.put("totalNum", TradeUtil.getBigDecimalNumWithDiv100(totalNum));
 
         if (statusMap != null && statusMap.size() > 0) {
             if (statusMap.size() != 1) {
