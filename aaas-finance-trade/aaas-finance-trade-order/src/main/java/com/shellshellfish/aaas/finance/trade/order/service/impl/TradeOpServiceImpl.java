@@ -809,6 +809,13 @@ public class TradeOpServiceImpl implements TradeOpService {
             }else{
               fundSum = trdOrderDetail.getFundMoneyQuantity();
             }
+      if(fundSum <= 0){
+        logger.info("trdOrderDetail.getFundSumConfirmed:{} trdOrderDetail.getFundSum:{} of "
+                + "trdOrderDetail.getId:{}",
+            trdOrderDetail.getFundSumConfirmed(), trdOrderDetail.getFundSum(), trdOrderDetail
+                .getId() );
+        continue;
+      }
 			detailMap.put("fundSum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
 
 			String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 1);
@@ -944,8 +951,16 @@ public class TradeOpServiceImpl implements TradeOpService {
 //	    detailMap.put("fundbuyFee", trdOrderDetail.getBuyFee());
 	    //基金份额
 	    Long fundNum = trdOrderDetail.getFundNum();
+      if(fundNum <= 0){
+        logger.info("trdOrderDetail.getFundNum:{} trdOrderDetail.getFundNumConfirmed:{} of "
+                + "trdOrderDetail.getId:{}",
+            trdOrderDetail.getFundNum(), trdOrderDetail.getFundNumConfirmed(), trdOrderDetail
+                .getId() );
+        continue;
+      }
 	    totalNum = totalNum + fundNum;
 	    detailMap.put("fundnum", fundNum);
+
 	    //交易金额
 	    Long fundSum = 0L;
 	    if(trdOrderDetail.getFundSumConfirmed() != null && trdOrderDetail.getFundSumConfirmed() > 0){
@@ -955,6 +970,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 	    }else{
 	      fundSum = trdOrderDetail.getFundMoneyQuantity();
 	    }
+
 	    detailMap.put("fundSum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
 	    
 	    String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, 1);
