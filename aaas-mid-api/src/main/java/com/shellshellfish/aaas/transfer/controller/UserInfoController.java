@@ -520,7 +520,7 @@ public class UserInfoController {
 							if (map.get("prodId") != null) {
 								Integer prodId = (Integer) map.get("prodId");
 								Map orderResult = restTemplate.getForEntity(
-										tradeOrderUrl + "/api/trade/funds/banknums/" + uuid + "?prodId=" + prodId,
+										tradeOrderUrl + "/api/trade/funds/banknums/" + uuid + "?prodId=" + prodId + "&orderType=" + operationsStatus,
 										Map.class).getBody();
 								if (orderResult.get("orderId") != null) {
 									String orderId = orderResult.get("orderId") + "";

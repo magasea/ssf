@@ -99,15 +99,30 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 		return trdOrderDetails;
 	}
 
+//	@Override
+//	public TrdOrder findOrderByUserProdIdAndUserId(Long prodId, Long userId) {
+//		//List<TrdOrderDetail> trdOrderDetails = trdOrderDetailRepository.findTrdOrderDetailsByOrderId(orderId);
+//		List<TrdOrder> trdOrderList = trdOrderRepository.findByUserProdIdAndUserId(prodId, userId);
+//		TrdOrder trdOrder = new TrdOrder();
+//		if (trdOrderList != null && trdOrderList.size() > 0) {
+//			trdOrder = trdOrderList.get(0);
+//		}
+//		return trdOrder;
+//	}
 	@Override
-	public TrdOrder findOrderByUserProdIdAndUserId(Long prodId, Long userId) {
-		//List<TrdOrderDetail> trdOrderDetails = trdOrderDetailRepository.findTrdOrderDetailsByOrderId(orderId);
-		List<TrdOrder> trdOrderList = trdOrderRepository.findByUserProdIdAndUserId(prodId, userId);
-		TrdOrder trdOrder = new TrdOrder();
-		if (trdOrderList != null && trdOrderList.size() > 0) {
-			trdOrder = trdOrderList.get(0);
-		}
-		return trdOrder;
+	public TrdOrder findOrderByUserProdIdAndUserIdAndorderType(Long prodId, Long userId, int orderType) {
+	  //List<TrdOrderDetail> trdOrderDetails = trdOrderDetailRepository.findTrdOrderDetailsByOrderId(orderId);
+	  List<TrdOrder> trdOrderList = trdOrderRepository.findByUserProdIdAndUserId(prodId, userId);
+	  TrdOrder trdOrder = new TrdOrder();
+	  if (trdOrderList != null && trdOrderList.size() > 0) {
+	    for(int i=0;i<trdOrderList.size();i++){
+	      trdOrder = trdOrderList.get(i);
+	      if(trdOrder.getOrderType() == orderType){
+	        break;
+	      }
+	    }
+	  }
+	  return trdOrder;
 	}
 
 
