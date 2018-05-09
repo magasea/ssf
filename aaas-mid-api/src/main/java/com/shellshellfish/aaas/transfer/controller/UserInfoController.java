@@ -979,7 +979,8 @@ public class UserInfoController {
 			@ApiImplicitParam(paramType = "query", name = "poundage", dataType = "String", required = false, value = "手续费"),
 			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = false, value = "银行名称"),
 			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"),
-			@ApiImplicitParam(paramType = "query", name = "sellTargetPercent", dataType = "BigDecimal", required = false, value = "百分比(默认100%)", defaultValue = "100"),
+			@ApiImplicitParam(paramType = "query", name = "sellTargetPercent", dataType = "String",
+					required	= false, value = "百分比(默认100%)", defaultValue = "100"),
 	})
 	@RequestMapping(value = "/sellDetails", method = RequestMethod.POST)
 	@ResponseBody
@@ -1001,7 +1002,10 @@ public class UserInfoController {
 				result.put("poundage", poundage == null ? "" : poundage);
 				result.put("bankName", bankName == null ? "" : bankName);
 				result.put("bankCard", bankCard == null ? "" : bankCard);
-				result.put("sellTargetPercent", sellTargetPercent == null ? "" : sellTargetPercent);
+				if(!result.containsKey("sellTargetPercent")){
+					result.put("sellTargetPercent", sellTargetPercent == null||sellTargetPercent
+							.compareToIgnoreCase("null") == 0 ? "" : sellTargetPercent);
+				}
 			}
 			if (result.get("detailList") == null) {
 				logger.error("产品详情-detailList-获取失败");
