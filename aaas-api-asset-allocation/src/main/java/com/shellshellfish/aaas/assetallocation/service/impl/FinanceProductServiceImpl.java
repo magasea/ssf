@@ -15,6 +15,7 @@ import io.grpc.stub.StreamObserver;
 
 import java.math.BigDecimal;
 
+import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -120,7 +121,7 @@ public class FinanceProductServiceImpl extends
         query.put("subGroupId", subGroupId);
         query.put("oemId", ""+oemId);
         List<Interval> intervalList = fundGroupMapper.selectById(query);
-        Map<String, Integer> shareOfCodes = new HashMap<>();
+        TreeMap<String, Integer> shareOfCodes = new TreeMap<>();
         if (intervalList.size() > 0) {
             for (Interval interval : intervalList) {
                 ProductMakeUpInfo productMakeUpInfo = new ProductMakeUpInfo();
@@ -157,7 +158,7 @@ public class FinanceProductServiceImpl extends
      *
      * @param shareOfCodes
      */
-    private void adjustShareOfCode(Map<String, Integer> shareOfCodes) {
+    private void adjustShareOfCode(TreeMap<String, Integer> shareOfCodes) {
 
         Object[] keys = shareOfCodes.keySet().toArray();
         Integer total = 0;
