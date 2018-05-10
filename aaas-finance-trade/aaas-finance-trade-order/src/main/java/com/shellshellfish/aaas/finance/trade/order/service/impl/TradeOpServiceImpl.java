@@ -721,6 +721,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         Map<String, Object> detailMap;
         Map<String, String> statusMap = new HashMap<>();
         String status = "";
+        Long totalSum = 0L;
         for (int i = 0; i < trdOrderDetailList.size(); i++) {
             detailMap = new HashMap<>();
             TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
@@ -763,6 +764,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         continue;
       }
       detailMap.put("fundSum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
+      totalSum = totalSum + fundSum;
       detailMap.put("targetSellPercent", trdOrder.getSellPercent());
 
             //FIXME  交易日判断逻辑使用asset allocation 中的TradeUtils
@@ -785,6 +787,7 @@ public class TradeOpServiceImpl implements TradeOpService {
                 serialList.add(serial);
             }
         }
+        result.put("totalSum", TradeUtil.getBigDecimalNumWithDiv100(totalSum));
 
         if (statusMap != null && statusMap.size() > 0) {
             if (statusMap.size() != 1) {
@@ -906,7 +909,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         continue;
       }
 	    totalNum = totalNum + fundNum;
-	    detailMap.put("fundnum", TradeUtil.getBigDecimalNumWithDiv100(fundNum));
+	    detailMap.put("fundNum", TradeUtil.getBigDecimalNumWithDiv100(fundNum));
 
             //交易金额
             Long fundSum;
