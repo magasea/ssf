@@ -753,7 +753,9 @@ public class TradeOpServiceImpl implements TradeOpService {
         fundNum = trdOrderDetail.getFundNumConfirmed();
       }else if(trdOrderDetail.getFundNum() != null && trdOrderDetail.getFundNum() > 0){
         fundNum = trdOrderDetail.getFundNum();
-      }
+      } else if(trdOrderDetail.getFundMoneyQuantity() != null && trdOrderDetail.getFundMoneyQuantity() > 0){
+        fundNum = trdOrderDetail.getFundMoneyQuantity();
+      } 
       if(fundNum <= 0){
         logger.info("trdOrderDetail.getFundNumConfirmed:{} trdOrderDetail.getFundNum:{} of "
                 + "trdOrderDetail.getId:{}",
