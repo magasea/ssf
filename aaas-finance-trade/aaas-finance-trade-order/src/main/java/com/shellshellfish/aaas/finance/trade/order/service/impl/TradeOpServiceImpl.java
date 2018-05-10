@@ -748,20 +748,20 @@ public class TradeOpServiceImpl implements TradeOpService {
 //			}
 			//交易金额
 
-      Long fundNum = 0L;
-      if(trdOrderDetail.getFundNumConfirmed() != null && trdOrderDetail.getFundNumConfirmed() > 0){
-        fundNum = trdOrderDetail.getFundNumConfirmed();
-      }else if(trdOrderDetail.getFundNum() != null && trdOrderDetail.getFundNum() > 0){
-        fundNum = trdOrderDetail.getFundNum();
+      Long fundSum = 0L;
+      if(trdOrderDetail.getFundSumConfirmed() != null && trdOrderDetail.getFundSumConfirmed() > 0){
+        fundSum = trdOrderDetail.getFundSumConfirmed();
+      }else if(trdOrderDetail.getFundSum() != null && trdOrderDetail.getFundSum() > 0){
+        fundSum = trdOrderDetail.getFundSum();
       }
-      if(fundNum <= 0){
-        logger.info("trdOrderDetail.getFundNumConfirmed:{} trdOrderDetail.getFundNum:{} of "
+      if(fundSum <= 0){
+        logger.info("trdOrderDetail.getFundSumConfirmed:{} trdOrderDetail.getFundSum:{} of "
                 + "trdOrderDetail.getId:{}",
-            trdOrderDetail.getFundNumConfirmed(), trdOrderDetail.getFundNum(), trdOrderDetail
+            trdOrderDetail.getFundSumConfirmed(), trdOrderDetail.getFundSum(), trdOrderDetail
                 .getId() );
         continue;
       }
-      detailMap.put("fundNum", TradeUtil.getBigDecimalNumWithDiv100(fundNum));
+      detailMap.put("fundNum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
       detailMap.put("targetSellPercent", trdOrder.getSellPercent());
 
             //FIXME  交易日判断逻辑使用asset allocation 中的TradeUtils

@@ -1040,8 +1040,10 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
       mongoUiTrdLogDtoList =
           MyBeanUtils.convertList(uiTrdLogsUnique, MongoUiTrdLogDTO.class);
     } catch (IllegalAccessException e) {
+    	logger.error("error:", e);
       e.printStackTrace();
     } catch (InstantiationException e) {
+    	logger.error("error:", e);
       e.printStackTrace();
     }
     return mongoUiTrdLogDtoList;

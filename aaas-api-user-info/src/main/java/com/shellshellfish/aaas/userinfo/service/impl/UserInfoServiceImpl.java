@@ -1327,6 +1327,12 @@ public class UserInfoServiceImpl implements UserInfoService {
                     return o2.compareTo(o1);
                 }
             });
+//            dataList = db.getCollection("ui_trdlog").distinct("last_modified_date", dbObject);
+//            Collections.sort(dataList, new Comparator<Long>() {
+//                public int compare(Long o1, Long o2) {
+//                    return o2.compareTo(o1);
+//                }
+//            });
         } catch (Exception e) {
             e.printStackTrace();
         }
