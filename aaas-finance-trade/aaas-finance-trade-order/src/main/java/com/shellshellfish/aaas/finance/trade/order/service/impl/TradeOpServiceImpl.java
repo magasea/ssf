@@ -720,11 +720,11 @@ public class TradeOpServiceImpl implements TradeOpService {
         List<Map<String, Object>> detailList = new ArrayList<Map<String, Object>>();
         Map<String, Object> detailMap;
         Map<String, String> statusMap = new HashMap<>();
+        String status = "";
         for (int i = 0; i < trdOrderDetailList.size(); i++) {
             detailMap = new HashMap<>();
             TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
             int detailStatus = trdOrderDetail.getOrderDetailStatus();
-            String status = "";
             if (TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus
                     || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus) {
                 status = CombinedStatusEnum.CONFIRMED.getComment();
@@ -732,7 +732,9 @@ public class TradeOpServiceImpl implements TradeOpService {
                     || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
                 status = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
             } else {
-                status = CombinedStatusEnum.WAITCONFIRM.getComment();
+                if(trdOrderDetail.getFundMoneyQuantity() > 0) {
+                  status = CombinedStatusEnum.WAITCONFIRM.getComment();
+                }
             }
             detailMap.put("fundstatus", status);
             statusMap.put(status, status);
