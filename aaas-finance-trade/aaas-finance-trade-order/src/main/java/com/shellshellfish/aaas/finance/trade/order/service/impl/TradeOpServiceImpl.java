@@ -748,6 +748,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 //			}
 			//交易金额
 
+
       Long fundSum = 0L;
       if(trdOrderDetail.getFundSumConfirmed() != null && trdOrderDetail.getFundSumConfirmed() > 0){
         fundSum = trdOrderDetail.getFundSumConfirmed();
@@ -761,7 +762,7 @@ public class TradeOpServiceImpl implements TradeOpService {
                 .getId() );
         continue;
       }
-      detailMap.put("fundNum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
+      detailMap.put("fundSum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
       detailMap.put("targetSellPercent", trdOrder.getSellPercent());
 
             //FIXME  交易日判断逻辑使用asset allocation 中的TradeUtils
