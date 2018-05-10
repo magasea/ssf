@@ -865,6 +865,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 	  Map<String, String> statusMap = new HashMap<>();
 
 	  Long totalNum = 0L;
+	  Long totalSum = 0L;
 	  for (int i = 0; i < trdOrderDetailList.size(); i++) {
 	    detailMap = new HashMap<>();
 	    TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
@@ -918,7 +919,7 @@ public class TradeOpServiceImpl implements TradeOpService {
             }
 
             detailMap.put("fundSum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
-
+      totalSum = totalSum + fundSum;
             //FIXME  交易日判断逻辑使用asset allocation 中的TradeUtils
             //QDII 基金　15个交易确认　其他　１个交易日确认
             String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDII.isQDII(trdOrderDetail
@@ -941,7 +942,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         }
 
         result.put("totalNum", TradeUtil.getBigDecimalNumWithDiv100(totalNum));
-
+        result.put("totalSum",TradeUtil.getBigDecimalNumWithDiv100(totalSum));
         if (statusMap != null && statusMap.size() > 0) {
             if (statusMap.size() != 1) {
                 if (statusMap.containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())

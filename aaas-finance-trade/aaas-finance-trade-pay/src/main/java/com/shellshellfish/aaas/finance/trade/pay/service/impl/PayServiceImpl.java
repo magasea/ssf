@@ -992,12 +992,13 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
       BigDecimal sellAmount = BigDecimal.valueOf(0);
-      if(MonetaryFundEnum.containsCode(fundCode)){
-        //如果是货币基金 ， 就直接用
-        sellAmount = prodDtlSellDTO.getTargetSellAmount();
-      }else {
-        sellAmount = TradeUtil.getBigDecimalNumWithDiv100(Long.valueOf(sellNum));
-      }
+      sellAmount = TradeUtil.getBigDecimalNumWithDiv100(Long.valueOf(sellNum));
+//      if(MonetaryFundEnum.containsCode(fundCode)){
+//        //如果是货币基金 ， 就直接用
+//        sellAmount = prodDtlSellDTO.getTargetSellAmount();
+//      }else {
+//        sellAmount = TradeUtil.getBigDecimalNumWithDiv100(Long.valueOf(sellNum));
+//      }
       try{
         SellFundResult sellFundResult = fundTradeApiService.sellFund(openId, sellAmount,
             outsideOrderNo, tradeAcco, fundCode);
