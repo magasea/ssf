@@ -22,8 +22,9 @@ shellshellfish:
   trade-pay-url: "http://aaas-finance-trade-pay:10110"
   data-manager-url: "http://aaas-api-data-manager:10030"
   
-security:
-  basic:
-    enabled: false
+management:
+  endpoints:
+    web:
+      base-path: /
 
   
