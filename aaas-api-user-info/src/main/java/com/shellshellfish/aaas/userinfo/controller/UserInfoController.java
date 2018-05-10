@@ -1429,9 +1429,9 @@ public class UserInfoController {
     ) throws Exception {
         Map<String, Object> result = new HashMap<String, Object>();
         logger.info("getTradLogsOfUser method run..");
-        List<Map<String, Object>> tradeLogs = userInfoService.getTradLogsOfUser2(userUuid, pageSize, pageIndex, type);
-        result.put("tradeLogs", tradeLogs);
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        Map<String, Object> tradeLogs = userInfoService.getTradLogsOfUser2(userUuid, pageSize, pageIndex, type);
+//        result.put("tradeLogs", tradeLogs);
+        return new ResponseEntity<>(tradeLogs, HttpStatus.OK);
     }
 
     /**

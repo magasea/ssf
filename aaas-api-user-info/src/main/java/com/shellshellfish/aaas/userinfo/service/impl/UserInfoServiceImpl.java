@@ -1085,7 +1085,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public List<Map<String, Object>> getTradLogsOfUser2(String userUuid, Integer pageSize, Integer pageIndex, Integer type) {
+    public Map<String, Object> getTradLogsOfUser2(String userUuid, Integer pageSize, Integer pageIndex, Integer type) {
+        Map<String, Object> result = new HashMap<String, Object>();  
         Long userId = 0L;
         List<Map<String, Object>> tradeLogs = new ArrayList<Map<String, Object>>();
         try {
@@ -1108,7 +1109,8 @@ public class UserInfoServiceImpl implements UserInfoService {
                 data.add(dataList.get(begin++));
             }
             if (data == null || data.size() == 0) {
-                return tradeLogs;
+                result.put("tradeLogs", tradeLogs);
+                return result;
             }
             List<MongoUiTrdLogDTO> tradeLogList = this.getTradeLogsByUserProdId(data);
             if (tradeLogList == null || tradeLogList.size() == 0) {
@@ -1300,12 +1302,14 @@ public class UserInfoServiceImpl implements UserInfoService {
                 Long map2value = (Long) o2.get("dateLong");
                 return map2value.compareTo(map1value);
             });
-
+            result.put("totalPage", totalPage);
+            result.put("totalRecord", total);
+            result.put("currentPage", pageSize);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return tradeLogs;
+        result.put("tradeLogs", tradeLogs);
+        return result;
     }
 
     public List getUsersOfUserProdIds(Long userId, Integer type) {
