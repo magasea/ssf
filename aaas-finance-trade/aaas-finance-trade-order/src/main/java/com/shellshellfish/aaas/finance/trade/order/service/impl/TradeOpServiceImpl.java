@@ -975,7 +975,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         logger.error("trdOrderDetail id:{} have no fundNum or fundNumConfirmed",trdOrderDetail
             .getId());
       }
-	    
+
       if(fundNum <= 0){
         logger.info("trdOrderDetail.getFundNum:{} trdOrderDetail.getFundNumConfirmed:{} of "
                 + "trdOrderDetail.getId:{}",
