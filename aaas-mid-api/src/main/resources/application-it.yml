@@ -35,6 +35,7 @@ shellshellfish:
 
 
 
-security:
-  basic:
-    enabled: false
+management:
+  endpoints:
+    web:
+      base-path: /
