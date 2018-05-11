@@ -1013,6 +1013,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           trdPayFlow.setUpdateBy(prodSellPercentMsg.getUserId());
           trdPayFlow.setTradeAcco(prodSellPercentMsg.getTrdAcco());
           trdPayFlow.setUserProdId(prodSellPercentMsg.getUserProdId());
+          if(prodSellPercentMsg.getUserId() <=0 ){
+            logger.error("userId is not correct:{}", prodSellPercentMsg.getUserId());
+          }
           trdPayFlow.setUserId(prodSellPercentMsg.getUserId());
           trdPayFlow.setTradeBrokeId(prodSellPercentMsg.getTrdBrokerId());
           TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
