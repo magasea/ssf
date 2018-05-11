@@ -992,12 +992,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
       BigDecimal sellAmount = BigDecimal.valueOf(0);
-      if(MonetaryFundEnum.containsCode(fundCode)){
-        //如果是货币基金 ， 就直接用
-        sellAmount = prodDtlSellDTO.getTargetSellAmount();
-      }else {
-        sellAmount = TradeUtil.getBigDecimalNumWithDiv100(Long.valueOf(sellNum));
-      }
+      sellAmount = TradeUtil.getBigDecimalNumWithDiv100(Long.valueOf(sellNum));
+
       try{
         SellFundResult sellFundResult = fundTradeApiService.sellFund(openId, sellAmount,
             outsideOrderNo, tradeAcco, fundCode);
@@ -1007,8 +1003,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
           trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
           trdPayFlow.setTradeTargetShare(prodDtlSellDTO.getFundQuantity());
-          trdPayFlow.setTradeTargetSum(TradeUtil.getLongNumWithMul100(prodDtlSellDTO
-              .getTargetSellAmount()));
+//          trdPayFlow.setTradeTargetSum(TradeUtil.getLongNumWithMul100(prodDtlSellDTO
+//              .getTargetSellAmount()));
           trdPayFlow.setFundCode(prodDtlSellDTO.getFundCode());
           trdPayFlow.setOutsideOrderno(outsideOrderNo);
           trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
@@ -1017,6 +1013,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           trdPayFlow.setUpdateBy(prodSellPercentMsg.getUserId());
           trdPayFlow.setTradeAcco(prodSellPercentMsg.getTrdAcco());
           trdPayFlow.setUserProdId(prodSellPercentMsg.getUserProdId());
+          if(prodSellPercentMsg.getUserId() <=0 ){
+            logger.error("userId is not correct:{}", prodSellPercentMsg.getUserId());
+          }
           trdPayFlow.setUserId(prodSellPercentMsg.getUserId());
           trdPayFlow.setTradeBrokeId(prodSellPercentMsg.getTrdBrokerId());
           TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);

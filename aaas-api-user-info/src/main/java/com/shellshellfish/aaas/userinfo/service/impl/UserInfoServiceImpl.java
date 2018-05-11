@@ -1085,7 +1085,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public List<Map<String, Object>> getTradLogsOfUser2(String userUuid, Integer pageSize, Integer pageIndex, Integer type) {
+    public Map<String, Object> getTradLogsOfUser2(String userUuid, Integer pageSize, Integer pageIndex, Integer type) {
+        Map<String, Object> result = new HashMap<String, Object>();  
         Long userId = 0L;
         List<Map<String, Object>> tradeLogs = new ArrayList<Map<String, Object>>();
         try {
@@ -1102,18 +1103,19 @@ public class UserInfoServiceImpl implements UserInfoService {
             List data = new ArrayList<>();
             int begin = pageSize * pageIndex;
             for (int i = 0; i < pageSize; i++) {
-              if(dataList.size() <= begin) {
-                break;
-              }
-              data.add(dataList.get(begin++));
+                if (dataList.size() <= begin) {
+                    break;
+                }
+                data.add(dataList.get(begin++));
             }
             if (data == null || data.size() == 0) {
-                return tradeLogs;
+                result.put("tradeLogs", tradeLogs);
+                return result;
             }
             List<MongoUiTrdLogDTO> tradeLogList = this.getTradeLogsByUserProdId(data);
             if (tradeLogList == null || tradeLogList.size() == 0) {
-                logger.error("交易记录为空");
-                throw new UserInfoException("404", "交易记录为空");
+                logger.error("交易记录为空 userUuid:{}, type:{}", userUuid, type);
+                throw new UserInfoException("404", String.format("交易记录为空 userUuid:{}, type:{}", userUuid, type));
             }
             Map<String, Map<String, Object>> tradLogsMap = new HashMap<String, Map<String, Object>>();
             Map<String, Map<String, Object>> tradLogsSum = new HashMap<String, Map<String, Object>>();
@@ -1185,26 +1187,52 @@ public class UserInfoServiceImpl implements UserInfoService {
                         map.put("prodName", "");
                     }
                     Long sumFromLog = null;
-                    if (mongoUiTrdLogDTO.getTradeConfirmSum() != null
+                    //if the log is of type buy record, we sum up the sum values first
+                    if(mongoUiTrdLogDTO.getOperations() == TrdOrderOpTypeEnum.BUY.getOperation()){
+                        if (mongoUiTrdLogDTO.getTradeConfirmSum() != null
                             && mongoUiTrdLogDTO.getTradeConfirmSum() > 0) {
-                        sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum();
-                    } else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
+                            sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum();
+                        } else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
                             && mongoUiTrdLogDTO.getTradeTargetSum() > 0) {
-                        sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum();
-                    } else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
+                            sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum();
+                        } else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
                             && mongoUiTrdLogDTO.getTradeConfirmShare() > 0) {
-                        sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
-                    } else if (mongoUiTrdLogDTO.getTradeTargetShare() != null
+                            sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
+                        } else if (mongoUiTrdLogDTO.getTradeTargetShare() != null
                             && mongoUiTrdLogDTO.getTradeTargetShare() > 0) {
-                        sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
-                    } else if (mongoUiTrdLogDTO.getAmount() != null) {
-                        sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount());
-                    } else {
-                        logger.error(
-                                "havent find trade money or quantity info for userProdId:{} and " + "fundCode:{}",
+                            sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
+                        } else if (mongoUiTrdLogDTO.getAmount() != null) {
+                            sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount());
+                        } else {
+                            logger.error(
+                                "havent find trade money info for userProdId:{} and " + "fundCode:{}",
                                 mongoUiTrdLogDTO.getUserProdId(), mongoUiTrdLogDTO.getFundCode());
-                        sumFromLog = 0L;
+                            sumFromLog = 0L;
+                        }
+                    }else{
+                        //if the log is of type sell record, we sum up the num values first
+                        if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
+                            && mongoUiTrdLogDTO.getTradeConfirmShare() > 0) {
+                            sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
+                        } else if (mongoUiTrdLogDTO.getTradeTargetShare() != null
+                            && mongoUiTrdLogDTO.getTradeTargetShare() > 0) {
+                            sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
+                        }else if (mongoUiTrdLogDTO.getTradeConfirmSum() != null
+                            && mongoUiTrdLogDTO.getTradeConfirmSum() > 0) {
+                            sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum();
+                        } else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
+                            && mongoUiTrdLogDTO.getTradeTargetSum() > 0) {
+                            sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum();
+                        } else if (mongoUiTrdLogDTO.getAmount() != null) {
+                            sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount());
+                        } else {
+                            logger.error(
+                                "havent find trade quantity info for userProdId:{} and " + "fundCode:{}",
+                                mongoUiTrdLogDTO.getUserProdId(), mongoUiTrdLogDTO.getFundCode());
+                            sumFromLog = 0L;
+                        }
                     }
+
                     map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(sumFromLog));
 
                     tradLogsMap.put(ufoKey, map);
@@ -1274,12 +1302,14 @@ public class UserInfoServiceImpl implements UserInfoService {
                 Long map2value = (Long) o2.get("dateLong");
                 return map2value.compareTo(map1value);
             });
-
+            result.put("totalPage", totalPage);
+            result.put("totalRecord", total);
+            result.put("currentPage", pageSize);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return tradeLogs;
+        result.put("tradeLogs", tradeLogs);
+        return result;
     }
 
     public List getUsersOfUserProdIds(Long userId, Integer type) {
@@ -1287,16 +1317,22 @@ public class UserInfoServiceImpl implements UserInfoService {
         try {
             DBObject dbObject = new BasicDBObject();
             dbObject.put("user_id", userId);
-            if(type != 0){
-              dbObject.put("operations", type);
+            if (type != 0) {
+                dbObject.put("operations", type);
             }
             DB db = mongoClient.getDB(mongoDatabase.getName());
             dataList = db.getCollection("ui_trdlog").distinct("user_prod_id", dbObject);
             Collections.sort(dataList, new Comparator<Long>() {
-              public int compare(Long o1, Long o2) {
-                  return o2.compareTo(o1);
-              }
+                public int compare(Long o1, Long o2) {
+                    return o2.compareTo(o1);
+                }
             });
+//            dataList = db.getCollection("ui_trdlog").distinct("last_modified_date", dbObject);
+//            Collections.sort(dataList, new Comparator<Long>() {
+//                public int compare(Long o1, Long o2) {
+//                    return o2.compareTo(o1);
+//                }
+//            });
         } catch (Exception e) {
             e.printStackTrace();
         }

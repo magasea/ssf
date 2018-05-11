@@ -23,6 +23,7 @@ import org.springframework.util.DigestUtils;
 public class ZhongZhengAPIUtils {
   private static final String ALGORITHM = "AES";
   private static final Gson gson = new Gson();
+  private static final String KEY_PLATFORM_OPENID = "platform_openid";
 
   public static byte[] encrypt(byte[] plainText) throws Exception
   {
@@ -72,26 +73,34 @@ public class ZhongZhengAPIUtils {
       info = origInfo;
     }
     info.put("public_key", ZhongZhengAPIConstants.ZZ_PLATFORM_PUBLIC_KEY);
-
-    info.put("platform_openid",ZhongZhengAPIConstants.ZZ_PLATFORM_DEFAULT_OPENID );
     info.put("platform_code", ZhongZhengAPIConstants.ZZ_PLATFORM_CODE);
+
     if(isDefault){
+      info.put(KEY_PLATFORM_OPENID,ZhongZhengAPIConstants.ZZ_PLATFORM_DEFAULT_OPENID );
       String[] data = {ZhongZhengAPIConstants.ZZ_PLATFORM_DEFAULT_OPENID};
       info.put("data",  gson.toJson(data));
+    }else{
+      if(!info.containsKey("platform_openid")){
+        throw  new Exception("info doesn't  contains platform_openid");
+      }
+//      String[] data = {ZhongZhengAPIConstants.ZZ_PLATFORM_DEFAULT_OPENID};
+//      info.put("data",  gson.toJson(data));
     }
     info.put("time", TradeUtil.getUTCTimeInSeconds().toString());
-
     String key = UnixCrypt.crypt(ZhongZhengAPIConstants.ZZ_PLATFORM_PRIVATE_KEY, "en");
-
-
-
     info.put("key", key);
 //    String encryptKey =
 //    info.put("key");
-    if(isDefault){
-      info.put("sign", makeDefaultMsg(info));
-    }
+//    if(isDefault){
+    info.put("sign", makeDefaultMsg(info));
+//    }
     return info;
+  }
+
+  public static TreeMap<String, String> makeOrigInfo(String pid){
+    TreeMap<String, String> origInfo = new TreeMap<>();
+    origInfo.put(KEY_PLATFORM_OPENID, TradeUtil.getZZOpenId(pid));
+    return origInfo;
   }
 
 

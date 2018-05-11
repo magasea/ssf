@@ -58,10 +58,12 @@ public interface TradeOpService {
 
 //   Map<String, Object> sellorbuyDeatils(String orderId) throws Exception;
 
-   Map<String, Object> getOrderInfos(String uuid, Long prodId) throws Exception;
+//   Map<String, Object> getOrderInfos(String uuid, Long prodId) throws Exception;
 
    Map<String, Object> sellDeatils(String orderId) throws Exception;
 
    Map<String, Object> buyDeatils(String orderId) throws Exception;
+
+  Map<String, Object> getOrderInfos(String uuid, Long prodId, int orderType) throws Exception;
 
 }

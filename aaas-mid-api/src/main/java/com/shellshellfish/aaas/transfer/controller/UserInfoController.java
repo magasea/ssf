@@ -29,6 +29,7 @@ import com.shellshellfish.aaas.common.enums.CombinedStatusEnum;
 import com.shellshellfish.aaas.common.enums.TradeResultStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.utils.BankUtil;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.oeminfo.model.JsonResult;
 import com.shellshellfish.aaas.transfer.aop.AopTimeResources;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
@@ -494,7 +495,16 @@ public class UserInfoController {
 							Map<String,String> tradeStatusMap = (Map) map.get("tradeStatusMap");
 							if(tradeStatusMap != null && tradeStatusMap.size() > 0){
 								if(tradeStatusMap.size() != 1){
-									if(tradeStatusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())){
+//									if(tradeStatusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())){
+//										map.put("tradeStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
+//									}
+									if (tradeStatusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())
+											&& tradeStatusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
+										map.put("tradeStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
+									}
+									if (tradeStatusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())
+											&& tradeStatusMap
+													.containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())) {
 										map.put("tradeStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
 									}
 								} else {
@@ -510,7 +520,7 @@ public class UserInfoController {
 							if (map.get("prodId") != null) {
 								Integer prodId = (Integer) map.get("prodId");
 								Map orderResult = restTemplate.getForEntity(
-										tradeOrderUrl + "/api/trade/funds/banknums/" + uuid + "?prodId=" + prodId,
+										tradeOrderUrl + "/api/trade/funds/banknums/" + uuid + "?prodId=" + prodId + "&orderType=" + operationsStatus,
 										Map.class).getBody();
 								if (orderResult.get("orderId") != null) {
 									String orderId = orderResult.get("orderId") + "";
@@ -922,7 +932,20 @@ public class UserInfoController {
 					result.put("statusList", resultStatusTemp);
 					result.remove("serialList");
 				} else {
-					result.put("statusList", new ArrayList());
+					List<Map<String, Object>> stautsMapList = new ArrayList();
+					Map<String, Object> statusMap = new HashMap();
+					Long orderDate = (Long) result.get("orderDate");
+					String dateTime = TradeUtil.getReadableDateTime(orderDate);
+					String date = dateTime.split("T")[0];
+					String time = dateTime.split("T")[1].substring(0, 8);
+					
+					statusMap.put("status", "申请已受理");
+					statusMap.put("date", date);
+					statusMap.put("lastModified", orderDate);
+					statusMap.put("operation", result.get("operation"));
+					statusMap.put("time", time);
+					stautsMapList.add(statusMap);
+					result.put("statusList", stautsMapList);
 					result.remove("serialList");
 				}
 				if (StringUtils.isEmpty(bankName) || StringUtils.isEmpty(bankCard)) {
@@ -956,7 +979,8 @@ public class UserInfoController {
 			@ApiImplicitParam(paramType = "query", name = "poundage", dataType = "String", required = false, value = "手续费"),
 			@ApiImplicitParam(paramType = "query", name = "bankName", dataType = "String", required = false, value = "银行名称"),
 			@ApiImplicitParam(paramType = "query", name = "bankCard", dataType = "String", required = false, value = "银行卡号"),
-			@ApiImplicitParam(paramType = "query", name = "sellTargetPercent", dataType = "BigDecimal", required = true, value = "百分比(默认100%)", defaultValue = "100"),
+			@ApiImplicitParam(paramType = "query", name = "sellTargetPercent", dataType = "String",
+					required	= false, value = "百分比(默认100%)", defaultValue = "100"),
 	})
 	@RequestMapping(value = "/sellDetails", method = RequestMethod.POST)
 	@ResponseBody
@@ -965,7 +989,7 @@ public class UserInfoController {
 			@RequestParam(required = false) String poundage,
 			@RequestParam(required = false) String bankName, 
 			@RequestParam(required = false) String bankCard,
-			@RequestParam BigDecimal sellTargetPercent) {
+			@RequestParam(required = false,defaultValue="100") String sellTargetPercent) {
 		Map<Object, Object> result = new HashMap<Object, Object>();
 		try {
 			result = restTemplate.getForEntity(tradeOrderUrl + "/api/trade/funds/sellDetails/" + orderId, Map.class)
@@ -978,7 +1002,10 @@ public class UserInfoController {
 				result.put("poundage", poundage == null ? "" : poundage);
 				result.put("bankName", bankName == null ? "" : bankName);
 				result.put("bankCard", bankCard == null ? "" : bankCard);
-				result.put("sellTargetPercent", sellTargetPercent == null ? "" : sellTargetPercent);
+				if(!result.containsKey("sellTargetPercent")){
+					result.put("sellTargetPercent", sellTargetPercent == null||sellTargetPercent
+							.compareToIgnoreCase("null") == 0 ? "" : sellTargetPercent);
+				}
 			}
 			if (result.get("detailList") == null) {
 				logger.error("产品详情-detailList-获取失败");
@@ -1031,7 +1058,8 @@ public class UserInfoController {
 							
 							if(resultStatusMap.get("serial")!=null){
 								String serial = (String) resultStatusMap.get("serial");
-								if(StringUtils.isEmpty(serial) || !serialList.contains(serial)){
+								if(StringUtils.isEmpty(serial)){
+//									if(StringUtils.isEmpty(serial) || !serialList.contains(serial)){
 									continue;
 								}
 								resultStatusMap.remove("serial");
@@ -1048,11 +1076,42 @@ public class UserInfoController {
 								resultStatusTemp.add(resultStatusMap);
 							}
 						}
+						if(resultStatusTemp == null || resultStatusTemp.size() == 0) {
+							List<Map<String, Object>> stautsMapList = new ArrayList();
+							Map<String, Object> statusMap = new HashMap();
+							Long orderDate = (Long) result.get("orderDate");
+							String dateTime = TradeUtil.getReadableDateTime(orderDate);
+							String date = dateTime.split("T")[0];
+							String time = dateTime.split("T")[1].substring(0, 8);
+							
+							statusMap.put("status", "申请已受理");
+							statusMap.put("date", date);
+							statusMap.put("lastModified", orderDate);
+							statusMap.put("operation", result.get("operation"));
+							statusMap.put("time", time);
+							stautsMapList.add(statusMap);
+							result.put("statusList", stautsMapList);
+							result.remove("serialList");
+						} else {
+							result.put("statusList", resultStatusTemp);
+						}
 					}
-					result.put("statusList", resultStatusTemp);
 					result.remove("serialList");
 				} else {
-					result.put("statusList", new ArrayList());
+					List<Map<String, Object>> stautsMapList = new ArrayList();
+					Map<String, Object> statusMap = new HashMap();
+					Long orderDate = (Long) result.get("orderDate");
+					String dateTime = TradeUtil.getReadableDateTime(orderDate);
+					String date = dateTime.split("T")[0];
+					String time = dateTime.split("T")[1].substring(0, 8);
+					
+					statusMap.put("status", "申请已受理");
+					statusMap.put("date", date);
+					statusMap.put("lastModified", orderDate);
+					statusMap.put("operation", result.get("operation"));
+					statusMap.put("time", time);
+					stautsMapList.add(statusMap);
+					result.put("statusList", stautsMapList);
 					result.remove("serialList");
 				}
 				if (StringUtils.isEmpty(bankName) || StringUtils.isEmpty(bankCard)) {

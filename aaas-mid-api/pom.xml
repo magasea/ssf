@@ -198,10 +198,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-      <!--   <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency> -->
+        <!--   <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-security</artifactId>
+          </dependency> -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-test</artifactId>
@@ -345,8 +345,11 @@
                                     <directory>../proto/app-tools/oeminfo/</directory>
                                 </resource>
                                 <resource>
-                                    <directory>../../proto/common/</directory>
+                                    <directory>../proto/common/</directory>
                                     <filtering>true</filtering>
+                                </resource>
+                                <resource>
+                                    <directory>../proto/order/</directory>
                                 </resource>
                             </resources>
                         </configuration>

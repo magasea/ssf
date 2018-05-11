@@ -77,7 +77,8 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
   @Value("${shellshellfish.data-manager-initcache-url}")
   String assetAllocationInitcache;
 
-  @Value("${shellshellfish.data-manager-initcache-detail-url}")
+//  @Value("${shellshellfish.data-manager-initcache-detail-url}")
+  @Value("${shellshellfish.data-manager-initcache-detail-url-ver2}")
   String assetAllocationInitcacheDetail;
 
   final static String CNST_BASE = "CLOSE";
@@ -183,7 +184,7 @@ public class CsvFundInfoServiceImpl implements CsvFundInfoService {
     restTemplateHandler(assetAllocationInsertdf, 1, HttpMethod.GET);
     restTemplateHandler(assetAllocationInsertdf, 2, HttpMethod.GET);
     restTemplateHandler(assetAllocationInithistory, 1, HttpMethod.GET);
-    Thread.sleep(60000);
+//    Thread.sleep(60000);
     restTemplateHandler(assetAllocationInitpyamongo, 1, HttpMethod.GET);
 
     restTemplateHandler(assetAllocationInitcache, HttpMethod.GET);

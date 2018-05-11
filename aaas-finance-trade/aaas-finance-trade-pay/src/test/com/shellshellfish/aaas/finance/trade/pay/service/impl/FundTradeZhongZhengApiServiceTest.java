@@ -55,9 +55,20 @@ public class FundTradeZhongZhengApiServiceTest {
 
     String personId = "411327198710181169";
     String openId = TradeUtil.getZZOpenId(personId);
-    String outsideOrderno = "621709900000000015169683005511231";
+    String outsideOrderno = "6217007099000015257505156422004";
     ApplyResult applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo(openId,
         outsideOrderno);
+    System.out.println(applyResult.getConfirmflag());
+  }
+
+  @Test
+  public void getApplyResultByApplySerial() throws Exception {
+
+    String personId = "411327198710181169";
+    String openId = TradeUtil.getZZOpenId(personId);
+    String applySerial = "20180316000512";
+    ApplyResult applyResult = fundTradeApiService.getApplyResultByApplySerial(openId,
+        applySerial);
     System.out.println(applyResult.getConfirmflag());
   }
 

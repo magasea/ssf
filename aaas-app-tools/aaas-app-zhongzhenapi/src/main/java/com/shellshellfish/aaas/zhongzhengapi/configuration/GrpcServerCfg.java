@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.zhongzhengapi.configuration;
 
 import com.shellshellfish.aaas.zhongzhengapi.service.ZhongZhengApiService;
+import com.shellshellfish.aaas.zhongzhengapi.service.impl.ZZGrpcServiceImpl;
 import com.shellshellfish.aaas.zhongzhengapi.service.impl.ZhongzhengApiServiceImpl;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -26,12 +27,12 @@ public class GrpcServerCfg {
   }
 
   @Autowired
-  ZhongzhengApiServiceImpl zhongZhengApiServiceImpl;
+  ZZGrpcServiceImpl zzGrpcService;
 
   @Bean
   @PostConstruct
   Server server(){
-    return serverBuilder().forPort(port).addService(zhongZhengApiServiceImpl).build();
+    return serverBuilder().forPort(port).addService(zzGrpcService).build();
   }
 
 }

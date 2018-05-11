@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.zhongzhengapi.service.impl;
 
 import com.google.gson.GsonBuilder;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.zhongzhengapi.model.BankZhongZhenInfo;
 import com.shellshellfish.aaas.zhongzhengapi.service.ZhongZhengApiService;
 import java.lang.reflect.Type;
@@ -30,11 +31,27 @@ public class ZhongzhengApiServiceImplTest {
   public void getSupportBankList() throws Exception {
     List<BankZhongZhenInfo> bankZhongZhenInfoList =
     zhongZhengApiService.getSupportBankList();
+    StringBuilder sb = new StringBuilder();
+    bankZhongZhenInfoList.forEach(bank->{
+      sb.append(bank.getBankName()).append("|").append(bank.getBankSerial());
+      System.out.println(sb.toString());
+      sb.delete(0, sb.length());
+    });
     Assert.assertTrue(!CollectionUtils.isEmpty(bankZhongZhenInfoList));
 
 
   }
 
 
+  @Test
+  public void sellFund() throws Exception {
+    String sellNum = "1";
+    String outsideTradeNo = "123"+ TradeUtil.getUTCTime();
+    String trdAcco = "33653";
+    String fundCode = "40009.OF";
+    String sellType = "0";
+    String pid = "522101197402150413";
+    zhongZhengApiService.sellFund(sellNum,outsideTradeNo, trdAcco, fundCode, sellType, pid );
 
+  }
 }

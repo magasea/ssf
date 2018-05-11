@@ -403,7 +403,7 @@ public class UserInfoController {
             bankCard = rpcOrderService.createBankCard(bankcardDetailVo);
         } catch (UserInfoException ex) {
             result.put("msg", "绑卡失败：" + ex.getMsg());
-            return new ResponseEntity<>(result, HttpStatus.OK);
+            return new ResponseEntity<>(result, HttpStatus.CONFLICT);
         }
 
         if (bankCard == null) {
@@ -506,9 +506,9 @@ public class UserInfoController {
                 map.put("bankType", "储蓄卡");
                 map.put("bankcardSecurity", getBankcardNumber(bankCard.getCardNumber()));
                 map.put("bankcardNum", bankCard.getCardNumber());
-                if(bankName.contains("·")){
+                if (bankName.contains("·")) {
                     map.put("bankShortName", bankName.substring(0, bankName.indexOf("·")));
-                }else{
+                } else {
                     map.put("bankShortName", bankName);
                 }
                 map.put("bankCode", BankUtil.getCodeOfBank(bankCard.getCardNumber()));
@@ -1368,6 +1368,7 @@ public class UserInfoController {
         resultMap.put("totalRevenue", totalRevenue);
         // 累计收益率
         resultMap.put("totalRevenueRate", totalRevenueRate);
+        //TODO recentDate 使用总资产的计算时间
         resultMap.put("recentDate", InstantDateUtil.now().plusDays(-1).toString());
         //收益走势图
         resultMap.put("trendYield", userInfoService.getTrendYield(userUuid));
@@ -1428,9 +1429,9 @@ public class UserInfoController {
     ) throws Exception {
         Map<String, Object> result = new HashMap<String, Object>();
         logger.info("getTradLogsOfUser method run..");
-        List<Map<String, Object>> tradeLogs = userInfoService.getTradLogsOfUser2(userUuid, pageSize, pageIndex, type);
-        result.put("tradeLogs", tradeLogs);
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        Map<String, Object> tradeLogs = userInfoService.getTradLogsOfUser2(userUuid, pageSize, pageIndex, type);
+//        result.put("tradeLogs", tradeLogs);
+        return new ResponseEntity<>(tradeLogs, HttpStatus.OK);
     }
 
     /**

@@ -14,8 +14,9 @@ spring:
     username: ssf
     password: shellshellfish
     host: 192.168.1.249
-    port: 5672
+    port: 5772
     virtual-host: aaas
+    topicOrder: shellshellfish.order
 
   data:
     mongodb:

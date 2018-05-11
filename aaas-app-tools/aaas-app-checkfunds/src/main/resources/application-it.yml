@@ -35,6 +35,7 @@ shellshellfish:
   asset-allocation-initpyamongo-url: "http://localhost:10020/api/asset-allocation/job/getFundGroupIncomeAllToMongoDb"
   data-manager-initcache-url: "http://localhost:10030/api/datamanager/financeFrontPage"
   data-manager-initcache-detail-url: "http://localhost:10030/api/datamanager/checkPrdDetails"
+  data-manager-initcache-detail-url-ver2: "http://localhost:10030//api//datamanager//checkPrdDetails-ver2"
   csvFilePath: /temp
   csvFundFileOriginName: csvFundsInfo
   csvBaseFileOriginName: csvBaseInfo

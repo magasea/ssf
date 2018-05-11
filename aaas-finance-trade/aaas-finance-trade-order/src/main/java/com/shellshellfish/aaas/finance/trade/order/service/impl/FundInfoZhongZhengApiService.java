@@ -241,7 +241,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
             json = restTemplate.postForObject(url, info, String.class);
         }
 
-        logger.info("{}", json);
+//        logger.info("{}", json);
 
         return fillTradeLimitResults(json);
     }

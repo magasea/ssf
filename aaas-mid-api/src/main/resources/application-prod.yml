@@ -7,6 +7,9 @@ grpc:
   oeminfo:
     host: localhost
     port: 10161
+  order:
+      host: localhost
+      port: 10101
 logging:
   level:
     org.hibernate.SQL: DEBUG
@@ -22,8 +25,9 @@ shellshellfish:
   trade-pay-url: "http://localhost:10110"
   data-manager-url: "http://localhost:10030"
   
-security:
-  basic:
-    enabled: false
+management:
+  endpoints:
+    web:
+      base-path: /
 
   
