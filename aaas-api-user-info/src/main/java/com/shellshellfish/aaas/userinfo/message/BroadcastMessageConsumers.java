@@ -496,8 +496,8 @@ public class BroadcastMessageConsumers {
                     .getTradeConfirmShare());
                 return false;
             }
-            productDetail.setFundQuantity(0);
-            productDetail.setFundQuantityTrade(0);
+            productDetail.setFundQuantity(Math.toIntExact(remainQty));
+            productDetail.setFundQuantityTrade(Math.toIntExact(remainQty));
 
         }else{
             Long remainQty = productDetail.getFundQuantity() - mongoUiTrdZZInfo
@@ -509,8 +509,8 @@ public class BroadcastMessageConsumers {
                     .getTradeConfirmShare());
                 return false;
             }
-            productDetail.setFundQuantityTrade(0);
-            productDetail.setFundQuantity(0);
+            productDetail.setFundQuantityTrade(Math.toIntExact(remainQty));
+            productDetail.setFundQuantity(Math.toIntExact(remainQty));
         }
         if(StringUtils.isEmpty(mongoUiTrdZZInfo.getApplySerial())){
             logger.error("abnormal message of mongoUiTrdZZInfo, there is no applySerial in "

@@ -286,6 +286,7 @@ public class TradeSellServiceImpl implements TradeSellService {
     prodSellPercentMsg.setTrdBrokerId(trdBrokerUser.getTradeBrokerId());
     prodSellPercentMsg.setOrderId(trdSellOrder.getOrderId());
     prodSellPercentMsg.setUserPid(userPid);
+    prodSellPercentMsg.setUserId(prodSellPercentDTO.getUserId());
     prodSellPercentMsg.setProdId(prodSellPercentDTO.getProdId());
     prodSellPercentMsg.setGroupId(prodSellPercentDTO.getGroupId());
     trdSellOrder = trdOrderRepository.save(trdSellOrder);
