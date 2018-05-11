@@ -68,6 +68,16 @@ public class InstantDateUtil {
     /**
      * 字符串转{@link LocalDate}
      *
+     * @param epochMilli
+     */
+    public static LocalDate format(long epochMilli) {
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), ZoneId.systemDefault());
+        return localDateTime.toLocalDate();
+    }
+
+    /**
+     * 字符串转{@link LocalDate}
+     *
      * @param date pattern: yyyy-MM-dd
      */
     public static LocalDate format(String date) {
