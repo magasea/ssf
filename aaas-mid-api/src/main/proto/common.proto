@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+
+option java_multiple_files = true;
+option java_package = "com.shellshellfish.aaas.grpc.common";
+option java_outer_classname = "common";
+option objc_class_prefix = "COMMON";
+
+message UserProdId{
+  int64 user_prod_id = 1;//用户理财产品ID 如果为-1 表示对应的操作失败
+}
+//出错信息
+message ErrInfo{
+  int64 err_code = 1;//错误编号
+  string err_msg = 2;//错误内容
+}

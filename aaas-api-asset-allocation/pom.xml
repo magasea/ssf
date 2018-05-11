@@ -131,11 +131,6 @@
             <artifactId>commons-math3</artifactId>
             <version>3.6.1</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -328,22 +323,6 @@
                     </compilerArguments>
                 </configuration>
             </plugin>
-              <plugin>
-                           <groupId>io.fabric8</groupId>
-                           <artifactId>fabric8-maven-plugin</artifactId>
-                           <version>3.5.28</version>
-                           <configuration>
-                                 <composeFile>docker-compose.yml</composeFile>
-                           </configuration>
-                           <executions>
-                                 <execution>
-                                        <goals>
-                                               <goal>resource</goal>
-                                         <goal> build </goal> 
-                                        </goals>
-                                 </execution>
-                           </executions>
-                    </plugin>
         </plugins>
     </build>
 </project>
