@@ -47,6 +47,10 @@ import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc.UserInfoService
 import io.grpc.ManagedChannel;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -932,6 +936,13 @@ public class TradeOpServiceImpl implements TradeOpService {
             detailMap.put("funddate", date);
             if (status.equals(CombinedStatusEnum.WAITCONFIRM.getComment())) {
                 detailMap.put("fundTitle", "将于" + date + "(" + dayOfWeek + ")确认");
+            }else if (status.equals(CombinedStatusEnum.CONFIRMEDFAILED.getComment())) {
+              LocalDateTime localDateTime = LocalDateTime
+                  .ofInstant(Instant.ofEpochMilli(instanceLong), ZoneId.systemDefault());
+              LocalDate localDate = localDateTime.toLocalDate();
+              date = InstantDateUtil.format(localDate);
+              dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(instanceLong).getDayOfWeek()).toString();
+              detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
             } else {
                 detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
             }
