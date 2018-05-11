@@ -90,6 +90,11 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
     }
   }
 
+  @Override
+  public SellResult getApplyResult(String sellNum, String outsideOrderNo, String trdAcco,
+      String fundCode, String sellType, String pid) throws Exception {
+    return null;
+  }
 
 
 }

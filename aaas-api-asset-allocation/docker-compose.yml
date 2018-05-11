@@ -3,7 +3,7 @@ version: "2"
 
 services:
   aaas-api-asset-allocation:
-    image: aaas-api-asset-allocation:1.0.0 
+    image: aaas-api-asset-allocation:1.0.0-SNAPSHOT
     labels:
       - "aaas-api-asset-allocation"
     ports:

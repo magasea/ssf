@@ -62,6 +62,17 @@ public class FundTradeZhongZhengApiServiceTest {
   }
 
   @Test
+  public void getApplyResultByApplySerial() throws Exception {
+
+    String personId = "411327198710181169";
+    String openId = TradeUtil.getZZOpenId(personId);
+    String applySerial = "20180316000512";
+    ApplyResult applyResult = fundTradeApiService.getApplyResultByApplySerial(openId,
+        applySerial);
+    System.out.println(applyResult.getConfirmflag());
+  }
+
+  @Test
   public void testGetAllFundsInfo() throws Exception {
     List<String> allFunds = fundTradeApiService.getAllFundsInfo();
     allFunds.forEach(System.out::println);

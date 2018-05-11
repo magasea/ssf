@@ -33,5 +33,16 @@ public interface ZhongZhengApiService {
   SellResult sellFund(String sellNum, String outsideOrderNo, String trdAcco, String
       fundCode, String sellType, String pid) throws Exception;
 
+  /**
+   *
+   * @param sellNum
+   * @param outsideOrderNo
+   * @param trdAcco
+   * @param fundCode
+   * @param sellType
+   * @return
+   */
+  SellResult getApplyResult(String sellNum, String outsideOrderNo, String trdAcco, String
+      fundCode, String sellType, String pid) throws Exception;
 
 }
