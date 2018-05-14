@@ -33,6 +33,9 @@ public interface UserInfoRepoService {
 
 	List<BankCardDTO> getUserInfoBankCards(Long userId) throws IllegalAccessException, InstantiationException;
 
+	List<BankCardDTO> getUserInfoBankCards(Long userId, String cardNumber) throws
+			IllegalAccessException, InstantiationException;
+
 	List<UserPortfolioDTO> getUserPortfolios(Long userId) throws IllegalAccessException, InstantiationException;
 
 	BankCardDTO getUserInfoBankCard(String cardNumber);

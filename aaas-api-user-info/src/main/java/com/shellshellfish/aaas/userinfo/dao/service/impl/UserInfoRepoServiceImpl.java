@@ -199,7 +199,16 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		return bankcardDtoList;
 	}
 
-	@Override
+  @Override
+  public List<BankCardDTO> getUserInfoBankCards(Long userId, String cardNumber)
+      throws IllegalAccessException, InstantiationException {
+    List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserIdAndStatusIsAndCardNumberIs
+        (userId, BankCardStatusEnum.VALID.getStatus(), cardNumber);
+    List<BankCardDTO> bankcardDtoList = MyBeanUtils.convertList(bankcardList, BankCardDTO.class);
+    return bankcardDtoList;
+  }
+
+  @Override
 	public List<UserPortfolioDTO> getUserPortfolios(Long userId) throws IllegalAccessException, InstantiationException {
 		List<UiPortfolio> uiPortfolioList = userPortfolioRepository.findAllByUserId(userId);
 		List<UserPortfolioDTO> bankcardDtoList = MyBeanUtils.convertList(uiPortfolioList, UserPortfolioDTO.class);
@@ -219,25 +228,47 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public BankCardDTO addUserBankcard(UiBankcard uiBankcard) throws Exception {
-
-		List<UiBankcard> uiBankcards = userInfoBankCardsRepository.findAllByUserIdAndCardNumber
-				(uiBankcard.getUserId(), uiBankcard.getCardNumber());
-		if(!CollectionUtils.isEmpty(uiBankcards)){
-			logger.info("update bankcard status to 1 for userId:" + uiBankcard.getUserId() + " and "
-					+ "bankCardNumber:" + uiBankcard.getCardNumber());
-			if(uiBankcards.size() > 1){
-				logger.error("there is more than 1 same cardNumber for for userId:" + uiBankcard.getUserId
-						() + " and bankCardNumber:" + uiBankcard.getCardNumber());
-				throw new Exception("duplicated card number for :" + uiBankcard.getCardNumber());
+		List<UiBankcard> uiBankcardsWithCardNum = userInfoBankCardsRepository.findAllByCardNumber
+				(uiBankcard.getCardNumber());
+		if(!CollectionUtils.isEmpty(uiBankcardsWithCardNum) && uiBankcardsWithCardNum.get(0)
+				.getUserId() != uiBankcard.getUserId()){
+			logger.warn("the bankcard:{} origin is with userId{} and status is:{} now intend to bind it"
+					+ " with userId{}", uiBankcard.getCardNumber(), uiBankcardsWithCardNum.get(0).getUserId
+					(), uiBankcardsWithCardNum.get(0).getStatus(), uiBankcard.getUserId()
+			);
+			if(uiBankcardsWithCardNum.get(0).getStatus() != BankCardStatusEnum.INVALID.getStatus()){
+				throw new Exception(String.format("the bankcard:%s origin is with userId:%s and "
+								+ "cellphone:%s and status is:%s now intend to bind it with userId:%s",uiBankcard
+								.getCardNumber(), uiBankcardsWithCardNum.get(0).getUserId(),
+            uiBankcardsWithCardNum.get(0).getCellphone(),
+						uiBankcardsWithCardNum.get(0).getStatus(), uiBankcard.getUserId()));
 			}else{
-				uiBankcards.get(0).setStatus(1);
-				uiBankcards.get(0).setUserPid(uiBankcard.getUserPid());
-				uiBankcards.get(0).setCellphone(uiBankcard.getCellphone());
-				userInfoBankCardsRepository.save(uiBankcards.get(0));
+				uiBankcardsWithCardNum.get(0).setStatus(BankCardStatusEnum.VALID.getStatus());
+				uiBankcardsWithCardNum.get(0).setUserId(uiBankcard.getUserId());
+				uiBankcardsWithCardNum.get(0).setCellphone(uiBankcard.getCellphone());
+				userInfoBankCardsRepository.save(uiBankcardsWithCardNum.get(0));
 			}
 		}else{
-			userInfoBankCardsRepository.save(uiBankcard);
+			List<UiBankcard> uiBankcards = userInfoBankCardsRepository.findAllByUserIdAndCardNumber
+					(uiBankcard.getUserId(), uiBankcard.getCardNumber());
+			if(!CollectionUtils.isEmpty(uiBankcards)){
+				logger.info("update bankcard status to 1 for userId:" + uiBankcard.getUserId() + " and "
+						+ "bankCardNumber:" + uiBankcard.getCardNumber());
+				if(uiBankcards.size() > 1){
+					logger.error("there is more than 1 same cardNumber for for userId:" + uiBankcard.getUserId
+							() + " and bankCardNumber:" + uiBankcard.getCardNumber());
+					throw new Exception("duplicated card number for :" + uiBankcard.getCardNumber());
+				}else{
+					uiBankcards.get(0).setStatus(1);
+					uiBankcards.get(0).setUserPid(uiBankcard.getUserPid());
+					uiBankcards.get(0).setCellphone(uiBankcard.getCellphone());
+					userInfoBankCardsRepository.save(uiBankcards.get(0));
+				}
+			}else{
+				userInfoBankCardsRepository.save(uiBankcard);
+			}
 		}
+
 		BankCardDTO bankcard = new BankCardDTO();
 		BeanUtils.copyProperties(uiBankcard, bankcard);
 		return bankcard;

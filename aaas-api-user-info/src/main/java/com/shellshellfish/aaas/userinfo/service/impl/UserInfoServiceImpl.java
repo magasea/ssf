@@ -177,6 +177,31 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
+    public List<BankCardDTO> getUserInfoBankCards(String userUuid, String cardNumber) {
+        Long userId = null;
+        try {
+            userId = getUserIdFromUUID(userUuid);
+        } catch (Exception e) {
+            logger.error("该用户不存在", e);
+            throw new UserInfoException("404", "该用户不存在");
+        }
+        List<BankCardDTO> bankcards = null;
+        try {
+            bankcards = userInfoRepoService.getUserInfoBankCards(userId, cardNumber);
+        } catch (Exception e) {
+            logger.error("该用户暂时没有绑定银行卡", e);
+            throw new UserInfoException("404", "该用户暂时没有绑定银行卡");
+        }
+        // List<BankCard> bankCardsDto = new ArrayList<>();
+        // for(UiBankcard uiBankcard: uiBankcards ){
+        // BankCard bankCard = new BankCard();
+        // BeanUtils.copyProperties(uiBankcard, bankCard);
+        // bankCardsDto.add(bankCard);
+        // }
+        return bankcards;
+    }
+
+    @Override
     public List<BankCardDTO> getUserInfoBankCards(String userUuid) {
         Long userId = null;
         try {
