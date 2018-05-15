@@ -402,7 +402,8 @@ public class UserInfoController {
 
             bankCard = rpcOrderService.createBankCard(bankcardDetailVo);
         } catch (Exception ex) {
-            result.put("message", "绑卡失败：" + ex.getMessage());
+//            result.put("message", "绑卡失败：" + ex.getMessage());
+            result.put("message", "" + ex.getMessage());
             return new ResponseEntity<>(result, HttpStatus.CONFLICT);
         }
 
