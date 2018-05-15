@@ -29,6 +29,8 @@ public interface UserInfoService {
 
 	List<BankCardDTO> getUserInfoBankCards(String userUuid);
 
+	List<BankCardDTO> getUserInfoBankCards(String userUuid, String cardNumber);
+
 	List<UserPortfolioDTO> getUserPortfolios(String userUuid) throws Exception;
 
 	BankCardDTO getUserInfoBankCard(String cardNumber);

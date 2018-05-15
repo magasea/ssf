@@ -114,8 +114,8 @@ public class FundGroupServiceImpl implements FundGroupService {
         if (count <= 0 || totals <= 0) {
             result.put("title", EMPTY_STRING);
         } else {
-            //组合中包含QDII 确认日期为T+15 否则为T+2
-            String date = InstantDateUtil.getTplusNDayNWeekendOfWork(createDate, containQDII ? 15 : 2);
+            //组合中包含QDII 确认日期为T+15 否则为T+1
+            String date = InstantDateUtil.getTplusNDayNWeekendOfWork(createDate, containQDII ? 15 : 1);
             result.put("title", String.format(MESSAGE_FORMAT, tradeType, TradeUtil.getBigDecimalNumWithDiv100(totals), unitType,
                     date));
         }
