@@ -91,7 +91,8 @@ public interface UiProductDetailRepo extends PagingAndSortingRepository<UiProduc
 
     @Modifying
     @Transactional
-    @Query("UPDATE UiProductDetail SET fundQuantity =:fundQuantity,status =:status WHERE user_prod_id = :userProdId " +
+    @Query("UPDATE UiProductDetail SET fundQuantity =:fundQuantity,status =:status WHERE userProdId = :userProdId " +
             "and fundCode =:fundCode ")
-    int updateFundQuantity(String fundCode, Long fundQuantity, int status, Long userProdId);
+    int updateFundQuantity(@Param("fundCode") String fundCode, @Param("fundQuantity") Integer fundQuantity,
+                           @Param("status") int status, @Param("userProdId") Long userProdId);
 }

@@ -1,7 +1,5 @@
 package com.shellshellfish.aaas.userinfo.service;
 
-import java.util.Map;
-
 /**
  * @Author pierre.chen
  * @Date 18-5-16

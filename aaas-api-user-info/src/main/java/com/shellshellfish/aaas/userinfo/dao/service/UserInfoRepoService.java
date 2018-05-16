@@ -3,24 +3,9 @@ package com.shellshellfish.aaas.userinfo.dao.service;
 import com.shellshellfish.aaas.userinfo.grpc.SellPersentProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductsResult.Builder;
-import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
-import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
-import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.UiPersonMsg;
-import com.shellshellfish.aaas.userinfo.model.dao.UiSysMsg;
-import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
-import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserProdMsgDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import com.shellshellfish.aaas.userinfo.model.dao.*;
+import com.shellshellfish.aaas.userinfo.model.dto.*;
+
 import java.util.List;
 
 public interface UserInfoRepoService {

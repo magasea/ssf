@@ -10,6 +10,8 @@ import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.Optional;
  * @Author pierre.chen
  * @Date 18-5-16
  */
+@Service
 public class CheckUiPorductDetailServiceImpl implements CheckUiProductDetailService {
 
 
@@ -42,11 +45,12 @@ public class CheckUiPorductDetailServiceImpl implements CheckUiProductDetailServ
         for (Long userProdId : userProdIdList) {
             List<OrderDetail> orderDetailList = orderRpcService.getAllTrdOrderDetail(userProdId);
             Map fundQuantityMap = calcualteFundQuantity(orderDetailList);
+            if (CollectionUtils.isEmpty(fundQuantityMap)) {
+                continue;
+            }
             Map statusMap = getOrderDetailStatus(userProdId);
             updateFundQuantity(fundQuantityMap, statusMap, userProdId);
         }
-
-
     }
 
     private Map getOrderDetailStatus(Long userProdId) {
@@ -75,9 +79,9 @@ public class CheckUiPorductDetailServiceImpl implements CheckUiProductDetailServ
                 continue;
             }
             if (TrdOrderOpTypeEnum.BUY.getOperation() == orderDetail.getTradeType()) {
-                fundQuantity += orderDetail.getFundQuantity();
+                fundQuantity += orderDetail.getFundNumConfirmed();
             } else if (TrdOrderOpTypeEnum.REDEEM.getOperation() == orderDetail.getTradeType()) {
-                fundQuantity -= orderDetail.getFundQuantity();
+                fundQuantity -= orderDetail.getFundNumConfirmed();
             }
             fundQuantityMap.put(orderDetail.getFundCode(), fundQuantity);
         }
@@ -96,7 +100,7 @@ public class CheckUiPorductDetailServiceImpl implements CheckUiProductDetailServ
         for (String key : fundQuantityMap.keySet()) {
             Long fundQuantity = fundQuantityMap.get(key);
             Integer status = statusMap.get(key);
-            int num = uiProductDetailRepo.updateFundQuantity(key, fundQuantity, status, userProdId);
+            int num = uiProductDetailRepo.updateFundQuantity(key, fundQuantity.intValue(), status, userProdId);
             if (num > 0) {
                 total += num;
                 logger.info("update fundQuantity of ui_product_details  fundCode :{},fundQuantity:{},status:{}," +
