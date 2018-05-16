@@ -4,48 +4,10 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.grou
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import javax.annotation.PostConstruct;
-
-import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoDailyAmountRepository;
-import org.bson.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.CombinedStatusEnum;
@@ -53,7 +15,6 @@ import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
-import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.utils.TrdStatusToCombStatusUtils;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
@@ -70,7 +31,6 @@ import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
-import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
@@ -88,6 +48,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
+import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoDailyAmountRepository;
 import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoUserDailyIncomeRepository;
 import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
 import com.shellshellfish.aaas.userinfo.service.UiProductService;
@@ -95,6 +56,36 @@ import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import io.grpc.ManagedChannel;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import javax.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
@@ -164,17 +155,17 @@ public class UserInfoServiceImpl implements UserInfoService {
         return userInfoDao;
     }
 
-    @Override
-    public UserInfoAssectsBriefDTO getUserInfoAssectsBrief(String userUuid) throws Exception {
-        Long userId = getUserIdFromUUID(userUuid);
-        // UserInfoAssectsBrief userInfoAssectsBrief = new
-        // UserInfoAssectsBrief();
-        UserInfoAssectsBriefDTO userInfoAssect = userInfoRepoService.getUserInfoAssectsBrief(userId);
-        // if(null != userInfoAssect){
-        // BeanUtils.copyProperties(userInfoAssect, userInfoAssectsBrief);
-        // }
-        return userInfoAssect;
-    }
+//    @Override
+//    public UserInfoAssectsBriefDTO getUserInfoAssectsBrief(String userUuid) throws Exception {
+//        Long userId = getUserIdFromUUID(userUuid);
+//        // UserInfoAssectsBrief userInfoAssectsBrief = new
+//        // UserInfoAssectsBrief();
+//        UserInfoAssectsBriefDTO userInfoAssect = userInfoRepoService.getUserInfoAssectsBrief(userId);
+//        // if(null != userInfoAssect){
+//        // BeanUtils.copyProperties(userInfoAssect, userInfoAssectsBrief);
+//        // }
+//        return userInfoAssect;
+//    }
 
     @Override
     public List<BankCardDTO> getUserInfoBankCards(String userUuid, String cardNumber) {
@@ -226,18 +217,18 @@ public class UserInfoServiceImpl implements UserInfoService {
         return bankcards;
     }
 
-    @Override
-    public List<UserPortfolioDTO> getUserPortfolios(String userUuid) throws Exception {
-        Long userId = getUserIdFromUUID(userUuid);
-        List<UserPortfolioDTO> userPortfolioDaos = userInfoRepoService.getUserPortfolios(userId);
-        // List<UserPortfolio> userPortfolios = new ArrayList<>();
-        // for(UiPortfolio userPortfolioDao: userPortfolioDaos){
-        // UserPortfolio userPortfolio = new UserPortfolio();
-        // BeanUtils.copyProperties(userPortfolioDao, userPortfolio);
-        // userPortfolios.add(userPortfolio);
-        // }
-        return userPortfolioDaos;
-    }
+//    @Override
+//    public List<UserPortfolioDTO> getUserPortfolios(String userUuid) throws Exception {
+//        Long userId = getUserIdFromUUID(userUuid);
+//        List<UserPortfolioDTO> userPortfolioDaos = userInfoRepoService.getUserPortfolios(userId);
+//        // List<UserPortfolio> userPortfolios = new ArrayList<>();
+//        // for(UiPortfolio userPortfolioDao: userPortfolioDaos){
+//        // UserPortfolio userPortfolio = new UserPortfolio();
+//        // BeanUtils.copyProperties(userPortfolioDao, userPortfolio);
+//        // userPortfolios.add(userPortfolio);
+//        // }
+//        return userPortfolioDaos;
+//    }
 
     @Override
     public BankCardDTO getUserInfoBankCard(String cardNumber) throws RuntimeException {
@@ -331,14 +322,14 @@ public class UserInfoServiceImpl implements UserInfoService {
         return result;
     }
 
-    @Override
-    public Page<TradeLogDTO> findByUserId(String userUuid, Pageable pageable) throws Exception {
-        Long userId = getUserIdFromUUID(userUuid);
-        Page<UiTrdLog> tradeLogsPage = userInfoRepoService.findTradeLogDtoByUserId(pageable, userId);
-        Page<TradeLogDTO> tradeLogResult = MyBeanUtils
-                .convertPageDTO(pageable, tradeLogsPage, TradeLogDTO.class);
-        return tradeLogResult;
-    }
+//    @Override
+//    public Page<TradeLogDTO> findByUserId(String userUuid, Pageable pageable) throws Exception {
+//        Long userId = getUserIdFromUUID(userUuid);
+//        Page<UiTrdLog> tradeLogsPage = userInfoRepoService.findTradeLogDtoByUserId(pageable, userId);
+//        Page<TradeLogDTO> tradeLogResult = MyBeanUtils
+//                .convertPageDTO(pageable, tradeLogsPage, TradeLogDTO.class);
+//        return tradeLogResult;
+//    }
 
     @Override
     public List<UserInfoFriendRuleDTO> getUserInfoFriendRules(Long bankId)
@@ -347,18 +338,18 @@ public class UserInfoServiceImpl implements UserInfoService {
         return userInfoFriendRules;
     }
 
-    @Override
-    public UserInfoCompanyInfoDTO getCompanyInfo(String userUuid, Long bankId) {
-        Long id = getCompanyId(userUuid, bankId);
-        UiCompanyInfo uiCompanyInfo = userInfoRepoService.getCompanyInfo(id);
-        UserInfoCompanyInfoDTO userInfoCompanyInfo = new UserInfoCompanyInfoDTO();
-        if (null == uiCompanyInfo) {
-            return userInfoCompanyInfo;
-        }
-        BeanUtils.copyProperties(uiCompanyInfo, userInfoCompanyInfo);
-        return userInfoCompanyInfo;
-
-    }
+//    @Override
+//    public UserInfoCompanyInfoDTO getCompanyInfo(String userUuid, Long bankId) {
+//        Long id = getCompanyId(userUuid, bankId);
+//        UiCompanyInfo uiCompanyInfo = userInfoRepoService.getCompanyInfo(id);
+//        UserInfoCompanyInfoDTO userInfoCompanyInfo = new UserInfoCompanyInfoDTO();
+//        if (null == uiCompanyInfo) {
+//            return userInfoCompanyInfo;
+//        }
+//        BeanUtils.copyProperties(uiCompanyInfo, userInfoCompanyInfo);
+//        return userInfoCompanyInfo;
+//
+//    }
 
     // TODO: this function will be adjusted by business rule
     private Long getCompanyId(String userUuid, Long bankId) {
@@ -394,12 +385,12 @@ public class UserInfoServiceImpl implements UserInfoService {
         return result;
     }
 
-    @Override
-    public List<TradeLogDTO> findByUserId(String uuid) throws Exception {
-        Long userId = getUserIdFromUUID(uuid);
-        List<TradeLogDTO> uiTrdLogList = userInfoRepoService.findTradeLogDtoByUserId(userId);
-        return uiTrdLogList;
-    }
+//    @Override
+//    public List<TradeLogDTO> findByUserId(String uuid) throws Exception {
+//        Long userId = getUserIdFromUUID(uuid);
+//        List<TradeLogDTO> uiTrdLogList = userInfoRepoService.findTradeLogDtoByUserId(userId);
+//        return uiTrdLogList;
+//    }
 
     @Override
     public List<ProductsDTO> findProductInfos(String uuid) throws Exception {

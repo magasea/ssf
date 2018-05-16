@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.order.model;
 
 /**
- * Created by developer4 on 2018- 五月 - 07
+ * Created by chenwei on 2018- 五月 - 07
  */
 
 public class ZZBankInfo {

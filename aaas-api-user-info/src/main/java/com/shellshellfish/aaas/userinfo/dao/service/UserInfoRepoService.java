@@ -3,16 +3,12 @@ package com.shellshellfish.aaas.userinfo.dao.service;
 import com.shellshellfish.aaas.userinfo.grpc.SellPersentProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductsResult.Builder;
-import com.shellshellfish.aaas.userinfo.model.dao.UiSysMsg;
-import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
-import java.util.List;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiPersonMsg;
-import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
+import com.shellshellfish.aaas.userinfo.model.dao.UiSysMsg;
+import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
@@ -25,18 +21,19 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserProdMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import java.util.List;
 
 public interface UserInfoRepoService {
 	UserBaseInfoDTO getUserInfoBase(Long userId);
 
-	UserInfoAssectsBriefDTO getUserInfoAssectsBrief(Long userId);
+//	UserInfoAssectsBriefDTO getUserInfoAssectsBrief(Long userId);
 
 	List<BankCardDTO> getUserInfoBankCards(Long userId) throws IllegalAccessException, InstantiationException;
 
 	List<BankCardDTO> getUserInfoBankCards(Long userId, String cardNumber) throws
 			IllegalAccessException, InstantiationException;
 
-	List<UserPortfolioDTO> getUserPortfolios(Long userId) throws IllegalAccessException, InstantiationException;
+//	List<UserPortfolioDTO> getUserPortfolios(Long userId) throws IllegalAccessException, InstantiationException;
 
 	BankCardDTO getUserInfoBankCard(String cardNumber);
 
@@ -61,15 +58,15 @@ public interface UserInfoRepoService {
 
 	UserPersonMsgDTO addUiPersonMsg(UiPersonMsg uiPersonMsg);
 
-	Page<UiTrdLog> findTradeLogDtoByUserId(Pageable pageable, Long userId);
-
-	Iterable<TradeLogDTO> addUiTrdLog(List<UiTrdLog> trdLogs) throws IllegalAccessException, InstantiationException;
+//	Page<UiTrdLog> findTradeLogDtoByUserId(Pageable pageable, Long userId);
+//
+//	Iterable<TradeLogDTO> addUiTrdLog(List<UiTrdLog> trdLogs) throws IllegalAccessException, InstantiationException;
 
 	List<UserInfoFriendRuleDTO> getUiFriendRule(Long bankId) throws IllegalAccessException, InstantiationException;
 
-	UiCompanyInfo getCompanyInfo(Long id);
+//	UiCompanyInfo getCompanyInfo(Long id);
 
-	UiCompanyInfo addCompanyInfo(UiCompanyInfo uiCompanyInfo);
+//	UiCompanyInfo addCompanyInfo(UiCompanyInfo uiCompanyInfo);
 
 	Boolean deleteBankCard(String userUuid, String cardNumber);
 
@@ -82,7 +79,7 @@ public interface UserInfoRepoService {
 	public UserSysMsgDTO addUiSysMsg(UiSysMsg uiSysMsg) throws IllegalAccessException,
 			InstantiationException;
 
-	List<TradeLogDTO> findTradeLogDtoByUserId(Long userId) throws IllegalAccessException, InstantiationException;
+//	List<TradeLogDTO> findTradeLogDtoByUserId(Long userId) throws IllegalAccessException, InstantiationException;
 
 	ProductsDTO findByProdId(String prodId) throws IllegalAccessException, InstantiationException;
 	

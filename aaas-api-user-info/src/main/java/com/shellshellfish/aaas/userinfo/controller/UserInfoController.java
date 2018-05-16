@@ -94,58 +94,58 @@ public class UserInfoController {
     @Autowired
     RpcOrderService rpcOrderService;
 
-    /**
-     * 我的 初始页面
-     */
-    @ApiOperation("我的 初始页面")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 400, message = "请求参数没填好"),
-            @ApiResponse(code = 401, message = "未授权用户"),
-            @ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
-            @ApiResponse(code = 404, message = "请求路径没有或页面跳")
-    })
-    @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "path", name = "userUuid", dataType = "String", required = true, value = "userUuid", defaultValue = "")
-    })
-    @RequestMapping(value = "/users/{userUuid}/initpage", method = RequestMethod.GET)
-//	@AopLinkResources
-    public ResponseEntity<Object> getUserBaseInfo(
-            @Valid @NotNull(message = "userUuid不能为空") @PathVariable("userUuid") String userUuid
-    ) throws Exception {
-        System.out.println("userUuid is " + userUuid);
-        logger.info("getUserBaseInfo method run..");
-        Map<String, Object> result = new HashMap<>();
-        Map<String, Object> links = new HashMap<>();
-        Map<String, Object> selfmap = new HashMap<>();
-        selfmap.put("href", URL_HEAD + "/users/" + userUuid + "/initpage");
-        selfmap.put("describedBy", "schema//" + URL_HEAD + "/users/" + userUuid + "/initpage.json");
-
-        List<BankCardDTO> bankCards = userInfoService.getUserInfoBankCards(userUuid);
-        UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService
-                .getUserInfoAssectsBrief(userUuid);
-        List<UserPortfolioDTO> userPortfolios = userInfoService.getUserPortfolios(userUuid);
-        UserBaseInfoDTO userBaseInfo = userInfoService.getUserInfoBase(userUuid);
-
-        result.put("userCellphone", "手机号码");
-        Calendar cal = Calendar.getInstance();
-        int year = 0;
-        if (null != userBaseInfo.getBirthAge()) {
-            cal.setTime(userBaseInfo.getBirthAge());
-            year = (cal.get(Calendar.YEAR) % 10) * 10;
-        }
-
-        result.put("userBirthAge", "" + year);
-        result.put("userCarrier", userBaseInfo.getOccupation());
-
-        result.put("userAssets", userInfoAssectsBrief);
-        result.put("userPortfolios", userPortfolios);
-        result.put("userBankCards", bankCards);
-        links.put("self", selfmap);
-        result.put("_links", links);
-        result.put("userUuid", userUuid);
-        return new ResponseEntity<Object>(result, HttpStatus.OK);
-    }
+//    /**
+//     * 我的 初始页面
+//     */
+//    @ApiOperation("我的 初始页面")
+//    @ApiResponses({
+//            @ApiResponse(code = 200, message = "OK"),
+//            @ApiResponse(code = 400, message = "请求参数没填好"),
+//            @ApiResponse(code = 401, message = "未授权用户"),
+//            @ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+//            @ApiResponse(code = 404, message = "请求路径没有或页面跳")
+//    })
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(paramType = "path", name = "userUuid", dataType = "String", required = true, value = "userUuid", defaultValue = "")
+//    })
+//    @RequestMapping(value = "/users/{userUuid}/initpage", method = RequestMethod.GET)
+////	@AopLinkResources
+//    public ResponseEntity<Object> getUserBaseInfo(
+//            @Valid @NotNull(message = "userUuid不能为空") @PathVariable("userUuid") String userUuid
+//    ) throws Exception {
+//        System.out.println("userUuid is " + userUuid);
+//        logger.info("getUserBaseInfo method run..");
+//        Map<String, Object> result = new HashMap<>();
+//        Map<String, Object> links = new HashMap<>();
+//        Map<String, Object> selfmap = new HashMap<>();
+//        selfmap.put("href", URL_HEAD + "/users/" + userUuid + "/initpage");
+//        selfmap.put("describedBy", "schema//" + URL_HEAD + "/users/" + userUuid + "/initpage.json");
+//
+//        List<BankCardDTO> bankCards = userInfoService.getUserInfoBankCards(userUuid);
+//        UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService
+//                .getUserInfoAssectsBrief(userUuid);
+//        List<UserPortfolioDTO> userPortfolios = userInfoService.getUserPortfolios(userUuid);
+//        UserBaseInfoDTO userBaseInfo = userInfoService.getUserInfoBase(userUuid);
+//
+//        result.put("userCellphone", "手机号码");
+//        Calendar cal = Calendar.getInstance();
+//        int year = 0;
+//        if (null != userBaseInfo.getBirthAge()) {
+//            cal.setTime(userBaseInfo.getBirthAge());
+//            year = (cal.get(Calendar.YEAR) % 10) * 10;
+//        }
+//
+//        result.put("userBirthAge", "" + year);
+//        result.put("userCarrier", userBaseInfo.getOccupation());
+//
+//        result.put("userAssets", userInfoAssectsBrief);
+//        result.put("userPortfolios", userPortfolios);
+//        result.put("userBankCards", bankCards);
+//        links.put("self", selfmap);
+//        result.put("_links", links);
+//        result.put("userUuid", userUuid);
+//        return new ResponseEntity<Object>(result, HttpStatus.OK);
+//    }
 
     /**
      * 我的银行卡 查看页面
@@ -812,45 +812,7 @@ public class UserInfoController {
         }
     }
 
-    /**
-     * 交易记录
-     */
-    @ApiOperation("交易记录")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 400, message = "请求参数没填好"),
-            @ApiResponse(code = 401, message = "未授权用户"),
-            @ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
-            @ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")
-    })
-    @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "path", name = "userUuid", dataType = "String", required = true, value = "id", defaultValue = ""),
-            @ApiImplicitParam(paramType = "query", name = "size", dataType = "Long", value = "每页显示记录数", defaultValue = "25"),
-            @ApiImplicitParam(paramType = "query", name = "page", dataType = "Long", value = "显示页数（默认第0页开始）", defaultValue = "0"),
-            @ApiImplicitParam(paramType = "query", name = "sort", dataType = "String", value = "排序条件", defaultValue = "id")
-    })
-    //@RequestMapping(value = "/users/{userUuid}/traderecords", method = RequestMethod.GET)
-//	@AopPageResources
-    public ResponseEntity<PageWrapper<TradeLogDTO>> getTradLogsOfUser(
-            @PathVariable String userUuid, Pageable pageable,
-            @RequestParam(value = "size") Long size,
-            @RequestParam(value = "page", defaultValue = "0") Long page,
-            @RequestParam(value = "sort") String sort) throws Exception {
-        logger.info("getTradLogsOfUser method run..");
-        Page<TradeLogDTO> pages = userInfoService.findByUserId(userUuid, pageable);
-        Map<String, Object> selfMap = new HashMap<String, Object>();
-        Map<String, Object> self = new HashMap<String, Object>();
-        selfMap.put("name", "test");
-        selfMap.put("href", URL_HEAD + "/users/" + userUuid + "/traderecords");
-        selfMap.put("describedBy", URL_HEAD + "/users/" + userUuid + "/traderecords.json");
-        self.put("self", selfMap);
-        if (pages == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        PageWrapper<TradeLogDTO> pageWrapper = new PageWrapper<>(pages);
-        pageWrapper.set_links(self);
-        return new ResponseEntity<>(pageWrapper, HttpStatus.OK);
-    }
+
 
     /**
      * 邀请规则
@@ -943,65 +905,65 @@ public class UserInfoController {
     }
 
 
-    /**
-     * 关于我们
-     */
-
-    @ApiOperation("关于我们")
-    @ApiImplicitParams({
-            //@ApiImplicitParam(paramType="path",name="id",dataType="String",required=true,value="id",defaultValue=""),
-            @ApiImplicitParam(paramType = "query", name = "userUuid", dataType = "String", required = false, value = "用户Uuid", defaultValue = ""),
-            @ApiImplicitParam(paramType = "query", name = "bankId", dataType = "Long", required = false, value = "银行ID", defaultValue = "")
-    })
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 400, message = "请求参数没填好"),
-            @ApiResponse(code = 401, message = "未授权用户"),
-            @ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
-            @ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")
-    })
-    @RequestMapping(value = "/companyinfos", method = RequestMethod.GET)
-    public ResponseEntity<?> getCompanyInfo(@RequestParam String userUuid,
-                                            @RequestParam(required = false) Long bankId)
-            throws Exception {
-        logger.info("getCompanyInfo method run..");
-        UserInfoCompanyInfoDTO userInfoCompanyInfo = userInfoService.getCompanyInfo(userUuid, bankId);
-        Map<String, Object> result = new HashMap<>();
-        Map<String, Object> selfmap = new HashMap<>();
-        Map<String, Object> links = new HashMap<>();
-
-        result.put("companyinfo", userInfoCompanyInfo);
-        // result.put("_page","");
-        StringBuffer sbf = new StringBuffer();
-        sbf.append(URL_HEAD);
-        sbf.append("/companyinfos");
-        if (userUuid != null || bankId != null) {
-            sbf.append("?");
-            if (userUuid != null && bankId != null) {
-                sbf.append("userUuid=" + userUuid);
-                sbf.append("&bankId=" + bankId);
-            } else if (userUuid != null && bankId == null) {
-                sbf.append("userUuid=" + userUuid);
-            } else if (userUuid == null && bankId != null) {
-                sbf.append("bankId=" + bankId);
-            }
-        }
-        selfmap.put("href", sbf.toString());
-        selfmap.put("describedBy", "schema//" + URL_HEAD + "/companyinfos.json");
-        links.put("self", selfmap);
-        if (userUuid != null) {
-            result.put("userUuid", userUuid);
-        } else {
-            result.put("userUuid", "");
-        }
-        if (bankId != null) {
-            result.put("bankId", bankId);
-        } else {
-            result.put("bankId", "");
-        }
-        result.put("_links", links);
-        return new ResponseEntity<Object>(result, HttpStatus.OK);
-    }
+//    /**
+//     * 关于我们
+//     */
+//
+//    @ApiOperation("关于我们")
+//    @ApiImplicitParams({
+//            //@ApiImplicitParam(paramType="path",name="id",dataType="String",required=true,value="id",defaultValue=""),
+//            @ApiImplicitParam(paramType = "query", name = "userUuid", dataType = "String", required = false, value = "用户Uuid", defaultValue = ""),
+//            @ApiImplicitParam(paramType = "query", name = "bankId", dataType = "Long", required = false, value = "银行ID", defaultValue = "")
+//    })
+//    @ApiResponses({
+//            @ApiResponse(code = 200, message = "OK"),
+//            @ApiResponse(code = 400, message = "请求参数没填好"),
+//            @ApiResponse(code = 401, message = "未授权用户"),
+//            @ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+//            @ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")
+//    })
+//    @RequestMapping(value = "/companyinfos", method = RequestMethod.GET)
+//    public ResponseEntity<?> getCompanyInfo(@RequestParam String userUuid,
+//                                            @RequestParam(required = false) Long bankId)
+//            throws Exception {
+//        logger.info("getCompanyInfo method run..");
+//        UserInfoCompanyInfoDTO userInfoCompanyInfo = userInfoService.getCompanyInfo(userUuid, bankId);
+//        Map<String, Object> result = new HashMap<>();
+//        Map<String, Object> selfmap = new HashMap<>();
+//        Map<String, Object> links = new HashMap<>();
+//
+//        result.put("companyinfo", userInfoCompanyInfo);
+//        // result.put("_page","");
+//        StringBuffer sbf = new StringBuffer();
+//        sbf.append(URL_HEAD);
+//        sbf.append("/companyinfos");
+//        if (userUuid != null || bankId != null) {
+//            sbf.append("?");
+//            if (userUuid != null && bankId != null) {
+//                sbf.append("userUuid=" + userUuid);
+//                sbf.append("&bankId=" + bankId);
+//            } else if (userUuid != null && bankId == null) {
+//                sbf.append("userUuid=" + userUuid);
+//            } else if (userUuid == null && bankId != null) {
+//                sbf.append("bankId=" + bankId);
+//            }
+//        }
+//        selfmap.put("href", sbf.toString());
+//        selfmap.put("describedBy", "schema//" + URL_HEAD + "/companyinfos.json");
+//        links.put("self", selfmap);
+//        if (userUuid != null) {
+//            result.put("userUuid", userUuid);
+//        } else {
+//            result.put("userUuid", "");
+//        }
+//        if (bankId != null) {
+//            result.put("bankId", bankId);
+//        } else {
+//            result.put("bankId", "");
+//        }
+//        result.put("_links", links);
+//        return new ResponseEntity<Object>(result, HttpStatus.OK);
+//    }
 
     private Object makePersonInfoResponse() {
         Map<String, Object> result = new HashMap<>();

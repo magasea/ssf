@@ -12,7 +12,7 @@ import com.shellshellfish.aaas.dto.FinanceProdSellInfo;
 /**
  * 作一些数据处理
  *
- * @author developer4
+ * @author chenwei
  */
 @Service
 public interface MidApiService {
