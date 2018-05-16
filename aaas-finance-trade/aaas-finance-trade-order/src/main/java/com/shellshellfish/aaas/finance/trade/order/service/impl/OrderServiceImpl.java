@@ -283,6 +283,30 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
     }
 
 
+    /**
+     * @param request
+     * @param responseObserver
+     */
+    @Override
+    public void getAllOrderDetail(UserProdId request,
+                                  StreamObserver<OrderDetailResult> responseObserver) {
+
+        List<TrdOrderDetail> result = trdOrderDetailRepository.findAllByUserProdId(request.getUserProdId());
+
+        if (result == null) {
+            result = new ArrayList<>(0);
+        }
+        OrderDetailResult.Builder builder = OrderDetailResult.newBuilder();
+
+        for (int i = 0; i < result.size(); i++) {
+            OrderDetail.Builder orderDetailBuilder = OrderDetail.newBuilder();
+            MyBeanUtils.mapEntityIntoDTO(result.get(i), orderDetailBuilder);
+            builder.addOrderDetailResult(orderDetailBuilder);
+        }
+        responseObserver.onNext(builder.build());
+        responseObserver.onCompleted();
+    }
+
     @Override
     public Map<String, Object> getBankInfos(String bankShortName) {
         Map<String, Object> result = new HashMap<String, Object>();
