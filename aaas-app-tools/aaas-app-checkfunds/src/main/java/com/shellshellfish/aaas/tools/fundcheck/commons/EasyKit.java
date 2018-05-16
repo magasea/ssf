@@ -17,7 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 /**
  * 处理的一些小工具
  * 
- * @author developer4
+ * @author chenwei
  *
  */
 public class EasyKit {

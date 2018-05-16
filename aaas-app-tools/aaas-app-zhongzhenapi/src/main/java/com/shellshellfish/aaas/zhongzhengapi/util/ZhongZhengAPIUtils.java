@@ -80,11 +80,12 @@ public class ZhongZhengAPIUtils {
       String[] data = {ZhongZhengAPIConstants.ZZ_PLATFORM_DEFAULT_OPENID};
       info.put("data",  gson.toJson(data));
     }else{
-      if(!info.containsKey("platform_openid")){
+      if(!info.containsKey(KEY_PLATFORM_OPENID)){
         throw  new Exception("info doesn't  contains platform_openid");
       }
-//      String[] data = {ZhongZhengAPIConstants.ZZ_PLATFORM_DEFAULT_OPENID};
-//      info.put("data",  gson.toJson(data));
+      info.put(KEY_PLATFORM_OPENID, info.get(KEY_PLATFORM_OPENID));
+      String[] data = {info.get(KEY_PLATFORM_OPENID)};
+      info.put("data",  gson.toJson(data));
     }
     info.put("time", TradeUtil.getUTCTimeInSeconds().toString());
     String key = UnixCrypt.crypt(ZhongZhengAPIConstants.ZZ_PLATFORM_PRIVATE_KEY, "en");

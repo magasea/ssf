@@ -40,7 +40,7 @@ spring:
         min-idle: 0
 
 datasource:
-  sampleapp:
+  aaasapp:
     url: jdbc:mysql://external-mysql-service:3306/ssftrdorder?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
     username: sa
     password: 1rIQ9wi!@g3P$Qh* 
