@@ -34,7 +34,7 @@ public class MvcConfiguration  extends WebMvcConfigurerAdapter {
     return new RestTemplate();
   }
 
-  @Bean
+//  @Bean
   public ManagementFactory mbeanServer(){
     ManagementFactory managementFactory = (ManagementFactory) ManagementFactory.getPlatformMBeanServer();
     return managementFactory;
