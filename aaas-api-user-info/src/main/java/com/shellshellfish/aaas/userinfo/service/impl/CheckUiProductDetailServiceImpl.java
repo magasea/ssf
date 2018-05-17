@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import com.mongodb.bulk.BulkWriteResult;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
@@ -13,18 +14,16 @@ import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @Author pierre.chen
@@ -51,7 +50,7 @@ public class CheckUiProductDetailServiceImpl implements CheckUiProductDetailServ
     @Override
     public void check() {
         List<Long> userProdIdList = uiProductRepo.getAllId();
-
+        List<MongoUserFundQuantityLog> mongoUserFundQuantityLogList = new ArrayList<>(userProdIdList.size());
         for (Long userProdId : userProdIdList) {
             List<OrderDetail> orderDetailList = orderRpcService.getAllTrdOrderDetail(userProdId);
             Map fundQuantityMap = calculateFundQuantity(orderDetailList);
@@ -71,8 +70,11 @@ public class CheckUiProductDetailServiceImpl implements CheckUiProductDetailServ
                 mongoUserFundQuantityLog.setOrderDetails(orderDetailList);
                 mongoUserFundQuantityLog.setFundQuantityMap(fundQuantityMap);
                 mongoUserFundQuantityLog.setProductStatusMap(statusMap);
-                saveOrUpdate(mongoUserFundQuantityLog);
+                mongoUserFundQuantityLogList.add(mongoUserFundQuantityLog);
             }
+        }
+        if (!CollectionUtils.isEmpty(mongoUserFundQuantityLogList)) {
+            saveOrUpdate(mongoUserFundQuantityLogList);
         }
     }
 
@@ -101,6 +103,7 @@ public class CheckUiProductDetailServiceImpl implements CheckUiProductDetailServ
             if (!TrdOrderStatusEnum.isConfirmed(status)) {
                 continue;
             }
+            //FIXME 货币基金的情况需要特殊处理 货币基金份额= fundNumConfirmed/货币基金的累计净值
             if (TrdOrderOpTypeEnum.BUY.getOperation() == orderDetail.getTradeType()) {
                 fundQuantity += orderDetail.getFundNumConfirmed();
             } else if (TrdOrderOpTypeEnum.REDEEM.getOperation() == orderDetail.getTradeType()) {
@@ -166,18 +169,29 @@ public class CheckUiProductDetailServiceImpl implements CheckUiProductDetailServ
     }
 
 
-    private MongoUserFundQuantityLog saveOrUpdate(MongoUserFundQuantityLog mongoUserFundQuantityLog) {
-        Criteria criteria = new Criteria();
-        criteria.andOperator(
-                Criteria.where("user_prod_id").is(mongoUserFundQuantityLog.getUserProdId()));
-        Query query = new Query(criteria);
-        Update update = new Update();
-        update.set("update_time", mongoUserFundQuantityLog.getUpdateTime());
-        update.set("order_details", mongoUserFundQuantityLog.getOrderDetails());
-        update.set("product_status", mongoUserFundQuantityLog.getProductStatusMap());
-        update.set("fund_quantity", mongoUserFundQuantityLog.getFundQuantityMap());
-        update.setOnInsert("create_time", mongoUserFundQuantityLog.getCreateTime());
-        FindAndModifyOptions findAndModifyOptions = new FindAndModifyOptions().returnNew(true).upsert(true);
-        return mongoTemplate.findAndModify(query, update, findAndModifyOptions, MongoUserFundQuantityLog.class);
+    /**
+     * 批量更新
+     *
+     * @param mongoUserFundQuantityLogList
+     * @return
+     */
+    public BulkWriteResult saveOrUpdate(List<MongoUserFundQuantityLog> mongoUserFundQuantityLogList) {
+        BulkOperations ops = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, MongoUserFundQuantityLog.class);
+        List<Pair<Query, Update>> updates = new ArrayList<>();
+        for (MongoUserFundQuantityLog mongoUserFundQuantityLog : mongoUserFundQuantityLogList) {
+            Criteria criteria = new Criteria();
+            criteria.andOperator(
+                    Criteria.where("user_prod_id").is(mongoUserFundQuantityLog.getUserProdId()));
+            Query query = new Query(criteria);
+            Update update = new Update();
+            update.set("update_time", mongoUserFundQuantityLog.getUpdateTime());
+            update.set("order_details", mongoUserFundQuantityLog.getOrderDetails());
+            update.set("product_status", mongoUserFundQuantityLog.getProductStatusMap());
+            update.set("fund_quantity", mongoUserFundQuantityLog.getFundQuantityMap());
+            update.setOnInsert("create_time", mongoUserFundQuantityLog.getCreateTime());
+            updates.add(Pair.of(query, update));
+        }
+        ops.upsert(updates);
+        return ops.execute();
     }
 }
