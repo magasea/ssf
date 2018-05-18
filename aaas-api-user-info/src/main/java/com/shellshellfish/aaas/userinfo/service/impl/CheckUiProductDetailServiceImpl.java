@@ -116,14 +116,16 @@ public class CheckUiProductDetailServiceImpl implements CheckUiProductDetailServ
             if (TrdOrderOpTypeEnum.BUY.getOperation() == orderDetail.getTradeType()) {
                 if (MonetaryFundEnum.containsCode(orderDetail.getFundCode())) {
                     //货币基金净值恒为一，　每日份额变化　，需要除以复权单位精致，以比拟于普通基金
-                    BigDecimal navadj = getMonetaryFundNavAdj(fundCode, orderDetail.getCreateDate());
+                    //FIXME updateDate 有可能不准确　应该是mongo 库ssfui.ui_trdzzinfo　的confirm_date
+                    BigDecimal navadj = getMonetaryFundNavAdj(fundCode, orderDetail.getUpdateDate());
                     fundQuantity += (orderDetail.getFundNumConfirmed() / navadj.longValue());
                 } else {
                     fundQuantity += orderDetail.getFundNumConfirmed();
                 }
             } else if (TrdOrderOpTypeEnum.REDEEM.getOperation() == orderDetail.getTradeType()) {
                 if (MonetaryFundEnum.containsCode(fundCode)) {
-                    BigDecimal navadj = getMonetaryFundNavAdj(fundCode, orderDetail.getCreateDate());
+                    //FIXME updateDate 有可能不准确　应该是mongo 库ssfui.ui_trdzzinfo　的confirm_date
+                    BigDecimal navadj = getMonetaryFundNavAdj(fundCode, orderDetail.getUpdateDate());
                     fundQuantity -= (orderDetail.getFundNumConfirmed() / navadj.longValue());
                 } else {
                     fundQuantity -= orderDetail.getFundNumConfirmed();
