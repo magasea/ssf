@@ -35,6 +35,7 @@ import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
+import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankcardDetailBodyDTO;
@@ -1589,6 +1590,43 @@ public class UserInfoController {
                 .getCalcYieldof7days(fundcode,
                         type, date);
         resudltMap.put("result", coinFundYieldRateList);
+        return new ResponseEntity<>(resudltMap, HttpStatus.OK);
+    }
+    
+    @ApiOperation("获取所有用户的信息")
+    @ApiResponses({@ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 400, message = "请求参数没填好"),
+            @ApiResponse(code = 401, message = "未授权用户"),
+            @ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+            @ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")})
+    @ApiImplicitParams({
+      @ApiImplicitParam(paramType="query",name="size",dataType="Long",value="每页显示记录数",defaultValue="25"),
+      @ApiImplicitParam(paramType="query",name="page",dataType="Long",value="显示页数（默认第0页开始）",defaultValue="0"),
+      @ApiImplicitParam(paramType="query",name="sort",dataType="String",value="排序条件",defaultValue="id")
+    })
+    @RequestMapping(value = "/usres", method = RequestMethod.GET)
+    public ResponseEntity<Map> getUsers(
+        Pageable pageable,
+        @RequestParam(value = "size") Long size,
+        @RequestParam(value = "page", defaultValue="0") Long page,
+        @RequestParam(value = "sort", defaultValue="id") String sort)
+            throws Exception {
+        Map<String, Object> resudltMap = new HashMap<String, Object>();
+        
+        try {
+          resudltMap = userInfoService.selectUserFindAll(pageable);
+        } catch (InstantiationException e) {
+          logger.error("exception:",e);
+        } catch (IllegalAccessException e) {
+            logger.error("exception:",e);
+        }
+        
+//        List<UserBaseInfoDTO> userList = pages.getContent();
+//        resudltMap.put("users", userList);
+//        resudltMap.put("totalPages", pages.getTotalPages());
+//        resudltMap.put("currentPages", page);
+//        resudltMap.put("size", size);
+        //resudltMap.put("result", coinFundYieldRateList);
         return new ResponseEntity<>(resudltMap, HttpStatus.OK);
     }
 }

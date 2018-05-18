@@ -3,7 +3,6 @@ package com.shellshellfish.aaas.userinfo.service.impl;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
-
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
@@ -15,6 +14,7 @@ import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.utils.TrdStatusToCombStatusUtils;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
@@ -29,7 +29,7 @@ import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
-import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
+//import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
@@ -78,6 +78,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -1353,5 +1355,20 @@ public class UserInfoServiceImpl implements UserInfoService {
             e.printStackTrace();
         }
         return dataList;
+    }
+
+    @Override
+    public Map<String, Object> selectUserFindAll(Pageable pageable) throws InstantiationException, IllegalAccessException {
+      Map<String, Object> resudltMap = new HashMap<String, Object>();
+      Page<UiUser> users = userInfoRepoService.secectUsers(pageable);
+      
+      List<UiUser> userList = users.getContent();
+      List<UserBaseInfoDTO> userBaseList = MyBeanUtils.convertList(userList, UserBaseInfoDTO.class);
+      resudltMap.put("users", userBaseList);
+      resudltMap.put("totalPages", users.getTotalPages());
+      resudltMap.put("currentPages", users.getPageable().getPageNumber());
+      resudltMap.put("size", users.getSize());
+      
+      return resudltMap;
     }
 }
