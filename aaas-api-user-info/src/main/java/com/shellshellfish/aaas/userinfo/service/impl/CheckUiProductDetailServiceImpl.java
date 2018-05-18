@@ -1,12 +1,15 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
 import com.mongodb.bulk.BulkWriteResult;
+import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
+import com.shellshellfish.aaas.userinfo.model.dao.CoinFundYieldRate;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUserFundQuantityLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
+import com.shellshellfish.aaas.userinfo.repositories.funds.MongoCoinFundYieldRateRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import com.shellshellfish.aaas.userinfo.service.CheckUiProductDetailService;
@@ -14,6 +17,7 @@ import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -23,6 +27,7 @@ import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -44,6 +49,9 @@ public class CheckUiProductDetailServiceImpl implements CheckUiProductDetailServ
 
     @Autowired
     MongoTemplate mongoTemplate;
+
+    @Autowired
+    MongoCoinFundYieldRateRepository mongoCoinFundYieldRateRepository;
 
     Logger logger = LoggerFactory.getLogger(CheckUiProductDetailServiceImpl.class);
 
@@ -98,16 +106,28 @@ public class CheckUiProductDetailServiceImpl implements CheckUiProductDetailServ
         Long fundQuantity;
         Map<String, Long> fundQuantityMap = new HashMap<>(8);
         for (OrderDetail orderDetail : orderDetailList) {
-            fundQuantity = Optional.of(fundQuantityMap).map(m -> m.get(orderDetail.getFundCode())).orElse(0L);
+            String fundCode = orderDetail.getFundCode();
+            fundQuantity = Optional.of(fundQuantityMap).map(m -> m.get(fundCode)).orElse(0L);
             int status = orderDetail.getOrderDetailStatus();
             if (!TrdOrderStatusEnum.isConfirmed(status)) {
                 continue;
             }
-            //FIXME 货币基金的情况需要特殊处理 货币基金份额= fundNumConfirmed/货币基金的累计净值
+
             if (TrdOrderOpTypeEnum.BUY.getOperation() == orderDetail.getTradeType()) {
-                fundQuantity += orderDetail.getFundNumConfirmed();
+                if (MonetaryFundEnum.containsCode(orderDetail.getFundCode())) {
+                    //货币基金净值恒为一，　每日份额变化　，需要除以复权单位精致，以比拟于普通基金
+                    BigDecimal navadj = getMonetaryFundNavAdj(fundCode, orderDetail.getCreateDate());
+                    fundQuantity += (orderDetail.getFundNumConfirmed() / navadj.longValue());
+                } else {
+                    fundQuantity += orderDetail.getFundNumConfirmed();
+                }
             } else if (TrdOrderOpTypeEnum.REDEEM.getOperation() == orderDetail.getTradeType()) {
-                fundQuantity -= orderDetail.getFundNumConfirmed();
+                if (MonetaryFundEnum.containsCode(fundCode)) {
+                    BigDecimal navadj = getMonetaryFundNavAdj(fundCode, orderDetail.getCreateDate());
+                    fundQuantity -= (orderDetail.getFundNumConfirmed() / navadj.longValue());
+                } else {
+                    fundQuantity -= orderDetail.getFundNumConfirmed();
+                }
             }
             fundQuantityMap.put(orderDetail.getFundCode(), fundQuantity);
         }
@@ -193,5 +213,16 @@ public class CheckUiProductDetailServiceImpl implements CheckUiProductDetailServ
         }
         ops.upsert(updates);
         return ops.execute();
+    }
+
+    //获取货币基金的复权单位精致
+    private BigDecimal getMonetaryFundNavAdj(String fundCode, Long time) {
+        //货币基金使用附权单位净值
+        CoinFundYieldRate coinFundYieldRate = mongoCoinFundYieldRateRepository
+                .findFirstByCodeAndQueryDateBefore(fundCode, time,
+                        new Sort(new Sort.Order(Sort.Direction.DESC, "querydate")));
+
+        return Optional.ofNullable(coinFundYieldRate).map(m -> m.getNavadj()).orElse(BigDecimal.ONE);
+
     }
 }
