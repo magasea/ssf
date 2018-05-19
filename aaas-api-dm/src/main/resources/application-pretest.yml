@@ -1,0 +1,98 @@
+---
+server:
+  port: 10060
+logging:
+  level:
+    org.hibernate.SQL: info
+    org.hibernate.type.descriptor.sql.BasicBinder: info
+    org.springframework.data: debug
+
+---
+
+spring:
+  data:
+    mongodb:
+      database: ssfui
+      host: 192.168.1.10
+      port: 30005
+      zhongzheng: zhongzheng
+      funds: funds
+  jpa:
+    hibernate:
+      ddl-auto: update
+  rabbitmq:
+     listener:
+       simple:
+         acknowledge-mode: auto
+     username: ssf
+     password: shellshellfish
+     host: 192.168.1.249
+     port: 5772
+     virtual-host: aaas
+     topicQueuePayName: com-ssf-topic-queue-pay
+     topicQueueOrderName: com-ssf-topic-queue-order
+     topicQueueUserinfoName: com-ssf-topic-queue-userinfo
+     topicExchangeName: com-ssf-topic-exchange
+     topicPay: shellshellfish.pay
+     topicOrder: shellshellfish.order
+     topicUserinfo: shellshellfish.userinfo
+     topicDailyCalculateAsset: com-ssf-topic-calculate-asset
+  redis:
+    host: 192.168.1.249
+    port: 26379
+    password: redis123
+    timeout: 1800000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: 1800000ms
+        max-idle: 8
+        min-idle: 0
+datasource:
+  aaasapp:
+    url: jdbc:mysql://192.168.1.10:30006/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
+    username: sa
+    password: N4eTVr89lX9BaPcx
+    driverClassName: com.mysql.jdbc.Driver
+    defaultSchema: ssfuser
+    maxPoolSize: 20
+    hibernate:
+      connection:
+        useUnicode: true
+        characterEncoding: UTF-8
+      jdbc:
+        batch_size: 50
+      hbm2ddl.method: update
+      show_sql: true
+      format_sql: true
+      dialect: org.hibernate.dialect.MySQLDialect
+
+grpc:
+  userinfo:
+    host: localhost
+    port: 10061
+  data-manager-rpc:
+    host: localhost
+    port: 10031
+  finance-trade-order-rpc:
+    host: localhost
+    port: 10101
+  finance-trade-pay-rpc:
+    host: localhost
+    port: 10111
+  datacollection-server-rpc:
+    host: localhost
+    port: 10091
+
+
+aaas-api-finance-url: http://localhost:10120
+
+api-asset-alloction-url: http://localhost:10020
+
+# 每日收益计算 多线程
+daily-finance-calculate-thread: 8
+
+management:
+  endpoints:
+    web:
+      base-path: /
