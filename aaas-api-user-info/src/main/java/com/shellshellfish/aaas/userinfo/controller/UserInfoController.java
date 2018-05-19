@@ -1604,7 +1604,7 @@ public class UserInfoController {
       @ApiImplicitParam(paramType="query",name="page",dataType="Long",value="显示页数（默认第0页开始）",defaultValue="0"),
       @ApiImplicitParam(paramType="query",name="sort",dataType="String",value="排序条件",defaultValue="id")
     })
-    @RequestMapping(value = "/usres", method = RequestMethod.GET)
+    @RequestMapping(value = "/users", method = RequestMethod.GET)
     public ResponseEntity<Map> getUsers(
         Pageable pageable,
         @RequestParam(value = "size") Long size,
