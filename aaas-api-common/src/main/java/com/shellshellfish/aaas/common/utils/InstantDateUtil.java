@@ -68,6 +68,16 @@ public class InstantDateUtil {
     /**
      * 字符串转{@link LocalDate}
      *
+     * @param epochMilli
+     */
+    public static LocalDate format(long epochMilli) {
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), ZoneId.systemDefault());
+        return localDateTime.toLocalDate();
+    }
+
+    /**
+     * 字符串转{@link LocalDate}
+     *
      * @param date pattern: yyyy-MM-dd
      */
     public static LocalDate format(String date) {
@@ -222,21 +232,6 @@ public class InstantDateUtil {
         return checkHoliday(localDate);
     }
 
-
-    public static String getDayOfWeekName(LocalDateTime localDateTime) {
-        DayOfWeek dayOfWeek = localDateTime.getDayOfWeek();
-        Map<String, String> weekDayMap = new HashMap<String, String>();
-        weekDayMap.put("SUNDAY", "周日");
-        weekDayMap.put("MONDAY", "周一");
-        weekDayMap.put("TUESDAY", "周二");
-        weekDayMap.put("WEDNESDAY", "周三");
-        weekDayMap.put("THURSDAY", "周四");
-        weekDayMap.put("FRIDAY", "周五");
-        weekDayMap.put("SATURDAY", "周六");
-        String dayOfWeekName = weekDayMap.get(dayOfWeek + "");
-        System.out.println("getDayOfWeek : " + dayOfWeekName);
-        return dayOfWeekName;
-    }
 
     public static String getDayConvertString(Long dateTime) {
         String date = "";

@@ -28,7 +28,7 @@ spring:
       collection: portfolio_yield_all
 
 datasource:
-  sampleapp:
+  aaasapp:
     url: jdbc:mysql://192.168.1.10:3306/choice?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
     username: ssf08
     password: t5MqqozQDNramNHh

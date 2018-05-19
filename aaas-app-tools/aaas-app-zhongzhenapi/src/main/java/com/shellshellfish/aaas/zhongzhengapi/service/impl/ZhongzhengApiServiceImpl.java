@@ -1,6 +1,9 @@
 package com.shellshellfish.aaas.zhongzhengapi.service.impl;
 
-import com.google.gson.Gson;
+import com.shellshellfish.aaas.common.grpc.zzapi.ApplyResult;
+import com.shellshellfish.aaas.common.grpc.zzapi.WalletApplyResult;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltInfoRlt;
 import com.shellshellfish.aaas.zhongzhengapi.model.BankZhongZhenInfo;
 import com.shellshellfish.aaas.zhongzhengapi.model.CancelTradeResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.SellResult;
@@ -14,15 +17,14 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.util.StringUtils;
 
 
 @Service
 public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService implements ZhongZhengApiService  {
   Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final Gson gson = new Gson();
-  private RestTemplate restTemplate = new RestTemplate();
+
 
   @Override
   public List<BankZhongZhenInfo> getSupportBankList() {
@@ -69,7 +71,7 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
       origInfo.put("sell_num", sellNum);
       origInfo.put("outsideorderno", outsideOrderNo);
       origInfo.put("tradeacco", trdAcco);
-      origInfo.put("fundcode", fundCode);
+      origInfo.put("fundcode", trimFundCode(fundCode));
       origInfo.put("sell_type", sellType);
       TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
       logMap(info);
@@ -83,5 +85,141 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
     }
   }
 
+  @Override
+  public List<ApplyResult> getApplyResultByOutSideOrderNo(String outsideOrderNo, String trdAcco,
+      String pid) throws Exception {
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+      origInfo.put("outsideorderno", outsideOrderNo);
+      origInfo.put("tradeacco", trdAcco);
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+      ZZGeneralRespWithListData<ApplyResult> resp =  callZZApiWithListData(ZhongZhengAPIConstants
+          .ZZ_API_URL_APPLY_LIST, ApplyResult.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
 
+  @Override
+  public List<ApplyResult> getApplyResultByTrdAcco(String trdAcco, String pid) throws Exception {
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+      origInfo.put("tradeacco", trdAcco);
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+      ZZGeneralRespWithListData<ApplyResult> resp =  callZZApiWithListData(ZhongZhengAPIConstants
+          .ZZ_API_URL_APPLY_LIST, ApplyResult.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
+
+  @Override
+  public List<ApplyResult> getApplyResultByApplySerial(String applySerial, String trdAcco,
+      String pid) throws Exception {
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+      origInfo.put("applyserial", trdAcco);
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+      ZZGeneralRespWithListData<ApplyResult> resp =  callZZApiWithListData(ZhongZhengAPIConstants
+          .ZZ_API_URL_APPLY_LIST, ApplyResult.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
+
+  @Override
+  public List<ApplyResult> getConfirmResultByTrdAcco(String trdAcco, String pid) throws Exception {
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+      origInfo.put("tradeacco", trdAcco);
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+      ZZGeneralRespWithListData<ApplyResult> resp =  callZZApiWithListData(ZhongZhengAPIConstants
+          .ZZ_API_URL_APPLY_LIST, ApplyResult.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
+
+  private String trimFundCode(String originCode){
+    if(!StringUtils.isEmpty(originCode) && originCode.contains(".")){
+      String fundCode = originCode.split("\\.")[0];
+      return fundCode;
+    }else{
+      return originCode;
+    }
+  }
+
+  @Override
+  public WalletApplyResult applyWallet(String trdAcco, String pid, String applySum,
+      String outsideOrderNo) throws Exception {
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+      origInfo.put("applysum", applySum);
+      origInfo.put("tradeacco", trdAcco);
+      origInfo.put("outsideorderno", outsideOrderNo);
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+      ZZGeneralResp<WalletApplyResult> resp =  callZZApiGeneral(ZhongZhengAPIConstants
+          .ZZ_API_URL_WALLET_APPLY, WalletApplyResult.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+
+  }
+
+  @Override
+  public List<ZZWltInfoRlt> getWltInfo(String pid) throws Exception {
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+      ZZGeneralRespWithListData<ZZWltInfoRlt> resp =  callZZApiWithListData(ZhongZhengAPIConstants
+          .ZZ_API_URL_WALLET_INFO, ZZWltInfoRlt.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
+
+  @Override
+  public ZZSellWltRlt sellWallet(String pid, String sellNum, String outsideOrderNo,
+      String tradeAcco) throws Exception {
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+      origInfo.put("sell_num", sellNum);
+      origInfo.put("outsideorderno", outsideOrderNo);
+      origInfo.put("tradeacco", tradeAcco);
+
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+      ZZGeneralResp<ZZSellWltRlt> resp =  callZZApiGeneral(ZhongZhengAPIConstants
+          .ZZ_API_URL_SELL_WALLET, ZZSellWltRlt.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
 }

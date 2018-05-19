@@ -163,6 +163,7 @@ public class TradeOrderController {
 		productBaseInfo.setProdId(groupId);
 		productBaseInfo.setGroupId(subGroupId);
 		productBaseInfo.setOemId(oemid);
+		logger.info("groupId:{} subGroupId:{} oemid:{}", groupId, subGroupId, oemid);
 		List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
 		//最大金额最小金额判断
 		boolean result = financeProdCalcService.getMaxMinResult(productList, totalAmount);
@@ -416,7 +417,8 @@ public class TradeOrderController {
 	@ApiOperation("获取银行卡号码")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "path", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "Long", required = true, value = "产品ID", defaultValue = "")
+			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "Long", required = true, value = "产品ID", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "orderType", dataType = "Integer", required = true, value = "交易类型", defaultValue = "")
 	})
 	@ApiResponses({ @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
 			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
@@ -424,10 +426,11 @@ public class TradeOrderController {
 			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对") })
 	@RequestMapping(value = "/funds/banknums/{uuid}", method = RequestMethod.GET)
 	public ResponseEntity<Map> getOrderInfos(@PathVariable(value = "uuid") String uuid,
-			@RequestParam(value = "prodId") Long prodId) throws Exception {
+			@RequestParam(value = "prodId") Long prodId,
+			@RequestParam(value = "orderType") int orderType) throws Exception {
 //		logger.error("method getBanknums run ..");
 		Map<String, Object> result = new HashMap<String, Object>();
-		result = tradeOpService.getOrderInfos(uuid, prodId);
+		result = tradeOpService.getOrderInfos(uuid, prodId,orderType);
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
 

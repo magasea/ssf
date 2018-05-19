@@ -14,7 +14,7 @@ spring:
     username: ssf
     password: shellshellfish
     host: 192.168.1.249
-    port: 5672
+    port: 5772
     virtual-host: aaas
     topicOrder: shellshellfish.order
 
@@ -37,7 +37,7 @@ spring:
 
 
 datasource:
-  sampleapp:
+  aaasapp:
     url: jdbc:mysql://192.168.1.10:3306/ssftrdorder?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
     username: sa
     password: N4eTVr89lX9BaPcx

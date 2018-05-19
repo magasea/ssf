@@ -8,6 +8,10 @@ public class ZhongZhengAPIConstants {
   final public static String ZZ_API_URL_SUPPORT_BANK_LIST = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_support_bank_list";
   final public static String ZZ_API_URL_CANCEL_TRADE = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/cancel_trade";
   final public static String ZZ_API_URL_SELL_FUND = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/sell_fund";
+  final public static String ZZ_API_URL_APPLY_LIST = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_apply_list";
+  final public static String ZZ_API_URL_WALLET_APPLY = "https://onetest.zhongzhengfund.com/v2/internet/wallet/buy_wallet";
+  final public static String ZZ_API_URL_WALLET_INFO = "https://onetest.zhongzhengfund.com/v2/internet/wallet/get_wallet_info";
+  final public static String ZZ_API_URL_SELL_WALLET = "https://onetest.zhongzhengfund.com/v2/internet/wallet/sell_wallet";
   final public static String ZZ_PLATFORM_PUBLIC_KEY = "enVoZWNlc2hpMQ==";
   final public static String ZZ_PLATFORM_PRIVATE_KEY = "6t9L76KqurWlX9Zn";
   final public static String ZZ_PLATFORM_CODE = "zuheceshi1";

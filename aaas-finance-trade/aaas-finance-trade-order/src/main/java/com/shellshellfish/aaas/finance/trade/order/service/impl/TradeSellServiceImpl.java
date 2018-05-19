@@ -275,7 +275,7 @@ public class TradeSellServiceImpl implements TradeSellService {
     trdSellOrder.setUpdateBy(prodSellPercentDTO.getUserId());
     trdSellOrder.setOrderStatus(TrdOrderStatusEnum.WAITSELL.ordinal());
     trdSellOrder.setBankCardNum(results.getUserBankNum());
-    //用这个字段记录赎回百分比
+
 //    trdSellOrder.setPayAmount(percent);
     trdSellOrder.setSellPercent(percent);
     ProdSellPercentMsg prodSellPercentMsg = new ProdSellPercentMsg();
@@ -286,6 +286,7 @@ public class TradeSellServiceImpl implements TradeSellService {
     prodSellPercentMsg.setTrdBrokerId(trdBrokerUser.getTradeBrokerId());
     prodSellPercentMsg.setOrderId(trdSellOrder.getOrderId());
     prodSellPercentMsg.setUserPid(userPid);
+    prodSellPercentMsg.setUserId(prodSellPercentDTO.getUserId());
     prodSellPercentMsg.setProdId(prodSellPercentDTO.getProdId());
     prodSellPercentMsg.setGroupId(prodSellPercentDTO.getGroupId());
     trdSellOrder = trdOrderRepository.save(trdSellOrder);
@@ -299,6 +300,7 @@ public class TradeSellServiceImpl implements TradeSellService {
       trdOrderDetail.setUserId(prodSellPercentDTO.getUserId());
       trdOrderDetail.setCreateDate(TradeUtil.getUTCTime());
       trdOrderDetail.setUserProdId(prodSellPercentDTO.getUserProdId());
+
 //        trdOrderDetail.setFundNum(prodDtlSellDTO.getFundQuantity());
       trdOrderDetail.setCreateBy(prodSellPercentDTO.getUserId());
       trdOrderDetail.setTradeType(TrdOrderOpTypeEnum.REDEEM.getOperation());

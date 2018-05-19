@@ -32,6 +32,7 @@ import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.BATCH_SIZE_NUM;
 import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.RISK_LEVEL_COUNT;
@@ -767,12 +768,12 @@ public class FundGroupService {
         queryCodes.put("oemId", "" + oemId);
 
         //Todo: add map to cache
-        String key = String.format("{}:{}:{}", groupId, subGroupId,oemId);
+        String key = String.format("{}:{}:{}", groupId, subGroupId, oemId);
         List<String> codeList = null;
-        if(CollectionUtils.isEmpty(allCodeList) || !allSubGroupIds.containsKey(key)){
+        if (CollectionUtils.isEmpty(allCodeList) || !allSubGroupIds.containsKey(key)) {
             codeList = fundGroupMapper.getFundGroupCodeList(queryCodes);
             allCodeList.put(key, codeList);
-        }else{
+        } else {
             codeList = allCodeList.get(key);
         }
 
@@ -1759,10 +1760,10 @@ public class FundGroupService {
         long startTime = System.currentTimeMillis();
 
         List<Interval> list = null;
-        if(CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)){
+        if (CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)) {
             list = fundGroupMapper.getAllIdAndSubId(oemId);
             allSubGroupIds.put(oemId, list);
-        }else{
+        } else {
             list = allSubGroupIds.get(oemId);
         }
         for (Interval interval : list) {
@@ -1779,10 +1780,10 @@ public class FundGroupService {
         logger.info("start to calculate group maximum retracement   date:{}", date);
         long startTime = System.currentTimeMillis();
         List<Interval> list = null;
-        if(CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)){
+        if (CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)) {
             list = fundGroupMapper.getAllIdAndSubId(oemId);
             allSubGroupIds.put(oemId, list);
-        }else{
+        } else {
             list = allSubGroupIds.get(oemId);
         }
         for (Interval interval : list) {
@@ -1806,6 +1807,12 @@ public class FundGroupService {
 
         if (CollectionUtils.isEmpty(fundGroupHistorySrc))
             return;
+
+        fundGroupHistorySrc = fundGroupHistorySrc.stream().filter(e -> TradingDayUtils.isTradingDay(e.getTime()
+                .toInstant().atZone(ZoneId
+                        .systemDefault()).toLocalDate())).collect(Collectors.toList());
+
+
         List<FundGroupHistory> fundGroupHistoryDest = new ArrayList<>(fundGroupHistorySrc.size());
         FundGroupHistory start = fundGroupHistorySrc.get(0);
         fundGroupHistoryDest.add(new FundGroupHistory(groupId, subGroupId, start.getIncome_num(), 0L, start.getTime()));
@@ -1847,6 +1854,10 @@ public class FundGroupService {
                 .findAllByDateBefore(FundGroupService.GROUP_START_DATE, groupId, subGroupId, oemId);
         List<Double> values = new ArrayList<>(fundGroupHistoryOrigin.size());
         for (FundGroupHistory fundGroupHistory : fundGroupHistoryOrigin) {
+            //非交易日不参与计算
+            if (TradingDayUtils.isTradingDay(fundGroupHistory.getTime().toInstant().atZone(ZoneId.systemDefault())
+                    .toLocalDate()))
+                continue;
             values.add(fundGroupHistory.getIncome_num());
         }
         Double maxDrawdown = CalculateMaxdrawdowns.calculateMaxdrawdown(values);
@@ -1937,7 +1948,7 @@ public class FundGroupService {
             for (String code : codeList) {
                 BigDecimal navAdjOfFund = fundNetValMapper.getLatestNavAdj(code, date);
                 navAdj = navAdj.add(navAdjOfFund.multiply(fundProportionMap.get(code),
-                    MathContext.DECIMAL32).divide(baseMap.get(code), MathContext.DECIMAL32));
+                        MathContext.DECIMAL32).divide(baseMap.get(code), MathContext.DECIMAL32));
             }
             FundGroupHistory fundGroupHistory = new FundGroupHistory();
             fundGroupHistory.setFund_group_id(groupId);
@@ -1953,7 +1964,7 @@ public class FundGroupService {
         fundGroupMapper.insertFundGroupHistory(fundGroupHistoryList, oemId);
         fundGroupHistoryList.clear();
 //        long endTime = System.currentTimeMillis();
-        logger.info("end calculate group navadj  groupId:{},subGroupId:{},startDate:{}, endDate :{}ms", groupId, subGroupId,startDate, endDate);
+        logger.info("end calculate group navadj  groupId:{},subGroupId:{},startDate:{}, endDate :{}ms", groupId, subGroupId, startDate, endDate);
         //        logger.info("calculateGroupNavadj end ");
     }
 
@@ -2619,7 +2630,7 @@ public class FundGroupService {
 
     private Map<String, List<Interval>> getGroupedMapIntervals(int oemId) {
         List<Interval> intervals = null;
-        if(CollectionUtils.isEmpty(allSubGroupIds) || !allSubGroupIds.containsKey(oemId)){
+        if (CollectionUtils.isEmpty(allSubGroupIds) || !allSubGroupIds.containsKey(oemId)) {
             intervals = fundGroupMapper.getAllIdAndSubId(oemId);
             allSubGroupIds.put(oemId, intervals);
         } else {
@@ -2686,4 +2697,5 @@ public class FundGroupService {
 
         return dateList;
     }
+
 }

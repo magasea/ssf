@@ -1,0 +1,25 @@
+server:
+  port: 10030
+spring:
+  jpa:
+    open-in-view: false
+  data:
+      mongodb:
+        database: funds
+        host: localhost
+        port: 27017
+  http:
+    multipart:
+shellshellfish:
+  asset-alloction-url: "http://localhost:10020"
+  userinfo-url: "http://localhost:10060"
+
+grpc:
+  asset-allocation:
+    host: localhost
+    port: 10021
+
+management:
+  endpoints:
+    web:
+      base-path: /

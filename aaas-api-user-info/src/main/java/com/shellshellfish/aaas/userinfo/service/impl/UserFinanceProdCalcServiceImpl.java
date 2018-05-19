@@ -1,9 +1,5 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
-
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
@@ -13,16 +9,8 @@ import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.BonusInfo;
 import com.shellshellfish.aaas.userinfo.model.ConfirmResult;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
-import com.shellshellfish.aaas.userinfo.model.FundInfo;
-import com.shellshellfish.aaas.userinfo.model.FundShare;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.CoinFundYieldRate;
-import com.shellshellfish.aaas.userinfo.model.dao.DailyAmountAggregation;
-import com.shellshellfish.aaas.userinfo.model.dao.FundYieldRate;
-import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
-import com.shellshellfish.aaas.userinfo.model.dao.UiProducts;
-import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
+import com.shellshellfish.aaas.userinfo.model.dao.*;
 import com.shellshellfish.aaas.userinfo.repositories.funds.MongoCoinFundYieldRateRepository;
 import com.shellshellfish.aaas.userinfo.repositories.funds.MongoFundYieldRateRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
@@ -33,27 +21,6 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.service.FundTradeApiService;
 import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
-
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +36,22 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Service
 public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcService {
@@ -115,66 +98,15 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     @Autowired
     RpcOrderService rpcOrderService;
 
+    //基金赎回费率缓存
+    private final Map sellRateMap = new ConcurrentHashMap();
+
+    //基金净值缓存
+    private final Map fundNetValueMap = new ConcurrentHashMap();
+
 
     //date format pattern
     private static final String yyyyMMdd = "yyyyMMdd";
-
-    @Override
-    @Deprecated
-    public BigDecimal calcTotalDailyAsset(String userUuid) throws Exception {
-        BigDecimal totalDailyAsset = BigDecimal.ZERO;
-        List<UiProducts> userProducts = uiProductRepo.findAll();
-        for (UiProducts prod : userProducts) {
-            List<UiProductDetail> prodDetails = uiProductDetailRepo.findAllByUserProdId(prod.getId());
-            for (UiProductDetail detail : prodDetails) {
-                String fundCode = detail.getFundCode();
-                initDailyAmount(userUuid, prod.getProdId(), detail.getUserProdId(), getTodayAsString(),
-                        fundCode);
-                BigDecimal asset = calcDailyAsset(userUuid, prod.getProdId(), fundCode, getTodayAsString());
-                totalDailyAsset.add(asset);
-            }
-        }
-        return totalDailyAsset;
-    }
-
-    @Override
-    @Deprecated
-    public BigDecimal calcDailyAsset(String userUuid, Long prodId, String fundCode, String date)
-            throws Exception {
-        FundShare fundShare = fundTradeApiService.getFundShare(userUuid, fundCode);
-        if (fundShare == null) {
-            return BigDecimal.ZERO;
-        }
-        FundInfo fundInfo = fundTradeApiService.getFundInfoAsEntity(fundCode);
-        BigDecimal share = new BigDecimal(fundShare.getUsableremainshare());
-        BigDecimal netValue = new BigDecimal(fundInfo.getPernetvalue());
-        BigDecimal rateOfSellFund = fundTradeApiService.getRate(fundCode, "024");
-
-        BigDecimal fundAsset = share.multiply(netValue)
-                .multiply(BigDecimal.ONE.subtract(rateOfSellFund));
-
-        String today = date;//getTodayAsString();
-
-        Query query = new Query();
-        query.addCriteria(Criteria.where("userUuid").is(userUuid))
-                .addCriteria(Criteria.where("date").is(today))
-                .addCriteria(Criteria.where("fundCode").is(fundCode))
-                .addCriteria(Criteria.where("prodId").is(prodId));
-
-        Update update = new Update();
-        update.set("userUuid", userUuid);
-        update.set("prodId", prodId);
-        update.set("fundCode", fundCode);
-        update.set("asset", fundAsset);
-
-        FindAndModifyOptions findAndModifyOptions = new FindAndModifyOptions();
-        findAndModifyOptions.upsert(true);
-        DailyAmount dailyAmount = zhongZhengMongoTemplate
-                .findAndModify(query, update, findAndModifyOptions, DailyAmount.class);
-        logger.info("dailyAmount:{}", dailyAmount);
-
-        return fundAsset;
-    }
 
     /**
      * 计算用户每一次购买，每一只基金,用户所持有的总资产　该方法幂等
@@ -188,43 +120,11 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
      * @return
      * @throws Exception
      */
-    private BigDecimal calcDailyAsset2(String userUuid, Long prodId, Long userProdId, String fundCode,
-                                       String date, UiProductDetail uiProductDetail) throws Exception {
+    private BigDecimal calcDailyAsset(String userUuid, Long prodId, Long userProdId, String fundCode,
+                                      String date, UiProductDetail uiProductDetail) throws Exception {
         BigDecimal share = getFundQuantityAtDate(fundCode, userProdId, date, uiProductDetail);
-        LocalDate localDate = InstantDateUtil.format(date, yyyyMMdd).plusDays(1);
-        BigDecimal netValue;
-
-        if (MonetaryFundEnum.containsCode(fundCode)) {
-            //货币基金使用附权单位净值
-            CoinFundYieldRate coinFundYieldRate = mongoCoinFundYieldRateRepository
-                    .findFirstByCodeAndQueryDateBefore(fundCode,
-                            InstantDateUtil.getEpochSecondOfZero(localDate),
-                            new Sort(new Order(Direction.DESC, "querydate")));
-            if (coinFundYieldRate == null || coinFundYieldRate.getNavadj() == null) {
-                return BigDecimal.ZERO;
-            }
-            netValue = coinFundYieldRate.getNavadj();
-        } else {
-            FundYieldRate fundYieldRate = mongoFundYieldRateRepository
-                    .findFirstByCodeAndQueryDateBefore(fundCode,
-                            InstantDateUtil.getEpochSecondOfZero(localDate),
-                            new Sort(new Order(Direction.DESC, "querydate")));
-
-            if (fundYieldRate == null || fundYieldRate.getUnitNav() == null) {
-                return BigDecimal.ZERO;
-            }
-            netValue = fundYieldRate.getUnitNav();
-        }
-
-        BigDecimal rateOfSellFund;
-
-        //货币即基金赎回费率为零
-        if (MonetaryFundEnum.containsCode(fundCode)) {
-            rateOfSellFund = BigDecimal.ZERO;
-        } else {
-            rateOfSellFund = fundTradeApiService.getRate(fundCode, "024");
-        }
-
+        BigDecimal netValue = getFundNetValue(fundCode, InstantDateUtil.format(date, yyyyMMdd));
+        BigDecimal rateOfSellFund = getSellRate(fundCode);
         BigDecimal fundAsset = share.multiply(netValue)
                 .multiply(BigDecimal.ONE.subtract(rateOfSellFund));
 
@@ -249,44 +149,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         return fundAsset;
     }
 
-    /**
-     * 计算　没一个userProdId下用户在某一日所持有的基金份额
-     *
-     * @param fundCode
-     * @param userProdId
-     * @param date            pattern:yyyyMMdd
-     * @param uiProductDetail
-     * @return
-     */
-    private BigDecimal getFundQuantityAtDate(String fundCode, Long userProdId, String date, UiProductDetail
-            uiProductDetail) {
-        List<MongoUiTrdZZInfo> mongoUiTrdZZInfoOfBuy = mongoUiTrdZZInfoRepo
-                .findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateGreaterThan(userProdId,
-                        fundCode, TrdOrderOpTypeEnum.BUY.getOperation(),
-                        TrdOrderStatusEnum.CONFIRMED.getStatus(), date);
-        List<MongoUiTrdZZInfo> mongoUiTrdZZInfoSell = mongoUiTrdZZInfoRepo
-                .findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateGreaterThan(userProdId,
-                        fundCode, TrdOrderOpTypeEnum.REDEEM.getOperation(), TrdOrderStatusEnum.SELLCONFIRMED.getStatus(), date);
-
-        //赎回总份额
-        Long sellAmount = 0L;
-        //申购总份额
-        Long buyAmount = 0L;
-        for (MongoUiTrdZZInfo mongoUiTrdZZInfo : mongoUiTrdZZInfoOfBuy) {
-            buyAmount += mongoUiTrdZZInfo.getTradeConfirmShare();
-        }
-
-        for (MongoUiTrdZZInfo mongoUiTrdZZInfo : mongoUiTrdZZInfoSell) {
-            sellAmount += mongoUiTrdZZInfo.getTradeConfirmShare();
-        }
-
-        //用户当前持有的份额-期间申购份额+期间赎回份额
-        Integer fundQuantity = Optional.ofNullable(uiProductDetail).map(m -> m.getFundQuantity()).orElse(0);
-
-        Long result = fundQuantity - buyAmount + sellAmount;
-
-        return TradeUtil.getBigDecimalNumWithDiv100(result);
-    }
 
     @Override
     public List<Map<String, Object>> getCalcYieldof7days(String fundCode, String type, String date)
@@ -344,12 +206,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
             }
         }
         return resultList;
-    }
-
-    private String getTodayAsString() {
-        final Calendar cal = Calendar.getInstance();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(yyyyMMdd);
-        return simpleDateFormat.format(cal.getTime());
     }
 
     private String getYesterdayAsString() {
@@ -800,7 +656,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         initDailyAmount(uuid, prodId, detail.getUserProdId(), date, fundCode);
         try {
             //计算当日总资产
-            calcDailyAsset2(uuid, prodId, detail.getUserProdId(), fundCode,
+            calcDailyAsset(uuid, prodId, detail.getUserProdId(), fundCode,
                     date, detail);
 
             //获取当日分红，以及确认购买和赎回的金额
@@ -819,7 +675,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         String fundCode = detail.getFundCode();
         addDailyAmount(uuid, date, fundCode, prodId, detail.getUserProdId());
         //计算当日总资产
-        calcDailyAsset2(uuid, prodId, detail.getUserProdId(), fundCode,
+        calcDailyAsset(uuid, prodId, detail.getUserProdId(), fundCode,
                 date, detail);
 
     }
@@ -906,5 +762,105 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         return zhongZhengMongoTemplate
                 .aggregate(agg, "dailyAmount", DailyAmountAggregation.class).getUniqueMappedResult();
 
+    }
+
+    /**
+     * 计算　没一个userProdId下用户在某一日所持有的基金份额
+     */
+    private BigDecimal getFundQuantityAtDate(String fundCode, Long userProdId, String date, UiProductDetail
+            uiProductDetail) {
+        List<MongoUiTrdZZInfo> mongoUiTrdZZInfoOfBuy = mongoUiTrdZZInfoRepo
+                .findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateGreaterThan(userProdId,
+                        fundCode, TrdOrderOpTypeEnum.BUY.getOperation(),
+                        TrdOrderStatusEnum.CONFIRMED.getStatus(), date);
+        List<MongoUiTrdZZInfo> mongoUiTrdZZInfoSell = mongoUiTrdZZInfoRepo
+                .findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateGreaterThan(userProdId,
+                        fundCode, TrdOrderOpTypeEnum.REDEEM.getOperation(), TrdOrderStatusEnum.SELLCONFIRMED.getStatus(), date);
+
+        //赎回总份额
+        Long sellAmount = 0L;
+        //申购总份额
+        Long buyAmount = 0L;
+        for (MongoUiTrdZZInfo mongoUiTrdZZInfo : mongoUiTrdZZInfoOfBuy) {
+            buyAmount += mongoUiTrdZZInfo.getTradeConfirmShare();
+        }
+
+        for (MongoUiTrdZZInfo mongoUiTrdZZInfo : mongoUiTrdZZInfoSell) {
+            sellAmount += mongoUiTrdZZInfo.getTradeConfirmShare();
+        }
+
+        //用户当前持有的份额-期间申购份额+期间赎回份额
+        Integer fundQuantity = Optional.ofNullable(uiProductDetail).map(m -> m.getFundQuantity()).orElse(0);
+
+        Long result = fundQuantity - buyAmount + sellAmount;
+
+        return TradeUtil.getBigDecimalNumWithDiv100(result);
+    }
+
+    /**
+     * 获取最近一日胡基金净值　货币基金使用复权单位净值，非货币基金使用单位净值
+     */
+    private BigDecimal getFundNetValue(String fundCode, LocalDate localDate) throws Exception {
+        LocalDate date = (LocalDate) fundNetValueMap.get("time");
+        if (date == null || date.isBefore(InstantDateUtil.now())) {
+            //缓存过期
+            fundNetValueMap.clear();
+            fundNetValueMap.put("time", InstantDateUtil.now());
+        }
+
+        Long endTime = InstantDateUtil.getEpochSecondOfZero(localDate.plusDays(1));
+        BigDecimal netValue = (BigDecimal) fundNetValueMap.get(fundCode);
+
+        if (netValue != null) {
+            return netValue;
+        }
+
+        if (MonetaryFundEnum.containsCode(fundCode)) {
+            //货币基金使用附权单位净值
+            CoinFundYieldRate coinFundYieldRate = mongoCoinFundYieldRateRepository
+                    .findFirstByCodeAndQueryDateBefore(fundCode, endTime,
+                            new Sort(new Order(Direction.DESC, "querydate")));
+            if (coinFundYieldRate == null || coinFundYieldRate.getNavadj() == null) {
+                return BigDecimal.ZERO;
+            }
+            netValue = coinFundYieldRate.getNavadj();
+        } else {
+            FundYieldRate fundYieldRate = mongoFundYieldRateRepository
+                    .findFirstByCodeAndQueryDateBefore(fundCode, endTime,
+                            new Sort(new Order(Direction.DESC, "querydate")));
+
+            if (fundYieldRate == null || fundYieldRate.getUnitNav() == null) {
+                return BigDecimal.ZERO;
+            }
+            netValue = fundYieldRate.getUnitNav();
+        }
+        fundNetValueMap.put(fundCode, netValue);
+        return netValue;
+    }
+
+    /**
+     * 获取基金的赎回费率
+     */
+    private BigDecimal getSellRate(String fundCode) throws Exception {
+        LocalDate date = (LocalDate) sellRateMap.get("time");
+
+        if (date == null || date.isBefore(InstantDateUtil.now())) {
+            sellRateMap.clear();
+            sellRateMap.put("time", InstantDateUtil.now());
+        }
+
+
+        BigDecimal rateOfSellFund = (BigDecimal) sellRateMap.get(fundCode);
+        if (rateOfSellFund != null)
+            return rateOfSellFund;
+
+        //货币即基金赎回费率为零
+        if (MonetaryFundEnum.containsCode(fundCode)) {
+            rateOfSellFund = BigDecimal.ZERO;
+        } else {
+            rateOfSellFund = fundTradeApiService.getRate(fundCode, "024");
+        }
+        sellRateMap.put(fundCode, rateOfSellFund);
+        return rateOfSellFund;
     }
 }

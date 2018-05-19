@@ -3,49 +3,10 @@ package com.shellshellfish.aaas.userinfo.service.impl;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
-
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import javax.annotation.PostConstruct;
-
-import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoDailyAmountRepository;
-import org.bson.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.CombinedStatusEnum;
@@ -68,9 +29,8 @@ import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
-import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
+//import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
-import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
@@ -88,6 +48,7 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
+import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoDailyAmountRepository;
 import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoUserDailyIncomeRepository;
 import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
 import com.shellshellfish.aaas.userinfo.service.UiProductService;
@@ -95,6 +56,31 @@ import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import io.grpc.ManagedChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.time.*;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
@@ -164,16 +150,41 @@ public class UserInfoServiceImpl implements UserInfoService {
         return userInfoDao;
     }
 
+//    @Override
+//    public UserInfoAssectsBriefDTO getUserInfoAssectsBrief(String userUuid) throws Exception {
+//        Long userId = getUserIdFromUUID(userUuid);
+//        // UserInfoAssectsBrief userInfoAssectsBrief = new
+//        // UserInfoAssectsBrief();
+//        UserInfoAssectsBriefDTO userInfoAssect = userInfoRepoService.getUserInfoAssectsBrief(userId);
+//        // if(null != userInfoAssect){
+//        // BeanUtils.copyProperties(userInfoAssect, userInfoAssectsBrief);
+//        // }
+//        return userInfoAssect;
+//    }
+
     @Override
-    public UserInfoAssectsBriefDTO getUserInfoAssectsBrief(String userUuid) throws Exception {
-        Long userId = getUserIdFromUUID(userUuid);
-        // UserInfoAssectsBrief userInfoAssectsBrief = new
-        // UserInfoAssectsBrief();
-        UserInfoAssectsBriefDTO userInfoAssect = userInfoRepoService.getUserInfoAssectsBrief(userId);
-        // if(null != userInfoAssect){
-        // BeanUtils.copyProperties(userInfoAssect, userInfoAssectsBrief);
+    public List<BankCardDTO> getUserInfoBankCards(String userUuid, String cardNumber) {
+        Long userId = null;
+        try {
+            userId = getUserIdFromUUID(userUuid);
+        } catch (Exception e) {
+            logger.error("该用户不存在", e);
+            throw new UserInfoException("404", "该用户不存在");
+        }
+        List<BankCardDTO> bankcards = null;
+        try {
+            bankcards = userInfoRepoService.getUserInfoBankCards(userId, cardNumber);
+        } catch (Exception e) {
+            logger.error("该用户暂时没有绑定银行卡", e);
+            throw new UserInfoException("404", "该用户暂时没有绑定银行卡");
+        }
+        // List<BankCard> bankCardsDto = new ArrayList<>();
+        // for(UiBankcard uiBankcard: uiBankcards ){
+        // BankCard bankCard = new BankCard();
+        // BeanUtils.copyProperties(uiBankcard, bankCard);
+        // bankCardsDto.add(bankCard);
         // }
-        return userInfoAssect;
+        return bankcards;
     }
 
     @Override
@@ -201,18 +212,18 @@ public class UserInfoServiceImpl implements UserInfoService {
         return bankcards;
     }
 
-    @Override
-    public List<UserPortfolioDTO> getUserPortfolios(String userUuid) throws Exception {
-        Long userId = getUserIdFromUUID(userUuid);
-        List<UserPortfolioDTO> userPortfolioDaos = userInfoRepoService.getUserPortfolios(userId);
-        // List<UserPortfolio> userPortfolios = new ArrayList<>();
-        // for(UiPortfolio userPortfolioDao: userPortfolioDaos){
-        // UserPortfolio userPortfolio = new UserPortfolio();
-        // BeanUtils.copyProperties(userPortfolioDao, userPortfolio);
-        // userPortfolios.add(userPortfolio);
-        // }
-        return userPortfolioDaos;
-    }
+//    @Override
+//    public List<UserPortfolioDTO> getUserPortfolios(String userUuid) throws Exception {
+//        Long userId = getUserIdFromUUID(userUuid);
+//        List<UserPortfolioDTO> userPortfolioDaos = userInfoRepoService.getUserPortfolios(userId);
+//        // List<UserPortfolio> userPortfolios = new ArrayList<>();
+//        // for(UiPortfolio userPortfolioDao: userPortfolioDaos){
+//        // UserPortfolio userPortfolio = new UserPortfolio();
+//        // BeanUtils.copyProperties(userPortfolioDao, userPortfolio);
+//        // userPortfolios.add(userPortfolio);
+//        // }
+//        return userPortfolioDaos;
+//    }
 
     @Override
     public BankCardDTO getUserInfoBankCard(String cardNumber) throws RuntimeException {
@@ -306,14 +317,14 @@ public class UserInfoServiceImpl implements UserInfoService {
         return result;
     }
 
-    @Override
-    public Page<TradeLogDTO> findByUserId(String userUuid, Pageable pageable) throws Exception {
-        Long userId = getUserIdFromUUID(userUuid);
-        Page<UiTrdLog> tradeLogsPage = userInfoRepoService.findTradeLogDtoByUserId(pageable, userId);
-        Page<TradeLogDTO> tradeLogResult = MyBeanUtils
-                .convertPageDTO(pageable, tradeLogsPage, TradeLogDTO.class);
-        return tradeLogResult;
-    }
+//    @Override
+//    public Page<TradeLogDTO> findByUserId(String userUuid, Pageable pageable) throws Exception {
+//        Long userId = getUserIdFromUUID(userUuid);
+//        Page<UiTrdLog> tradeLogsPage = userInfoRepoService.findTradeLogDtoByUserId(pageable, userId);
+//        Page<TradeLogDTO> tradeLogResult = MyBeanUtils
+//                .convertPageDTO(pageable, tradeLogsPage, TradeLogDTO.class);
+//        return tradeLogResult;
+//    }
 
     @Override
     public List<UserInfoFriendRuleDTO> getUserInfoFriendRules(Long bankId)
@@ -322,18 +333,18 @@ public class UserInfoServiceImpl implements UserInfoService {
         return userInfoFriendRules;
     }
 
-    @Override
-    public UserInfoCompanyInfoDTO getCompanyInfo(String userUuid, Long bankId) {
-        Long id = getCompanyId(userUuid, bankId);
-        UiCompanyInfo uiCompanyInfo = userInfoRepoService.getCompanyInfo(id);
-        UserInfoCompanyInfoDTO userInfoCompanyInfo = new UserInfoCompanyInfoDTO();
-        if (null == uiCompanyInfo) {
-            return userInfoCompanyInfo;
-        }
-        BeanUtils.copyProperties(uiCompanyInfo, userInfoCompanyInfo);
-        return userInfoCompanyInfo;
-
-    }
+//    @Override
+//    public UserInfoCompanyInfoDTO getCompanyInfo(String userUuid, Long bankId) {
+//        Long id = getCompanyId(userUuid, bankId);
+//        UiCompanyInfo uiCompanyInfo = userInfoRepoService.getCompanyInfo(id);
+//        UserInfoCompanyInfoDTO userInfoCompanyInfo = new UserInfoCompanyInfoDTO();
+//        if (null == uiCompanyInfo) {
+//            return userInfoCompanyInfo;
+//        }
+//        BeanUtils.copyProperties(uiCompanyInfo, userInfoCompanyInfo);
+//        return userInfoCompanyInfo;
+//
+//    }
 
     // TODO: this function will be adjusted by business rule
     private Long getCompanyId(String userUuid, Long bankId) {
@@ -369,12 +380,12 @@ public class UserInfoServiceImpl implements UserInfoService {
         return result;
     }
 
-    @Override
-    public List<TradeLogDTO> findByUserId(String uuid) throws Exception {
-        Long userId = getUserIdFromUUID(uuid);
-        List<TradeLogDTO> uiTrdLogList = userInfoRepoService.findTradeLogDtoByUserId(userId);
-        return uiTrdLogList;
-    }
+//    @Override
+//    public List<TradeLogDTO> findByUserId(String uuid) throws Exception {
+//        Long userId = getUserIdFromUUID(uuid);
+//        List<TradeLogDTO> uiTrdLogList = userInfoRepoService.findTradeLogDtoByUserId(userId);
+//        return uiTrdLogList;
+//    }
 
     @Override
     public List<ProductsDTO> findProductInfos(String uuid) throws Exception {
@@ -1085,7 +1096,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public List<Map<String, Object>> getTradLogsOfUser2(String userUuid, Integer pageSize, Integer pageIndex, Integer type) {
+    public Map<String, Object> getTradLogsOfUser2(String userUuid, Integer pageSize, Integer pageIndex, Integer type) {
+        Map<String, Object> result = new HashMap<String, Object>();  
         Long userId = 0L;
         List<Map<String, Object>> tradeLogs = new ArrayList<Map<String, Object>>();
         try {
@@ -1108,7 +1120,8 @@ public class UserInfoServiceImpl implements UserInfoService {
                 data.add(dataList.get(begin++));
             }
             if (data == null || data.size() == 0) {
-                return tradeLogs;
+                result.put("tradeLogs", tradeLogs);
+                return result;
             }
             List<MongoUiTrdLogDTO> tradeLogList = this.getTradeLogsByUserProdId(data);
             if (tradeLogList == null || tradeLogList.size() == 0) {
@@ -1185,26 +1198,52 @@ public class UserInfoServiceImpl implements UserInfoService {
                         map.put("prodName", "");
                     }
                     Long sumFromLog = null;
-                    if (mongoUiTrdLogDTO.getTradeConfirmSum() != null
+                    //if the log is of type buy record, we sum up the sum values first
+                    if(mongoUiTrdLogDTO.getOperations() == TrdOrderOpTypeEnum.BUY.getOperation()){
+                        if (mongoUiTrdLogDTO.getTradeConfirmSum() != null
                             && mongoUiTrdLogDTO.getTradeConfirmSum() > 0) {
-                        sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum();
-                    } else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
+                            sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum();
+                        } else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
                             && mongoUiTrdLogDTO.getTradeTargetSum() > 0) {
-                        sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum();
-                    } else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
+                            sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum();
+                        } else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
                             && mongoUiTrdLogDTO.getTradeConfirmShare() > 0) {
-                        sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
-                    } else if (mongoUiTrdLogDTO.getTradeTargetShare() != null
+                            sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
+                        } else if (mongoUiTrdLogDTO.getTradeTargetShare() != null
                             && mongoUiTrdLogDTO.getTradeTargetShare() > 0) {
-                        sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
-                    } else if (mongoUiTrdLogDTO.getAmount() != null) {
-                        sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount());
-                    } else {
-                        logger.error(
-                                "havent find trade money or quantity info for userProdId:{} and " + "fundCode:{}",
+                            sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
+                        } else if (mongoUiTrdLogDTO.getAmount() != null) {
+                            sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount());
+                        } else {
+                            logger.error(
+                                "havent find trade money info for userProdId:{} and " + "fundCode:{}",
                                 mongoUiTrdLogDTO.getUserProdId(), mongoUiTrdLogDTO.getFundCode());
-                        sumFromLog = 0L;
+                            sumFromLog = 0L;
+                        }
+                    }else{
+                        //if the log is of type sell record, we sum up the num values first
+                        if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
+                            && mongoUiTrdLogDTO.getTradeConfirmShare() > 0) {
+                            sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
+                        } else if (mongoUiTrdLogDTO.getTradeTargetShare() != null
+                            && mongoUiTrdLogDTO.getTradeTargetShare() > 0) {
+                            sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
+                        }else if (mongoUiTrdLogDTO.getTradeConfirmSum() != null
+                            && mongoUiTrdLogDTO.getTradeConfirmSum() > 0) {
+                            sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum();
+                        } else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
+                            && mongoUiTrdLogDTO.getTradeTargetSum() > 0) {
+                            sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum();
+                        } else if (mongoUiTrdLogDTO.getAmount() != null) {
+                            sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount());
+                        } else {
+                            logger.error(
+                                "havent find trade quantity info for userProdId:{} and " + "fundCode:{}",
+                                mongoUiTrdLogDTO.getUserProdId(), mongoUiTrdLogDTO.getFundCode());
+                            sumFromLog = 0L;
+                        }
                     }
+
                     map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(sumFromLog));
 
                     tradLogsMap.put(ufoKey, map);
@@ -1274,12 +1313,14 @@ public class UserInfoServiceImpl implements UserInfoService {
                 Long map2value = (Long) o2.get("dateLong");
                 return map2value.compareTo(map1value);
             });
-
+            result.put("totalPage", totalPage);
+            result.put("totalRecord", total);
+            result.put("currentPage", pageSize);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return tradeLogs;
+        result.put("tradeLogs", tradeLogs);
+        return result;
     }
 
     public List getUsersOfUserProdIds(Long userId, Integer type) {
@@ -1297,9 +1338,30 @@ public class UserInfoServiceImpl implements UserInfoService {
                     return o2.compareTo(o1);
                 }
             });
+//            dataList = db.getCollection("ui_trdlog").distinct("last_modified_date", dbObject);
+//            Collections.sort(dataList, new Comparator<Long>() {
+//                public int compare(Long o1, Long o2) {
+//                    return o2.compareTo(o1);
+//                }
+//            });
         } catch (Exception e) {
             e.printStackTrace();
         }
         return dataList;
+    }
+
+    @Override
+    public Map<String, Object> selectUserFindAll(Pageable pageable) throws InstantiationException, IllegalAccessException {
+      Map<String, Object> resudltMap = new HashMap<String, Object>();
+      Page<UiUser> users = userInfoRepoService.secectUsers(pageable);
+      
+      List<UiUser> userList = users.getContent();
+      List<UserBaseInfoDTO> userBaseList = MyBeanUtils.convertList(userList, UserBaseInfoDTO.class);
+      resudltMap.put("users", userBaseList);
+      resudltMap.put("totalPages", users.getTotalPages());
+      resudltMap.put("currentPages", users.getPageable().getPageNumber());
+      resudltMap.put("size", users.getSize());
+      
+      return resudltMap;
     }
 }

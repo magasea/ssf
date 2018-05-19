@@ -107,11 +107,11 @@ public class GrpcServerConfig {
 		return managedChannel;
 	}
 
-//	@Bean
-//	@PostConstruct
-//	ZZApiServiceBlockingStub zzApiServiceBlockingStub(ManagedChannel managedZZAPIChannel){
-//		return ZZApiServiceGrpc.newBlockingStub(managedZZAPIChannel);
-//	}
+	@Bean
+	@PostConstruct
+	ZZApiServiceBlockingStub zzApiServiceBlockingStub(){
+		return ZZApiServiceGrpc.newBlockingStub(managedZZAPIChannel());
+	}
 
 	@Value("${grpc.order_server.port}")
 	int orderServerPort;

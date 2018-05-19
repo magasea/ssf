@@ -10,6 +10,16 @@ public class ZZGeneralErrResp  {
   String msg;
   Object[] data;
 
+  public Object[] getReturnlist() {
+    return returnlist;
+  }
+
+  public void setReturnlist(Object[] returnlist) {
+    this.returnlist = returnlist;
+  }
+
+  Object[] returnlist;
+
 
 
   public String getStatus() {

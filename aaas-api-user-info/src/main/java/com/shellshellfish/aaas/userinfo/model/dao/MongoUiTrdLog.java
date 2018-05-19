@@ -45,6 +45,7 @@ public class MongoUiTrdLog implements Serializable {
   private int operations;
 
   @Field( value = "user_prod_id")
+  @Indexed(direction = IndexDirection.DESCENDING)
   private Long userProdId;
 
 

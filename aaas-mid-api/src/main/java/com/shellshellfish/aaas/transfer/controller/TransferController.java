@@ -42,7 +42,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 交易用
  *
- * @author developer4
+ * @author chenwei
  */
 @RestController
 @RequestMapping("/phoneapi-ssf")
@@ -584,8 +584,8 @@ public class TransferController {
 		Map result = null;
 		try {
 			BigDecimal amount = new BigDecimal(totalAmount);
-			amount = amount.multiply(persent).divide(new BigDecimal("100"));
 			result = service.sellFundPage(groupId, subGroupId, amount + "", Integer.parseInt(oemid));
+			amount = amount.multiply(persent).divide(new BigDecimal("100")).subtract(new BigDecimal(result.get("poundage") + ""));
 			if (result != null) {
 				result.put("userUuid", userUuid);
 				result.put("bankNum", bankNum);
