@@ -772,8 +772,8 @@ public class TradeOpServiceImpl implements TradeOpService {
       detailMap.put("targetSellPercent", trdOrder.getSellPercent());
 
             //FIXME  交易日判断逻辑使用asset allocation 中的TradeUtils
-            //QDII 基金　15个交易确认　其他　１个交易日确认
-            String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDII.isQDII(trdOrderDetail
+            //QDIIEnum 基金　15个交易确认　其他　１个交易日确认
+            String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDIIEnum.isQDII(trdOrderDetail
                     .getFundCode()) ? 15 : 1);
             String dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(date).getDayOfWeek()).toString();
 
@@ -928,8 +928,8 @@ public class TradeOpServiceImpl implements TradeOpService {
             detailMap.put("fundSum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
       totalSum = totalSum + fundSum;
             //FIXME  交易日判断逻辑使用asset allocation 中的TradeUtils
-            //QDII 基金　15个交易确认　其他　１个交易日确认
-            String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDII.isQDII(trdOrderDetail
+            //QDIIEnum 基金　15个交易确认　其他　１个交易日确认
+            String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDIIEnum.isQDII(trdOrderDetail
                     .getFundCode()) ? 15 : 1);
             String dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(date).getDayOfWeek()).toString();
 
