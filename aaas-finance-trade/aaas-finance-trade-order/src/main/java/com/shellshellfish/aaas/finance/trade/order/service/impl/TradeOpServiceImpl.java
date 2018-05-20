@@ -779,7 +779,15 @@ public class TradeOpServiceImpl implements TradeOpService {
 
             detailMap.put("funddate", date);
             if (status.equals(CombinedStatusEnum.WAITCONFIRM.getComment())) {
-                detailMap.put("fundTitle", "将于" + date + "(" + dayOfWeek + ")确认");
+                detailMap.put("fundTitle", "预计" + date + "(" + dayOfWeek + ")确认");
+            } else if (status.equals(CombinedStatusEnum.CONFIRMEDFAILED.getComment())) {
+              LocalDateTime localDateTime = LocalDateTime
+                  .ofInstant(Instant.ofEpochMilli(instanceLong), ZoneId.systemDefault());
+              LocalDate localDate = localDateTime.toLocalDate();
+              date = InstantDateUtil.format(localDate);
+              dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(instanceLong).getDayOfWeek()).toString();
+              detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
+              detailMap.put("funddate", date);
             } else {
                 detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
             }
@@ -935,7 +943,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 
             detailMap.put("funddate", date);
             if (status.equals(CombinedStatusEnum.WAITCONFIRM.getComment())) {
-                detailMap.put("fundTitle", "将于" + date + "(" + dayOfWeek + ")确认");
+                detailMap.put("fundTitle", "预计" + date + "(" + dayOfWeek + ")确认");
             }else if (status.equals(CombinedStatusEnum.CONFIRMEDFAILED.getComment())) {
               LocalDateTime localDateTime = LocalDateTime
                   .ofInstant(Instant.ofEpochMilli(instanceLong), ZoneId.systemDefault());
@@ -943,6 +951,7 @@ public class TradeOpServiceImpl implements TradeOpService {
               date = InstantDateUtil.format(localDate);
               dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(instanceLong).getDayOfWeek()).toString();
               detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
+              detailMap.put("funddate", date);
             } else {
                 detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
             }
