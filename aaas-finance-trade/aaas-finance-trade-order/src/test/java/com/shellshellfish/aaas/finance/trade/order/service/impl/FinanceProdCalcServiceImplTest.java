@@ -40,7 +40,7 @@ public class FinanceProdCalcServiceImplTest {
     @Before
     public void setUp(){
         productMakeUpInfoList = Arrays.asList(
-                new ProductMakeUpInfo(100021L, 3L, "", "000614.OF", "华安德国30(DAX)ETF联接(QDII)", 1000),
+                new ProductMakeUpInfo(100021L, 3L, "", "000614.OF", "华安德国30(DAX)ETF联接(QDIIEnum)", 1000),
                 new ProductMakeUpInfo(100021L, 3L, "", "001987.OF", "东方金元宝货币", 3668),
                 new ProductMakeUpInfo(100021L, 3L, "", "000216.OF", "华安黄金易ETF联接A", 1000),
                 new ProductMakeUpInfo(100021L, 3L, "", "002068.OF", "东方多策略灵活配置混合C", 1000),

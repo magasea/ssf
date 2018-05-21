@@ -1,5 +1,8 @@
 package com.shellshellfish.aaas.userinfo.dao.service;
 
+import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import com.shellshellfish.aaas.userinfo.grpc.SellPersentProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductsResult.Builder;
@@ -17,7 +20,6 @@ import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserProdMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
-import java.util.List;
 
 public interface UserInfoRepoService {
 	UserBaseInfoDTO getUserInfoBase(Long userId);
@@ -104,4 +106,6 @@ public interface UserInfoRepoService {
     List<MongoUiTrdLogDTO> findByUserProdIdIn(List dataList);
 
 	public Builder updateProductQuantity(SellPersentProducts request) throws Exception;
+
+    Page<UiUser> secectUsers(Pageable pageable) throws InstantiationException, IllegalAccessException;
 }

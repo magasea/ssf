@@ -17,6 +17,8 @@ public class UserBaseInfoDTO {
 	Integer isTestFlag;
 
 	Integer riskLevel;
+	
+	String uuid;
 
 	public Long getId() {
 		return id;
@@ -74,4 +76,11 @@ public class UserBaseInfoDTO {
 		this.riskLevel = riskLevel;
 	}
 
+    public String getUuid() {
+      return uuid;
+    }
+  
+    public void setUuid(String uuid) {
+      this.uuid = uuid;
+    }
 }

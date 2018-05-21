@@ -13,8 +13,8 @@ spring:
         acknowledge-mode: auto
     username: ssf
     password: shellshellfish
-    host: localhost
-    port: 5672
+    host: 192.168.1.249
+    port: 5772
     virtual-host: aaas
     topicQueuePayName: com-ssf-topic-queue-pay
     topicQueueOrderName: com-ssf-topic-queue-order
@@ -42,7 +42,7 @@ datasource:
   aaasapp:
     url: jdbc:mysql://192.168.1.10:30006/ssftrdorder?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
     username: sa
-    password: 1rIQ9wi!@g3P$Qh*
+    password: N4eTVr89lX9BaPcx
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema: ssftrdorder
     maxPoolSize: 20

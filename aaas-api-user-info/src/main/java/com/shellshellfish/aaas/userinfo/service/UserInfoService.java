@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.userinfo.service;
 
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
@@ -106,5 +107,7 @@ public interface UserInfoService {
 			ProductsDTO products);
 
     Map<String, Object> getTradLogsOfUser2(String userUuid, Integer pageSize, Integer pageIndex, Integer type);
+
+    Map<String, Object> selectUserFindAll(Pageable pageable) throws InstantiationException, IllegalAccessException;
 
 }

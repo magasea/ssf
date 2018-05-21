@@ -4,14 +4,14 @@ package com.shellshellfish.aaas.common.enums;
  * @Author pierre.chen
  * @Date 18-5-9
  */
-public enum QDII {
+public enum QDIIEnum {
 
     DXA("000614", "华安德国DAX");
 
     String code;
     String name;
 
-    QDII(String code, String name) {
+    QDIIEnum(String code, String name) {
         this.code = code;
         this.name = name;
     }
@@ -20,7 +20,7 @@ public enum QDII {
         if (code.contains("."))
             code = code.substring(0, code.indexOf("."));
 
-        QDII[] values = QDII.values();
+        QDIIEnum[] values = QDIIEnum.values();
 
         for (int i = 0; i < values.length; i++) {
             if (values[i].code.equalsIgnoreCase(code))
