@@ -1,8 +1,5 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
@@ -18,7 +15,6 @@ import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.utils.TrdStatusToCombStatusUtils;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
-import com.shellshellfish.aaas.finance.trade.order.OrderResult;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
 import com.shellshellfish.aaas.finance.trade.pay.ZhongZhengQueryByOrderDetailId;
@@ -26,34 +22,16 @@ import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
-//import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
-import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.TrendYield;
-import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfoDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.*;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoDailyAmountRepository;
 import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoUserDailyIncomeRepository;
-import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
-import com.shellshellfish.aaas.userinfo.service.UiProductService;
-import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
-import com.shellshellfish.aaas.userinfo.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.service.*;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
@@ -81,6 +59,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
+
 
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
@@ -1138,47 +1117,47 @@ public class UserInfoServiceImpl implements UserInfoService {
                     }
                     Long sumFromLog = null;
                     //if the log is of type buy record, we sum up the sum values first
-                    if(mongoUiTrdLogDTO.getOperations() == TrdOrderOpTypeEnum.BUY.getOperation()){
+                    if (mongoUiTrdLogDTO.getOperations() == TrdOrderOpTypeEnum.BUY.getOperation()) {
                         if (mongoUiTrdLogDTO.getTradeConfirmSum() != null
-                            && mongoUiTrdLogDTO.getTradeConfirmSum() > 0) {
+                                && mongoUiTrdLogDTO.getTradeConfirmSum() > 0) {
                             sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum();
                         } else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
-                            && mongoUiTrdLogDTO.getTradeTargetSum() > 0) {
+                                && mongoUiTrdLogDTO.getTradeTargetSum() > 0) {
                             sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum();
                         } else if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
-                            && mongoUiTrdLogDTO.getTradeConfirmShare() > 0) {
+                                && mongoUiTrdLogDTO.getTradeConfirmShare() > 0) {
                             sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
                         } else if (mongoUiTrdLogDTO.getTradeTargetShare() != null
-                            && mongoUiTrdLogDTO.getTradeTargetShare() > 0) {
+                                && mongoUiTrdLogDTO.getTradeTargetShare() > 0) {
                             sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
                         } else if (mongoUiTrdLogDTO.getAmount() != null) {
                             sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount());
                         } else {
                             logger.error(
-                                "havent find trade money info for userProdId:{} and " + "fundCode:{}",
-                                mongoUiTrdLogDTO.getUserProdId(), mongoUiTrdLogDTO.getFundCode());
+                                    "havent find trade money info for userProdId:{} and " + "fundCode:{}",
+                                    mongoUiTrdLogDTO.getUserProdId(), mongoUiTrdLogDTO.getFundCode());
                             sumFromLog = 0L;
                         }
-                    }else{
+                    } else {
                         //if the log is of type sell record, we sum up the num values first
                         if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
-                            && mongoUiTrdLogDTO.getTradeConfirmShare() > 0) {
+                                && mongoUiTrdLogDTO.getTradeConfirmShare() > 0) {
                             sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
                         } else if (mongoUiTrdLogDTO.getTradeTargetShare() != null
-                            && mongoUiTrdLogDTO.getTradeTargetShare() > 0) {
+                                && mongoUiTrdLogDTO.getTradeTargetShare() > 0) {
                             sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
-                        }else if (mongoUiTrdLogDTO.getTradeConfirmSum() != null
-                            && mongoUiTrdLogDTO.getTradeConfirmSum() > 0) {
+                        } else if (mongoUiTrdLogDTO.getTradeConfirmSum() != null
+                                && mongoUiTrdLogDTO.getTradeConfirmSum() > 0) {
                             sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum();
                         } else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
-                            && mongoUiTrdLogDTO.getTradeTargetSum() > 0) {
+                                && mongoUiTrdLogDTO.getTradeTargetSum() > 0) {
                             sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum();
                         } else if (mongoUiTrdLogDTO.getAmount() != null) {
                             sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount());
                         } else {
                             logger.error(
-                                "havent find trade quantity info for userProdId:{} and " + "fundCode:{}",
-                                mongoUiTrdLogDTO.getUserProdId(), mongoUiTrdLogDTO.getFundCode());
+                                    "havent find trade quantity info for userProdId:{} and " + "fundCode:{}",
+                                    mongoUiTrdLogDTO.getUserProdId(), mongoUiTrdLogDTO.getFundCode());
                             sumFromLog = 0L;
                         }
                     }
@@ -1291,16 +1270,16 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public Map<String, Object> selectUserFindAll(Pageable pageable) throws InstantiationException, IllegalAccessException {
-      Map<String, Object> resudltMap = new HashMap<String, Object>();
-      Page<UiUser> users = userInfoRepoService.secectUsers(pageable);
-      
-      List<UiUser> userList = users.getContent();
-      List<UserBaseInfoDTO> userBaseList = MyBeanUtils.convertList(userList, UserBaseInfoDTO.class);
-      resudltMap.put("users", userBaseList);
-      resudltMap.put("totalPages", users.getTotalPages());
-      resudltMap.put("currentPages", users.getPageable().getPageNumber());
-      resudltMap.put("size", users.getSize());
-      
-      return resudltMap;
+        Map<String, Object> resudltMap = new HashMap<String, Object>();
+        Page<UiUser> users = userInfoRepoService.secectUsers(pageable);
+
+        List<UiUser> userList = users.getContent();
+        List<UserBaseInfoDTO> userBaseList = MyBeanUtils.convertList(userList, UserBaseInfoDTO.class);
+        resudltMap.put("users", userBaseList);
+        resudltMap.put("totalPages", users.getTotalPages());
+        resudltMap.put("currentPages", users.getPageable().getPageNumber());
+        resudltMap.put("size", users.getSize());
+
+        return resudltMap;
     }
 }
