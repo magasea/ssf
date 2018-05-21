@@ -1,4 +1,3 @@
----
 server:
   port: 10060
 logging:
@@ -6,8 +5,6 @@ logging:
     org.hibernate.SQL: info
     org.hibernate.type.descriptor.sql.BasicBinder: info
     org.springframework.data: debug
-
----
 
 spring:
   data:
@@ -39,7 +36,7 @@ spring:
      topicDailyCalculateAsset: com-ssf-topic-calculate-asset
   redis:
     host: 192.168.1.249
-    port: 26379
+    port: 6379
     password: redis123
     timeout: 1800000ms
     lettuce:

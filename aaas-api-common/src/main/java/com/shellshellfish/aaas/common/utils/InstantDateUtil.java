@@ -30,7 +30,8 @@ public class InstantDateUtil {
             "2018-09-24",
             "2018-10-01", "2018-10-02", "2018-10-03", "2018-10-04", "2018-10-05"};
     private static final String weekend[] = {};
-    private static final String DEFAULT_DATE_FORMAT_PATTERN = "yyyy-MM-dd";
+    public static final String DEFAULT_DATE_FORMAT_PATTERN = "yyyy-MM-dd";
+    public static final String yyyyMMdd = "yyyyMMdd";
 
 
     /**

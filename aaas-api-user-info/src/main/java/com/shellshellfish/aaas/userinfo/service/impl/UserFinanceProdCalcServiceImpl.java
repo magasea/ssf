@@ -18,8 +18,10 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
+import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoDailyAmountRepository;
 import com.shellshellfish.aaas.userinfo.service.FundTradeApiService;
 import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
+import com.shellshellfish.aaas.userinfo.service.UserAssetService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,6 +96,8 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     @Autowired
     MongoUiTrdZZInfoRepo mongoUiTrdZZInfoRepo;
 
+    @Autowired
+    MongoDailyAmountRepository mongoDailyAmountRepository;
 
     @Autowired
     RpcOrderService rpcOrderService;
@@ -104,9 +108,8 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     //基金净值缓存
     private final Map fundNetValueMap = new ConcurrentHashMap();
 
-
     //date format pattern
-    private static final String yyyyMMdd = "yyyyMMdd";
+    private static final String yyyyMMdd = InstantDateUtil.yyyyMMdd;
 
     /**
      * 计算用户每一次购买，每一只基金,用户所持有的总资产　该方法幂等
@@ -373,129 +376,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         return assetOfEndDay.subtract(assetOfStartDay).add(intervalAmount);
     }
 
-    @Override
-    public PortfolioInfo calculateProductValue(String userUuid, Long prodId,
-                                               String startDate, String endDate) {
-        final String FORMAT_PATTERN = yyyyMMdd;
-
-        // 区间数据
-        DailyAmountAggregation dailyAmountAggregation = aggregation(userUuid, startDate, endDate,
-                prodId);
-
-        if (dailyAmountAggregation == null) {
-            return PortfolioInfo.getNullInstance();
-        }
-        //区间结束日前一天数据
-        LocalDate startLocalDate = InstantDateUtil.format(startDate, FORMAT_PATTERN);
-        LocalDate endLocalDate = InstantDateUtil.format(endDate, FORMAT_PATTERN);
-        LocalDate oneDayBefore = endLocalDate.plusDays(-1);
-        String oneDayBeforeStr = InstantDateUtil.format(oneDayBefore, FORMAT_PATTERN);
-
-        //区间结束日数据
-        DailyAmountAggregation dailyAmountAggregationOfEndDay = aggregation(userUuid, endDate, endDate,
-                prodId);
-        //结束日前一天数据
-        DailyAmountAggregation dailyAmountAggregationOfOneDayBefore = aggregation(userUuid,
-                oneDayBeforeStr, oneDayBeforeStr, prodId);
-
-        if (dailyAmountAggregationOfEndDay == null) {
-
-            LocalDate endLocalDateCopy;
-            LocalDate oneDayBeforeCopy = oneDayBefore;
-
-            while (dailyAmountAggregationOfEndDay == null && oneDayBeforeCopy.isAfter(startLocalDate)) {
-                if (dailyAmountAggregationOfOneDayBefore != null) {
-                    //前推一天
-                    oneDayBeforeCopy = oneDayBeforeCopy.plusDays(-1);
-                    dailyAmountAggregationOfEndDay = dailyAmountAggregationOfOneDayBefore;
-                    dailyAmountAggregationOfOneDayBefore = aggregation(userUuid,
-                            InstantDateUtil.format(oneDayBeforeCopy, FORMAT_PATTERN),
-                            InstantDateUtil.format(oneDayBeforeCopy, FORMAT_PATTERN), prodId);
-                } else {
-                    //前推两天
-                    endLocalDateCopy = oneDayBeforeCopy.plusDays(-1);
-                    oneDayBeforeCopy = endLocalDateCopy.plusDays(-1);
-
-                    dailyAmountAggregationOfEndDay = aggregation(userUuid,
-                            InstantDateUtil.format(endLocalDateCopy, FORMAT_PATTERN),
-                            InstantDateUtil.format(endLocalDateCopy, FORMAT_PATTERN), prodId);
-
-                    dailyAmountAggregationOfOneDayBefore = aggregation(userUuid,
-                            InstantDateUtil.format(oneDayBeforeCopy, FORMAT_PATTERN),
-                            InstantDateUtil.format(oneDayBeforeCopy, FORMAT_PATTERN), prodId);
-                }
-            }
-        }
-
-        if (dailyAmountAggregationOfEndDay == null) {
-            return PortfolioInfo.getNullInstance();
-        }
-
-        //区间数据
-        BigDecimal buyAmount = dailyAmountAggregation.getBuyAmount();
-        BigDecimal sellAmount = dailyAmountAggregation.getSellAmount();
-        BigDecimal bonus = dailyAmountAggregation.getBonus();
-        // 区间净赎回金额= 区间该基金累计分红现金+区间该基金累计赎回金额-区间该基金累计购买金额
-        BigDecimal intervalAmount = bonus.add(sellAmount).subtract(buyAmount);
-
-        //区间结束日数据
-        BigDecimal assetOfEndDay = dailyAmountAggregationOfEndDay.getAsset();
-        BigDecimal buyAmountOfEndDay = dailyAmountAggregationOfEndDay.getBuyAmount();
-        BigDecimal sellAmountOfEndDay = dailyAmountAggregationOfEndDay.getSellAmount();
-        BigDecimal bonusOfEndDay = dailyAmountAggregationOfEndDay.getBonus();
-        BigDecimal intervalAmountOfEndDay = bonusOfEndDay.add(sellAmountOfEndDay)
-                .subtract(buyAmountOfEndDay);
-
-        //确认当天才会有 asset 值
-        if (dailyAmountAggregationOfOneDayBefore == null) {
-            dailyAmountAggregationOfOneDayBefore = DailyAmountAggregation.getEmptyInstance();
-        }
-
-        //区间结束日前一天数据
-        Optional<DailyAmountAggregation> dailyAmountAggregationOfOneDayBeforeOptional = Optional
-                .ofNullable(dailyAmountAggregationOfOneDayBefore);
-
-        BigDecimal assetOfOneDayBefore = dailyAmountAggregationOfOneDayBeforeOptional
-                .map(DailyAmountAggregation::getAsset).orElse(BigDecimal.ZERO);
-
-        //区间开始总资产 恒为零
-        BigDecimal startAsset = BigDecimal.ZERO;
-
-        //累计收益 = 结束日总资产 - 开始日总资产 + 区间净赎回
-        BigDecimal totalIncome = assetOfEndDay.add(intervalAmount).subtract(startAsset);
-
-        //日收益=结束日净值 - 前一日净值
-        BigDecimal dailyIncome = assetOfEndDay.subtract(assetOfOneDayBefore)
-                .add(intervalAmountOfEndDay);
-
-        BigDecimal totalIncomeRate = BigDecimal.ZERO;
-        if (startAsset.add(buyAmount).compareTo(BigDecimal.ZERO) != 0) {
-            //区间收益率 =(区间结束总资产-起始总资产+区间净赎回金额)/(起始总资产+区间购买金额)
-            totalIncomeRate = assetOfEndDay.subtract(startAsset).add(intervalAmount)
-                    .divide(startAsset.add(buyAmount), MathContext.DECIMAL128);
-
-        }
-        PortfolioInfo portfolioInfo = new PortfolioInfo();
-
-        portfolioInfo.setTotalAssets(assetOfEndDay.setScale(4, RoundingMode.HALF_UP));
-        portfolioInfo.setTotalIncome(totalIncome.setScale(4, RoundingMode.HALF_UP));
-        portfolioInfo.setTotalIncomeRate(totalIncomeRate.setScale(4, RoundingMode.HALF_UP));
-        portfolioInfo.setDailyIncome(dailyIncome.setScale(4, RoundingMode.HALF_UP));
-
-        //设置区间分红 ，申购和赎回
-        portfolioInfo.setBonus(bonus);
-        portfolioInfo.setBuyAmount(buyAmount);
-        portfolioInfo.setSellAmount(sellAmount);
-
-        //设置最后一日 分红，申购以及赎回
-        portfolioInfo.setBonusOfEndDay(bonusOfEndDay);
-        portfolioInfo.setBuyAmountOfEndDay(buyAmountOfEndDay);
-        portfolioInfo.setSellAmountOfEndDay(sellAmountOfEndDay);
-
-        portfolioInfo.setAssetOfOneDayBefore(assetOfOneDayBefore);
-        return portfolioInfo;
-    }
-
     /**
      * @param startDate yyyyMMdd
      * @param endDate   yyyyMMdd
@@ -649,7 +529,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     }
 
     @Override
-    //TODO  重写该方法，写成幂等
     public void calculateProductAsset(UiProductDetail detail, String uuid, Long prodId, String date) {
 
         String fundCode = detail.getFundCode();
@@ -745,24 +624,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         return fundAsset;
     }
 
-
-    private DailyAmountAggregation aggregation(String userUuid, String startDate, String endDate,
-                                               Long prodId) {
-
-        Aggregation agg = newAggregation(
-                match(Criteria.where("userUuid").is(userUuid)),
-                match(Criteria.where("date").gte(startDate).lte(endDate)),
-                match(Criteria.where("userProdId").is(prodId)),
-                group("userProdId")
-                        .sum("sellAmount").as("sellAmount")
-                        .sum("asset").as("asset")
-                        .sum("bonus").as("bonus")
-                        .sum("buyAmount").as("buyAmount")
-        );
-        return zhongZhengMongoTemplate
-                .aggregate(agg, "dailyAmount", DailyAmountAggregation.class).getUniqueMappedResult();
-
-    }
 
     /**
      * 计算　没一个userProdId下用户在某一日所持有的基金份额

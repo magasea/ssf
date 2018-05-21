@@ -3,21 +3,20 @@ package com.shellshellfish.aaas.userinfo.repositories.zhongzheng;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.userinfo.UserInfoApp;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
-
-import java.util.List;
-
+import com.shellshellfish.aaas.userinfo.model.dao.DailyAmountAggregation;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.List;
 
 /**
  * @Author pierre 18-1-12
@@ -52,6 +51,14 @@ public class MongDailyAmountRepositoryTest {
         System.out.println(dailyAmount);
         Assert.assertTrue("date of data it too early", InstantDateUtil.format(dailyAmount.getDate(), "yyyyMMdd")
                 .isAfter(InstantDateUtil.now().plusDays(-2)));
+    }
+
+    @Test
+    public void testGetUserAssetAndIncome() {
+
+        DailyAmountAggregation amountAggregation = mongoDailyAmountRepository.getUserAssetAndIncome(null, null,
+                null, null);
+        Assert.assertNotNull("", amountAggregation);
     }
 
 }
