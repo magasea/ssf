@@ -38,7 +38,7 @@ spring:
       paydatabase: ssftrdpay
   redis:
     host: 192.168.1.249
-    port: 26379
+    port: 6379
     password: redis123
 datasource:
   aaasapp:

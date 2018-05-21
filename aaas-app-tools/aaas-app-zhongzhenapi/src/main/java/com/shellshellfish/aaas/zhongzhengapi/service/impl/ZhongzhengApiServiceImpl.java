@@ -2,11 +2,18 @@ package com.shellshellfish.aaas.zhongzhengapi.service.impl;
 
 import com.shellshellfish.aaas.common.grpc.zzapi.ApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.WalletApplyResult;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZAplyCfmInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundShareInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZTradeLimit;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltAplyInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltInfoRlt;
 import com.shellshellfish.aaas.zhongzhengapi.model.BankZhongZhenInfo;
 import com.shellshellfish.aaas.zhongzhengapi.model.CancelTradeResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.SellResult;
+import com.shellshellfish.aaas.zhongzhengapi.model.ZZBonusInfo;
+import com.shellshellfish.aaas.zhongzhengapi.model.ZZBuyResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZGeneralResp;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZGeneralRespWithListData;
 import com.shellshellfish.aaas.zhongzhengapi.service.ZhongZhengApiService;
@@ -21,9 +28,9 @@ import org.springframework.util.StringUtils;
 
 
 @Service
-public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService implements ZhongZhengApiService  {
-  Logger logger = LoggerFactory.getLogger(getClass());
+public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService implements ZhongZhengApiService {
 
+  Logger logger = LoggerFactory.getLogger(getClass());
 
 
   @Override
@@ -31,8 +38,9 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
     try {
       TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(true, null);
       logMap(info);
-      ZZGeneralRespWithListData<BankZhongZhenInfo> resp =  callZZApiWithListData(ZhongZhengAPIConstants
-          .ZZ_API_URL_SUPPORT_BANK_LIST,BankZhongZhenInfo.class, info);
+      ZZGeneralRespWithListData<BankZhongZhenInfo> resp = callZZApiWithListData(
+          ZhongZhengAPIConstants
+              .ZZ_API_URL_SUPPORT_BANK_LIST, BankZhongZhenInfo.class, info);
       checkResult(resp);
 
       return resp.getData();
@@ -52,7 +60,7 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
       TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
 
       logMap(info);
-      ZZGeneralResp<CancelTradeResult> resp =  callZZApiGeneral(ZhongZhengAPIConstants
+      ZZGeneralResp<CancelTradeResult> resp = callZZApiGeneral(ZhongZhengAPIConstants
           .ZZ_API_URL_CANCEL_TRADE, CancelTradeResult.class, info);
       checkResult(resp);
       return resp.getData();
@@ -64,7 +72,7 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
   }
 
   @Override
-  public SellResult  sellFund(String sellNum, String outsideOrderNo, String trdAcco,
+  public SellResult sellFund(String sellNum, String outsideOrderNo, String trdAcco,
       String fundCode, String sellType, String pid) throws Exception {
     try {
       TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
@@ -75,7 +83,7 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
       origInfo.put("sell_type", sellType);
       TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
       logMap(info);
-      ZZGeneralResp<SellResult> resp =  callZZApiGeneral(ZhongZhengAPIConstants
+      ZZGeneralResp<SellResult> resp = callZZApiGeneral(ZhongZhengAPIConstants
           .ZZ_API_URL_SELL_FUND, SellResult.class, info);
       checkResult(resp);
       return resp.getData();
@@ -94,7 +102,7 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
       origInfo.put("tradeacco", trdAcco);
       TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
       logMap(info);
-      ZZGeneralRespWithListData<ApplyResult> resp =  callZZApiWithListData(ZhongZhengAPIConstants
+      ZZGeneralRespWithListData<ApplyResult> resp = callZZApiWithListData(ZhongZhengAPIConstants
           .ZZ_API_URL_APPLY_LIST, ApplyResult.class, info);
       checkResult(resp);
       return resp.getData();
@@ -111,7 +119,7 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
       origInfo.put("tradeacco", trdAcco);
       TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
       logMap(info);
-      ZZGeneralRespWithListData<ApplyResult> resp =  callZZApiWithListData(ZhongZhengAPIConstants
+      ZZGeneralRespWithListData<ApplyResult> resp = callZZApiWithListData(ZhongZhengAPIConstants
           .ZZ_API_URL_APPLY_LIST, ApplyResult.class, info);
       checkResult(resp);
       return resp.getData();
@@ -126,10 +134,10 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
       String pid) throws Exception {
     try {
       TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
-      origInfo.put("applyserial", trdAcco);
+      origInfo.put("applyserial", applySerial);
       TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
       logMap(info);
-      ZZGeneralRespWithListData<ApplyResult> resp =  callZZApiWithListData(ZhongZhengAPIConstants
+      ZZGeneralRespWithListData<ApplyResult> resp = callZZApiWithListData(ZhongZhengAPIConstants
           .ZZ_API_URL_APPLY_LIST, ApplyResult.class, info);
       checkResult(resp);
       return resp.getData();
@@ -140,21 +148,32 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
   }
 
   @Override
-  public List<ApplyResult> getConfirmResultByTrdAcco(String trdAcco, String pid) throws Exception {
-    try {
-      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
-      origInfo.put("tradeacco", trdAcco);
-      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
-      logMap(info);
-      ZZGeneralRespWithListData<ApplyResult> resp =  callZZApiWithListData(ZhongZhengAPIConstants
-          .ZZ_API_URL_APPLY_LIST, ApplyResult.class, info);
-      checkResult(resp);
-      return resp.getData();
-    } catch (Exception e) {
-      logger.error("Error:", e);
-      throw e;
-    }
+  public List<ZZAplyCfmInfo> getConfirmResult(String trdAcco, String applySerial,String
+      outsideOrderNo, String pid)
+      throws Exception {
+      try {
+        TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+
+         origInfo.put("tradeacco", trdAcco);
+        if(!StringUtils.isEmpty(applySerial)) {
+          origInfo.put("applyserial", applySerial);
+        }else if(!StringUtils.isEmpty(outsideOrderNo)){
+          origInfo.put("outsideorderno", outsideOrderNo);
+        }
+        TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+        logMap(info);
+        ZZGeneralRespWithListData<ZZAplyCfmInfo> resp = callZZApiWithListData(ZhongZhengAPIConstants
+            .ZZ_API_URL_CONFIRM_LIST, ZZAplyCfmInfo.class, info);
+        checkResult(resp);
+        return resp.getData();
+
+      } catch (Exception e) {
+        logger.error("Error:", e);
+        throw e;
+      }
   }
+
+
 
   private String trimFundCode(String originCode){
     if(!StringUtils.isEmpty(originCode) && originCode.contains(".")){
@@ -215,6 +234,143 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
       logMap(info);
       ZZGeneralResp<ZZSellWltRlt> resp =  callZZApiGeneral(ZhongZhengAPIConstants
           .ZZ_API_URL_SELL_WALLET, ZZSellWltRlt.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
+
+  @Override
+  public List<ZZWltAplyInfo> getWalletApply(String pid,String outsideOrderNo, String
+      applySerial) throws Exception {
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+      if(!StringUtils.isEmpty(applySerial)) {
+        origInfo.put("applyserial", applySerial);
+      }else if(!StringUtils.isEmpty(outsideOrderNo)){
+        origInfo.put("outsideorderno", outsideOrderNo);
+      }
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+      ZZGeneralRespWithListData<ZZWltAplyInfo> resp =  callZZApiWithListData(ZhongZhengAPIConstants
+          .ZZ_API_URL_GET_WALLET_APPLY, ZZWltAplyInfo.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
+
+  @Override
+  public List<ZZFundShareInfo> getFundShare(String pid) throws Exception {
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+      ZZGeneralRespWithListData<ZZFundShareInfo> resp =  callZZApiWithListData(ZhongZhengAPIConstants
+          .ZZ_API_URL_FUND_SHARE, ZZFundShareInfo.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
+
+  @Override
+  public List<ZZFundInfo> getAllFundInfo() throws Exception {
+    try {
+      TreeMap<String, String> origInfo = new TreeMap<>();
+
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(true, origInfo);
+      logMap(info);
+      ZZGeneralRespWithListData<ZZFundInfo> resp =  callZZApiWithListData(ZhongZhengAPIConstants
+          .ZZ_API_URL_FUND_INFO, ZZFundInfo.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
+
+  @Override
+  public List<ZZTradeLimit> getTradeLimit(String fundCode) throws Exception {
+    try {
+      TreeMap<String, String> origInfo = new TreeMap<>();
+      origInfo.put("fundcode", fundCode);
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(true, origInfo);
+      logMap(info);
+      ZZGeneralRespWithListData<ZZTradeLimit> resp =  callZZApiWithListData(ZhongZhengAPIConstants
+          .ZZ_API_URL_TRADE_LIMIT, ZZTradeLimit.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
+
+  @Override
+  public List<ApplyResult> getApplyResults(String outsideOrderNo, String applySerial,
+      String trdAcco, String pid) throws Exception {
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+      if(!StringUtils.isEmpty(applySerial)){
+        origInfo.put("applyserial", applySerial);
+      }else if(StringUtils.isEmpty(outsideOrderNo)){
+        origInfo.put("outsideorderno", outsideOrderNo);
+      }
+      origInfo.put("tradeacco", trdAcco);
+
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+      ZZGeneralRespWithListData<ApplyResult> resp = callZZApiWithListData(ZhongZhengAPIConstants
+          .ZZ_API_URL_APPLY_LIST, ApplyResult.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
+
+  @Override
+  public ZZBuyResult buyFund(String pid, String tradeAcco, String fundCode, String fundSum,
+      String outsideOrderNo) throws Exception {
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+      origInfo.put("fundcode", fundCode);
+      origInfo.put("applysum", fundSum);
+      origInfo.put("tradeacco", tradeAcco);
+      origInfo.put("outsideorderno", outsideOrderNo);
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+      ZZGeneralResp<ZZBuyResult> resp = callZZApiGeneral(ZhongZhengAPIConstants
+          .ZZ_API_URL_BUY_FUND, ZZBuyResult.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
+
+  @Override
+  public List<ZZBonusInfo> getBonusInfo(String pid, String fundCode, String startDate)
+      throws Exception {
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+      origInfo.put("fundcode", fundCode);
+      origInfo.put("startdate", startDate);
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+      ZZGeneralRespWithListData<ZZBonusInfo> resp = callZZApiWithListData(ZhongZhengAPIConstants
+          .ZZ_API_URL_BONUS_LIST, ZZBonusInfo.class, info);
       checkResult(resp);
       return resp.getData();
     } catch (Exception e) {
