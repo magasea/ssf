@@ -1,9 +1,5 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
-
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
@@ -19,7 +15,6 @@ import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.utils.TrdStatusToCombStatusUtils;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
-import com.shellshellfish.aaas.finance.trade.order.OrderResult;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
 import com.shellshellfish.aaas.finance.trade.pay.ZhongZhengQueryByOrderDetailId;
@@ -27,26 +22,11 @@ import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
-//import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
-import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.TrendYield;
-import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfoDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.*;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoDailyAmountRepository;
@@ -455,7 +435,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         List<Map<String, Object>> productsList = this.getMyCombinations(uuid);
         if (productsList == null || productsList.size() == 0) {
             logger.error("我的智投组合暂时不存在");
-            return new HashMap<String, Object>();
+            return new HashMap<>(0);
         }
         Map<String, Object> resultMap = new HashMap<String, Object>();
         BigDecimal asserts = new BigDecimal(0);
@@ -536,7 +516,7 @@ public class UserInfoServiceImpl implements UserInfoService {
             //部分确认
             logger.info("\n未完全确认数据 userProdId :{}\n", products.getId());
             products.setStatus(TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
-            return getPartConfirmFundInfo(uuid, userId, products.getId(), startDay, endDay);
+            return userAssetService.calculateUserAssetAndIncomePartialConfirmed(uuid, userId, products.getId(), startDay, endDay);
         }
     }
 
@@ -572,69 +552,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     }
 
-    /**
-     * 计算组合部分确认的资产和收益
-     */
-    private PortfolioInfo getPartConfirmFundInfo(String uuid, Long userId, Long prodId,
-                                                 String startDay, String endDay) {
-        PortfolioInfo portfolioInfo = userAssetService.calculateUserAssetAndIncome(uuid, prodId, startDay, endDay);
-
-        List<MongoUiTrdZZInfo> mongoUiTrdZZinfoList = mongoUiTrdZZInfoRepo
-                .findAllByUserIdAndUserProdIdAndTradeTypeAndTradeStatus(userId, prodId,
-                        TrdOrderOpTypeEnum.BUY.getOperation(),
-                        TrdOrderStatusEnum.CONFIRMED.getStatus());
-
-        //已经确认部分金额
-        BigDecimal conifrmAsset = BigDecimal.ZERO;
-        BigDecimal confirmAssetOfEndDay = BigDecimal.ZERO;
-        for (MongoUiTrdZZInfo mongoUiTrdZZinfo : mongoUiTrdZZinfoList) {
-            logger.info("fundCode:{},confirmSum:{}", mongoUiTrdZZinfo.getFundCode(),
-                    mongoUiTrdZZinfo.getTradeConfirmSum());
-            conifrmAsset = conifrmAsset.add(TradeUtil.getBigDecimalNumWithDiv100(
-                    Optional.ofNullable(mongoUiTrdZZinfo).map(m -> m.getTradeConfirmSum())
-                            .orElse(0L)));
-
-            if (endDay.equals(mongoUiTrdZZinfo.getConfirmDate())) {
-                confirmAssetOfEndDay = confirmAssetOfEndDay
-                        .add(TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZinfo.getTradeConfirmSum()));
-            }
-        }
-
-        OrderResult orderResult = rpcOrderService
-                .getOrderInfoByProdIdAndOrderStatus(prodId,
-                        TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
-
-        BigDecimal applyAsset = BigDecimal.valueOf(orderResult.getPayAmount())
-                .divide(BigDecimal.valueOf(100));
-
-        logger.info("\nuserProdId:{}  ===  applyAsset {}\n", prodId, applyAsset);
-        BigDecimal assetOfEndDay = Optional.ofNullable(portfolioInfo.getTotalAssets())
-                .orElse(BigDecimal.ZERO);
-
-        logger.info("\nuserProdId:{}  === assetOfEndDay {}\n", prodId, assetOfEndDay);
-        // 总资产 = 确认基金资产+ 未确认的基金的申购金额  = 结束日资产（即申购成功部分结束日资产） +（总申购资产-确认部分申购资产）
-        BigDecimal asset = assetOfEndDay.add(applyAsset.subtract(conifrmAsset));
-
-        logger.info("\nuserProdId:{}  === asset {}\n", prodId, asset);
-
-        logger.info("\nuserProdId:{}  === confirmAsset {}\n", prodId, conifrmAsset);
-        // 累计收益=确认部分资产- 确认部分申购金额  (默认未完全确认  不能追加和赎回)
-        BigDecimal toltalIncome = assetOfEndDay.subtract(conifrmAsset);
-
-        // 累计收益率= 累计收益/申购金额
-        BigDecimal toltalIncomeRate = Optional.ofNullable(portfolioInfo.getTotalIncomeRate())
-                .orElse(BigDecimal.ZERO);
-
-        if (applyAsset.compareTo(BigDecimal.ZERO) != 0) {
-            toltalIncomeRate = toltalIncome.divide(applyAsset, 4, RoundingMode.HALF_UP);
-        }
-
-        portfolioInfo.setTotalAssets(asset.setScale(4, RoundingMode.HALF_UP));
-        portfolioInfo.setTotalIncome(toltalIncome.setScale(4, RoundingMode.HALF_UP));
-        portfolioInfo.setTotalIncomeRate(toltalIncomeRate.setScale(4, RoundingMode.HALF_UP));
-
-        return portfolioInfo;
-    }
 
     @Deprecated
     @Override

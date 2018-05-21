@@ -1,10 +1,19 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
+import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.finance.trade.order.OrderResult;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.DailyAmountAggregation;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoDailyAmountRepository;
+import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
 import com.shellshellfish.aaas.userinfo.service.UserAssetService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +21,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -24,6 +34,14 @@ public class UserAssetServiceImpl implements UserAssetService {
 
     @Autowired
     MongoDailyAmountRepository mongoDailyAmountRepository;
+
+    @Autowired
+    MongoUiTrdZZInfoRepo mongoUiTrdZZInfoRepo;
+
+    @Autowired
+    RpcOrderService rpcOrderService;
+
+    Logger logger = LoggerFactory.getLogger(UserAssetServiceImpl.class);
 
 
     final String DATE_FORMAT_PATTERN = InstantDateUtil.yyyyMMdd;
@@ -148,6 +166,71 @@ public class UserAssetServiceImpl implements UserAssetService {
         portfolioInfo.setSellAmountOfEndDay(sellAmountOfEndDay);
 
         portfolioInfo.setAssetOfOneDayBefore(assetOfOneDayBefore);
+        return portfolioInfo;
+    }
+
+    /**
+     * 计算组合部分确认的资产和收益
+     */
+    @Override
+    public PortfolioInfo calculateUserAssetAndIncomePartialConfirmed(String uuid, Long userId, Long prodId,
+                                                                     String startDay, String endDay) {
+        PortfolioInfo portfolioInfo = calculateUserAssetAndIncome(uuid, prodId, startDay, endDay);
+
+        List<MongoUiTrdZZInfo> mongoUiTrdZZinfoList = mongoUiTrdZZInfoRepo
+                .findAllByUserIdAndUserProdIdAndTradeTypeAndTradeStatus(userId, prodId,
+                        TrdOrderOpTypeEnum.BUY.getOperation(),
+                        TrdOrderStatusEnum.CONFIRMED.getStatus());
+
+        //已经确认部分金额
+        BigDecimal conifrmAsset = BigDecimal.ZERO;
+        BigDecimal confirmAssetOfEndDay = BigDecimal.ZERO;
+        for (MongoUiTrdZZInfo mongoUiTrdZZinfo : mongoUiTrdZZinfoList) {
+            logger.info("fundCode:{},confirmSum:{}", mongoUiTrdZZinfo.getFundCode(),
+                    mongoUiTrdZZinfo.getTradeConfirmSum());
+            conifrmAsset = conifrmAsset.add(TradeUtil.getBigDecimalNumWithDiv100(
+                    Optional.ofNullable(mongoUiTrdZZinfo).map(m -> m.getTradeConfirmSum())
+                            .orElse(0L)));
+
+            if (endDay.equals(mongoUiTrdZZinfo.getConfirmDate())) {
+                confirmAssetOfEndDay = confirmAssetOfEndDay
+                        .add(TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZinfo.getTradeConfirmSum()));
+            }
+        }
+
+        OrderResult orderResult = rpcOrderService
+                .getOrderInfoByProdIdAndOrderStatus(prodId,
+                        TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
+
+        BigDecimal applyAsset = BigDecimal.valueOf(orderResult.getPayAmount())
+                .divide(BigDecimal.valueOf(100));
+
+        logger.info("\nuserProdId:{}  ===  applyAsset {}\n", prodId, applyAsset);
+        BigDecimal assetOfEndDay = Optional.ofNullable(portfolioInfo.getTotalAssets())
+                .orElse(BigDecimal.ZERO);
+
+        logger.info("\nuserProdId:{}  === assetOfEndDay {}\n", prodId, assetOfEndDay);
+        // 总资产 = 确认基金资产+ 未确认的基金的申购金额  = 结束日资产（即申购成功部分结束日资产） +（总申购资产-确认部分申购资产）
+        BigDecimal asset = assetOfEndDay.add(applyAsset.subtract(conifrmAsset));
+
+        logger.info("\nuserProdId:{}  === asset {}\n", prodId, asset);
+
+        logger.info("\nuserProdId:{}  === confirmAsset {}\n", prodId, conifrmAsset);
+        // 累计收益=确认部分资产- 确认部分申购金额  (默认未完全确认  不能追加和赎回)
+        BigDecimal toltalIncome = assetOfEndDay.subtract(conifrmAsset);
+
+        // 累计收益率= 累计收益/申购金额
+        BigDecimal toltalIncomeRate = Optional.ofNullable(portfolioInfo.getTotalIncomeRate())
+                .orElse(BigDecimal.ZERO);
+
+        if (applyAsset.compareTo(BigDecimal.ZERO) != 0) {
+            toltalIncomeRate = toltalIncome.divide(applyAsset, 4, RoundingMode.HALF_UP);
+        }
+
+        portfolioInfo.setTotalAssets(asset.setScale(4, RoundingMode.HALF_UP));
+        portfolioInfo.setTotalIncome(toltalIncome.setScale(4, RoundingMode.HALF_UP));
+        portfolioInfo.setTotalIncomeRate(toltalIncomeRate.setScale(4, RoundingMode.HALF_UP));
+
         return portfolioInfo;
     }
 }
