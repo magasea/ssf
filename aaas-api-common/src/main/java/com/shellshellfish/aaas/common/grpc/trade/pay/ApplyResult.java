@@ -28,6 +28,7 @@ public class ApplyResult {
     private String originalapplyserial;
     private String confirmflag;
     private String confirmstat;
+    private String confirmdate;
     private String capitalmode;
     private String comefrom;
     private String kkstat;
@@ -423,5 +424,13 @@ public class ApplyResult {
 
     public void setFixflag(String fixflag) {
         this.fixflag = fixflag;
+    }
+
+    public String getConfirmdate() {
+        return confirmdate;
+    }
+
+    public void setConfirmdate(String confirmdate) {
+        this.confirmdate = confirmdate;
     }
 }

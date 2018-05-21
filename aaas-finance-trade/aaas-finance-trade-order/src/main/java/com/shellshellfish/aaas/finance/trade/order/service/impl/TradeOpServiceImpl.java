@@ -507,7 +507,7 @@ public class TradeOpServiceImpl implements TradeOpService {
             logger.info("preOrderFundNumber : " + preOrderFundShares);
             PayPreOrderDto payPreOrderDto = new PayPreOrderDto();
             payPreOrderDto.setOriginFundCode(trdPayFlow.getFundCode());
-            payPreOrderDto.setTrdBrokerId(trdPayFlow.getTradeBrokeId().intValue());
+            payPreOrderDto.setTrdBrokerId(Math.toIntExact(trdPayFlow.getTradeBrokeId()));
             payPreOrderDto.setTrdAccount(trdPayFlow.getTradeAcco());
             payPreOrderDto.setUserProdId(trdPayFlow.getUserProdId());
             payPreOrderDto.setUserPid(userInfoService.getUserBankInfo(trdOrder.getUserId()).getUserPid());

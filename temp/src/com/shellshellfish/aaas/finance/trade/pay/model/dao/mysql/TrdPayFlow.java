@@ -1,4 +1,5 @@
 package com.shellshellfish.aaas.finance.trade.pay.model.dao.mysql;
+
 import java.util.Objects;
 import javax.persistence.Basic;
 import javax.persistence.Column;
