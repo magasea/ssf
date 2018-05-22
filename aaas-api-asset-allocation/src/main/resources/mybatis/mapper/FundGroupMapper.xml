@@ -505,5 +505,14 @@
         DELETE FROM fund_group_sub_${oemId}
     </delete>
 
+    <select id="getFundGroupIdAndSubIdTaskParam" resultType="com.shellshellfish.aaas.assetallocation.entity.RiskIncomeInterval">
+        <!--select id,risk_num,income_num from fund_group_sub_${oemId} where-->
+        <!--fund_group_id=#{fundGroupId} and id like '%48'-->
+        <!--<if test="subGroupId != null and subGroupId != ''">-->
+            <!--and id=#{subGroupId}-->
+        <!--</if>-->
+        <!--order by #{slidebarType}-->
+    </select>
+
 
 </mapper>

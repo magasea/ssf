@@ -154,4 +154,6 @@ public interface FundGroupMapper {
     Integer deleteFundGroupSub(@Param("oemId") Integer oemId);
 
     void updateMaximumLosses(Map<String, Object> query);
+
+    List<RiskIncomeInterval> getFundGroupIdAndSubIdTaskParam(Map map);
 }
