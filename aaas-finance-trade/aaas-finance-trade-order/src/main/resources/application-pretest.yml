@@ -28,7 +28,7 @@ spring:
       database: zhongzheng
   redis:
     host: 192.168.1.249
-    port: 26379
+    port: 6379
     password: redis123
     timeout: 1800000ms
     lettuce:
