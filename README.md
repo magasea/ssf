@@ -94,7 +94,7 @@
    这个命令会执行以下的操作：分支release/v.1.0 merge回master分支，使用release/v.1.0分支名称打tag，分支release/v.1.0 merge回develop分支，删除release/v.1.0分支
  - hotfix：当发现master分支出现一个需要紧急修复的bug，可以使用hotfix分支。hotfix分支基于master分支，用来修复bug，当完成bug的修复工作后，会将其merge回master分支和develop分支。 
    同一时间只有一个hotfix分支，其生命周期较短。可以使用以下命令来创建hotfix分支：git flow hotfix start v.1.0，使用以下命令来结束hotfix分支的生命周期：
-   git flow hotfix finish v.1.0，这句命令会将hotfix分支merge到master分支和release分支，并删除该hotfix分支。 
+   git flow hotfix finish v.1.0，这句命令会将hotfix分支merge到master分支和develop分支，并删除该hotfix分支。 
  - git flow流程控制：由各个小组的leader去start和finish各个相关分支，developer只能在相应的分支上进行push和pull，不可以执行start和finish命令。developer在自己的future
    上开发，自测通过后，由leader执行finish命令merge回develop分支，然后进行集成测试，测试通过后，由leader start一个release分支，给测试人员进行测试，如果有bug，开发人员在
    release分支上进行修复，验证完毕后，product ower说可以发版后，由leader finish release分支，然后线上发此release的tag。线上是否需要hotfix，也由product owner决定，
