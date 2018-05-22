@@ -1929,8 +1929,8 @@ public class FundGroupService {
                 startDate);
 //        long startTime = System.currentTimeMillis();
 //        logger.info("calculateGroupNavadj start ");
-        if (startDate == null)
-            startDate = GROUP_START_DATE;
+//        if (startDate == null)
+//            startDate = GROUP_START_DATE;
 
         List<FundGroupDetails> result = fundGroupDetailsMapper.getFundProportion(groupId,
                 subGroupId, oemId);
@@ -1942,7 +1942,8 @@ public class FundGroupService {
         List<String> codeList = getFundGroupCodes(groupId, subGroupId, oemId);
         Map<String, BigDecimal> baseMap = new HashMap(codeList.size());
         for (String code : codeList) {
-            baseMap.put(code, fundNetValMapper.getLatestNavAdj(code, GROUP_START_DATE));
+//            baseMap.put(code, fundNetValMapper.getLatestNavAdj(code, GROUP_START_DATE));
+            baseMap.put(code, fundNetValMapper.getLatestNavAdj(code, startDate));
         }
 
         List<FundGroupHistory> fundGroupHistoryList = new LinkedList<>();
@@ -2545,8 +2546,14 @@ public class FundGroupService {
             }
 
             logger.info("fundGroupId:{}-------subId:{}",fundGroupId,subGroupId);
+
+            //查询组合成立日
+//            LocalDate groupStartDate = QueryGroupBuildDate.getInstance().getGroupBuildDate(fundGroupId);
+            Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(fundGroupId);
+            LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            System.out.println("local date : "+ localDate);
             //计算组合收益率
-            calculateGroupNavadj(fundGroupId, subGroupId, oemId, FundGroupService.GROUP_START_DATE);
+            calculateGroupNavadj(fundGroupId, subGroupId, oemId, localDate);
             //计算组合最大回撤
             calculateMaxRetracement(fundGroupId, subGroupId, oemId);
 

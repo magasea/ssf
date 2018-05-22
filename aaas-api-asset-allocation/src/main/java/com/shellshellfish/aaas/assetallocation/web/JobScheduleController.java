@@ -66,7 +66,7 @@ public class JobScheduleController {
             throw new IllegalArgumentException("oemId:"+ oemId);
         }
         jobScheduleService.getAllIdAndSubIdJobSchedule(1);
-        jobScheduleService.getAllIdAndSubIdJobSchedule(2);
+//        jobScheduleService.getAllIdAndSubIdJobSchedule(2);
         return new JobResult<>().returnSuccess();
     }
 
