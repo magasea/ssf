@@ -4,12 +4,15 @@ import com.mongodb.bulk.BulkWriteResult;
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.CoinFundYieldRate;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUserFundQuantityLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.repositories.funds.MongoCoinFundYieldRateRepository;
+import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import com.shellshellfish.aaas.userinfo.service.CheckUiProductDetailService;
@@ -28,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -53,31 +57,52 @@ public class CheckUiProductDetailServiceImpl implements CheckUiProductDetailServ
     @Autowired
     MongoCoinFundYieldRateRepository mongoCoinFundYieldRateRepository;
 
+    @Autowired
+    MongoUiTrdZZInfoRepo mongoUiTrdZZInfoRepo;
+
     Logger logger = LoggerFactory.getLogger(CheckUiProductDetailServiceImpl.class);
+
+    private static final String DATE_FORMAT_PATTERN = "yyyyMMdd";
+    //不可以直接更新，需要手动确认之后才可以更新
+    private static final Integer CAN_NOT_UPDATE = 0;
 
     @Override
     public void check() {
         List<Long> userProdIdList = uiProductRepo.getAllId();
         List<MongoUserFundQuantityLog> mongoUserFundQuantityLogList = new ArrayList<>(userProdIdList.size());
         for (Long userProdId : userProdIdList) {
-            List<OrderDetail> orderDetailList = orderRpcService.getAllTrdOrderDetail(userProdId);
-            Map fundQuantityMap = calculateFundQuantity(orderDetailList);
+            List<MongoUiTrdZZInfo> mongoUiTrdZZInfoList = mongoUiTrdZZInfoRepo.findAllByUserProdId(userProdId);
+//            List<OrderDetail> orderDetailList = orderRpcService.getAllTrdOrderDetail(userProdId);
+            Map fundQuantityMap = calculateFundQuantity(mongoUiTrdZZInfoList);
             if (CollectionUtils.isEmpty(fundQuantityMap)) {
                 continue;
             }
-            Map statusMap = getOrderDetailStatus(userProdId);
+            Map fundStatusMap = getOrderDetailStatus(userProdId);
 //            updateFundQuantity(fundQuantityMap, statusMap, userProdId);
-            boolean isConsistent = checkFundQuantity(fundQuantityMap, statusMap, userProdId);
+            boolean isConsistent = checkFundQuantity(fundQuantityMap, fundStatusMap, userProdId);
+            Map<String, Long> quantityMap = new HashMap(fundQuantityMap.size());
+            Map<String, Integer> statusMap = new HashMap(fundStatusMap.size());
+            for (Object object : fundQuantityMap.keySet()) {
+                Long value = (Long) fundQuantityMap.get(object);
+                String key = object.toString().substring(0, object.toString().indexOf("."));
+                quantityMap.put(key, value);
+            }
 
+            for (Object object : fundStatusMap.keySet()) {
+                Integer value = (Integer) fundStatusMap.get(object);
+                String key = object.toString().substring(0, object.toString().indexOf("."));
+                statusMap.put(key, value);
+            }
             if (!isConsistent) {
                 // recording the  inconsistent information
                 MongoUserFundQuantityLog mongoUserFundQuantityLog = new MongoUserFundQuantityLog();
                 mongoUserFundQuantityLog.setCreateTime(TradeUtil.getUTCTime());
                 mongoUserFundQuantityLog.setUserProdId(userProdId);
                 mongoUserFundQuantityLog.setUpdateTime(TradeUtil.getUTCTime());
-                mongoUserFundQuantityLog.setOrderDetails(orderDetailList);
-                mongoUserFundQuantityLog.setFundQuantityMap(fundQuantityMap);
+                mongoUserFundQuantityLog.setUiTrdZZInfoList(mongoUiTrdZZInfoList);
+                mongoUserFundQuantityLog.setFundQuantityMap(quantityMap);
                 mongoUserFundQuantityLog.setProductStatusMap(statusMap);
+                mongoUserFundQuantityLog.setCanUpdate(CAN_NOT_UPDATE);
                 mongoUserFundQuantityLogList.add(mongoUserFundQuantityLog);
             }
         }
@@ -99,39 +124,38 @@ public class CheckUiProductDetailServiceImpl implements CheckUiProductDetailServ
     /**
      * 计算当前用户所持有的份额
      *
-     * @param orderDetailList
+     * @param mongoUiTrdZZInfoList
      * @return Map  key = fundCode value = fundQuantity
      */
-    private Map calculateFundQuantity(List<OrderDetail> orderDetailList) {
+    private Map calculateFundQuantity(List<MongoUiTrdZZInfo> mongoUiTrdZZInfoList) {
         Long fundQuantity;
         Map<String, Long> fundQuantityMap = new HashMap<>(8);
-        for (OrderDetail orderDetail : orderDetailList) {
-            String fundCode = orderDetail.getFundCode();
+        for (MongoUiTrdZZInfo mongoUiTrdZZInfo : mongoUiTrdZZInfoList) {
+            String fundCode = mongoUiTrdZZInfo.getFundCode();
             fundQuantity = Optional.of(fundQuantityMap).map(m -> m.get(fundCode)).orElse(0L);
-            int status = orderDetail.getOrderDetailStatus();
+            int status = mongoUiTrdZZInfo.getTradeStatus();
             if (!TrdOrderStatusEnum.isConfirmed(status)) {
                 continue;
             }
 
-            if (TrdOrderOpTypeEnum.BUY.getOperation() == orderDetail.getTradeType()) {
-                if (MonetaryFundEnum.containsCode(orderDetail.getFundCode())) {
+            if (TrdOrderOpTypeEnum.BUY.getOperation() == mongoUiTrdZZInfo.getTradeType()) {
+                if (MonetaryFundEnum.containsCode(mongoUiTrdZZInfo.getFundCode())) {
                     //货币基金净值恒为一，　每日份额变化　，需要除以复权单位精致，以比拟于普通基金
                     //FIXME updateDate 有可能不准确　应该是mongo 库ssfui.ui_trdzzinfo　的confirm_date
-                    BigDecimal navadj = getMonetaryFundNavAdj(fundCode, orderDetail.getUpdateDate());
-                    fundQuantity += (orderDetail.getFundNumConfirmed() / navadj.longValue());
+                    BigDecimal navadj = getMonetaryFundNavAdj(fundCode, mongoUiTrdZZInfo.getConfirmDate());
+                    fundQuantity += (mongoUiTrdZZInfo.getTradeConfirmShare() / navadj.longValue());
                 } else {
-                    fundQuantity += orderDetail.getFundNumConfirmed();
+                    fundQuantity += mongoUiTrdZZInfo.getTradeConfirmShare();
                 }
-            } else if (TrdOrderOpTypeEnum.REDEEM.getOperation() == orderDetail.getTradeType()) {
+            } else if (TrdOrderOpTypeEnum.REDEEM.getOperation() == mongoUiTrdZZInfo.getTradeType()) {
                 if (MonetaryFundEnum.containsCode(fundCode)) {
-                    //FIXME updateDate 有可能不准确　应该是mongo 库ssfui.ui_trdzzinfo　的confirm_date
-                    BigDecimal navadj = getMonetaryFundNavAdj(fundCode, orderDetail.getUpdateDate());
-                    fundQuantity -= (orderDetail.getFundNumConfirmed() / navadj.longValue());
+                    BigDecimal navadj = getMonetaryFundNavAdj(fundCode, mongoUiTrdZZInfo.getConfirmDate());
+                    fundQuantity -= (mongoUiTrdZZInfo.getTradeConfirmShare() / navadj.longValue());
                 } else {
-                    fundQuantity -= orderDetail.getFundNumConfirmed();
+                    fundQuantity -= mongoUiTrdZZInfo.getTradeConfirmShare();
                 }
             }
-            fundQuantityMap.put(orderDetail.getFundCode(), fundQuantity);
+            fundQuantityMap.put(fundCode, fundQuantity);
         }
         return fundQuantityMap;
     }
@@ -207,10 +231,11 @@ public class CheckUiProductDetailServiceImpl implements CheckUiProductDetailServ
             Query query = new Query(criteria);
             Update update = new Update();
             update.set("update_time", mongoUserFundQuantityLog.getUpdateTime());
-            update.set("order_details", mongoUserFundQuantityLog.getOrderDetails());
+            update.set("ui_trd_zz_info", mongoUserFundQuantityLog.getUiTrdZZInfoList());
             update.set("product_status", mongoUserFundQuantityLog.getProductStatusMap());
             update.set("fund_quantity", mongoUserFundQuantityLog.getFundQuantityMap());
             update.setOnInsert("create_time", mongoUserFundQuantityLog.getCreateTime());
+            update.setOnInsert("can_update", mongoUserFundQuantityLog.getCanUpdate());
             updates.add(Pair.of(query, update));
         }
         ops.upsert(updates);
@@ -218,12 +243,13 @@ public class CheckUiProductDetailServiceImpl implements CheckUiProductDetailServ
     }
 
     //获取货币基金的复权单位精致
-    private BigDecimal getMonetaryFundNavAdj(String fundCode, Long time) {
+    private BigDecimal getMonetaryFundNavAdj(String fundCode, String confirmedDate) {
         //货币基金使用附权单位净值
+        LocalDate date = InstantDateUtil.format(confirmedDate, DATE_FORMAT_PATTERN).plusDays(1);
+        Long time = InstantDateUtil.getEpochMillsOfZero(date);
         CoinFundYieldRate coinFundYieldRate = mongoCoinFundYieldRateRepository
                 .findFirstByCodeAndQueryDateBefore(fundCode, time,
                         new Sort(new Sort.Order(Sort.Direction.DESC, "querydate")));
-
         return Optional.ofNullable(coinFundYieldRate).map(m -> m.getNavadj()).orElse(BigDecimal.ONE);
 
     }
