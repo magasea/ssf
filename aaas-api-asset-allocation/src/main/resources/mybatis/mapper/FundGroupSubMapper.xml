@@ -20,6 +20,7 @@
           interval_last_mod_time
         FROM
           fund_group_sub_${oemId}
+
           where fund_group_id = #{fundGroupId}
     </select>
 

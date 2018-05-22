@@ -15,6 +15,7 @@ import com.shellshellfish.aaas.assetallocation.returnType.*;
 import com.shellshellfish.aaas.assetallocation.service.FundGroupIndexService;
 import com.shellshellfish.aaas.assetallocation.util.*;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,7 @@ import static java.util.Optional.ofNullable;
  * Created by wangyinuo on 2017/11/27.
  */
 @Service
+@Slf4j
 public class FundGroupService {
 
     @Autowired
@@ -2457,7 +2459,8 @@ public class FundGroupService {
             Map param = Maps.newHashMap();
             param.put("oemId", oemId);
             List<Interval> listFundGroup = fundGroupMapper.selectAllFundGroupNum(param);
-            CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
+            CountDownLatch countDownLatch = new CountDownLatch(listFundGroup.size());
+//            CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
             ThreadPoolExecutor groupIndexPool = new ThreadPoolExecutor(
                     10,
                     15,
@@ -2498,18 +2501,15 @@ public class FundGroupService {
      */
     private void fundGroupIdTask(int fundGroupId, int oemId) {
         logger.info("xxxxxxxxxxxxxxxxxxxxxxxx fundGroupId: "+fundGroupId);
-        Map<String, Object> map = new HashMap<>();
-        map.put("slidebarType", SlidebarTypeEnmu.RISK_NUM.getName());
-        map.put("fundGroupId", fundGroupId);
-        map.put("oemId", oemId);
-        List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getScaleMark(map);
-
-//        List<FundGroupSub> fundGroupSubList = fundGroupSubMapper.findByGroupId(fundGroupId+"",oemId);
-
-        for (RiskIncomeInterval riskIncomeInterval : riskIncomeIntervals) {
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("slidebarType", SlidebarTypeEnmu.RISK_NUM.getName());
+//        map.put("fundGroupId", fundGroupId);
+//        map.put("oemId", oemId);
+//        List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getScaleMark(map);
+        List<FundGroupSub> riskIncomeIntervals = fundGroupSubMapper.findByGroupId(fundGroupId+"",oemId);
+        for (FundGroupSub riskIncomeInterval : riskIncomeIntervals) {
             long startTime = System.currentTimeMillis();
-
-            fundGroupIdAndSubIdTask(fundGroupId + "", riskIncomeInterval.getId(), oemId);
+            fundGroupIdAndSubIdTask(fundGroupId + "", riskIncomeInterval.getId().toString(), oemId);
 
             long endTime = System.currentTimeMillis();
 //            logger.info("fundGroupId : {} , subGroupId : {} one loop elapse : {}", fundGroupId, riskIncomeInterval
@@ -2536,10 +2536,15 @@ public class FundGroupService {
             // 此处已经由新的方法替代 （基金组合净值的计算方法更新）
 //            getNavadj(fundGroupId, subGroupId);
 
+
             //FIXME 目前只用到４８　,如有需要，可以删除此限制条件
-            if (!subGroupId.endsWith("48")) {
-                return;
+            if (Integer.parseInt(fundGroupId) <=15){
+                if (!subGroupId.endsWith("48")) {
+                    return;
+                }
             }
+
+            logger.info("fundGroupId:{}-------subId:{}",fundGroupId,subGroupId);
             //计算组合收益率
             calculateGroupNavadj(fundGroupId, subGroupId, oemId, FundGroupService.GROUP_START_DATE);
             //计算组合最大回撤
@@ -2572,7 +2577,7 @@ public class FundGroupService {
      * 计算预期最大回撤值/模拟波动率
      */
     public void updateExpectedMaxRetracement(String fundGroupId, String subGroupId, int oemId) {
-//        logger.info("updateExpectedMaxRetracement begin");
+        logger.info("updateExpectedMaxRetracement begin");
         Map<String, Object> map = new HashMap<>();
         map.put("id", fundGroupId);
         map.put("subId", subGroupId);
@@ -2601,7 +2606,6 @@ public class FundGroupService {
             return;
         }
 
-
         try {
             ThreadPoolExecutor contributionPool = new ThreadPoolExecutor(
                     4,
@@ -2613,8 +2617,8 @@ public class FundGroupService {
                     new ThreadPoolExecutor.AbortPolicy());
             final CountDownLatch countDownLatch = new CountDownLatch(groupedMap.size());
 //            ExecutorService pool = ThreadPoolUtil.getThreadPool();
-            for (List<Interval> groupedIntervals : groupedMap.values()) {
-                List<Interval> intervals = groupedIntervals;
+            for (List<Interval> intervals : groupedMap.values()) {
+//                List<Interval> intervals = groupedIntervals;
                 contributionPool.execute(() -> {
                     contributionTask(intervals, oemId);
                     countDownLatch.countDown();
@@ -2636,9 +2640,9 @@ public class FundGroupService {
 
         for (Interval interval : intervals) {
             //由于sub数据太多，现在过滤数据，只留sub_id 为48的数据
-            if (!interval.getId().endsWith("48")) {
-                continue;
-            }
+//            if (!interval.getId().endsWith("48")) {
+//                continue;
+//            }
 
             Map<String, Object> query = new HashMap<>();
             query.put("fund_group_id", interval.getFund_group_id());
@@ -2679,7 +2683,7 @@ public class FundGroupService {
                 }
             }
             if (!CollectionUtils.isEmpty(updateMapList)) {
-                this.batchUpdateContribution(updateMapList);
+                this.batchUpdateContribution(updateMapList, oemId);
             }
         }
 
@@ -2700,6 +2704,10 @@ public class FundGroupService {
 
         Map<String, List<Interval>> groupedMap = new HashMap<>();
         for (Interval interval : intervals) {
+            //数据过滤
+            if (Integer.parseInt(interval.getFund_group_id()) <=15 && !interval.getId().endsWith("48")){
+                continue;
+            }
             List<Interval> groupedIntervals = groupedMap.get(interval.getFund_group_id());
             if (!CollectionUtils.isEmpty(groupedIntervals)) {
                 groupedIntervals.add(interval);
@@ -2712,7 +2720,7 @@ public class FundGroupService {
         return groupedMap;
     }
 
-    private void batchUpdateContribution(List<Map> dataMapList) {
+    private void batchUpdateContribution(List<Map> dataMapList,Integer oemId) {
         logger.info("batchUpdateContribution begin");
 
         if (CollectionUtils.isEmpty(dataMapList)) {
@@ -2723,12 +2731,12 @@ public class FundGroupService {
         for (Map map : dataMapList) {
             mapList.add(map);
             if (mapList.size() == BATCH_SIZE_NUM) {
-                fundGroupMapper.batchUpdateContribution(mapList);
+                fundGroupMapper.batchUpdateContribution(mapList, oemId);
                 mapList.clear();
             }
         }
         if (!CollectionUtils.isEmpty(mapList)) {
-            fundGroupMapper.batchUpdateContribution(mapList);
+            fundGroupMapper.batchUpdateContribution(mapList, oemId);
         }
 
         logger.info("batchUpdateContribution end");

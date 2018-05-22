@@ -117,7 +117,7 @@ public interface FundGroupMapper {
 
     String getRiskNum(@Param("id") String id);
 
-    int batchUpdateContribution(List<Map> mapList);
+    int batchUpdateContribution(@Param("list")List<Map> mapList,@Param("oemId")Integer oemId);
 
     int updateMaxLoss(@Param("fundGroupId") String fundGroupId, @Param("subGroupId") String subGroupId, @Param("maxLoss") Double maxLoss);
 
@@ -155,5 +155,5 @@ public interface FundGroupMapper {
 
     void updateMaximumLosses(Map<String, Object> query);
 
-    List<RiskIncomeInterval> getFundGroupIdAndSubIdTaskParam(Map map);
+//    List<RiskIncomeInterval> getFundGroupIdAndSubIdTaskParam(Map map);
 }
