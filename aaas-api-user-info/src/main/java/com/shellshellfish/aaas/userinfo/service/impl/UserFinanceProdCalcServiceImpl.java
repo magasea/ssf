@@ -18,6 +18,8 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
+import com.shellshellfish.aaas.userinfo.repositories.redis.RedisFundNetDao;
+import com.shellshellfish.aaas.userinfo.repositories.redis.RedisSellRateDao;
 import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoDailyAmountRepository;
 import com.shellshellfish.aaas.userinfo.service.FundTradeApiService;
 import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
@@ -102,11 +104,11 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     @Autowired
     RpcOrderService rpcOrderService;
 
-    //基金赎回费率缓存
-    private final Map sellRateMap = new ConcurrentHashMap();
+    @Autowired
+    RedisFundNetDao redisFundNetDao;
 
-    //基金净值缓存
-    private final Map fundNetValueMap = new ConcurrentHashMap();
+    @Autowired
+    RedisSellRateDao redisSellRateDao;
 
     //date format pattern
     private static final String yyyyMMdd = InstantDateUtil.yyyyMMdd;
@@ -127,7 +129,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
                                       String date, UiProductDetail uiProductDetail) throws Exception {
         BigDecimal share = getFundQuantityAtDate(fundCode, userProdId, date, uiProductDetail);
         BigDecimal netValue = getFundNetValue(fundCode, InstantDateUtil.format(date, yyyyMMdd));
-        BigDecimal rateOfSellFund = getSellRate(fundCode);
+        BigDecimal rateOfSellFund = getSellRate(fundCode, date);
         BigDecimal fundAsset = share.multiply(netValue)
                 .multiply(BigDecimal.ONE.subtract(rateOfSellFund));
 
@@ -532,14 +534,14 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     public void calculateProductAsset(UiProductDetail detail, String uuid, Long prodId, String date) {
 
         String fundCode = detail.getFundCode();
-        initDailyAmount(uuid, prodId, detail.getUserProdId(), date, fundCode);
+//        initDailyAmount(uuid, prodId, detail.getUserProdId(), date, fundCode);
         try {
             //计算当日总资产
             calcDailyAsset(uuid, prodId, detail.getUserProdId(), fundCode,
                     date, detail);
 
-            //获取当日分红，以及确认购买和赎回的金额
-            calcIntervalAmount2(uuid, prodId, detail.getUserProdId(), fundCode, date);
+            //获取当日分红，以及确认购买和赎回的金额 分红直接从mongo.trdzzinfo中获取
+            //calcIntervalAmount2(uuid, prodId, detail.getUserProdId(), fundCode, date);
         } catch (Exception e) {
             logger.error("计算{用户:{},基金code:{},基金名称：{}}日收益出错", detail.getCreateBy(),
                     detail.getFundCode(), detail.getFundName(), e);
@@ -552,7 +554,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
             throws Exception {
 
         String fundCode = detail.getFundCode();
-        addDailyAmount(uuid, date, fundCode, prodId, detail.getUserProdId());
+//        addDailyAmount(uuid, date, fundCode, prodId, detail.getUserProdId());
         //计算当日总资产
         calcDailyAsset(uuid, prodId, detail.getUserProdId(), fundCode,
                 date, detail);
@@ -661,21 +663,13 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     /**
      * 获取最近一日胡基金净值　货币基金使用复权单位净值，非货币基金使用单位净值
      */
-    private BigDecimal getFundNetValue(String fundCode, LocalDate localDate) throws Exception {
-        LocalDate date = (LocalDate) fundNetValueMap.get("time");
-        if (date == null || date.isBefore(InstantDateUtil.now())) {
-            //缓存过期
-            fundNetValueMap.clear();
-            fundNetValueMap.put("time", InstantDateUtil.now());
-        }
+    private BigDecimal getFundNetValue(String fundCode, LocalDate localDate) {
+        String date = InstantDateUtil.format(localDate, yyyyMMdd);
+        BigDecimal netValue = redisFundNetDao.get(fundCode, date);
+        if (netValue != null)
+            return netValue;
 
         Long endTime = InstantDateUtil.getEpochSecondOfZero(localDate.plusDays(1));
-        BigDecimal netValue = (BigDecimal) fundNetValueMap.get(fundCode);
-
-        if (netValue != null) {
-            return netValue;
-        }
-
         if (MonetaryFundEnum.containsCode(fundCode)) {
             //货币基金使用附权单位净值
             CoinFundYieldRate coinFundYieldRate = mongoCoinFundYieldRateRepository
@@ -695,33 +689,24 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
             }
             netValue = fundYieldRate.getUnitNav();
         }
-        fundNetValueMap.put(fundCode, netValue);
+        redisFundNetDao.set(fundCode, date, netValue);
         return netValue;
     }
 
     /**
      * 获取基金的赎回费率
      */
-    private BigDecimal getSellRate(String fundCode) throws Exception {
-        LocalDate date = (LocalDate) sellRateMap.get("time");
-
-        if (date == null || date.isBefore(InstantDateUtil.now())) {
-            sellRateMap.clear();
-            sellRateMap.put("time", InstantDateUtil.now());
-        }
-
-
-        BigDecimal rateOfSellFund = (BigDecimal) sellRateMap.get(fundCode);
-        if (rateOfSellFund != null)
-            return rateOfSellFund;
-
+    private BigDecimal getSellRate(String fundCode, String time) throws Exception {
         //货币即基金赎回费率为零
-        if (MonetaryFundEnum.containsCode(fundCode)) {
-            rateOfSellFund = BigDecimal.ZERO;
-        } else {
-            rateOfSellFund = fundTradeApiService.getRate(fundCode, "024");
-        }
-        sellRateMap.put(fundCode, rateOfSellFund);
-        return rateOfSellFund;
+        if (MonetaryFundEnum.containsCode(fundCode))
+            return BigDecimal.ZERO;
+
+        BigDecimal sellRate = redisSellRateDao.get(fundCode, time);
+        if (sellRate != null)
+            return sellRate;
+
+        sellRate = fundTradeApiService.getRate(fundCode, "024");
+        redisSellRateDao.set(fundCode, time, sellRate);
+        return sellRate;
     }
 }

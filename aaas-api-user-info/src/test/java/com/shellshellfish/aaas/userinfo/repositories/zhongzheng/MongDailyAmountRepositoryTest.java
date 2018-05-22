@@ -16,7 +16,10 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.math.BigDecimal;
 import java.util.List;
+
+import static com.shellshellfish.aaas.common.utils.InstantDateUtil.yyyyMMdd;
 
 /**
  * @Author pierre 18-1-12
@@ -56,9 +59,11 @@ public class MongDailyAmountRepositoryTest {
     @Test
     public void testGetUserAssetAndIncome() {
 
-        DailyAmountAggregation amountAggregation = mongoDailyAmountRepository.getUserAssetAndIncome(null, null,
-                null, null);
+        Long userProdId = 181L;
+        List<DailyAmountAggregation> amountAggregation = mongoDailyAmountRepository.getUserAssetAndIncome
+                (InstantDateUtil.format(InstantDateUtil.now(), yyyyMMdd), userProdId);
         Assert.assertNotNull("", amountAggregation);
+        Assert.assertTrue("总资产大于零", amountAggregation.get(0).getAsset().compareTo(BigDecimal.ZERO) >= 0);
     }
 
 }

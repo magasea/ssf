@@ -81,10 +81,10 @@ public class CalculateConfirmedAsset {
             }
         }
         //确认日期才更新
-        updateDailyAmountFromZzInfo(uuid, uiProducts.get().getProdId(), uiProducts.get().getId(),
-                mongoUiTrdZZInfo.getFundCode(), InstantDateUtil.format(confirmDate, pattern),
-                TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZInfo.getTradeConfirmSum()),
-                mongoUiTrdZZInfo.getTradeType());
+//        updateDailyAmountFromZzInfo(uuid, uiProducts.get().getProdId(), uiProducts.get().getId(),
+//                mongoUiTrdZZInfo.getFundCode(), InstantDateUtil.format(confirmDate, pattern),
+//                TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZInfo.getTradeConfirmSum()),
+//                mongoUiTrdZZInfo.getTradeType());
 
     }
 

@@ -58,8 +58,10 @@ import java.time.*;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
+import static com.shellshellfish.aaas.common.utils.InstantDateUtil.yyyyMMdd;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
+//import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
@@ -427,7 +429,7 @@ public class UserInfoServiceImpl implements UserInfoService {
             trendYield.setDate(date);
         }
         Collections
-                .sort(result, Comparator.comparing(o -> InstantDateUtil.format(o.getDate(), InstantDateUtil.yyyyMMdd)));
+                .sort(result, Comparator.comparing(o -> InstantDateUtil.format(o.getDate(), yyyyMMdd)));
         return result;
     }
 
@@ -502,22 +504,16 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public PortfolioInfo getChicombinationAssets(String uuid, Long userId, ProductsDTO products,
                                                  LocalDate endDate, boolean flag) {
-        Long startDate = products.getCreateDate();
-        LocalDate startLocalDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(startDate),
-                ZoneId.systemDefault()).toLocalDate();
-        String startDay = InstantDateUtil.format(startLocalDate, InstantDateUtil.yyyyMMdd);
-        String endDay = InstantDateUtil.format(endDate, InstantDateUtil.yyyyMMdd);
-
         if (flag) {
             //完全确认
             products.setStatus(TrdOrderStatusEnum.CONFIRMED.getStatus());
             return userAssetService
-                    .calculateUserAssetAndIncome(uuid, products.getId(), startDay, endDay);
+                    .calculateUserAssetAndIncome(products.getId(), endDate);
         } else {
             //部分确认
             logger.info("\n未完全确认数据 userProdId :{}\n", products.getId());
             products.setStatus(TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
-            return userAssetService.calculateUserAssetAndIncomePartialConfirmed(uuid, userId, products.getId(), startDay, endDay);
+            return userAssetService.calculateUserAssetAndIncomePartialConfirmed(userId, products.getId(), endDate);
         }
     }
 
@@ -545,7 +541,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         LocalDate endLocalDate = LocalDate.now();
         while (startLocalDate.isBefore(endLocalDate) || startLocalDate.isEqual(endLocalDate)) {
-            String endDay = InstantDateUtil.format(endLocalDate, InstantDateUtil.yyyyMMdd);
+            String endDay = InstantDateUtil.format(endLocalDate, yyyyMMdd);
             result.put(endDay, getChicombinationAssets(uuid, userId, products, endLocalDate, flag));
             endLocalDate = endLocalDate.plusDays(-1);
         }
@@ -651,7 +647,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public List<Map<String, Object>> getMyCombinations(String uuid) throws Exception {
-        List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> resultList = new ArrayList<>();
         List<ProductsDTO> productsList = this.findProductInfos(uuid);
         if (productsList == null || productsList.size() == 0) {
             logger.error("我的智投组合暂时不存在");
@@ -745,7 +741,7 @@ public class UserInfoServiceImpl implements UserInfoService {
             String date = InstantDateUtil.getDayConvertString(products.getCreateDate());
             resultMap.put("updateDate", date);
             resultMap.put("recentDate", Optional.ofNullable(mongoDailyAmountRepository.findFirstByUserProdIdOrderByDateDesc
-                    (products.getId())).map(m -> InstantDateUtil.format(m.getDate(), InstantDateUtil.yyyyMMdd).toString())
+                    (products.getId())).map(m -> InstantDateUtil.format(m.getDate(), yyyyMMdd).toString())
                     .orElse(InstantDateUtil.now().toString()));
             resultList.add(resultMap);
         }

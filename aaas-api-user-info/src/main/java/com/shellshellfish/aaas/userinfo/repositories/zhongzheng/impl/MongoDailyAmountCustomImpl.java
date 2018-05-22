@@ -4,13 +4,14 @@ import com.shellshellfish.aaas.userinfo.model.dao.DailyAmountAggregation;
 import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoDailyAmountCustom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import java.util.List;
+
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 /**
  * @Author pierre.chen
@@ -24,19 +25,17 @@ public class MongoDailyAmountCustomImpl implements MongoDailyAmountCustom {
 
 
     @Override
-    public DailyAmountAggregation getUserAssetAndIncome(String userUuid, String startDate, String endDate, Long prodId) {
+    public List<DailyAmountAggregation> getUserAssetAndIncome(String date, Long prodId) {
         Aggregation agg = newAggregation(
-                match(Criteria.where("userUuid").is(userUuid)),
-                match(Criteria.where("date").gte(startDate).lte(endDate)),
+                match(Criteria.where("date").lte(date)),
                 match(Criteria.where("userProdId").is(prodId)),
-                group("userProdId")
-                        .sum("sellAmount").as("sellAmount")
+                group("userProdId", "date")
+                        .first("date").as("date")
                         .sum("asset").as("asset")
-                        .sum("bonus").as("bonus")
-                        .sum("buyAmount").as("buyAmount")
-        );
+                , sort(Sort.Direction.DESC, "date")
+                , limit(2));
         return zhongZhengMongoTemplate
-                .aggregate(agg, "dailyAmount", DailyAmountAggregation.class).getUniqueMappedResult();
+                .aggregate(agg, "dailyAmount", DailyAmountAggregation.class).getMappedResults();
 
     }
 }
