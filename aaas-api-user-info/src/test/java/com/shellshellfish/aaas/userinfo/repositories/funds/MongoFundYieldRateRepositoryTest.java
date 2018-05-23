@@ -35,7 +35,7 @@ public class MongoFundYieldRateRepositoryTest {
 
 		FundYieldRate fundYieldRate = mongoFundYieldRateRepository
 				.findFirstByCodeAndQueryDateBefore(fundCode,
-						InstantDateUtil.getEpochSecondOfZero("20180126", "yyyyMMdd"),
+						InstantDateUtil.getEpochSecondOfZero("20180126", InstantDateUtil.yyyyMMdd),
 						new Sort(new Order(Direction.DESC, "querydate")));
 		Assert.assertEquals(1.297, fundYieldRate.getUnitNav().doubleValue(), 0.000);
 		Assert.assertEquals(1516723200L,fundYieldRate.getQueryDate().intValue());
