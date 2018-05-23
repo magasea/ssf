@@ -6,6 +6,7 @@ import com.shellshellfish.aaas.assetallocation.entity.Interval;
 import com.shellshellfish.aaas.assetallocation.mapper.FundGroupHistoryMapper;
 import com.shellshellfish.aaas.assetallocation.mapper.FundGroupIndexMapper;
 import com.shellshellfish.aaas.assetallocation.mapper.FundGroupMapper;
+import com.shellshellfish.aaas.assetallocation.mapper.FundNetValMapper;
 import com.shellshellfish.aaas.assetallocation.service.FundGroupIndexService;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.util.FastMath;
@@ -17,6 +18,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -34,6 +36,9 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
     @Autowired
     FundGroupMapper fundGroupMapper;
 
+    @Autowired
+    private FundNetValMapper fundNetValMapper;
+
 
     /**
      * 计算组合历史年华收益率和历史年华波动率
@@ -47,19 +52,25 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
     @Override
     public void calculateAnnualVolatilityAndAnnualYield(String groupId, String subGroupId, LocalDate startDate, int oemId) {
         logger.info("start to calculate historical annual yield and Historical annual volatility   groupId:{} ," +
-                "subGroupId:{}", groupId, subGroupId);
-        if (startDate == null) {
-            startDate = FundGroupService.GROUP_START_DATE;
-        }
-        startDate = startDate.isBefore(FundGroupService.GROUP_START_DATE) ? FundGroupService.GROUP_START_DATE : startDate;
+                "subGroupId:{}   startDate: {}", groupId, subGroupId, startDate);
+//        if (startDate == null) {
+//            startDate = FundGroupService.GROUP_START_DATE;
+//        }
+//        startDate = startDate.isBefore(FundGroupService.GROUP_START_DATE) ? FundGroupService.GROUP_START_DATE : startDate;
         List<Double> values = new LinkedList<>();
-        LocalDate date = LocalDate.of(startDate.getYear(), startDate.getMonth(), 15);
+//        LocalDate date = LocalDate.of(startDate.getYear(), startDate.getMonth(), 15);
         do {
-            Double value = fundGroupHistoryMapper.getLatestNavAdj(groupId, subGroupId, date, oemId);
+            Double value = fundGroupHistoryMapper.getLatestNavAdj(groupId, subGroupId, startDate, oemId);
             if (value != null)
                 values.add(value);
-            date = date.plusMonths(1);
-        } while (date.isBefore(LocalDate.now(ZoneId.systemDefault()).plusDays(1)));
+            startDate = startDate.plusMonths(1);
+        } while (startDate.isBefore(LocalDate.now(ZoneId.systemDefault()).plusDays(1)));
+//        do {
+//            Double value = fundGroupHistoryMapper.getLatestNavAdj(groupId, subGroupId, date, oemId);
+//            if (value != null)
+//                values.add(value);
+//            date = date.plusMonths(1);
+//        } while (date.isBefore(LocalDate.now(ZoneId.systemDefault()).plusDays(1)));
 
 
         if (CollectionUtils.isEmpty(values))
@@ -84,22 +95,37 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
     }
 
     @Override
-    public void calculateAnnualVolatilityAndAnnualYield(LocalDate startDate, int oemId) {
-        logger.info("start to  calculate historical annual yield and Historical annual volatility   startDate:{}",
-                startDate);
+    public void calculateAnnualVolatilityAndAnnualYield(int oemId) {
+        logger.info("start to  calculate historical annual yield and Historical annual volatility   startDate:{}");
         long startTime = System.currentTimeMillis();
-        if (startDate == null) {
-            startDate = FundGroupService.GROUP_START_DATE;
-        }
+//        if (startDate == null) {
+//            startDate = FundGroupService.GROUP_START_DATE;
+//        }
+
+        //查询组合成立日
+//            LocalDate groupStartDate = QueryGroupBuildDate.getInstance().getGroupBuildDate(fundGroupId);
+//        Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(fundGroupId);
+//        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+//        System.out.println("local date : "+ localDate);
 
         List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
         for (Interval interval : list) {
+            if (Integer.parseInt(interval.getFund_group_id()) <= 15){
+                if (!interval.getId().endsWith("48")){
+                    continue;
+                }
+            }
+
+            //查询组合成立日
+//            LocalDate groupStartDate = QueryGroupBuildDate.getInstance().getGroupBuildDate(fundGroupId);
+            Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(interval.getFund_group_id());
+            LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             calculateAnnualVolatilityAndAnnualYield(interval.getFund_group_id(), interval.getId()
-                ,  startDate, oemId);
+                ,  localDate, oemId);
         }
         long endTime = System.currentTimeMillis();
         logger.info("finish to calculate historical annual yield and Historical annual volatility   startDate:{}," +
-                "costTime:{}ms", startDate, endTime - startTime);
+                "costTime:{}ms", endTime - startTime);
     }
 
 }

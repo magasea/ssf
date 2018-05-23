@@ -155,5 +155,8 @@ public interface FundGroupMapper {
 
     void updateMaximumLosses(Map<String, Object> query);
 
-//    List<RiskIncomeInterval> getFundGroupIdAndSubIdTaskParam(Map map);
+    //查询组合ID 及 用于计算的subId
+    List<Interval> getGroupIdAndSubId(@Param("oemId") Integer oemId);
+
+    String getGroupStatusByGroupId(@Param("groupId") String groupId, @Param("oemId") Integer oemId);
 }
