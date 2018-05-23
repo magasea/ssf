@@ -82,15 +82,17 @@ public class CheckUiProductDetailServiceImpl implements CheckUiProductDetailServ
             boolean isConsistent = checkFundQuantity(fundQuantityMap, fundStatusMap, userProdId);
             Map<String, Long> quantityMap = new HashMap(fundQuantityMap.size());
             Map<String, Integer> statusMap = new HashMap(fundStatusMap.size());
+
+            //　spot can`t exists in mongo key
             for (Object object : fundQuantityMap.keySet()) {
                 Long value = (Long) fundQuantityMap.get(object);
-                String key = object.toString().substring(0, object.toString().indexOf("."));
+                String key = object.toString().replace(".", "");
                 quantityMap.put(key, value);
             }
 
             for (Object object : fundStatusMap.keySet()) {
                 Integer value = (Integer) fundStatusMap.get(object);
-                String key = object.toString().substring(0, object.toString().indexOf("."));
+                String key = object.toString().replace(".", "");
                 statusMap.put(key, value);
             }
             if (!isConsistent) {
@@ -252,5 +254,19 @@ public class CheckUiProductDetailServiceImpl implements CheckUiProductDetailServ
                         new Sort(new Sort.Order(Sort.Direction.DESC, "querydate")));
         return Optional.ofNullable(coinFundYieldRate).map(m -> m.getNavadj()).orElse(BigDecimal.ONE);
 
+    }
+
+    public static void main(String[] args) {
+        Map map = new HashMap();
+        map.put("123.", "123");
+        map.put("456.", "456");
+        map.put("789.", "789");
+
+        map.forEach((key, value) -> {
+            key = key.toString().replace(",", "");
+        });
+
+
+        map.forEach((k, v) -> System.out.println(k));
     }
 }
