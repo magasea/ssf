@@ -27,7 +27,7 @@ spring:
      username: ssf
      password: shellshellfish
      host: 192.168.1.249
-     port: 5772
+     port: 16672
      virtual-host: aaas
      topicQueuePayName: com-ssf-topic-queue-pay
      topicQueueOrderName: com-ssf-topic-queue-order
@@ -38,7 +38,7 @@ spring:
      topicUserinfo: shellshellfish.userinfo
      topicDailyCalculateAsset: com-ssf-topic-calculate-asset
   redis:
-    host: 192.168.1.10
+    host: 192.168.1.249
     port: 6379
     password: redis123
     timeout: 500ms
