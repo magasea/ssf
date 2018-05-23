@@ -1,6 +1,5 @@
 package com.shellshellfish.aaas.userinfo.model.dao;
 
-import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
 import org.springframework.data.mongodb.core.index.IndexDirection;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -8,7 +7,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.persistence.Id;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -34,8 +32,8 @@ public class MongoUserFundQuantityLog implements Serializable {
     private Long updateTime;
 
 
-    @Field(value = "order_details")
-    private List<OrderDetail> orderDetails;
+    @Field(value = "ui_trd_zz_info")
+    private List<MongoUiTrdZZInfo> uiTrdZZInfoList;
 
     @Field(value = "product_status")
     private Map productStatusMap;
@@ -43,6 +41,8 @@ public class MongoUserFundQuantityLog implements Serializable {
     @Field(value = "fund_quantity")
     private Map fundQuantityMap;
 
+    @Field(value = "can_update")
+    private Integer canUpdate;
 
     public String getId() {
         return id;
@@ -76,12 +76,12 @@ public class MongoUserFundQuantityLog implements Serializable {
         this.updateTime = updateTime;
     }
 
-    public List<OrderDetail> getOrderDetails() {
-        return orderDetails;
+    public List<MongoUiTrdZZInfo> getUiTrdZZInfoList() {
+        return uiTrdZZInfoList;
     }
 
-    public void setOrderDetails(List<OrderDetail> orderDetails) {
-        this.orderDetails = orderDetails;
+    public void setUiTrdZZInfoList(List<MongoUiTrdZZInfo> uiTrdZZInfoList) {
+        this.uiTrdZZInfoList = uiTrdZZInfoList;
     }
 
     public Map getProductStatusMap() {
@@ -98,5 +98,13 @@ public class MongoUserFundQuantityLog implements Serializable {
 
     public void setFundQuantityMap(Map fundQuantityMap) {
         this.fundQuantityMap = fundQuantityMap;
+    }
+
+    public Integer getCanUpdate() {
+        return canUpdate;
+    }
+
+    public void setCanUpdate(Integer canUpdate) {
+        this.canUpdate = canUpdate;
     }
 }

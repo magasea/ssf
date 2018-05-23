@@ -105,6 +105,15 @@ public class InstantDateUtil {
         return DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT_PATTERN).format(date);
     }
 
+    public static Long getEpochMillsOfZero(String date) {
+        LocalDate localDate = format(date);
+        return getEpochMillsOfZero(localDate);
+    }
+
+    public static Long getEpochMillsOfZero(LocalDate date) {
+        return getEpochSecondOfZero(date) * 1000;
+    }
+
 
     /**
      * Gets the number of seconds from the Java epoch of 1970-01-01T00:00:00Z. <p> The epoch second
