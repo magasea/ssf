@@ -22,7 +22,7 @@ import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = UserInfoApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles(profiles = "pretest")
+@ActiveProfiles(profiles = "dev")
 public class CheckUiProductDetailServiceTest {
 
     @Autowired
@@ -47,7 +47,7 @@ public class CheckUiProductDetailServiceTest {
             mongoUserFundQuantityLog.setUserProdId(new Long(i));
             mongoUserFundQuantityLog.setProductStatusMap(new HashMap());
             mongoUserFundQuantityLog.setFundQuantityMap(new HashMap());
-            mongoUserFundQuantityLog.setOrderDetails(null);
+            mongoUserFundQuantityLog.setUiTrdZZInfoList(null);
             mongoUserFundQuantityLog.setCreateTime(TradeUtil.getUTCTime());
             mongoUserFundQuantityLog.setUpdateTime(TradeUtil.getUTCTime());
             list.add(mongoUserFundQuantityLog);
