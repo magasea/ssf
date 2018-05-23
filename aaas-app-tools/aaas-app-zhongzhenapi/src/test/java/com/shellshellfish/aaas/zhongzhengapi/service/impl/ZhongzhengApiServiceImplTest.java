@@ -553,7 +553,7 @@ public class ZhongzhengApiServiceImplTest {
               ZZBuyResult zzBuyResult = null;
               ZZRiskCmtResult zzRiskCmtResult = null;
               try{
-                zzRiskCmtResult = zhongZhengApiService.commitRiskLevel(pid, item.getFundRisk());
+                zzRiskCmtResult = zhongZhengApiService.commitRiskLevel(pid, item.getFundRisk()+1);
                 zzBuyResult = zhongZhengApiService.buyFund(pid,trdAcco,item.getFundCode(),applyNum,
                     outsideTradeNo );
               }catch (Exception ex){
