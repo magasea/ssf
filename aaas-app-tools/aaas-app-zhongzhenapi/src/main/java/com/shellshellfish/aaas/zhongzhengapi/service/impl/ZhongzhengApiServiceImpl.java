@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.zhongzhengapi.service.impl;
 import com.shellshellfish.aaas.common.grpc.zzapi.ApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.WalletApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZAplyCfmInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZDiscountInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundShareInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
@@ -371,6 +372,23 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
       logMap(info);
       ZZGeneralRespWithListData<ZZBonusInfo> resp = callZZApiWithListData(ZhongZhengAPIConstants
           .ZZ_API_URL_BONUS_LIST, ZZBonusInfo.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
+
+  @Override
+  public List<ZZDiscountInfo> getDiscountInfo(String pid, String fundCode) throws Exception {
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+      origInfo.put("fundcode", fundCode);
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+      ZZGeneralRespWithListData<ZZDiscountInfo> resp = callZZApiWithListData(ZhongZhengAPIConstants
+          .ZZ_API_URL_TRADE_DISCOUNT, ZZDiscountInfo.class, info);
       checkResult(resp);
       return resp.getData();
     } catch (Exception e) {

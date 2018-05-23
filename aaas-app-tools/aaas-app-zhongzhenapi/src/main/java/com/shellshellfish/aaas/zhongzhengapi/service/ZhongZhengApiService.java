@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.zhongzhengapi.service;
 import com.shellshellfish.aaas.common.grpc.zzapi.ApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.WalletApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZAplyCfmInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZDiscountInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundShareInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
@@ -182,5 +183,13 @@ public interface ZhongZhengApiService {
    */
   public List<ZZBonusInfo> getBonusInfo(String pid, String fundCode, String startDate)
       throws Exception;
+
+  /**
+   *
+   * @param pid
+   * @param fundCode
+   * @return
+   */
+  public List<ZZDiscountInfo> getDiscountInfo(String pid, String fundCode) throws Exception;
 
 }

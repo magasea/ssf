@@ -1,6 +1,5 @@
 package com.shellshellfish.aaas.userinfo.service;
 
-import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 
@@ -30,9 +29,6 @@ public interface UserFinanceProdCalcService {
     void dailyCalculation(String date, List<UiUser> uiUsers) throws Exception;
 
     BigDecimal getAssert(String userUuid, Long prodId) throws Exception;
-
-    PortfolioInfo calculateProductValue(String userUuid, Long prodId,
-                                        String startDate, String endDate);
 
     List<Map<String, Object>> getCalcYieldof7days(String fundCode, String type, String date)
             throws Exception;

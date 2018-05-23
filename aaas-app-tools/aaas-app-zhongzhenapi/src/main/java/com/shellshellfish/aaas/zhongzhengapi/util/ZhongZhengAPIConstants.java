@@ -12,6 +12,7 @@ public class ZhongZhengAPIConstants {
   final public static String ZZ_API_URL_BUY_FUND = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/buy_fund";
   final public static String ZZ_API_URL_BONUS_LIST = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_bonus_list";
   final public static String ZZ_API_URL_CONFIRM_LIST = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_confirm_list";
+  final public static String ZZ_API_URL_TRADE_DISCOUNT = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_trade_discount";
   final public static String ZZ_API_URL_FUND_SHARE = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_fund_share";
   final public static String ZZ_API_URL_FUND_INFO = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_fund_info";
   final public static String ZZ_API_URL_TRADE_LIMIT = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_trade_limit";

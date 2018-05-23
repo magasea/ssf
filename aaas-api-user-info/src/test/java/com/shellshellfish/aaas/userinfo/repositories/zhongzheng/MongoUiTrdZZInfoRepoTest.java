@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
+import io.swagger.models.auth.In;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +39,7 @@ public class MongoUiTrdZZInfoRepoTest {
         List<MongoUiTrdZZInfo> result = mongoUiTrdZZInfoRepo
                 .findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateGreaterThan(userProdId, fundCode,
                         TrdOrderOpTypeEnum.BUY.getOperation(), TrdOrderStatusEnum.CONFIRMED.getStatus(),
-                        InstantDateUtil.format(startDate, "yyyyMMdd"));
+                        InstantDateUtil.format(startDate, InstantDateUtil.yyyyMMdd));
 
 
         List<String> list = new ArrayList<>(result.size());
@@ -47,7 +48,7 @@ public class MongoUiTrdZZInfoRepoTest {
             list.add(mongoUiTrdZZInfo.getConfirmDate());
         }
         Assert.assertTrue("mongo Data after  do not 　contains current day ", list.contains(InstantDateUtil.format
-                (startDate, "yyyyMMdd")));
+                (startDate, InstantDateUtil.yyyyMMdd)));
     }
 
 }

@@ -98,15 +98,41 @@ public class ZhongzhengApiServiceImplTest {
   @Test
   public void getApplyResultByApplySerial() throws Exception {
     String pid = "362522198709220031";
-    String trdAcco = "33653";
-    String applySerial = "20180209000768";
+    String trdAcco = "33600";
+    String applySerial = "20180516000606";
     List<ApplyResult> applyResults =  zhongZhengApiService.getApplyResults("", applySerial, trdAcco, pid);
     applyResults.forEach(
         item->{
+          System.out.println(item.getAccepTtime());
           System.out.println(item.getApplyDate());
           System.out.println(item.getApplySerial());
+          System.out.println(item.getApplyShare());
+          System.out.println(item.getApplySum());
+          System.out.println(item.getApplyTime());
+          System.out.println(item.getBankAcco());
+          System.out.println(item.getBankName());
+          System.out.println(item.getBankSerial());
+          System.out.println(item.getBusinFlagStr());
+          System.out.println(item.getCallingCode());
+          System.out.println(item.getCapitalMode());
+          System.out.println(item.getCommisionDiscount());
+          System.out.println(item.getConfirmFlag());
           System.out.println(item.getConfirmstat());
+          System.out.println(item.getFreezeMethod());
+          System.out.println(item.getFundAcco());
+          System.out.println(item.getFundName());
+          System.out.println(item.getKkStat());
+          System.out.println(item.getMelonMethod());
+          System.out.println(item.getOccurBankAcco());
+          System.out.println(item.getOriApplyDate());
+          System.out.println(item.getOriginalApplySerial());
+          System.out.println(item.getOutsideOrderNo());
+          System.out.println(item.getRiskMatch());
+          System.out.println(item.getShareType());
+          System.out.println(item.getTradeAcco());
           System.out.println(item.getTradeConfirmShare());
+          System.out.println(item.getTradeConfirmSum());
+          System.out.println(item.getXyh());
         }
     );
   }
@@ -214,7 +240,7 @@ public class ZhongzhengApiServiceImplTest {
   public void getConfirmResult() throws Exception {
     String pid = "362522198709220031";
     String trdAcco = "33600";
-    String applySerial = "20180209000768";
+    String applySerial = "20180516000606";
     List<ZZAplyCfmInfo> applyResults = zhongZhengApiService.getConfirmResult(trdAcco,applySerial,"", pid);
     applyResults.forEach(
         item->{

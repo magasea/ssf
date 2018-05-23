@@ -59,7 +59,51 @@
    如果紧急修复牵扯到数据库更新或者回滚的，对应的开发人员设计并且在开发环境测试自己做的数据库变更脚本，验证后请测试人员在测试环境验证，如果没有问题，
    提交郭锐(运维)做线上数据的备份后然后执行这次发布需要做的数据库变动。
    以上数据属于静态数据的话可以简化流程。
-   
+15. git flow 流程
+ - Git安装：地址：https://git-for-windows.github.io/
+ - git flow安装：
+   下载util-linux package，地址：http://gnuwin32.sourceforge.net/packages/util-linux-ng.htm，然后把getopt.exe 放到C:\Program Files\Git\bin，
+   下载libintl和libiconv，地址：http://gnuwin32.sourceforge.net/packages/libintl.htm，http://gnuwin32.sourceforge.net/packages/libiconv.htm，
+   然后把libint13.dll、libiconv2.dll到Git目录的bin下面。
+   然后$ git clone --recursive git://github.com/nvie/gitflow.git
+ - 以管理员权限执行cmd （打开Windows的cmd窗口执行），进入刚才clone出来的gitflow下的contrib目录，执行msysgit-install.cmd，如果出错，后面加上git的安装目录作为参数：
+   msysgit-install.cmd "C:\Program Files (x86)\Git"
+ - 安装完成后，可以在git bash运行 git flow help查看是否安装成功
+ - 初始化：执行 git flow init，基本都一直回车就行
+ - git flow分支模型：http://nvie.com/posts/a-successful-git-branching-model/
+ - master：master分支只有一个。 
+   master分支上的代码总是稳定的，随时可以发布出去。 
+   平时一般不在master分支上操作，当release分支和hotfix分支合并代码到master分支上时，master上代码才更新。 
+   当仓库创建时，master分支会自己创建
+ - develop：develop分支只有一个。 
+   新特性的开发是基于develop分支的，但不直接在develop分支上开发，特性的开发是在feature分支上进行。 
+   当develop分支上的特性足够多以至于可以进行新版本的发布时，可以创建release分支的。
+ - feature：可以同时存在多个feature分支，新特性的开发正是在此分支上面。 
+   可以对每个新特性创建一个新的feature分支，当该特性开发完毕，将此feature分支合并到develop分支。 
+   创建一个新的feature分支，可以使用以下命令：git flow feature start test，执行以下命令后，feature/test分支会被创建。 
+   当特性开发完毕，需要将此分支合并到develop分支，可以使用以下命令实现：git flow feature finish test，
+   上面的命令会将feature/test分支的内容merge到develop分支，并将feature/test分支删除。
+   feature分支只是存在于本地仓库，如果需要多个人共同开发此特性，也可以将feature分支推送到过程仓库，命令：git flow feature publish test
+ - release：当完成了特性的开发，并且将feature分支上的内容merge到develop分支上，这时可以开始着手准备新版本的发布，release分支正是作为发布而开设的分支。 
+   release分支基于develop分支，在同一时间只有一个release分支，其生命周期较短，只是为了发布而使用，在其上测试。这意味着，在release分支上，只是进行较少代码修改，
+   比如bug的修复，原有功能的完善等。不允许在release分支增加大的功能，因为这样会导致release分支的不稳定，不利于发布的进行。 
+   当release分支（例如，v.1.0）被创建出来后，develop分支可能正准备另一版本（例如，v.2.0），因此，当release分支merge回develop分支时，
+   可能会出现冲突，需要手工解决冲突才能继续merge。通过以下命令来创建release分支：git flow release start v.1.0，
+   执行过完上面的命令，release分支release/v.1.0会被创建出来 ，并且切换到该分支。
+   当完成release分支功能的完善或者bug的修复后，执行以下命令来完成release分支：git flow release finish v.1.0，
+   这个命令会执行以下的操作：分支release/v.1.0 merge回master分支，使用release/v.1.0分支名称打tag，分支release/v.1.0 merge回develop分支，删除release/v.1.0分支
+ - hotfix：当发现master分支出现一个需要紧急修复的bug，可以使用hotfix分支。hotfix分支基于master分支，用来修复bug，当完成bug的修复工作后，会将其merge回master分支和develop分支。 
+   同一时间只有一个hotfix分支，其生命周期较短。可以使用以下命令来创建hotfix分支：git flow hotfix start v.1.0，使用以下命令来结束hotfix分支的生命周期：
+   git flow hotfix finish v.1.0，这句命令会将hotfix分支merge到master分支和develop分支，并删除该hotfix分支。 
+ - git flow流程控制：由各个小组的leader去start和finish各个相关分支，developer只能在相应的分支上进行push和pull，不可以执行start和finish命令。developer在自己的future
+   上开发，自测通过后，由leader执行finish命令merge回develop分支，然后进行集成测试，测试通过后，由leader start一个release分支，给测试人员进行测试，如果有bug，开发人员在
+   release分支上进行修复，验证完毕后，product ower说可以发版后，由leader finish release分支，然后线上发此release的tag。线上是否需要hotfix，也由product owner决定，
+   然后相应的leader start一个hotfix分支，developer在hotfix分支上修复bug后，经过测试验证和product owner同意后，由leader 执行finish操作。
+ - 注意事项：git flow 在自动merge的时候都是现在本地进行，要自己push到remote 分支上。同一时间只能有一个release和hotfix分支，当hotfix时当前已经存在一个release分支时，需要
+   手动将hotfix merge回此release分支。
+ - 分支命名规范：前缀+tapd号+年月日时分，如hotfix-1000335-201805221628，另外dev分支需要改成默认的develop分支。
+
+
 ### 项目端口规范约定
 * aaas-api-asset-allocation 
   - 自身 10020
