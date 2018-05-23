@@ -1,21 +1,32 @@
 package com.shellshellfish.aaas.zhongzhengapi.service.impl;
 
+import com.shellshellfish.aaas.AaasZhongzhengApp;
+import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
+import com.shellshellfish.aaas.common.grpc.zzapi.ApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.WalletApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZAplyCfmInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundShareInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZRiskCmtResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZTradeLimit;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltAplyInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltInfoRlt;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.common.grpc.zzapi.ApplyResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.BankZhongZhenInfo;
+import com.shellshellfish.aaas.zhongzhengapi.model.FundRiskCheckLog;
 import com.shellshellfish.aaas.zhongzhengapi.model.SellResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZBonusInfo;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZBuyResult;
 import com.shellshellfish.aaas.zhongzhengapi.service.ZhongZhengApiService;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,20 +35,27 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * Created by chenwei on 2018- 四月 - 24
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = ZhongzhengApiServiceImpl.class)
+@SpringBootTest(classes = AaasZhongzhengApp.class)
 @ActiveProfiles("dev")
 public class ZhongzhengApiServiceImplTest {
 
   @Autowired
   ZhongZhengApiService zhongZhengApiService;
+
+  @Autowired
+  MongoTemplate mongoTemplate;
 
   @Test
   public void getSupportBankList() throws Exception {
@@ -469,6 +487,104 @@ public class ZhongzhengApiServiceImplTest {
           System.out.println(item.getTradeAcco());
         }
     );
+  }
+
+  @Test
+  public void checkFundRiskInBuyOp() throws Exception {
+    String fileName = "zzfundrisk.txt";
+    String pid = "362522198709220031";
+    String trdAcco = "33600";
+
+    String applyNum = "2";
+    String outsideTradeNo = "";
+    ClassLoader classLoader = getClass().getClassLoader();
+    File file = new File(classLoader.getResource(fileName).getFile());
+
+
+//    File file = new File(getClass().getResource(fileName).getFile());
+    FileInputStream readerHelp = new FileInputStream(file);
+
+    Reader reader = new InputStreamReader(readerHelp, "utf-8");
+    BufferedReader bufferedReader = new BufferedReader(reader);
+    String line = bufferedReader.readLine();
+    List<FundRiskCheckLog> fundRiskCheckLogs = new ArrayList<>();
+    if(line.contains("FundCode")){
+
+      bufferedReader.lines().forEach(lineReading -> {
+        String fundCode = lineReading.split("[ ]+")[0];
+        int fundRisk = Integer.parseInt(lineReading.split("[ ]+")[1]);
+            FundRiskCheckLog fundRiskCheckLog = new FundRiskCheckLog();
+            fundRiskCheckLog.setFundCode(fundCode);
+            fundRiskCheckLog.setFundRisk(fundRisk);
+            fundRiskCheckLogs.add(fundRiskCheckLog);
+        Query query = new Query();
+        query.addCriteria(new Criteria("fund_code").is(fundCode));
+        List<FundRiskCheckLog> fundRiskCheckLogsInDB = mongoTemplate.find(query, FundRiskCheckLog
+            .class);
+        if(CollectionUtils.isEmpty(fundRiskCheckLogsInDB)){
+          mongoTemplate.save(fundRiskCheckLog);
+        }else{
+          System.out.println(String.format("FundCode:%s already exists" , fundCode));
+        }
+
+          }
+      );
+    }
+    //now begin to buy those fundcode which is not bought yet
+    Query query = new Query();
+    for(FundRiskCheckLog item: fundRiskCheckLogs){
+          query = new Query();
+          query.addCriteria(new Criteria("fund_code").is(item.getFundCode()));
+          List<FundRiskCheckLog> fundRiskCheckLogsInDB = mongoTemplate.find(query, FundRiskCheckLog
+              .class);
+          query = null;
+          if(CollectionUtils.isEmpty(fundRiskCheckLogsInDB)){
+            try {
+              throw  new Exception(String.format("there is no record for fundCode:%s in ssfzzapi",
+                  item.getFundCode()));
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
+          }else{
+            if(StringUtils.isEmpty(fundRiskCheckLogsInDB.get(0).getApplySerial())){
+              System.out.print(String.format("now begin to buy fundCode:%s",
+                  fundRiskCheckLogsInDB.get(0).getFundCode()));
+              outsideTradeNo = ""+TradeUtil.getUTCTime();
+              ZZBuyResult zzBuyResult = null;
+              ZZRiskCmtResult zzRiskCmtResult = null;
+              try{
+                zzRiskCmtResult = zhongZhengApiService.commitRiskLevel(pid, item.getFundRisk());
+                zzBuyResult = zhongZhengApiService.buyFund(pid,trdAcco,item.getFundCode(),applyNum,
+                    outsideTradeNo );
+              }catch (Exception ex){
+                ex.printStackTrace();
+                if(ex.getMessage().contains(":") && ex.getMessage().contains("申请值太小")){
+                  outsideTradeNo = ""+TradeUtil.getUTCTime();
+                  zzBuyResult = zhongZhengApiService.buyFund(pid,trdAcco,item.getFundCode(),"10",
+                      outsideTradeNo );
+                }
+              }
+              if(zzBuyResult == null){
+                continue;
+              }
+              System.out.println(zzBuyResult.getApplySerial());
+              fundRiskCheckLogsInDB.get(0).setApplySerial(zzBuyResult.getApplySerial());
+              System.out.println(zzBuyResult.getCapitalModel());
+              System.out.println(zzBuyResult.getKkStat());
+              fundRiskCheckLogsInDB.get(0).setStatus(zzBuyResult.getKkStat());
+              if(zzBuyResult.getKkStat().equals(""+ZZKKStatusEnum.KKSUCCESS.getStatus())){
+                fundRiskCheckLogsInDB.get(0).setCanBuy(Boolean.TRUE);
+              }
+              System.out.println(zzBuyResult.getOutsideOrderNo());
+              fundRiskCheckLogsInDB.get(0).setOutsideOrderNo(zzBuyResult.getOutsideOrderNo());
+              System.out.println(zzBuyResult.getRequestDate());
+              mongoTemplate.save(fundRiskCheckLogsInDB.get(0));
+
+            }
+          }
+        }
+
+    System.out.println(line);
   }
 
 }

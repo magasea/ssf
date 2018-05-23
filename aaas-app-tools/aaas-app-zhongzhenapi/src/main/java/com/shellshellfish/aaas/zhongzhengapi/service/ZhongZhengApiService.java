@@ -6,6 +6,7 @@ import com.shellshellfish.aaas.common.grpc.zzapi.ZZAplyCfmInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZDiscountInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundShareInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZRiskCmtResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZTradeLimit;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltAplyInfo;
@@ -191,5 +192,15 @@ public interface ZhongZhengApiService {
    * @return
    */
   public List<ZZDiscountInfo> getDiscountInfo(String pid, String fundCode) throws Exception;
+
+
+  /**
+   *
+   * @param pid
+   * @param riskAbility
+   * @return
+   */
+  public ZZRiskCmtResult commitRiskLevel(String pid, Integer riskAbility) throws Exception;
+
 
 }

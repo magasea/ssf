@@ -3,7 +3,7 @@ package com.shellshellfish.aaas.common.grpc.zzapi;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * Created by developer4 on 2018- 五月 - 21
+ * Created by chenwei on 2018- 五月 - 21
  */
 
 public class ZZDiscountInfo {
