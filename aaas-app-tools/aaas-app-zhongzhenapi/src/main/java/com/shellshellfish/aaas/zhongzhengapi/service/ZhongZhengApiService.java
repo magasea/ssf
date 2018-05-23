@@ -190,6 +190,6 @@ public interface ZhongZhengApiService {
    * @param fundCode
    * @return
    */
-  public List<ZZDiscountInfo> getDiscountInfo(String pid, String fundCode);
+  public List<ZZDiscountInfo> getDiscountInfo(String pid, String fundCode) throws Exception;
 
 }
