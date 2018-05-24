@@ -44,9 +44,12 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
      * 计算组合历史年华收益率和历史年华波动率
      * <p>
      * <p>
-     * 1:计算月度收益率 并年化（乘以12）
-     * 2：各月月度收益率年华之后算术平均数为年华收益率
-     * 3：各月月度年华收益率标准差即为历史波动率
+     * 1: 根据计算周期（日指交易周期，周，月，年均指日历周期）在所选时间段内拆分出N个区间（剔除头尾包含的不完整日历周期）．
+     * 2: 获取每个区间最后一个交易日的基金基金复权单位净值和最初一个交易日的复权单位净值BPi
+     * 3: 以EPi/BPi-1 作为区间的收益率Ri
+     * 4: 求所有Ri的算术平均数得到平均收益率
+     * 5: 年化收益率＝［（１＋平均收益率）＾（３６５／计算周期天数）－１］＊１００％
+     * 其中：计算周期为日，对应自然天数为１，计算周期为周，对应自然天数为７，计算周期为月，对应自然天数未３０，计算周期为年，对应自然天数为３６５
      * <／p>
      */
     @Override
@@ -82,12 +85,16 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
             Double pre = values.get(i);
             Double next = values.get(i + 1);
             //月度收益年化
-            Double annualYield = ((next - pre) * 12) / pre;
+            Double annualYield = next / pre - 1;
             annualYieldArray[i] = annualYield;
         }
 
-        double historicalAnnualYield = StatUtils.mean(annualYieldArray);
-        double historicalAnnualVolatility = FastMath.sqrt(StatUtils.variance(annualYieldArray));
+        // 年化收益率＝［（１＋平均收益率）＾（３６５／计算周期天数）－１］＊１００％
+        double historicalAnnualYield = FastMath.pow(1 + StatUtils.mean(annualYieldArray), (365D / 30D)) - 1;
+
+
+        //月度收益率方差＊sqrt(12)
+        double historicalAnnualVolatility = FastMath.sqrt(StatUtils.variance(annualYieldArray)) * FastMath.sqrt(12);
         FundGroupIndex fundGroupIndex = new FundGroupIndex(groupId, subGroupId, historicalAnnualYield, historicalAnnualVolatility);
         fundGroupIndex.setOemId(oemId);
         fundGroupIndexMapper.saveOrUpdate(fundGroupIndex);
