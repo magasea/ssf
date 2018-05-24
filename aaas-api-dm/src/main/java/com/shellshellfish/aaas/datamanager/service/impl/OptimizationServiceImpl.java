@@ -1150,10 +1150,10 @@ public class OptimizationServiceImpl implements OptimizationService {
             return null;
         }
         //判断结果是否有数据
-        if ((int) result.get("_total") == 0) {
-            logger.error("查询净值增长数据结果为0", "数据获取失败");
-            return null;
-        }
+//        if ((int) result.get("_total") == 0) {
+//            logger.error("查询净值增长数据结果为0", "数据获取失败");
+//            return null;
+//        }
         //转成list
         List prdList = null;
         try {

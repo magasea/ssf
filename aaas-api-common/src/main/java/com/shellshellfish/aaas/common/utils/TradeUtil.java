@@ -4,6 +4,7 @@ package com.shellshellfish.aaas.common.utils;
 import com.google.common.hash.Hashing;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
+import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -225,14 +226,22 @@ public class TradeUtil {
 
   }
   public static int getPayFlowStatus(String kkstat){
-    if(kkstat.equals(TrdZZCheckStatusEnum.CONFIRMSUCCESS) || kkstat.equals(TrdZZCheckStatusEnum.REALTIMECONFIRMSUCESS)){
-      return TrdOrderStatusEnum.CONFIRMED.getStatus();
-    }else if(kkstat.equals(TrdZZCheckStatusEnum.CONFIRMFAILED) || kkstat.equals
-        (TrdZZCheckStatusEnum.NOTHANDLED)){
-      return TrdOrderStatusEnum.FAILED.getStatus();
-    }else{
+    if(kkstat.equals(""+ZZKKStatusEnum.KKSUCCESS.getStatus())){
       return TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus();
+    }else if(kkstat.equals(""+ZZKKStatusEnum.WAITCONFIRM.getStatus())){
+      return TrdOrderStatusEnum.WAITPAY.getStatus();
+    }else{
+      return TrdOrderStatusEnum.FAILED.getStatus();
     }
+
+//    if(kkstat.equals(TrdZZCheckStatusEnum.CONFIRMSUCCESS) || kkstat.equals(TrdZZCheckStatusEnum.REALTIMECONFIRMSUCESS)){
+//      return TrdOrderStatusEnum.CONFIRMED.getStatus();
+//    }else if(kkstat.equals(TrdZZCheckStatusEnum.CONFIRMFAILED) || kkstat.equals
+//        (TrdZZCheckStatusEnum.NOTHANDLED)){
+//      return TrdOrderStatusEnum.FAILED.getStatus();
+//    }else{
+//      return TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus();
+//    }
   }
 
   public static String getSHA256encoding(String originStr){

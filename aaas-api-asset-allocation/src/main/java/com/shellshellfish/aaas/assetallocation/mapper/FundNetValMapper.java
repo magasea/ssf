@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
@@ -16,7 +18,7 @@ import org.apache.ibatis.annotations.Param;
  * Date: 2017/11/17
  * Desc:
  */
-//@Mapper
+@Mapper
 public interface FundNetValMapper {
 
     //根据时间以及code查询净值表数据
@@ -62,4 +64,6 @@ public interface FundNetValMapper {
     Date getMaxNavDateByCodeList(List<String> codeList);
 
     BigDecimal getLatestNavAdj(@Param("code") String code,@Param("date") LocalDate date);
+
+    Date getMinNavlatestDateByFundGroupId(@Param("fundGroupId")String fundGroupId);
 }

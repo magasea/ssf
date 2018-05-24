@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.shellshellfish.aaas.assetallocation.mapper.FundGroupSubMapper">
+
+
+    <select id="findByGroupId" resultType="com.shellshellfish.aaas.assetallocation.entity.FundGroupSub">
+        SELECT
+          id,
+          fund_group_id,
+          risk_num,
+          income_num,
+          expected_annualized_return,
+          expected_max_retracement,
+          simulate_historical_volatility,
+          simulate_historical_year_performance,
+          confidence_interval,
+          maximum_losses,
+          sharpe_ratio,
+          create_time,
+          interval_last_mod_time
+        FROM
+          fund_group_sub_${oemId}
+
+          where fund_group_id = #{fundGroupId}
+    </select>
+
+</mapper>

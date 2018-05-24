@@ -6,6 +6,7 @@ import com.shellshellfish.aaas.common.grpc.zzapi.ZZAplyCfmInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZDiscountInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundShareInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZRiskCmtResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZTradeLimit;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltAplyInfo;
@@ -389,6 +390,23 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
       logMap(info);
       ZZGeneralRespWithListData<ZZDiscountInfo> resp = callZZApiWithListData(ZhongZhengAPIConstants
           .ZZ_API_URL_TRADE_DISCOUNT, ZZDiscountInfo.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
+
+  @Override
+  public ZZRiskCmtResult commitRiskLevel(String pid, Integer riskAbility) throws Exception {
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+      origInfo.put("risk_ability", riskAbility.toString());
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+      ZZGeneralResp<ZZRiskCmtResult> resp = callZZApiGeneral(ZhongZhengAPIConstants
+          .ZZ_API_URL_COMMIT_RISK, ZZRiskCmtResult.class, info);
       checkResult(resp);
       return resp.getData();
     } catch (Exception e) {

@@ -30,7 +30,7 @@
     </select>
 
     <select id="selectAllFundGroupNum" resultType="com.shellshellfish.aaas.assetallocation.entity.Interval">
-        select id fund_group_id,fund_group_name from fund_group_${oemId}
+        select id fund_group_id,fund_group_name, status from fund_group_${oemId}
     </select>
 
     <select id="selectById" resultType="com.shellshellfish.aaas.assetallocation.entity.Interval">
@@ -421,7 +421,7 @@
 
     <update id="batchUpdateContribution" parameterType="java.util.Map">
         <foreach collection="list" separator=";" item="item">
-            update fund_group_details set revenue_contribution = #{item.contribution}
+            update fund_group_details_${oemId} set revenue_contribution = #{item.contribution}
             where fund_group_sub_id = #{item.subGroupId}
             and fund_code = #{item.code}
         </foreach>
@@ -504,6 +504,28 @@
     <delete id="deleteFundGroupSub">
         DELETE FROM fund_group_sub_${oemId}
     </delete>
+
+    <select id="getFundGroupIdAndSubIdTaskParam" resultType="com.shellshellfish.aaas.assetallocation.entity.RiskIncomeInterval">
+        select id,risk_num,income_num from fund_group_sub_${oemId} where
+        fund_group_id=#{fundGroupId} and id like '%48'
+        <if test="subGroupId != null and subGroupId != ''">
+            and id=#{subGroupId}
+        </if>
+        order by #{slidebarType}
+    </select>
+
+    <select id="getGroupIdAndSubId" resultType="com.shellshellfish.aaas.assetallocation.entity.Interval">
+        SELECT id,fund_group_id
+        FROM fund_group_sub_${oemId}
+        WHERE (fund_group_id &lt;= 15 AND id LIKE "%48")
+        OR (fund_group_id &gt; 15)
+        GROUP BY fund_group_id
+        ORDER BY fund_group_id DESC
+    </select>
+
+    <select id="getGroupStatusByGroupId" resultType="String">
+        select status from fund_group_${oemId} where id = #{groupId}
+    </select>
 
 
 </mapper>

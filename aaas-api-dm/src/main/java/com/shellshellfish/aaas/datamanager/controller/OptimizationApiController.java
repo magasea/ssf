@@ -163,9 +163,12 @@ public class OptimizationApiController {
     mongoFinanceDetailRepository.deleteAll();
 
     for (int oemid = 1; oemid < 3; oemid++) {
-      for (int i = 1; i < 16; i++) {
+      for (int i = 1; i <= 30; i++) {
         String groupId = i + "";
-        String subGroupId = i + "0048";
+				String subGroupId = i + "0048";
+        if(i > 15 ){
+        	subGroupId = i + "0000";
+				}
         jsonResult = optimizationService.checkPrdDetailsVer2(groupId, subGroupId, oemid);
         if (oemid == 1) {
           if (jsonResult != null) {
