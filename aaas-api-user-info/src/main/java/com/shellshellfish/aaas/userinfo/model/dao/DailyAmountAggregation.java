@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.userinfo.model.dao;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+
 import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
@@ -10,98 +11,109 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class DailyAmountAggregation {
 
 
-	@Field("_id")
-	private Long id;
+    @Field("_id")
+    private Long id;
 
 
-	private BigDecimal asset;
+    private BigDecimal asset;
 
-	private BigDecimal bonus;
+    private BigDecimal bonus;
 
-	private BigDecimal sellAmount;
+    private BigDecimal sellAmount;
 
-	private BigDecimal buyAmount;
+    private BigDecimal buyAmount;
 
-	public BigDecimal getAsset() {
-		return asset;
-	}
+    private String date;
 
-	public void setAsset(BigDecimal asset) {
-		this.asset = asset;
-	}
+    public BigDecimal getAsset() {
+        return asset;
+    }
 
-	public BigDecimal getBonus() {
-		return bonus;
-	}
+    public void setAsset(BigDecimal asset) {
+        this.asset = asset;
+    }
 
-	public void setBonus(BigDecimal bonus) {
-		this.bonus = bonus;
-	}
+    public BigDecimal getBonus() {
+        return bonus;
+    }
 
-	public BigDecimal getSellAmount() {
-		return sellAmount;
-	}
+    public void setBonus(BigDecimal bonus) {
+        this.bonus = bonus;
+    }
 
-	public void setSellAmount(BigDecimal sellAmount) {
-		this.sellAmount = sellAmount;
-	}
+    public BigDecimal getSellAmount() {
+        return sellAmount;
+    }
 
-	public BigDecimal getBuyAmount() {
-		return buyAmount;
-	}
+    public void setSellAmount(BigDecimal sellAmount) {
+        this.sellAmount = sellAmount;
+    }
 
-	public void setBuyAmount(BigDecimal buyAmount) {
-		this.buyAmount = buyAmount;
-	}
+    public BigDecimal getBuyAmount() {
+        return buyAmount;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public void setBuyAmount(BigDecimal buyAmount) {
+        this.buyAmount = buyAmount;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	@Override
-	public String toString() {
-		return "DailyAmountAggregation{" +
-				"id=" + id +
-				", asset=" + asset +
-				", bonus=" + bonus +
-				", sellAmount=" + sellAmount +
-				", buyAmount=" + buyAmount +
-				'}';
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	@Override
-	public boolean equals(Object o) {
+    public String getDate() {
+        return date;
+    }
 
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		DailyAmountAggregation that = (DailyAmountAggregation) o;
-		return Objects.equals(id, that.id) &&
-				Objects.equals(asset, that.asset) &&
-				Objects.equals(bonus, that.bonus) &&
-				Objects.equals(sellAmount, that.sellAmount) &&
-				Objects.equals(buyAmount, that.buyAmount);
-	}
+    public void setDate(String date) {
+        this.date = date;
+    }
 
-	@Override
-	public int hashCode() {
+    @Override
+    public String toString() {
+        return "DailyAmountAggregation{" +
+                "id=" + id +
+                ", asset=" + asset +
+                ", bonus=" + bonus +
+                ", sellAmount=" + sellAmount +
+                ", buyAmount=" + buyAmount +
+                ", date=" + date +
+                '}';
+    }
 
-		return Objects.hash(id, asset, bonus, sellAmount, buyAmount);
-	}
+    @Override
+    public boolean equals(Object o) {
 
-	public static DailyAmountAggregation getEmptyInstance() {
-		final DailyAmountAggregation instance = new DailyAmountAggregation();
-		instance.setSellAmount(BigDecimal.ZERO);
-		instance.setBuyAmount(BigDecimal.ZERO);
-		instance.setBonus(BigDecimal.ZERO);
-		instance.setAsset(BigDecimal.ZERO);
-		return instance;
-	}
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        DailyAmountAggregation that = (DailyAmountAggregation) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(asset, that.asset) &&
+                Objects.equals(bonus, that.bonus) &&
+                Objects.equals(sellAmount, that.sellAmount) &&
+                Objects.equals(buyAmount, that.buyAmount);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id, asset, bonus, sellAmount, buyAmount);
+    }
+
+    public static DailyAmountAggregation getEmptyInstance() {
+        final DailyAmountAggregation instance = new DailyAmountAggregation();
+        instance.setSellAmount(BigDecimal.ZERO);
+        instance.setBuyAmount(BigDecimal.ZERO);
+        instance.setBonus(BigDecimal.ZERO);
+        instance.setAsset(BigDecimal.ZERO);
+        return instance;
+    }
 }

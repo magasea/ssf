@@ -356,6 +356,16 @@ public class UserInfoController {
 			// "/api/userinfo/users/"+uid+"/unbundlingBankCards/"+cardno,
 			// Map.class)
 			// .getBody();
+			
+			Map<Object, Object> chicombinationRes = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid + "/chicombination", Map.class).getBody();
+//			if(chicombinationRes != null || chicombinationRes.isEmpty() Stringu){
+			if(!StringUtils.isEmpty(chicombinationRes) && chicombinationRes.get("result") != null){
+				List<Map<String, Object>> resultList = (List<Map<String, Object>>) chicombinationRes.get("result");
+				if(resultList != null && resultList.size() > 0){
+					return new JsonResult(JsonResult.Fail, "持仓期间不允许解绑！", JsonResult.EMPTYRESULT);
+				}
+			}
+			
 			restTemplate.delete(userinfoUrl + "/api/userinfo/users/" + uuid + "/unbundlingBankCards/" + cardno);
 			result.put("status", "1");
 			result.put("msg", "解绑成功");

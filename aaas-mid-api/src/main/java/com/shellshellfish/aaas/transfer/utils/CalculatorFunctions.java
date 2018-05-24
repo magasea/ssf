@@ -11,7 +11,7 @@ import java.util.Date;
 /**
  * 放置了一些计算公式
  *
- * @author developer4
+ * @author chenwei
  */
 public class CalculatorFunctions {
 

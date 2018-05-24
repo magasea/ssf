@@ -4,15 +4,7 @@ import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
-import com.shellshellfish.aaas.finance.trade.order.BindCardResult;
-import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
-import com.shellshellfish.aaas.finance.trade.order.OrderDetailQueryInfo;
-import com.shellshellfish.aaas.finance.trade.order.OrderDetailResult;
-import com.shellshellfish.aaas.finance.trade.order.OrderQueryInfo;
-import com.shellshellfish.aaas.finance.trade.order.OrderResult;
-import com.shellshellfish.aaas.finance.trade.order.OrderRpcServiceGrpc;
-import com.shellshellfish.aaas.finance.trade.order.UserBankCardNum;
-import com.shellshellfish.aaas.finance.trade.order.UserPID;
+import com.shellshellfish.aaas.finance.trade.order.*;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
@@ -30,23 +22,16 @@ import com.shellshellfish.aaas.grpc.common.UserProdId;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import io.grpc.stub.StreamObserver;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import javax.annotation.Resource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import javax.annotation.Resource;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBase implements
@@ -237,23 +222,26 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
     @Override
     public void getOrderDetail(OrderDetailQueryInfo request,
                                StreamObserver<OrderDetailResult> responseObserver) {
+        try {
+            List<TrdOrderDetail> result = trdOrderDetailRepository
+                    .findAllByUserProdIdAndOrderDetailStatus(request.getUserProdId(),
+                            request.getOrderDetailStatus());
 
-        List<TrdOrderDetail> result = trdOrderDetailRepository
-                .findAllByUserProdIdAndOrderDetailStatus(request.getUserProdId(),
-                        request.getOrderDetailStatus());
+            if (result == null) {
+                result = new ArrayList<>(0);
+            }
+            OrderDetailResult.Builder builder = OrderDetailResult.newBuilder();
 
-        if (result == null) {
-            result = new ArrayList<>(0);
+            for (int i = 0; i < result.size(); i++) {
+                OrderDetail.Builder orderDetailBuilder = OrderDetail.newBuilder();
+                MyBeanUtils.mapEntityIntoDTO(result.get(i), orderDetailBuilder);
+                builder.addOrderDetailResult(orderDetailBuilder);
+            }
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(e);
         }
-        OrderDetailResult.Builder builder = OrderDetailResult.newBuilder();
-
-        for (int i = 0; i < result.size(); i++) {
-            OrderDetail.Builder orderDetailBuilder = OrderDetail.newBuilder();
-            MyBeanUtils.mapEntityIntoDTO(result.get(i), orderDetailBuilder);
-            builder.addOrderDetailResult(orderDetailBuilder);
-        }
-        responseObserver.onNext(builder.build());
-        responseObserver.onCompleted();
     }
 
     /**
@@ -282,6 +270,30 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
         responseObserver.onCompleted();
     }
 
+
+    /**
+     * @param request
+     * @param responseObserver
+     */
+    @Override
+    public void getAllOrderDetail(UserProdId request,
+                                  StreamObserver<OrderDetailResult> responseObserver) {
+
+        List<TrdOrderDetail> result = trdOrderDetailRepository.findAllByUserProdId(request.getUserProdId());
+
+        if (result == null) {
+            result = new ArrayList<>(0);
+        }
+        OrderDetailResult.Builder builder = OrderDetailResult.newBuilder();
+
+        for (int i = 0; i < result.size(); i++) {
+            OrderDetail.Builder orderDetailBuilder = OrderDetail.newBuilder();
+            MyBeanUtils.mapEntityIntoDTO(result.get(i), orderDetailBuilder);
+            builder.addOrderDetailResult(orderDetailBuilder);
+        }
+        responseObserver.onNext(builder.build());
+        responseObserver.onCompleted();
+    }
 
     @Override
     public Map<String, Object> getBankInfos(String bankShortName) {

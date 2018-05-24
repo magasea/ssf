@@ -83,6 +83,7 @@ public class CheckFundsTradeJobService {
                             new com.shellshellfish.aaas.common.message.order.TrdPayFlow();
                         trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
                         trdPayFlow.setUpdateDate(Instant.now().getEpochSecond());
+                        trdPayFlow.setTrdApplyDate(applyResult.getApplydate());
                         trdPayFlow.setBuyDiscount(TradeUtil.getLongNumWithMul100(applyResult
                             .getCommisiondiscount()));
                         trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno
@@ -111,6 +112,7 @@ public class CheckFundsTradeJobService {
                         trdPayFlow.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
                             .getPoundage()));
                         updateByCheckAboutSumNum(trdPayFlow, applyResult);
+
                         trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno());
                         trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
                         trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
@@ -238,6 +240,7 @@ public class CheckFundsTradeJobService {
                             new com.shellshellfish.aaas.common.message.order.TrdPayFlow();
                         trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
                         trdPayFlow.setUpdateDate(Instant.now().getEpochSecond());
+                        trdPayFlow.setTrdApplyDate(applyResult.getApplydate());
                         trdPayFlow.setBuyDiscount(TradeUtil.getLongNumWithMul100(applyResult
                             .getCommisiondiscount()));
                         trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno

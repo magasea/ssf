@@ -1,7 +1,5 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
-import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
-
 import com.mongodb.client.result.UpdateResult;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
@@ -31,29 +29,22 @@ import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserUUID;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdLog;
-import com.shellshellfish.aaas.userinfo.model.dao.UiAsset;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
-import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiFriendRule;
 import com.shellshellfish.aaas.userinfo.model.dao.UiPersonMsg;
-import com.shellshellfish.aaas.userinfo.model.dao.UiPortfolio;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProdMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProducts;
 import com.shellshellfish.aaas.userinfo.model.dao.UiSysMsg;
-import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserProdMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
 import com.shellshellfish.aaas.userinfo.model.redis.UserBaseInfoRedis;
@@ -64,13 +55,9 @@ import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserSysMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserTrdLogMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
-import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoAssetsRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
-import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoCompanyInfoRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoFriendRuleRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
-import com.shellshellfish.aaas.userinfo.repositories.mysql.UserPortfolioRepository;
-import com.shellshellfish.aaas.userinfo.repositories.mysql.UserTradeLogRepository;
 import com.shellshellfish.aaas.userinfo.repositories.redis.UserInfoBaseDao;
 import com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl;
 import com.shellshellfish.aaas.userinfo.utils.MongoUiTrdLogUtil;
@@ -107,11 +94,11 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	@Autowired
 	UserInfoBankCardsRepository userInfoBankCardsRepository;
 
-	@Autowired
-	UserPortfolioRepository userPortfolioRepository;
-
-	@Autowired
-	UserInfoAssetsRepository userInfoAssetsRepository;
+//	@Autowired
+//	UserPortfolioRepository userPortfolioRepository;
+//
+//	@Autowired
+//	UserInfoAssetsRepository userInfoAssetsRepository;
 
 	@Autowired
 	UserInfoRepository userInfoRepository;
@@ -119,11 +106,11 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 	@Autowired
 	UserInfoFriendRuleRepository userInfoFriendRuleRepository;
 
-	@Autowired
-	UserTradeLogRepository userTradeLogRepository;
+//	@Autowired
+//	UserTradeLogRepository userTradeLogRepository;
 
-	@Autowired
-	UserInfoCompanyInfoRepository userInfoCompanyInfoRepository;
+//	@Autowired
+//	UserInfoCompanyInfoRepository userInfoCompanyInfoRepository;
 
 	@Autowired
 	UiProductRepo uiProductRepo;
@@ -179,16 +166,16 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		return user;
 	}
 
-	@Override
-	public UserInfoAssectsBriefDTO getUserInfoAssectsBrief(Long userId) {
-		// BigInteger userIdLocal = BigInteger.valueOf(userId);
-		UiAsset uiAsset = userInfoAssetsRepository.findByUserId(userId);
-		UserInfoAssectsBriefDTO asset = new UserInfoAssectsBriefDTO();
-		if (uiAsset != null) {
-			BeanUtils.copyProperties(uiAsset, asset);
-		}
-		return asset;
-	}
+//	@Override
+//	public UserInfoAssectsBriefDTO getUserInfoAssectsBrief(Long userId) {
+//		// BigInteger userIdLocal = BigInteger.valueOf(userId);
+//		UiAsset uiAsset = userInfoAssetsRepository.findByUserId(userId);
+//		UserInfoAssectsBriefDTO asset = new UserInfoAssectsBriefDTO();
+//		if (uiAsset != null) {
+//			BeanUtils.copyProperties(uiAsset, asset);
+//		}
+//		return asset;
+//	}
 
 	@Override
 	public List<BankCardDTO> getUserInfoBankCards(Long userId) throws IllegalAccessException, InstantiationException {
@@ -199,12 +186,21 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		return bankcardDtoList;
 	}
 
-	@Override
-	public List<UserPortfolioDTO> getUserPortfolios(Long userId) throws IllegalAccessException, InstantiationException {
-		List<UiPortfolio> uiPortfolioList = userPortfolioRepository.findAllByUserId(userId);
-		List<UserPortfolioDTO> bankcardDtoList = MyBeanUtils.convertList(uiPortfolioList, UserPortfolioDTO.class);
-		return bankcardDtoList;
-	}
+  @Override
+  public List<BankCardDTO> getUserInfoBankCards(Long userId, String cardNumber)
+      throws IllegalAccessException, InstantiationException {
+    List<UiBankcard> bankcardList = userInfoBankCardsRepository.findAllByUserIdAndStatusIsAndCardNumberIs
+        (userId, BankCardStatusEnum.VALID.getStatus(), cardNumber);
+    List<BankCardDTO> bankcardDtoList = MyBeanUtils.convertList(bankcardList, BankCardDTO.class);
+    return bankcardDtoList;
+  }
+
+//  @Override
+//	public List<UserPortfolioDTO> getUserPortfolios(Long userId) throws IllegalAccessException, InstantiationException {
+//		List<UiPortfolio> uiPortfolioList = userPortfolioRepository.findAllByUserId(userId);
+//		List<UserPortfolioDTO> bankcardDtoList = MyBeanUtils.convertList(uiPortfolioList, UserPortfolioDTO.class);
+//		return bankcardDtoList;
+//	}
 
 	@Override
 	public BankCardDTO getUserInfoBankCard(String cardNumber) {
@@ -219,25 +215,47 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 
 	@Override
 	public BankCardDTO addUserBankcard(UiBankcard uiBankcard) throws Exception {
-
-		List<UiBankcard> uiBankcards = userInfoBankCardsRepository.findAllByUserIdAndCardNumber
-				(uiBankcard.getUserId(), uiBankcard.getCardNumber());
-		if(!CollectionUtils.isEmpty(uiBankcards)){
-			logger.info("update bankcard status to 1 for userId:" + uiBankcard.getUserId() + " and "
-					+ "bankCardNumber:" + uiBankcard.getCardNumber());
-			if(uiBankcards.size() > 1){
-				logger.error("there is more than 1 same cardNumber for for userId:" + uiBankcard.getUserId
-						() + " and bankCardNumber:" + uiBankcard.getCardNumber());
-				throw new Exception("duplicated card number for :" + uiBankcard.getCardNumber());
+		List<UiBankcard> uiBankcardsWithCardNum = userInfoBankCardsRepository.findAllByCardNumber
+				(uiBankcard.getCardNumber());
+		if(!CollectionUtils.isEmpty(uiBankcardsWithCardNum) && uiBankcardsWithCardNum.get(0)
+				.getUserId() != uiBankcard.getUserId()){
+			logger.warn("the bankcard:{} origin is with userId{} and status is:{} now intend to bind it"
+					+ " with userId{}", uiBankcard.getCardNumber(), uiBankcardsWithCardNum.get(0).getUserId
+					(), uiBankcardsWithCardNum.get(0).getStatus(), uiBankcard.getUserId()
+			);
+			if(uiBankcardsWithCardNum.get(0).getStatus() != BankCardStatusEnum.INVALID.getStatus()){
+				throw new Exception(String.format("the bankcard:%s origin is with userId:%s and "
+								+ "cellphone:%s and status is:%s now intend to bind it with userId:%s",uiBankcard
+								.getCardNumber(), uiBankcardsWithCardNum.get(0).getUserId(),
+            uiBankcardsWithCardNum.get(0).getCellphone(),
+						uiBankcardsWithCardNum.get(0).getStatus(), uiBankcard.getUserId()));
 			}else{
-				uiBankcards.get(0).setStatus(1);
-				uiBankcards.get(0).setUserPid(uiBankcard.getUserPid());
-				uiBankcards.get(0).setCellphone(uiBankcard.getCellphone());
-				userInfoBankCardsRepository.save(uiBankcards.get(0));
+				uiBankcardsWithCardNum.get(0).setStatus(BankCardStatusEnum.VALID.getStatus());
+				uiBankcardsWithCardNum.get(0).setUserId(uiBankcard.getUserId());
+				uiBankcardsWithCardNum.get(0).setCellphone(uiBankcard.getCellphone());
+				userInfoBankCardsRepository.save(uiBankcardsWithCardNum.get(0));
 			}
 		}else{
-			userInfoBankCardsRepository.save(uiBankcard);
+			List<UiBankcard> uiBankcards = userInfoBankCardsRepository.findAllByUserIdAndCardNumber
+					(uiBankcard.getUserId(), uiBankcard.getCardNumber());
+			if(!CollectionUtils.isEmpty(uiBankcards)){
+				logger.info("update bankcard status to 1 for userId:" + uiBankcard.getUserId() + " and "
+						+ "bankCardNumber:" + uiBankcard.getCardNumber());
+				if(uiBankcards.size() > 1){
+					logger.error("there is more than 1 same cardNumber for for userId:" + uiBankcard.getUserId
+							() + " and bankCardNumber:" + uiBankcard.getCardNumber());
+					throw new Exception("duplicated card number for :" + uiBankcard.getCardNumber());
+				}else{
+					uiBankcards.get(0).setStatus(1);
+					uiBankcards.get(0).setUserPid(uiBankcard.getUserPid());
+					uiBankcards.get(0).setCellphone(uiBankcard.getCellphone());
+					userInfoBankCardsRepository.save(uiBankcards.get(0));
+				}
+			}else{
+				userInfoBankCardsRepository.save(uiBankcard);
+			}
 		}
+
 		BankCardDTO bankcard = new BankCardDTO();
 		BeanUtils.copyProperties(uiBankcard, bankcard);
 		return bankcard;
@@ -384,27 +402,27 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		return personMsg;
 	}
 
-	@Override
-	public Page<UiTrdLog> findTradeLogDtoByUserId(Pageable pageable, Long userId) {
-		Page<UiTrdLog> uiTrdLogPage = userTradeLogRepository.findByUserId(pageable, userId);
-		return uiTrdLogPage;
-	}
+//	@Override
+//	public Page<UiTrdLog> findTradeLogDtoByUserId(Pageable pageable, Long userId) {
+//		Page<UiTrdLog> uiTrdLogPage = userTradeLogRepository.findByUserId(pageable, userId);
+//		return uiTrdLogPage;
+//	}
 
-	@Override
-	public List<TradeLogDTO> findTradeLogDtoByUserId(Long userId) throws IllegalAccessException, InstantiationException {
-		List<UiTrdLog> uiTrdLogList = userTradeLogRepository.findByUserId(userId);
-		List<TradeLogDTO> trdLogsDtoList = MyBeanUtils.convertList(uiTrdLogList, TradeLogDTO.class);
-		return trdLogsDtoList;
-	}
+//	@Override
+//	public List<TradeLogDTO> findTradeLogDtoByUserId(Long userId) throws IllegalAccessException, InstantiationException {
+//		List<UiTrdLog> uiTrdLogList = userTradeLogRepository.findByUserId(userId);
+//		List<TradeLogDTO> trdLogsDtoList = MyBeanUtils.convertList(uiTrdLogList, TradeLogDTO.class);
+//		return trdLogsDtoList;
+//	}
 
-	@Override
-	public Iterable<TradeLogDTO> addUiTrdLog(List<UiTrdLog> trdLogs)
-			throws IllegalAccessException, InstantiationException {
-		userTradeLogRepository.saveAll(trdLogs);
-		// FIXME
-		List<TradeLogDTO> trdLogsDtoList = MyBeanUtils.convertList(trdLogs, TradeLogDTO.class);
-		return trdLogsDtoList;
-	}
+//	@Override
+//	public Iterable<TradeLogDTO> addUiTrdLog(List<UiTrdLog> trdLogs)
+//			throws IllegalAccessException, InstantiationException {
+//		userTradeLogRepository.saveAll(trdLogs);
+//		// FIXME
+//		List<TradeLogDTO> trdLogsDtoList = MyBeanUtils.convertList(trdLogs, TradeLogDTO.class);
+//		return trdLogsDtoList;
+//	}
 
 	@Override
 	public List<UserInfoFriendRuleDTO> getUiFriendRule(Long bankId)
@@ -421,16 +439,16 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		return trdLogsDtoList;
 	}
 
-	@Override
-	public UiCompanyInfo getCompanyInfo(Long id) {
+//	@Override
+//	public UiCompanyInfo getCompanyInfo(Long id) {
+//
+//		return userInfoCompanyInfoRepository.findAll().get(0);
+//	}
 
-		return userInfoCompanyInfoRepository.findAll().get(0);
-	}
-
-	@Override
-	public UiCompanyInfo addCompanyInfo(UiCompanyInfo uiCompanyInfo) {
-		return userInfoCompanyInfoRepository.save(uiCompanyInfo);
-	}
+//	@Override
+//	public UiCompanyInfo addCompanyInfo(UiCompanyInfo uiCompanyInfo) {
+//		return userInfoCompanyInfoRepository.save(uiCompanyInfo);
+//	}
 
 	@Override
 	public void getUserId(UserIdQuery userIdQuery, StreamObserver<UserId> responseObserver) {
@@ -1130,5 +1148,13 @@ public class UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoService
 		responseObserver.onCompleted();
 
 	}
+
+  @Override
+  public Page<UiUser> secectUsers(Pageable pageable) throws InstantiationException, IllegalAccessException {
+    
+    Page<UiUser> users = userInfoRepository.findAll(pageable);
+    
+    return users;
+  }
 }
 

@@ -1,15 +1,13 @@
 package com.shellshellfish.aaas.finance.trade.pay.model.dao.mysql;
-
+import java.util.Objects;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Created by chenwei on 2018- 一月 - 29
+ * Created by chenwei on 2018- 五月 - 18
  */
 
 @Entity
@@ -28,6 +26,8 @@ public class TrdPayFlow {
   private int trdStatus;
   private long trdConfirmDate;
   private int trdType;
+  private String trdApplyDate;
+  private long trdAplydateUv;
   private long trdApplySum;
   private long trdApplyShare;
   private Long tradeTargetSum;
@@ -48,7 +48,6 @@ public class TrdPayFlow {
 
   @Id
   @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
   public long getId() {
     return id;
   }
@@ -79,7 +78,7 @@ public class TrdPayFlow {
 
   @Basic
   @Column(name = "trade_broke_id")
-  public Long getTradeBrokeId() {
+  public long getTradeBrokeId() {
     return tradeBrokeId;
   }
 
@@ -165,6 +164,26 @@ public class TrdPayFlow {
 
   public void setTrdType(int trdType) {
     this.trdType = trdType;
+  }
+
+  @Basic
+  @Column(name = "trd_apply_date")
+  public String getTrdApplyDate() {
+    return trdApplyDate;
+  }
+
+  public void setTrdApplyDate(String trdApplyDate) {
+    this.trdApplyDate = trdApplyDate;
+  }
+
+  @Basic
+  @Column(name = "trd_aplydate_uv")
+  public long getTrdAplydateUv() {
+    return trdAplydateUv;
+  }
+
+  public void setTrdAplydateUv(long trdAplydateUv) {
+    this.trdAplydateUv = trdAplydateUv;
   }
 
   @Basic
@@ -345,135 +364,49 @@ public class TrdPayFlow {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
     TrdPayFlow that = (TrdPayFlow) o;
-
-    if (id != that.id) {
-      return false;
-    }
-    if (orderDetailId != that.orderDetailId) {
-      return false;
-    }
-    if (tradeBrokeId != that.tradeBrokeId) {
-      return false;
-    }
-    if (userProdId != that.userProdId) {
-      return false;
-    }
-    if (trdStatus != that.trdStatus) {
-      return false;
-    }
-    if (trdConfirmDate != that.trdConfirmDate) {
-      return false;
-    }
-    if (trdType != that.trdType) {
-      return false;
-    }
-    if (trdApplySum != that.trdApplySum) {
-      return false;
-    }
-    if (trdApplyShare != that.trdApplyShare) {
-      return false;
-    }
-    if (tradeTargetShare != that.tradeTargetShare) {
-      return false;
-    }
-    if (tradeConfirmShare != that.tradeConfirmShare) {
-      return false;
-    }
-    if (tradeConfirmSum != that.tradeConfirmSum) {
-      return false;
-    }
-    if (buyFee != that.buyFee) {
-      return false;
-    }
-    if (buyDiscount != that.buyDiscount) {
-      return false;
-    }
-    if (userId != that.userId) {
-      return false;
-    }
-    if (createBy != that.createBy) {
-      return false;
-    }
-    if (createDate != that.createDate) {
-      return false;
-    }
-    if (updateBy != that.updateBy) {
-      return false;
-    }
-    if (updateDate != that.updateDate) {
-      return false;
-    }
-    if (tradeAcco != null ? !tradeAcco.equals(that.tradeAcco) : that.tradeAcco != null) {
-      return false;
-    }
-    if (applySerial != null ? !applySerial.equals(that.applySerial) : that.applySerial != null) {
-      return false;
-    }
-    if (outsideOrderno != null ? !outsideOrderno.equals(that.outsideOrderno)
-        : that.outsideOrderno != null) {
-      return false;
-    }
-    if (bankCardNum != null ? !bankCardNum.equals(that.bankCardNum) : that.bankCardNum != null) {
-      return false;
-    }
-    if (fundCode != null ? !fundCode.equals(that.fundCode) : that.fundCode != null) {
-      return false;
-    }
-    if (tradeTargetSum != null ? !tradeTargetSum.equals(that.tradeTargetSum)
-        : that.tradeTargetSum != null) {
-      return false;
-    }
-    if (errMsg != null ? !errMsg.equals(that.errMsg) : that.errMsg != null) {
-      return false;
-    }
-    if (errCode != null ? !errCode.equals(that.errCode) : that.errCode != null) {
-      return false;
-    }
-    if (trdbkerStatusCode != null ? !trdbkerStatusCode.equals(that.trdbkerStatusCode)
-        : that.trdbkerStatusCode != null) {
-      return false;
-    }
-    if (trdbkerStatusName != null ? !trdbkerStatusName.equals(that.trdbkerStatusName)
-        : that.trdbkerStatusName != null) {
-      return false;
-    }
-
-    return true;
+    return id == that.id &&
+        orderDetailId == that.orderDetailId &&
+        tradeBrokeId == that.tradeBrokeId &&
+        userProdId == that.userProdId &&
+        trdStatus == that.trdStatus &&
+        trdConfirmDate == that.trdConfirmDate &&
+        trdType == that.trdType &&
+        trdAplydateUv == that.trdAplydateUv &&
+        trdApplySum == that.trdApplySum &&
+        trdApplyShare == that.trdApplyShare &&
+        tradeTargetShare == that.tradeTargetShare &&
+        tradeConfirmShare == that.tradeConfirmShare &&
+        tradeConfirmSum == that.tradeConfirmSum &&
+        buyFee == that.buyFee &&
+        buyDiscount == that.buyDiscount &&
+        userId == that.userId &&
+        createBy == that.createBy &&
+        createDate == that.createDate &&
+        updateBy == that.updateBy &&
+        updateDate == that.updateDate &&
+        Objects.equals(tradeAcco, that.tradeAcco) &&
+        Objects.equals(applySerial, that.applySerial) &&
+        Objects.equals(outsideOrderno, that.outsideOrderno) &&
+        Objects.equals(bankCardNum, that.bankCardNum) &&
+        Objects.equals(fundCode, that.fundCode) &&
+        Objects.equals(trdApplyDate, that.trdApplyDate) &&
+        Objects.equals(tradeTargetSum, that.tradeTargetSum) &&
+        Objects.equals(errMsg, that.errMsg) &&
+        Objects.equals(errCode, that.errCode) &&
+        Objects.equals(trdbkerStatusCode, that.trdbkerStatusCode) &&
+        Objects.equals(trdbkerStatusName, that.trdbkerStatusName);
   }
 
   @Override
   public int hashCode() {
-    int result = (int) (id ^ (id >>> 32));
-    result = 31 * result + (int) (orderDetailId ^ (orderDetailId >>> 32));
-    result = 31 * result + (tradeAcco != null ? tradeAcco.hashCode() : 0);
-    result = 31 * result + (int) (tradeBrokeId ^ (tradeBrokeId >>> 32));
-    result = 31 * result + (applySerial != null ? applySerial.hashCode() : 0);
-    result = 31 * result + (outsideOrderno != null ? outsideOrderno.hashCode() : 0);
-    result = 31 * result + (bankCardNum != null ? bankCardNum.hashCode() : 0);
-    result = 31 * result + (int) (userProdId ^ (userProdId >>> 32));
-    result = 31 * result + (fundCode != null ? fundCode.hashCode() : 0);
-    result = 31 * result + trdStatus;
-    result = 31 * result + (int) (trdConfirmDate ^ (trdConfirmDate >>> 32));
-    result = 31 * result + trdType;
-    result = 31 * result + (int) (trdApplySum ^ (trdApplySum >>> 32));
-    result = 31 * result + (int) (trdApplyShare ^ (trdApplyShare >>> 32));
-    result = 31 * result + (tradeTargetSum != null ? tradeTargetSum.hashCode() : 0);
-    result = 31 * result + (int) (tradeTargetShare ^ (tradeTargetShare >>> 32));
-    result = 31 * result + (int) (tradeConfirmShare ^ (tradeConfirmShare >>> 32));
-    result = 31 * result + (int) (tradeConfirmSum ^ (tradeConfirmSum >>> 32));
-    result = 31 * result + (int) (buyFee ^ (buyFee >>> 32));
-    result = 31 * result + (int) (buyDiscount ^ (buyDiscount >>> 32));
-    result = 31 * result + (int) (userId ^ (userId >>> 32));
-    result = 31 * result + (int) (createBy ^ (createBy >>> 32));
-    result = 31 * result + (int) (createDate ^ (createDate >>> 32));
-    result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
-    result = 31 * result + (int) (updateDate ^ (updateDate >>> 32));
-    result = 31 * result + (errMsg != null ? errMsg.hashCode() : 0);
-    result = 31 * result + (errCode != null ? errCode.hashCode() : 0);
-    result = 31 * result + (trdbkerStatusCode != null ? trdbkerStatusCode.hashCode() : 0);
-    result = 31 * result + (trdbkerStatusName != null ? trdbkerStatusName.hashCode() : 0);
-    return result;
+
+    return Objects
+        .hash(id, orderDetailId, tradeAcco, tradeBrokeId, applySerial, outsideOrderno, bankCardNum,
+            userProdId, fundCode, trdStatus, trdConfirmDate, trdType, trdApplyDate, trdAplydateUv,
+            trdApplySum, trdApplyShare, tradeTargetSum, tradeTargetShare, tradeConfirmShare,
+            tradeConfirmSum, buyFee, buyDiscount, userId, createBy, createDate, updateBy,
+            updateDate,
+            errMsg, errCode, trdbkerStatusCode, trdbkerStatusName);
   }
 }

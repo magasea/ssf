@@ -33,7 +33,7 @@ public class OrderServiceImpl implements OrderService {
     GetPIDReq.Builder gpidrBuilder = GetPIDReq.newBuilder();
     gpidrBuilder.setTrdAcco(trdPayFlow.getTradeAcco());
     gpidrBuilder.setUserId(trdPayFlow.getUserId());
-    gpidrBuilder.setTrdBrokerId(trdPayFlow.getTradeBrokeId().intValue());
+    gpidrBuilder.setTrdBrokerId(Math.toIntExact(trdPayFlow.getTradeBrokeId()));
     UserPID userPID = orderRpcServiceFutureStub.getPidFromTrdAccoBrokerId(gpidrBuilder.build()).get();
     return  userPID.getUserPid();
   }

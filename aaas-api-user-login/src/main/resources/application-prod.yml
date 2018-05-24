@@ -8,7 +8,7 @@ spring:
     hibernate:
       ddl-auto: update
 datasource:
-  sampleapp:
+  aaasapp:
     url: jdbc:mysql://localhost:3306/ssflogin?useUnicode=true&characterEncoding=utf-8
     username: sa
     password: N4eTVr89lX9BaPcx

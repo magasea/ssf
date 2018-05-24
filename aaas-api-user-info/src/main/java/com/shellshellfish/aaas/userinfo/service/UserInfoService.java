@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.userinfo.service;
 
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
@@ -25,11 +26,13 @@ public interface UserInfoService {
 
 	UserBaseInfoDTO getUserInfoBase(String userUuid) throws Exception;
 
-	UserInfoAssectsBriefDTO getUserInfoAssectsBrief(String userUuid) throws Exception;
+//	UserInfoAssectsBriefDTO getUserInfoAssectsBrief(String userUuid) throws Exception;
 
 	List<BankCardDTO> getUserInfoBankCards(String userUuid);
 
-	List<UserPortfolioDTO> getUserPortfolios(String userUuid) throws Exception;
+	List<BankCardDTO> getUserInfoBankCards(String userUuid, String cardNumber);
+
+//	List<UserPortfolioDTO> getUserPortfolios(String userUuid) throws Exception;
 
 	BankCardDTO getUserInfoBankCard(String cardNumber);
 
@@ -48,14 +51,14 @@ public interface UserInfoService {
 	Boolean updateUserPersonMsg(String msgId, String userUuid,
 			Boolean readedStatus) throws Exception;
 
-	Page<TradeLogDTO> findByUserId(String userUuid, Pageable pageable) throws Exception;
+//	Page<TradeLogDTO> findByUserId(String userUuid, Pageable pageable) throws Exception;
 
-	List<TradeLogDTO> findByUserId(String uuid) throws Exception;
+//	List<TradeLogDTO> findByUserId(String uuid) throws Exception;
 
 	List<UserInfoFriendRuleDTO> getUserInfoFriendRules(Long bankId)
 			throws InstantiationException, IllegalAccessException;
 
-	UserInfoCompanyInfoDTO getCompanyInfo(String userUuid, Long bankId);
+//	UserInfoCompanyInfoDTO getCompanyInfo(String userUuid, Long bankId);
 
 	Boolean deleteBankCard(String userUuid, String bankcardId);
 
@@ -104,5 +107,7 @@ public interface UserInfoService {
 			ProductsDTO products);
 
     Map<String, Object> getTradLogsOfUser2(String userUuid, Integer pageSize, Integer pageIndex, Integer type);
+
+    Map<String, Object> selectUserFindAll(Pageable pageable) throws InstantiationException, IllegalAccessException;
 
 }

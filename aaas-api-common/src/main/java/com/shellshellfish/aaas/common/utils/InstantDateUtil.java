@@ -30,7 +30,8 @@ public class InstantDateUtil {
             "2018-09-24",
             "2018-10-01", "2018-10-02", "2018-10-03", "2018-10-04", "2018-10-05"};
     private static final String weekend[] = {};
-    private static final String DEFAULT_DATE_FORMAT_PATTERN = "yyyy-MM-dd";
+    public static final String DEFAULT_DATE_FORMAT_PATTERN = "yyyy-MM-dd";
+    public static final String yyyyMMdd = "yyyyMMdd";
 
 
     /**
@@ -103,6 +104,15 @@ public class InstantDateUtil {
      */
     public static String format(LocalDate date) {
         return DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT_PATTERN).format(date);
+    }
+
+    public static Long getEpochMillsOfZero(String date) {
+        LocalDate localDate = format(date);
+        return getEpochMillsOfZero(localDate);
+    }
+
+    public static Long getEpochMillsOfZero(LocalDate date) {
+        return getEpochSecondOfZero(date) * 1000;
     }
 
 

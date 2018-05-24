@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -137,10 +138,13 @@ public class RpcOrderServiceImpl implements RpcOrderService {
 			}
 		});
 
-		BankCardDTO bankIsExist = userInfoService.getUserInfoBankCard(bankcardDetailVo.getCardNumber());
-		if (bankIsExist != null && bankIsExist.getCardNumber() != null) {
+		List<BankCardDTO> bankCardDTOS = userInfoService.getUserInfoBankCards(bankcardDetailVo
+						.getUserUuid()
+				, bankcardDetailVo.getCardNumber());
+		if (!CollectionUtils.isEmpty(bankCardDTOS)) {
 			logger.error("银行卡号已经存在，请重新输入");
-			throw new UserInfoException("404", "银行卡号已经存在，请重新输入");
+			throw new Exception(String.format("userId:%s with card:%s already exists!",
+          bankcardDetailVo.getUserId(), bankcardDetailVo.getCardNumber()));
 		}
 
 		/*中正开户，正常开户（银行卡相关信息正确）之后才能才能保存银行卡信息*/
@@ -158,8 +162,8 @@ public class RpcOrderServiceImpl implements RpcOrderService {
 		try {
 			bankCard = userInfoService.createBankcard(params);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			bankCard = null;
+			logger.error("err:", e);
+			throw e;
 		}
 		return bankCard;
 	}

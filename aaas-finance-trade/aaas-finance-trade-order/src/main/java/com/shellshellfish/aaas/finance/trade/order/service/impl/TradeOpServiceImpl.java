@@ -507,7 +507,7 @@ public class TradeOpServiceImpl implements TradeOpService {
             logger.info("preOrderFundNumber : " + preOrderFundShares);
             PayPreOrderDto payPreOrderDto = new PayPreOrderDto();
             payPreOrderDto.setOriginFundCode(trdPayFlow.getFundCode());
-            payPreOrderDto.setTrdBrokerId(trdPayFlow.getTradeBrokeId().intValue());
+            payPreOrderDto.setTrdBrokerId(Math.toIntExact(trdPayFlow.getTradeBrokeId()));
             payPreOrderDto.setTrdAccount(trdPayFlow.getTradeAcco());
             payPreOrderDto.setUserProdId(trdPayFlow.getUserProdId());
             payPreOrderDto.setUserPid(userInfoService.getUserBankInfo(trdOrder.getUserId()).getUserPid());
@@ -730,17 +730,20 @@ public class TradeOpServiceImpl implements TradeOpService {
             detailMap = new HashMap<>();
             TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
             int detailStatus = trdOrderDetail.getOrderDetailStatus();
+            String msg = ""; 
             if (TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus
                     || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus) {
                 status = CombinedStatusEnum.CONFIRMED.getComment();
             } else if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
                     || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
                 status = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
+                msg = "支付失败，余额不足";
             } else {
                 if(trdOrderDetail.getFundMoneyQuantity() > 0) {
                   status = CombinedStatusEnum.WAITCONFIRM.getComment();
                 }
             }
+            detailMap.put("fundMsg", msg);
             detailMap.put("fundstatus", status);
             statusMap.put(status, status);
 
@@ -772,14 +775,22 @@ public class TradeOpServiceImpl implements TradeOpService {
       detailMap.put("targetSellPercent", trdOrder.getSellPercent());
 
             //FIXME  交易日判断逻辑使用asset allocation 中的TradeUtils
-            //QDII 基金　15个交易确认　其他　１个交易日确认
-            String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDII.isQDII(trdOrderDetail
+            //QDIIEnum 基金　15个交易确认　其他　１个交易日确认
+            String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDIIEnum.isQDII(trdOrderDetail
                     .getFundCode()) ? 15 : 1);
             String dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(date).getDayOfWeek()).toString();
 
             detailMap.put("funddate", date);
             if (status.equals(CombinedStatusEnum.WAITCONFIRM.getComment())) {
-                detailMap.put("fundTitle", "将于" + date + "(" + dayOfWeek + ")确认");
+                detailMap.put("fundTitle", "预计" + date + "(" + dayOfWeek + ")确认");
+            } else if (status.equals(CombinedStatusEnum.CONFIRMEDFAILED.getComment())) {
+              LocalDateTime localDateTime = LocalDateTime
+                  .ofInstant(Instant.ofEpochMilli(instanceLong), ZoneId.systemDefault());
+              LocalDate localDate = localDateTime.toLocalDate();
+              date = InstantDateUtil.format(localDate);
+              dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(instanceLong).getDayOfWeek()).toString();
+              detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
+              detailMap.put("funddate", date);
             } else {
                 detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
             }
@@ -928,14 +939,16 @@ public class TradeOpServiceImpl implements TradeOpService {
             detailMap.put("fundSum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
       totalSum = totalSum + fundSum;
             //FIXME  交易日判断逻辑使用asset allocation 中的TradeUtils
-            //QDII 基金　15个交易确认　其他　１个交易日确认
-            String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDII.isQDII(trdOrderDetail
+            //QDIIEnum 基金　15个交易确认　其他　１个交易日确认
+            String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDIIEnum.isQDII(trdOrderDetail
                     .getFundCode()) ? 15 : 1);
             String dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(date).getDayOfWeek()).toString();
 
             detailMap.put("funddate", date);
+            
+            String msg = "";
             if (status.equals(CombinedStatusEnum.WAITCONFIRM.getComment())) {
-                detailMap.put("fundTitle", "将于" + date + "(" + dayOfWeek + ")确认");
+                detailMap.put("fundTitle", "预计" + date + "(" + dayOfWeek + ")确认");
             }else if (status.equals(CombinedStatusEnum.CONFIRMEDFAILED.getComment())) {
               LocalDateTime localDateTime = LocalDateTime
                   .ofInstant(Instant.ofEpochMilli(instanceLong), ZoneId.systemDefault());
@@ -943,9 +956,13 @@ public class TradeOpServiceImpl implements TradeOpService {
               date = InstantDateUtil.format(localDate);
               dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(instanceLong).getDayOfWeek()).toString();
               detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
+              detailMap.put("funddate", date);
+              msg = "剩余份额低于最低赎回份额，赎回失败";
             } else {
                 detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
             }
+            detailMap.put("fundMsg", msg);
+            
             detailMap.put("fundTradeType", TrdOrderOpTypeEnum.getComment(trdOrderDetail.getTradeType()));
             detailList.add(detailMap);
 

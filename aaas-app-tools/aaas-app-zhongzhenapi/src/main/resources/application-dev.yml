@@ -12,7 +12,7 @@ logging:
 spring:
   data:
     mongodb:
-      database: ssfui
+      database: ssfzzapi
       host: 192.168.1.10
       port: 27017
       zhongzheng: "zhongzheng"

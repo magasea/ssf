@@ -42,7 +42,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 交易用
  *
- * @author developer4
+ * @author chenwei
  */
 @RestController
 @RequestMapping("/phoneapi-ssf")
@@ -585,12 +585,17 @@ public class TransferController {
 		try {
 			BigDecimal amount = new BigDecimal(totalAmount);
 			result = service.sellFundPage(groupId, subGroupId, amount + "", Integer.parseInt(oemid));
-			amount = amount.multiply(persent).divide(new BigDecimal("100")).subtract(new BigDecimal(result.get("poundage") + ""));
+			if(persent.equals(BigDecimal.ZERO)){
+				result.put("totalAmount", "--");
+			} else {
+				amount = amount.multiply(persent).divide(new BigDecimal("100")).subtract(new BigDecimal(result.get("poundage") + ""));
+				result.put("totalAmount", amount);
+			}
 			if (result != null) {
 				result.put("userUuid", userUuid);
 				result.put("bankNum", bankNum);
 				result.put("bankName", bankName);
-				result.put("totalAmount", amount);
+//				result.put("totalAmount", amount);
 				result.put("combinationName", combinationName);
 				result.put("sellTargetPercent", persent);
 				result.put("prodId", prodId);

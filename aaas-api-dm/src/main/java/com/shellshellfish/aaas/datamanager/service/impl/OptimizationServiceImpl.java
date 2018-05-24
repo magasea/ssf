@@ -535,10 +535,14 @@ public class OptimizationServiceImpl implements OptimizationService {
 //        if(mongoFinanceList==null || mongoFinanceList.size() == 0){
 //          return null;
 //        }
-        Criteria criteria = new Criteria();
-        criteria.where("date").is(date);
-        criteria.where("oemid").is(oemid);
-        Query query = Query.query(criteria);
+//        Criteria criteria = new Criteria();
+//        criteria.where("date").is(date);
+//        criteria.where("oemid").is(oemid);
+//        Query query = Query.query(criteria);
+        
+        Query query = new Query();
+        query.addCriteria(Criteria.where("date").is(date))
+                .addCriteria(Criteria.where("oemid").is(oemid));
         long count = mongoTemplate.count(query, MongoFinanceAll.class);
         if (count == 0) {
             logger.warn("今日暂无组合列表数据，正在重新更新数据中...");
@@ -1146,10 +1150,10 @@ public class OptimizationServiceImpl implements OptimizationService {
             return null;
         }
         //判断结果是否有数据
-        if ((int) result.get("_total") == 0) {
-            logger.error("查询净值增长数据结果为0", "数据获取失败");
-            return null;
-        }
+//        if ((int) result.get("_total") == 0) {
+//            logger.error("查询净值增长数据结果为0", "数据获取失败");
+//            return null;
+//        }
         //转成list
         List prdList = null;
         try {
@@ -1329,10 +1333,15 @@ public class OptimizationServiceImpl implements OptimizationService {
         Long utcTime = TradeUtil.getUTCTime();
         String dateTime = TradeUtil.getReadableDateTime(utcTime);
         String date = dateTime.split("T")[0].replaceAll("-", "");
-        Criteria criteria = new Criteria();
-        criteria.where("date").is(date);
-        criteria.where("oemId").is(oemId);
-        Query query = Query.query(criteria);
+        
+//        Criteria criteria = new Criteria();
+//        criteria.where("date").is(date);
+//        criteria.where("oemId").is(oemId);
+//        Query query = Query.query(criteria);
+        
+        Query query = new Query();
+        query.addCriteria(Criteria.where("date").is(date))
+                .addCriteria(Criteria.where("oemid").is(oemId));
         long count = mongoTemplate.count(query, MongoFinanceDetail.class);
         if (count == 0) {
             logger.warn("今日暂无组合详情数据，正在重新更新数据中...");

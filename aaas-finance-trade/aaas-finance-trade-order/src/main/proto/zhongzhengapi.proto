@@ -8,6 +8,7 @@ option objc_class_prefix = "ZZASR";
 service ZZApiService {
     rpc getSupportBankList (EmptyQuery) returns (BankZhongZhengInfoList) {
     }
+    rpc getAplyResults(AplyRltQuery) returns (ZZApplyResults){}
 }
 
 
@@ -23,6 +24,90 @@ message BankZhongZhengInfo{
      string moneyLimitDay = 5;
 }
 
+message AplyRltQuery{
+  string trdAcco = 1;
+  string pid = 2;
+  string outsideOrderNo = 3;
+  string applySerial = 4;
+}
+
+message ZZApplyResults{
+  repeated ZZApplyResult applyResult = 1;
+}
+
+message ZZApplyResult{
+  string accepTtime = 1;
+  string applyDate = 2;
+  string applySerial = 3;
+  string applyShare = 4;
+  string applySum = 5;
+  string applyTime = 6;
+  string bankAcco = 7;
+  string bankName = 8;
+  string bankSerial = 9;
+  string businFlagStr = 10;
+  string callingCode = 11;
+  string capitalMode = 12;
+  string commisionDiscount = 13;
+  string confirmFlag = 14;
+  string confirmstat = 15;
+  string freezeMethod = 16;
+  string fundAcco = 17;
+  string fundName = 18;
+  string kkStat = 19;
+  string melonMethod = 20;
+  string occurBankAcco = 21;
+  string oriApplyDate = 22;
+  string originalApplySerial = 23;
+  string outsideOrderNo = 24;
+  string riskMatch = 25;
+  string shareType = 26;
+  string tradeAcco = 27;
+  string tradeConfirmShare = 28;
+  string tradeConfirmSum = 29;
+  string xyh = 30;
+}
+
+message ZZConfirmResult{
+     string tradeAcco = 1;
+     string fundAcco = 2;
+     string fundCode = 3;
+     string fundName = 4;
+     string callingCode = 5;
+     string branchNo = 6;
+     string applySerial = 7;
+     string shareType = 8;
+     string applyDate = 9;
+     string applyTime = 10;
+     string applyShare = 11;
+     string applySum = 12;
+     string balanceCoin = 13;
+     string targetFundCode = 14;
+     string targetFundName = 15;
+     string targetShareType = 16;
+     string oppFundCode = 17;
+     string oppSaler = 18;
+     string oppTrusteeBranch = 19;
+     string melonMethod = 20;
+     string freezeMethod = 21;
+     string originalApplySerial = 22;
+     string confirmFlag = 23;
+     string capitalMode = 24;
+     string comeFrom = 25;
+     string bankAcco = 26;
+     string bankName = 27;
+     string businFlagStr = 28;
+     string taConfirmSerial = 29;
+     string confirmDate = 30;
+     string tradeConfirmShare = 31;
+     string tradeConfirmSum = 32;
+     string netValue = 33;
+     string returnCode = 34;
+     string errorParticular = 35;
+     string occurBankAcco = 36;
+     string outsideOrderNo = 37;
+     string xyh = 38;
+}
 
 message EmptyQuery {
 }

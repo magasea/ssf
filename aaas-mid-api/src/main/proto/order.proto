@@ -22,6 +22,8 @@ service OrderRpcService {
     }
     rpc getLatestOrderDetail (UserProdId) returns (OrderDetailResult) {
     };
+    rpc getAllOrderDetail (UserProdId) returns (OrderDetailResult) {
+    };
 }
 
 //获取交易用户PID

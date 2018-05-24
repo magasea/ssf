@@ -1,6 +1,6 @@
 package com.shellshellfish.aaas.transfer.service.impl;
 
-import com.shellshellfish.aaas.common.enums.QDII;
+import com.shellshellfish.aaas.common.enums.QDIIEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
@@ -107,15 +107,15 @@ public class FundGroupServiceImpl implements FundGroupService {
                 totalFundSum += orderDetail.getFundSum();
             }
 
-            if (!containQDII && QDII.isQDII(orderDetail.getFundCode()))
+            if (!containQDII && QDIIEnum.isQDII(orderDetail.getFundCode()))
                 containQDII = true;
         }
         Long totals = tradeType.equalsIgnoreCase(TrdOrderOpTypeEnum.REDEEM.getComment()) ? totalFundNum : totalFundSum;
         if (count <= 0 || totals <= 0) {
             result.put("title", EMPTY_STRING);
         } else {
-            //组合中包含QDII 确认日期为T+15 否则为T+2
-            String date = InstantDateUtil.getTplusNDayNWeekendOfWork(createDate, containQDII ? 15 : 2);
+            //组合中包含QDII 确认日期为T+15 否则为T+1
+            String date = InstantDateUtil.getTplusNDayNWeekendOfWork(createDate, containQDII ? 15 : 1);
             result.put("title", String.format(MESSAGE_FORMAT, tradeType, TradeUtil.getBigDecimalNumWithDiv100(totals), unitType,
                     date));
         }
