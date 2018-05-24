@@ -102,13 +102,15 @@ public class ZZStatsToOrdStatsUtils {
 
     public static TrdOrderStatusEnum getOrdStatByZZKKStatus(ZZKKStatusEnum zzkkStatusEnum,
         TrdOrderOpTypeEnum trdOrderOpTypeEnum){
-        if(zzkkStatusEnum == ZZKKStatusEnum.KKSUCCESS || zzkkStatusEnum == ZZKKStatusEnum.WAITCONFIRM){
+        if(zzkkStatusEnum == ZZKKStatusEnum.KKSUCCESS ){
           if(trdOrderOpTypeEnum == TrdOrderOpTypeEnum.BUY){
             return TrdOrderStatusEnum.PAYWAITCONFIRM;
           }else if(trdOrderOpTypeEnum == TrdOrderOpTypeEnum.REDEEM){
             return TrdOrderStatusEnum.SELLWAITCONFIRM;
           }
-        }else {
+        }else if(zzkkStatusEnum == ZZKKStatusEnum.WAITCONFIRM){
+          return TrdOrderStatusEnum.WAITPAY;
+        } else {
           return TrdOrderStatusEnum.FAILED;
         }
         throw new IllegalArgumentException("zzkkStatusEnum:" + zzkkStatusEnum.getStatus() +

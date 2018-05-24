@@ -16,7 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 
 @ComponentScan
-@SpringBootApplication(scanBasePackages = {"com.shellshellfish.aaas.assetallocation"})
+@SpringBootApplication(scanBasePackages = {"com.shellshellfish.aaas.assetallocation", "com.shellshellfish.aaas.assetallocation.util"})
 @EnableScheduling
 @EnableAutoConfiguration(exclude = {MongoAutoConfiguration.class})
 @EnableConfigurationProperties({Properties.class})

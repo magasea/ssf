@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.shellshellfish.aaas.grpc";
+option java_outer_classname = "GetAfficientFrontierService";
+option objc_class_prefix = "GAFS";
+
+service GetAfficientFrontierDataService{
+    rpc getAfficientFrontier(GetAfficientFrontierRequest) returns (GetAfficientFrontierResponse);
+}
+
+message GetAfficientFrontierRequest {
+    double name = 1;
+}
+message GetAfficientFrontierResponse {
+//    float value = 1;
+    repeated float floats = 1;//List<float>
+}
