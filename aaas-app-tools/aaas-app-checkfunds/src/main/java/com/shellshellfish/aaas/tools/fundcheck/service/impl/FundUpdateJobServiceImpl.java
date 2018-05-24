@@ -100,6 +100,7 @@ public class FundUpdateJobServiceImpl implements FundUpdateJobService {
     Properties props = yamlFactory.getObject();
     String fundCodes = props.getProperty("fund.code");
     String baseCodes = props.getProperty("base.code");
+    String coinCodes = props.getProperty("coinfund.code");
     logger.info(fundCodes);
     String[] fundCodeArray = fundCodes.split(",");
     String[] baseCodeArray = baseCodes.split(",");
@@ -112,6 +113,9 @@ public class FundUpdateJobServiceImpl implements FundUpdateJobService {
 
     fundGrpcService.checkFunds(Arrays.asList(baseCodeArray), beginDate, endDate, FundTablesIndexEnum
         .FUNDBASECLOSE.getIndex());
+
+    fundGrpcService.checkFunds(Arrays.asList(coinCodes), beginDate, endDate, FundTablesIndexEnum
+        .COINFUND_YIELDRATE.getIndex());
 
   }
 }
