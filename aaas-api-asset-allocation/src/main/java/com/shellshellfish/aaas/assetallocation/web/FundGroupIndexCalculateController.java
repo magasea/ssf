@@ -69,8 +69,8 @@ public class FundGroupIndexCalculateController {
 //            startDate = LocalDate.now(ZoneId.systemDefault());
 
 //        if (TradingDayUtils.isTradingDay(startDate)) {
-            //只计算交易日
-            fundGroupService.calculateGroupNavadj(startDate, oemId);
+        //只计算交易日
+        fundGroupService.calculateGroupNavadj(startDate, oemId);
 //        }
         return HttpStatus.OK;
     }
@@ -85,14 +85,8 @@ public class FundGroupIndexCalculateController {
     public HttpStatus calculateMaxRetracement(@RequestParam(value = "date", required = false)
                                               @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                                               @RequestParam(defaultValue = "1") Integer oemId) {
-//        if (date == null)
-//            date = LocalDate.now(ZoneId.systemDefault());
-
-
-        if (TradingDayUtils.isTradingDay(date)) {
-            //只计算交易日
-            fundGroupService.calculateMaxRetracement(date, oemId);
-        }
+        //只计算交易日
+        fundGroupService.calculateMaxRetracement(date, oemId);
         return HttpStatus.OK;
     }
 

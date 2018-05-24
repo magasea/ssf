@@ -284,6 +284,25 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
   }
 
   @Override
+  public List<ZZFundShareInfo> getFundShare(String pid, String fundCode) throws Exception {
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+      if(!StringUtils.isEmpty(fundCode)){
+        origInfo.put("fundcode", fundCode);
+      }
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+      ZZGeneralRespWithListData<ZZFundShareInfo> resp =  callZZApiWithListData(ZhongZhengAPIConstants
+          .ZZ_API_URL_FUND_SHARE, ZZFundShareInfo.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
+
+  @Override
   public List<ZZFundInfo> getAllFundInfo() throws Exception {
     try {
       TreeMap<String, String> origInfo = new TreeMap<>();
