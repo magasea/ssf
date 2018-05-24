@@ -128,6 +128,16 @@ public interface ZhongZhengApiService {
    */
   public List<ZZFundShareInfo> getFundShare(String pid) throws Exception;
 
+
+  /**
+   *
+   * @param pid
+   * @param fundCode
+   * @return
+   * @throws Exception
+   */
+  public List<ZZFundShareInfo> getFundShare(String pid, String fundCode) throws Exception;
+
   /**
    *
    * @param pid
