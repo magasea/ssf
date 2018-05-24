@@ -519,7 +519,7 @@
         FROM fund_group_sub_${oemId}
         WHERE (fund_group_id &lt;= 15 AND id LIKE "%48")
         OR (fund_group_id &gt; 15)
-        GROUP BY fund_group_id
+        GROUP BY id, fund_group_id
         ORDER BY fund_group_id DESC
     </select>
 
