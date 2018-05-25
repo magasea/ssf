@@ -269,7 +269,18 @@ public class OptimizationServiceImpl implements OptimizationService {
                     // 转换成List
                     prdList = (List<Map<String, Object>>) object;
                     Integer total = prdList.size();
-                    mongoFinanceAll.setTotal(total);
+                    if(prdList != null && prdList.size() > 0){
+                      int i = 0;
+                      for (Map<String, Object> productMap : prdList) {
+                        String status = productMap.get("status") + "";
+                        if("1".equals(status)){
+                          i++;
+                        }
+                      }
+                      mongoFinanceAll.setTotal(i);
+                    } else {
+                      mongoFinanceAll.setTotal(0);
+                    }
                     mongoFinanceALLRepository.save(mongoFinanceAll);
                     try {
                         for (Map<String, Object> productMap : prdList) {
