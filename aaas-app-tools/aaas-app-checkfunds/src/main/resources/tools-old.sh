@@ -1,8 +1,8 @@
 #!/bin/bash
-dm_file=/home/jenkins/services/aaas-api-data-manager.jar
-cher_file=/home/jenkins/services/aaas-app-checkfunds.jar
-aal_file=/home/jenkins/services/aaas-api-asset-allocation-1.0.0.jar
-dcl_file=/home/jenkins/services/aaas-funds-datacollection-server-1.0.0.jar
+dm_file=/home/jenkins/services/old/aaas-api-data-manager*.jar
+cher_file=/home/jenkins/services/old/aaas-app-checkfunds*.jar
+aal_file=/home/jenkins/services/old/aaas-api-asset-allocation*.jar
+dcl_file=/home/jenkins/services/old/aas-funds-datacollection-server*.jar
 
 dm_file_name=$(basename $dm_file)
 cher_file_name=$(basename $cher_file)
@@ -10,12 +10,15 @@ aal_file_name=$(basename $aal_file)
 dcl_file_name=$(basename $dcl_file)
 
 
-dm_work=/home/jenkins/services/working/dm_work
-cher_work=/home/jenkins/services/working/cher_work
-aal_work=/home/jenkins/services/working/aal_work/
-dcl_work=/home/jenkins/services/working/dcl_work
+dm_work=/home/jenkins/services/working/old/dm_work
+cher_work=/home/jenkins/services/working/old/cher_work
+aal_work=/home/jenkins/services/working/old/aal_work
+dcl_work=/home/jenkins/services/working/old/dcl_work
 
-pkill java
+kill $(ps aux | grep "${dm_work}/${dm_file_name}" | awk '{print $2}')
+kill $(ps aux | grep "${cher_work}/${cher_file_name}" | awk '{print $2}')
+kill $(ps aux | grep "${aal_work}/${aal_file_name}" | awk '{print $2}')
+kill $(ps aux | grep "${dcl_work}/${dcl_file_name}" | awk '{print $2}')
 
 if [ ! -f ${dm_file} ]; then
     echo "File not found! ${dm_file}"
@@ -31,19 +34,19 @@ if [ ! -f ${dcl_file} ]; then
 fi
 
 if [ ! -d ${dm_work} ]; then
-        echo "File not found! ${dm_work}"
+	echo "File not found! ${dm_work}"
     mkdir -p ${dm_work}
 fi
 if [ ! -d ${cher_work} ]; then
-        echo "File not found! ${cher_work}"
+	echo "File not found! ${cher_work}"
     mkdir -p ${cher_work}
 fi
 if [ ! -d ${aal_work} ]; then
-        echo "File not found! ${aal_work}"
+	echo "File not found! ${aal_work}"
     mkdir -p ${aal_work}
 fi
 if [ ! -d ${dcl_work} ]; then
-        echo "File not found! ${dcl_work}"
+	echo "File not found! ${dcl_work}"
     mkdir -p ${dcl_work}
 fi
 
