@@ -17,8 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class UserInfoBaseDao {
 
-    private static final String KEY = RedisConstants.USER_INFO_KEY + "UserInfo";
 
+    private static final String KEY = RedisConstants.USER_INFO_KEY + RedisConstants.SEPARATOR + "UserInfo" + RedisConstants.SEPARATOR;;
+    
     private static final int timeout = 7200; //记得用timeunit 为second
 
     private HashOperations<String, String, UserBaseInfoRedis> hashOps;
