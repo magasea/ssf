@@ -1,11 +1,8 @@
 package com.shellshellfish.aaas.userinfo.repositories.redis;
 
 import com.shellshellfish.aaas.common.constants.RedisConstants;
-import com.shellshellfish.aaas.userinfo.model.redis.UserBaseInfoRedis;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,25 +16,25 @@ import java.util.concurrent.TimeUnit;
 @Repository
 public class RedisSellRateDao {
 
-    private static final String KEY = RedisConstants.USER_INFO_KEY + RedisConstants.SEPARATOR + "sellRate";
+    private static final String KEY = RedisConstants.USER_INFO_KEY + RedisConstants.SEPARATOR + "sellRate" + RedisConstants.SEPARATOR;
 
-    private static final int TIMEOUT = 24; //过期时间
-    private static final TimeUnit TIME_UNIT = TimeUnit.HOURS; //过期时间单位
+    private static final int TIMEOUT = 30; //过期时间
+    private static final TimeUnit TIME_UNIT = TimeUnit.DAYS; //过期时间单位
 
 
-    private HashOperations<String, String, String> hashOps;
+    private ValueOperations<String, String> valueOps;
 
     @Resource
     RedisTemplate redisTemplate;
 
     @PostConstruct
     void init() {
-        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
-        hashOps = redisTemplate.opsForHash();
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
+        valueOps = redisTemplate.opsForValue();
     }
 
-    public BigDecimal get(String key, String hashKey) {
-        String value = hashOps.get(KEY + RedisConstants.SEPARATOR + key, hashKey);
+    public BigDecimal get(String key) {
+        String value = valueOps.get(KEY + key);
         if (value == null)
             return null;
         else
@@ -45,9 +42,9 @@ public class RedisSellRateDao {
     }
 
     @Transactional
-    public void set(String key, String hashKey, BigDecimal value) {
-        hashOps.putIfAbsent(KEY + RedisConstants.SEPARATOR + key, hashKey, value.setScale(4, RoundingMode.HALF_UP).toString());
-        redisTemplate.expire(KEY + RedisConstants.SEPARATOR + key, TIMEOUT, TIME_UNIT);
+    public void set(String key, BigDecimal value) {
+        valueOps.setIfAbsent(KEY + key, value.setScale(4, RoundingMode.HALF_UP).toString());
+        redisTemplate.expire(KEY + key, TIMEOUT, TIME_UNIT);
     }
 
 }
