@@ -1,5 +1,5 @@
 server:
-  port: 10030
+  port: 20030
 spring:
   jpa:
     open-in-view: false
@@ -7,17 +7,17 @@ spring:
       mongodb:
         database: funds
         host: 192.168.1.10
-        port: 27017
+        port: 30005
   http:
     multipart:
 shellshellfish:
-  asset-alloction-url: "http://localhost:10020"
-  userinfo-url: "http://localhost:10060"
+  asset-alloction-url: "http://192.168.1.10:10020"
+  userinfo-url: "http://192.168.1.10:10060"
 
 grpc:
   asset-allocation:
     host: localhost
-    port: 10021
+    port: 20021
 
 management:
   endpoints:
