@@ -7,7 +7,7 @@ spring:
       mongodb:
         database: funds
         host: localhost
-        port: 27017
+        port: 30005
   http:
     multipart:
 shellshellfish:
