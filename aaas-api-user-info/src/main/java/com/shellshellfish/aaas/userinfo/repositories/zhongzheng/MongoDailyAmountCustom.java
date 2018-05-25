@@ -13,4 +13,5 @@ public interface MongoDailyAmountCustom {
 
     List<DailyAmountAggregation> getUserAssetAndIncome(String date, Long prodId);
 
+    List<DailyAmountAggregation> getUserAssetAndIncomeByCode(String date, Long prodId, String fundCode);
 }
