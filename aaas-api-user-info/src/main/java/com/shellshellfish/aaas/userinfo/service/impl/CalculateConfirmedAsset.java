@@ -57,7 +57,7 @@ public class CalculateConfirmedAsset {
      * 当有申购或者赎回确认的消息时 ,重新计算资产
      */
     public void calculateConfirmedAsset(MongoUiTrdZZInfo mongoUiTrdZZInfo) {
-        final String pattern = "yyyyMMdd";
+        final String pattern = InstantDateUtil.yyyyMMdd;
         Optional<UiProducts> uiProducts = uiProductRepo.findById(mongoUiTrdZZInfo.getUserProdId());
         List<UiProductDetail> uiProductDetailList = uiProductDetailRepo
                 .findAllByUserProdId(mongoUiTrdZZInfo.getUserProdId());
@@ -81,10 +81,10 @@ public class CalculateConfirmedAsset {
             }
         }
         //确认日期才更新
-        updateDailyAmountFromZzInfo(uuid, uiProducts.get().getProdId(), uiProducts.get().getId(),
-                mongoUiTrdZZInfo.getFundCode(), InstantDateUtil.format(confirmDate, pattern),
-                TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZInfo.getTradeConfirmSum()),
-                mongoUiTrdZZInfo.getTradeType());
+//        updateDailyAmountFromZzInfo(uuid, uiProducts.get().getProdId(), uiProducts.get().getId(),
+//                mongoUiTrdZZInfo.getFundCode(), InstantDateUtil.format(confirmDate, pattern),
+//                TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZInfo.getTradeConfirmSum()),
+//                mongoUiTrdZZInfo.getTradeType());
 
     }
 

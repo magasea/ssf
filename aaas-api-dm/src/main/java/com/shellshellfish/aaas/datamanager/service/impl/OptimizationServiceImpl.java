@@ -273,6 +273,12 @@ public class OptimizationServiceImpl implements OptimizationService {
                     mongoFinanceALLRepository.save(mongoFinanceAll);
                     try {
                         for (Map<String, Object> productMap : prdList) {
+                            if(productMap != null && productMap.containsKey("status")){
+                                String status = productMap.get("status") + "";
+                                if("0".equals(status)){
+                                    continue;
+                                }
+                            }
                             returnMap = new HashMap<>();
                             // 获取goupid和subGroupId
                             String groupId = (productMap.get("groupId")) == null ? null
@@ -319,7 +325,9 @@ public class OptimizationServiceImpl implements OptimizationService {
                             // Map ExpMaxReturn=getExpMaxReturn(g,subGroupId);
                             // 将结果封装进实体类
                             Map baseLine = groupController.getGroupBaseLine(Long.parseLong(groupId), null, InstantDateUtil.format(startDate), 5);
-                            baseLine = align(histYieldRate, baseLine);
+                            if(baseLine != null){
+                              baseLine = align(histYieldRate, baseLine);
+                            }
                             FinanceProductCompo prd = new FinanceProductCompo(groupId, subGroupId, prdName,
                                     expAnnReturn.size() > 0 ? expAnnReturn.get("value").toString() : null, productCompo,
                                     histYieldRate, baseLine);
@@ -799,6 +807,7 @@ public class OptimizationServiceImpl implements OptimizationService {
         Map<String, Object> result = new HashMap<String, Object>();
         // 饼图（返回单个基金组合产品信息）
         Map<Integer, Object> assetsRatiosMap = new HashMap<Integer, Object>();
+        String status = "";
         try {
             String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
                     + "/sub-groups/" + subGroupId + "/" + oemId;
@@ -837,7 +846,7 @@ public class OptimizationServiceImpl implements OptimizationService {
                     }
                 }
             }
-
+            status = productMap.get("status") + "";
             result = this.getPrdNPVList2(groupId, subGroupId, assetsRatiosMap, oemId);
             if (result == null) {
                 return new JsonResult(JsonResult.Fail, "获取净值增长值活净值增长率为空", JsonResult.EMPTYRESULT);
@@ -874,7 +883,7 @@ public class OptimizationServiceImpl implements OptimizationService {
             mongoFinanceDetail.setResult(result);
             System.out.println("groupId:" + groupId + ", subGroupId:" + subGroupId);
             mongoFinanceDetail.setLastModifiedBy(utcTime + "");
-
+            mongoFinanceDetail.setStatus(status);
             Map<Integer, List> fundListMap = (Map<Integer, List>) result.get("fundListMap");
             if(fundListMap != null){
               result.remove("fundListMap");
@@ -896,6 +905,7 @@ public class OptimizationServiceImpl implements OptimizationService {
                     mongoFinanceDetail.setSerial(++serial);
                     mongoFinanceDetail.setResult(fundResult);
                     mongoFinanceDetail.setId(null);
+                    mongoFinanceDetail.setStatus(status);
                     mongoFinanceDetailRepository.save(mongoFinanceDetail);
                 } else {
                     logger.error("fundList is empty for key:{}", key);
@@ -1150,10 +1160,10 @@ public class OptimizationServiceImpl implements OptimizationService {
             return null;
         }
         //判断结果是否有数据
-        if ((int) result.get("_total") == 0) {
-            logger.error("查询净值增长数据结果为0", "数据获取失败");
-            return null;
-        }
+//        if ((int) result.get("_total") == 0) {
+//            logger.error("查询净值增长数据结果为0", "数据获取失败");
+//            return null;
+//        }
         //转成list
         List prdList = null;
         try {
@@ -1369,10 +1379,12 @@ public class OptimizationServiceImpl implements OptimizationService {
         MongoFinanceDetail detail = new MongoFinanceDetail();
         List fundListMap = new ArrayList();
         Map<String, Object> finaceListMap = new HashMap<>();
+        String status = "";
         for (int i = 0; i < mongoFinanceDetailsList.size(); i++) {
             if (i == 0) {
                 detail = mongoFinanceDetailsList.get(0);
                 Integer total = detail.getTotal();
+                status = detail.getStatus();
                 if (total == 0) {
                     logger.error("no data");
                     return new JsonResult(JsonResult.Fail, "no data", JsonResult.EMPTYRESULT);
@@ -1409,6 +1421,7 @@ public class OptimizationServiceImpl implements OptimizationService {
           objMap.put("totalPage", detail.getTotalPage());
           objMap.put("totalRecord", detail.getTotal());
           objMap.put("currentPage", pageSize);
+          objMap.put("status", status);
           detail.setResult(objMap);
         }
 //        detail.setResult(fundListMap);

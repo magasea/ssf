@@ -730,17 +730,20 @@ public class TradeOpServiceImpl implements TradeOpService {
             detailMap = new HashMap<>();
             TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
             int detailStatus = trdOrderDetail.getOrderDetailStatus();
+            String msg = ""; 
             if (TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus
                     || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus) {
                 status = CombinedStatusEnum.CONFIRMED.getComment();
             } else if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
                     || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
                 status = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
+                msg = "支付失败，余额不足";
             } else {
                 if(trdOrderDetail.getFundMoneyQuantity() > 0) {
                   status = CombinedStatusEnum.WAITCONFIRM.getComment();
                 }
             }
+            detailMap.put("fundMsg", msg);
             detailMap.put("fundstatus", status);
             statusMap.put(status, status);
 
@@ -942,6 +945,8 @@ public class TradeOpServiceImpl implements TradeOpService {
             String dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(date).getDayOfWeek()).toString();
 
             detailMap.put("funddate", date);
+            
+            String msg = "";
             if (status.equals(CombinedStatusEnum.WAITCONFIRM.getComment())) {
                 detailMap.put("fundTitle", "预计" + date + "(" + dayOfWeek + ")确认");
             }else if (status.equals(CombinedStatusEnum.CONFIRMEDFAILED.getComment())) {
@@ -952,9 +957,12 @@ public class TradeOpServiceImpl implements TradeOpService {
               dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(instanceLong).getDayOfWeek()).toString();
               detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
               detailMap.put("funddate", date);
+              msg = "剩余份额低于最低赎回份额，赎回失败";
             } else {
                 detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
             }
+            detailMap.put("fundMsg", msg);
+            
             detailMap.put("fundTradeType", TrdOrderOpTypeEnum.getComment(trdOrderDetail.getTradeType()));
             detailList.add(detailMap);
 

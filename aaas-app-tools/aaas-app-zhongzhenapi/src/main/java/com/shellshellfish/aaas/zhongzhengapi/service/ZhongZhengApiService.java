@@ -3,8 +3,10 @@ package com.shellshellfish.aaas.zhongzhengapi.service;
 import com.shellshellfish.aaas.common.grpc.zzapi.ApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.WalletApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZAplyCfmInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZDiscountInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundShareInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZRiskCmtResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZTradeLimit;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltAplyInfo;
@@ -126,6 +128,16 @@ public interface ZhongZhengApiService {
    */
   public List<ZZFundShareInfo> getFundShare(String pid) throws Exception;
 
+
+  /**
+   *
+   * @param pid
+   * @param fundCode
+   * @return
+   * @throws Exception
+   */
+  public List<ZZFundShareInfo> getFundShare(String pid, String fundCode) throws Exception;
+
   /**
    *
    * @param pid
@@ -182,5 +194,23 @@ public interface ZhongZhengApiService {
    */
   public List<ZZBonusInfo> getBonusInfo(String pid, String fundCode, String startDate)
       throws Exception;
+
+  /**
+   *
+   * @param pid
+   * @param fundCode
+   * @return
+   */
+  public List<ZZDiscountInfo> getDiscountInfo(String pid, String fundCode) throws Exception;
+
+
+  /**
+   *
+   * @param pid
+   * @param riskAbility
+   * @return
+   */
+  public ZZRiskCmtResult commitRiskLevel(String pid, Integer riskAbility) throws Exception;
+
 
 }

@@ -19,7 +19,6 @@ import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.utils.TrdStatusToCombStatusUtils;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
-import com.shellshellfish.aaas.finance.trade.order.OrderResult;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
 import com.shellshellfish.aaas.finance.trade.pay.ZhongZhengQueryByOrderDetailId;
@@ -27,29 +26,16 @@ import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
-import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.TrendYield;
-import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import com.shellshellfish.aaas.userinfo.model.dto.*;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoDailyAmountRepository;
 import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoUserDailyIncomeRepository;
-import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
-import com.shellshellfish.aaas.userinfo.service.UiProductService;
-import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
-import com.shellshellfish.aaas.userinfo.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.service.*;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import io.grpc.ManagedChannel;
 import org.bson.Document;
@@ -79,7 +65,10 @@ import java.time.*;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
+import static com.shellshellfish.aaas.common.utils.InstantDateUtil.yyyyMMdd;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
+
+//import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
@@ -125,7 +114,11 @@ public class UserInfoServiceImpl implements UserInfoService {
   @Autowired
   MongoUserDailyIncomeRepository mongoUserDailyIncomeRepository;
 
+  @Autowired
+  UserAssetService userAssetService;
+
   PayRpcServiceFutureStub payRpcServiceFutureStub;
+
 
   @Autowired
   ManagedChannel managedPayChannel;
@@ -523,22 +516,17 @@ public class UserInfoServiceImpl implements UserInfoService {
   @Override
   public PortfolioInfo getChicombinationAssets(String uuid, Long userId, ProductsDTO products,
       LocalDate endDate, boolean flag) {
-    Long startDate = products.getCreateDate();
-    LocalDate startLocalDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(startDate),
-        ZoneId.systemDefault()).toLocalDate();
-    String startDay = InstantDateUtil.format(startLocalDate, "yyyyMMdd");
-    String endDay = InstantDateUtil.format(endDate, "yyyyMMdd");
-
     if (flag) {
       //完全确认
       products.setStatus(TrdOrderStatusEnum.CONFIRMED.getStatus());
-      return userFinanceProdCalcService
-          .calculateProductValue(uuid, products.getId(), startDay, endDay);
+      return userAssetService
+          .calculateUserAssetAndIncome(products.getId(), endDate);
     } else {
       //部分确认
       logger.info("\n未完全确认数据 userProdId :{}\n", products.getId());
       products.setStatus(TrdOrderStatusEnum.PARTIALCONFIRMED.getStatus());
-      return getPartConfirmFundInfo(uuid, userId, products.getId(), startDay, endDay);
+      return userAssetService
+          .calculateUserAssetAndIncomePartialConfirmed(userId, products.getId(), endDate);
     }
   }
 
@@ -566,7 +554,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     LocalDate endLocalDate = LocalDate.now();
     while (startLocalDate.isBefore(endLocalDate) || startLocalDate.isEqual(endLocalDate)) {
-      String endDay = InstantDateUtil.format(endLocalDate, "yyyyMMdd");
+      String endDay = InstantDateUtil.format(endLocalDate, yyyyMMdd);
       result.put(endDay, getChicombinationAssets(uuid, userId, products, endLocalDate, flag));
       endLocalDate = endLocalDate.plusDays(-1);
     }
@@ -574,70 +562,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 
   }
 
-  /**
-   * 计算组合部分确认的资产和收益
-   */
-  private PortfolioInfo getPartConfirmFundInfo(String uuid, Long userId, Long prodId,
-      String startDay, String endDay) {
-    PortfolioInfo portfolioInfo = userFinanceProdCalcService
-        .calculateProductValue(uuid, prodId, startDay, endDay);
-
-    List<MongoUiTrdZZInfo> mongoUiTrdZZinfoList = mongoUiTrdZZInfoRepo
-        .findAllByUserIdAndUserProdIdAndTradeTypeAndTradeStatus(userId, prodId,
-            TrdOrderOpTypeEnum.BUY.getOperation(),
-            TrdOrderStatusEnum.CONFIRMED.getStatus());
-
-    //已经确认部分金额
-    BigDecimal conifrmAsset = BigDecimal.ZERO;
-    BigDecimal confirmAssetOfEndDay = BigDecimal.ZERO;
-    for (MongoUiTrdZZInfo mongoUiTrdZZinfo : mongoUiTrdZZinfoList) {
-      logger.info("fundCode:{},confirmSum:{}", mongoUiTrdZZinfo.getFundCode(),
-          mongoUiTrdZZinfo.getTradeConfirmSum());
-      conifrmAsset = conifrmAsset.add(TradeUtil.getBigDecimalNumWithDiv100(
-          Optional.ofNullable(mongoUiTrdZZinfo).map(m -> m.getTradeConfirmSum())
-              .orElse(0L)));
-
-      if (endDay.equals(mongoUiTrdZZinfo.getConfirmDate())) {
-        confirmAssetOfEndDay = confirmAssetOfEndDay
-            .add(TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZinfo.getTradeConfirmSum()));
-      }
-    }
-
-    OrderResult orderResult = rpcOrderService
-        .getOrderInfoByProdIdAndOrderStatus(prodId,
-            TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
-
-    BigDecimal applyAsset = BigDecimal.valueOf(orderResult.getPayAmount())
-        .divide(BigDecimal.valueOf(100));
-
-    logger.info("\nuserProdId:{}  ===  applyAsset {}\n", prodId, applyAsset);
-    BigDecimal assetOfEndDay = Optional.ofNullable(portfolioInfo.getTotalAssets())
-        .orElse(BigDecimal.ZERO);
-
-    logger.info("\nuserProdId:{}  === assetOfEndDay {}\n", prodId, assetOfEndDay);
-    // 总资产 = 确认基金资产+ 未确认的基金的申购金额  = 结束日资产（即申购成功部分结束日资产） +（总申购资产-确认部分申购资产）
-    BigDecimal asset = assetOfEndDay.add(applyAsset.subtract(conifrmAsset));
-
-    logger.info("\nuserProdId:{}  === asset {}\n", prodId, asset);
-
-    logger.info("\nuserProdId:{}  === confirmAsset {}\n", prodId, conifrmAsset);
-    // 累计收益=确认部分资产- 确认部分申购金额  (默认未完全确认  不能追加和赎回)
-    BigDecimal toltalIncome = assetOfEndDay.subtract(conifrmAsset);
-
-    // 累计收益率= 累计收益/申购金额
-    BigDecimal toltalIncomeRate = Optional.ofNullable(portfolioInfo.getTotalIncomeRate())
-        .orElse(BigDecimal.ZERO);
-
-    if (applyAsset.compareTo(BigDecimal.ZERO) != 0) {
-      toltalIncomeRate = toltalIncome.divide(applyAsset, 4, RoundingMode.HALF_UP);
-    }
-
-    portfolioInfo.setTotalAssets(asset.setScale(4, RoundingMode.HALF_UP));
-    portfolioInfo.setTotalIncome(toltalIncome.setScale(4, RoundingMode.HALF_UP));
-    portfolioInfo.setTotalIncomeRate(toltalIncomeRate.setScale(4, RoundingMode.HALF_UP));
-
-    return portfolioInfo;
-  }
 
   @Deprecated
   @Override
@@ -738,7 +662,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
   @Override
   public List<Map<String, Object>> getMyCombinations(String uuid) throws Exception {
-    List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+    List<Map<String, Object>> resultList = new ArrayList<>();
     List<ProductsDTO> productsList = this.findProductInfos(uuid);
     if (productsList == null || productsList.size() == 0) {
       logger.error("我的智投组合暂时不存在");
@@ -749,7 +673,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     ProductsDTO products;
     for (int i = 0; i < productsList.size(); i++) {
       products = productsList.get(i);
-      resultMap = new HashMap<String, Object>();
+      resultMap = new HashMap<>();
       resultMap.put("groupId", products.getProdId());
       resultMap.put("subGroupId", products.getGroupId());
 
@@ -835,8 +759,8 @@ public class UserInfoServiceImpl implements UserInfoService {
       resultMap.put("recentDate",
           Optional.ofNullable(mongoDailyAmountRepository.findFirstByUserProdIdOrderByDateDesc
               (products.getId()))
-              .map(m -> InstantDateUtil.format(m.getDate(), "yyyyMMdd").toString()).orElse
-              (InstantDateUtil.now().toString()));
+              .map(m -> InstantDateUtil.format(m.getDate(), yyyyMMdd).toString())
+              .orElse(InstantDateUtil.now().toString()));
       resultList.add(resultMap);
     }
     return resultList;
@@ -1134,7 +1058,6 @@ public class UserInfoServiceImpl implements UserInfoService {
         result.put("tradeLogs", tradeLogs);
         return result;
       }
-
       List<MongoUiTrdLogDTO> tradeLogList = this.getTradeLogsByUserProdId(data);
       if (tradeLogList == null || tradeLogList.size() == 0) {
         logger.error("交易记录为空 userUuid:{}, type:{}", userUuid, type);
@@ -1143,12 +1066,11 @@ public class UserInfoServiceImpl implements UserInfoService {
       }
       Map<String, Map<String, Object>> tradLogsMap = new HashMap<String, Map<String, Object>>();
       Map<String, Map<String, Object>> tradLogsSum = new HashMap<String, Map<String, Object>>();
-      Map<String, String> allProducts = userInfoRepoService.findAllProducts();
       // 获取最新一天的单个基金的信息
       String dateStr = null;
-      long t1 = System.currentTimeMillis();
       for (MongoUiTrdLogDTO mongoUiTrdLogDTO : tradeLogList) {
         Map<String, Object> map = new HashMap<String, Object>();
+
         try {
           Long userProdId = mongoUiTrdLogDTO.getUserProdId();
           if (mongoUiTrdLogDTO.getFundCode() == null) {
@@ -1264,6 +1186,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                   "havent find trade quantity info for userProdId:{} and " + "fundCode:{}",
                   mongoUiTrdLogDTO.getUserProdId(), mongoUiTrdLogDTO.getFundCode());
               sumFromLog = 0L;
+
             }
           }
 
@@ -1276,8 +1199,6 @@ public class UserInfoServiceImpl implements UserInfoService {
           continue;
         }
       }
-
-      System.out.println(System.currentTimeMillis() - t1);
 
       if (tradLogsMap != null && tradLogsMap.size() > 0) {
         for (Map.Entry<String, Map<String, Object>> entry : tradLogsMap.entrySet()) {
@@ -1457,7 +1378,7 @@ public class UserInfoServiceImpl implements UserInfoService {
           Aggregation.match(Criteria.where("order_id").exists(true)),
           Aggregation.group("order_id").last("trade_date").as("trade_date"),
           Aggregation.sort(Direction.DESC, "trade_date"),
-          Aggregation.skip(currentPage  * pageSize * 1L),
+          Aggregation.skip(currentPage * pageSize * 1L),
           Aggregation.limit(pageSize)
 
       );
@@ -1467,7 +1388,7 @@ public class UserInfoServiceImpl implements UserInfoService {
           Aggregation.match(Criteria.where("order_id").exists(true)),
           Aggregation.group("order_id").last("trade_date").as("trade_date"),
           Aggregation.sort(Direction.DESC, "trade_date"),
-          Aggregation.skip(currentPage  * pageSize * 1L),
+          Aggregation.skip(currentPage * pageSize * 1L),
           Aggregation.limit(pageSize)
 
       );

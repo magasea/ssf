@@ -9,6 +9,8 @@ service ZZApiService {
     rpc getSupportBankList (EmptyQuery) returns (BankZhongZhengInfoList) {
     }
     rpc getAplyResults(AplyRltQuery) returns (ZZApplyResults){}
+
+    rpc getFundShare(ZZFundShareQuery) returns (ZZFundShareInfoResult){}
 }
 
 
@@ -109,6 +111,38 @@ message ZZConfirmResult{
      string xyh = 38;
 }
 
+message ZZFundShareQuery{
+  string pid = 1;
+  string fundCode = 2;
+}
+
+message ZZFundShareInfo{
+    string bankAcco = 1;
+    string bankName = 2;
+    string bankSerial = 3;
+    string capitalMode = 4;
+    string currentRemainShare = 5;
+    string freezeRemainShare = 6;
+    string fundAcco = 7;
+    string fundCode = 8;
+    string fundName = 10;
+    string fundState = 11;
+    string fundType = 12;
+    string marketValue = 13;
+    string melonMethod = 14;
+    string navDate = 15;
+    string perNetvalue = 16;
+    string shareType = 17;
+    string taCode = 18;
+    string tfreezeRemainShare = 19;
+    string tradeAcco = 20;
+    string unpaidIncome = 21;
+    string usableRemainShare = 22;
+}
+
+message ZZFundShareInfoResult{
+  repeated ZZFundShareInfo zzFundShareInfo = 1;
+}
 message EmptyQuery {
 }
 

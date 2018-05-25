@@ -13,13 +13,9 @@ public interface MongoUiTrdZZInfoRepo extends MongoRepository<MongoUiTrdZZInfo, 
     @Override
     MongoUiTrdZZInfo save(MongoUiTrdZZInfo mongoUiTrdZZInfo);
 
-    List<MongoUiTrdZZInfo> findAllByUserIdAndUserProdId(Long userId, Long userProdId);
 
     List<MongoUiTrdZZInfo> findAllByUserIdAndUserProdIdAndTradeTypeAndTradeStatus(Long userId,
                                                                                   Long userProdId, int tradeType, int tradeStatus);
-
-    List<MongoUiTrdZZInfo> findAllByUserId(Long userId);
-
 
     MongoUiTrdZZInfo findByUserProdIdAndUserIdAndApplySerial(Long userProdId, Long userId,
                                                              String applySerial);
@@ -34,7 +30,5 @@ public interface MongoUiTrdZZInfoRepo extends MongoRepository<MongoUiTrdZZInfo, 
             int trdType, int tradeStatus, String confirmDate);
 
     List<MongoUiTrdZZInfo> findAllByUserProdId(Long userProdId);
-
-    MongoUiTrdZZInfo findFirstByOutSideOrderNo(String orderNo);
 
 }

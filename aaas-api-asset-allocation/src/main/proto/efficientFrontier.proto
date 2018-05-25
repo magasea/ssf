@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.shellshellfish.aaas.asset.allocation";
+option java_outer_classname = "GetAfficientFrontierService";
+option objc_class_prefix = "GAFS";
+
+service GetAfficientFrontierDataService{
+    rpc getAfficientFrontier(GetAfficientFrontierRequest) returns (GetAfficientFrontierResponse);
+}
+
+message GetAfficientFrontierRequest {
+    double name = 1;
+}
+message GetAfficientFrontierResponse {
+//    float value = 1;
+        repeated float floats = 1;//List<float>
+}
+//返回List<float[][]>
+//message ListAfficientFrontierRespons{
+//    repeated float Floats = 1;//List<float>
+//}
+//message Float{
+//    float floatResult = 1;
+//}

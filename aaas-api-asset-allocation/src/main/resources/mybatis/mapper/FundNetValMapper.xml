@@ -182,4 +182,17 @@
         ) as a
     </select>
 
+    <select id="getMinNavlatestDateByFundGroupId" resultType="java.util.Date">
+        select max(NAVLATESTDATE) max_date
+        from
+        (
+          SELECT MIN(NAVLATESTDATE) NAVLATESTDATE
+          FROM fund_group_basic a
+          LEFT JOIN fund_net_value b ON a.code = b.code
+          WHERE group_id = #{fundGroupId}
+          GROUP BY a.code
+        ) c
+
+    </select>
+
 </mapper>

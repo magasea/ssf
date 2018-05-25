@@ -8,17 +8,17 @@ public class ZZGeneralErrResp  {
   String status;
   String errno;
   String msg;
-  Object[] data;
+  Object data;
 
-  public Object[] getReturnlist() {
+  public Object getReturnlist() {
     return returnlist;
   }
 
-  public void setReturnlist(Object[] returnlist) {
+  public void setReturnlist(Object returnlist) {
     this.returnlist = returnlist;
   }
 
-  Object[] returnlist;
+  Object returnlist;
 
 
 
@@ -46,11 +46,11 @@ public class ZZGeneralErrResp  {
     this.msg = msg;
   }
 
-  public Object[] getData() {
+  public Object getData() {
     return data;
   }
 
-  public void setData(Object[] data) {
+  public void setData(Object data) {
     this.data = data;
   }
 
