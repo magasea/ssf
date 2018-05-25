@@ -61,6 +61,40 @@ public class MongoUiTrdLogDTO implements Serializable {
   
   private String applySerial;
 
+  private String OrderId;
+
+  @Override
+  public String toString() {
+    return "MongoUiTrdLogDTO{" +
+        "id='" + id + '\'' +
+        ", amount=" + amount +
+        ", createdBy='" + createdBy + '\'' +
+        ", createdDate=" + createdDate +
+        ", lastModifiedBy='" + lastModifiedBy + '\'' +
+        ", lastModifiedDate=" + lastModifiedDate +
+        ", operations=" + operations +
+        ", userProdId=" + userProdId +
+        ", tradeDate=" + tradeDate +
+        ", tradeStatus=" + tradeStatus +
+        ", userId=" + userId +
+        ", fundCode='" + fundCode + '\'' +
+        ", tradeConfirmShare=" + tradeConfirmShare +
+        ", tradeConfirmSum=" + tradeConfirmSum +
+        ", tradeTargetShare=" + tradeTargetShare +
+        ", tradeTargetSum=" + tradeTargetSum +
+        ", applySerial='" + applySerial + '\'' +
+        ", OrderId='" + OrderId + '\'' +
+        '}';
+  }
+
+  public String getOrderId() {
+    return OrderId;
+  }
+
+  public void setOrderId(String orderId) {
+    OrderId = orderId;
+  }
+
   public MongoUiTrdLogDTO() {
   }
 

@@ -6,7 +6,7 @@ spring:
   data:
       mongodb:
         database: funds
-        host: localhost
+        host: 192.168.1.10
         port: 27017
   http:
     multipart:
