@@ -1,6 +1,6 @@
 ---
 server:
-  port: 10150
+  port: 20150
 ---
 spring:
   security:
@@ -13,7 +13,7 @@ spring:
       mongodb:
         database: funds
         host: 192.168.1.10
-        port: 27017
+        port: 30005
         toolsdb: aaas_tools
 
   http:
@@ -36,13 +36,13 @@ datasource:
       format_sql: true
       dialect: org.hibernate.dialect.MySQLDialect
 shellshellfish:
-  asset-allocation-insertdf-url: "http://localhost:10020//api//asset-allocation//job//insertDailyFund"
-  asset-allocation-inithistory-url: "http://localhost:10020//api//asset-allocation//job//getAllIdAndSubId"
-  asset-allocation-updateallmaximumlosses-url: "http://localhost:10020/api/asset-allocation/job/updateAllMaximumLosses/"
-  asset-allocation-initpyamongo-url: "http://localhost:10020//api//asset-allocation//job//getFundGroupIncomeAllToMongoDb"
-  data-manager-initcache-url: "http://localhost:10030//api//datamanager//financeFrontPage"
-  data-manager-initcache-detail-url: "http://localhost:10030//api//datamanager//checkPrdDetails"
-  data-manager-initcache-detail-url-ver2: "http://localhost:10030//api//datamanager//checkPrdDetails-ver2"
+  asset-allocation-insertdf-url: "http://localhost:20020//api//asset-allocation//job //insertDailyFund"
+  asset-allocation-inithistory-url: "http://localhost:20020//api//asset-allocation//job//getAllIdAndSubId"
+  asset-allocation-updateallmaximumlosses-url: "http://localhost:20020/api/asset-allocation/job/updateAllMaximumLosses/"
+  asset-allocation-initpyamongo-url: "http://localhost:20020//api//asset-allocation//job//getFundGroupIncomeAllToMongoDb"
+  data-manager-initcache-url: "http://localhost:20030//api//datamanager//financeFrontPage"
+  data-manager-initcache-detail-url: "http://localhost:20030//api//datamanager//checkPrdDetails"
+  data-manager-initcache-detail-url-ver2: "http://localhost:20030//api//datamanager//checkPrdDetails-ver2"
   csvFilePath: /temp
   csvFundFileOriginName: csvFundsInfo
   csvBaseFileOriginName: csvBaseInfo
@@ -69,4 +69,4 @@ grpc:
   pythonServer:
     ip: localhost
 #    ip: 192.168.1.65
-    port: 10161
+    port: 20161
