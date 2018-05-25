@@ -100,8 +100,7 @@ public class UserAssetServiceImpl implements UserAssetService {
                 .getOrderInfoByProdIdAndOrderStatus(prodId,
                         TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
-        BigDecimal applyAsset = BigDecimal.valueOf(orderResult.getPayAmount())
-                .divide(BigDecimal.valueOf(100));
+        BigDecimal applyAsset = TradeUtil.getBigDecimalNumWithDiv100(orderResult.getPayAmount());
 
         BigDecimal assetOfEndDay = Optional.ofNullable(portfolioInfo.getTotalAssets())
                 .orElse(BigDecimal.ZERO);

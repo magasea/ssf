@@ -35,14 +35,10 @@ import java.util.*;
  */
 @Service
 public class FundGroupServiceImpl implements FundGroupService {
-
-
     Logger logger = LoggerFactory.getLogger(FundGroupServiceImpl.class.getName());
-
 
     @Autowired
     RestTemplate restTemplate;
-
 
     @Value("${aaas-api-finance-url}")
     private String apiFinanceUrl;
@@ -68,11 +64,8 @@ public class FundGroupServiceImpl implements FundGroupService {
     @Autowired
     UserInfoRepoService userInfoRepoService;
 
-    @Autowired
-    @Qualifier("zhongZhengMongoTemplate")
-    private MongoTemplate mongoTemplate;
 
-
+    //FIXME 累计收益走势图　使用mongo user_daily_income 表中数据
     @Override
     public Map getGroupDetails(String userUuid, Long productId, String buyDate) throws Exception {
         Map<String, Object> result = new HashMap<String, Object>();
