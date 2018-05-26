@@ -9,6 +9,7 @@ import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
+import com.shellshellfish.aaas.common.utils.MathUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.utils.ZZRiskToSSFRiskUtils;
@@ -52,6 +53,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -219,18 +222,36 @@ public class TradeOpServiceImpl implements TradeOpService {
         trdOrder.setCreateBy(financeProdBuyInfo.getUserId());
         trdOrder.setPayAmount(TradeUtil.getLongNumWithMul100(financeProdBuyInfo.getMoney()));
         trdOrderRepository.save(trdOrder);
+        Collections.sort(productMakeUpInfos, new Comparator<ProductMakeUpInfo>(){
+            public int compare(ProductMakeUpInfo o1, ProductMakeUpInfo o2){
+                if(o1.getFundCode() == o2.getFundCode())
+                    return 0;
+                return o1.getFundCode().compareToIgnoreCase(o2.getFundCode()) < 0 ? -1 : 1;
+            }
+        });
         //generate sub order for each funds
-        for (ProductMakeUpInfo productMakeUpInfo : productMakeUpInfos) {
+        Long remainAmount = TradeUtil.getLongNumWithMul100(financeProdBuyInfo.getMoney());
+        for (int idx = 0; idx < productMakeUpInfos.size(); idx++) {
+            ProductMakeUpInfo productMakeUpInfo = productMakeUpInfos.get(idx);
             TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
             trdOrderDetail.setOrderId(trdOrder.getOrderId());
             trdOrderDetail.setUserId(trdOrder.getUserId());
             //规定基金占比用百分比并且精确万分之一
             BigDecimal fundRatio = BigDecimal.valueOf(productMakeUpInfo.getFundShare()).divide
                     (BigDecimal.valueOf(10000));
-            trdOrderDetail.setFundSum(fundRatio.multiply(financeProdBuyInfo.getMoney())
-                    .multiply(BigDecimal.valueOf(100)).toBigInteger().longValue());
-            trdOrderDetail.setFundMoneyQuantity(fundRatio.multiply(financeProdBuyInfo.getMoney())
-                    .multiply(BigDecimal.valueOf(100)).toBigInteger().longValue());
+            Long amount = TradeUtil.getLongWithDiv(financeProdBuyInfo.getMoney().multiply(new
+                BigDecimal(productMakeUpInfo.getFundShare())).longValue(), 100L);
+
+            if(idx == productMakeUpInfos.size() - 1){
+                logger.info("now adjust amount to be remainAmount:{}  amount:{}", remainAmount,
+                    amount);
+                amount = remainAmount;
+            }else{
+                remainAmount = remainAmount - amount;
+
+            }
+            trdOrderDetail.setFundSum(amount);
+            trdOrderDetail.setFundMoneyQuantity(amount);
             trdOrderDetail.setBuysellDate(TradeUtil.getUTCTime());
             trdOrderDetail.setCreateBy(financeProdBuyInfo.getUserId());
             trdOrderDetail.setCreateDate(TradeUtil.getUTCTime());

@@ -1,6 +1,8 @@
 package com.shellshellfish.aaas.common.utils;
 
 
+import static java.lang.Math.abs;
+
 import com.google.common.hash.Hashing;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
@@ -100,7 +102,7 @@ public class TradeUtil {
   }
 
   public static Long getUTCTimeHoursBefore(int hours){
-    int absHours = Math.abs(hours);
+    int absHours = abs(hours);
     ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now().plusHours(-absHours), ZoneId.systemDefault());
     return utcDateTime.toInstant().toEpochMilli();
   }
@@ -191,6 +193,11 @@ public class TradeUtil {
 
   public static BigDecimal getBigDecimalNumWithDiv100(Long originNum){
     return MathUtil.round(BigDecimal.valueOf(originNum).divide(BigDecimal.valueOf(100)),2,true);
+  }
+
+  public static Long getLongWithDiv(Long originNum, Long divider){
+    int sign = (originNum > 0 ? 1 : -1) * (divider > 0 ? 1 : -1);
+    return sign * (abs(originNum) + abs(divider) - 1) / abs(divider);
   }
 
   public static BigDecimal getBigDecimalNumWithDivOfTwoLong(Long number, Long divider){
