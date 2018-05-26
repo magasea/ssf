@@ -342,4 +342,9 @@ public class TradeUtil {
     }
     return outsideOrderNo.substring(0, lastIdxOfODI);
   }
+
+  public static Long getLongFromDividByBD(String tradeconfirmsum, String tradeconfirmshare) {
+    BigDecimal result = (new BigDecimal(tradeconfirmsum)).divide(new BigDecimal(tradeconfirmshare));
+    return getLongNumWithMul100(result);
+  }
 }
