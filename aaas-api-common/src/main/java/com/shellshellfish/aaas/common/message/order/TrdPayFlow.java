@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.common.message.order;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -8,7 +9,7 @@ import java.util.Objects;
 
 
 
-public class TrdPayFlow {
+public class TrdPayFlow implements Serializable {
 
   private long id;
   private long orderDetailId;
