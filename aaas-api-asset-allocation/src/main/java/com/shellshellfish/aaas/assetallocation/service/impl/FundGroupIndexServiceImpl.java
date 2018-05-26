@@ -19,9 +19,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class FundGroupIndexServiceImpl implements FundGroupIndexService {
@@ -95,7 +93,7 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
 
 
         //月度收益率方差＊sqrt(12)
-        double historicalAnnualVolatility = FastMath.sqrt(StatUtils.variance(annualYieldArray)) * FastMath.sqrt(12);
+        double historicalAnnualVolatility = FastMath.sqrt(StatUtils.populationVariance(annualYieldArray)) * FastMath.sqrt(12);
         FundGroupIndex fundGroupIndex = new FundGroupIndex(groupId, subGroupId, historicalAnnualYield, historicalAnnualVolatility);
         fundGroupIndex.setOemId(oemId);
         fundGroupIndexMapper.saveOrUpdate(fundGroupIndex);
