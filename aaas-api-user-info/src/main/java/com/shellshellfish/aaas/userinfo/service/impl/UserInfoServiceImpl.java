@@ -590,7 +590,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                         if (TrdOrderStatusEnum.isInWaiting(uiProductDetailDTO.getStatus())) {
                             count++;
                             status = uiProductDetailDTO.getStatus();
-                        } else if (TrdOrderStatusEnum.isFailed(uiProductDetailDTO.getStatus())) {
+                        } else if (TrdOrderStatusEnum.notSuccess(uiProductDetailDTO.getStatus())) {
                             fails++;
                         }
                     } else {
