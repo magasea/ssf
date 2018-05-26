@@ -61,13 +61,13 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
 //        }
 //        startDate = startDate.isBefore(FundGroupService.GROUP_START_DATE) ? FundGroupService.GROUP_START_DATE : startDate;
         List<Double> values = new LinkedList<>();
-//        LocalDate date = LocalDate.of(startDate.getYear(), startDate.getMonth(), 15);
+        LocalDate date = LocalDate.of(startDate.getYear(), startDate.getMonth(), 15);
         do {
-            Double value = fundGroupHistoryMapper.getLatestNavAdj(groupId, subGroupId, startDate, oemId);
+            Double value = fundGroupHistoryMapper.getLatestNavAdj(groupId, subGroupId, date, oemId);
             if (value != null)
                 values.add(value);
-            startDate = startDate.plusMonths(1);
-        } while (startDate.isBefore(LocalDate.now(ZoneId.systemDefault()).plusDays(1)));
+            date = date.plusMonths(1);
+        } while (date.isBefore(LocalDate.now(ZoneId.systemDefault()).plusDays(1)));
 //        do {
 //            Double value = fundGroupHistoryMapper.getLatestNavAdj(groupId, subGroupId, date, oemId);
 //            if (value != null)
@@ -89,8 +89,8 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
             annualYieldArray[i] = annualYield;
         }
 
-        // 年化收益率＝［（１＋平均收益率）＾（３６５／计算周期天数）－１］＊１００％
-        double historicalAnnualYield = FastMath.pow(1 + StatUtils.mean(annualYieldArray), (365D / 30D)) - 1;
+        // 年化收益率＝［（１＋平均收益率）＾12－１］＊１００％
+        double historicalAnnualYield = FastMath.pow(1 + StatUtils.mean(annualYieldArray), 12) - 1;
 
 
         //月度收益率方差＊sqrt(12)

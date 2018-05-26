@@ -26,8 +26,8 @@ public class TrdPayFlow {
   private int trdStatus;
   private long trdConfirmDate;
   private int trdType;
-  private String trdApplyDate;
-  private long applydateUnitvalue;
+  private String trdApplyDate = "-1";
+  private long applydateUnitvalue = -1;
   private long trdApplySum;
   private long trdApplyShare;
   private Long tradeTargetSum;

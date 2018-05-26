@@ -265,6 +265,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         trdPayFlow.setUserProdId(trdOrderDetail.getUserProdId());
         trdPayFlow.setUserId(trdOrderDetail.getUserId());
         trdPayFlow.setTradeBrokeId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
+        trdPayFlow.setTrdApplyDate("-1"); // default value
+        trdPayFlow.setApplydateUnitvalue(-1);
         TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
         com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
             .shellshellfish.aaas.common.message.order.TrdPayFlow();
