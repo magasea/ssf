@@ -61,9 +61,9 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
 //        }
 //        startDate = startDate.isBefore(FundGroupService.GROUP_START_DATE) ? FundGroupService.GROUP_START_DATE : startDate;
         List<Double> values = new LinkedList<>();
-//        LocalDate date = LocalDate.of(startDate.getYear(), startDate.getMonth(), 15);
+        LocalDate date = LocalDate.of(startDate.getYear(), startDate.getMonth(), 15);
         do {
-            Double value = fundGroupHistoryMapper.getLatestNavAdj(groupId, subGroupId, startDate, oemId);
+            Double value = fundGroupHistoryMapper.getLatestNavAdj(groupId, subGroupId, date, oemId);
             if (value != null)
                 values.add(value);
             startDate = startDate.plusMonths(1);
