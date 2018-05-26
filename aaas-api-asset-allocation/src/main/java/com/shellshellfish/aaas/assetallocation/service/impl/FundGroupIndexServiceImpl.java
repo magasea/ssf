@@ -8,6 +8,7 @@ import com.shellshellfish.aaas.assetallocation.mapper.FundGroupIndexMapper;
 import com.shellshellfish.aaas.assetallocation.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.mapper.FundNetValMapper;
 import com.shellshellfish.aaas.assetallocation.service.FundGroupIndexService;
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.util.FastMath;
 import org.slf4j.Logger;
@@ -67,7 +68,7 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
             if (value != null)
                 values.add(value);
             date = date.plusMonths(1);
-        } while (date.isBefore(LocalDate.now(ZoneId.systemDefault()).plusDays(1)));
+        } while (date.isBefore(InstantDateUtil.tomorrow()));
 //        do {
 //            Double value = fundGroupHistoryMapper.getLatestNavAdj(groupId, subGroupId, date, oemId);
 //            if (value != null)
@@ -117,8 +118,8 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
 
         List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
         for (Interval interval : list) {
-            if (Integer.parseInt(interval.getFund_group_id()) <= 15){
-                if (!interval.getId().endsWith("48")){
+            if (Integer.parseInt(interval.getFund_group_id()) <= 15) {
+                if (!interval.getId().endsWith("48")) {
                     continue;
                 }
             }
@@ -128,7 +129,7 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
             Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(interval.getFund_group_id());
             LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             calculateAnnualVolatilityAndAnnualYield(interval.getFund_group_id(), interval.getId()
-                ,  localDate, oemId);
+                    , localDate, oemId);
         }
         long endTime = System.currentTimeMillis();
         logger.info("finish to calculate historical annual yield and Historical annual volatility   startDate:{}," +
