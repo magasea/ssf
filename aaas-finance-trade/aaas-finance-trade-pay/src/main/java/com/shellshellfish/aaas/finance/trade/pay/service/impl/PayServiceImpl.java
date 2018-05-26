@@ -213,10 +213,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
       //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
       BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundSum());
-      //TODO: replace userId with userUuid
       TrdPayFlow trdPayFlow = new TrdPayFlow();
       trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
-      trdPayFlow.setCreateBy(0L);
+      trdPayFlow.setCreateBy(trdOrderDetail.getUserId());
       //重要。。。。。
       trdPayFlow.setOutsideOrderno(sbOutsideOrderno.toString());
       trdPayFlow.setTradeTargetSum(trdOrderDetail.getFundSum());
@@ -372,7 +371,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           outsideOrderNo);
       TrdPayFlow trdPayFlow = new TrdPayFlow();
       trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
-      trdPayFlow.setCreateBy(0L);
+      trdPayFlow.setCreateBy(prodSellDTO.getUserId());
       trdPayFlow.setTrdStatus(TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(prodSellDTO.getUserProdId());
       trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
