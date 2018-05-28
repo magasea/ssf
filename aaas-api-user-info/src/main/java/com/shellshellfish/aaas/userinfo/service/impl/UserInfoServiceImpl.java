@@ -1292,7 +1292,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         log.put("date", dateString);
         log.put("dateLong", aLong / 1000);
         System.out.println(dateString);
-        log.remove("orderId");
+       // log.remove("orderId");
       }
 
       Collections.sort(tradeLogs, (o1, o2) -> {
