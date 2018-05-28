@@ -48,22 +48,20 @@ public interface ZhongZhengApiService {
   /**
    *
    * @param outsideOrderNo
-   * @param trdAcco
    * @return
    */
-  List<ApplyResult> getApplyResultByOutSideOrderNo(String outsideOrderNo, String trdAcco, String pid)
+  List<ApplyResult> getApplyResultByOutSideOrderNo(String outsideOrderNo, String pid)
       throws Exception;
 
 
   /**
    *
    * @param applySerial
-   * @param trdAcco
    * @param pid
    * @return
    * @throws Exception
    */
-  List<ApplyResult> getApplyResultByApplySerial(String applySerial, String trdAcco, String pid)
+  List<ApplyResult> getApplyResultByApplySerial(String applySerial, String pid)
       throws Exception;
 
   /**
@@ -78,13 +76,6 @@ public interface ZhongZhengApiService {
       String pid) throws  Exception;
 
 
-  /**
-   *
-   * @param trdAcco
-   * @return
-   */
-  List<ApplyResult> getApplyResultByTrdAcco(String trdAcco, String pid)
-      throws Exception;
 
 
   /**

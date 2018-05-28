@@ -75,13 +75,13 @@ public class ZZGrpcServiceImpl extends ZZApiServiceGrpc.ZZApiServiceImplBase  {
     List<ApplyResult> results = null;
     try {
       if (!StringUtils.isEmpty(request.getApplySerial())) {
-        results = getApplyResultsByApplySerial(request.getTrdAcco(), request.getPid(), request
+        results = getApplyResultsByApplySerial( request.getPid(), request
             .getApplySerial());
       } else if (!StringUtils.isEmpty(request.getOutsideOrderNo())) {
-        results = getApplyResultsByOutsideTrdNo(request.getTrdAcco(), request.getPid(), request
+        results = getApplyResultsByOutsideTrdNo(request.getPid(), request
             .getOutsideOrderNo());
       } else {
-        results = getApplyResultsByTrdAcco(request.getTrdAcco(), request.getPid());
+        results = getApplyResults(request.getPid());
       }
       ZZApplyResults.Builder zzarsBuilder = ZZApplyResults.newBuilder();
       ZZApplyResult.Builder zzarBuilder = ZZApplyResult.newBuilder();
@@ -137,9 +137,9 @@ public class ZZGrpcServiceImpl extends ZZApiServiceGrpc.ZZApiServiceImplBase  {
         .asRuntimeException());
   }
 
-  public List<ApplyResult> getApplyResultsByApplySerial(String trdAcco, String pid,
+  public List<ApplyResult> getApplyResultsByApplySerial( String pid,
       String applySerial) throws Exception {
-    List<ApplyResult> applyResults = zhongZhengApiService.getApplyResultByApplySerial(applySerial, trdAcco,
+    List<ApplyResult> applyResults = zhongZhengApiService.getApplyResultByApplySerial(applySerial,
         pid);
     return applyResults;
   }
@@ -147,18 +147,17 @@ public class ZZGrpcServiceImpl extends ZZApiServiceGrpc.ZZApiServiceImplBase  {
 
 
 
-  public List<ApplyResult> getApplyResultsByOutsideTrdNo(String trdAcco, String pid,
+  public List<ApplyResult> getApplyResultsByOutsideTrdNo( String pid,
       String outsideTrdNo) throws Exception {
     List<ApplyResult> applyResults = zhongZhengApiService.getApplyResultByOutSideOrderNo
-        (outsideTrdNo, trdAcco, pid);
+        (outsideTrdNo,  pid);
     return applyResults;
   }
 
 
-  public List<ApplyResult> getApplyResultsByTrdAcco(String trdAcco, String pid)
-      throws Exception {
-    List<ApplyResult> applyResults = zhongZhengApiService.getApplyResultByTrdAcco(trdAcco, pid);
 
+  public List<ApplyResult> getApplyResults( String pid) throws Exception {
+    List<ApplyResult> applyResults = zhongZhengApiService.getApplyResults("","", pid);
     return applyResults;
   }
 

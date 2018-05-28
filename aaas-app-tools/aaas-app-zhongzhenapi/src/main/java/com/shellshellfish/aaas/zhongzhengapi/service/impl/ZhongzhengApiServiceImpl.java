@@ -96,12 +96,11 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
   }
 
   @Override
-  public List<ApplyResult> getApplyResultByOutSideOrderNo(String outsideOrderNo, String trdAcco,
+  public List<ApplyResult> getApplyResultByOutSideOrderNo(String outsideOrderNo,
       String pid) throws Exception {
     try {
       TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
       origInfo.put("outsideorderno", outsideOrderNo);
-      origInfo.put("tradeacco", trdAcco);
       TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
       logMap(info);
       ZZGeneralRespWithListData<ApplyResult> resp = callZZApiWithListData(ZhongZhengAPIConstants
@@ -114,25 +113,10 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
     }
   }
 
-  @Override
-  public List<ApplyResult> getApplyResultByTrdAcco(String trdAcco, String pid) throws Exception {
-    try {
-      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
-      origInfo.put("tradeacco", trdAcco);
-      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
-      logMap(info);
-      ZZGeneralRespWithListData<ApplyResult> resp = callZZApiWithListData(ZhongZhengAPIConstants
-          .ZZ_API_URL_APPLY_LIST, ApplyResult.class, info);
-      checkResult(resp);
-      return resp.getData();
-    } catch (Exception e) {
-      logger.error("Error:", e);
-      throw e;
-    }
-  }
+
 
   @Override
-  public List<ApplyResult> getApplyResultByApplySerial(String applySerial, String trdAcco,
+  public List<ApplyResult> getApplyResultByApplySerial(String applySerial,
       String pid) throws Exception {
     try {
       TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
