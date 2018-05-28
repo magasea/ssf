@@ -338,7 +338,7 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
 
   @Override
   public List<ApplyResult> getApplyResults(String outsideOrderNo, String applySerial,
-      String trdAcco, String pid) throws Exception {
+       String pid) throws Exception {
     try {
       TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
       if(!StringUtils.isEmpty(applySerial)){
@@ -346,7 +346,7 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
       }else if(StringUtils.isEmpty(outsideOrderNo)){
         origInfo.put("outsideorderno", outsideOrderNo);
       }
-      origInfo.put("tradeacco", trdAcco);
+
 
       TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
       logMap(info);

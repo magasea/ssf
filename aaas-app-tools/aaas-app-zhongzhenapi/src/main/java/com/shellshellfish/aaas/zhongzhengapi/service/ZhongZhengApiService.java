@@ -70,12 +70,11 @@ public interface ZhongZhengApiService {
    *
    * @param outsideOrderNo
    * @param applySerial
-   * @param trdAcco
    * @param pid
    * @return
    * @throws Exception
    */
-  List<ApplyResult> getApplyResults(String outsideOrderNo, String applySerial, String trdAcco,
+  List<ApplyResult> getApplyResults(String outsideOrderNo, String applySerial,
       String pid) throws  Exception;
 
 
