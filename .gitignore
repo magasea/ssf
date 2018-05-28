@@ -32,6 +32,7 @@ Thumbs.db
 *-local*.yml
 *-local*.xml
 target/
+temp/
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###

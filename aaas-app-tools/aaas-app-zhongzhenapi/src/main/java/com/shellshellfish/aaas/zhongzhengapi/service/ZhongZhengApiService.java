@@ -11,7 +11,7 @@ import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZTradeLimit;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltAplyInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltInfoRlt;
-import com.shellshellfish.aaas.zhongzhengapi.model.BankZhongZhenInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
 import com.shellshellfish.aaas.zhongzhengapi.model.CancelTradeResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.SellResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZBonusInfo;
@@ -24,7 +24,7 @@ import java.util.List;
 public interface ZhongZhengApiService {
 
 
-  List<BankZhongZhenInfo> getSupportBankList();
+  List<ZZBankInfo> getSupportBankList();
 
   /**
    * 撤单

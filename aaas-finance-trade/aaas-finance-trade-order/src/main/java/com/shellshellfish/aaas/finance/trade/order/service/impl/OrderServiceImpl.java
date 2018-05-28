@@ -2,9 +2,18 @@ package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
 import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
-import com.shellshellfish.aaas.finance.trade.order.*;
+import com.shellshellfish.aaas.finance.trade.order.BindCardResult;
+import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
+import com.shellshellfish.aaas.finance.trade.order.OrderDetailQueryInfo;
+import com.shellshellfish.aaas.finance.trade.order.OrderDetailResult;
+import com.shellshellfish.aaas.finance.trade.order.OrderQueryInfo;
+import com.shellshellfish.aaas.finance.trade.order.OrderResult;
+import com.shellshellfish.aaas.finance.trade.order.OrderRpcServiceGrpc;
+import com.shellshellfish.aaas.finance.trade.order.UserBankCardNum;
+import com.shellshellfish.aaas.finance.trade.order.UserPID;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
@@ -17,21 +26,27 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.redis.UserPidDAO
 import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
+import com.shellshellfish.aaas.finance.trade.order.service.ZZApiService;
 import com.shellshellfish.aaas.grpc.common.ErrInfo;
 import com.shellshellfish.aaas.grpc.common.UserProdId;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import io.grpc.stub.StreamObserver;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
-import javax.annotation.Resource;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 @Service
 public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBase implements
@@ -59,6 +74,9 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 
     @Autowired
     PayService payService;
+
+    @Autowired
+    ZZApiService zzApiService;
 
     @Override
     public List<TrdOrderDetail> getOrderByUserId(Long userId) {
@@ -380,5 +398,37 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
         responseObserver.onCompleted();
     }
 
+    @Override
+    public void syncBankInfos() {
+        try {
+            List<ZZBankInfo> zzBankInfos =  zzApiService.getZZSupportedBanks();
+            zzBankInfos.forEach(bankInfo->{
+                if(StringUtils.isEmpty(bankInfo.getBankSerial())){
+                    logger.error("bankCode not valid:{}", bankInfo.getBankSerial());
+                    return;
+                }
+                TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository.findByBankCode(bankInfo
+                    .getBankSerial());
+                if(trdTradeBankDic != null ){
+                    trdTradeBankDic.setCapitalModel(bankInfo.getCapitalModel());
+                    trdTradeBankDic.setMoneyLimitDay(bankInfo.getMoneyLimitDay());
+                    trdTradeBankDic.setMoneyLimitOne(bankInfo.getMoneyLimitOne());
+                    logger.info("update bankinfo for bankCode:{}", trdTradeBankDic.getBankCode());
+                    trdTradeBankDicRepository.save(trdTradeBankDic);
+                }else{
+                    trdTradeBankDic.setTraderBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
+                    trdTradeBankDic.setBankCode(bankInfo.getBankSerial());
+                    trdTradeBankDic.setBankName(bankInfo.getBankName());
+                    trdTradeBankDic.setCapitalModel(bankInfo.getCapitalModel());
+                    trdTradeBankDic.setMoneyLimitDay(bankInfo.getMoneyLimitDay());
+                    trdTradeBankDic.setMoneyLimitOne(bankInfo.getMoneyLimitOne());
+                    logger.info("insert bankinfo for bankCode:{}", trdTradeBankDic.getBankCode());
+                    trdTradeBankDicRepository.save(trdTradeBankDic);
+                }
+            });
 
+        } catch (Exception e) {
+            logger.error("error:", e);
+        }
+    }
 }

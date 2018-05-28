@@ -19,5 +19,7 @@ public interface OrderService {
 
 	Map<String, Object> getBankInfos(String bankShortName);
 
+	void syncBankInfos();
+
 
 }
