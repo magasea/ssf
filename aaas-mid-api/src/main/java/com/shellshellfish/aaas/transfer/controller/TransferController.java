@@ -353,6 +353,37 @@ public class TransferController {
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
+	
+	@ApiOperation("立即购买时对产品风险级别的判断")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "12"),
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
+	})
+	@RequestMapping(value = "/appropriate-riskLevel", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult isAppropriateRiskLevel(String uuid, String groupId, @RequestParam(required=false, defaultValue="1")String oemid) {
+		try {
+			if (!riskService.isAppropriateRishLevel(uuid, Long.parseLong(groupId))) {
+				return new JsonResult(JsonResult.Fail, "该产品超出您当前的风险承受能力！", JsonResult.EMPTYRESULT);
+			}
+			return new JsonResult(JsonResult.SUCCESS, "该产品符合购买的风险承受能力！", JsonResult.EMPTYRESULT);
+		} catch (HttpClientErrorException e) {
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		} catch (HttpServerErrorException e) {
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			JSONObject myJson = JSONObject.parseObject(str);
+			String error = myJson.getString("message");
+			return new JsonResult(JsonResult.Fail, error, JsonResult.EMPTYRESULT);
+		} catch (Exception e) {
+			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}
+	}
 
 	@ApiOperation("产品赎回")
 	@ApiImplicitParams({
