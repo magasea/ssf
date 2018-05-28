@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.common.enums;
 /**
  * @Author pierre
  * 18-1-19
+ * TODO 货币基金太多，需要建立一个表存储
  */
 public enum MonetaryFundEnum {
 
