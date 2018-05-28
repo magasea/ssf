@@ -1,5 +1,5 @@
 server:
-  port: 20090
+  port: 10090
 logging:
   level:
     org.hibernate.SQL: DEBUG
@@ -29,4 +29,4 @@ datasource:
 
 grpc:
   host: localhost
-  port: 20091
+  port: 10091
