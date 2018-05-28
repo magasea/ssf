@@ -244,8 +244,7 @@
                            <executions>
                                  <execution>
                                         <goals>
-                                               <goal>deploy</goal>
-                                 <goal> build </goal> 
+                                               <goal>build</goal>
                                </goals>
                                  </execution>
                            </executions>
