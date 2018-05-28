@@ -568,7 +568,7 @@ public class UserInfoController {
                     bankName = BankUtil.getNameOfBank(bankcardNum);
                     bankName = bankName.substring(0, bankName.indexOf("·"));
                   }
-                  map.put("orderId", orderId);
+                  //map.put("orderId", orderId);
                   if (orderResult.get("buyFee") != null) {
                     BigDecimal buyFee = new BigDecimal(orderResult.get("buyFee") + "");
                     buyFee = buyFee.divide(new BigDecimal("100"));

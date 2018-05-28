@@ -94,7 +94,7 @@ public class ZhongzhengApiServiceImplTest {
     String fundCode = "40009.OF";
     String sellType = "0";
     String pid = "362522198709220031";
-    zhongZhengApiService.getApplyResultByOutSideOrderNo(outsideTradeNo, trdAcco,   pid );
+    zhongZhengApiService.getApplyResultByOutSideOrderNo(outsideTradeNo,   pid );
 
   }
 
@@ -102,7 +102,7 @@ public class ZhongzhengApiServiceImplTest {
   public void getApplyResultByTrdAcco() throws Exception {
     String trdAcco = "33586";
     String pid = "352230198703172130";
-    List<ApplyResult> applyResults =  zhongZhengApiService.getApplyResultByTrdAcco(trdAcco,   pid );
+    List<ApplyResult> applyResults =  zhongZhengApiService.getApplyResults("","",  pid );
     applyResults.forEach(
         item->{
           System.out.println(item.getApplyDate());
@@ -118,7 +118,7 @@ public class ZhongzhengApiServiceImplTest {
     String pid = "362522198709220031";
     String trdAcco = "33600";
     String applySerial = "20180516000606";
-    List<ApplyResult> applyResults =  zhongZhengApiService.getApplyResults("", applySerial, trdAcco, pid);
+    List<ApplyResult> applyResults =  zhongZhengApiService.getApplyResults("", applySerial, pid);
     applyResults.forEach(
         item->{
           System.out.println(item.getAccepTtime());

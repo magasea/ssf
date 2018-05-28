@@ -1189,7 +1189,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                 log.put("date", dateString);
                 log.put("dateLong", aLong / 1000);
                 System.out.println(dateString);
-                log.remove("orderId");
+                //log.remove("orderId");
             }
 
             Collections.sort(tradeLogs, (o1, o2) -> {
@@ -1210,9 +1210,11 @@ public class UserInfoServiceImpl implements UserInfoService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         System.out.println(tradeLogs.size());
         result.put("tradeLogs", tradeLogs);
         return result;
+
     }
 
     public List getUsersOfUserProdIds(Long userId, Integer type) {

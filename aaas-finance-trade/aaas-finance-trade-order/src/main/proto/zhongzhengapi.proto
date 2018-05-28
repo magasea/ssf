@@ -27,10 +27,9 @@ message BankZhongZhengInfo{
 }
 
 message AplyRltQuery{
-  string trdAcco = 1;
-  string pid = 2;
-  string outsideOrderNo = 3;
-  string applySerial = 4;
+  string pid = 1;
+  string outsideOrderNo = 2;
+  string applySerial = 3;
 }
 
 message ZZApplyResults{

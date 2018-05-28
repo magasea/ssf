@@ -58,7 +58,6 @@ public class ZZApiServiceImpl implements ZZApiService {
     AplyRltQuery.Builder arqBuilder = AplyRltQuery.newBuilder();
     arqBuilder.setApplySerial(applySerial);
     arqBuilder.setPid(pid);
-    arqBuilder.setTrdAcco(trdAcco);
     List<ZZApplyResult> zzApplyResults = null;
     try {
       zzApplyResults = zzApiServiceBlockingStub.getAplyResults(arqBuilder
