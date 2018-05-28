@@ -29,7 +29,7 @@ target/
 Thumbs.db
 
 # local config ignore
-#*-local*.yml
+*-local*.yml
 *-local*.xml
 target/
 !.mvn/wrapper/maven-wrapper.jar

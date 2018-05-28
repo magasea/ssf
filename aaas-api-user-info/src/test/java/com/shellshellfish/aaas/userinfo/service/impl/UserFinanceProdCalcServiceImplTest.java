@@ -1,6 +1,9 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
+import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -25,8 +28,7 @@ import java.util.Random;
 
 @RunWith(value = SpringRunner.class)
 @SpringBootTest
-@ActiveProfiles(profiles = "test")
-@Ignore
+@ActiveProfiles(profiles = "pretest")
 public class UserFinanceProdCalcServiceImplTest {
 
     private static final Logger logger = LoggerFactory.getLogger(UserFinanceProdCalcServiceImplTest.class);
@@ -35,8 +37,11 @@ public class UserFinanceProdCalcServiceImplTest {
     private UserFinanceProdCalcService userFinanceProdCalcService;
 
     @Autowired
+    UiProductDetailRepo uiProductDetailRepo;
+    @Autowired
     @Qualifier("zhongZhengMongoTemplate")
     private MongoTemplate mongoTemplate;
+
 
     private List<String> fundCodeList = Arrays.asList("000614",
             "001987",
@@ -151,6 +156,19 @@ public class UserFinanceProdCalcServiceImplTest {
                 update.set("asset", amount);
                 mongoTemplate.findAndModify(query, update, DailyAmount.class);
             }
+        }
+    }
+
+
+    @Test
+    public void test() {
+
+        String date = InstantDateUtil.format(InstantDateUtil.now().plusDays(-2), InstantDateUtil.yyyyMMdd);
+        String uuid = "3a4401ae-d6f9-49ee-97e2-ce7ebf122822";
+        Long userProdId = 8L;
+        List<UiProductDetail> uiProductDetailList = uiProductDetailRepo.findAllByUserProdId(userProdId);
+        for (UiProductDetail detail : uiProductDetailList) {
+            userFinanceProdCalcService.calculateProductAsset(detail, uuid, userProdId, date);
         }
     }
 

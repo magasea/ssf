@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.common.message.order;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -8,7 +9,7 @@ import java.util.Objects;
 
 
 
-public class TrdPayFlow {
+public class TrdPayFlow implements Serializable {
 
   private long id;
   private long orderDetailId;
@@ -23,7 +24,7 @@ public class TrdPayFlow {
   private long trdConfirmDate;
   private int trdType;
   private String trdApplyDate;
-  private long trdAplydateUv;
+  private long applydateUnitvalue;
   private long trdApplySum;
   private long trdApplyShare;
   private Long tradeTargetSum;
@@ -174,12 +175,12 @@ public class TrdPayFlow {
 
   
   
-  public long getTrdAplydateUv() {
-    return trdAplydateUv;
+  public long getApplydateUnitvalue() {
+    return applydateUnitvalue;
   }
 
-  public void setTrdAplydateUv(long trdAplydateUv) {
-    this.trdAplydateUv = trdAplydateUv;
+  public void setApplydateUnitvalue(long applydateUnitvalue) {
+    this.applydateUnitvalue = applydateUnitvalue;
   }
 
   
@@ -368,7 +369,7 @@ public class TrdPayFlow {
         trdStatus == that.trdStatus &&
         trdConfirmDate == that.trdConfirmDate &&
         trdType == that.trdType &&
-        trdAplydateUv == that.trdAplydateUv &&
+        applydateUnitvalue == that.applydateUnitvalue &&
         trdApplySum == that.trdApplySum &&
         trdApplyShare == that.trdApplyShare &&
         tradeTargetShare == that.tradeTargetShare &&
@@ -399,10 +400,9 @@ public class TrdPayFlow {
 
     return Objects
         .hash(id, orderDetailId, tradeAcco, tradeBrokeId, applySerial, outsideOrderno, bankCardNum,
-            userProdId, fundCode, trdStatus, trdConfirmDate, trdType, trdApplyDate, trdAplydateUv,
-            trdApplySum, trdApplyShare, tradeTargetSum, tradeTargetShare, tradeConfirmShare,
-            tradeConfirmSum, buyFee, buyDiscount, userId, createBy, createDate, updateBy,
-            updateDate,
-            errMsg, errCode, trdbkerStatusCode, trdbkerStatusName);
+            userProdId, fundCode, trdStatus, trdConfirmDate, trdType, trdApplyDate,
+            applydateUnitvalue, trdApplySum, trdApplyShare, tradeTargetSum, tradeTargetShare,
+            tradeConfirmShare, tradeConfirmSum, buyFee, buyDiscount, userId, createBy, createDate,
+            updateBy, updateDate, errMsg, errCode, trdbkerStatusCode, trdbkerStatusName);
   }
 }

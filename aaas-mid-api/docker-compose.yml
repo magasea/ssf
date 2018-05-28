@@ -3,7 +3,7 @@ version: "2"
 
 services:
   aaas-mid-api:
-    image: aaas-mid-api:1.0.0 
+    image: aaas-mid-api:1.0.0-SNAPSHOT
     labels:
       - "aaas-mid-api"
     ports:
@@ -11,7 +11,7 @@ services:
       - "10131:10131"
     environment:
       - SPRING_PROFILES_ACTIVE=k8s
-      - AVA_OPTIONS=-Xmx256m
-      
+      - _JAVA_OPTIONS=-Xmx256m
+
       
       

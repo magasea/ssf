@@ -29,7 +29,7 @@ public class MongoDailyAmountCustomImpl implements MongoDailyAmountCustom {
         Aggregation agg = newAggregation(
                 match(Criteria.where("date").lte(date)),
                 match(Criteria.where("userProdId").is(prodId)),
-                group("userProdId", "date")
+                group("date")
                         .first("date").as("date")
                         .sum("asset").as("asset")
                 , sort(Sort.Direction.DESC, "date")

@@ -91,7 +91,7 @@ public class
 UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
     implements UserInfoRepoService {
 
-  Logger logger = LoggerFactory.getLogger(UserInfoServiceImpl.class);
+  Logger logger = LoggerFactory.getLogger(getClass());
 
   @Autowired
   UserInfoBankCardsRepository userInfoBankCardsRepository;

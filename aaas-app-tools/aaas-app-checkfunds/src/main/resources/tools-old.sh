@@ -2,7 +2,7 @@
 dm_file=/home/jenkins/services/old/aaas-api-data-manager*.jar
 cher_file=/home/jenkins/services/old/aaas-app-checkfunds*.jar
 aal_file=/home/jenkins/services/old/aaas-api-asset-allocation*.jar
-dcl_file=/home/jenkins/services/old/aas-funds-datacollection-server*.jar
+dcl_file=/home/jenkins/services/old/aaas-funds-datacollection-server*.jar
 
 dm_file_name=$(basename $dm_file)
 cher_file_name=$(basename $cher_file)

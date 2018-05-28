@@ -8,6 +8,7 @@ import com.shellshellfish.aaas.assetallocation.mapper.FundGroupIndexMapper;
 import com.shellshellfish.aaas.assetallocation.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.mapper.FundNetValMapper;
 import com.shellshellfish.aaas.assetallocation.service.FundGroupIndexService;
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.util.FastMath;
 import org.slf4j.Logger;
@@ -18,9 +19,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class FundGroupIndexServiceImpl implements FundGroupIndexService {
@@ -61,13 +60,13 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
 //        }
 //        startDate = startDate.isBefore(FundGroupService.GROUP_START_DATE) ? FundGroupService.GROUP_START_DATE : startDate;
         List<Double> values = new LinkedList<>();
-//        LocalDate date = LocalDate.of(startDate.getYear(), startDate.getMonth(), 15);
+        LocalDate date = LocalDate.of(startDate.getYear(), startDate.getMonth(), 15);
         do {
-            Double value = fundGroupHistoryMapper.getLatestNavAdj(groupId, subGroupId, startDate, oemId);
+            Double value = fundGroupHistoryMapper.getLatestNavAdj(groupId, subGroupId, date, oemId);
             if (value != null)
                 values.add(value);
-            startDate = startDate.plusMonths(1);
-        } while (startDate.isBefore(LocalDate.now(ZoneId.systemDefault()).plusDays(1)));
+            date = date.plusMonths(1);
+        } while (date.isBefore(InstantDateUtil.tomorrow()));
 //        do {
 //            Double value = fundGroupHistoryMapper.getLatestNavAdj(groupId, subGroupId, date, oemId);
 //            if (value != null)
@@ -89,12 +88,12 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
             annualYieldArray[i] = annualYield;
         }
 
-        // 年化收益率＝［（１＋平均收益率）＾（３６５／计算周期天数）－１］＊１００％
-        double historicalAnnualYield = FastMath.pow(1 + StatUtils.mean(annualYieldArray), (365D / 30D)) - 1;
+        // 年化收益率＝［（１＋平均收益率）＾12－１］＊１００％
+        double historicalAnnualYield = FastMath.pow(1 + StatUtils.mean(annualYieldArray), 12) - 1;
 
 
         //月度收益率方差＊sqrt(12)
-        double historicalAnnualVolatility = FastMath.sqrt(StatUtils.variance(annualYieldArray)) * FastMath.sqrt(12);
+        double historicalAnnualVolatility = FastMath.sqrt(StatUtils.populationVariance(annualYieldArray)) * FastMath.sqrt(12);
         FundGroupIndex fundGroupIndex = new FundGroupIndex(groupId, subGroupId, historicalAnnualYield, historicalAnnualVolatility);
         fundGroupIndex.setOemId(oemId);
         fundGroupIndexMapper.saveOrUpdate(fundGroupIndex);
@@ -117,8 +116,8 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
 
         List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
         for (Interval interval : list) {
-            if (Integer.parseInt(interval.getFund_group_id()) <= 15){
-                if (!interval.getId().endsWith("48")){
+            if (Integer.parseInt(interval.getFund_group_id()) <= 15) {
+                if (!interval.getId().endsWith("48")) {
                     continue;
                 }
             }
@@ -128,7 +127,7 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
             Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(interval.getFund_group_id());
             LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             calculateAnnualVolatilityAndAnnualYield(interval.getFund_group_id(), interval.getId()
-                ,  localDate, oemId);
+                    , localDate, oemId);
         }
         long endTime = System.currentTimeMillis();
         logger.info("finish to calculate historical annual yield and Historical annual volatility   startDate:{}," +

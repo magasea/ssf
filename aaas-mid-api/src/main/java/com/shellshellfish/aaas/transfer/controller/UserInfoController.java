@@ -685,6 +685,19 @@ public class UserInfoController {
             if (resultMap.get("totalIncomeRate") != null) {
               resultMap.put("totalIncomeRate", EasyKit
                   .getStringValue(BigDecimal.valueOf((Double) resultMap.get("totalIncomeRate"))));
+              
+              //TODO 暂时未区分oemId，待区分时需要输入变量oemid
+              String oemId = "1";
+              String groupId = resultMap.get("groupId") + "";
+              String subGroupId = resultMap.get("subGroupId") + "";
+              String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
+                      + "/sub-groups/" + subGroupId + "/" + oemId;
+              String status = "";
+              Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
+              if(productMap!=null&&productMap.containsKey("status")){
+              	status = productMap.get("status") + "";
+              	resultMap.put("status", status);
+              }
             }
           }
           Collections.reverse(resultList);
