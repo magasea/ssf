@@ -13,7 +13,7 @@ import com.shellshellfish.aaas.common.grpc.zzapi.ZZTradeLimit;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltAplyInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltInfoRlt;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.zhongzhengapi.model.BankZhongZhenInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
 import com.shellshellfish.aaas.zhongzhengapi.model.FundRiskCheckLog;
 import com.shellshellfish.aaas.zhongzhengapi.model.SellResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZBonusInfo;
@@ -22,7 +22,6 @@ import com.shellshellfish.aaas.zhongzhengapi.service.ZhongZhengApiService;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -59,11 +58,13 @@ public class ZhongzhengApiServiceImplTest {
 
   @Test
   public void getSupportBankList() throws Exception {
-    List<BankZhongZhenInfo> bankZhongZhenInfoList =
+    List<ZZBankInfo> bankZhongZhenInfoList =
     zhongZhengApiService.getSupportBankList();
     StringBuilder sb = new StringBuilder();
     bankZhongZhenInfoList.forEach(bank->{
-      sb.append(bank.getBankName()).append("|").append(bank.getBankSerial());
+      sb.append(bank.getBankName()).append("|").append(bank.getBankSerial()).append("|").append(bank
+          .getCapitalModel()).append("|").append(bank.getMoneyLimitDay()).append("|").append(bank
+          .getMoneyLimitOne());
       System.out.println(sb.toString());
       sb.delete(0, sb.length());
     });
