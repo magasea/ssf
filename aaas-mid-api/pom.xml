@@ -244,7 +244,11 @@
                            <executions>
                                  <execution>
                                         <goals>
+<<<<<<< HEAD
                                                <goal>deploy</goal>
+=======
+                                               <goal>build</goal>
+>>>>>>> 4ec412dd78b09cbb88f78a57f02b40594e11b866
                                </goals>
                                  </execution>
                            </executions>
