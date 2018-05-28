@@ -786,12 +786,14 @@ public class FundGroupService {
         //Todo: add map to cache
         String key = String.format("{}:{}:{}", groupId, subGroupId, oemId);
         List<String> codeList = null;
-        if (CollectionUtils.isEmpty(allCodeList) || !allSubGroupIds.containsKey(key)) {
-            codeList = fundGroupMapper.getFundGroupCodeList(queryCodes);
-            allCodeList.put(key, codeList);
-        } else {
-            codeList = allCodeList.get(key);
-        }
+
+        codeList = fundGroupMapper.getFundGroupCodeList(queryCodes);
+//        if (CollectionUtils.isEmpty(allCodeList) || !allSubGroupIds.containsKey(key)) {
+//            codeList = fundGroupMapper.getFundGroupCodeList(queryCodes);
+//            allCodeList.put(key, codeList);
+//        } else {
+//            codeList = allCodeList.get(key);
+//        }
 
         return codeList;
     }
