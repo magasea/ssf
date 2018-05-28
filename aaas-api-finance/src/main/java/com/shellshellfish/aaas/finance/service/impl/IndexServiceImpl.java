@@ -24,8 +24,8 @@ public class IndexServiceImpl implements IndexService {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexServiceImpl.class);
 
-    private static final String GROUP_ID = "15";
-    private static final String SUB_GROUP_ID = "150048";
+    private static final String GROUP_ID = "30";
+    private static final String SUB_GROUP_ID = "30000";
     private static final String CUST_RISK = "C5";
     private static final String INVESTMENT_HORIZON = "3";
 

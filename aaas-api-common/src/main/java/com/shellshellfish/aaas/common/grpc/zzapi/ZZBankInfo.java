@@ -1,4 +1,4 @@
-package com.shellshellfish.aaas.zhongzhengapi.model;
+package com.shellshellfish.aaas.common.grpc.zzapi;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
  * Created by chenwei on 2018- 四月 - 19
  */
 
- public  class  BankZhongZhenInfo {
+ public  class ZZBankInfo {
   @SerializedName("bankname")
   String bankName;
   @SerializedName("bankserial")

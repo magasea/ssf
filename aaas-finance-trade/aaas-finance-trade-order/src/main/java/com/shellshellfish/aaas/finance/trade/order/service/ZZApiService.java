@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.order.service;
 
 import com.shellshellfish.aaas.common.grpc.zzapi.ApplyResult;
-import com.shellshellfish.aaas.finance.trade.order.model.ZZBankInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
 import java.util.List;
 
 /**

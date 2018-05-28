@@ -36,8 +36,8 @@ datasource:
       format_sql: true
       dialect: org.hibernate.dialect.MySQLDialect
 shellshellfish:
-  asset-allocation-insertdf-url: "http://localhost:20020//api//asset-allocation//job //insertDailyFund"
-  asset-allocation-inithistory-url: "http://localhost:20020//api//asset-allocation//job//getAllIdAndSubId"
+  asset-allocation-insertdf-url: "http://localhost:20020//api//asset-allocation//job/insertDailyFund"
+  asset-allocation-inithistory-url: "http://localhost:20020//api//asset-allocation//job/getAllIdAndSubId"
   asset-allocation-updateallmaximumlosses-url: "http://localhost:20020/api/asset-allocation/job/updateAllMaximumLosses/"
   asset-allocation-initpyamongo-url: "http://localhost:20020//api//asset-allocation//job//getFundGroupIncomeAllToMongoDb"
   data-manager-initcache-url: "http://localhost:20030//api//datamanager//financeFrontPage"

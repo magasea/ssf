@@ -11,7 +11,7 @@ import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZTradeLimit;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltAplyInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltInfoRlt;
-import com.shellshellfish.aaas.zhongzhengapi.model.BankZhongZhenInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
 import com.shellshellfish.aaas.zhongzhengapi.model.CancelTradeResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.SellResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZBonusInfo;
@@ -36,13 +36,13 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
 
 
   @Override
-  public List<BankZhongZhenInfo> getSupportBankList() {
+  public List<ZZBankInfo> getSupportBankList() {
     try {
       TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(true, null);
       logMap(info);
-      ZZGeneralRespWithListData<BankZhongZhenInfo> resp = callZZApiWithListData(
+      ZZGeneralRespWithListData<ZZBankInfo> resp = callZZApiWithListData(
           ZhongZhengAPIConstants
-              .ZZ_API_URL_SUPPORT_BANK_LIST, BankZhongZhenInfo.class, info);
+              .ZZ_API_URL_SUPPORT_BANK_LIST, ZZBankInfo.class, info);
       checkResult(resp);
 
       return resp.getData();
@@ -96,12 +96,11 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
   }
 
   @Override
-  public List<ApplyResult> getApplyResultByOutSideOrderNo(String outsideOrderNo, String trdAcco,
+  public List<ApplyResult> getApplyResultByOutSideOrderNo(String outsideOrderNo,
       String pid) throws Exception {
     try {
       TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
       origInfo.put("outsideorderno", outsideOrderNo);
-      origInfo.put("tradeacco", trdAcco);
       TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
       logMap(info);
       ZZGeneralRespWithListData<ApplyResult> resp = callZZApiWithListData(ZhongZhengAPIConstants
@@ -114,25 +113,10 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
     }
   }
 
-  @Override
-  public List<ApplyResult> getApplyResultByTrdAcco(String trdAcco, String pid) throws Exception {
-    try {
-      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
-      origInfo.put("tradeacco", trdAcco);
-      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
-      logMap(info);
-      ZZGeneralRespWithListData<ApplyResult> resp = callZZApiWithListData(ZhongZhengAPIConstants
-          .ZZ_API_URL_APPLY_LIST, ApplyResult.class, info);
-      checkResult(resp);
-      return resp.getData();
-    } catch (Exception e) {
-      logger.error("Error:", e);
-      throw e;
-    }
-  }
+
 
   @Override
-  public List<ApplyResult> getApplyResultByApplySerial(String applySerial, String trdAcco,
+  public List<ApplyResult> getApplyResultByApplySerial(String applySerial,
       String pid) throws Exception {
     try {
       TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
@@ -338,7 +322,7 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
 
   @Override
   public List<ApplyResult> getApplyResults(String outsideOrderNo, String applySerial,
-      String trdAcco, String pid) throws Exception {
+       String pid) throws Exception {
     try {
       TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
       if(!StringUtils.isEmpty(applySerial)){
@@ -346,7 +330,7 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
       }else if(StringUtils.isEmpty(outsideOrderNo)){
         origInfo.put("outsideorderno", outsideOrderNo);
       }
-      origInfo.put("tradeacco", trdAcco);
+
 
       TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
       logMap(info);

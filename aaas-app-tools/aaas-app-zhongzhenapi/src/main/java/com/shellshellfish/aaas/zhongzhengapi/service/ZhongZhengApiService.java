@@ -11,7 +11,7 @@ import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZTradeLimit;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltAplyInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltInfoRlt;
-import com.shellshellfish.aaas.zhongzhengapi.model.BankZhongZhenInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
 import com.shellshellfish.aaas.zhongzhengapi.model.CancelTradeResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.SellResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZBonusInfo;
@@ -24,7 +24,7 @@ import java.util.List;
 public interface ZhongZhengApiService {
 
 
-  List<BankZhongZhenInfo> getSupportBankList();
+  List<ZZBankInfo> getSupportBankList();
 
   /**
    * 撤单
@@ -48,44 +48,34 @@ public interface ZhongZhengApiService {
   /**
    *
    * @param outsideOrderNo
-   * @param trdAcco
    * @return
    */
-  List<ApplyResult> getApplyResultByOutSideOrderNo(String outsideOrderNo, String trdAcco, String pid)
+  List<ApplyResult> getApplyResultByOutSideOrderNo(String outsideOrderNo, String pid)
       throws Exception;
 
 
   /**
    *
    * @param applySerial
-   * @param trdAcco
    * @param pid
    * @return
    * @throws Exception
    */
-  List<ApplyResult> getApplyResultByApplySerial(String applySerial, String trdAcco, String pid)
+  List<ApplyResult> getApplyResultByApplySerial(String applySerial, String pid)
       throws Exception;
 
   /**
    *
    * @param outsideOrderNo
    * @param applySerial
-   * @param trdAcco
    * @param pid
    * @return
    * @throws Exception
    */
-  List<ApplyResult> getApplyResults(String outsideOrderNo, String applySerial, String trdAcco,
+  List<ApplyResult> getApplyResults(String outsideOrderNo, String applySerial,
       String pid) throws  Exception;
 
 
-  /**
-   *
-   * @param trdAcco
-   * @return
-   */
-  List<ApplyResult> getApplyResultByTrdAcco(String trdAcco, String pid)
-      throws Exception;
 
 
   /**
