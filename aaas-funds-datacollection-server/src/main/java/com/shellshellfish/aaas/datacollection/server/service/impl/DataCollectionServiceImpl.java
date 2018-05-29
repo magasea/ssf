@@ -230,6 +230,9 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
 			builderDailyFunds.setCode(coinFunds.getCode());
 			builderDailyFunds.setYieldOf7Days(coinFunds.getUnitYieldOf10K());
 			builderDailyFunds.setMillionRevenue(coinFunds.getUnitYieldOf10K());
+			builderDailyFunds.setQuerydate(coinFunds.getQueryDate());
+			builderDailyFunds.setNavLatestDate(coinFunds.getQueryDate());
+
 			Query query = new Query();
 			query.addCriteria(Criteria.where("code").is(coinFunds.getCode()));
 			List<FundResources> fundResources = mongoTemplate.find(query, FundResources.class,

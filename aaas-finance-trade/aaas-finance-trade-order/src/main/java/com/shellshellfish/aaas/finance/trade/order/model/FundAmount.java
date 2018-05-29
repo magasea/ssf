@@ -12,6 +12,7 @@ public class FundAmount {
         this.fundCode = fundCode;
         this.fundName = fundName;
         this.grossAmount = grossAmount;
+        this.fundShare = "";
     }
     
     public FundAmount(String fundCode, String fundName, BigDecimal grossAmount, String fundShare) {

@@ -987,7 +987,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           outsideOrderNo);
       TrdPayFlow trdPayFlow = new TrdPayFlow();
       trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
-      trdPayFlow.setCreateBy(0L);
+      trdPayFlow.setCreateBy(prodSellPercentMsg.getUserId());
       trdPayFlow.setTrdStatus(TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(prodSellPercentMsg.getUserProdId());
       trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());

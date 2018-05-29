@@ -11,7 +11,7 @@ import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZTradeLimit;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltAplyInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltInfoRlt;
-import com.shellshellfish.aaas.zhongzhengapi.model.BankZhongZhenInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
 import com.shellshellfish.aaas.zhongzhengapi.model.CancelTradeResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.SellResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZBonusInfo;
@@ -36,13 +36,13 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
 
 
   @Override
-  public List<BankZhongZhenInfo> getSupportBankList() {
+  public List<ZZBankInfo> getSupportBankList() {
     try {
       TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(true, null);
       logMap(info);
-      ZZGeneralRespWithListData<BankZhongZhenInfo> resp = callZZApiWithListData(
+      ZZGeneralRespWithListData<ZZBankInfo> resp = callZZApiWithListData(
           ZhongZhengAPIConstants
-              .ZZ_API_URL_SUPPORT_BANK_LIST, BankZhongZhenInfo.class, info);
+              .ZZ_API_URL_SUPPORT_BANK_LIST, ZZBankInfo.class, info);
       checkResult(resp);
 
       return resp.getData();

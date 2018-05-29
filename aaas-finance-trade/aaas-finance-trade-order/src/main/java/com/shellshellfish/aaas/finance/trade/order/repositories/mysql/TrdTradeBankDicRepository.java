@@ -11,8 +11,9 @@ public interface TrdTradeBankDicRepository extends PagingAndSortingRepository<Tr
 
   TrdTradeBankDic findByBankNameAndTraderBrokerId(String bankName, Long traderBrokerId);
 
-  TrdTradeBankDic findByBankShortNameAndTraderBrokerId(String bankShortName, int traderBrokerId);
 
+
+  TrdTradeBankDic findByBankCode(String bankCode);
 
 	TrdTradeBankDic findByBankShortName(String shortName);
 
