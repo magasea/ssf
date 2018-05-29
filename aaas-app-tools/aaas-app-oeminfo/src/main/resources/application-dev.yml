@@ -109,3 +109,9 @@ oem-info:
      combination_five: http://47.96.164.161/APP-invest-banner05.png
      me_head_img: http://47.96.164.161/icon_me_headphoto.png
      about_logo: http://47.96.164.161/icon_about_logo.png
+
+
+management:
+  endpoints:
+    web:
+      base-path: /

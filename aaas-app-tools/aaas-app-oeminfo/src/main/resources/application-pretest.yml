@@ -67,6 +67,11 @@ grpc:
   port: 10161
 
 
+management:
+  endpoints:
+    web:
+      base-path: /
+
 aaas-api-finance-url: http://localhost:10120
 
 api-asset-alloction-url: http://localhost:10020
