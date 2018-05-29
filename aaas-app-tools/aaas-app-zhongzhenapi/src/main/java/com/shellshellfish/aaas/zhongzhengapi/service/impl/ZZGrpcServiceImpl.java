@@ -112,7 +112,7 @@ public class ZZGrpcServiceImpl extends ZZApiServiceGrpc.ZZApiServiceImplBase  {
           request.getFundCode());
       ZZFundShareInfoResult.Builder zzfsirBuilder = ZZFundShareInfoResult.newBuilder();
       ZZFundShareInfo.Builder zzfsiBuilder = ZZFundShareInfo.newBuilder();
-      if(CollectionUtils.isEmpty(zzFundShareInfos)){
+      if(!CollectionUtils.isEmpty(zzFundShareInfos)){
         zzFundShareInfos.forEach(
             zzFundShareInfo -> {
               zzfsiBuilder.clear();

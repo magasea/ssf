@@ -29,11 +29,13 @@ public abstract class AbstractZhongzhengApiService  {
   private final Gson gson = new Gson();
   private RestTemplate restTemplate = new RestTemplate();
   void logMap(Map info){
+    StringBuilder sb = new StringBuilder();
     info.forEach(
         (key, value) ->{
-          logger.info("{}:{}",key, value);
+          sb.append(String.format("%s:%s", key, value)).append("\n");
         }
     );
+    logger.info(sb.toString());
   }
   void checkResult(ZZGeneralRespWithListData zzGeneralRespWithListData) throws Exception {
     if(!zzGeneralRespWithListData.getStatus().equals("1") || !zzGeneralRespWithListData.getErrno().equals("0000")){
