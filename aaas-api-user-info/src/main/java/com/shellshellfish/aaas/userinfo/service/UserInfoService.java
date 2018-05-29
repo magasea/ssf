@@ -94,4 +94,6 @@ public interface UserInfoService {
     Map<String, Object> selectUserFindAll(Pageable pageable)
             throws InstantiationException, IllegalAccessException;
 
+    Map<String, Object> getMyAssetByProdId(String uuid, String prodId);
+
 }

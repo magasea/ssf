@@ -1548,6 +1548,25 @@ public class UserInfoServiceImpl implements UserInfoService {
             }
         }
     }
-
+    
+    @Override
+    public Map<String, Object> getMyAssetByProdId(String uuid, String prodId){
+      Map<String, Object> result = new HashMap<String, Object>();
+      try {
+        Long userId = this.getUserIdFromUUID(uuid);
+        ProductsDTO products = userInfoRepoService.findByProdId(prodId + "");
+        // 总资产
+        PortfolioInfo portfolioInfo = this.getChicombinationAssets(uuid, userId, products, null);
+  
+        portfolioInfo.setTotalAssets(Optional.ofNullable(portfolioInfo).map(m -> m.getTotalAssets())
+            .orElse(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP));
+  
+        result.put("result", portfolioInfo);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      
+      return result;
+    }
 
 }
