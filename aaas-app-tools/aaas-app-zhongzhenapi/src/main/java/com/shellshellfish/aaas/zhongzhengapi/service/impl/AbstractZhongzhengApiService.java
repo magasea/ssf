@@ -8,6 +8,7 @@ import com.google.gson.GsonBuilder;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApiServiceGrpc;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZGeneralErrResp;
+import com.shellshellfish.aaas.zhongzhengapi.model.ZZGeneralErrRespReturnList;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZGeneralResp;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZGeneralRespWithListData;
 import java.lang.reflect.ParameterizedType;
@@ -36,8 +37,8 @@ public abstract class AbstractZhongzhengApiService  {
   }
   void checkResult(ZZGeneralRespWithListData zzGeneralRespWithListData) throws Exception {
     if(!zzGeneralRespWithListData.getStatus().equals("1") || !zzGeneralRespWithListData.getErrno().equals("0000")){
-      String errMsg = String.format("{}:{}", zzGeneralRespWithListData.getErrno(), zzGeneralRespWithListData
-          .getMsg());
+      String errMsg = String.format("%s:%s", zzGeneralRespWithListData.getErrno(),
+          zzGeneralRespWithListData.getMsg());
       logger.error(errMsg);
       throw new Exception(errMsg);
     }
@@ -60,6 +61,13 @@ public abstract class AbstractZhongzhengApiService  {
   <T> ZZGeneralRespWithListData<T> callZZApiWithListData(String url, Class<T> cl ,  Map info){
 
     String json = restTemplate.postForObject(url, info, String.class);
+    if(json.contains(ZZGeneralErrRespReturnList.RETURN_LIST)){
+      ZZGeneralErrRespReturnList responseBase = gson.fromJson(json, getType
+          (ZZGeneralErrRespReturnList.class, cl));
+      ZZGeneralRespWithListData<T> responseBaseNormal = new ZZGeneralRespWithListData<>();
+      MyBeanUtils.mapEntityIntoDTO(responseBase, responseBaseNormal);
+      return responseBaseNormal;
+    }
     ZZGeneralRespWithListData<T> responseBase = gson.fromJson(json, getType(ZZGeneralRespWithListData.class, cl));
 
     return responseBase;

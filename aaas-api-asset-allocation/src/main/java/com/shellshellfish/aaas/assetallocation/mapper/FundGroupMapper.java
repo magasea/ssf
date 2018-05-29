@@ -117,7 +117,7 @@ public interface FundGroupMapper {
 
     String getRiskNum(@Param("id") String id);
 
-    int batchUpdateContribution(List<Map> mapList);
+    int batchUpdateContribution(@Param("list")List<Map> mapList,@Param("oemId")Integer oemId);
 
     int updateMaxLoss(@Param("fundGroupId") String fundGroupId, @Param("subGroupId") String subGroupId, @Param("maxLoss") Double maxLoss);
 
@@ -154,4 +154,9 @@ public interface FundGroupMapper {
     Integer deleteFundGroupSub(@Param("oemId") Integer oemId);
 
     void updateMaximumLosses(Map<String, Object> query);
+
+    //查询组合ID 及 用于计算的subId
+    List<Interval> getGroupIdAndSubId(@Param("oemId") Integer oemId);
+
+    String getGroupStatusByGroupId(@Param("groupId") String groupId, @Param("oemId") Integer oemId);
 }

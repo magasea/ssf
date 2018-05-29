@@ -80,6 +80,10 @@ public class MongoUiTrdLog implements Serializable {
   @Field( value = "apply_serial")
   private String applySerial;
 
+  @Field(value = "order_id")
+  @Indexed()
+  private String orderId;
+
   public MongoUiTrdLog() {
   }
 
@@ -228,5 +232,13 @@ public class MongoUiTrdLog implements Serializable {
 
   public void setOemId(Integer oemId) {
     this.oemId = oemId;
+  }
+
+  public String getOrderId() {
+    return orderId;
+  }
+
+  public void setOrderId(String orderId) {
+    this.orderId = orderId;
   }
 }

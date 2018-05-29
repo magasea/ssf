@@ -9,6 +9,7 @@ public class Interval extends FundGroupDetails {
     private double expected_annualized_return;//预期年化收益
     private double expected_max_retracement;//预期最大回撤
     private double simulate_historical_volatility;//预期最大回撤
+    private String status;//1 以前的15组数据， 2 新生成的15数据
 
     public String getIncome_risk_type() {
         return income_risk_type;
@@ -49,4 +50,12 @@ public class Interval extends FundGroupDetails {
 	public void setSimulate_historical_volatility(double simulate_historical_volatility) {
 		this.simulate_historical_volatility = simulate_historical_volatility;
 	}
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

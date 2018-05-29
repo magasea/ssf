@@ -30,7 +30,7 @@ public class UserProdChangeLogServiceImplTest {
   private static final String C000248 = "汇添富中证主要消费ETF联接";
   private static final String C000366 = "汇添富添富通货币A";
   private static final String C000406 = "汇添富双利增强债券A";
-  private static final String C000614 = "华安德国30(DAX)ETF联接(QDII)";
+  private static final String C000614 = "华安德国30(DAX)ETF联接(QDIIEnum)";
   private static final String C000696 = "汇添富环保行业股票";
   private static final String C001541 = "汇添富民营新动力股票";
   private static final String C001694 = "华安沪港深外延增长灵活配置混合";

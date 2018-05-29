@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 /**
  * @Author pierre 18-2-24
  */
-public interface MongoDailyAmountRepository extends MongoRepository<DailyAmount, Long> {
+public interface MongoDailyAmountRepository extends MongoRepository<DailyAmount, Long>, MongoDailyAmountCustom {
 
     List<DailyAmount> findAllByUserProdIdAndFundCode(Long userProdId, String fundCode, Sort sort);
 

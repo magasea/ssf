@@ -8,6 +8,7 @@ import com.shellshellfish.aaas.finance.trade.pay.PayServiceApplication;
 import com.shellshellfish.aaas.finance.trade.pay.model.BankZhongZhenInfo;
 import com.shellshellfish.aaas.finance.trade.pay.model.FundNetZZInfo;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
+import java.math.BigDecimal;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,6 +63,17 @@ public class FundTradeZhongZhengApiServiceTest {
   }
 
   @Test
+  public void getApplyResultByApplySerial() throws Exception {
+
+    String personId = "411327198710181169";
+    String openId = TradeUtil.getZZOpenId(personId);
+    String applySerial = "20180316000512";
+    ApplyResult applyResult = fundTradeApiService.getApplyResultByApplySerial(openId,
+        applySerial);
+    System.out.println(applyResult.getConfirmflag());
+  }
+
+  @Test
   public void testGetAllFundsInfo() throws Exception {
     List<String> allFunds = fundTradeApiService.getAllFundsInfo();
     allFunds.forEach(System.out::println);
@@ -83,4 +95,15 @@ public class FundTradeZhongZhengApiServiceTest {
     fundTradeApiService.getAllFundsInfo();
   }
 
+  @Test
+  public void sellFund() throws Exception {
+    String sellNum = "1";
+    String outsideTradeNo = "123"+ TradeUtil.getUTCTime();
+    String trdAcco = "33653";
+    String fundCode = "40009.OF";
+    String sellType = "0";
+    String pid = "522101197402150413";
+    String userOpenId = TradeUtil.getZZOpenId(pid);
+    fundTradeApiService.sellFund(userOpenId, BigDecimal.ONE, outsideTradeNo, trdAcco, fundCode);
+  }
 }

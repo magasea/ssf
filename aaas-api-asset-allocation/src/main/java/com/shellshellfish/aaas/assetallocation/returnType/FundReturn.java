@@ -24,6 +24,7 @@ public class FundReturn {
     private Long creationTime;
     private String _schemaVersion;
     private String _serviceId;
+    private String status;//1 表示第一套产品组合， 2表示新增的产品组合
     @JsonUnwrapped
     private List<Map<String,Object>> assetsRatios;
 
@@ -49,6 +50,14 @@ public class FundReturn {
 
     public void setSubGroupId(String subGroupId) {
         this.subGroupId = subGroupId;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getStatus() {
+        return status;
     }
 
     /*public double getMinAnnualizedReturn() {

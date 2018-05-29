@@ -46,5 +46,5 @@ public interface TrdOrderDetailRepository extends PagingAndSortingRepository<Trd
     List<TrdOrderDetail> findAllByUserProdIdAndOrderDetailStatus(Long userProdId,
                                                                  Integer orderDetailStatus);
 
-//  TrdOrderDetail updateByParam(Map param);
+    List<TrdOrderDetail> findAllByUserProdId(Long userProdId);
 }
