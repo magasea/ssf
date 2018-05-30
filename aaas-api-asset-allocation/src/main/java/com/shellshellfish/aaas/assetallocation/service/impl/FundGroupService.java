@@ -1777,7 +1777,9 @@ public class FundGroupService {
         logger.info("start to calculate all group maximum retracement");
         long startTime = System.currentTimeMillis();
 
-        List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
+//        List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
+        List<Interval> list = fundGroupMapper.getGroupIdAndSubId(oemId);
+
 //        if (CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)) {
 //            list = fundGroupMapper.getAllIdAndSubId(oemId);
 //            allSubGroupIds.put(oemId, list);
@@ -1788,11 +1790,11 @@ public class FundGroupService {
 
         for (Interval interval : list) {
 
-            if (interval != null && Integer.parseInt(interval.getFund_group_id()) <= 15){
-                if (!interval.getId().endsWith("48")){
-                    continue;
-                }
-            }
+//            if (interval != null && Integer.parseInt(interval.getFund_group_id()) <= 15){
+//                if (!interval.getId().endsWith("48")){
+//                    continue;
+//                }
+//            }
 
             //查询组合成立日
 //            LocalDate groupStartDate = QueryGroupBuildDate.getInstance().getGroupBuildDate(fundGroupId);
