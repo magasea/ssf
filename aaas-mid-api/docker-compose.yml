@@ -3,7 +3,7 @@ version: "2"
 
 services:
   aaas-mid-api:
-    image: aaas-mid-api:1.0.0-SNAPSHOT
+    image: aaas-mid-api:latest
     labels:
       - "aaas-mid-api"
     ports:

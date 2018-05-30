@@ -7,8 +7,8 @@ services:
     labels:
       - "aaas-app-oeminfo"
     ports:
-      - "10060:10060"
-      - "10061:10061"
+      - "10160:10160"
+      - "10161:10161"
     environment:
       - SPRING_PROFILES_ACTIVE=k8s
       - _JAVA_OPTIONS=-Xmx256m
