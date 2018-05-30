@@ -2,13 +2,13 @@ version: "2"
 
 
 services:
-  aaas-api-finance:
-    image: aaas-api-finance:latest
+  aaas-finance-trade-order:
+    image: aaas-finance-trade-order:latest
     labels:
-      - "aaas-api-finance"
+      - "aaas-finance-trade-order"
     ports:
-      - "10120:10120"
-      - "10121:10121"
+      - "10100:10100"
+      - "10101:10101"
     environment:
       - SPRING_PROFILES_ACTIVE=k8s
       - _JAVA_OPTIONS=-Xmx256m
