@@ -31,8 +31,8 @@ public class QueryGroupBuildDate {
         return SingletonHolder.instance;
     }
 
-    public LocalDate getGroupBuildDate(String groupId) {
-        Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(groupId);
+    public LocalDate getGroupBuildDate(String groupId, Integer oemId) {
+        Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(groupId, oemId);
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 }
