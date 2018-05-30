@@ -1436,7 +1436,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         }
         Long sumFromLog = null;
         //if the log is of type buy record, we sum up the sum values first
-//        if (mongoUiTrdLogDTO.getOperations() == TrdOrderOpTypeEnum.BUY.getOperation()) {
+        if (mongoUiTrdLogDTO.getOperations() == TrdOrderOpTypeEnum.BUY.getOperation()) {
           if (mongoUiTrdLogDTO.getTradeConfirmSum() != null
               && mongoUiTrdLogDTO.getTradeConfirmSum() > 0) {
             sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum();
@@ -1457,29 +1457,29 @@ public class UserInfoServiceImpl implements UserInfoService {
                 mongoUiTrdLogDTO.getUserProdId(), mongoUiTrdLogDTO.getFundCode());
             sumFromLog = 0L;
           }
-//        } else {
-//          //if the log is of type sell record, we sum up the num values first
-//          if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
-//              && mongoUiTrdLogDTO.getTradeConfirmShare() > 0) {
-//            sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
-//          } else if (mongoUiTrdLogDTO.getTradeTargetShare() != null
-//              && mongoUiTrdLogDTO.getTradeTargetShare() > 0) {
-//            sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
-//          } else if (mongoUiTrdLogDTO.getTradeConfirmSum() != null
-//              && mongoUiTrdLogDTO.getTradeConfirmSum() > 0) {
-//            sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum();
-//          } else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
-//              && mongoUiTrdLogDTO.getTradeTargetSum() > 0) {
-//            sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum();
-//          } else if (mongoUiTrdLogDTO.getAmount() != null) {
-//            sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount());
-//          } else {
-//            logger.error(
-//                "havent find trade quantity info for userProdId:{} and " + "fundCode:{}",
-//                mongoUiTrdLogDTO.getUserProdId(), mongoUiTrdLogDTO.getFundCode());
-//            sumFromLog = 0L;
-//          }
-//        }
+        } else {
+          //if the log is of type sell record, we sum up the num values first
+          if (mongoUiTrdLogDTO.getTradeConfirmShare() != null
+              && mongoUiTrdLogDTO.getTradeConfirmShare() > 0) {
+            sumFromLog = mongoUiTrdLogDTO.getTradeConfirmShare();
+          } else if (mongoUiTrdLogDTO.getTradeTargetShare() != null
+              && mongoUiTrdLogDTO.getTradeTargetShare() > 0) {
+            sumFromLog = mongoUiTrdLogDTO.getTradeTargetShare();
+          } else if (mongoUiTrdLogDTO.getTradeConfirmSum() != null
+              && mongoUiTrdLogDTO.getTradeConfirmSum() > 0) {
+            sumFromLog = mongoUiTrdLogDTO.getTradeConfirmSum();
+          } else if (mongoUiTrdLogDTO.getTradeTargetSum() != null
+              && mongoUiTrdLogDTO.getTradeTargetSum() > 0) {
+            sumFromLog = mongoUiTrdLogDTO.getTradeTargetSum();
+          } else if (mongoUiTrdLogDTO.getAmount() != null) {
+            sumFromLog = TradeUtil.getLongNumWithMul100(mongoUiTrdLogDTO.getAmount());
+          } else {
+            logger.error(
+                "havent find trade quantity info for userProdId:{} and " + "fundCode:{}",
+                mongoUiTrdLogDTO.getUserProdId(), mongoUiTrdLogDTO.getFundCode());
+            sumFromLog = 0L;
+          }
+        }
 
         map.put("amount", TradeUtil.getBigDecimalNumWithDiv100(sumFromLog));
 
