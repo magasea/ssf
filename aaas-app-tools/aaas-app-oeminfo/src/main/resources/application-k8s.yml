@@ -61,7 +61,7 @@ datasource:
 grpc:
   port: 10161
   userinfo:
-#    host: localhost
+    host: aaas-api-user-info
     port: 10061
   data-manager-rpc:
     host: aaas-api-data-manager
