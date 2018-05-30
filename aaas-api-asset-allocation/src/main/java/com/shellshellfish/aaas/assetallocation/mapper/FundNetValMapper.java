@@ -65,5 +65,5 @@ public interface FundNetValMapper {
 
     BigDecimal getLatestNavAdj(@Param("code") String code,@Param("date") LocalDate date);
 
-    Date getMinNavlatestDateByFundGroupId(@Param("fundGroupId")String fundGroupId);
+    Date getMinNavlatestDateByFundGroupId(@Param("fundGroupId")String fundGroupId, @Param("oemId")Integer oemId);
 }

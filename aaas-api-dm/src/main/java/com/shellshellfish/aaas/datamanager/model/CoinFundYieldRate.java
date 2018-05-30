@@ -34,7 +34,7 @@ public class CoinFundYieldRate {
 	private BigDecimal yieldOf7Days; //七日年化
 
 
-	@Field("NAVADJ")
+	@Field("ADJUSTEDNAV")
 	private BigDecimal navAdj; //复权单位净值
 
 

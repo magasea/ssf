@@ -25,7 +25,7 @@ spring:
         acknowledge-mode: auto
     username: ssf
     password: shellshellfish
-    host: external-rabbitmq-service
+    host: external-rabbitmq-servic
     port: 5672
     virtual-host: aaas
     topicQueuePayName: com-ssf-topic-queue-pay
@@ -43,7 +43,7 @@ datasource:
   aaasapp:
     url: jdbc:mysql://external-mysql-service:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8
     username: sa
-    password: 1rIQ9wi!@g3P$Qh* 
+    password: N4eTVr89lX9BaPcx 
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema: ssfuser
     maxPoolSize: 20
@@ -59,8 +59,9 @@ datasource:
       dialect: org.hibernate.dialect.MySQLDialect
   
 grpc:
+  port: 10161
   userinfo:
-#    host: localhost
+    host: aaas-api-user-info
     port: 10061
   data-manager-rpc:
     host: aaas-api-data-manager
@@ -82,3 +83,10 @@ api-asset-alloction-url: http://aaas-api-asset-allocation:10020
 
 # 每日收益计算 多线程
 daily-finance-calculate-thread: 8
+
+
+
+management:
+  endpoints:
+    web:
+      base-path: /

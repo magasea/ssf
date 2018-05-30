@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.transfer.controller;
 
 import com.google.common.base.Strings;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -1262,6 +1263,21 @@ public class UserInfoController {
         if (productResult != null) {
           result.put("title", productResult.get("prodName"));
         }
+        
+        String url3 =
+                userinfoUrl + "/api/userinfo/users/" + userUuid + "/asset-by-prodId?prodId=" + prodId;
+        Map userAssetInfo = restTemplate.getForEntity(url3, Map.class).getBody();
+		if (userAssetInfo != null && userAssetInfo.get("result") != null) {
+			Map userAsset = (Map) userAssetInfo.get("result");
+			String totalAmount = userAsset.get("totalAssets") + "";
+			sellTargetPercent = sellTargetPercent == null || sellTargetPercent.compareToIgnoreCase("null") == 0
+					? result.get("sellTargetPercent") + "" : sellTargetPercent;
+			totalAmount = (((new BigDecimal(totalAmount)).multiply(new BigDecimal(sellTargetPercent))
+					.divide(new BigDecimal("100"))).subtract(new BigDecimal(poundage))).setScale(2,
+							RoundingMode.HALF_UP)
+					+ "";
+			result.put("totalAssets", totalAmount);
+		}
       }
       return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result);
     } catch (Exception ex) {

@@ -2,13 +2,13 @@ version: "2"
 
 
 services:
-  aaas-api-finance:
-    image: aaas-api-finance:latest
+  aaas-api-user-login:
+    image: aaas-api-user-login:latest
     labels:
-      - "aaas-api-finance"
+      - "aaas-api-user-login"
     ports:
-      - "10120:10120"
-      - "10121:10121"
+      - "10070:10070"
+      - "10071:10071"
     environment:
       - SPRING_PROFILES_ACTIVE=k8s
       - _JAVA_OPTIONS=-Xmx256m

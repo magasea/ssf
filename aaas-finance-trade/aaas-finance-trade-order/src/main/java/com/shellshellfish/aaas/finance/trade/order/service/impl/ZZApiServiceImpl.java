@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.common.grpc.zzapi.ApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundInfo;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.finance.trade.order.service.ZZApiService;
 import com.shellshellfish.aaas.tools.zhongzhengapi.AplyRltQuery;
@@ -9,6 +10,7 @@ import com.shellshellfish.aaas.tools.zhongzhengapi.BankZhongZhengInfo;
 import com.shellshellfish.aaas.tools.zhongzhengapi.EmptyQuery;
 import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApiServiceGrpc.ZZApiServiceBlockingStub;
 import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApplyResult;
+import com.shellshellfish.aaas.tools.zhongzhengapi.ZZFundBaseInfo;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -71,5 +73,19 @@ public class ZZApiServiceImpl implements ZZApiService {
 
     return applyResults;
 
+  }
+
+  @Override
+  public List<ZZFundInfo> getAllZZFundInfo() throws Exception {
+    EmptyQuery.Builder eqBuilder = EmptyQuery.newBuilder();
+    List<ZZFundBaseInfo> zzFundBaseInfos =  zzApiServiceBlockingStub.getZZBaseInfos(
+        (eqBuilder.build())).getZzFundBaseInfosList();
+    List<ZZFundInfo> result = new ArrayList<>();
+    if(CollectionUtils.isEmpty(zzFundBaseInfos)){
+      logger.error("zzApiServiceBlockingStub.getZZBaseInfos got empty list");
+      throw new Exception("zzApiServiceBlockingStub.getZZBaseInfos got empty list");
+    }
+    result = MyBeanUtils.convertList(zzFundBaseInfos, ZZFundInfo.class);
+    return result;
   }
 }

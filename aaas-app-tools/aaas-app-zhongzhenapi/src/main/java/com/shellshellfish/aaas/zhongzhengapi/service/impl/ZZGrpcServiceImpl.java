@@ -4,12 +4,15 @@ import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
 
 import com.shellshellfish.aaas.common.grpc.zzapi.ApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.WalletApplyResult;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundInfo;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.tools.zhongzhengapi.BankZhongZhengInfo;
 import com.shellshellfish.aaas.tools.zhongzhengapi.BankZhongZhengInfoList;
 import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApiServiceGrpc;
 import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApplyResult;
 import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApplyResults;
+import com.shellshellfish.aaas.tools.zhongzhengapi.ZZFundBaseInfo;
+import com.shellshellfish.aaas.tools.zhongzhengapi.ZZFundBaseInfosResult;
 import com.shellshellfish.aaas.tools.zhongzhengapi.ZZFundShareInfo;
 import com.shellshellfish.aaas.tools.zhongzhengapi.ZZFundShareInfoResult;
 import com.shellshellfish.aaas.zhongzhengapi.service.ZhongZhengApiService;
@@ -102,6 +105,29 @@ public class ZZGrpcServiceImpl extends ZZApiServiceGrpc.ZZApiServiceImplBase  {
     }
   }
 
+  /**
+   */
+  @Override
+  public void getZZBaseInfos(com.shellshellfish.aaas.tools.zhongzhengapi.EmptyQuery request,
+      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.tools.zhongzhengapi.ZZFundBaseInfosResult> responseObserver) {
+    try {
+      List<ZZFundInfo> zzFundInfos = zhongZhengApiService.getAllFundInfo();
+      ZZFundBaseInfosResult.Builder zzfbirBuilder = ZZFundBaseInfosResult.newBuilder();
+      ZZFundBaseInfo.Builder zzfbiBuilder = ZZFundBaseInfo.newBuilder();
+      zzFundInfos.forEach(
+          zzfundInfo ->{
+            MyBeanUtils.mapEntityIntoDTO(zzfundInfo, zzfbiBuilder);
+            zzfbirBuilder.addZzFundBaseInfos(zzfbiBuilder);
+            zzfbiBuilder.clear();
+          }
+      );
+      responseObserver.onNext(zzfbirBuilder.build());
+      responseObserver.onCompleted();
+    } catch (Exception e) {
+      onError(responseObserver, e);
+    }
+  }
+
 
   /**
    */
@@ -112,7 +138,7 @@ public class ZZGrpcServiceImpl extends ZZApiServiceGrpc.ZZApiServiceImplBase  {
           request.getFundCode());
       ZZFundShareInfoResult.Builder zzfsirBuilder = ZZFundShareInfoResult.newBuilder();
       ZZFundShareInfo.Builder zzfsiBuilder = ZZFundShareInfo.newBuilder();
-      if(CollectionUtils.isEmpty(zzFundShareInfos)){
+      if(!CollectionUtils.isEmpty(zzFundShareInfos)){
         zzFundShareInfos.forEach(
             zzFundShareInfo -> {
               zzfsiBuilder.clear();

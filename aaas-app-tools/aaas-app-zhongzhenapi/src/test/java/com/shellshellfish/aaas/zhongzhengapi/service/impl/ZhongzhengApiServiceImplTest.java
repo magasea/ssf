@@ -380,7 +380,7 @@ public class ZhongzhengApiServiceImplTest {
 
   @Test
   public void getFundShare() throws Exception {
-    String pid = "352230198703172130";
+    String pid = "522101197402150413";
     List<ZZFundShareInfo> fundShareInfos = zhongZhengApiService.getFundShare(pid);
     fundShareInfos.forEach(
         item->{

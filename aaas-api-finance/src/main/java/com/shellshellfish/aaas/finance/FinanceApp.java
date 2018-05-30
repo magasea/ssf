@@ -19,8 +19,6 @@ import org.springframework.web.client.RestTemplate;
 @EnableAutoConfiguration(exclude = {MongoAutoConfiguration.class})
 @EnableConfigurationProperties({Properties.class})
 public class FinanceApp {
-
-
     public static void main(String[] args) {
         SpringApplication.run(FinanceApp.class, args);
     }
