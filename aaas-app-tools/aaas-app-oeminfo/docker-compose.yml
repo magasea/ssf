@@ -1,0 +1,17 @@
+version: "2"
+
+
+services:
+  aaas-app-oeminfo:
+    image: aaas-app-oeminfo:latest
+    labels:
+      - "aaas-app-oeminfo"
+    ports:
+      - "10160:10160"
+      - "10161:10161"
+    environment:
+      - SPRING_PROFILES_ACTIVE=k8s
+      - _JAVA_OPTIONS=-Xmx256m
+      
+      
+      

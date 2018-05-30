@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.model.dao;
 
+import java.util.Objects;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,6 +20,9 @@ public class TrdTradeBankDic {
   private String bankCode;
   private long traderBrokerId;
   private String bankShortName;
+  private String capitalModel;
+  private String moneyLimitOne;
+  private String moneyLimitDay;
   private long createBy;
   private long createDate;
   private long updateBy;
@@ -73,6 +77,36 @@ public class TrdTradeBankDic {
 
   public void setBankShortName(String bankShortName) {
     this.bankShortName = bankShortName;
+  }
+
+  @Basic
+  @Column(name = "capital_model")
+  public String getCapitalModel() {
+    return capitalModel;
+  }
+
+  public void setCapitalModel(String capitalModel) {
+    this.capitalModel = capitalModel;
+  }
+
+  @Basic
+  @Column(name = "money_limit_one")
+  public String getMoneyLimitOne() {
+    return moneyLimitOne;
+  }
+
+  public void setMoneyLimitOne(String moneyLimitOne) {
+    this.moneyLimitOne = moneyLimitOne;
+  }
+
+  @Basic
+  @Column(name = "money_limit_day")
+  public String getMoneyLimitDay() {
+    return moneyLimitDay;
+  }
+
+  public void setMoneyLimitDay(String moneyLimitDay) {
+    this.moneyLimitDay = moneyLimitDay;
   }
 
   @Basic
@@ -133,56 +167,27 @@ public class TrdTradeBankDic {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
     TrdTradeBankDic that = (TrdTradeBankDic) o;
-
-    if (id != that.id) {
-      return false;
-    }
-    if (traderBrokerId != that.traderBrokerId) {
-      return false;
-    }
-    if (createBy != that.createBy) {
-      return false;
-    }
-    if (createDate != that.createDate) {
-      return false;
-    }
-    if (updateBy != that.updateBy) {
-      return false;
-    }
-    if (updateDate != that.updateDate) {
-      return false;
-    }
-    if (bankName != null ? !bankName.equals(that.bankName) : that.bankName != null) {
-      return false;
-    }
-    if (bankCode != null ? !bankCode.equals(that.bankCode) : that.bankCode != null) {
-      return false;
-    }
-    if (bankShortName != null ? !bankShortName.equals(that.bankShortName)
-        : that.bankShortName != null) {
-      return false;
-    }
-    if (bankId != null ? !bankId.equals(that.bankId) : that.bankId != null) {
-      return false;
-    }
-
-    return true;
+    return id == that.id &&
+        traderBrokerId == that.traderBrokerId &&
+        createBy == that.createBy &&
+        createDate == that.createDate &&
+        updateBy == that.updateBy &&
+        updateDate == that.updateDate &&
+        Objects.equals(bankName, that.bankName) &&
+        Objects.equals(bankCode, that.bankCode) &&
+        Objects.equals(bankShortName, that.bankShortName) &&
+        Objects.equals(capitalModel, that.capitalModel) &&
+        Objects.equals(moneyLimitOne, that.moneyLimitOne) &&
+        Objects.equals(moneyLimitDay, that.moneyLimitDay) &&
+        Objects.equals(bankId, that.bankId);
   }
 
   @Override
   public int hashCode() {
-    int result = (int) (id ^ (id >>> 32));
-    result = 31 * result + (bankName != null ? bankName.hashCode() : 0);
-    result = 31 * result + (bankCode != null ? bankCode.hashCode() : 0);
-    result = 31 * result + (int) (traderBrokerId ^ (traderBrokerId >>> 32));
-    result = 31 * result + (bankShortName != null ? bankShortName.hashCode() : 0);
-    result = 31 * result + (int) (createBy ^ (createBy >>> 32));
-    result = 31 * result + (int) (createDate ^ (createDate >>> 32));
-    result = 31 * result + (int) (updateBy ^ (updateBy >>> 32));
-    result = 31 * result + (int) (updateDate ^ (updateDate >>> 32));
-    result = 31 * result + (bankId != null ? bankId.hashCode() : 0);
-    return result;
+
+    return Objects
+        .hash(id, bankName, bankCode, traderBrokerId, bankShortName, capitalModel, moneyLimitOne,
+            moneyLimitDay, createBy, createDate, updateBy, updateDate, bankId);
   }
 }

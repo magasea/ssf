@@ -1,0 +1,17 @@
+version: "2"
+
+
+services:
+  aaas-finance-trade-order:
+    image: aaas-finance-trade-order:latest
+    labels:
+      - "aaas-finance-trade-order"
+    ports:
+      - "10100:10100"
+      - "10101:10101"
+    environment:
+      - SPRING_PROFILES_ACTIVE=k8s
+      - _JAVA_OPTIONS=-Xmx256m
+      
+      
+      

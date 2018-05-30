@@ -1,10 +1,12 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
+import com.shellshellfish.aaas.common.utils.MathUtil;
 import com.shellshellfish.aaas.finance.trade.order.model.DistributionResult;
 import com.shellshellfish.aaas.finance.trade.order.model.FundAmount;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeLimitResult;
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdCalcService;
+import java.util.Comparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,17 +75,33 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
         BigDecimal totalPoundage = BigDecimal.ZERO;
         BigDecimal totalDiscountSaving = BigDecimal.ZERO;
         List<FundAmount> fundAmountList = new ArrayList<>();
-        for(ProductMakeUpInfo info: productMakeUpInfoList) {
-            BigDecimal amount = grossAmount.multiply(BigDecimal.valueOf(info.getFundShare()).divide(BigDecimal.valueOf(10000d)));
+        Collections.sort(productMakeUpInfoList, new Comparator<ProductMakeUpInfo>(){
+          public int compare(ProductMakeUpInfo o1, ProductMakeUpInfo o2){
+            if(o1.getFundCode() == o2.getFundCode())
+              return 0;
+            return o1.getFundCode().compareToIgnoreCase(o2.getFundCode()) < 0 ? -1 : 1;
+          }
+        });
+        BigDecimal remainAmount = grossAmount;
+        for(int idx = 0; idx < productMakeUpInfoList.size(); idx++ ) {
+            ProductMakeUpInfo info = productMakeUpInfoList.get(idx);
+            BigDecimal amount = MathUtil.round(grossAmount.multiply(BigDecimal.valueOf(info
+                .getFundShare()).divide(BigDecimal.valueOf(10000d))), 2, true);
+            if(idx == productMakeUpInfoList.size() -1){
+              logger.info("now adjust last one amount:{} remainAmount:{}", amount, remainAmount);
+              amount = remainAmount;
+            }else{
+              remainAmount = remainAmount.subtract(amount);
+            }
             BigDecimal rate = fundInfoService.getRateOfBuyFund(info.getFundCode(), BUY_FUND.getCode());
             BigDecimal discount = fundInfoService.getDiscount(info.getFundCode(), BUY_FUND.getCode());
             BigDecimal poundage = fundInfoService.calcPoundageByGrossAmount(amount, rate, discount);
             BigDecimal discountSaving =  fundInfoService.calcDiscountSaving(amount, rate, discount);
-
             totalPoundage = totalPoundage.add(poundage);
             totalDiscountSaving = totalDiscountSaving.add(discountSaving);
-
-            FundAmount fundAmount = new FundAmount(info.getFundCode(), info.getFundName(), amount);
+//            FundAmount fundAmount = new FundAmount(info.getFundCode(), info.getFundName(), amount);
+            BigDecimal fundShare = BigDecimal.valueOf(info.getFundShare()).divide(BigDecimal.valueOf(100d));
+            FundAmount fundAmount = new FundAmount(info.getFundCode(), info.getFundName(), amount, fundShare + "%");
             fundAmountList.add(fundAmount);
         }
         return new DistributionResult(totalPoundage, totalDiscountSaving, fundAmountList);

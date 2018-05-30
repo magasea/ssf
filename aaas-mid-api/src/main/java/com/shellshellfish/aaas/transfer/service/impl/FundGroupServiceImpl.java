@@ -1,6 +1,6 @@
 package com.shellshellfish.aaas.transfer.service.impl;
 
-import com.shellshellfish.aaas.common.enums.QDII;
+import com.shellshellfish.aaas.common.enums.QDIIEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
@@ -107,7 +107,7 @@ public class FundGroupServiceImpl implements FundGroupService {
                 totalFundSum += orderDetail.getFundSum();
             }
 
-            if (!containQDII && QDII.isQDII(orderDetail.getFundCode()))
+            if (!containQDII && QDIIEnum.isQDII(orderDetail.getFundCode()))
                 containQDII = true;
         }
         Long totals = tradeType.equalsIgnoreCase(TrdOrderOpTypeEnum.REDEEM.getComment()) ? totalFundNum : totalFundSum;

@@ -10,7 +10,7 @@ logging:
 
 
 datasource:
-  sampleapp:
+  aaasapp:
     hibernate:
       connection:
         useUnicode: true

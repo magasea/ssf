@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 记录查询详情的所有信息
  *
- * @author developer4
+ * @author chenwei
  */
 public class FundNAVInfo {
 	/*平均增长率*/

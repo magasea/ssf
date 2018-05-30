@@ -42,6 +42,9 @@ public class MongoFinanceDetail implements Serializable {
 
 	@Column(name = "last_modified_by")
 	private String lastModifiedBy;
+	
+	@Column(name = "status")
+	private String status;
 
 	public String getId() {
 		return id;
@@ -129,5 +132,13 @@ public class MongoFinanceDetail implements Serializable {
 
     public void setTotalPage(Integer totalPage) {
       this.totalPage = totalPage;
+    }
+
+    public String getStatus() {
+      return status;
+    }
+
+    public void setStatus(String status) {
+      this.status = status;
     }
 }

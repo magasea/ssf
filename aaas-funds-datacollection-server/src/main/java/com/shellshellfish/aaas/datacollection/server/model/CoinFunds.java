@@ -12,7 +12,7 @@ public class CoinFunds {
   String id;
   @Field( value="10KUNITYIELD" )
   Double unitYieldOf10K;
-  @Field( value="NAVADJ" )
+  @Field( value="ADJUSTEDNAV" )
   Double navAdj;
   @Field( value="YIELDOF7DAYS" )
   Double yieldOf7Days;

@@ -42,7 +42,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 交易用
  *
- * @author developer4
+ * @author chenwei
  */
 @RestController
 @RequestMapping("/phoneapi-ssf")
@@ -353,6 +353,37 @@ public class TransferController {
 			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
 		}
 	}
+	
+	@ApiOperation("立即购买时对产品风险级别的判断")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = ""),
+		@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "String", required = true, value = "groupId", defaultValue = "12"),
+		@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "String", required = false, value = "oemid", defaultValue = "1")
+	})
+	@RequestMapping(value = "/appropriate-riskLevel", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult isAppropriateRiskLevel(String uuid, String groupId, @RequestParam(required=false, defaultValue="1")String oemid) {
+		try {
+			if (!riskService.isAppropriateRishLevel(uuid, Long.parseLong(groupId))) {
+				return new JsonResult(JsonResult.Fail, "该产品超出您当前的风险承受能力！", JsonResult.EMPTYRESULT);
+			}
+			return new JsonResult(JsonResult.SUCCESS, "该产品符合购买的风险承受能力！", JsonResult.EMPTYRESULT);
+		} catch (HttpClientErrorException e) {
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		} catch (HttpServerErrorException e) {
+			String str = e.getResponseBodyAsString();
+			System.out.println(str);
+			JSONObject myJson = JSONObject.parseObject(str);
+			String error = myJson.getString("message");
+			return new JsonResult(JsonResult.Fail, error, JsonResult.EMPTYRESULT);
+		} catch (Exception e) {
+			String str = new ReturnedException(e).getErrorMsg();
+			logger.error(str, e);
+			return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+		}
+	}
 
 	@ApiOperation("产品赎回")
 	@ApiImplicitParams({
@@ -584,13 +615,23 @@ public class TransferController {
 		Map result = null;
 		try {
 			BigDecimal amount = new BigDecimal(totalAmount);
-			result = service.sellFundPage(groupId, subGroupId, amount + "", Integer.parseInt(oemid));
-			amount = amount.multiply(persent).divide(new BigDecimal("100")).subtract(new BigDecimal(result.get("poundage") + ""));
+//			result = service.sellFundPage(groupId, subGroupId, amount + "", Integer.parseInt(oemid));
+			if(persent.equals(BigDecimal.ZERO)){
+				result = service.sellFundPage(groupId, subGroupId, "0", Integer.parseInt(oemid));
+				result.put("totalAmount", "--");
+				result.put("poundage", "--");
+			} else {
+//				amount = amount.multiply(persent).divide(new BigDecimal("100")).subtract(new BigDecimal(result.get("poundage") + ""));
+				totalAmount = amount.multiply(persent).divide(new BigDecimal("100")) + "";
+				result = service.sellFundPage(groupId, subGroupId, totalAmount, Integer.parseInt(oemid));
+				amount = (new BigDecimal(totalAmount)).subtract(new BigDecimal(result.get("poundage") + ""));
+				result.put("totalAmount", amount);
+			}
 			if (result != null) {
 				result.put("userUuid", userUuid);
 				result.put("bankNum", bankNum);
 				result.put("bankName", bankName);
-				result.put("totalAmount", amount);
+//				result.put("totalAmount", amount);
 				result.put("combinationName", combinationName);
 				result.put("sellTargetPercent", persent);
 				result.put("prodId", prodId);

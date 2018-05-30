@@ -16,6 +16,7 @@ public class ZZGeneralRespWithListData<T>  {
 
 
 
+
   public String getStatus() {
     return status;
   }

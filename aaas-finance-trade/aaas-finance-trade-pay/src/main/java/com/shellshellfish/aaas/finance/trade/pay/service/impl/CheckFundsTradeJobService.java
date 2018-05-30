@@ -83,6 +83,7 @@ public class CheckFundsTradeJobService {
                             new com.shellshellfish.aaas.common.message.order.TrdPayFlow();
                         trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
                         trdPayFlow.setUpdateDate(Instant.now().getEpochSecond());
+                        trdPayFlow.setTrdApplyDate(applyResult.getApplydate());
                         trdPayFlow.setBuyDiscount(TradeUtil.getLongNumWithMul100(applyResult
                             .getCommisiondiscount()));
                         trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno
@@ -111,6 +112,7 @@ public class CheckFundsTradeJobService {
                         trdPayFlow.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
                             .getPoundage()));
                         updateByCheckAboutSumNum(trdPayFlow, applyResult);
+
                         trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno());
                         trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
                         trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
@@ -238,6 +240,19 @@ public class CheckFundsTradeJobService {
                             new com.shellshellfish.aaas.common.message.order.TrdPayFlow();
                         trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
                         trdPayFlow.setUpdateDate(Instant.now().getEpochSecond());
+                        if(!StringUtils.isEmpty(applyResult.getApplydate())){
+                            trdPayFlow.setTrdApplyDate(applyResult.getApplydate());
+                        }else{
+                            trdPayFlow.setTrdApplyDate("-1");
+                        }
+                        if(!StringUtils.isEmpty(applyResult.getTradeconfirmsum()) &&
+                        !StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
+                            trdPayFlow.setApplydateUnitvalue(TradeUtil.getLongFromDividByBD(applyResult
+                                    .getTradeconfirmsum(), applyResult.getTradeconfirmshare()));
+                        }else{
+                            trdPayFlow.setApplydateUnitvalue(-1);
+                        }
+
                         trdPayFlow.setBuyDiscount(TradeUtil.getLongNumWithMul100(applyResult
                             .getCommisiondiscount()));
                         trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno
@@ -352,6 +367,18 @@ public class CheckFundsTradeJobService {
             trdPayFlowMsg.setOutsideOrderno(applyResult.getOutsideorderno());
             trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
             trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+            if(!StringUtils.isEmpty(applyResult.getApplydate())){
+                trdPayFlow.setTrdApplyDate(applyResult.getApplydate());
+            }else{
+                trdPayFlow.setTrdApplyDate("-1");
+            }
+            if(!StringUtils.isEmpty(applyResult.getTradeconfirmsum()) &&
+                !StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
+                trdPayFlow.setApplydateUnitvalue(TradeUtil.getLongFromDividByBD(applyResult
+                    .getTradeconfirmsum(), applyResult.getTradeconfirmshare()));
+            }else{
+                trdPayFlow.setApplydateUnitvalue(-1);
+            }
             BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
             trdPayFlowRepository.save(trdPayFlow);
             return trdPayFlowMsg;

@@ -844,6 +844,11 @@ public class DataServiceImpl implements DataService {
                                 .subtract(startBaseClose.getSH905())
                                 .divide(startBaseClose.getSH905(), MathContext.DECIMAL128);
                         break;
+                    case "H11025CSI":
+                        dayUp = fundBaseClose.getH11025CSI()
+                                .subtract(startBaseClose.getH11025CSI())
+                                .divide(startBaseClose.getH11025CSI(), MathContext.DECIMAL128);
+                        break;
                     default:
                 }
                 map.put("dayup",

@@ -1,0 +1,17 @@
+version: "2"
+
+
+services:
+  aaas-api-user-info:
+    image: aaas-api-user-info:latest
+    labels:
+      - "aaas-api-user-info"
+    ports:
+      - "10060:10060"
+      - "10061:10061"
+    environment:
+      - SPRING_PROFILES_ACTIVE=k8s
+      - _JAVA_OPTIONS=-Xmx256m
+      
+      
+      

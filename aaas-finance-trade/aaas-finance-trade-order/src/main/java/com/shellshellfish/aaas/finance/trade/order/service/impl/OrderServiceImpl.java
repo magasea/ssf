@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
 import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.finance.trade.order.BindCardResult;
@@ -25,12 +26,12 @@ import com.shellshellfish.aaas.finance.trade.order.repositories.redis.UserPidDAO
 import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
+import com.shellshellfish.aaas.finance.trade.order.service.ZZApiService;
 import com.shellshellfish.aaas.grpc.common.ErrInfo;
 import com.shellshellfish.aaas.grpc.common.UserProdId;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import io.grpc.stub.StreamObserver;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +41,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Resource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +74,9 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 
     @Autowired
     PayService payService;
+
+    @Autowired
+    ZZApiService zzApiService;
 
     @Override
     public List<TrdOrderDetail> getOrderByUserId(Long userId) {
@@ -237,23 +240,26 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
     @Override
     public void getOrderDetail(OrderDetailQueryInfo request,
                                StreamObserver<OrderDetailResult> responseObserver) {
+        try {
+            List<TrdOrderDetail> result = trdOrderDetailRepository
+                    .findAllByUserProdIdAndOrderDetailStatus(request.getUserProdId(),
+                            request.getOrderDetailStatus());
 
-        List<TrdOrderDetail> result = trdOrderDetailRepository
-                .findAllByUserProdIdAndOrderDetailStatus(request.getUserProdId(),
-                        request.getOrderDetailStatus());
+            if (result == null) {
+                result = new ArrayList<>(0);
+            }
+            OrderDetailResult.Builder builder = OrderDetailResult.newBuilder();
 
-        if (result == null) {
-            result = new ArrayList<>(0);
+            for (int i = 0; i < result.size(); i++) {
+                OrderDetail.Builder orderDetailBuilder = OrderDetail.newBuilder();
+                MyBeanUtils.mapEntityIntoDTO(result.get(i), orderDetailBuilder);
+                builder.addOrderDetailResult(orderDetailBuilder);
+            }
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(e);
         }
-        OrderDetailResult.Builder builder = OrderDetailResult.newBuilder();
-
-        for (int i = 0; i < result.size(); i++) {
-            OrderDetail.Builder orderDetailBuilder = OrderDetail.newBuilder();
-            MyBeanUtils.mapEntityIntoDTO(result.get(i), orderDetailBuilder);
-            builder.addOrderDetailResult(orderDetailBuilder);
-        }
-        responseObserver.onNext(builder.build());
-        responseObserver.onCompleted();
     }
 
     /**
@@ -282,6 +288,30 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
         responseObserver.onCompleted();
     }
 
+
+    /**
+     * @param request
+     * @param responseObserver
+     */
+    @Override
+    public void getAllOrderDetail(UserProdId request,
+                                  StreamObserver<OrderDetailResult> responseObserver) {
+
+        List<TrdOrderDetail> result = trdOrderDetailRepository.findAllByUserProdId(request.getUserProdId());
+
+        if (result == null) {
+            result = new ArrayList<>(0);
+        }
+        OrderDetailResult.Builder builder = OrderDetailResult.newBuilder();
+
+        for (int i = 0; i < result.size(); i++) {
+            OrderDetail.Builder orderDetailBuilder = OrderDetail.newBuilder();
+            MyBeanUtils.mapEntityIntoDTO(result.get(i), orderDetailBuilder);
+            builder.addOrderDetailResult(orderDetailBuilder);
+        }
+        responseObserver.onNext(builder.build());
+        responseObserver.onCompleted();
+    }
 
     @Override
     public Map<String, Object> getBankInfos(String bankShortName) {
@@ -368,5 +398,37 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
         responseObserver.onCompleted();
     }
 
+    @Override
+    public void syncBankInfos() {
+        try {
+            List<ZZBankInfo> zzBankInfos =  zzApiService.getZZSupportedBanks();
+            zzBankInfos.forEach(bankInfo->{
+                if(StringUtils.isEmpty(bankInfo.getBankSerial())){
+                    logger.error("bankCode not valid:{}", bankInfo.getBankSerial());
+                    return;
+                }
+                TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository.findByBankCode(bankInfo
+                    .getBankSerial());
+                if(trdTradeBankDic != null ){
+                    trdTradeBankDic.setCapitalModel(bankInfo.getCapitalModel());
+                    trdTradeBankDic.setMoneyLimitDay(bankInfo.getMoneyLimitDay());
+                    trdTradeBankDic.setMoneyLimitOne(bankInfo.getMoneyLimitOne());
+                    logger.info("update bankinfo for bankCode:{}", trdTradeBankDic.getBankCode());
+                    trdTradeBankDicRepository.save(trdTradeBankDic);
+                }else{
+                    trdTradeBankDic.setTraderBrokerId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
+                    trdTradeBankDic.setBankCode(bankInfo.getBankSerial());
+                    trdTradeBankDic.setBankName(bankInfo.getBankName());
+                    trdTradeBankDic.setCapitalModel(bankInfo.getCapitalModel());
+                    trdTradeBankDic.setMoneyLimitDay(bankInfo.getMoneyLimitDay());
+                    trdTradeBankDic.setMoneyLimitOne(bankInfo.getMoneyLimitOne());
+                    logger.info("insert bankinfo for bankCode:{}", trdTradeBankDic.getBankCode());
+                    trdTradeBankDicRepository.save(trdTradeBankDic);
+                }
+            });
 
+        } catch (Exception e) {
+            logger.error("error:", e);
+        }
+    }
 }

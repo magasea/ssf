@@ -1,0 +1,79 @@
+server:
+  port: 10020
+logging:
+  level:
+    org.hibernate.SQL: info
+    org.hibernate.type.descriptor.sql.BasicBinder: info
+    org.springframework.data: info
+mybatis:
+    config-locations: classpath:mybatis/mybatis-config.xml
+    mapper-locations: classpath:mybatis/mapper/*.xml
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+  data:
+    mongodb:
+      database: ssf_asset_allo
+      host: 192.168.1.10
+      port: 30005
+      collection: portfolio_yield_all
+#  datasource:
+#      driverClassName: com.mysql.jdbc.Driver
+#      password: t5MqqozQDNramNHh
+#      url: jdbc:mysql://192.168.1.10:3306/choice?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
+#      username: ssf08
+
+#        password: uCIPzdEJzbeoFAMj
+#        url: jdbc:mysql://192.168.1.10:3306/choicecopy?useUnicode=true&characterEncoding=utf-8
+#        username: ssf09
+
+#      password: 1xtZgrp#XzxGi$3OZ
+#      url: jdbc:mysql://192.168.1.15:3306/choicedebug?autoReconnect=true&allowMultiQueries=true&failOverReadOnly=false&useSSL=false&useUnicode=true&characterEncoding=utf-8
+#      username: ssf0015
+
+
+
+
+datasource:
+  aaasapp:
+    url: jdbc:mysql://192.168.1.10:30006/choice?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
+    username: ssf08
+    password: 1rIQ9wi!@g3P$Qh*
+    driverClassName: com.mysql.jdbc.Driver
+    defaultSchema: ssfuser
+    maxPoolSize: 20
+    hibernate:
+      connection:
+        useUnicode: true
+        characterEncoding: UTF-8
+      jdbc:
+        batch_size: 50
+      hbm2ddl.method: update
+      show_sql: true
+      format_sql: true
+      dialect: org.hibernate.dialect.MySQLDialect
+
+grpc:
+  host: localhost
+  port: 10021
+  daily-fund-client:
+    host: localhost
+    port: 10091
+
+application:
+    swagger:
+        title: SSF Platform API
+        description: Shell shell fish API documentation
+        version: 0.1.X
+        termsOfServiceUrl:
+        contactName:
+        contactUrl:
+        contactEmail:
+        license:
+        licenseUrl:
+
+management:
+  endpoints:
+    web:
+      base-path: /
