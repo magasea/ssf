@@ -28,7 +28,7 @@ public class FundInfoServiceImplTest {
     builder.setNavLatestDateEnd("2018-02-05");
 //    builder.addCodes("300SH_5_CSI_5");
 //    builder.addCodes("001987.OF");
-    builder.addCodes("000149.OF");
+    builder.addCodes("001987.OF");
     List<DailyFunds> dailyFundsList = fundInfoService.getDailyFunds(builder.build());
     for(DailyFunds dailyFunds: dailyFundsList){
       System.out.println(dailyFunds.getNavadj());
