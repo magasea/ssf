@@ -5,10 +5,10 @@ grpc:
 #  host: localhost
   port: 10131
   oeminfo:
-    host: localhost
+    host: aaas-app-oeminfo
     port: 10161
   order:
-    host: localhost
+    host: aaas-finance-trade-order
     port: 10101
 logging:
   level:
