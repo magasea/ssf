@@ -1026,6 +1026,19 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           notifySell(trdPayFlowMsg);
         }else{
           //赎回请求失败，需要把扣减的基金数量加回去
+          trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+          trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
+          trdPayFlow.setTradeTargetShare(prodDtlSellDTO.getFundQuantity());
+//          trdPayFlow.setTradeTargetSum(TradeUtil.getLongNumWithMul100(prodDtlSellDTO
+//              .getTargetSellAmount()));
+          trdPayFlow.setFundCode(prodDtlSellDTO.getFundCode());
+          trdPayFlow.setOutsideOrderno(outsideOrderNo);
+          trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
+          trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
+          trdPayFlow.setCreateBy(prodSellPercentMsg.getUserId());
+          trdPayFlow.setUpdateBy(prodSellPercentMsg.getUserId());
+          trdPayFlow.setTradeAcco(prodSellPercentMsg.getTrdAcco());
+          trdPayFlow.setUserProdId(prodSellPercentMsg.getUserProdId());
           notifyRollback(trdPayFlow, prodDtlSellDTO, sellNum);
         }
       }catch (Exception ex){
