@@ -140,6 +140,9 @@ message ZZFundShareInfo{
     string unpaidIncome = 21;
     string usableRemainShare = 22;
 }
+message ZZFundShareInfoResult{
+  repeated ZZFundShareInfo zzFundShareInfo = 1;
+}
 
 message ZZFundBaseInfo{
   string fundCode = 1;
@@ -171,12 +174,10 @@ message ZZFundBaseInfo{
 }
 
 message ZZFundBaseInfosResult{
-  repteated ZZFundBaseInfo zzFundBaseInfos = 1;
+  repeated ZZFundBaseInfo zzFundBaseInfos = 1;
 }
 
-message ZZFundShareInfoResult{
-  repeated ZZFundShareInfo zzFundShareInfo = 1;
-}
+
 message EmptyQuery {
 }
 
