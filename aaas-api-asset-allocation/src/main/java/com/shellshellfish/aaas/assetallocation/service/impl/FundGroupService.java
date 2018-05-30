@@ -754,7 +754,7 @@ public class FundGroupService {
         query.put("list", codeList);
         //查询组合成立日
 //            LocalDate groupStartDate = QueryGroupBuildDate.getInstance().getGroupBuildDate(fundGroupId);
-        Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(groupId);
+        Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(groupId, oemId);
         LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         System.out.println("local date : "+ localDate);
 
@@ -1777,7 +1777,9 @@ public class FundGroupService {
         logger.info("start to calculate all group maximum retracement");
         long startTime = System.currentTimeMillis();
 
-        List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
+//        List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
+        List<Interval> list = fundGroupMapper.getGroupIdAndSubId(oemId);
+
 //        if (CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)) {
 //            list = fundGroupMapper.getAllIdAndSubId(oemId);
 //            allSubGroupIds.put(oemId, list);
@@ -1788,15 +1790,15 @@ public class FundGroupService {
 
         for (Interval interval : list) {
 
-            if (interval != null && Integer.parseInt(interval.getFund_group_id()) <= 15){
-                if (!interval.getId().endsWith("48")){
-                    continue;
-                }
-            }
+//            if (interval != null && Integer.parseInt(interval.getFund_group_id()) <= 15){
+//                if (!interval.getId().endsWith("48")){
+//                    continue;
+//                }
+//            }
 
             //查询组合成立日
 //            LocalDate groupStartDate = QueryGroupBuildDate.getInstance().getGroupBuildDate(fundGroupId);
-            Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(interval.getFund_group_id());
+            Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(interval.getFund_group_id(), oemId);
             LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             System.out.println("fundGroupIdAndSubIdTask local date : "+ localDate);
 
@@ -1905,7 +1907,7 @@ public class FundGroupService {
         if (date == null){
             //查询组合成立日
     //            LocalDate groupStartDate = QueryGroupBuildDate.getInstance().getGroupBuildDate(fundGroupId);
-            Date groupBuildDate = fundNetValMapper.getMinNavlatestDateByFundGroupId(groupId);
+            Date groupBuildDate = fundNetValMapper.getMinNavlatestDateByFundGroupId(groupId,oemId);
             date = groupBuildDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         }
 
@@ -1996,7 +1998,7 @@ public class FundGroupService {
 //            startDate = GROUP_START_DATE;
             //查询组合成立日
 //            LocalDate groupStartDate = QueryGroupBuildDate.getInstance().getGroupBuildDate(fundGroupId);
-            Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(groupId);
+            Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(groupId, oemId);
             startDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         }
 
@@ -2633,7 +2635,7 @@ public class FundGroupService {
 
             //查询组合成立日
 //            LocalDate groupStartDate = QueryGroupBuildDate.getInstance().getGroupBuildDate(fundGroupId);
-            Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(fundGroupId);
+            Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(fundGroupId,oemId);
             LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             System.out.println("fundGroupIdAndSubIdTask local date : "+ localDate);
             //计算组合收益率

@@ -124,7 +124,7 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
 
             //查询组合成立日
 //            LocalDate groupStartDate = QueryGroupBuildDate.getInstance().getGroupBuildDate(fundGroupId);
-            Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(interval.getFund_group_id());
+            Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(interval.getFund_group_id(), oemId);
             LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             calculateAnnualVolatilityAndAnnualYield(interval.getFund_group_id(), interval.getId()
                     , localDate, oemId);
