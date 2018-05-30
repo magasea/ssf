@@ -11,6 +11,8 @@ service ZZApiService {
     rpc getAplyResults(AplyRltQuery) returns (ZZApplyResults){}
 
     rpc getFundShare(ZZFundShareQuery) returns (ZZFundShareInfoResult){}
+
+    rpc getZZBaseInfos(EmptyQuery) returns (ZZFundBaseInfosResult){}
 }
 
 
@@ -137,6 +139,39 @@ message ZZFundShareInfo{
     string tradeAcco = 20;
     string unpaidIncome = 21;
     string usableRemainShare = 22;
+}
+
+message ZZFundBaseInfo{
+  string fundCode = 1;
+  string shareType = 2;
+  string fundName = 3;
+  string fundState = 4;
+  string fundType = 5;
+  string taCode = 6;
+  string fundRiskLevel = 7;
+  string withDrawState = 8;
+  string declareState = 9;
+  string subscribeState = 10;
+  string trendState = 11;
+  string valuagrState = 12;
+  string pernetValue = 13;
+  string navDate = 14;
+  string hfincomeRatio = 15;
+  string dayInc = 16;
+  string incomeRatio = 17;
+  string totalNetvalue = 18;
+  string minShare = 19;
+  string transFlag = 20;
+  string managerCompany = 21;
+  string trupCompany = 22;
+  string establishDate = 23;
+  string managerId = 24;
+  string fundMananger = 25;
+  string assetTotol = 26;
+}
+
+message ZZFundBaseInfosResult{
+  repteated ZZFundBaseInfo zzFundBaseInfos = 1;
 }
 
 message ZZFundShareInfoResult{
