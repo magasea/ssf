@@ -1270,6 +1270,8 @@ public class UserInfoController {
 		if (userAssetInfo != null && userAssetInfo.get("result") != null) {
 			Map userAsset = (Map) userAssetInfo.get("result");
 			String totalAmount = userAsset.get("totalAssets") + "";
+			sellTargetPercent = sellTargetPercent == null || sellTargetPercent.compareToIgnoreCase("null") == 0
+					? result.get("sellTargetPercent") + "" : sellTargetPercent;
 			totalAmount = (((new BigDecimal(totalAmount)).multiply(new BigDecimal(sellTargetPercent))
 					.divide(new BigDecimal("100"))).subtract(new BigDecimal(poundage))).setScale(2,
 							RoundingMode.HALF_UP)

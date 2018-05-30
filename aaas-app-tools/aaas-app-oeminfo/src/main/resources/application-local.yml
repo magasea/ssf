@@ -111,3 +111,10 @@ oem_info:
     oem_name: 贝贝鱼
   oem_id: 2
     oem_name: 百合
+
+
+
+management:
+  endpoints:
+    web:
+      base-path: /
