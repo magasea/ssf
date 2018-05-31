@@ -93,7 +93,7 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
             }else{
               remainAmount = remainAmount.subtract(amount);
             }
-            BigDecimal rate = fundInfoService.getRateOfBuyFund(info.getFundCode(), BUY_FUND.getCode());
+            BigDecimal rate = fundInfoService.getRateOfBuyFund(amount, info.getFundCode(), BUY_FUND.getCode());
             BigDecimal discount = fundInfoService.getDiscount(info.getFundCode(), BUY_FUND.getCode());
             BigDecimal poundage = fundInfoService.calcPoundageByGrossAmount(amount, rate, discount);
             BigDecimal discountSaving =  fundInfoService.calcDiscountSaving(amount, rate, discount);
