@@ -1303,6 +1303,41 @@ public class UserInfoController {
       return new JsonResult(JsonResult.Fail, "产品详情页面失败", JsonResult.EMPTYRESULT);
     }
   }
+  
+  @ApiOperation("获取支持的银行列表")
+  @RequestMapping(value = "/getBankLists", method = RequestMethod.POST)
+  @ResponseBody
+  public JsonResult getBankLists() {
+	  Map<Object, Object> result = new HashMap<Object, Object>();
+    try {
+		result = restTemplate.getForEntity(tradeOrderUrl + "/api/trade/funds/banklists", Map.class).getBody();
+		if(result != null){
+			List<Map> banklist = (List<Map>) result.get("result");
+			for(Map map : banklist){
+				//money_limit_one 单笔限额（单位：万元）
+				String money_limit_one = map.get("moneyLimitDay") == null ? "0" : map.get("moneyLimitDay") + "";
+				//money_limit_day 单日限额（单位：万元）
+				String money_limit_day = map.get("moneyLimitOne") == null ? "0" : map.get("moneyLimitOne") + "";
+				map.put("money_limit", "单笔限额" + money_limit_one + "万元，单日限额" + money_limit_day + "万元");
+				map.remove("moneyLimitOne");
+				map.remove("moneyLimitDay");
+				map.remove("createBy");
+				map.remove("createDate");
+				map.remove("updateBy");
+				map.remove("updateDate");
+				map.remove("bankId");
+			}
+		} else {
+			return new JsonResult(JsonResult.Fail, "无支持的银行列表", JsonResult.EMPTYRESULT);
+		}
+		
+		return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result);
+    } catch (Exception ex) {
+      String str = new ReturnedException(ex).getErrorMsg();
+      logger.error(str, ex);
+      return new JsonResult(JsonResult.Fail, "产品详情页面失败", JsonResult.EMPTYRESULT);
+    }
+  }
 
   /**
    * 通用方法处理post请求带requestbody

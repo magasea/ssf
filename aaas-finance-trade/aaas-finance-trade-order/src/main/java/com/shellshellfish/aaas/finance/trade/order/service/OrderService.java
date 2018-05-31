@@ -21,5 +21,7 @@ public interface OrderService {
 
 	void syncBankInfos();
 
+    Map<String, Object> getBanklists();
+
 
 }
