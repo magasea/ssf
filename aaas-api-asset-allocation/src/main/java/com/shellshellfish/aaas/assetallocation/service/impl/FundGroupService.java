@@ -2544,23 +2544,27 @@ public class FundGroupService {
     private void fundGroupIdTasks(int oemId) {
         try {
             //查询基金组合ID
-            Map param = Maps.newHashMap();
-            param.put("oemId", oemId);
-            List<Interval> listFundGroup = fundGroupMapper.selectAllFundGroupNum(param);
-            CountDownLatch countDownLatch = new CountDownLatch(listFundGroup.size());
+//            Map param = Maps.newHashMap();
+//            param.put("oemId", oemId);
+//            List<Interval> listFundGroup = fundGroupMapper.selectAllFundGroupNum(param);
+            List<Interval> intervals = fundGroupMapper.getGroupIdAndSubId(oemId);
+
+
+            CountDownLatch countDownLatch = new CountDownLatch(intervals.size());
 //            CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
             ThreadPoolExecutor groupIndexPool = new ThreadPoolExecutor(
+                    8,
                     10,
-                    15,
                     0L,
                     TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<>(15),
+                    new LinkedBlockingQueue<>(intervals.size()),
                     Executors.defaultThreadFactory(),
                     new ThreadPoolExecutor.AbortPolicy());
 
-            listFundGroup.forEach(item -> {
+            intervals.forEach(item -> {
                 groupIndexPool.execute(() -> {
-                    fundGroupIdTask(Integer.parseInt(item.getFund_group_id()), oemId);
+                    fundGroupIdTask(item.getFund_group_id(), item.getId(), oemId);
+//                    fundGroupIdTask(Integer.parseInt(item.getFund_group_id()), oemId);
                     countDownLatch.countDown();
                 });
             });
@@ -2588,22 +2592,31 @@ public class FundGroupService {
      * @param fundGroupId
      * @param oemId
      */
-    private void fundGroupIdTask(int fundGroupId, int oemId) {
-        logger.info("xxxxxxxxxxxxxxxxxxxxxxxx fundGroupId: " + fundGroupId);
+    private void fundGroupIdTask(String fundGroupId, String subId, int oemId) {
+        logger.info("xxxxxxxxxxxxxxxxxxxxxxxx fundGroupId:{}  subId:{}", fundGroupId, subId);
 //        Map<String, Object> map = new HashMap<>();
 //        map.put("slidebarType", SlidebarTypeEnmu.RISK_NUM.getName());
 //        map.put("fundGroupId", fundGroupId);
 //        map.put("oemId", oemId);
 //        List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getScaleMark(map);
-        List<FundGroupSub> riskIncomeIntervals = fundGroupSubMapper.findByGroupId(fundGroupId + "", oemId);
-        for (FundGroupSub riskIncomeInterval : riskIncomeIntervals) {
-            long startTime = System.currentTimeMillis();
-            fundGroupIdAndSubIdTask(fundGroupId + "", riskIncomeInterval.getId().toString(), oemId);
 
+            long startTime = System.currentTimeMillis();
+
+            fundGroupIdAndSubIdTask(fundGroupId, subId, oemId);
             long endTime = System.currentTimeMillis();
+
+
+//            logger.info("one loop elapse : {}", endTime - startTime);
+        logger.info("fundGroupIdTask one loop elapse : {}ms end .........", endTime - startTime);
+//        List<FundGroupSub> riskIncomeIntervals = fundGroupSubMapper.findByGroupId(fundGroupId + "", oemId);
+//        for (FundGroupSub riskIncomeInterval : riskIncomeIntervals) {
+//            long startTime = System.currentTimeMillis();
+//            fundGroupIdAndSubIdTask(fundGroupId + "", riskIncomeInterval.getId().toString(), oemId);
+//
+//            long endTime = System.currentTimeMillis();
 //            logger.info("fundGroupId : {} , subGroupId : {} one loop elapse : {}", fundGroupId, riskIncomeInterval
 //                    .getId(), endTime - startTime);
-        }
+//        }
 //        logger.info("fundGroupIdTask end .........");
     }
 
@@ -2627,12 +2640,12 @@ public class FundGroupService {
 //            getNavadj(fundGroupId, subGroupId);
 
 
-            //FIXME 目前只用到４８　,如有需要，可以删除此限制条件
-            if (Integer.parseInt(fundGroupId) <= 15) {
-                if (!subGroupId.endsWith("48")) {
-                    return;
-                }
-            }
+//            FIXME 目前只用到４８　,如有需要，可以删除此限制条件
+//            if (Integer.parseInt(fundGroupId) <= 15) {
+//                if (!subGroupId.endsWith("48")) {
+//                    return;
+//                }
+//            }
 
             logger.info("fundGroupId:{}-------subId:{}", fundGroupId, subGroupId);
 
@@ -2640,7 +2653,7 @@ public class FundGroupService {
 //            LocalDate groupStartDate = QueryGroupBuildDate.getInstance().getGroupBuildDate(fundGroupId);
             Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(fundGroupId, oemId);
             LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            System.out.println("fundGroupIdAndSubIdTask local date : " + localDate);
+//            System.out.println("fundGroupIdAndSubIdTask local date : " + localDate);
             //计算组合收益率
             calculateGroupNavadj(fundGroupId, subGroupId, oemId, localDate);
             //计算组合最大回撤

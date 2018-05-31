@@ -81,6 +81,7 @@ public class DailyFundService {
             Date navLatestDate = fundNetValMapper.getMaxNavDateByCode(code);
             String latestStartDateStr = (navLatestDate != null) ? sdf.format(navLatestDate) : ConstantUtil.LATEST_START_DATE_STR_FOR_DAILY_DATA;
             String currentDateStr = sdf.format(new Date());
+            log.info("insertDailyFund code : {} startdate: {} enddate :{}", code, latestStartDateStr, currentDateStr);
             //rpc 调用获取每日数据
             doSuccess = this.insertDailyData(code, latestStartDateStr, currentDateStr);
             if (!doSuccess) {
@@ -171,7 +172,7 @@ public class DailyFundService {
         Integer effectRows = fundNetValMapper.insertDailyDataToFundNetVal(dailyFundsDetailList);
         effectRows = fundNetValMapper.batchUpdateDailyDataToFundNetVal(dailyFundsDetailList);
 
-
+        log.info("insert success effectRows:{}",effectRows);
         return doSuccess;
     }
 
