@@ -1331,7 +1331,7 @@ public class UserInfoController {
 			return new JsonResult(JsonResult.Fail, "无支持的银行列表", JsonResult.EMPTYRESULT);
 		}
 		
-		return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result);
+		return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result.get("result"));
     } catch (Exception ex) {
       String str = new ReturnedException(ex).getErrorMsg();
       logger.error(str, ex);
