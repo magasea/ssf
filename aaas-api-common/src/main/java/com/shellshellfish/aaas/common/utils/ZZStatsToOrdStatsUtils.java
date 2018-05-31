@@ -61,7 +61,7 @@ public class ZZStatsToOrdStatsUtils {
 
   public static TrdOrderStatusEnum getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum zzCheckStatusEnum,
       TrdOrderOpTypeEnum trdOrderOpTypeEnum){
-    TrdZZCheckStatusEnum trdZZCheckStatusEnum = null;
+
 //    try{
 //      trdZZCheckStatusEnum = TrdZZCheckStatusEnum.valueOf(inputEnumVal);
 //    }catch (Exception ex){
@@ -69,7 +69,7 @@ public class ZZStatsToOrdStatsUtils {
 //
 //    }
 
-    switch (trdZZCheckStatusEnum){
+    switch (zzCheckStatusEnum){
       case NOTHANDLED:
         if(trdOrderOpTypeEnum == TrdOrderOpTypeEnum.BUY){
           return TrdOrderStatusEnum.PAYWAITCONFIRM;
