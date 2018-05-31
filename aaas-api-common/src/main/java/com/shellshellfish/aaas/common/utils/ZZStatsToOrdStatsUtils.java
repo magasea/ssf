@@ -21,22 +21,25 @@ public class ZZStatsToOrdStatsUtils {
 
   public static TrdOrderStatusEnum getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum inputEnum,
       TrdOrderOpTypeEnum trdOrderOpTypeEnum, ZZKKStatusEnum zzkkStatusEnum){
+    if(zzkkStatusEnum.getStatus() == ZZKKStatusEnum.KKFAILED.getStatus()){
+      if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.BUY.getOperation()){
+        return TrdOrderStatusEnum.FAILED;
+      }else if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+        return TrdOrderStatusEnum.REDEEMFAILED;
+      }
+
+    }
     switch (inputEnum){
+
       case NOTHANDLED:
+
         if(trdOrderOpTypeEnum == TrdOrderOpTypeEnum.BUY){
           return TrdOrderStatusEnum.PAYWAITCONFIRM;
         }else if(trdOrderOpTypeEnum == TrdOrderOpTypeEnum.REDEEM){
           return TrdOrderStatusEnum.SELLWAITCONFIRM;
         }
       case CONFIRMSUCCESS:
-        if(zzkkStatusEnum.getStatus() == ZZKKStatusEnum.KKFAILED.getStatus()){
-          if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.BUY.getOperation()){
-            return TrdOrderStatusEnum.FAILED;
-          }else if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
-            return TrdOrderStatusEnum.REDEEMFAILED;
-          }
 
-        }
         if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.BUY.getOperation()){
           return TrdOrderStatusEnum.CONFIRMED;
         }else if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
@@ -61,7 +64,7 @@ public class ZZStatsToOrdStatsUtils {
 
   public static TrdOrderStatusEnum getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum zzCheckStatusEnum,
       TrdOrderOpTypeEnum trdOrderOpTypeEnum){
-    TrdZZCheckStatusEnum trdZZCheckStatusEnum = null;
+
 //    try{
 //      trdZZCheckStatusEnum = TrdZZCheckStatusEnum.valueOf(inputEnumVal);
 //    }catch (Exception ex){
@@ -69,7 +72,7 @@ public class ZZStatsToOrdStatsUtils {
 //
 //    }
 
-    switch (trdZZCheckStatusEnum){
+    switch (zzCheckStatusEnum){
       case NOTHANDLED:
         if(trdOrderOpTypeEnum == TrdOrderOpTypeEnum.BUY){
           return TrdOrderStatusEnum.PAYWAITCONFIRM;
