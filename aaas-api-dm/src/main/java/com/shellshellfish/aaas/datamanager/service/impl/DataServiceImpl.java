@@ -883,8 +883,15 @@ public class DataServiceImpl implements DataService {
         logger.info("coinFundYieldRateList size:{}", coinFundYieldRateList.size());
         for (int i = 0; i < coinFundYieldRateList.size(); i++) {
 
-            Map map = new HashMap<String, Object>(3);
             CoinFundYieldRate coinFundYieldRate = coinFundYieldRateList.get(i);
+
+            //七日年化可能为空
+            BigDecimal yieldOf7Days = coinFundYieldRate.getYieldOf7Days();
+            if (yieldOf7Days == null)
+                continue;
+
+
+            Map map = new HashMap<String, Object>(3);
             map.put("date",
                     InstantDateUtil
                             .format(InstantDateUtil.toLocalDate(coinFundYieldRate.getQuerydate()), "yyyy.MM.dd"));

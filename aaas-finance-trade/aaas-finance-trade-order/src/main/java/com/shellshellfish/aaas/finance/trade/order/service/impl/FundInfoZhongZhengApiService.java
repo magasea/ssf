@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeLimitResult;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeRateResult;
 import com.shellshellfish.aaas.finance.trade.order.model.UserBank;
@@ -136,7 +138,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
         logger.info(json);
         JSONObject jsonObject = JSONObject.parseObject(json);
         if (!jsonObject.getInteger("status").equals(1)) {
-        	logger.error(jsonObject.getString("msg"));
+            logger.error(jsonObject.getString("msg"));
             throw new Exception(jsonObject.getString("msg"));
         }
 
@@ -145,27 +147,65 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
             return jsonArray.getString(0);
         }
 
-        return jsonObject.getJSONObject("data").toJSONString();
+        return jsonObject.getJSONArray("data").toJSONString();
     }
 
     @Override
     public List<String> getAllFundsInfo() throws Exception {
         String json = getFundInfo(null);
-
-        JSONObject jsonObject = JSONObject.parseObject(json);
-        List<String> keys = new ArrayList<>(jsonObject.keySet());
-        Collections.sort(keys);
-        logger.info("size of keys: {}, keys: {}", keys.size(), keys);
-
+        JSONArray jsonArray = JSONObject.parseArray(json);
         List<String> funds = new ArrayList<>();
-        for(String key: keys) {
-            JSONObject fund = jsonObject.getJSONObject(key);
-            funds.add(fund.toJSONString());
-            logger.info("fund:{}", fund.toJSONString());
+        if(jsonArray.size()>0){
+            for(int i=0;i<jsonArray.size();i++){
+                JSONObject fund = jsonArray.getJSONObject(i);
+                funds.add(fund.toJSONString());
+                logger.info("fund:{}", fund.toJSONString());
+            }
         }
-
         return funds;
     }
+
+    @Override
+    public void writeAllFundsToMongoDb(List<String> funds) {
+        for (String fund: funds) {
+            mongoTemplate.save(fund, "fundInfo");
+        }
+    }
+
+    @Override
+    public void writeAllFundsTradeRateToMongoDb(List<String> funds) {
+        List<String> tradeRateInfoList=new ArrayList<>();
+        try {
+            for (String fund : funds) {
+                JSONObject jsonObject = JSONObject.parseObject(fund);
+                String fundCode = jsonObject.getString("fundcode");
+                logger.info("fundCode:{}", fundCode);
+                String tradeRateInfo = getTradeRate(fundCode, "022");
+                tradeRateInfoList.add(tradeRateInfo);
+            }
+            mongoTemplate.insert(tradeRateInfoList, "rateInfo");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+    @Override
+    public void writeAllFundsDiscountToMongoDb(List<String> funds) {
+        List<String> tradeDiscountInfoList=new ArrayList<>();
+        try {
+        /*    for (String fund : funds) {
+                JSONObject jsonObject = JSONObject.parseObject(fund);
+                String fundCode = jsonObject.getString("fundcode");
+                logger.info("fundCode:{}", fundCode);
+                String tradeRateInfo = getTradeRate(fundCode, "022");
+                tradeRateInfoList.add(tradeRateInfo);
+            }
+            mongoTemplate.insert(tradeRateInfoList, "rateInfo");*/
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public String getTradeRate(String fundCode, String businFlag) throws JsonProcessingException {
@@ -282,7 +322,8 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
 
             String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_trade_discount";
 
-            json = restTemplate.postForObject(url, info, String.class);
+            json = restTemplate.postForObject(url, info, String.class)
+            ;
         }
 
         logger.info("{}", json);
@@ -303,15 +344,20 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
     }
 
     @Override
-    public BigDecimal getRateOfBuyFund(String fundCode, String businFlag) throws Exception {
+    public BigDecimal getRateOfBuyFund(BigDecimal amount, String fundCode, String businFlag) throws Exception {
         // TODO:
         fundCode = trimSuffix(fundCode);
 
         List<TradeRateResult> tradeRateResults = getTradeRateAsList(fundCode, businFlag);
         for(TradeRateResult rateResult: tradeRateResults) {
-            if (rateResult.getChngMinTermMark().equals("日常申购费") && rateResult.getChagRateUnitMark().equals("%")) {
-                Double rate = Double.parseDouble(rateResult.getChagRateUpLim())/100d;
-                return BigDecimal.valueOf(rate);
+            if (rateResult.getChngMinTermMark().equals("日常申购费")) {
+                double lowLim = Double.parseDouble(rateResult.getPertValLowLim())*10000;
+                double UpLim = Double.parseDouble(rateResult.getPertValUpLim())*10000;
+
+                if(BigDecimal.valueOf(lowLim).compareTo(amount)==-1&&(BigDecimal.valueOf(UpLim).compareTo(amount)==1||UpLim==0.00)){
+                    Double rate = Double.parseDouble(rateResult.getChagRateUpLim())/100d;
+                    return BigDecimal.valueOf(rate);
+                }
             }
         }
         logger.error("no rate found");

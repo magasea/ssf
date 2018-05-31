@@ -431,4 +431,12 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
             logger.error("error:", e);
         }
     }
+    
+    @Override
+    public Map<String, Object> getBanklists(){
+      Map<String, Object> result = new HashMap<String, Object>();
+      List<TrdTradeBankDic> trdTradeBankDicsList = trdTradeBankDicRepository.findAll();
+      result.put("result", trdTradeBankDicsList);
+      return result;
+    }
 }

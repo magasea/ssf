@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.order.repositories.mysql;
 
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdTradeBankDic;
+import java.util.List;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**
@@ -16,5 +17,6 @@ public interface TrdTradeBankDicRepository extends PagingAndSortingRepository<Tr
   TrdTradeBankDic findByBankCode(String bankCode);
 
 	TrdTradeBankDic findByBankShortName(String shortName);
-
+	
+	List<TrdTradeBankDic> findAll();
 }
