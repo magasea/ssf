@@ -77,7 +77,7 @@ public class JobScheduleService {
         }
 
         if (doSuccess) {
-            logger.info("调用每日接口获取数据定时任务启动成功..." + sdf.format(new Date()));
+            logger.info("每日接口获取数据获取成功..." + sdf.format(new Date()));
         } else {
             status = FAILURED_STATUS;
             logger.info("调用每日接口获取数据定时任务启动失败..." + sdf.format(new Date()));
