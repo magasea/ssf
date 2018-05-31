@@ -73,7 +73,7 @@ public class JobScheduleService {
         try {
             doSuccess = dailyFundService.insertDailyFund(oemId);
         } catch (Exception e) {
-            logger.error("调用每日接口获取数据定时任务启动失败..." + sdf.format(new Date()), e);
+            logger.error("调用每日接口获取数据定时任务异常..." + sdf.format(new Date()), e);
         }
 
         if (doSuccess) {
