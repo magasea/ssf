@@ -228,8 +228,12 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
 			MyBeanUtils.mapEntityIntoDTO(coinFunds, builderDailyFunds);
 			builderDailyFunds.setNavadj(coinFunds.getNavAdj());
 			builderDailyFunds.setCode(coinFunds.getCode());
-			builderDailyFunds.setYieldOf7Days(coinFunds.getUnitYieldOf10K());
-			builderDailyFunds.setMillionRevenue(coinFunds.getUnitYieldOf10K());
+			if(coinFunds.getUnitYieldOf10K() != null){
+				builderDailyFunds.setMillionRevenue(coinFunds.getUnitYieldOf10K());
+			}
+			if(coinFunds.getYieldOf7Days() != null){
+				builderDailyFunds.setYieldOf7Days(coinFunds.getYieldOf7Days());
+			}
 			builderDailyFunds.setQuerydate(coinFunds.getQueryDate());
 			builderDailyFunds.setNavLatestDate(coinFunds.getQueryDate());
 
