@@ -47,6 +47,16 @@ public enum ZZKKStatusEnum {
   }
 
 
+  public static ZZKKStatusEnum getByStatus(String statusStr){
+    int status = Integer.parseInt(statusStr);
+    for (ZZKKStatusEnum enumItem : ZZKKStatusEnum.values()) {
+      if (enumItem.getStatus() == status) {
+        return enumItem;
+      }
+    }
+    throw new IllegalArgumentException("status:" + status + " is not suitable for ZZKKStatusEnum");
+  }
+
   public static ZZKKStatusEnum getByComment(String comment){
     for (ZZKKStatusEnum enumItem : ZZKKStatusEnum.values()) {
       if (enumItem.getComment().equals(comment)) {

@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
+import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
 import com.shellshellfish.aaas.common.message.order.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.ZZStatsToOrdStatsUtils;
@@ -93,9 +94,14 @@ public class CheckFundsTradeJobService {
                         TrdOrderOpTypeEnum opTypeEnum = ZZStatsToOrdStatsUtils
                             .getTrdOrdOpTypeFromCallingCode(Integer
                                 .valueOf(applyResult.getCallingcode()));
+                        if(StringUtils.isEmpty(applyResult.getKkstat())){
+                            logger.error("applyResult.getKkstat() is empty");
+                        }
+                        ZZKKStatusEnum zzkkStatusEnum = ZZKKStatusEnum.getByStatus(applyResult
+                            .getKkstat());
                         int queryStatus = ZZStatsToOrdStatsUtils
                             .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
-                                Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum)
+                                Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum, zzkkStatusEnum)
                             .getStatus();
                         if(trdPayFlow.getTrdStatus() == queryStatus){
                             logger.error("There is no status change for applySerial:{}, current "
@@ -105,7 +111,8 @@ public class CheckFundsTradeJobService {
                         }
                         trdPayFlow.setTrdStatus(ZZStatsToOrdStatsUtils
                             .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
-                                Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum).getStatus());
+                                Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum, zzkkStatusEnum)
+                            .getStatus());
                         if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()){
                             trdPayFlowListToGetConfirmInfo.add(trdPayFlow);
                         }
