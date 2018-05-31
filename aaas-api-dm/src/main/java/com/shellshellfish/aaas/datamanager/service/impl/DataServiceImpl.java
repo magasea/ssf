@@ -887,9 +887,6 @@ public class DataServiceImpl implements DataService {
 
             //七日年化可能为空
             BigDecimal yieldOf7Days = coinFundYieldRate.getYieldOf7Days();
-            if (yieldOf7Days == null)
-                continue;
-
 
             Map map = new HashMap<String, Object>(3);
             map.put("date",
@@ -922,8 +919,11 @@ public class DataServiceImpl implements DataService {
             map.put("profit", profit.setScale(2, RoundingMode.HALF_UP));
 
             result[i] = map;
-            yieldOf7DaysList.add(coinFundYieldRate.getYieldOf7Days());
-            yieldOfTenKiloUnitYieldList.add(coinFundYieldRate.getTenKiloUnityYield());
+            if (yieldOf7Days != null)
+                yieldOf7DaysList.add(coinFundYieldRate.getYieldOf7Days());
+
+            if (coinFundYieldRate.getTenKiloUnityYield() != null)
+                yieldOfTenKiloUnitYieldList.add(coinFundYieldRate.getTenKiloUnityYield());
         }
 
         Map<String, Object> maxAndMinMap = new HashMap<>();
