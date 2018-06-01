@@ -11,8 +11,8 @@ spring:
   http:
     multipart:
 shellshellfish:
-  asset-alloction-url: "http://192.168.1.10:20020"
-  userinfo-url: "http://192.168.1.10:20060"
+  asset-alloction-url: "http://localhost:20020"
+  userinfo-url: "http://localhost:20060"
 
 grpc:
   asset-allocation:

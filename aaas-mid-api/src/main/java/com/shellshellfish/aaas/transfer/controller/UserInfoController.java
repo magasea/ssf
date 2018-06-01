@@ -506,7 +506,7 @@ public class UserInfoController {
           userinfoUrl + "/api/userinfo/users/" + uuid + "/traderecords2?pageSize=" + pageSize
               + "&pageIndex=" + pageIndex + "&type=" + type, Map.class)
           .getBody();
-      System.out.println(System.currentTimeMillis()-t1);
+      System.out.println(System.currentTimeMillis() - t1);
       long t2 = System.currentTimeMillis();
       if (result == null || result.size() == 0) {
         logger.error("系统消息获取失败");
@@ -589,7 +589,7 @@ public class UserInfoController {
               }
             }
           }
-          System.out.println(System.currentTimeMillis()-t2);
+          System.out.println(System.currentTimeMillis() - t2);
           result.put("tradeLogs", detailBak);
         }
       }
@@ -686,18 +686,18 @@ public class UserInfoController {
             if (resultMap.get("totalIncomeRate") != null) {
               resultMap.put("totalIncomeRate", EasyKit
                   .getStringValue(BigDecimal.valueOf((Double) resultMap.get("totalIncomeRate"))));
-              
+
               //TODO 暂时未区分oemId，待区分时需要输入变量oemid
               String oemId = "1";
               String groupId = resultMap.get("groupId") + "";
               String subGroupId = resultMap.get("subGroupId") + "";
               String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
-                      + "/sub-groups/" + subGroupId + "/" + oemId;
+                  + "/sub-groups/" + subGroupId + "/" + oemId;
               String status = "";
               Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
-              if(productMap!=null&&productMap.containsKey("status")){
-              	status = productMap.get("status") + "";
-              	resultMap.put("status", status);
+              if (productMap != null && productMap.containsKey("status")) {
+                status = productMap.get("status") + "";
+                resultMap.put("status", status);
               }
             }
           }
@@ -1263,21 +1263,25 @@ public class UserInfoController {
         if (productResult != null) {
           result.put("title", productResult.get("prodName"));
         }
-        
+
         String url3 =
-                userinfoUrl + "/api/userinfo/users/" + userUuid + "/asset-by-prodId?prodId=" + prodId;
+            userinfoUrl + "/api/userinfo/users/" + userUuid + "/asset-by-prodId?prodId=" + prodId;
         Map userAssetInfo = restTemplate.getForEntity(url3, Map.class).getBody();
-		if (userAssetInfo != null && userAssetInfo.get("result") != null) {
-			Map userAsset = (Map) userAssetInfo.get("result");
-			String totalAmount = userAsset.get("totalAssets") + "";
-			sellTargetPercent = sellTargetPercent == null || sellTargetPercent.compareToIgnoreCase("null") == 0
-					? result.get("sellTargetPercent") + "" : sellTargetPercent;
-			totalAmount = (((new BigDecimal(totalAmount)).multiply(new BigDecimal(sellTargetPercent))
-					.divide(new BigDecimal("100"))).subtract(new BigDecimal(poundage))).setScale(2,
-							RoundingMode.HALF_UP)
-					+ "";
-			result.put("totalAssets", totalAmount);
-		}
+        if (userAssetInfo != null && userAssetInfo.get("result") != null) {
+          Map userAsset = (Map) userAssetInfo.get("result");
+          String totalAmount = userAsset.get("totalAssets") + "";
+          sellTargetPercent =
+              sellTargetPercent == null || sellTargetPercent.compareToIgnoreCase("null") == 0
+                  ? result.get("sellTargetPercent") + "" : sellTargetPercent;
+          if ("".equals(sellTargetPercent)) {
+            sellTargetPercent = "100";
+          }
+          totalAmount = (((new BigDecimal(totalAmount)).multiply(new BigDecimal(sellTargetPercent))
+              .divide(new BigDecimal("100"))).subtract(new BigDecimal(poundage))).setScale(2,
+              RoundingMode.HALF_UP)
+              + "";
+          result.put("totalAssets", totalAmount);
+        }
       }
       return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result);
     } catch (Exception ex) {
@@ -1303,35 +1307,38 @@ public class UserInfoController {
       return new JsonResult(JsonResult.Fail, "产品详情页面失败", JsonResult.EMPTYRESULT);
     }
   }
-  
+
   @ApiOperation("获取支持的银行列表")
   @RequestMapping(value = "/getBankLists", method = RequestMethod.POST)
   @ResponseBody
   public JsonResult getBankLists() {
-	  Map<Object, Object> result = new HashMap<Object, Object>();
+    Map<Object, Object> result = new HashMap<Object, Object>();
     try {
-		result = restTemplate.getForEntity(tradeOrderUrl + "/api/trade/funds/banklists", Map.class).getBody();
-		if(result != null){
-			List<Map> banklist = (List<Map>) result.get("result");
-			for(Map map : banklist){
-				//money_limit_one 单笔限额（单位：万元）
-				String money_limit_one = map.get("moneyLimitDay") == null ? "0" : map.get("moneyLimitDay") + "";
-				//money_limit_day 单日限额（单位：万元）
-				String money_limit_day = map.get("moneyLimitOne") == null ? "0" : map.get("moneyLimitOne") + "";
-				map.put("money_limit", "单笔限额" + money_limit_one + "万元，单日限额" + money_limit_day + "万元");
-				map.remove("moneyLimitOne");
-				map.remove("moneyLimitDay");
-				map.remove("createBy");
-				map.remove("createDate");
-				map.remove("updateBy");
-				map.remove("updateDate");
-				map.remove("bankId");
-			}
-		} else {
-			return new JsonResult(JsonResult.Fail, "无支持的银行列表", JsonResult.EMPTYRESULT);
-		}
-		
-		return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result.get("result"));
+      result = restTemplate.getForEntity(tradeOrderUrl + "/api/trade/funds/banklists", Map.class)
+          .getBody();
+      if (result != null) {
+        List<Map> banklist = (List<Map>) result.get("result");
+        for (Map map : banklist) {
+          //money_limit_one 单笔限额（单位：万元）
+          String money_limit_one =
+              map.get("moneyLimitDay") == null ? "0" : map.get("moneyLimitDay") + "";
+          //money_limit_day 单日限额（单位：万元）
+          String money_limit_day =
+              map.get("moneyLimitOne") == null ? "0" : map.get("moneyLimitOne") + "";
+          map.put("money_limit", "单笔限额" + money_limit_one + "万元，单日限额" + money_limit_day + "万元");
+          map.remove("moneyLimitOne");
+          map.remove("moneyLimitDay");
+          map.remove("createBy");
+          map.remove("createDate");
+          map.remove("updateBy");
+          map.remove("updateDate");
+          map.remove("bankId");
+        }
+      } else {
+        return new JsonResult(JsonResult.Fail, "无支持的银行列表", JsonResult.EMPTYRESULT);
+      }
+
+      return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result.get("result"));
     } catch (Exception ex) {
       String str = new ReturnedException(ex).getErrorMsg();
       logger.error(str, ex);
