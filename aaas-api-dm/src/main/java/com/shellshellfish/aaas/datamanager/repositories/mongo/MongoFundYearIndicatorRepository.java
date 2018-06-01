@@ -10,7 +10,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MongoFundYearIndicatorRepository extends MongoRepository<FundYearIndicator, Long> {
 
-	FundYearIndicator getFirstByCodeAndQuerydateBefore(String code, long endtime, Sort sort);
+    FundYearIndicator getFirstByCodeAndQuerydateBefore(String code, long endtime, Sort sort);
+
+    FundYearIndicator getFirstByCodeOrderByQuerydate(String code);
 
 
 }
