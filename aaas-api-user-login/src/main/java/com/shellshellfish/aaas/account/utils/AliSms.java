@@ -143,6 +143,18 @@ public class AliSms {
     	try {
     	     response = sendSms(phonenum);
     	     if(response.getCode() == null || !response.getCode().equals("OK")) {
+    	         if("isv.BUSINESS_LIMIT_CONTROL".equals(response.getCode())) {
+    	             if("触发分钟级流控Permits:1".equals(response.getMessage())) {
+    	                 logger.error(response.getMessage());
+    	                 throw new UserException("400", "每分钟最多可发送1条，已超限制！");
+    	             } else if("触发小时级流控Permits:5".equals(response.getMessage())) {
+                       logger.error(response.getMessage());
+                       throw new UserException("400", "每小时最多可发送5条，已超限制！");
+                     } else {
+                       logger.error(response.getMessage());
+                       throw new UserException("400", "每天最多可发送10条，已超限制！");
+                     }
+    	         }
     	    	 logger.error(response.getMessage());
     	    	 throw new UserException("400", response.getMessage());
     	     }

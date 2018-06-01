@@ -98,8 +98,8 @@ public class FundGroupMapperTest {
 
     @Test
     public void getNavlatestdateCountTest() {
-        String group_id = "9";
-        String subGroupId = "90048";
+        String group_id = "30";
+        String subGroupId = "30000";
         List<String> codeList = fundGroupService.getFundGroupCodes(group_id, subGroupId,1);
         int codeSize = codeList.size();
         Map query = new HashMap();
