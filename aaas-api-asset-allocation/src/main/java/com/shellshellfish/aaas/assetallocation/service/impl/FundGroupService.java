@@ -2019,6 +2019,7 @@ public class FundGroupService {
         List<FundGroupHistory> fundGroupHistoryList = new LinkedList<>();
         //依次计算每只基金在组合中所占份额，然后求和
         LocalDate endDate = null;
+        boolean ignoreThisDate = false;
         for (LocalDate date = startDate; date.isBefore(LocalDate.now(ZoneId.systemDefault()).plusDays(1)); date = date.plusDays(1)) {
             //非交易日不处理
             if (!TradingDayUtils.isTradingDay(date))
@@ -2028,11 +2029,22 @@ public class FundGroupService {
             for (String code : codeList) {
                 BigDecimal navAdjOfFund = fundNetValMapper.getLatestNavAdj(code, date);
 
+                if(navAdjOfFund == null || baseMap.get(code) == null){
+                    logger.error("navAdjOfFund:{} code:{} fundProportionMap.get"
+                            + "(code):{} baseMap.get(code):{} groupId:{} subGroupId:{} date:{}",
+                        navAdjOfFund, code, fundProportionMap.get(code), baseMap.get(code), groupId,
+                        subGroupId,date );
+                    ignoreThisDate = true;
+                    break;
+                }
                 BigDecimal add = navAdjOfFund.multiply(fundProportionMap.get(code),
                         MathContext.DECIMAL32).divide(baseMap.get(code), MathContext.DECIMAL32);
 
                 navAdj = navAdj.add(add);
 
+            }
+            if(ignoreThisDate){
+                continue;
             }
             FundGroupHistory fundGroupHistory = new FundGroupHistory();
             fundGroupHistory.setFund_group_id(groupId);
