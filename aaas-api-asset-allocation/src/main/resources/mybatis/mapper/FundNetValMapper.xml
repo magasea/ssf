@@ -102,13 +102,15 @@
     </select>
 
     <insert id="insertDailyDataToFundNetVal" parameterType="com.shellshellfish.aaas.assetallocation.entity.Dailyfunds">
-        INSERT IGNORE INTO fund_net_value
+        INSERT IGNORE
+        INTO fund_net_value
         (CODE,NAVLATESTDATE,UNITNAV,NAVACCUM,NAVADJ,YIELDOF7DAYS,MILLION_REVENUE,LAST_MOD_TIME)
-        <foreach collection="list" item="dailyData" index="index" separator="union all">
-            ( SELECT
+        VALUES
+        <foreach collection="list" item="dailyData" index="index" separator=",">
+
+            (
             #{dailyData.code},#{dailyData.navLatestDate},#{dailyData.navUnit},#{dailyData.navAccum},
             #{dailyData.navAdj},#{dailyData.yieldOf7Days},#{dailyData.millionRevenue},#{dailyData.createDate}
-            FROM dual
             )
         </foreach>
     </insert>

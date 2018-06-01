@@ -90,13 +90,21 @@ public class ZhongzhengApiServiceImplTest {
   @Test
   public void getApplyResultByOutSideOrderNo() throws Exception {
     String sellNum = "1";
-    String outsideTradeNo = "123"+ TradeUtil.getUTCTime();
+    String outsideTradeNo = "6222021560000015257014084601998";
     String trdAcco = "33600";
     String fundCode = "40009.OF";
     String sellType = "0";
     String pid = "362522198709220031";
-    zhongZhengApiService.getApplyResultByOutSideOrderNo(outsideTradeNo,   pid );
-
+    List<ApplyResult> applyResults =  zhongZhengApiService.getApplyResultByOutSideOrderNo
+        (outsideTradeNo,   pid );
+    applyResults.forEach(
+        item->{
+          System.out.println(item.getApplyDate());
+          System.out.println(item.getApplySerial());
+          System.out.println(item.getConfirmstat());
+          System.out.println(item.getTradeConfirmShare());
+        }
+    );
   }
 
   @Test
