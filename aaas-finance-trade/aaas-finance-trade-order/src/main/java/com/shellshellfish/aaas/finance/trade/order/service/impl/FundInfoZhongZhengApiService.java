@@ -151,6 +151,28 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
     }
 
     @Override
+    public String getDiscountRawString(String fundCode, String businFlag) {
+        String json="";
+        try {
+            fundCode = trimSuffix(fundCode);
+
+            Map<String, Object> info = init();
+            info.put("fundcode", fundCode);
+            info.put("businflag", businFlag);
+            postInit(info);
+
+            String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_trade_discount";
+
+           json = restTemplate.postForObject(url, info, String.class);
+            logger.info("{}", json);
+            return json;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    @Override
     public List<String> getAllFundsInfo() throws Exception {
         String json = getFundInfo(null);
         JSONArray jsonArray = JSONObject.parseArray(json);
@@ -193,17 +215,55 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
     public void writeAllFundsDiscountToMongoDb(List<String> funds) {
         List<String> tradeDiscountInfoList=new ArrayList<>();
         try {
-        /*    for (String fund : funds) {
+            for (String fund : funds) {
                 JSONObject jsonObject = JSONObject.parseObject(fund);
                 String fundCode = jsonObject.getString("fundcode");
                 logger.info("fundCode:{}", fundCode);
-                String tradeRateInfo = getTradeRate(fundCode, "022");
-                tradeRateInfoList.add(tradeRateInfo);
+                String tradeRateInfo = getDiscountRawString(fundCode, "022");
+                mongoTemplate.save(tradeRateInfo, "discountInfo");
+                tradeRateInfo = getDiscountRawString(fundCode, "024");
+                mongoTemplate.save(tradeRateInfo, "discountInfo");
             }
-            mongoTemplate.insert(tradeRateInfoList, "rateInfo");*/
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void writeAllTradeLimitToMongoDb() {
+        try {
+            List<String> funds = getAllFundsInfo();
+            for(String fund:funds) {
+                JSONObject jsonObject = JSONObject.parseObject(fund);
+                String fundCode = jsonObject.getString("fundcode");
+                logger.info("fundCode:{}", fundCode);
+                String tradeLimitInfo = getTradeLimitAsRawString(fundCode, "022");
+                System.out.println("tradelimit:"+tradeLimitInfo);
+                mongoTemplate.save(tradeLimitInfo, "limitInfo");
+                tradeLimitInfo = getTradeLimitAsRawString(fundCode, "024");
+                mongoTemplate.save(tradeLimitInfo, "limitInfo");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public String getTradeLimitAsRawString(String fundCode, String businFlag)  {
+        String json="{}";
+        try {
+            fundCode = trimSuffix(fundCode);
+            Map<String, Object> info = init();
+            info.put("fundcode", fundCode);
+            info.put("buinflag", businFlag);
+            postInit(info);
+            String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_trade_limit";
+            json = restTemplate.postForObject(url, info, String.class);
+            logger.info("{}", json);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return json;
     }
 
 
@@ -228,6 +288,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
         String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_rate";
 
         String json = restTemplate.postForObject(url, info, String.class);
+        mongoTemplate.save(json,"rateInfo");
         logger.info("{}", json);
 
         return json;
@@ -279,6 +340,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
             String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_trade_limit";
 
             json = restTemplate.postForObject(url, info, String.class);
+            mongoTemplate.save(json,"limitInfo");
         }
 
 //        logger.info("{}", json);
@@ -319,11 +381,9 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
             info.put("fundcode", fundCode);
             info.put("businflag", businFlag);
             postInit(info);
-
             String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_trade_discount";
-
-            json = restTemplate.postForObject(url, info, String.class)
-            ;
+            json = restTemplate.postForObject(url, info, String.class);
+            mongoTemplate.save(json,"discountInfo");
         }
 
         logger.info("{}", json);
