@@ -873,41 +873,65 @@ public class DataServiceImpl implements DataService {
 
                 switch (baseName) {
                     case "GDAXIGI":
-                        dayUp = fundBaseClose.getGDAXIGI()
+                        BigDecimal gdaxiGi = fundBaseClose.getGDAXIGI();
+                        if (gdaxiGi == null)
+                            continue;
+                        dayUp = gdaxiGi
                                 .subtract(startBaseClose.getGDAXIGI())
                                 .divide(startBaseClose.getGDAXIGI(), MathContext.DECIMAL128);
                         break;
                     case "000300SH":
+                        BigDecimal sh300 = fundBaseClose.getSH300();
+                        if (sh300 == null)
+                            continue;
                         dayUp = fundBaseClose.getSH300()
                                 .subtract(startBaseClose.getSH300())
                                 .divide(startBaseClose.getSH300(), MathContext.DECIMAL128);
                         break;
                     case "300SH_6_CSI_4":
+                        BigDecimal sh300_6_csi_4 = fundBaseClose.getSH300_6_CSI_4();
+                        if (sh300_6_csi_4 == null)
+                            continue;
                         dayUp = fundBaseClose.getSH300_6_CSI_4()
                                 .subtract(startBaseClose.getSH300_6_CSI_4())
                                 .divide(startBaseClose.getSH300_6_CSI_4(), MathContext.DECIMAL128);
                         break;
                     case "300SH_4_CSI_6":
+                        BigDecimal sh300_4_csi_6 = fundBaseClose.getSH300_4_CSI_6();
+                        if (sh300_4_csi_6 == null)
+                            continue;
                         dayUp = fundBaseClose.getSH300_4_CSI_6()
                                 .subtract(startBaseClose.getSH300_4_CSI_6())
                                 .divide(startBaseClose.getSH300_4_CSI_6(), MathContext.DECIMAL128);
                         break;
                     case "300SH_5_CSI_5":
+                        BigDecimal sh300_5_csi_5 = fundBaseClose.getSH300_5_CSI_5();
+                        if (sh300_5_csi_5 == null)
+                            continue;
                         dayUp = fundBaseClose.getSH300_5_CSI_5()
                                 .subtract(startBaseClose.getSH300_5_CSI_5())
                                 .divide(startBaseClose.getSH300_5_CSI_5(), MathContext.DECIMAL128);
                         break;
                     case "H11001CSI":
+                        BigDecimal h11001csi = fundBaseClose.getH11001CSI();
+                        if (h11001csi == null)
+                            continue;
                         dayUp = fundBaseClose.getH11001CSI()
                                 .subtract(startBaseClose.getH11001CSI())
                                 .divide(startBaseClose.getH11001CSI(), MathContext.DECIMAL128);
                         break;
                     case "000905SH":
+                        BigDecimal sh905 = fundBaseClose.getSH905();
+                        if (sh905 == null)
+                            continue;
                         dayUp = fundBaseClose.getSH905()
                                 .subtract(startBaseClose.getSH905())
                                 .divide(startBaseClose.getSH905(), MathContext.DECIMAL128);
                         break;
                     case "H11025CSI":
+                        BigDecimal h11025csi= fundBaseClose.getH11025CSI();
+                        if (h11025csi == null)
+                            continue;
                         dayUp = fundBaseClose.getH11025CSI()
                                 .subtract(startBaseClose.getH11025CSI())
                                 .divide(startBaseClose.getH11025CSI(), MathContext.DECIMAL128);
