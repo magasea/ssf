@@ -1313,12 +1313,14 @@ public class UserInfoController {
 		result = restTemplate.getForEntity(tradeOrderUrl + "/api/trade/funds/banklists", Map.class).getBody();
 		if(result != null){
 			List<Map> banklist = (List<Map>) result.get("result");
+			String banklink = "http://47.96.164.161/";
 			for(Map map : banklist){
 				//money_limit_one 单笔限额（单位：万元）
 				String money_limit_one = map.get("moneyLimitDay") == null ? "0" : map.get("moneyLimitDay") + "";
 				//money_limit_day 单日限额（单位：万元）
 				String money_limit_day = map.get("moneyLimitOne") == null ? "0" : map.get("moneyLimitOne") + "";
 				map.put("money_limit", "单笔限额" + money_limit_one + "万元，单日限额" + money_limit_day + "万元");
+				map.put("url", banklink + map.get("bankShortName") + ".png");
 				map.remove("moneyLimitOne");
 				map.remove("moneyLimitDay");
 				map.remove("createBy");
