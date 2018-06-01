@@ -4,38 +4,15 @@ import com.shellshellfish.aaas.asset.allocation.FundGroupIndexResult;
 import com.shellshellfish.aaas.common.enums.FundClassEnum;
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
-import com.shellshellfish.aaas.common.utils.SSFDateUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.common.utils.URLutils;
 import com.shellshellfish.aaas.datamanager.commons.EasyKit;
 import com.shellshellfish.aaas.datamanager.controller.GroupController;
 import com.shellshellfish.aaas.datamanager.exception.ReturnedException;
-import com.shellshellfish.aaas.datamanager.model.FinanceProductCompo;
-import com.shellshellfish.aaas.datamanager.model.FundNAVInfo;
-import com.shellshellfish.aaas.datamanager.model.JsonResult;
-import com.shellshellfish.aaas.datamanager.model.MonetaryFund;
-import com.shellshellfish.aaas.datamanager.model.MongoFinanceAll;
-import com.shellshellfish.aaas.datamanager.model.MongoFinanceDetail;
+import com.shellshellfish.aaas.datamanager.model.*;
 import com.shellshellfish.aaas.datamanager.repositories.MongoFinanceDetailRepository;
+import com.shellshellfish.aaas.datamanager.repositories.mongo.MongoCoinFundYieldRateRepository;
 import com.shellshellfish.aaas.datamanager.repositories.mongo.MongoFinanceALLRepository;
 import com.shellshellfish.aaas.datamanager.service.OptimizationService;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.Collator;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +28,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.Collator;
+import java.time.LocalDate;
+import java.util.*;
 
 
 @Service
@@ -78,6 +61,9 @@ public class OptimizationServiceImpl implements OptimizationService {
 
     @Autowired
     GroupController groupController;
+
+    @Autowired
+    MongoCoinFundYieldRateRepository coinFundYieldRateRepository;
 
     private Logger logger = LoggerFactory.getLogger(OptimizationServiceImpl.class);
 
@@ -269,24 +255,24 @@ public class OptimizationServiceImpl implements OptimizationService {
                     // 转换成List
                     prdList = (List<Map<String, Object>>) object;
                     Integer total = prdList.size();
-                    if(prdList != null && prdList.size() > 0){
-                      int i = 0;
-                      for (Map<String, Object> productMap : prdList) {
-                        String status = productMap.get("status") + "";
-                        if("1".equals(status)){
-                          i++;
+                    if (prdList != null && prdList.size() > 0) {
+                        int i = 0;
+                        for (Map<String, Object> productMap : prdList) {
+                            String status = productMap.get("status") + "";
+                            if ("1".equals(status)) {
+                                i++;
+                            }
                         }
-                      }
-                      mongoFinanceAll.setTotal(i);
+                        mongoFinanceAll.setTotal(i);
                     } else {
-                      mongoFinanceAll.setTotal(0);
+                        mongoFinanceAll.setTotal(0);
                     }
                     mongoFinanceALLRepository.save(mongoFinanceAll);
                     try {
                         for (Map<String, Object> productMap : prdList) {
-                            if(productMap != null && productMap.containsKey("status")){
+                            if (productMap != null && productMap.containsKey("status")) {
                                 String status = productMap.get("status") + "";
-                                if("0".equals(status)){
+                                if ("0".equals(status)) {
                                     continue;
                                 }
                             }
@@ -336,8 +322,8 @@ public class OptimizationServiceImpl implements OptimizationService {
                             // Map ExpMaxReturn=getExpMaxReturn(g,subGroupId);
                             // 将结果封装进实体类
                             Map baseLine = groupController.getGroupBaseLine(Long.parseLong(groupId), null, InstantDateUtil.format(startDate), 5);
-                            if(baseLine != null){
-                              baseLine = align(histYieldRate, baseLine);
+                            if (baseLine != null) {
+                                baseLine = align(histYieldRate, baseLine);
                             }
                             FinanceProductCompo prd = new FinanceProductCompo(groupId, subGroupId, prdName,
                                     expAnnReturn.size() > 0 ? expAnnReturn.get("value").toString() : null, productCompo,
@@ -558,7 +544,7 @@ public class OptimizationServiceImpl implements OptimizationService {
 //        criteria.where("date").is(date);
 //        criteria.where("oemid").is(oemid);
 //        Query query = Query.query(criteria);
-        
+
         Query query = new Query();
         query.addCriteria(Criteria.where("date").is(date))
                 .addCriteria(Criteria.where("oemid").is(oemid));
@@ -896,10 +882,10 @@ public class OptimizationServiceImpl implements OptimizationService {
             mongoFinanceDetail.setLastModifiedBy(utcTime + "");
             mongoFinanceDetail.setStatus(status);
             Map<Integer, List> fundListMap = (Map<Integer, List>) result.get("fundListMap");
-            if(fundListMap != null){
-              result.remove("fundListMap");
+            if (fundListMap != null) {
+                result.remove("fundListMap");
             }
-            
+
             mongoFinanceDetail.setTotal(fundListMap.size());
             mongoFinanceDetailRepository.save(mongoFinanceDetail);
 //            if (fundListMap != null) {
@@ -1280,36 +1266,23 @@ public class OptimizationServiceImpl implements OptimizationService {
      */
     private void getGrowthOfMonetaryFunds(FundNAVInfo info) {
 
-        Long endDate = new Date().getTime();
-        Long startDate = SSFDateUtils.getLongTimeOfThreeYearsBefore();
-
-
         String fundCode = info.getFundCode();
 
         if (!MonetaryFundEnum.containsCode(info.getFundCode())) {
             info.setIsMonetaryFund(0);
             return;
         }
-
         info.setIsMonetaryFund(1);
 
-        String methodUrl = "/api/userinfo/getGrowthRateOfMonetaryFundsList";
+        LocalDate now = InstantDateUtil.now();
+        String endDate = InstantDateUtil.format(now.plusDays(1), "yyyy/MM/dd");
+        String startDate = InstantDateUtil.format(now.plusYears(-3), "yyyy/MM/dd");
 
-        Map<String, String> params = new HashMap(3);
-        params.put("code", fundCode);
-        params.put("startDate", String.valueOf(startDate));
-        params.put("endDate", String.valueOf(endDate));
+        List<CoinFundYieldRate> coinFundYieldRateList = coinFundYieldRateRepository
+                .findByCodeAndQueryDateStrBetweenOrderByQueryDateStr(fundCode, startDate, endDate);
 
-        MonetaryFund[] originResult = restTemplate.postForObject(URLutils.prepareParameters(userInfoUrl + methodUrl, params), null, MonetaryFund[].class);
-
-        if (originResult == null || originResult.length <= 0) {
-            logger.error("没有查找到基金‘{code:{},name:{}}’的七日年化收益和万份收益", fundCode, info.getName());
-            return;
-        }
-
-        List<MonetaryFund> result = Arrays.asList(originResult);
-        info.setYieldof7days(result);
-        info.setTenKiloUnitYield(result);
+        info.setYieldof7days(coinFundYieldRateList);
+        info.setTenKiloUnitYield(coinFundYieldRateList);
     }
 
     @Override
@@ -1354,12 +1327,12 @@ public class OptimizationServiceImpl implements OptimizationService {
         Long utcTime = TradeUtil.getUTCTime();
         String dateTime = TradeUtil.getReadableDateTime(utcTime);
         String date = dateTime.split("T")[0].replaceAll("-", "");
-        
+
 //        Criteria criteria = new Criteria();
 //        criteria.where("date").is(date);
 //        criteria.where("oemId").is(oemId);
 //        Query query = Query.query(criteria);
-        
+
         Query query = new Query();
         query.addCriteria(Criteria.where("date").is(date))
                 .addCriteria(Criteria.where("oemid").is(oemId));
@@ -1416,39 +1389,39 @@ public class OptimizationServiceImpl implements OptimizationService {
                 Object fundListMapObj = finaceDetailMapOne.get("fundListMap");
                 if (fundListMapObj != null) {
 //                    fundListMap.add(fundListMapObj);
-                  Map<String, Object> finaceListMapTemp = (HashMap<String, Object>) fundListMapObj;
-                  for(String key : finaceListMapTemp.keySet()){
-                    finaceListMap.put(key, finaceListMapTemp.get(key));
-                  }
+                    Map<String, Object> finaceListMapTemp = (HashMap<String, Object>) fundListMapObj;
+                    for (String key : finaceListMapTemp.keySet()) {
+                        finaceListMap.put(key, finaceListMapTemp.get(key));
+                    }
                 }
             }
         }
         Object obj = detail.getResult();
-        if(obj !=null && obj instanceof Map){
-          Map<String, Object> objMap = (HashMap<String, Object>) obj;
+        if (obj != null && obj instanceof Map) {
+            Map<String, Object> objMap = (HashMap<String, Object>) obj;
 //          Map<String, Map> objMap = (HashMap<String, Map>) obj;
 //          objMap.put("fundListMap", fundListMap);
-          objMap.put("fundListMap", finaceListMap);
-          objMap.put("totalPage", detail.getTotalPage());
-          objMap.put("totalRecord", detail.getTotal());
-          objMap.put("currentPage", pageSize);
-          objMap.put("status", status);
-          detail.setResult(objMap);
+            objMap.put("fundListMap", finaceListMap);
+            objMap.put("totalPage", detail.getTotalPage());
+            objMap.put("totalRecord", detail.getTotal());
+            objMap.put("currentPage", pageSize);
+            objMap.put("status", status);
+            detail.setResult(objMap);
         }
 //        detail.setResult(fundListMap);
         jsonResult = new JsonResult(JsonResult.SUCCESS, "查看理财产品详情成功", detail.getResult());
         return jsonResult;
     }
-    
-    public static void listSort(List<Map> resultList, String name) {  
-      Collections.sort(resultList, new Comparator<Map>() {  
-          public int compare(Map o1, Map o2) {  
-              String name1=MapUtils.getString(o1, name);  
-              String name2=MapUtils.getString(o2, name);  
-              Collator instance = Collator.getInstance(Locale.CHINA);  
-              return instance.compare(name1, name2);  
 
-          }  
-      });  
-  }
+    public static void listSort(List<Map> resultList, String name) {
+        Collections.sort(resultList, new Comparator<Map>() {
+            public int compare(Map o1, Map o2) {
+                String name1 = MapUtils.getString(o1, name);
+                String name2 = MapUtils.getString(o2, name);
+                Collator instance = Collator.getInstance(Locale.CHINA);
+                return instance.compare(name1, name2);
+
+            }
+        });
+    }
 }
