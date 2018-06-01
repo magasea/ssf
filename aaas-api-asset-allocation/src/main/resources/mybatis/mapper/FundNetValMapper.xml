@@ -195,4 +195,23 @@
 
     </select>
 
+    <select id="getNetValueDateByGroupId" resultType="java.util.Date">
+        SELECT DISTINCT  NAVLATESTDATE
+        FROM fund_group_basic_${oemId} a
+        LEFT JOIN fund_net_value b ON a.code = b.code
+        WHERE group_id = #{fundGroupId}
+        AND NAVLATESTDATE &gt;= (
+            SELECT MAX(NAVLATESTDATE) max_date
+            FROM
+                (
+                  SELECT MIN(NAVLATESTDATE) NAVLATESTDATE
+                  FROM fund_group_basic_${oemId} a
+                  LEFT JOIN fund_net_value b ON a.code = b.code
+                  WHERE group_id = #{fundGroupId}
+                  GROUP BY a.code
+                ) c)
+        ORDER BY NAVLATESTDATE ASC
+
+    </select>
+
 </mapper>
