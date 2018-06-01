@@ -219,6 +219,8 @@
         <if test="fund_group_sub_id != null and fund_group_sub_id != ''">
             and fund_group_sub_id=#{fund_group_sub_id}
         </if>
+
+        ORDER BY TIME DESC
     </select>
 
     <select id="getSharpeRatio" resultType="com.shellshellfish.aaas.assetallocation.entity.FundNetVal">
