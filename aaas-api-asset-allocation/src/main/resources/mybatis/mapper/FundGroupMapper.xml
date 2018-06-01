@@ -531,5 +531,13 @@
         select status from fund_group_${oemId} where id = #{groupId}
     </select>
 
+    <select id="getHistoryAllByAsc" resultType="com.shellshellfish.aaas.assetallocation.entity.FundGroupHistory">
+        select * from fund_group_history_${oemId} where fund_group_id = #{fund_group_id}
+        <if test="fund_group_sub_id != null and fund_group_sub_id != ''">
+            and fund_group_sub_id=#{fund_group_sub_id}
+        </if>
+
+        ORDER BY TIME ASC
+    </select>
 
 </mapper>
