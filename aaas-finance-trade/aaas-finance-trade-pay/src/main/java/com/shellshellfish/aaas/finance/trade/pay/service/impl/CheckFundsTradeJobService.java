@@ -58,8 +58,8 @@ public class CheckFundsTradeJobService {
         //先查一遍购买未确认状态的payFlow
 
         List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-            .findAllByTradeConfirmShareIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.BUY.getOperation
-                ());
+            .findAllByTradeConfirmShareIsAndTrdTypeIsAndTrdStatusIsGreaterThan(0L, TrdOrderOpTypeEnum.BUY.getOperation
+                (), TrdOrderStatusEnum.FAILED.getStatus());
 
         if(!CollectionUtils.isEmpty(trdPayFlows)) {
             ApplyResult applyResult = null;
@@ -307,8 +307,8 @@ public class CheckFundsTradeJobService {
         Instant.now().getEpochSecond();
 
         List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-            .findAllByTradeConfirmShareIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.PREORDER.getOperation
-                ());
+            .findAllByTradeConfirmShareIsAndTrdTypeIsAndTrdStatusIsGreaterThan(0L, TrdOrderOpTypeEnum.PREORDER.getOperation
+                (), TrdOrderStatusEnum.FAILED.getStatus());
         if(!CollectionUtils.isEmpty(trdPayFlows)) {
             for (TrdPayFlow trdPayFlow : trdPayFlows) {
                 try {
