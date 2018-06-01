@@ -962,6 +962,10 @@ public class FundGroupService {
         List maxMinBenchmarkList = new ArrayList();
         if (returnType.equalsIgnoreCase("income")) {
             List<FundNetVal> fundNetVals = this.getNavadjNew1(groupId, subGroupId, oemId);
+//            List<FundNetVal> fundNetVals = this.getNavadjNew(groupId, subGroupId, oemId);
+
+
+
             if (CollectionUtils.isEmpty(fundNetVals)) {
                 logger.info("fundNetVals is empty for groupId:{} subGroupId:{}", groupId, subGroupId);
                 return fgi;
@@ -979,6 +983,7 @@ public class FundGroupService {
                 mapBasic.put("time", DateUtil.formatDate(time));
                 value = (fundNetVals.get(i).getNavadj() - fundNetVals.get(0).getNavadj()) / fundNetVals.get(0).getNavadj();
                 mapBasic.put("value", value);
+                log.info("time:{} value:{}",time.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),value);
                 dateList.remove(time);
                 listFund.add(mapBasic);
                 maxMinValueList.add(value);
