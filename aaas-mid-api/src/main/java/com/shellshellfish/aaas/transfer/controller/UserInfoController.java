@@ -1125,9 +1125,6 @@ public class UserInfoController {
       @RequestParam(required = false) String bankCard,
       @RequestParam(required = false, defaultValue = "100") String sellTargetPercent) {
     Map<Object, Object> result = new HashMap<Object, Object>();
-    if (null == sellTargetPercent || sellTargetPercent.compareToIgnoreCase("null") == 0) {
-      sellTargetPercent = "";
-    }
     try {
       result = restTemplate
           .getForEntity(tradeOrderUrl + "/api/trade/funds/sellDetails/" + orderId, Map.class)
@@ -1276,6 +1273,9 @@ public class UserInfoController {
           sellTargetPercent =
               sellTargetPercent == null || sellTargetPercent.compareToIgnoreCase("null") == 0
                   ? result.get("sellTargetPercent") + "" : sellTargetPercent;
+          if ("".equals(sellTargetPercent)) {
+            sellTargetPercent = "100";
+          }
           totalAmount = (((new BigDecimal(totalAmount)).multiply(new BigDecimal(sellTargetPercent))
               .divide(new BigDecimal("100"))).subtract(new BigDecimal(poundage))).setScale(2,
               RoundingMode.HALF_UP)
