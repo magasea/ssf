@@ -9,11 +9,17 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface FundInfoApiService {
+    void writeAllTradeLimitToMongoDb();
+
+    String getTradeLimitAsRawString(String fundCode, String businFlag);
+
     void writeAllFundsToMongoDb(List<String> funds);
 
     void writeAllFundsTradeRateToMongoDb(List<String> funds);
 
     void writeAllFundsDiscountToMongoDb(List<String> funds);
+
+    String getDiscountRawString(String fundCode, String businFlag);
 
     String getExamContent() throws JsonProcessingException;
 

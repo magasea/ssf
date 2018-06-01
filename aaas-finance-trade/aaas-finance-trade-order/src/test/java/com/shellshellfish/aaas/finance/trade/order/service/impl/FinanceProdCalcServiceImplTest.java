@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ActiveProfiles("pretest")
+@ActiveProfiles("test")
 
 public class FinanceProdCalcServiceImplTest {
 
@@ -76,7 +76,20 @@ public class FinanceProdCalcServiceImplTest {
             e.printStackTrace();
         }
     }
+    @Test
+    public  void writeAllFundsDiscountToMongoDb() {
+        try {
+            List<String> allFundsInfo = fundInfoService.getAllFundsInfo();
+            fundInfoService.writeAllFundsDiscountToMongoDb(allFundsInfo);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
+    @Test
+    public  void  writeAllTradeLimitToMongoDb(){
+        fundInfoService.writeAllTradeLimitToMongoDb();
+    }
     @Test
     public void testGetMinBuyAmount() throws Exception {
         List<BigDecimal> minAmountList = new ArrayList<>();

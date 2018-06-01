@@ -55,11 +55,15 @@ public class DataServiceImpl implements DataService {
     MongoGroupBaseRepository mongoGroupBaseRepository;
 
     @Autowired
+    MongoCoinFundYieldRateRepository coinFundYieldRateRepository;
+
+    @Autowired
     private MongoTemplate mongoTemplate;
 
 
     public static final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100);
 
+    public static final String PERCENT_SIGNS = "%";
 
     public List<FundCodes> getAllFundCodes() {
         //List<FundCodes> ftl=mongoFundCodesRepository.findByCodeAndDate("000001.OF","2017-11-12");
@@ -384,7 +388,6 @@ public class DataServiceImpl implements DataService {
     //日涨幅,近一年涨幅,净值,分级类型,评级
 
     public HashMap<String, Object> getFundValueInfo(String code, String date) {
-
         if (!code.contains("OF") && !code.contains("SH") && !code.contains("SZ")) {
             code = code + ".OF";
         }
@@ -398,41 +401,36 @@ public class DataServiceImpl implements DataService {
         hnmap.put("net", 0);//当天净值
         hnmap.put("navreturnrankingp", 0);//基金排名
 
-        HashMap[] dmap = new HashMap[8];
 
         LocalDate stdate = InstantDateUtil.format(date);
-        long sttime = InstantDateUtil.getEpochSecondOfZero(stdate.plusDays(1)); //seconds
 
-        Sort sort = new Sort(Sort.Direction.DESC, "querydate");
-        FundYearIndicator fundYearIndicator = mongoFundYearIndicatorRepository
-                .getFirstByCodeAndQuerydateBefore(code, sttime, sort);
-        BigDecimal curdayval;
 
-        String dayup = "0.0%";
-        String weekup = "0.0%";
-        String monthup = "0.0%";
-        String threemonthup = "0.0%";
-        String sixmonthup = "0.0%";
-        String oneyearup = "0.0%";
-        String threeyearup = "0.0%";
-        String thisyearup = "0.0%";
-        if (fundYearIndicator != null) {
-            curdayval = fundYearIndicator.getNavadj();
-            stdate = InstantDateUtil.toLocalDate(fundYearIndicator.getQuerydate());
-            hnmap.put("net", fundYearIndicator.getNavunit().doubleValue());//当天单位净值
-            dayup = getUprate(code, curdayval, stdate, 1).toString() + "%"; //a day ago
-            weekup = getUprate(code, curdayval, stdate, 2).toString() + "%"; //a week ago
-            monthup = getUprate(code, curdayval, stdate, 3).toString() + "%"; //a month ago
-            threemonthup = getUprate(code, curdayval, stdate, 4).toString() + "%"; //3 month ago
-            sixmonthup = getUprate(code, curdayval, stdate, 5).toString() + "%"; //6 month ago
-            thisyearup = getUprate(code, curdayval, stdate, 8).toString() + "%"; //this year ago
-            oneyearup = getUprate(code, curdayval, stdate, 6).toString() + "%"; //1 year ago
-            threeyearup = getUprate(code, curdayval, stdate, 7).toString() + "%"; //3 year ago
-
+        BigDecimal net;
+        if (MonetaryFundEnum.containsCode(code)) {
+            net = BigDecimal.ONE;//货币基金单位净值为１
+            CoinFundYieldRate coinFundYieldRate = coinFundYieldRateRepository
+                    .findFirstByCodeAndQueryDateStrLessThanEqualOrderByQueryDateStrDesc(code, InstantDateUtil.format
+                            (stdate, "yyyy/MM/dd").toString());
+            hnmap.put("yieldOf7Days", coinFundYieldRate.getYieldOf7Days());
+            hnmap.put("10kUnitYield", coinFundYieldRate.getTenKiloUnityYield());
         } else {
-            logger.error("fundYearIndicator is null");
+            long sttime = InstantDateUtil.getEpochSecondOfZero(stdate.plusDays(1)); //seconds
+            Sort sort = new Sort(Sort.Direction.DESC, "querydate");
+            FundYearIndicator fundYearIndicator = mongoFundYearIndicatorRepository
+                    .getFirstByCodeAndQuerydateBefore(code, sttime, sort);
+            net = fundYearIndicator.getNavunit();
         }
+        hnmap.put("net", net);//当天单位净值
+        String dayup = getUprate(code, stdate, 1).toString() + PERCENT_SIGNS; //a day ago
+        String weekup = getUprate(code, stdate, 2).toString() + PERCENT_SIGNS; //a week ago
+        String monthup = getUprate(code, stdate, 3).toString() + PERCENT_SIGNS; //a month ago
+        String threemonthup = getUprate(code, stdate, 4).toString() + PERCENT_SIGNS; //3 month ago
+        String sixmonthup = getUprate(code, stdate, 5).toString() + PERCENT_SIGNS; //6 month ago
+        String thisyearup = getUprate(code, stdate, 8).toString() + PERCENT_SIGNS; //this year ago
+        String oneyearup = getUprate(code, stdate, 6).toString() + PERCENT_SIGNS; //1 year ago
+        String threeyearup = getUprate(code, stdate, 7).toString() + PERCENT_SIGNS; //3 year ago
 
+        HashMap[] dmap = new HashMap[8];
         dmap[0] = new HashMap<String, String>();
         dmap[0].put("time", "日涨幅");
         dmap[0].put("val", dayup);
@@ -481,9 +479,12 @@ public class DataServiceImpl implements DataService {
         return hnmap;
     }
 
-
-    public BigDecimal getUprate(String code, BigDecimal curval, LocalDate curdate, int type) {
+    private BigDecimal getUprate(String code, LocalDate curdate, int type) {
         LocalDate befdate = null;
+        Map map = getNavadjOfFund(code, curdate);
+        curdate = (LocalDate) map.get("date");
+        BigDecimal curval = (BigDecimal) map.get("navAdj");
+
         switch (type) {
             case 1:
                 befdate = curdate.plusDays(-1);//昨天日期
@@ -513,22 +514,84 @@ public class DataServiceImpl implements DataService {
                 befdate = LocalDate.now();
         }
 
-        long endtime = InstantDateUtil.getEpochSecondOfZero(befdate.plusDays(1)); //seconds
-
-        Sort sort = new Sort(Sort.Direction.DESC, "querydate");
-
-        FundYearIndicator fundYearIndicator = mongoFundYearIndicatorRepository
-                .getFirstByCodeAndQuerydateBefore(code, endtime, sort);
-
-        BigDecimal yesval = Optional.ofNullable(fundYearIndicator).map(m -> m.getNavadj())
-                .orElse(BigDecimal.ZERO);
+        Map yesMap = getNavadjOfFund(code, befdate);
+        BigDecimal yesval = (BigDecimal) yesMap.get("navAdj");
+        if (yesval == null) {
+            yesMap = getNavadjOfFundFirstDay(code);
+            yesval = (BigDecimal) yesMap.get("navAdj");
+        }
         BigDecimal up = BigDecimal.ZERO;
-        if (BigDecimal.ZERO.compareTo(yesval) != 0) {
-            up = ((curval.subtract(yesval)).divide(yesval, MathContext.DECIMAL128)).
+        if (yesval != null && BigDecimal.ZERO.compareTo(yesval) != 0) {
+            up = ((curval.subtract(yesval)).divide(yesval, MathContext.DECIMAL32)).
                     multiply(BigDecimal.valueOf(100L));
         }
         return up.setScale(2, BigDecimal.ROUND_HALF_UP);
 
+    }
+
+    /**
+     * 获取基金的基金复权单位净值
+     *
+     * @param code
+     * @param date
+     * @return
+     */
+    private Map<String, Object> getNavadjOfFund(String code, LocalDate date) {
+        final String DATE_FORMAT = "yyyy/MM/dd";
+        Map<String, Object> map = new HashMap<>(2);
+        BigDecimal yesval = null;
+        long endtime = InstantDateUtil.getEpochSecondOfZero(date.plusDays(1)); //seconds
+        if (MonetaryFundEnum.containsCode(code)) {
+            CoinFundYieldRate coinFundYieldRate = coinFundYieldRateRepository
+                    .findFirstByCodeAndQueryDateStrLessThanEqualOrderByQueryDateStrDesc
+                            (code, InstantDateUtil.format(date, DATE_FORMAT));
+            if (coinFundYieldRate != null) {
+                yesval = coinFundYieldRate.getNavAdj();
+                date = InstantDateUtil.format(coinFundYieldRate.getQueryDateStr(), DATE_FORMAT);
+            }
+        } else {
+            Sort sort = new Sort(Sort.Direction.DESC, "querydate");
+            FundYearIndicator fundYearIndicator = mongoFundYearIndicatorRepository
+                    .getFirstByCodeAndQuerydateBefore(code, endtime, sort);
+
+            if (fundYearIndicator != null) {
+                yesval = fundYearIndicator.getNavadj();
+                date = InstantDateUtil.toLocalDate(fundYearIndicator.getQuerydate());
+            }
+        }
+        map.put("date", date);
+        map.put("navAdj", yesval);
+        return map;
+    }
+
+    /**
+     * 获取基金的基金复权单位净值
+     *
+     * @param code
+     * @return
+     */
+    private Map<String, Object> getNavadjOfFundFirstDay(String code) {
+        final String DATE_FORMAT = "yyyy/MM/dd";
+        LocalDate date = InstantDateUtil.now();
+        Map<String, Object> map = new HashMap<>(2);
+        BigDecimal yesval = null;
+        if (MonetaryFundEnum.containsCode(code)) {
+            CoinFundYieldRate coinFundYieldRate = coinFundYieldRateRepository
+                    .findFirstByCodeOrderByQueryDateStr(code);
+            if (coinFundYieldRate != null) {
+                yesval = coinFundYieldRate.getNavAdj();
+                date = InstantDateUtil.format(coinFundYieldRate.getQueryDateStr(), DATE_FORMAT);
+            }
+        } else {
+            FundYearIndicator fundYearIndicator = mongoFundYearIndicatorRepository.getFirstByCodeOrderByQuerydate(code);
+            if (fundYearIndicator != null) {
+                yesval = fundYearIndicator.getNavadj();
+                date = InstantDateUtil.toLocalDate(fundYearIndicator.getQuerydate());
+            }
+        }
+        map.put("date", date);
+        map.put("navAdj", yesval);
+        return map;
     }
 
     public HashMap<String, String> getClassType(String code) {
