@@ -100,7 +100,7 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
             totalPoundage = totalPoundage.add(poundage);
             totalDiscountSaving = totalDiscountSaving.add(discountSaving);
 //            FundAmount fundAmount = new FundAmount(info.getFundCode(), info.getFundName(), amount);
-            BigDecimal fundShare = BigDecimal.valueOf(info.getFundShare()).divide(BigDecimal.valueOf(100d));
+            BigDecimal fundShare = BigDecimal.valueOf(info.getFundShare()).divide(BigDecimal.valueOf(100));
             FundAmount fundAmount = new FundAmount(info.getFundCode(), info.getFundName(), amount, fundShare + "%");
             fundAmountList.add(fundAmount);
         }
