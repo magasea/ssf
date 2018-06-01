@@ -76,7 +76,7 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
             endTime /= 1000L;
 
         List<CoinFundYieldRate> originResult = coinFundYieldrateRepository
-                .findCoinFundYieldRate(monetaryFundsQueryItem.getCode(), startTime, endTime);
+                .findByCodeAndQuerydateBetweenOrderByQuerydate(monetaryFundsQueryItem.getCode(), startTime, endTime);
 
         if (originResult == null || originResult.isEmpty())
             originResult = new ArrayList<>(0);

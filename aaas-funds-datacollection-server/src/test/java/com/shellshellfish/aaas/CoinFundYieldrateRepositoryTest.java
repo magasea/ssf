@@ -23,19 +23,19 @@ import static org.hamcrest.Matchers.*;
 @WebAppConfiguration
 public class CoinFundYieldrateRepositoryTest {
 
-	@Autowired
-	CoinFundYieldrateRepository coinFundYieldrateRepository;
+    @Autowired
+    CoinFundYieldrateRepository coinFundYieldrateRepository;
 
-	@Test
-	public void test() {
-		String code = "400005.OF";
-		Long startDate = 1420992000L;
-		Long endDate = System.currentTimeMillis();
+    @Test
+    public void test() {
+        String code = "003474.OF";
+        Long startDate = 1420992000L;
+        Long endDate = System.currentTimeMillis();
 
-		List<CoinFundYieldRate> coinFundYieldRates = coinFundYieldrateRepository.findCoinFundYieldRate(code, startDate, endDate);
-		Assert.assertNotNull("测试通过", coinFundYieldRates);
-		Assert.assertThat(coinFundYieldRates, notNullValue());
-	}
+        List<CoinFundYieldRate> coinFundYieldRates = coinFundYieldrateRepository.findByCodeAndQuerydateBetweenOrderByQuerydate(code, startDate, endDate);
+        Assert.assertNotNull("测试通过", coinFundYieldRates);
+        Assert.assertThat(coinFundYieldRates, notNullValue());
+    }
 
 }
 

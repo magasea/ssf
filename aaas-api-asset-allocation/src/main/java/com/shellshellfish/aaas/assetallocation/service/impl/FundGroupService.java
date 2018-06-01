@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.assetallocation.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -929,6 +929,10 @@ public class FundGroupService {
         mapStr.put("fund_group_sub_id", subGroupId);
         mapStr.put("oemId", "" + oemId);
         List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistoryAll(mapStr);
+        Date  latestTime = fundGroupHistoryList.get(0).getTime();
+
+        log.info("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:{} ",latestTime.toString());
+
         if (CollectionUtils.isEmpty(fundGroupHistoryList)) {
             if (returnType.equalsIgnoreCase("income")) {
                 allMap.put("income", new ArrayList<>());
@@ -957,11 +961,14 @@ public class FundGroupService {
         List maxMinValueList = new ArrayList();
         List maxMinBenchmarkList = new ArrayList();
         if (returnType.equalsIgnoreCase("income")) {
-            List<FundNetVal> fundNetVals = this.getNavadjNew(groupId, subGroupId, oemId);
+            List<FundNetVal> fundNetVals = this.getNavadjNew1(groupId, subGroupId, oemId);
             if (CollectionUtils.isEmpty(fundNetVals)) {
                 logger.info("fundNetVals is empty for groupId:{} subGroupId:{}", groupId, subGroupId);
                 return fgi;
             }
+
+            Date latestDate = fundNetVals.get(fundNetVals.size()-1).getNavLatestDate();
+            log.info("ssssssssssssssssssssssssssssssssssssssssssss: "+latestDate.toString());
 
             Double value = null;
             Date time = null;
@@ -1683,6 +1690,31 @@ public class FundGroupService {
     public List<FundNetVal> getNavadjNew(String groupId, String subGroupId, int oemId) {
         List<LocalDate> navDateList = fundGroupService.getNavlatestdateCount(groupId, subGroupId,
                 oemId);
+
+        navDateList.forEach(item->{
+            System.out.println("time: "+item.toString());
+        });
+
+        Map query = new HashMap();
+        query.put("groupId", groupId);
+        query.put("subGroupId", subGroupId);
+        query.put("list", navDateList);
+        query.put("oemId", oemId);
+        List<FundNetVal> fundNetVals = fundGroupMapper.getNavadjByNavDates(query);
+
+        return fundNetVals;
+    }
+
+    public List<FundNetVal> getNavadjNew1(String groupId, String subGroupId, int oemId) {
+//        List<LocalDate> navDateList = fundGroupService.getNavlatestdateCount(groupId, subGroupId,
+//                oemId);
+        List<LocalDate> navDateList = fundGroupService.getNavLatestDate(groupId,oemId);
+
+        navDateList.forEach(item->{
+            System.out.println("time: "+item.toString());
+        });
+
+
 
         Map query = new HashMap();
         query.put("groupId", groupId);
@@ -2425,7 +2457,7 @@ public class FundGroupService {
     }
 
     private void updateMaximumLossesTask(String fundGroupId, String fundGroupSubId, int oemId) {
-        log.info("updateMaximumLossesTask groupId:{}  subId:{}", fundGroupId, fundGroupSubId);
+        FundGroupService.log.info("updateMaximumLossesTask groupId:{}  subId:{}", fundGroupId, fundGroupSubId);
 //        Map<String, Object> map = new HashMap<>();
 //        map.put("slidebarType", "risk_num");
 //        map.put("fundGroupId", fundGroupId);
@@ -2880,4 +2912,23 @@ public class FundGroupService {
         return dateList;
     }
 
+
+    /**
+     * @param groupId
+     * @param oemId
+     * @return
+     */
+    public List<LocalDate> getNavLatestDate(String groupId, int oemId) {
+//        Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(groupId, oemId);
+//        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+//        log.info("getNavLatestDate 中 组合成立日:{}", localDate);
+
+        List<Date> list = fundNetValMapper.getNetValueDateByGroupId(groupId, oemId);
+        List<LocalDate> listDate = Lists.newArrayList();
+        list.forEach(item->{
+            listDate.add(item.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+        });
+
+        return listDate;
+    }
 }
