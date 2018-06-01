@@ -951,7 +951,7 @@ public class FundGroupService {
                 mapBasic.put("time", DateUtil.formatDate(time));
                 value = currentValue / baseValue - 1;
                 mapBasic.put("value", value);
-
+                logger.info("date:{} value:{}",DateUtil.formatDate(time),value);
                 if (Math.abs(value) > 0.5D)
                     logger.error("数值可能有异常:{}:{}:{}:{}", value, fundGroupHistory.getTime(), groupId, subGroupId);
 
