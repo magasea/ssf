@@ -235,19 +235,10 @@ public class OptimizationServiceImpl implements OptimizationService {
             String date = dateTime.split("T")[0].replaceAll("-", "");
             mongoFinanceAll.setDate(date);
             System.out.println("---\n" + date);
-//			mongoFinanceAll.setHead(jsonResult.getHead());
-//			mongoFinanceAll.setResult(jsonResult.getResult());
             mongoFinanceAll.setResult(returnMap);
             mongoFinanceAll.setLastModifiedBy(utcTime + "");
             mongoFinanceAll.setOemid(oemId);
             mongoFinanceALLRepository.deleteAllByOemid(oemId);
-//			MongoFinanceAll mongoFinanceCount = mongoFinanceALLRepository.findAllByDate(date);
-//			if(mongoFinanceCount!=null){
-//				logger.info("已存在，删除后重新插入");
-//				mongoFinanceALLRepository.deleteAllByDate(date);
-////				mongoFinanceALLRepository.deleteAll();
-//			}
-//			mongoFinanceALLRepository.deleteAll();
             mongoFinanceAll.setSerial(serial);
             if (result != null) {
                 object = result.get("_items");
@@ -535,15 +526,6 @@ public class OptimizationServiceImpl implements OptimizationService {
         Long utcTime = TradeUtil.getUTCTime();
         String dateTime = TradeUtil.getReadableDateTime(utcTime);
         String date = dateTime.split("T")[0].replaceAll("-", "");
-        //MongoFinanceAll mongoFinanceAll = mongoFinanceALLRepository.findAllByDate(date);
-//        List<MongoFinanceAll> mongoFinanceList = mongoFinanceALLRepository.findAllByDate(date);
-//        if(mongoFinanceList==null || mongoFinanceList.size() == 0){
-//          return null;
-//        }
-//        Criteria criteria = new Criteria();
-//        criteria.where("date").is(date);
-//        criteria.where("oemid").is(oemid);
-//        Query query = Query.query(criteria);
 
         Query query = new Query();
         query.addCriteria(Criteria.where("date").is(date))

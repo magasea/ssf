@@ -530,14 +530,18 @@ public class UserInfoController {
 //									if(tradeStatusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())){
 //										map.put("tradeStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
 //									}
-                  if (tradeStatusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())
-                      && tradeStatusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
-                    map.put("tradeStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
-                  }
+//                  if (tradeStatusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())
+//                      && tradeStatusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
+//                    map.put("tradeStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
+//                  }
                   if (tradeStatusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())
                       && tradeStatusMap
                       .containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())) {
                     map.put("tradeStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
+                  }
+                  // 只要还有基金在确认中状态请显示确认中
+                  if (tradeStatusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())) {
+                    map.put("tradeStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
                   }
                 } else {
                   for (String key : tradeStatusMap.keySet()) {
