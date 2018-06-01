@@ -837,7 +837,7 @@ public class DataServiceImpl implements DataService {
                                 .divide(startBaseClose.getSH905(), MathContext.DECIMAL128);
                         break;
                     case "H11025CSI":
-                        BigDecimal h11025csi= fundBaseClose.getH11025CSI();
+                        BigDecimal h11025csi = fundBaseClose.getH11025CSI();
                         if (h11025csi == null)
                             continue;
                         dayUp = fundBaseClose.getH11025CSI()
@@ -889,6 +889,9 @@ public class DataServiceImpl implements DataService {
         } else {
             List<FundBaseClose> fundBaseCloseList = mongoFundBaseCloseRepository
                     .findByQueryDateBetween(startTime, endTime, new Sort(Direction.ASC, "querydate"));
+
+            if (CollectionUtils.isEmpty(fundBaseCloseList))
+                logger.error("fundBaseCloseList is null groupId:{},startTime:{},endTime:{}", groupId, startTime, endTime);
 
             FundBaseClose startBaseClose = fundBaseCloseList.get(0);
 
@@ -958,7 +961,7 @@ public class DataServiceImpl implements DataService {
                                 .divide(startBaseClose.getSH905(), MathContext.DECIMAL128);
                         break;
                     case "H11025CSI":
-                        BigDecimal h11025csi= fundBaseClose.getH11025CSI();
+                        BigDecimal h11025csi = fundBaseClose.getH11025CSI();
                         if (h11025csi == null)
                             continue;
                         dayUp = fundBaseClose.getH11025CSI()
