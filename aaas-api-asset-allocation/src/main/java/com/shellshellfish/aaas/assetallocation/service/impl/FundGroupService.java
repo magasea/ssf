@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -928,30 +929,41 @@ public class FundGroupService {
         mapStr.put("fund_group_id", groupId);
         mapStr.put("fund_group_sub_id", subGroupId);
         mapStr.put("oemId", "" + oemId);
-        List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistoryAll(mapStr);
+        List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistoryAllByAsc(mapStr);
 
         if (CollectionUtils.isEmpty(fundGroupHistoryList)) {
             logger.error("查询不到组合净值序列:groupId:{},subGroupId:{}", groupId, subGroupId);
             return null;
         }
 
-        Double baseValue = fundGroupHistoryList.get(0).getIncome_num();
+        List<FundGroupHistory> tradeList = Lists.newArrayList();
+
+        for (int i = 0; i < fundGroupHistoryList.size(); i++) {
+            if (TradingDayUtils.isTradingDay(fundGroupHistoryList.get(i).getTime())) {
+                tradeList.add(fundGroupHistoryList.get(i));
+            }
+        }
+
+        Double baseValue = tradeList.get(0).getIncome_num();
 
         List maxMinValueList = new ArrayList();
         List maxMinBenchmarkList = new ArrayList();
+
         if (returnType.equalsIgnoreCase("income")) {
             Double value = null;
             Date time = null;
             List<Map<String, Object>> listFund = new ArrayList<>();
-            for (int i = 1; i < fundGroupHistoryList.size(); i++) {
-                FundGroupHistory fundGroupHistory = fundGroupHistoryList.get(i);
+
+            for (int i = 1; i < tradeList.size(); i++) {
+
+                FundGroupHistory fundGroupHistory = tradeList.get(i);
                 Double currentValue = fundGroupHistory.getIncome_num();
                 Map<String, Object> mapBasic = new HashMap<>();
                 time = fundGroupHistoryList.get(i).getTime();
                 mapBasic.put("time", DateUtil.formatDate(time));
                 value = currentValue / baseValue - 1;
-                mapBasic.put("value", value);
-                logger.info("date:{} value:{}",DateUtil.formatDate(time),value);
+                mapBasic.put("value", BigDecimal.valueOf(value).setScale(6, RoundingMode.HALF_UP));
+                logger.debug("date:{} value:{}", DateUtil.formatDate(time), BigDecimal.valueOf(value).setScale(6, RoundingMode.HALF_UP));
                 if (Math.abs(value) > 0.5D)
                     logger.error("数值可能有异常:{}:{}:{}:{}", value, fundGroupHistory.getTime(), groupId, subGroupId);
 
@@ -1667,8 +1679,8 @@ public class FundGroupService {
         List<LocalDate> navDateList = fundGroupService.getNavlatestdateCount(groupId, subGroupId,
                 oemId);
 
-        navDateList.forEach(item->{
-            System.out.println("time: "+item.toString());
+        navDateList.forEach(item -> {
+            System.out.println("time: " + item.toString());
         });
 
         Map query = new HashMap();
@@ -1684,12 +1696,11 @@ public class FundGroupService {
     public List<FundNetVal> getNavadjNew1(String groupId, String subGroupId, int oemId) {
 //        List<LocalDate> navDateList = fundGroupService.getNavlatestdateCount(groupId, subGroupId,
 //                oemId);
-        List<LocalDate> navDateList = fundGroupService.getNavLatestDate(groupId,oemId);
+        List<LocalDate> navDateList = fundGroupService.getNavLatestDate(groupId, oemId);
 
-        navDateList.forEach(item->{
-            System.out.println("time: "+item.toString());
+        navDateList.forEach(item -> {
+            System.out.println("time: " + item.toString());
         });
-
 
 
         Map query = new HashMap();
@@ -2037,11 +2048,11 @@ public class FundGroupService {
             for (String code : codeList) {
                 BigDecimal navAdjOfFund = fundNetValMapper.getLatestNavAdj(code, date);
 
-                if(navAdjOfFund == null || baseMap.get(code) == null){
+                if (navAdjOfFund == null || baseMap.get(code) == null) {
                     logger.error("navAdjOfFund:{} code:{} fundProportionMap.get"
-                            + "(code):{} baseMap.get(code):{} groupId:{} subGroupId:{} date:{}",
-                        navAdjOfFund, code, fundProportionMap.get(code), baseMap.get(code), groupId,
-                        subGroupId,date );
+                                    + "(code):{} baseMap.get(code):{} groupId:{} subGroupId:{} date:{}",
+                            navAdjOfFund, code, fundProportionMap.get(code), baseMap.get(code), groupId,
+                            subGroupId, date);
                     ignoreThisDate = true;
                     break;
                 }
@@ -2051,7 +2062,7 @@ public class FundGroupService {
                 navAdj = navAdj.add(add);
 
             }
-            if(ignoreThisDate){
+            if (ignoreThisDate) {
                 continue;
             }
             FundGroupHistory fundGroupHistory = new FundGroupHistory();
@@ -2620,10 +2631,10 @@ public class FundGroupService {
 //        map.put("oemId", oemId);
 //        List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getScaleMark(map);
 
-            long startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
 
-            fundGroupIdAndSubIdTask(fundGroupId, subId, oemId);
-            long endTime = System.currentTimeMillis();
+        fundGroupIdAndSubIdTask(fundGroupId, subId, oemId);
+        long endTime = System.currentTimeMillis();
 
 
 //            logger.info("one loop elapse : {}", endTime - startTime);
@@ -2913,7 +2924,7 @@ public class FundGroupService {
 
         List<Date> list = fundNetValMapper.getNetValueDateByGroupId(groupId, oemId);
         List<LocalDate> listDate = Lists.newArrayList();
-        list.forEach(item->{
+        list.forEach(item -> {
             listDate.add(item.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
         });
 
