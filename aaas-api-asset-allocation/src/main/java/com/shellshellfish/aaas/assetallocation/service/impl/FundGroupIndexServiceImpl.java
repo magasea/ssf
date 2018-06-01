@@ -61,8 +61,10 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
 //        startDate = startDate.isBefore(FundGroupService.GROUP_START_DATE) ? FundGroupService.GROUP_START_DATE : startDate;
         List<Double> values = new LinkedList<>();
         LocalDate date = LocalDate.of(startDate.getYear(), startDate.getMonth(), 15);
+
         do {
             Double value = fundGroupHistoryMapper.getLatestNavAdj(groupId, subGroupId, date, oemId);
+            logger.info("2 循环中 净值序列 date:{} value:{}",date,value);
             if (value != null)
                 values.add(value);
             date = date.plusMonths(1);
@@ -85,6 +87,7 @@ public class FundGroupIndexServiceImpl implements FundGroupIndexService {
             Double next = values.get(i + 1);
             //月度收益年化
             Double annualYield = next / pre - 1;
+            logger.info("月度收益年化:{}",annualYield);
             annualYieldArray[i] = annualYield;
         }
 
