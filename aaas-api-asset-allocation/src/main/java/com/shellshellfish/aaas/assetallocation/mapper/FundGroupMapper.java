@@ -159,4 +159,6 @@ public interface FundGroupMapper {
     List<Interval> getGroupIdAndSubId(@Param("oemId") Integer oemId);
 
     String getGroupStatusByGroupId(@Param("groupId") String groupId, @Param("oemId") Integer oemId);
+
+    List<FundGroupHistory> getHistoryAllByAsc(Map map);
 }
