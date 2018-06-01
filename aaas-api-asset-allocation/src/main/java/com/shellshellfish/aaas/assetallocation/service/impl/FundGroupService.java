@@ -2,7 +2,6 @@ package com.shellshellfish.aaas.assetallocation.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -40,7 +39,6 @@ import java.util.stream.Collectors;
 import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.BATCH_SIZE_NUM;
 import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.RISK_LEVEL_COUNT;
 import static java.util.Optional.ofNullable;
-import static jdk.nashorn.internal.objects.NativeMath.log;
 
 /**
  * Created by wangyinuo on 2017/11/27.
