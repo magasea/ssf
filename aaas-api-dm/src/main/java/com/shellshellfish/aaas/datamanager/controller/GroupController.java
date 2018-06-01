@@ -47,8 +47,9 @@ public class GroupController {
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(value = "period", required = false) Integer period) {
         LocalDate endDate;
+
         if (StringUtils.isEmpty(endDateStr)) {
-            endDate = LocalDate.now();
+            endDate = InstantDateUtil.now();
         } else {
             endDate = InstantDateUtil.format(endDateStr);
         }
