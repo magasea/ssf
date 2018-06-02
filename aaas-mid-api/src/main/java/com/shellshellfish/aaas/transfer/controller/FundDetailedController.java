@@ -194,7 +194,8 @@ public class FundDetailedController {
 							yieldOf7DaysList.add(yieldOf7DaysMap);
 							yieldOfTenKiloUnitYieldList.add(yieldOfTenKiloUnitYieldMap);
 						}
-						Collections.reverse(yieldOf7DaysAndTenKiloUnitYieldList);
+						//what`s the fuck !
+//						Collections.reverse(yieldOf7DaysAndTenKiloUnitYieldList);
 						result.put("yieldOf7DaysList", yieldOf7DaysList);
 						result.put("yieldOfTenKiloUnitYieldList", yieldOfTenKiloUnitYieldList);
 						result.put("yieldOf7DaysAndTenKiloUnitYield", yieldOf7DaysAndTenKiloUnitYieldList);
