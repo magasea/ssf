@@ -961,11 +961,13 @@ public class FundGroupService {
                 Map<String, Object> mapBasic = new HashMap<>();
                 time = fundGroupHistoryList.get(i).getTime();
                 mapBasic.put("time", DateUtil.formatDate(time));
-                value = currentValue / baseValue - 1;
-                mapBasic.put("value", BigDecimal.valueOf(value).setScale(6, RoundingMode.HALF_UP));
-                logger.debug("date:{} value:{}", DateUtil.formatDate(time), BigDecimal.valueOf(value).setScale(6, RoundingMode.HALF_UP));
+
+//                value = currentValue / baseValue - 1;
+                value = Arith.sub(Arith.div(currentValue, baseValue),1);
+                mapBasic.put("value", Arith.round(value,6));
+
                 if (Math.abs(value) > 0.5D)
-                    logger.error("数值可能有异常:{}:{}:{}:{}", value, fundGroupHistory.getTime(), groupId, subGroupId);
+                    logger.error("数值可能有异常:{} time:{} groupId:{} subId:{}", value, fundGroupHistory.getTime(), groupId, subGroupId);
 
                 dateList.remove(time);
                 listFund.add(mapBasic);

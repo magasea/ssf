@@ -33,6 +33,7 @@ import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoUserDailyIn
 import com.shellshellfish.aaas.userinfo.service.*;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import io.grpc.ManagedChannel;
+import java.util.stream.Collectors;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -607,14 +608,20 @@ public class UserInfoServiceImpl implements UserInfoService {
         resultMap.put("count", count);
         if (count > 0) {
           List<OrderDetail> orderDetails = rpcOrderService
-              .getOrderDetails(products.getId(), status);
+              .getOrderDetails(products.getId(), Integer.MAX_VALUE);
           String type = "";
           if (orderDetails != null && !orderDetails.isEmpty()) {
             OrderDetail orderDetail = orderDetails.get(0);
             int tradeType = orderDetail.getTradeType();
             type = TrdOrderOpTypeEnum.getComment(tradeType);
+            count = orderDetails.stream()
+                .filter(o -> TrdOrderStatusEnum.isInWaiting(o.getOrderDetailStatus()))
+                .collect(Collectors.toList()).size();
+            resultMap.put("count", count);
           }
-          resultMap.put("title2", "* 您有" + count + "支基金正在" + type + "确认中");
+          if (count > 0) {
+            resultMap.put("title2", "* 您有" + count + "支基金正在" + type + "确认中");
+          }
         }
       }
 
@@ -1555,26 +1562,25 @@ public class UserInfoServiceImpl implements UserInfoService {
   }
 
 
-    
-    @Override
-    public Map<String, Object> getMyAssetByProdId(String uuid, String prodId){
-      Map<String, Object> result = new HashMap<String, Object>();
-      try {
-        Long userId = this.getUserIdFromUUID(uuid);
-        ProductsDTO products = userInfoRepoService.findByProdId(prodId + "");
-        // 总资产
-        PortfolioInfo portfolioInfo = this.getChicombinationAssets(uuid, userId, products, null);
-  
-        portfolioInfo.setTotalAssets(Optional.ofNullable(portfolioInfo).map(m -> m.getTotalAssets())
-            .orElse(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP));
-  
-        result.put("result", portfolioInfo);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-      
-      return result;
+  @Override
+  public Map<String, Object> getMyAssetByProdId(String uuid, String prodId) {
+    Map<String, Object> result = new HashMap<String, Object>();
+    try {
+      Long userId = this.getUserIdFromUUID(uuid);
+      ProductsDTO products = userInfoRepoService.findByProdId(prodId + "");
+      // 总资产
+      PortfolioInfo portfolioInfo = this.getChicombinationAssets(uuid, userId, products, null);
+
+      portfolioInfo.setTotalAssets(Optional.ofNullable(portfolioInfo).map(m -> m.getTotalAssets())
+          .orElse(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP));
+
+      result.put("result", portfolioInfo);
+    } catch (Exception e) {
+      e.printStackTrace();
     }
+
+    return result;
+  }
 
 
 }
