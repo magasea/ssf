@@ -945,6 +945,7 @@ public class OptimizationServiceImpl implements OptimizationService {
                 if (info != null) {
                     getGrowthOfMonetaryFunds(info);
 
+
                     List<Map> yieldof7days = info.getYieldof7days();
                     Map<String, Object> maxMinValue = new HashMap();
                     if (yieldof7days != null && yieldof7days.size() > 0) {
