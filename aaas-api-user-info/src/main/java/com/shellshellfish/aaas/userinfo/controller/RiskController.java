@@ -68,11 +68,11 @@ public class RiskController {
 //			return false;
 //		}
 
-		if (userRiskLevel == UserRiskLevelEnum.STABLE.getRiskLevel()
-				&& prodLevel > UserRiskLevelEnum.CONSERV.getRiskLevel()) {
-			//稳健型智能购买保守型组合  (组合中单个基金风险等级高)
-			return false;
-		}
+//		if (userRiskLevel == UserRiskLevelEnum.STABLE.getRiskLevel()
+//				&& prodLevel > UserRiskLevelEnum.CONSERV.getRiskLevel()) {
+//			//稳健型只能购买保守型组合  (组合中单个基金风险等级高)
+//			return false;
+//		}
 
 		return userRiskLevel >= prodLevel;
 
