@@ -2040,6 +2040,8 @@ public class FundGroupService {
         LocalDate endDate = null;
         boolean ignoreThisDate = false;
         for (LocalDate date = startDate; date.isBefore(LocalDate.now(ZoneId.systemDefault()).plusDays(1)); date = date.plusDays(1)) {
+            //each day reset the control flag
+            ignoreThisDate = false;
             //非交易日不处理
             if (!TradingDayUtils.isTradingDay(date))
                 continue;
