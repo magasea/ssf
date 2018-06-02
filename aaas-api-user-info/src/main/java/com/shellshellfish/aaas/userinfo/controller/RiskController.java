@@ -63,10 +63,10 @@ public class RiskController {
 
 		Integer prodLevel = UserRiskLevelEnum.getLevelFromProdRisk(prodRishLevel);
 
-		if (userRiskLevel == UserRiskLevelEnum.CONSERV.getRiskLevel()) {
-			//保守型不能买任何组合  (组合中单发额基金风险等级高)
-			return false;
-		}
+//		if (userRiskLevel == UserRiskLevelEnum.CONSERV.getRiskLevel()) {
+//			//保守型不能买任何组合  (组合中单发额基金风险等级高)
+//			return false;
+//		}
 
 		if (userRiskLevel == UserRiskLevelEnum.STABLE.getRiskLevel()
 				&& prodLevel > UserRiskLevelEnum.CONSERV.getRiskLevel()) {
