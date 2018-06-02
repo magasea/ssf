@@ -964,9 +964,10 @@ public class FundGroupService {
                 value = currentValue / baseValue - 1;
                 mapBasic.put("value", BigDecimal.valueOf(value).setScale(6, RoundingMode.HALF_UP));
                 logger.debug("date:{} value:{}", DateUtil.formatDate(time), BigDecimal.valueOf(value).setScale(6, RoundingMode.HALF_UP));
-                if (Math.abs(value) > 0.5D)
-                    logger.error("数值可能有异常:{}:{}:{}:{}", value, fundGroupHistory.getTime(), groupId, subGroupId);
-
+                if (Math.abs(value) > 0.5D) {
+                    logger.error("数值可能有异常:{}:{}:{}:{}", value, fundGroupHistory.getTime(), groupId,
+                        subGroupId);
+                }
                 dateList.remove(time);
                 listFund.add(mapBasic);
                 maxMinValueList.add(value);
@@ -2751,10 +2752,10 @@ public class FundGroupService {
         try {
             ThreadPoolExecutor contributionPool = new ThreadPoolExecutor(
                     4,
-                    15,
+                    4,
                     0L,
                     TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<>(15),
+                    new LinkedBlockingQueue<>(4),
                     Executors.defaultThreadFactory(),
                     new ThreadPoolExecutor.AbortPolicy());
             final CountDownLatch countDownLatch = new CountDownLatch(groupedMap.size());
