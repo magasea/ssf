@@ -870,9 +870,6 @@ public class OptimizationServiceImpl implements OptimizationService {
 
             mongoFinanceDetail.setTotal(fundListMap.size());
             mongoFinanceDetailRepository.save(mongoFinanceDetail);
-//            if (fundListMap != null) {
-//                result.remove("fundListMap");
-//            }
             for (Integer key : fundListMap.keySet()) {
                 List fundList = fundListMap.get(key);
                 if (!CollectionUtils.isEmpty(fundList)) {
@@ -1138,12 +1135,6 @@ public class OptimizationServiceImpl implements OptimizationService {
             logger.error("查询净值增长数据为空值", "数据获取失败");
             return null;
         }
-        //判断结果是否有数据
-//        if ((int) result.get("_total") == 0) {
-//            logger.error("查询净值增长数据结果为0", "数据获取失败");
-//            return null;
-//        }
-        //转成list
         List prdList = null;
         try {
             prdList = (List) result.get("_items");
@@ -1165,8 +1156,8 @@ public class OptimizationServiceImpl implements OptimizationService {
             mapItem = (Map) prd;
             FundNAVInfo infoA = mapToFundNAVInfo(mapItem, "2");
             if (count == prdList.size()) {
-                Double last = (new Double(100)) - total;
-                last = (new BigDecimal("100")).subtract(new BigDecimal(total)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                Double last = (new BigDecimal("100")).subtract(new BigDecimal(total)).setScale(2, BigDecimal
+                        .ROUND_HALF_UP).doubleValue();
                 infoA.setAvgIncreRate(last + EasyKit.PERCENT);
             } else {
                 String rate = infoA.getAvgIncreRate();
@@ -1262,6 +1253,13 @@ public class OptimizationServiceImpl implements OptimizationService {
 
         List<CoinFundYieldRate> coinFundYieldRateList = coinFundYieldRateRepository
                 .findByCodeAndQueryDateStrBetweenOrderByQueryDateStr(fundCode, startDate, endDate);
+
+        for (Iterator<CoinFundYieldRate> it = coinFundYieldRateList.iterator(); it.hasNext(); ) {
+            CoinFundYieldRate coinFundYieldRate = it.next();
+            if (coinFundYieldRate.getYieldOf7Days() == null)
+                it.remove();
+        }
+
 
         info.setYieldof7days(coinFundYieldRateList);
         info.setTenKiloUnitYield(coinFundYieldRateList);
