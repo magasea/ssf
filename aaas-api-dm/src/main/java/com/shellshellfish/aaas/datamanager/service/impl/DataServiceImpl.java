@@ -547,7 +547,11 @@ public class DataServiceImpl implements DataService {
                             (code, InstantDateUtil.format(date, DATE_FORMAT));
             if (coinFundYieldRate != null) {
                 yesval = coinFundYieldRate.getNavAdj();
-                date = InstantDateUtil.format(coinFundYieldRate.getQueryDateStr(), DATE_FORMAT);
+                String datestr = coinFundYieldRate.getQueryDateStr();
+                if (datestr.contains("-"))
+                    date = InstantDateUtil.format(datestr, "yyyy-MM-dd");
+                else
+                    date = InstantDateUtil.format(coinFundYieldRate.getQueryDateStr(), DATE_FORMAT);
             }
         } else {
             Sort sort = new Sort(Sort.Direction.DESC, "querydate");
@@ -1014,7 +1018,7 @@ public class DataServiceImpl implements DataService {
             map.put("yieldOf7Days", coinFundYieldRate.getYieldOf7Days());
             map.put("tenKiloUnitYield", coinFundYieldRate.getTenKiloUnityYield());
 
-            BigDecimal todayNavAdj = coinFundYieldRate.getNavAdj();
+            BigDecimal todayNavAdj = Optional.ofNullable(coinFundYieldRate).map(m -> m.getNavAdj()).orElse(BigDecimal.ZERO);
             map.put("navAdj", todayNavAdj);
 
             BigDecimal dayUp;
@@ -1030,12 +1034,12 @@ public class DataServiceImpl implements DataService {
             }
 
             map.put("dayup",
-                    dayUpRate.multiply(ONE_HUNDRED).setScale(2, BigDecimal.ROUND_HALF_UP).toString() + "%");
+                    dayUpRate.multiply(ONE_HUNDRED).setScale(6, BigDecimal.ROUND_HALF_UP).toString() + "%");
 
             BigDecimal p2 = Optional.ofNullable(coinFundYieldRateList.get(0)).map(m -> m.getNavAdj())
                     .orElse(BigDecimal.ONE); //起始日复权净值
             BigDecimal profit = (todayNavAdj.subtract(p2)).divide(p2, MathContext.DECIMAL128);//收益走势
-            map.put("profit", profit.setScale(2, RoundingMode.HALF_UP));
+            map.put("profit", profit.multiply(ONE_HUNDRED).setScale(6, RoundingMode.HALF_UP));
 
             result[i] = map;
             if (yieldOf7Days != null)
