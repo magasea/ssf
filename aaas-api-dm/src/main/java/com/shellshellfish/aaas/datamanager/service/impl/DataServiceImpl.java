@@ -547,7 +547,11 @@ public class DataServiceImpl implements DataService {
                             (code, InstantDateUtil.format(date, DATE_FORMAT));
             if (coinFundYieldRate != null) {
                 yesval = coinFundYieldRate.getNavAdj();
-                date = InstantDateUtil.format(coinFundYieldRate.getQueryDateStr(), DATE_FORMAT);
+                String datestr = coinFundYieldRate.getQueryDateStr();
+                if (datestr.contains("-"))
+                    date = InstantDateUtil.format(datestr, "yyyy-MM-dd");
+                else
+                    date = InstantDateUtil.format(coinFundYieldRate.getQueryDateStr(), DATE_FORMAT);
             }
         } else {
             Sort sort = new Sort(Sort.Direction.DESC, "querydate");
