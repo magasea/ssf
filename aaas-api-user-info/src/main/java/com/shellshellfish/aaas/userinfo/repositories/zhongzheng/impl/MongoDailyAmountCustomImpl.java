@@ -29,6 +29,22 @@ public class MongoDailyAmountCustomImpl implements MongoDailyAmountCustom {
         Aggregation agg = newAggregation(
                 match(Criteria.where("date").lte(date)),
                 match(Criteria.where("userProdId").is(prodId)),
+                group("date")
+                        .first("date").as("date")
+                        .sum("asset").as("asset")
+                , sort(Sort.Direction.DESC, "date")
+                , limit(2));
+        return zhongZhengMongoTemplate
+                .aggregate(agg, "dailyAmount", DailyAmountAggregation.class).getMappedResults();
+
+    }
+
+    @Override
+    public List<DailyAmountAggregation> getUserAssetAndIncomeByCode(String date, Long prodId, String fundCode) {
+        Aggregation agg = newAggregation(
+                match(Criteria.where("date").lte(date)),
+                match(Criteria.where("userProdId").is(prodId)),
+                match(Criteria.where("fundCode").is(fundCode)),
                 group("userProdId", "date")
                         .first("date").as("date")
                         .sum("asset").as("asset")
@@ -38,4 +54,5 @@ public class MongoDailyAmountCustomImpl implements MongoDailyAmountCustom {
                 .aggregate(agg, "dailyAmount", DailyAmountAggregation.class).getMappedResults();
 
     }
+
 }

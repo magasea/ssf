@@ -129,7 +129,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
                                       String date, UiProductDetail uiProductDetail) throws Exception {
         BigDecimal share = getFundQuantityAtDate(fundCode, userProdId, date, uiProductDetail);
         BigDecimal netValue = getFundNetValue(fundCode, InstantDateUtil.format(date, yyyyMMdd));
-        BigDecimal rateOfSellFund = getSellRate(fundCode, date);
+        BigDecimal rateOfSellFund = getSellRate(fundCode);
         BigDecimal fundAsset = share.multiply(netValue)
                 .multiply(BigDecimal.ONE.subtract(rateOfSellFund));
 
@@ -696,17 +696,17 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     /**
      * 获取基金的赎回费率
      */
-    private BigDecimal getSellRate(String fundCode, String time) throws Exception {
+    private BigDecimal getSellRate(String fundCode) throws Exception {
         //货币即基金赎回费率为零
         if (MonetaryFundEnum.containsCode(fundCode))
             return BigDecimal.ZERO;
 
-        BigDecimal sellRate = redisSellRateDao.get(fundCode, time);
+        BigDecimal sellRate = redisSellRateDao.get(fundCode);
         if (sellRate != null)
             return sellRate;
 
         sellRate = fundTradeApiService.getRate(fundCode, "024");
-        redisSellRateDao.set(fundCode, time, sellRate);
+        redisSellRateDao.set(fundCode, sellRate);
         return sellRate;
     }
 }

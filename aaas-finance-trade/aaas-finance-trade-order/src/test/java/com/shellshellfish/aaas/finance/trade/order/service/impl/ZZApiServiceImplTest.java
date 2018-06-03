@@ -1,9 +1,8 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.common.grpc.zzapi.ApplyResult;
-import com.shellshellfish.aaas.finance.trade.order.model.ZZBankInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
 import com.shellshellfish.aaas.finance.trade.order.service.ZZApiService;
-import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApplyResult;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +26,16 @@ public class ZZApiServiceImplTest {
   public void getZZSupportedBanks() throws Exception {
     List<ZZBankInfo> zzBankInfoList =  zzApiServiceImpl.getZZSupportedBanks();
     System.out.println(zzBankInfoList.size());
+    zzBankInfoList.forEach(
+        item->{
+          System.out.println(item.getBankSerial());
+          System.out.println(item.getBankName());
+          System.out.println(item.getCapitalModel());
+          System.out.println(item.getMoneyLimitDay());
+          System.out.println(item.getMoneyLimitOne());
+        }
+    );
+
 
   }
 

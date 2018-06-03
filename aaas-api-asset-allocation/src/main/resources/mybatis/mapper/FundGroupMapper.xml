@@ -84,7 +84,7 @@
     </select>
 
     <select id="getFundGroupCodeList" resultType="java.lang.String">
-        select fund_code from fund_group_details where fund_group_id = #{fundGroupId} and fund_group_sub_id = #{subGroupId}
+        select fund_code from fund_group_details_${oemId} where fund_group_id = #{fundGroupId} and fund_group_sub_id = #{subGroupId}
     </select>
     <select id="getGroupCodeList" resultType="java.lang.String">
         select fund_code from fund_group_details_${oemId} where
@@ -114,9 +114,10 @@
         select * from fund_group_sub_${oemId} where fund_group_id = #{id} and id=#{subGroupId}
     </select>
 
+    <!--FIXME remove hard code-->
     <select id="getMaxLoss" resultType="com.shellshellfish.aaas.assetallocation.entity.RiskIncomeInterval">
                 select * from fund_group_sub_${oemId} b,strategy a where a.fund_group_id=b.fund_group_id
-                AND b.id = a.fund_group_id*10000+48
+                AND a.fund_group_id>15
                 and a.cust_risk = #{custRisk}
                 AND a.investment_horizon = #{investmentHorizon}
                 limit 1;
@@ -218,6 +219,8 @@
         <if test="fund_group_sub_id != null and fund_group_sub_id != ''">
             and fund_group_sub_id=#{fund_group_sub_id}
         </if>
+
+        ORDER BY TIME DESC
     </select>
 
     <select id="getSharpeRatio" resultType="com.shellshellfish.aaas.assetallocation.entity.FundNetVal">
@@ -505,7 +508,8 @@
         DELETE FROM fund_group_sub_${oemId}
     </delete>
 
-    <select id="getFundGroupIdAndSubIdTaskParam" resultType="com.shellshellfish.aaas.assetallocation.entity.RiskIncomeInterval">
+    <select id="getFundGroupIdAndSubIdTaskParam"
+            resultType="com.shellshellfish.aaas.assetallocation.entity.RiskIncomeInterval">
         select id,risk_num,income_num from fund_group_sub_${oemId} where
         fund_group_id=#{fundGroupId} and id like '%48'
         <if test="subGroupId != null and subGroupId != ''">
@@ -519,7 +523,7 @@
         FROM fund_group_sub_${oemId}
         WHERE (fund_group_id &lt;= 15 AND id LIKE "%48")
         OR (fund_group_id &gt; 15)
-        GROUP BY fund_group_id
+        GROUP BY id, fund_group_id
         ORDER BY fund_group_id DESC
     </select>
 
@@ -527,5 +531,13 @@
         select status from fund_group_${oemId} where id = #{groupId}
     </select>
 
+    <select id="getHistoryAllByAsc" resultType="com.shellshellfish.aaas.assetallocation.entity.FundGroupHistory">
+        select * from fund_group_history_${oemId} where fund_group_id = #{fund_group_id}
+        <if test="fund_group_sub_id != null and fund_group_sub_id != ''">
+            and fund_group_sub_id=#{fund_group_sub_id}
+        </if>
+
+        ORDER BY TIME ASC
+    </select>
 
 </mapper>

@@ -10,6 +10,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 
 /**
@@ -38,6 +39,12 @@ public class TradingDayUtils implements CommandLineRunner {
 
     public static boolean isTradingDay(String date) {
         return dateSet.contains(date);
+    }
+
+
+    public static boolean isTradingDay(Date date) {
+        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        return isTradingDay(localDate);
     }
 
     public static boolean isTradingDay(String date, String pattern) {

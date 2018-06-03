@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.assetallocation.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -141,7 +142,7 @@ public class FundGroupService {
 
             _items.put("assetsRatios", listMap); //组合内各基金权重
             _items.put("groupId", interval.getFund_group_id());
-            _items.put("status",interval.getStatus());
+            _items.put("status", interval.getStatus());
             _items.put("subGroupId", riskIncomeInterval.getId());
             _items.put("name", interval.getFund_group_name());
             list.add(_items);
@@ -450,7 +451,7 @@ public class FundGroupService {
             return aReturn;
         }
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < riskIncomeIntervalList.size(); i++) {
             Map<String, Object> _items = new HashMap<>();
             _items.put("id", i + 1);
             _items.put("x", riskIncomeIntervalList.get(i).getRisk_num());
@@ -754,9 +755,9 @@ public class FundGroupService {
         query.put("list", codeList);
         //查询组合成立日
 //            LocalDate groupStartDate = QueryGroupBuildDate.getInstance().getGroupBuildDate(fundGroupId);
-        Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(groupId);
+        Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(groupId, oemId);
         LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        System.out.println("local date : "+ localDate);
+        System.out.println("local date : " + localDate);
 
         query.put("minNavDate", localDate);
 
@@ -786,12 +787,14 @@ public class FundGroupService {
         //Todo: add map to cache
         String key = String.format("{}:{}:{}", groupId, subGroupId, oemId);
         List<String> codeList = null;
-        if (CollectionUtils.isEmpty(allCodeList) || !allSubGroupIds.containsKey(key)) {
-            codeList = fundGroupMapper.getFundGroupCodeList(queryCodes);
-            allCodeList.put(key, codeList);
-        } else {
-            codeList = allCodeList.get(key);
-        }
+
+        codeList = fundGroupMapper.getFundGroupCodeList(queryCodes);
+//        if (CollectionUtils.isEmpty(allCodeList) || !allSubGroupIds.containsKey(key)) {
+//            codeList = fundGroupMapper.getFundGroupCodeList(queryCodes);
+//            allCodeList.put(key, codeList);
+//        } else {
+//            codeList = allCodeList.get(key);
+//        }
 
         return codeList;
     }
@@ -926,50 +929,46 @@ public class FundGroupService {
         mapStr.put("fund_group_id", groupId);
         mapStr.put("fund_group_sub_id", subGroupId);
         mapStr.put("oemId", "" + oemId);
-        List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistoryAll(mapStr);
+        List<FundGroupHistory> fundGroupHistoryList = fundGroupMapper.getHistoryAllByAsc(mapStr);
+
         if (CollectionUtils.isEmpty(fundGroupHistoryList)) {
-            if (returnType.equalsIgnoreCase("income")) {
-                allMap.put("income", new ArrayList<>());
-                allMap.put("incomeBenchmark", new ArrayList<>());
-                list.add(allMap);
-                fgi.setName("组合收益率走势图");
-            } else {
-                allMap.put("retracement", new ArrayList<>());
-                allMap.put("incomeBenchmark", new ArrayList<>());
-                list.add(allMap);
-                fgi.setName("组合最大回撤走势图");
-            }
-            fgi.set_total(0);
-            fgi.set_items(list);
-            fgi.set_links(_links);
-            fgi.set_schemaVersion("0.1.1");
-            fgi.set_serviceId("资产配置");
-            fgi.setMaxMinMap(maxMinValueMap);
-            fgi.setMaxMinBenchmarkMap(maxMinBenchmarkMap);
-            return fgi;
-        } else {
-            logger.info("fundGroupHistoryList is not empty for groupId:{} and subGroupId:{}",
-                    groupId, subGroupId);
+            logger.error("查询不到组合净值序列:groupId:{},subGroupId:{}", groupId, subGroupId);
+            return null;
         }
+
+        List<FundGroupHistory> tradeList = Lists.newArrayList();
+
+        for (int i = 0; i < fundGroupHistoryList.size(); i++) {
+            if (TradingDayUtils.isTradingDay(fundGroupHistoryList.get(i).getTime())) {
+                tradeList.add(fundGroupHistoryList.get(i));
+            }
+        }
+
+        Double baseValue = tradeList.get(0).getIncome_num();
 
         List maxMinValueList = new ArrayList();
         List maxMinBenchmarkList = new ArrayList();
-        if (returnType.equalsIgnoreCase("income")) {
-            List<FundNetVal> fundNetVals = this.getNavadjNew(groupId, subGroupId, oemId);
-            if (CollectionUtils.isEmpty(fundNetVals)) {
-                logger.info("fundNetVals is empty for groupId:{} subGroupId:{}", groupId, subGroupId);
-                return fgi;
-            }
 
+        if (returnType.equalsIgnoreCase("income")) {
             Double value = null;
             Date time = null;
             List<Map<String, Object>> listFund = new ArrayList<>();
-            for (int i = 1; i < fundNetVals.size(); i++) {
+
+            for (int i = 1; i < tradeList.size(); i++) {
+
+                FundGroupHistory fundGroupHistory = tradeList.get(i);
+                Double currentValue = fundGroupHistory.getIncome_num();
                 Map<String, Object> mapBasic = new HashMap<>();
-                time = fundNetVals.get(i).getNavLatestDate();
+                time = fundGroupHistoryList.get(i).getTime();
                 mapBasic.put("time", DateUtil.formatDate(time));
-                value = (fundNetVals.get(i).getNavadj() - fundNetVals.get(0).getNavadj()) / fundNetVals.get(0).getNavadj();
-                mapBasic.put("value", value);
+
+//                value = currentValue / baseValue - 1;
+                value = Arith.sub(Arith.div(currentValue, baseValue),1);
+                mapBasic.put("value", Arith.round(value,6));
+
+                if (Math.abs(value) > 0.5D)
+                    logger.error("数值可能有异常:{} time:{} groupId:{} subId:{}", value, fundGroupHistory.getTime(), groupId, subGroupId);
+
                 dateList.remove(time);
                 listFund.add(mapBasic);
                 maxMinValueList.add(value);
@@ -1682,6 +1681,30 @@ public class FundGroupService {
         List<LocalDate> navDateList = fundGroupService.getNavlatestdateCount(groupId, subGroupId,
                 oemId);
 
+        navDateList.forEach(item -> {
+            System.out.println("time: " + item.toString());
+        });
+
+        Map query = new HashMap();
+        query.put("groupId", groupId);
+        query.put("subGroupId", subGroupId);
+        query.put("list", navDateList);
+        query.put("oemId", oemId);
+        List<FundNetVal> fundNetVals = fundGroupMapper.getNavadjByNavDates(query);
+
+        return fundNetVals;
+    }
+
+    public List<FundNetVal> getNavadjNew1(String groupId, String subGroupId, int oemId) {
+//        List<LocalDate> navDateList = fundGroupService.getNavlatestdateCount(groupId, subGroupId,
+//                oemId);
+        List<LocalDate> navDateList = fundGroupService.getNavLatestDate(groupId, oemId);
+
+        navDateList.forEach(item -> {
+            System.out.println("time: " + item.toString());
+        });
+
+
         Map query = new HashMap();
         query.put("groupId", groupId);
         query.put("subGroupId", subGroupId);
@@ -1775,7 +1798,9 @@ public class FundGroupService {
         logger.info("start to calculate all group maximum retracement");
         long startTime = System.currentTimeMillis();
 
-        List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
+//        List<Interval> list = fundGroupMapper.getAllIdAndSubId(oemId);
+        List<Interval> list = fundGroupMapper.getGroupIdAndSubId(oemId);
+
 //        if (CollectionUtils.isEmpty(allSubGroupIds) && !allSubGroupIds.containsKey(oemId)) {
 //            list = fundGroupMapper.getAllIdAndSubId(oemId);
 //            allSubGroupIds.put(oemId, list);
@@ -1786,17 +1811,17 @@ public class FundGroupService {
 
         for (Interval interval : list) {
 
-            if (interval != null && Integer.parseInt(interval.getFund_group_id()) <= 15){
-                if (!interval.getId().endsWith("48")){
-                    continue;
-                }
-            }
+//            if (interval != null && Integer.parseInt(interval.getFund_group_id()) <= 15){
+//                if (!interval.getId().endsWith("48")){
+//                    continue;
+//                }
+//            }
 
             //查询组合成立日
 //            LocalDate groupStartDate = QueryGroupBuildDate.getInstance().getGroupBuildDate(fundGroupId);
-            Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(interval.getFund_group_id());
+            Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(interval.getFund_group_id(), oemId);
             LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            System.out.println("fundGroupIdAndSubIdTask local date : "+ localDate);
+            System.out.println("fundGroupIdAndSubIdTask local date : " + localDate);
 
             calculateMaxRetracement(interval.getFund_group_id(), interval.getId(), oemId, localDate);
         }
@@ -1820,7 +1845,7 @@ public class FundGroupService {
 //        }
 
         List<Interval> intervals = fundGroupMapper.getGroupIdAndSubId(oemId);
-        for (Interval interval : intervals){
+        for (Interval interval : intervals) {
             calculateMaxRetracement(interval.getFund_group_id(), interval.getId(), date, oemId);
         }
 
@@ -1900,10 +1925,10 @@ public class FundGroupService {
         logger.info("start to calculate group maximum retracement   groupId:{},subGroupId:{},date"
                 + " :{} oemId:{}", groupId, subGroupId, date, oemId);
 
-        if (date == null){
+        if (date == null) {
             //查询组合成立日
-    //            LocalDate groupStartDate = QueryGroupBuildDate.getInstance().getGroupBuildDate(fundGroupId);
-            Date groupBuildDate = fundNetValMapper.getMinNavlatestDateByFundGroupId(groupId);
+            //            LocalDate groupStartDate = QueryGroupBuildDate.getInstance().getGroupBuildDate(fundGroupId);
+            Date groupBuildDate = fundNetValMapper.getMinNavlatestDateByFundGroupId(groupId, oemId);
             date = groupBuildDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         }
 
@@ -1912,7 +1937,7 @@ public class FundGroupService {
         for (FundGroupHistory fundGroupHistory : fundGroupHistoryOrigin) {
             //非交易日不参与计算
             if (!TradingDayUtils.isTradingDay(fundGroupHistory.getTime().toInstant().atZone(ZoneId.systemDefault())
-                    .toLocalDate())){
+                    .toLocalDate())) {
                 continue;
             }
             values.add(fundGroupHistory.getIncome_num());
@@ -1949,7 +1974,7 @@ public class FundGroupService {
 
             List<Interval> intervals = fundGroupMapper.getGroupIdAndSubId(oemId);
 
-            for (Interval interval : intervals){
+            for (Interval interval : intervals) {
                 pool.execute(() -> {
                     calculateGroupNavadj(interval.getFund_group_id(), interval.getId(), oemId, startDate);
                     countDownLatch.countDown();
@@ -1990,11 +2015,11 @@ public class FundGroupService {
 //        long startTime = System.currentTimeMillis();
 //        logger.info("calculateGroupNavadj start ");
 
-        if (startDate == null){
+        if (startDate == null) {
 //            startDate = GROUP_START_DATE;
             //查询组合成立日
 //            LocalDate groupStartDate = QueryGroupBuildDate.getInstance().getGroupBuildDate(fundGroupId);
-            Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(groupId);
+            Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(groupId, oemId);
             startDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         }
 
@@ -2015,6 +2040,7 @@ public class FundGroupService {
         List<FundGroupHistory> fundGroupHistoryList = new LinkedList<>();
         //依次计算每只基金在组合中所占份额，然后求和
         LocalDate endDate = null;
+        boolean ignoreThisDate = false;
         for (LocalDate date = startDate; date.isBefore(LocalDate.now(ZoneId.systemDefault()).plusDays(1)); date = date.plusDays(1)) {
             //非交易日不处理
             if (!TradingDayUtils.isTradingDay(date))
@@ -2024,11 +2050,22 @@ public class FundGroupService {
             for (String code : codeList) {
                 BigDecimal navAdjOfFund = fundNetValMapper.getLatestNavAdj(code, date);
 
+                if (navAdjOfFund == null || baseMap.get(code) == null) {
+                    logger.error("navAdjOfFund:{} code:{} fundProportionMap.get"
+                                    + "(code):{} baseMap.get(code):{} groupId:{} subGroupId:{} date:{}",
+                            navAdjOfFund, code, fundProportionMap.get(code), baseMap.get(code), groupId,
+                            subGroupId, date);
+                    ignoreThisDate = true;
+                    break;
+                }
                 BigDecimal add = navAdjOfFund.multiply(fundProportionMap.get(code),
                         MathContext.DECIMAL32).divide(baseMap.get(code), MathContext.DECIMAL32);
 
                 navAdj = navAdj.add(add);
 
+            }
+            if (ignoreThisDate) {
+                continue;
             }
             FundGroupHistory fundGroupHistory = new FundGroupHistory();
             fundGroupHistory.setFund_group_id(groupId);
@@ -2393,15 +2430,24 @@ public class FundGroupService {
         logger.info(" start  calculate group maximum loss ");
         long startTime = System.currentTimeMillis();
         try {
-            final CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
+            List<Interval> intervals = fundGroupMapper.getGroupIdAndSubId(oemId);
+
+            final CountDownLatch countDownLatch = new CountDownLatch(intervals.size());
             ExecutorService pool = ThreadPoolUtil.getThreadPool();
-            for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
-                int fundGroupId = index;
+            for (Interval interval : intervals) {
+//                int fundGroupId = index;
                 pool.execute(() -> {
-                    updateMaximumLossesTask(fundGroupId, oemId);
+                    updateMaximumLossesTask(interval.getFund_group_id(), interval.getId(), oemId);
                     countDownLatch.countDown();
                 });
             }
+//            for (int index = 1; index <= intervals.size(); index++) {
+//                int fundGroupId = index;
+//                pool.execute(() -> {
+//                    updateMaximumLossesTask(fundGroupId, oemId);
+//                    countDownLatch.countDown();
+//                });
+//            }
             this.sleep(1000);
             countDownLatch.await();
             long endTime = System.currentTimeMillis();
@@ -2411,19 +2457,23 @@ public class FundGroupService {
         }
     }
 
-    private void updateMaximumLossesTask(int fundGroupId, int oemId) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("slidebarType", "risk_num");
-        map.put("fundGroupId", fundGroupId);
-        map.put("oemId", oemId);
-        List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getScaleMark(map);
-        if (CollectionUtils.isEmpty(riskIncomeIntervals)) {
-            return;
-        }
+    private void updateMaximumLossesTask(String fundGroupId, String fundGroupSubId, int oemId) {
+        FundGroupService.log.info("updateMaximumLossesTask groupId:{}  subId:{}", fundGroupId, fundGroupSubId);
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("slidebarType", "risk_num");
+//        map.put("fundGroupId", fundGroupId);
+//        map.put("oemId", oemId);
+//        List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getScaleMark(map);
+//        if (CollectionUtils.isEmpty(riskIncomeIntervals)) {
+//            return;
+//        }
 
-        for (RiskIncomeInterval riskIncomeInterval : riskIncomeIntervals) {
-            this.maximumLosses(fundGroupId + "", riskIncomeInterval.getId(), oemId);
-        }
+//        for (RiskIncomeInterval riskIncomeInterval : riskIncomeIntervals) {
+        this.maximumLosses(fundGroupId, fundGroupSubId, oemId);
+//        }
+//        for (RiskIncomeInterval riskIncomeInterval : riskIncomeIntervals) {
+//            this.maximumLosses(fundGroupId, riskIncomeInterval.getId(), oemId);
+//        }
     }
 
     /**
@@ -2521,28 +2571,33 @@ public class FundGroupService {
 
     /**
      * hard code 15组组合ID 开启10个线程异步计算，并且主线程等待线程全部执行完毕
+     *
      * @param oemId
      */
     private void fundGroupIdTasks(int oemId) {
         try {
             //查询基金组合ID
-            Map param = Maps.newHashMap();
-            param.put("oemId", oemId);
-            List<Interval> listFundGroup = fundGroupMapper.selectAllFundGroupNum(param);
-            CountDownLatch countDownLatch = new CountDownLatch(listFundGroup.size());
+//            Map param = Maps.newHashMap();
+//            param.put("oemId", oemId);
+//            List<Interval> listFundGroup = fundGroupMapper.selectAllFundGroupNum(param);
+            List<Interval> intervals = fundGroupMapper.getGroupIdAndSubId(oemId);
+
+
+            CountDownLatch countDownLatch = new CountDownLatch(intervals.size());
 //            CountDownLatch countDownLatch = new CountDownLatch(ConstantUtil.FUND_GROUP_COUNT);
             ThreadPoolExecutor groupIndexPool = new ThreadPoolExecutor(
+                    8,
                     10,
-                    15,
                     0L,
                     TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<>(15),
+                    new LinkedBlockingQueue<>(intervals.size()),
                     Executors.defaultThreadFactory(),
                     new ThreadPoolExecutor.AbortPolicy());
 
-            listFundGroup.forEach(item -> {
+            intervals.forEach(item -> {
                 groupIndexPool.execute(() -> {
-                    fundGroupIdTask(Integer.parseInt(item.getFund_group_id()), oemId);
+                    fundGroupIdTask(item.getFund_group_id(), item.getId(), oemId);
+//                    fundGroupIdTask(Integer.parseInt(item.getFund_group_id()), oemId);
                     countDownLatch.countDown();
                 });
             });
@@ -2566,25 +2621,35 @@ public class FundGroupService {
     /**
      * 获取sub_id, group_id
      * 获取进行计算的参数
+     *
      * @param fundGroupId
      * @param oemId
      */
-    private void fundGroupIdTask(int fundGroupId, int oemId) {
-        logger.info("xxxxxxxxxxxxxxxxxxxxxxxx fundGroupId: "+fundGroupId);
+    private void fundGroupIdTask(String fundGroupId, String subId, int oemId) {
+        logger.info("xxxxxxxxxxxxxxxxxxxxxxxx fundGroupId:{}  subId:{}", fundGroupId, subId);
 //        Map<String, Object> map = new HashMap<>();
 //        map.put("slidebarType", SlidebarTypeEnmu.RISK_NUM.getName());
 //        map.put("fundGroupId", fundGroupId);
 //        map.put("oemId", oemId);
 //        List<RiskIncomeInterval> riskIncomeIntervals = fundGroupMapper.getScaleMark(map);
-        List<FundGroupSub> riskIncomeIntervals = fundGroupSubMapper.findByGroupId(fundGroupId+"",oemId);
-        for (FundGroupSub riskIncomeInterval : riskIncomeIntervals) {
-            long startTime = System.currentTimeMillis();
-            fundGroupIdAndSubIdTask(fundGroupId + "", riskIncomeInterval.getId().toString(), oemId);
 
-            long endTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
+
+        fundGroupIdAndSubIdTask(fundGroupId, subId, oemId);
+        long endTime = System.currentTimeMillis();
+
+
+//            logger.info("one loop elapse : {}", endTime - startTime);
+        logger.info("fundGroupIdTask one loop elapse : {}ms end .........", endTime - startTime);
+//        List<FundGroupSub> riskIncomeIntervals = fundGroupSubMapper.findByGroupId(fundGroupId + "", oemId);
+//        for (FundGroupSub riskIncomeInterval : riskIncomeIntervals) {
+//            long startTime = System.currentTimeMillis();
+//            fundGroupIdAndSubIdTask(fundGroupId + "", riskIncomeInterval.getId().toString(), oemId);
+//
+//            long endTime = System.currentTimeMillis();
 //            logger.info("fundGroupId : {} , subGroupId : {} one loop elapse : {}", fundGroupId, riskIncomeInterval
 //                    .getId(), endTime - startTime);
-        }
+//        }
 //        logger.info("fundGroupIdTask end .........");
     }
 
@@ -2596,6 +2661,7 @@ public class FundGroupService {
      * 更新夏普比率
      * 每月月末计算历史年化收益和年化历史波动率
      * 计算最大亏损
+     *
      * @param fundGroupId
      * @param subGroupId
      * @param oemId
@@ -2607,20 +2673,20 @@ public class FundGroupService {
 //            getNavadj(fundGroupId, subGroupId);
 
 
-            //FIXME 目前只用到４８　,如有需要，可以删除此限制条件
-            if (Integer.parseInt(fundGroupId) <=15){
-                if (!subGroupId.endsWith("48")) {
-                    return;
-                }
-            }
+//            FIXME 目前只用到４８　,如有需要，可以删除此限制条件
+//            if (Integer.parseInt(fundGroupId) <= 15) {
+//                if (!subGroupId.endsWith("48")) {
+//                    return;
+//                }
+//            }
 
-            logger.info("fundGroupId:{}-------subId:{}",fundGroupId,subGroupId);
+            logger.info("fundGroupId:{}-------subId:{}", fundGroupId, subGroupId);
 
             //查询组合成立日
 //            LocalDate groupStartDate = QueryGroupBuildDate.getInstance().getGroupBuildDate(fundGroupId);
-            Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(fundGroupId);
+            Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(fundGroupId, oemId);
             LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            System.out.println("fundGroupIdAndSubIdTask local date : "+ localDate);
+//            System.out.println("fundGroupIdAndSubIdTask local date : " + localDate);
             //计算组合收益率
             calculateGroupNavadj(fundGroupId, subGroupId, oemId, localDate);
             //计算组合最大回撤
@@ -2782,7 +2848,7 @@ public class FundGroupService {
         Map<String, List<Interval>> groupedMap = new HashMap<>();
         for (Interval interval : intervals) {
             //数据过滤
-            if (Integer.parseInt(interval.getFund_group_id()) <=15 && !interval.getId().endsWith("48")){
+            if (Integer.parseInt(interval.getFund_group_id()) <= 15 && !interval.getId().endsWith("48")) {
                 continue;
             }
             List<Interval> groupedIntervals = groupedMap.get(interval.getFund_group_id());
@@ -2797,7 +2863,7 @@ public class FundGroupService {
         return groupedMap;
     }
 
-    private void batchUpdateContribution(List<Map> dataMapList,Integer oemId) {
+    private void batchUpdateContribution(List<Map> dataMapList, Integer oemId) {
         logger.info("batchUpdateContribution begin");
 
         if (CollectionUtils.isEmpty(dataMapList)) {
@@ -2826,7 +2892,7 @@ public class FundGroupService {
         List<String> subFundGroupList = new ArrayList<>();
         List<Interval> intervals = fundGroupMapper.getGroupIdAndSubId(oemId);
 
-        for (Interval interval : intervals){
+        for (Interval interval : intervals) {
             fundGroupList.add(interval.getFund_group_id());
             subFundGroupList.add(interval.getId());
         }
@@ -2847,4 +2913,23 @@ public class FundGroupService {
         return dateList;
     }
 
+
+    /**
+     * @param groupId
+     * @param oemId
+     * @return
+     */
+    public List<LocalDate> getNavLatestDate(String groupId, int oemId) {
+//        Date date = fundNetValMapper.getMinNavlatestDateByFundGroupId(groupId, oemId);
+//        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+//        log.info("getNavLatestDate 中 组合成立日:{}", localDate);
+
+        List<Date> list = fundNetValMapper.getNetValueDateByGroupId(groupId, oemId);
+        List<LocalDate> listDate = Lists.newArrayList();
+        list.forEach(item -> {
+            listDate.add(item.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+        });
+
+        return listDate;
+    }
 }

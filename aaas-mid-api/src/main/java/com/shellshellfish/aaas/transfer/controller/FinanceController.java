@@ -1568,7 +1568,7 @@ public class FinanceController {
 		try {
 			result = restTemplate
 					.getForEntity(assetAlloctionUrl + "/api/asset-allocation/products/" + groupId
-							+ "/effective-frontier-points/" + Integer.parseInt(oemid), Map.class)
+								+ "/effective-frontier-points/" + Integer.parseInt(oemid), Map.class)
 					.getBody();
 			if (result == null || result.size() == 0) {
 				result.put("msg", "获取失败");

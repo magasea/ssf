@@ -90,6 +90,25 @@ public enum TrdOrderStatusEnum {
     }
 
     /**
+     * 交易没有成功
+     */
+    public static boolean notSuccess(int status) {
+        if (isFailed(status))
+            return true;
+        else if (WAITPAY.status == status)
+            return true;
+        else if (CANCELED.status == status)
+            return true;
+        else if (WAITCANCEL.status == status)
+            return true;
+        else if (NOTRDNEED.status == status)
+            return true;
+
+
+        return false;
+    }
+
+    /**
      * 确认状态
      */
     public static boolean isConfirmed(int status) {

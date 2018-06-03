@@ -396,8 +396,12 @@ public class MidApiServiceImpl implements MidApiService {
                     Map fundMap = fundList.get(i);
                     if (fundMap.get("grossAmount") != null) {
                         BigDecimal grossAmount = new BigDecimal(fundMap.get("grossAmount") + "");
-                        BigDecimal grossAmountValue = grossAmount.setScale(2, BigDecimal.ROUND_HALF_UP);
-                        fundMap.put("grossAmount", grossAmountValue);
+                        if((new BigDecimal(totalAmount)).compareTo(BigDecimal.ZERO) <= 0){
+                        	fundMap.put("grossAmount", "--");
+                        } else {
+                        	BigDecimal grossAmountValue = grossAmount.setScale(2, BigDecimal.ROUND_HALF_UP);
+                        	fundMap.put("grossAmount", grossAmountValue);
+                        }
                     }
                 }
             }

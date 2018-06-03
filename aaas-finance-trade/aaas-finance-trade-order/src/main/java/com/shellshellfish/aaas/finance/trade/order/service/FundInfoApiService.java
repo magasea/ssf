@@ -9,6 +9,17 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface FundInfoApiService {
+    void writeAllTradeLimitToMongoDb();
+
+    String getTradeLimitAsRawString(String fundCode, String businFlag);
+
+    void writeAllFundsToMongoDb(List<String> funds);
+
+    void writeAllFundsTradeRateToMongoDb(List<String> funds);
+
+    void writeAllFundsDiscountToMongoDb(List<String> funds);
+
+    String getDiscountRawString(String fundCode, String businFlag);
 
     String getExamContent() throws JsonProcessingException;
 
@@ -30,11 +41,12 @@ public interface FundInfoApiService {
 
     BigDecimal getDiscount(String fundCode, String businFlag) throws Exception;
 
-    BigDecimal getRateOfBuyFund(String fundCode, String businFlag) throws Exception;
+    BigDecimal getRateOfBuyFund(BigDecimal amount, String fundCode, String businFlag) throws Exception;
 
     BigDecimal getRateOfSellFund(String fundCode, String businFlag) throws Exception;
 
-    BigDecimal calcPoundageByGrossAmount(BigDecimal totalAmount, BigDecimal rate, BigDecimal discount);
+    BigDecimal calcPoundageByGrossAmount(BigDecimal totalAmount, BigDecimal rate,
+        BigDecimal discount);
 
     BigDecimal calcPoundageWithDiscount(BigDecimal amount, BigDecimal rate, BigDecimal discount);
 

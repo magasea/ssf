@@ -1,15 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd"
+             version="2.2">
 
   <persistence-unit name="NewPersistenceUnit">
-    <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
-    <class>com.shellshellfish.aaas.finance.trade.pay.model.dao.mysql.TrdPayFlow</class>
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    <class>com.shellshellfish.aaas.finance.trade.order.model.dao.TrdTradeBankDic</class>
     <properties>
-      <property name="openjpa.ConnectionURL" value="jdbc:mysql://192.168.1.10:3306/ssftrdpay"/>
-      <property name="openjpa.ConnectionDriverName" value="com.mysql.jdbc.Driver"/>
-      <property name="openjpa.ConnectionUserName" value=""/>
-      <property name="openjpa.ConnectionPassword" value=""/>
-      <property name="openjpa.Log" value="DefaultLevel=TRACE, Tool=INFO"/>
+      <property name="hibernate.connection.url" value="jdbc:mysql://192.168.1.10:3306/ssftrdorder"/>
+      <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>
+      <property name="hibernate.connection.username" value=""/>
+      <property name="hibernate.connection.password" value=""/>
+      <property name="hibernate.archive.autodetection" value="class"/>
+      <property name="hibernate.show_sql" value="true"/>
+      <property name="hibernate.format_sql" value="true"/>
+      <property name="hbm2ddl.auto" value="update"/>
     </properties>
   </persistence-unit>
 </persistence>

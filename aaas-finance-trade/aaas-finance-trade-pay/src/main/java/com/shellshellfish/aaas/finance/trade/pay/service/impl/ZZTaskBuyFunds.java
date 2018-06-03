@@ -22,6 +22,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 /**
  * Created by chenwei on 2018- 一月 - 09
@@ -93,6 +94,8 @@ public class ZZTaskBuyFunds implements Callable<TrdOrderDetail> {
       //注意外面接口用BigDecimal表示金额，入库都用long精确到分
       trdPayFlow.setTradeTargetSum(TradeUtil.getLongNumWithMul100(request.getApplySum()));
       trdPayFlow.setTrdStatus(trdOrderStatusEnum.getStatus());
+      trdPayFlow.setTrdApplyDate("-1");
+      trdPayFlow.setApplydateUnitvalue(-1);
       trdPayFlowRepository.save(trdPayFlow);
       com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
           .shellshellfish.aaas.common.message.order.TrdPayFlow();

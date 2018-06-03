@@ -1,0 +1,37 @@
+#!/bin/bash
+sourcepath='/usr/bin'
+targetpath='/services/shellshellfishcloudbak/mongo-bak-pretest'
+nowtime=$(date +%Y%m%d%H%M)
+YEAR=$(date +%Y)
+MOUTH=$(date +%m)
+DAY=$(date +%d)
+ 
+back ()
+{
+  #${sourcepath}/mongodump --host 127.0.0.1 --port 27017 --out ${targetpath}/${nowtime}
+  ${sourcepath}/mongodump  --host  192.168.1.249:30005  --out ${targetpath}/$YEAR/$MOUTH/$DAY/mongodb-$hostname-${nowtime}
+}
+execute()
+{
+  back 
+  if [ $? -eq 0 ]
+  then
+    echo "back successfully!"
+  else
+    echo "back failure!"
+  fi
+}
+
+# mkdir  dir 
+if [ ! -d "${targetpath}/$YEAR/$MOUTH/$DAY" ]
+then
+ mkdir -p ${targetpath}/$YEAR/$MOUTH/$DAY 
+fi
+execute
+echo "============== back end ${nowtime} =============="
+
+
+#scp -P60010  -r  ${targetpath}/$YEAR/$MOUTH/$DAY/mongodb-${nowtime}     chris@47.96.179.8:/services/shellshellfishcloudbak/mongo-rsync
+#scp -P60010  -r  ${targetpath}/$YEAR/$MOUTH/$DAY/mongodb-${nowtime}     chris@47.96.164.161:/services/shellshellfishcloudbak/mongo-rsync
+#scp      chris@47.96.179.8:/services/shellshellfishcloudbak/mongo
+#du -sh  ${targetpath}/$YEAR/$MOUTH/$DAY/mongodb-$hostname-${nowtime}

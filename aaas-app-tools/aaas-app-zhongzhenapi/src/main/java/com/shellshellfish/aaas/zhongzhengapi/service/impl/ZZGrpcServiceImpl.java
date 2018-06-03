@@ -1,18 +1,27 @@
 package com.shellshellfish.aaas.zhongzhengapi.service.impl;
 
+import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
+
 import com.shellshellfish.aaas.common.grpc.zzapi.ApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.WalletApplyResult;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundInfo;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.tools.zhongzhengapi.BankZhongZhengInfo;
 import com.shellshellfish.aaas.tools.zhongzhengapi.BankZhongZhengInfoList;
 import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApiServiceGrpc;
 import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApplyResult;
 import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApplyResults;
+import com.shellshellfish.aaas.tools.zhongzhengapi.ZZFundBaseInfo;
+import com.shellshellfish.aaas.tools.zhongzhengapi.ZZFundBaseInfosResult;
+import com.shellshellfish.aaas.tools.zhongzhengapi.ZZFundShareInfo;
+import com.shellshellfish.aaas.tools.zhongzhengapi.ZZFundShareInfoResult;
 import com.shellshellfish.aaas.zhongzhengapi.service.ZhongZhengApiService;
 import io.grpc.Status;
+import io.grpc.stub.StreamObserver;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -69,13 +78,13 @@ public class ZZGrpcServiceImpl extends ZZApiServiceGrpc.ZZApiServiceImplBase  {
     List<ApplyResult> results = null;
     try {
       if (!StringUtils.isEmpty(request.getApplySerial())) {
-        results = getApplyResultsByApplySerial(request.getTrdAcco(), request.getPid(), request
+        results = getApplyResultsByApplySerial( request.getPid(), request
             .getApplySerial());
       } else if (!StringUtils.isEmpty(request.getOutsideOrderNo())) {
-        results = getApplyResultsByOutsideTrdNo(request.getTrdAcco(), request.getPid(), request
+        results = getApplyResultsByOutsideTrdNo(request.getPid(), request
             .getOutsideOrderNo());
       } else {
-        results = getApplyResultsByTrdAcco(request.getTrdAcco(), request.getPid());
+        results = getApplyResults(request.getPid());
       }
       ZZApplyResults.Builder zzarsBuilder = ZZApplyResults.newBuilder();
       ZZApplyResult.Builder zzarBuilder = ZZApplyResult.newBuilder();
@@ -96,10 +105,67 @@ public class ZZGrpcServiceImpl extends ZZApiServiceGrpc.ZZApiServiceImplBase  {
     }
   }
 
+  /**
+   */
+  @Override
+  public void getZZBaseInfos(com.shellshellfish.aaas.tools.zhongzhengapi.EmptyQuery request,
+      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.tools.zhongzhengapi.ZZFundBaseInfosResult> responseObserver) {
+    try {
+      List<ZZFundInfo> zzFundInfos = zhongZhengApiService.getAllFundInfo();
+      ZZFundBaseInfosResult.Builder zzfbirBuilder = ZZFundBaseInfosResult.newBuilder();
+      ZZFundBaseInfo.Builder zzfbiBuilder = ZZFundBaseInfo.newBuilder();
+      zzFundInfos.forEach(
+          zzfundInfo ->{
+            MyBeanUtils.mapEntityIntoDTO(zzfundInfo, zzfbiBuilder);
+            zzfbirBuilder.addZzFundBaseInfos(zzfbiBuilder);
+            zzfbiBuilder.clear();
+          }
+      );
+      responseObserver.onNext(zzfbirBuilder.build());
+      responseObserver.onCompleted();
+    } catch (Exception e) {
+      onError(responseObserver, e);
+    }
+  }
 
-  public List<ApplyResult> getApplyResultsByApplySerial(String trdAcco, String pid,
+
+  /**
+   */
+  public void getFundShare(com.shellshellfish.aaas.tools.zhongzhengapi.ZZFundShareQuery request,
+      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.tools.zhongzhengapi.ZZFundShareInfoResult> responseObserver) {
+    try {
+      List<com.shellshellfish.aaas.common.grpc.zzapi.ZZFundShareInfo> zzFundShareInfos = zhongZhengApiService.getFundShare(request.getPid(),
+          request.getFundCode());
+      ZZFundShareInfoResult.Builder zzfsirBuilder = ZZFundShareInfoResult.newBuilder();
+      ZZFundShareInfo.Builder zzfsiBuilder = ZZFundShareInfo.newBuilder();
+      if(!CollectionUtils.isEmpty(zzFundShareInfos)){
+        zzFundShareInfos.forEach(
+            zzFundShareInfo -> {
+              zzfsiBuilder.clear();
+              MyBeanUtils.mapEntityIntoDTO(zzFundShareInfo, zzfsiBuilder);
+              zzfsirBuilder.addZzFundShareInfo(zzfsiBuilder);
+            }
+        );
+      }
+      responseObserver.onNext(zzfsirBuilder.build());
+      responseObserver.onCompleted();
+    } catch (Exception e) {
+      onError(responseObserver, e);
+    }
+  }
+
+  private void onError(StreamObserver responseObserver, Exception ex){
+    responseObserver.onError(Status.INTERNAL
+        .withDescription(ex.getMessage())
+        .augmentDescription("customException()")
+        .withCause(ex) // This can be attached to the Status locally, but NOT transmitted to
+        // the client!
+        .asRuntimeException());
+  }
+
+  public List<ApplyResult> getApplyResultsByApplySerial( String pid,
       String applySerial) throws Exception {
-    List<ApplyResult> applyResults = zhongZhengApiService.getApplyResultByApplySerial(applySerial, trdAcco,
+    List<ApplyResult> applyResults = zhongZhengApiService.getApplyResultByApplySerial(applySerial,
         pid);
     return applyResults;
   }
@@ -107,18 +173,17 @@ public class ZZGrpcServiceImpl extends ZZApiServiceGrpc.ZZApiServiceImplBase  {
 
 
 
-  public List<ApplyResult> getApplyResultsByOutsideTrdNo(String trdAcco, String pid,
+  public List<ApplyResult> getApplyResultsByOutsideTrdNo( String pid,
       String outsideTrdNo) throws Exception {
     List<ApplyResult> applyResults = zhongZhengApiService.getApplyResultByOutSideOrderNo
-        (outsideTrdNo, trdAcco, pid);
+        (outsideTrdNo,  pid);
     return applyResults;
   }
 
 
-  public List<ApplyResult> getApplyResultsByTrdAcco(String trdAcco, String pid)
-      throws Exception {
-    List<ApplyResult> applyResults = zhongZhengApiService.getApplyResultByTrdAcco(trdAcco, pid);
 
+  public List<ApplyResult> getApplyResults( String pid) throws Exception {
+    List<ApplyResult> applyResults = zhongZhengApiService.getApplyResults("","", pid);
     return applyResults;
   }
 
@@ -128,4 +193,7 @@ public class ZZGrpcServiceImpl extends ZZApiServiceGrpc.ZZApiServiceImplBase  {
       String outsideOrderNo) throws Exception {
     return zhongZhengApiService.applyWallet(trdAcco, pid, applySum, outsideOrderNo);
   }
+
+
+
 }

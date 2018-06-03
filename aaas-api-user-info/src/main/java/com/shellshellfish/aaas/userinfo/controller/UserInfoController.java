@@ -35,6 +35,7 @@ import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
+import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
@@ -1393,7 +1394,7 @@ public class UserInfoController {
     ) throws Exception {
         Map<String, Object> result = new HashMap<String, Object>();
         logger.info("getTradLogsOfUser method run..");
-        Map<String, Object> tradeLogs = userInfoService.getTradLogsOfUser2(userUuid, pageSize, pageIndex, type);
+        Map<String, Object> tradeLogs = userInfoService.getTradLogsOfUser3(userUuid, pageSize, pageIndex, type);
 //        result.put("tradeLogs", tradeLogs);
         return new ResponseEntity<>(tradeLogs, HttpStatus.OK);
     }
@@ -1423,6 +1424,33 @@ public class UserInfoController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    
+    /**
+     * 获取本产品的资产
+     */
+    @ApiOperation("获取用户单个组合的资产信息")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 400, message = "请求参数没填好"),
+            @ApiResponse(code = 401, message = "未授权用户"),
+            @ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+            @ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")
+    })
+    @ApiImplicitParams({
+      @ApiImplicitParam(paramType = "path", name = "uuid", dataType = "String", required = true, value = "用户uuid", defaultValue = ""),
+      @ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = ""),
+    })
+    @RequestMapping(value = "/users/{uuid}/asset-by-prodId", method = RequestMethod.GET)
+    public ResponseEntity<Map> getTotalAssetByProdId(
+            @PathVariable String uuid,
+            @RequestParam String prodId
+    ) throws Exception {
+        Map<String, Object> result = new HashMap<String, Object>();
+        logger.info("getTotalAssetByProdId method run..");
+        result = userInfoService.getMyAssetByProdId(uuid, prodId);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+    
     @ApiOperation("交易结果 购买")
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK"),

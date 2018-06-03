@@ -4,9 +4,12 @@ server:
 grpc:
 #  host: localhost
   port: 10131
+  oeminfo:
+    host: aaas-app-oeminfo
+    port: 10161
   order:
-      host: localhost
-      port: 10101
+    host: aaas-finance-trade-order
+    port: 10101
 logging:
   level:
     org.hibernate.SQL: DEBUG

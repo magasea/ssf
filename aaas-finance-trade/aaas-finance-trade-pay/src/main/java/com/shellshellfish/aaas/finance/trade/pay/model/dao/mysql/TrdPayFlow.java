@@ -26,8 +26,8 @@ public class TrdPayFlow {
   private int trdStatus;
   private long trdConfirmDate;
   private int trdType;
-  private String trdApplyDate;
-  private long trdAplydateUv;
+  private String trdApplyDate = "-1";
+  private long applydateUnitvalue = -1;
   private long trdApplySum;
   private long trdApplyShare;
   private Long tradeTargetSum;
@@ -177,13 +177,13 @@ public class TrdPayFlow {
   }
 
   @Basic
-  @Column(name = "trd_aplydate_uv")
-  public long getTrdAplydateUv() {
-    return trdAplydateUv;
+  @Column(name = "applydate_unitvalue")
+  public long getApplydateUnitvalue() {
+    return applydateUnitvalue;
   }
 
-  public void setTrdAplydateUv(long trdAplydateUv) {
-    this.trdAplydateUv = trdAplydateUv;
+  public void setApplydateUnitvalue(long applydateUnitvalue) {
+    this.applydateUnitvalue = applydateUnitvalue;
   }
 
   @Basic
@@ -372,7 +372,7 @@ public class TrdPayFlow {
         trdStatus == that.trdStatus &&
         trdConfirmDate == that.trdConfirmDate &&
         trdType == that.trdType &&
-        trdAplydateUv == that.trdAplydateUv &&
+        applydateUnitvalue == that.applydateUnitvalue &&
         trdApplySum == that.trdApplySum &&
         trdApplyShare == that.trdApplyShare &&
         tradeTargetShare == that.tradeTargetShare &&
@@ -403,10 +403,9 @@ public class TrdPayFlow {
 
     return Objects
         .hash(id, orderDetailId, tradeAcco, tradeBrokeId, applySerial, outsideOrderno, bankCardNum,
-            userProdId, fundCode, trdStatus, trdConfirmDate, trdType, trdApplyDate, trdAplydateUv,
-            trdApplySum, trdApplyShare, tradeTargetSum, tradeTargetShare, tradeConfirmShare,
-            tradeConfirmSum, buyFee, buyDiscount, userId, createBy, createDate, updateBy,
-            updateDate,
-            errMsg, errCode, trdbkerStatusCode, trdbkerStatusName);
+            userProdId, fundCode, trdStatus, trdConfirmDate, trdType, trdApplyDate,
+            applydateUnitvalue, trdApplySum, trdApplyShare, tradeTargetSum, tradeTargetShare,
+            tradeConfirmShare, tradeConfirmSum, buyFee, buyDiscount, userId, createBy, createDate,
+            updateBy, updateDate, errMsg, errCode, trdbkerStatusCode, trdbkerStatusName);
   }
 }

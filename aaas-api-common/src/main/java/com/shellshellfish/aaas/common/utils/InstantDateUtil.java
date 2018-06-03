@@ -55,6 +55,10 @@ public class InstantDateUtil {
         return LocalDate.now(ZoneId.systemDefault());
     }
 
+    public static LocalDate tomorrow() {
+        return now().plusDays(1);
+    }
+
     /**
      * 计算两个时间之间相差天数
      */

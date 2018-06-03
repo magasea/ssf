@@ -100,8 +100,7 @@ public class UserAssetServiceImpl implements UserAssetService {
                 .getOrderInfoByProdIdAndOrderStatus(prodId,
                         TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
-        BigDecimal applyAsset = BigDecimal.valueOf(orderResult.getPayAmount())
-                .divide(BigDecimal.valueOf(100));
+        BigDecimal applyAsset = TradeUtil.getBigDecimalNumWithDiv100(orderResult.getPayAmount());
 
         BigDecimal assetOfEndDay = Optional.ofNullable(portfolioInfo.getTotalAssets())
                 .orElse(BigDecimal.ZERO);
@@ -131,9 +130,6 @@ public class UserAssetServiceImpl implements UserAssetService {
     private PortfolioInfo getIntervalAmount(Long userProdId, PortfolioInfo portfolioInfo) {
 
         String dateStr = InstantDateUtil.format(portfolioInfo.getDate(), yyyyMMdd);
-        List<MongoUiTrdZZInfo> mongoUiTrdZZInfoList = mongoUiTrdZZInfoRepo.findAllByUserProdId(userProdId);
-        if (CollectionUtils.isEmpty(mongoUiTrdZZInfoList))
-            return portfolioInfo;
 
         //FIXME  需要额外处理分红的情况
         BigDecimal bonus = BigDecimal.ZERO;
@@ -145,6 +141,12 @@ public class UserAssetServiceImpl implements UserAssetService {
         BigDecimal buyAmountOfEndDay = BigDecimal.ZERO;
         BigDecimal assetOfEndDay = portfolioInfo.getTotalAssets();
         BigDecimal assetOfOneDayBefore = portfolioInfo.getAssetOfOneDayBefore();
+
+
+        List<MongoUiTrdZZInfo> mongoUiTrdZZInfoList = mongoUiTrdZZInfoRepo
+                .findAllByUserProdIdAndConfirmDateLessThanEqual(userProdId, dateStr);
+        if (CollectionUtils.isEmpty(mongoUiTrdZZInfoList))
+            return portfolioInfo;
 
 
         for (MongoUiTrdZZInfo mongoUiTrdZZInfo : mongoUiTrdZZInfoList) {

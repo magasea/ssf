@@ -13,7 +13,7 @@ import com.shellshellfish.aaas.common.grpc.zzapi.ZZTradeLimit;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltAplyInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltInfoRlt;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.zhongzhengapi.model.BankZhongZhenInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
 import com.shellshellfish.aaas.zhongzhengapi.model.FundRiskCheckLog;
 import com.shellshellfish.aaas.zhongzhengapi.model.SellResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZBonusInfo;
@@ -22,7 +22,6 @@ import com.shellshellfish.aaas.zhongzhengapi.service.ZhongZhengApiService;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -59,11 +58,13 @@ public class ZhongzhengApiServiceImplTest {
 
   @Test
   public void getSupportBankList() throws Exception {
-    List<BankZhongZhenInfo> bankZhongZhenInfoList =
+    List<ZZBankInfo> bankZhongZhenInfoList =
     zhongZhengApiService.getSupportBankList();
     StringBuilder sb = new StringBuilder();
     bankZhongZhenInfoList.forEach(bank->{
-      sb.append(bank.getBankName()).append("|").append(bank.getBankSerial());
+      sb.append(bank.getBankName()).append("|").append(bank.getBankSerial()).append("|").append(bank
+          .getCapitalModel()).append("|").append(bank.getMoneyLimitDay()).append("|").append(bank
+          .getMoneyLimitOne());
       System.out.println(sb.toString());
       sb.delete(0, sb.length());
     });
@@ -89,20 +90,28 @@ public class ZhongzhengApiServiceImplTest {
   @Test
   public void getApplyResultByOutSideOrderNo() throws Exception {
     String sellNum = "1";
-    String outsideTradeNo = "123"+ TradeUtil.getUTCTime();
+    String outsideTradeNo = "6222021560000015257014084601998";
     String trdAcco = "33600";
     String fundCode = "40009.OF";
     String sellType = "0";
     String pid = "362522198709220031";
-    zhongZhengApiService.getApplyResultByOutSideOrderNo(outsideTradeNo, trdAcco,   pid );
-
+    List<ApplyResult> applyResults =  zhongZhengApiService.getApplyResultByOutSideOrderNo
+        (outsideTradeNo,   pid );
+    applyResults.forEach(
+        item->{
+          System.out.println(item.getApplyDate());
+          System.out.println(item.getApplySerial());
+          System.out.println(item.getConfirmstat());
+          System.out.println(item.getTradeConfirmShare());
+        }
+    );
   }
 
   @Test
   public void getApplyResultByTrdAcco() throws Exception {
     String trdAcco = "33586";
     String pid = "352230198703172130";
-    List<ApplyResult> applyResults =  zhongZhengApiService.getApplyResultByTrdAcco(trdAcco,   pid );
+    List<ApplyResult> applyResults =  zhongZhengApiService.getApplyResults("","",  pid );
     applyResults.forEach(
         item->{
           System.out.println(item.getApplyDate());
@@ -117,8 +126,8 @@ public class ZhongzhengApiServiceImplTest {
   public void getApplyResultByApplySerial() throws Exception {
     String pid = "362522198709220031";
     String trdAcco = "33600";
-    String applySerial = "20180516000606";
-    List<ApplyResult> applyResults =  zhongZhengApiService.getApplyResults("", applySerial, trdAcco, pid);
+    String applySerial = "20180531000642";
+    List<ApplyResult> applyResults =  zhongZhengApiService.getApplyResults("", applySerial, pid);
     applyResults.forEach(
         item->{
           System.out.println(item.getAccepTtime());
@@ -379,7 +388,7 @@ public class ZhongzhengApiServiceImplTest {
 
   @Test
   public void getFundShare() throws Exception {
-    String pid = "352230198703172130";
+    String pid = "522101197402150413";
     List<ZZFundShareInfo> fundShareInfos = zhongZhengApiService.getFundShare(pid);
     fundShareInfos.forEach(
         item->{

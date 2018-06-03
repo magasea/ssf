@@ -213,10 +213,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
       //ToDo: 调用基金交易平台系统接口完成支付并且生成交易序列号供跟踪
       BigDecimal payAmount = TradeUtil.getBigDecimalNumWithDiv100(trdOrderDetail.getFundSum());
-      //TODO: replace userId with userUuid
       TrdPayFlow trdPayFlow = new TrdPayFlow();
       trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
-      trdPayFlow.setCreateBy(0L);
+      trdPayFlow.setCreateBy(trdOrderDetail.getUserId());
       //重要。。。。。
       trdPayFlow.setOutsideOrderno(sbOutsideOrderno.toString());
       trdPayFlow.setTradeTargetSum(trdOrderDetail.getFundSum());
@@ -265,6 +264,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         trdPayFlow.setUserProdId(trdOrderDetail.getUserProdId());
         trdPayFlow.setUserId(trdOrderDetail.getUserId());
         trdPayFlow.setTradeBrokeId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
+        trdPayFlow.setTrdApplyDate("-1"); // default value
+        trdPayFlow.setApplydateUnitvalue(-1);
         TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
         com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
             .shellshellfish.aaas.common.message.order.TrdPayFlow();
@@ -370,7 +371,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           outsideOrderNo);
       TrdPayFlow trdPayFlow = new TrdPayFlow();
       trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
-      trdPayFlow.setCreateBy(0L);
+      trdPayFlow.setCreateBy(prodSellDTO.getUserId());
       trdPayFlow.setTrdStatus(TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(prodSellDTO.getUserProdId());
       trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
@@ -986,7 +987,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           outsideOrderNo);
       TrdPayFlow trdPayFlow = new TrdPayFlow();
       trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
-      trdPayFlow.setCreateBy(0L);
+      trdPayFlow.setCreateBy(prodSellPercentMsg.getUserId());
       trdPayFlow.setTrdStatus(TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(prodSellPercentMsg.getUserProdId());
       trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
@@ -1025,6 +1026,19 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           notifySell(trdPayFlowMsg);
         }else{
           //赎回请求失败，需要把扣减的基金数量加回去
+          trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+          trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
+          trdPayFlow.setTradeTargetShare(prodDtlSellDTO.getFundQuantity());
+//          trdPayFlow.setTradeTargetSum(TradeUtil.getLongNumWithMul100(prodDtlSellDTO
+//              .getTargetSellAmount()));
+          trdPayFlow.setFundCode(prodDtlSellDTO.getFundCode());
+          trdPayFlow.setOutsideOrderno(outsideOrderNo);
+          trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
+          trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
+          trdPayFlow.setCreateBy(prodSellPercentMsg.getUserId());
+          trdPayFlow.setUpdateBy(prodSellPercentMsg.getUserId());
+          trdPayFlow.setTradeAcco(prodSellPercentMsg.getTrdAcco());
+          trdPayFlow.setUserProdId(prodSellPercentMsg.getUserProdId());
           notifyRollback(trdPayFlow, prodDtlSellDTO, sellNum);
         }
       }catch (Exception ex){

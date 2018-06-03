@@ -150,4 +150,9 @@ public class TradeUtilTest {
     System.out.println(TradeUtil.getOrderIdByOutsideOrderNo("955843600000000015166096170491078",
         1078L));
   }
+
+  @Test
+  public void testDividLong(){
+    System.out.println(TradeUtil.getLongWithDiv(110480L, 100L));
+  }
 }

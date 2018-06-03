@@ -18,7 +18,7 @@ public class RedisFundNetDao {
 
     private static final String KEY = RedisConstants.USER_INFO_KEY + RedisConstants.SEPARATOR + "fundNet";
 
-    private static final int TIMEOUT = 24; //过期时间
+    private static final int TIMEOUT = 1; //过期时间
     private static final TimeUnit TIME_UNIT = TimeUnit.HOURS; //过期时间单位
 
 

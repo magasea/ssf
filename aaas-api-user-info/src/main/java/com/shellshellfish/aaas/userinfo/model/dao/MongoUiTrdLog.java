@@ -81,6 +81,7 @@ public class MongoUiTrdLog implements Serializable {
   private String applySerial;
 
   @Field(value = "order_id")
+  @Indexed()
   private String orderId;
 
   public MongoUiTrdLog() {
