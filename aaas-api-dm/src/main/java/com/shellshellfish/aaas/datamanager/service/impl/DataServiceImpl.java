@@ -1030,12 +1030,12 @@ public class DataServiceImpl implements DataService {
             }
 
             map.put("dayup",
-                    dayUpRate.multiply(ONE_HUNDRED).setScale(2, BigDecimal.ROUND_HALF_UP).toString() + "%");
+                    dayUpRate.multiply(ONE_HUNDRED).setScale(6, BigDecimal.ROUND_HALF_UP).toString() + "%");
 
             BigDecimal p2 = Optional.ofNullable(coinFundYieldRateList.get(0)).map(m -> m.getNavAdj())
                     .orElse(BigDecimal.ONE); //起始日复权净值
             BigDecimal profit = (todayNavAdj.subtract(p2)).divide(p2, MathContext.DECIMAL128);//收益走势
-            map.put("profit", profit.setScale(2, RoundingMode.HALF_UP));
+            map.put("profit", profit.multiply(ONE_HUNDRED).setScale(6, RoundingMode.HALF_UP));
 
             result[i] = map;
             if (yieldOf7Days != null)
