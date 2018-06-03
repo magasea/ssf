@@ -395,9 +395,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     List<UiProductDetail> uiProductDetailList = uiProductDetailRepo
-        .findAllByUserProdIdAndStatusIn(products.getId(),
-            TrdOrderStatusEnum.WAITPAY.getStatus(),
-            TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
+        .findAllByUserProdIdAndStatusIn(products.getId(),TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
     //完全确认标志
     boolean flag = false;
