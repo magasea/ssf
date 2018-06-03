@@ -114,24 +114,24 @@ public class UserAssetServiceImpl implements UserAssetService {
         BigDecimal assetOfEndDay = Optional.ofNullable(portfolioInfo.getTotalAssets())
                 .orElse(BigDecimal.ZERO);
 
-        // 总资产 = 确认基金资产+ 未确认的基金的申购金额  = 结束日资产（即申购成功部分结束日资产） +（总申购资产-确认部分申购资产）
+        // 总资产 = 确认基金资产+ 未确认的基金的申购金额
         BigDecimal asset = assetOfEndDay.add(notConfirmAsset);
 
 
         // 累计收益=确认部分资产- 确认部分申购金额  (默认未完全确认  不能追加和赎回)
-        BigDecimal toltalIncome = assetOfEndDay.subtract(confirmAsset);
+        BigDecimal totalIncome = assetOfEndDay.subtract(confirmAsset);
 
         // 累计收益率= 累计收益/申购金额
-        BigDecimal toltalIncomeRate = Optional.ofNullable(portfolioInfo.getTotalIncomeRate())
+        BigDecimal totalIncomeRate = Optional.ofNullable(portfolioInfo.getTotalIncomeRate())
                 .orElse(BigDecimal.ZERO);
 
         if (applyAsset.compareTo(BigDecimal.ZERO) != 0) {
-            toltalIncomeRate = toltalIncome.divide(applyAsset, 4, RoundingMode.HALF_UP);
+            totalIncomeRate = totalIncome.divide(applyAsset, 4, RoundingMode.HALF_UP);
         }
 
         portfolioInfo.setTotalAssets(asset.setScale(4, RoundingMode.HALF_UP));
-        portfolioInfo.setTotalIncome(toltalIncome.setScale(4, RoundingMode.HALF_UP));
-        portfolioInfo.setTotalIncomeRate(toltalIncomeRate.setScale(4, RoundingMode.HALF_UP));
+        portfolioInfo.setTotalIncome(totalIncome.setScale(4, RoundingMode.HALF_UP));
+        portfolioInfo.setTotalIncomeRate(totalIncomeRate.setScale(4, RoundingMode.HALF_UP));
 
         return portfolioInfo;
     }
