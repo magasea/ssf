@@ -86,6 +86,9 @@ public class UserAssetServiceImpl implements UserAssetService {
         BigDecimal confirmAsset = BigDecimal.ZERO;
         BigDecimal confirmAssetOfEndDay = BigDecimal.ZERO;
         for (MongoUiTrdZZInfo mongoUiTrdZZinfo : mongoUiTrdZZinfoList) {
+            //购买不成功，不需要计算
+            if (TrdOrderStatusEnum.failBuy(mongoUiTrdZZinfo.getTradeStatus()))
+                continue;
             confirmAsset = confirmAsset.add(TradeUtil.getBigDecimalNumWithDiv100(
                     Optional.ofNullable(mongoUiTrdZZinfo).map(m -> m.getTradeConfirmSum())
                             .orElse(0L)));
