@@ -1018,7 +1018,7 @@ public class DataServiceImpl implements DataService {
             map.put("yieldOf7Days", coinFundYieldRate.getYieldOf7Days());
             map.put("tenKiloUnitYield", coinFundYieldRate.getTenKiloUnityYield());
 
-            BigDecimal todayNavAdj = coinFundYieldRate.getNavAdj();
+            BigDecimal todayNavAdj = Optional.ofNullable(coinFundYieldRate).map(m -> m.getNavAdj()).orElse(BigDecimal.ZERO);
             map.put("navAdj", todayNavAdj);
 
             BigDecimal dayUp;
