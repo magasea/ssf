@@ -127,7 +127,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
      */
     private BigDecimal calcDailyAsset(String userUuid, Long prodId, Long userProdId, String fundCode,
                                       String date, UiProductDetail uiProductDetail) throws Exception {
-
         //确认失败的不计算
         if (TrdOrderStatusEnum.failBuy(uiProductDetail.getStatus()))
             return null;
@@ -135,6 +134,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         BigDecimal share = getFundQuantityAtDate(fundCode, userProdId, date, uiProductDetail);
         BigDecimal netValue = getFundNetValue(fundCode, InstantDateUtil.format(date, yyyyMMdd));
         BigDecimal rateOfSellFund = getSellRate(fundCode);
+        logger.info("update asset====>>>> share:{},netValue:{}，rateOfSellFund:{}", share, netValue, rateOfSellFund);
         BigDecimal fundAsset = share.multiply(netValue)
                 .multiply(BigDecimal.ONE.subtract(rateOfSellFund));
 
@@ -149,7 +149,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
         Update update = new Update();
         update.set("asset", fundAsset);
-
+        update.set("lastUpdate", System.currentTimeMillis());
         DailyAmount dailyAmount = zhongZhengMongoTemplate
                 .findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
                         DailyAmount.class);
@@ -537,18 +537,17 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
     @Override
     public void calculateProductAsset(UiProductDetail detail, String uuid, Long prodId, String date) {
-
+        logger.info("calculate Product Asset : {}", detail);
         String fundCode = detail.getFundCode();
 //        initDailyAmount(uuid, prodId, detail.getUserProdId(), date, fundCode);
         try {
             //计算当日总资产
             calcDailyAsset(uuid, prodId, detail.getUserProdId(), fundCode,
                     date, detail);
-
             //获取当日分红，以及确认购买和赎回的金额 分红直接从mongo.trdzzinfo中获取
             //calcIntervalAmount2(uuid, prodId, detail.getUserProdId(), fundCode, date);
         } catch (Exception e) {
-            logger.error("计算{用户:{},基金code:{},基金名称：{}}日收益出错", detail.getCreateBy(),
+            logger.error("计算{用户:{},userProdId:{},基金code:{},基金名称：{}}日收益出错", detail.getCreateBy(), detail.getUserProdId(),
                     detail.getFundCode(), detail.getFundName(), e);
             //FIXME  记录错误数据 并返回
         }
@@ -558,6 +557,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     public void calculateFromZzInfo(UiProductDetail detail, String uuid, Long prodId, String date)
             throws Exception {
 
+        logger.info("calculate from zzinfo :{}", detail);
         String fundCode = detail.getFundCode();
 //        addDailyAmount(uuid, date, fundCode, prodId, detail.getUserProdId());
         //计算当日总资产
