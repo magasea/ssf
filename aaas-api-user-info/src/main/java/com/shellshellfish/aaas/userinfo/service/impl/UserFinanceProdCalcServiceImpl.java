@@ -681,7 +681,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
                     .findFirstByCodeAndQueryDateBefore(fundCode, endTime,
                             new Sort(new Order(Direction.DESC, "querydate")));
             if (coinFundYieldRate == null || coinFundYieldRate.getNavadj() == null) {
-                return BigDecimal.ZERO;
+                return null;
             }
             netValue = coinFundYieldRate.getNavadj();
         } else {
@@ -690,7 +690,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
                             new Sort(new Order(Direction.DESC, "querydate")));
 
             if (fundYieldRate == null || fundYieldRate.getUnitNav() == null) {
-                return BigDecimal.ZERO;
+                return null;
             }
             netValue = fundYieldRate.getUnitNav();
         }
@@ -702,7 +702,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
      * 获取基金的赎回费率
      */
     private BigDecimal getSellRate(String fundCode) throws Exception {
-        //货币即基金赎回费率为零
+        //货币基金赎回费率为零
         if (MonetaryFundEnum.containsCode(fundCode))
             return BigDecimal.ZERO;
 
@@ -711,6 +711,9 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
             return sellRate;
 
         sellRate = fundTradeApiService.getRate(fundCode, "024");
+        if (sellRate == null)
+            return null;
+
         redisSellRateDao.set(fundCode, sellRate);
         return sellRate;
     }
