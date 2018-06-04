@@ -48,7 +48,7 @@ datasource:
   aaasapp:
     url: jdbc:mysql://external-mysql-service:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8
     username: sa
-    password: 1rIQ9wi!@g3P$Qh* 
+    password: N4eTVr89lX9BaPcx
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema: ssfuser
     maxPoolSize: 20
