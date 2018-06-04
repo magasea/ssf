@@ -54,4 +54,17 @@ public class TestController {
     }
     return fundInfos;
   }
+
+  @ResponseBody
+  @RequestMapping(value = "/updateAllFundinfo")
+  public String updateAllFundinfo(){
+    try {
+      List<String> allFundsInfo = fundInfoService.getAllFundsInfo();
+      fundInfoService.writeAllFundsToMongoDb(allFundsInfo);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return "更新成功";
+  }
+
 }
