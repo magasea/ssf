@@ -79,8 +79,3 @@ grpc:
   zhongzhengapi_client:
     host: localhost
     port: 10171
-
-management:
-  endpoints:
-    web:
-      base-path: /
