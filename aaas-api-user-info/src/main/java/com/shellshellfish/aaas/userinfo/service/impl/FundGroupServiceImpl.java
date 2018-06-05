@@ -1,5 +1,21 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
@@ -16,19 +32,6 @@ import com.shellshellfish.aaas.userinfo.service.UiProductService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.client.RestTemplate;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.*;
 
 /**
  * @Author pierre 17-12-29
@@ -128,6 +131,8 @@ public class FundGroupServiceImpl implements FundGroupService {
 
     private BigDecimal getFundInome(String fundCode, Long userProdId) {
         String date = InstantDateUtil.format(InstantDateUtil.now(), InstantDateUtil.yyyyMMdd);
+        // TODO：1.asset为0的数值不应该插入
+        //      2. 如何处理购买和赎回的值
         List<DailyAmountAggregation> dailyAmountList = mongoDailyAmountRepository.getUserAssetAndIncomeByCode(date, userProdId, fundCode);
 
         if (CollectionUtils.isEmpty(dailyAmountList)) {
@@ -147,7 +152,13 @@ public class FundGroupServiceImpl implements FundGroupService {
             return income;
 
         for (MongoUiTrdZZInfo zzinfo : mongoUiTrdZZInfoList) {
-            income = income.add(TradeUtil.getBigDecimalNumWithDiv100(zzinfo.getTradeConfirmSum()));
+            if(zzinfo.getTradeType() == TrdOrderOpTypeEnum.BUY.getOperation()){
+              income = income.subtract(TradeUtil.getBigDecimalNumWithDiv100(zzinfo.getTradeConfirmSum()));
+            } else if(zzinfo.getTradeType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+              income = income.add(TradeUtil.getBigDecimalNumWithDiv100(zzinfo.getTradeConfirmSum()));
+            } else {
+              logger.error("error trade type");
+            }
         }
         return income;
     }
