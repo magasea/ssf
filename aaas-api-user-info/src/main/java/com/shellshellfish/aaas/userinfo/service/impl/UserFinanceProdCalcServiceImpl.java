@@ -550,7 +550,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     public void calculateFromZzInfo(UiProductDetail detail, String uuid, Long prodId, String date)
             throws Exception {
 
-        logger.info("calculate from zzinfo :{}", detail);
+        logger.info("calculate from zzinfo :{},date:{}", detail, date);
         String fundCode = detail.getFundCode();
 //        addDailyAmount(uuid, date, fundCode, prodId, detail.getUserProdId());
         //计算当日总资产
