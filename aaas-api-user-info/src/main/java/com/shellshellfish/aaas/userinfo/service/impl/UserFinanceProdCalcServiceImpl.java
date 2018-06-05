@@ -9,7 +9,6 @@ import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.BonusInfo;
 import com.shellshellfish.aaas.userinfo.model.ConfirmResult;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
-import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.*;
 import com.shellshellfish.aaas.userinfo.repositories.funds.MongoCoinFundYieldRateRepository;
 import com.shellshellfish.aaas.userinfo.repositories.funds.MongoFundYieldRateRepository;
@@ -23,7 +22,6 @@ import com.shellshellfish.aaas.userinfo.repositories.redis.RedisSellRateDao;
 import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoDailyAmountRepository;
 import com.shellshellfish.aaas.userinfo.service.FundTradeApiService;
 import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
-import com.shellshellfish.aaas.userinfo.service.UserAssetService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +33,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -43,19 +40,15 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Service
 public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcService {
@@ -131,7 +124,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         if (TrdOrderStatusEnum.failBuy(uiProductDetail.getStatus()))
             return null;
 
-        BigDecimal share = getFundQuantityAtDate(fundCode, userProdId, date, uiProductDetail);
+        BigDecimal share = getFundQuantityAtDate(fundCode, userProdId, date);
         BigDecimal netValue = getFundNetValue(fundCode, InstantDateUtil.format(date, yyyyMMdd));
         BigDecimal rateOfSellFund = getSellRate(fundCode);
         logger.info("update asset====>>>> share:{},netValue:{}，rateOfSellFund:{}", share, netValue, rateOfSellFund);
@@ -635,34 +628,49 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     /**
      * 计算　没一个userProdId下用户在某一日所持有的基金份额
      */
-    private BigDecimal getFundQuantityAtDate(String fundCode, Long userProdId, String date, UiProductDetail
-            uiProductDetail) {
+    private BigDecimal getFundQuantityAtDate(String fundCode, Long userProdId, String date) {
         List<MongoUiTrdZZInfo> mongoUiTrdZZInfoOfBuy = mongoUiTrdZZInfoRepo
-                .findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateGreaterThan(userProdId,
+                .findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateLessThanEqual(userProdId,
                         fundCode, TrdOrderOpTypeEnum.BUY.getOperation(),
                         TrdOrderStatusEnum.CONFIRMED.getStatus(), date);
         List<MongoUiTrdZZInfo> mongoUiTrdZZInfoSell = mongoUiTrdZZInfoRepo
-                .findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateGreaterThan(userProdId,
+                .findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateLessThanEqual(userProdId,
                         fundCode, TrdOrderOpTypeEnum.REDEEM.getOperation(), TrdOrderStatusEnum.SELLCONFIRMED.getStatus(), date);
 
         //赎回总份额
-        Long sellAmount = 0L;
+        BigDecimal sellAmount = BigDecimal.ZERO;
         //申购总份额
-        Long buyAmount = 0L;
+        BigDecimal buyAmount = BigDecimal.ZERO;
         for (MongoUiTrdZZInfo mongoUiTrdZZInfo : mongoUiTrdZZInfoOfBuy) {
-            buyAmount += mongoUiTrdZZInfo.getTradeConfirmShare();
+            if (MonetaryFundEnum.containsCode(fundCode)) {
+
+                /**
+                 * 货币基金虚拟份额（比拟于普通基金）=货币基金份额/确认日复权单位净值
+                 */
+                LocalDate applyDate = InstantDateUtil.format(mongoUiTrdZZInfo.getApplyDate(), InstantDateUtil.yyyyMMdd);
+                BigDecimal startNetValue = getFundNetValue(fundCode, applyDate);
+                BigDecimal confirmAmount = TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZInfo.getTradeConfirmShare());
+                buyAmount = buyAmount.add(confirmAmount.divide(startNetValue, MathContext.DECIMAL32));
+            } else {
+                buyAmount = buyAmount.add(TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZInfo.getTradeConfirmShare()));
+            }
         }
 
         for (MongoUiTrdZZInfo mongoUiTrdZZInfo : mongoUiTrdZZInfoSell) {
-            sellAmount += mongoUiTrdZZInfo.getTradeConfirmShare();
+            if (MonetaryFundEnum.containsCode(fundCode)) {
+                //货币基金份额/确认日复权单位净值
+                LocalDate applyDate = InstantDateUtil.format(mongoUiTrdZZInfo.getApplyDate(), InstantDateUtil.yyyyMMdd);
+                BigDecimal startNetValue = getFundNetValue(fundCode, applyDate);
+                BigDecimal confirmAmount = TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZInfo.getTradeConfirmShare());
+                sellAmount = sellAmount.add(confirmAmount.divide(startNetValue, MathContext.DECIMAL32));
+            } else {
+                sellAmount = sellAmount.add(TradeUtil.getBigDecimalNumWithDiv100(mongoUiTrdZZInfo
+                        .getTradeConfirmShare()));
+            }
         }
 
-        //用户当前持有的份额-期间申购份额+期间赎回份额
-        Integer fundQuantity = Optional.ofNullable(uiProductDetail).map(m -> m.getFundQuantity()).orElse(0);
-
-        Long result = fundQuantity - buyAmount + sellAmount;
-
-        return TradeUtil.getBigDecimalNumWithDiv100(result);
+        //FIXME 缺少分红
+        return buyAmount.subtract(sellAmount);
     }
 
     /**
