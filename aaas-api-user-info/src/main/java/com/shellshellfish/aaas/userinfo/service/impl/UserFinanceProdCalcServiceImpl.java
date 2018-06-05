@@ -121,8 +121,10 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     private BigDecimal calcDailyAsset(String userUuid, Long prodId, Long userProdId, String fundCode,
                                       String date, UiProductDetail uiProductDetail) throws Exception {
         //确认失败的不计算
-        if (TrdOrderStatusEnum.failBuy(rpcOrderService.getOrderDetailStatus(fundCode, userProdId)))
+        if (TrdOrderStatusEnum.failBuy(rpcOrderService.getOrderDetailStatus(fundCode, userProdId))) {
+            logger.error("确认失败不计算：userProdId:{},fundCode:{},date:{}", userProdId, fundCode, date);
             return null;
+        }
 
         BigDecimal share = getFundQuantityAtDate(fundCode, userProdId, date);
         BigDecimal netValue = getFundNetValue(fundCode, InstantDateUtil.format(date, yyyyMMdd));
@@ -644,7 +646,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         BigDecimal buyAmount = BigDecimal.ZERO;
         for (MongoUiTrdZZInfo mongoUiTrdZZInfo : mongoUiTrdZZInfoOfBuy) {
             if (MonetaryFundEnum.containsCode(fundCode)) {
-
                 /**
                  * 货币基金虚拟份额（比拟于普通基金）=货币基金份额/确认日复权单位净值
                  */
