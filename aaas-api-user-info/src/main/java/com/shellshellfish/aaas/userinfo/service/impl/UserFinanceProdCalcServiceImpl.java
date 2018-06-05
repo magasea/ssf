@@ -121,7 +121,7 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     private BigDecimal calcDailyAsset(String userUuid, Long prodId, Long userProdId, String fundCode,
                                       String date, UiProductDetail uiProductDetail) throws Exception {
         //确认失败的不计算
-        if (TrdOrderStatusEnum.failBuy(uiProductDetail.getStatus()))
+        if (TrdOrderStatusEnum.failBuy(rpcOrderService.getOrderDetailStatus(fundCode, userProdId)))
             return null;
 
         BigDecimal share = getFundQuantityAtDate(fundCode, userProdId, date);

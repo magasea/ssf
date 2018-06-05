@@ -37,7 +37,7 @@ public class MongoUiTrdZZInfoRepoTest {
 
         LocalDate startDate = LocalDate.of(2018, 01, 22);
         List<MongoUiTrdZZInfo> result = mongoUiTrdZZInfoRepo
-                .findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateGreaterThan(userProdId, fundCode,
+                .findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateLessThanEqual(userProdId, fundCode,
                         TrdOrderOpTypeEnum.BUY.getOperation(), TrdOrderStatusEnum.CONFIRMED.getStatus(),
                         InstantDateUtil.format(startDate, InstantDateUtil.yyyyMMdd));
 

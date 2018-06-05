@@ -57,6 +57,7 @@ public class CalculateConfirmedAsset {
      * 当有申购或者赎回确认的消息时 ,重新计算资产
      */
     public void calculateConfirmedAsset(MongoUiTrdZZInfo mongoUiTrdZZInfo) {
+        logger.info("calculate conformed Asset :{}", mongoUiTrdZZInfo);
         final String pattern = InstantDateUtil.yyyyMMdd;
         Optional<UiProducts> uiProducts = uiProductRepo.findById(mongoUiTrdZZInfo.getUserProdId());
         List<UiProductDetail> uiProductDetailList = uiProductDetailRepo
