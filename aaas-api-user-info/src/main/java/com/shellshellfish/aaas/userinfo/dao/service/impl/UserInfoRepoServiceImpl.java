@@ -2,11 +2,15 @@ package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
 import com.mongodb.client.result.UpdateResult;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
+import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
+import com.shellshellfish.aaas.common.enums.PendingRecordStatusEnum;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.enums.grpc.ItemStatus;
 import com.shellshellfish.aaas.common.exceptions.ErrorConstants;
+import com.shellshellfish.aaas.common.utils.MathUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.grpc.common.ErrInfo;
@@ -28,6 +32,7 @@ import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserUUID;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoPendingRecords;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
@@ -59,7 +64,6 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepo
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoFriendRuleRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.repositories.redis.UserInfoBaseDao;
-import com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl;
 import com.shellshellfish.aaas.userinfo.utils.MongoUiTrdLogUtil;
 import io.grpc.stub.StreamObserver;
 import java.math.BigInteger;
@@ -1135,6 +1139,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
     List<UiProductDetail> uiProductDetails = uiProductDetailRepo.findAllByUserProdId(request
         .getUserProductId());
     Map<String, UiProductDetail> currentAvailableFunds = new HashMap<>();
+    Map<String, MongoPendingRecords> mongoPendingRecordsHashMap = new HashMap<>();
 //		Map<String, Integer> currentFundsStatus = new HashMap<>();
     for (UiProductDetail uiProductDetail : uiProductDetails) {
       if (uiProductDetail.getFundQuantityTrade() == null
@@ -1149,9 +1154,38 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
         throw new Exception(String.format("fundCode:%s is in WAITSELL status:%s",
             uiProductDetail.getFundCode(), uiProductDetail.getStatus()));
       }
+
+        logger.info("money fund handling :{} userProdId:{}", uiProductDetail.getFundCode(),
+            request.getUserProductId());
+        List<MongoPendingRecords> mongoPendingRecords = getMongoPendingRecords(request
+                .getUserProductId(), uiProductDetail.getFundCode());
+        for(MongoPendingRecords mongoPendingRecordsOld: mongoPendingRecords){
+          if(StringUtils.isEmpty(mongoPendingRecordsOld.getOrderId()) &&
+              mongoPendingRecordsOld.getProcessStatus() == PendingRecordStatusEnum.NOTHANDLED.getStatus()){
+            logger.error("There still a pend record need to be handled, with fundCode:{} "
+                + "userProdId:{}", mongoPendingRecordsOld.getFundCode(), request.getUserProductId());
+            throw new Exception(String.format("There still a pend record need to be handled, with"
+                + " fundCode:%s userProdId:%s", mongoPendingRecordsOld.getFundCode(), request
+                .getUserProductId()));
+          }
+        }
+
+        MongoPendingRecords mongoPendingRecordsNew = new MongoPendingRecords();
+        mongoPendingRecordsNew.setTradeType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+        mongoPendingRecordsNew.setApplyDate(TradeUtil.getUTCTime());
+        mongoPendingRecordsNew.setCreatedBy(request.getUserId());
+        mongoPendingRecordsNew.setFundCode(uiProductDetail.getFundCode());
+        mongoPendingRecordsNew.setCreatedDate(TradeUtil.getUTCTime());
+        mongoPendingRecordsNew.setLastModifiedBy(request.getUserId());
+        mongoPendingRecordsNew.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED.getStatus());
+        mongoPendingRecordsNew.setTradeTargetShare(new Long(uiProductDetail.getFundQuantity
+            ()));
+      mongoPendingRecordsHashMap.put(mongoPendingRecordsNew.getFundCode(), mongoPendingRecordsNew);
+
       currentAvailableFunds.put(uiProductDetail.getFundCode(), uiProductDetail);
 //			currentFundsStatus.put(uiProductDetail.getFundCode(), uiProductDetail.getStatus());
     }
+
     SellProductsResult.Builder sprBuilder = SellProductsResult.newBuilder();
     SellProductDetailResult.Builder spdrBuilder = SellProductDetailResult.newBuilder();
     for (Map.Entry<String, UiProductDetail> entryItem : currentAvailableFunds.entrySet()) {
@@ -1170,6 +1204,13 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       } else {
         spdrBuilder.setFundQuantityTrade(quantity);
         spdrBuilder.setFundQuantityTradeRemain(quantityRemain);
+      }
+      if(mongoPendingRecordsHashMap.containsKey(entryItem.getKey())){
+        mongoPendingRecordsHashMap.get(entryItem.getKey()).setTradeTargetShare(quantity);
+        mongoTemplate.save(mongoPendingRecordsHashMap.get(entryItem.getKey()), "ui_pending_records");
+      }else{
+        logger.error("mongoPendingRecordsHashMap.containsKey(entryItem.getKey()) is false "
+            + "for:{}", entryItem.getKey());
       }
       spdrBuilder.setResult(ItemStatus.SUCCESS.ordinal());
       sprBuilder.addSellProductDetailResults(spdrBuilder);
@@ -1213,6 +1254,14 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
     Page<UiUser> users = userInfoRepository.findAll(pageable);
 
     return users;
+  }
+
+  private List<MongoPendingRecords> getMongoPendingRecords(Long userProdId, String fundCode){
+    Query query = new Query();
+    query.addCriteria(Criteria.where("user_prod_id").is(userProdId).and("fund_code").is(fundCode));
+
+    List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
+    return mongoPendingRecords;
   }
 }
 

@@ -24,6 +24,9 @@ service OrderRpcService {
     };
     rpc getAllOrderDetail (UserProdId) returns (OrderDetailResult) {
     };
+
+    rpc getOrderDetailByGenOrderIdAndFundCode (GenOrderIdAndFundCode) returns (OrderDetailResult) {
+    };
 }
 
 //获取交易用户PID
@@ -76,32 +79,33 @@ message OrderDetailResult {
 }
 
 message OrderDetail {
-    string order_id = 2;
-    string trade_apply_serial = 3;
-    int64 buysell_date = 4;
-    int32 trade_type = 5;
-    int64 pay_amount = 6;
-    int64 pay_fee = 7;
-    int64 user_id = 8;
-    int64 user_prod_id = 9;
-    string fund_code = 10;
-    int64 fund_money_quantity = 11;
-    int64 fund_num = 12;
-    int64 fund_sum = 13;
-    int64 fund_num_confirmed = 14;
-    int64 fund_sum_confirmed = 15;
-    int32 fund_share = 16;
-    int64 buy_fee = 17;
-    int64 buy_discount = 18;
-    int32 order_detail_status = 19;
-    int64 create_by = 20;
-    int64 create_date = 21;
-    int64 update_by = 22;
-    int64 update_date = 23;
-    string bank_card_num = 24;
-    string err_msg = 25;
-    int64 fund_quantity = 26;
-    int64 prod_id = 27;
+    int64 id = 1;
+    string orderId = 2;
+    string tradeApplySerial = 3;
+    int64 buysellDate = 4;
+    int32 tradeType = 5;
+    int64 payAmount = 6;
+    int64 payFee = 7;
+    int64 userId = 8;
+    int64 userProdId = 9;
+    string fundCode = 10;
+    int64 fundMoneyQuantity = 11;
+    int64 fundNum = 12;
+    int64 fundSum = 13;
+    int64 fundNumConfirmed = 14;
+    int64 fundSumConfirmed = 15;
+    int32 fundShare = 16;
+    int64 buyFee = 17;
+    int64 buyDiscount = 18;
+    int32 orderDetailStatus = 19;
+    int64 createBy = 20;
+    int64 createDate = 21;
+    int64 updateBy = 22;
+    int64 updateDate = 23;
+    string bankCardNum = 24;
+    string errMsg = 25;
+    int64 fundQuantity = 26;
+    int64 prodId = 27;
 }
 
 message UserBankCardNum {
@@ -122,4 +126,9 @@ message BindCardInfo {
 message BindCardResult {
     string tradeacco = 1; //交易帐号号
     ErrInfo err_info = 2; //绑卡失败信息
+}
+
+message GenOrderIdAndFundCode {
+    string orderId = 1;
+    string fundCode = 2;
 }

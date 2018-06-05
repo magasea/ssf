@@ -1,19 +1,9 @@
-package com.shellshellfish.aaas.finance.trade.order.model.dao;
-
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+package com.shellshellfish.aaas.common.grpc.trade.order;
 
 /**
  * Created by chenwei on 2018- 一月 - 29
  */
-
-@Entity
-@Table(name = "trd_order_detail", schema = "ssftrdorder", catalog = "")
+//Please make sure this class synchronized with origin TrdOrderDetail
 public class TrdOrderDetail {
 
   private long id;
@@ -44,9 +34,9 @@ public class TrdOrderDetail {
   private Long fundQuantity;
   private Long prodId;
 
-  @Id
-  @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  
+  
+  
   public Long getId() {
     return id;
   }
@@ -55,8 +45,8 @@ public class TrdOrderDetail {
     this.id = id;
   }
 
-  @Basic
-  @Column(name = "order_id")
+  
+  
   public String getOrderId() {
     return orderId;
   }
@@ -65,8 +55,8 @@ public class TrdOrderDetail {
     this.orderId = orderId;
   }
 
-  @Basic
-  @Column(name = "trade_apply_serial")
+  
+  
   public String getTradeApplySerial() {
     return tradeApplySerial;
   }
@@ -75,8 +65,8 @@ public class TrdOrderDetail {
     this.tradeApplySerial = tradeApplySerial;
   }
 
-  @Basic
-  @Column(name = "buysell_date")
+  
+  
   public Long getBuysellDate() {
     return buysellDate;
   }
@@ -85,8 +75,8 @@ public class TrdOrderDetail {
     this.buysellDate = buysellDate;
   }
 
-  @Basic
-  @Column(name = "trade_type")
+  
+  
   public int getTradeType() {
     return tradeType;
   }
@@ -95,8 +85,8 @@ public class TrdOrderDetail {
     this.tradeType = tradeType;
   }
 
-  @Basic
-  @Column(name = "pay_amount")
+  
+  
   public Long getPayAmount() {
     return payAmount;
   }
@@ -105,8 +95,8 @@ public class TrdOrderDetail {
     this.payAmount = payAmount;
   }
 
-  @Basic
-  @Column(name = "pay_fee")
+  
+  
   public Long getPayFee() {
     return payFee;
   }
@@ -115,8 +105,8 @@ public class TrdOrderDetail {
     this.payFee = payFee;
   }
 
-  @Basic
-  @Column(name = "user_id")
+  
+  
   public Long getUserId() {
     return userId;
   }
@@ -125,8 +115,8 @@ public class TrdOrderDetail {
     this.userId = userId;
   }
 
-  @Basic
-  @Column(name = "user_prod_id")
+  
+  
   public Long getUserProdId() {
     return userProdId;
   }
@@ -135,8 +125,8 @@ public class TrdOrderDetail {
     this.userProdId = userProdId;
   }
 
-  @Basic
-  @Column(name = "fund_code")
+  
+  
   public String getFundCode() {
     return fundCode;
   }
@@ -145,8 +135,8 @@ public class TrdOrderDetail {
     this.fundCode = fundCode;
   }
 
-  @Basic
-  @Column(name = "fund_money_quantity")
+  
+  
   public Long getFundMoneyQuantity() {
     return fundMoneyQuantity;
   }
@@ -155,8 +145,8 @@ public class TrdOrderDetail {
     this.fundMoneyQuantity = fundMoneyQuantity;
   }
 
-  @Basic
-  @Column(name = "fund_num")
+  
+  
   public Long getFundNum() {
     return fundNum;
   }
@@ -165,8 +155,8 @@ public class TrdOrderDetail {
     this.fundNum = fundNum;
   }
 
-  @Basic
-  @Column(name = "fund_sum")
+  
+  
   public Long getFundSum() {
     return fundSum;
   }
@@ -175,8 +165,8 @@ public class TrdOrderDetail {
     this.fundSum = fundSum;
   }
 
-  @Basic
-  @Column(name = "fund_num_confirmed")
+  
+  
   public Long getFundNumConfirmed() {
     return fundNumConfirmed;
   }
@@ -185,8 +175,8 @@ public class TrdOrderDetail {
     this.fundNumConfirmed = fundNumConfirmed;
   }
 
-  @Basic
-  @Column(name = "fund_sum_confirmed")
+  
+  
   public Long getFundSumConfirmed() {
     return fundSumConfirmed;
   }
@@ -195,8 +185,8 @@ public class TrdOrderDetail {
     this.fundSumConfirmed = fundSumConfirmed;
   }
 
-  @Basic
-  @Column(name = "fund_share")
+  
+  
   public int getFundShare() {
     return fundShare;
   }
@@ -205,8 +195,8 @@ public class TrdOrderDetail {
     this.fundShare = fundShare;
   }
 
-  @Basic
-  @Column(name = "buy_fee")
+  
+  
   public Long getBuyFee() {
     return buyFee;
   }
@@ -215,8 +205,8 @@ public class TrdOrderDetail {
     this.buyFee = buyFee;
   }
 
-  @Basic
-  @Column(name = "buy_discount")
+  
+  
   public Long getBuyDiscount() {
     return buyDiscount;
   }
@@ -225,8 +215,8 @@ public class TrdOrderDetail {
     this.buyDiscount = buyDiscount;
   }
 
-  @Basic
-  @Column(name = "order_detail_status")
+  
+  
   public int getOrderDetailStatus() {
     return orderDetailStatus;
   }
@@ -235,8 +225,8 @@ public class TrdOrderDetail {
     this.orderDetailStatus = orderDetailStatus;
   }
 
-  @Basic
-  @Column(name = "create_by")
+  
+  
   public Long getCreateBy() {
     return createBy;
   }
@@ -245,8 +235,8 @@ public class TrdOrderDetail {
     this.createBy = createBy;
   }
 
-  @Basic
-  @Column(name = "create_date")
+  
+  
   public Long getCreateDate() {
     return createDate;
   }
@@ -255,8 +245,8 @@ public class TrdOrderDetail {
     this.createDate = createDate;
   }
 
-  @Basic
-  @Column(name = "update_by")
+  
+  
   public Long getUpdateBy() {
     return updateBy;
   }
@@ -265,8 +255,8 @@ public class TrdOrderDetail {
     this.updateBy = updateBy;
   }
 
-  @Basic
-  @Column(name = "update_date")
+  
+  
   public Long getUpdateDate() {
     return updateDate;
   }
@@ -275,8 +265,8 @@ public class TrdOrderDetail {
     this.updateDate = updateDate;
   }
 
-  @Basic
-  @Column(name = "bank_card_num")
+  
+  
   public String getBankCardNum() {
     return bankCardNum;
   }
@@ -285,8 +275,8 @@ public class TrdOrderDetail {
     this.bankCardNum = bankCardNum;
   }
 
-  @Basic
-  @Column(name = "err_msg")
+  
+  
   public String getErrMsg() {
     return errMsg;
   }
@@ -295,8 +285,8 @@ public class TrdOrderDetail {
     this.errMsg = errMsg;
   }
 
-  @Basic
-  @Column(name = "fund_quantity")
+  
+  
   public Long getFundQuantity() {
     return fundQuantity;
   }
@@ -305,8 +295,8 @@ public class TrdOrderDetail {
     this.fundQuantity = fundQuantity;
   }
 
-  @Basic
-  @Column(name = "prod_id")
+  
+  
   public Long getProdId() {
     return prodId;
   }
@@ -315,7 +305,7 @@ public class TrdOrderDetail {
     this.prodId = prodId;
   }
 
-  @Override
+  
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -414,7 +404,7 @@ public class TrdOrderDetail {
     return true;
   }
 
-  @Override
+  
   public int hashCode() {
     int result = (int) (id ^ (id >>> 32));
     result = 31 * result + (orderId != null ? orderId.hashCode() : 0);

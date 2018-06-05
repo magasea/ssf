@@ -4,14 +4,21 @@ package com.shellshellfish.aaas.userinfo.message;
 import com.rabbitmq.client.Channel;
 import com.shellshellfish.aaas.common.constants.RabbitMQConstants;
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
+import com.shellshellfish.aaas.common.enums.PendingRecordStatusEnum;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import com.shellshellfish.aaas.common.grpc.datacollection.DCDailyFunds;
 import com.shellshellfish.aaas.common.message.order.MongoUiTrdZZInfo;
+import com.shellshellfish.aaas.common.message.order.PayOrderDto;
+import com.shellshellfish.aaas.common.message.order.ProdDtlSellDTO;
+import com.shellshellfish.aaas.common.message.order.ProdSellPercentMsg;
+import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.FundNetInfo;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoPendingRecords;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
@@ -20,11 +27,13 @@ import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserTrdLogMsgRep
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
+import com.shellshellfish.aaas.userinfo.service.DataCollectionService;
 import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
 import com.shellshellfish.aaas.userinfo.service.PayGrpcService;
 import com.shellshellfish.aaas.userinfo.service.impl.CalculateConfirmedAsset;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -36,6 +45,9 @@ import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,6 +82,12 @@ public class BroadcastMessageConsumers {
 
     @Autowired
     CalculateConfirmedAsset calculateConfirmedAsset;
+
+    @Autowired
+    DataCollectionService dataCollectionService;
+
+    @Autowired
+    MongoTemplate mongoTemplate;
 
     @Transactional
     @RabbitListener(bindings = @QueueBinding(
@@ -252,7 +270,13 @@ public class BroadcastMessageConsumers {
                 Long caculatedFundQty = fundQuantity;
                 if (MonetaryFundEnum.containsCode(trdPayFlow.getFundCode())) {
                     //monetary fund should caculate quantity by NetValue
-
+                    if(trdPayFlow.getApplydateUnitvalue() == -1L){
+                        logger.error("trdPayFlow.getApplydateUnitvalue() is not vaild value!");
+                        //now try to get applyDate adjustedAdj if not save to PendingRecords in
+                        // mongodb
+                        getMoneyCodeNavAdjByDate(trdPayFlow.getFundCode(), trdPayFlow
+                            .getTrdApplyDate());
+                    }
                     List<FundNetInfo> fundNetInfos = payGrpcService.getFundNetInfosFromZZ(userPid,
                             trdPayFlow.getFundCode(), 10);
                     Long fundUnitNet = getFundUnitNet(trdPayFlow.getFundCode(), fundNetInfos,
@@ -445,6 +469,12 @@ public class BroadcastMessageConsumers {
                     + "have number , need check why, but curent we reset the quantity "
                     + "according to the confirm message ");
         }
+        //1. 普通基金 当前份额 + PendingRecords （未处理，同一个类型交易的，同一个outsideOrderId的记录
+        // 里面的份额)
+        //2 货币基金 当前份额 + PendingRecords (未处理， 同一个类型交易的， 同一个outsideOrderId的记录
+        // 里的原始份额/申请日的navadj )
+
+
         if (MonetaryFundEnum.containsCode(productDetail.getFundCode())) {
             //monetary fund should caculate quantity by NetValue
             Long trdCfmSum = mongoUiTrdZZInfo.getTradeConfirmSum();
@@ -581,4 +611,228 @@ public class BroadcastMessageConsumers {
 //        }
 //
 //    }
+
+    private Long getMoneyCodeNavAdjByDate(String fundCode, String applyDate){
+        if(MonetaryFundEnum.containsCode(fundCode)){
+            String beginDate = TradeUtil.getDayBefore(applyDate, 1);
+            List<String> codes = new ArrayList<>();
+            codes.add(fundCode);
+            List<DCDailyFunds> dcDailyFunds = dataCollectionService.getFundDataOfDay(codes,
+                beginDate, applyDate);
+            if(!CollectionUtils.isEmpty(dcDailyFunds)){
+                Double navadj = dcDailyFunds.get(0).getNavadj();
+                return TradeUtil.getLongNumWithMul1000000(navadj);
+            }
+        }
+        return -1L;
+    }
+
+    @Transactional
+    @RabbitListener(bindings = @QueueBinding(
+        value = @Queue(value = RabbitMQConstants.ROUTING_KEY_UI_PENDRECORDS + RabbitMQConstants
+            .OPERATION_TYPE_UPDATE_BUY_PENDINGRECORDS, durable = "false"),
+        exchange = @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+            durable = "true"), key = RabbitMQConstants.ROUTING_KEY_UI_PENDRECORDS)
+    )
+    public void receiveBuyOrderMsg(PayOrderDto payOrderDto, Channel channel, @Header
+        (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
+        //目的是设置orderid
+        logger.info("received message in :{}", RabbitMQConstants.OPERATION_TYPE_UPDATE_BUY_PENDINGRECORDS);
+        List<TrdOrderDetail> trdOrderDetails =  payOrderDto.getOrderDetailList();
+        for(TrdOrderDetail trdOrderDetail: trdOrderDetails){
+            Query query = new Query();
+            query.addCriteria(Criteria.where("user_prod_id").is(trdOrderDetail.getUserProdId()).and
+                ("fund_code").is(trdOrderDetail.getFundCode()).and("order_id").is(trdOrderDetail
+                .getOrderId()+trdOrderDetail.getId()));
+            List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
+            if(CollectionUtils.isEmpty(mongoPendingRecords)){
+                Query queryAgain = new Query();
+                query.addCriteria(Criteria.where("user_prod_id").is(trdOrderDetail.getUserProdId()).and
+                    ("fund_code").is(trdOrderDetail.getFundCode()));
+                List<MongoPendingRecords> mongoPendingRecordsRough = mongoTemplate.find(queryAgain,
+                    MongoPendingRecords.class);
+                if(CollectionUtils.isEmpty(mongoPendingRecordsRough)){
+                    logger.error("abnormal status, there is no MongoPendingRecords in MongoDB "
+                            + "with user_prod_id:{} fund_code:{}", trdOrderDetail.getUserProdId(),
+                        trdOrderDetail.getFundCode());
+                }else{
+                    MongoPendingRecords mongoPendingRecordsForUpdate =
+                        getMongoPendingRecordWithEmptyOrderId(mongoPendingRecordsRough);
+                    if(null == mongoPendingRecordsForUpdate){
+                        logger.error("abnormal status, there is no MongoPendingRecords in MongoDB "
+                                + "with user_prod_id:{} fund_code:{}", trdOrderDetail.getUserProdId(),
+                            trdOrderDetail.getFundCode());
+                    }else{
+                        mongoPendingRecordsForUpdate.setOrderId(trdOrderDetail.getOrderId()+trdOrderDetail.getId());
+                        mongoPendingRecordsForUpdate.setTradeType(TrdOrderOpTypeEnum.BUY.getOperation());
+                        mongoTemplate.save(mongoPendingRecordsForUpdate, "ui_pending_records");
+                    }
+                }
+            }else{
+                if(mongoPendingRecords.size() > 1){
+                    logger.error("There should be only 1 pendingRecord there, but there is more "
+                        + "than 1:{}", mongoPendingRecords.size());
+                }
+                MongoPendingRecords mongoPendingRecordsToUpdate = mongoPendingRecords.get(0);
+                mongoPendingRecordsToUpdate.setOrderId(trdOrderDetail.getOrderId()+trdOrderDetail.getId());
+                mongoPendingRecordsToUpdate.setTradeType(TrdOrderOpTypeEnum.BUY.getOperation());
+                mongoTemplate.save(mongoPendingRecordsToUpdate, "ui_pending_records");
+            }
+
+        }
+    }
+
+
+    @Transactional
+    @RabbitListener(bindings = @QueueBinding(
+        value = @Queue(value = RabbitMQConstants.ROUTING_KEY_UI_PENDRECORDS + RabbitMQConstants
+            .OPERATION_TYPE_UPDATE_SELL_PENDINGRECORDS, durable = "false"),
+        exchange = @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+            durable = "true"), key = RabbitMQConstants.ROUTING_KEY_UI_PENDRECORDS)
+    )
+    public void receiveSellOrderMsg(ProdSellPercentMsg sellPercentMsg, Channel channel, @Header
+        (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
+        //目的是设置orderId
+        logger.info("received message in :{}", RabbitMQConstants
+            .OPERATION_TYPE_UPDATE_SELL_PENDINGRECORDS);
+        List<ProdDtlSellDTO> prodDtlSellDTOS =  sellPercentMsg.getProdDtlSellDTOList();
+        for(ProdDtlSellDTO prodDtlSellDTO: prodDtlSellDTOS){
+            Query query = new Query();
+            query.addCriteria(Criteria.where("user_prod_id").is(prodDtlSellDTO.getUserProdId()).and
+                ("fund_code").is(prodDtlSellDTO.getFundCode()).and("order_id").is
+                (sellPercentMsg.getOrderId() +prodDtlSellDTO.getOrderDetailId()));
+            List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
+            if(CollectionUtils.isEmpty(mongoPendingRecords)){
+                Query queryAgain = new Query();
+                query.addCriteria(Criteria.where("user_prod_id").is(prodDtlSellDTO.getUserProdId()).and
+                    ("fund_code").is(prodDtlSellDTO.getFundCode()));
+                List<MongoPendingRecords> mongoPendingRecordsRough = mongoTemplate.find(queryAgain,
+                    MongoPendingRecords.class);
+                if(CollectionUtils.isEmpty(mongoPendingRecordsRough)){
+                    logger.error("abnormal status, there is no MongoPendingRecords in MongoDB "
+                        + "with user_prod_id:{} fund_code:{}", prodDtlSellDTO.getUserProdId(),
+                        prodDtlSellDTO.getFundCode());
+                }else{
+                    MongoPendingRecords mongoPendingRecordsForUpdate =
+                    getMongoPendingRecordWithEmptyOrderId(mongoPendingRecordsRough);
+                    if(null == mongoPendingRecordsForUpdate){
+                        logger.error("abnormal status, there is no MongoPendingRecords in MongoDB "
+                                + "with user_prod_id:{} fund_code:{}", prodDtlSellDTO.getUserProdId(),
+                            prodDtlSellDTO.getFundCode());
+                    }else{
+                        mongoPendingRecordsForUpdate.setOrderId(sellPercentMsg.getOrderId()
+                            +prodDtlSellDTO.getOrderDetailId());
+                        mongoPendingRecordsForUpdate.setTradeType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+                        mongoTemplate.save(mongoPendingRecordsForUpdate, "ui_pending_records");
+                    }
+                }
+            }else{
+                if(mongoPendingRecords.size() > 1){
+                    logger.error("There should be only 1 pendingRecord there, but there is more "
+                        + "than 1:{}", mongoPendingRecords.size());
+                }
+                MongoPendingRecords mongoPendingRecordsToUpdate = mongoPendingRecords.get(0);
+                mongoPendingRecordsToUpdate.setOrderId(sellPercentMsg.getOrderId()
+                    +prodDtlSellDTO.getOrderDetailId());
+                mongoPendingRecordsToUpdate.setTradeType(TrdOrderOpTypeEnum.BUY.getOperation());
+                mongoTemplate.save(mongoPendingRecordsToUpdate, "ui_pending_records");
+            }
+        }
+    }
+
+    private MongoPendingRecords getMongoPendingRecordWithEmptyOrderId(List<MongoPendingRecords>
+        mongoPendingRecords){
+
+        if(CollectionUtils.isEmpty(mongoPendingRecords)){
+            return null;
+        }else{
+            for(MongoPendingRecords mongoPendingRecords2: mongoPendingRecords){
+                if(StringUtils.isEmpty(mongoPendingRecords2.getOrderId())){
+
+                    return mongoPendingRecords2;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    @Transactional
+    @RabbitListener(bindings = @QueueBinding(
+        value = @Queue(value = RabbitMQConstants.ROUTING_KEY_UI_PENDRECORDS + RabbitMQConstants
+            .OPERATION_TYPE_FAILED_BUY_PENDINGRECORDS, durable = "false"),
+        exchange = @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+            durable = "true"), key = RabbitMQConstants.OPERATION_TYPE_FAILED_BUY_PENDINGRECORDS)
+    )
+    public void receiveBuyFailedMsg(TrdPayFlow trdPayFlow, Channel channel, @Header
+        (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
+        //目的是设置orderId
+        logger.info("received message in :{}", RabbitMQConstants
+            .OPERATION_TYPE_FAILED_BUY_PENDINGRECORDS);
+        Query query = new Query();
+        query.addCriteria(Criteria.where("user_prod_id").is(trdPayFlow.getUserProdId()).and
+            ("fund_code").is(trdPayFlow.getFundCode()).and("order_id").is
+            (trdPayFlow.getOutsideOrderno()));
+        List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
+        if(CollectionUtils.isEmpty(mongoPendingRecords)){
+            logger.error("There is no pendingRecords with user_prod_id:{} and order_id:{} and "
+                + "fund_code:{}", trdPayFlow.getUserProdId(), trdPayFlow.getOutsideOrderno(),
+                trdPayFlow.getFundCode() );
+            return;
+        }
+        else{
+            if(mongoPendingRecords.get(0).getProcessStatus() == PendingRecordStatusEnum.HANDLED.getStatus()){
+                logger.error("The pendingRecords with user_prod_id:{} and order_id:{} and "
+                    + "fund_code:{} already in handled status", trdPayFlow.getUserProdId(),
+                    trdPayFlow.getOutsideOrderno(), trdPayFlow.getFundCode());
+            }else{
+                mongoPendingRecords.get(0).setTradeStatus(TrdOrderStatusEnum.FAILED.getStatus());
+
+                mongoPendingRecords.get(0).setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
+
+            }
+
+        }
+    }
+
+    @Transactional
+    @RabbitListener(bindings = @QueueBinding(
+        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
+            .OPERATION_TYPE_UPDATE_BUY_PRECONFIRM_PENDINGRECORDS, durable = "false"),
+        exchange = @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+            durable = "true"), key = RabbitMQConstants.OPERATION_TYPE_UPDATE_BUY_PRECONFIRM_PENDINGRECORDS)
+    )
+    public void receivePreConfirmInfo(TrdPayFlow trdPayFlow) throws Exception {
+        //如果是货币基金，把消息结构里面的apply_date和applydate_unitvalue的值保存到pendingRedords里面
+        logger.info("received message in :{}", RabbitMQConstants
+            .OPERATION_TYPE_UPDATE_BUY_PRECONFIRM_PENDINGRECORDS);
+        Query query = new Query();
+        query.addCriteria(Criteria.where("user_prod_id").is(trdPayFlow.getUserProdId()).and
+            ("fund_code").is(trdPayFlow.getFundCode()).and("order_id").is
+            (trdPayFlow.getOutsideOrderno()));
+        List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
+        if(CollectionUtils.isEmpty(mongoPendingRecords)){
+            logger.error("There is no pendingRecords with user_prod_id:{} and order_id:{} and "
+                    + "fund_code:{}", trdPayFlow.getUserProdId(), trdPayFlow.getOutsideOrderno(),
+                trdPayFlow.getFundCode() );
+            //if there is no pendingRecord for this order, we need to generate to make sure this
+            // task can be done
+            //ToDo: grpc trdOrder to get the orderDetail info to fill the MongoPendingRecords
+            return;
+        }
+        else{
+            if(mongoPendingRecords.get(0).getProcessStatus() == PendingRecordStatusEnum.HANDLED.getStatus()){
+                logger.error("The pendingRecords with user_prod_id:{} and order_id:{} and "
+                        + "fund_code:{} already in handled status", trdPayFlow.getUserProdId(),
+                    trdPayFlow.getOutsideOrderno(), trdPayFlow.getFundCode());
+            }else{
+                mongoPendingRecords.get(0).setTradeStatus(TrdOrderStatusEnum.FAILED.getStatus());
+
+                mongoPendingRecords.get(0).setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
+
+            }
+
+        }
+
+    }
 }

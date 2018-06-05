@@ -1,43 +1,27 @@
-package com.shellshellfish.aaas.datacollection.server.model;
+package com.shellshellfish.aaas.common.grpc.datacollection;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.IndexDirection;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+public class DCDailyFunds {
 
-@Getter
-@Setter
-@Document(collection = "fund_yieldrate")
-public class DailyFunds {
-
-
-  @Id
-  @Field( value = "_id")
   String id;
-  @Indexed(name ="code", direction = IndexDirection.DESCENDING)
-  @Field( value = "code")
+
   String code;
-  @Field( value = "ACCUMULATEDNAV")
+
   Double navaccum = Double.MIN_VALUE;
-  @Field( value = "ADJUSTEDNAV")
+
   Double navadj = Double.MIN_VALUE;
-  @Field( value = "navlatestdate")
+
   Long navLatestDate;
-  @Field( value = "navreturnrankingp")
+
   String navreturnrankingp;
-  @Field( value = "navreturnrankingpctp")
+
   String navreturnrankingpctp;
-  @Field( value = "navsimiavgreturnp")
+
   Double navsimiavgreturnp = Double.MIN_VALUE;
-  @Field( value = "UNITNAV")
+
   Double navunit = Double.MIN_VALUE;
-  @Indexed(name ="querydate", direction = IndexDirection.DESCENDING)
-  @Field( value = "querydate")
+
   Long querydate;
-  @Field( value = "update")
+
   Long update;
 
   public String getId() {

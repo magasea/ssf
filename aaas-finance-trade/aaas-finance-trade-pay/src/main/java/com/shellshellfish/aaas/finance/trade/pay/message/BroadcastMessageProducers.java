@@ -29,6 +29,15 @@ public class BroadcastMessageProducers {
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
                 .ROUTING_KEY_USERINFO_TRDLOG,
             trdPayFlow);
+
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.OPERATION_TYPE_UPDATE_BUY_PRECONFIRM_PENDINGRECORDS,
+            trdPayFlow);
+    }
+
+    public void sendBuyFailed(TrdPayFlow trdPayFlow){
+        logger.info("send message: " + trdPayFlow.getOrderDetailId());
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.OPERATION_TYPE_FAILED_BUY_PENDINGRECORDS,
+            trdPayFlow);
     }
 
     public void sendPreOrderMessage(TrdPayFlow trdPayFlow) {

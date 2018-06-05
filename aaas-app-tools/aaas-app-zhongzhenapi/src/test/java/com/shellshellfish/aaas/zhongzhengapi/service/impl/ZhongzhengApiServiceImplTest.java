@@ -6,6 +6,7 @@ import com.shellshellfish.aaas.common.grpc.zzapi.ApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.WalletApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZAplyCfmInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundNetInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundShareInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZRiskCmtResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
@@ -596,4 +597,17 @@ public class ZhongzhengApiServiceImplTest {
     System.out.println(line);
   }
 
+  @Test
+  public void getFundInfos() throws Exception {
+    List<ZZFundNetInfo> zzFundNetInfos = zhongZhengApiService.getAllNet("003474.OF", 3, 3);
+    zzFundNetInfos.forEach(
+        item->{
+          System.out.println(item.getAccumNet());
+          System.out.println(item.getChngPct());
+          System.out.println(item.getFundCode());
+          System.out.println(item.getTradeDate());
+          System.out.println(item.getUnitNet());
+        }
+    );
+  }
 }

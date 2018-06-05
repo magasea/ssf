@@ -1,5 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
+
 import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
@@ -29,8 +31,11 @@ import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
 import com.shellshellfish.aaas.finance.trade.order.service.ZZApiService;
 import com.shellshellfish.aaas.grpc.common.ErrInfo;
 import com.shellshellfish.aaas.grpc.common.UserProdId;
+import com.shellshellfish.aaas.tools.zhongzhengapi.ZZFundShareInfo;
+import com.shellshellfish.aaas.tools.zhongzhengapi.ZZFundShareInfoResult;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -438,5 +443,55 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
       List<TrdTradeBankDic> trdTradeBankDicsList = trdTradeBankDicRepository.findAll();
       result.put("result", trdTradeBankDicsList);
       return result;
+    }
+
+    /**
+     */
+    @Override
+    public void getOrderDetailByGenOrderIdAndFundCode(com.shellshellfish.aaas.finance.trade.order.GenOrderIdAndFundCode request,
+        io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.order.OrderDetailResult> responseObserver) {
+        String orderId = request.getOrderId();
+        String fundCode = request.getFundCode();
+        try{
+            List<TrdOrderDetail> trdOrderDetails = getOrderDetailByGenOrderIdAndFundCode(orderId,
+                fundCode);
+            OrderDetailResult.Builder odrBuilder = OrderDetailResult.newBuilder();
+            OrderDetail.Builder odBuilder = OrderDetail.newBuilder();
+
+            if(!CollectionUtils.isEmpty(trdOrderDetails)){
+                trdOrderDetails.forEach(
+                    trdOrderDetail -> {
+                        odBuilder.clear();
+                        MyBeanUtils.mapEntityIntoDTO(trdOrderDetail, odBuilder);
+                        odrBuilder.addOrderDetailResult(odBuilder);
+                    }
+                );
+            }
+            responseObserver.onNext(odrBuilder.build());
+            responseObserver.onCompleted();
+        }catch (Exception ex){
+            onError(responseObserver, ex);
+        }
+    }
+
+    @Override
+    public List<TrdOrderDetail> getOrderDetailByGenOrderIdAndFundCode(String orderId,
+        String fundCode) throws IllegalAccessException {
+        if(StringUtils.isEmpty(orderId)||StringUtils.isEmpty(fundCode)){
+            throw new IllegalAccessException(String.format("orderId:%s fundCode:%s",orderId,
+                fundCode));
+        }
+        List<TrdOrderDetail> orderDetails = trdOrderDetailRepository.findAllByOrderIdAndFundCode
+            (orderId, fundCode);
+        return orderDetails;
+    }
+
+    private void onError(StreamObserver responseObserver, Exception ex){
+        responseObserver.onError(Status.INTERNAL
+            .withDescription(ex.getMessage())
+            .augmentDescription("orderGrpcException")
+            .withCause(ex) // This can be attached to the Status locally, but NOT transmitted to
+            // the client!
+            .asRuntimeException());
     }
 }

@@ -11,6 +11,7 @@ import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
 import com.shellshellfish.aaas.common.enums.ZZRiskAbilityEnum;
 import com.shellshellfish.aaas.common.exceptions.ErrorConstants;
+import com.shellshellfish.aaas.common.grpc.datacollection.DCDailyFunds;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
@@ -43,12 +44,14 @@ import com.shellshellfish.aaas.finance.trade.pay.model.ZZBuyFund;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.mongo.MongoFundNetInfo;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.mysql.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.pay.repositories.mysql.TrdPayFlowRepository;
+import com.shellshellfish.aaas.finance.trade.pay.service.DataCollectionService;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import com.shellshellfish.aaas.finance.trade.pay.service.UserInfoService;
 import com.shellshellfish.aaas.grpc.common.ErrInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -84,6 +87,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 
   @Autowired
   MultiThreadTaskHandler multiThreadTaskHandler;
+
+  @Autowired
+  DataCollectionService dataCollectionService;
 
 
   @Autowired
@@ -249,6 +255,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         logger.error("failed to pay for:" + payOrderDto.getUserPid() + " with prodId:" +
             payOrderDto.getUserProdId() + " with TrdMoneyAmount" + payAmount + " fundCode:"+
             trdOrderDetail.getFundCode());
+        notifyPendingRecordsBuyFailed(trdPayFlow);
         continue;
       }
       if(null != fundResult){
@@ -279,6 +286,16 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       throw new Exception("meet errors in pay api services");
     }
     return payOrderDto;
+  }
+
+  private void notifyPendingRecordsBuyFailed(TrdPayFlow trdPayFlow) {
+    logger.info("notify trdPayFlow fundCode:" + trdPayFlow.getFundCode());
+    com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
+        .shellshellfish.aaas.common.message.order.TrdPayFlow();
+    MyBeanUtils.mapEntityIntoDTO(trdPayFlow, trdPayFlowMsg);
+    trdPayFlowMsg.setTrdStatus(TrdOrderStatusEnum.FAILED.getStatus());
+    broadcastMessageProducers.sendBuyFailed(trdPayFlowMsg);
+
   }
 
   @Override
@@ -993,7 +1010,21 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
       BigDecimal sellAmount = BigDecimal.valueOf(0);
-      sellAmount = TradeUtil.getBigDecimalNumWithDiv100(Long.valueOf(sellNum));
+      //如果是货币基金，得把原始份额乘以最近交易日的navadj来折算应该售出的份额
+      if(!MonetaryFundEnum.containsCode(fundCode)){
+        sellAmount = TradeUtil.getBigDecimalNumWithDiv100(Long.valueOf(sellNum));
+      }else{
+        BigDecimal navadj = BigDecimal.ZERO;
+        try {
+          navadj = TradeUtil.getNavadjByLongOrigin(getMoneyCodeNavAdjNow(fundCode));
+          sellAmount = navadj.multiply(TradeUtil.getBigDecimalNumWithDiv100(Long.valueOf(sellNum)));
+          logger.info("sell money fundCode:{} with sellAmount:{} originSellNum:{} navadj:{}",
+              trdPayFlow.getFundCode(), sellAmount, sellNum, navadj);
+        }catch (Exception ex){
+          logger.error("exception:", ex);
+        }
+
+      }
 
       try{
         SellFundResult sellFundResult = fundTradeApiService.sellFund(openId, sellAmount,
@@ -1107,5 +1138,51 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       logger.error(e.getMessage());
     }
     return mongoFundNetInfoList;
+  }
+
+
+//  public List<MongoFundNetInfo> getFundNetInfoByTradeDate(String tradeDate, String fundCode) throws
+//      Exception {
+//    if(!tradeDate.contains("-")){
+//      throw new Exception(String.format("tradeDate is illeagule:%s",tradeDate));
+//    }
+//    Query findFundNetInfoQuery = new Query();
+//    findFundNetInfoQuery.addCriteria(Criteria.where("fund_code").is(fundCode));
+//    findFundNetInfoQuery.with(new Sort(Direction.DESC, "trade_date"));
+//    findFundNetInfoQuery.limit(1);
+//    List<MongoFundNetInfo> mongoFundNetInfos = mongoPayTemplate.find(findFundNetInfoQuery,
+//        MongoFundNetInfo.class);
+//  }
+
+  private Long getMoneyCodeNavAdjNow(String fundCode) throws Exception {
+    String curentDateTime = TradeUtil.getReadableDateTime(TradeUtil.getUTCTime());
+    String applyDate = curentDateTime.split("T")[0];
+    if(MonetaryFundEnum.containsCode(fundCode)){
+      String beginDate = TradeUtil.getDayBefore(applyDate, 1);
+      List<String> codes = new ArrayList<>();
+      codes.add(fundCode);
+      List<DCDailyFunds> dcDailyFunds = dataCollectionService.getFundDataOfDay(codes,
+          beginDate, applyDate);
+      if(!CollectionUtils.isEmpty(dcDailyFunds)){
+        Double navadj = dcDailyFunds.get(0).getNavadj();
+        return TradeUtil.getLongNumWithMul1000000(navadj);
+      }else{
+        int beginDays = 1;
+        while(CollectionUtils.isEmpty(dcDailyFunds)){
+          String beginDateTry = TradeUtil.getDayBefore(applyDate, beginDays++);
+          dcDailyFunds = dataCollectionService.getFundDataOfDay(codes,
+              beginDateTry, applyDate);
+          if(beginDays > 100){
+            logger.error("The fund Database should be emptyed, you need to handle this"
+                + " issue before trade can be handled");
+            throw new Exception("The fund Database should be emptyed, you need to handle this"
+                + " issue before trade can be handled");
+          }
+        }
+        Double navadj = dcDailyFunds.get(0).getNavadj();
+        return TradeUtil.getLongNumWithMul1000000(navadj);
+      }
+    }
+    return -1L;
   }
 }

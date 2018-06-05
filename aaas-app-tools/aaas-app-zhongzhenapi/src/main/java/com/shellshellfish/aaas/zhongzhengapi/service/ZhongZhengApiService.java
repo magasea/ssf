@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.common.grpc.zzapi.WalletApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZAplyCfmInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZDiscountInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundNetInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundShareInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZRiskCmtResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
@@ -202,5 +203,15 @@ public interface ZhongZhengApiService {
    */
   public ZZRiskCmtResult commitRiskLevel(String pid, Integer riskAbility) throws Exception;
 
+
+  /**
+   *
+   * @param fundCode
+   * @param limitLeft
+   * @param limitRight
+   * @return
+   */
+  public List<ZZFundNetInfo> getAllNet( String fundCode, Integer limitLeft, Integer
+      limitRight) throws Exception;
 
 }

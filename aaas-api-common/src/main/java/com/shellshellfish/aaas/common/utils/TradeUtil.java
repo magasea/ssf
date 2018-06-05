@@ -181,6 +181,14 @@ public class TradeUtil {
     return  originNum.multiply(BigDecimal.valueOf(100)).longValue();
   }
 
+  public static Long getLongNumWithMul1000000(Double originNum){
+    Double result = originNum*1000000;
+    return result.longValue();
+  }
+  //originNavadj is 1000000 times origin navadj
+  public static BigDecimal getNavadjByLongOrigin(Long navadj){
+    return MathUtil.round(BigDecimal.valueOf(navadj).divide(BigDecimal.valueOf(1000000)),6,true);
+  }
 
   /**
    *
@@ -347,4 +355,49 @@ public class TradeUtil {
     BigDecimal result = (new BigDecimal(tradeconfirmsum)).divide(new BigDecimal(tradeconfirmshare));
     return getLongNumWithMul100(result);
   }
+
+  /**
+   *
+   * @param currentTime currentUtcTime
+   * @param dayCompare format yyyy-mm-dd
+   * @return
+   */
+
+
+  public static Long getDifferentDays(Long currentTime, String dayCompare){
+    String currentDay = getReadableDateTime(currentTime).split("T")[0];
+    String[] currentTimes = currentDay.split("-");
+    Long getStanardTimeOfCurrentDay = getUTCTimeOfSpecificTime(Integer.parseInt(currentTimes[0]),
+        Integer.parseInt(currentTimes[1]), Integer.parseInt(currentTimes[2]), 12, 0);
+    String[] compareTimes = dayCompare.split("-");
+    Long getStanardTimeOfCompareDay = getUTCTimeOfSpecificTime(Integer.parseInt(compareTimes[0]),
+        Integer.parseInt(compareTimes[1]), Integer.parseInt(compareTimes[2]), 12, 0);
+    Long dayTime  = 24*60*60*1000L;
+
+    Long diffDays =   (getStanardTimeOfCurrentDay - getStanardTimeOfCompareDay)/dayTime;
+
+
+    return diffDays;
+
+
+  }
+
+  /**
+   *
+   * @param dayStub
+   * @param daysBefore
+   * @return
+   */
+  public static String getDayBefore(String dayStub, int daysBefore){
+    String[] currentTimes = dayStub.split("-");
+    Long getStanardTimeOfCurrentDay = getUTCTimeOfSpecificTime(Integer.parseInt(currentTimes[0]),
+        Integer.parseInt(currentTimes[1]), Integer.parseInt(currentTimes[2]), 12, 0);
+    Long dayTime  = 24*60*60*1000L;
+    Long daysBeforeTime = getStanardTimeOfCurrentDay - dayTime*daysBefore;
+    String dayWanted = getReadableDateTime(daysBeforeTime).split("T")[0];
+    return dayWanted;
+
+  }
+
+
 }

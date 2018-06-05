@@ -316,17 +316,18 @@ public class TradeSellServiceImpl implements TradeSellService {
       trdOrderDetail.setOrderDetailStatus(TrdOrderStatusEnum.WAITSELL.getStatus());
       trdOrderDetail = trdOrderDetailRepository.save(trdOrderDetail);
       prodDtlSellDTO.setOrderDetailId(trdOrderDetail.getId());
-      //如果是货币基金 需要拿当日净值换算成货币基金的交易份额(默认是1)
-      if(MonetaryFundEnum.containsCode(sellProductDetailResult.getFundCode())){
-
-          prodDtlSellDTO.setFundQuantity(Math.toIntExact(sellProductDetailResult.getFundQuantityTrade()
-              *fundNetInfos.get(sellProductDetailResult.getFundCode())));
-          logger.info("origin quantity:{} target sell quantity for this monetary fund:{}",
-              sellProductDetailResult.getFundQuantityTrade(), prodDtlSellDTO.getFundQuantity());
-      }else{
-        prodDtlSellDTO.setFundQuantity(Math.toIntExact(sellProductDetailResult.getFundQuantityTrade
-            ()));
-      }
+      prodDtlSellDTO.setFundQuantity(Math.toIntExact(sellProductDetailResult.getFundQuantityTrade
+          ()));
+//      //如果是货币基金 需要拿当日净值换算成货币基金的交易份额(默认是1)
+//      if(MonetaryFundEnum.containsCode(sellProductDetailResult.getFundCode())){
+//
+//          prodDtlSellDTO.setFundQuantity(Math.toIntExact(sellProductDetailResult.getFundQuantityTrade()
+//              *fundNetInfos.get(sellProductDetailResult.getFundCode())));
+//          logger.info("origin quantity:{} target sell quantity for this monetary fund:{}",
+//              sellProductDetailResult.getFundQuantityTrade(), prodDtlSellDTO.getFundQuantity());
+//      }else{
+//
+//      }
 
       prodDtlSellDTO.setTargetSellAmount(prodSellPercentDTO.getSellTargetPercent());
       prodDtlSellDTO.setFundCode(sellProductDetailResult.getFundCode());

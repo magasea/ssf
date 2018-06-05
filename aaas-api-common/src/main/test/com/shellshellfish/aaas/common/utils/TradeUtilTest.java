@@ -155,4 +155,19 @@ public class TradeUtilTest {
   public void testDividLong(){
     System.out.println(TradeUtil.getLongWithDiv(110480L, 100L));
   }
+
+  @Test
+  public void testDiffDays() throws Exception {
+    System.out.println(TradeUtil.getDifferentDays(TradeUtil.getUTCTime(), "2018-06-01"));
+  }
+
+  @Test
+  public void getDayBefore() {
+    System.out.println(TradeUtil.getDayBefore("2018-06-01", 1));
+  }
+
+  @Test
+  public void getLongNumWithMul1000000() {
+    System.out.println(TradeUtil.getLongNumWithMul1000000(1.44164D));
+  }
 }

@@ -1,23 +1,28 @@
 package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
 import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
+import com.shellshellfish.aaas.common.grpc.datacollection.DCDailyFunds;
 import com.shellshellfish.aaas.common.message.order.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.ZZStatsToOrdStatsUtils;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.ConfirmResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.dao.mongo.MongoFundNetInfo;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.mysql.TrdPayFlow;
 
 import com.shellshellfish.aaas.finance.trade.pay.repositories.mysql.TrdPayFlowRepository;
+import com.shellshellfish.aaas.finance.trade.pay.service.DataCollectionService;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.service.OrderService;
+import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +30,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -45,6 +55,15 @@ public class CheckFundsTradeJobService {
 
     @Autowired
     OrderService orderService;
+
+    @Autowired
+    MongoTemplate mongoPayTemplate;
+
+    @Autowired
+    PayService payService;
+
+    @Autowired
+    DataCollectionService dataCollectionService;
 
     public void executeSampleJob() {
 
@@ -85,6 +104,8 @@ public class CheckFundsTradeJobService {
                         trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
                         trdPayFlow.setUpdateDate(Instant.now().getEpochSecond());
                         trdPayFlow.setTrdApplyDate(applyResult.getApplydate());
+                        trdPayFlow.setApplydateUnitvalue(getMoneyCodeNavAdjByDate(trdPayFlow
+                            .getFundCode(), applyResult.getApplydate()));
                         trdPayFlow.setBuyDiscount(TradeUtil.getLongNumWithMul100(applyResult
                             .getCommisiondiscount()));
                         trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno
@@ -249,8 +270,11 @@ public class CheckFundsTradeJobService {
                         trdPayFlow.setUpdateDate(Instant.now().getEpochSecond());
                         if(!StringUtils.isEmpty(applyResult.getApplydate())){
                             trdPayFlow.setTrdApplyDate(applyResult.getApplydate());
+                            trdPayFlow.setApplydateUnitvalue(getMoneyCodeNavAdjByDate(trdPayFlow.getFundCode(),
+                                applyResult.getApplydate()));
                         }else{
                             trdPayFlow.setTrdApplyDate("-1");
+                            trdPayFlow.setApplydateUnitvalue(-1L);
                         }
                         if(!StringUtils.isEmpty(applyResult.getTradeconfirmsum()) &&
                         !StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
@@ -266,6 +290,7 @@ public class CheckFundsTradeJobService {
                             ());
                         trdPayFlow.setId(trdPayFlow.getId());
                         trdPayFlow.setApplySerial(applyResult.getApplyserial());
+
                         TrdOrderOpTypeEnum opTypeEnum = ZZStatsToOrdStatsUtils
                             .getTrdOrdOpTypeFromCallingCode(Integer
                                 .valueOf(applyResult.getCallingcode()));
@@ -376,8 +401,11 @@ public class CheckFundsTradeJobService {
             trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
             if(!StringUtils.isEmpty(applyResult.getApplydate())){
                 trdPayFlow.setTrdApplyDate(applyResult.getApplydate());
+                trdPayFlow.setApplydateUnitvalue(getMoneyCodeNavAdjByDate(trdPayFlow.getFundCode
+                    (), applyResult.getApplydate()));
             }else{
                 trdPayFlow.setTrdApplyDate("-1");
+                trdPayFlow.setApplydateUnitvalue(-1L);
             }
             if(!StringUtils.isEmpty(applyResult.getTradeconfirmsum()) &&
                 !StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
@@ -392,5 +420,20 @@ public class CheckFundsTradeJobService {
         }
         return null;
 
+    }
+
+    private Long getMoneyCodeNavAdjByDate(String fundCode, String applyDate){
+        if(MonetaryFundEnum.containsCode(fundCode)){
+            String beginDate = TradeUtil.getDayBefore(applyDate, 1);
+            List<String> codes = new ArrayList<>();
+            codes.add(fundCode);
+            List<DCDailyFunds> dcDailyFunds = dataCollectionService.getFundDataOfDay(codes,
+                beginDate, applyDate);
+            if(!CollectionUtils.isEmpty(dcDailyFunds)){
+                Double navadj = dcDailyFunds.get(0).getNavadj();
+                return TradeUtil.getLongNumWithMul1000000(navadj);
+            }
+        }
+        return -1L;
     }
 }
