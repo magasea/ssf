@@ -27,7 +27,7 @@ spring:
       port: 27017
       database: zhongzheng
   redis:
-    host: redis-service
+    host: external-redis-service
     port: 6379
     password: redis123
     pool:

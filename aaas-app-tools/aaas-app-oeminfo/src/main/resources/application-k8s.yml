@@ -36,7 +36,7 @@ spring:
     topicOrder: shellshellfish.order
     topicUserinfo: shellshellfish.userinfo
   redis:
-    host: redis-service
+    host: external-redis-service
     port: 6379
     password: redis123
 datasource:

@@ -29,7 +29,7 @@ ali:
 app:
     debug: true
 redis:
-    host: redis-service
+    host: external-redis-service
     port: 6379
     pwd: redis123
 sms:
