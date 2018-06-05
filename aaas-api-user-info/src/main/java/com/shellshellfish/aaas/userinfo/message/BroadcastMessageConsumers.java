@@ -132,7 +132,7 @@ public class BroadcastMessageConsumers {
             mongoUiTrdLog.setTradeStatus(trdPayFlow.getTrdStatus());
 
             mongoUiTrdLog.setOrderId(TradeUtil.getOrderIdByOutsideOrderNo(trdPayFlow
-                .getOutsideOrderno(), trdPayFlow.getOrderDetailId()));
+                    .getOutsideOrderno(), trdPayFlow.getOrderDetailId()));
 
 
             if (trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.WAITPAY.getStatus() ||
@@ -408,9 +408,13 @@ public class BroadcastMessageConsumers {
     public void receiveConfirmInfoUpdateProdQty(MongoUiTrdZZInfo mongoUiTrdZZInfo, Channel channel, @Header
             (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
         try {
+/*
             logger.info("received mongoUiTrdZZInfo to update assects with userProdId:{} "
                             + "userId:{} fundCode:{} ", mongoUiTrdZZInfo.getUserProdId(),
                     mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getFundCode());
+
+*/
+            logger.info("run receiveConfirmInfoUpdateProdQty:{}", mongoUiTrdZZInfo);
             if (mongoUiTrdZZInfo.getTradeType() == TrdOrderOpTypeEnum.BUY.getOperation()) {
                 updateBuyProductQty(mongoUiTrdZZInfo);
             } else if (mongoUiTrdZZInfo.getTradeType() == TrdOrderOpTypeEnum.REDEEM

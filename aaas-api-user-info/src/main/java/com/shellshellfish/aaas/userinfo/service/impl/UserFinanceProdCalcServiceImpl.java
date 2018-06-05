@@ -127,7 +127,8 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         BigDecimal share = getFundQuantityAtDate(fundCode, userProdId, date);
         BigDecimal netValue = getFundNetValue(fundCode, InstantDateUtil.format(date, yyyyMMdd));
         BigDecimal rateOfSellFund = getSellRate(fundCode);
-        logger.info("update asset====>>>> share:{},netValue:{}，rateOfSellFund:{}", share, netValue, rateOfSellFund);
+        logger.info("update asset====>>>> share:{},netValue:{}，rateOfSellFund:{},userProdId:{},date:{},fundCode:{}",
+                share, netValue, rateOfSellFund, userProdId, date, fundCode);
         BigDecimal fundAsset = share.multiply(netValue)
                 .multiply(BigDecimal.ONE.subtract(rateOfSellFund));
 
