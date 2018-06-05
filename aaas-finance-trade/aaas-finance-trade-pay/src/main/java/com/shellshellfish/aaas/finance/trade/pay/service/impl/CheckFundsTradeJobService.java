@@ -215,6 +215,15 @@ public class CheckFundsTradeJobService {
             mongoUiTrdZZInfo.setOriApplyDate(confirmResult.getOriapplydate());
             mongoUiTrdZZInfo.setBankSerial(confirmResult.getBankSerial());
             mongoUiTrdZZInfo.setFee(TradeUtil.getLongNumWithMul100(confirmResult.getPoundage()));
+            mongoUiTrdZZInfo.setFundCode(trdPayFlow.getFundCode());
+            mongoUiTrdZZInfo.setTradeConfirmShare(TradeUtil.getLongNumWithMul100(confirmResult
+                .getTradeconfirmshare()));
+            mongoUiTrdZZInfo.setTradeConfirmSum(TradeUtil.getLongNumWithMul100(confirmResult
+                .getTradeconfirmsum()));
+            mongoUiTrdZZInfo.setTradeTargetShare(TradeUtil.getLongNumWithMul100(confirmResult
+                .getApplyshare()));
+            mongoUiTrdZZInfo.setTradeTargetSum(TradeUtil.getLongNumWithMul100(confirmResult
+                .getApplysum()));
             broadcastMessageProducers.sendConfirmMessage(mongoUiTrdZZInfo);
         }
 

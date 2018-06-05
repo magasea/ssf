@@ -1,11 +1,14 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
-import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
+import com.shellshellfish.aaas.common.grpc.trade.order.TrdOrderDetail;
+import com.shellshellfish.aaas.finance.trade.order.GenOrderIdAndFundCode;
 import com.shellshellfish.aaas.finance.trade.order.OrderRpcServiceGrpc.OrderRpcServiceBlockingStub;
 import com.shellshellfish.aaas.grpc.common.UserProdId;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
+import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,18 +44,56 @@ public class OrderGrpcServiceImpl implements OrderRpcService {
     }
 
     @Override
-    public List<OrderDetail> getAllTrdOrderDetail(Long userProdId) {
+    public List<TrdOrderDetail> getAllTrdOrderDetail(Long userProdId) {
         UserProdId.Builder builder = UserProdId.newBuilder();
         builder.setUserProdId(userProdId);
-        return tradeOrderServiceBlockingStub.getAllOrderDetail(builder.build()).getOrderDetailResultList();
+        List<com.shellshellfish.aaas.finance.trade.order.OrderDetail> orderDetails =
+        tradeOrderServiceBlockingStub.getAllOrderDetail(builder.build()).getOrderDetailResultList();
+        List<TrdOrderDetail> trdOrderDetails = new ArrayList<>();
+        orderDetails.forEach(
+            grpcOrderDetail -> {
+                TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
+                MyBeanUtils.mapEntityIntoDTO(grpcOrderDetail, trdOrderDetail);
+                trdOrderDetails.add(trdOrderDetail);
+            }
+        );
+        return trdOrderDetails;
     }
 
     @Override
-    public List<OrderDetail> getLatestOrderDetail(Long userProdId) {
+    public List<TrdOrderDetail> getLatestOrderDetail(Long userProdId) {
         UserProdId.Builder builder = UserProdId.newBuilder();
         builder.setUserProdId(userProdId);
-        return tradeOrderServiceBlockingStub.getLatestOrderDetail(builder.build()).getOrderDetailResultList();
+        List<com.shellshellfish.aaas.finance.trade.order.OrderDetail> orderDetails =
+            tradeOrderServiceBlockingStub.getLatestOrderDetail(builder.build()).getOrderDetailResultList();
+        List<TrdOrderDetail> trdOrderDetails = new ArrayList<>();
+        orderDetails.forEach(
+            grpcOrderDetail -> {
+                TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
+                MyBeanUtils.mapEntityIntoDTO(grpcOrderDetail, trdOrderDetail);
+                trdOrderDetails.add(trdOrderDetail);
+            }
+        );
+        return trdOrderDetails;
     }
 
-
+    @Override
+    public List<TrdOrderDetail> getOrderDetailByGenOrderIdAndFundCode(String orderId,
+        String fundCode) {
+        GenOrderIdAndFundCode.Builder goiafcBuilder = GenOrderIdAndFundCode.newBuilder();
+        goiafcBuilder.setFundCode(fundCode);
+        goiafcBuilder.setOrderId(orderId);
+        List<com.shellshellfish.aaas.finance.trade.order.OrderDetail> orderDetails =
+        tradeOrderServiceBlockingStub.getOrderDetailByGenOrderIdAndFundCode(goiafcBuilder.build()
+        ).getOrderDetailResultList();
+        List<TrdOrderDetail> trdOrderDetails = new ArrayList<>();
+        orderDetails.forEach(
+            grpcOrderDetail -> {
+                TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
+                MyBeanUtils.mapEntityIntoDTO(grpcOrderDetail, trdOrderDetail);
+                trdOrderDetails.add(trdOrderDetail);
+            }
+        );
+        return trdOrderDetails;
+    }
 }

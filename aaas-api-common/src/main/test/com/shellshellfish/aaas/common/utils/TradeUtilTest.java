@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.common.utils;
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -169,5 +170,30 @@ public class TradeUtilTest {
   @Test
   public void getLongNumWithMul1000000() {
     System.out.println(TradeUtil.getLongNumWithMul1000000(1.44164D));
+  }
+  @Test
+  public void testBigDecimalRoundUp(){
+    Long shares = 380L;
+    Long navadj = 1000063L;
+    BigDecimal number = new BigDecimal(shares*1000000L);
+    BigDecimal divider = new BigDecimal(navadj);
+    BigDecimal result = number.divide(divider, 2, RoundingMode.HALF_DOWN);
+    System.out.println(result);
+    System.out.println(TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundDown(shares*1000000L,
+        navadj).intValue());
+  }
+
+  @Test
+  public void testBigDecimalRoundDown(){
+    Long shares = 380L;
+    Long sellPercent = 4555L;
+    Long number = shares*sellPercent;
+    Long dividerL = 10000L;
+    BigDecimal num = new BigDecimal(number);
+    BigDecimal divider = new BigDecimal(dividerL);
+    BigDecimal result = num.divide(divider, 2, RoundingMode.HALF_DOWN);
+    System.out.println(result);
+    System.out.println(TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundDown(shares*sellPercent,
+        dividerL).intValue());
   }
 }

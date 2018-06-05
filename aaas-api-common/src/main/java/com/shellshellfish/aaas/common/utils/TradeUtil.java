@@ -8,6 +8,7 @@ import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
 import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -206,6 +207,10 @@ public class TradeUtil {
   public static Long getLongWithDiv(Long originNum, Long divider){
     int sign = (originNum > 0 ? 1 : -1) * (divider > 0 ? 1 : -1);
     return sign * (abs(originNum) + abs(divider) - 1) / abs(divider);
+  }
+
+  public static BigDecimal getBigDecimalNumWithDivOfTwoLongAndRundDown(Long number, Long divider){
+    return BigDecimal.valueOf(number).divide(BigDecimal.valueOf(divider),2,RoundingMode.HALF_DOWN);
   }
 
   public static BigDecimal getBigDecimalNumWithDivOfTwoLong(Long number, Long divider){

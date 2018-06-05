@@ -43,8 +43,9 @@ public class MongoPendingRecords implements Serializable {
     private Long applyDate;
 
   @Field( value = "apply_date_str")
-  private Long applyDateStr;
+  private String applyDateStr;
 
+  //注意精度达到百万分之一 比如1.000001 -> 1000001
   @Field( value = "apply_date_navadj")
   private Long applyDateNavadj;
 
@@ -82,6 +83,10 @@ public class MongoPendingRecords implements Serializable {
     @Field(value = "order_id")
     @Indexed()
     private String orderId;
+
+    @Field(value = "outside_order_id")
+    @Indexed()
+    private String outsideOrderId;
 
   public static long getSerialVersionUID() {
     return serialVersionUID;
@@ -239,11 +244,11 @@ public class MongoPendingRecords implements Serializable {
     this.orderId = orderId;
   }
 
-  public Long getApplyDateStr() {
+  public String getApplyDateStr() {
     return applyDateStr;
   }
 
-  public void setApplyDateStr(Long applyDateStr) {
+  public void setApplyDateStr(String applyDateStr) {
     this.applyDateStr = applyDateStr;
   }
 
@@ -253,5 +258,13 @@ public class MongoPendingRecords implements Serializable {
 
   public void setTradeStatus(int tradeStatus) {
     this.tradeStatus = tradeStatus;
+  }
+
+  public String getOutsideOrderId() {
+    return outsideOrderId;
+  }
+
+  public void setOutsideOrderId(String outsideOrderId) {
+    this.outsideOrderId = outsideOrderId;
   }
 }

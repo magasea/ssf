@@ -30,7 +30,7 @@ public class BroadcastMessageProducers {
                 .ROUTING_KEY_USERINFO_TRDLOG,
             trdPayFlow);
 
-        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.OPERATION_TYPE_UPDATE_BUY_PRECONFIRM_PENDINGRECORDS,
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.OPERATION_TYPE_UPDATE_PRECONFIRM_PENDINGRECORDS,
             trdPayFlow);
     }
 
@@ -54,6 +54,9 @@ public class BroadcastMessageProducers {
             .ROUTING_KEY_USERINFO_CFMLOG, mongoUiTrdZZInfo);
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
             .ROUTING_KEY_USERINFO_UPDATEPROD, mongoUiTrdZZInfo);
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
+            .OPERATION_TYPE_CONFIRM_PENDINGRECORDS, mongoUiTrdZZInfo);
+
     }
 
     public void sendSellMessage(TrdPayFlow trdPayFlow) {
