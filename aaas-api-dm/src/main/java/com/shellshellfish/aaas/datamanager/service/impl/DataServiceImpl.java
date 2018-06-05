@@ -1025,7 +1025,7 @@ public class DataServiceImpl implements DataService {
             BigDecimal dayUpRate = BigDecimal.ZERO;
             if (i != 0) {
                 BigDecimal yesterdayNavAdj = Optional.ofNullable(coinFundYieldRateList.get(i - 1))
-                        .map(m -> m.getNavAdj()).orElse(BigDecimal.ZERO);
+                        .map(m -> m.getNavAdj()).orElse(BigDecimal.ONE);
                 dayUp = todayNavAdj.subtract(yesterdayNavAdj);
 
                 if (BigDecimal.ZERO.compareTo(yesterdayNavAdj) != 0) {
