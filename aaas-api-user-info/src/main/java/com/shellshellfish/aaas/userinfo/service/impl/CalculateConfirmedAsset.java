@@ -73,6 +73,7 @@ public class CalculateConfirmedAsset {
         for (LocalDate startDate = confirmDate; startDate.isBefore(now); startDate = startDate.plusDays(1)) {
             for (UiProductDetail uiProductDetail : uiProductDetailList) {
                 try {
+                    logger.info("start to calculate asset startDate:{},userProdDetail:{} ", startDate, uiProductDetail);
                     userFinanceProdCalcService
                             .calculateFromZzInfo(uiProductDetail, uuid, uiProducts.get().getProdId(),
                                     InstantDateUtil.format(startDate, pattern));
