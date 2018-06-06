@@ -14,8 +14,8 @@ public interface MongoUiTrdZZInfoRepo extends MongoRepository<MongoUiTrdZZInfo, 
     MongoUiTrdZZInfo save(MongoUiTrdZZInfo mongoUiTrdZZInfo);
 
 
-    List<MongoUiTrdZZInfo> findAllByUserIdAndUserProdIdAndTradeTypeAndTradeStatus(Long userId,
-                                                                                  Long userProdId, int tradeType, int tradeStatus);
+    List<MongoUiTrdZZInfo> findAllByUserIdAndUserProdIdAndTradeTypeAndTradeStatusAndConfirmDateLessThanEqual(
+            Long userId, Long userProdId, int tradeType, int tradeStatus, String date);
 
     MongoUiTrdZZInfo findByUserProdIdAndUserIdAndApplySerial(Long userProdId, Long userId,
                                                              String applySerial);
