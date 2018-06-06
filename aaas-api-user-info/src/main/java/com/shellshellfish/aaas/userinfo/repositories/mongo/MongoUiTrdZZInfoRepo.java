@@ -36,4 +36,5 @@ public interface MongoUiTrdZZInfoRepo extends MongoRepository<MongoUiTrdZZInfo, 
     List<MongoUiTrdZZInfo> findAllByUserProdIdAndFundCodeAndConfirmDate(Long userProdId, String fundCode,
                                                                         String confirmDate);
 
+    List<MongoUiTrdZZInfo> findAllByConfirmDate(String confirmDate);
 }

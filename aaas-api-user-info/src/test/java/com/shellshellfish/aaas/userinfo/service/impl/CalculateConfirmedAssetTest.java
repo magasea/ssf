@@ -30,15 +30,8 @@ public class CalculateConfirmedAssetTest {
 
     @Test
     public void test() {
-        String fundCode = "003474.OF";
-        String fundCode2 = "004568.OF";
-        String confirmDate = "20180605";
-        Long userProdId = 301L;
-        List<MongoUiTrdZZInfo> mongoUiTrdZZInfoList = mongoUiTrdZZInfoRepo.findAllByUserProdIdAndFundCodeAndConfirmDate
-                (userProdId, fundCode, confirmDate);
-        List<MongoUiTrdZZInfo> mongoUiTrdZZInfoList2 = mongoUiTrdZZInfoRepo.findAllByUserProdIdAndFundCodeAndConfirmDate
-                (userProdId, fundCode2, confirmDate);
-        mongoUiTrdZZInfoList.addAll(mongoUiTrdZZInfoList2);
+        String confirmDate = "20180606";
+        List<MongoUiTrdZZInfo> mongoUiTrdZZInfoList = mongoUiTrdZZInfoRepo.findAllByConfirmDate(confirmDate);
         ExecutorService es = Executors.newFixedThreadPool(30);
         List<com.shellshellfish.aaas.common.message.order.MongoUiTrdZZInfo> confirmInfo = new ArrayList<>();
         for (MongoUiTrdZZInfo mongoUiTrdZZInfo : mongoUiTrdZZInfoList) {
@@ -49,8 +42,8 @@ public class CalculateConfirmedAssetTest {
             confirmInfo.add(mongoUiTrdZZInfode);
         }
 
-        for (int i = 0; i < 30; i++) {
-            com.shellshellfish.aaas.common.message.order.MongoUiTrdZZInfo zzinfo = confirmInfo.get(i % 2);
+        for (int i = 0; i < confirmInfo.size(); i++) {
+            com.shellshellfish.aaas.common.message.order.MongoUiTrdZZInfo zzinfo = confirmInfo.get(i);
             es.submit(() -> calculateConfirmedAsset.calculateConfirmedAsset(zzinfo));
         }
 

@@ -23,11 +23,6 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepo
 import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
 import com.shellshellfish.aaas.userinfo.service.PayGrpcService;
 import com.shellshellfish.aaas.userinfo.service.impl.CalculateConfirmedAsset;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.Exchange;
@@ -41,6 +36,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class BroadcastMessageConsumers {
@@ -390,9 +389,11 @@ public class BroadcastMessageConsumers {
                 mongoUiTrdZZInfoInDb.setId(idOrig);
                 mongoUiTrdZZInfoRepo.save(mongoUiTrdZZInfoInDb);
             }
+
+            //FIXME 通过消息队列调用，实现业务逻辑解偶
+            calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo);
         } catch (Exception ex) {
             logger.error("exception:", ex);
-
         }
 
 
@@ -425,7 +426,7 @@ public class BroadcastMessageConsumers {
                         .getTradeType());
             }
 
-            calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo);
+
         } catch (Exception ex) {
             logger.error("Exception:", ex);
         }

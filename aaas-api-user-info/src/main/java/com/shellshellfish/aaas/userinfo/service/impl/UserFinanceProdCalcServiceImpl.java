@@ -6,8 +6,6 @@ import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
-import com.shellshellfish.aaas.userinfo.model.BonusInfo;
-import com.shellshellfish.aaas.userinfo.model.ConfirmResult;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.dao.*;
 import com.shellshellfish.aaas.userinfo.repositories.funds.MongoCoinFundYieldRateRepository;
@@ -106,20 +104,18 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     //date format pattern
     private static final String yyyyMMdd = InstantDateUtil.yyyyMMdd;
 
+    private final Object lockObject = new Object();
+
     /**
      * 计算用户每一次购买，每一只基金,用户所持有的总资产　该方法幂等
      *
-     * @param userUuid
-     * @param prodId
      * @param userProdId
      * @param fundCode
      * @param date
-     * @param uiProductDetail
      * @return
      * @throws Exception
      */
-    private BigDecimal calcDailyAsset(String userUuid, Long prodId, Long userProdId, String fundCode,
-                                      String date, UiProductDetail uiProductDetail) throws Exception {
+    private BigDecimal calcDailyAsset(Long userProdId, String fundCode, String date) throws Exception {
         //确认失败的不计算
         if (TrdOrderStatusEnum.failBuy(rpcOrderService.getOrderDetailStatus(fundCode, userProdId))) {
             logger.error("确认失败不计算：userProdId:{},fundCode:{},date:{}", userProdId, fundCode, date);
@@ -154,6 +150,19 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
                 "set asset ==> dailyAmount:{}", dailyAmount);
 
         return fundAsset;
+    }
+
+    /**
+     * @param userProdId
+     * @param fundCode
+     * @param date
+     * @return
+     * @throws Exception
+     */
+    private void calcDailyAssetWithLock(Long userProdId, String fundCode, String date) throws Exception {
+        synchronized (lockObject) {
+            calcDailyAsset(userProdId, fundCode, date);
+        }
     }
 
 
@@ -222,163 +231,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         return simpleDateFormat.format(cal.getTime());
     }
 
-    @Override
-    public void calcIntervalAmount(String userUuid, Long prodId, String fundCode, String startDate)
-            throws Exception {
-        List<BonusInfo> bonusInfoList = fundTradeApiService.getBonusList(userUuid, fundCode, startDate);
-        FindAndModifyOptions findAndModifyOptions = new FindAndModifyOptions();
-        findAndModifyOptions.upsert(true);
-
-        for (BonusInfo info : bonusInfoList) {
-            Query query = new Query();
-            query.addCriteria(Criteria.where("userUuid").is(userUuid))
-                    .addCriteria(Criteria.where("date").is(info.getConfirmdate()))
-                    .addCriteria(Criteria.where("fundCode").is(fundCode))
-                    .addCriteria(Criteria.where("prodId").is(prodId));
-
-            Update update = new Update();
-            update.set("userUuid", userUuid);
-            update.set("prodId", prodId);
-            update.set("fundCode", fundCode);
-            update.set("bonus", info.getFactbonussum());
-            DailyAmount dailyAmount = zhongZhengMongoTemplate
-                    .findAndModify(query, update, findAndModifyOptions, DailyAmount.class);
-            logger.info("dailyAmount:{}", dailyAmount);
-        }
-
-        List<ConfirmResult> confirmList = fundTradeApiService
-                .getConfirmResults(userUuid, fundCode, null);
-        for (ConfirmResult result : confirmList) {
-            Query query = new Query();
-            query.addCriteria(Criteria.where("userUuid").is(userUuid))
-                    .addCriteria(Criteria.where("date").is(result.getConfirmdate()))
-                    .addCriteria(Criteria.where("fundCode").is(fundCode))
-                    .addCriteria(Criteria.where("prodId").is(prodId));
-
-            Update update = new Update();
-            update.set("userUuid", userUuid);
-            update.set("prodId", prodId);
-            update.set("fundCode", fundCode);
-            if ("022".equals(result.getCallingcode())) {
-                update.set("buyAmount", result.getTradeconfirmsum());
-            } else if ("024".equals(result.getCallingcode())) {
-                update.set("sellAmount", result.getTradeconfirmsum());
-            }
-
-            DailyAmount dailyAmount = zhongZhengMongoTemplate
-                    .findAndModify(query, update, findAndModifyOptions, DailyAmount.class);
-            logger.info("dailyAmount:{}", dailyAmount);
-        }
-    }
-
-
-    private void calcIntervalAmount2(String userUuid, Long prodId, Long userProdId,
-                                     String fundCode, String startDate) {
-
-        //FIXME 此处缺少分红
-        List<MongoUiTrdZZInfo> mongoUiTrdZZInfoBuy = mongoUiTrdZZInfoRepo
-                .findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
-                        fundCode, TrdOrderOpTypeEnum.BUY.getOperation(),
-                        TrdOrderStatusEnum.CONFIRMED.getStatus(), startDate);
-
-        List<MongoUiTrdZZInfo> mongoUiTrdZZInfoSell = mongoUiTrdZZInfoRepo
-                .findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(userProdId,
-                        fundCode, TrdOrderOpTypeEnum.REDEEM.getOperation(),
-                        TrdOrderStatusEnum.SELLCONFIRMED.getStatus(), startDate);
-
-        Query query = new Query();
-        query.addCriteria(Criteria.where("userUuid").is(userUuid))
-                .addCriteria(Criteria.where("date").is(startDate))
-                .addCriteria(Criteria.where("fundCode").is(fundCode))
-                .addCriteria(Criteria.where("prodId").is(prodId))
-                .addCriteria(Criteria.where("userProdId").is(userProdId));
-
-        Update update = new Update();
-
-        BigDecimal buyAmount = BigDecimal.ZERO;
-        BigDecimal sellAmount = BigDecimal.ZERO;
-
-        for (MongoUiTrdZZInfo buy : mongoUiTrdZZInfoBuy) {
-            buyAmount = buyAmount.add(Optional.ofNullable(buy)
-                    .map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeConfirmSum()))
-                    .orElse(BigDecimal.ZERO));
-        }
-
-        for (MongoUiTrdZZInfo sell : mongoUiTrdZZInfoSell) {
-            sellAmount = sellAmount.add(Optional.ofNullable(sell)
-                    .map(m -> TradeUtil.getBigDecimalNumWithDiv100(m.getTradeConfirmSum()))
-                    .orElse(BigDecimal.ZERO));
-        }
-
-        update.set("buyAmount", buyAmount);
-        update.set("sellAmount", sellAmount);
-
-        DailyAmount dailyAmount = zhongZhengMongoTemplate
-                .findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
-                        DailyAmount.class);
-        logger.info(
-                "set buyAmount and sell Amount ==> dailyAmount:{}", dailyAmount);
-
-    }
-
-    @Override
-    public void initDailyAmount(String userUuid, Long prodId, Long userProdId, String date,
-                                String fundCode) {
-
-        Query query = new Query();
-        query.addCriteria(Criteria.where("userUuid").is(userUuid))
-                .addCriteria(Criteria.where("date").is(date))
-                .addCriteria(Criteria.where("fundCode").is(fundCode))
-                .addCriteria(Criteria.where("prodId").is(prodId))
-                .addCriteria(Criteria.where("userProdId").is(userProdId));
-
-        Update update = new Update();
-        update.set("asset", BigDecimal.ZERO);
-        update.set("bonus", BigDecimal.ZERO);
-        update.set("buyAmount", BigDecimal.ZERO);
-        update.set("sellAmount", BigDecimal.ZERO);
-        DailyAmount dailyAmount = zhongZhengMongoTemplate
-                .findAndModify(query, update, new FindAndModifyOptions().returnNew(true).upsert(true),
-                        DailyAmount.class);
-
-        logger.info("update or save  dailyAmount ：{}", dailyAmount);
-    }
-
-    /**
-     * to be refactored to remove duplicate code
-     */
-    @Override
-    @Deprecated
-    public BigDecimal calcYieldValue(String userUuid, Long prodId, String startDate, String endDate) {
-        Query query = new Query();
-        query.addCriteria(Criteria.where("userUuid").is(userUuid))
-                .addCriteria(Criteria.where("date").gte(startDate).lte(endDate))
-                .addCriteria(Criteria.where("userProdId").is(prodId));
-
-        List<DailyAmount> dailyAmountList = zhongZhengMongoTemplate.find(query, DailyAmount.class);
-        BigDecimal assetOfEndDay = BigDecimal.ZERO;
-        BigDecimal assetOfStartDay = BigDecimal.ZERO;
-        BigDecimal intervalAmount = BigDecimal.ZERO;
-        for (DailyAmount dailyAmount : dailyAmountList) {
-            if (dailyAmount.getDate().equals(startDate) && dailyAmount.getAsset() != null) {
-                assetOfStartDay = assetOfStartDay.add(dailyAmount.getAsset());
-            } else if (dailyAmount.getDate().equals(endDate) && dailyAmount.getAsset() != null) {
-                assetOfEndDay = assetOfEndDay.add(dailyAmount.getAsset());
-            }
-
-            if (dailyAmount.getBonus() != null) {
-                intervalAmount = intervalAmount.add(dailyAmount.getBonus());
-            }
-            if (dailyAmount.getSellAmount() != null) {
-                intervalAmount = intervalAmount.add(dailyAmount.getSellAmount());
-            }
-            if (dailyAmount.getBuyAmount() != null) {
-                intervalAmount = intervalAmount.subtract(dailyAmount.getBuyAmount());
-            }
-        }
-
-        return assetOfEndDay.subtract(assetOfStartDay).add(intervalAmount);
-    }
 
     /**
      * @param startDate yyyyMMdd
@@ -425,39 +277,6 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         }
 
         return result;
-    }
-
-
-    @Override
-    @Deprecated
-    public BigDecimal calcYieldValue(String userUuid, String startDate, String endDate) {
-        Query query = new Query();
-        query.addCriteria(Criteria.where("userUuid").is(userUuid))
-                .addCriteria(Criteria.where("date").gte(startDate).lte(endDate));
-
-        List<DailyAmount> dailyAmountList = zhongZhengMongoTemplate.find(query, DailyAmount.class);
-        BigDecimal assetOfEndDay = BigDecimal.ZERO;
-        BigDecimal assetOfStartDay = BigDecimal.ZERO;
-        BigDecimal intervalAmount = BigDecimal.ZERO;
-        for (DailyAmount dailyAmount : dailyAmountList) {
-            if (dailyAmount.getDate().equals(startDate) && dailyAmount.getAsset() != null) {
-                assetOfStartDay = assetOfStartDay.add(dailyAmount.getAsset());
-            } else if (dailyAmount.getDate().equals(endDate) && dailyAmount.getAsset() != null) {
-                assetOfEndDay = assetOfEndDay.add(dailyAmount.getAsset());
-            }
-
-            if (dailyAmount.getBonus() != null) {
-                intervalAmount = intervalAmount.add(dailyAmount.getBonus());
-            }
-            if (dailyAmount.getSellAmount() != null) {
-                intervalAmount = intervalAmount.add(dailyAmount.getSellAmount());
-            }
-            if (dailyAmount.getBuyAmount() != null) {
-                intervalAmount = intervalAmount.subtract(dailyAmount.getBuyAmount());
-            }
-        }
-
-        return assetOfEndDay.subtract(assetOfStartDay).add(intervalAmount);
     }
 
 
@@ -536,13 +355,9 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     public void calculateProductAsset(UiProductDetail detail, String uuid, Long prodId, String date) {
         logger.info("calculate Product Asset : {}", detail);
         String fundCode = detail.getFundCode();
-//        initDailyAmount(uuid, prodId, detail.getUserProdId(), date, fundCode);
         try {
             //计算当日总资产
-            calcDailyAsset(uuid, prodId, detail.getUserProdId(), fundCode,
-                    date, detail);
-            //获取当日分红，以及确认购买和赎回的金额 分红直接从mongo.trdzzinfo中获取
-            //calcIntervalAmount2(uuid, prodId, detail.getUserProdId(), fundCode, date);
+            calcDailyAsset(detail.getUserProdId(), detail.getFundCode(), date);
         } catch (Exception e) {
             logger.error("计算{用户:{},userProdId:{},基金code:{},基金名称：{}}日收益出错", detail.getCreateBy(), detail.getUserProdId(),
                     detail.getFundCode(), detail.getFundName(), e);
@@ -551,14 +366,10 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
     }
 
     @Override
-    public void calculateFromZzInfo(UiProductDetail detail, String uuid, Long prodId, String date)
+    public void calculateFromZzInfo(Long userProdId, String fundCode, String date)
             throws Exception {
 
-        logger.info("calculate from zzinfo :{},date:{}", detail, date);
-        String fundCode = detail.getFundCode();
-        //计算当日总资产
-        calcDailyAsset(uuid, prodId, detail.getUserProdId(), fundCode,
-                date, detail);
+        calcDailyAssetWithLock(userProdId, fundCode, date);
 
     }
 
