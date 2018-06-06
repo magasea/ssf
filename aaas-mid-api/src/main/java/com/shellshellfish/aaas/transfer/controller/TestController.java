@@ -11,6 +11,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -45,7 +46,7 @@ public class TestController {
 
 
 
-	@RequestMapping(value = "/wpUpdateFundResource")
+	@RequestMapping(value = "/wpUpdateFundResource", method = RequestMethod.POST)
 	public  void updateFundResource(){
 		System.out.println("开始执行mid-api");
 		MultiValueMap<String, String> requestEntity = new LinkedMultiValueMap<>();
@@ -57,6 +58,15 @@ public class TestController {
 		String result=restTemplate
 				.postForEntity(dataManagerUrl + "/api/test-datamanage/wpUpdateFundResource",requestEntity, String.class).getBody();
 
+	}
+
+
+	@ResponseBody
+	@RequestMapping(value = "/updateAllFundinfo",method = RequestMethod.GET)
+	public String updateAllFundinfo(){
+		String fundInfos=restTemplate
+				.getForEntity(tradeOrderUrl + "/test-financetrade/updateAllFundinfo", String.class).getBody();
+		return "更新成功";
 	}
 
 }

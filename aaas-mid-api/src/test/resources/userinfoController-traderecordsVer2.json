@@ -1,0 +1,84 @@
+{
+  "type":"object",
+  "$schema": "http://json-schema.org/draft-03/schema",
+  "properties":{
+    "head": {
+      "type":"object",
+      "properties":{
+        "status": {
+          "type":"string"
+        },
+        "msg": {
+          "type":"string"
+        }
+      }
+    },
+    "result": {
+      "type":"object",
+      "properties":{
+        "totalPage": {
+          "type":"number"
+        },
+        "totalRecord": {
+          "type":"number"
+        },
+        "currentPage": {
+          "type":"number"
+        },
+        "tradeLogs": {
+          "type":"array",
+          "items":
+          {
+            "type":"object",
+            "properties":{
+              "date": {
+                "type":"string"
+              },
+              "amount": {
+                "type":"number"
+              },
+              "operations": {
+                "type":"string"
+              },
+              "tradeStatusValue": {
+                "type":"number"
+              },
+              "orderId": {
+                "type":"string"
+              },
+              "tradeStatus": {
+                "type":"string"
+              },
+              "prodName": {
+                "type":"string"
+              },
+              "prodId": {
+                "type":"number"
+              },
+              "dateLong": {
+                "type":"number"
+              },
+              "operationsStatus": {
+                "type":"number"
+              },
+              "poundage": {
+                "type":"number"
+              },
+              "bankName": {
+                "type":"string"
+              },
+              "bankcardNum": {
+                "type":"string"
+              },
+              "bankinfo": {
+                "type":"string"
+              }
+            }
+          }
+
+
+        }
+      }
+    }
+  }
+}

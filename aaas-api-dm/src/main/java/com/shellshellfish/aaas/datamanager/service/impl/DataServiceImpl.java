@@ -1014,7 +1014,7 @@ public class DataServiceImpl implements DataService {
             Map map = new HashMap<String, Object>(3);
             map.put("date",
                     InstantDateUtil
-                            .format(InstantDateUtil.toLocalDate(coinFundYieldRate.getQuerydate()), "yyyy.MM.dd"));
+                            .format(InstantDateUtil.toLocalDate(coinFundYieldRate.getQuerydate()), "yyyy-MM-dd"));
             map.put("yieldOf7Days", coinFundYieldRate.getYieldOf7Days());
             map.put("tenKiloUnitYield", coinFundYieldRate.getTenKiloUnityYield());
 
@@ -1025,7 +1025,7 @@ public class DataServiceImpl implements DataService {
             BigDecimal dayUpRate = BigDecimal.ZERO;
             if (i != 0) {
                 BigDecimal yesterdayNavAdj = Optional.ofNullable(coinFundYieldRateList.get(i - 1))
-                        .map(m -> m.getNavAdj()).orElse(BigDecimal.ZERO);
+                        .map(m -> m.getNavAdj()).orElse(BigDecimal.ONE);
                 dayUp = todayNavAdj.subtract(yesterdayNavAdj);
 
                 if (BigDecimal.ZERO.compareTo(yesterdayNavAdj) != 0) {

@@ -158,8 +158,7 @@
         "total",
         "expMaxDrawDown",
         "assetsRatios",
-        "expAnnReturn",
-        "list"
+        "expAnnReturn"
       ]
     }
   }

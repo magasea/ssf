@@ -1,0 +1,248 @@
+{
+  "type":"object",
+  "$schema": "http://json-schema.org/draft-03/schema",
+  "properties":{
+    "head": {
+      "type":"object",
+      "properties":{
+        "status": {
+          "type":"string"
+        },
+        "msg": {
+          "type":"string"
+        }
+      }
+    },
+    "result": {
+      "type":"object",
+      "properties":{
+        "total": {
+          "type":"number"
+        },
+        "assetsRatios": {
+          "type":"array",
+          "items":
+          {
+            "type":"object",
+            "properties":{
+              "type": {
+                "type":"string"
+              },
+              "value": {
+                "type":"number"
+              }
+            }
+          }
+
+
+        },
+        "expMaxDrawDown": {
+          "type":"object",
+          "properties":{
+            "name": {
+              "type":"string"
+            },
+            "value": {
+              "type":"string"
+            }
+          }
+        },
+        "simulateHistoricalVolatility": {
+          "type":"object",
+          "properties":{
+            "name": {
+              "type":"string"
+            },
+            "value": {
+              "type":"string"
+            }
+          }
+        },
+        "expAnnReturn": {
+          "type":"object",
+          "properties":{
+            "name": {
+              "type":"string"
+            },
+            "id": {
+              "type":"string"
+            },
+            "value": {
+              "type":"string"
+            },
+            "subGroupId": {
+              "type":"string"
+            }
+          }
+        },
+        "title1": {
+          "type":"string"
+        },
+        "title2": {
+          "type":"string"
+        },
+        "fundListMap": {
+          "type":"object",
+          "properties":{
+            "12": {
+              "type":"array",
+              "items":
+              {
+                "type":"object",
+                "properties":{
+                  "avgIncreRate": {
+                    "type":"string"
+                  },
+                  "totalIncreRate": {
+                    "type":"string"
+                  },
+                  "name": {
+                    "type":"string"
+                  },
+                  "fundCode": {
+                    "type":"string"
+                  },
+                  "fundType": {
+                    "type":"string"
+                  },
+                  "fundClassId": {
+                    "type":"number"
+                  },
+                  "incrementMinMaxValueMap": {
+                    "type":"object",
+                    "properties":{
+                      "minValue": {
+                        "type":"number"
+                      },
+                      "maxValue": {
+                        "type":"number"
+                      }
+                    }
+                  },
+                  "incrementRateMinMaxValueMap": {
+                    "type":"object",
+                    "properties":{
+                      "minValue": {
+                        "type":"number"
+                      },
+                      "maxValue": {
+                        "type":"number"
+                      }
+                    }
+                  },
+                  "yieldof7days": {
+                    "type":"array",
+                    "items":
+                    {
+                      "type":"object",
+                      "properties":{
+                        "value": {
+                          "type":"number"
+                        },
+                        "time": {
+                          "type":"string"
+                        }
+                      }
+                    }
+
+
+                  },
+                  "tenKiloUnitYield": {
+                    "type":"array",
+                    "items":
+                    {
+                      "type":"object",
+                      "properties":{
+                        "value": {
+                          "type":"number"
+                        },
+                        "time": {
+                          "type":"string"
+                        }
+                      }
+                    }
+
+
+                  },
+                  "isMonetaryFund": {
+                    "type":"number"
+                  },
+                  "yieldof7daysMap": {
+                    "type":"object",
+                    "properties":{
+                      "minValue": {
+                        "type":"number"
+                      },
+                      "maxValue": {
+                        "type":"number"
+                      }
+                    }
+                  },
+                  "tenKiloUnitYieldMap": {
+                    "type":"object",
+                    "properties":{
+                      "minValue": {
+                        "type":"number"
+                      },
+                      "maxValue": {
+                        "type":"number"
+                      }
+                    }
+                  },
+                  "npvincrement": {
+                    "type":"array",
+                    "items":
+                    {
+                      "type":"object",
+                      "properties":{
+                        "time": {
+                          "type":"string"
+                        },
+                        "value": {
+                          "type":"number"
+                        }
+                      }
+                    }
+
+
+                  },
+                  "npvincreRate": {
+                    "type":"array",
+                    "items":
+                    {
+                      "type":"object",
+                      "properties":{
+                        "time": {
+                          "type":"string"
+                        },
+                        "value": {
+                          "type":"number"
+                        }
+                      }
+                    }
+
+
+                  }
+                }
+              }
+
+
+            }
+          }
+        },
+        "totalPage": {
+          "type":"number"
+        },
+        "totalRecord": {
+          "type":"number"
+        },
+        "currentPage": {
+          "type":"number"
+        },
+        "status": {
+          "type":"string"
+        }
+      }
+    }
+  }
+}

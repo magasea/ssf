@@ -1,0 +1,52 @@
+{
+  "type":"object",
+  "$schema": "http://json-schema.org/draft-03/schema",
+  "properties":{
+    "head": {
+      "type":"object",
+      "properties":{
+        "status": {
+          "type":"string"
+        },
+        "msg": {
+          "type":"string"
+        }
+      }
+    },
+    "result": {
+      "type":"object",
+      "properties":{
+        "result": {
+          "type":"array",
+          "items":
+          {
+            "type":"object",
+            "properties":{
+              "groupId": {
+                "type":"number"
+              },
+              "prodId": {
+                "type":"number"
+              },
+              "modifySeq": {
+                "type":"number"
+              },
+              "modifyTime": {
+                "type":"string"
+              },
+              "modifyComment": {
+                "type":"string"
+              },
+              "modifyTypeComment": {
+                "type":"string"
+              }
+            }
+          }
+        },
+        "name": {
+          "type":"string"
+        }
+      }
+    }
+  }
+}
