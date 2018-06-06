@@ -9,16 +9,8 @@ import java.util.Map;
 
 public interface UserFinanceProdCalcService {
 
-    void calcIntervalAmount(String userUuid, Long prodId, String fundCode, String startDate)
-            throws Exception;
-
-    void initDailyAmount(String userUuid, Long prodId, Long userProdId, String date, String fundCode);
-
-    BigDecimal calcYieldValue(String userUuid, Long prodId, String startDate, String endDate);
 
     BigDecimal calcYieldRate(String userUuid, Long prodId, String startDate, String endDate);
-
-    BigDecimal calcYieldValue(String userUuid, String startDate, String endDate);
 
     BigDecimal calcYieldRate(String userUuid, String startDate, String endDate);
 
@@ -35,6 +27,6 @@ public interface UserFinanceProdCalcService {
 
     void calculateProductAsset(UiProductDetail detail, String uuid, Long prodId, String date);
 
-    void calculateFromZzInfo(UiProductDetail detail, String uuid, Long prodId, String date)
-            throws Exception;
+    void calculateFromZzInfo(Long userProdId, String fundCode, String date) throws Exception;
+
 }

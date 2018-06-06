@@ -78,9 +78,9 @@ public class UserAssetServiceImpl implements UserAssetService {
         PortfolioInfo portfolioInfo = calculateUserAssetAndIncome(prodId, endDate);
 
         List<MongoUiTrdZZInfo> mongoUiTrdZZinfoList = mongoUiTrdZZInfoRepo
-                .findAllByUserIdAndUserProdIdAndTradeTypeAndTradeStatus(userId, prodId,
+                .findAllByUserIdAndUserProdIdAndTradeTypeAndTradeStatusAndConfirmDateLessThanEqual(userId, prodId,
                         TrdOrderOpTypeEnum.BUY.getOperation(),
-                        TrdOrderStatusEnum.CONFIRMED.getStatus());
+                        TrdOrderStatusEnum.CONFIRMED.getStatus(), endDay);
 
         //已经确认部分金额
         BigDecimal confirmAsset = BigDecimal.ZERO;

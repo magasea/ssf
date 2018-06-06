@@ -23,11 +23,6 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepo
 import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
 import com.shellshellfish.aaas.userinfo.service.PayGrpcService;
 import com.shellshellfish.aaas.userinfo.service.impl.CalculateConfirmedAsset;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.Exchange;
@@ -41,6 +36,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class BroadcastMessageConsumers {
@@ -132,7 +131,7 @@ public class BroadcastMessageConsumers {
             mongoUiTrdLog.setTradeStatus(trdPayFlow.getTrdStatus());
 
             mongoUiTrdLog.setOrderId(TradeUtil.getOrderIdByOutsideOrderNo(trdPayFlow
-                .getOutsideOrderno(), trdPayFlow.getOrderDetailId()));
+                    .getOutsideOrderno(), trdPayFlow.getOrderDetailId()));
 
 
             if (trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.WAITPAY.getStatus() ||
@@ -390,9 +389,11 @@ public class BroadcastMessageConsumers {
                 mongoUiTrdZZInfoInDb.setId(idOrig);
                 mongoUiTrdZZInfoRepo.save(mongoUiTrdZZInfoInDb);
             }
+
+            //FIXME 通过消息队列调用，实现业务逻辑解偶
+            calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo);
         } catch (Exception ex) {
             logger.error("exception:", ex);
-
         }
 
 
@@ -408,9 +409,13 @@ public class BroadcastMessageConsumers {
     public void receiveConfirmInfoUpdateProdQty(MongoUiTrdZZInfo mongoUiTrdZZInfo, Channel channel, @Header
             (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
         try {
+/*
             logger.info("received mongoUiTrdZZInfo to update assects with userProdId:{} "
                             + "userId:{} fundCode:{} ", mongoUiTrdZZInfo.getUserProdId(),
                     mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getFundCode());
+
+*/
+            logger.info("run receiveConfirmInfoUpdateProdQty:{}", mongoUiTrdZZInfo);
             if (mongoUiTrdZZInfo.getTradeType() == TrdOrderOpTypeEnum.BUY.getOperation()) {
                 updateBuyProductQty(mongoUiTrdZZInfo);
             } else if (mongoUiTrdZZInfo.getTradeType() == TrdOrderOpTypeEnum.REDEEM
@@ -421,7 +426,7 @@ public class BroadcastMessageConsumers {
                         .getTradeType());
             }
 
-            calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo);
+
         } catch (Exception ex) {
             logger.error("Exception:", ex);
         }

@@ -24,7 +24,7 @@ spring:
         acknowledge-mode: auto
     username: ssf
     password: shellshellfish
-    host: external-rabbitmq-service
+    host: external-rabbitmq-servic
     port: 5672
     virtual-host: aaas
     topicQueuePayName: com-ssf-topic-queue-pay
@@ -38,10 +38,11 @@ spring:
     host: redis-service
     port: 6379
     password: redis123
+    timeout: 1800000ms
     lettuce:
       pool:
         max-active: 8
-        max-wait: -1ms
+        max-wait: 1800000ms
         max-idle: 8
         min-idle: 0
 datasource:
@@ -88,7 +89,4 @@ api-asset-alloction-url: http://aaas-api-asset-allocation:10020
 # 每日收益计算 多线程
 daily-finance-calculate-thread: 8
 
-management:
-  endpoints:
-    web:
-      base-path: /
+

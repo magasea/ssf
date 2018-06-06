@@ -30,7 +30,7 @@ public class TestController {
   private MongoTemplate mongoTemplate;
 
   @ResponseBody
-  @RequestMapping(value = "/wpGetFundInfoList")
+  @RequestMapping(value = "/wpGetFundInfoList",method = RequestMethod.GET)
   public String getFundInfoList(){
     System.out.println("开始执行finance-trade");
     List< HashMap<String ,Object>> fundInfoList=new ArrayList<>();
@@ -54,4 +54,17 @@ public class TestController {
     }
     return fundInfos;
   }
+
+  @ResponseBody
+  @RequestMapping(value = "/updateAllFundinfo",method = RequestMethod.GET)
+  public String updateAllFundinfo(){
+    try {
+      List<String> allFundsInfo = fundInfoService.getAllFundsInfo();
+      fundInfoService.writeAllFundsToMongoDb(allFundsInfo);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return "更新成功";
+  }
+
 }

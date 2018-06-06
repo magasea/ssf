@@ -1,6 +1,7 @@
 package transfer.controller;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.Matchers.*;
 
 import java.nio.charset.Charset;
@@ -50,14 +51,17 @@ public class UserInfoControllerIT {
 
 	private String SELECT_BANKS = "/phoneapi-ssf/selectbanks";
 
-	private String SELL_RESULT = "/phoneapi-ssf/sellresult";
+	//private String SELL_RESULT = "/phoneapi-ssf/sellresult";
 
 	private String SYSTEM_MSG = "/phoneapi-ssf/systemMsg";
 
 	private String TRADE_RECORDS = "/phoneapi-ssf/traderecords";
 
+	private String TRADE_RECORDS_VER2 = "/phoneapi-ssf/traderecords-ver2";
+
 	private String TRADE_RESULT = "/phoneapi-ssf/traderesult";
 
+	private static final String TRADERECORDS_VER2_JSON_SCHEMA = "userinfoController-traderecordsVer2.json";
 
 	private static final String REQUEST_IS_SUCCESS = "1";
 
@@ -281,7 +285,7 @@ public class UserInfoControllerIT {
 	 *     bankCard ：银行卡号
 	 * }
 	 */
-	@Test
+	/*@Test
 	public void sellresultTest() {
 		String uuid = "69ad9732-f9cd-49e9-a71f-0462cc6b4d8e";
 		String prodId = "21";
@@ -310,7 +314,7 @@ public class UserInfoControllerIT {
 				.body("result.date1", notNullValue())
 				.time(lessThan(TIMEOUT));
 	}
-
+*/
 	/**
 	 * 目的：校验接口是否返回数据与数据格式是否正确
 	 * 接口：/phoneapi-ssf/systemMsg
@@ -353,6 +357,28 @@ public class UserInfoControllerIT {
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.time(lessThan(TIMEOUT));
+	}
+
+	@Test
+	public void traderecords_ver2Test() {
+		String uuid = "3a0bc5f0-c491-4718-a6c2-dc716ae308f9";
+		String pageSize = "3";
+		String pageIndex = "0";
+
+
+		given()
+				.param("uuid", uuid)
+				.param("pageSize", pageSize)
+				.param("pageIndex", pageIndex)
+				.filter(new ResponseLoggingFilter())
+				.when()
+				.post(TRADE_RECORDS_VER2)
+				.then().log().all()
+				.body(matchesJsonSchemaInClasspath(TRADERECORDS_VER2_JSON_SCHEMA))
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
+				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
+				.using();
 	}
 
 	/**

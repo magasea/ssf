@@ -65,7 +65,7 @@ public class UserFinanceProdCalcServiceImplTest {
     @Test
     public void testCalcIntervalAmount() throws Exception {
         for (String fundCode : fundCodeList) {
-            userFinanceProdCalcService.calcIntervalAmount("shellshellfish", 2000L, fundCode, "20170101");
+//            userFinanceProdCalcService.calcIntervalAmount("shellshellfish", 2000L, fundCode, "20170101");
         }
     }
 
