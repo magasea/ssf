@@ -32,7 +32,7 @@ public class CalculateConfirmedAssetTest {
     public void test() {
         String confirmDate = "20180606";
         List<MongoUiTrdZZInfo> mongoUiTrdZZInfoList = mongoUiTrdZZInfoRepo.findAllByConfirmDate(confirmDate);
-        ExecutorService es = Executors.newFixedThreadPool(30);
+        ExecutorService es = Executors.newFixedThreadPool(8);
         List<com.shellshellfish.aaas.common.message.order.MongoUiTrdZZInfo> confirmInfo = new ArrayList<>();
         for (MongoUiTrdZZInfo mongoUiTrdZZInfo : mongoUiTrdZZInfoList) {
             com.shellshellfish.aaas.common.message.order.MongoUiTrdZZInfo mongoUiTrdZZInfode = new com.shellshellfish
