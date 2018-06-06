@@ -1014,7 +1014,7 @@ public class DataServiceImpl implements DataService {
             Map map = new HashMap<String, Object>(3);
             map.put("date",
                     InstantDateUtil
-                            .format(InstantDateUtil.toLocalDate(coinFundYieldRate.getQuerydate()), "yyyy.MM.dd"));
+                            .format(InstantDateUtil.toLocalDate(coinFundYieldRate.getQuerydate()), "yyyy-MM-dd"));
             map.put("yieldOf7Days", coinFundYieldRate.getYieldOf7Days());
             map.put("tenKiloUnitYield", coinFundYieldRate.getTenKiloUnityYield());
 
