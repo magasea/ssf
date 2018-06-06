@@ -129,18 +129,19 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
         BigDecimal share = getFundQuantityAtDate(fundCode, userProdId, date);
         BigDecimal netValue = getFundNetValue(fundCode, InstantDateUtil.format(date, yyyyMMdd));
         BigDecimal rateOfSellFund = getSellRate(fundCode);
-        logger.info("update asset====>>>> share:{},netValue:{}，rateOfSellFund:{},userProdId:{},date:{},fundCode:{}",
-                share, netValue, rateOfSellFund, userProdId, date, fundCode);
         BigDecimal fundAsset = share.multiply(netValue)
                 .multiply(BigDecimal.ONE.subtract(rateOfSellFund));
+
+        if (fundAsset.compareTo(BigDecimal.ZERO) < 0)
+            logger.info("update asset====>>>> share:{},netValue:{}，rateOfSellFund:{},userProdId:{},date:{},fundCode:{}," +
+                            "fundAsset:{}",
+                    share, netValue, rateOfSellFund, userProdId, date, fundCode, fundAsset);
 
         String today = date;//getTodayAsString();
 
         Query query = new Query();
-        query.addCriteria(Criteria.where("userUuid").is(userUuid))
-                .addCriteria(Criteria.where("date").is(today))
+        query.addCriteria(Criteria.where("date").is(today))
                 .addCriteria(Criteria.where("fundCode").is(fundCode))
-                .addCriteria(Criteria.where("prodId").is(prodId))
                 .addCriteria(Criteria.where("userProdId").is(userProdId));
 
         Update update = new Update();
@@ -555,27 +556,10 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
         logger.info("calculate from zzinfo :{},date:{}", detail, date);
         String fundCode = detail.getFundCode();
-//        addDailyAmount(uuid, date, fundCode, prodId, detail.getUserProdId());
         //计算当日总资产
         calcDailyAsset(uuid, prodId, detail.getUserProdId(), fundCode,
                 date, detail);
 
-    }
-
-    private void addDailyAmount(String userUuid, String date, String fundCode, Long prodId,
-                                Long userProdId) {
-
-        Query query = new Query();
-        query.addCriteria(Criteria.where("userUuid").is(userUuid))
-                .addCriteria(Criteria.where("date").is(date))
-                .addCriteria(Criteria.where("fundCode").is(fundCode))
-                .addCriteria(Criteria.where("prodId").is(prodId))
-                .addCriteria(Criteria.where("userProdId").is(userProdId));
-
-        DailyAmount dailyAmount1 = zhongZhengMongoTemplate.findOne(query, DailyAmount.class);
-        if (dailyAmount1 == null) {
-            initDailyAmount(userUuid, prodId, userProdId, date, fundCode);
-        }
     }
 
     /**
