@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,6 +142,8 @@ public class FundGroupServiceImpl implements FundGroupService {
 
         BigDecimal income = BigDecimal.ZERO;
         income = income.add(dailyAmountList.get(0).getAsset());
+
+        date = dailyAmountList.get(0).getDate();
         if (dailyAmountList.size() > 1)
             income = income.subtract(dailyAmountList.get(1).getAsset());
 
@@ -152,12 +155,12 @@ public class FundGroupServiceImpl implements FundGroupService {
             return income;
 
         for (MongoUiTrdZZInfo zzinfo : mongoUiTrdZZInfoList) {
-            if(zzinfo.getTradeType() == TrdOrderOpTypeEnum.BUY.getOperation()){
-              income = income.subtract(TradeUtil.getBigDecimalNumWithDiv100(zzinfo.getTradeConfirmSum()));
-            } else if(zzinfo.getTradeType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
-              income = income.add(TradeUtil.getBigDecimalNumWithDiv100(zzinfo.getTradeConfirmSum()));
+            if (zzinfo.getTradeType() == TrdOrderOpTypeEnum.BUY.getOperation()) {
+                income = income.subtract(TradeUtil.getBigDecimalNumWithDiv100(zzinfo.getTradeConfirmSum()));
+            } else if (zzinfo.getTradeType() == TrdOrderOpTypeEnum.REDEEM.getOperation()) {
+                income = income.add(TradeUtil.getBigDecimalNumWithDiv100(zzinfo.getTradeConfirmSum()));
             } else {
-              logger.error("error trade type");
+                logger.error("error trade type");
             }
         }
         return income;
