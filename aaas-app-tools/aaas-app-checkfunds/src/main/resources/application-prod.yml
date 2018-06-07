@@ -59,6 +59,7 @@ cron:
 using:
   spring:
     schedulerFactory: true
+
 grpc:
   pythonServer:
 #    ip: localhost

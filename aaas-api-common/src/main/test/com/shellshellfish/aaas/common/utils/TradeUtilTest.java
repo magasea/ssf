@@ -11,9 +11,13 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.Set;
 import org.junit.Test;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Created by chenwei on 2018- 一月 - 08
@@ -179,7 +183,7 @@ public class TradeUtilTest {
     BigDecimal divider = new BigDecimal(navadj);
     BigDecimal result = number.divide(divider, 2, RoundingMode.HALF_DOWN);
     System.out.println(result);
-    System.out.println(TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundDown(shares*1000000L,
+    System.out.println(TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundUp(shares*1000000L,
         navadj).intValue());
   }
 
@@ -195,5 +199,40 @@ public class TradeUtilTest {
     System.out.println(result);
     System.out.println(TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundDown(shares*sellPercent,
         dividerL).intValue());
+  }
+
+  @Test
+  public void testTimeDiff(){
+    Long now = TradeUtil.getUTCTime();
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    Long nowNew = TradeUtil.getUTCTime();
+    System.out.println(now - nowNew);
+  }
+
+  @Test
+  public void testCollectionSort(){
+    ArrayList<Long> values = new ArrayList<>();
+    for(long idx = 0; idx< 10; idx++){
+      values.add(idx);
+    }
+    System.out.println("Before sort");
+    for(long item: values){
+      System.out.println(item);
+    }
+    Collections.sort(values, new Comparator<Long>() {
+      @Override
+      public int compare(Long o1, Long o2) {
+        return Math.toIntExact(o2 - o1);
+      }
+    });
+    System.out.println("after sort");
+    for(long item: values){
+      System.out.println(item);
+    }
+
   }
 }

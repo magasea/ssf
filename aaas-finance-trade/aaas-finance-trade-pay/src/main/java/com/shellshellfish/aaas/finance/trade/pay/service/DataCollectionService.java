@@ -4,7 +4,7 @@ import com.shellshellfish.aaas.common.grpc.datacollection.DCDailyFunds;
 import java.util.List;
 
 /**
- * Created by developer4 on 2018- 六月 - 04
+ * Created by chenwei on 2018- 六月 - 04
  */
 
 public interface DataCollectionService {

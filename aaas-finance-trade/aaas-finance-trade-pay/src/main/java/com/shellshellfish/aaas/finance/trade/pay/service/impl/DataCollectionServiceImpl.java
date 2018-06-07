@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Created by developer4 on 2018- 六月 - 04
+ * Created by chenwei on 2018- 六月 - 04
  */
 @Service
 public class DataCollectionServiceImpl  implements DataCollectionService {

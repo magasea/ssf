@@ -29,3 +29,12 @@ datasource:
       dialect: org.hibernate.dialect.MySQLDialect
 shellshellfish:
   asset-alloction-url: "http://localhost:10020"
+
+cron:
+  frequency:
+    #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
+    # 	Every 3 hours
+    jobCheckFunds: 0 0 0/3 1/1 * ? *
+using:
+  spring:
+    schedulerFactory: true

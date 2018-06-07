@@ -213,6 +213,10 @@ public class TradeUtil {
     return BigDecimal.valueOf(number).divide(BigDecimal.valueOf(divider),2,RoundingMode.HALF_DOWN);
   }
 
+  public static BigDecimal getBigDecimalNumWithDivOfTwoLongAndRundUp(Long number, Long divider){
+    return BigDecimal.valueOf(number).divide(BigDecimal.valueOf(divider),2,RoundingMode.HALF_UP);
+  }
+
   public static BigDecimal getBigDecimalNumWithDivOfTwoLong(Long number, Long divider){
     return MathUtil.round(BigDecimal.valueOf(number).divide(BigDecimal.valueOf(divider)),2,true);
   }

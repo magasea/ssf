@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
- * Created by developer4 on 2018- 六月 - 04
+ * Created by chenwei on 2018- 六月 - 04
  */
 @Document(collection = "ui_pending_records")
 public class MongoPendingRecords implements Serializable {
@@ -19,7 +19,7 @@ public class MongoPendingRecords implements Serializable {
     private String id;
 
     @Field( value = "trade_type")
-    private int tradeType;
+    private int tradeType = Integer.MIN_VALUE;
 
     @Field( value = "created_by")
     private Long createdBy;
@@ -87,6 +87,12 @@ public class MongoPendingRecords implements Serializable {
     @Field(value = "outside_order_id")
     @Indexed()
     private String outsideOrderId;
+
+    @Field(value="prod_id")
+    private Long prodId;
+
+    @Field(value="group_id")
+    private Long groupId;
 
   public static long getSerialVersionUID() {
     return serialVersionUID;
@@ -266,5 +272,21 @@ public class MongoPendingRecords implements Serializable {
 
   public void setOutsideOrderId(String outsideOrderId) {
     this.outsideOrderId = outsideOrderId;
+  }
+
+  public Long getProdId() {
+    return prodId;
+  }
+
+  public void setProdId(Long prodId) {
+    this.prodId = prodId;
+  }
+
+  public Long getGroupId() {
+    return groupId;
+  }
+
+  public void setGroupId(Long groupId) {
+    this.groupId = groupId;
   }
 }

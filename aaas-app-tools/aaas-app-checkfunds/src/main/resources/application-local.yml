@@ -41,14 +41,17 @@ shellshellfish:
   csvFilePath: temp
   csvFundFileOriginName: csvFundsInfo
   csvBaseFileOriginName: csvBaseInfo
+
+using:
+  spring:
+    schedulerFactory: true
 cron:
   frequency:
     #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
     # 	Every 3 hours
-    jobCheckFunds: 0 0 0/3 1/1 * ? *
-using:
-  spring:
-    schedulerFactory: true
+    jobCheckFunds: 47 * * * *
+
+
 grpc:
   pythonServer:
     ip: 192.168.1.45

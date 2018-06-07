@@ -84,8 +84,29 @@ public class OrderGrpcServiceImpl implements OrderRpcService {
         goiafcBuilder.setFundCode(fundCode);
         goiafcBuilder.setOrderId(orderId);
         List<com.shellshellfish.aaas.finance.trade.order.OrderDetail> orderDetails =
-        tradeOrderServiceBlockingStub.getOrderDetailByGenOrderIdAndFundCode(goiafcBuilder.build()
+        tradeOrderServiceBlockingStub.getOrderDetailByParams(goiafcBuilder.build()
         ).getOrderDetailResultList();
+        List<TrdOrderDetail> trdOrderDetails = new ArrayList<>();
+        orderDetails.forEach(
+            grpcOrderDetail -> {
+                TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
+                MyBeanUtils.mapEntityIntoDTO(grpcOrderDetail, trdOrderDetail);
+                trdOrderDetails.add(trdOrderDetail);
+            }
+        );
+        return trdOrderDetails;
+    }
+
+    @Override
+    public List<TrdOrderDetail> getOrderDetailByUserProdIdAndFundCodeAndTrdType(Long userProdId,
+        String fundCode, Integer trdType) {
+        GenOrderIdAndFundCode.Builder goiafcBuilder = GenOrderIdAndFundCode.newBuilder();
+        goiafcBuilder.setFundCode(fundCode);
+        goiafcBuilder.setUserProdId(userProdId);
+        goiafcBuilder.setTrdType(trdType);
+        List<com.shellshellfish.aaas.finance.trade.order.OrderDetail> orderDetails =
+            tradeOrderServiceBlockingStub.getOrderDetailByParams(goiafcBuilder.build()
+            ).getOrderDetailResultList();
         List<TrdOrderDetail> trdOrderDetails = new ArrayList<>();
         orderDetails.forEach(
             grpcOrderDetail -> {

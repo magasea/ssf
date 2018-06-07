@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.common.enums;
 
 /**
- * Created by developer4 on 2018- 六月 - 04
+ * Created by chenwei on 2018- 六月 - 04
  */
 
 public enum PendingRecordStatusEnum {

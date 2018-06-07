@@ -417,9 +417,7 @@ public class BroadcastMessageConsumers {
             }
         } catch (Exception ex) {
             logger.error("exception:", ex);
-
         }
-
 
     }
 
@@ -615,13 +613,15 @@ public class BroadcastMessageConsumers {
 
         if (MonetaryFundEnum.containsCode(productDetail.getFundCode())) {
             //monetary fund should caculate quantity by NetValue
-            Long trdCfmSum = mongoUiTrdZZInfo.getTradeConfirmSum();
-            List<FundNetInfo> fundNetInfos = payGrpcService.getFundNetInfosFromZZ(userPid,
-                    mongoUiTrdZZInfo.getFundCode(), 10);
-            Long fundUnitNet = getFundUnitNet(productDetail.getFundCode(), fundNetInfos,
-                    mongoUiTrdZZInfo.getApplyDate());
-            Long caculatedFundQty = TradeUtil.getBigDecimalNumWithDivOfTwoLong(trdCfmSum,
-                    fundUnitNet).longValueExact();
+            Long trdCfmShare = mongoUiTrdZZInfo.getTradeConfirmShare();
+//            List<FundNetInfo> fundNetInfos = payGrpcService.getFundNetInfosFromZZ(userPid,
+//                    mongoUiTrdZZInfo.getFundCode(), 10);
+//            Long fundUnitNet = getFundUnitNet(productDetail.getFundCode(), fundNetInfos,
+//                    mongoUiTrdZZInfo.getApplyDate());
+            Long navadj = getMoneyCodeNavAdjByDate(mongoUiTrdZZInfo.getFundCode(), mongoUiTrdZZInfo
+                .getApplyDate());
+            Long caculatedFundQty = TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundUp
+                (trdCfmShare*1000000L, navadj).longValueExact();
             productDetail.setFundQuantity(caculatedFundQty.intValue());
             productDetail.setFundQuantityTrade(caculatedFundQty.intValue());
         } else {
@@ -659,13 +659,16 @@ public class BroadcastMessageConsumers {
         }
         if (MonetaryFundEnum.containsCode(productDetail.getFundCode())) {
             //monetary fund should caculate quantity by NetValue
-            Long trdCfmSum = mongoUiTrdZZInfo.getTradeConfirmSum();
-            List<FundNetInfo> fundNetInfos = payGrpcService.getFundNetInfosFromZZ(userPid,
-                    mongoUiTrdZZInfo.getFundCode(), 10);
-            Long fundUnitNet = getFundUnitNet(productDetail.getFundCode(), fundNetInfos,
-                    mongoUiTrdZZInfo.getApplyDate());
-            Long caculatedFundQty = TradeUtil.getBigDecimalNumWithDivOfTwoLong(trdCfmSum,
-                    fundUnitNet).longValueExact();
+            Long trdCfmShare = mongoUiTrdZZInfo.getTradeConfirmShare();
+//            List<FundNetInfo> fundNetInfos = payGrpcService.getFundNetInfosFromZZ(userPid,
+//                    mongoUiTrdZZInfo.getFundCode(), 10);
+//            Long fundUnitNet = getFundUnitNet(productDetail.getFundCode(), fundNetInfos,
+//                    mongoUiTrdZZInfo.getApplyDate());
+            Long navadj = getMoneyCodeNavAdjByDate(mongoUiTrdZZInfo.getFundCode(), mongoUiTrdZZInfo
+                .getApplyDate());
+            Long caculatedFundQty = TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundUp
+                (trdCfmShare*1000000L,
+                    navadj).longValueExact();
             Long remainQty = productDetail.getFundQuantity() - caculatedFundQty;
             if (remainQty < 0) {
                 logger.error("abnormal situation appeared for the userProdId:{} current "
@@ -778,29 +781,79 @@ public class BroadcastMessageConsumers {
             List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
             if(CollectionUtils.isEmpty(mongoPendingRecords)){
                 //no record found, so we should add the pendingRecord based on trdOrderDetail
-                logger.error("failed to find pendingRecord based on user_prod_id:{} fundCode:{} "
-                    + "and outsideOrderNo:{}", trdOrderDetail.getUserProdId(), trdOrderDetail
-                    .getFundCode(),(trdOrderDetail.getOrderId()+trdOrderDetail.getId()));
-                MongoPendingRecords mongoPendingRecordsPatched =  getPathMongoPendingRecord
-                    (trdOrderDetail);
-            }else{
-                if(mongoPendingRecords.size() > 1){
+                logger.info("it is normal that in current stage there should be no pendingRecord "
+                    + "there find pendingRecord based on user_prod_id:{} fundCode:{} and "
+                    + "outsideOrderNo:{} we can try use empty orderId",  trdOrderDetail
+                    .getUserProdId(), trdOrderDetail.getFundCode(),(trdOrderDetail.getOrderId()+trdOrderDetail.getId()));
+                Query queryWithEmptyOrderId = new Query();
+                query.addCriteria(Criteria.where("user_prod_id").is(trdOrderDetail.getUserProdId()).and
+                    ("fund_code").is(trdOrderDetail.getFundCode()).and("outside_order_id").is
+                    (null));
+                List<MongoPendingRecords> mongoPendingRecordsWithEmptyOrderIds = mongoTemplate.find
+                    (query, MongoPendingRecords.class);
+                if(!CollectionUtils.isEmpty(mongoPendingRecordsWithEmptyOrderIds)){
+                    MongoPendingRecords mongoPendingRecordsHistory = null;
+
+                    if(mongoPendingRecordsWithEmptyOrderIds.size() == 1){
+                        mongoPendingRecordsHistory =
+                            mongoPendingRecordsWithEmptyOrderIds.get(0);
+                    }
+                    if(mongoPendingRecordsWithEmptyOrderIds.size() > 1){
+                        logger.error("there are redundunt records there ");
+                        for(MongoPendingRecords item: mongoPendingRecordsWithEmptyOrderIds){
+                            if( item.getTradeType() == Integer.MIN_VALUE || item.getTradeType() ==
+                                trdOrderDetail.getTradeType()){
+                                logger.info("there is uninitiallized type");
+                                mongoPendingRecordsHistory = item;
+                                break;
+                            }
+                        }
+                    }
+                    if(mongoPendingRecordsHistory != null){
+                        updateHistoryBuyPendRecordByOrderDetail(mongoPendingRecordsHistory, trdOrderDetail);
+                        mongoTemplate.save(mongoPendingRecordsHistory, "ui_pending_records");
+                    }
+                }else{
+                    MongoPendingRecords mongoPendingRecordsPatched =  getPathMongoPendingRecord(trdOrderDetail);
+                    mongoTemplate.save(mongoPendingRecordsPatched, "ui_pending_records");
+                }
+            }
+            else{
+                MongoPendingRecords mongoPendingRecordsHistory = null;
+                if(mongoPendingRecords.size() >= 1){
                     logger.error("There should be only 1 pendingRecord there, but there is more "
                         + "than 1:{}", mongoPendingRecords.size());
+                    for(MongoPendingRecords item: mongoPendingRecords){
+                        if(item.getProcessStatus() == PendingRecordStatusEnum.HANDLED.getStatus()){
+                            continue;
+                        }else{
+                            mongoPendingRecordsHistory = item;
+                            break;
+                        }
+                    }
                 }
-                mongoPendingRecords.get(0).setProcessStatus(PendingRecordStatusEnum.NOTHANDLED
-                    .getStatus());
-                mongoPendingRecords.get(0).setTradeStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
-                mongoPendingRecords.get(0).setTradeType(trdOrderDetail.getTradeType());
-                mongoPendingRecords.get(0).setOutsideOrderId(trdOrderDetail.getOrderId()+trdOrderDetail.getId());
-                mongoPendingRecords.get(0).setOrderId(trdOrderDetail.getOrderId());
-                mongoPendingRecords.get(0).setTradeTargetShare(trdOrderDetail.getFundNum());
-                mongoPendingRecords.get(0).setTradeTargetSum(trdOrderDetail.getFundSum());
-                mongoPendingRecords.get(0).setCreatedDate(TradeUtil.getUTCTime());
-                mongoTemplate.save(mongoPendingRecords.get(0), "ui_pending_records");
+                if(mongoPendingRecordsHistory != null){
+                    updateHistoryBuyPendRecordByOrderDetail(mongoPendingRecordsHistory, trdOrderDetail);
+                    mongoTemplate.save(mongoPendingRecordsHistory, "ui_pending_records");
+                }else{
+                    logger.error("All pendingRecord with outside_order_id:{} is handled",trdOrderDetail.getOrderId()+trdOrderDetail.getId() );
+                }
             }
 
         }
+    }
+
+    private void updateHistoryBuyPendRecordByOrderDetail(MongoPendingRecords mongoPendingRecords,
+        TrdOrderDetail trdOrderDetail){
+        mongoPendingRecords.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED
+            .getStatus());
+        mongoPendingRecords.setTradeStatus(trdOrderDetail.getOrderDetailStatus());
+        mongoPendingRecords.setTradeType(trdOrderDetail.getTradeType());
+        mongoPendingRecords.setOutsideOrderId(trdOrderDetail.getOrderId()+trdOrderDetail.getId());
+        mongoPendingRecords.setOrderId(trdOrderDetail.getOrderId());
+        mongoPendingRecords.setTradeTargetShare(trdOrderDetail.getFundNum());
+        mongoPendingRecords.setTradeTargetSum(trdOrderDetail.getFundSum());
+        mongoPendingRecords.setCreatedDate(TradeUtil.getUTCTime());
     }
 
 
@@ -825,30 +878,82 @@ public class BroadcastMessageConsumers {
                 (orderId +prodDtlSellDTO.getOrderDetailId()));
             List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
             if(CollectionUtils.isEmpty(mongoPendingRecords)){
-                //no record found, so we should add the pendingRecord based on trdOrderDetail
+                //no record found, so we should 1. check if there is empty orderId record
+                // 2. add the pendingRecord based on trdOrderDetail
                 logger.error("failed to find pendingRecord based on user_prod_id:{} fundCode:{} "
                     + "and outsideOrderNo:{}", prodDtlSellDTO.getUserProdId(), prodDtlSellDTO
                     .getFundCode(),(sellPercentMsg.getOrderId()+prodDtlSellDTO.getOrderDetailId()));
-                MongoPendingRecords mongoPendingRecordsPatched =  getPathMongoPendingRecord
-                    (prodDtlSellDTO, orderId);
+                Query queryWithEmptyOrderId = new Query();
+                query.addCriteria(Criteria.where("user_prod_id").is(prodDtlSellDTO.getUserProdId()).and
+                    ("fund_code").is(prodDtlSellDTO.getFundCode()).and("outside_order_id").is
+                    (null));
+                List<MongoPendingRecords> mongoPendingRecordsWithEmptyOrderIds = mongoTemplate.find
+                    (query, MongoPendingRecords.class);
+                if(!CollectionUtils.isEmpty(mongoPendingRecordsWithEmptyOrderIds)){
+                    MongoPendingRecords mongoPendingRecordsHistory = null;
+                    if(mongoPendingRecordsWithEmptyOrderIds.size() == 1){
+                        mongoPendingRecordsHistory =
+                            mongoPendingRecordsWithEmptyOrderIds.get(0);
+                    }
+                    if(mongoPendingRecordsWithEmptyOrderIds.size() > 1){
+                        logger.error("there are redundunt records there ");
+                        for(MongoPendingRecords item: mongoPendingRecordsWithEmptyOrderIds){
+                            if( item.getTradeType() == Integer.MIN_VALUE || item.getTradeType() ==
+                                TrdOrderOpTypeEnum.REDEEM.getOperation()){
+                                logger.info("there is uninitiallized type");
+                                mongoPendingRecordsHistory = item;
+                                break;
+                            }
+                        }
+                    }
+                    if(mongoPendingRecordsHistory != null && mongoPendingRecordsHistory
+                        .getProcessStatus() != PendingRecordStatusEnum.HANDLED.getStatus()){
+                        updateHistorySellPendRecordByProdDtlSellDTO(mongoPendingRecordsHistory,
+                            prodDtlSellDTO, orderId);
+                        mongoTemplate.save(mongoPendingRecordsHistory, "ui_pending_records");
+                    }
+                }else{
+                    MongoPendingRecords mongoPendingRecordsPatched =  getPathMongoPendingRecord
+                        (prodDtlSellDTO, orderId);
+                    mongoTemplate.save(mongoPendingRecordsPatched, "ui_pending_records");
+                }
             }else{
-                if(mongoPendingRecords.size() > 1){
+                MongoPendingRecords mongoPendingRecordsHistory = null;
+                if(mongoPendingRecords.size() >= 1){
                     logger.error("There should be only 1 pendingRecord there, but there is more "
                         + "than 1:{}", mongoPendingRecords.size());
+                    for(MongoPendingRecords item: mongoPendingRecords){
+                        if(item.getProcessStatus() == PendingRecordStatusEnum.HANDLED.getStatus()){
+                            continue;
+                        }else{
+                            mongoPendingRecordsHistory = item;
+                            break;
+                        }
+                    }
                 }
-                MongoPendingRecords mongoPendingRecordsToUpdate = mongoPendingRecords.get(0);
-                mongoPendingRecordsToUpdate.setOrderId(sellPercentMsg.getOrderId());
-                mongoPendingRecordsToUpdate.setTradeType(TrdOrderOpTypeEnum.REDEEM.getOperation());
-                mongoPendingRecordsToUpdate.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED.getStatus());
-                mongoPendingRecordsToUpdate.setTradeStatus(TrdOrderStatusEnum.WAITSELL.getStatus());
-                mongoPendingRecordsToUpdate.setOutsideOrderId(orderId+prodDtlSellDTO.getId());
-                mongoPendingRecordsToUpdate.setOrderId(orderId);
-                mongoPendingRecordsToUpdate.setTradeTargetShare(new Long(prodDtlSellDTO.getFundQuantity()));
-                mongoPendingRecordsToUpdate.setTradeTargetSum(TradeUtil.getLongNumWithMul100(prodDtlSellDTO.getTargetSellAmount
-                    ()));
-                mongoTemplate.save(mongoPendingRecordsToUpdate, "ui_pending_records");
+                if(mongoPendingRecordsHistory != null){
+                    updateHistorySellPendRecordByProdDtlSellDTO(mongoPendingRecordsHistory,
+                        prodDtlSellDTO, orderId);
+                    mongoTemplate.save(mongoPendingRecordsHistory, "ui_pending_records");
+                }else{
+                    logger.error("All pendRecord with outside_order_id:{} is handled", orderId+prodDtlSellDTO.getId());
+                }
+
             }
         }
+    }
+
+    private void updateHistorySellPendRecordByProdDtlSellDTO(MongoPendingRecords mongoPendingRecordsHistory,
+        ProdDtlSellDTO prodDtlSellDTO, String orderId) {
+        mongoPendingRecordsHistory.setOrderId(orderId);
+        mongoPendingRecordsHistory.setTradeType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+        mongoPendingRecordsHistory.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED.getStatus());
+        mongoPendingRecordsHistory.setTradeStatus(TrdOrderStatusEnum.WAITSELL.getStatus());
+        mongoPendingRecordsHistory.setOutsideOrderId(orderId+prodDtlSellDTO.getId());
+        mongoPendingRecordsHistory.setOrderId(orderId);
+        mongoPendingRecordsHistory.setTradeTargetShare(new Long(prodDtlSellDTO.getFundQuantity()));
+        mongoPendingRecordsHistory.setTradeTargetSum(TradeUtil.getLongNumWithMul100(prodDtlSellDTO.getTargetSellAmount
+            ()));
     }
 
 
@@ -871,7 +976,7 @@ public class BroadcastMessageConsumers {
 
     @Transactional
     @RabbitListener(bindings = @QueueBinding(
-        value = @Queue(value = RabbitMQConstants.ROUTING_KEY_UI_PENDRECORDS + RabbitMQConstants
+        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
             .OPERATION_TYPE_FAILED_BUY_PENDINGRECORDS, durable = "false"),
         exchange = @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
             durable = "true"), key = RabbitMQConstants.OPERATION_TYPE_FAILED_BUY_PENDINGRECORDS)
@@ -911,7 +1016,7 @@ public class BroadcastMessageConsumers {
 
     @Transactional
     @RabbitListener(bindings = @QueueBinding(
-        value = @Queue(value = RabbitMQConstants.ROUTING_KEY_UI_PENDRECORDS + RabbitMQConstants
+        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
             .OPERATION_TYPE_FAILED_SELL_PENDINGRECORDS, durable = "false"),
         exchange = @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
             durable = "true"), key = RabbitMQConstants.OPERATION_TYPE_FAILED_SELL_PENDINGRECORDS)
@@ -960,7 +1065,10 @@ public class BroadcastMessageConsumers {
         logger.info("received message in :{}", RabbitMQConstants
             .OPERATION_TYPE_UPDATE_PRECONFIRM_PENDINGRECORDS);
         long navadj = -1L;
-        if(trdPayFlow.getApplydateUnitvalue() == -1L) {
+        if(StringUtils.isEmpty(trdPayFlow.getTrdApplyDate())||trdPayFlow.getTrdApplyDate().equals
+            ("-1")){
+            logger.error("received trdPayFlow without  trdApplyDate:{}", trdPayFlow.getTrdApplyDate());
+        }else if(trdPayFlow.getApplydateUnitvalue() == -1L) {
             logger.error("the trdPayFlow.getApplydateUnitvalue is invalid");
             navadj = getMoneyCodeNavAdjByDate(trdPayFlow.getFundCode(), trdPayFlow
                 .getTrdApplyDate());
@@ -1005,6 +1113,10 @@ public class BroadcastMessageConsumers {
 
 
     private Long getMoneyCodeNavAdjByDate(String fundCode, String applyDate){
+        if(StringUtils.isEmpty(applyDate) || applyDate.equals("-1")){
+            logger.error("cannot make navadj without applyDate:{}", applyDate);
+            return -1L;
+        }
         if(MonetaryFundEnum.containsCode(fundCode)){
             String beginDate = TradeUtil.getDayBefore(applyDate, 1);
             List<String> codes = new ArrayList<>();
@@ -1023,8 +1135,9 @@ public class BroadcastMessageConsumers {
     private MongoPendingRecords getPathMongoPendingRecord(TrdOrderDetail trdOrderDetail){
         logger.info("make patch PendingRecords info into database");
         MongoPendingRecords mongoPendingRecordsPatch = new MongoPendingRecords();
+        mongoPendingRecordsPatch.setUserProdId(trdOrderDetail.getUserProdId());
         mongoPendingRecordsPatch.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED.getStatus());
-        mongoPendingRecordsPatch.setTradeStatus(TrdOrderStatusEnum.WAITPAY.getStatus());
+        mongoPendingRecordsPatch.setTradeStatus(trdOrderDetail.getOrderDetailStatus());
         mongoPendingRecordsPatch.setTradeType(trdOrderDetail.getTradeType());
         mongoPendingRecordsPatch.setOutsideOrderId(trdOrderDetail.getOrderId()+trdOrderDetail.getId());
         mongoPendingRecordsPatch.setOrderId(trdOrderDetail.getOrderId());
@@ -1039,6 +1152,7 @@ public class BroadcastMessageConsumers {
         orderId) {
         logger.info("make patch PendingRecords info into database");
         MongoPendingRecords mongoPendingRecordsPatch = new MongoPendingRecords();
+        mongoPendingRecordsPatch.setUserProdId(prodDtlSellDTO.getUserProdId());
         mongoPendingRecordsPatch.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED.getStatus());
         mongoPendingRecordsPatch.setTradeStatus(TrdOrderStatusEnum.WAITSELL.getStatus());
         mongoPendingRecordsPatch.setTradeType(TrdOrderOpTypeEnum.REDEEM.getOperation());
@@ -1057,6 +1171,19 @@ public class BroadcastMessageConsumers {
 
     private MongoPendingRecords getPatchMongoPendingRecord(TrdPayFlow trdPayFlow){
 
+        Query query = new Query();
+        query.addCriteria(Criteria.where("user_prod_id").is(trdPayFlow.getUserProdId()).and
+            ("fund_code").is(trdPayFlow.getFundCode()).and("outside_order_id").is(null).and
+            ("process_status").is(PendingRecordStatusEnum.NOTHANDLED.getStatus()).and
+            ("trade_type").is(trdPayFlow.getTrdType()));
+        List<MongoPendingRecords> unhandledRecords =  mongoTemplate.find(query, MongoPendingRecords
+                .class, "ui_pending_records");
+        MongoPendingRecords mongoPendingRecordsPatch = new MongoPendingRecords();
+        if(!CollectionUtils.isEmpty(unhandledRecords)){
+            logger.error("because there is a unhandled record, we need use this record to handle "
+                + "records for this trade");
+            mongoPendingRecordsPatch = unhandledRecords.get(0);
+        }
         //if there is no pendingRecord for this order, we need to generate to make sure this
         // task can be done
         //ToDo: grpc trdOrder to get the orderDetail info to fill the MongoPendingRecords
@@ -1079,12 +1206,13 @@ public class BroadcastMessageConsumers {
             return null;
         }else{
             logger.info("make patch PendingRecords info into database");
-            MongoPendingRecords mongoPendingRecordsPatch = new MongoPendingRecords();
+
             mongoPendingRecordsPatch.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED.getStatus());
             mongoPendingRecordsPatch.setTradeStatus(trdPayFlow.getTrdStatus());
             mongoPendingRecordsPatch.setTradeType(trdPayFlow.getTrdType());
             mongoPendingRecordsPatch.setOutsideOrderId(trdPayFlow.getOutsideOrderno());
             mongoPendingRecordsPatch.setOrderId(orderId);
+            mongoPendingRecordsPatch.setUserProdId(trdPayFlow.getUserProdId());
             mongoPendingRecordsPatch.setTradeTargetShare(trdPayFlow.getTradeTargetShare());
             mongoPendingRecordsPatch.setTradeTargetSum(trdPayFlow.getTradeTargetSum());
             mongoPendingRecordsPatch.setCreatedDate(TradeUtil.getUTCTime());

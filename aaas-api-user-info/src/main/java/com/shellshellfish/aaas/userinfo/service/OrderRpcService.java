@@ -34,5 +34,15 @@ public interface OrderRpcService {
      */
     List<TrdOrderDetail> getOrderDetailByGenOrderIdAndFundCode(String orderId, String fundCode);
 
+    /**
+     *
+     * @param userProdId
+     * @param fundCode
+     * @param trdType
+     * @return
+     */
+    List<TrdOrderDetail> getOrderDetailByUserProdIdAndFundCodeAndTrdType(Long userProdId, String
+        fundCode, Integer trdType);
+
 
 }

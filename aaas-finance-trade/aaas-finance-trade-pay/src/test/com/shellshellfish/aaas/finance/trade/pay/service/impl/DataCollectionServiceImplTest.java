@@ -13,7 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Created by developer4 on 2018- 六月 - 04
+ * Created by chenwei on 2018- 六月 - 04
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = PayServiceApplication.class)

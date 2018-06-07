@@ -448,10 +448,57 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
     /**
      */
     @Override
-    public void getOrderDetailByGenOrderIdAndFundCode(com.shellshellfish.aaas.finance.trade.order.GenOrderIdAndFundCode request,
-        io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.order.OrderDetailResult> responseObserver) {
+    public void getOrderDetailByParams(com.shellshellfish.aaas.finance.trade.order
+        .GenOrderIdAndFundCode request, io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.order.OrderDetailResult> responseObserver) {
         String orderId = request.getOrderId();
+
         String fundCode = request.getFundCode();
+        Long userProdId = request.getUserProdId();
+        Integer trdType = request.getTrdType();
+        if(!StringUtils.isEmpty(orderId) && !StringUtils.isEmpty(fundCode)){
+            getOrderDetailByOrderIdAndFundCode(orderId, fundCode, responseObserver);
+        }else{
+            getOrderDetailByUserProdIdAndTrdType(userProdId, fundCode, trdType, responseObserver);
+        }
+
+    }
+
+    private void getOrderDetailByUserProdIdAndTrdType(Long userProdId, String fundCode, Integer
+        trdType, StreamObserver<OrderDetailResult> responseObserver) {
+        try{
+            List<TrdOrderDetail> trdOrderDetails = getOrderDetailByUserProdIdAndTrdType(userProdId,
+                fundCode, trdType);
+            OrderDetailResult.Builder odrBuilder = OrderDetailResult.newBuilder();
+            OrderDetail.Builder odBuilder = OrderDetail.newBuilder();
+
+            if(!CollectionUtils.isEmpty(trdOrderDetails)){
+                trdOrderDetails.forEach(
+                    trdOrderDetail -> {
+                        odBuilder.clear();
+                        MyBeanUtils.mapEntityIntoDTO(trdOrderDetail, odBuilder);
+                        odrBuilder.addOrderDetailResult(odBuilder);
+                    }
+                );
+            }
+            responseObserver.onNext(odrBuilder.build());
+            responseObserver.onCompleted();
+        }catch (Exception ex){
+            onError(responseObserver, ex);
+        }
+    }
+
+    private List<TrdOrderDetail> getOrderDetailByUserProdIdAndTrdType(Long userProdId, String fundCode, Integer trdType)
+        throws IllegalAccessException {
+
+        if(StringUtils.isEmpty(fundCode)){
+            throw new IllegalAccessException(String.format("fundCode:%s",fundCode));
+        }
+        List<TrdOrderDetail> orderDetails = trdOrderDetailRepository.findAllByUserProdIdAndFundCodeAndTradeType
+            (userProdId, fundCode, trdType);
+        return orderDetails;
+    }
+
+    private void getOrderDetailByOrderIdAndFundCode(String orderId, String fundCode, StreamObserver<OrderDetailResult> responseObserver) {
         try{
             List<TrdOrderDetail> trdOrderDetails = getOrderDetailByGenOrderIdAndFundCode(orderId,
                 fundCode);
@@ -473,6 +520,7 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
             onError(responseObserver, ex);
         }
     }
+
 
     @Override
     public List<TrdOrderDetail> getOrderDetailByGenOrderIdAndFundCode(String orderId,

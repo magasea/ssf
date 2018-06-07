@@ -65,6 +65,7 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoFriendRuleRep
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.repositories.redis.UserInfoBaseDao;
 import com.shellshellfish.aaas.userinfo.utils.MongoUiTrdLogUtil;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -680,6 +681,17 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       Long userProdId = saveResult.getId();
       logger.info("saved UiProducts with result id:" + userProdId);
       for (FinanceProdInfo financeProdInfo : financeProdInfosValue) {
+        List<MongoPendingRecords> mongoPendingRecords = getMongoPendingRecordsNotInited
+            (financeProdInfo.getFundCode(), uiProducts.getProdId(), uiProducts.getGroupId(),
+                TrdOrderOpTypeEnum.BUY.getOperation(), request.getUserId());
+        if(!CollectionUtils.isEmpty(mongoPendingRecords)){
+          throw new Exception(String.format("There still pending request need to be handled "
+              + "prodId:%s groupId:%s fundCode:%s created in:%s", mongoPendingRecords.get(0)
+              .getProdId(), mongoPendingRecords.get(0).getGroupId(),  mongoPendingRecords.get(0)
+              .getFundCode(), mongoPendingRecords.get(0).getCreatedDate()));
+        }
+
+
         UiProductDetail uiProductDetail = new UiProductDetail();
         BeanUtils.copyProperties(financeProdInfo, uiProductDetail);
         uiProductDetail.setCreateBy(request.getUserId());
@@ -688,26 +700,25 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
         uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
         uiProductDetail.setUserProdId(userProdId);
         uiProductDetailRepo.save(uiProductDetail);
-        MongoPendingRecords mongoPendingRecords = new MongoPendingRecords();
-        mongoPendingRecords.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED.getStatus());
-        mongoPendingRecords.setUserId(request.getUserId());
-        mongoPendingRecords.setCreatedDate(TradeUtil.getUTCTime());
-        mongoPendingRecords.setCreatedBy(request.getUserId());
-        mongoPendingRecords.setFundCode(financeProdInfo.getFundCode());
-        mongoPendingRecords.setTradeType(TrdOrderOpTypeEnum.BUY.getOperation());
-        mongoPendingRecords.setUserProdId(userProdId);
-        mongoTemplate.save(mongoPendingRecords, "ui_pending_records");
+
+        MongoPendingRecords mongoPendingRecordNew = new MongoPendingRecords();
+        mongoPendingRecordNew.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED.getStatus());
+        mongoPendingRecordNew.setUserId(request.getUserId());
+        mongoPendingRecordNew.setProdId(uiProducts.getProdId());
+        mongoPendingRecordNew.setGroupId(uiProducts.getGroupId());
+        mongoPendingRecordNew.setCreatedDate(TradeUtil.getUTCTime());
+        mongoPendingRecordNew.setCreatedBy(request.getUserId());
+        mongoPendingRecordNew.setFundCode(financeProdInfo.getFundCode());
+        mongoPendingRecordNew.setTradeType(TrdOrderOpTypeEnum.BUY.getOperation());
+        mongoPendingRecordNew.setUserProdId(userProdId);
+        mongoTemplate.save(mongoPendingRecordNew, "ui_pending_records");
       }
       respBuilder.setUserProdId(userProdId);
       responseObserver.onNext(respBuilder.build());
       responseObserver.onCompleted();
       return;
     } catch (Exception ex) {
-
-      respBuilder.setUserProdId(-1L);
-      responseObserver.onNext(respBuilder.build());
-      responseObserver.onCompleted();
-      return;
+      onError(responseObserver, ex);
     }
 
   }
@@ -1385,6 +1396,26 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
 
     List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
     return mongoPendingRecords;
+  }
+
+  private List<MongoPendingRecords> getMongoPendingRecordsNotInited(String fundCode, Long
+      prodId, Long groupId, int trdType, Long userId){
+    Query query = new Query();
+    query.addCriteria(Criteria.where("prod_id").is(prodId).and("fund_code").is(fundCode).and
+        ("group_id").is(groupId).and("order_id").is(null).and("trade_type").is(trdType).and
+        ("user_id").is(userId));
+
+    List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
+    return mongoPendingRecords;
+  }
+
+  private void onError(StreamObserver responseObserver, Exception ex){
+    responseObserver.onError(Status.INTERNAL
+        .withDescription(ex.getMessage())
+        .augmentDescription("customException()")
+        .withCause(ex) // This can be attached to the Status locally, but NOT transmitted to
+        // the client!
+        .asRuntimeException());
   }
 }
 

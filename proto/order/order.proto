@@ -25,7 +25,7 @@ service OrderRpcService {
     rpc getAllOrderDetail (UserProdId) returns (OrderDetailResult) {
     };
 
-    rpc getOrderDetailByGenOrderIdAndFundCode (GenOrderIdAndFundCode) returns (OrderDetailResult) {
+    rpc getOrderDetailByParams (GenOrderIdAndFundCode) returns (OrderDetailResult) {
     };
 }
 
@@ -131,4 +131,6 @@ message BindCardResult {
 message GenOrderIdAndFundCode {
     string orderId = 1;
     string fundCode = 2;
+    int64 userProdId = 3;
+    int32 trdType = 4;
 }

@@ -93,3 +93,9 @@ management:
   endpoints:
     web:
       base-path: /
+
+cron:
+  frequency:
+    #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
+    # 	At minute 30 past every hour.
+    jobCheckPendingRecords: 30 */1 * * *

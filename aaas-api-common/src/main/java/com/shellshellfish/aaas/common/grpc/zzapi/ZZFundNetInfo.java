@@ -3,7 +3,7 @@ package com.shellshellfish.aaas.common.grpc.zzapi;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * Created by developer4 on 2018- 六月 - 04
+ * Created by chenwei on 2018- 六月 - 04
  */
 
 public class ZZFundNetInfo {

@@ -9,7 +9,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Created by developer4 on 2018- 五月 - 28
+ * Created by chenwei on 2018- 五月 - 28
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
