@@ -18,7 +18,7 @@ public class RedisSellRateDao {
 
     private static final String KEY = RedisConstants.USER_INFO_KEY + RedisConstants.SEPARATOR + "sellRate" + RedisConstants.SEPARATOR;
 
-    private static final int TIMEOUT = 30; //过期时间
+    private static final int TIMEOUT = 1; //过期时间
     private static final TimeUnit TIME_UNIT = TimeUnit.DAYS; //过期时间单位
 
 
