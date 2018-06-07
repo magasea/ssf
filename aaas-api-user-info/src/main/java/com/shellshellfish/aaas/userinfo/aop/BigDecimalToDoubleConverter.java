@@ -12,7 +12,7 @@ public class BigDecimalToDoubleConverter implements Converter<BigDecimal, Double
 
 	@Override
 	public Double convert(BigDecimal source) {
-		return source.setScale(4, RoundingMode.HALF_UP).doubleValue();
+		return source.setScale(6, RoundingMode.HALF_UP).doubleValue();
 	}
 
 }
