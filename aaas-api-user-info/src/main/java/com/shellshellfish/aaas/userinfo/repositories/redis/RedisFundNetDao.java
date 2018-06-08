@@ -39,12 +39,13 @@ public class RedisFundNetDao {
         if (value == null)
             return null;
         else
-            return new BigDecimal(value).setScale(4, BigDecimal.ROUND_HALF_UP);
+            return new BigDecimal(value).setScale(6, BigDecimal.ROUND_HALF_UP);
     }
 
     @Transactional
     public void set(String key, String hashKey, BigDecimal value) {
-        hashOps.putIfAbsent(KEY + RedisConstants.SEPARATOR + key, hashKey, value.setScale(4, RoundingMode.HALF_UP).toString());
+        hashOps.putIfAbsent(KEY + RedisConstants.SEPARATOR + key, hashKey, value.setScale(6, RoundingMode.HALF_UP)
+                .toString());
         redisTemplate.expire(KEY + RedisConstants.SEPARATOR + key, TIMEOUT, TIME_UNIT);
     }
 }
