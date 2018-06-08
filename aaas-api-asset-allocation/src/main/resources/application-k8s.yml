@@ -5,18 +5,13 @@ mybatis:
     config-locations: classpath:mybatis/mybatis-config.xml
     mapper-locations: classpath:mybatis/mapper/*.xml
 spring:
-    datasource:
-        driverClassName: com.mysql.jdbc.Driver
-        password: 1rIQ9wi!@g3P$Qh*
-        url: jdbc:mysql://external-mysql-service:3306/choice?useUnicode=true&characterEncoding=utf-8
-        username: ssf08
     jpa:
       hibernate:
         ddl-auto: update
     data:
       mongodb:
         database: ssf_asset_allo
-        host: 192.168.1.10
+        host: external-mongo-service
         port: 27017
         collection: portfolio_yield_all
 
