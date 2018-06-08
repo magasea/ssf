@@ -996,7 +996,10 @@ public class UserInfoController {
         logger.error("产品详情-result-获取失败");
         return new JsonResult(JsonResult.Fail, "产品详情获取失败", JsonResult.EMPTYRESULT);
       } else {
-        result.put("buyfee", buyfee == null ? "" : buyfee);
+        //result.put("buyfee", buyfee == null ? "" : buyfee);
+    	if(result.get("totalSum") != null){
+    		result.put("buyfee", result.get("totalSum"));
+    	}
         poundage = poundage == null ? "" : poundage;
         bankName = bankName == null ? "" : bankName;
         bankCard = bankCard == null ? "" : bankCard;
