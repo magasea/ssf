@@ -3,7 +3,7 @@ package com.shellshellfish.aaas.userinfo.utils;
 import org.junit.Test;
 
 /**
- * Created by developer4 on 2018- 五月 - 08
+ * Created by chenwei on 2018- 五月 - 08
  */
 
 public class BankUtilTest {

@@ -94,10 +94,13 @@ public class JobScheduleController {
     @RequestMapping(value = "/api/asset-allocation/job/getFundGroupIncomeAllToMongoDb", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public JobResult getFundGroupIncomeAllToMongoDb(@RequestParam(defaultValue = "1") Integer
         oemId) {
-        jobScheduleService.getFundGroupIncomeAllJobSchedule(1);
-        jobScheduleService.getFundGroupIncomeAllJobSchedule(2);
-        return new JobResult<>().returnSuccess();
-    }
 
+        if (oemId != null){
+            jobScheduleService.getFundGroupIncomeAllJobSchedule(oemId);
+        }else {
+            return new JobResult<>().returnFail();
+        }
+         return new JobResult<>().returnSuccess();
+    }
 
 }

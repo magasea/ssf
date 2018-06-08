@@ -40,7 +40,7 @@ spring:
     port: 6379
     password: redis123
 datasource:
-  sampleapp:
+  aaasapp:
     url: jdbc:mysql://localhost:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8
     username: sa
     password: N4eTVr89lX9BaPcx
@@ -67,6 +67,12 @@ api-asset-alloction-url: http://localhost:10020
 
 # 每日收益计算 多线程
 daily-finance-calculate-thread: 8
+
+
+management:
+  endpoints:
+    web:
+      base-path: /
 
 #oeminfo
 oem-info:

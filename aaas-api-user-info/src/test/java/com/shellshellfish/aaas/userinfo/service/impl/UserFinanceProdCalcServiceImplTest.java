@@ -1,8 +1,10 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
+import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -20,16 +22,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
-@RunWith(value= SpringRunner.class)
+@RunWith(value = SpringRunner.class)
 @SpringBootTest
-@ActiveProfiles(profiles="test")
-@Ignore
+@ActiveProfiles(profiles = "pretest")
 public class UserFinanceProdCalcServiceImplTest {
 
     private static final Logger logger = LoggerFactory.getLogger(UserFinanceProdCalcServiceImplTest.class);
@@ -38,8 +37,11 @@ public class UserFinanceProdCalcServiceImplTest {
     private UserFinanceProdCalcService userFinanceProdCalcService;
 
     @Autowired
+    UiProductDetailRepo uiProductDetailRepo;
+    @Autowired
     @Qualifier("zhongZhengMongoTemplate")
     private MongoTemplate mongoTemplate;
+
 
     private List<String> fundCodeList = Arrays.asList("000614",
             "001987",
@@ -51,12 +53,6 @@ public class UserFinanceProdCalcServiceImplTest {
 
     @Before
     public void setUp() {
-//        final Calendar cal = Calendar.getInstance();
-//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
-//        String today = simpleDateFormat.format(cal.getTime());
-//        fundCodeList.forEach(fundCode -> {
-//                userFinanceProdCalcService.initDailyAmount("shellshellfish", today, fundCode);
-//        });
 
     }
 
@@ -68,8 +64,8 @@ public class UserFinanceProdCalcServiceImplTest {
 
     @Test
     public void testCalcIntervalAmount() throws Exception {
-        for(String fundCode:fundCodeList) {
-            userFinanceProdCalcService.calcIntervalAmount("shellshellfish", 2000L, fundCode, "20170101");
+        for (String fundCode : fundCodeList) {
+//            userFinanceProdCalcService.calcIntervalAmount("shellshellfish", 2000L, fundCode, "20170101");
         }
     }
 
@@ -91,12 +87,12 @@ public class UserFinanceProdCalcServiceImplTest {
     public void testDailyCalculation() throws Exception {
         long start = System.currentTimeMillis();
         List<String> days = Arrays.asList(//"20171222", "20171223", "20171224", "20171225", "20171226", "20171227", "20171228", "20171229", "20171230", "20171231",
-                                          "20180101", "20180102", "20180103");
+                "20180101", "20180102", "20180103");
         days.forEach(day -> {
             try {
                 userFinanceProdCalcService.dailyCalculation(day);
             } catch (Exception e) {
-                logger.error("exception:",e);
+                logger.error("exception:", e);
             }
         });
 
@@ -106,11 +102,11 @@ public class UserFinanceProdCalcServiceImplTest {
 
     @Test
     public void testCalcYieldRate() throws Exception {
-     //   testCalcDailyAsset();
-     //   testCalcIntervalAmount();
+        //   testCalcDailyAsset();
+        //   testCalcIntervalAmount();
 
         long start = System.currentTimeMillis();
-        BigDecimal yieldRate = userFinanceProdCalcService.calcYieldRate("shellshellfish", 2000L,"20171222", "20171226");
+        BigDecimal yieldRate = userFinanceProdCalcService.calcYieldRate("shellshellfish", 2000L, "20171222", "20171226");
         long end = System.currentTimeMillis();
         logger.info("duration: {}", end - start);
         logger.info("yieldRate: {}", yieldRate);
@@ -119,14 +115,14 @@ public class UserFinanceProdCalcServiceImplTest {
     @Test
     public void testTotalAssetYieldRate() {
         long start = System.currentTimeMillis();
-        BigDecimal yieldRate = userFinanceProdCalcService.calcYieldRate("shellshellfish","20171226", "20180104");
+        BigDecimal yieldRate = userFinanceProdCalcService.calcYieldRate("shellshellfish", "20171226", "20180104");
         long end = System.currentTimeMillis();
         logger.info("duration: {}", end - start);
         logger.info("total asset yieldRate: {}", yieldRate);
     }
 
     @Test
-    public void testTotalAssetYieldValue(){
+    public void testTotalAssetYieldValue() {
         long start = System.currentTimeMillis();
 //        BigDecimal yieldValue1 = userFinanceProdCalcService.calcYieldValue("shellshellfish","20171226", "20171231");
 //        BigDecimal yieldValue2 = userFinanceProdCalcService.calcYieldValue("shellshellfish","20171231", "20180104");
@@ -137,17 +133,17 @@ public class UserFinanceProdCalcServiceImplTest {
     }
 
     @Test
-    public void addRandomValue(){
+    public void addRandomValue() {
         List<DailyAmount> dailyAmountList = mongoTemplate.findAll(DailyAmount.class);
-        for(DailyAmount dailyAmount : dailyAmountList) {
+        for (DailyAmount dailyAmount : dailyAmountList) {
             if (dailyAmount.getAsset() != null && dailyAmount.getAsset().compareTo(BigDecimal.ZERO) != 0) {
                 double noise = new Random().nextInt(10);
                 if (noise < 3 || noise > 7) {
-                   noise = - noise;
+                    noise = -noise;
                 }
                 noise /= 10;
-                BigDecimal  percent = BigDecimal.valueOf((100-noise)/100d);
-                BigDecimal  amount = dailyAmount.getAsset().multiply(percent);
+                BigDecimal percent = BigDecimal.valueOf((100 - noise) / 100d);
+                BigDecimal amount = dailyAmount.getAsset().multiply(percent);
                 dailyAmount.setAsset(amount);
 
                 Query query = new Query();
@@ -160,6 +156,19 @@ public class UserFinanceProdCalcServiceImplTest {
                 update.set("asset", amount);
                 mongoTemplate.findAndModify(query, update, DailyAmount.class);
             }
+        }
+    }
+
+
+    @Test
+    public void test() {
+
+        String date = InstantDateUtil.format(InstantDateUtil.now(), InstantDateUtil.yyyyMMdd);
+        String uuid = "3a4401ae-d6f9-49ee-97e2-ce7ebf122822";
+        Long userProdId = 309L;
+        List<UiProductDetail> uiProductDetailList = uiProductDetailRepo.findAllByUserProdId(userProdId);
+        for (UiProductDetail detail : uiProductDetailList) {
+            userFinanceProdCalcService.calculateProductAsset(detail, uuid, userProdId, date);
         }
     }
 

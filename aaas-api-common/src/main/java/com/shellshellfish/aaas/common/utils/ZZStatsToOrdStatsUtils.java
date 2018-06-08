@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.common.utils;
 
 import static com.shellshellfish.aaas.common.enums.ZZKKStatusEnum.KKSUCCESS;
 
+import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
@@ -19,15 +20,26 @@ public class ZZStatsToOrdStatsUtils {
   static Logger logger = LoggerFactory.getLogger(ZZStatsToOrdStatsUtils.class);
 
   public static TrdOrderStatusEnum getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum inputEnum,
-      TrdOrderOpTypeEnum trdOrderOpTypeEnum){
+      TrdOrderOpTypeEnum trdOrderOpTypeEnum, ZZKKStatusEnum zzkkStatusEnum){
+    if(zzkkStatusEnum.getStatus() == ZZKKStatusEnum.KKFAILED.getStatus()){
+      if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.BUY.getOperation()){
+        return TrdOrderStatusEnum.FAILED;
+      }else if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+        return TrdOrderStatusEnum.REDEEMFAILED;
+      }
+
+    }
     switch (inputEnum){
+
       case NOTHANDLED:
+
         if(trdOrderOpTypeEnum == TrdOrderOpTypeEnum.BUY){
           return TrdOrderStatusEnum.PAYWAITCONFIRM;
         }else if(trdOrderOpTypeEnum == TrdOrderOpTypeEnum.REDEEM){
           return TrdOrderStatusEnum.SELLWAITCONFIRM;
         }
       case CONFIRMSUCCESS:
+
         if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.BUY.getOperation()){
           return TrdOrderStatusEnum.CONFIRMED;
         }else if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
@@ -50,17 +62,17 @@ public class ZZStatsToOrdStatsUtils {
   }
 
 
-  public static TrdOrderStatusEnum getOrdDtlStatFromZZStats(String inputEnumVal,
+  public static TrdOrderStatusEnum getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum zzCheckStatusEnum,
       TrdOrderOpTypeEnum trdOrderOpTypeEnum){
-    TrdZZCheckStatusEnum trdZZCheckStatusEnum = null;
-    try{
-      trdZZCheckStatusEnum = TrdZZCheckStatusEnum.valueOf(inputEnumVal);
-    }catch (Exception ex){
-      logger.error("exception:",ex);
 
-    }
+//    try{
+//      trdZZCheckStatusEnum = TrdZZCheckStatusEnum.valueOf(inputEnumVal);
+//    }catch (Exception ex){
+//      logger.error("exception:",ex);
+//
+//    }
 
-    switch (trdZZCheckStatusEnum){
+    switch (zzCheckStatusEnum){
       case NOTHANDLED:
         if(trdOrderOpTypeEnum == TrdOrderOpTypeEnum.BUY){
           return TrdOrderStatusEnum.PAYWAITCONFIRM;
@@ -102,13 +114,15 @@ public class ZZStatsToOrdStatsUtils {
 
     public static TrdOrderStatusEnum getOrdStatByZZKKStatus(ZZKKStatusEnum zzkkStatusEnum,
         TrdOrderOpTypeEnum trdOrderOpTypeEnum){
-        if(zzkkStatusEnum == ZZKKStatusEnum.KKSUCCESS || zzkkStatusEnum == ZZKKStatusEnum.WAITCONFIRM){
+        if(zzkkStatusEnum == ZZKKStatusEnum.KKSUCCESS ){
           if(trdOrderOpTypeEnum == TrdOrderOpTypeEnum.BUY){
             return TrdOrderStatusEnum.PAYWAITCONFIRM;
           }else if(trdOrderOpTypeEnum == TrdOrderOpTypeEnum.REDEEM){
             return TrdOrderStatusEnum.SELLWAITCONFIRM;
           }
-        }else {
+        }else if(zzkkStatusEnum == ZZKKStatusEnum.WAITCONFIRM){
+          return TrdOrderStatusEnum.WAITPAY;
+        } else {
           return TrdOrderStatusEnum.FAILED;
         }
         throw new IllegalArgumentException("zzkkStatusEnum:" + zzkkStatusEnum.getStatus() +

@@ -45,7 +45,7 @@ spring:
     pool:
 
 datasource:
-  sampleapp:
+  aaasapp:
     url: jdbc:mysql://192.168.1.249:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
     username: ssf01
     password: R489cfRKfEY7LNM9
@@ -109,3 +109,9 @@ oem-info:
      combination_five: http://47.96.164.161/APP-invest-banner05.png
      me_head_img: http://47.96.164.161/icon_me_headphoto.png
      about_logo: http://47.96.164.161/icon_about_logo.png
+
+
+management:
+  endpoints:
+    web:
+      base-path: /

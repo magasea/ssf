@@ -36,4 +36,5 @@ public class MyBeanUtils {
 		BeanUtils.copyProperties(targetItemA, targetItemB, DataCollectorUtil.getNullPropertyNames(targetItemA));
 		return targetItemB;
 	}
+
 }

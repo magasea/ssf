@@ -102,13 +102,15 @@
     </select>
 
     <insert id="insertDailyDataToFundNetVal" parameterType="com.shellshellfish.aaas.assetallocation.entity.Dailyfunds">
-        INSERT IGNORE INTO fund_net_value
+        INSERT IGNORE
+        INTO fund_net_value
         (CODE,NAVLATESTDATE,UNITNAV,NAVACCUM,NAVADJ,YIELDOF7DAYS,MILLION_REVENUE,LAST_MOD_TIME)
-        <foreach collection="list" item="dailyData" index="index" separator="union all">
-            ( SELECT
+        VALUES
+        <foreach collection="list" item="dailyData" index="index" separator=",">
+
+            (
             #{dailyData.code},#{dailyData.navLatestDate},#{dailyData.navUnit},#{dailyData.navAccum},
             #{dailyData.navAdj},#{dailyData.yieldOf7Days},#{dailyData.millionRevenue},#{dailyData.createDate}
-            FROM dual
             )
         </foreach>
     </insert>
@@ -180,6 +182,38 @@
         </foreach>
         GROUP BY code
         ) as a
+    </select>
+
+    <select id="getMinNavlatestDateByFundGroupId" resultType="java.util.Date">
+        select max(NAVLATESTDATE) max_date
+        from
+        (
+          SELECT MIN(NAVLATESTDATE) NAVLATESTDATE
+          FROM fund_group_basic_${oemId} a
+          LEFT JOIN fund_net_value b ON a.code = b.code
+          WHERE group_id = #{fundGroupId}
+          GROUP BY a.code
+        ) c
+
+    </select>
+
+    <select id="getNetValueDateByGroupId" resultType="java.util.Date">
+        SELECT DISTINCT  NAVLATESTDATE
+        FROM fund_group_basic_${oemId} a
+        LEFT JOIN fund_net_value b ON a.code = b.code
+        WHERE group_id = #{fundGroupId}
+        AND NAVLATESTDATE &gt;= (
+            SELECT MAX(NAVLATESTDATE) max_date
+            FROM
+                (
+                  SELECT MIN(NAVLATESTDATE) NAVLATESTDATE
+                  FROM fund_group_basic_${oemId} a
+                  LEFT JOIN fund_net_value b ON a.code = b.code
+                  WHERE group_id = #{fundGroupId}
+                  GROUP BY a.code
+                ) c)
+        ORDER BY NAVLATESTDATE ASC
+
     </select>
 
 </mapper>

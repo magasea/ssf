@@ -18,8 +18,12 @@ public interface UserInfoBankCardsRepository extends
 
 	List<UiBankcard> findAllByUserIdAndStatusIs(Long userId, int status);
 
+	List<UiBankcard> findAllByUserIdAndStatusIsAndCardNumberIs(Long userId, int status, String
+			cardNumber);
 
 	List<UiBankcard> findAllByUserIdAndCardNumber(Long userId, String cardNumber);
+
+
 
 	List<UiBankcard> findAllByCardNumber(String cardNumber);
 
@@ -32,6 +36,8 @@ public interface UserInfoBankCardsRepository extends
 //	List<UiBankcard> findUiBankcardByCardNumberIs(String cardNumber);
 
 	List<UiBankcard> findUiBankcardByCardNumberIsAndStatusIsNot(String cardNumber, int status);
+
+
 
 	Integer deleteByCardNumber(String cardNumber);
 

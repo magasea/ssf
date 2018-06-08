@@ -1,9 +1,12 @@
 package com.shellshellfish.aaas.common.utils;
 
 
+import static java.lang.Math.abs;
+
 import com.google.common.hash.Hashing;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
+import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -99,7 +102,7 @@ public class TradeUtil {
   }
 
   public static Long getUTCTimeHoursBefore(int hours){
-    int absHours = Math.abs(hours);
+    int absHours = abs(hours);
     ZonedDateTime utcDateTime = ZonedDateTime.of(LocalDateTime.now().plusHours(-absHours), ZoneId.systemDefault());
     return utcDateTime.toInstant().toEpochMilli();
   }
@@ -192,6 +195,11 @@ public class TradeUtil {
     return MathUtil.round(BigDecimal.valueOf(originNum).divide(BigDecimal.valueOf(100)),2,true);
   }
 
+  public static Long getLongWithDiv(Long originNum, Long divider){
+    int sign = (originNum > 0 ? 1 : -1) * (divider > 0 ? 1 : -1);
+    return sign * (abs(originNum) + abs(divider) - 1) / abs(divider);
+  }
+
   public static BigDecimal getBigDecimalNumWithDivOfTwoLong(Long number, Long divider){
     return MathUtil.round(BigDecimal.valueOf(number).divide(BigDecimal.valueOf(divider)),2,true);
   }
@@ -225,14 +233,22 @@ public class TradeUtil {
 
   }
   public static int getPayFlowStatus(String kkstat){
-    if(kkstat.equals(TrdZZCheckStatusEnum.CONFIRMSUCCESS) || kkstat.equals(TrdZZCheckStatusEnum.REALTIMECONFIRMSUCESS)){
-      return TrdOrderStatusEnum.CONFIRMED.getStatus();
-    }else if(kkstat.equals(TrdZZCheckStatusEnum.CONFIRMFAILED) || kkstat.equals
-        (TrdZZCheckStatusEnum.NOTHANDLED)){
-      return TrdOrderStatusEnum.FAILED.getStatus();
-    }else{
+    if(kkstat.equals(""+ZZKKStatusEnum.KKSUCCESS.getStatus())){
       return TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus();
+    }else if(kkstat.equals(""+ZZKKStatusEnum.WAITCONFIRM.getStatus())){
+      return TrdOrderStatusEnum.WAITPAY.getStatus();
+    }else{
+      return TrdOrderStatusEnum.FAILED.getStatus();
     }
+
+//    if(kkstat.equals(TrdZZCheckStatusEnum.CONFIRMSUCCESS) || kkstat.equals(TrdZZCheckStatusEnum.REALTIMECONFIRMSUCESS)){
+//      return TrdOrderStatusEnum.CONFIRMED.getStatus();
+//    }else if(kkstat.equals(TrdZZCheckStatusEnum.CONFIRMFAILED) || kkstat.equals
+//        (TrdZZCheckStatusEnum.NOTHANDLED)){
+//      return TrdOrderStatusEnum.FAILED.getStatus();
+//    }else{
+//      return TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus();
+//    }
   }
 
   public static String getSHA256encoding(String originStr){
@@ -311,4 +327,24 @@ public class TradeUtil {
     return result;
   }
 
+  public static String getOrderIdByOutsideOrderNo(String outsideOrderNo, Long orderDetailId)
+      throws Exception {
+    if(StringUtils.isEmpty(outsideOrderNo)){
+      throw new IllegalAccessException("outsideOrderNo is empty");
+    }
+    if(orderDetailId <= 0){
+      throw new IllegalAccessException("orderDetailId should be greate than 0");
+    }
+    int lastIdxOfODI =  outsideOrderNo.lastIndexOf(String.valueOf(orderDetailId));
+    if( lastIdxOfODI < 0){
+      throw new Exception(String.format("outsideOrderNo:%s didn't contains %d", outsideOrderNo,
+          orderDetailId));
+    }
+    return outsideOrderNo.substring(0, lastIdxOfODI);
+  }
+
+  public static Long getLongFromDividByBD(String tradeconfirmsum, String tradeconfirmshare) {
+    BigDecimal result = (new BigDecimal(tradeconfirmsum)).divide(new BigDecimal(tradeconfirmshare));
+    return getLongNumWithMul100(result);
+  }
 }

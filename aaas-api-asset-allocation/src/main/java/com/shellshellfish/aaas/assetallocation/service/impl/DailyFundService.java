@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import org.springframework.util.CollectionUtils;
  * Desc:获取每日基金数据并入库
  */
 @Service
+@Slf4j
 public class DailyFundService {
     @Autowired
     private FundGroupMapper fundGroupMapper;
@@ -53,6 +55,13 @@ public class DailyFundService {
         Boolean doSuccess = true;
         //查询 fund_group_basic ，获取需要调用每日接口抓取数据的 code
         List<String> codeList = fundGroupMapper.findAllGroupCode(oemId);
+        StringBuilder sb = new StringBuilder();
+        codeList.forEach(
+                item ->{
+                    sb.append(item+"|");
+                }
+        );
+        log.info("去远程获取基金的数量：{}，基金代号：{}",codeList.size(),sb.toString());
         if (CollectionUtils.isEmpty(codeList)) {
             return doSuccess;
         }
@@ -68,10 +77,11 @@ public class DailyFundService {
         }
 
         for (String code : codeList) {
-            //根据 code 查询fund_net_val 中已有数据的最近净值日期
+            //根据 code 查询fund_net_val 中已有数据的最新净值日期
             Date navLatestDate = fundNetValMapper.getMaxNavDateByCode(code);
             String latestStartDateStr = (navLatestDate != null) ? sdf.format(navLatestDate) : ConstantUtil.LATEST_START_DATE_STR_FOR_DAILY_DATA;
             String currentDateStr = sdf.format(new Date());
+            log.info("insertDailyFund code : {} startdate: {} enddate :{}", code, latestStartDateStr, currentDateStr);
             //rpc 调用获取每日数据
             doSuccess = this.insertDailyData(code, latestStartDateStr, currentDateStr);
             if (!doSuccess) {
@@ -110,9 +120,11 @@ public class DailyFundService {
 
         //部分数据插入 fund_basic
         try {
-            //先判断是否已经有该 code 的基本数据
+            //先判断是否已经有该 code 的基本数据（fund_basic表）
             String basicCode = fundNetValMapper.findBasicDataByCode(code);
+            //fund_group_basic中存在基准基金代码，并且当前code不是基准代码，并且当前code不等于表中code
             if ((benchmarkCode != null && !benchmarkCode.contains(code))  && !code.equals(basicCode)) {
+                //将基金数据插入fund_basic中
                 Dailyfunds dailyfunds = new Dailyfunds();
                 dailyfunds.setCode(code);//基金代码
                 dailyfunds.setFname(dailyFundsList.get(0).getFname());//基金简称
@@ -160,7 +172,7 @@ public class DailyFundService {
         Integer effectRows = fundNetValMapper.insertDailyDataToFundNetVal(dailyFundsDetailList);
         effectRows = fundNetValMapper.batchUpdateDailyDataToFundNetVal(dailyFundsDetailList);
 
-
+        log.info("insert success effectRows:{}",effectRows);
         return doSuccess;
     }
 

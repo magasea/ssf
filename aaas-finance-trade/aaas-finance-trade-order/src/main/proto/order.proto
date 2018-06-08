@@ -16,11 +16,17 @@ service OrderRpcService {
 
     rpc getOrderDetail (OrderDetailQueryInfo) returns (OrderDetailResult) {
     };
-    rpc getBankCardNumByUserProdId (UserProdId) returns (UserBankCardNum);
+    rpc getBankCardNumByUserProdId (UserProdId) returns (UserBankCardNum) {
+    };
 
     rpc OpenAccount (BindCardInfo) returns (BindCardResult) {
-    }
+    };
     rpc getLatestOrderDetail (UserProdId) returns (OrderDetailResult) {
+    };
+    rpc getAllOrderDetail (UserProdId) returns (OrderDetailResult) {
+    };
+
+    rpc getOrderDetailStatus (OrderDetailStatusRequest) returns (OrderDetailStatusResponse) {
     };
 }
 
@@ -37,7 +43,11 @@ message UserPID {
     int64 user_id = 2; //用户 ID
 }
 
-
+//用户PID信息
+message OrderDetailStatusReq {
+    string user_prod_id = 1; //用户身份证
+    int64 fund_code = 2; //用户 ID
+}
 message OrderQueryInfo {
     int64 userProdId = 1;
     int32 orderStatus = 2;
@@ -117,6 +127,16 @@ message BindCardInfo {
     int32 riskLevel = 7; //用户风险评级
 }
 
+//用户PID信息
+message OrderDetailStatusRequest {
+    int64 user_prod_id = 1; //用户身份证
+    string fund_code = 2; //用户 ID
+}
+
+//用户PID信息
+message OrderDetailStatusResponse {
+    int32 status = 1; //用户身份证
+}
 message BindCardResult {
     string tradeacco = 1; //交易帐号号
     ErrInfo err_info = 2; //绑卡失败信息

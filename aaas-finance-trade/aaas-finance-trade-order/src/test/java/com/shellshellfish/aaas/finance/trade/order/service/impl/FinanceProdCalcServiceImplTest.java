@@ -1,10 +1,12 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.DistributionResult;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeLimitResult;
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdCalcService;
+import java.nio.charset.Charset;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -13,34 +15,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.util.*;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ActiveProfiles("dev")
-@Ignore
+@ActiveProfiles("test")
+
 public class FinanceProdCalcServiceImplTest {
 
     private static final Logger logger = LoggerFactory.getLogger(FinanceProdCalcServiceImplTest.class);
 
     private List<ProductMakeUpInfo> productMakeUpInfoList;
 
+
     @Autowired
     private FundInfoZhongZhengApiService fundInfoService;
 
     @Autowired
     private FinanceProdCalcService financeProdCalcService;
-
+    private final RestTemplate restTemplate = new RestTemplate();
     @Before
     public void setUp(){
+        restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(Charset.forName("UTF-8")));
         productMakeUpInfoList = Arrays.asList(
-                new ProductMakeUpInfo(100021L, 3L, "", "000614.OF", "华安德国30(DAX)ETF联接(QDII)", 1000),
+                new ProductMakeUpInfo(100021L, 3L, "", "000614.OF", "华安德国30(DAX)ETF联接(QDIIEnum)", 1000),
                 new ProductMakeUpInfo(100021L, 3L, "", "001987.OF", "东方金元宝货币", 3668),
                 new ProductMakeUpInfo(100021L, 3L, "", "000216.OF", "华安黄金易ETF联接A", 1000),
                 new ProductMakeUpInfo(100021L, 3L, "", "002068.OF", "东方多策略灵活配置混合C", 1000),
@@ -50,6 +57,39 @@ public class FinanceProdCalcServiceImplTest {
         );
     }
 
+    @Test
+    public  void writeAllFundsToMongoDbs() {
+        try {
+            List<String> allFundsInfo = fundInfoService.getAllFundsInfo();
+            fundInfoService.writeAllFundsToMongoDb(allFundsInfo);
+            System.out.println(allFundsInfo);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    @Test
+    public  void writeAllFundsTradeRateToMongoDb() {
+        try {
+            List<String> allFundsInfo = fundInfoService.getAllFundsInfo();
+            fundInfoService.writeAllFundsTradeRateToMongoDb(allFundsInfo);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    @Test
+    public  void writeAllFundsDiscountToMongoDb() {
+        try {
+            List<String> allFundsInfo = fundInfoService.getAllFundsInfo();
+            fundInfoService.writeAllFundsDiscountToMongoDb(allFundsInfo);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public  void  writeAllTradeLimitToMongoDb(){
+        fundInfoService.writeAllTradeLimitToMongoDb();
+    }
     @Test
     public void testGetMinBuyAmount() throws Exception {
         List<BigDecimal> minAmountList = new ArrayList<>();

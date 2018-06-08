@@ -41,6 +41,9 @@ public class FundGroupController {
 
     @Value("${shellshellfish.trade-order-url}")
     private String tradeOrderUrl;
+    
+    @Value("${shellshellfish.asset-alloction-url}")
+    private String assetAlloctionUrl;
 
     @Autowired
     FundGroupService fundGroupService;
@@ -69,13 +72,24 @@ public class FundGroupController {
                                        @RequestParam(required = false) String totalIncomeRate,
                                        @RequestParam(required = false) String count) {
 
+    	 //TODO 暂时未区分oemId，待区分时需要输入变量oemid
+        String oemId = "1";
+        String url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId
+                + "/sub-groups/" + subGroupId + "/" + oemId;
+        String status = "";
+        Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
+        if(productMap!=null&&productMap.containsKey("status")){
+        	status = productMap.get("status") + "";
+        }
+        
         Map result = fundGroupService.getMyProductDetail(prodId, uuid, groupId, subGroupId);
 
         if (CollectionUtils.isEmpty(result)) {
             logger.error("getMyProductDetail　failed uuid:{}, userProdId:{}", uuid, prodId);
             return new JsonResult(JsonResult.Fail, "获取失败", JsonResult.EMPTYRESULT);
         }
-
+        
+        result.put("status", status);
         result.put("groupId", groupId);
         result.put("subGroupId", subGroupId);
         result.put("totals", totals == null ? "" : totals);

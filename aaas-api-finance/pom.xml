@@ -134,6 +134,10 @@
           <groupId>com.google.guava</groupId>
           <artifactId>guava</artifactId>
         </exclusion>
+        <exclusion>
+          <artifactId>javassist</artifactId>
+          <groupId>org.javassist</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -173,10 +177,18 @@
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
 
+    <!--<dependency>-->
+      <!--<groupId>org.springframework.boot</groupId>-->
+      <!--<artifactId>spring-boot-starter-web</artifactId>-->
+    <!--</dependency>-->
+
+    <!-- https://mvnrepository.com/artifact/com.squareup.okhttp/okhttp -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
+      <groupId>com.squareup.okhttp</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>2.7.5</version>
     </dependency>
+
     <dependency>
 
       <groupId>org.springframework.boot</groupId>
@@ -198,20 +210,19 @@
       <version>RELEASE</version>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-amqp</artifactId>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.11</version>
     </dependency>
+
     <!-- spring's support for quartz -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context-support</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-redis</artifactId>
-    </dependency>
   </dependencies>
 
 
@@ -238,6 +249,21 @@
       </extension>
     </extensions>
     <plugins>
+   <plugin>
+           <groupId>io.fabric8</groupId>
+            <artifactId>fabric8-maven-plugin</artifactId>
+             <version>3.5.28</version>
+                  <configuration>
+                           <composeFile>docker-compose.yml</composeFile>
+                           </configuration>
+                           <executions>
+                                 <execution>
+                                <goals>
+                                    <goal> build </goal> 
+                                </goals>
+                                 </execution>
+                           </executions>
+                    </plugin>
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <version>3.0.2</version>
@@ -331,43 +357,6 @@
             <extdirs>${project.basedir}/lib</extdirs>
           </compilerArguments>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric8-maven-plugin</artifactId>
-        <version>3.5.33</version>
-        <configuration>
-          <resources>
-            <labels>
-              <all>
-                <property>
-                  <name>app</name>
-                  <value>${artifactId}-${version}</value>
-                </property>
-                <property>
-                  <name>hystrix.enabled</name>
-                  <value>false</value>
-                </property>
-              </all>
-            </labels>
-          </resources>
-          <enricher>
-            <config>
-              <spring-boot-health-check>
-                <port>4444</port>
-              </spring-boot-health-check>
-            </config>
-          </enricher>
-        </configuration>
-        <executions>
-          <execution>
-            <id>fmp</id>
-            <phase>deploy</phase>
-            <goals>
-              <goal>deploy</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

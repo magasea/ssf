@@ -13,15 +13,9 @@ public interface MongoUiTrdZZInfoRepo extends MongoRepository<MongoUiTrdZZInfo, 
     @Override
     MongoUiTrdZZInfo save(MongoUiTrdZZInfo mongoUiTrdZZInfo);
 
-    List<MongoUiTrdZZInfo> findAllByUserIdAndUserProdId(Long userId, Long userProdId);
 
-    List<MongoUiTrdZZInfo> findAllByUserIdAndUserProdIdAndTradeTypeAndTradeStatus(Long userId,
-                                                                                  Long userProdId, int tradeType, int tradeStatus);
-
-    List<MongoUiTrdZZInfo> findAllByUserId(Long userId);
-
-//	MongoUiTrdZZInfo findByUserProdIdAndUserIdAndOutSideOrderNo(Long userProdId, Long userId,
-//			String outSideOrderNo);
+    List<MongoUiTrdZZInfo> findAllByUserIdAndUserProdIdAndTradeTypeAndTradeStatusAndConfirmDateLessThanEqual(
+            Long userId, Long userProdId, int tradeType, int tradeStatus, String date);
 
     MongoUiTrdZZInfo findByUserProdIdAndUserIdAndApplySerial(Long userProdId, Long userId,
                                                              String applySerial);
@@ -29,7 +23,7 @@ public interface MongoUiTrdZZInfoRepo extends MongoRepository<MongoUiTrdZZInfo, 
     List<MongoUiTrdZZInfo> findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDate(
             Long userProdId, String fundCode, int tradeType, int tradeStatus, String confirmDate);
 
-    List<MongoUiTrdZZInfo> findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateGreaterThan(
+    List<MongoUiTrdZZInfo> findByUserProdIdAndFundCodeAndTradeTypeAndTradeStatusAndConfirmDateLessThanEqual(
             long userProdId, String fundCode, int tradeType, int tradeStatus, String confirmDate);
 
     List<MongoUiTrdZZInfo> findByTradeTypeAndTradeStatusAndConfirmDateGreaterThanEqual(
@@ -37,4 +31,10 @@ public interface MongoUiTrdZZInfoRepo extends MongoRepository<MongoUiTrdZZInfo, 
 
     List<MongoUiTrdZZInfo> findAllByUserProdId(Long userProdId);
 
+    List<MongoUiTrdZZInfo> findAllByUserProdIdAndConfirmDateLessThanEqual(Long userProdId, String date);
+
+    List<MongoUiTrdZZInfo> findAllByUserProdIdAndFundCodeAndConfirmDate(Long userProdId, String fundCode,
+                                                                        String confirmDate);
+
+    List<MongoUiTrdZZInfo> findAllByConfirmDate(String confirmDate);
 }

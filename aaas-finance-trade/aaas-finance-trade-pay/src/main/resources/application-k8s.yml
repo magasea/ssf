@@ -14,7 +14,7 @@ spring:
         acknowledge-mode: auto
     username: ssf
     password: shellshellfish
-    host: external-rabbitmq-service
+    host: external-rabbitmq-servic
     port: 5672
     virtual-host: aaas
     topicQueuePayName: com.ssf.topic.queue.pay
@@ -37,10 +37,10 @@ spring:
     password: redis123
 
 datasource:
-  sampleapp:
+  aaasapp:
     url: jdbc:mysql://external-mysql-service:3306/ssftrdpay?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8
     username: sa
-    password: 1rIQ9wi!@g3P$Qh* 
+    password: N4eTVr89lX9BaPcx 
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema: ssftrdpay
     maxPoolSize: 20

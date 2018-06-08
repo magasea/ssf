@@ -183,21 +183,29 @@ public class FundDetailedController {
 						
 						List<Map> yieldOf7DaysList = new ArrayList<Map>();
 						List<Map> yieldOfTenKiloUnitYieldList = new ArrayList<Map>();
+						List<Map> historyprofitlist = new ArrayList<Map>();
 						for(int i=0;i<yieldOf7DaysAndTenKiloUnitYieldList.size();i++){
 							Map<String,Object> yieldOf7DaysMap = new HashMap<String,Object>();
+							Map<String,Object> historyprofitMap = new HashMap<String,Object>();
 							Map<String,Object> yieldOfTenKiloUnitYieldMap = new HashMap<String,Object>();
 							Map yieldMap = yieldOf7DaysAndTenKiloUnitYieldList.get(i);
 							yieldOf7DaysMap.put("date", yieldMap.get("date"));
 							yieldOf7DaysMap.put("yieldOf7Days", yieldMap.get("yieldOf7Days"));
 							yieldOfTenKiloUnitYieldMap.put("date", yieldMap.get("date"));
 							yieldOfTenKiloUnitYieldMap.put("tenKiloUnitYield", yieldMap.get("tenKiloUnitYield"));
+							
+							historyprofitMap.put("date", yieldMap.get("date"));
+							historyprofitMap.put("profit", yieldMap.get("profit"));
+							
 							yieldOf7DaysList.add(yieldOf7DaysMap);
 							yieldOfTenKiloUnitYieldList.add(yieldOfTenKiloUnitYieldMap);
+							historyprofitlist.add(historyprofitMap);
 						}
 						Collections.reverse(yieldOf7DaysAndTenKiloUnitYieldList);
 						result.put("yieldOf7DaysList", yieldOf7DaysList);
 						result.put("yieldOfTenKiloUnitYieldList", yieldOfTenKiloUnitYieldList);
 						result.put("yieldOf7DaysAndTenKiloUnitYield", yieldOf7DaysAndTenKiloUnitYieldList);
+						result.put("historyprofitlist", historyprofitlist);
 						result.put("title", "查看历史数据");
 						result.put("title1", "日期");
 						result.put("title2", "七日年化");

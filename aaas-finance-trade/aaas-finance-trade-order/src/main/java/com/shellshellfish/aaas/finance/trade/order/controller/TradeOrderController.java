@@ -491,4 +491,45 @@ public class TradeOrderController {
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
 
+	/**
+	 * 同步中正银行信息
+	 *
+	 * @return
+	 */
+	@ApiOperation("获取中正银行信息")
+	@ApiImplicitParams({
+	})
+	@ApiResponses({
+			@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
+			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
+			@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")})
+	@RequestMapping(value = "/funds/syncbanks", method = RequestMethod.GET)
+	public ResponseEntity<Map> syncBanks()
+			throws Exception {
+		Map<String, Object> result = new HashMap<String, Object>();
+		orderService.syncBankInfos();
+		return new ResponseEntity<Map>(result, HttpStatus.OK);
+	}
+	
+	/**
+     * 支持的银行列表
+     *
+     * @return
+     */
+    @ApiOperation("支持的银行列表")
+    @ApiImplicitParams({
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
+            @ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
+            @ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+            @ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")})
+    @RequestMapping(value = "/funds/banklists", method = RequestMethod.GET)
+    public ResponseEntity<Map> getBanklists() throws Exception {
+        Map<String, Object> result = new HashMap<String, Object>();
+        result = orderService.getBanklists();
+        return new ResponseEntity<Map>(result, HttpStatus.OK);
+    }
+
 }

@@ -1,7 +1,8 @@
 package com.shellshellfish.aaas.userinfo.repositories.mysql;
 
 import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
@@ -20,4 +21,6 @@ public interface UserInfoRepository extends PagingAndSortingRepository<UiUser, L
   List<UiUser> findByCellPhone(String cellphone);
 
   List<UiUser> findAll();
+  
+  Page<UiUser> findAll(Pageable pageable);
 }

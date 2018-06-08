@@ -1,42 +1,29 @@
 package com.shellshellfish.aaas.assetallocation.job.service;
 
 
-import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.CALCULATE_YIELDANDRISKOFWEEK_JOBSCHEDULE;
-import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.FAILURED_STATUS;
-import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.GET_ALLIDANDSUBID_JOBSCHEDULE;
-import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.INSERT_DAILYFUND_JOBSCHEDULE;
-import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.INSERT_FUNDGROUPDATA_JOBSCHEDULE;
-import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.JOB_SCHEDULE_NAME;
-import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.MONGO_DB_COLLECTION;
-import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.SUB_GROUP_ID_SUBFIX;
-import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.SUCCESSFUL_STATUS;
-import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.UPDATE_ALLMAXIMUMLOSSES_JOBSCHEDULE;
-
 import com.alibaba.fastjson.JSON;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
+import com.shellshellfish.aaas.assetallocation.entity.Interval;
 import com.shellshellfish.aaas.assetallocation.job.entity.JobTimeRecord;
+import com.shellshellfish.aaas.assetallocation.mapper.FundGroupMapper;
 import com.shellshellfish.aaas.assetallocation.returnType.ReturnType;
-import com.shellshellfish.aaas.assetallocation.service.impl.CovarianceCalculateService;
-import com.shellshellfish.aaas.assetallocation.service.impl.DailyFundService;
-import com.shellshellfish.aaas.assetallocation.service.impl.FundCalculateService;
-import com.shellshellfish.aaas.assetallocation.service.impl.FundGroupDataService;
-import com.shellshellfish.aaas.assetallocation.service.impl.FundGroupService;
+import com.shellshellfish.aaas.assetallocation.service.impl.*;
 import com.shellshellfish.aaas.assetallocation.util.ConstantUtil;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.*;
 
 
 /**
@@ -64,6 +51,9 @@ public class JobScheduleService {
     private JobTimeService jobTimeService;
 
     @Autowired
+    private FundGroupMapper fundGroupMapper;
+
+    @Autowired
     MongoClient mongoClient;
 
     @Autowired
@@ -83,11 +73,11 @@ public class JobScheduleService {
         try {
             doSuccess = dailyFundService.insertDailyFund(oemId);
         } catch (Exception e) {
-            logger.error("调用每日接口获取数据定时任务启动失败..." + sdf.format(new Date()), e);
+            logger.error("调用每日接口获取数据定时任务异常..." + sdf.format(new Date()), e);
         }
 
         if (doSuccess) {
-            logger.info("调用每日接口获取数据定时任务启动成功..." + sdf.format(new Date()));
+            logger.info("每日接口获取数据获取成功..." + sdf.format(new Date()));
         } else {
             status = FAILURED_STATUS;
             logger.info("调用每日接口获取数据定时任务启动失败..." + sdf.format(new Date()));
@@ -209,19 +199,32 @@ public class JobScheduleService {
 
             List<Document> documents = new ArrayList<>();
             String returnType = "income";
-            String subfix = SUB_GROUP_ID_SUBFIX;
-            for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
+//            String subfix = SUB_GROUP_ID_SUBFIX;
+
+            List<Interval> intervals = fundGroupMapper.getGroupIdAndSubId(oemId);
+
+            for (Interval interval : intervals){
                 arrayList = new ArrayList<>();
                 arrayList.addAll(dateList);
-
-                String groupId = String.valueOf(index);
-                String subGroupId = String.valueOf(index + subfix);
-                String key = groupId + "_" + subGroupId;
-                ReturnType rt = fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, oemId,
-                    returnType, arrayList);
+                String key = interval.getFund_group_id() + "_" + interval.getId();
+                ReturnType rt = fundGroupService.getFundGroupIncomeAll(interval.getFund_group_id(), interval.getId(), oemId,
+                        returnType, arrayList);
                 Document document = returnTypeToDocument(key, oemId,  rt);
                 documents.add(document);
             }
+
+//            for (int index = 1; index <= ConstantUtil.FUND_GROUP_COUNT; index++) {
+//                arrayList = new ArrayList<>();
+//                arrayList.addAll(dateList);
+
+//                String groupId = String.valueOf(index);
+//                String subGroupId = String.valueOf(index + subfix);
+//                String key = groupId + "_" + subGroupId;
+//                ReturnType rt = fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, oemId,
+//                    returnType, arrayList);
+//                Document document = returnTypeToDocument(key, oemId,  rt);
+//                documents.add(document);
+//            }
             // 删除所有符合条件的文档
             Document filter = new Document(); 
             filter.append("title", collectionName);

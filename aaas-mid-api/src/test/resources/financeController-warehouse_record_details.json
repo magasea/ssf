@@ -1,0 +1,87 @@
+{
+  "type":"object",
+  "$schema": "http://json-schema.org/draft-03/schema",
+  "properties":{
+    "head": {
+      "type":"object",
+      "properties":{
+        "status": {
+          "type":"string"
+        },
+        "msg": {
+          "type":"string"
+        }
+      }
+    },
+    "result": {
+      "type":"object",
+      "properties":{
+        "detailData": {
+          "type":"array",
+          "items":
+          {
+            "type":"object",
+            "properties":{
+              "adjustBefore": {
+                "type":"string"
+              },
+              "fundType": {
+                "type":"number"
+              },
+              "fundTypeName": {
+                "type":"string"
+              },
+              "adjustAfter": {
+                "type":"string"
+              },
+              "fundList": {
+                "type":["array","null"],
+                "items":
+                {
+                  "type":"object",
+                  "properties":{
+                    "code": {
+                      "type":"string"
+                    },
+                    "fundName": {
+                      "type":"string"
+                    },
+                    "percentBefore": {
+                      "type":"string"
+                    },
+                    "percentAfter": {
+                      "type":"string"
+                    }
+                  }
+                }
+
+
+              }
+            }
+          }
+        },
+        "topData": {
+          "type":"array",
+          "items":
+          {
+            "type":"object",
+            "properties":{
+              "fundType": {
+                "type":"number"
+              },
+              "fundTypeName": {
+                "type":"string"
+              },
+              "adjustAfter": {
+                "type":"string"
+              }
+            }
+          }
+        },
+        "name": {
+          "type":"string"
+        }
+      }
+    }
+  }
+}
