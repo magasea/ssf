@@ -38,7 +38,7 @@ public class RabbitMQConstants {
   public final static String OPERATION_TYPE_UPDATE_UITRDCONFIRMINFO = "update_uitrdconfirminfo";
   public final static String OPERATION_TYPE_UPDATE_BUY_PENDINGRECORDS = "update_buy_pendingrecords";
   public final static String OPERATION_TYPE_UPDATE_SELL_PENDINGRECORDS = "update_sell_pendingrecords";
-  public final static String OPERATION_TYPE_FAILED_BUY_PENDINGRECORDS = "update_buyfailed_pendingrecords";
+  public final static String OPERATION_TYPE_FAILED_PENDINGRECORDS = "update_failed_pendingrecords";
   public final static String OPERATION_TYPE_UPDATE_PRECONFIRM_PENDINGRECORDS = "update_preconfirm_pendingrecords";
   public final static String OPERATION_TYPE_FAILED_SELL_PENDINGRECORDS = "update_sellfailed_pendingrecords";
   public final static String OPERATION_TYPE_CONFIRM_PENDINGRECORDS = "update_confirm_pendingrecords";

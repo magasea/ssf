@@ -51,7 +51,6 @@ import com.shellshellfish.aaas.finance.trade.pay.service.UserInfoService;
 import com.shellshellfish.aaas.grpc.common.ErrInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -255,7 +254,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         logger.error("failed to pay for:" + payOrderDto.getUserPid() + " with prodId:" +
             payOrderDto.getUserProdId() + " with TrdMoneyAmount" + payAmount + " fundCode:"+
             trdOrderDetail.getFundCode());
-        notifyPendingRecordsBuyFailed(trdPayFlow);
+        notifyPendingRecordsFailed(trdPayFlow);
         continue;
       }
       if(null != fundResult){
@@ -288,13 +287,13 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     return payOrderDto;
   }
 
-  private void notifyPendingRecordsBuyFailed(TrdPayFlow trdPayFlow) {
+  private void notifyPendingRecordsFailed(TrdPayFlow trdPayFlow) {
     logger.info("notify trdPayFlow fundCode:" + trdPayFlow.getFundCode());
     com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
         .shellshellfish.aaas.common.message.order.TrdPayFlow();
     MyBeanUtils.mapEntityIntoDTO(trdPayFlow, trdPayFlowMsg);
     trdPayFlowMsg.setTrdStatus(TrdOrderStatusEnum.FAILED.getStatus());
-    broadcastMessageProducers.sendBuyFailed(trdPayFlowMsg);
+    broadcastMessageProducers.sendFailedMsgToPendingRecord(trdPayFlowMsg);
 
   }
 
@@ -996,18 +995,32 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       return false;
     }
     for(ProdDtlSellDTO prodDtlSellDTO: prodSellPercentMsg.getProdDtlSellDTOList()){
-      int sellNum = prodDtlSellDTO.getFundQuantity();
-      String fundCode = prodDtlSellDTO.getFundCode();
-      String outsideOrderNo = prodSellPercentMsg.getOrderId()+prodDtlSellDTO.getOrderDetailId();
+
+      processSingleSellReq(openId, prodSellPercentMsg.getUserId(),prodDtlSellDTO.getFundCode(),
+          prodDtlSellDTO.getOrderDetailId(),prodSellPercentMsg.getOrderId(),prodDtlSellDTO
+              .getFundQuantity(),prodSellPercentMsg.getUserProdId(),prodSellPercentMsg
+              .getTrdBrokerId(),prodSellPercentMsg.getTrdAcco() );
+    }
+//    fundTradeApiService.sellFund(userUuid, sellNum, outsideOrderNo, tradeAcco, fundCode);
+    return false;
+  }
+
+  public boolean processSingleSellReq(String openId, Long userId, String fundCode, Long
+      orderDetailId, String
+      orderId, Integer targetQuantity, Long userProdId,  Long brokerId, String tradeAcco){
+
+      int sellNum = targetQuantity;
+
+      String outsideOrderNo = orderId+orderDetailId;
       logger.info("sell prod with fundCode :"+fundCode
           +"sell fund quantity:"+ sellNum + " sell  account:"+ tradeAcco + " outsideOrderNo:" +
           outsideOrderNo);
       TrdPayFlow trdPayFlow = new TrdPayFlow();
       trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
-      trdPayFlow.setCreateBy(prodSellPercentMsg.getUserId());
+      trdPayFlow.setCreateBy(userId);
       trdPayFlow.setTrdStatus(TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus());
-      trdPayFlow.setUserProdId(prodSellPercentMsg.getUserProdId());
-      trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
+      trdPayFlow.setUserProdId(userProdId);
+      trdPayFlow.setOrderDetailId(orderDetailId);
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
       BigDecimal sellAmount = BigDecimal.valueOf(0);
       //如果是货币基金，得把原始份额乘以最近交易日的navadj来折算应该售出的份额
@@ -1016,16 +1029,22 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       }else{
         BigDecimal navadj = BigDecimal.ZERO;
         try {
-          navadj = TradeUtil.getNavadjByLongOrigin(getMoneyCodeNavAdjNow(fundCode));
+          Long originNavadj = getMoneyCodeNavAdjNow(fundCode);
+          if(originNavadj < 0L){
+            logger.error("Failed to get current navadj for :{}", fundCode);
+            //ToDo: make notification to let trdOrder know this or, use trdOrder to routine check
+            // this issue ? and send request to retry sell?
+            return false;
+
+          }
+          navadj = TradeUtil.getNavadjByLongOrigin(originNavadj);
           sellAmount = navadj.multiply(TradeUtil.getBigDecimalNumWithDiv100(Long.valueOf(sellNum)));
           logger.info("sell money fundCode:{} with sellAmount:{} originSellNum:{} navadj:{}",
               trdPayFlow.getFundCode(), sellAmount, sellNum, navadj);
         }catch (Exception ex){
           logger.error("exception:", ex);
         }
-
       }
-
       try{
         SellFundResult sellFundResult = fundTradeApiService.sellFund(openId, sellAmount,
             outsideOrderNo, tradeAcco, fundCode);
@@ -1034,43 +1053,44 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           trdPayFlow.setTrdStatus(TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus());
           trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
           trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
-          trdPayFlow.setTradeTargetShare(prodDtlSellDTO.getFundQuantity());
+          trdPayFlow.setTradeTargetShare(targetQuantity);
 //          trdPayFlow.setTradeTargetSum(TradeUtil.getLongNumWithMul100(prodDtlSellDTO
 //              .getTargetSellAmount()));
-          trdPayFlow.setFundCode(prodDtlSellDTO.getFundCode());
+          trdPayFlow.setFundCode(fundCode);
           trdPayFlow.setOutsideOrderno(outsideOrderNo);
-          trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
+          trdPayFlow.setOrderDetailId(orderDetailId);
           trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
-          trdPayFlow.setCreateBy(prodSellPercentMsg.getUserId());
-          trdPayFlow.setUpdateBy(prodSellPercentMsg.getUserId());
-          trdPayFlow.setTradeAcco(prodSellPercentMsg.getTrdAcco());
-          trdPayFlow.setUserProdId(prodSellPercentMsg.getUserProdId());
-          if(prodSellPercentMsg.getUserId() <=0 ){
-            logger.error("userId is not correct:{}", prodSellPercentMsg.getUserId());
+          trdPayFlow.setCreateBy(userId);
+          trdPayFlow.setUpdateBy(userId);
+          trdPayFlow.setTradeAcco(tradeAcco);
+          trdPayFlow.setUserProdId(userProdId);
+          if(userId <=0 ){
+            logger.error("userId is not correct:{}", userId);
           }
-          trdPayFlow.setUserId(prodSellPercentMsg.getUserId());
-          trdPayFlow.setTradeBrokeId(prodSellPercentMsg.getTrdBrokerId());
+          trdPayFlow.setUserId(userId);
+          trdPayFlow.setTradeBrokeId(brokerId);
           TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
           com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
               .shellshellfish.aaas.common.message.order.TrdPayFlow();
           BeanUtils.copyProperties(trdPayFlowResult, trdPayFlowMsg);
           notifySell(trdPayFlowMsg);
         }else{
+          //ToDo: 以后这里不需要加回去， 因为没有扣减发生， 需要发消息通知把pendingRecord状态置为handled
+          notifyPendingRecordsFailed(trdPayFlow);
           //赎回请求失败，需要把扣减的基金数量加回去
           trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
           trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
-          trdPayFlow.setTradeTargetShare(prodDtlSellDTO.getFundQuantity());
+          trdPayFlow.setTradeTargetShare(targetQuantity);
 //          trdPayFlow.setTradeTargetSum(TradeUtil.getLongNumWithMul100(prodDtlSellDTO
 //              .getTargetSellAmount()));
-          trdPayFlow.setFundCode(prodDtlSellDTO.getFundCode());
+          trdPayFlow.setFundCode(fundCode);
           trdPayFlow.setOutsideOrderno(outsideOrderNo);
-          trdPayFlow.setOrderDetailId(prodDtlSellDTO.getOrderDetailId());
+          trdPayFlow.setOrderDetailId(orderDetailId);
           trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
-          trdPayFlow.setCreateBy(prodSellPercentMsg.getUserId());
-          trdPayFlow.setUpdateBy(prodSellPercentMsg.getUserId());
-          trdPayFlow.setTradeAcco(prodSellPercentMsg.getTrdAcco());
-          trdPayFlow.setUserProdId(prodSellPercentMsg.getUserProdId());
-          notifyRollback(trdPayFlow, prodDtlSellDTO, sellNum);
+          trdPayFlow.setCreateBy(userId);
+          trdPayFlow.setUpdateBy(userId);
+          trdPayFlow.setTradeAcco(tradeAcco);
+          trdPayFlow.setUserProdId(userProdId);
         }
       }catch (Exception ex){
         logger.error("exception:",ex);
@@ -1085,11 +1105,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
             logger.error("strange err message from ZZ:"+ ex.getMessage());
           }
         }
-        notifyRollback(trdPayFlow, prodDtlSellDTO, sellNum);
-      }
+        return false;
     }
-//    fundTradeApiService.sellFund(userUuid, sellNum, outsideOrderNo, tradeAcco, fundCode);
-    return false;
+    return true;
   }
 
 
@@ -1154,7 +1172,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 //        MongoFundNetInfo.class);
 //  }
 
-  private Long getMoneyCodeNavAdjNow(String fundCode) throws Exception {
+  public Long getMoneyCodeNavAdjNow(String fundCode) throws Exception {
     String curentDateTime = TradeUtil.getReadableDateTime(TradeUtil.getUTCTime());
     String applyDate = curentDateTime.split("T")[0];
     if(MonetaryFundEnum.containsCode(fundCode)){
@@ -1163,8 +1181,18 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       codes.add(fundCode);
       List<DCDailyFunds> dcDailyFunds = dataCollectionService.getFundDataOfDay(codes,
           beginDate, applyDate);
+      DCDailyFunds dcDailyFundsFound = null;
       if(!CollectionUtils.isEmpty(dcDailyFunds)){
-        Double navadj = dcDailyFunds.get(0).getNavadj();
+        Long latestDate = 0L;
+        if(dcDailyFunds.size() > 1){
+          for(DCDailyFunds item: dcDailyFunds){
+            if(latestDate < item.getNavLatestDate()){
+              dcDailyFundsFound = item;
+              latestDate = item.getNavLatestDate();
+            }
+          }
+        }
+        Double navadj = dcDailyFundsFound.getNavadj();
         return TradeUtil.getLongNumWithMul1000000(navadj);
       }else{
         int beginDays = 1;

@@ -14,7 +14,6 @@ import com.shellshellfish.aaas.common.utils.ZZStatsToOrdStatsUtils;
 import com.shellshellfish.aaas.finance.trade.pay.message.BroadcastMessageProducers;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.ConfirmResult;
-import com.shellshellfish.aaas.finance.trade.pay.model.dao.mongo.MongoFundNetInfo;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.mysql.TrdPayFlow;
 
 import com.shellshellfish.aaas.finance.trade.pay.repositories.mysql.TrdPayFlowRepository;
@@ -30,11 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -159,11 +154,11 @@ public class CheckFundsTradeJobService {
                     logger.info("Sample job has finished...");
                 }
             }
-            CheckAndSendConfirmInfo(trdPayFlowListToGetConfirmInfo);
+            checkAndSendConfirmInfo(trdPayFlowListToGetConfirmInfo);
         }
     }
 
-    private void CheckAndSendConfirmInfo(List<TrdPayFlow> trdPayFlowListToGetConfirmInfo) {
+    private void checkAndSendConfirmInfo(List<TrdPayFlow> trdPayFlowListToGetConfirmInfo) {
         if(CollectionUtils.isEmpty(trdPayFlowListToGetConfirmInfo)){
             logger.info("there is no confirm trdPayFlow to handle");
             return;
@@ -333,7 +328,7 @@ public class CheckFundsTradeJobService {
                     logger.info("Sample job has finished...");
                 }
             }
-            CheckAndSendConfirmInfo(trdPayFlowListToGetConfirmInfo);
+            checkAndSendConfirmInfo(trdPayFlowListToGetConfirmInfo);
         }
     }
     public void executePreOrderStatus(){

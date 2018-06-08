@@ -516,14 +516,15 @@ public class BroadcastMessageConsumers {
                 }
                 //非货币基金
                 else{
-                    Integer valueCaculated =  mongoUiTrdZZInfo.getTradeConfirmShare().intValue() -
-                        productDetail.getFundQuantity();
-                    logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
+                    Integer valueCaculated = productDetail.getFundQuantity() - mongoUiTrdZZInfo
+                        .getTradeConfirmShare().intValue();
+                        logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
                         valueCaculated);
                     productDetail.setFundQuantity(valueCaculated);
-
                 }
                 productDetail.setUpdateDate(TradeUtil.getUTCTime());
+                //表示该记录需要重新生成证据链标签
+                productDetail.setLastestSerial("");
                 uiProductDetailRepo.save(productDetail);
                 mongoPendingRecords.get(0).setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
                 mongoTemplate.save(mongoPendingRecords.get(0),"ui_pending_records");
@@ -565,21 +566,26 @@ public class BroadcastMessageConsumers {
                 }
                 //非货币基金
                 else{
-                    Integer valueCaculated =  mongoUiTrdZZInfo.getTradeConfirmShare().intValue() +
-                    productDetail.getFundQuantity();
+                    Integer valueCaculated = 0;
+                    if(productDetail.getFundQuantity() != null){
+                        valueCaculated =  mongoUiTrdZZInfo.getTradeConfirmShare().intValue() +
+                            productDetail.getFundQuantity();
+                    }else{
+                        valueCaculated = mongoUiTrdZZInfo.getTradeConfirmShare().intValue();
+                    }
+
                     logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
                         valueCaculated);
                     productDetail.setFundQuantity(valueCaculated);
-
                 }
                 productDetail.setUpdateDate(TradeUtil.getUTCTime());
+                //表示该记录需要重新生成证据链标签
+                productDetail.setLastestSerial("");
                 uiProductDetailRepo.save(productDetail);
                 mongoPendingRecords.get(0).setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
                 mongoTemplate.save(mongoPendingRecords.get(0),"ui_pending_records");
-
             }
         }
-
     }
 
     /**
@@ -977,15 +983,15 @@ public class BroadcastMessageConsumers {
     @Transactional
     @RabbitListener(bindings = @QueueBinding(
         value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
-            .OPERATION_TYPE_FAILED_BUY_PENDINGRECORDS, durable = "false"),
+            .OPERATION_TYPE_FAILED_PENDINGRECORDS, durable = "false"),
         exchange = @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
-            durable = "true"), key = RabbitMQConstants.OPERATION_TYPE_FAILED_BUY_PENDINGRECORDS)
+            durable = "true"), key = RabbitMQConstants.OPERATION_TYPE_FAILED_PENDINGRECORDS)
     )
-    public void receiveBuyFailedMsg(TrdPayFlow trdPayFlow, Channel channel, @Header
+    public void receiveFailedMsg(TrdPayFlow trdPayFlow, Channel channel, @Header
         (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
         //目的是设置orderId
         logger.info("received message in :{}", RabbitMQConstants
-            .OPERATION_TYPE_FAILED_BUY_PENDINGRECORDS);
+            .OPERATION_TYPE_FAILED_PENDINGRECORDS);
         Query query = new Query();
         query.addCriteria(Criteria.where("user_prod_id").is(trdPayFlow.getUserProdId()).and
             ("fund_code").is(trdPayFlow.getFundCode()).and("order_id").is
@@ -1006,7 +1012,7 @@ public class BroadcastMessageConsumers {
                     + "fund_code:{} already in handled status", trdPayFlow.getUserProdId(),
                     trdPayFlow.getOutsideOrderno(), trdPayFlow.getFundCode());
             }else{
-                mongoPendingRecords.get(0).setTradeStatus(TrdOrderStatusEnum.FAILED.getStatus());
+                mongoPendingRecords.get(0).setTradeStatus(trdPayFlow.getTrdStatus());
                 mongoPendingRecords.get(0).setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
                 mongoTemplate.save(mongoPendingRecords, "ui_pending_records");
             }
@@ -1014,44 +1020,44 @@ public class BroadcastMessageConsumers {
         }
     }
 
-    @Transactional
-    @RabbitListener(bindings = @QueueBinding(
-        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
-            .OPERATION_TYPE_FAILED_SELL_PENDINGRECORDS, durable = "false"),
-        exchange = @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
-            durable = "true"), key = RabbitMQConstants.OPERATION_TYPE_FAILED_SELL_PENDINGRECORDS)
-    )
-    public void receiveSellFailedMsg(TrdPayFlow trdPayFlow, Channel channel, @Header
-        (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
-        //目的是设置orderId
-        logger.info("received message in :{}", RabbitMQConstants
-            .OPERATION_TYPE_FAILED_SELL_PENDINGRECORDS);
-        Query query = new Query();
-        query.addCriteria(Criteria.where("user_prod_id").is(trdPayFlow.getUserProdId()).and
-            ("fund_code").is(trdPayFlow.getFundCode()).and("order_id").is
-            (trdPayFlow.getOutsideOrderno()));
-        List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
-        if(CollectionUtils.isEmpty(mongoPendingRecords)){
-            logger.error("There is no pendingRecords with user_prod_id:{} and order_id:{} and "
-                    + "fund_code:{}", trdPayFlow.getUserProdId(), trdPayFlow.getOutsideOrderno(),
-                trdPayFlow.getFundCode() );
-            MongoPendingRecords mongoPendingRecordsPatched = getPatchMongoPendingRecord(trdPayFlow);
-            mongoPendingRecordsPatched.setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
-            mongoTemplate.save(mongoPendingRecordsPatched, "ui_pending_records");
-            return;
-        }
-        else{
-            if(mongoPendingRecords.get(0).getProcessStatus() == PendingRecordStatusEnum.HANDLED.getStatus()){
-                logger.error("The pendingRecords with user_prod_id:{} and order_id:{} and "
-                        + "fund_code:{} already in handled status", trdPayFlow.getUserProdId(),
-                    trdPayFlow.getOutsideOrderno(), trdPayFlow.getFundCode());
-            }else{
-                mongoPendingRecords.get(0).setTradeStatus(trdPayFlow.getTrdStatus());
-                mongoPendingRecords.get(0).setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
-                mongoTemplate.save(mongoPendingRecords.get(0), "ui_pending_records");
-            }
-        }
-    }
+//    @Transactional
+//    @RabbitListener(bindings = @QueueBinding(
+//        value = @Queue(value = RabbitMQConstants.QUEUE_USERINFO_BASE + RabbitMQConstants
+//            .OPERATION_TYPE_FAILED_SELL_PENDINGRECORDS, durable = "false"),
+//        exchange = @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+//            durable = "true"), key = RabbitMQConstants.OPERATION_TYPE_FAILED_SELL_PENDINGRECORDS)
+//    )
+//    public void receiveSellFailedMsg(TrdPayFlow trdPayFlow, Channel channel, @Header
+//        (AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
+//        //目的是设置orderId
+//        logger.info("received message in :{}", RabbitMQConstants
+//            .OPERATION_TYPE_FAILED_SELL_PENDINGRECORDS);
+//        Query query = new Query();
+//        query.addCriteria(Criteria.where("user_prod_id").is(trdPayFlow.getUserProdId()).and
+//            ("fund_code").is(trdPayFlow.getFundCode()).and("order_id").is
+//            (trdPayFlow.getOutsideOrderno()));
+//        List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
+//        if(CollectionUtils.isEmpty(mongoPendingRecords)){
+//            logger.error("There is no pendingRecords with user_prod_id:{} and order_id:{} and "
+//                    + "fund_code:{}", trdPayFlow.getUserProdId(), trdPayFlow.getOutsideOrderno(),
+//                trdPayFlow.getFundCode() );
+//            MongoPendingRecords mongoPendingRecordsPatched = getPatchMongoPendingRecord(trdPayFlow);
+//            mongoPendingRecordsPatched.setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
+//            mongoTemplate.save(mongoPendingRecordsPatched, "ui_pending_records");
+//            return;
+//        }
+//        else{
+//            if(mongoPendingRecords.get(0).getProcessStatus() == PendingRecordStatusEnum.HANDLED.getStatus()){
+//                logger.error("The pendingRecords with user_prod_id:{} and order_id:{} and "
+//                        + "fund_code:{} already in handled status", trdPayFlow.getUserProdId(),
+//                    trdPayFlow.getOutsideOrderno(), trdPayFlow.getFundCode());
+//            }else{
+//                mongoPendingRecords.get(0).setTradeStatus(trdPayFlow.getTrdStatus());
+//                mongoPendingRecords.get(0).setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
+//                mongoTemplate.save(mongoPendingRecords.get(0), "ui_pending_records");
+//            }
+//        }
+//    }
 
     @Transactional
     @RabbitListener(bindings = @QueueBinding(
@@ -1068,7 +1074,8 @@ public class BroadcastMessageConsumers {
         if(StringUtils.isEmpty(trdPayFlow.getTrdApplyDate())||trdPayFlow.getTrdApplyDate().equals
             ("-1")){
             logger.error("received trdPayFlow without  trdApplyDate:{}", trdPayFlow.getTrdApplyDate());
-        }else if(trdPayFlow.getApplydateUnitvalue() == -1L) {
+        }else if(trdPayFlow.getApplydateUnitvalue() == -1L && MonetaryFundEnum.containsCode
+            (trdPayFlow.getFundCode())) {
             logger.error("the trdPayFlow.getApplydateUnitvalue is invalid");
             navadj = getMoneyCodeNavAdjByDate(trdPayFlow.getFundCode(), trdPayFlow
                 .getTrdApplyDate());
@@ -1104,6 +1111,12 @@ public class BroadcastMessageConsumers {
                 return;
             }else{
                 mongoPendingRecords.get(0).setApplyDateNavadj(navadj);
+                if(trdPayFlow.getTrdType() == TrdOrderOpTypeEnum.BUY.getOperation()){
+                    mongoPendingRecords.get(0).setTradeTargetShare(trdPayFlow.getTradeTargetShare());
+                }else if(trdPayFlow.getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+                    mongoPendingRecords.get(0).setTradeTargetSum(trdPayFlow.getTradeTargetSum());
+                }
+                mongoPendingRecords.get(0).setTradeStatus( trdPayFlow.getTrdStatus() );
                 mongoTemplate.save(mongoPendingRecords.get(0), "ui_pending_records");
             }
         }

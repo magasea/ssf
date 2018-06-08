@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.userinfo.service.impl;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
+import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import com.shellshellfish.aaas.userinfo.service.UiProductService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ public class UiProductServiceImpl implements UiProductService {
     @Autowired
     UiProductDetailRepo uiProductDetailRepo;
 
+    @Autowired
+    UiProductRepo uiProductRepo;
 
     @Override
     public List<UiProductDetailDTO> getProductDetailsByProdId(Long prodId) {
@@ -35,4 +38,8 @@ public class UiProductServiceImpl implements UiProductService {
         return result;
     }
 
+    @Override
+    public List<Long> getProdIds() {
+        return uiProductRepo.getAllId();
+    }
 }
