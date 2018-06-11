@@ -86,11 +86,14 @@ oem-info:
      home_page_img_two: http://47.96.164.161:81/2.png
      home_page_img_three: http://47.96.164.161:81/3.png
      home_page_img_four: http://47.96.164.161:81/4.png
-     combination_one: http://47.96.164.161:81/APP-invest-banner01.png
-     combination_two: http://47.96.164.161:81/APP-invest-banner02.png
-     combination_three: http://47.96.164.161:81/APP-invest-banner03.png
-     combination_four: http://47.96.164.161:81/APP-invest-banner04.png
-     combination_five: http://47.96.164.161:81/APP-invest-banner05.png
+#     combination_one: http://47.96.164.161:81/APP-invest-banner01.png
+#     combination_two: http://47.96.164.161:81/APP-invest-banner02.png
+#     combination_three: http://47.96.164.161:81/APP-invest-banner03.png
+     combination_four: 
+     combination_five: 
+     combination_one: http://47.96.164.161/1-Novice.jpg
+     combination_two: http://47.96.164.161/2-Robo-advisor.jpg
+     combination_three: http://47.96.164.161/3-Risk.jpg
      me_head_img: http://47.96.164.161:81/icon_me_headphoto2.png
      about_logo: http://47.96.164.161:81/icon_about_logo2.png
    - oem_id: 2
