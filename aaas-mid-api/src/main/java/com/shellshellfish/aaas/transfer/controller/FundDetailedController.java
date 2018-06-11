@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.transfer.controller;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -195,7 +196,24 @@ public class FundDetailedController {
 							yieldOfTenKiloUnitYieldMap.put("tenKiloUnitYield", yieldMap.get("tenKiloUnitYield"));
 							
 							historyprofitMap.put("date", yieldMap.get("date"));
-							historyprofitMap.put("profit", yieldMap.get("profit"));
+							Object profit = yieldMap.get("profit");
+							Object yieldOf7Days  = yieldMap.get("yieldOf7Days");
+							if(profit != null){
+								String profitStr = profit + "";
+								Double profitDou = (new BigDecimal(profitStr)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+								historyprofitMap.put("profit", profitDou);
+								yieldMap.put("profit", profitDou);
+							} else {
+								historyprofitMap.put("profit", 0);
+								yieldMap.put("profit", 0);
+							}
+							if(yieldOf7Days != null){
+								String yieldOf7DaysStr = yieldOf7Days + "";
+								Double yieldOf7DaysDou = (new BigDecimal(yieldOf7DaysStr)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+								yieldMap.put("yieldOf7Days", yieldOf7DaysDou);
+							} else {
+								yieldMap.put("yieldOf7Days", 0);
+							}
 							
 							yieldOf7DaysList.add(yieldOf7DaysMap);
 							yieldOfTenKiloUnitYieldList.add(yieldOfTenKiloUnitYieldMap);
