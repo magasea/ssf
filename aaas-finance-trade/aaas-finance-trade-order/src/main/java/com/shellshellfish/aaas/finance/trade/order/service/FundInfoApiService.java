@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface FundInfoApiService {
-    void writeAllTradeLimitToMongoDb();
+    void writeAllTradeLimitToMongoDb(List<String> funds);
 
     String getTradeLimitAsRawString(String fundCode, String businFlag);
 

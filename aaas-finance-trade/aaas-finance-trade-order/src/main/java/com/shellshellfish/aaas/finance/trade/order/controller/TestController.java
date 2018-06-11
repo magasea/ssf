@@ -60,7 +60,11 @@ public class TestController {
   public String updateAllFundinfo(){
     try {
       List<String> allFundsInfo = fundInfoService.getAllFundsInfo();
+      fundInfoService.writeAllFundsTradeRateToMongoDb(allFundsInfo);
       fundInfoService.writeAllFundsToMongoDb(allFundsInfo);
+      fundInfoService.writeAllTradeLimitToMongoDb(allFundsInfo);
+      fundInfoService.writeAllFundsDiscountToMongoDb(allFundsInfo);
+
     } catch (Exception e) {
       e.printStackTrace();
     }

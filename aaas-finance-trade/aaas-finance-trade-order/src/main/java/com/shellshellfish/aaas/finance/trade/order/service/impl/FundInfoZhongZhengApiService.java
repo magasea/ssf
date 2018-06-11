@@ -6,6 +6,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.shellshellfish.aaas.finance.trade.order.model.DiscountInfo;
+import com.shellshellfish.aaas.finance.trade.order.model.FundInfo;
+import com.shellshellfish.aaas.finance.trade.order.model.LimitInfo;
+import com.shellshellfish.aaas.finance.trade.order.model.RateInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeLimitResult;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeRateResult;
 import com.shellshellfish.aaas.finance.trade.order.model.UserBank;
@@ -189,6 +193,9 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
 
     @Override
     public void writeAllFundsToMongoDb(List<String> funds) {
+        //清理老数据
+        Query query=new Query();
+        mongoTemplate.findAllAndRemove(query,FundInfo.class);
         for (String fund: funds) {
             mongoTemplate.save(fund, "fundInfo");
         }
@@ -196,6 +203,9 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
 
     @Override
     public void writeAllFundsTradeRateToMongoDb(List<String> funds) {
+        //清理老数据
+        Query query=new Query();
+        mongoTemplate.findAllAndRemove(query,RateInfo.class);
         List<String> tradeRateInfoList=new ArrayList<>();
         try {
             for (String fund : funds) {
@@ -213,6 +223,9 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
     }
     @Override
     public void writeAllFundsDiscountToMongoDb(List<String> funds) {
+        //清理老数据
+        Query query=new Query();
+        mongoTemplate.findAllAndRemove(query,DiscountInfo.class);
         List<String> tradeDiscountInfoList=new ArrayList<>();
         try {
             for (String fund : funds) {
@@ -230,9 +243,11 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
     }
 
     @Override
-    public void writeAllTradeLimitToMongoDb() {
+    public void writeAllTradeLimitToMongoDb(List<String> funds) {
+        //清理老数据
+        Query query=new Query();
+        mongoTemplate.findAllAndRemove(query,LimitInfo.class);
         try {
-            List<String> funds = getAllFundsInfo();
             for(String fund:funds) {
                 JSONObject jsonObject = JSONObject.parseObject(fund);
                 String fundCode = jsonObject.getString("fundcode");
