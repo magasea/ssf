@@ -46,7 +46,13 @@ public class UserAssetServiceImpl implements UserAssetService {
 
     Logger logger = LoggerFactory.getLogger(UserAssetServiceImpl.class);
 
-
+    /**
+     * 计算组合确认部分资产，累计收益，累计收益率
+     *
+     * @param userProdId
+     * @param endDate
+     * @return
+     */
     @Override
     public PortfolioInfo calculateUserAssetAndIncome(Long userProdId, LocalDate endDate) {
 
