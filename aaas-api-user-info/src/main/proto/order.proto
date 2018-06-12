@@ -78,35 +78,6 @@ message OrderDetailResult {
     repeated OrderDetail order_detail_result = 1;
 }
 
-message OrderDetail {
-    int64 id = 1;
-    string orderId = 2;
-    string tradeApplySerial = 3;
-    int64 buysellDate = 4;
-    int32 tradeType = 5;
-    int64 payAmount = 6;
-    int64 payFee = 7;
-    int64 userId = 8;
-    int64 userProdId = 9;
-    string fundCode = 10;
-    int64 fundMoneyQuantity = 11;
-    int64 fundNum = 12;
-    int64 fundSum = 13;
-    int64 fundNumConfirmed = 14;
-    int64 fundSumConfirmed = 15;
-    int32 fundShare = 16;
-    int64 buyFee = 17;
-    int64 buyDiscount = 18;
-    int32 orderDetailStatus = 19;
-    int64 createBy = 20;
-    int64 createDate = 21;
-    int64 updateBy = 22;
-    int64 updateDate = 23;
-    string bankCardNum = 24;
-    string errMsg = 25;
-    int64 fundQuantity = 26;
-    int64 prodId = 27;
-}
 
 message UserBankCardNum {
     //用户银行卡号

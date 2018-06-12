@@ -8,7 +8,7 @@ import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
 import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.finance.trade.order.BindCardResult;
-import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
+
 import com.shellshellfish.aaas.finance.trade.order.OrderDetailQueryInfo;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetailResult;
 import com.shellshellfish.aaas.finance.trade.order.OrderQueryInfo;
@@ -30,6 +30,7 @@ import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
 import com.shellshellfish.aaas.finance.trade.order.service.ZZApiService;
 import com.shellshellfish.aaas.grpc.common.ErrInfo;
+import com.shellshellfish.aaas.grpc.common.OrderDetail;
 import com.shellshellfish.aaas.grpc.common.UserProdId;
 import com.shellshellfish.aaas.tools.zhongzhengapi.ZZFundShareInfo;
 import com.shellshellfish.aaas.tools.zhongzhengapi.ZZFundShareInfoResult;

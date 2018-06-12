@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.userinfo.service.impl;
 import com.shellshellfish.aaas.common.grpc.trade.order.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.GenOrderIdAndFundCode;
 import com.shellshellfish.aaas.finance.trade.order.OrderRpcServiceGrpc.OrderRpcServiceBlockingStub;
+import com.shellshellfish.aaas.grpc.common.OrderDetail;
 import com.shellshellfish.aaas.grpc.common.UserProdId;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
@@ -47,7 +48,7 @@ public class OrderGrpcServiceImpl implements OrderRpcService {
     public List<TrdOrderDetail> getAllTrdOrderDetail(Long userProdId) {
         UserProdId.Builder builder = UserProdId.newBuilder();
         builder.setUserProdId(userProdId);
-        List<com.shellshellfish.aaas.finance.trade.order.OrderDetail> orderDetails =
+        List<OrderDetail> orderDetails =
         tradeOrderServiceBlockingStub.getAllOrderDetail(builder.build()).getOrderDetailResultList();
         List<TrdOrderDetail> trdOrderDetails = new ArrayList<>();
         orderDetails.forEach(
@@ -64,7 +65,7 @@ public class OrderGrpcServiceImpl implements OrderRpcService {
     public List<TrdOrderDetail> getLatestOrderDetail(Long userProdId) {
         UserProdId.Builder builder = UserProdId.newBuilder();
         builder.setUserProdId(userProdId);
-        List<com.shellshellfish.aaas.finance.trade.order.OrderDetail> orderDetails =
+        List<OrderDetail> orderDetails =
             tradeOrderServiceBlockingStub.getLatestOrderDetail(builder.build()).getOrderDetailResultList();
         List<TrdOrderDetail> trdOrderDetails = new ArrayList<>();
         orderDetails.forEach(
@@ -83,7 +84,7 @@ public class OrderGrpcServiceImpl implements OrderRpcService {
         GenOrderIdAndFundCode.Builder goiafcBuilder = GenOrderIdAndFundCode.newBuilder();
         goiafcBuilder.setFundCode(fundCode);
         goiafcBuilder.setOrderId(orderId);
-        List<com.shellshellfish.aaas.finance.trade.order.OrderDetail> orderDetails =
+        List<OrderDetail> orderDetails =
         tradeOrderServiceBlockingStub.getOrderDetailByParams(goiafcBuilder.build()
         ).getOrderDetailResultList();
         List<TrdOrderDetail> trdOrderDetails = new ArrayList<>();
@@ -104,7 +105,7 @@ public class OrderGrpcServiceImpl implements OrderRpcService {
         goiafcBuilder.setFundCode(fundCode);
         goiafcBuilder.setUserProdId(userProdId);
         goiafcBuilder.setTrdType(trdType);
-        List<com.shellshellfish.aaas.finance.trade.order.OrderDetail> orderDetails =
+        List<OrderDetail> orderDetails =
             tradeOrderServiceBlockingStub.getOrderDetailByParams(goiafcBuilder.build()
             ).getOrderDetailResultList();
         List<TrdOrderDetail> trdOrderDetails = new ArrayList<>();
@@ -122,7 +123,7 @@ public class OrderGrpcServiceImpl implements OrderRpcService {
     public List<TrdOrderDetail> getOrderDetailByApplySerial(String applySerial) {
         GenOrderIdAndFundCode.Builder goiafcBuilder = GenOrderIdAndFundCode.newBuilder();
         goiafcBuilder.setApplySerial(applySerial);
-        List<com.shellshellfish.aaas.finance.trade.order.OrderDetail> orderDetails =
+        List<OrderDetail> orderDetails =
             tradeOrderServiceBlockingStub.getOrderDetailByParams(goiafcBuilder.build()
             ).getOrderDetailResultList();
         List<TrdOrderDetail> trdOrderDetails = new ArrayList<>();
