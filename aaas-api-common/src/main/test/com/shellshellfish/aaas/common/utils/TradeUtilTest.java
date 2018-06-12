@@ -169,6 +169,7 @@ public class TradeUtilTest {
   @Test
   public void getDayBefore() {
     System.out.println(TradeUtil.getDayBefore("2018-06-01", 1));
+    System.out.println(TradeUtil.getDayBefore("20180601", 1));
   }
 
   @Test

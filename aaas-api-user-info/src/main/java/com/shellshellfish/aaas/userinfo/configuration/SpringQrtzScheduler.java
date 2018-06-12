@@ -1,6 +1,9 @@
 package com.shellshellfish.aaas.userinfo.configuration;
 
+import com.shellshellfish.aaas.userinfo.scheduler.CheckCaculateBaseJob;
 import com.shellshellfish.aaas.userinfo.scheduler.CheckPendingRecordsJob;
+import com.shellshellfish.aaas.userinfo.scheduler.CheckPendingrecd4Navadj;
+import com.shellshellfish.aaas.userinfo.scheduler.PatchCheckPendingRecords;
 import java.io.IOException;
 import javax.annotation.PostConstruct;
 import org.quartz.CronScheduleBuilder;
@@ -35,12 +38,18 @@ public class SpringQrtzScheduler {
     @Value("${cron.frequency.jobCheckPendingRecords}")
     String cronExpr;
 
-//    @Value("${cron.frequency.jobpreorderpayflowcheck}")
-//    String cronExprJobpreorderpayflowcheck;
+    @Value("${cron.frequency.jobUpdateAndCaculateUPD}")
+    String cronUpdateAndCaculate;
+
+    @Value("${cron.frequency.jobPatchChkPendingRecordByZZInfo}")
+    String cronPatchChkPendingRecordByZZInfo;
+
+    @Value("${cron.frequency.jobPatchChkPendingRecordNavadj}")
+    String cronPatchChkPendingRecordNavadj;
 
     @PostConstruct
     public void init() {
-        logger.info("Hello world from Spring...:{}",cronExpr);
+        logger.info("Hello world from Spring...:{} \n :{}",cronExpr, cronUpdateAndCaculate);
     }
 
     @Bean
@@ -53,21 +62,21 @@ public class SpringQrtzScheduler {
     }
 
 
+//    @Bean
+//    public JobDetailFactoryBean jobDetail() {
+//
+//        JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
+//        jobDetailFactory.setJobClass(CheckPendingRecordsJob.class);
+//        jobDetailFactory.setName("Qrtz_Job_Detail");
+//        jobDetailFactory.setDescription("Invoke Sample Job service...");
+//        jobDetailFactory.setDurability(true);
+//        return jobDetailFactory;
+//    }
+
+
     @Bean
-    public JobDetailFactoryBean jobDetail() {
-
-        JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
-        jobDetailFactory.setJobClass(CheckPendingRecordsJob.class);
-        jobDetailFactory.setName("Qrtz_Job_Detail");
-        jobDetailFactory.setDescription("Invoke Sample Job service...");
-        jobDetailFactory.setDurability(true);
-        return jobDetailFactory;
-    }
-
-
-    @Bean
-    public Scheduler scheduler(Trigger triggerCheckPendingRecords, JobDetail
-        jobCheckPendingRecords) throws
+    public Scheduler scheduler(Trigger triggerCheckPendingRecords,Trigger
+        triggerCalculateAndUpdate, JobDetail jobCheckPendingRecords, JobDetail jobCaculateAndUpdate) throws
         SchedulerException, IOException {
 
         StdSchedulerFactory factory = new StdSchedulerFactory();
@@ -79,6 +88,12 @@ public class SpringQrtzScheduler {
 
         //schedule getZZConfirmInfoToUpdatePayFlow
         scheduler.scheduleJob(jobCheckPendingRecords ,triggerCheckPendingRecords );
+        scheduler.scheduleJob(jobCaculateAndUpdate ,triggerCalculateAndUpdate );
+        scheduler.scheduleJob(jobPatchChkPendingRecordByZZInfo() ,
+            triggerPatchChkPendingRecordByZZInfo() );
+        scheduler.scheduleJob(jobPatchChkPendingRecordNavadj() ,
+            triggerPatchChkPendingRecordNavadj() );
+
 //        scheduler.scheduleJob(jobGetZZConfirmInfoToTrggerPreOrder, triggerGetZZConfirmInfoToTrggerPreOrder);
         logger.debug("Starting Scheduler threads");
         scheduler.start();
@@ -93,9 +108,35 @@ public class SpringQrtzScheduler {
 
     @Bean
     public JobDetail jobCheckPendingRecords() {
-        JobKey jobKey = new JobKey("Qrtz_Job_CheckPendingRecords", "pay");
+        JobKey jobKey = new JobKey("Qrtz_Job_CheckPendingRecords", "userInfo");
         JobDetail job = JobBuilder.newJob(CheckPendingRecordsJob.class).withIdentity(jobKey).storeDurably()
             .withDescription("Invoke CheckPendingRecords Job service...").build();
+        return  job;
+    }
+
+    @Bean
+    public JobDetail jobCaculateAndUpdate() {
+        JobKey jobKey = new JobKey("Qrtz_Job_CaculateAndUpdate", "userInfo");
+        JobDetail job = JobBuilder.newJob(CheckCaculateBaseJob.class).withIdentity(jobKey).storeDurably()
+            .withDescription("Invoke CalculateAndUpdate Job service...").build();
+        return  job;
+    }
+
+
+
+    @Bean
+    public JobDetail jobPatchChkPendingRecordByZZInfo() {
+        JobKey jobKey = new JobKey("Qrtz_Job_PatchChkPendingRecordByZZInfo", "userInfo");
+        JobDetail job = JobBuilder.newJob(PatchCheckPendingRecords.class).withIdentity(jobKey).storeDurably()
+            .withDescription("Invoke CalculateAndUpdate Job service...").build();
+        return  job;
+    }
+
+    @Bean
+    public JobDetail jobPatchChkPendingRecordNavadj() {
+        JobKey jobKey = new JobKey("Qrtz_Job_PatchChkPendingRecordNavadj", "userInfo");
+        JobDetail job = JobBuilder.newJob(CheckPendingrecd4Navadj.class).withIdentity(jobKey).storeDurably()
+            .withDescription("Invoke CalculateAndUpdate Job service...").build();
         return  job;
     }
 
@@ -105,12 +146,47 @@ public class SpringQrtzScheduler {
 
         Trigger trigger = TriggerBuilder
             .newTrigger()
-            .withIdentity("Qrtz_Trigger_CheckPendingRecords", "pay")
+            .withIdentity("Qrtz_Trigger_CheckPendingRecords", "userInfo")
             .withSchedule(CronScheduleBuilder.cronSchedule(cronExpr))
             .build();
         return trigger;
     }
 
+    @Bean
+    public Trigger  triggerCalculateAndUpdate() {
+
+
+        Trigger trigger = TriggerBuilder
+            .newTrigger()
+            .withIdentity("Qrtz_Trigger_CalculateAndUpdate", "userInfo")
+            .withSchedule(CronScheduleBuilder.cronSchedule(cronUpdateAndCaculate))
+            .build();
+        return trigger;
+    }
+
+    @Bean
+    public Trigger  triggerPatchChkPendingRecordByZZInfo() {
+
+
+        Trigger trigger = TriggerBuilder
+            .newTrigger()
+            .withIdentity("Qrtz_Trigger_PatchChkPendingRecordByZZInfo", "userInfo")
+            .withSchedule(CronScheduleBuilder.cronSchedule(cronPatchChkPendingRecordByZZInfo))
+            .build();
+        return trigger;
+    }
+
+    @Bean
+    public Trigger  triggerPatchChkPendingRecordNavadj() {
+
+
+        Trigger trigger = TriggerBuilder
+            .newTrigger()
+            .withIdentity("Qrtz_Trigger_PatchChkPendingRecordNavadj", "userInfo")
+            .withSchedule(CronScheduleBuilder.cronSchedule(cronPatchChkPendingRecordNavadj))
+            .build();
+        return trigger;
+    }
 //    @Bean
 //    public JobDetail jobGetZZConfirmInfoToTrggerPreOrder() {
 //

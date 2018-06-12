@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
- * Created by developer4 on 2018- 六月 - 08
+ * Created by chenwei on 2018- 六月 - 08
  */
 @Document(collection = "ui_calc_result")
 public class MongoCaculateResult implements Serializable {

@@ -35,6 +35,7 @@ import com.shellshellfish.aaas.userinfo.service.impl.CalculateConfirmedAsset;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -489,47 +490,82 @@ public class BroadcastMessageConsumers {
             ("fund_code").is(mongoUiTrdZZInfo.getFundCode()).and("outside_order_id").is
             (mongoUiTrdZZInfo.getOutSideOrderNo()));
         List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
+        MongoPendingRecords mongoPendingRecordsRemain = null;
+        Long lastModifyDate = null;
         if(CollectionUtils.isEmpty(mongoPendingRecords)){
-            logger.info("use old style method to update quantity, this style will only last 1 "
-                + "month from 2018-06-05");
-            updateRedeemProductQty(mongoUiTrdZZInfo);
-        }else{
-            if(mongoPendingRecords.get(0).getProcessStatus() == PendingRecordStatusEnum.HANDLED
-                .getStatus()){
-                logger.error("received dupliated mongoUiTrdZZInfo for user_prod_id:{} "
-                        + "fund_code:{} outside_order_id:{}",mongoUiTrdZZInfo.getUserProdId(),
-                    mongoUiTrdZZInfo.getFundCode(),  mongoUiTrdZZInfo.getOutSideOrderNo() );
-                return;
-            }else{
-                UiProductDetail productDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
-                    (mongoUiTrdZZInfo.getUserProdId(), mongoUiTrdZZInfo.getFundCode());
-                //开始处理货币基金
-                if(MonetaryFundEnum.containsCode(mongoUiTrdZZInfo.getFundCode())){
-                    Long navadj = mongoPendingRecords.get(0).getApplyDateNavadj();
-                    Long confirmedQuantity = mongoUiTrdZZInfo.getTradeConfirmShare();
-                    BigDecimal abstractShares = TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundDown(confirmedQuantity*1000000L, navadj);
-                    Integer valueCaculated =  productDetail.getFundQuantity() - abstractShares
-                        .intValue();
-                    logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
-                        valueCaculated);
-                    productDetail.setFundQuantity(valueCaculated);
-                }
-                //非货币基金
-                else{
-                    Integer valueCaculated = productDetail.getFundQuantity() - mongoUiTrdZZInfo
-                        .getTradeConfirmShare().intValue();
-                        logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
-                        valueCaculated);
-                    productDetail.setFundQuantity(valueCaculated);
-                }
-                productDetail.setUpdateDate(TradeUtil.getUTCTime());
-                //表示该记录需要重新生成证据链标签
-                productDetail.setLastestSerial("");
-                uiProductDetailRepo.save(productDetail);
-                mongoPendingRecords.get(0).setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
-                mongoTemplate.save(mongoPendingRecords.get(0),"ui_pending_records");
-            }
+
+            mongoPendingRecordsRemain = getPatchMongoPendingRecordFromZZInfo(mongoUiTrdZZInfo);
+
         }
+
+        if(mongoPendingRecords.size() > 1){
+            mongoPendingRecordsRemain = mongoPendingRecords.get(0);
+            for(MongoPendingRecords mongoPendingRecordsItem: mongoPendingRecords){
+                if(mongoPendingRecordsItem.getLastModifiedDate() != null && lastModifyDate <
+                    mongoPendingRecordsItem.getLastModifiedDate()){
+                    mongoPendingRecordsRemain = mongoPendingRecordsItem;
+                }
+            }
+            mongoTemplate.remove(query, "ui_pending_records");
+        }else if(mongoPendingRecordsRemain == null &&  mongoPendingRecords.size() == 1){
+            mongoPendingRecordsRemain = mongoPendingRecords.get(0);
+        }else if(mongoPendingRecordsRemain == null){
+            logger.error("This is a dirty data because there is no order info for it");
+            return;
+        }
+        if(mongoPendingRecordsRemain.getProcessStatus() == PendingRecordStatusEnum.HANDLED
+            .getStatus()){
+            logger.error("received dupliated mongoUiTrdZZInfo for user_prod_id:{} "
+                    + "fund_code:{} outside_order_id:{}",mongoUiTrdZZInfo.getUserProdId(),
+                mongoUiTrdZZInfo.getFundCode(),  mongoUiTrdZZInfo.getOutSideOrderNo() );
+            return;
+        }else{
+            UiProductDetail productDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
+                (mongoUiTrdZZInfo.getUserProdId(), mongoUiTrdZZInfo.getFundCode());
+            //开始处理货币基金
+            if(MonetaryFundEnum.containsCode(mongoUiTrdZZInfo.getFundCode())){
+                Long navadj = mongoPendingRecordsRemain.getApplyDateNavadj();
+                if(navadj == null || navadj < 0){
+                    navadj = getMoneyCodeNavAdjByDate(mongoUiTrdZZInfo.getFundCode(),
+                        mongoPendingRecordsRemain.getApplyDateStr());
+                }
+                if(navadj == null || navadj< 0){
+                    logger.error("cannot get navadj value for:{} of :{}", mongoPendingRecordsRemain
+                        .getFundCode(), mongoPendingRecordsRemain.getApplyDateStr());
+                    mongoPendingRecordsRemain.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED
+                        .getStatus());
+                    mongoPendingRecordsRemain.setLastModifiedDate(TradeUtil.getUTCTime());
+                    mongoTemplate.save(mongoPendingRecordsRemain,"ui_pending_records");
+                    return;
+                }else{
+                    mongoPendingRecordsRemain.setApplyDateNavadj(navadj);
+                }
+
+                Long confirmedQuantity = mongoUiTrdZZInfo.getTradeConfirmShare();
+                BigDecimal abstractShares = TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundDown(confirmedQuantity*1000000L, navadj);
+                Integer valueCaculated =  productDetail.getFundQuantity() - abstractShares
+                    .intValue();
+                logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
+                    valueCaculated);
+                productDetail.setFundQuantity(valueCaculated);
+            }
+            //非货币基金
+            else{
+                Integer valueCaculated = productDetail.getFundQuantity() - mongoUiTrdZZInfo
+                    .getTradeConfirmShare().intValue();
+                    logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
+                    valueCaculated);
+                productDetail.setFundQuantity(valueCaculated);
+            }
+            productDetail.setUpdateDate(TradeUtil.getUTCTime());
+            //表示该记录需要重新生成证据链标签
+            productDetail.setLastestSerial("");
+            uiProductDetailRepo.save(productDetail);
+            mongoPendingRecordsRemain.setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
+            mongoPendingRecordsRemain.setLastModifiedDate(TradeUtil.getUTCTime());
+            mongoTemplate.save(mongoPendingRecordsRemain,"ui_pending_records");
+        }
+
     }
 
     private void caculateBuyProductQty(MongoUiTrdZZInfo mongoUiTrdZZInfo) {
@@ -539,53 +575,98 @@ public class BroadcastMessageConsumers {
             ("fund_code").is(mongoUiTrdZZInfo.getFundCode()).and("outside_order_id").is
             (mongoUiTrdZZInfo.getOutSideOrderNo()));
         List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
+        MongoPendingRecords mongoPendingRecordsRemain = null;
         if(CollectionUtils.isEmpty(mongoPendingRecords)){
             logger.info("use old style method to update quantity, this style will only last 1 "
                 + "month from 2018-06-05");
-            updateBuyProductQty(mongoUiTrdZZInfo);
-        }else{
-            if(mongoPendingRecords.get(0).getProcessStatus() == PendingRecordStatusEnum.HANDLED
-                .getStatus()){
-                logger.error("received dupliated mongoUiTrdZZInfo for user_prod_id:{} "
-                    + "fund_code:{} outside_order_id:{}",mongoUiTrdZZInfo.getUserProdId(),
-                    mongoUiTrdZZInfo.getFundCode(),  mongoUiTrdZZInfo.getOutSideOrderNo() );
-                return;
-            }else{
-                UiProductDetail productDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
-                    (mongoUiTrdZZInfo.getUserProdId(), mongoUiTrdZZInfo.getFundCode());
-                //开始处理货币基金
-                if(MonetaryFundEnum.containsCode(mongoUiTrdZZInfo.getFundCode())){
-                    Long navadj = mongoPendingRecords.get(0).getApplyDateNavadj();
-                    Long confirmedQuantity = mongoUiTrdZZInfo.getTradeConfirmShare();
-                    BigDecimal abstractShares = TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundDown(confirmedQuantity*1000000L, navadj);
-                    Integer valueCaculated =  productDetail.getFundQuantity() + abstractShares.intValue();
-                    logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
-                        valueCaculated);
-                    productDetail.setFundQuantity(valueCaculated);
-
-                }
-                //非货币基金
-                else{
-                    Integer valueCaculated = 0;
-                    if(productDetail.getFundQuantity() != null){
-                        valueCaculated =  mongoUiTrdZZInfo.getTradeConfirmShare().intValue() +
-                            productDetail.getFundQuantity();
-                    }else{
-                        valueCaculated = mongoUiTrdZZInfo.getTradeConfirmShare().intValue();
-                    }
-
-                    logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
-                        valueCaculated);
-                    productDetail.setFundQuantity(valueCaculated);
-                }
-                productDetail.setUpdateDate(TradeUtil.getUTCTime());
-                //表示该记录需要重新生成证据链标签
-                productDetail.setLastestSerial("");
-                uiProductDetailRepo.save(productDetail);
-                mongoPendingRecords.get(0).setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
-                mongoTemplate.save(mongoPendingRecords.get(0),"ui_pending_records");
-            }
+            mongoPendingRecordsRemain = getPatchMongoPendingRecordFromZZInfo(mongoUiTrdZZInfo);
+//            updateBuyProductQty(mongoUiTrdZZInfo);
         }
+
+        //pendingRecords 对每一个outsideOrderId应该只有一条记录，取lastModifiedDate 不为空，
+        //而且值比较大的那条记录为准
+        if(mongoPendingRecords.size() > 1){
+
+            Long lastModifiedDate = 0L;
+            for(MongoPendingRecords mongoPendingRecordsCheck: mongoPendingRecords){
+                if(mongoPendingRecordsCheck.getLastModifiedDate() != null && lastModifiedDate <
+                    mongoPendingRecordsCheck.getLastModifiedDate()){
+                    lastModifiedDate = mongoPendingRecordsCheck.getLastModifiedDate();
+                    mongoPendingRecordsRemain = mongoPendingRecordsCheck;
+                }
+            }
+            //清空冗余数据
+            mongoTemplate.remove(query, "ui_pending_records");
+            MyBeanUtils.mapEntityIntoDTO(mongoUiTrdZZInfo,mongoPendingRecordsRemain );
+
+        }else if(mongoPendingRecordsRemain == null &&  mongoPendingRecords.size() == 1){
+            mongoPendingRecordsRemain = mongoPendingRecords.get(0);
+        }else if(mongoPendingRecordsRemain == null){
+            logger.error("This is a dirty data because there is no order info for it");
+            return;
+        }
+
+        if(mongoPendingRecordsRemain.getProcessStatus() == PendingRecordStatusEnum.HANDLED
+            .getStatus()){
+            logger.error("received dupliated mongoUiTrdZZInfo for user_prod_id:{} "
+                + "fund_code:{} outside_order_id:{}",mongoUiTrdZZInfo.getUserProdId(),
+                mongoUiTrdZZInfo.getFundCode(),  mongoUiTrdZZInfo.getOutSideOrderNo() );
+            return;
+        }else{
+
+
+            UiProductDetail productDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
+                (mongoUiTrdZZInfo.getUserProdId(), mongoUiTrdZZInfo.getFundCode());
+            //开始处理货币基金
+            if(MonetaryFundEnum.containsCode(mongoUiTrdZZInfo.getFundCode())){
+                Long navadj = mongoPendingRecordsRemain.getApplyDateNavadj();
+                if(navadj == null || navadj < 0){
+                    navadj = getMoneyCodeNavAdjByDate(mongoUiTrdZZInfo.getFundCode(),
+                        mongoPendingRecordsRemain.getApplyDateStr());
+                }
+                if(navadj == null || navadj< 0){
+                    logger.error("cannot get navadj value for:{} of :{}", mongoPendingRecordsRemain
+                        .getFundCode(), mongoPendingRecordsRemain.getApplyDateStr());
+                    mongoPendingRecordsRemain.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED
+                        .getStatus());
+                    mongoPendingRecordsRemain.setLastModifiedDate(TradeUtil.getUTCTime());
+                    mongoTemplate.save(mongoPendingRecordsRemain,"ui_pending_records");
+                    return;
+                }else{
+                    mongoPendingRecordsRemain.setApplyDateNavadj(navadj);
+                }
+
+                Long confirmedQuantity = mongoUiTrdZZInfo.getTradeConfirmShare();
+                BigDecimal abstractShares = TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundDown(confirmedQuantity*1000000L, navadj);
+                Integer valueCaculated =  productDetail.getFundQuantity() + abstractShares.intValue();
+                logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
+                    valueCaculated);
+                productDetail.setFundQuantity(valueCaculated);
+
+            }
+            //非货币基金
+            else{
+                Integer valueCaculated = 0;
+                if(productDetail.getFundQuantity() != null){
+                    valueCaculated =  mongoUiTrdZZInfo.getTradeConfirmShare().intValue() +
+                        productDetail.getFundQuantity();
+                }else{
+                    valueCaculated = mongoUiTrdZZInfo.getTradeConfirmShare().intValue();
+                }
+
+                logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
+                    valueCaculated);
+                productDetail.setFundQuantity(valueCaculated);
+            }
+            productDetail.setUpdateDate(TradeUtil.getUTCTime());
+            //表示该记录需要重新生成证据链标签
+            productDetail.setLastestSerial("");
+            uiProductDetailRepo.save(productDetail);
+            mongoPendingRecordsRemain.setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
+            mongoPendingRecordsRemain.setLastModifiedDate(TradeUtil.getUTCTime());
+            mongoTemplate.save(mongoPendingRecordsRemain,"ui_pending_records");
+        }
+
     }
 
     /**
@@ -792,11 +873,11 @@ public class BroadcastMessageConsumers {
                     + "outsideOrderNo:{} we can try use empty orderId",  trdOrderDetail
                     .getUserProdId(), trdOrderDetail.getFundCode(),(trdOrderDetail.getOrderId()+trdOrderDetail.getId()));
                 Query queryWithEmptyOrderId = new Query();
-                query.addCriteria(Criteria.where("user_prod_id").is(trdOrderDetail.getUserProdId()).and
+                queryWithEmptyOrderId.addCriteria(Criteria.where("user_prod_id").is(trdOrderDetail.getUserProdId()).and
                     ("fund_code").is(trdOrderDetail.getFundCode()).and("outside_order_id").is
                     (null));
                 List<MongoPendingRecords> mongoPendingRecordsWithEmptyOrderIds = mongoTemplate.find
-                    (query, MongoPendingRecords.class);
+                    (queryWithEmptyOrderId, MongoPendingRecords.class);
                 if(!CollectionUtils.isEmpty(mongoPendingRecordsWithEmptyOrderIds)){
                     MongoPendingRecords mongoPendingRecordsHistory = null;
 
@@ -1074,8 +1155,8 @@ public class BroadcastMessageConsumers {
         if(StringUtils.isEmpty(trdPayFlow.getTrdApplyDate())||trdPayFlow.getTrdApplyDate().equals
             ("-1")){
             logger.error("received trdPayFlow without  trdApplyDate:{}", trdPayFlow.getTrdApplyDate());
-        }else if(trdPayFlow.getApplydateUnitvalue() == -1L && MonetaryFundEnum.containsCode
-            (trdPayFlow.getFundCode())) {
+        }else if(MonetaryFundEnum.containsCode(trdPayFlow.getFundCode())&& trdPayFlow.
+            getApplydateUnitvalue() <= -1L) {
             logger.error("the trdPayFlow.getApplydateUnitvalue is invalid");
             navadj = getMoneyCodeNavAdjByDate(trdPayFlow.getFundCode(), trdPayFlow
                 .getTrdApplyDate());
@@ -1096,6 +1177,10 @@ public class BroadcastMessageConsumers {
                     + "fund_code:{}", trdPayFlow.getUserProdId(), trdPayFlow.getOutsideOrderno(),
                 trdPayFlow.getFundCode() );
             MongoPendingRecords mongoPendingRecordsPatch = getPatchMongoPendingRecord(trdPayFlow);
+            if(mongoPendingRecordsPatch == null){
+                logger.error("Failed to generate patch mongoPendingRecoresPatch");
+                return;
+            }
             mongoPendingRecordsPatch.setApplyDateNavadj(navadj);
             mongoTemplate.save(mongoPendingRecordsPatch,"ui_pending_records");
             if(mongoPendingRecordsPatch == null){
@@ -1126,6 +1211,12 @@ public class BroadcastMessageConsumers {
 
 
     private Long getMoneyCodeNavAdjByDate(String fundCode, String applyDate){
+        if(!applyDate.contains("-")){
+            StringBuilder sb = new StringBuilder();
+            sb.append(applyDate.substring(0,4)).append("-").append(applyDate.substring(4,6)).append
+                ("-").append(applyDate.substring(6,8));
+            applyDate = sb.toString();
+        }
         if(StringUtils.isEmpty(applyDate) || applyDate.equals("-1")){
             logger.error("cannot make navadj without applyDate:{}", applyDate);
             return -1L;
@@ -1245,5 +1336,50 @@ public class BroadcastMessageConsumers {
             mongoTemplate.save(mongoPendingRecordsPatch, "ui_pending_records");
             return mongoPendingRecordsPatch;
         }
+    }
+
+    private MongoPendingRecords getPatchMongoPendingRecordFromZZInfo(
+        MongoUiTrdZZInfo mongoUiTrdZZInfo){
+        logger.info("make patch PendingRecords info into database");
+        List<com.shellshellfish.aaas.common.grpc.trade.order.TrdOrderDetail> trdOrderDetails = null;
+        String orderId = null;
+        try {
+            orderId = TradeUtil.getOrderIdByOutsideOrderNo(mongoUiTrdZZInfo.getOutSideOrderNo(), mongoUiTrdZZInfo
+                .getOrderDetailId());
+            trdOrderDetails = orderRpcService
+                .getOrderDetailByGenOrderIdAndFundCode(orderId, mongoUiTrdZZInfo.getFundCode());
+        } catch (Exception e) {
+            logger.error("failed to get corresponding orderDetail info for this trdPayFlow "
+                + "with fundCode:{} orderId:{}", mongoUiTrdZZInfo.getFundCode(), orderId, e);
+
+        }
+        if(CollectionUtils.isEmpty(trdOrderDetails)){
+            logger.error("Failed to find corresponding orderDetail info with user_prod_id:{} and order_id:{} and "
+                    + "fund_code:{}", mongoUiTrdZZInfo.getUserProdId(), mongoUiTrdZZInfo.getOutSideOrderNo(),
+                mongoUiTrdZZInfo.getFundCode());
+            trdOrderDetails = orderRpcService.getOrderDetailByApplySerial(mongoUiTrdZZInfo
+                .getApplySerial());
+            if(CollectionUtils.isEmpty(trdOrderDetails)) {
+                logger.error("Failed to find corresponding orderDetail info with applySerial:{}",
+                    mongoUiTrdZZInfo.getApplySerial());
+                return null;
+            }
+        }
+        MongoPendingRecords mongoPendingRecordsPatch = new MongoPendingRecords();
+        mongoPendingRecordsPatch.setUserProdId(mongoUiTrdZZInfo.getUserProdId());
+        mongoPendingRecordsPatch.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED.getStatus());
+        mongoPendingRecordsPatch.setTradeStatus(mongoUiTrdZZInfo.getTradeStatus());
+        mongoPendingRecordsPatch.setTradeType(mongoUiTrdZZInfo.getTradeType());
+        mongoPendingRecordsPatch.setOutsideOrderId(mongoUiTrdZZInfo.getOutSideOrderNo());
+        mongoPendingRecordsPatch.setApplyDateStr(mongoUiTrdZZInfo.getApplyDate());
+        mongoPendingRecordsPatch.setApplySerial(mongoUiTrdZZInfo.getApplySerial());
+        mongoPendingRecordsPatch.setTradeTargetShare(mongoUiTrdZZInfo.getTradeTargetShare());
+        mongoPendingRecordsPatch.setTradeTargetSum(mongoUiTrdZZInfo.getTradeTargetSum());
+        mongoPendingRecordsPatch.setTradeConfirmSum(mongoUiTrdZZInfo.getTradeConfirmSum());
+        mongoPendingRecordsPatch.setTradeConfirmShare(mongoUiTrdZZInfo.getTradeConfirmShare());
+        mongoPendingRecordsPatch.setCreatedDate(TradeUtil.getUTCTime());
+
+        mongoTemplate.save(mongoPendingRecordsPatch, "ui_pending_records");
+        return mongoPendingRecordsPatch;
     }
 }

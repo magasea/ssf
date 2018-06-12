@@ -1,7 +1,9 @@
 package com.shellshellfish.aaas.userinfo.service;
 
+import java.security.NoSuchAlgorithmException;
+
 /**
- * Created by developer4 on 2018- 六月 - 08
+ * Created by chenwei on 2018- 六月 - 08
  */
 public interface CaculateUserProdService {
 
@@ -19,7 +21,8 @@ public interface CaculateUserProdService {
    * @param fundCode
    * @return
    */
-  public boolean caculateQuantityByUserProdIdAndFundCode(Long userProdId, String fundCode);
+  public boolean caculateQuantityByUserProdIdAndFundCode(Long userProdId, String fundCode)
+      throws NoSuchAlgorithmException;
 
   /**
    * check all userProdId entry

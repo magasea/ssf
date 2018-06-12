@@ -468,7 +468,7 @@ public class ZhongzhengApiServiceImplTest {
   @Test
   public void getBonusInfo() throws Exception {
     String pid = "362522198709220031"; //362522198709220031
-    String fundCode = "110022";
+    String fundCode = "000248";
     String startDate = "20180101";
     List<ZZBonusInfo> zzBonusInfos = zhongZhengApiService.getBonusInfo(pid,fundCode,startDate);
     zzBonusInfos.forEach(

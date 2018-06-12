@@ -392,10 +392,12 @@ public class TradeOpServiceImpl implements TradeOpService {
             fundNum, Long fundNumConfirmed, Long updateDate, Long updateBy, Long id, int
                                       orderDetailStatus, Long buyFee)
             throws Exception {
-        TrdOrderDetail trdOrderDetail;
+        TrdOrderDetail trdOrderDetail = null;
         if (id > 0) {
-            trdOrderDetail = trdOrderDetailRepository.findById(id).get();
-        } else {
+            trdOrderDetail = trdOrderDetailRepository.findById(id).isPresent()?
+                trdOrderDetailRepository.findById(id).get(): null;
+        }
+        if(trdOrderDetail == null) {
             trdOrderDetail = trdOrderDetailRepository.findByTradeApplySerial(tradeApplySerial);
         }
         if (trdOrderDetail == null) {

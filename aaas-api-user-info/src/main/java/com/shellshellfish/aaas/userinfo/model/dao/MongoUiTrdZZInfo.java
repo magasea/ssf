@@ -90,7 +90,6 @@ public class MongoUiTrdZZInfo implements Serializable {
 	private String bankSerial;
 
 	@Field(value = "outsideOrderNo")
-	@Indexed(direction = IndexDirection.DESCENDING)
 	private String outSideOrderNo;
 
 	@Field( value = "trade_type")

@@ -199,6 +199,7 @@ public class CheckFundsTradeJobService {
             MyBeanUtils.mapEntityIntoDTO(confirmResult, mongoUiTrdZZInfo);
             mongoUiTrdZZInfo.setBankName(confirmResult.getBankname());
             mongoUiTrdZZInfo.setBankAcco(confirmResult.getBankacco());
+            mongoUiTrdZZInfo.setOrderDetailId(trdPayFlow.getOrderDetailId());
             mongoUiTrdZZInfo.setBusinFlagStr(confirmResult.getBusinflagStr());
             mongoUiTrdZZInfo.setApplyDate(confirmResult.getApplydate());
             mongoUiTrdZZInfo.setApplySerial(confirmResult.getApplyserial());
@@ -279,13 +280,6 @@ public class CheckFundsTradeJobService {
                         }else{
                             trdPayFlow.setTrdApplyDate("-1");
                             trdPayFlow.setApplydateUnitvalue(-1L);
-                        }
-                        if(!StringUtils.isEmpty(applyResult.getTradeconfirmsum()) &&
-                        !StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
-                            trdPayFlow.setApplydateUnitvalue(TradeUtil.getLongFromDividByBD(applyResult
-                                    .getTradeconfirmsum(), applyResult.getTradeconfirmshare()));
-                        }else{
-                            trdPayFlow.setApplydateUnitvalue(-1);
                         }
 
                         trdPayFlow.setBuyDiscount(TradeUtil.getLongNumWithMul100(applyResult
@@ -405,18 +399,9 @@ public class CheckFundsTradeJobService {
             trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
             if(!StringUtils.isEmpty(applyResult.getApplydate())){
                 trdPayFlow.setTrdApplyDate(applyResult.getApplydate());
-                trdPayFlow.setApplydateUnitvalue(getMoneyCodeNavAdjByDate(trdPayFlow.getFundCode
-                    (), applyResult.getApplydate()));
             }else{
                 trdPayFlow.setTrdApplyDate("-1");
                 trdPayFlow.setApplydateUnitvalue(-1L);
-            }
-            if(!StringUtils.isEmpty(applyResult.getTradeconfirmsum()) &&
-                !StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
-                trdPayFlow.setApplydateUnitvalue(TradeUtil.getLongFromDividByBD(applyResult
-                    .getTradeconfirmsum(), applyResult.getTradeconfirmshare()));
-            }else{
-                trdPayFlow.setApplydateUnitvalue(-1);
             }
             BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
             trdPayFlowRepository.save(trdPayFlow);
@@ -427,6 +412,12 @@ public class CheckFundsTradeJobService {
     }
 
     private Long getMoneyCodeNavAdjByDate(String fundCode, String applyDate){
+        if(!applyDate.contains("-")){
+            StringBuilder sb = new StringBuilder();
+            sb.append(applyDate.substring(0,4)).append("-").append(applyDate.substring(4,6)).append
+                ("-").append(applyDate.substring(6,8));
+            applyDate = sb.toString();
+        }
         if(MonetaryFundEnum.containsCode(fundCode)){
             String beginDate = TradeUtil.getDayBefore(applyDate, 1);
             List<String> codes = new ArrayList<>();

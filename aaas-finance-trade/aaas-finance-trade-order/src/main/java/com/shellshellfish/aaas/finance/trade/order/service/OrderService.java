@@ -17,6 +17,8 @@ public interface OrderService {
 	List<TrdOrderDetail> getOrderDetailByGenOrderIdAndFundCode(String orderId, String fundCode)
 			throws IllegalAccessException;
 
+	TrdOrderDetail getOrderDetailByApplySerial(String applySerial);
+
 	TrdOrder findOrderByUserProdIdAndUserIdAndorderType(Long prodId, Long userId, int orderType);
 //	TrdOrder findOrderByUserProdIdAndUserId(Long prodId, Long userId);
 

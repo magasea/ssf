@@ -131,6 +131,8 @@ message BindCardResult {
 message GenOrderIdAndFundCode {
     string orderId = 1;
     string fundCode = 2;
-    int64 userProdId = 3;
-    int32 trdType = 4;
+    string applySerial = 3;
+    int64 userProdId = 4;
+    int32 trdType = 5;
+
 }

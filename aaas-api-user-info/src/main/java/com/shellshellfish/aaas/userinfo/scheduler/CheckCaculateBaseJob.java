@@ -22,7 +22,6 @@ public class CheckCaculateBaseJob implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
 
         logger.info("Job ** {} ** fired @ {}", context.getJobDetail().getKey().getName(), context.getFireTime());
-
         caculateUserProdService.updateCaculateBase();
 
         logger.info("Next job scheduled @ {}", context.getNextFireTime());

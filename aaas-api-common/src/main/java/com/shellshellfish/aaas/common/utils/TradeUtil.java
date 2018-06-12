@@ -10,6 +10,8 @@ import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -360,10 +362,10 @@ public class TradeUtil {
     return outsideOrderNo.substring(0, lastIdxOfODI);
   }
 
-  public static Long getLongFromDividByBD(String tradeconfirmsum, String tradeconfirmshare) {
-    BigDecimal result = (new BigDecimal(tradeconfirmsum)).divide(new BigDecimal(tradeconfirmshare));
-    return getLongNumWithMul100(result);
-  }
+//  public static Long getLongFromDividByBD(String tradeconfirmsum, String tradeconfirmshare) {
+//    BigDecimal result = (new BigDecimal(tradeconfirmsum)).divide(new BigDecimal(tradeconfirmshare));
+//    return getLongNumWithMul100(result);
+//  }
 
   /**
    *
@@ -392,13 +394,22 @@ public class TradeUtil {
   }
 
   /**
-   *
+   * yyyymmdd or yyyy-mm-dd
    * @param dayStub
    * @param daysBefore
    * @return
    */
   public static String getDayBefore(String dayStub, int daysBefore){
-    String[] currentTimes = dayStub.split("-");
+    String[] currentTimes = new String[3];
+    if(dayStub.contains("-")){
+      currentTimes = dayStub.split("-");
+    }else{
+      currentTimes[0] = dayStub.substring(0,4);
+      currentTimes[1] = dayStub.substring(4,6);
+      currentTimes[2] = dayStub.substring(6,8);
+    }
+
+
     Long getStanardTimeOfCurrentDay = getUTCTimeOfSpecificTime(Integer.parseInt(currentTimes[0]),
         Integer.parseInt(currentTimes[1]), Integer.parseInt(currentTimes[2]), 12, 0);
     Long dayTime  = 24*60*60*1000L;
@@ -407,6 +418,17 @@ public class TradeUtil {
     return dayWanted;
 
   }
+  public static String getMD5(String originStr) throws NoSuchAlgorithmException
+  {
+    MessageDigest messageDigest=MessageDigest.getInstance("MD5");
 
+    messageDigest.update(originStr.getBytes());
+    byte[] digest=messageDigest.digest();
+    StringBuffer sb = new StringBuffer();
+    for (byte b : digest) {
+      sb.append(Integer.toHexString((int) (b & 0xff)));
+    }
+    return sb.toString();
+  }
 
 }

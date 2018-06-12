@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
- * Created by developer4 on 2018- 六月 - 08
+ * Created by chenwei on 2018- 六月 - 08
  */
 @Document(collection = "ui_calc_base")
 public class MongoCaculateBase implements Serializable {
@@ -206,5 +206,13 @@ public class MongoCaculateBase implements Serializable {
 
   public void setLastModifiedDate(Long lastModifiedDate) {
     this.lastModifiedDate = lastModifiedDate;
+  }
+
+  public Long getCalculatedShare() {
+    return calculatedShare;
+  }
+
+  public void setCalculatedShare(Long calculatedShare) {
+    this.calculatedShare = calculatedShare;
   }
 }

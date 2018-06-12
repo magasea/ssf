@@ -590,6 +590,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       if (StringUtils.isEmpty(userUUID)) {
         logger.error("userId and userUUID both is not valid:" + userId + " " + userUUID);
         //Todo: 是否直接返回？
+        onError(responseObserver, new Exception("userId and userUUID both is not valid:" + userId + " " + userUUID));
         return;
       } else {
         try {
@@ -598,6 +599,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
         } catch (Exception e) {
           logger.error("exception:", e);
           logger.error("failed to retrieve userId by userUUID:" + userUUID);
+          onError(responseObserver, new Exception("failed to retrieve userId by userUUID:" + userUUID));
           return;
         }
       }

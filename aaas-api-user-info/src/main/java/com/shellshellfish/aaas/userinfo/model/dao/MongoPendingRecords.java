@@ -85,7 +85,6 @@ public class MongoPendingRecords implements Serializable {
     private String orderId;
 
     @Field(value = "outside_order_id")
-    @Indexed(unique = true)
     private String outsideOrderId;
 
     @Field(value="prod_id")

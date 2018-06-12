@@ -36,6 +36,14 @@ public interface OrderRpcService {
 
     /**
      *
+     * @param applySerial
+     * @return
+     */
+
+    List<TrdOrderDetail> getOrderDetailByApplySerial(String applySerial);
+
+    /**
+     *
      * @param userProdId
      * @param fundCode
      * @param trdType

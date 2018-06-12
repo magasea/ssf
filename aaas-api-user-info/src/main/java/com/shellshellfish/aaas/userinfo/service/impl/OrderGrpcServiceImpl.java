@@ -117,4 +117,22 @@ public class OrderGrpcServiceImpl implements OrderRpcService {
         );
         return trdOrderDetails;
     }
+
+    @Override
+    public List<TrdOrderDetail> getOrderDetailByApplySerial(String applySerial) {
+        GenOrderIdAndFundCode.Builder goiafcBuilder = GenOrderIdAndFundCode.newBuilder();
+        goiafcBuilder.setApplySerial(applySerial);
+        List<com.shellshellfish.aaas.finance.trade.order.OrderDetail> orderDetails =
+            tradeOrderServiceBlockingStub.getOrderDetailByParams(goiafcBuilder.build()
+            ).getOrderDetailResultList();
+        List<TrdOrderDetail> trdOrderDetails = new ArrayList<>();
+        orderDetails.forEach(
+            grpcOrderDetail -> {
+                TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
+                MyBeanUtils.mapEntityIntoDTO(grpcOrderDetail, trdOrderDetail);
+                trdOrderDetails.add(trdOrderDetail);
+            }
+        );
+        return trdOrderDetails;
+    }
 }

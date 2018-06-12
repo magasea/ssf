@@ -86,6 +86,8 @@ public class MongoUiTrdZZInfo implements Serializable {
   
   private String outSideOrderNo;
 
+  private Long orderDetailId;
+
   
   private int tradeType;
 
@@ -341,5 +343,13 @@ public class MongoUiTrdZZInfo implements Serializable {
 
   public void setFee(Long fee) {
     this.fee = fee;
+  }
+
+  public Long getOrderDetailId() {
+    return orderDetailId;
+  }
+
+  public void setOrderDetailId(Long orderDetailId) {
+    this.orderDetailId = orderDetailId;
   }
 }

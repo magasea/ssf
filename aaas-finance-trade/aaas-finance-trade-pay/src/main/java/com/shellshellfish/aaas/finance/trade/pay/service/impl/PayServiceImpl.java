@@ -1018,6 +1018,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       TrdPayFlow trdPayFlow = new TrdPayFlow();
       trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
       trdPayFlow.setCreateBy(userId);
+      trdPayFlow.setUserId(userId);
       trdPayFlow.setTrdStatus(TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus());
       trdPayFlow.setUserProdId(userProdId);
       trdPayFlow.setOrderDetailId(orderDetailId);

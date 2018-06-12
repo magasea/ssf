@@ -178,11 +178,27 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
             }
             Set<String> cardNums = new HashSet<>();
             trdBrokerUsers.forEach(item -> cardNums.add(item.getBankCardNum()));
-            userInfo = userInfoService.getUserBankInfo(userId);
-            for (CardInfo cardInfo : userInfo.getCardNumbersList()) {
-                if (cardNums.contains(cardInfo.getCardNumbers())) {
-                    userPidDAO.addUserPid(trdAcco, brokerId, userId, cardInfo.getUserPid());
-                    upidBuilder.setUserPid(cardInfo.getUserPid());
+            List<UserBankInfo> userBankInfos = new ArrayList<>();
+            if(userId <= 0){
+                logger.error("the payflow havent store valid userid:{}, we use the tradeAcco "
+                    + "related userId", userId);
+
+                for(TrdBrokerUser trdBrokerUser: trdBrokerUsers){
+                   UserBankInfo userBankInfo =  userInfoService.getUserBankInfo(trdBrokerUser.getUserId());
+                   if(userBankInfo != null){
+                       userBankInfos.add(userBankInfo);
+                   }
+                }
+            }else{
+                userInfo = userInfoService.getUserBankInfo(userId);
+                userBankInfos.add(userInfo);
+            }
+            for(UserBankInfo userBankInfo: userBankInfos){
+                for (CardInfo cardInfo : userBankInfo.getCardNumbersList()) {
+                    if (cardNums.contains(cardInfo.getCardNumbers())) {
+                        userPidDAO.addUserPid(trdAcco, brokerId, userId, cardInfo.getUserPid());
+                        upidBuilder.setUserPid(cardInfo.getUserPid());
+                    }
                 }
             }
             responseObserver.onNext(upidBuilder.build());
@@ -190,10 +206,9 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
         } catch (Exception e) {
             logger.error("exception:", e);
             logger.error(e.getMessage());
+            onError(responseObserver, e);
             userPidDAO.deleteUserPid(trdAcco, brokerId, userId);
-            upidBuilder.setUserPid("-1");
-            responseObserver.onNext(upidBuilder.build());
-            responseObserver.onCompleted();
+
         }
 
 
@@ -455,13 +470,34 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
         String fundCode = request.getFundCode();
         Long userProdId = request.getUserProdId();
         Integer trdType = request.getTrdType();
+        String applySerial = request.getApplySerial();
         if(!StringUtils.isEmpty(orderId) && !StringUtils.isEmpty(fundCode)){
             getOrderDetailByOrderIdAndFundCode(orderId, fundCode, responseObserver);
-        }else{
+        }else if(!StringUtils.isEmpty(applySerial)){
+            getOrderDetailByApplySerial(applySerial, responseObserver);
+        } else{
             getOrderDetailByUserProdIdAndTrdType(userProdId, fundCode, trdType, responseObserver);
         }
 
     }
+    private void getOrderDetailByApplySerial(String applySerial,
+        StreamObserver<OrderDetailResult> responseObserver) {
+        try{
+            TrdOrderDetail trdOrderDetail = getOrderDetailByApplySerial(applySerial);
+            OrderDetailResult.Builder odrBuilder = OrderDetailResult.newBuilder();
+            OrderDetail.Builder odBuilder = OrderDetail.newBuilder();
+
+            if(trdOrderDetail != null){
+                MyBeanUtils.mapEntityIntoDTO(trdOrderDetail, odBuilder);
+                odrBuilder.addOrderDetailResult(odBuilder);
+            }
+            responseObserver.onNext(odrBuilder.build());
+            responseObserver.onCompleted();
+        }catch (Exception ex){
+            onError(responseObserver, ex);
+        }
+    }
+
 
     private void getOrderDetailByUserProdIdAndTrdType(Long userProdId, String fundCode, Integer
         trdType, StreamObserver<OrderDetailResult> responseObserver) {
@@ -541,5 +577,14 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
             .withCause(ex) // This can be attached to the Status locally, but NOT transmitted to
             // the client!
             .asRuntimeException());
+    }
+
+    @Override
+    public TrdOrderDetail getOrderDetailByApplySerial(String applySerial) {
+
+        TrdOrderDetail orderDetail = trdOrderDetailRepository.findByTradeApplySerial
+            (applySerial);
+
+        return orderDetail;
     }
 }
