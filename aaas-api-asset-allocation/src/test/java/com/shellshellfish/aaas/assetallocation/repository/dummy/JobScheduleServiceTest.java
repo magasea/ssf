@@ -1,6 +1,6 @@
 package com.shellshellfish.aaas.assetallocation.repository.dummy;
 
-import com.shellshellfish.aaas.assetallocation.neo.job.service.JobScheduleService;
+import com.shellshellfish.aaas.assetallocation.job.service.JobScheduleService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class JobScheduleServiceTest {
 
     @Test
     public void getFundGroupIncomeAllJobScheduleTest() {
-        jobScheduleService.getFundGroupIncomeAllJobSchedule();
+        jobScheduleService.getFundGroupIncomeAllJobSchedule(1);
     }
 
 }

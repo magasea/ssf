@@ -9,23 +9,21 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.jta.JtaTransactionManager;
 
 @Configuration
 @ComponentScan
@@ -37,7 +35,7 @@ public class JpaConfiguration {
 	@Autowired
 	private Environment environment;
 
-	@Value("${datasource.sampleapp.maxPoolSize:10}")
+	@Value("${datasource.aaasapp.maxPoolSize:10}")
 	private int maxPoolSize;
 
 	/*
@@ -47,7 +45,7 @@ public class JpaConfiguration {
 	 */
 	@Bean
 	@Primary
-	@ConfigurationProperties(prefix = "datasource.sampleapp")
+	@ConfigurationProperties(prefix = "datasource.aaasapp")
 	public DataSourceProperties dataSourceProperties(){
 		return new DataSourceProperties();
 	}
@@ -97,12 +95,12 @@ public class JpaConfiguration {
 	 */
 	private Properties jpaProperties() {
 		Properties properties = new Properties();
-		properties.put("hibernate.dialect", environment.getRequiredProperty("datasource.sampleapp.hibernate.dialect"));
-		properties.put("hibernate.hbm2ddl.auto", environment.getRequiredProperty("datasource.sampleapp.hibernate.hbm2ddl.method"));
-		properties.put("hibernate.show_sql", environment.getRequiredProperty("datasource.sampleapp.hibernate.show_sql"));
-		properties.put("hibernate.format_sql", environment.getRequiredProperty("datasource.sampleapp.hibernate.format_sql"));
-		if(StringUtils.isNotEmpty(environment.getRequiredProperty("datasource.sampleapp.defaultSchema"))){
-			properties.put("hibernate.default_schema", environment.getRequiredProperty("datasource.sampleapp.defaultSchema"));
+		properties.put("hibernate.dialect", environment.getRequiredProperty("datasource.aaasapp.hibernate.dialect"));
+		properties.put("hibernate.hbm2ddl.auto", environment.getRequiredProperty("datasource.aaasapp.hibernate.hbm2ddl.method"));
+		properties.put("hibernate.show_sql", environment.getRequiredProperty("datasource.aaasapp.hibernate.show_sql"));
+		properties.put("hibernate.format_sql", environment.getRequiredProperty("datasource.aaasapp.hibernate.format_sql"));
+		if(StringUtils.isNotEmpty(environment.getRequiredProperty("datasource.aaasapp.defaultSchema"))){
+			properties.put("hibernate.default_schema", environment.getRequiredProperty("datasource.aaasapp.defaultSchema"));
 		}
 		return properties;
 	}

@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.shellshellfish.aaas.dto.SurveyResult;
-import com.shellshellfish.aaas.model.JsonResult;
+import com.shellshellfish.aaas.oeminfo.model.JsonResult;
 import com.shellshellfish.aaas.transfer.exception.ReturnedException;
 
 import io.swagger.annotations.Api;
@@ -39,13 +39,11 @@ public class RiskController {
 	
 	Logger logger = LoggerFactory.getLogger(UserInfoController.class);
 	
-	@Value("${shellshellfish.risk-assessment-url}")
-	private String url;
-	
+
 	@Value("${shellshellfish.user-login-url}")
 	private String loginUrl;
 	
-	@Value("${shellshellfish.user-user-info}")
+	@Value("${shellshellfish.userinfo-url}")
 	private String userinfoUrl;
 	
 	@Autowired
@@ -55,7 +53,8 @@ public class RiskController {
 	
 	@ApiOperation("风险测评-试题")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "bankId", dataType = "String", required = false, value = "银行卡ID",defaultValue="1") })
+			@ApiImplicitParam(paramType = "query", name = "bankId", dataType = "String", required = false, value = "银行卡ID",defaultValue="1"),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Long", required = false, value = "1")})
 	@ApiResponses({ 
 		@ApiResponse(code = 100, message = "密码长度至少8位,至多16位，必须是字母 大写、字母小写、数字、特殊字符中任意三种组合"),
 		@ApiResponse(code = 101, message = "手机号格式不对"), @ApiResponse(code = 200, message = "OK"),
@@ -65,10 +64,10 @@ public class RiskController {
 		})
 	@RequestMapping(value = "/surveytemplates/latest", method = RequestMethod.POST)
 	@ResponseBody
-	public JsonResult getSurveyTemplate(@RequestParam String bankId) {
+	public JsonResult getSurveyTemplate(@RequestParam(required = false) String bankId,@RequestParam(required = false) Long oemid) {
 		Map<String, Object> result = null;
 		try {
-			result = restTemplate.getForEntity(url + "/api/riskassessments/banks/" + bankId + "/surveytemplates/latest", Map.class)
+			result = restTemplate.getForEntity(userinfoUrl + "/api/riskassessments/banks/" + bankId + "/surveytemplates/latest", Map.class)
 					.getBody();
 			List questionList=  (List) result.get("questions");
 			for(int i=0;i<questionList.size();i++){
@@ -86,7 +85,11 @@ public class RiskController {
 			}
  			result.remove("_links");
 			result.remove("_schemaVersion");
-			result.put("title", "尊敬的客户您好！欢迎来到兰州银行风险测评...");
+			if (oemid == null || oemid == 1) {
+				result.put("title", "尊敬的客户您好！欢迎来到贝贝鱼银行风险测评...");
+			} else if (oemid == 2){
+				result.put("title", "尊敬的客户您好！欢迎来到百合智投风险测评...");
+			}
 			return new JsonResult(JsonResult.SUCCESS, "风险测评成功", result);
 		} catch (Exception e) {
 			/*result = new HashMap<>();
@@ -120,7 +123,7 @@ public class RiskController {
 			) {
 		Map<String, Object> result = null;
 		try {
-			result = restTemplate.postForEntity(url + "/api/riskassessments/banks/" + bankUuid + "/users/"+userUuid+"/surveyresults",surveyResult, Map.class)
+			result = restTemplate.postForEntity(userinfoUrl + "/api/riskassessments/banks/" + bankUuid + "/users/"+userUuid+"/surveyresults",surveyResult, Map.class)
 					.getBody();
 			result.put("msg", "风险测评-结果成功");
 			result.remove("_links");

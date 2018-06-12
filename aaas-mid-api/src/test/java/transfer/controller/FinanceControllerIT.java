@@ -2,15 +2,15 @@ package transfer.controller;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.embedded.LocalServerPort;
+
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -37,6 +37,8 @@ public class FinanceControllerIT {
 
 	private static final String CHECK_PRD_DETAILS = "/phoneapi-ssf/checkPrdDetails";
 
+	private static final String CHECK_PRD_DETAILS_VER2 = "/phoneapi-ssf/checkPrdDetails-ver2";
+
 	private static final String HISTORICAL_PERFORMANCE_PAGE = "/phoneapi-ssf/historicalPerformancePage";
 
 	private static final String FUTURE_EXPECTATION_PAGE = "/phoneapi-ssf/futureExpectationPage";
@@ -59,12 +61,18 @@ public class FinanceControllerIT {
 
 	private static final String CONTRIBUTIONS = "/phoneapi-ssf/contributions";
 
+	private static final String WAREHOUSE_RECORD_DETAILS = "/phoneapi-ssf/warehouse-record-details";
+
+	private static final String WAREHOUSE_RECORDS= "/phoneapi-ssf/warehouse-records";
+
 
 	private static final String FINANCE_HOME_JSON_SCHEMA = "financeController-financeHome.json";
 
 	private static final String FINANCE_FRONT_PAGE_JSON_SCHEMA = "financeController-financeFrontPage.json";
 
 	private static final String CHECK_PRD_DETAILS_JSON_SCHEMA = "financeController-checkPrdDetails.json";
+
+	private static final String CHECK_PRD_DETAILS_VER2_JSON_SCHEMA = "financeController-checkPrdDetailsVer2.json";
 
 	private static final String HISTORICAL_PERFORMANCE_PAGE_JSON_SCHEMA = "financeController-historicalPerformancePage.json";
 
@@ -88,8 +96,13 @@ public class FinanceControllerIT {
 
 	private static final String CONTRIBUTIONS_JSON_SCHEMA = "financeController-contributions.json";
 
+	private static final String WAREHOUSE_RECORD_DETAILS_JSON_SCHEMA = "financeController-warehouse_record_details.json";
+
+	private static final String WAREHOUSE_RECORD_JSON_SCHEMA = "financeController-warehouse_record.json";
+
 	private static final String REQUEST_IS_SUCCESS = "1";
 
+	private static final long TIMEOUT = 3000L;
 
 	@LocalServerPort
 	private int port;
@@ -101,6 +114,12 @@ public class FinanceControllerIT {
 	}
 
 
+	/**
+	 * 目的：校验"系统首页"接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/finance-home
+	 * 接口作用：根据参数获取指定的系统首页信息
+	 * 参数：{uuid ：用户id，isTestFlag ：是否测评（1-已做 0-未做），testResult ：测评结果}
+	 */
 	@Test
 	public void financeHomeTest() {
 		String uuid = "66e35442-a9f6-4854-8f87-dd3e9eb47f2c";
@@ -118,13 +137,20 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(FINANCE_HOME_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
+	/**
+	 * 目的：校验"配置收益贡献"接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/contributions
+	 * 接口作用：根据参数获取指定的收益贡献
+	 * 参数：{groupId ：产品组ID，subGroupId ：子产品组ID}
+	 */
 	@Test
 	public void contributionsTest() {
-		String groupId = "6";
-		String subGroupId = "60048";
+		String groupId = "18";
+		String subGroupId = "18000";
 
 
 		given().filter(new ResponseLoggingFilter())
@@ -136,13 +162,21 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(CONTRIBUTIONS_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
+
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/checkPrdDetails
+	 * 接口作用：根据参数获取指定理财产品的详细数据
+	 * 参数：{groupId ：产品组ID，subGroupId ：子产品组ID}
+	 */
 	@Test
 	public void checkPrdDetailsTest() {
-		String groupId = "2";
-		String subGroupId = "20048";
+		String groupId = "8";
+		String subGroupId = "80048";
 
 		given().filter(new ResponseLoggingFilter())
 				.param("groupId", groupId)
@@ -153,9 +187,47 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(CHECK_PRD_DETAILS_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(6000L))
 				.using();
 	}
 
+
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/checkPrdDetails-ver2
+	 * 接口作用：根据参数获取指定理财产品的详细数据(分页)
+	 * 参数：{oemid ：版本标记，groupId ：产品组ID，subGroupId ：子产品组ID，pageSize：页大小，pageIndex：起始页}
+	 */
+	@Test
+	public void checkPrdDetails_ver2() {
+		String oemid = "1";
+		String groupId = "18";
+		String subGroupId = "18000";
+		String pageSize = "2";
+		String pageIndex = "0";
+
+		given().filter(new ResponseLoggingFilter())
+				.param("oemid",oemid)
+				.param("groupId", groupId)
+				.param("subGroupId", subGroupId)
+				.param("pageSize",pageSize)
+				.param("pageIndex",pageIndex)
+				.post(CHECK_PRD_DETAILS_VER2)
+				.then()
+				.log().all()
+				.body(matchesJsonSchemaInClasspath(CHECK_PRD_DETAILS_VER2_JSON_SCHEMA))
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
+				.body("result", notNullValue())
+				.time(lessThan(6000L))
+				.using();
+	}
+
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/effectiveFrontierPoints
+	 * 接口作用：根据参数获取最优的理财产品组合
+	 * 参数：{groupId ：产品组ID}
+	 */
 	@Test
 	public void effectiveFrontierPointsTest() {
 		String groupId = "2";
@@ -168,28 +240,49 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(EFFECTIVE_FRONTIER_POINTS_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/financeFrontPage
+	 * 接口作用：获取理财页面的数据
+	 * 参数：{oemid:2兰州银行，size:每页显示数，pageSize:显示的页数}
+	 */
 	@Test
 	public void financeFrontPageTest() {
 
+		Long oemid = 2L;
+		Integer size = 2;
+		Integer pageSize = 1;
+
 		given().filter(new ResponseLoggingFilter())
+				.param("oemid",oemid)
+				.param("size",size)
+				.param("pageSize",pageSize)
 				.post(FINANCE_FRONT_PAGE)
 				.then()
 				.log().all()
 				.body(matchesJsonSchemaInClasspath(FINANCE_FRONT_PAGE_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/futureExpectationPage
+	 * 接口作用：根据参数获取指定产品未来预期数据
+	 * 参数：{uuid ：用户id，groupId ：产品组ID，subGroupId ：子产品组ID}
+	 */
 	@Test
 	public void futureExpectationPageTest() {
 
 		String uuid = "1";
 		String groupId = "6";
-		String subGroupId = "111111";
+		String subGroupId = "60048";
 		given().filter(new ResponseLoggingFilter())
 				.param("uuid", uuid)
 				.param("groupId", groupId)
@@ -200,14 +293,21 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(FUTURE_EXPECTATION_PAGE_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/getExpAnnualAndMaxReturn
+	 * 接口作用：根据参数获取指定产品的历史收益率和最大回撤
+	 * 参数：{groupId ：产品组ID，subGroupId ：子产品组ID}
+	 */
 	@Test
 	public void getExpannualAndMaxReturnTest() {
 
 		String groupId = "6";
-		String subGroupId = "111111";
+		String subGroupId = "60048";
 		given().filter(new ResponseLoggingFilter())
 				.param("groupId", groupId)
 				.param("subGroupId", subGroupId)
@@ -217,15 +317,22 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(GET_EXPANNUAL_AND_MAX_RETURN_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/globalConfigurationPage
+	 * 接口作用：根据参数获取指定产品的全球配置数据
+	 * 参数：{uuid ：用户id，groupId ：产品组ID，subGroupId ：子产品组ID}
+	 */
 	@Test
 	public void globalConfigurationPageTest() {
 
 		String uuid = "1";
 		String groupId = "4";
-		String subGroupId = "4009";
+		String subGroupId = "40048";
 		given().filter(new ResponseLoggingFilter())
 				.param("uuid", uuid)
 				.param("groupId", groupId)
@@ -235,9 +342,16 @@ public class FinanceControllerIT {
 				.log().all()
 				.body(matchesJsonSchemaInClasspath(GLOBAL_CONFIGURATION_PAGE_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body("result", notNullValue());
+				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT));
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/historicalPerformancePage
+	 * 接口作用：根据参数获取指定产品的历史业绩数据
+	 * 参数：{groupId ：产品组ID，subGroupId ：子产品组ID，productName ：产品名称}
+	 */
 	@Test
 	public void historicalPerformancePageTest() {
 
@@ -254,9 +368,16 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(HISTORICAL_PERFORMANCE_PAGE_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/inComeSlidebarPoints
+	 * 接口作用：根据产品组ID获取预期收益率调整有多少个点
+	 * 参数：{groupId ：产品组ID}
+	 */
 	@Test
 	public void incomeSlidebarPointsTest() {
 
@@ -269,9 +390,16 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(INCOME_SLIDEBAR_POINTS_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/optAdjustment
+	 * 接口作用：根据投资期限与风险承受级别获取指定的组合数据
+	 * 参数：{invstTerm ：投资期限，riskLevel ：风险承受级别}
+	 */
 	@Test
 	public void optAdjustmentTest() {
 
@@ -286,9 +414,16 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(OPT_ADJUSTMENT_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/optimizations
+	 * 接口作用：
+	 * 参数：{groupId ：产品组ID，riskPointValue ：风险率，incomePointValue ：收益率}
+	 */
 	@Test
 	public void optimizationsTest() {
 
@@ -305,15 +440,22 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(OPTIMIZATIONS_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/riskMangementPage
+	 * 接口作用：根据参数获取指定产品的风险控制数据
+	 * 参数：{uuid ：用户ID，groupId ：产品组ID，subGroupId ：子产品组ID}
+	 */
 	@Test
 	public void riskMangementPageTest() {
 
 		String uuid = "1";
 		String groupId = "6";
-		String subGroupId = "100058";
+		String subGroupId = "60048";
 		given().filter(new ResponseLoggingFilter())
 				.param("uuid", uuid)
 				.param("groupId", groupId)
@@ -324,9 +466,16 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(RISK_MANGEMENT_PAGE_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/riskSlidebarPoints
+	 * 接口作用：根据参数获取指定产品的预期收益率调整有多少个点
+	 * 参数：{groupId ：产品组ID}
+	 */
 	@Test
 	public void riskSlidebarPoints() {
 
@@ -339,6 +488,61 @@ public class FinanceControllerIT {
 				.body(matchesJsonSchemaInClasspath(RISK_SLIDEBAR_POINTS_JSON_SCHEMA))
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
+				.using();
+	}
+
+
+	/**
+	 * 调仓记录-详情页面
+	 * 接口:http://47.96.164.161:10130/phoneapi-ssf/warehouse-record-details?groupId=1&modifySeq=1&oemid=1
+	 * 输入参数：
+	 * groupId：groupId
+	 * modifySeq：修正次数
+	 * oemid：产品类型（贝贝鱼:1,兰州银行：2）
+	 */
+	@Test
+	public void warehouse_record_details() {
+		String groupId = "1";
+		String modifySeq = "1";
+		String oemid = "1";
+		given().filter(new ResponseLoggingFilter())
+				.param("groupId", groupId)
+				.param("modifySeq", modifySeq)
+				.param("oemid", oemid)
+				.post(WAREHOUSE_RECORD_DETAILS)
+				.then()
+				.log().all()
+				.body(matchesJsonSchemaInClasspath(WAREHOUSE_RECORD_DETAILS_JSON_SCHEMA))
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
+				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
+				.using();
+	}
+
+
+	/**
+	 * 调仓记录-列表
+	 * 接口:
+	 * http://47.96.164.161:10130/phoneapi-ssf/warehouse-records?groupId=1&oemid=1
+	 * 输入参数：
+	 * groupId：groupId
+	 * oemid：产品类型（贝贝鱼:1,兰州银行：2）
+	 */
+	@Test
+	public void warehouse_record() {
+		String groupId = "1";
+		String oemid = "1";
+		given().filter(new ResponseLoggingFilter())
+				.param("groupId", groupId)
+				.param("oemid", oemid)
+				.post(WAREHOUSE_RECORDS)
+				.then()
+				.log().all()
+				.body(matchesJsonSchemaInClasspath(WAREHOUSE_RECORD_JSON_SCHEMA))
+				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
+				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 

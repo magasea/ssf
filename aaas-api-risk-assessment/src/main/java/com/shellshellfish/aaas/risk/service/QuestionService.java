@@ -10,10 +10,15 @@ import com.shellshellfish.aaas.risk.model.dto.QuestionDTO;
 import com.shellshellfish.aaas.risk.model.dto.SurveyTemplateDTO;
 
 public interface QuestionService {
-	public QuestionDTO convertToQuestionDTO(Question question);
-	public QuestionDTO convertToQuestionDTO(Question question, String surveyTemplateId);
-	public List<QuestionDTO> convertToQuestionDTOs(List<Question> questions);
-	public List<QuestionDTO> convertToQuestionDTOs(List<Question> questions, String surveyTemplateId);
-	public List<Question> getQuestionsByPage(Integer page, Integer size, List<Question> originalQuestions);
-	Page<SurveyTemplateDTO> findByTitleAndVersion(Pageable page, String title, String version) throws InstantiationException, IllegalAccessException;
+    QuestionDTO convertToQuestionDTO(Question question);
+
+    QuestionDTO convertToQuestionDTO(Question question, String surveyTemplateId);
+
+    List<QuestionDTO> convertToQuestionDTOs(List<Question> questions);
+
+    List<QuestionDTO> convertToQuestionDTOs(List<Question> questions, String surveyTemplateId);
+
+    List<Question> getQuestionsByPage(Integer page, Integer size, List<Question> originalQuestions);
+
+    Page<SurveyTemplateDTO> findByTitleAndVersion(Pageable page, String title, String version) throws InstantiationException, IllegalAccessException;
 }

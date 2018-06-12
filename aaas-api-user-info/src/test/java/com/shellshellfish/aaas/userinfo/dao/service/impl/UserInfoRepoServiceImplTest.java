@@ -1,17 +1,15 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
-import com.mongodb.WriteResult;
+import com.mongodb.client.result.UpdateResult;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.userinfo.UserInfoApp;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
-import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
+//import com.shellshellfish.aaas.userinfo.model.dao.UiCompanyInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiPersonMsg;
 import com.shellshellfish.aaas.userinfo.model.dao.UiSysMsg;
-import com.shellshellfish.aaas.userinfo.model.dao.UiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserAssetsRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserPersonMsgRepo;
@@ -20,27 +18,20 @@ import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserSysMsgRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.utils.MongoUiTrdLogUtil;
-import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTestContextBootstrapper;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.BootstrapWith;
-import org.springframework.test.context.TestContextBootstrapper;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.CollectionUtils;
+
+import java.math.BigInteger;
+import java.util.*;
 
 @RunWith(value= SpringRunner.class)
 @SpringBootTest
@@ -75,33 +66,33 @@ public class UserInfoRepoServiceImplTest {
 
   }
 
-  @Test
-  public void addCompanyInfo() throws Exception {
-
-    UiCompanyInfo uiCompanyInfo = new UiCompanyInfo();
-    uiCompanyInfo.setCompanyInfo("zn;lan;flkjanewjn;lakjn中午只能你好噢虢");
-    uiCompanyInfo.setServiceNum("400-838-217314gj");
-    userInfoRepoService.addCompanyInfo(uiCompanyInfo);
-  }
+//  @Test
+//  public void addCompanyInfo() throws Exception {
+//
+//    UiCompanyInfo uiCompanyInfo = new UiCompanyInfo();
+//    uiCompanyInfo.setCompanyInfo("zn;lan;flkjanewjn;lakjn中午只能你好噢虢");
+//    uiCompanyInfo.setServiceNum("400-838-217314gj");
+//    userInfoRepoService.addCompanyInfo(uiCompanyInfo);
+//  }
 
   @Autowired
   UserInfoRepoService userInfoRepoService;
-
-  @Test
-  public void addUiTrdLog() throws Exception {
-    List<UiTrdLog> uiTradesLogs = new ArrayList<>();
-    for(int idx = 0; idx < 100; idx ++){
-      UiTrdLog uiTradesLog = new UiTrdLog();
-      uiTradesLog.setUserId(3L);
-      uiTradesLog.setAmount(UserInfoUtils.getRandomDecimalInRange(1, 1000000));
-      uiTradesLog.setOperations(UserInfoUtils.getRandomNumberInRange(1,4));
-      uiTradesLog.setUserProdId(Long.valueOf(UserInfoUtils.getRandomNumberInRange(1,100) ));
-      uiTradesLog.setTradeDate(UserInfoUtils.getCurrentUTCTime());
-      uiTradesLog.setTradeStatus(UserInfoUtils.getRandomNumberInRange(1,3));
-      uiTradesLogs.add(uiTradesLog);
-    }
-    userInfoRepoService.addUiTrdLog(uiTradesLogs);
-  }
+//
+//  @Test
+//  public void addUiTrdLog() throws Exception {
+//    List<UiTrdLog> uiTradesLogs = new ArrayList<>();
+//    for(int idx = 0; idx < 100; idx ++){
+//      UiTrdLog uiTradesLog = new UiTrdLog();
+//      uiTradesLog.setUserId(3L);
+//      uiTradesLog.setAmount(UserInfoUtils.getRandomDecimalInRange(1, 1000000));
+//      uiTradesLog.setOperations(UserInfoUtils.getRandomNumberInRange(1,4));
+//      uiTradesLog.setUserProdId(Long.valueOf(UserInfoUtils.getRandomNumberInRange(1,100) ));
+//      uiTradesLog.setTradeDate(UserInfoUtils.getCurrentUTCTime());
+//      uiTradesLog.setTradeStatus(UserInfoUtils.getRandomNumberInRange(1,3));
+//      uiTradesLogs.add(uiTradesLog);
+//    }
+//    userInfoRepoService.addUiTrdLog(uiTradesLogs);
+//  }
 
   @Autowired
   MongoTemplate mongoTemplate;
@@ -116,7 +107,7 @@ public class UserInfoRepoServiceImplTest {
     query.addCriteria(Criteria.where("id").in(msgs).and("userId").is("1"));
     Update update = new Update();
     update.set("readed", Boolean.FALSE);
-    WriteResult result = mongoTemplate.updateMulti(query, update, UiPersonMsg.class);
+    UpdateResult result = mongoTemplate.updateMulti(query, update, UiPersonMsg.class);
     System.out.println(result);
   }
 
@@ -219,7 +210,7 @@ public class UserInfoRepoServiceImplTest {
   @org.junit.Test
   public void getUserInfoBase() throws Exception {
       long userId = Long.valueOf(1);
-      UiUser uiUser =userInfoRepository.findOne(userId);
+      UiUser uiUser =userInfoRepository.findById(userId);
       System.out.println(uiUser);
   }
 
@@ -230,11 +221,11 @@ public class UserInfoRepoServiceImplTest {
   @org.junit.Test
   public void getUserInfoBankCards() throws Exception {
 //    BigInteger userId = BigInteger.valueOf(1);
-    UiBankcard uiBankcard= userInfoBankCardsRepository.findOne(1L);
-    System.out.println(uiBankcard);
+    Optional<UiBankcard> uiBankcard= userInfoBankCardsRepository.findById(1L);
+    System.out.println(uiBankcard.get());
     String bankName = "工商银行";
     List<UiBankcard> uiBankcards= userInfoBankCardsRepository.findByBankName(bankName);
-    System.out.println(uiBankcard);
+    System.out.println(uiBankcard.get());
   }
 
   @org.junit.Test

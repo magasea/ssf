@@ -1,0 +1,25 @@
+server:
+  port: 10030
+spring:
+  jpa:
+    open-in-view: false
+  data:
+      mongodb:
+        database: funds
+        host: 192.168.1.10
+        port: 30005
+  http:
+    multipart:
+shellshellfish:
+  asset-alloction-url: "http://192.168.1.10:10020"
+  userinfo-url: "http://192.168.1.10:10060"
+
+grpc:
+  asset-allocation:
+    host: 192.168.1.10
+    port: 10021
+
+management:
+  endpoints:
+    web:
+      base-path: /

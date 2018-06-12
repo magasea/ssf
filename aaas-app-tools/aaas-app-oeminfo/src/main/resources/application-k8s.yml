@@ -1,0 +1,119 @@
+---
+server:
+  port: 10160
+logging:
+  level:
+    org.hibernate.SQL: info
+    org.hibernate.type.descriptor.sql.BasicBinder: info
+    org.springframework.data: info
+
+---
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+  data:
+    mongodb:
+      database: ssfui
+      host: external-mongo-service
+      port: 27017
+      zhongzheng: "zhongzheng"
+      funds: "funds"
+  rabbitmq:
+    listener:
+      simple:
+        acknowledge-mode: auto
+    username: ssf
+    password: shellshellfish
+    host: external-rabbitmq-servic
+    port: 5672
+    virtual-host: aaas
+    topicQueuePayName: com-ssf-topic-queue-pay
+    topicQueueOrderName: com-ssf-topic-queue-order
+    topicQueueUserinfoName: com-ssf-topic-queue-userinfo
+    topicExchangeName: com-ssf-topic-exchange
+    topicPay: shellshellfish.pay
+    topicOrder: shellshellfish.order
+    topicUserinfo: shellshellfish.userinfo
+  redis:
+    host: redis-service
+    port: 6379
+    password: redis123
+    timeout: 500ms
+    pool:
+
+datasource:
+  aaasapp:
+    url: jdbc:mysql://external-mysql-service:3306/ssfuser?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8
+    username: sa
+    password: N4eTVr89lX9BaPcx 
+    driverClassName: com.mysql.jdbc.Driver
+    defaultSchema: ssfuser
+    maxPoolSize: 20
+    hibernate:
+      connection:
+        useUnicode: true
+        characterEncoding: UTF-8
+      jdbc:
+        batch_size: 50
+      hbm2ddl.method: update
+      show_sql: true
+      format_sql: true
+      dialect: org.hibernate.dialect.MySQLDialect
+  
+grpc:
+  port: 10161
+
+
+management:
+  endpoints:
+    web:
+      base-path: /
+
+aaas-api-finance-url: http://aaas-api-finance:10120
+
+api-asset-alloction-url: http://aaas-api-asset-allocation:10020
+
+# 每日收益计算 多线程
+daily-finance-calculate-thread: 8
+
+
+
+
+
+#oeminfo
+oem-info:
+  oemInfos:
+   - oem_id: 1
+     oem_name: 贝贝鱼
+     bank_phone: 021-80270119
+     oem_version: V.1.0
+     prod_name: 贝贝鱼智投
+     home_page_img_one: http://47.96.164.161:81/1.png
+     home_page_img_two: http://47.96.164.161:81/2.png
+     home_page_img_three: http://47.96.164.161:81/3.png
+     home_page_img_four: http://47.96.164.161:81/4.png
+     combination_one: http://47.96.164.161:81/APP-invest-banner01.png
+     combination_two: http://47.96.164.161:81/APP-invest-banner02.png
+     combination_three: http://47.96.164.161:81/APP-invest-banner03.png
+     combination_four: http://47.96.164.161:81/APP-invest-banner04.png
+     combination_five: http://47.96.164.161:81/APP-invest-banner05.png
+     me_head_img: http://47.96.164.161:81/icon_me_headphoto2.png
+     about_logo: http://47.96.164.161:81/icon_about_logo2.png
+   - oem_id: 2
+     oem_name: 百合
+     bank_phone: 400-88-96799
+     oem_version: V.1.0
+     prod_name: 百合智投
+     home_page_img_one: http://47.96.164.161/1.png
+     home_page_img_two: http://47.96.164.161/2.png
+     home_page_img_three: http://47.96.164.161/3.png
+     home_page_img_four: http://47.96.164.161/4.png
+     combination_one: http://47.96.164.161/APP-invest-banner01.png
+     combination_two: http://47.96.164.161/APP-invest-banner02.png
+     combination_three: http://47.96.164.161/APP-invest-banner03.png
+     combination_four: http://47.96.164.161/APP-invest-banner04.png
+     combination_five: http://47.96.164.161/APP-invest-banner05.png
+     me_head_img: http://47.96.164.161/icon_me_headphoto.png
+     about_logo: http://47.96.164.161/icon_about_logo.png

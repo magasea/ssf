@@ -6,6 +6,7 @@ import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.message.order.ProdDtlSellDTO;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
+import com.shellshellfish.aaas.common.message.order.ProdSellPercentMsg;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc;
 import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc.DataCollectionServiceFutureStub;
@@ -16,6 +17,7 @@ import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.ProdDtlSellPageDTO;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.ProdSellPageDTO;
+import com.shellshellfish.aaas.finance.trade.order.model.vo.ProdSellPercentDTO;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdBrokerUserRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderDetailRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderRepository;
@@ -25,6 +27,7 @@ import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
 import com.shellshellfish.aaas.finance.trade.pay.FundNetInfo;
 import com.shellshellfish.aaas.grpc.common.ErrInfo;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
+import com.shellshellfish.aaas.userinfo.grpc.SellPersentProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductDetail;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductDetailResult;
 import com.shellshellfish.aaas.userinfo.grpc.SellProducts;
@@ -37,6 +40,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,6 +86,31 @@ public class TradeSellServiceImpl implements TradeSellService {
     dataCollectionServiceFutureStub = DataCollectionServiceGrpc.newFutureStub(managedDCChannel);
   }
 
+  private Map<String, Integer> getFundNetInfo(List<String> fundCodes, String userPid)
+      throws ExecutionException, InterruptedException {
+    List<FundNetInfo> fundNetInfos = payGrpcService.getFundNetInfo(userPid,fundCodes,1);
+
+//    List<FundInfo> fundInfoList =dataCollectionServiceFutureStub.getFundsPrice
+//        (requestBuilder.build()).get().getFundInfoList();
+//    fundInfoList.get(0).getNavunit();
+    Map<String, Integer> fundNavunits = new HashMap<>();
+//    for(FundInfo fundInfo: fundInfoList){
+//      fundNavunits.put(fundInfo.getFundCode(), fundInfo.getNavunit());
+//    }
+    for(FundNetInfo fundNetInfo: fundNetInfos){
+      Long netValL = null;
+      if(MonetaryFundEnum.containsCode(fundNetInfo.getFundCode())){
+        logger.info("contains monetary fund");
+        netValL = TradeUtil.getLongNumWithMul100(fundNetInfo.getUnitNet());
+      }else{
+        //四舍五入的基金净值
+        netValL = TradeUtil.getLongNumWithMul100(TradeUtil.getBigDecimalNumWithRoundUp2Digit
+            (fundNetInfo.getUnitNet()));
+      }
+      fundNavunits.put(fundNetInfo.getFundCode(), netValL.intValue());
+    }
+    return fundNavunits;
+  }
 
 
 
@@ -135,27 +164,7 @@ public class TradeSellServiceImpl implements TradeSellService {
         break;
       }
     }
-    List<FundNetInfo> fundNetInfos = payGrpcService.getFundNetInfo(userPid,fundCodes,1);
-
-//    List<FundInfo> fundInfoList =dataCollectionServiceFutureStub.getFundsPrice
-//        (requestBuilder.build()).get().getFundInfoList();
-//    fundInfoList.get(0).getNavunit();
-    Map<String, Integer> fundNavunits = new HashMap<>();
-//    for(FundInfo fundInfo: fundInfoList){
-//      fundNavunits.put(fundInfo.getFundCode(), fundInfo.getNavunit());
-//    }
-    for(FundNetInfo fundNetInfo: fundNetInfos){
-      Long netValL = null;
-      if(MonetaryFundEnum.containsCode(fundNetInfo.getFundCode())){
-        logger.info("contains monetary fund");
-        netValL = TradeUtil.getLongNumWithMul100(fundNetInfo.getUnitNet());
-      }else{
-        //四舍五入的基金净值
-        netValL = TradeUtil.getLongNumWithMul100(TradeUtil.getBigDecimalNumWithRoundUp2Digit
-            (fundNetInfo.getUnitNet()));
-      }
-      fundNavunits.put(fundNetInfo.getFundCode(), netValL.intValue());
-    }
+    Map<String, Integer> fundNavunits =  getFundNetInfo(fundCodes, userPid);
     List<ProdDtlSellDTO> prodDtlSellDTOList = new ArrayList<>();
 
     for(ProdDtlSellPageDTO prodDtlSellDTO: prodSellPageDTO.getProdDtlSellPageDTOList()){
@@ -192,6 +201,145 @@ public class TradeSellServiceImpl implements TradeSellService {
     prodSellDTO.setUserPid(userPid);
     broadcastMessageProducer.sendSellMessages(prodSellDTO);
     return result;
+  }
+
+
+
+  @Override
+  public TrdOrder sellProductPercent(ProdSellPercentDTO prodSellPercentDTO) throws Exception {
+    /*
+    1. 调用userInfo 模块获取赎回份额
+    2. 在order模块生成订单
+    3. 发送消息给pay模块，发起赎回
+     */
+    List<TrdOrder> trdOrders = trdOrderRepository.findByUserProdId(prodSellPercentDTO.getUserProdId());
+
+    com.shellshellfish.aaas.userinfo.grpc.UserBankInfo userBankInfo =
+        userInfoService.getUserBankInfo(prodSellPercentDTO.getUserId());
+    String userPid = null;
+    String usedBankCard = trdOrders.get(0).getBankCardNum();
+    for(CardInfo cardInfo: userBankInfo.getCardNumbersList()){
+      if(cardInfo.getCardNumbers().equals(usedBankCard)){
+        userPid = cardInfo.getUserPid();
+        break;
+      }
+    }
+    if(!usedBankCard.equals(prodSellPercentDTO.getUserBankNum())){
+      logger.error("prodSellPercentDTO.getUserBankNum:{} isn't usedBankCard:{} found in "
+          + "trdOrder", prodSellPercentDTO.getUserBankNum(), usedBankCard);
+    }
+    TrdBrokerUser trdBrokerUser = trdBrokerUserRepository
+        .findByUserIdAndBankCardNum(prodSellPercentDTO.getUserId(), usedBankCard);
+
+    SellPersentProducts.Builder sppBuilder = SellPersentProducts.newBuilder();
+    Long percent = TradeUtil.getLongNumWithMul100(prodSellPercentDTO.getSellTargetPercent());
+    sppBuilder.setPercent(percent);
+    sppBuilder.setUserBankNum(usedBankCard);
+    sppBuilder.setUserId(prodSellPercentDTO.getUserId());
+    sppBuilder.setUserProductId(prodSellPercentDTO.getUserProdId());
+    SellProductsResult results = null;
+    try {
+      results = userInfoService.checkSellPercentProducts(sppBuilder.build());
+    } catch (ExecutionException e) {
+      logger.error("ExecutionException:", e);
+    } catch (InterruptedException e) {
+      logger.error("InterruptedException:",e);
+    }
+    List<String> fundCodes = new ArrayList<>();
+    results.getSellProductDetailResultsList().forEach(
+        item-> fundCodes.add(item.getFundCode())
+    );
+    Map<String, Integer> fundNetInfos =  getFundNetInfo(fundCodes, userPid);
+    boolean canSell = false;
+    List<SellProductDetailResult> sellProductDetailResults =  results
+        .getSellProductDetailResultsList();
+    for(SellProductDetailResult item: sellProductDetailResults){
+      if(item.getFundQuantityTrade() > 0){
+        canSell = true;
+      }
+    }
+
+    if(!canSell){
+      throw new Exception(String.format("Cannot sell:{} because all fund quantity can sell is 0",
+          prodSellPercentDTO.getUserProdId()));
+    }
+    TrdOrder trdSellOrder = new TrdOrder();
+    String orderId = TradeUtil.generateOrderIdByBankCardNum(usedBankCard
+        , trdBrokerUser.getTradeBrokerId());
+    trdSellOrder.setUserId(prodSellPercentDTO.getUserId());
+    trdSellOrder.setOrderId(orderId);
+    trdSellOrder.setOrderType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+    trdSellOrder.setUserProdId(prodSellPercentDTO.getUserProdId());
+    trdSellOrder.setCreateBy(prodSellPercentDTO.getUserId());
+    trdSellOrder.setCreateDate(TradeUtil.getUTCTime());
+    trdSellOrder.setUpdateBy(prodSellPercentDTO.getUserId());
+    trdSellOrder.setOrderStatus(TrdOrderStatusEnum.WAITSELL.ordinal());
+    trdSellOrder.setBankCardNum(results.getUserBankNum());
+
+//    trdSellOrder.setPayAmount(percent);
+    trdSellOrder.setSellPercent(percent);
+    ProdSellPercentMsg prodSellPercentMsg = new ProdSellPercentMsg();
+
+    prodSellPercentMsg.setUserProdId(trdOrders.get(0).getUserProdId());
+    prodSellPercentMsg.setProdId(trdOrders.get(0).getProdId());
+    prodSellPercentMsg.setTrdAcco(trdBrokerUser.getTradeAcco());
+    prodSellPercentMsg.setTrdBrokerId(trdBrokerUser.getTradeBrokerId());
+    prodSellPercentMsg.setOrderId(trdSellOrder.getOrderId());
+    prodSellPercentMsg.setUserPid(userPid);
+    prodSellPercentMsg.setUserId(prodSellPercentDTO.getUserId());
+    prodSellPercentMsg.setProdId(prodSellPercentDTO.getProdId());
+    prodSellPercentMsg.setGroupId(prodSellPercentDTO.getGroupId());
+    trdSellOrder = trdOrderRepository.save(trdSellOrder);
+
+
+    prodSellPercentMsg.setProdDtlSellDTOList(new ArrayList<ProdDtlSellDTO>());
+    TrdOrderDetail trdOrderDetail = new TrdOrderDetail();
+    for(SellProductDetailResult sellProductDetailResult:  sellProductDetailResults){
+      ProdDtlSellDTO prodDtlSellDTO = new ProdDtlSellDTO();
+      //生成赎回子订单信息
+      trdOrderDetail.setUserId(prodSellPercentDTO.getUserId());
+      trdOrderDetail.setCreateDate(TradeUtil.getUTCTime());
+      trdOrderDetail.setUserProdId(prodSellPercentDTO.getUserProdId());
+
+//        trdOrderDetail.setFundNum(prodDtlSellDTO.getFundQuantity());
+      trdOrderDetail.setCreateBy(prodSellPercentDTO.getUserId());
+      trdOrderDetail.setTradeType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+      trdOrderDetail.setUpdateBy(prodSellPercentDTO.getUserId());
+      trdOrderDetail.setUpdateDate(TradeUtil.getUTCTime());
+      trdOrderDetail.setBuysellDate(TradeUtil.getUTCTime());
+      trdOrderDetail.setFundCode(sellProductDetailResult.getFundCode());
+      trdOrderDetail.setFundNum(sellProductDetailResult.getFundQuantityTrade());
+      trdOrderDetail.setPayAmount(percent);
+//      trdOrderDetail.setFundMoneyQuantity(TradeUtil.getLongNumWithMul100(prodDtlSellDTO
+//          .getTargetSellAmount()));
+      trdOrderDetail.setOrderId(orderId);
+      trdOrderDetail.setOrderDetailStatus(TrdOrderStatusEnum.WAITSELL.getStatus());
+      trdOrderDetail = trdOrderDetailRepository.save(trdOrderDetail);
+      prodDtlSellDTO.setOrderDetailId(trdOrderDetail.getId());
+      //如果是货币基金 需要拿当日净值换算成货币基金的交易份额(默认是1)
+      if(MonetaryFundEnum.containsCode(sellProductDetailResult.getFundCode())){
+
+          prodDtlSellDTO.setFundQuantity(Math.toIntExact(sellProductDetailResult.getFundQuantityTrade()
+              *fundNetInfos.get(sellProductDetailResult.getFundCode())));
+          logger.info("origin quantity:{} target sell quantity for this monetary fund:{}",
+              sellProductDetailResult.getFundQuantityTrade(), prodDtlSellDTO.getFundQuantity());
+      }else{
+        prodDtlSellDTO.setFundQuantity(Math.toIntExact(sellProductDetailResult.getFundQuantityTrade
+            ()));
+      }
+
+      prodDtlSellDTO.setTargetSellAmount(prodSellPercentDTO.getSellTargetPercent());
+      prodDtlSellDTO.setFundCode(sellProductDetailResult.getFundCode());
+      prodDtlSellDTO.setUserProdId(prodSellPercentDTO.getUserProdId());
+      prodDtlSellDTO.setFundShare(Math.toIntExact(sellProductDetailResult.getFundQuantityTrade()));
+      prodSellPercentMsg.getProdDtlSellDTOList().add(prodDtlSellDTO);
+      trdOrderDetail = new TrdOrderDetail();
+    }
+
+
+    broadcastMessageProducer.sendSellPercentMessages(prodSellPercentMsg);
+
+    return trdSellOrder;
   }
 
 
@@ -323,8 +471,6 @@ public class TradeSellServiceImpl implements TradeSellService {
         trdOrderDetail.setBuysellDate(TradeUtil.getUTCTime());
         trdOrderDetail.setFundCode(prodDtlSellDTO.getFundCode());
         trdOrderDetail.setFundNum(prodDtlSellDTO.getFundQuantity());
-        trdOrderDetail.setFundSum(TradeUtil.getLongNumWithMul100(prodDtlSellDTO
-            .getTargetSellAmount()));
         trdOrderDetail.setFundMoneyQuantity(TradeUtil.getLongNumWithMul100(prodDtlSellDTO
             .getTargetSellAmount()));
         trdOrderDetail.setOrderId(orderId);

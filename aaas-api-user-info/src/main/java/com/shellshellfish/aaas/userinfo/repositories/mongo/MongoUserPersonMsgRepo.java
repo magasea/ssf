@@ -11,7 +11,8 @@ public interface MongoUserPersonMsgRepo extends MongoRepository<UiPersonMsg, Lon
   @Query(value = "{'$and':[{'userId':'?0'},{'readed':?1}]}")
   List<UiPersonMsg> getUiPersonMsgsByUserIdAndReaded(Long userId, Boolean readed);
 
-  @Override
+  List<UiPersonMsg> findByUserIdAndReadedOrderByCreatedDateDesc(String userId, Boolean readed);
+
   <S extends UiPersonMsg> List<S> save(Iterable<S> entites);
 
 }

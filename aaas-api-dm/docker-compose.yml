@@ -1,0 +1,17 @@
+version: "2"
+
+
+services:
+  aaas-api-data-manager:
+    image: aaas-api-data-manager:latest
+    labels:
+      - "aaas-api-data-manager"
+    ports:
+      - "10030:10030"
+      - "10031:10031"
+    environment:
+      - SPRING_PROFILES_ACTIVE=k8s
+      - _JAVA_OPTIONS=-Xmx256m
+      
+      
+      

@@ -100,11 +100,12 @@ public class FundUpdateJobServiceImpl implements FundUpdateJobService {
     Properties props = yamlFactory.getObject();
     String fundCodes = props.getProperty("fund.code");
     String baseCodes = props.getProperty("base.code");
+    String coinCodes = props.getProperty("coinfund.code");
     logger.info(fundCodes);
     String[] fundCodeArray = fundCodes.split(",");
     String[] baseCodeArray = baseCodes.split(",");
     String endDate = TradeUtil.getReadableDateTime(TradeUtil.getUTCTime()).split("T")[0];
-    String beginDate = TradeUtil.getReadableDateTime(TradeUtil.getUTCTimeNDayAfter(-3)).split
+    String beginDate = TradeUtil.getReadableDateTime(TradeUtil.getUTCTimeNDayAfter(-10)).split
         ("T")[0];
     logger.info("beginDate:{} endDate:{}", beginDate, endDate);
     fundGrpcService.checkFunds(Arrays.asList(fundCodeArray), beginDate, endDate, FundTablesIndexEnum
@@ -112,6 +113,9 @@ public class FundUpdateJobServiceImpl implements FundUpdateJobService {
 
     fundGrpcService.checkFunds(Arrays.asList(baseCodeArray), beginDate, endDate, FundTablesIndexEnum
         .FUNDBASECLOSE.getIndex());
+
+    fundGrpcService.checkFunds(Arrays.asList(coinCodes), beginDate, endDate, FundTablesIndexEnum
+        .COINFUND_YIELDRATE.getIndex());
 
   }
 }

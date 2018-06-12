@@ -5,10 +5,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.model.*;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
+import java.lang.reflect.Type;
 import org.apache.commons.codec.digest.UnixCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +59,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
         postInit(info);
 
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/open_account";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/open_account";
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
 
@@ -67,7 +69,13 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         if (status.equals(1)) {
             openAccountResult = jsonObject.getObject("data", OpenAccountResult.class);
         } else {
+
             String errno = jsonObject.getString("errno");
+            if(!StringUtils.isEmpty(errno) && errno.equals("1009")){
+                openAccountResult = jsonObject.getObject("data", OpenAccountResult.class);
+                logger.info("the bind card user already had account:{}", openAccountResult.getTradeAcco());
+                return openAccountResult;
+            }
             String msg = jsonObject.getString("msg");
 			logger.error("{}:{}", errno, msg);
             throw new Exception(errno + ":" + msg);
@@ -95,7 +103,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         //info.put("platform_openid", "88048");
 
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/buy_fund";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/buy_fund";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -129,7 +137,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         info.put("sell_type", 0);
 
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/sell_fund";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/sell_fund";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -156,7 +164,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         info.put("day_num", day);
         info.put("direct", direction);
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_work_day";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_work_day";
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
         ZZWorkDayCompond zzWorkDayCompond = gson.fromJson(json, ZZWorkDayCompond.class);
@@ -183,7 +191,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         //info.put("platform_openid", "88048");
 
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/fund_convert";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/fund_convert";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -210,7 +218,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         info.put("applyserial", applySerial);
 
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/cancel_trade";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/cancel_trade";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -235,7 +243,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         Map<String, Object> info = init(userUuid);
         info.put("applyserial", applySerial);
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_apply_list";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_apply_list";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -253,7 +261,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         Map<String, Object> info = init(userUuid);
         info.put("outsideorderno", outsideOrderNo);
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_apply_list";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_apply_list";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -277,7 +285,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         Map<String, Object> info = init(openId);
         info.put("applyserial", applySerial);
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_confirm_list";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_confirm_list";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -310,7 +318,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         Map<String, Object> info = init(userUuid);
 
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_apply_list";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_apply_list";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -323,7 +331,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         Map<String, Object> info = init();
 
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_exam_content";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_exam_content";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -336,7 +344,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         Map<String, Object> info = init(userUuid);
         info.put("risk_ability", 3);
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/commit_risk";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/commit_risk";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -350,7 +358,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         Map<String, Object> info = init(userUuid);
         info.put("risk_ability", riskLevel);
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/commit_risk";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/commit_risk";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -384,7 +392,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         info.put("fake_answer", objectMapper.writeValueAsString(fakeAnswer));
 
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/commit_fake_answer";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/commit_fake_answer";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -397,7 +405,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         Map<String, Object> info = init(userUuid);
 
         postInit(info);
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_user_risk_list";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_user_risk_list";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -416,7 +424,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
         postInit(info);
 
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_fund_info";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_fund_info";
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info(json);
         JSONObject jsonObject = JSONObject.parseObject(json);
@@ -461,7 +469,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         info.put("buinflag", businFlag);
         postInit(info);
 
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_rate";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_rate";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -503,7 +511,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         info.put("buinflag", businFlag);
         postInit(info);
 
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_trade_limit";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_trade_limit";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -536,7 +544,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         info.put("businflag", businFlag);
         postInit(info);
 
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_trade_discount";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_trade_discount";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -593,7 +601,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         info.put("fundcode", fundCode);
         postInit(info);
 
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_user_bank_list";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_user_bank_list";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -621,7 +629,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         info.put("fundcode", fundCode);
         postInit(info);
 
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_user_bank_list";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_user_bank_list";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -766,7 +774,7 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         info.put("limit_right", count);
         postInit(info);
 
-        String url = "https://onetest.51fa.la/v2/internet/fundapi/get_all_net";
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_all_net";
 
         String json = restTemplate.postForObject(url, info, String.class);
         logger.info("{}", json);
@@ -777,5 +785,19 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         }
         return zzFundNetCompond.getData();
 
+    }
+
+    @Override
+    public List<BankZhongZhenInfo> getSupportedBank() throws Exception {
+        Map<String, Object> info = init();
+        postInit(info);
+        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/get_support_bank_list";
+        String json = restTemplate.postForObject(url,info, String.class);
+        System.out.println(json);
+        Gson gson = new Gson();
+        Type ZZGeneralRespT = new TypeToken<ZZGeneralResp<BankZhongZhenInfo>>() {}.getType();
+        ZZGeneralResp<BankZhongZhenInfo> zhongZhenInfoZZGeneralResp =  gson.fromJson(json,
+            ZZGeneralRespT);
+        return zhongZhenInfoZZGeneralResp.getData();
     }
 }

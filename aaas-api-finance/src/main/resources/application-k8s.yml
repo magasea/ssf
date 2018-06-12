@@ -44,7 +44,9 @@ server:
 grpc:
 #  host: localhost
   port: 10121
-    
+  asset-allocation:
+    host: aaas-api-asset-allocation 
+    port: 10021
 application:
     swagger:
         title: SSF Platform API
@@ -59,4 +61,9 @@ application:
 
 api-data-manager-url: http://aaas-api-data-manager:10030
 shellshellfish:
-  asset-allocation-url: "http://localhost:10020"
+  assetallocation-url: "http://aaas-api-asset-allocation:10020"
+
+management:
+  endpoints:
+    web:
+      base-path: /

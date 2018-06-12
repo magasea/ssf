@@ -1,0 +1,183 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.shellshellfish.aaas.tools.zhongzhengapi";
+option java_outer_classname = "ZZApiServiceRpc";
+option objc_class_prefix = "ZZASR";
+
+service ZZApiService {
+    rpc getSupportBankList (EmptyQuery) returns (BankZhongZhengInfoList) {
+    }
+    rpc getAplyResults(AplyRltQuery) returns (ZZApplyResults){}
+
+    rpc getFundShare(ZZFundShareQuery) returns (ZZFundShareInfoResult){}
+
+    rpc getZZBaseInfos(EmptyQuery) returns (ZZFundBaseInfosResult){}
+}
+
+
+message BankZhongZhengInfoList{
+  repeated BankZhongZhengInfo bankZhongZhengInfo = 1;
+}
+
+message BankZhongZhengInfo{
+     string bankName = 1;
+     string bankSerial = 2;
+     string capitalModel = 3;
+     string moneyLimitOne = 4;
+     string moneyLimitDay = 5;
+}
+
+message AplyRltQuery{
+  string pid = 1;
+  string outsideOrderNo = 2;
+  string applySerial = 3;
+}
+
+message ZZApplyResults{
+  repeated ZZApplyResult applyResult = 1;
+}
+
+message ZZApplyResult{
+  string accepTtime = 1;
+  string applyDate = 2;
+  string applySerial = 3;
+  string applyShare = 4;
+  string applySum = 5;
+  string applyTime = 6;
+  string bankAcco = 7;
+  string bankName = 8;
+  string bankSerial = 9;
+  string businFlagStr = 10;
+  string callingCode = 11;
+  string capitalMode = 12;
+  string commisionDiscount = 13;
+  string confirmFlag = 14;
+  string confirmstat = 15;
+  string freezeMethod = 16;
+  string fundAcco = 17;
+  string fundName = 18;
+  string kkStat = 19;
+  string melonMethod = 20;
+  string occurBankAcco = 21;
+  string oriApplyDate = 22;
+  string originalApplySerial = 23;
+  string outsideOrderNo = 24;
+  string riskMatch = 25;
+  string shareType = 26;
+  string tradeAcco = 27;
+  string tradeConfirmShare = 28;
+  string tradeConfirmSum = 29;
+  string xyh = 30;
+}
+
+message ZZConfirmResult{
+     string tradeAcco = 1;
+     string fundAcco = 2;
+     string fundCode = 3;
+     string fundName = 4;
+     string callingCode = 5;
+     string branchNo = 6;
+     string applySerial = 7;
+     string shareType = 8;
+     string applyDate = 9;
+     string applyTime = 10;
+     string applyShare = 11;
+     string applySum = 12;
+     string balanceCoin = 13;
+     string targetFundCode = 14;
+     string targetFundName = 15;
+     string targetShareType = 16;
+     string oppFundCode = 17;
+     string oppSaler = 18;
+     string oppTrusteeBranch = 19;
+     string melonMethod = 20;
+     string freezeMethod = 21;
+     string originalApplySerial = 22;
+     string confirmFlag = 23;
+     string capitalMode = 24;
+     string comeFrom = 25;
+     string bankAcco = 26;
+     string bankName = 27;
+     string businFlagStr = 28;
+     string taConfirmSerial = 29;
+     string confirmDate = 30;
+     string tradeConfirmShare = 31;
+     string tradeConfirmSum = 32;
+     string netValue = 33;
+     string returnCode = 34;
+     string errorParticular = 35;
+     string occurBankAcco = 36;
+     string outsideOrderNo = 37;
+     string xyh = 38;
+}
+
+message ZZFundShareQuery{
+  string pid = 1;
+  string fundCode = 2;
+}
+
+message ZZFundShareInfo{
+    string bankAcco = 1;
+    string bankName = 2;
+    string bankSerial = 3;
+    string capitalMode = 4;
+    string currentRemainShare = 5;
+    string freezeRemainShare = 6;
+    string fundAcco = 7;
+    string fundCode = 8;
+    string fundName = 10;
+    string fundState = 11;
+    string fundType = 12;
+    string marketValue = 13;
+    string melonMethod = 14;
+    string navDate = 15;
+    string perNetvalue = 16;
+    string shareType = 17;
+    string taCode = 18;
+    string tfreezeRemainShare = 19;
+    string tradeAcco = 20;
+    string unpaidIncome = 21;
+    string usableRemainShare = 22;
+}
+message ZZFundShareInfoResult{
+  repeated ZZFundShareInfo zzFundShareInfo = 1;
+}
+
+message ZZFundBaseInfo{
+  string fundCode = 1;
+  string shareType = 2;
+  string fundName = 3;
+  string fundState = 4;
+  string fundType = 5;
+  string taCode = 6;
+  string fundRiskLevel = 7;
+  string withDrawState = 8;
+  string declareState = 9;
+  string subscribeState = 10;
+  string trendState = 11;
+  string valuagrState = 12;
+  string pernetValue = 13;
+  string navDate = 14;
+  string hfincomeRatio = 15;
+  string dayInc = 16;
+  string incomeRatio = 17;
+  string totalNetvalue = 18;
+  string minShare = 19;
+  string transFlag = 20;
+  string managerCompany = 21;
+  string trupCompany = 22;
+  string establishDate = 23;
+  string managerId = 24;
+  string fundMananger = 25;
+  string assetTotol = 26;
+}
+
+message ZZFundBaseInfosResult{
+  repeated ZZFundBaseInfo zzFundBaseInfos = 1;
+}
+
+
+message EmptyQuery {
+}
+

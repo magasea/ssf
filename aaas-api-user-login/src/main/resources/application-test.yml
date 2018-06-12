@@ -6,7 +6,7 @@ server:
 spring:
   profiles: test
 datasource:
-  sampleapp:
+  aaasapp:
     url: jdbc:mysql://192.168.1.249:30006/ssflogin?useUnicode=true&characterEncoding=utf-8
     username: sa
     password: N4eTVr89lX9BaPcx
@@ -33,4 +33,4 @@ redis:
     pwd: redis123
 sms:
     signcode: SMS_117526841
-    signname: ²Æ¸»EÖÇÍ¶
+    signname: è´¢å¯ŒEæ™ºæŠ•

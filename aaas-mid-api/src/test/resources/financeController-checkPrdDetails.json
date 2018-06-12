@@ -76,14 +76,48 @@
               "avgIncreRate": {
                 "type": "string"
               },
+              "totalIncreRate": {
+                "type": "string"
+              },
               "name": {
                 "type": "string"
               },
               "fundCode": {
                 "type": "string"
               },
+              "NPVIncrement": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "time": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "NPVIncreRate": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "time": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
               "fundType": {
                 "type": "string"
+              },
+              "fundClassId": {
+                "type": "number"
               },
               "incrementMinMaxValueMap": {
                 "type": "object",
@@ -94,11 +128,7 @@
                   "maxValue": {
                     "type": "number"
                   }
-                },
-                "required": [
-                  "minValue",
-                  "maxValue"
-                ]
+                }
               },
               "incrementRateMinMaxValueMap": {
                 "type": "object",
@@ -109,59 +139,18 @@
                   "maxValue": {
                     "type": "number"
                   }
-                },
-                "required": [
-                  "minValue",
-                  "maxValue"
-                ]
-              },
-              "npvincrement": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "time": {
-                      "type": "string"
-                    },
-                    "value": {
-                      "type": "number"
-                    }
-                  },
-                  "required": [
-                    "time",
-                    "value"
-                  ]
                 }
               },
-              "npvincreRate": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "time": {
-                      "type": "string"
-                    },
-                    "value": {
-                      "type": "number"
-                    }
-                  },
-                  "required": [
-                    "time",
-                    "value"
-                  ]
-                }
+              "isMonetaryFund": {
+                "type": "number"
+              },
+              "yieldof7daysMap": {
+                "type": "object"
+              },
+              "tenKiloUnitYieldMap": {
+                "type": "object"
               }
-            },
-            "required": [
-              "avgIncreRate",
-              "name",
-              "fundCode",
-              "fundType",
-              "incrementMinMaxValueMap",
-              "incrementRateMinMaxValueMap",
-              "npvincrement",
-              "npvincreRate"
-            ]
+            }
           }
         }
       },
@@ -169,13 +158,9 @@
         "total",
         "expMaxDrawDown",
         "assetsRatios",
-        "expAnnReturn",
-        "list"
+        "expAnnReturn"
       ]
     }
-  },
-  "required": [
-    "head",
-    "result"
-  ]
+  }
 }
+

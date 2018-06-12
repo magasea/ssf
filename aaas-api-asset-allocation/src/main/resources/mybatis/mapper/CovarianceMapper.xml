@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.shellshellfish.aaas.assetallocation.neo.mapper.CovarianceMapper">
+<mapper namespace="com.shellshellfish.aaas.assetallocation.mapper.CovarianceMapper">
 
-    <insert id="insertCovarianceOfDay" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel" >
+    <insert id="insertCovarianceOfDay" parameterType="com.shellshellfish.aaas.assetallocation.entity.CovarianceModel" >
         INSERT INTO
         fund_covariance_day
         (code_A,code_B,covariance,nav_date,navadjA,navadjB)
@@ -12,7 +12,7 @@
     </insert>
 
 
-    <insert id="insertCovarianceOfWeek" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel" >
+    <insert id="insertCovarianceOfWeek" parameterType="com.shellshellfish.aaas.assetallocation.entity.CovarianceModel" >
         INSERT INTO
         fund_covariance_week
         (code_A,code_B,covariance,nav_date,navadjA,navadjB)
@@ -20,7 +20,7 @@
         (#{codeA},#{codeB},#{covariance},#{navDate},#{navadjA},#{navadjB})
     </insert>
 
-    <insert id="insertCovarianceOfMonth" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel" >
+    <insert id="insertCovarianceOfMonth" parameterType="com.shellshellfish.aaas.assetallocation.entity.CovarianceModel" >
         INSERT INTO
         fund_covariance_month
         (code_A,code_B,covariance,nav_date,navadjA,navadjB)
@@ -28,7 +28,7 @@
         (#{codeA},#{codeB},#{covariance},#{navDate},#{navadjA},#{navadjB})
     </insert>
 
-    <insert id="insertCovarianceOfYear" parameterType="com.shellshellfish.aaas.assetallocation.neo.entity.CovarianceModel" >
+    <insert id="insertCovarianceOfYear" parameterType="com.shellshellfish.aaas.assetallocation.entity.CovarianceModel" >
         INSERT INTO
         fund_covariance_year
         (code_A,code_B,covariance,nav_date,navadjA,navadjB)

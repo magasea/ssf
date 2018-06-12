@@ -139,4 +139,20 @@ public class TradeUtilTest {
     System.out.println(test);
   }
 
+  @Test
+  public void testLongParseNagativeStr(){
+    String orig = "-10000";
+    System.out.println(Long.parseLong(orig));
+  }
+
+  @Test
+  public void getOrderIdByOutsideOrderNo() throws Exception {
+    System.out.println(TradeUtil.getOrderIdByOutsideOrderNo("955843600000000015166096170491078",
+        1078L));
+  }
+
+  @Test
+  public void testDividLong(){
+    System.out.println(TradeUtil.getLongWithDiv(110480L, 100L));
+  }
 }

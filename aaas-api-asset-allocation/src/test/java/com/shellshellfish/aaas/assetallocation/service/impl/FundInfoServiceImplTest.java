@@ -1,7 +1,5 @@
 package com.shellshellfish.aaas.assetallocation.service.impl;
 
-import static org.junit.Assert.*;
-
 import com.shellshellfish.aaas.assetallocation.service.FundInfoService;
 import com.shellshellfish.aaas.datacollect.DailyFunds;
 import com.shellshellfish.aaas.datacollect.DailyFundsQuery;
@@ -26,11 +24,11 @@ public class FundInfoServiceImplTest {
   @Test
   public void getDailyFunds() throws Exception {
     DailyFundsQuery.Builder builder = DailyFundsQuery.newBuilder();
-    builder.setNavLatestDateStart("2017-11-30");
-    builder.setNavLatestDateEnd("2018-02-05");
+    builder.setNavLatestDateStart("2018-05-10");
+    builder.setNavLatestDateEnd("2018-05-29");
 //    builder.addCodes("300SH_5_CSI_5");
 //    builder.addCodes("001987.OF");
-    builder.addCodes("000149.OF");
+    builder.addCodes("003474.OF");
     List<DailyFunds> dailyFundsList = fundInfoService.getDailyFunds(builder.build());
     for(DailyFunds dailyFunds: dailyFundsList){
       System.out.println(dailyFunds.getNavadj());

@@ -1,0 +1,72 @@
+---
+server:
+  port: 20150
+---
+spring:
+  security:
+    basic:
+      enabled: false
+  management:
+    security:
+      enabled: false
+  data:
+      mongodb:
+        database: funds
+        host: 192.168.1.10
+        port: 30005
+        toolsdb: aaas_tools
+
+  http:
+    multipart:
+  redis:
+    host: 192.168.1.10
+    port: 6379
+    password: redis123
+datasource:
+  aaasapp:
+    url: jdbc:mysql://192.168.1.10:3306/ssftrdorder?useUnicode=true&characterEncoding=utf-8
+    username: sa
+    password: abcd1234
+    driverClassName: com.mysql.jdbc.Driver
+    defaultSchema:
+    maxPoolSize: 20
+    hibernate:
+      hbm2ddl.method: update
+      show_sql: true
+      format_sql: true
+      dialect: org.hibernate.dialect.MySQLDialect
+shellshellfish:
+  asset-allocation-insertdf-url: "http://localhost:20020//api//asset-allocation//job/insertDailyFund"
+  asset-allocation-inithistory-url: "http://localhost:20020//api//asset-allocation//job/getAllIdAndSubId"
+  asset-allocation-updateallmaximumlosses-url: "http://localhost:20020/api/asset-allocation/job/updateAllMaximumLosses/"
+  asset-allocation-initpyamongo-url: "http://localhost:20020//api//asset-allocation//job//getFundGroupIncomeAllToMongoDb"
+  data-manager-initcache-url: "http://localhost:20030//api//datamanager//financeFrontPage"
+  data-manager-initcache-detail-url: "http://localhost:20030//api//datamanager//checkPrdDetails"
+  data-manager-initcache-detail-url-ver2: "http://localhost:20030//api//datamanager//checkPrdDetails-ver2"
+  csvFilePath: /temp
+  csvFundFileOriginName: csvFundsInfo
+  csvBaseFileOriginName: csvBaseInfo
+
+org:
+  quartz:
+    jobStore:
+        class: org.quartz.simpl.RAMJobStore
+        misfireThreshold: 60000
+    threadPool:
+        class: org.quartz.simpl.SimpleThreadPool
+        threadCount: 2
+        threadsInheritContextClassLoaderOfInitializingThread: true
+
+cron:
+  frequency:
+    #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
+    # 	Every 3 hours
+    jobCheckFunds: 0 0 0/3 1/1 * ? *
+using:
+  spring:
+    schedulerFactory: true
+grpc:
+  pythonServer:
+    ip: localhost
+#    ip: 192.168.1.65
+    port: 20161

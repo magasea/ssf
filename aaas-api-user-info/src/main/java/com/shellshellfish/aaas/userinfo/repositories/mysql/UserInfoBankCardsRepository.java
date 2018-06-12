@@ -18,13 +18,17 @@ public interface UserInfoBankCardsRepository extends
 
 	List<UiBankcard> findAllByUserIdAndStatusIs(Long userId, int status);
 
+	List<UiBankcard> findAllByUserIdAndStatusIsAndCardNumberIs(Long userId, int status, String
+			cardNumber);
 
 	List<UiBankcard> findAllByUserIdAndCardNumber(Long userId, String cardNumber);
 
+
+
 	List<UiBankcard> findAllByCardNumber(String cardNumber);
 
-	@Override
-	UiBankcard findOne(Long userId);
+
+//	UiBankcard findOne(Long userId);
 
 	//  @Query("select u from ui_bankcard u where u.bank_name = ?1")
 	List<UiBankcard> findByBankName(String bankName);
@@ -32,6 +36,8 @@ public interface UserInfoBankCardsRepository extends
 //	List<UiBankcard> findUiBankcardByCardNumberIs(String cardNumber);
 
 	List<UiBankcard> findUiBankcardByCardNumberIsAndStatusIsNot(String cardNumber, int status);
+
+
 
 	Integer deleteByCardNumber(String cardNumber);
 

@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.PayPreOrderDto;
 import com.shellshellfish.aaas.common.message.order.ProdSellDTO;
+import com.shellshellfish.aaas.common.message.order.ProdSellPercentMsg;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
@@ -87,4 +88,5 @@ public interface PayService {
       userPid);
 
 
+  boolean sellPercentProd(ProdSellPercentMsg prodSellPercentMsg);
 }

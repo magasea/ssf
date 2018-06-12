@@ -1,0 +1,101 @@
+server:
+  port: 10110
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.data: debug
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+spring:
+#  data:
+#    mongodb:
+#      database: ssfui
+#      host: 192.168.1.10
+#      port: 27017
+  rabbitmq:
+    listener:
+      simple:
+        acknowledge-mode: auto
+    username: ssf
+    password: shellshellfish
+    host: 192.168.1.249
+    port: 5772
+    virtual-host: aaas
+    topicQueuePayName: com-ssf-topic-name-pay
+    topicQueueOrderName: com-ssf-topic-name-order
+    topicQueueTrdLogName: com-ssf-topic-name-trdlog
+    topicQueueBankcardName: com-ssf-topic-name-bankcard
+    topicExchangeName: com-ssf-topic-exchange
+    topicPay: shellshellfish.pay
+    topicOrder: shellshellfish.order
+    topicUserinfo: shellshellfish.userinfo
+  data:
+    mongodb:
+      host: 192.168.1.10
+      port: 30005
+      database: zhongzheng
+      paydatabase: ssftrdpay
+  redis:
+    host: 192.168.1.249
+    port: 6379
+    password: redis123
+datasource:
+  aaasapp:
+    url: jdbc:mysql://192.168.1.10:30006/ssftrdpay?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8
+    username: sa
+    password: N4eTVr89lX9BaPcx
+    driverClassName: com.mysql.jdbc.Driver
+    defaultSchema: ssftrdpay
+    maxPoolSize: 20
+    hibernate:
+      connection:
+        useUnicode: true
+        characterEncoding: UTF-8
+      jdbc:
+        batch_size: 50
+      hbm2ddl.method: update
+      show_sql: true
+      format_sql: true
+      dialect: org.hibernate.dialect.MySQLDialect
+
+grpc:
+  host: localhost
+  port: 10111
+  finance_prod_client:
+    host: localhost
+    port: 10031
+  userinfo_client:
+    host: localhost
+    port: 10061
+  order_client:
+    host: localhost
+    port: 10101
+using:
+  spring:
+    schedulerFactory: true
+org:
+  quartz:
+    jobStore:
+        class: org.quartz.simpl.RAMJobStore
+        misfireThreshold: 60000
+    threadPool:
+        class: org.quartz.simpl.SimpleThreadPool
+        threadCount: 2
+        threadsInheritContextClassLoaderOfInitializingThread: true
+cron:
+  frequency:
+    #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
+    #     0	0	5,17,22	?	*	*	*
+    jobwithcrontrigger: 0 0 5,13,17,22 ? * * *
+    jobpreorderpayflowcheck: 0 0 5,13,17,22 ? * * *
+
+#--- multithread
+multithread:
+  pool:
+    size: 8
+
+management:
+  endpoints:
+    web:
+      base-path: /

@@ -10,6 +10,7 @@ import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.FinanceProdBuyInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.ProdSellPageDTO;
+import com.shellshellfish.aaas.finance.trade.order.model.vo.ProdSellPercentDTO;
 import com.shellshellfish.aaas.finance.trade.order.service.*;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import io.swagger.annotations.*;
@@ -68,7 +69,6 @@ public class TradeOrderController {
 		UserInfo userInfo = tradeOpService.getUserInfoByUserUUID(financeProdBuyInfo.getUuid());;
 		Long userId = userInfo.getId();
 		financeProdBuyInfo.setUserId(userId);
-
 		if(userInfo.getRiskLevel() < 0){
 			logger.error("用户未做风险评测，请做完风险评测再购买理财产品");
 			throw new Exception("用户未做风险评测，请做完风险评测再购买理财产品");
@@ -108,6 +108,34 @@ public class TradeOrderController {
 
 
 	/**
+	 * 赎回理财产品 页面
+	 *
+	 * @param prodSellPercentDTO
+	 * @return
+	 */
+	@ApiOperation("理财赎回")
+	@ApiResponses({
+			@ApiResponse(code = 200, message = "OK"),
+			@ApiResponse(code = 400, message = "请求参数没填好"),
+			@ApiResponse(code = 401, message = "未授权用户"),
+			@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")
+	})
+	@RequestMapping(value = "/funds/sellpersent", method = RequestMethod.POST)
+	public ResponseEntity<?> sellFinanceProdPersent(@RequestBody ProdSellPercentDTO prodSellPercentDTO)
+			throws Exception {
+		if (prodSellPercentDTO.getUserId() == 0L) {
+			logger.info("input userId is empty, need retrieve userId");
+			Long userId = tradeOpService.getUserId(prodSellPercentDTO.getUserUuid());
+			prodSellPercentDTO.setUserId(userId);
+		}
+//		Long userId = tradeOpService.getUserId(financeProdBuyInfo.getUuid());
+//		financeProdBuyInfo.setUserId(userId);
+		TrdOrder trdOrder = tradeSellService.sellProductPercent(prodSellPercentDTO);
+		return new ResponseEntity<Object>(trdOrder, HttpStatus.OK);
+	}
+
+	/**
 	 * 购买理财产品 购买
 	 *
 	 * @param totalAmount
@@ -117,7 +145,8 @@ public class TradeOrderController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = true, value = "groupId", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "Long", required = true, value = "subGroupId", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "BigDecimal", required = true, value = "购买金额", defaultValue = "")})
+			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "BigDecimal", required = true, value = "购买金额", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1"),})
 	@ApiResponses({
 			@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
 			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
@@ -127,11 +156,14 @@ public class TradeOrderController {
 	public ResponseEntity<DistributionResult> buyProduct(
 			@RequestParam(value = "groupId") Long groupId,
 			@RequestParam(value = "subGroupId") Long subGroupId,
-			@RequestParam(value = "totalAmount") BigDecimal totalAmount)
+			@RequestParam(value = "totalAmount") BigDecimal totalAmount,
+			@RequestParam(value = "oemid") Integer oemid)
 			throws Exception {
 		ProductBaseInfo productBaseInfo = new ProductBaseInfo();
 		productBaseInfo.setProdId(groupId);
 		productBaseInfo.setGroupId(subGroupId);
+		productBaseInfo.setOemId(oemid);
+		logger.info("groupId:{} subGroupId:{} oemid:{}", groupId, subGroupId, oemid);
 		List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
 		//最大金额最小金额判断
 		boolean result = financeProdCalcService.getMaxMinResult(productList, totalAmount);
@@ -153,6 +185,7 @@ public class TradeOrderController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = true, value = "groupId", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "Long", required = true, value = "subGroupId", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1"),
 			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "BigDecimal", required = true, value = "赎回金额", defaultValue = "")})
 	@ApiResponses({
 			@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
@@ -163,11 +196,13 @@ public class TradeOrderController {
 	public ResponseEntity<DistributionResult> sellProduct(
 			@RequestParam(value = "groupId") Long groupId,
 			@RequestParam(value = "subGroupId") Long subGroupId,
+			@RequestParam(value = "oemid") Integer oemid,
 			@RequestParam(value = "totalAmount") BigDecimal totalAmount)
 			throws Exception {
 		ProductBaseInfo productBaseInfo = new ProductBaseInfo();
 		productBaseInfo.setProdId(groupId);
 		productBaseInfo.setGroupId(subGroupId);
+		productBaseInfo.setOemId(oemid);
 		List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
 		DistributionResult distributionResult = financeProdCalcService.getPoundageOfSellFund(totalAmount, productList);
 		return new ResponseEntity<DistributionResult>(distributionResult, HttpStatus.OK);
@@ -307,7 +342,7 @@ public class TradeOrderController {
 			// @PathVariable(value = "groupId") Long uuid,
 			@PathVariable(value = "orderId") String orderId) throws Exception {
 		logger.error("method buyDetails run ..");
-		Map<String, Object> result = tradeOpService.sellorbuyDeatils(orderId);
+		Map<String, Object> result = tradeOpService.buyDeatils(orderId);
 		
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
@@ -332,7 +367,7 @@ public class TradeOrderController {
 			// @PathVariable(value = "groupId") Long uuid,
 			@PathVariable(value = "orderId") String orderId) throws Exception {
 		logger.error("method sellDetails run ..");
-		Map<String, Object> result = tradeOpService.sellorbuyDeatils(orderId);
+		Map<String, Object> result = tradeOpService.sellDeatils(orderId);
 //		Map<String, Object> result = new HashMap<String, Object>();
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
@@ -382,7 +417,8 @@ public class TradeOrderController {
 	@ApiOperation("获取银行卡号码")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "path", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "Long", required = true, value = "产品ID", defaultValue = "")
+			@ApiImplicitParam(paramType = "query", name = "prodId", dataType = "Long", required = true, value = "产品ID", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "orderType", dataType = "Integer", required = true, value = "交易类型", defaultValue = "")
 	})
 	@ApiResponses({ @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
 			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
@@ -390,10 +426,11 @@ public class TradeOrderController {
 			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对") })
 	@RequestMapping(value = "/funds/banknums/{uuid}", method = RequestMethod.GET)
 	public ResponseEntity<Map> getOrderInfos(@PathVariable(value = "uuid") String uuid,
-			@RequestParam(value = "prodId") Long prodId) throws Exception {
+			@RequestParam(value = "prodId") Long prodId,
+			@RequestParam(value = "orderType") int orderType) throws Exception {
 //		logger.error("method getBanknums run ..");
 		Map<String, Object> result = new HashMap<String, Object>();
-		result = tradeOpService.getOrderInfos(uuid, prodId);
+		result = tradeOpService.getOrderInfos(uuid, prodId,orderType);
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
 
@@ -406,7 +443,8 @@ public class TradeOrderController {
 	@ApiOperation("获取购买的最大值最小值")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = true, value = "groupId", defaultValue = ""),
-			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "Long", required = true, value = "subGroupId", defaultValue = "")
+			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "Long", required = true, value = "subGroupId", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1")
 	})
 	@ApiResponses({
 			@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
@@ -416,12 +454,14 @@ public class TradeOrderController {
 	@RequestMapping(value = "/funds/maxminValue", method = RequestMethod.GET)
 	public ResponseEntity<Map> getMaxMinValue(
 			@RequestParam(value = "groupId") Long groupId,
-			@RequestParam(value = "subGroupId") Long subGroupId)
+			@RequestParam(value = "subGroupId") Long subGroupId,
+			@RequestParam(value = "oemid") Integer oemid)
 			throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
 		ProductBaseInfo productBaseInfo = new ProductBaseInfo();
 		productBaseInfo.setProdId(groupId);
 		productBaseInfo.setGroupId(subGroupId);
+		productBaseInfo.setOemId(oemid);
 		List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
 		BigDecimal min = financeProdCalcService.getMinBuyAmount(productList);
 		BigDecimal max = financeProdCalcService.getMaxBuyAmount(productList);
@@ -450,5 +490,46 @@ public class TradeOrderController {
 		result = orderService.getBankInfos(bankShortName);
 		return new ResponseEntity<Map>(result, HttpStatus.OK);
 	}
+
+	/**
+	 * 同步中正银行信息
+	 *
+	 * @return
+	 */
+	@ApiOperation("获取中正银行信息")
+	@ApiImplicitParams({
+	})
+	@ApiResponses({
+			@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
+			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
+			@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")})
+	@RequestMapping(value = "/funds/syncbanks", method = RequestMethod.GET)
+	public ResponseEntity<Map> syncBanks()
+			throws Exception {
+		Map<String, Object> result = new HashMap<String, Object>();
+		orderService.syncBankInfos();
+		return new ResponseEntity<Map>(result, HttpStatus.OK);
+	}
+	
+	/**
+     * 支持的银行列表
+     *
+     * @return
+     */
+    @ApiOperation("支持的银行列表")
+    @ApiImplicitParams({
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
+            @ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
+            @ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+            @ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")})
+    @RequestMapping(value = "/funds/banklists", method = RequestMethod.GET)
+    public ResponseEntity<Map> getBanklists() throws Exception {
+        Map<String, Object> result = new HashMap<String, Object>();
+        result = orderService.getBanklists();
+        return new ResponseEntity<Map>(result, HttpStatus.OK);
+    }
 
 }

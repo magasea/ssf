@@ -21,7 +21,9 @@ server:
 grpc:
   host: localhost
   port: 10121
-    
+  asset-allocation:
+    host: localhost
+    port: 10021
 application:
   swagger:
     title: SSF Platform API
@@ -33,6 +35,9 @@ application:
     contactEmail:
     license:
     licenseUrl:
+
+
+
 
 cors:
   allowed-origins: "*"
@@ -46,3 +51,8 @@ api-data-manager-url: http://localhost:10030
 
 shellshellfish:
   asset-allocation-url: "http://localhost:10020"
+
+management:
+  endpoints:
+    web:
+      base-path: /

@@ -7,7 +7,7 @@ import com.shellshellfish.aaas.transfer.utils.EasyKit;
 
 /**
  * 异常
- * @author developer4
+ * @author chenwei
  *
  */
 public class ReturnedException extends RuntimeException{

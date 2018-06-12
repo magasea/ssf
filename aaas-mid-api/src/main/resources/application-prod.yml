@@ -4,6 +4,12 @@ server:
 grpc:
   host: localhost
   port: 10131
+  oeminfo:
+    host: localhost
+    port: 10161
+  order:
+      host: localhost
+      port: 10101
 logging:
   level:
     org.hibernate.SQL: DEBUG
@@ -12,7 +18,6 @@ logging:
     
 shellshellfish:
   user-login-url: "http://localhost:10070"
-  risk-assessment-url: "http://localhost:10050"
   userinfo-url: "http://localhost:10060"
   finance-url: "http://localhost:10120"
   asset-alloction-url: "http://localhost:10020"
@@ -20,8 +25,9 @@ shellshellfish:
   trade-pay-url: "http://localhost:10110"
   data-manager-url: "http://localhost:10030"
   
-security:
-  basic:
-    enabled: false
+management:
+  endpoints:
+    web:
+      base-path: /
 
   

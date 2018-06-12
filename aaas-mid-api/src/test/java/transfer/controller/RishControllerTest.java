@@ -3,6 +3,7 @@ package transfer.controller;
 import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.ArrayList;
@@ -12,8 +13,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.embedded.LocalServerPort;
+
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -45,6 +47,7 @@ public class RishControllerTest {
 
 	private static final String REQUEST_IS_SUCCESS = "1";
 
+	private static final long TIMEOUT = 3000L;
 
 	@LocalServerPort
 	public int port;
@@ -55,6 +58,12 @@ public class RishControllerTest {
 	}
 
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/surveyresults
+	 * 接口作用：得到风险测评的结果
+	 * 参数：{bankUuid ：银行卡ID，userUuid ：用户ID，surveyResult ：测评结果BODY(选项、分数)}
+	 */
 	@Test
 	public void surveyresultsTest() {
 		String bankUuid = "1";
@@ -87,10 +96,17 @@ public class RishControllerTest {
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result.riskLevel", notNullValue())
-				.body("result.msg", notNullValue());
+				.body("result.msg", notNullValue())
+				.time(lessThan(TIMEOUT));
 	}
 
 
+	/**
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/surveytemplates/latest
+	 * 接口作用：得到风险测评试题
+	 * 参数：{bankId ：银行卡ID}
+	 */
 	@Test
 	public void surveyTemplatesLatestTest() {
 		String bankId = "1";
@@ -103,7 +119,8 @@ public class RishControllerTest {
 				.then().log().all()
 				.assertThat()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body(matchesJsonSchemaInClasspath(SURVEY_TEMPLATES_LATEST_JSON_SCHEMA));
+				.body(matchesJsonSchemaInClasspath(SURVEY_TEMPLATES_LATEST_JSON_SCHEMA))
+				.time(lessThan(TIMEOUT));
 	}
 
 }

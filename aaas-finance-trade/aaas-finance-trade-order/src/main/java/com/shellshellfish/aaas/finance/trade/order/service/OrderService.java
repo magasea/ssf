@@ -14,9 +14,14 @@ public interface OrderService {
 
 	TrdOrder getOrderByOrderId(String orderId);
 
-	TrdOrder findOrderByUserProdIdAndUserId(Long prodId, Long userId);
+	TrdOrder findOrderByUserProdIdAndUserIdAndorderType(Long prodId, Long userId, int orderType);
+//	TrdOrder findOrderByUserProdIdAndUserId(Long prodId, Long userId);
 
 	Map<String, Object> getBankInfos(String bankShortName);
+
+	void syncBankInfos();
+
+    Map<String, Object> getBanklists();
 
 
 }

@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.finance.trade.service;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shellshellfish.aaas.finance.FinanceApp;
 import com.shellshellfish.aaas.finance.trade.model.FundIncome;
 import com.shellshellfish.aaas.finance.trade.model.*;
 import com.shellshellfish.aaas.finance.trade.service.impl.OneFundApiService;
@@ -13,7 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -28,8 +31,9 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = FinanceApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("pretest")
 //@Ignore
 public class OneFundApiServiceTest {
     private static final Logger logger = LoggerFactory.getLogger(OneFundApiService.class);
@@ -42,7 +46,7 @@ public class OneFundApiServiceTest {
 
     @Test
     public void testOpenAccount() throws Exception {
-        oneFundApiService.openAccount("shellshellfish","张飞", "13816629390", "612727198301116032", "4367421214584329558", "005");
+        oneFundApiService.openAccount("shellshellfish", "张飞", "13816629390", "612727198301116032", "4367421214584329558", "005");
     }
 
     @Test
@@ -58,13 +62,13 @@ public class OneFundApiServiceTest {
     }
 
     @Test
-     public void testWriteFundToMongoDb() throws Exception {
+    public void testWriteFundToMongoDb() throws Exception {
         String json = oneFundApiService.getFundInfo("000072");
         oneFundApiService.writeFundToMongoDb(json);
     }
 
     @Test
-     public void testWriteAllFundsToMongoDb() throws Exception {
+    public void testWriteAllFundsToMongoDb() throws Exception {
         List<String> funds = oneFundApiService.getAllFundsInfo();
         oneFundApiService.writeAllFundsToMongoDb(funds);
     }
@@ -76,14 +80,14 @@ public class OneFundApiServiceTest {
 
     @Test
     public void testBuyFund() throws Exception {
-        BuyFundResult result = oneFundApiService.buyFund("shellshellfish","33346", BigDecimal.valueOf(1.09d), "201712-" + UUID.randomUUID(), "000614.OF");
+        BuyFundResult result = oneFundApiService.buyFund("shellshellfish", "33346", BigDecimal.valueOf(1.09d), "201712-" + UUID.randomUUID(), "000614.OF");
 
         mongoTemplate.save(result, "buyfund");
     }
 
     @Test
     public void testSellFund() throws Exception {
-        SellFundResult result = oneFundApiService.sellFund("shellshellfish",16,  "201712-" + UUID.randomUUID(),"33346",  "000407");
+        SellFundResult result = oneFundApiService.sellFund("shellshellfish", 16, "201712-" + UUID.randomUUID(), "33346", "000407");
         mongoTemplate.save(result, "sellfund");
     }
 
@@ -118,14 +122,14 @@ public class OneFundApiServiceTest {
 
     @Test
     public void testGetApplyResultByApplySerial() throws Exception {
-        ApplyResult applyResult = oneFundApiService.getApplyResultByApplySerial("shellshellfish","20171207000676");
+        ApplyResult applyResult = oneFundApiService.getApplyResultByApplySerial("shellshellfish", "20171207000676");
         assertNotNull(applyResult);
         logger.info(new ObjectMapper().writeValueAsString(applyResult));
     }
 
     @Test
     public void testGetApplyResultByOutsideOrderNo() throws JsonProcessingException {
-        ApplyResult applyResult = oneFundApiService.getApplyResultByOutsideOrderNo("shellshellfish","201712-17a7807d-5d40-4681-adf3-23f");
+        ApplyResult applyResult = oneFundApiService.getApplyResultByOutsideOrderNo("shellshellfish", "201712-17a7807d-5d40-4681-adf3-23f");
         assertNotNull(applyResult);
         logger.info(new ObjectMapper().writeValueAsString(applyResult));
     }
@@ -145,7 +149,7 @@ public class OneFundApiServiceTest {
 
     @Test
     public void testGetConfirmResultByOutsideOrderNo() throws JsonProcessingException {
-        ConfirmResult confirmResult = oneFundApiService.getConfirmResultByOutsideOrderNo("shellshellfish","201712-adedd068-ced2-46e5-a00b-f5f");
+        ConfirmResult confirmResult = oneFundApiService.getConfirmResultByOutsideOrderNo("shellshellfish", "201712-adedd068-ced2-46e5-a00b-f5f");
         assertNotNull(confirmResult);
         logger.info(new ObjectMapper().writeValueAsString(confirmResult));
     }
@@ -154,7 +158,7 @@ public class OneFundApiServiceTest {
     public void testGetUserBankList() throws Exception {
         List<FundInfo> fundInfos = mongoTemplate.findAll(FundInfo.class, "fundInfo");
         List<String> lines = new ArrayList<>();
-        for(FundInfo info: fundInfos) {
+        for (FundInfo info : fundInfos) {
             List<UserBank> userBanks = oneFundApiService.getUserBank(info.getFundcode());
             if (!userBanks.get(0).getBankName().equals("建设银行")) {
                 logger.info(new ObjectMapper().writeValueAsString(userBanks));
@@ -167,7 +171,7 @@ public class OneFundApiServiceTest {
     public void testWriteFundCodeAndFundNameToCsvFile() throws IOException {
         List<FundInfo> fundInfos = mongoTemplate.findAll(FundInfo.class, "fundInfo");
         List<String> lines = new ArrayList<>();
-        for(FundInfo info: fundInfos) {
+        for (FundInfo info : fundInfos) {
             lines.add(info.getFundcode() + ", " + info.getFundname());
         }
 
@@ -258,7 +262,7 @@ public class OneFundApiServiceTest {
 
     @Test
     public void testGetBonusList() throws Exception {
-        List<BonusInfo> bonusInfoList = oneFundApiService.getBonusList("shellshellfish","002163", "20170101");
+        List<BonusInfo> bonusInfoList = oneFundApiService.getBonusList("shellshellfish", "002163", "20170101");
         logger.info(new ObjectMapper().writeValueAsString(bonusInfoList));
     }
 
@@ -270,7 +274,7 @@ public class OneFundApiServiceTest {
 
     @Test
     public void testGetFundIncome() throws Exception {
-        long  start = System.currentTimeMillis();
+        long start = System.currentTimeMillis();
         FundIncome fundIncome = oneFundApiService.getFundIncome("shellshellfish", "002163");
         long end = System.currentTimeMillis();
         logger.info("{}", end - start);
@@ -278,12 +282,12 @@ public class OneFundApiServiceTest {
     }
 
     @Test
-    public void testWriteAllTradeDiscountToMongodDb() throws Exception{
+    public void testWriteAllTradeDiscountToMongodDb() throws Exception {
         oneFundApiService.writeAllTradeDiscountToMongodDb();
     }
 
     @Test
-    public void testWriteAllTradeLimitToMongoDb() throws Exception{
+    public void testWriteAllTradeLimitToMongoDb() throws Exception {
         oneFundApiService.writeAllTradeLimitToMongoDb();
     }
 
@@ -437,7 +441,7 @@ public class OneFundApiServiceTest {
 //        info.put("sign", sign);
 //
 //        HttpEntity<Map<String, Object>> request = new HttpEntity<>(info);
-//        String url = "https://onetest.51fa.la/v2/internet/fundapi/open_account";
+//        String url = "https://onetest.zhongzhengfund.com/v2/internet/fundapi/open_account";
 //        RestTemplate restTemplate = new RestTemplate();
 //        String json = restTemplate.postForObject(url, info, String.class);
 //        System.out.println(json);

@@ -6,7 +6,7 @@
 
   <groupId>com.shellshellfish</groupId>
   <artifactId>aaas-api-data-manager</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>aaas-api-data-manager</name>
@@ -16,7 +16,7 @@
   <parent>
     <groupId>com.shellshellfish</groupId>
     <artifactId>aaas</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -30,6 +30,7 @@
     <junit.version>4.12</junit.version>
     <fabric8.generator.from>fabric8/s2i-java</fabric8.generator.from>
     <quartz.version>2.3.0</quartz.version>
+    <grpc.version>1.11.0</grpc.version>
   </properties>
 
   <dependencies>
@@ -47,9 +48,9 @@
 
     <!--&lt;!&ndash; Provided &ndash;&gt;-->
     <!--<dependency>-->
-      <!--<groupId>org.springframework.boot</groupId>-->
-      <!--<artifactId>spring-boot-starter-tomcat</artifactId>-->
-      <!--&lt;!&ndash; <scope>provided</scope>&ndash;&gt;-->
+    <!--<groupId>org.springframework.boot</groupId>-->
+    <!--<artifactId>spring-boot-starter-tomcat</artifactId>-->
+    <!--&lt;!&ndash; <scope>provided</scope>&ndash;&gt;-->
     <!--</dependency>-->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -92,12 +93,24 @@
       <artifactId>springfox-swagger-ui</artifactId>
       <version>2.6.1</version>
       <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>guava</artifactId>
+          <groupId>com.google.guava</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>io.springfox</groupId>
       <artifactId>springfox-swagger2</artifactId>
       <version>2.6.1</version>
       <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>guava</artifactId>
+          <groupId>com.google.guava</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Add JPA support -->
@@ -153,7 +166,7 @@
     <dependency>
       <groupId>com.shellshellfish</groupId>
       <artifactId>aaas-api-common</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <version>1.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.quartz-scheduler</groupId>
@@ -161,21 +174,100 @@
       <version>${quartz.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-redis</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.opencsv</groupId>
       <artifactId>opencsv</artifactId>
       <version>4.0</version>
     </dependency>
+
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-core</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-netty</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-protobuf</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-stub</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/io.grpc/grpc-all -->
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-all</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-testing</artifactId>
+      <version>${grpc.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <build>
-    <finalName>aaas-api-data-manager</finalName> 
+
+    <extensions>
+      <extension>
+        <groupId>kr.motd.maven</groupId>
+        <artifactId>os-maven-plugin</artifactId>
+        <version>1.5.0.Final</version>
+      </extension>
+    </extensions>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.0.2</version>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>src/main/proto</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>../proto/asset-allocation/</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.xolstice.maven.plugins</groupId>
+        <artifactId>protobuf-maven-plugin</artifactId>
+        <version>0.5.1</version>
+        <configuration>
+          <protocArtifact>com.google.protobuf:protoc:3.4.0:exe:${os.detected.classifier}</protocArtifact>
+          <pluginId>grpc-java</pluginId>
+          <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>compile-custom</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <!-- junit surefire test-->
       <plugin>
@@ -220,37 +312,15 @@
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-maven-plugin</artifactId>
-        <version>3.5.30</version>
+        <version>3.5.28</version>
         <configuration>
-          <resources>
-            <labels>
-              <all>
-                <property>
-                  <name>app</name>
-                  <value>aaas-api-data-manager</value>
-                </property>
-                <property>
-                  <name>hystrix.enabled</name>
-                  <value>false</value>
-                </property>
-              </all>
-            </labels>
-          </resources>
-          <enricher>
-            <config>
-              <spring-boot-health-check>
-                <port>4444</port>
-              </spring-boot-health-check>
-            </config>
-          </enricher>
+          <composeFile>docker-compose.yml</composeFile>
         </configuration>
         <executions>
           <execution>
-            <phase>deploy</phase>
-            <id>fmp</id>
-              <goals>
-                <goal>deploy</goal>
-              </goals>
+            <goals>
+              <goal> build </goal>
+            </goals>
           </execution>
         </executions>
       </plugin>

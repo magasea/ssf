@@ -18,13 +18,13 @@ spring:
       ddl-auto: update
   data:
     mongodb:
-      database: funds
+      database: ssf_asset_allo
       host: localhost
       port: 27017
       collection: portfolio_yield_all
 
 datasource:
-  sampleapp:
+  aaasapp:
     url: jdbc:mysql://localhost:3306/choice?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
     username: ssf08
     password: 1rIQ9wi!@g3P$Qh*
@@ -60,3 +60,8 @@ application:
         contactEmail:
         license:
         licenseUrl:
+
+management:
+  endpoints:
+    web:
+      base-path: /

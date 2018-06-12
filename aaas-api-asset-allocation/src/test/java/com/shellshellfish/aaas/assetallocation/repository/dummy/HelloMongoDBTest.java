@@ -7,9 +7,9 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
-import com.shellshellfish.aaas.assetallocation.neo.returnType.ReturnType;
-import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupService;
-import com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil;
+import com.shellshellfish.aaas.assetallocation.returnType.ReturnType;
+import com.shellshellfish.aaas.assetallocation.service.impl.FundGroupService;
+import com.shellshellfish.aaas.assetallocation.util.ConstantUtil;
 import org.bson.Document;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.*;
-import static com.shellshellfish.aaas.assetallocation.neo.util.ConstantUtil.MONGO_DB_COLLECTION;
+import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.*;
+import static com.shellshellfish.aaas.assetallocation.util.ConstantUtil.MONGO_DB_COLLECTION;
 
 /**
  * Author: hongming
@@ -63,7 +63,7 @@ public class HelloMongoDBTest {
                 String groupId = String.valueOf(index);
                 String subGroupId = String.valueOf(index + subfix);
                 String key = groupId + "_" + subGroupId;
-                ReturnType rt = fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, returnType);
+                ReturnType rt = fundGroupService.getFundGroupIncomeAll(groupId, subGroupId, 1, returnType, null);
 
                 String _total = JSON.toJSONString(rt.get_total());
                 String _items = JSON.toJSONString(rt.get_items());
@@ -98,12 +98,12 @@ public class HelloMongoDBTest {
                 documents.add(document);
             }
             //删除所有符合条件的文档
-            collection.deleteMany (Filters.eq("title", MONGO_DB_COLLECTION));
+            collection.deleteMany(Filters.eq("title", MONGO_DB_COLLECTION));
 
             collection.insertMany(documents);
 
         } catch (Exception e) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
 
         System.out.println("---- over ----");

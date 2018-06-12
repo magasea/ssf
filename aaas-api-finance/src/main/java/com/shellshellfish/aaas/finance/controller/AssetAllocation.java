@@ -41,9 +41,9 @@ public class AssetAllocation {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public FundReturn selectById(@PathVariable("groupId") String id, @PathVariable("subGroupId") String subGroupId){
-        return assetAllocationService.selectById(id,subGroupId);
+    @RequestMapping(value = "/api/asset-allocation/product-groups/{groupId}/sub-groups/{subGroupId}/{oemid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public FundReturn selectById(@PathVariable("groupId") String id, @PathVariable("subGroupId") String subGroupId, @PathVariable("oemid") Integer oemid){
+        return assetAllocationService.selectById(id, subGroupId, oemid);
     }
 
     /**

@@ -9,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import org.springframework.data.mongodb.core.index.IndexDirection;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -38,9 +40,12 @@ public class MongoUiTrdLog implements Serializable {
   @Field( value = "last_modified_date")
   private Long lastModifiedDate;
 
+  @Indexed(direction = IndexDirection.DESCENDING)
+  @Field( value = "operations")
   private int operations;
 
   @Field( value = "user_prod_id")
+  @Indexed(direction = IndexDirection.DESCENDING)
   private Long userProdId;
 
 
@@ -51,6 +56,7 @@ public class MongoUiTrdLog implements Serializable {
   private int tradeStatus;
 
   @Field( value = "user_id")
+  @Indexed(direction = IndexDirection.DESCENDING)
   private Long userId;
 
   @Field( value = "fund_code")
@@ -68,8 +74,15 @@ public class MongoUiTrdLog implements Serializable {
   @Field( value = "trade_target_sum")
   private Long tradeTargetSum;
 
+  @Field(value = "oemId")
+  private  Integer oemId;
+
   @Field( value = "apply_serial")
   private String applySerial;
+
+  @Field(value = "order_id")
+  @Indexed()
+  private String orderId;
 
   public MongoUiTrdLog() {
   }
@@ -211,5 +224,21 @@ public class MongoUiTrdLog implements Serializable {
 
   public void setApplySerial(String applySerial) {
     this.applySerial = applySerial;
+  }
+
+  public Integer getOemId() {
+    return oemId;
+  }
+
+  public void setOemId(Integer oemId) {
+    this.oemId = oemId;
+  }
+
+  public String getOrderId() {
+    return orderId;
+  }
+
+  public void setOrderId(String orderId) {
+    this.orderId = orderId;
   }
 }

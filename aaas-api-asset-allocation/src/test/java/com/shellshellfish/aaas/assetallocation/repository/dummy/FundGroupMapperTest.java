@@ -1,10 +1,11 @@
 package com.shellshellfish.aaas.assetallocation.repository.dummy;
 
-import com.shellshellfish.aaas.assetallocation.neo.entity.FundNetVal;
-import com.shellshellfish.aaas.assetallocation.neo.entity.Interval;
-import com.shellshellfish.aaas.assetallocation.neo.mapper.FundGroupMapper;
-import com.shellshellfish.aaas.assetallocation.neo.mapper.FundNetValMapper;
-import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupService;
+import com.shellshellfish.aaas.assetallocation.entity.FundNetVal;
+import com.shellshellfish.aaas.assetallocation.entity.Interval;
+import com.shellshellfish.aaas.assetallocation.mapper.FundGroupMapper;
+import com.shellshellfish.aaas.assetallocation.mapper.FundNetValMapper;
+import com.shellshellfish.aaas.assetallocation.service.impl.FundGroupService;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -58,19 +60,11 @@ public class FundGroupMapperTest {
         query.put("subGroupId", "50059");
         query.put("retracement", -0.014); //-0.014
         query.put("time", "2017-12-18");
+        query.put("oemId", 1);
         Integer effectRow = fundGroupMapper.updateMaximumRetracement(query);
         System.out.println(effectRow);
     }
 
-    @Test
-    public void updateMaximumRetracementByRiskLevelTest() {
-        Map<String, Object> query = new HashMap<>();
-        query.put("retracement", -0.0397); //-0.0397
-        query.put("risk_level", "C1");
-        query.put("time", "2018-01-15");
-        Integer effectRow = fundGroupMapper.updateMaximumRetracementByRiskLevel(query);
-        System.out.println(effectRow);
-    }
 
     @Test
     public void getProportionGroupByFundTypeTwoTest() {
@@ -83,7 +77,7 @@ public class FundGroupMapperTest {
 
     @Test
     public void getFundGroupNameByIdTest() {
-        String fundGroupName = fundGroupMapper.getFundGroupNameById("2");
+        String fundGroupName = fundGroupMapper.getFundGroupNameById("2",1);
         System.out.println(fundGroupName);
     }
 
@@ -92,11 +86,10 @@ public class FundGroupMapperTest {
         Map<String, Object> query = new HashMap<>();
         query.put("fund_group_id", "2");
         query.put("subGroupId", "20048");
-        String startTime = null;
+        query.put("oemId", 1);
         String groupStartTime = fundGroupMapper.getFundGroupHistoryTime(query);
         if (StringUtils.isEmpty(groupStartTime)) {
             groupStartTime = fundGroupMapper.getGroupStartTime(query);
-            startTime = groupStartTime;
         }
         query.put("startTime", groupStartTime);
         List<FundNetVal> list = fundGroupMapper.getNavadj(query);
@@ -105,9 +98,9 @@ public class FundGroupMapperTest {
 
     @Test
     public void getNavlatestdateCountTest() {
-        String group_id = "9";
-        String subGroupId = "90048";
-        List<String> codeList = fundGroupService.getFundGroupCodes(group_id, subGroupId);
+        String group_id = "30";
+        String subGroupId = "30000";
+        List<String> codeList = fundGroupService.getFundGroupCodes(group_id, subGroupId,1);
         int codeSize = codeList.size();
         Map query = new HashMap();
         query.put("list", codeList);
@@ -144,7 +137,7 @@ public class FundGroupMapperTest {
         String groupId = "9";
         String subGroupId = "90048";
 
-        List<Date> navDateList = fundGroupService.getNavlatestdateCount(groupId, subGroupId);
+        List<LocalDate> navDateList = fundGroupService.getNavlatestdateCount(groupId, subGroupId,1);
 
         Map query = new HashMap();
         query.put("groupId", groupId);
@@ -152,9 +145,7 @@ public class FundGroupMapperTest {
         query.put("list", navDateList);
         List<FundNetVal> fundNetVals = fundGroupMapper.getNavadjByNavDates(query);
 
-        if (!CollectionUtils.isEmpty(fundNetVals)) {
-            System.out.println(fundNetVals.size());
-        }
+        Assert.assertNotNull("数据为空",fundNetVals);
     }
 
 }

@@ -4,7 +4,7 @@
 
 	<groupId>com.shellshellfish</groupId>
 	<artifactId>aaas-api-user-info</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>aaas-api-user-info</name>
@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>com.shellshellfish</groupId>
 		<artifactId>aaas</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>1.0.0-SNAPSHOT</version>
 
 	</parent>
 
@@ -31,9 +31,10 @@
 		<maven-surefire-plugin.version>2.11</maven-surefire-plugin.version>
 		<maven-surefire-report-plugin.version>2.11</maven-surefire-report-plugin.version>
 		<jxr-maven-plugin.version>2.3</jxr-maven-plugin.version>
-		<grpc.version>1.8.0</grpc.version><!-- CURRENT_GRPC_VERSION -->
+		<grpc.version>1.11.0</grpc.version><!-- CURRENT_GRPC_VERSION -->
 		<swagger.version>2.7.0</swagger.version>
 		<quartz.version>2.2.3</quartz.version>
+		<protobufGeneratorPath>${project.build.directory}/generated-source/protobuf</protobufGeneratorPath>
 	</properties>
 
 	<dependencies>
@@ -108,7 +109,7 @@
 		<dependency>
 			<groupId>com.shellshellfish</groupId>
 			<artifactId>aaas-api-common</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -166,11 +167,12 @@
 			<artifactId>logback-core</artifactId>
 			<version>${logback.version}</version>
 		</dependency>
+
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
+			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
 		<dependency>
 
 				<groupId>org.springframework.boot</groupId>
@@ -244,10 +246,7 @@
 									<directory>../proto/finance/</directory>
 									<filtering>true</filtering>
 								</resource>
-								<resource>
-									<directory>../proto/trade/</directory>
-									<filtering>true</filtering>
-								</resource>
+
 								<resource>
 									<directory>../proto/datacollection/</directory>
 									<filtering>true</filtering>
@@ -270,10 +269,24 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>${protobufGeneratorPath}</directory>
+							<includes>
+								<include>**</include>
+							</includes>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.xolstice.maven.plugins</groupId>
 				<artifactId>protobuf-maven-plugin</artifactId>
-				<version>0.5.0</version>
+				<version>0.5.1</version>
 				<configuration>
+					<clearOutputDirectory>false</clearOutputDirectory>
 					<protocArtifact>com.google.protobuf:protoc:3.4.0:exe:${os.detected.classifier}</protocArtifact>
 					<pluginId>grpc-java</pluginId>
 					<pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
@@ -286,6 +299,15 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.7.0</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -334,36 +356,14 @@
 			<plugin>
 				<groupId>io.fabric8</groupId>
 				<artifactId>fabric8-maven-plugin</artifactId>
-				<version>3.5.30</version>
+				<version>3.5.28</version>
 				<configuration>
-					<resources>
-						<labels>
-							<all>
-								<property>
-									<name>app</name>
-									<value>aaas-api-user-info</value>
-								</property>
-								<property>
-									<name>hystrix.enabled</name>
-									<value>false</value>
-								</property>
-							</all>
-						</labels>
-					</resources>
-					<enricher>
-						<config>
-							<spring-boot-health-check>
-								<port>4444</port>
-							</spring-boot-health-check>
-						</config>
-					</enricher>
+					<composeFile>docker-compose.yml</composeFile>
 				</configuration>
 				<executions>
 					<execution>
-						<id>fmp</id>
-						<phase>deploy</phase>
 						<goals>
-							<goal>deploy</goal>
+							<goal> build </goal>
 						</goals>
 					</execution>
 				</executions>

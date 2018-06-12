@@ -1,0 +1,17 @@
+version: "2"
+
+
+services:
+  aaas-finance-trade-pay:
+    image: aaas-finance-trade-pay:latest
+    labels:
+      - "aaas-finance-trade-pay"
+    ports:
+      - "10110:10110"
+      - "10111:10111"
+    environment:
+      - SPRING_PROFILES_ACTIVE=k8s
+      - _JAVA_OPTIONS=-Xmx256m
+      
+      
+      

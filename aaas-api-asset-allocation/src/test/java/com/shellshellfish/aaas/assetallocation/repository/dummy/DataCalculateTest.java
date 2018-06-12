@@ -1,10 +1,10 @@
 package com.shellshellfish.aaas.assetallocation.repository.dummy;
 
-import com.shellshellfish.aaas.assetallocation.neo.service.CovarianceCalculateService;
-import com.shellshellfish.aaas.assetallocation.neo.service.DailyFundService;
-import com.shellshellfish.aaas.assetallocation.neo.service.FundCalculateService;
-import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupDataService;
-import com.shellshellfish.aaas.assetallocation.neo.util.CalculateMaxdrawdowns;
+import com.shellshellfish.aaas.assetallocation.service.impl.CovarianceCalculateService;
+import com.shellshellfish.aaas.assetallocation.service.impl.DailyFundService;
+import com.shellshellfish.aaas.assetallocation.service.impl.FundCalculateService;
+import com.shellshellfish.aaas.assetallocation.service.impl.FundGroupDataService;
+import com.shellshellfish.aaas.assetallocation.util.CalculateMaxdrawdowns;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +51,7 @@ public class DataCalculateTest {
 //        String endDate="2018-01-12";
 //        dailyFundService.insertDailyData(code,startDate,endDate);
 
-        dailyFundService.insertDailyFund();
+        dailyFundService.insertDailyFund(1);
 
         long end = System.currentTimeMillis();
         long elapse = end - start;
@@ -67,7 +67,7 @@ public class DataCalculateTest {
         long start = System.currentTimeMillis();
         System.out.println("start: " + start);
 
-        fundCalculateService.calculateDataOfWeek();
+        fundCalculateService.calculateDataOfWeek(1);
 
         long end = System.currentTimeMillis();
         long elapse = end - start;
@@ -80,7 +80,7 @@ public class DataCalculateTest {
         long start = System.currentTimeMillis();
         System.out.println("start: " + start);
 
-        fundGroupDataService.insertFundGroupData();
+        fundGroupDataService.insertFundGroupData(1);
 
         long end = System.currentTimeMillis();
         long elapse = end - start;
@@ -90,7 +90,8 @@ public class DataCalculateTest {
 
     @Test
     public void calculateCovarianceOfWeekTest() {
-        covarianceCalculateService.calculateCovarianceOfWeek();
+        int oemId = 1;
+        covarianceCalculateService.calculateCovarianceOfWeek(oemId);
     }
 
     @Test

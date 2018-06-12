@@ -1,27 +1,30 @@
 package com.shellshellfish.aaas.assetallocation.repository.dummy;
 
-import com.shellshellfish.aaas.assetallocation.neo.returnType.*;
-import com.shellshellfish.aaas.assetallocation.neo.service.FundGroupService;
-import com.shellshellfish.aaas.assetallocation.neo.util.MVO;
+import com.shellshellfish.aaas.assetallocation.returnType.*;
 import com.shellshellfish.aaas.assetallocation.service.impl.FinanceProductServiceImpl;
+import com.shellshellfish.aaas.assetallocation.service.impl.FundGroupService;
+import com.shellshellfish.aaas.assetallocation.util.MVO;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @SpringBootTest
 @ActiveProfiles("dev")
 public class FundGroupServiceTest {
-
     @Autowired
     private FundGroupService fundGroupService;
     @Autowired
@@ -49,23 +52,23 @@ public class FundGroupServiceTest {
 
         double d = 0.2;
         double c = 0.4;
-        double a = d/c;
+        double a = d / c;
         System.out.println(a);
     }
 
     @Test
     public void aaTest() {
-        Double [] ExpReturn = { 0.0054, 0.0531, 0.0779, 0.0934, 0.0130 };
+        Double[] ExpReturn = {0.0054, 0.0531, 0.0779, 0.0934, 0.0130};
         Double[][] ExpCovariance = {
-                {0.0569,  0.0092,  0.0039,  0.0070,  0.0022},
-                {0.0092,  0.0380,  0.0035,  0.0197,  0.0028},
-                {0.0039,  0.0035,  0.0997,  0.0100,  0.0070},
-                {0.0070,  0.0197,  0.0100,  0.0461,  0.0050},
-                {0.0022,  0.0028,  0.0070,  0.0050,  0.0573}};
+                {0.0569, 0.0092, 0.0039, 0.0070, 0.0022},
+                {0.0092, 0.0380, 0.0035, 0.0197, 0.0028},
+                {0.0039, 0.0035, 0.0997, 0.0100, 0.0070},
+                {0.0070, 0.0197, 0.0100, 0.0461, 0.0050},
+                {0.0022, 0.0028, 0.0070, 0.0050, 0.0573}};
 
         Double LOW_BOUND = 0.05; // 调用 MVO 权重 下限
         Double UP_BOUND = 0.95; // 调用 MVO 权重 上限
-        for (int i = 0; i < 10000; i++){
+        for (int i = 0; i < 10000; i++) {
             System.out.println(i);
             MVO.efficientFrontier(ExpReturn, ExpCovariance, 10, LOW_BOUND, UP_BOUND);
         }
@@ -73,7 +76,8 @@ public class FundGroupServiceTest {
 
     @Test
     public void getProductTest() {
-        FundAllReturn fundAllReturn = fundGroupService.selectAllFundGroup();
+        int oemId = 1;
+        FundAllReturn fundAllReturn = fundGroupService.selectAllFundGroup(oemId);
     }
 
     @Test
@@ -82,18 +86,23 @@ public class FundGroupServiceTest {
     }
 
     @Test
+    public void selectReturnAndPullbackWithOemIdTest() {
+        Map<String, Object> map = fundGroupService.selectReturnAndPullback("1", "1", "1", 1);
+    }
+
+    @Test
     public void getRevenueContributionTest() {
-        ReturnType revenueContributionReturn = fundGroupService.getRevenueContribution("1", "1");
+        ReturnType revenueContributionReturn = fundGroupService.getRevenueContribution("1", "1", 1);
     }
 
     @Test
     public void efficientFrontierTest() {
-        ReturnType revenueContributionReturn = fundGroupService.efficientFrontier("1");
+        ReturnType revenueContributionReturn = fundGroupService.efficientFrontier("1", 1);
     }
 
     @Test
     public void getIntervalTest() {
-        FundReturn fundReturn = fundGroupService.getInterval("1", "0.13", "0.15");
+        FundReturn fundReturn = fundGroupService.getInterval("1", 1, "0.13", "0.15");
     }
 
     @Test
@@ -108,17 +117,19 @@ public class FundGroupServiceTest {
 
     @Test
     public void getPerformanceVolatilityTest() {
-        PerformanceVolatilityReturn performanceVolatilityReturn = fundGroupService.getPerformanceVolatility( "C1", "1");
+        PerformanceVolatilityReturn performanceVolatilityReturn = fundGroupService
+                .getPerformanceVolatility("C1", "1", 1);
     }
 
     @Test
     public void getScaleMarkTest() {
-        ReturnType revenueContributionReturn = fundGroupService.getScaleMark("1", "risk");
+        ReturnType revenueContributionReturn = fundGroupService.getScaleMark("1", "risk", 1);
     }
 
     @Test
     public void getFundGroupIncomeTest() throws ParseException {
-        ReturnType e = fundGroupService.getFundGroupIncomeAll("14", "140049", "income");
+        List<Date> dateList = fundGroupService.getRecentDateInfo(1);
+        ReturnType e = fundGroupService.getFundGroupIncomeAll("14", "140048", 1, "income", dateList);
         System.out.println(e);
     }
 
@@ -132,34 +143,35 @@ public class FundGroupServiceTest {
 
     @Test
     public void getAllIdAndSubIdTest() {
-        fundGroupService.getAllIdAndSubId();
+        fundGroupService.getAllIdAndSubId(1);
     }
 
     @Test
     public void fundGroupIdAndSubIdTaskTest() {
         String fundGroupId = "1";
         String subGroupId = "10048";
-        fundGroupService.fundGroupIdAndSubIdTask(fundGroupId, subGroupId);
+        fundGroupService.fundGroupIdAndSubIdTask(fundGroupId, subGroupId, 1);
     }
 
     @Test
     public void getNavadjTest() {
-        fundGroupService.getNavadj("1","1000");
+        Integer oemId = 1;
+        fundGroupService.getNavadj("1", "1000", oemId);
     }
 
     @Test
     public void updateExpectedMaxRetracementTest() {
-        fundGroupService.updateExpectedMaxRetracement("1","1000");
+        fundGroupService.updateExpectedMaxRetracement("1", "1000", 1);
     }
 
     @Test
     public void maximumLossesTest() {
-        fundGroupService.maximumLosses("1","1000");
+        fundGroupService.maximumLosses("1", "1000", 1);
     }
 
     @Test
     public void updateAllMaximumLossesTest() {
-        fundGroupService.updateAllMaximumLosses();
+        fundGroupService.updateAllMaximumLosses(1);
     }
 
     @Test
@@ -173,13 +185,13 @@ public class FundGroupServiceTest {
 
     @Test
     public void sharpeRatioTest() {
-        int effectRow = fundGroupService.sharpeRatio("3","30089");
-        System.out.println(effectRow);
+        int effectRow = fundGroupService.sharpeRatio("3", "30089", 1);
+        Assert.assertTrue(effectRow > 0);
     }
 
     @Test
     public void contributionTest() {
-        fundGroupService.contribution();
+        fundGroupService.contribution(1);
     }
 
     @Test
@@ -191,7 +203,7 @@ public class FundGroupServiceTest {
 
     @Test
     public void getProportionGroupByFundTypeTwoTest() {
-        FundReturn fr = fundGroupService.getProportionGroupByFundTypeTwo("2", "20049");
+        FundReturn fr = fundGroupService.getProportionGroupByFundTypeTwo("2", "20049", 1);
         System.out.println(fr);
     }
 }

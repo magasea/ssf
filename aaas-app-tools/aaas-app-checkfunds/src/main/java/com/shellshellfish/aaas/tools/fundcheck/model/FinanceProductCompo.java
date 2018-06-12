@@ -1,7 +1,7 @@
 package com.shellshellfish.aaas.tools.fundcheck.model;
 /**
  * 理财产品组合实体类
- * @author developer4
+ * @author chenwei
  *
  */
 

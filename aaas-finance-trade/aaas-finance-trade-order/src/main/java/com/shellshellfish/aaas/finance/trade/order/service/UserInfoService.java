@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.order.service;
 
 
+import com.shellshellfish.aaas.userinfo.grpc.SellPersentProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductsResult;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
@@ -14,6 +15,9 @@ public interface UserInfoService {
   UserInfo getUserInfoByUserId(Long userId) throws ExecutionException, InterruptedException;
 
   SellProductsResult checkSellProducts(SellProducts sellProducts)
+      throws ExecutionException, InterruptedException;
+
+  SellProductsResult checkSellPercentProducts(SellPersentProducts sellPersentProducts)
       throws ExecutionException, InterruptedException;
 
   SellProducts rollbackSellProducts(SellProducts sellProducts)

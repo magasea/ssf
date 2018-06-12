@@ -1,0 +1,17 @@
+version: "2"
+
+
+services:
+  aaas-api-risk-assessment:
+    image: aaas-api-risk-assessment:1.0.0 
+    labels:
+      - "aaas-api-risk-assessment"
+    ports:
+      - "10050:10050"
+      - "10051:10051"
+    environment:
+      - SPRING_PROFILES_ACTIVE=k8s
+      - JAVA_OPTIONS=-Xmx256m
+      
+      
+      

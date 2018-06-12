@@ -10,7 +10,7 @@ logging:
 spring:
 #  data:
 #    mongodb:
-#      database: test1
+#      database: ssfui
 #      host: 192.168.1.10
 #      port: 27017
   rabbitmq:
@@ -19,8 +19,8 @@ spring:
         acknowledge-mode: auto
     username: ssf
     password: shellshellfish
-    host: 192.168.1.22
-    port: 5672
+    host: 192.168.1.249
+    port: 5772
     virtual-host: aaas
     topicQueuePayName: com-ssf-topic-name-pay
     topicQueueOrderName: com-ssf-topic-name-order
@@ -41,7 +41,7 @@ spring:
     port: 6379
     password: redis123
 datasource:
-  sampleapp:
+  aaasapp:
     url: jdbc:mysql://192.168.1.10:3306/ssftrdpay?useUnicode=true&connectionCollation=utf8_general_ci&characterSet=utf8&characterEncoding=utf-8
     username: sa
     password: N4eTVr89lX9BaPcx
@@ -94,3 +94,8 @@ cron:
 multithread:
   pool:
     size: 8
+
+management:
+  endpoints:
+    web:
+      base-path: /

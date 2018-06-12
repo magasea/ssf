@@ -2,6 +2,7 @@ package transfer.controller;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.HashMap;
@@ -17,9 +18,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.embedded.LocalServerPort;
+
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -62,6 +64,7 @@ public class LoginControllerIT {
 
 	private static final int DEFAULT_PASSWORD_LENGTH = 10;
 
+	private static final long TIMEOUT = 3000L;
 
 	//注册 登录所用的手机号  初始值随机生成
 	private static String registration_login_phone_number = null;
@@ -98,12 +101,14 @@ public class LoginControllerIT {
 	}
 
 	/**
-	 * registration
+	 * 注意：该测试必须要从头至尾，按顺序测试！
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/registration
+	 * 接口作用：用户注册
+	 * 参数：{telNum ：手机号码，password ：密码，verifyCode ：发送的验证码}
 	 **/
 	@Test
 	public void a_registrationTest() {
-
-
 		String verifyCode = getVerifyCode(registration_login_phone_number);
 
 		given().filter(new ResponseLoggingFilter())
@@ -115,11 +120,16 @@ public class LoginControllerIT {
 				.log().all()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
 				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT))
 				.using();
 	}
 
 	/**
-	 * login
+	 * 注意：该测试必须要从头至尾，按顺序测试！
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/userlogin
+	 * 接口作用：用户登录
+	 * 参数：{telNum ：手机号码，password ：密码}
 	 **/
 	@Test
 	public void b_userLoginTest() {
@@ -130,7 +140,8 @@ public class LoginControllerIT {
 				.then()
 				.log().all()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body("result", notNullValue());
+				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT));
 
 
 		String body = given().filter(new ResponseLoggingFilter())
@@ -149,6 +160,13 @@ public class LoginControllerIT {
 	}
 
 
+	/**
+	 * 注意：该测试必须要从头至尾，按顺序测试！
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/forgottenPsw
+	 * 接口作用：忘记密码后重置密码
+	 * 参数：{telNum ：手机号码，password ：密码，verifyCode ：发送的验证码}
+	 **/
 	@Test
 	public void c_forgetPswTest() {
 		String password = RandomStringUtils.randomAlphanumeric(DEFAULT_PASSWORD_LENGTH);
@@ -167,13 +185,21 @@ public class LoginControllerIT {
 				.then()
 				.log().all()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body("result", notNullValue());
+				.body("result", notNullValue())
+				.time(lessThan(120000L));
 
 		registration_login_password = password;
 
 	}
 
 
+	/**
+	 * 注意：该测试必须要从头至尾，按顺序测试！
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/resetPsw
+	 * 接口作用：修改密码
+	 * 参数：{telNum ：手机号码，newPWD ：新密码，oldPWD ：旧密码}
+	 **/
 	@Test
 	public void d_resetPswTest() {
 		String newPWD = RandomStringUtils.randomAlphanumeric(DEFAULT_PASSWORD_LENGTH);
@@ -186,13 +212,21 @@ public class LoginControllerIT {
 				.then()
 				.log().all()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body("result", notNullValue());
+				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT));
 
 		registration_login_password = newPWD;
 
 	}
 
 
+	/**
+	 * 注意：该测试必须要从头至尾，按顺序测试！
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/logout
+	 * 接口作用：用户推出
+	 * 参数：{uuid ：用户ID，token ：用户口令}
+	 **/
 	@Test
 	public void e_logoutTest() {
 
@@ -203,10 +237,18 @@ public class LoginControllerIT {
 				.then()
 				.log().all()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body("result", notNullValue());
+				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT));
 
 	}
 
+	/**
+	 * 注意：该测试必须要从头至尾，按顺序测试！
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/requestVerifyCode
+	 * 接口作用：发送验证码
+	 * 参数：{telNum ：手机号码}
+	 **/
 	@Test
 	public void requestVerifyCodeTest() {
 		String telNum = RandomPhoneNumUtil.generatePhoneNumber();
@@ -217,10 +259,18 @@ public class LoginControllerIT {
 				.then()
 				.log().all()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body("result.identifyingCode", notNullValue());
+				.body("result.identifyingCode", notNullValue())
+				.time(lessThan(TIMEOUT));
 
 	}
 
+	/**
+	 * 注意：该测试必须要从头至尾，按顺序测试！
+	 * 目的：校验接口是否返回数据与数据格式是否正确
+	 * 接口：/phoneapi-ssf/verifyMsgCode
+	 * 接口作用：验证手机号与验证码是否正确
+	 * 参数：{telNum ：手机号码，msgCode ：验证码}
+	 **/
 	@Test
 	public void verifyMsgCodeTest() {
 		String telNum = RandomPhoneNumUtil.generatePhoneNumber();
@@ -233,7 +283,8 @@ public class LoginControllerIT {
 				.then()
 				.log().all()
 				.body("head.status", equalTo(REQUEST_IS_SUCCESS))
-				.body("result", notNullValue());
+				.body("result", notNullValue())
+				.time(lessThan(TIMEOUT));
 
 	}
 

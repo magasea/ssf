@@ -1,9 +1,23 @@
 server:
   port: 10020
+logging:
+  level:
+    org.hibernate.SQL: info
+    org.hibernate.type.descriptor.sql.BasicBinder: info
+    org.springframework.data: info
 mybatis:
     config-locations: classpath:mybatis/mybatis-config.xml
     mapper-locations: classpath:mybatis/mapper/*.xml
 spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+  data:
+    mongodb:
+      database: ssf_asset_allo
+      host: 192.168.1.10
+      port: 27017
+      collection: portfolio_yield_all
 #  datasource:
 #      driverClassName: com.mysql.jdbc.Driver
 #      password: t5MqqozQDNramNHh
@@ -17,20 +31,13 @@ spring:
 #      password: 1xtZgrp#XzxGi$3OZ
 #      url: jdbc:mysql://192.168.1.15:3306/choicedebug?autoReconnect=true&allowMultiQueries=true&failOverReadOnly=false&useSSL=false&useUnicode=true&characterEncoding=utf-8
 #      username: ssf0015
-  jpa:
-    hibernate:
-      ddl-auto: update
-  data:
-    mongodb:
-      database: funds
-      host: 192.168.1.10
-      port: 27017
-      collection: portfolio_yield_all
+
 
 
 
 datasource:
-  sampleapp:
+
+  aaasapp:
     url: jdbc:mysql://192.168.1.10:3306/choice?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
     username: ssf08
     password: t5MqqozQDNramNHh
@@ -66,3 +73,8 @@ application:
         contactEmail:
         license:
         licenseUrl:
+
+management:
+  endpoints:
+    web:
+      base-path: /

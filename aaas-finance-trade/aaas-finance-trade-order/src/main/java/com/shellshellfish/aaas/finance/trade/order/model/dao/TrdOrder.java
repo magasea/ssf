@@ -24,6 +24,7 @@ public class TrdOrder {
   private int orderStatus;
   private long orderDate;
   private int orderType;
+  private long sellPercent;
   private long payAmount;
   private Long payFee;
   private long userId;
@@ -106,6 +107,16 @@ public class TrdOrder {
 
   public void setOrderType(int orderType) {
     this.orderType = orderType;
+  }
+
+  @Basic
+  @Column(name = "sell_percent")
+  public long getSellPercent() {
+    return sellPercent;
+  }
+
+  public void setSellPercent(long sellPercent) {
+    this.sellPercent = sellPercent;
   }
 
   @Basic

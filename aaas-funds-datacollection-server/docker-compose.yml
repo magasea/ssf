@@ -1,0 +1,17 @@
+version: "2"
+
+
+services:
+  aaas-funds-datacollection-server:
+    image: aaas-funds-datacollection-server:latest
+    labels:
+      - "aaas-funds-datacollection-server"
+    ports:
+      - "10090:10090"
+      - "10091:10091"
+    environment:
+      - SPRING_PROFILES_ACTIVE=k8s
+      - _JAVA_OPTIONS=-Xmx256m
+      
+      
+      

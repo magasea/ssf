@@ -13,7 +13,7 @@ spring:
         acknowledge-mode: auto
     username: ssf
     password: shellshellfish
-    host: external-rabbitmq-service
+    host: external-rabbitmq-servic
     port: 5672
     virtual-host: aaas
     topicQueuePayName: com-ssf-topic-queue-pay
@@ -30,17 +30,20 @@ spring:
     host: redis-service
     port: 6379
     password: redis123
-    timeout: 0
     pool:
-      max-active: 8
-      max-wait: -1
-      max-idle: 8
-      min-idle: 0
+    timeout: 1800000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: 1800000ms
+        max-idle: 8
+        min-idle: 0
+
 datasource:
-  sampleapp:
+  aaasapp:
     url: jdbc:mysql://external-mysql-service:3306/ssftrdorder?useUnicode=true&connectionCollation=utf8_general_ci&characterSetResults=utf8&characterEncoding=utf-8
     username: sa
-    password: 1rIQ9wi!@g3P$Qh* 
+    password: N4eTVr89lX9BaPcx 
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema: ssftrdorder
     maxPoolSize: 20
@@ -73,3 +76,6 @@ grpc:
   userinfo_client:
     host: aaas-api-user-info
     port: 10061
+  zhongzhengapi_client:
+    host: localhost
+    port: 10171
