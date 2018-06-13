@@ -5,13 +5,17 @@ import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 import com.shellshellfish.aaas.finance.trade.order.scheduler.CheckFundsOrderJob;
+import com.shellshellfish.aaas.finance.trade.order.scheduler.PatchOrderJob;
 import java.io.IOException;
 import javax.annotation.PostConstruct;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
@@ -51,7 +55,7 @@ public class QrtzScheduler {
     }
 
     @Bean
-    public Scheduler scheduler(Trigger trigger, JobDetail job) throws SchedulerException, IOException {
+    public Scheduler scheduler() throws SchedulerException, IOException {
 
         StdSchedulerFactory factory = new StdSchedulerFactory();
 //        factory.initialize(new ClassPathResource("quartz.properties").getInputStream());
@@ -59,25 +63,30 @@ public class QrtzScheduler {
         logger.debug("Getting a handle to the Scheduler");
         Scheduler scheduler = factory.getScheduler();
         scheduler.setJobFactory(springBeanJobFactory());
-        scheduler.scheduleJob(job, trigger);
+        scheduler.scheduleJob(jobPatchOrder(), triggerPatchOrder());
 
         logger.debug("Starting Scheduler threads");
         scheduler.start();
         return scheduler;
     }
 
-    @Bean
-    public JobDetail jobDetail() {
 
-        return newJob().ofType(CheckFundsOrderJob.class).storeDurably().withIdentity(JobKey.jobKey("Qrtz_Job_Detail")).withDescription("Invoke Sample Job service...").build();
+
+    @Bean
+    public JobDetail jobPatchOrder() {
+        JobKey jobKey = new JobKey("Qrtz_Job_PatchOrder", "userInfo");
+        JobDetail job = JobBuilder.newJob(PatchOrderJob.class).withIdentity(jobKey).storeDurably()
+            .withDescription("Invoke PatchOrder Job service...").build();
+        return  job;
     }
 
     @Bean
-    public Trigger trigger(JobDetail job) {
-
-        int frequencyInSec = 10;
-        logger.info("Configuring trigger to fire every {} seconds", frequencyInSec);
-
-        return newTrigger().forJob(job).withIdentity(TriggerKey.triggerKey("Qrtz_Trigger")).withDescription("Sample trigger").withSchedule(simpleSchedule().withIntervalInSeconds(frequencyInSec).repeatForever()).build();
+    public Trigger triggerPatchOrder() {
+            Trigger trigger = TriggerBuilder
+                .newTrigger()
+                .withIdentity("Qrtz_Trigger_PatchOrder", "order")
+                .withSchedule(CronScheduleBuilder.cronSchedule(cronCheckOrderWithPay))
+                .build();
+            return trigger;
     }
 }

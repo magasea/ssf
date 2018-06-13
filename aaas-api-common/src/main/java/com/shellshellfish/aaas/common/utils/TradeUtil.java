@@ -431,4 +431,29 @@ public class TradeUtil {
     return sb.toString();
   }
 
+  public static boolean isLatterThan(TrdOrderStatusEnum statusCurr, TrdOrderStatusEnum
+      statusCompared){
+    if(statusCompared.getStatus() == statusCurr.getStatus()){
+      return false;
+    }
+
+    if(statusCurr.getStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()){
+      if(statusCompared.getStatus() == TrdOrderStatusEnum.WAITPAY.getStatus()|| statusCompared
+          .getStatus() == TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus()){
+        return true;
+      }
+    }
+    if(statusCurr.getStatus() == TrdOrderStatusEnum.SELLCONFIRMED.getStatus()){
+      if(statusCompared.getStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()|| statusCompared
+          .getStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus()){
+        return true;
+      }
+    }
+    if((statusCurr.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()|| statusCurr.getStatus()
+        == TrdOrderStatusEnum.REDEEMFAILED.getStatus()) && statusCompared.getStatus() !=
+        statusCurr.getStatus()){
+      return true;
+    }
+    return true;
+  }
 }

@@ -5,7 +5,9 @@ import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
 import com.shellshellfish.aaas.common.message.order.TrdOrderDetail;
+import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.utils.DataCollectorUtil;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdBrokerUserRepository;
@@ -17,11 +19,13 @@ import com.shellshellfish.aaas.finance.trade.pay.FundNetInfo;
 import com.shellshellfish.aaas.finance.trade.pay.FundNetInfos;
 import com.shellshellfish.aaas.finance.trade.pay.FundNetQuery;
 import com.shellshellfish.aaas.finance.trade.pay.OrderDetailPayReq;
+import com.shellshellfish.aaas.finance.trade.pay.OrderDetailQuery;
 import com.shellshellfish.aaas.finance.trade.pay.OrderPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
+import com.shellshellfish.aaas.grpc.common.PayFlowResult;
 import io.grpc.ManagedChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -213,5 +217,23 @@ public class PayServiceImpl implements PayService {
     return fundNetInfos.getFundNetInfoList();
   }
 
-
+  @Override
+  public TrdPayFlow patchOrderToPay(
+      com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail trdOrderDetail) {
+    OrderDetailQuery.Builder ODQBuilder = OrderDetailQuery.newBuilder();
+  //Todo: add parameters
+    PayFlowResult trdPayFlowResult = null;
+    try {
+      trdPayFlowResult = payRpcFutureStub.patchPayFlowWithOrderDetail(ODQBuilder.build()).get();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+    }
+    TrdPayFlow trdPayFlow = new TrdPayFlow();
+    if(trdPayFlowResult != null){
+      MyBeanUtils.mapEntityIntoDTO(trdPayFlowResult, trdPayFlow);
+    }
+    return trdPayFlow;
+  }
 }

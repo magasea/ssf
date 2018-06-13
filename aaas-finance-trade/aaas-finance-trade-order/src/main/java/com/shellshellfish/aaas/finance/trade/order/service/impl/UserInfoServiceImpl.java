@@ -81,5 +81,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     return userInfoServiceFutureStub.rollbackUserProducts(sellProducts).get();
   }
 
-
+	@Override
+	public String getUserPidByBankCard(String bankCardNo) {
+		return null;
+	}
 }

@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Created by developer4 on 2018- 六月 - 11
+ * Created by chenwei on 2018- 六月 - 11
  */
 
 public class CheckPendingrecd4Navadj implements Job {

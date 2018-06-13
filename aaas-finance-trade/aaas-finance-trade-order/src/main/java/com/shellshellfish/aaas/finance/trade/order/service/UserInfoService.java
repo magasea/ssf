@@ -25,4 +25,6 @@ public interface UserInfoService {
 
   public UserBankInfo getUserBankInfo(String userUUID) throws ExecutionException,
       InterruptedException;
+
+  public String getUserPidByBankCard(String bankCardNo);
 }

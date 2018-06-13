@@ -6,6 +6,8 @@ import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -14,6 +16,17 @@ import org.springframework.data.repository.query.Param;
 import javax.persistence.NamedNativeQueries;
 
 public interface TrdOrderDetailRepository extends PagingAndSortingRepository<TrdOrderDetail, Long> {
+
+    public static final String FIND_PENDING_ORDERINFO = "SELECT * from ssftrdorder"
+        + ".trd_order_detail tod WHERE tod.order_detail_status != 2 AND tod.order_detail_status != 7 AND "
+        + "tod.order_detail_status != -1 AND tod.order_detail_status != -4";
+    public static final String COUNT_PENDING_ORDERINFO = "SELECT count(1) from ssftrdorder"
+        + ".trd_order_detail tod WHERE tod.order_detail_status != 2 AND tod.order_detail_status != 7 AND "
+        + "tod.order_detail_status != -1 AND tod.order_detail_status != -4";
+
+    @Query(value = FIND_PENDING_ORDERINFO, countQuery = COUNT_PENDING_ORDERINFO,nativeQuery = true)
+    Page<TrdOrderDetail> findPendingOrderinfo( Pageable pageable);
+
 
     @Override
     TrdOrderDetail save(TrdOrderDetail newOrderDetail);

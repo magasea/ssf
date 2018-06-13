@@ -52,7 +52,8 @@ service PayRpcService {
     * 2. trd_pay_flow 没有记录，那么直接用trd_order_detail 去试图生成交易trd_pay_flow如果中证已经有交易
     * 记录，那么调用查询接口获取最新的状态，用最新的trd_pay_flow状态来更新trd_order_detail
     * 3. trd_pay_flow 没有记录，调中证接口查询也没有对应的交易记录，那么看order_detail的create时间，
-    * 如果当前时间和create时间在同一个交易日， 而且时间已经超过1小时，那么试图用order_detail去生成trd_pay_flow发起交易
+    * 如果当前时间和create时间在同一个交易日， 而且时间已经超过1小时，
+    (那么试图用order_detail去生成trd_pay_flow发起交易这么做是否有必要？目前看不妥)
     * 否则直接标记trd_order_detail状态为失败
     */
     rpc patchPayFlowWithOrderDetail(OrderDetailQuery) returns (PayFlowResult){}
