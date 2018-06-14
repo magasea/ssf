@@ -60,8 +60,9 @@ org:
 cron:
   frequency:
     #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
-    # 	Every 3 hours
-    jobCheckFunds: 0 0 0/3 1/1 * ? *
+    # 	At 30 minutes past the hour, every 3 hours
+    # 每三个小时跑一次和郭锐同步数据冲突
+    jobCheckFunds: 0 30 0/3 1/1 * ? *
 using:
   spring:
     schedulerFactory: true
