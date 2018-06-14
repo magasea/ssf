@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.common.enums.TradeBrokerIdEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
@@ -10,9 +11,12 @@ import com.shellshellfish.aaas.common.utils.DataCollectorUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
+import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdBrokerUserRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.redis.UserPidDAO;
+import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
+import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
 import com.shellshellfish.aaas.finance.trade.pay.BindBankCardQuery;
 import com.shellshellfish.aaas.finance.trade.pay.BindBankCardResult;
 import com.shellshellfish.aaas.finance.trade.pay.FundNetInfo;
@@ -25,6 +29,7 @@ import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
+import com.shellshellfish.aaas.grpc.common.OrderDetail;
 import com.shellshellfish.aaas.grpc.common.PayFlowResult;
 import io.grpc.ManagedChannel;
 import java.util.ArrayList;
@@ -50,6 +55,11 @@ public class PayServiceImpl implements PayService {
 
   PayRpcServiceFutureStub payRpcFutureStub;
 
+  @Autowired
+  OrderService orderService;
+
+  @Autowired
+  UserInfoService userInfoService;
 
   @Autowired
   TrdBrokerUserRepository trdBrokerUserRepository;
@@ -221,14 +231,31 @@ public class PayServiceImpl implements PayService {
   public TrdPayFlow patchOrderToPay(
       com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail trdOrderDetail) {
     OrderDetailQuery.Builder ODQBuilder = OrderDetailQuery.newBuilder();
+    OrderDetail.Builder odBuilder = OrderDetail.newBuilder();
   //Todo: add parameters
     PayFlowResult trdPayFlowResult = null;
+    TrdOrder trdOrder = orderService.getOrderByOrderId(trdOrderDetail.getOrderId());
+    String pid = userInfoService.getUserPidByBankCard(trdOrder.getBankCardNum());
+    if(StringUtils.isEmpty(pid)){
+      logger.error("Failed to get pid for bankCard:{} set this order status as failed",
+          trdOrderDetail.getBankCardNum());
+      TrdPayFlow trdPayFlow = new TrdPayFlow();
+
+      trdPayFlow.setTrdStatus(TrdOrderStatusEnum.CANCELED.getStatus());
+      if(trdPayFlow.getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+        trdPayFlow.setTrdStatus(TrdOrderStatusEnum.REDEEMFAILED.getStatus());
+      }else{
+        trdPayFlow.setTrdStatus(TrdOrderStatusEnum.FAILED.getStatus());
+      }
+      return trdPayFlow;
+    }
+    MyBeanUtils.mapEntityIntoDTO(trdOrderDetail, odBuilder);
+    ODQBuilder.setOrderDetail(odBuilder);
     try {
+
       trdPayFlowResult = payRpcFutureStub.patchPayFlowWithOrderDetail(ODQBuilder.build()).get();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    } catch (ExecutionException e) {
-      e.printStackTrace();
+    } catch (Exception e) {
+      logger.error("call payRpcFutureStub.patchPayFlowWithOrderDetail got exception:", e);
     }
     TrdPayFlow trdPayFlow = new TrdPayFlow();
     if(trdPayFlowResult != null){

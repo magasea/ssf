@@ -55,4 +55,12 @@ public class JobController {
     checkPendingRecordsService.checkUnhandledRecordWithNavadj();
     return new ResponseEntity<Map>( HttpStatus.OK);
   }
+
+  @ApiOperation("checkPendingRecords 处理僵掉的记录避免阻塞")
+  @RequestMapping(value = "/checkPendingRecords", method = RequestMethod.GET)
+  @ResponseBody
+  public ResponseEntity<Map> checkPendingRecords() throws Exception {
+    checkPendingRecordsService.checkPendingRecords();
+    return new ResponseEntity<Map>( HttpStatus.OK);
+  }
 }

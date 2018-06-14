@@ -72,6 +72,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -585,6 +586,21 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
     Long userId = request.getUserId();
     String userUUID = request.getUuid();
     UiUser uiUser = null;
+    UserBankInfo.Builder builder = UserBankInfo.newBuilder();
+    //有个需要是直接去拿pid就行了
+    if(!StringUtils.isEmpty(request.getBankCardNo())){
+      BankCardDTO bankCardDTO =  getUserInfoBankCard(request.getBankCardNo());
+      if(bankCardDTO == null || StringUtils.isEmpty(bankCardDTO.getUserPid())){
+        onError(responseObserver, new Exception("Failed to get bankCardInfo by bankCardNo"+
+            request.getBankCardNo()));
+      }
+      MyBeanUtils.mapEntityIntoDTO(bankCardDTO, builder);
+      builder.setUserPid(bankCardDTO.getUserPid());
+      responseObserver.onNext(builder.build());
+      responseObserver.onCompleted();
+      return;
+    }
+
     if (userId <= 0) {
       logger.error("userId is not valid:" + userId);
       if (StringUtils.isEmpty(userUUID)) {
@@ -614,7 +630,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
     } catch (InstantiationException e) {
       logger.error("exception:", e);
     }
-    UserBankInfo.Builder builder = UserBankInfo.newBuilder();
+
     builder.setUserId(userId);
 
     if (bankCardDTOS.size() <= 0) {
@@ -1220,7 +1236,11 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
         mongoPendingRecordsPatch.setFundCode(uiProductDetail.getFundCode());
         mongoPendingRecordsPatch.setCreatedBy(request.getUserId());
         mongoPendingRecordsPatch.setCreatedDate(TradeUtil.getUTCTime());
-        mongoPendingRecordsPatch.setTradeTargetShare(finalTrdTargetShares);
+        if(MonetaryFundEnum.containsCode(uiProductDetail.getFundCode())){
+          mongoPendingRecordsPatch.setAbstractTargetShare(finalTrdTargetShares);
+        }else {
+          mongoPendingRecordsPatch.setTradeTargetShare(finalTrdTargetShares);
+        }
         mongoTemplate.save(mongoPendingRecordsPatch, "ui_pending_records");
         spdrBuilder.setFundCode(uiProductDetail.getFundCode());
         spdrBuilder.setFundQuantityTrade(finalTrdTargetShares);
@@ -1229,26 +1249,43 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       } else {
         //有历史尚未处理记录，需要先减去待处理记录
         Long historyTrdTargetShares = 0L;
+        Set<String> orderIds = new HashSet<>();
         for (MongoPendingRecords mongoPendingRecordsNotHandled : mongoPendingRecords) {
           if (mongoPendingRecordsNotHandled.getTradeStatus() != TrdOrderStatusEnum.FAILED
               .getStatus()
               && mongoPendingRecordsNotHandled.getTradeStatus() != TrdOrderStatusEnum
-              .REDEEMFAILED.getStatus()) {
+              .REDEEMFAILED.getStatus() && !StringUtils.isEmpty(mongoPendingRecordsNotHandled
+              .getOutsideOrderId()) && !orderIds.contains(mongoPendingRecordsNotHandled
+              .getOutsideOrderId()) ) {
             if (mongoPendingRecordsNotHandled.getTradeType() == TrdOrderOpTypeEnum.REDEEM
                 .getOperation()) {
-              historyTrdTargetShares = historyTrdTargetShares - mongoPendingRecordsNotHandled
-                  .getTradeTargetShare();
+              //如果之前货基的记录里面没有记录abstractTargetShares，那么用之前保存的targetShare来算
+              //但是一旦有update， 那么要用确认的购买或者赎回的信息去算abstractTargetShares
+              Long abstractTargetShares = mongoPendingRecordsNotHandled.getTradeTargetShare();
+              if(mongoPendingRecordsNotHandled.getAbstractTargetShare() > 0L && MonetaryFundEnum
+                  .containsCode(mongoPendingRecordsNotHandled.getFundCode())){
+                abstractTargetShares = mongoPendingRecordsNotHandled.getAbstractTargetShare();
+              }
+
+              historyTrdTargetShares = historyTrdTargetShares - abstractTargetShares;
+              orderIds.add(mongoPendingRecordsNotHandled.getOutsideOrderId());
             }
           }
         }
         Long finalTrdTargetShares = 0L;
-        if (originQuantity < 100 || originQuantity - trdTgtShares + historyTrdTargetShares < 100) {
-          logger.info("because originQuantity:{} trdTgtShares:{} we need to sell all remaining "
-              + "part", originQuantity, trdTgtShares);
-          finalTrdTargetShares = new Long(originQuantity);
-        } else {
+        if(originQuantity + historyTrdTargetShares - trdTgtShares > 100){
           finalTrdTargetShares = trdTgtShares;
+        }else if(originQuantity + historyTrdTargetShares < trdTgtShares ){
+          logger.info("because originQuantity:{} histroyTrdTargetShares:{} trdTgtShares:{} we "
+              + "can only deny trade ", originQuantity, historyTrdTargetShares, trdTgtShares);
+          finalTrdTargetShares = 0L;
+        }else if(originQuantity + historyTrdTargetShares - trdTgtShares < 100){
+          logger.info("because originQuantity:{} histroyTrdTargetShares:{} trdTgtShares:{} we "
+              + "can should sell all remain shares ", originQuantity, historyTrdTargetShares,
+              trdTgtShares);
+          finalTrdTargetShares = originQuantity + historyTrdTargetShares;
         }
+
         MongoPendingRecords mongoPendingRecordsPatch = new MongoPendingRecords();
         mongoPendingRecordsPatch.setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
         mongoPendingRecordsPatch.setUserProdId(request.getUserProductId());
@@ -1257,10 +1294,12 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
         mongoPendingRecordsPatch.setCreatedBy(request.getUserId());
         mongoPendingRecordsPatch.setCreatedDate(TradeUtil.getUTCTime());
         mongoPendingRecordsPatch.setTradeTargetShare(finalTrdTargetShares);
-        mongoTemplate.save(mongoPendingRecordsPatch, "ui_pending_records");
+        if(finalTrdTargetShares > 0){
+          mongoTemplate.save(mongoPendingRecordsPatch, "ui_pending_records");
+        }
         spdrBuilder.setFundCode(uiProductDetail.getFundCode());
         spdrBuilder.setFundQuantityTrade(finalTrdTargetShares);
-        spdrBuilder.setFundQuantityTradeRemain(originQuantity - finalTrdTargetShares);
+        spdrBuilder.setFundQuantityTradeRemain(originQuantity + historyTrdTargetShares);
         spdrBuilder.setResult(ItemStatus.SUCCESS.ordinal());
       }
       sprBuilder.addSellProductDetailResults(spdrBuilder);

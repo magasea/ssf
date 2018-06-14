@@ -20,7 +20,7 @@ public class TrdPayFlow implements Serializable {
   private String bankCardNum;
   private long userProdId;
   private String fundCode;
-  private int trdStatus;
+  private int trdStatus = Integer.MIN_VALUE;
   private long trdConfirmDate;
   private int trdType;
   private String trdApplyDate;

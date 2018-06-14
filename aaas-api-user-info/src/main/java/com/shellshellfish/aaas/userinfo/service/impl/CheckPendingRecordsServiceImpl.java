@@ -55,6 +55,7 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
     if(CollectionUtils.isEmpty(mongoPendingRecords)){
       return;
     }else{
+      //只允许有一个pendingRecord fundCode
       for(MongoPendingRecords mongoPendingRecord: mongoPendingRecords){
         if ( currentTime - mongoPendingRecord.getCreatedDate() < 60*1000){
           logger.info("we ignore this pendingRecord because time is too short");
@@ -78,12 +79,24 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
     //because if there is a pendingRecord with the UserProdId and the FundCode without orderId, then
     //further operation on the same userProdId or the same prodId will be blocked
     //so the created time desc orderDetail's top one should be updated into the pendingRecord
+    if(CollectionUtils.isEmpty(trdOrderDetails)){
+      mongoTemplate.remove(mongoPendingRecords);
+      return ;
+    }
     Collections.sort(trdOrderDetails, new Comparator<TrdOrderDetail>() {
       @Override
       public int compare(TrdOrderDetail o1, TrdOrderDetail o2) {
         return Math.toIntExact(o2.getCreateDate() - o1.getCreateDate() );
       }
     });
+    if(Math.abs(trdOrderDetails.get(0).getCreateDate() - mongoPendingRecords.getCreatedDate()) >
+        5*60*1000L || trdOrderDetails.get(0).getCreateDate() < mongoPendingRecords.getCreatedDate()){
+      logger.error("this pendingRecord should be deleted because time lag between order, or the "
+          + "sequence is reverse , so it is not related");
+      mongoTemplate.remove(mongoPendingRecords);
+      return ;
+    }
+    boolean shouldSave = false;
     if(trdOrderDetails.size() >= 1 && mongoPendingRecords.getTradeType() == trdOrderDetails.get
         (0).getTradeType() ){
       if(mongoPendingRecords.getTradeType() == TrdOrderOpTypeEnum.BUY.getOperation() &&
@@ -92,15 +105,20 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
         mongoPendingRecords.setOrderId(trdOrderDetails.get(0).getOrderId());
         mongoPendingRecords.setOutsideOrderId(trdOrderDetails.get(0).getOrderId()+ trdOrderDetails.get(0)
             .getId());
+        shouldSave = true;
       }else if(mongoPendingRecords.getTradeType() == TrdOrderOpTypeEnum.REDEEM.getOperation() &&
           (mongoPendingRecords.getTradeTargetShare() == null || mongoPendingRecords
               .getTradeTargetShare() == trdOrderDetails.get(0).getFundNum())){
         mongoPendingRecords.setOrderId(trdOrderDetails.get(0).getOrderId());
         mongoPendingRecords.setOutsideOrderId(trdOrderDetails.get(0).getOrderId()+ trdOrderDetails.get(0));
-
+        shouldSave = true;
       }
-      mongoPendingRecords.setLastModifiedDate(TradeUtil.getUTCTime());
-      mongoTemplate.save(mongoPendingRecords, "ui_pending_records");
+      if(shouldSave) {
+        mongoPendingRecords.setLastModifiedDate(TradeUtil.getUTCTime());
+        mongoTemplate.save(mongoPendingRecords, "ui_pending_records");
+      }else{
+        mongoTemplate.remove(mongoPendingRecords);
+      }
     }
   }
 

@@ -1,8 +1,13 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderDetailRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.JobOrderService;
+import com.shellshellfish.aaas.finance.trade.order.service.PayService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,11 +20,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class JobOrderServiceImpl implements JobOrderService {
 
+  Logger logger = LoggerFactory.getLogger(getClass());
+
   @Autowired
   TrdOrderDetailRepository trdOrderDetailRepository;
 
   @Autowired
-
+  PayService payService;
 
   /**
    * 检查订单创立后状态一直没有改变的数据，用orderId+orderDetailId fundCode 以及applySerial查询 如果查到不一致: 1. trd_pay_flow
@@ -48,7 +55,17 @@ public class JobOrderServiceImpl implements JobOrderService {
   }
   private void processPageOrderDetails(Page<TrdOrderDetail> trdOrderDetails){
     for(TrdOrderDetail item: trdOrderDetails){
-
+      TrdPayFlow trdPayFlow = payService.patchOrderToPay(item);
+      if(trdPayFlow == null){
+        continue;
+      }
+      if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.REDEEMFAILED.getStatus() || trdPayFlow
+          .getTrdStatus() == TrdOrderStatusEnum.FAILED.getStatus()){
+        logger.error("the trdPayFlow is not exist in payFlow table and not in zz system, so we "
+            + "mark it as failed");
+        item.setOrderDetailStatus(trdPayFlow.getTrdStatus());
+        trdOrderDetailRepository.save(item);
+      }
     }
   }
 

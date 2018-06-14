@@ -52,6 +52,7 @@ import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import com.shellshellfish.aaas.finance.trade.pay.service.UserInfoService;
 import com.shellshellfish.aaas.finance.trade.pay.service.impl.CheckFundsTradeJobService.MyEntry;
 import com.shellshellfish.aaas.grpc.common.ErrInfo;
+import com.shellshellfish.aaas.grpc.common.PayFlowResult;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
@@ -302,6 +303,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     MyBeanUtils.mapEntityIntoDTO(trdPayFlow, trdPayFlowMsg);
     trdPayFlowMsg.setTrdStatus(TrdOrderStatusEnum.FAILED.getStatus());
     broadcastMessageProducers.sendFailedMsgToPendingRecord(trdPayFlowMsg);
+    broadcastMessageProducers.sendFailedMsgToOrderDetail(trdPayFlowMsg);
 
   }
 
@@ -1236,7 +1238,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
    */
   public void patchPayFlowWithOrderDetail(com.shellshellfish.aaas.finance.trade.pay.OrderDetailQuery request,
       io.grpc.stub.StreamObserver<com.shellshellfish.aaas.grpc.common.PayFlowResult> responseObserver) {
+
     try{
+      PayFlowResult.Builder pfrBuilder = PayFlowResult.newBuilder();
       String outsideOrderNo = request.getOrderDetail().getOrderId()+request.getOrderDetail()
           .getId();
       List<TrdPayFlow> trdPayFlows = trdPayFlowRepository.findAllByOutsideOrderno(outsideOrderNo);
@@ -1249,21 +1253,37 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         ApplyResult applyResult = queryZZResultByOutsideOrderNo(request.getPid(), outsideOrderNo);
         if(applyResult != null){
           logger.error("this order had already been applied to zz info before, now patch it");
+          TrdPayFlow trdPayFlow = new TrdPayFlow();
+          MyBeanUtils.mapEntityIntoDTO(request.getOrderDetail(), trdPayFlow);
+          trdPayFlow.setOrderDetailId(request.getOrderDetail().getId());
+          trdPayFlow.setOutsideOrderno(outsideOrderNo);
+          trdPayFlow.setUserId(request.getOrderDetail().getUserId());
+          trdPayFlow.setTrdApplyDate(applyResult.getApplydate());
+          trdPayFlow.setApplySerial(applyResult.getApplyserial());
+          List<MyEntry<String,TrdPayFlow>> trdPayFlowsConfirm = new ArrayList<>();
+          checkFundsTradeJobService.updateTrdPayFlowWithApplyResult(request.getPid(), applyResult,
+              trdPayFlow, trdPayFlowsConfirm);
+          checkFundsTradeJobService.checkAndSendConfirmInfo(trdPayFlowsConfirm);
+        }else{
+          if(TradeUtil.getUTCTime() - request.getOrderDetail().getCreateDate() > 60*60*1000L){
+            logger.error("this order have no trade happened in Zhongzheng, so we make it failed");
+            logger.error("the zzinformation system havent found the outsideOrder:{} of pid:{}",
+                outsideOrderNo, request.getPid());
+            if(request.getOrderDetail().getTradeType() == TrdOrderOpTypeEnum.BUY.getOperation()){
+              pfrBuilder.setTrdStatus(TrdOrderStatusEnum.FAILED.getStatus());
+            }else if(request.getOrderDetail().getTradeType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+              pfrBuilder.setTrdStatus(TrdOrderStatusEnum.REDEEMFAILED.getStatus());
+            }else{
+              logger.error("current we havent have specific way to handle trdType:{}", request
+                  .getOrderDetail().getTradeType());
+              pfrBuilder.setTrdStatus(TrdOrderStatusEnum.FAILED.getStatus());
+            }
+          }
+
         }
-        TrdPayFlow trdPayFlow = new TrdPayFlow();
-        MyBeanUtils.mapEntityIntoDTO(request.getOrderDetail(), trdPayFlow);
-        trdPayFlow.setOrderDetailId(request.getOrderDetail().getId());
-        trdPayFlow.setOutsideOrderno(outsideOrderNo);
-        trdPayFlow.setUserId(request.getOrderDetail().getUserId());
-        trdPayFlow.setTrdApplyDate(applyResult.getApplydate());
-        trdPayFlow.setApplySerial(applyResult.getApplyserial());
-        List<MyEntry<String,TrdPayFlow>> trdPayFlowsConfirm = new ArrayList<>();
-        checkFundsTradeJobService.updateTrdPayFlowWithApplyResult(request.getPid(), applyResult,
-            trdPayFlow, trdPayFlowsConfirm);
-        checkFundsTradeJobService.checkAndSendConfirmInfo(trdPayFlowsConfirm);
-        if(TradeUtil.getUTCTime() - request.getOrderDetail().getCreateDate() > 60*60*1000L){
-          logger.error("this order have no trade happened in Zhongzheng, so we make it failed");
-        }
+        responseObserver.onNext(pfrBuilder.build());
+        responseObserver.onCompleted();
+
       }else{
 
         //检查是否order状态滞后
@@ -1284,6 +1304,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         }
 
       }
+
     }catch (Exception ex){
       onError(responseObserver, ex);
     }

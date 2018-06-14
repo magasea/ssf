@@ -13,15 +13,18 @@ import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc.UserInfoService
 import io.grpc.ManagedChannel;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 /**
  * Created by chenwei on 2018- 一月 - 17
  */
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
-
+	Logger logger = LoggerFactory.getLogger(getClass());
 
 	UserInfoServiceFutureStub userInfoServiceFutureStub;
 
@@ -83,6 +86,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	@Override
 	public String getUserPidByBankCard(String bankCardNo) {
-		return null;
+		UserIdOrUUIDQuery.Builder builder = UserIdOrUUIDQuery.newBuilder();
+		if(StringUtils.isEmpty(bankCardNo)){
+			logger.error("invalid bankcardNo:{}", bankCardNo);
+			return null;
+		}
+		builder.setBankCardNo(bankCardNo);
+		UserBankInfo userBankInfo = null;
+		try {
+			userBankInfo = userInfoServiceFutureStub.getUserBankInfo(builder.build()).get();
+		} catch (Exception e) {
+			logger.error("error calling userInfoServiceFutureStub.getUserBankInfo", e);
+			return null;
+		}
+		return userBankInfo.getUserPid();
 	}
 }

@@ -1,7 +1,6 @@
 package com.shellshellfish.aaas.userinfo.model.dao;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import javax.persistence.Id;
 import org.springframework.data.mongodb.core.index.IndexDirection;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -73,6 +72,12 @@ public class MongoPendingRecords implements Serializable {
 
     @Field( value = "trade_target_sum")
     private Long tradeTargetSum;
+
+  @Field(value = "abstract_target_share")
+  private Long abstractTargetShare;
+
+  @Field(value = "abstract_confirm_share")
+  private Long abstractConfirmShare;
 
     @Field(value = "oemId")
     private  Integer oemId;
@@ -287,5 +292,21 @@ public class MongoPendingRecords implements Serializable {
 
   public void setGroupId(Long groupId) {
     this.groupId = groupId;
+  }
+
+  public Long getAbstractTargetShare() {
+    return abstractTargetShare;
+  }
+
+  public void setAbstractTargetShare(Long abstractTargetShare) {
+    this.abstractTargetShare = abstractTargetShare;
+  }
+
+  public Long getAbstractConfirmShare() {
+    return abstractConfirmShare;
+  }
+
+  public void setAbstractConfirmShare(Long abstractConfirmShare) {
+    this.abstractConfirmShare = abstractConfirmShare;
   }
 }

@@ -19,10 +19,12 @@ public interface TrdOrderDetailRepository extends PagingAndSortingRepository<Trd
 
     public static final String FIND_PENDING_ORDERINFO = "SELECT * from ssftrdorder"
         + ".trd_order_detail tod WHERE tod.order_detail_status != 2 AND tod.order_detail_status != 7 AND "
-        + "tod.order_detail_status != -1 AND tod.order_detail_status != -4";
+        + "tod.order_detail_status != -1 AND tod.order_detail_status != -4 AND tod"
+        + ".order_detail_status != -2";
     public static final String COUNT_PENDING_ORDERINFO = "SELECT count(1) from ssftrdorder"
         + ".trd_order_detail tod WHERE tod.order_detail_status != 2 AND tod.order_detail_status != 7 AND "
-        + "tod.order_detail_status != -1 AND tod.order_detail_status != -4";
+        + "tod.order_detail_status != -1 AND tod.order_detail_status != -4 AND tod"
+        + ".order_detail_status != -2";
 
     @Query(value = FIND_PENDING_ORDERINFO, countQuery = COUNT_PENDING_ORDERINFO,nativeQuery = true)
     Page<TrdOrderDetail> findPendingOrderinfo( Pageable pageable);

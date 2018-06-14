@@ -151,7 +151,8 @@ public class CheckFundsTradeJobService {
                 .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
                     Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum, zzkkStatusEnum)
                 .getStatus());
-            if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()){
+            if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()|| trdPayFlow
+                .getTrdStatus() == TrdOrderStatusEnum.SELLCONFIRMED.getStatus()){
                 confirmList.add(new MyEntry<>(userPid,trdPayFlow));
             }
             trdPayFlow.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
@@ -356,9 +357,12 @@ public class CheckFundsTradeJobService {
                         TrdOrderOpTypeEnum opTypeEnum = ZZStatsToOrdStatsUtils
                             .getTrdOrdOpTypeFromCallingCode(Integer
                                 .valueOf(applyResult.getCallingcode()));
+                        ZZKKStatusEnum zzkkStatusEnum = ZZKKStatusEnum.getByStatus(applyResult
+                            .getKkstat());
                         trdPayFlow.setTrdStatus(ZZStatsToOrdStatsUtils
                             .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
-                                Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum).getStatus());
+                                Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum, zzkkStatusEnum)
+                            .getStatus());
                         trdPayFlow.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
                             .getPoundage()));
                         updateByCheckAboutSumNum(trdPayFlow, applyResult);
