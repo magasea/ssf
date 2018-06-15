@@ -48,10 +48,11 @@ using:
 cron:
   frequency:
     #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
-    # 	Every 3 hours
-    jobCheckFunds: 47 * * * *
-
-
+    jobCheckFunds: 0 0 0/3 1/1 * ? *
+using:
+  spring:
+    schedulerFactory: true
+>>>>>>> dev
 grpc:
   pythonServer:
     ip: 192.168.1.45

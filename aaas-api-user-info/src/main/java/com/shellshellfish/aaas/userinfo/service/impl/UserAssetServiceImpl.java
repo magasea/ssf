@@ -4,7 +4,8 @@ import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.finance.trade.order.OrderResult;
+
+import com.shellshellfish.aaas.grpc.common.OrderDetail;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.DailyAmountAggregation;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
@@ -46,7 +47,13 @@ public class UserAssetServiceImpl implements UserAssetService {
 
     Logger logger = LoggerFactory.getLogger(UserAssetServiceImpl.class);
 
-
+    /**
+     * 计算组合确认部分资产，累计收益，累计收益率
+     *
+     * @param userProdId
+     * @param endDate
+     * @return
+     */
     @Override
     public PortfolioInfo calculateUserAssetAndIncome(Long userProdId, LocalDate endDate) {
 
@@ -78,14 +85,17 @@ public class UserAssetServiceImpl implements UserAssetService {
         PortfolioInfo portfolioInfo = calculateUserAssetAndIncome(prodId, endDate);
 
         List<MongoUiTrdZZInfo> mongoUiTrdZZinfoList = mongoUiTrdZZInfoRepo
-                .findAllByUserIdAndUserProdIdAndTradeTypeAndTradeStatus(userId, prodId,
+                .findAllByUserIdAndUserProdIdAndTradeTypeAndTradeStatusAndConfirmDateLessThanEqual(userId, prodId,
                         TrdOrderOpTypeEnum.BUY.getOperation(),
-                        TrdOrderStatusEnum.CONFIRMED.getStatus());
+                        TrdOrderStatusEnum.CONFIRMED.getStatus(), endDay);
 
         //已经确认部分金额
         BigDecimal confirmAsset = BigDecimal.ZERO;
         BigDecimal confirmAssetOfEndDay = BigDecimal.ZERO;
         for (MongoUiTrdZZInfo mongoUiTrdZZinfo : mongoUiTrdZZinfoList) {
+            //购买不成功，不需要计算
+            if (TrdOrderStatusEnum.failBuy(mongoUiTrdZZinfo.getTradeStatus()))
+                continue;
             confirmAsset = confirmAsset.add(TradeUtil.getBigDecimalNumWithDiv100(
                     Optional.ofNullable(mongoUiTrdZZinfo).map(m -> m.getTradeConfirmSum())
                             .orElse(0L)));
@@ -96,33 +106,39 @@ public class UserAssetServiceImpl implements UserAssetService {
             }
         }
 
-        OrderResult orderResult = rpcOrderService
-                .getOrderInfoByProdIdAndOrderStatus(prodId,
-                        TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
+        List<OrderDetail> orderDetailList = rpcOrderService.getOrderDetails(prodId,
+                TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
-        BigDecimal applyAsset = TradeUtil.getBigDecimalNumWithDiv100(orderResult.getPayAmount());
+        BigDecimal notConfirmAsset = BigDecimal.ZERO;
+        for (OrderDetail orderDetail : orderDetailList) {
+            long amount = Optional.ofNullable(orderDetail).map(m -> m.getFundSum()).orElse(0L);
+            notConfirmAsset = notConfirmAsset.add(TradeUtil.getBigDecimalNumWithDiv100(amount));
+        }
+
+        //总的申购金额＝　确认部分的确认金额＋未确认部分的申购金额
+        BigDecimal applyAsset = confirmAsset.add(notConfirmAsset);
 
         BigDecimal assetOfEndDay = Optional.ofNullable(portfolioInfo.getTotalAssets())
                 .orElse(BigDecimal.ZERO);
 
-        // 总资产 = 确认基金资产+ 未确认的基金的申购金额  = 结束日资产（即申购成功部分结束日资产） +（总申购资产-确认部分申购资产）
-        BigDecimal asset = assetOfEndDay.add(applyAsset.subtract(confirmAsset));
+        // 总资产 = 确认基金资产+ 未确认的基金的申购金额
+        BigDecimal asset = assetOfEndDay.add(notConfirmAsset);
 
 
         // 累计收益=确认部分资产- 确认部分申购金额  (默认未完全确认  不能追加和赎回)
-        BigDecimal toltalIncome = assetOfEndDay.subtract(confirmAsset);
+        BigDecimal totalIncome = assetOfEndDay.subtract(confirmAsset);
 
         // 累计收益率= 累计收益/申购金额
-        BigDecimal toltalIncomeRate = Optional.ofNullable(portfolioInfo.getTotalIncomeRate())
+        BigDecimal totalIncomeRate = Optional.ofNullable(portfolioInfo.getTotalIncomeRate())
                 .orElse(BigDecimal.ZERO);
 
         if (applyAsset.compareTo(BigDecimal.ZERO) != 0) {
-            toltalIncomeRate = toltalIncome.divide(applyAsset, 4, RoundingMode.HALF_UP);
+            totalIncomeRate = totalIncome.divide(applyAsset, 4, RoundingMode.HALF_UP);
         }
 
         portfolioInfo.setTotalAssets(asset.setScale(4, RoundingMode.HALF_UP));
-        portfolioInfo.setTotalIncome(toltalIncome.setScale(4, RoundingMode.HALF_UP));
-        portfolioInfo.setTotalIncomeRate(toltalIncomeRate.setScale(4, RoundingMode.HALF_UP));
+        portfolioInfo.setTotalIncome(totalIncome.setScale(4, RoundingMode.HALF_UP));
+        portfolioInfo.setTotalIncomeRate(totalIncomeRate.setScale(4, RoundingMode.HALF_UP));
 
         return portfolioInfo;
     }

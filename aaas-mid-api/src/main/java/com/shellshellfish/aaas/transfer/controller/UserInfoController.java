@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.shellshellfish.aaas.common.enums.CombinedStatusEnum;
@@ -136,7 +137,15 @@ public class UserInfoController {
         logger.info("添加银行卡成功");
         return new JsonResult(JsonResult.SUCCESS, "添加银行卡成功", null);
       }
-    } catch (Exception e) {
+    } catch (HttpClientErrorException e) {
+		result = new HashMap();
+		result.put("errorCode", "400");
+		String str = new ReturnedException(e).getErrorMsg();
+		System.out.println(str);
+		result.put("error", e.getResponseBodyAsString());
+		logger.error(str, e);
+		return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+	} catch (Exception e) {
       String str = new ReturnedException(e).getErrorMsg();
       logger.error(str, e);
       return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
@@ -987,7 +996,10 @@ public class UserInfoController {
         logger.error("产品详情-result-获取失败");
         return new JsonResult(JsonResult.Fail, "产品详情获取失败", JsonResult.EMPTYRESULT);
       } else {
-        result.put("buyfee", buyfee == null ? "" : buyfee);
+        //result.put("buyfee", buyfee == null ? "" : buyfee);
+    	if(result.get("totalSum") != null){
+    		result.put("buyfee", result.get("totalSum"));
+    	}
         poundage = poundage == null ? "" : poundage;
         bankName = bankName == null ? "" : bankName;
         bankCard = bankCard == null ? "" : bankCard;

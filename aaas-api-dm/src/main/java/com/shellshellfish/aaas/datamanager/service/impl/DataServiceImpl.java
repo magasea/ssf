@@ -547,7 +547,11 @@ public class DataServiceImpl implements DataService {
                             (code, InstantDateUtil.format(date, DATE_FORMAT));
             if (coinFundYieldRate != null) {
                 yesval = coinFundYieldRate.getNavAdj();
-                date = InstantDateUtil.format(coinFundYieldRate.getQueryDateStr(), DATE_FORMAT);
+                String datestr = coinFundYieldRate.getQueryDateStr();
+                if (datestr.contains("-"))
+                    date = InstantDateUtil.format(datestr, "yyyy-MM-dd");
+                else
+                    date = InstantDateUtil.format(coinFundYieldRate.getQueryDateStr(), DATE_FORMAT);
             }
         } else {
             Sort sort = new Sort(Sort.Direction.DESC, "querydate");
@@ -1010,18 +1014,19 @@ public class DataServiceImpl implements DataService {
             Map map = new HashMap<String, Object>(3);
             map.put("date",
                     InstantDateUtil
-                            .format(InstantDateUtil.toLocalDate(coinFundYieldRate.getQuerydate()), "yyyy.MM.dd"));
+                            .format(InstantDateUtil.toLocalDate(coinFundYieldRate.getQuerydate()), "yyyy-MM-dd"));
             map.put("yieldOf7Days", coinFundYieldRate.getYieldOf7Days());
             map.put("tenKiloUnitYield", coinFundYieldRate.getTenKiloUnityYield());
 
-            BigDecimal todayNavAdj = coinFundYieldRate.getNavAdj();
+            BigDecimal todayNavAdj = getNavAdjOfCoinFundYield(coinFundYieldRateList, i);
+
+
             map.put("navAdj", todayNavAdj);
 
             BigDecimal dayUp;
             BigDecimal dayUpRate = BigDecimal.ZERO;
             if (i != 0) {
-                BigDecimal yesterdayNavAdj = Optional.ofNullable(coinFundYieldRateList.get(i - 1))
-                        .map(m -> m.getNavAdj()).orElse(BigDecimal.ZERO);
+                BigDecimal yesterdayNavAdj = getNavAdjOfCoinFundYield(coinFundYieldRateList, i - 1);
                 dayUp = todayNavAdj.subtract(yesterdayNavAdj);
 
                 if (BigDecimal.ZERO.compareTo(yesterdayNavAdj) != 0) {
@@ -1030,12 +1035,11 @@ public class DataServiceImpl implements DataService {
             }
 
             map.put("dayup",
-                    dayUpRate.multiply(ONE_HUNDRED).setScale(2, BigDecimal.ROUND_HALF_UP).toString() + "%");
+                    dayUpRate.multiply(ONE_HUNDRED).setScale(6, BigDecimal.ROUND_HALF_UP).toString() + "%");
 
-            BigDecimal p2 = Optional.ofNullable(coinFundYieldRateList.get(0)).map(m -> m.getNavAdj())
-                    .orElse(BigDecimal.ONE); //起始日复权净值
+            BigDecimal p2 = getNavAdjOfCoinFundYield(coinFundYieldRateList, 0); //起始日复权净值
             BigDecimal profit = (todayNavAdj.subtract(p2)).divide(p2, MathContext.DECIMAL128);//收益走势
-            map.put("profit", profit.setScale(2, RoundingMode.HALF_UP));
+            map.put("profit", profit.multiply(ONE_HUNDRED).setScale(6, RoundingMode.HALF_UP));
 
             result[i] = map;
             if (yieldOf7Days != null)
@@ -1053,6 +1057,23 @@ public class DataServiceImpl implements DataService {
         result[result.length - 1] = maxAndMinMap;
 
         hnMap.put("yieldOf7DaysAndTenKiloUnitYield", result);
+    }
+
+    private BigDecimal getNavAdjOfCoinFundYield(List<CoinFundYieldRate> coinFundYieldRateList, int index) {
+
+        BigDecimal todayNavAdj = null;
+        int i = index;
+        //数据有错误，使用前一天数据补充, 监控系统由监控人员调查之后补充数据
+        while (todayNavAdj == null && i >= 0) {
+            logger.error("货币基金复权单位净值数据错误：{}", coinFundYieldRateList.get(i));
+            todayNavAdj = coinFundYieldRateList.get(i).getNavAdj();
+            i--;
+        }
+
+        if (todayNavAdj == null)
+            todayNavAdj = BigDecimal.ONE;
+
+        return todayNavAdj;
     }
 }
 

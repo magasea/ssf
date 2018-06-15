@@ -365,13 +365,17 @@ public class FinanceController {
 			logger.info("oemInfos====combination1:" + oemInfos.get("combinationOne"));
 			logger.info("oemInfos====combination2:" + oemInfos.get("combinationTwo"));
 			logger.info("oemInfos====combination3:" + oemInfos.get("combinationThree"));
-			logger.info("oemInfos====combination4:" + oemInfos.get("combinationFour"));
-			logger.info("oemInfos====combination5:" + oemInfos.get("combinationFive"));
+//			logger.info("oemInfos====combination4:" + oemInfos.get("combinationFour"));
+//			logger.info("oemInfos====combination5:" + oemInfos.get("combinationFive"));
 			bannerList.add(oemInfos.get("combinationOne"));
 			bannerList.add(oemInfos.get("combinationTwo"));
 			bannerList.add(oemInfos.get("combinationThree"));
-			bannerList.add(oemInfos.get("combinationFour"));
-			bannerList.add(oemInfos.get("combinationFive"));
+			if("2".equals(oemid)){
+				bannerList.add(oemInfos.get("combinationFour")); 
+				bannerList.add(oemInfos.get("combinationFive")); 
+			}
+//			bannerList.add(oemInfos.get("combinationFour"));
+//			bannerList.add(oemInfos.get("combinationFive"));
 //			if (oemid == null || oemid == 1) {
 //				bannerList.add("http://47.96.164.161:81/APP-invest-banner01.png");
 //				bannerList.add("http://47.96.164.161:81/APP-invest-banner02.png");

@@ -63,8 +63,12 @@ public interface TrdOrderDetailRepository extends PagingAndSortingRepository<Trd
 
     List<TrdOrderDetail> findAllByUserProdId(Long userProdId);
 
+
     List<TrdOrderDetail> findAllByOrderIdAndFundCode(String orderId, String fundCode);
 
     List<TrdOrderDetail> findAllByUserProdIdAndFundCodeAndTradeType(Long userProdId, String
         fundCode, Integer tradeType);
+
+    TrdOrderDetail findTopByUserProdIdAndFundCodeOrderByBuysellDateDesc(Long userProdId, String fundCode);
+
 }

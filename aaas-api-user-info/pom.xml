@@ -167,10 +167,7 @@
 			<artifactId>logback-core</artifactId>
 			<version>${logback.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
+
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -216,6 +213,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
 	</dependencies>
 	<build>
 
@@ -359,36 +362,14 @@
 			<plugin>
 				<groupId>io.fabric8</groupId>
 				<artifactId>fabric8-maven-plugin</artifactId>
-				<version>3.5.33</version>
+				<version>3.5.28</version>
 				<configuration>
-					<resources>
-						<labels>
-							<all>
-								<property>
-									<name>app</name>
-									<value>${artifactId}-${version}</value>
-								</property>
-								<property>
-									<name>hystrix.enabled</name>
-									<value>false</value>
-								</property>
-							</all>
-						</labels>
-					</resources>
-					<enricher>
-						<config>
-							<spring-boot-health-check>
-								<port>4444</port>
-							</spring-boot-health-check>
-						</config>
-					</enricher>
+					<composeFile>docker-compose.yml</composeFile>
 				</configuration>
 				<executions>
 					<execution>
-						<id>fmp</id>
-						<phase>deploy</phase>
 						<goals>
-							<goal>deploy</goal>
+							<goal> build </goal>
 						</goals>
 					</execution>
 				</executions>

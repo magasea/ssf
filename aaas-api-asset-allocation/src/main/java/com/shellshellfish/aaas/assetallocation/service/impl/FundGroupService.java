@@ -961,13 +961,14 @@ public class FundGroupService {
                 Map<String, Object> mapBasic = new HashMap<>();
                 time = fundGroupHistoryList.get(i).getTime();
                 mapBasic.put("time", DateUtil.formatDate(time));
-                value = currentValue / baseValue - 1;
-                mapBasic.put("value", BigDecimal.valueOf(value).setScale(6, RoundingMode.HALF_UP));
-                logger.debug("date:{} value:{}", DateUtil.formatDate(time), BigDecimal.valueOf(value).setScale(6, RoundingMode.HALF_UP));
-                if (Math.abs(value) > 0.5D) {
-                    logger.error("数值可能有异常:{}:{}:{}:{}", value, fundGroupHistory.getTime(), groupId,
-                        subGroupId);
-                }
+
+//                value = currentValue / baseValue - 1;
+                value = Arith.sub(Arith.div(currentValue, baseValue),1);
+                mapBasic.put("value", Arith.round(value,6));
+
+                if (Math.abs(value) > 0.5D)
+                    logger.error("数值可能有异常:{} time:{} groupId:{} subId:{}", value, fundGroupHistory.getTime(), groupId, subGroupId);
+
                 dateList.remove(time);
                 listFund.add(mapBasic);
                 maxMinValueList.add(value);
@@ -2041,8 +2042,6 @@ public class FundGroupService {
         LocalDate endDate = null;
         boolean ignoreThisDate = false;
         for (LocalDate date = startDate; date.isBefore(LocalDate.now(ZoneId.systemDefault()).plusDays(1)); date = date.plusDays(1)) {
-            //each day reset the control flag
-            ignoreThisDate = false;
             //非交易日不处理
             if (!TradingDayUtils.isTradingDay(date))
                 continue;
@@ -2752,10 +2751,10 @@ public class FundGroupService {
         try {
             ThreadPoolExecutor contributionPool = new ThreadPoolExecutor(
                     4,
-                    4,
+                    15,
                     0L,
                     TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<>(4),
+                    new LinkedBlockingQueue<>(15),
                     Executors.defaultThreadFactory(),
                     new ThreadPoolExecutor.AbortPolicy());
             final CountDownLatch countDownLatch = new CountDownLatch(groupedMap.size());

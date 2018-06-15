@@ -76,7 +76,7 @@ public class FinanceProdCalcServiceImplTest {
             e.printStackTrace();
         }
     }
-    @Test
+    /*@Test
     public  void writeAllFundsDiscountToMongoDb() {
         try {
             List<String> allFundsInfo = fundInfoService.getAllFundsInfo();
@@ -89,7 +89,7 @@ public class FinanceProdCalcServiceImplTest {
     @Test
     public  void  writeAllTradeLimitToMongoDb(){
         fundInfoService.writeAllTradeLimitToMongoDb();
-    }
+    }*/
     @Test
     public void testGetMinBuyAmount() throws Exception {
         List<BigDecimal> minAmountList = new ArrayList<>();

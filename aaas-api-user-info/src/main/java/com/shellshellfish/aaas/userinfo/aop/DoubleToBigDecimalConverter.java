@@ -14,7 +14,7 @@ public class DoubleToBigDecimalConverter implements Converter<Double, BigDecimal
 
 	@Override
 	public BigDecimal convert(Double source) {
-		return new BigDecimal(source).setScale(4, RoundingMode.HALF_UP);
+		return new BigDecimal(source).setScale(6, RoundingMode.HALF_UP);
 	}
 
 }

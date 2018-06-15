@@ -65,7 +65,7 @@ public class UserFinanceProdCalcServiceImplTest {
     @Test
     public void testCalcIntervalAmount() throws Exception {
         for (String fundCode : fundCodeList) {
-            userFinanceProdCalcService.calcIntervalAmount("shellshellfish", 2000L, fundCode, "20170101");
+//            userFinanceProdCalcService.calcIntervalAmount("shellshellfish", 2000L, fundCode, "20170101");
         }
     }
 
@@ -163,9 +163,9 @@ public class UserFinanceProdCalcServiceImplTest {
     @Test
     public void test() {
 
-        String date = InstantDateUtil.format(InstantDateUtil.now().plusDays(-2), InstantDateUtil.yyyyMMdd);
+        String date = InstantDateUtil.format(InstantDateUtil.now(), InstantDateUtil.yyyyMMdd);
         String uuid = "3a4401ae-d6f9-49ee-97e2-ce7ebf122822";
-        Long userProdId = 8L;
+        Long userProdId = 309L;
         List<UiProductDetail> uiProductDetailList = uiProductDetailRepo.findAllByUserProdId(userProdId);
         for (UiProductDetail detail : uiProductDetailList) {
             userFinanceProdCalcService.calculateProductAsset(detail, uuid, userProdId, date);
