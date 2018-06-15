@@ -75,6 +75,7 @@ message UserUUID{
 message UserIdOrUUIDQuery{
   int64 userId = 1;
   string uuid = 2;
+  string bankCardNo = 3;
 }
 
 message UserBankInfo{

@@ -2,11 +2,14 @@ package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.common.utils.MathUtil;
+import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc.DataCollectionServiceBlockingStub;
 import com.shellshellfish.aaas.finance.trade.order.model.DistributionResult;
 import com.shellshellfish.aaas.finance.trade.order.model.FundAmount;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeLimitResult;
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdCalcService;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +30,9 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
 
     @Autowired
     private FundInfoZhongZhengApiService fundInfoService;
+
+    @Autowired
+    DataCollectionServiceBlockingStub dataDCCServiceBlockingStub;
 
     @Override
     public BigDecimal getMinBuyAmount(List<ProductMakeUpInfo> productMakeUpInfoList) throws Exception {
@@ -74,7 +80,10 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
     public DistributionResult getPoundageOfBuyFund(BigDecimal grossAmount, List<ProductMakeUpInfo> productMakeUpInfoList) throws Exception {
         BigDecimal totalPoundage = BigDecimal.ZERO;
         BigDecimal totalDiscountSaving = BigDecimal.ZERO;
+        BigDecimal oldBuyRate=BigDecimal.ZERO;
+        BigDecimal discountBuyRate=BigDecimal.ZERO;
         List<FundAmount> fundAmountList = new ArrayList<>();
+        Map<Object,Object> buyRateMap=new HashMap<>();
         Collections.sort(productMakeUpInfoList, new Comparator<ProductMakeUpInfo>(){
           public int compare(ProductMakeUpInfo o1, ProductMakeUpInfo o2){
             if(o1.getFundCode() == o2.getFundCode())
@@ -97,14 +106,22 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
             BigDecimal discount = fundInfoService.getDiscount(info.getFundCode(), BUY_FUND.getCode());
             BigDecimal poundage = fundInfoService.calcPoundageByGrossAmount(amount, rate, discount);
             BigDecimal discountSaving =  fundInfoService.calcDiscountSaving(amount, rate, discount);
+
             totalPoundage = totalPoundage.add(poundage);
             totalDiscountSaving = totalDiscountSaving.add(discountSaving);
-//            FundAmount fundAmount = new FundAmount(info.getFundCode(), info.getFundName(), amount);
-            BigDecimal fundShare = BigDecimal.valueOf(info.getFundShare()).divide(BigDecimal.valueOf(100));
+            BigDecimal fundShare = BigDecimal.valueOf(info.getFundShare()).divide(BigDecimal.valueOf(10000));
+            oldBuyRate= oldBuyRate.add(rate.multiply(fundShare));
+            discountBuyRate= discountBuyRate.add(rate.multiply(discount).multiply(fundShare));
             FundAmount fundAmount = new FundAmount(info.getFundCode(), info.getFundName(), amount, fundShare + "%");
             fundAmountList.add(fundAmount);
         }
-        return new DistributionResult(totalPoundage, totalDiscountSaving, fundAmountList);
+
+        java.text.DecimalFormat   df   =new   java.text.DecimalFormat("0.00");
+        String oldBuyRateStr = df.format(oldBuyRate.multiply(new BigDecimal(100)))+"%";
+        String discountBuyRateStr = df.format(discountBuyRate.multiply(new BigDecimal(100)))+"%";
+        buyRateMap.put("oldBuyRate",oldBuyRateStr);
+        buyRateMap.put("discountBuyRate",discountBuyRateStr);
+        return new DistributionResult(totalPoundage, totalDiscountSaving, fundAmountList,buyRateMap);
     }
 
     @Override
@@ -145,5 +162,9 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
 		}
 		return true;
 	}
+
+//	private BigDecimal getNavadjByFundCodeAndDate(String fundCode, String dateStr){
+//      dataDCCServiceBlockingStub.getFundDataOfDay()
+//  }
 
 }

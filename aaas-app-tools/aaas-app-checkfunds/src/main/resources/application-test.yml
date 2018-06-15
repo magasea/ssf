@@ -1,7 +1,7 @@
 ---
 server:
   port: 10030
-  contextPath: /
+
 ---
 spring:
 #  profiles: test
@@ -12,8 +12,7 @@ spring:
         port: 27017
   http:
     multipart:
-      max-file-size: 2MB
-      max-request-size: 10MB
+
 datasource:
   aaasapp:
     url: jdbc:mysql://192.168.1.10:3306/ssftrdorder?useUnicode=true&characterEncoding=utf-8
@@ -29,3 +28,12 @@ datasource:
       dialect: org.hibernate.dialect.MySQLDialect
 shellshellfish:
   asset-alloction-url: "http://localhost:10020"
+
+cron:
+  frequency:
+    #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
+    # 	Every 3 hours
+    jobCheckFunds: 0 0 0/3 1/1 * ? *
+using:
+  spring:
+    schedulerFactory: true

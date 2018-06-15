@@ -37,4 +37,9 @@ public class MyBeanUtils {
 		return targetItemB;
 	}
 
+	public static<SRC,TARGET> Object mapObjectArrayIntoDTO(SRC sourceObjectArray, TARGET targetDTO,
+			String[] mapingFields){
+		BeanUtils.copyProperties(sourceObjectArray, targetDTO, mapingFields);
+		return targetDTO;
+	}
 }

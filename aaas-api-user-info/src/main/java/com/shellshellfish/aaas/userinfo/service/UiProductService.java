@@ -12,4 +12,6 @@ public interface UiProductService {
 
 	List<UiProductDetailDTO> getProductDetailsByProdId(Long prodId);
 
+	List<Long> getProdIds();
+
 }

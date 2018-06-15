@@ -2,9 +2,19 @@ package com.shellshellfish.aaas.userinfo.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shellshellfish.aaas.finance.trade.order.*;
+
+import com.shellshellfish.aaas.finance.trade.order.BindCardInfo;
+import com.shellshellfish.aaas.finance.trade.order.BindCardResult;
+
+import com.shellshellfish.aaas.finance.trade.order.OrderDetailQueryInfo;
+import com.shellshellfish.aaas.finance.trade.order.OrderDetailResult;
+import com.shellshellfish.aaas.finance.trade.order.OrderDetailStatusRequest;
+import com.shellshellfish.aaas.finance.trade.order.OrderQueryInfo;
+import com.shellshellfish.aaas.finance.trade.order.OrderResult;
+
 import com.shellshellfish.aaas.finance.trade.order.OrderRpcServiceGrpc.OrderRpcServiceBlockingStub;
 
+import com.shellshellfish.aaas.grpc.common.OrderDetail;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;

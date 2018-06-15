@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,8 +28,22 @@ public class BroadcastMessageProducers {
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
                 .ROUTING_KEY_USERINFO_TRDLOG,
             trdPayFlow);
+
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.OPERATION_TYPE_UPDATE_PRECONFIRM_PENDINGRECORDS,
+            trdPayFlow);
     }
 
+    public void sendFailedMsgToPendingRecord(TrdPayFlow trdPayFlow){
+        logger.info("send message: " + trdPayFlow.getOrderDetailId());
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.OPERATION_TYPE_FAILED_PENDINGRECORDS,
+            trdPayFlow);
+    }
+
+    public void sendFailedMsgToOrderDetail(TrdPayFlow trdPayFlow){
+        logger.info("send message: " + trdPayFlow.getOrderDetailId());
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.OPERATION_TYPE_FAILED_TRADE,
+            trdPayFlow);
+    }
     public void sendPreOrderMessage(TrdPayFlow trdPayFlow) {
         logger.info("send preOrder message: " + trdPayFlow.getOrderDetailId());
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
@@ -45,6 +58,9 @@ public class BroadcastMessageProducers {
             .ROUTING_KEY_USERINFO_CFMLOG, mongoUiTrdZZInfo);
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
             .ROUTING_KEY_USERINFO_UPDATEPROD, mongoUiTrdZZInfo);
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
+            .OPERATION_TYPE_CONFIRM_PENDINGRECORDS, mongoUiTrdZZInfo);
+
     }
 
     public void sendSellMessage(TrdPayFlow trdPayFlow) {
@@ -55,5 +71,7 @@ public class BroadcastMessageProducers {
                 .ROUTING_KEY_USERINFO_REDEEM, trdPayFlow);
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
             .ROUTING_KEY_USERINFO_TRDLOG, trdPayFlow);
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.OPERATION_TYPE_UPDATE_PRECONFIRM_PENDINGRECORDS,
+            trdPayFlow);
     }
 }

@@ -48,6 +48,11 @@ public class FundTradeZhongZhengApiServiceTest {
     List<FundNetZZInfo> fundNetZZInfos =  fundTradeApiService.getFundNets("001987.OF", -1, 2);
     for(FundNetZZInfo fundNetZZInfo: fundNetZZInfos){
       System.out.println(fundNetZZInfo.getTradeDate());
+      System.out.println(fundNetZZInfo.getAccumNet());
+      System.out.println(fundNetZZInfo.getChngPct());
+      System.out.println(fundNetZZInfo.getFundCode());
+      System.out.println(fundNetZZInfo.getTenThouUnitIncm());
+      System.out.println(fundNetZZInfo.getUnitNet());
     }
   }
 

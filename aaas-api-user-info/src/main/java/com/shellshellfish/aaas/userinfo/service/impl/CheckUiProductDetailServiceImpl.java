@@ -4,9 +4,10 @@ import com.mongodb.bulk.BulkWriteResult;
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
+import com.shellshellfish.aaas.common.grpc.trade.order.TrdOrderDetail;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
+
 import com.shellshellfish.aaas.userinfo.model.dao.CoinFundYieldRate;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUserFundQuantityLog;
@@ -114,9 +115,9 @@ public class CheckUiProductDetailServiceImpl implements CheckUiProductDetailServ
     }
 
     private Map getOrderDetailStatus(Long userProdId) {
-        List<OrderDetail> orderDetailList = orderRpcService.getLatestOrderDetail(userProdId);
+        List<TrdOrderDetail> orderDetailList = orderRpcService.getLatestOrderDetail(userProdId);
         Map statusMap = new HashMap(8);
-        for (OrderDetail orderDetail : orderDetailList) {
+        for (TrdOrderDetail orderDetail : orderDetailList) {
             statusMap.put(orderDetail.getFundCode(), orderDetail.getOrderDetailStatus());
         }
         return statusMap;

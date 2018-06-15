@@ -41,6 +41,12 @@ public class GrpcConfig extends GRpcServerBuilderConfigurer {
   @Value("${grpc.order_client.port}")
   int ordPort;
 
+  @Value("${grpc.date_collection_client.host}")
+  String dccHost;
+
+  @Value("${grpc.date_collection_client.port}")
+  int dccPort;
+
   @Bean
   ManagedChannelBuilder<?> grpcFPChannelBuilder(){
     return ManagedChannelBuilder.forAddress(FPhost, FPport);
@@ -55,6 +61,12 @@ public class GrpcConfig extends GRpcServerBuilderConfigurer {
   ManagedChannelBuilder<?> grpcOrderChannelBuilder(){
     return ManagedChannelBuilder.forAddress(ordHost, ordPort);
   }
+
+  @Bean
+  ManagedChannelBuilder<?> grpcDccChannelBuilder(){
+    return ManagedChannelBuilder.forAddress(dccHost, dccPort);
+  }
+
 
   @Bean
   @PostConstruct
@@ -74,6 +86,13 @@ public class GrpcConfig extends GRpcServerBuilderConfigurer {
   @PostConstruct
   ManagedChannel managedOrderChannel(){
     ManagedChannel managedChannel = grpcOrderChannelBuilder().usePlaintext(true).build();
+    return managedChannel;
+  }
+
+  @Bean
+  @PostConstruct
+  ManagedChannel managedDccChannel(){
+    ManagedChannel managedChannel = grpcDccChannelBuilder().usePlaintext(true).build();
     return managedChannel;
   }
 

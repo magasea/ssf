@@ -88,6 +88,7 @@ public class TransferController {
 			resultMap = restTemplate.getForEntity(url, Map.class).getBody();
 			BigDecimal poundage = BigDecimal.valueOf(Double.parseDouble(resultMap.get("poundage").toString()));
 			BigDecimal discount = BigDecimal.valueOf(Double.parseDouble(resultMap.get("discountSaving").toString()));
+			Map<Object,Object> buyRateMap = (Map<Object,Object>)resultMap.get("buyRateMap");
 			// BigDecimal
 			// total=poundage.add(BigDecimal.valueOf(Double.parseDouble((totalAmount))));
 			BigDecimal total = poundage;
@@ -311,6 +312,8 @@ public class TransferController {
 					"/bankcards", List.class)
 					.getBody();
 
+			Map<Object, Object>  bankListsResult = restTemplate.getForEntity(tradeOrderUrl + "/api/trade/funds/banklists", Map.class).getBody();
+
 			if (resultOriginList != null && resultOriginList.size() > 0) {
 				for (int i = 0; i < resultOriginList.size(); i++) {
 					Map resultOriginMap = resultOriginList.get(i);
@@ -322,6 +325,23 @@ public class TransferController {
 						if (!StringUtils.isEmpty(bankMap.get("bankName"))) {
 							resultOriginMap.put("bankShortName", bankMap.get("bankName"));
 							resultOriginMap.put("bankName", bankMap.get("bankName"));
+
+							if(bankListsResult!=null){
+								List<Map> banklist = (List<Map>) bankListsResult.get("result");
+								String banklink = "http://47.96.164.161/";
+								for(Map map : banklist){
+									if(resultOriginMap.get("bankShortName").equals(map.get("bankName"))){
+										//money_limit_one 单笔限额（单位：万元）
+										String money_limit_one = map.get("moneyLimitDay") == null ? "0" : map.get("moneyLimitDay") + "";
+										//money_limit_day 单日限额（单位：万元）
+										String money_limit_day = map.get("moneyLimitOne") == null ? "0" : map.get("moneyLimitOne") + "";
+										resultOriginMap.put("money_limit", "单笔限额" + money_limit_one + "万元，单日限额" + money_limit_day + "万元");
+										resultOriginMap.put("url", banklink + map.get("bankShortName") + ".png");
+										break;
+									}
+								}
+							}
+
 							result.add(resultOriginMap);
 						}
 					}

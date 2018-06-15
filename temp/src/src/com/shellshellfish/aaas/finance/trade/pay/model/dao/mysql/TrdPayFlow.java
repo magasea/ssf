@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Created by developer4 on 2018- 五月 - 26
+ * Created by chenwei on 2018- 五月 - 26
  */
 
 @Entity

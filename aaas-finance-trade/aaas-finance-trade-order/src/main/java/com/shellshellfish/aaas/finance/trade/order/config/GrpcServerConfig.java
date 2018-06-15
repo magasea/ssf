@@ -1,5 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.order.config;
 
+import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc;
+import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc.DataCollectionServiceBlockingStub;
 import com.shellshellfish.aaas.finance.trade.order.service.impl.OrderServiceImpl;
 import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApiServiceGrpc;
 import com.shellshellfish.aaas.tools.zhongzhengapi.ZZApiServiceGrpc.ZZApiServiceBlockingStub;
@@ -41,6 +43,12 @@ public class GrpcServerConfig {
 	@Value("${grpc.zhongzhengapi_client.port}")
 	int zzapiPort;
 
+	@Value("${grpc.datacollection_client.host}")
+	String datacollectionHost;
+
+	@Value("${grpc.datacollection_client.port}")
+	int datacollectionPort;
+
 	@Bean
 	ManagedChannelBuilder<?> grpcFINChannelBuilder() {
 		return ManagedChannelBuilder.forAddress(finHost, finPort);
@@ -60,6 +68,12 @@ public class GrpcServerConfig {
 	ManagedChannelBuilder<?> grpcZZAPIChannelBuilder() {
 		return ManagedChannelBuilder.forAddress(zzapiHost, zzapiPort);
 	}
+
+	@Bean
+	ManagedChannelBuilder<?> grpcDataCLLChannelBuilder() {
+		return ManagedChannelBuilder.forAddress(datacollectionHost, datacollectionPort);
+	}
+
 
 	@Value("${grpc.userinfo_client.host}")
 	String uiHost;
@@ -109,9 +123,23 @@ public class GrpcServerConfig {
 
 	@Bean
 	@PostConstruct
+	ManagedChannel managedDataCLLChannel() {
+		ManagedChannel managedChannel = grpcDataCLLChannelBuilder().usePlaintext(true).build();
+		return managedChannel;
+	}
+
+	@Bean
+	@PostConstruct
 	ZZApiServiceBlockingStub zzApiServiceBlockingStub(){
 		return ZZApiServiceGrpc.newBlockingStub(managedZZAPIChannel());
 	}
+
+	@Bean
+	@PostConstruct
+	DataCollectionServiceBlockingStub dataDCCServiceBlockingStub(){
+		return DataCollectionServiceGrpc.newBlockingStub(managedDataCLLChannel());
+	}
+
 
 	@Value("${grpc.order_server.port}")
 	int orderServerPort;

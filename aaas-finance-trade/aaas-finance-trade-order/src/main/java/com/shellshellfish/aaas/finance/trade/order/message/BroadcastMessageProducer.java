@@ -42,6 +42,8 @@ public class BroadcastMessageProducer {
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_PAY,
             payOrderDto);
         System.out.println("Send msg = " + payOrderDto);
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.OPERATION_TYPE_UPDATE_BUY_PENDINGRECORDS,
+            payOrderDto);
     }
 
 //    public void sendPayMessages(PayPreOrderDto payPreOrderDto){
@@ -58,6 +60,8 @@ public class BroadcastMessageProducer {
     public void sendSellPercentMessages(ProdSellPercentMsg prodSellPercentMsg) {
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
             .ROUTING_KEY_SELLPERCENT, prodSellPercentMsg);
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.OPERATION_TYPE_UPDATE_SELL_PENDINGRECORDS,
+            prodSellPercentMsg);
     }
 
     public void sendOrderStatusChangeMessages(OrderStatusChangeDTO orderStatusChangeDTO) {

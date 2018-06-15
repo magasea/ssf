@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.common.grpc.zzapi.WalletApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZAplyCfmInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZDiscountInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundNetInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundShareInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZRiskCmtResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
@@ -410,6 +411,29 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
       logMap(info);
       ZZGeneralResp<ZZRiskCmtResult> resp = callZZApiGeneral(ZhongZhengAPIConstants
           .ZZ_API_URL_COMMIT_RISK, ZZRiskCmtResult.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
+
+  @Override
+  public List<ZZFundNetInfo> getAllNet( String fundCode, Integer limitLeft,
+      Integer limitRight) throws Exception {
+    try {
+      TreeMap<String, String> origInfo = new TreeMap<>();
+      if(fundCode.contains(".")){
+        fundCode = fundCode.split("\\.")[0];
+      }
+      origInfo.put("fundcode", fundCode);
+      origInfo.put("limit_left", limitLeft.toString());
+      origInfo.put("limit_right", limitRight.toString());
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(true, origInfo);
+      logMap(info);
+      ZZGeneralRespWithListData<ZZFundNetInfo> resp = callZZApiWithListData(ZhongZhengAPIConstants
+          .ZZ_API_URL_ALL_NET, ZZFundNetInfo.class, info);
       checkResult(resp);
       return resp.getData();
     } catch (Exception e) {

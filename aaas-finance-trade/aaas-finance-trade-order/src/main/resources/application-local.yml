@@ -77,3 +77,21 @@ grpc:
   zhongzhengapi_client:
     host: localhost
     port: 10171
+
+org:
+  quartz:
+    jobStore:
+        class: org.quartz.simpl.RAMJobStore
+        misfireThreshold: 60000
+    threadPool:
+        class: org.quartz.simpl.SimpleThreadPool
+        threadCount: 2
+        threadsInheritContextClassLoaderOfInitializingThread: true
+using:
+  spring:
+    schedulerFactory: true
+cron:
+  frequency:
+    #Every 5  minute(s) starting at minute
+    jobCheckOrderWithPay: 0 0,4,10,14,20,24,30,34,40,44,50,54 0 ? * * *
+#    jobCheckOrderWithPay: 0 10,15 0 ? * * *

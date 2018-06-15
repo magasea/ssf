@@ -6,6 +6,7 @@ import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZApplyResultEnum;
 import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderDetailRepository;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
 import io.swagger.models.auth.In;
@@ -80,22 +81,38 @@ public class BroadcastMessageConsumers {
 
         }
     }
+    @Transactional
+    @RabbitListener(bindings = @QueueBinding(
+        value = @Queue(value = RabbitMQConstants.QUEUE_ORDER_BASE + RabbitMQConstants.OPERATION_TYPE_FAILED_TRADE, durable =
+            "false"),
+        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
+            durable = "true"),  key = RabbitMQConstants.OPERATION_TYPE_FAILED_TRADE )
+    )
+    public void receiveFailedMessage(TrdPayFlow trdPayFlow) throws Exception {
+        try{
+            logger.info("Received fanout 1 message: " + trdPayFlow);
+            logger.info("receiveMessageFromFanout1: " + trdPayFlow.getFundCode());
+            Map<String, Object> trdOrderDetail = new HashMap<>();
+            String tradeApplySerial =  trdPayFlow.getApplySerial();
+
+            Long id = trdPayFlow.getOrderDetailId();
+            TrdOrderDetail result = null;
+            if(trdOrderDetailRepository.findById(id).isPresent()){
+
+                result = trdOrderDetailRepository.findById(id).get();
+                if(!StringUtils.isEmpty(tradeApplySerial)){
+                    result.setErrMsg(tradeApplySerial);
+                }
+                result.setOrderDetailStatus(trdPayFlow.getTrdStatus());
+                result.setErrMsg(trdPayFlow.getErrMsg());
+                trdOrderDetailRepository.save(result);
+            }
 
 
-//    @RabbitListener(bindings = @QueueBinding(
-//        value = @Queue(value = RabbitMQConstants.QUEUE_ORDER_BASE + RabbitMQConstants.OPERATION_TYPE_HANDLE_PREORDER, durable =
-//            "false"),
-//        exchange =  @Exchange(value = RabbitMQConstants.EXCHANGE_NAME, type = "topic",
-//            durable = "true"),  key = RabbitMQConstants.ROUTING_KEY_PREORDER )
-//    )
-//    public void receivePreOrderMessage(TrdPayFlow trdPayFlow) throws Exception {
-//        try{
-//            logger.info("receivePreOrderMessage 1 message: with fundCode:" + trdPayFlow.getFundCode
-//                () + " with preOrderId:" + trdPayFlow.getOrderDetailId());
-//            tradeOpService.buyPreOrderProduct(trdPayFlow);
-//        }catch (Exception ex){
-//            logger.error("exception:",ex);
-//
-//        }
-//    }
+
+        }catch (Exception ex){
+            logger.error("exception:",ex);
+
+        }
+    }
 }
