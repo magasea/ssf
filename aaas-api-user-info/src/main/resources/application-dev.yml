@@ -121,7 +121,7 @@ cron:
   frequency:
     #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
     # 	At minute 30 past every hour.
-    jobCheckPendingRecords: 0 0 0 ? * * *
-    jobUpdateAndCaculateUPD: 0 0 11,23 ? * * *
-    jobPatchChkPendingRecordByZZInfo: 0 0 0 ? * * *
-    jobPatchChkPendingRecordNavadj: 0 0 0 ? * * *
+    jobCheckPendingRecords: 0 0 0/1 1/1 * ? *
+    jobUpdateAndCaculateUPD: 0 0 0/3 1/1 * ? *
+    jobPatchChkPendingRecordByZZInfo: 0 0 0/4 1/1 * ? *
+    jobPatchChkPendingRecordNavadj: 0 0 0/6 1/1 * ? *

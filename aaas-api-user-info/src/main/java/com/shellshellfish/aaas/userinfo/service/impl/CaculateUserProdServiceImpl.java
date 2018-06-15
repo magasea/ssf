@@ -209,8 +209,12 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
     for(Long userProdId: prodIds){
       List<UiProductDetail> uiProductDetails = uiProductDetailRepo.findAllByUserProdId(userProdId);
       for(UiProductDetail uiProductDetail: uiProductDetails){
-        updateCaculateBase(userProdId, uiProductDetail.getFundCode());
-        caculateQuantityByUserProdIdAndFundCode(userProdId, uiProductDetail.getFundCode());
+        try{
+          updateCaculateBase(userProdId, uiProductDetail.getFundCode());
+          caculateQuantityByUserProdIdAndFundCode(userProdId, uiProductDetail.getFundCode());
+        }catch (Exception ex){
+          logger.error("error:", ex);
+        }
       }
     }
   }
