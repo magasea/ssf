@@ -1901,6 +1901,11 @@ public class FundGroupService {
             } else {
                 maxRetracement = CalculateMaxdrawdowns.calculateMaxdrawdown(values);
             }
+            //当组合收益为0时，最大回撤会返回空值，所以跳过
+            if (maxRetracement == null || Double.isNaN(maxRetracement)){
+                log.error("when calculateMaxRetracement, the income is 0, groupId:{}, subId:{}, date:{}", groupId, subGroupId, fundGroupHistory.getTime());
+                continue;
+            }
 
             FundGroupHistory fundGroupHistory1 = new FundGroupHistory(groupId, subGroupId, fundGroupHistory.getIncome_num(), maxRetracement, fundGroupHistory.getTime());
             fundGroupHistoryDest.add(fundGroupHistory1);
@@ -2041,7 +2046,8 @@ public class FundGroupService {
         //依次计算每只基金在组合中所占份额，然后求和
         LocalDate endDate = null;
         boolean ignoreThisDate = false;
-        for (LocalDate date = startDate; date.isBefore(LocalDate.now(ZoneId.systemDefault()).plusDays(1)); date = date.plusDays(1)) {
+//        for (LocalDate date = startDate; date.isBefore(LocalDate.now(ZoneId.systemDefault()).plusDays(1)); date = date.plusDays(1)) {
+        for (LocalDate date = startDate; date.isBefore(LocalDate.now(ZoneId.systemDefault())); date = date.plusDays(1)) {
             //非交易日不处理
             if (!TradingDayUtils.isTradingDay(date))
                 continue;
