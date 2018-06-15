@@ -98,4 +98,4 @@ using:
 cron:
   frequency:
     #每天5 18 点开始
-    jobCheckOrderWithPay: 0 0 5,11,17,23 ? * * *
+    jobCheckOrderWithPay: 0 10/1 1/1 ? * * *
