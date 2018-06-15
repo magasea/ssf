@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 
 @Configuration
-@ConditionalOnExpression("'${using.spring.schedulerFactory}'=='false'")
+@ConditionalOnExpression("'${using.spring.schedulerFactory}'=='true'")
 public class QrtzScheduler {
 
     Logger logger = LoggerFactory.getLogger(getClass());
@@ -74,7 +74,7 @@ public class QrtzScheduler {
 
     @Bean
     public JobDetail jobPatchOrder() {
-        JobKey jobKey = new JobKey("Qrtz_Job_PatchOrder", "userInfo");
+        JobKey jobKey = new JobKey("Qrtz_Job_PatchOrder", "order");
         JobDetail job = JobBuilder.newJob(PatchOrderJob.class).withIdentity(jobKey).storeDurably()
             .withDescription("Invoke PatchOrder Job service...").build();
         return  job;

@@ -105,8 +105,8 @@ using:
 cron:
   frequency:
     #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
-    # 	At minute 30 past every hour.
-    jobCheckPendingRecords: 0 0 0 ? * * *
+    # 	 Every 15 minute between minute   and minute
+    jobCheckPendingRecords: 0 15-0 0 ? * * *
     jobUpdateAndCaculateUPD: 0 0 11,23 ? * * *
     jobPatchChkPendingRecordByZZInfo: 0 0 0 ? * * *
     jobPatchChkPendingRecordNavadj: 0 0 0 ? * * *

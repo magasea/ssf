@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.common.utils.MathUtil;
+import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc.DataCollectionServiceBlockingStub;
 import com.shellshellfish.aaas.finance.trade.order.model.DistributionResult;
 import com.shellshellfish.aaas.finance.trade.order.model.FundAmount;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeLimitResult;
@@ -27,6 +28,9 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
 
     @Autowired
     private FundInfoZhongZhengApiService fundInfoService;
+
+    @Autowired
+    DataCollectionServiceBlockingStub dataDCCServiceBlockingStub;
 
     @Override
     public BigDecimal getMinBuyAmount(List<ProductMakeUpInfo> productMakeUpInfoList) throws Exception {
@@ -145,5 +149,9 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
 		}
 		return true;
 	}
+
+//	private BigDecimal getNavadjByFundCodeAndDate(String fundCode, String dateStr){
+//      dataDCCServiceBlockingStub.getFundDataOfDay()
+//  }
 
 }

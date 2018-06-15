@@ -201,6 +201,7 @@ public class DataCollectionServiceImpl extends DataCollectionServiceImplBase imp
                     for (String code : baseIndexs) {
                         builderDailyFunds.setCode(code);
                         nvadj = (Double) fundBaseClose.get(code);
+                        if(nvadj == null)
                         builderDailyFunds.setNavadj(nvadj);
                         builderDailyFunds.setNavLatestDate((Long) fundBaseClose.get("querydate"));
                         dailyFundsListProto.add(builderDailyFunds.build());

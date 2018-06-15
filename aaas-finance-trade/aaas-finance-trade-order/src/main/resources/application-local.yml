@@ -92,6 +92,6 @@ using:
     schedulerFactory: true
 cron:
   frequency:
-    #每天5 18 点开始
-    jobCheckOrderWithPay: 0 0 5,11,17,23 ? * * *
+    #Every 5  minute(s) starting at minute
+    jobCheckOrderWithPay: 0 0,4,10,14,20,24,30,34,40,44,50,54 0 ? * * *
 #    jobCheckOrderWithPay: 0 10,15 0 ? * * *
