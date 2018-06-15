@@ -42,7 +42,7 @@ public class QrtzScheduler {
 
     @PostConstruct
     public void init() {
-        logger.info("Hello world from Quartz...");
+        logger.info("Hello world from Quartz... {}", cronCheckOrderWithPay);
     }
 
     @Bean

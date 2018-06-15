@@ -93,5 +93,5 @@ using:
 cron:
   frequency:
     #Every 5  minute(s) starting at minute
-    jobCheckOrderWithPay: 0 0,4,10,14,20,24,30,34,40,44,50,54 0 ? * * *
+    jobCheckOrderWithPay: 0 * 0 ? * * *
 #    jobCheckOrderWithPay: 0 10,15 0 ? * * *
