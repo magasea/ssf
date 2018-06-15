@@ -118,11 +118,7 @@ public class BroadcastMessageConsumers {
       }
     }
 
-    try {
-      channel.basicAck(tag, true);
-    } catch (IOException e) {
-      logger.error("exception:", e);
-    }
+
 
 
   }
@@ -411,6 +407,7 @@ public class BroadcastMessageConsumers {
         mongoUiTrdZZInfoInDb.setId(idOrig);
         mongoUiTrdZZInfoRepo.save(mongoUiTrdZZInfoInDb);
       }
+      calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo);
     } catch (Exception ex) {
       logger.error("exception:", ex);
     }
@@ -442,7 +439,7 @@ public class BroadcastMessageConsumers {
 //                        .getTradeType());
 //            }
 
-      calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo);
+
     } catch (Exception ex) {
       logger.error("Exception:", ex);
     }
@@ -1195,6 +1192,10 @@ public class BroadcastMessageConsumers {
     } else {
       if (mongoPendingRecords.get(0).getProcessStatus() == PendingRecordStatusEnum.HANDLED
           .getStatus()) {
+        if(mongoPendingRecords.get(0).getTradeConfirmShare() == null){
+          mongoPendingRecords.get(0).setTradeConfirmShare(trdPayFlow.getTradeConfirmShare());
+          mongoPendingRecords.get(0).setTradeConfirmSum(trdPayFlow.getTradeConfirmSum());
+        }
         logger.error("The pendingRecords with user_prod_id:{} and order_id:{} and "
                 + "fund_code:{} already in handled status", trdPayFlow.getUserProdId(),
             trdPayFlow.getOutsideOrderno(), trdPayFlow.getFundCode());

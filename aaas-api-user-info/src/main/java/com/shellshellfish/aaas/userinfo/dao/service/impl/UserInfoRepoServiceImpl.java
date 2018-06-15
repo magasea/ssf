@@ -1214,6 +1214,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
         spdrBuilder.setFundQuantityTrade(0L);
         spdrBuilder.setFundQuantityTradeRemain(0L);
         spdrBuilder.setResult(ItemStatus.FAIL.ordinal());
+        sprBuilder.addSellProductDetailResults(spdrBuilder);
         continue;
       }
       if (CollectionUtils.isEmpty(mongoPendingRecords)) {
