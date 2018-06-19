@@ -87,7 +87,7 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
     UserPidDAO userPidDAO;
 
     @Autowired
-    PayService payService;
+    PayService payService;FundInfoZhongZhengApiService
 
     @Autowired
     ZZApiService zzApiService;
