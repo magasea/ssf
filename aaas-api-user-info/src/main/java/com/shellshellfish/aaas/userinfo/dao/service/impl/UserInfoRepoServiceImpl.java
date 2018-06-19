@@ -1236,7 +1236,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
           finalTrdTargetShares = trdTgtShares;
         }
         MongoPendingRecords mongoPendingRecordsPatch = new MongoPendingRecords();
-        mongoPendingRecordsPatch.setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
+        mongoPendingRecordsPatch.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED.getStatus());
         mongoPendingRecordsPatch.setUserProdId(request.getUserProductId());
         mongoPendingRecordsPatch.setTradeType(TrdOrderOpTypeEnum.REDEEM.getOperation());
         mongoPendingRecordsPatch.setFundCode(uiProductDetail.getFundCode());
@@ -1293,7 +1293,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
         }
 
         MongoPendingRecords mongoPendingRecordsPatch = new MongoPendingRecords();
-        mongoPendingRecordsPatch.setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
+        mongoPendingRecordsPatch.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED.getStatus());
         mongoPendingRecordsPatch.setUserProdId(request.getUserProductId());
         mongoPendingRecordsPatch.setTradeType(TrdOrderOpTypeEnum.REDEEM.getOperation());
         mongoPendingRecordsPatch.setFundCode(uiProductDetail.getFundCode());
