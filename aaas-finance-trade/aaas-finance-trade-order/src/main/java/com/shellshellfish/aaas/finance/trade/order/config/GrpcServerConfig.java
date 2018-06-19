@@ -43,6 +43,11 @@ public class GrpcServerConfig {
 	@Value("${grpc.zhongzhengapi_client.port}")
 	int zzapiPort;
 
+	@Value("${grpc.userinfo_client.host}")
+	String uiHost;
+
+	@Value("${grpc.userinfo_client.port}")
+	int uiPort;
 
 
 	@Bean
@@ -65,15 +70,6 @@ public class GrpcServerConfig {
 	ManagedChannelBuilder<?> grpcZZAPIChannelBuilder() {
 		return ManagedChannelBuilder.forAddress(zzapiHost, zzapiPort);
 	}
-
-
-
-
-	@Value("${grpc.userinfo_client.host}")
-	String uiHost;
-
-	@Value("${grpc.userinfo_client.port}")
-	int uiPort;
 
 	@Bean
 	ManagedChannelBuilder<?> grpcUIChannelBuilder() {

@@ -201,14 +201,17 @@ public class TradeOrderController {
 			@RequestParam(value = "subGroupId") Long subGroupId,
 			@RequestParam(value = "oemid") Integer oemid,
 			@RequestParam(value = "totalAmount") BigDecimal totalAmount,
-			@RequestParam(value = "persent",required = false,defaultValue = "0") BigDecimal persent)
+			@RequestParam(value = "persent",required = false,defaultValue = "0") BigDecimal persent,
+			@RequestParam(value = "prodId") String prodId)
+
+
 			throws Exception {
 		ProductBaseInfo productBaseInfo = new ProductBaseInfo();
 		productBaseInfo.setProdId(groupId);
 		productBaseInfo.setGroupId(subGroupId);
 		productBaseInfo.setOemId(oemid);
 		List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
-		DistributionResult distributionResult = financeProdCalcService.getPoundageOfSellFund(totalAmount, productList,persent);
+		DistributionResult distributionResult = financeProdCalcService.getPoundageOfSellFund(totalAmount, productList,persent,prodId);
 
 		return new ResponseEntity<DistributionResult>(distributionResult, HttpStatus.OK);
 	}
