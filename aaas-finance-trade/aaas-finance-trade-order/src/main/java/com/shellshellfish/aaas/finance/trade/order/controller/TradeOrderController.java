@@ -186,7 +186,10 @@ public class TradeOrderController {
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = true, value = "groupId", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "Long", required = true, value = "subGroupId", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1"),
-			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "BigDecimal", required = true, value = "赎回金额", defaultValue = "")})
+			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "BigDecimal", required = true, value = "赎回金额", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "persent", dataType = "BigDecimal", required = false, value = "赎回比例", defaultValue = "")
+	}
+			)
 	@ApiResponses({
 			@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
 			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
@@ -197,14 +200,16 @@ public class TradeOrderController {
 			@RequestParam(value = "groupId") Long groupId,
 			@RequestParam(value = "subGroupId") Long subGroupId,
 			@RequestParam(value = "oemid") Integer oemid,
-			@RequestParam(value = "totalAmount") BigDecimal totalAmount)
+			@RequestParam(value = "totalAmount") BigDecimal totalAmount,
+			@RequestParam(value = "persent",required = false,defaultValue = "0") BigDecimal persent)
 			throws Exception {
 		ProductBaseInfo productBaseInfo = new ProductBaseInfo();
 		productBaseInfo.setProdId(groupId);
 		productBaseInfo.setGroupId(subGroupId);
 		productBaseInfo.setOemId(oemid);
 		List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
-		DistributionResult distributionResult = financeProdCalcService.getPoundageOfSellFund(totalAmount, productList);
+		DistributionResult distributionResult = financeProdCalcService.getPoundageOfSellFund(totalAmount, productList,persent);
+
 		return new ResponseEntity<DistributionResult>(distributionResult, HttpStatus.OK);
 	}
 
@@ -330,7 +335,7 @@ public class TradeOrderController {
 	@ApiOperation("购买理财产品 产品详情页面(购买)")
 	@ApiImplicitParams({
 //				@ApiImplicitParam(paramType = "path", name = "uuid", dataType = "String", required = true, value = "用户UUID", defaultValue = ""),
-		@ApiImplicitParam(paramType = "query", name = "orderId", dataType = "String", required = true, value = "订单编号", defaultValue = "1231230001000001513657092497")
+		@ApiImplicitParam(paramType = "path", name = "orderId", dataType = "String", required = true, value = "订单编号", defaultValue = "1231230001000001513657092497")
 	})
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
@@ -355,7 +360,7 @@ public class TradeOrderController {
 	 */
 	@ApiOperation("购买理财产品 产品详情页面(赎回)")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "orderId", dataType = "String", required = true, value = "订单编号", defaultValue = "1231230001000001513657092497")
+		@ApiImplicitParam(paramType = "path", name = "orderId", dataType = "String", required = true, value = "订单编号", defaultValue = "1231230001000001513657092497")
 	})
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
@@ -365,7 +370,7 @@ public class TradeOrderController {
 	@RequestMapping(value = "/funds/sellDetails/{orderId}", method = RequestMethod.GET)
 	public ResponseEntity<Map> sellDetails(
 			// @PathVariable(value = "groupId") Long uuid,
-			@PathVariable(value = "orderId") String orderId) throws Exception {
+			@PathVariable String orderId) throws Exception {
 		logger.error("method sellDetails run ..");
 		Map<String, Object> result = tradeOpService.sellDeatils(orderId);
 //		Map<String, Object> result = new HashMap<String, Object>();

@@ -32,10 +32,10 @@ public class GrpcServerConfig {
 	int payPort;
 
 	@Value("${grpc.datacollection_client.host}")
-	String dcHost;
+	String dccHost;
 
 	@Value("${grpc.datacollection_client.port}")
-	int dcPort;
+	int dccPort;
 
 	@Value("${grpc.zhongzhengapi_client.host}")
 	String zzapiHost;
@@ -43,11 +43,7 @@ public class GrpcServerConfig {
 	@Value("${grpc.zhongzhengapi_client.port}")
 	int zzapiPort;
 
-	@Value("${grpc.datacollection_client.host}")
-	String datacollectionHost;
 
-	@Value("${grpc.datacollection_client.port}")
-	int datacollectionPort;
 
 	@Bean
 	ManagedChannelBuilder<?> grpcFINChannelBuilder() {
@@ -60,19 +56,17 @@ public class GrpcServerConfig {
 	}
 
 	@Bean
-	ManagedChannelBuilder<?> grpcDCChannelBuilder() {
-		return ManagedChannelBuilder.forAddress(dcHost, dcPort);
+	ManagedChannelBuilder<?> grpcDccChannelBuilder(){
+		return ManagedChannelBuilder.forAddress(dccHost, dccPort);
 	}
+
 
 	@Bean
 	ManagedChannelBuilder<?> grpcZZAPIChannelBuilder() {
 		return ManagedChannelBuilder.forAddress(zzapiHost, zzapiPort);
 	}
 
-	@Bean
-	ManagedChannelBuilder<?> grpcDataCLLChannelBuilder() {
-		return ManagedChannelBuilder.forAddress(datacollectionHost, datacollectionPort);
-	}
+
 
 
 	@Value("${grpc.userinfo_client.host}")
@@ -109,8 +103,8 @@ public class GrpcServerConfig {
 
 	@Bean
 	@PostConstruct
-	ManagedChannel managedDCChannel() {
-		ManagedChannel managedChannel = grpcDCChannelBuilder().usePlaintext(true).build();
+	ManagedChannel managedDccChannel(){
+		ManagedChannel managedChannel = grpcDccChannelBuilder().usePlaintext(true).build();
 		return managedChannel;
 	}
 
@@ -121,12 +115,7 @@ public class GrpcServerConfig {
 		return managedChannel;
 	}
 
-	@Bean
-	@PostConstruct
-	ManagedChannel managedDataCLLChannel() {
-		ManagedChannel managedChannel = grpcDataCLLChannelBuilder().usePlaintext(true).build();
-		return managedChannel;
-	}
+
 
 	@Bean
 	@PostConstruct
@@ -134,11 +123,7 @@ public class GrpcServerConfig {
 		return ZZApiServiceGrpc.newBlockingStub(managedZZAPIChannel());
 	}
 
-	@Bean
-	@PostConstruct
-	DataCollectionServiceBlockingStub dataDCCServiceBlockingStub(){
-		return DataCollectionServiceGrpc.newBlockingStub(managedDataCLLChannel());
-	}
+
 
 
 	@Value("${grpc.order_server.port}")
