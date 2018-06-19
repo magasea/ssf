@@ -1014,7 +1014,10 @@ public class OptimizationServiceImpl implements OptimizationService {
                     for (int j = 0; j < yieldof7days.size(); j++) {
                         Map yieldof7daysMap = yieldof7days.get(j);
                         if (yieldof7daysMap.get("value") != null) {
-                            maxMinValueList.add(Double.parseDouble(yieldof7daysMap.get("value") + ""));
+                            BigDecimal yieldof7daysVal = new BigDecimal(yieldof7daysMap.get("value") + "");
+                            Double yieldof9 = yieldof7daysVal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                            yieldof7daysMap.put("value", yieldof9);
+                            maxMinValueList.add(yieldof9);
                         }
                     }
                     maxMinValue.put("maxValue", Collections.max(maxMinValueList));

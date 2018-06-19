@@ -42,7 +42,7 @@ public class QrtzScheduler {
 
     @PostConstruct
     public void init() {
-        logger.info("Hello world from Quartz...");
+        logger.info("Hello world from Quartz... {}", cronCheckOrderWithPay);
     }
 
     @Bean
@@ -55,17 +55,14 @@ public class QrtzScheduler {
     }
 
     @Bean
-    public Scheduler scheduler() throws SchedulerException, IOException {
-
+    public Scheduler scheduler(JobDetail jobPatchOrder, Trigger triggerPatchOrder) throws SchedulerException,
+        IOException {
         StdSchedulerFactory factory = new StdSchedulerFactory();
-//        factory.initialize(new ClassPathResource("quartz.properties").getInputStream());
-
-        logger.info("Getting a handle to the Scheduler");
+        logger.debug("Getting a handle to the Scheduler");
         Scheduler scheduler = factory.getScheduler();
         scheduler.setJobFactory(springBeanJobFactory());
-        scheduler.scheduleJob(jobPatchOrder(), triggerPatchOrder());
-
-        logger.info("Starting Scheduler threads");
+        scheduler.scheduleJob(jobPatchOrder, triggerPatchOrder);
+        logger.debug("Starting Scheduler threads");
         scheduler.start();
         return scheduler;
     }
