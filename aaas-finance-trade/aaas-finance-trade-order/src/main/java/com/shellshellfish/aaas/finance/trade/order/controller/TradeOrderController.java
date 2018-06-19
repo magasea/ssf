@@ -335,7 +335,7 @@ public class TradeOrderController {
 	@ApiOperation("购买理财产品 产品详情页面(购买)")
 	@ApiImplicitParams({
 //				@ApiImplicitParam(paramType = "path", name = "uuid", dataType = "String", required = true, value = "用户UUID", defaultValue = ""),
-		@ApiImplicitParam(paramType = "query", name = "orderId", dataType = "String", required = true, value = "订单编号", defaultValue = "1231230001000001513657092497")
+		@ApiImplicitParam(paramType = "path", name = "orderId", dataType = "String", required = true, value = "订单编号", defaultValue = "1231230001000001513657092497")
 	})
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
@@ -360,7 +360,7 @@ public class TradeOrderController {
 	 */
 	@ApiOperation("购买理财产品 产品详情页面(赎回)")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "orderId", dataType = "String", required = true, value = "订单编号", defaultValue = "1231230001000001513657092497")
+		@ApiImplicitParam(paramType = "path", name = "orderId", dataType = "String", required = true, value = "订单编号", defaultValue = "1231230001000001513657092497")
 	})
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
@@ -370,7 +370,7 @@ public class TradeOrderController {
 	@RequestMapping(value = "/funds/sellDetails/{orderId}", method = RequestMethod.GET)
 	public ResponseEntity<Map> sellDetails(
 			// @PathVariable(value = "groupId") Long uuid,
-			@PathVariable(value = "orderId") String orderId) throws Exception {
+			@PathVariable String orderId) throws Exception {
 		logger.error("method sellDetails run ..");
 		Map<String, Object> result = tradeOpService.sellDeatils(orderId);
 //		Map<String, Object> result = new HashMap<String, Object>();
