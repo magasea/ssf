@@ -110,7 +110,8 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
           (mongoPendingRecords.getTradeTargetShare() == null || mongoPendingRecords
               .getTradeTargetShare() == trdOrderDetails.get(0).getFundNum())){
         mongoPendingRecords.setOrderId(trdOrderDetails.get(0).getOrderId());
-        mongoPendingRecords.setOutsideOrderId(trdOrderDetails.get(0).getOrderId()+ trdOrderDetails.get(0));
+        mongoPendingRecords.setOutsideOrderId(trdOrderDetails.get(0).getOrderId()+
+            trdOrderDetails.get(0).getId());
         shouldSave = true;
       }
       if(shouldSave) {

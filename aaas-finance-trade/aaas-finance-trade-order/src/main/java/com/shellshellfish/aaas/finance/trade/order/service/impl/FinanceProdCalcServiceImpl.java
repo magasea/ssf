@@ -13,6 +13,10 @@ import com.shellshellfish.aaas.finance.trade.order.model.DistributionResult;
 import com.shellshellfish.aaas.finance.trade.order.model.FundAmount;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeLimitResult;
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdCalcService;
+import com.shellshellfish.aaas.grpc.common.UserProdDetail;
+import com.shellshellfish.aaas.userinfo.grpc.GetUserProdDetailQuery;
+import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
+import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc.UserInfoServiceBlockingStub;
 import io.grpc.ManagedChannel;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -41,16 +45,19 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
     private static final Logger logger = LoggerFactory.getLogger(FinanceProdCalcServiceImpl.class);
     @Autowired
     ManagedChannel managedDccChannel;
-
+    @Autowired
+    ManagedChannel managedUIChannel;
     @Autowired
     private FundInfoZhongZhengApiService fundInfoService;
 
-
     DataCollectionServiceBlockingStub dataCollectionServiceBlockingStub;
+
+    UserInfoServiceBlockingStub userInfoServiceBlockingStub;
 
     @PostConstruct
     void init(){
         dataCollectionServiceBlockingStub = DataCollectionServiceGrpc.newBlockingStub(managedDccChannel);
+        userInfoServiceBlockingStub=UserInfoServiceGrpc.newBlockingStub(managedUIChannel);
     }
     @Override
     public BigDecimal getMinBuyAmount(List<ProductMakeUpInfo> productMakeUpInfoList)
@@ -156,7 +163,7 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
 
     @Override
     public DistributionResult getPoundageOfSellFund(BigDecimal netAmount,
-        List<ProductMakeUpInfo> productMakeUpInfoList,BigDecimal persent) throws Exception {
+        List<ProductMakeUpInfo> productMakeUpInfoList,BigDecimal persent,String prodId) throws Exception {
         BigDecimal totalPoundage = BigDecimal.ZERO;
         BigDecimal totalDiscountSaving = BigDecimal.ZERO;
         List<FundAmount> fundAmountList = new ArrayList<>();
@@ -182,16 +189,43 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
             fundAmountList.add(fundAmount);
         }
         HashMap<Object, Object> fundInfoMap = getNavadjByFundCodeAndDate(fundCodeList);
+        //获取基金当前持有份额
+        HashMap<Object, Object> userProdDetailMap = getFundConShare(prodId);
         //存入当前持仓金额及预期赎回金额
+        java.text.DecimalFormat df = new java.text.DecimalFormat("0.00");
         for(FundAmount fundAmount:fundAmountList){
             if(fundInfoMap.get(fundAmount.getFundCode())!=null){
                 HashMap<Object, Object> fundMap=(HashMap<Object, Object>)fundInfoMap.get(fundAmount.getFundCode());
                 BigDecimal navadj = new BigDecimal(String.valueOf(fundMap.get("navadj")));
-                fundAmount.setConPosAmount(navadj.multiply(new BigDecimal(fundAmount.getFundShare()).divide(new BigDecimal(10000d))));
-                fundAmount.setExpectSellAmount(fundAmount.getConPosAmount().multiply(persent.divide(new BigDecimal(100))));
+                if(userProdDetailMap.get(fundAmount.getFundCode())!=null){
+                    HashMap<Object, Object>  tempUserProdDetailMap =(HashMap<Object, Object> ) userProdDetailMap.get(fundAmount.getFundCode());
+                    if(fundAmount.getFundCode().equals(tempUserProdDetailMap.get("fundcode"))){
+                        BigDecimal conPostAmount = navadj.multiply(
+                            new BigDecimal((Integer) tempUserProdDetailMap.get("fundQuantity"))
+                                .divide(new BigDecimal(100d)));
+                        BigDecimal exceptPostAmount = conPostAmount.multiply(persent.divide(new BigDecimal(100)));
+                        fundAmount.setConPosAmount(new BigDecimal(df.format(conPostAmount)));
+                        fundAmount.setExpectSellAmount(new BigDecimal(df.format(exceptPostAmount)));
+                    }
+                }
             }
         }
         return new DistributionResult(totalPoundage, totalDiscountSaving, fundAmountList);
+    }
+
+    private  HashMap<Object, Object> getFundConShare(String prodId) {
+        GetUserProdDetailQuery.Builder builder = GetUserProdDetailQuery.newBuilder();
+        builder.setUserProdId(Long.parseLong(prodId));
+        List<UserProdDetail> userProdDetailList = userInfoServiceBlockingStub
+            .getUserProdDetail(builder.build()).getUserProdDetailList();
+        HashMap<Object, Object> userProdDetailMap = new HashMap<>();
+        for(UserProdDetail userProdDetail:userProdDetailList){
+            HashMap<Object, Object> tempUserProdDetailMap = new HashMap<>();
+            tempUserProdDetailMap.put("fundcode",userProdDetail.getFundCode());
+            tempUserProdDetailMap.put("fundQuantity",userProdDetail.getFundQuantity());
+            userProdDetailMap.put(userProdDetail.getFundCode(),tempUserProdDetailMap);
+        }
+        return userProdDetailMap;
     }
 
     @Override
