@@ -1,5 +1,8 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
+import static io.grpc.stub.ClientCalls.asyncUnaryCall;
+import static io.grpc.stub.ClientCalls.futureUnaryCall;
+
 import com.mongodb.client.result.UpdateResult;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
@@ -14,11 +17,13 @@ import com.shellshellfish.aaas.common.utils.MathUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.grpc.common.ErrInfo;
+import com.shellshellfish.aaas.grpc.common.UserProdDetail;
 import com.shellshellfish.aaas.grpc.common.UserProdId;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
+import com.shellshellfish.aaas.userinfo.grpc.GetUserProdDetailResults;
 import com.shellshellfish.aaas.userinfo.grpc.SellPersentProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductDetail;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductDetailResult;
@@ -1231,7 +1236,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
           finalTrdTargetShares = trdTgtShares;
         }
         MongoPendingRecords mongoPendingRecordsPatch = new MongoPendingRecords();
-        mongoPendingRecordsPatch.setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
+        mongoPendingRecordsPatch.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED.getStatus());
         mongoPendingRecordsPatch.setUserProdId(request.getUserProductId());
         mongoPendingRecordsPatch.setTradeType(TrdOrderOpTypeEnum.REDEEM.getOperation());
         mongoPendingRecordsPatch.setFundCode(uiProductDetail.getFundCode());
@@ -1288,7 +1293,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
         }
 
         MongoPendingRecords mongoPendingRecordsPatch = new MongoPendingRecords();
-        mongoPendingRecordsPatch.setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
+        mongoPendingRecordsPatch.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED.getStatus());
         mongoPendingRecordsPatch.setUserProdId(request.getUserProductId());
         mongoPendingRecordsPatch.setTradeType(TrdOrderOpTypeEnum.REDEEM.getOperation());
         mongoPendingRecordsPatch.setFundCode(uiProductDetail.getFundCode());
@@ -1451,6 +1456,37 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
     return mongoPendingRecords;
   }
 
+
+  /**
+   */
+  @Override
+  public void getUserProdDetail(com.shellshellfish.aaas.userinfo.grpc.GetUserProdDetailQuery request,
+      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.GetUserProdDetailResults> responseObserver) {
+
+
+   Long userProdId = request.getUserProdId();
+   if(userProdId <= 0){
+     Exception ex =  new Exception(String.format("Illegal input param:%s", request.getUserProdId
+         ()));
+     onError(responseObserver, ex);
+   }
+   List<UiProductDetail> uiProductDetails =  uiProductDetailRepo.findAllByUserProdId(userProdId);
+   if(CollectionUtils.isEmpty(uiProductDetails)){
+     Exception ex =  new Exception(String.format("Havent found uiProductDetails by userProdId:%s",
+         request.getUserProdId()));
+     onError(responseObserver, ex);
+   }
+    GetUserProdDetailResults.Builder gupdrBuilder = GetUserProdDetailResults.newBuilder();
+   UserProdDetail.Builder updBuilder = UserProdDetail.newBuilder();
+   for(UiProductDetail uiProductDetail: uiProductDetails){
+     MyBeanUtils.mapEntityIntoDTO(uiProductDetail, updBuilder);
+     gupdrBuilder.addUserProdDetail(updBuilder);
+     updBuilder.clear();
+   }
+   responseObserver.onNext(gupdrBuilder.build());
+   responseObserver.onCompleted();
+  }
+
   private void onError(StreamObserver responseObserver, Exception ex){
     responseObserver.onError(Status.INTERNAL
         .withDescription(ex.getMessage())
@@ -1459,5 +1495,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
         // the client!
         .asRuntimeException());
   }
+
+
 }
 

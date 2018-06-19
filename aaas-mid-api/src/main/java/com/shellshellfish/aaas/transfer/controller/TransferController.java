@@ -562,7 +562,7 @@ public class TransferController {
 				String prodId, String totalAmount) {
 			Map result = null;
 			try {
-				result = service.sellFundPage(groupId, subGroupId, totalAmount, Integer.parseInt(oemid));
+				result = service.sellFundPage(groupId, subGroupId, totalAmount, Integer.parseInt(oemid),new BigDecimal("100"));
 				if (result != null) {
 					result.put("userUuid", userUuid);
 					result.put("bankNum", bankNum);
@@ -637,13 +637,13 @@ public class TransferController {
 			BigDecimal amount = new BigDecimal(totalAmount);
 //			result = service.sellFundPage(groupId, subGroupId, amount + "", Integer.parseInt(oemid));
 			if(persent.equals(BigDecimal.ZERO)){
-				result = service.sellFundPage(groupId, subGroupId, "0", Integer.parseInt(oemid));
+				result = service.sellFundPage(groupId, subGroupId, "0", Integer.parseInt(oemid),persent);
 				result.put("totalAmount", "--");
 				result.put("poundage", "--");
 			} else {
 //				amount = amount.multiply(persent).divide(new BigDecimal("100")).subtract(new BigDecimal(result.get("poundage") + ""));
 				totalAmount = amount.multiply(persent).divide(new BigDecimal("100")) + "";
-				result = service.sellFundPage(groupId, subGroupId, totalAmount, Integer.parseInt(oemid));
+				result = service.sellFundPage(groupId, subGroupId, totalAmount, Integer.parseInt(oemid),persent);
 				amount = (new BigDecimal(totalAmount)).subtract(new BigDecimal(result.get("poundage") + ""));
 				result.put("totalAmount", amount);
 			}

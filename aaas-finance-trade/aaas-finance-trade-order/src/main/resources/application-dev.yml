@@ -76,9 +76,7 @@ grpc:
   zhongzhengapi_client:
     host: localhost
     port: 10171
-  datacollection_client:
-    host: localhost
-    port: 10091
+
 
 org:
   quartz:
@@ -95,7 +93,7 @@ using:
 cron:
   frequency:
     #每天5 18 点开始
-    jobCheckOrderWithPay: 0 10/1 1/1 ? * * *
+    jobCheckOrderWithPay: 0 0 0/3 1/1 * ? *
 
 management:
   endpoints:
