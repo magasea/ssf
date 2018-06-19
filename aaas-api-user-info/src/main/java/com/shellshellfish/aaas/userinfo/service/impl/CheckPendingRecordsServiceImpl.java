@@ -222,16 +222,18 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
 
   private Long getMoneyCodeNavAdjByDate(String fundCode, String applyDate){
 
+    if(StringUtils.isEmpty(applyDate) || applyDate.equals("-1")){
+      logger.error("cannot make navadj without applyDate:{}", applyDate);
+      return -1L;
+    }
+
     if(!applyDate.contains("-")){
       StringBuilder sb = new StringBuilder();
       sb.append(applyDate.substring(0,4)).append("-").append(applyDate.substring(4,6)).append
           ("-").append(applyDate.substring(6,8));
       applyDate = sb.toString();
     }
-    if(StringUtils.isEmpty(applyDate) || applyDate.equals("-1")){
-      logger.error("cannot make navadj without applyDate:{}", applyDate);
-      return -1L;
-    }
+
     if(MonetaryFundEnum.containsCode(fundCode)){
       String beginDate = TradeUtil.getDayBefore(applyDate, 1);
       List<String> codes = new ArrayList<>();

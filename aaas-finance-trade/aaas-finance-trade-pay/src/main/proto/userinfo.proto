@@ -21,6 +21,7 @@ service UserInfoService {
     rpc SellUserProducts (SellProducts) returns (SellProductsResult){}
     rpc RollbackUserProducts (SellProducts) returns (SellProducts){}
     rpc sellPersentUserProducts (SellPersentProducts) returns (SellProductsResult){}
+    rpc GetUserProdDetail(GetUserProdDetailQuery) returns(GetUserProdDetailResults){}
 }
 
 message SellPersentProducts{
@@ -123,4 +124,11 @@ message UserInfo{
   int32 activated = 6;
   int32 isTestFlag = 7;
   int32 riskLevel = 8;
+}
+
+message GetUserProdDetailQuery{
+  int64 userProdId= 1;
+}
+message GetUserProdDetailResults{
+  repeated UserProdDetail userProdDetail = 1;
 }
