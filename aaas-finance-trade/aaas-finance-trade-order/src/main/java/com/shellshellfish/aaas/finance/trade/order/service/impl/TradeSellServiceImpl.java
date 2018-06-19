@@ -57,12 +57,6 @@ import org.springframework.util.StringUtils;
 @Service
 public class TradeSellServiceImpl implements TradeSellService {
   Logger logger = LoggerFactory.getLogger(TradeSellServiceImpl.class);
-
-  @Autowired
-  ManagedChannel managedDCChannel;
-
-  DataCollectionServiceFutureStub dataCollectionServiceFutureStub;
-
   @Autowired
   TrdBrokerUserRepository trdBrokerUserRepository;
 
@@ -81,10 +75,6 @@ public class TradeSellServiceImpl implements TradeSellService {
   @Autowired
   PayService payGrpcService;
 
-  @PostConstruct
-  void init(){
-    dataCollectionServiceFutureStub = DataCollectionServiceGrpc.newFutureStub(managedDCChannel);
-  }
 
   private Map<String, Integer> getFundNetInfo(List<String> fundCodes, String userPid)
       throws ExecutionException, InterruptedException {

@@ -148,13 +148,13 @@ public class FinanceProdCalcServiceImplTest {
         logger.info("distributionResult: {}", new ObjectMapper().writeValueAsString(distributionResult));
     }
 
-    @Test
+ /*   @Test
     public void testGetPoundageOfSellFund() throws Exception {
         Date start = new Date();
         DistributionResult distributionResult = financeProdCalcService.getPoundageOfSellFund(BigDecimal.valueOf(5000), productMakeUpInfoList);
         Date end = new Date();
         logger.info("duration: {}", end.getTime() - start.getTime());
         logger.info("distributionResult: {}", new ObjectMapper().writeValueAsString(distributionResult));
-    }
+    }*/
 
 }

@@ -76,9 +76,7 @@ grpc:
   zhongzhengapi_client:
     host: localhost
     port: 10171
-  datacollection_client:
-    host: localhost
-    port: 10091
+
 
 org:
   quartz:
