@@ -31,7 +31,6 @@ import com.shellshellfish.aaas.userinfo.service.DataCollectionService;
 import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
 import com.shellshellfish.aaas.userinfo.service.PayGrpcService;
 import com.shellshellfish.aaas.userinfo.service.impl.CalculateConfirmedAsset;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -891,19 +890,20 @@ public class BroadcastMessageConsumers {
                 break;
               }
             }
+            mongoTemplate.remove(queryWithEmptyOrderId, "ui_pending_records");
           }
           if (mongoPendingRecordsHistory != null) {
             updateHistoryBuyPendRecordByOrderDetail(mongoPendingRecordsHistory, trdOrderDetail);
             mongoTemplate.save(mongoPendingRecordsHistory, "ui_pending_records");
           }
         } else {
-          MongoPendingRecords mongoPendingRecordsPatched = getPathMongoPendingRecord(
+          MongoPendingRecords mongoPendingRecordsPatched = getPatchMongoPendingRecord(
               trdOrderDetail);
           mongoTemplate.save(mongoPendingRecordsPatched, "ui_pending_records");
         }
       } else {
         MongoPendingRecords mongoPendingRecordsHistory = null;
-        if (mongoPendingRecords.size() >= 1) {
+        if (mongoPendingRecords.size() > 1) {
           logger.error("There should be only 1 pendingRecord there, but there is more "
               + "than 1:{}", mongoPendingRecords.size());
           for (MongoPendingRecords item : mongoPendingRecords) {
@@ -914,11 +914,16 @@ public class BroadcastMessageConsumers {
               break;
             }
           }
+          mongoTemplate.remove(query, "ui_pending_records");
+        }else if(mongoPendingRecords.size() == 1){
+          mongoPendingRecordsHistory = mongoPendingRecords.get(0);
         }
         if (mongoPendingRecordsHistory != null) {
           updateHistoryBuyPendRecordByOrderDetail(mongoPendingRecordsHistory, trdOrderDetail);
           mongoTemplate.save(mongoPendingRecordsHistory, "ui_pending_records");
         } else {
+          MongoPendingRecords mongoPendingRecordsPatched = getPatchMongoPendingRecord(trdOrderDetail);
+          mongoTemplate.save(mongoPendingRecordsPatched, "ui_pending_records");
           logger.error("All pendingRecord with outside_order_id:{} is handled",
               trdOrderDetail.getOrderId() + trdOrderDetail.getId());
         }
@@ -990,6 +995,8 @@ public class BroadcastMessageConsumers {
                 break;
               }
             }
+            //清除掉没有用的pendingRecords
+            mongoTemplate.remove(queryWithEmptyOrderId, "ui_pending_records");
           }
           if (mongoPendingRecordsHistory != null && mongoPendingRecordsHistory
               .getProcessStatus() != PendingRecordStatusEnum.HANDLED.getStatus()) {
@@ -998,13 +1005,13 @@ public class BroadcastMessageConsumers {
             mongoTemplate.save(mongoPendingRecordsHistory, "ui_pending_records");
           }
         } else {
-          MongoPendingRecords mongoPendingRecordsPatched = getPathMongoPendingRecord
+          MongoPendingRecords mongoPendingRecordsPatched = getPatchMongoPendingRecord
               (prodDtlSellDTO, orderId);
           mongoTemplate.save(mongoPendingRecordsPatched, "ui_pending_records");
         }
       } else {
         MongoPendingRecords mongoPendingRecordsHistory = null;
-        if (mongoPendingRecords.size() >= 1) {
+        if (mongoPendingRecords.size() > 1) {
           logger.error("There should be only 1 pendingRecord there, but there is more "
               + "than 1:{}", mongoPendingRecords.size());
           for (MongoPendingRecords item : mongoPendingRecords) {
@@ -1015,16 +1022,19 @@ public class BroadcastMessageConsumers {
               break;
             }
           }
+          mongoTemplate.remove(query, "ui_pending_records");
+        }else if(mongoPendingRecords.size() == 1){
+          mongoPendingRecordsHistory = mongoPendingRecords.get(0);
         }
         if (mongoPendingRecordsHistory != null) {
           updateHistorySellPendRecordByProdDtlSellDTO(mongoPendingRecordsHistory,
               prodDtlSellDTO, orderId);
           mongoTemplate.save(mongoPendingRecordsHistory, "ui_pending_records");
         } else {
-          logger.error("All pendRecord with outside_order_id:{} is handled",
-              orderId + prodDtlSellDTO.getId());
+          MongoPendingRecords mongoPendingRecordsPatched = getPatchMongoPendingRecord
+              (prodDtlSellDTO, orderId);
+          mongoTemplate.save(mongoPendingRecordsPatched, "ui_pending_records");
         }
-
       }
     }
   }
@@ -1240,7 +1250,7 @@ public class BroadcastMessageConsumers {
   }
 
 
-  private MongoPendingRecords getPathMongoPendingRecord(TrdOrderDetail trdOrderDetail) {
+  private MongoPendingRecords getPatchMongoPendingRecord(TrdOrderDetail trdOrderDetail) {
     logger.info("make patch PendingRecords info into database");
     MongoPendingRecords mongoPendingRecordsPatch = new MongoPendingRecords();
     mongoPendingRecordsPatch.setUserProdId(trdOrderDetail.getUserProdId());
@@ -1258,7 +1268,7 @@ public class BroadcastMessageConsumers {
     return mongoPendingRecordsPatch;
   }
 
-  private MongoPendingRecords getPathMongoPendingRecord(ProdDtlSellDTO prodDtlSellDTO, String
+  private MongoPendingRecords getPatchMongoPendingRecord(ProdDtlSellDTO prodDtlSellDTO, String
       orderId) {
     logger.info("make patch PendingRecords info into database");
     MongoPendingRecords mongoPendingRecordsPatch = new MongoPendingRecords();
