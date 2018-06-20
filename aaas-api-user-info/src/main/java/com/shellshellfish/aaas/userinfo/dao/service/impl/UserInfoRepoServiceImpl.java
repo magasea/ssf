@@ -1224,7 +1224,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       Long trdTgtShares = TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundDown
           (originQuantity * percent, 10000L).longValue();
 
-      if (originQuantity <= 0) {
+      if (originQuantity == null || originQuantity <= 0) {
         recordStopSellInvaidFunds(request, uiProductDetail);
         spdrBuilder.setFundCode(uiProductDetail.getFundCode());
         spdrBuilder.setFundQuantityTrade(0L);
