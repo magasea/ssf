@@ -975,8 +975,8 @@ public class BroadcastMessageConsumers {
             .getFundCode(), (sellPercentMsg.getOrderId() + prodDtlSellDTO.getOrderDetailId()));
         Query queryWithEmptyOrderId = new Query();
         queryWithEmptyOrderId.addCriteria(Criteria.where("user_prod_id").is(prodDtlSellDTO.getUserProdId()).and
-            ("fund_code").is(prodDtlSellDTO.getFundCode()).and("outside_order_id").is
-            (null));
+            ("fund_code").is(prodDtlSellDTO.getFundCode()).orOperator(Criteria.where("outside_order_id").is
+            (null),Criteria.where("outside_order_id").is("")));
         List<MongoPendingRecords> mongoPendingRecordsWithEmptyOrderIds = mongoTemplate.find
             (queryWithEmptyOrderId, MongoPendingRecords.class);
         if (!CollectionUtils.isEmpty(mongoPendingRecordsWithEmptyOrderIds)) {
