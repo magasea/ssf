@@ -1260,6 +1260,21 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           trdPayFlow.setUserId(request.getOrderDetail().getUserId());
           trdPayFlow.setTrdApplyDate(applyResult.getApplydate());
           trdPayFlow.setApplySerial(applyResult.getApplyserial());
+          //Todo set tradeStatus here !!!
+          int kkStat = Integer.parseInt(applyResult.getKkstat());
+          String kkStatName = ZZKKStatusEnum.getByStatus(kkStat).getComment();
+          logger.info("applyResult:"+ applyResult.getOutsideorderno() +" kkStat:"+ kkStat + " "
+              + "kkStatName:" + kkStatName);
+          int queryStatus = ZZStatsToOrdStatsUtils
+              .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
+                  Integer.valueOf(applyResult.getConfirmflag())),TrdOrderOpTypeEnum.getByOper
+                      (trdPayFlow.getTrdType()), ZZKKStatusEnum.getByStatus(kkStat)).getStatus();
+//          if(trdPayFlow.getTrdStatus() == queryStatus){
+//            logger.error("There is no status change for applySerial:{}, current "
+//                + "status:{} queryStatus:{}", applyResult.getApplyserial(), trdPayFlow
+//                .getTrdStatus(), queryStatus);
+//          }
+          trdPayFlow.setTrdStatus(queryStatus);
           List<MyEntry<String,TrdPayFlow>> trdPayFlowsConfirm = new ArrayList<>();
           checkFundsTradeJobService.updateTrdPayFlowWithApplyResult(request.getPid(), applyResult,
               trdPayFlow, trdPayFlowsConfirm);
