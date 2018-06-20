@@ -32,5 +32,14 @@ public enum TrdOrderOpTypeEnum {
     }
     throw new IllegalArgumentException("input operation:"+operation+" is illeagal");
   }
+	public static TrdOrderOpTypeEnum getByOper(int operation){
+
+		for (TrdOrderOpTypeEnum enumItem : TrdOrderOpTypeEnum.values()) {
+			if (enumItem.getOperation() == operation) {
+				return enumItem;
+			}
+		}
+		throw new IllegalArgumentException("input operation:"+operation+" is illeagal");
+	}
 
 }
