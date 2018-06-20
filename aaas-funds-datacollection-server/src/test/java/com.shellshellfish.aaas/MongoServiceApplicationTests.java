@@ -27,7 +27,8 @@ public class MongoServiceApplicationTests {
     @Test
     public void findNullContentField() {
         Query query = new Query();
-        query.addCriteria(Criteria.where("000906SH").is(null));
+        query.addCriteria(Criteria.where("querydate").gte(1529424000L).orOperator(Criteria.where
+            ("000906SH").is(null), Criteria.where("000906SH").is("")));
         List<Map> results =  mongoTemplate.find(query, Map.class, "fundbaseclose");
         for(Map item: results){
             item.forEach(

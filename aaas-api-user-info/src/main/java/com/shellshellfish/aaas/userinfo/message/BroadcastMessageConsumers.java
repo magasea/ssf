@@ -975,8 +975,8 @@ public class BroadcastMessageConsumers {
             .getFundCode(), (sellPercentMsg.getOrderId() + prodDtlSellDTO.getOrderDetailId()));
         Query queryWithEmptyOrderId = new Query();
         queryWithEmptyOrderId.addCriteria(Criteria.where("user_prod_id").is(prodDtlSellDTO.getUserProdId()).and
-            ("fund_code").is(prodDtlSellDTO.getFundCode()).and("outside_order_id").is
-            (null));
+            ("fund_code").is(prodDtlSellDTO.getFundCode()).orOperator(Criteria.where("outside_order_id").is
+            (null),Criteria.where("outside_order_id").is("")));
         List<MongoPendingRecords> mongoPendingRecordsWithEmptyOrderIds = mongoTemplate.find
             (queryWithEmptyOrderId, MongoPendingRecords.class);
         if (!CollectionUtils.isEmpty(mongoPendingRecordsWithEmptyOrderIds)) {
@@ -1293,7 +1293,8 @@ public class BroadcastMessageConsumers {
 
     Query query = new Query();
     query.addCriteria(Criteria.where("user_prod_id").is(trdPayFlow.getUserProdId()).and
-        ("fund_code").is(trdPayFlow.getFundCode()).and("outside_order_id").is(null).and
+        ("fund_code").is(trdPayFlow.getFundCode()).orOperator(Criteria.where("outside_order_id")
+        .is(""), Criteria.where("outside_order_id").is(null)).and
         ("process_status").is(PendingRecordStatusEnum.NOTHANDLED.getStatus()).and
         ("trade_type").is(trdPayFlow.getTrdType()));
     List<MongoPendingRecords> unhandledRecords = mongoTemplate.find(query, MongoPendingRecords

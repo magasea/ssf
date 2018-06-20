@@ -216,7 +216,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         trdOrder.setProdId(financeProdBuyInfo.getProdId());
         trdOrder.setGroupId(financeProdBuyInfo.getGroupId());
         trdOrder.setUserProdId(financeProdBuyInfo.getUserProdId());
-        trdOrder.setOrderStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.ordinal());
+        trdOrder.setOrderStatus(TrdOrderStatusEnum.WAITPAY.ordinal());
         trdOrder.setOrderId(orderId);
         trdOrder.setUserId(financeProdBuyInfo.getUserId());
         trdOrder.setCreateBy(financeProdBuyInfo.getUserId());

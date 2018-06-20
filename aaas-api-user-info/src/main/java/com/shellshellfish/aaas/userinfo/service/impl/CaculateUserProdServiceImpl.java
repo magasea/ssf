@@ -25,6 +25,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -80,14 +81,27 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
                   + " in ui_calc_base",userProdId, fundCode, item.getOutsideOrderId());
           if(mongoCaculateBases.size() > 1){
             mongoTemplate.remove(querySub, "ui_calc_base");
+            MyBeanUtils.mapEntityIntoDTO(item, mongoCaculateBases.get(0));
+            mongoCaculateBases.get(0).setTradeConfirmShare(item.getTradeConfirmShare());
+            mongoCaculateBases.get(0).setTradeConfirmSum(item.getTradeConfirmSum());
+            //注意凡是pendingProcessStatus状态为Handled的话必须Navadj已经取到
+            mongoCaculateBases.get(0).setApplyDateNavadj(item.getApplyDateNavadj());
+            caculateAbstractShare(mongoCaculateBases.get(0));
+            mongoTemplate.save(mongoCaculateBases.get(0));
+          }else{
+            Update update = new Update();
+            update.set("trade_confirm_sum", item.getTradeConfirmSum());
+            update.set("trade_confirm_share", item.getTradeConfirmShare());
+            update.set("trade_target_share", item.getTradeTargetShare());
+            update.set("trade_target_sum", item.getTradeTargetSum());
+            update.set("apply_date_str", item.getApplyDateStr());
+            update.set("apply_date_navadj", item.getApplyDateNavadj());
+            Long caculatedShare = caculateAbstractShare(item.getFundCode(), item
+                .getTradeConfirmShare(), item.getApplyDateNavadj());
+            update.set("calculated_share", caculatedShare);
+            mongoTemplate.findAndModify(querySub, update, MongoCaculateBase.class);
           }
-          MyBeanUtils.mapEntityIntoDTO(item, mongoCaculateBases.get(0));
-          mongoCaculateBases.get(0).setTradeConfirmShare(item.getTradeConfirmShare());
-          mongoCaculateBases.get(0).setTradeConfirmSum(item.getTradeConfirmSum());
-          //注意凡是pendingProcessStatus状态为Handled的话必须Navadj已经取到
-          mongoCaculateBases.get(0).setApplyDateNavadj(item.getApplyDateNavadj());
-          caculateAbstractShare(mongoCaculateBases.get(0));
-          mongoTemplate.save(mongoCaculateBases.get(0));
+
         }
     }
     return false;
@@ -102,6 +116,19 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
       mongoCaculateBase.setCalculatedShare(abstractShares.longValue());
     }else{
       mongoCaculateBase.setCalculatedShare(mongoCaculateBase.getTradeConfirmShare());
+    }
+  }
+
+  private Long caculateAbstractShare(String fundCode,  Long tradeConfirmShare, Long
+      applyDateNavadj){
+    if(MonetaryFundEnum.containsCode(fundCode)){
+      BigDecimal abstractShares = TradeUtil
+          .getBigDecimalNumWithDivOfTwoLongAndRundDown(tradeConfirmShare
+              *1000000L, applyDateNavadj);
+      return abstractShares.longValue();
+
+    }else{
+      return tradeConfirmShare;
     }
   }
 
