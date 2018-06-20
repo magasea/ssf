@@ -237,16 +237,12 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
         (uiBankcard.getCardNumber());
     if (!CollectionUtils.isEmpty(uiBankcardsWithCardNum) && uiBankcardsWithCardNum.get(0)
         .getUserId() != uiBankcard.getUserId()) {
-      logger.warn("the bankcard:{} origin is with userId{} and status is:{} now intend to bind it"
+      logger.warn("kcard:{} origin is with userId{} and status is:{} now intend to bind it"
           + " with userId{}", uiBankcard.getCardNumber(), uiBankcardsWithCardNum.get(0).getUserId
           (), uiBankcardsWithCardNum.get(0).getStatus(), uiBankcard.getUserId()
       );
       if (uiBankcardsWithCardNum.get(0).getStatus() != BankCardStatusEnum.INVALID.getStatus()) {
-        throw new Exception(String.format("the bankcard:%s origin is with userId:%s and "
-                + "cellphone:%s and status is:%s now intend to bind it with userId:%s", uiBankcard
-                .getCardNumber(), uiBankcardsWithCardNum.get(0).getUserId(),
-            uiBankcardsWithCardNum.get(0).getCellphone(),
-            uiBankcardsWithCardNum.get(0).getStatus(), uiBankcard.getUserId()));
+        throw new Exception(String.format("此银行卡已被其他账户绑定"));
       } else {
         uiBankcardsWithCardNum.get(0).setStatus(BankCardStatusEnum.VALID.getStatus());
         uiBankcardsWithCardNum.get(0).setUserId(uiBankcard.getUserId());

@@ -101,35 +101,21 @@ public class UserInfoController {
           .getBody();
       if (verifyReult == null || verifyReult.size() == 0) {
         logger.info("获取验证码验证是否正确");
-        /* result.put("msg", "添加失败"); */
-        // TODO 临时注释2018-01-22
-        /********************** start ****************************/
         if (!"123456".equals(verifyCode)) {
           return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", JsonResult.EMPTYRESULT);
         }
-        /********************** end ******************************/
-        // return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确",
-        // JsonResult.EMPTYRESULT);
       } else if (!verifyReult.get("identifyingCode").equals(verifyCode)) {
-        /* result.put("msg", "添加失败"); */
-        // TODO 临时注释2018-01-22
-        /********************** start ****************************/
         if (!"123456".equals(verifyCode)) {
           return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确", JsonResult.EMPTYRESULT);
         }
-        /********************** end ******************************/
-        // return new JsonResult(JsonResult.Fail, "添加银行卡失败，验证码不正确",
-        // JsonResult.EMPTYRESULT);
       }
-
       String url = userinfoUrl + "/api/userinfo/users/" + uuid + "/bankcards";
       String str = "{\"cardNumber\":\"" + bankCard + "\",\"cardUserName\":\"" + name
           + "\",\"cardCellphone\":\""
           + mobile + "\",\"cardUserPid\":\"" + idcard + "\",\"cardUuId\":\"" + uuid + "\"}";
       logger.info("urlUid==" + str);
       logger.info("str==" + str);
-      ResponseEntity<Map> httpResult = restTemplate.postForEntity(url,
-          getHttpEntitySecond(str), Map.class);
+      ResponseEntity<Map> httpResult = restTemplate.postForEntity(url, getHttpEntitySecond(str), Map.class);
       if (httpResult.getStatusCode() != HttpStatus.OK) {
         logger.info("添加银行卡失败");
         return new JsonResult(JsonResult.Fail, "添加银行卡失败", httpResult.getBody());
@@ -138,14 +124,15 @@ public class UserInfoController {
         return new JsonResult(JsonResult.SUCCESS, "添加银行卡成功", null);
       }
     } catch (HttpClientErrorException e) {
-		result = new HashMap();
-		result.put("errorCode", "400");
-		String str = new ReturnedException(e).getErrorMsg();
-		System.out.println(str);
-		result.put("error", e.getResponseBodyAsString());
-		logger.error(str, e);
-		return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
-	} catch (Exception e) {
+      result = new HashMap();
+
+      result.put("errorCode", "400");
+      String str = new ReturnedException(e).getErrorMsg();
+      System.out.println(str);
+      result.put("error", e.getResponseBodyAsString());
+      logger.error(str, e);
+      return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
+    } catch (Exception e) {
       String str = new ReturnedException(e).getErrorMsg();
       logger.error(str, e);
       return new JsonResult(JsonResult.Fail, str, JsonResult.EMPTYRESULT);
@@ -160,9 +147,6 @@ public class UserInfoController {
     List<Map> resultOrigin = new ArrayList();
     List<Map> result = new ArrayList();
     try {
-      // result = restTemplate.getForEntity(userinfoUrl +
-      // "/api/userinfo/selectbanks?uuid=" + uid, List.class)
-      // .getBody();
       resultOrigin = restTemplate.getForEntity(userinfoUrl + "/api/userinfo/users/" + uuid +
           "/bankcards", List.class)
           .getBody();
@@ -997,9 +981,9 @@ public class UserInfoController {
         return new JsonResult(JsonResult.Fail, "产品详情获取失败", JsonResult.EMPTYRESULT);
       } else {
         //result.put("buyfee", buyfee == null ? "" : buyfee);
-    	if(result.get("totalSum") != null){
-    		result.put("buyfee", result.get("totalSum"));
-    	}
+        if (result.get("totalSum") != null) {
+          result.put("buyfee", result.get("totalSum"));
+        }
         poundage = poundage == null ? "" : poundage;
         bankName = bankName == null ? "" : bankName;
         bankCard = bankCard == null ? "" : bankCard;
@@ -1330,30 +1314,33 @@ public class UserInfoController {
   public JsonResult getBankLists() {
     Map<Object, Object> result = new HashMap<Object, Object>();
     try {
-		result = restTemplate.getForEntity(tradeOrderUrl + "/api/trade/funds/banklists", Map.class).getBody();
-		if(result != null){
-			List<Map> banklist = (List<Map>) result.get("result");
-			String banklink = "http://47.96.164.161/";
-			for(Map map : banklist){
-				//money_limit_one 单笔限额（单位：万元）
-				String money_limit_one = map.get("moneyLimitDay") == null ? "0" : map.get("moneyLimitDay") + "";
-				//money_limit_day 单日限额（单位：万元）
-				String money_limit_day = map.get("moneyLimitOne") == null ? "0" : map.get("moneyLimitOne") + "";
-				map.put("money_limit", "单笔限额" + money_limit_one + "万元，单日限额" + money_limit_day + "万元");
-				map.put("url", banklink + map.get("bankShortName") + ".png");
-				map.remove("moneyLimitOne");
-				map.remove("moneyLimitDay");
-				map.remove("createBy");
-				map.remove("createDate");
-				map.remove("updateBy");
-				map.remove("updateDate");
-				map.remove("bankId");
-			}
-		} else {
-			return new JsonResult(JsonResult.Fail, "无支持的银行列表", JsonResult.EMPTYRESULT);
-		}
-		
-		return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result.get("result"));
+      result = restTemplate.getForEntity(tradeOrderUrl + "/api/trade/funds/banklists", Map.class)
+          .getBody();
+      if (result != null) {
+        List<Map> banklist = (List<Map>) result.get("result");
+        String banklink = "http://47.96.164.161/";
+        for (Map map : banklist) {
+          //money_limit_one 单笔限额（单位：万元）
+          String money_limit_one =
+              map.get("moneyLimitDay") == null ? "0" : map.get("moneyLimitDay") + "";
+          //money_limit_day 单日限额（单位：万元）
+          String money_limit_day =
+              map.get("moneyLimitOne") == null ? "0" : map.get("moneyLimitOne") + "";
+          map.put("money_limit", "单笔限额" + money_limit_one + "万元，单日限额" + money_limit_day + "万元");
+          map.put("url", banklink + map.get("bankShortName") + ".png");
+          map.remove("moneyLimitOne");
+          map.remove("moneyLimitDay");
+          map.remove("createBy");
+          map.remove("createDate");
+          map.remove("updateBy");
+          map.remove("updateDate");
+          map.remove("bankId");
+        }
+      } else {
+        return new JsonResult(JsonResult.Fail, "无支持的银行列表", JsonResult.EMPTYRESULT);
+      }
+
+      return new JsonResult(JsonResult.SUCCESS, "产品详情页面成功", result.get("result"));
     } catch (Exception ex) {
       String str = new ReturnedException(ex).getErrorMsg();
       logger.error(str, ex);
