@@ -1449,8 +1449,8 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       prodId, Long groupId, int trdType, Long userId){
     Query query = new Query();
     query.addCriteria(Criteria.where("prod_id").is(prodId).and("fund_code").is(fundCode).and
-        ("group_id").is(groupId).and("order_id").is(null).and("trade_type").is(trdType).and
-        ("user_id").is(userId));
+        ("group_id").is(groupId).orOperator(Criteria.where("order_id").is(""), Criteria.where
+        ("order_id").is(null)).and("trade_type").is(trdType).and("user_id").is(userId));
 
     List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
     return mongoPendingRecords;

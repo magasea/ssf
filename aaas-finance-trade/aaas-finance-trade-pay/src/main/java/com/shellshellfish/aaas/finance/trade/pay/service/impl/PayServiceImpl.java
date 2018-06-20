@@ -263,6 +263,11 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         logger.error("failed to pay for:" + payOrderDto.getUserPid() + " with prodId:" +
             payOrderDto.getUserProdId() + " with TrdMoneyAmount" + payAmount + " fundCode:"+
             trdOrderDetail.getFundCode());
+        StringBuilder sb = new StringBuilder();
+        for(Exception ex: errs){
+          sb.append(ex.getMessage());
+        }
+        trdPayFlow.setErrMsg(sb.toString());
         notifyPendingRecordsFailed(trdPayFlow);
         continue;
       }
