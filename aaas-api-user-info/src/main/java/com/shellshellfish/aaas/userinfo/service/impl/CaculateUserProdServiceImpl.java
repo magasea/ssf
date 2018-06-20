@@ -77,9 +77,10 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
           caculateAbstractShare(mongoCaculateBase);
           mongoTemplate.save(mongoCaculateBase);
         }else{
-          logger.error("user_prod_id:{} fund_code:{} outside_order_id:{} have more than 1 records"
-                  + " in ui_calc_base",userProdId, fundCode, item.getOutsideOrderId());
+
           if(mongoCaculateBases.size() > 1){
+            logger.error("user_prod_id:{} fund_code:{} outside_order_id:{} have more than 1 records"
+                + " in ui_calc_base",userProdId, fundCode, item.getOutsideOrderId());
             mongoTemplate.remove(querySub, "ui_calc_base");
             MyBeanUtils.mapEntityIntoDTO(item, mongoCaculateBases.get(0));
             mongoCaculateBases.get(0).setTradeConfirmShare(item.getTradeConfirmShare());

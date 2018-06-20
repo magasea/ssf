@@ -37,6 +37,7 @@ import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserUUID;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoCaculateBase;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoPendingRecords;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
@@ -82,6 +83,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -237,16 +239,12 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
         (uiBankcard.getCardNumber());
     if (!CollectionUtils.isEmpty(uiBankcardsWithCardNum) && uiBankcardsWithCardNum.get(0)
         .getUserId() != uiBankcard.getUserId()) {
-      logger.warn("the bankcard:{} origin is with userId{} and status is:{} now intend to bind it"
+      logger.warn("kcard:{} origin is with userId{} and status is:{} now intend to bind it"
           + " with userId{}", uiBankcard.getCardNumber(), uiBankcardsWithCardNum.get(0).getUserId
           (), uiBankcardsWithCardNum.get(0).getStatus(), uiBankcard.getUserId()
       );
       if (uiBankcardsWithCardNum.get(0).getStatus() != BankCardStatusEnum.INVALID.getStatus()) {
-        throw new Exception(String.format("the bankcard:%s origin is with userId:%s and "
-                + "cellphone:%s and status is:%s now intend to bind it with userId:%s", uiBankcard
-                .getCardNumber(), uiBankcardsWithCardNum.get(0).getUserId(),
-            uiBankcardsWithCardNum.get(0).getCellphone(),
-            uiBankcardsWithCardNum.get(0).getStatus(), uiBankcard.getUserId()));
+        throw new Exception(String.format("此银行卡已被其他账户绑定"));
       } else {
         uiBankcardsWithCardNum.get(0).setStatus(BankCardStatusEnum.VALID.getStatus());
         uiBankcardsWithCardNum.get(0).setUserId(uiBankcard.getUserId());
@@ -1205,15 +1203,28 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       spdrBuilder.clear();
       Query query = new Query();
       query.addCriteria(Criteria.where("user_prod_id").is(request.getUserProductId()).and
-          ("fund_code").is(uiProductDetail.getFundCode()).and("process_status").is
-          (PendingRecordStatusEnum.NOTHANDLED.getStatus()));
+          ("fund_code").is(uiProductDetail.getFundCode()));
       List<MongoPendingRecords> mongoPendingRecords = mongoTemplate
           .find(query, MongoPendingRecords.class);
+
+      //用 ui_calc_base记录做过滤，如果outside_order_id出现了， 那么排除
+      Query queryCalc = new Query();
+      queryCalc.addCriteria(Criteria.where("user_prod_id").is(request.getUserProductId()).and
+          ("fund_code").is(uiProductDetail.getFundCode()));
+      Set<String> orderCalcedIds = new HashSet<>();
+      List<MongoCaculateBase> mongoCaculateBases = mongoTemplate.find(queryCalc,
+          MongoCaculateBase.class);
+      for(MongoCaculateBase mongoCaculateBase: mongoCaculateBases){
+        orderCalcedIds.add(mongoCaculateBase.getOutsideOrderId());
+      }
+      Predicate<MongoPendingRecords> mongoPendingRecordsPredicate = p-> orderCalcedIds.contains(p
+          .getOutsideOrderId()) ;
+      mongoPendingRecords.removeIf(mongoPendingRecordsPredicate);
       Integer originQuantity = uiProductDetail.getFundQuantity();
       Long trdTgtShares = TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundDown
           (originQuantity * percent, 10000L).longValue();
 
-      if (originQuantity <= 0) {
+      if (originQuantity == null || originQuantity <= 0) {
         recordStopSellInvaidFunds(request, uiProductDetail);
         spdrBuilder.setFundCode(uiProductDetail.getFundCode());
         spdrBuilder.setFundQuantityTrade(0L);

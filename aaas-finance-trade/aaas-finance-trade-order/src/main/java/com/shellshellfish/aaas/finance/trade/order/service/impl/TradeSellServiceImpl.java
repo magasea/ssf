@@ -106,6 +106,7 @@ public class TradeSellServiceImpl implements TradeSellService {
 
   @Override
   @Transactional
+  @Deprecated
   public TrdOrder sellProduct(ProdSellPageDTO prodSellPageDTO)
       throws Exception {
     if(CollectionUtils.isEmpty(prodSellPageDTO.getProdDtlSellPageDTOList())){
@@ -239,7 +240,7 @@ public class TradeSellServiceImpl implements TradeSellService {
     results.getSellProductDetailResultsList().forEach(
         item-> fundCodes.add(item.getFundCode())
     );
-    Map<String, Integer> fundNetInfos =  getFundNetInfo(fundCodes, userPid);
+//    Map<String, Integer> fundNetInfos =  getFundNetInfo(fundCodes, userPid);
     boolean canSell = false;
     List<SellProductDetailResult> sellProductDetailResults =  results
         .getSellProductDetailResultsList();
