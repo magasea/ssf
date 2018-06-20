@@ -1293,7 +1293,8 @@ public class BroadcastMessageConsumers {
 
     Query query = new Query();
     query.addCriteria(Criteria.where("user_prod_id").is(trdPayFlow.getUserProdId()).and
-        ("fund_code").is(trdPayFlow.getFundCode()).and("outside_order_id").is(null).and
+        ("fund_code").is(trdPayFlow.getFundCode()).orOperator(Criteria.where("outside_order_id")
+        .is(""), Criteria.where("outside_order_id").is(null)).and
         ("process_status").is(PendingRecordStatusEnum.NOTHANDLED.getStatus()).and
         ("trade_type").is(trdPayFlow.getTrdType()));
     List<MongoPendingRecords> unhandledRecords = mongoTemplate.find(query, MongoPendingRecords
