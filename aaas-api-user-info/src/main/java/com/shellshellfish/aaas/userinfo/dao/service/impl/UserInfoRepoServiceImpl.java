@@ -1221,8 +1221,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
           .getOutsideOrderId()) ;
       mongoPendingRecords.removeIf(mongoPendingRecordsPredicate);
       Integer originQuantity = uiProductDetail.getFundQuantity();
-      Long trdTgtShares = TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundDown
-          (originQuantity * percent, 10000L).longValue();
+
 
       if (originQuantity == null || originQuantity <= 0) {
         recordStopSellInvaidFunds(request, uiProductDetail);
@@ -1233,6 +1232,8 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
         sprBuilder.addSellProductDetailResults(spdrBuilder);
         continue;
       }
+      Long trdTgtShares = TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundDown
+          (originQuantity * percent, 10000L).longValue();
       if (CollectionUtils.isEmpty(mongoPendingRecords)) {
         logger.info("there is no pendingRecord for this redeem with userProdId:{} fundCode:{}",
             request.getUserProductId(), uiProductDetail.getFundCode());
