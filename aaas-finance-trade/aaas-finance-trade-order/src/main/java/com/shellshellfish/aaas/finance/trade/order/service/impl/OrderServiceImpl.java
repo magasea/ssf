@@ -408,7 +408,6 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 
         TrdTradeBankDic trdTradeBankDic = trdTradeBankDicRepository.findByBankNameAndTraderBrokerId
                 (bankName, TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
-
         String tradeNo = null;
         if (trdTradeBankDic != null) {
             BindBankCard bindBankCard = new BindBankCard();
@@ -443,10 +442,17 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
                     tradeNo = "-1";
                 }
             }
+        }else {
+            responseObserver.onError(Status.UNAVAILABLE.withDescription("此银行卡不支持").asRuntimeException());
         }
-        resultBuilder.setTradeacco(tradeNo);
-        responseObserver.onNext(resultBuilder.build());
-        responseObserver.onCompleted();
+        try {
+            resultBuilder.setTradeacco(tradeNo);
+            responseObserver.onNext(resultBuilder.build());
+            responseObserver.onCompleted();
+        }catch (Exception ex){
+            onError(responseObserver, ex);
+        }
+
     }
 
     @Override
