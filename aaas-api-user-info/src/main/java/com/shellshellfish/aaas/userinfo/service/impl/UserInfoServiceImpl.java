@@ -23,7 +23,6 @@ import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
-import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.*;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
@@ -61,6 +60,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static com.shellshellfish.aaas.common.utils.InstantDateUtil.now;
 import static com.shellshellfish.aaas.common.utils.InstantDateUtil.yyyyMMdd;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
@@ -448,7 +448,11 @@ public class UserInfoServiceImpl implements UserInfoService {
         LocalDate startLocalDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(startDate),
                 ZoneId.systemDefault()).toLocalDate();
 
-        LocalDate endLocalDate = LocalDate.now();
+        DailyAmount dailyAmount = mongoDailyAmountRepository.findFirstByUserProdIdOrderByDateDesc(products.getId());
+
+        String date = Optional.ofNullable(dailyAmount).map(m -> m.getDate()).orElse(InstantDateUtil.format(now()
+                .plusDays(-1), yyyyMMdd));
+        LocalDate endLocalDate = InstantDateUtil.format(date, yyyyMMdd);
         while (startLocalDate.isBefore(endLocalDate) || startLocalDate.isEqual(endLocalDate)) {
             String endDay = InstantDateUtil.format(endLocalDate, yyyyMMdd);
             result.put(endDay, getChicombinationAssets(uuid, userId, products, endLocalDate, flag));
