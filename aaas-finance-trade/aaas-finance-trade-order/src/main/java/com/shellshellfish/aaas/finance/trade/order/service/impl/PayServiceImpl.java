@@ -230,7 +230,7 @@ public class PayServiceImpl implements PayService {
   @Override
   public TrdPayFlow patchOrderToPay(
       com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail trdOrderDetail) {
-    OrderDetailQuery.Builder ODQBuilder = OrderDetailQuery.newBuilder();
+    OrderDetailQuery.Builder odqBuilder = OrderDetailQuery.newBuilder();
     OrderDetail.Builder odBuilder = OrderDetail.newBuilder();
   //Todo: add parameters
     PayFlowResult trdPayFlowResult = null;
@@ -250,10 +250,11 @@ public class PayServiceImpl implements PayService {
       return trdPayFlow;
     }
     MyBeanUtils.mapEntityIntoDTO(trdOrderDetail, odBuilder);
-    ODQBuilder.setOrderDetail(odBuilder);
+    odqBuilder.setOrderDetail(odBuilder);
+    odqBuilder.setPid(pid);
     try {
 
-      trdPayFlowResult = payRpcFutureStub.patchPayFlowWithOrderDetail(ODQBuilder.build()).get();
+      trdPayFlowResult = payRpcFutureStub.patchPayFlowWithOrderDetail(odqBuilder.build()).get();
     } catch (Exception e) {
       logger.error("call payRpcFutureStub.patchPayFlowWithOrderDetail got exception:", e);
     }
