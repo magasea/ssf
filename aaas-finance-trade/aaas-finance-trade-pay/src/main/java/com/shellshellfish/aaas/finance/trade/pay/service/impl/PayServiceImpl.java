@@ -1249,7 +1249,11 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       String outsideOrderNo = request.getOrderDetail().getOrderId()+request.getOrderDetail()
           .getId();
       List<TrdPayFlow> trdPayFlows = trdPayFlowRepository.findAllByOutsideOrderno(outsideOrderNo);
-
+      if(CollectionUtils.isEmpty(trdPayFlows) && !StringUtils.isEmpty(request.getOrderDetail()
+          .getTradeApplySerial())){
+        trdPayFlows = trdPayFlowRepository.findAllByApplySerial(request.getOrderDetail()
+            .getTradeApplySerial());
+      }
       if(CollectionUtils.isEmpty(trdPayFlows)){
         //检查中证系统中是否已经有该外部订单号，如果有那么就把对应的信息取回，并且patch一个TrdPayFlow
         if(StringUtils.isEmpty(request.getPid())){
@@ -1287,6 +1291,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
 //                .getTrdStatus(), queryStatus);
 //          }
           trdPayFlow.setTrdStatus(queryStatus);
+          trdPayFlow.setTradeAcco(request.getTrdAcco());
           List<MyEntry<String,TrdPayFlow>> trdPayFlowsConfirm = new ArrayList<>();
           checkFundsTradeJobService.updateTrdPayFlowWithApplyResult(request.getPid(), applyResult,
               trdPayFlow, trdPayFlowsConfirm, shouldCheckStatus);
