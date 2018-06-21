@@ -110,6 +110,7 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
     @Override
     public DistributionResult getPoundageOfBuyFund(BigDecimal grossAmount,
         List<ProductMakeUpInfo> productMakeUpInfoList) throws Exception {
+        java.text.DecimalFormat df = new java.text.DecimalFormat("0.00");
         BigDecimal totalPoundage = BigDecimal.ZERO;
         BigDecimal totalDiscountSaving = BigDecimal.ZERO;
         BigDecimal oldBuyRate = BigDecimal.ZERO;
@@ -148,11 +149,11 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
             oldBuyRate = oldBuyRate.add(rate.multiply(fundShare));
             discountBuyRate = discountBuyRate.add(rate.multiply(discount).multiply(fundShare));
             FundAmount fundAmount = new FundAmount(info.getFundCode(), info.getFundName(), amount,
-                fundShare + "%");
+                df.format(fundShare.multiply(new BigDecimal("100"))) + "%");
             fundAmountList.add(fundAmount);
         }
 
-        java.text.DecimalFormat df = new java.text.DecimalFormat("0.00");
+
         String oldBuyRateStr = df.format(oldBuyRate.multiply(new BigDecimal(100))) + "%";
         String discountBuyRateStr = df.format(discountBuyRate.multiply(new BigDecimal(100))) + "%";
         buyRateMap.put("oldBuyRate", oldBuyRateStr);
@@ -267,7 +268,7 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
         for(DailyFunds dailyFund:dailyFundsList){
             String code = dailyFund.getCode();
             HashMap<Object, Object> tempFundInfoMap = new HashMap<>();
-            tempFundInfoMap.put("navadj",dailyFund.getNavadj());
+                                                tempFundInfoMap.put("navadj",dailyFund.getNavadj());
             tempFundInfoMap.put("querydate",dailyFund.getQuerydate());
             if(fundInfoMap.get(code)==null){
                 fundInfoMap.put(code,tempFundInfoMap);
