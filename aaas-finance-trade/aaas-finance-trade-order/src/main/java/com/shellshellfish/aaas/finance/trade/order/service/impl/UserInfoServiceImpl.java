@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.grpc.ConfirmedOutsideOrderIds;
 import com.shellshellfish.aaas.userinfo.grpc.SellPersentProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductsResult;
@@ -11,6 +12,7 @@ import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc.UserInfoServiceFutureStub;
 import io.grpc.ManagedChannel;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -100,5 +102,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 			return null;
 		}
 		return userBankInfo.getUserPid();
+	}
+
+	@Override
+	public List<String> getNeedHandleOutsideOrderIds(List<String> outsideOrderIds) {
+		ConfirmedOutsideOrderIds.Builder cfooiBuilder = ConfirmedOutsideOrderIds.newBuilder();
+		outsideOrderIds.forEach(
+				outsideOrderId -> cfooiBuilder.addOutsideOrderId(outsideOrderId)
+		);
+		try {
+			return userInfoServiceFutureStub.checkAbsentPendingRecordsOrders(cfooiBuilder.build()).get().getOutsideOrderIdList();
+		} catch (Exception e) {
+			logger.error("Error:",e);
+		}
+		return  null;
 	}
 }

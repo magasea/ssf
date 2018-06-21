@@ -30,6 +30,16 @@ public interface TrdOrderDetailRepository extends PagingAndSortingRepository<Trd
     Page<TrdOrderDetail> findPendingOrderinfo( Pageable pageable);
 
 
+    public static final String FIND_CONFIRMED_ORDERINFO = "SELECT * from ssftrdorder"
+        + ".trd_order_detail tod WHERE tod.order_detail_status = 2 OR tod.order_detail_status = 7";
+
+    public static final String COUNT_CONFIRMED_ORDERINFO = "SELECT count(1) from ssftrdorder"
+        + ".trd_order_detail tod WHERE tod.order_detail_status = 2 OR tod.order_detail_status = 7";
+
+    @Query(value = FIND_CONFIRMED_ORDERINFO, countQuery = COUNT_CONFIRMED_ORDERINFO, nativeQuery
+        = true)
+    Page<TrdOrderDetail> findConfirmedOrderinfo( Pageable pageable);
+
     @Override
     TrdOrderDetail save(TrdOrderDetail newOrderDetail);
 
