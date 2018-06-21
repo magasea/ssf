@@ -36,4 +36,6 @@ public interface TrdPayFlowRepository extends PagingAndSortingRepository<TrdPayF
 
   List<TrdPayFlow> findAllByOutsideOrderno(String outsideOrderno);
 
+  List<TrdPayFlow> findAllByApplySerial(String applySerial);
+
 }
