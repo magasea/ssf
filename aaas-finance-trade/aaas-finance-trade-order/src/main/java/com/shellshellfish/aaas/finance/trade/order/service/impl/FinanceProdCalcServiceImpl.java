@@ -187,7 +187,7 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
             totalDiscountSaving = totalDiscountSaving.add(discountSaving);
 
             FundAmount fundAmount = new FundAmount(info.getFundCode(), info.getFundName(),
-                amount.subtract(poundage),String.valueOf(info.getFundShare()));
+                amount.subtract(poundage),null);
             fundAmountList.add(fundAmount);
         }
         HashMap<Object, Object> fundInfoMap = getNavadjByFundCodeAndDate(fundCodeList);
