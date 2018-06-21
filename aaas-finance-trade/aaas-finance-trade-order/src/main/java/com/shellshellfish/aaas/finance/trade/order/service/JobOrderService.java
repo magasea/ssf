@@ -7,4 +7,6 @@ package com.shellshellfish.aaas.finance.trade.order.service;
 public interface JobOrderService {
 
   void patchOrderWithPay();
+
+  void patchPendingRecordWithOrder();
 }

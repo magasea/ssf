@@ -1256,6 +1256,12 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           throw new Exception("there is no pid parameter in request");
         }
         ApplyResult applyResult = queryZZResultByOutsideOrderNo(request.getPid(), outsideOrderNo);
+        if(applyResult == null && !StringUtils.isEmpty(request.getOrderDetail()
+            .getTradeApplySerial())){
+          applyResult = queryZZResultByApplySerial(request.getPid(), request.getOrderDetail()
+              .getTradeApplySerial());
+        }
+        boolean shouldCheckStatus = false;
         if(applyResult != null){
           logger.error("this order had already been applied to zz info before, now patch it");
           TrdPayFlow trdPayFlow = new TrdPayFlow();
@@ -1265,6 +1271,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           trdPayFlow.setUserId(request.getOrderDetail().getUserId());
           trdPayFlow.setTrdApplyDate(applyResult.getApplydate());
           trdPayFlow.setApplySerial(applyResult.getApplyserial());
+          trdPayFlow.setTrdType(request.getOrderDetail().getTradeType());
           //Todo set tradeStatus here !!!
           int kkStat = Integer.parseInt(applyResult.getKkstat());
           String kkStatName = ZZKKStatusEnum.getByStatus(kkStat).getComment();
@@ -1282,7 +1289,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           trdPayFlow.setTrdStatus(queryStatus);
           List<MyEntry<String,TrdPayFlow>> trdPayFlowsConfirm = new ArrayList<>();
           checkFundsTradeJobService.updateTrdPayFlowWithApplyResult(request.getPid(), applyResult,
-              trdPayFlow, trdPayFlowsConfirm);
+              trdPayFlow, trdPayFlowsConfirm, shouldCheckStatus);
           checkFundsTradeJobService.checkAndSendConfirmInfo(trdPayFlowsConfirm);
         }else{
           if(TradeUtil.getUTCTime() - request.getOrderDetail().getCreateDate() > 60*60*1000L){
@@ -1303,6 +1310,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         }
         responseObserver.onNext(pfrBuilder.build());
         responseObserver.onCompleted();
+        return;
 
       }else{
 
@@ -1345,6 +1353,17 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     ApplyResult applyResult = null;
     try {
       applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo(openId, outsideOrderNo);
+    } catch (JsonProcessingException e) {
+      logger.error("error:", e);
+    }
+    return applyResult;
+  }
+
+  private ApplyResult queryZZResultByApplySerial(String pid, String applySerial){
+    String openId = TradeUtil.getZZOpenId(pid);
+    ApplyResult applyResult = null;
+    try {
+      applyResult = fundTradeApiService.getApplyResultByApplySerial(openId, applySerial);
     } catch (JsonProcessingException e) {
       logger.error("error:", e);
     }

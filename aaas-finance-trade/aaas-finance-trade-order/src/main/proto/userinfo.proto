@@ -22,6 +22,8 @@ service UserInfoService {
     rpc RollbackUserProducts (SellProducts) returns (SellProducts){}
     rpc sellPersentUserProducts (SellPersentProducts) returns (SellProductsResult){}
     rpc GetUserProdDetail(GetUserProdDetailQuery) returns(GetUserProdDetailResults){}
+    rpc CheckAbsentPendingRecordsOrders(ConfirmedOutsideOrderIds) returns(NeedPatchOutsideOrderIds){}
+
 }
 
 message SellPersentProducts{
@@ -131,4 +133,12 @@ message GetUserProdDetailQuery{
 }
 message GetUserProdDetailResults{
   repeated UserProdDetail userProdDetail = 1;
+}
+
+message ConfirmedOutsideOrderIds{
+  repeated string outsideOrderId = 1;
+}
+
+message NeedPatchOutsideOrderIds{
+  repeated string outsideOrderId = 1;
 }
