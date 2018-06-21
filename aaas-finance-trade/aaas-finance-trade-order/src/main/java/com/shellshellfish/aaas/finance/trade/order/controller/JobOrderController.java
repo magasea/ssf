@@ -29,4 +29,12 @@ public class JobOrderController {
     jobOrderService.patchOrderWithPay();
     return new ResponseEntity<Map>( HttpStatus.OK);
   }
+
+  @ApiOperation("检查orderDetail表中和MongoPendingRecords表不一致的数据做patch ")
+  @RequestMapping(value = "/PatchPendingRecords", method = RequestMethod.GET)
+  @ResponseBody
+  public ResponseEntity<Map> patchPendingRecords() throws Exception {
+    jobOrderService.patchPendingRecordWithOrder();
+    return new ResponseEntity<Map>( HttpStatus.OK);
+  }
 }

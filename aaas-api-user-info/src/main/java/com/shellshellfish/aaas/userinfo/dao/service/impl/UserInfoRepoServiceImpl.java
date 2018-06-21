@@ -2,6 +2,7 @@ package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
 import static io.grpc.stub.ClientCalls.asyncUnaryCall;
 import static io.grpc.stub.ClientCalls.futureUnaryCall;
+import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
 
 import com.mongodb.client.result.UpdateResult;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
@@ -24,6 +25,7 @@ import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.GetUserProdDetailResults;
+import com.shellshellfish.aaas.userinfo.grpc.NeedPatchOutsideOrderIds;
 import com.shellshellfish.aaas.userinfo.grpc.SellPersentProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductDetail;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductDetailResult;
@@ -1497,6 +1499,40 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
    }
    responseObserver.onNext(gupdrBuilder.build());
    responseObserver.onCompleted();
+  }
+
+  /**
+   */
+  @Override
+  public void checkAbsentPendingRecordsOrders(com.shellshellfish.aaas.userinfo.grpc.ConfirmedOutsideOrderIds request,
+      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.NeedPatchOutsideOrderIds> responseObserver) {
+    List<String> outsiddOrderIds = request.getOutsideOrderIdList();
+    if(CollectionUtils.isEmpty(outsiddOrderIds)){
+      onError(responseObserver, new Exception("Input list of outsideOrderIds is empty"));
+      return;
+    }
+    NeedPatchOutsideOrderIds.Builder npooiBuilder = NeedPatchOutsideOrderIds.newBuilder();
+    for(String outsideOrderId: outsiddOrderIds){
+      if(!isOutsideOrderIdHandled(outsideOrderId)){
+        npooiBuilder.addOutsideOrderId(outsideOrderId);
+      }
+    }
+    responseObserver.onNext(npooiBuilder.build());
+    responseObserver.onCompleted();
+  }
+
+  public boolean isOutsideOrderIdHandled(String outsideOrderId){
+    Query query = new Query();
+    query.addCriteria(Criteria.where("outside_order_id").is(outsideOrderId).orOperator(Criteria
+        .where("trade_status").is(TrdOrderStatusEnum.CONFIRMED.getStatus()), Criteria.where
+        ("trade_status").is(TrdOrderStatusEnum.SELLCONFIRMED.getStatus())));
+    List<MongoPendingRecords> mongoPendingRecords =  mongoTemplate.find(query, MongoPendingRecords
+        .class);
+    if(CollectionUtils.isEmpty(mongoPendingRecords)){
+      return false;
+    }else{
+      return true;
+    }
   }
 
   private void onError(StreamObserver responseObserver, Exception ex){

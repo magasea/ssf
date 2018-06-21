@@ -72,7 +72,7 @@ public class CheckFundsTradeJobService {
 
     public void checkBuyPayFlows(){
         //先查一遍购买未确认状态的payFlow
-
+        boolean shouldCheckStatus = true;
         List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
             .findAllByTradeConfirmShareIsAndTrdTypeIsAndTrdStatusIsGreaterThan(0L, TrdOrderOpTypeEnum.BUY.getOperation
                 (), TrdOrderStatusEnum.FAILED.getStatus());
@@ -95,7 +95,7 @@ public class CheckFundsTradeJobService {
                     applyResult = fundTradeApiService.getApplyResultByApplySerial
                         (TradeUtil.getZZOpenId(userPid), applySerial);
                     updateTrdPayFlowWithApplyResult(userPid, applyResult, trdPayFlow,
-                        trdPayFlowListToGetConfirmInfo);
+                        trdPayFlowListToGetConfirmInfo, shouldCheckStatus);
 
                 } catch (Exception ex) {
                     logger.error("exception:",ex);
@@ -113,9 +113,11 @@ public class CheckFundsTradeJobService {
     }
 
     public boolean updateTrdPayFlowWithApplyResult(String userPid, ApplyResult applyResult,
-        TrdPayFlow trdPayFlow, List<MyEntry<String,TrdPayFlow>> confirmList ){
+        TrdPayFlow trdPayFlow, List<MyEntry<String,TrdPayFlow>> confirmList, boolean
+        shouldCheckCurrStat ){
         if (null != applyResult && !StringUtils
             .isEmpty(applyResult.getApplyshare())) {
+            boolean statusChanged = true;
             com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
                 new com.shellshellfish.aaas.common.message.order.TrdPayFlow();
             trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
@@ -145,7 +147,10 @@ public class CheckFundsTradeJobService {
                 logger.error("There is no status change for applySerial:{}, current "
                     + "status:{} queryStatus:{}", applyResult.getApplyserial(), trdPayFlow
                     .getTrdStatus(), queryStatus);
-                return false;
+                statusChanged = false;
+                if(shouldCheckCurrStat){
+                    return false;
+                }
             }
             trdPayFlow.setTrdStatus(ZZStatsToOrdStatsUtils
                 .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(

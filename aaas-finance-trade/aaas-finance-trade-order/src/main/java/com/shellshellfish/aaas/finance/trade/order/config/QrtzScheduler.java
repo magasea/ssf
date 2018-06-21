@@ -6,6 +6,7 @@ import static org.quartz.TriggerBuilder.newTrigger;
 
 import com.shellshellfish.aaas.finance.trade.order.scheduler.CheckFundsOrderJob;
 import com.shellshellfish.aaas.finance.trade.order.scheduler.PatchOrderJob;
+import com.shellshellfish.aaas.finance.trade.order.scheduler.PatchPendingRecordJob;
 import java.io.IOException;
 import javax.annotation.PostConstruct;
 import org.quartz.CronScheduleBuilder;
@@ -40,6 +41,9 @@ public class QrtzScheduler {
     @Value("${cron.frequency.jobCheckOrderWithPay}")
     String cronCheckOrderWithPay;
 
+    @Value("${cron.frequency.jobPatchPendingRecords}")
+    String cronPatchPendingRecords;
+
     @PostConstruct
     public void init() {
         logger.info("Hello world from Quartz... {}", cronCheckOrderWithPay);
@@ -62,6 +66,7 @@ public class QrtzScheduler {
         Scheduler scheduler = factory.getScheduler();
         scheduler.setJobFactory(springBeanJobFactory());
         scheduler.scheduleJob(jobPatchOrder, triggerPatchOrder);
+        scheduler.scheduleJob(jobPatchPendingRecords(), triggerPatchPendingRecords());
         logger.debug("Starting Scheduler threads");
         scheduler.start();
         return scheduler;
@@ -85,5 +90,23 @@ public class QrtzScheduler {
                 .withSchedule(CronScheduleBuilder.cronSchedule(cronCheckOrderWithPay))
                 .build();
             return trigger;
+    }
+
+    @Bean
+    public JobDetail jobPatchPendingRecords() {
+        JobKey jobKey = new JobKey("Qrtz_Job_PatchPendingRecords", "order");
+        JobDetail job = JobBuilder.newJob(PatchPendingRecordJob.class).withIdentity(jobKey).storeDurably()
+            .withDescription("Invoke PatchOrder Job service...").build();
+        return  job;
+    }
+
+    @Bean
+    public Trigger triggerPatchPendingRecords() {
+        Trigger trigger = TriggerBuilder
+            .newTrigger()
+            .withIdentity("Qrtz_Trigger_PatchPendingRecords", "order")
+            .withSchedule(CronScheduleBuilder.cronSchedule(cronPatchPendingRecords))
+            .build();
+        return trigger;
     }
 }

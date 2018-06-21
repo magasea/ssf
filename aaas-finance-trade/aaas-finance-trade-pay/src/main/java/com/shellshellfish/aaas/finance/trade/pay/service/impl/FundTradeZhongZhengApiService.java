@@ -309,7 +309,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
 
     private ApplyResult getApplyResult(ApplyResult applyResult, JSONObject jsonObject, Integer status) {
-        if (status.equals(1)) {
+        if (status.equals(1) && (jsonObject.containsKey("errno") && jsonObject.get("errno").equals
+            ("0000"))|| !jsonObject.containsKey("errno")) {
             JSONArray jsonArray = jsonObject.getJSONArray("data");
             applyResult = jsonArray.getObject(0, ApplyResult.class);
         } else {
