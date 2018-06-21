@@ -96,3 +96,4 @@ cron:
   frequency:
     #每天5 18 点开始
     jobCheckOrderWithPay: 0 0 0/3 1/1 * ? *
+    jobPatchPendingRecords: 0 0 0/3 1/1 * ? *
