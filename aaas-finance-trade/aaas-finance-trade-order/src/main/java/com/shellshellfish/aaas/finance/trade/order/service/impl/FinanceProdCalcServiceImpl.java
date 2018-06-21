@@ -167,6 +167,7 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
         BigDecimal totalPoundage = BigDecimal.ZERO;
         BigDecimal totalDiscountSaving = BigDecimal.ZERO;
         List<FundAmount> fundAmountList = new ArrayList<>();
+        List<FundAmount> fundAmountResultList = new ArrayList<>();
         List<String> fundCodeList=new ArrayList<>();
         for (ProductMakeUpInfo info : productMakeUpInfoList) {
             String fundCode = info.getFundCode();
@@ -203,14 +204,19 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
                         BigDecimal conPostAmount = navadj.multiply(
                             new BigDecimal((Integer) tempUserProdDetailMap.get("fundQuantity"))
                                 .divide(new BigDecimal(100d)));
-                        BigDecimal exceptPostAmount = conPostAmount.multiply(persent.divide(new BigDecimal(100)));
-                        fundAmount.setConPosAmount(new BigDecimal(df.format(conPostAmount)));
-                        fundAmount.setExpectSellAmount(new BigDecimal(df.format(exceptPostAmount)));
+                        if(conPostAmount.compareTo(new BigDecimal("0"))<=0){
+                            logger.error("赎回时计算当前持仓金额: fundcode:"+fundAmount.getFundCode()+"获取当前持仓份额小于等于0");
+                        }else{
+                            BigDecimal exceptPostAmount = conPostAmount.multiply(persent.divide(new BigDecimal(100)));
+                            fundAmount.setConPosAmount(new BigDecimal(df.format(conPostAmount)));
+                            fundAmount.setExpectSellAmount(new BigDecimal(df.format(exceptPostAmount)));
+                            fundAmountResultList.add(fundAmount);
+                        }
                     }
                 }
             }
         }
-        return new DistributionResult(totalPoundage, totalDiscountSaving, fundAmountList);
+        return new DistributionResult(totalPoundage, totalDiscountSaving, fundAmountResultList);
     }
 
     private  HashMap<Object, Object> getFundConShare(String prodId) {
