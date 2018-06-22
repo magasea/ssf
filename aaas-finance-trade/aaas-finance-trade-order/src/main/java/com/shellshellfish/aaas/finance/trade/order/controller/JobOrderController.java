@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Created by developer4 on 2018- 六月 - 14
+ * Created by chenwei on 2018- 六月 - 14
  */
 @RestController
 @RequestMapping("/api/trade/job")

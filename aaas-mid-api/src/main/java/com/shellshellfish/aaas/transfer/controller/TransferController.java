@@ -356,6 +356,12 @@ public class TransferController {
 					resultMap.put("name", productMap.get("name"));
 				}
 			}
+
+			String tradeUrl = tradeOrderUrl + "/api/trade/funds/getFundDetailList?groupId=" + groupId + "&subGroupId=" + subGroupId
+					+ "&oemid=" + Integer.parseInt(oemid);
+			HashMap fundAmountListMap = restTemplate.getForEntity(tradeUrl, HashMap.class).getBody();
+			resultMap.put("fundAmountList", fundAmountListMap.get("fundAmountList"));
+
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", resultMap);
 		} catch (HttpClientErrorException e) {
 			String str = e.getResponseBodyAsString();

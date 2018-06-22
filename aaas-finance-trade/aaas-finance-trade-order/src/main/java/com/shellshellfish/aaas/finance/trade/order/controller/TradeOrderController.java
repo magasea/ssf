@@ -6,6 +6,8 @@ import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.finance.trade.order.model.DistributionResult;
+import com.shellshellfish.aaas.finance.trade.order.model.FundAmount;
+import com.shellshellfish.aaas.finance.trade.order.model.FundDetailResult;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.FinanceProdBuyInfo;
@@ -174,6 +176,45 @@ public class TradeOrderController {
 		DistributionResult distributionResult = financeProdCalcService.getPoundageOfBuyFund(totalAmount, productList);
 		return new ResponseEntity<DistributionResult>(distributionResult, HttpStatus.OK);
 	}
+
+
+
+	@ApiOperation("获取组合产品详细信息")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = true, value = "groupId", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "Long", required = true, value = "subGroupId", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1"),})
+	@ApiResponses({
+			@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
+			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
+			@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")})
+	@RequestMapping(value = "/funds/getFundDetailList", method = RequestMethod.GET)
+	public ResponseEntity<HashMap> getFundDetailList(
+			@RequestParam(value = "groupId") Long groupId,
+			@RequestParam(value = "subGroupId") Long subGroupId,
+			@RequestParam(value = "oemid") Integer oemid) throws Exception {
+				java.text.DecimalFormat df = new java.text.DecimalFormat("0.00");
+				HashMap<Object, Object> fundDetailMap = new HashMap<>();
+				List<FundDetailResult> fundDetailList=new ArrayList<>();
+				ProductBaseInfo productBaseInfo = new ProductBaseInfo();
+				productBaseInfo.setProdId(groupId);
+				productBaseInfo.setGroupId(subGroupId);
+				productBaseInfo.setOemId(oemid);
+				List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
+				for(ProductMakeUpInfo productMakeUpInfo: productList){
+					BigDecimal fundShare = BigDecimal.valueOf(productMakeUpInfo.getFundShare()).divide(BigDecimal.valueOf(10000));
+					String fundShareStr = df.format(fundShare.multiply(new BigDecimal("100")))+"%";
+					FundDetailResult fundDetailResult = new FundDetailResult(productMakeUpInfo.getFundCode(),productMakeUpInfo.getFundName(),"--",fundShareStr);
+					fundDetailList.add(fundDetailResult);
+				}
+				fundDetailMap.put("fundAmountList",fundDetailList);
+				return new ResponseEntity<HashMap>(fundDetailMap, HttpStatus.OK);
+	}
+
+
+
+
 
 	/**
 	 * 赎回理财产品 赎回
