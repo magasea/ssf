@@ -47,6 +47,7 @@ import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import io.grpc.ManagedChannel;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -58,6 +59,7 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
+
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +78,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
 
 
 import java.util.stream.Collectors;
@@ -760,7 +761,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                 //申购日当天显示当日
                 recentDate = InstantDateUtil.format(now(), yyyyMMdd);
             else {
-                recentDate = Optional.of(dailyAmount)
+                recentDate = Optional.ofNullable(dailyAmount)
                         .map(m -> m.getDate())
                         .orElse(InstantDateUtil.format(yesterday(), yyyyMMdd));
 
