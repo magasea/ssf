@@ -756,8 +756,8 @@ public class UserInfoServiceImpl implements UserInfoService {
             DailyAmount dailyAmount = mongoDailyAmountRepository.findFirstByUserProdIdOrderByDateDesc
                     (products.getId());
 
-            String recentDate = null;
-            if (dailyAmount == null && InstantDateUtil.format(now()).equalsIgnoreCase(date))
+            String recentDate;
+            if (dailyAmount == null && now().equals(InstantDateUtil.format(products.getCreateDate())))
                 //申购日当天显示当日
                 recentDate = InstantDateUtil.format(now(), yyyyMMdd);
             else {
