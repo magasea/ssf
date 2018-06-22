@@ -237,7 +237,7 @@ public class PayServiceImpl implements PayService {
     TrdOrder trdOrder = orderService.getOrderByOrderId(trdOrderDetail.getOrderId());
     String pid = userInfoService.getUserPidByBankCard(trdOrder.getBankCardNum());
     TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndBankCardNum
-        (trdOrder.getUserId(), trdOrder.getBankCardNum())
+        (trdOrder.getUserId(), trdOrder.getBankCardNum());
     if(StringUtils.isEmpty(pid)){
       logger.error("Failed to get pid for bankCard:{} set this order status as failed",
           trdOrderDetail.getBankCardNum());
