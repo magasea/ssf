@@ -236,6 +236,8 @@ public class PayServiceImpl implements PayService {
     PayFlowResult trdPayFlowResult = null;
     TrdOrder trdOrder = orderService.getOrderByOrderId(trdOrderDetail.getOrderId());
     String pid = userInfoService.getUserPidByBankCard(trdOrder.getBankCardNum());
+    TrdBrokerUser trdBrokerUser = trdBrokerUserRepository.findByUserIdAndBankCardNum
+        (trdOrder.getUserId(), trdOrder.getBankCardNum())
     if(StringUtils.isEmpty(pid)){
       logger.error("Failed to get pid for bankCard:{} set this order status as failed",
           trdOrderDetail.getBankCardNum());
@@ -252,6 +254,7 @@ public class PayServiceImpl implements PayService {
     MyBeanUtils.mapEntityIntoDTO(trdOrderDetail, odBuilder);
     odqBuilder.setOrderDetail(odBuilder);
     odqBuilder.setPid(pid);
+    odqBuilder.setTrdAcco(trdBrokerUser.getTradeAcco());
     try {
 
       trdPayFlowResult = payRpcFutureStub.patchPayFlowWithOrderDetail(odqBuilder.build()).get();

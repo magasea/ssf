@@ -1025,11 +1025,14 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       orderId, Integer targetQuantity, Long userProdId,  Long brokerId, String tradeAcco){
 
       int sellNum = targetQuantity;
-
       String outsideOrderNo = orderId+orderDetailId;
       logger.info("sell prod with fundCode :"+fundCode
           +"sell fund quantity:"+ sellNum + " sell  account:"+ tradeAcco + " outsideOrderNo:" +
           outsideOrderNo);
+      if(sellNum <= 0 ){
+        logger.error("we cannot sell quantity <= 0 's funds");
+        return false;
+      }
       TrdPayFlow trdPayFlow = new TrdPayFlow();
       trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
       trdPayFlow.setCreateBy(userId);

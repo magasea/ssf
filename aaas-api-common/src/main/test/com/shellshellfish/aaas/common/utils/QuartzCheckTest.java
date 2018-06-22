@@ -3,7 +3,7 @@ package com.shellshellfish.aaas.common.utils;
 import org.junit.Test;
 
 /**
- * Created by developer4 on 2018- 六月 - 15
+ * Created by chenwei on 2018- 六月 - 15
  */
 
 public class QuartzCheckTest {

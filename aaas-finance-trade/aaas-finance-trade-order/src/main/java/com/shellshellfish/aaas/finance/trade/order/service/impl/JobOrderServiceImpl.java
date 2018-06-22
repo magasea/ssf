@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 /**
- * Created by developer4 on 2018- 六月 - 13
+ * Created by chenwei on 2018- 六月 - 13
  */
 @Service
 public class JobOrderServiceImpl implements JobOrderService {
