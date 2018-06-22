@@ -366,7 +366,8 @@ public class UserInfoServiceImpl implements UserInfoService {
         // today 不为空，表明今天有确认信息，今天的数据表示昨日（今天的asset 用昨日的净值计算的）
         //
         yesterday = today == null ? yesterday : today;
-        result.add(yesterday);
+        if (yesterday != null)
+            result.add(yesterday);
 
         Collections
                 .sort(result, Comparator.comparing(o -> InstantDateUtil.format(o.getDate(), yyyyMMdd)));
