@@ -95,3 +95,18 @@ message UserProdDetail{
   int64 userProdId = 12;
   string lastestSerial = 13;
 }
+
+message UserBankCardInfo{
+  int64 id = 1;
+  int64 userId = 2;
+  string userName = 3;
+  string userPid = 4;
+  string cellphone = 5;
+  string bankName = 6;
+  string cardNumber = 7;
+  int32 status = 8;
+  int64 createdBy = 9;
+  int64 createdDate = 10;
+  int64 updateBy = 11;
+  int64 updateDate = 12;
+}
