@@ -752,13 +752,21 @@ public class UserInfoServiceImpl implements UserInfoService {
             // 所以此时资产时间定为昨天（需求定的）
             //==========================================================================================================
 
-            String recentDate = Optional.ofNullable(mongoDailyAmountRepository.findFirstByUserProdIdOrderByDateDesc
-                    (products.getId()))
-                    .map(m -> m.getDate())
-                    .orElse(InstantDateUtil.format(yesterday(), yyyyMMdd));
+            DailyAmount dailyAmount = mongoDailyAmountRepository.findFirstByUserProdIdOrderByDateDesc
+                    (products.getId());
 
-            recentDate = InstantDateUtil.format(recentDate, yyyyMMdd).isBefore(now()) ? recentDate :
-                    InstantDateUtil.format(yesterday(), yyyyMMdd);
+            String recentDate = null;
+            if (dailyAmount == null && InstantDateUtil.format(now()).equalsIgnoreCase(date))
+                //申购日当天显示当日
+                recentDate = InstantDateUtil.format(now(), yyyyMMdd);
+            else {
+                recentDate = Optional.of(dailyAmount)
+                        .map(m -> m.getDate())
+                        .orElse(InstantDateUtil.format(yesterday(), yyyyMMdd));
+
+                recentDate = InstantDateUtil.format(recentDate, yyyyMMdd).isBefore(now()) ? recentDate :
+                        InstantDateUtil.format(yesterday(), yyyyMMdd);
+            }
 
             resultMap.put("recentDate", InstantDateUtil.format(recentDate, yyyyMMdd).toString());
             resultList.add(resultMap);
