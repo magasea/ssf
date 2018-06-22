@@ -1337,8 +1337,11 @@ public class BroadcastMessageConsumers {
       mongoPendingRecordsPatch.setUserProdId(trdPayFlow.getUserProdId());
       mongoPendingRecordsPatch.setTradeTargetShare(trdPayFlow.getTradeTargetShare());
       mongoPendingRecordsPatch.setTradeTargetSum(trdPayFlow.getTradeTargetSum());
+      mongoPendingRecordsPatch.setTradeConfirmSum(trdPayFlow.getTradeConfirmSum());
+      mongoPendingRecordsPatch.setTradeConfirmShare(trdPayFlow.getTradeConfirmShare());
       mongoPendingRecordsPatch.setCreatedDate(TradeUtil.getUTCTime());
       mongoPendingRecordsPatch.setApplyDateStr(trdPayFlow.getTrdApplyDate());
+      mongoPendingRecordsPatch.setApplySerial(trdPayFlow.getApplySerial());
       mongoPendingRecordsPatch.setFundCode(trdPayFlow.getFundCode());
       if (trdPayFlow.getApplydateUnitvalue() == -1L) {
         logger.error("the trdPayFlow.getApplydateUnitvalue is invalid");

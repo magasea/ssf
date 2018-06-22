@@ -1338,7 +1338,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
             checkFundsTradeJobService.checkAndSendConfirmInfo(trdPayFlows, request.getPid());
           }
         }
-
+        MyBeanUtils.mapEntityIntoDTO(trdPayFlows.get(0), pfrBuilder);
+        responseObserver.onNext(pfrBuilder.build());
+        responseObserver.onCompleted();
       }
 
     }catch (Exception ex){
