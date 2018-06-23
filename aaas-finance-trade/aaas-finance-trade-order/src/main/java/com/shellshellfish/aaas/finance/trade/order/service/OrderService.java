@@ -5,6 +5,8 @@ import java.util.Map;
 
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface OrderService {
 
@@ -13,6 +15,9 @@ public interface OrderService {
 	List<TrdOrderDetail> findOrderDetailByOrderId(String orderId);
 
 	TrdOrder getOrderByOrderId(String orderId);
+
+	Page<TrdOrder> getDefaultBankcardOrderByUserId(String UserId,List<Long> bankCardList,Pageable pageable);
+
 
 	List<TrdOrderDetail> getOrderDetailByGenOrderIdAndFundCode(String orderId, String fundCode)
 			throws IllegalAccessException;
