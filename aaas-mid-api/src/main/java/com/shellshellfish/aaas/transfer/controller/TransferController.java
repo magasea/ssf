@@ -356,19 +356,24 @@ public class TransferController {
 			}
 
 			//获取默认银行卡
-      if(!"".equals(bankcardNumbers)){
+      if(!"".equals(bankcardNumbers)&&resultOriginList.size()>1){
         defaultBankCardNum = restTemplate.getForEntity(
             tradeOrderUrl + "/api/trade/funds/getDefaultBankcard?uuid=" + uuid + "&bankcardNumbers="
                 + bankcardNumbers, String.class).getBody();
-      }
-
-			for(Map bankMap:result){
-				if(defaultBankCardNum.equals(bankMap.get("bankcardNum"))){
-					bankMap.put("defaultCard",1);
-				}else {
-					bankMap.put("defaultCard",0);
+				for(Map bankMap:result){
+					if(defaultBankCardNum.equals(bankMap.get("bankcardNum"))){
+						bankMap.put("defaultCard",1);
+					}else {
+						bankMap.put("defaultCard",0);
+					}
+				}
+      }else{
+				for(Map bankMap:result){
+						bankMap.put("defaultCard",1);
 				}
 			}
+
+
 			resultMap.put("banks", result);
 			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/" + Integer.parseInt(oemid);
 			Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
