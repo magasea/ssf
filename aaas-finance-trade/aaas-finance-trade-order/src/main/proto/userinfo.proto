@@ -23,6 +23,7 @@ service UserInfoService {
     rpc sellPersentUserProducts (SellPersentProducts) returns (SellProductsResult){}
     rpc GetUserProdDetail(GetUserProdDetailQuery) returns(GetUserProdDetailResults){}
     rpc CheckAbsentPendingRecordsOrders(ConfirmedOutsideOrderIds) returns(NeedPatchOutsideOrderIds){}
+    rpc GetUserBankCards(QueryUserBankCards) returns(UserBankCardInfoResults){}
 
 }
 
@@ -141,4 +142,14 @@ message ConfirmedOutsideOrderIds{
 
 message NeedPatchOutsideOrderIds{
   repeated string outsideOrderId = 1;
+}
+
+message QueryUserBankCards{
+  int64 userId = 1;
+  string cardNumber = 2;
+  string cellphone = 3;
+}
+
+message UserBankCardInfoResults{
+  repeated UserBankCardInfo userBankCardInfo = 1;
 }

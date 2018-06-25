@@ -53,10 +53,19 @@ public class ZZStatsToOrdStatsUtils {
         }
 
       case REALTIMECONFIRMSUCESS:
-        return TrdOrderStatusEnum.CONFIRMED;
+        if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.BUY.getOperation()){
+          return TrdOrderStatusEnum.CONFIRMED;
+        }else if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+          return TrdOrderStatusEnum.SELLCONFIRMED;
+        }
 
       default:
         logger.error("input is not correct enum");
+        if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.BUY.getOperation()){
+          return TrdOrderStatusEnum.FAILED;
+        }else if(trdOrderOpTypeEnum.getOperation() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+          return TrdOrderStatusEnum.REDEEMFAILED;
+        }
         return TrdOrderStatusEnum.FAILED;
     }
   }

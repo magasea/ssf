@@ -1,17 +1,12 @@
 package com.shellshellfish.aaas.common.utils;
 
-import java.time.DayOfWeek;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @Author pierre 18-1-25
@@ -57,6 +52,10 @@ public class InstantDateUtil {
 
     public static LocalDate tomorrow() {
         return now().plusDays(1);
+    }
+
+    public static LocalDate yesterday() {
+        return now().plusDays(-1);
     }
 
     /**

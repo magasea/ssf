@@ -1,10 +1,5 @@
 package com.shellshellfish.aaas.userinfo.service.impl;
 
-import static com.shellshellfish.aaas.common.utils.InstantDateUtil.yyyyMMdd;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
-
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
@@ -52,6 +47,7 @@ import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import com.shellshellfish.aaas.userinfo.service.UserInfoService;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import io.grpc.ManagedChannel;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -60,15 +56,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
+
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,8 +80,10 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 
-
 import java.util.stream.Collectors;
+
+import static com.shellshellfish.aaas.common.utils.InstantDateUtil.*;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 
 @Service
@@ -344,6 +337,20 @@ public class UserInfoServiceImpl implements UserInfoService {
         return null;
     }
 
+    /**
+     * 确认前
+     * ------- asset = 申购金额（标记为昨日）
+     * ------- 昨日收益 = 0
+     * ------- 走势图最后一日收益 = 昨日收益
+     * 确认后
+     * ------- asset = 基金×昨日净值×（1-赎回费率）（标记为昨日）
+     * ------- 昨日收益 = asset - 申购金额
+     * ------- 走势图最后一日收益（昨日）= 昨日收益
+     *
+     * @param userUuid
+     * @return
+     * @throws Exception
+     */
     @Override
     public List<TrendYield> getTrendYield(String userUuid) throws Exception {
         Aggregation agg = newAggregation(
@@ -358,12 +365,36 @@ public class UserInfoServiceImpl implements UserInfoService {
             return new ArrayList<>(0);
         }
         List<TrendYield> result = new ArrayList<>(list);
-        for (TrendYield trendYield : result) {
+
+        Iterator<TrendYield> iterator = result.iterator();
+        TrendYield today = null;
+        TrendYield yesterday = null;
+        while (iterator.hasNext()) {
+            TrendYield trendYield = iterator.next();
             String date = trendYield.getDate().replace("-", "");
             trendYield.setDate(date);
+
+            if (now().toString().equalsIgnoreCase(date)) {
+                today = trendYield;
+                today.setDate(InstantDateUtil.format(yesterday(), yyyyMMdd));
+                iterator.remove();
+            }
+            if (yesterday().toString().equalsIgnoreCase(date)) {
+                yesterday = trendYield;
+                iterator.remove();
+            }
         }
+        // 确认日当天,会生成当日的asset 但是因为当日的基金净值还没有生成，所以用的是昨日的基金净值
+        // today 不为空，表明今天有确认信息，今天的数据表示昨日（今天的asset 用昨日的净值计算的）
+        //
+        yesterday = today == null ? yesterday : today;
+        if (yesterday != null)
+            result.add(yesterday);
+
         Collections
-                .sort(result, Comparator.comparing(o -> InstantDateUtil.format(o.getDate(), "yyyyMMdd")));
+                .sort(result, Comparator.comparing(o -> InstantDateUtil.format(o.getDate(), yyyyMMdd)));
+
+
         return result;
     }
 
@@ -457,6 +488,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     /**
      * 计算组合的累计收益，累计收益率
+     * 确认前
+     * ------- asset = 申购金额（标记为昨日）
+     * ------- 昨日收益 = 0
+     * ------- 走势图最后一日收益 = 昨日收益
+     * <p>
+     * 确认后
+     * ------- asset = 基金×昨日净值×（1-赎回费率）（标记为昨日）
+     * ------- 昨日收益 = asset - 申购金额
+     * ------- 走势图最后一日收益（昨日）= 昨日收益
      */
     @Override
     public Map<String, PortfolioInfo> getCalculateTotalAndRate(String uuid, Long userId,
@@ -476,14 +516,34 @@ public class UserInfoServiceImpl implements UserInfoService {
         LocalDate startLocalDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(startDate),
                 ZoneId.systemDefault()).toLocalDate();
 
-        LocalDate endLocalDate = LocalDate.now();
+
+        LocalDate endLocalDate = yesterday();
         while (startLocalDate.isBefore(endLocalDate) || startLocalDate.isEqual(endLocalDate)) {
             String endDay = InstantDateUtil.format(endLocalDate, yyyyMMdd);
             result.put(endDay, getChicombinationAssets(uuid, userId, products, endLocalDate, flag));
             endLocalDate = endLocalDate.plusDays(-1);
         }
-        return result;
 
+        //==========================================================================================================
+        // 当日确认的持仓，其资产会计算到当日，但是使用的是前一日的基金净值数据（当日基金净值数据尚未生成）
+        // 所以此时资产时间定为昨天（需求定的）
+        //==========================================================================================================
+        DailyAmount dailyAmount = mongoDailyAmountRepository.findFirstByUserProdIdOrderByDateDesc(products.getId());
+        LocalDate date = Optional.ofNullable(dailyAmount).map(m -> InstantDateUtil.format(m.getDate(), yyyyMMdd)).orElse
+                (yesterday());
+
+        //补丁程序
+        if (now().equals(date)) {
+            // 该只持仓今日有确认信息
+            // 今日净值尚未产生，所以今日资产= 份额×净值×（1-赎回费率） 故标记为昨日
+            // 昨日收益 也用 今日的数据
+            PortfolioInfo portfolioInfo = getChicombinationAssets(uuid, userId, products,
+                    now(), flag);
+            portfolioInfo.setDate(yesterday());
+            result.replace(InstantDateUtil.format(yesterday(), yyyyMMdd), portfolioInfo);
+        }
+
+        return result;
     }
 
 
@@ -687,11 +747,29 @@ public class UserInfoServiceImpl implements UserInfoService {
 //			resultMap.put("updateDate", DateUtil.getDateType(products.getUpdateDate()));
             String date = InstantDateUtil.getDayConvertString(products.getCreateDate());
             resultMap.put("updateDate", date);
-            resultMap.put("recentDate",
-                    Optional.ofNullable(mongoDailyAmountRepository.findFirstByUserProdIdOrderByDateDesc
-                            (products.getId()))
-                            .map(m -> InstantDateUtil.format(m.getDate(), yyyyMMdd).toString())
-                            .orElse(InstantDateUtil.now().toString()));
+
+            //==========================================================================================================
+            // 当日确认的持仓，其资产会计算到当日，但是使用的是前一日的基金净值数据（当日基金净值数据尚未生成）
+            // 所以此时资产时间定为昨天（需求定的）
+            //==========================================================================================================
+
+            DailyAmount dailyAmount = mongoDailyAmountRepository.findFirstByUserProdIdOrderByDateDesc
+                    (products.getId());
+
+            String recentDate;
+            if (dailyAmount == null && now().equals(InstantDateUtil.format(products.getCreateDate())))
+                //申购日当天显示当日
+                recentDate = InstantDateUtil.format(now(), yyyyMMdd);
+            else {
+                recentDate = Optional.ofNullable(dailyAmount)
+                        .map(m -> m.getDate())
+                        .orElse(InstantDateUtil.format(yesterday(), yyyyMMdd));
+
+                recentDate = InstantDateUtil.format(recentDate, yyyyMMdd).isBefore(now()) ? recentDate :
+                        InstantDateUtil.format(yesterday(), yyyyMMdd);
+            }
+
+            resultMap.put("recentDate", InstantDateUtil.format(recentDate, yyyyMMdd).toString());
             resultList.add(resultMap);
         }
         return resultList;
