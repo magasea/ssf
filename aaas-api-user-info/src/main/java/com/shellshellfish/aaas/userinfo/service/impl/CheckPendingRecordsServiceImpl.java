@@ -61,7 +61,10 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
       for(MongoPendingRecords mongoPendingRecord: mongoPendingRecords){
         if ( currentTime - mongoPendingRecord.getCreatedDate() < 60*1000){
           logger.info("we ignore this pendingRecord because time is too short");
-        }else{
+        }else if(mongoPendingRecord.getUserProdId() == null && mongoPendingRecord.getUserProdId() <=
+            0){
+          mongoTemplate.remove(mongoPendingRecord);
+        } else {
           processPendingRecord(mongoPendingRecord);
         }
       }
@@ -81,7 +84,7 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
     //because if there is a pendingRecord with the UserProdId and the FundCode without orderId, then
     //further operation on the same userProdId or the same prodId will be blocked
     //so the created time desc orderDetail's top one should be updated into the pendingRecord
-    if(CollectionUtils.isEmpty(trdOrderDetails)){
+    if(CollectionUtils.isEmpty(trdOrderDetails) && mongoPendingRecords.getUserProdId() > 0){
       mongoTemplate.remove(mongoPendingRecords);
       return ;
     }
