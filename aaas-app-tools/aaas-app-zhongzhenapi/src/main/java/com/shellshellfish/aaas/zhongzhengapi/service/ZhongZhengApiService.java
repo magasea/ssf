@@ -13,11 +13,13 @@ import com.shellshellfish.aaas.common.grpc.zzapi.ZZTradeLimit;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltAplyInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltInfoRlt;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltSellAndBuyResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.CancelTradeResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.SellResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZBonusInfo;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZBuyResult;
 import java.util.List;
+import org.springframework.data.domain.Page;
 
 /**
  * Created by chenwei on 2018- 四月 - 03
@@ -113,7 +115,7 @@ public interface ZhongZhengApiService {
    * @throws Exception
    */
 
-  public WalletApplyResult sellWallet2Buy(String trdAcco, String pid, String applyNum, String
+  public ZZWltSellAndBuyResult sellWallet2Buy(String trdAcco, String pid, String applyNum, String
       outsideOrderNo, String targetFundCode ) throws Exception;
 
   /**
@@ -199,6 +201,20 @@ public interface ZhongZhengApiService {
    */
   public List<ZZBonusInfo> getBonusInfo(String pid, String fundCode, String startDate)
       throws Exception;
+
+
+  /**
+   *
+   * @param fundCode
+   * @param startDate
+   * @param pageSize
+   * @param pageNo
+   * @return
+   * @throws Exception
+   */
+
+  public Page<ZZBonusInfo> getBonusInfoNoPid(String fundCode, String startDate, Integer pageSize,
+      Integer pageNo ) throws Exception;
 
   /**
    *
