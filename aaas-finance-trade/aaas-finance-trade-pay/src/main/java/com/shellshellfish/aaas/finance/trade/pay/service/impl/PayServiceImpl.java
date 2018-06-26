@@ -268,6 +268,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           sb.append(ex.getMessage());
         }
         trdPayFlow.setErrMsg(sb.toString());
+        trdPayFlow.setTrdStatus(TrdOrderStatusEnum.FAILED.getStatus());
         notifyPendingRecordsFailed(trdPayFlow);
         continue;
       }
@@ -306,9 +307,10 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
     com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
         .shellshellfish.aaas.common.message.order.TrdPayFlow();
     MyBeanUtils.mapEntityIntoDTO(trdPayFlow, trdPayFlowMsg);
-    trdPayFlowMsg.setTrdStatus(TrdOrderStatusEnum.FAILED.getStatus());
+//    trdPayFlowMsg.setTrdStatus(TrdOrderStatusEnum.FAILED.getStatus());
     broadcastMessageProducers.sendFailedMsgToPendingRecord(trdPayFlowMsg);
     broadcastMessageProducers.sendFailedMsgToOrderDetail(trdPayFlowMsg);
+    broadcastMessageProducers.sendFailedMsgToTrdLog(trdPayFlowMsg);
 
   }
 
@@ -1095,7 +1097,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           notifySell(trdPayFlowMsg);
         }else{
           //ToDo: 以后这里不需要加回去， 因为没有扣减发生， 需要发消息通知把pendingRecord状态置为handled
-          notifyPendingRecordsFailed(trdPayFlow);
+
           //赎回请求失败，需要把扣减的基金数量加回去
           trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
           trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
@@ -1110,12 +1112,29 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           trdPayFlow.setUpdateBy(userId);
           trdPayFlow.setTradeAcco(tradeAcco);
           trdPayFlow.setUserProdId(userProdId);
+          trdPayFlow.setTrdStatus(TrdOrderStatusEnum.REDEEMFAILED.getStatus());
+          notifyPendingRecordsFailed(trdPayFlow);
         }
       }catch (Exception ex){
         logger.error("exception:",ex);
 
         logger.error("because of error:" + ex.getMessage() + " we need send out rollback notification");
         //赎回请求失败，需要把扣减的基金数量加回去
+        trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+        trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
+        trdPayFlow.setTradeTargetShare(targetQuantity);
+//          trdPayFlow.setTradeTargetSum(TradeUtil.getLongNumWithMul100(prodDtlSellDTO
+//              .getTargetSellAmount()));
+        trdPayFlow.setFundCode(fundCode);
+        trdPayFlow.setOutsideOrderno(outsideOrderNo);
+        trdPayFlow.setOrderDetailId(orderDetailId);
+        trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
+        trdPayFlow.setCreateBy(userId);
+        trdPayFlow.setUpdateBy(userId);
+        trdPayFlow.setTradeAcco(tradeAcco);
+        trdPayFlow.setUserProdId(userProdId);
+        trdPayFlow.setTrdStatus(TrdOrderStatusEnum.REDEEMFAILED.getStatus());
+        notifyPendingRecordsFailed(trdPayFlow);
         if(!StringUtils.isEmpty(ex.getMessage())){
           if(ex.getMessage().split(":").length >= 2){
             trdPayFlow.setErrCode(ex.getMessage().split(":")[0]);

@@ -104,6 +104,20 @@ public interface ZhongZhengApiService {
 
   /**
    *
+   * @param trdAcco
+   * @param pid
+   * @param applyNum
+   * @param outsideOrderNo
+   * @param targetFundCode
+   * @return
+   * @throws Exception
+   */
+
+  public WalletApplyResult sellWallet2Buy(String trdAcco, String pid, String applyNum, String
+      outsideOrderNo, String targetFundCode ) throws Exception;
+
+  /**
+   *
    * @param pid
    * @return
    * @throws Exception
