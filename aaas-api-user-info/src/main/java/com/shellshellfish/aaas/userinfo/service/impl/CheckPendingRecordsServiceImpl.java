@@ -286,6 +286,7 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
         mongoUiTrdLog.setOrderId(trdOrderDetail.getOrderId());
         mongoUiTrdLog.setCreatedBy(trdOrderDetail.getUserId().toString());
         mongoUiTrdLog.setCreatedDate(TradeUtil.getUTCTime());
+        mongoUiTrdLog.setTradeDate(trdOrderDetail.getCreateDate());
         mongoUiTrdLog.setFundCode(trdOrderDetail.getFundCode());
         mongoUiTrdLog.setLastModifiedBy(trdOrderDetail.getUserId().toString());
         mongoUiTrdLog.setOperations(trdOrderDetail.getTradeType());
