@@ -63,4 +63,12 @@ public class JobController {
     checkPendingRecordsService.checkPendingRecords();
     return new ResponseEntity<Map>( HttpStatus.OK);
   }
+
+  @ApiOperation("patchFailedOrderInfoToTrdLog 交易失败的订单补充trdLog记录")
+  @RequestMapping(value = "/patchFailedOrderInfoToTrdLog", method = RequestMethod.GET)
+  @ResponseBody
+  public ResponseEntity<Map> patchFailedOrderInfoToTrdLog() throws Exception {
+    checkPendingRecordsService.patchFailedOrderInfoToTrdLog();
+    return new ResponseEntity<Map>( HttpStatus.OK);
+  }
 }

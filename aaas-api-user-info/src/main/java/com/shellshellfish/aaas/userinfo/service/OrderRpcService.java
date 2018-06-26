@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.userinfo.service;
 import com.shellshellfish.aaas.common.grpc.trade.order.TrdOrderDetail;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
 
 /**
  * Created by chenwei on 2018- 二月 - 09
@@ -52,5 +53,14 @@ public interface OrderRpcService {
     List<TrdOrderDetail> getOrderDetailByUserProdIdAndFundCodeAndTrdType(Long userProdId, String
         fundCode, Integer trdType);
 
+
+    /**
+     *
+     * @param pageNo
+     * @param pageSize
+     * @return
+     */
+
+    Page<TrdOrderDetail> getFailedOrderInfos(int pageNo, int pageSize);
 
 }
