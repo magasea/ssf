@@ -258,7 +258,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         }
 
       }
-      //ToDo: 如果有真实数据， 则删除下面if代码
+
       if(null == fundResult){
         logger.error("failed to pay for:" + payOrderDto.getUserPid() + " with prodId:" +
             payOrderDto.getUserProdId() + " with TrdMoneyAmount" + payAmount + " fundCode:"+

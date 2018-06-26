@@ -23,12 +23,10 @@ public interface TrdPayFlowRepository extends PagingAndSortingRepository<TrdPayF
   @Override
   TrdPayFlow save(TrdPayFlow trdPayFlow);
 
-  List<TrdPayFlow> findAllByTradeConfirmSumIsAndTrdTypeIs(Long tradeConfirmSum,  int trdType);
+  List<TrdPayFlow> findAllByTrdTypeIsAndTrdStatusIs(int trdType, int trdStatus);
   List<TrdPayFlow> findAllByTradeConfirmShareIsAndTrdTypeIs(Long tradeConfirmShare,  int trdType);
 
-  List<TrdPayFlow> findAllByTradeConfirmShareIsAndTrdTypeIsAndTrdStatusIsGreaterThan(Long
-      tradeConfirmShare,
-      int trdType, int trdStatus );
+
 
   List<TrdPayFlow> findAllByUserProdId(Long userProdId);
 
