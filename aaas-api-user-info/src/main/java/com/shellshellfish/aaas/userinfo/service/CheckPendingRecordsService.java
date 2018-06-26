@@ -39,5 +39,10 @@ public interface CheckPendingRecordsService {
    */
   public void checkUnhandledRecordWithNavadj();
 
+  /**
+   * 把交易失败的订单信息补入到trdLog里面
+   */
+  public void patchFailedOrderInfoToTrdLog();
+
 
 }

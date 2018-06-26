@@ -34,4 +34,5 @@ public interface OrderService {
     Map<String, Object> getBanklists();
 
 
+    Page<TrdOrderDetail> getFailedOrderDetail(int pageSize, int pageNo);
 }
