@@ -39,6 +39,12 @@ public class BroadcastMessageProducers {
             trdPayFlow);
     }
 
+    public void sendFailedMsgToTrdLog(TrdPayFlow trdPayFlow){
+        logger.info("send message to trdLog: " + trdPayFlow.getOrderDetailId());
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_USERINFO_TRDLOG,
+            trdPayFlow);
+    }
+
     public void sendFailedMsgToOrderDetail(TrdPayFlow trdPayFlow){
         logger.info("send message: " + trdPayFlow.getOrderDetailId());
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.OPERATION_TYPE_FAILED_TRADE,

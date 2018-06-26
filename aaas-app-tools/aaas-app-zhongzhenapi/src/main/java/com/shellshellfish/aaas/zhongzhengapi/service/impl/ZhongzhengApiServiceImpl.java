@@ -441,4 +441,30 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
       throw e;
     }
   }
+
+  @Override
+  public WalletApplyResult sellWallet2Buy(String trdAcco, String pid, String applyNum,
+      String outsideOrderNo, String targetFundCode) throws Exception {
+    return null;
+//    try {
+//      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+//      if(targetFundCode.contains(".")){
+//        targetFundCode = targetFundCode.split("\\.")[0];
+//      }
+//      origInfo.put("targetfundcode", targetFundCode);
+//      origInfo.put("tradeacco", trdAcco);
+//      origInfo.put("applyshare", applyNum);
+//      origInfo.put("target_platform_code", ZhongZhengAPIConstants.ZZ_PLATFORM_CODE);
+//
+//      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+//      logMap(info);
+//      ZZGeneralResp<ZZRiskCmtResult> resp = callZZApiGeneral(ZhongZhengAPIConstants
+//          .ZZ_API_URL_COMMIT_RISK, ZZRiskCmtResult.class, info);
+//      checkResult(resp);
+//      return resp.getData();
+//    } catch (Exception e) {
+//      logger.error("Error:", e);
+//      throw e;
+//    }
+  }
 }
