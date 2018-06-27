@@ -1043,6 +1043,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setUserProdId(userProdId);
       trdPayFlow.setOrderDetailId(orderDetailId);
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+      trdPayFlow.setOutsideOrderno(outsideOrderNo);
       BigDecimal sellAmount = BigDecimal.valueOf(0);
       //如果是货币基金，得把原始份额乘以最近交易日的navadj来折算应该售出的份额
       if(!MonetaryFundEnum.containsCode(fundCode)){
@@ -1052,7 +1053,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         try {
           Long originNavadj = getMoneyCodeNavAdjNow(fundCode);
           if(originNavadj < 0L){
-            logger.error("Failed to get current navadj for :{}", fundCode);
+            logger.error("Failed to get current navadj for :{} with outsideOrderNo:{}", fundCode, outsideOrderNo);
             //ToDo: make notification to let trdOrder know this or, use trdOrder to routine check
             // this issue ? and send request to retry sell?
             return false;
@@ -1118,8 +1119,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       }catch (Exception ex){
         logger.error("exception:",ex);
 
-        logger.error("because of error:" + ex.getMessage() + " we need send out rollback notification");
-        //赎回请求失败，需要把扣减的基金数量加回去
+        logger.error("because of error:" + ex.getMessage() + " we need send out failed notification");
+
         trdPayFlow.setTrdType(TrdOrderOpTypeEnum.REDEEM.getOperation());
         trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
         trdPayFlow.setTradeTargetShare(targetQuantity);
@@ -1134,15 +1135,16 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         trdPayFlow.setTradeAcco(tradeAcco);
         trdPayFlow.setUserProdId(userProdId);
         trdPayFlow.setTrdStatus(TrdOrderStatusEnum.REDEEMFAILED.getStatus());
-        notifyPendingRecordsFailed(trdPayFlow);
         if(!StringUtils.isEmpty(ex.getMessage())){
           if(ex.getMessage().split(":").length >= 2){
             trdPayFlow.setErrCode(ex.getMessage().split(":")[0]);
-            trdPayFlow.setErrCode(ex.getMessage().split(":")[1]);
+            trdPayFlow.setErrMsg(ex.getMessage());
           }else{
             logger.error("strange err message from ZZ:"+ ex.getMessage());
           }
         }
+        notifyPendingRecordsFailed(trdPayFlow);
+
         return false;
     }
     return true;
