@@ -753,23 +753,24 @@ public class TradeOpServiceImpl implements TradeOpService {
             detailMap = new HashMap<>();
             TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
             int detailStatus = trdOrderDetail.getOrderDetailStatus();
-            String msg = ""; 
-            if (TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus
+            String msg = "";
+            if(trdOrderDetail.getFundSum()>0) {
+                if (TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus
                     || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus) {
-                status = CombinedStatusEnum.CONFIRMED.getComment();
-            } else if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
+                    status = CombinedStatusEnum.CONFIRMED.getComment();
+                } else if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
                     || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
-                status = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
-                msg = "支付失败，余额不足";
-            } else {
-                if(trdOrderDetail.getFundMoneyQuantity() > 0) {
-                  status = CombinedStatusEnum.WAITCONFIRM.getComment();
+                    status = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
+                    msg = "支付失败，余额不足";
+                } else {
+                    if (trdOrderDetail.getFundMoneyQuantity() > 0) {
+                        status = CombinedStatusEnum.WAITCONFIRM.getComment();
+                    }
                 }
+                detailMap.put("fundMsg", msg);
+                detailMap.put("fundstatus", status);
+                statusMap.put(status, status);
             }
-            detailMap.put("fundMsg", msg);
-            detailMap.put("fundstatus", status);
-            statusMap.put(status, status);
-
             Long instanceLong = trdOrderDetail.getCreateDate();
             detailMap.put("fundCode", trdOrderDetail.getFundCode());
             //基金费用
@@ -833,13 +834,11 @@ public class TradeOpServiceImpl implements TradeOpService {
 
         if (statusMap != null && statusMap.size() > 0) {
             if (statusMap.size() != 1) {
-                if (statusMap.containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())
+                if (statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())) {
+                    result.put("orderStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
+                } else if (statusMap.containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())
                         && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
                     result.put("orderStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
-                } else if (statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())
-//                        && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())
-                        ) {
-                    result.put("orderStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
                 }
             } else {
                 for (String key : statusMap.keySet()) {

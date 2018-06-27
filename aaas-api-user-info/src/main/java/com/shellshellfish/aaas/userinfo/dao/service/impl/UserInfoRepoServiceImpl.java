@@ -1359,10 +1359,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       result = updateProductQuantity(request);
     } catch (Exception e) {
       logger.error("exception:", e);
-      ErrInfo.Builder eiBuilder = ErrInfo.newBuilder();
-      eiBuilder.setErrCode(ErrorConstants.GRPC_ERROR_UI_CHECKSELL_FAIL_GENERAL);
-      eiBuilder.setErrMsg(e.getMessage());
-      result.setErrInfo(eiBuilder);
+      onError(responseObserver, e);
     }
     responseObserver.onNext(result.build());
     responseObserver.onCompleted();
