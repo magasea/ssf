@@ -28,6 +28,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * Created by chenwei on 2018- 六月 - 08
@@ -63,6 +64,9 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
     List<MongoPendingRecords> mongoPendingRecords =
     mongoTemplate.find(query, MongoPendingRecords.class,"ui_pending_records");
     for(MongoPendingRecords item: mongoPendingRecords){
+        if(StringUtils.isEmpty(item.getOutsideOrderId())){
+          continue;
+        }
         Query querySub = new Query();
         querySub.addCriteria(Criteria.where("user_prod_id").is(userProdId).and("fund_code").is
             (fundCode).and("outside_order_id").is(item.getOutsideOrderId()));
