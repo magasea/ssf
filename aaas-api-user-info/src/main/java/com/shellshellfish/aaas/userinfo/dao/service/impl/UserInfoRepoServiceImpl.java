@@ -1226,7 +1226,10 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       Integer originQuantity = uiProductDetail.getFundQuantity();
 
 
-      if (originQuantity == null || originQuantity <= 0) {
+      if (originQuantity == null || originQuantity <= 0 || StringUtils.isEmpty(uiProductDetail
+          .getLastestSerial())) {
+        logger.error("uiProductDetail.getLastestSerial:{} originQuantity:{}", uiProductDetail
+            .getLastestSerial(), originQuantity);
         recordStopSellInvaidFunds(request, uiProductDetail);
         spdrBuilder.setFundCode(uiProductDetail.getFundCode());
         spdrBuilder.setFundQuantityTrade(0L);
@@ -1235,6 +1238,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
         sprBuilder.addSellProductDetailResults(spdrBuilder);
         continue;
       }
+
       Long trdTgtShares = TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundDown
           (originQuantity * percent, 10000L).longValue();
       if (CollectionUtils.isEmpty(mongoPendingRecords)) {
