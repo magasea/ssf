@@ -91,7 +91,7 @@ public class ZhongzhengApiServiceImplTest {
   @Test
   public void getApplyResultByOutSideOrderNo() throws Exception {
     String sellNum = "1";
-    String outsideTradeNo = "6222021560000015265403296962180";
+    String outsideTradeNo = "6222021560000015264606433902174";
     String trdAcco = "33600";
     String fundCode = "40009.OF";
     String sellType = "0";
