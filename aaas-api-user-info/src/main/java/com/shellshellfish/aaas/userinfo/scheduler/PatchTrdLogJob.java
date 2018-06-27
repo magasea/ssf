@@ -1,7 +1,7 @@
-package com.shellshellfish.aaas.finance.trade.pay.scheduler;
+package com.shellshellfish.aaas.userinfo.scheduler;
 
 
-import com.shellshellfish.aaas.finance.trade.pay.service.impl.CheckFundsTradeJobService;
+import com.shellshellfish.aaas.userinfo.service.CheckPendingRecordsService;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -11,18 +11,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CheckPreOrderStatus2TriggerBuyJob implements Job {
+public class PatchTrdLogJob implements Job {
 
     Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private CheckFundsTradeJobService jobService;
+    private CheckPendingRecordsService checkPendingRecordsService;
 
     public void execute(JobExecutionContext context) throws JobExecutionException {
 
         logger.info("Job ** {} ** fired @ {}", context.getJobDetail().getKey().getName(), context.getFireTime());
 
-//        jobService.executePreOrderStatus();
+        checkPendingRecordsService.patchFailedOrderInfoToTrdLog();
 
         logger.info("Next job scheduled @ {}", context.getNextFireTime());
     }

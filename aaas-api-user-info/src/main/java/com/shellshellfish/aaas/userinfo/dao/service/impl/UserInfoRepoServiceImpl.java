@@ -667,6 +667,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
 
   /**
    */
+  @Transactional
   public void genUserProdsFromOrder(
       com.shellshellfish.aaas.userinfo.grpc.FinanceProdInfosQuery request,
       io.grpc.stub.StreamObserver<com.shellshellfish.aaas.grpc.common.UserProdId>
@@ -706,7 +707,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       for (FinanceProdInfo financeProdInfo : financeProdInfosValue) {
         List<MongoPendingRecords> mongoPendingRecords = getMongoPendingRecordsNotInited
             (financeProdInfo.getFundCode(), uiProducts.getProdId(), uiProducts.getGroupId(),
-                TrdOrderOpTypeEnum.BUY.getOperation(), request.getUserId());
+                TrdOrderOpTypeEnum.BUY.getOperation(), request.getUserId(), userProdId);
         if(!CollectionUtils.isEmpty(mongoPendingRecords)){
           throw new Exception(String.format("There still pending request need to be handled "
               + "prodId:%s groupId:%s fundCode:%s created in:%s", mongoPendingRecords.get(0)
@@ -1382,11 +1383,12 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
   }
 
   private List<MongoPendingRecords> getMongoPendingRecordsNotInited(String fundCode, Long
-      prodId, Long groupId, int trdType, Long userId){
+      prodId, Long groupId, int trdType, Long userId, Long userProdId){
     Query query = new Query();
     query.addCriteria(Criteria.where("prod_id").is(prodId).and("fund_code").is(fundCode).and
         ("group_id").is(groupId).orOperator(Criteria.where("order_id").is(""), Criteria.where
-        ("order_id").is(null)).and("trade_type").is(trdType).and("user_id").is(userId));
+        ("order_id").is(null)).and("trade_type").is(trdType).and("user_id").is(userId).and
+        ("user_prod_id").is(userProdId));
 
     List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
     return mongoPendingRecords;

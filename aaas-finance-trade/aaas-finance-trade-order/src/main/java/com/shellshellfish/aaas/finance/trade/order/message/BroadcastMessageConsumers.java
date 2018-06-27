@@ -100,9 +100,7 @@ public class BroadcastMessageConsumers {
             if(trdOrderDetailRepository.findById(id).isPresent()){
 
                 result = trdOrderDetailRepository.findById(id).get();
-                if(!StringUtils.isEmpty(tradeApplySerial)){
-                    result.setErrMsg(tradeApplySerial);
-                }
+
                 result.setOrderDetailStatus(trdPayFlow.getTrdStatus());
                 result.setErrMsg(trdPayFlow.getErrMsg());
                 trdOrderDetailRepository.save(result);

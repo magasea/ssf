@@ -10,6 +10,7 @@ import com.shellshellfish.aaas.common.grpc.trade.order.TrdOrderDetail;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoPendingRecords;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.userinfo.service.CheckPendingRecordsService;
 import com.shellshellfish.aaas.userinfo.service.DataCollectionService;
@@ -21,6 +22,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -61,7 +63,10 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
       for(MongoPendingRecords mongoPendingRecord: mongoPendingRecords){
         if ( currentTime - mongoPendingRecord.getCreatedDate() < 60*1000){
           logger.info("we ignore this pendingRecord because time is too short");
-        }else{
+        }else if(mongoPendingRecord.getUserProdId() == null && mongoPendingRecord.getUserProdId() <=
+            0){
+          mongoTemplate.remove(mongoPendingRecord);
+        } else {
           processPendingRecord(mongoPendingRecord);
         }
       }
@@ -81,7 +86,7 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
     //because if there is a pendingRecord with the UserProdId and the FundCode without orderId, then
     //further operation on the same userProdId or the same prodId will be blocked
     //so the created time desc orderDetail's top one should be updated into the pendingRecord
-    if(CollectionUtils.isEmpty(trdOrderDetails)){
+    if(CollectionUtils.isEmpty(trdOrderDetails) && mongoPendingRecords.getUserProdId() > 0){
       mongoTemplate.remove(mongoPendingRecords);
       return ;
     }
@@ -251,6 +256,46 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
     return -1L;
   }
 
+  @Override
+  public void patchFailedOrderInfoToTrdLog() {
+//    for(){
+//
+//    }
+//    orderRpcService.getFailedOrderInfos()
+    int pageNo = 0;
+    int pageSize = 100;
 
+    Page<TrdOrderDetail> trdOrderDetails =  orderRpcService.getFailedOrderInfos(pageNo++, pageSize);
+    patchTrdLog(trdOrderDetails);
+    while( trdOrderDetails.getTotalElements() == pageSize){
+      trdOrderDetails = orderRpcService.getFailedOrderInfos(pageNo++, pageSize);
+      patchTrdLog(trdOrderDetails);
+    }
+  }
 
+  private void patchTrdLog(Page<TrdOrderDetail> trdOrderDetails) {
+    for(TrdOrderDetail trdOrderDetail : trdOrderDetails.getContent()){
+      Query query = new Query();
+      query.addCriteria(Criteria.where("order_id").is(trdOrderDetail.getOrderId()).and
+          ("user_prod_id").is(trdOrderDetail.getUserProdId()).and("fund_code").is(trdOrderDetail
+          .getFundCode()));
+      List<MongoUiTrdLog> trdLogs = mongoTemplate.find(query, MongoUiTrdLog.class);
+      if(CollectionUtils.isEmpty(trdLogs)){
+        MongoUiTrdLog mongoUiTrdLog = new MongoUiTrdLog();
+        MyBeanUtils.mapEntityIntoDTO(trdOrderDetail, mongoUiTrdLog);
+        mongoUiTrdLog.setOrderId(trdOrderDetail.getOrderId());
+        mongoUiTrdLog.setCreatedBy(trdOrderDetail.getUserId().toString());
+        mongoUiTrdLog.setCreatedDate(TradeUtil.getUTCTime());
+        mongoUiTrdLog.setTradeDate(trdOrderDetail.getCreateDate());
+        mongoUiTrdLog.setFundCode(trdOrderDetail.getFundCode());
+        mongoUiTrdLog.setLastModifiedBy(trdOrderDetail.getUserId().toString());
+        mongoUiTrdLog.setOperations(trdOrderDetail.getTradeType());
+        mongoUiTrdLog.setTradeStatus(trdOrderDetail.getOrderDetailStatus());
+        mongoUiTrdLog.setUserProdId(trdOrderDetail.getUserProdId());
+        mongoUiTrdLog.setTradeTargetShare(trdOrderDetail.getFundNum());
+        mongoUiTrdLog.setTradeTargetSum(trdOrderDetail.getFundSum());
+        mongoTemplate.save(mongoUiTrdLog);
+      }
+    }
+  }
 }

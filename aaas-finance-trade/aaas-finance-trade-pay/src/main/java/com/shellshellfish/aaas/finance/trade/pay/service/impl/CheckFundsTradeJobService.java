@@ -74,8 +74,8 @@ public class CheckFundsTradeJobService {
         //先查一遍购买未确认状态的payFlow
         boolean shouldCheckStatus = true;
         List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-            .findAllByTradeConfirmShareIsAndTrdTypeIsAndTrdStatusIsGreaterThan(0L, TrdOrderOpTypeEnum.BUY.getOperation
-                (), TrdOrderStatusEnum.FAILED.getStatus());
+            .findAllByTrdTypeIsAndTrdStatusIs(TrdOrderOpTypeEnum.BUY.getOperation
+                (), TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
         if(!CollectionUtils.isEmpty(trdPayFlows)) {
             ApplyResult applyResult = null;
@@ -317,8 +317,8 @@ public class CheckFundsTradeJobService {
     public void checkReedemPayFlows(){
         //先查一遍赎回未确认状态的payFlow
         List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-            .findAllByTradeConfirmSumIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.REDEEM.getOperation
-                ());
+            .findAllByTrdTypeIsAndTrdStatusIs(TrdOrderOpTypeEnum.REDEEM.getOperation
+                (), TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus());
         if(!CollectionUtils.isEmpty(trdPayFlows)) {
             ApplyResult applyResult = null;
             String userPid = null;
@@ -398,28 +398,28 @@ public class CheckFundsTradeJobService {
             checkAndSendConfirmInfo(trdPayFlowListToGetConfirmInfo);
         }
     }
-    public void executePreOrderStatus(){
-        logger.info("The sample job has begun...");
-        Instant.now().getEpochSecond();
-
-        List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-            .findAllByTradeConfirmShareIsAndTrdTypeIsAndTrdStatusIsGreaterThan(0L, TrdOrderOpTypeEnum.PREORDER.getOperation
-                (), TrdOrderStatusEnum.FAILED.getStatus());
-        if(!CollectionUtils.isEmpty(trdPayFlows)) {
-            for (TrdPayFlow trdPayFlow : trdPayFlows) {
-                try {
-                    com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
-                    updateTrdPayFlowAndMakeMsg(trdPayFlow);
-                    if(null != trdPayFlowMsg){
-                        broadcastMessageProducers.sendMessage(trdPayFlowMsg);
-                    }
-                } catch (JsonProcessingException ex) {
-                    logger.error("exception:",ex);
-
-                }
-            }
-        }
-    }
+//    public void executePreOrderStatus(){
+//        logger.info("The sample job has begun...");
+//        Instant.now().getEpochSecond();
+//
+//        List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
+//            .findAllByTradeConfirmShareIsAndTrdTypeIsAndTrdStatusIsGreaterThan(0L, TrdOrderOpTypeEnum.PREORDER.getOperation
+//                (), TrdOrderStatusEnum.FAILED.getStatus());
+//        if(!CollectionUtils.isEmpty(trdPayFlows)) {
+//            for (TrdPayFlow trdPayFlow : trdPayFlows) {
+//                try {
+//                    com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
+//                    updateTrdPayFlowAndMakeMsg(trdPayFlow);
+//                    if(null != trdPayFlowMsg){
+//                        broadcastMessageProducers.sendMessage(trdPayFlowMsg);
+//                    }
+//                } catch (JsonProcessingException ex) {
+//                    logger.error("exception:",ex);
+//
+//                }
+//            }
+//        }
+//    }
 
 
     private com.shellshellfish.aaas.common.message.order.TrdPayFlow updateTrdPayFlowAndMakeMsg

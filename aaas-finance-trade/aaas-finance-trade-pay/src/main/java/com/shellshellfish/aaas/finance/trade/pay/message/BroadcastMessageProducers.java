@@ -39,6 +39,12 @@ public class BroadcastMessageProducers {
             trdPayFlow);
     }
 
+    public void sendFailedMsgToTrdLog(TrdPayFlow trdPayFlow){
+        logger.info("send message to trdLog: " + trdPayFlow.getOrderDetailId());
+        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_USERINFO_TRDLOG,
+            trdPayFlow);
+    }
+
     public void sendFailedMsgToOrderDetail(TrdPayFlow trdPayFlow){
         logger.info("send message: " + trdPayFlow.getOrderDetailId());
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.OPERATION_TYPE_FAILED_TRADE,
@@ -67,8 +73,8 @@ public class BroadcastMessageProducers {
         logger.info("send message: " + trdPayFlow.getOrderDetailId());
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.ROUTING_KEY_ORDER,
             trdPayFlow);
-        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
-                .ROUTING_KEY_USERINFO_REDEEM, trdPayFlow);
+//        rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
+//                .ROUTING_KEY_USERINFO_REDEEM, trdPayFlow);
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants
             .ROUTING_KEY_USERINFO_TRDLOG, trdPayFlow);
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_NAME, RabbitMQConstants.OPERATION_TYPE_UPDATE_PRECONFIRM_PENDINGRECORDS,

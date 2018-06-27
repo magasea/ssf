@@ -40,6 +40,20 @@ public interface TrdOrderDetailRepository extends PagingAndSortingRepository<Trd
         = true)
     Page<TrdOrderDetail> findConfirmedOrderinfo( Pageable pageable);
 
+    public static final String FIND_FAILED_ORDERINFO = "SELECT * from ssftrdorder"
+        + ".trd_order_detail tod WHERE tod.order_detail_status = -4 OR tod.order_detail_status = "
+        + "-1";
+
+    public static final String COUNT_FAILED_ORDERINFO = "SELECT count(1) from ssftrdorder"
+        + ".trd_order_detail tod WHERE tod.order_detail_status = -4 OR tod.order_detail_status = "
+        + "-1";
+
+    @Query(value = FIND_FAILED_ORDERINFO, countQuery = COUNT_FAILED_ORDERINFO, nativeQuery
+        = true)
+    Page<TrdOrderDetail> findFailedOrderinfo( Pageable pageable);
+
+
+
     @Override
     TrdOrderDetail save(TrdOrderDetail newOrderDetail);
 

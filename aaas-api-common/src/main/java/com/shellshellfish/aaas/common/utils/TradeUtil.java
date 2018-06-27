@@ -28,6 +28,8 @@ import org.springframework.util.StringUtils;
 
 
 public class TradeUtil {
+  public  static final String ZZ_NO_PID_PLATFORMID = "noUserToOneFund";
+
   private static String generateOrderId(Long bankId, int tradeBrokerId ){
     Long utcTime = getUTCTime();
     System.out.println(utcTime);
@@ -278,6 +280,9 @@ public class TradeUtil {
   }
 
   public static String getZZOpenId(String personId){
+    if(StringUtils.isEmpty(personId)){
+      return ZZ_NO_PID_PLATFORMID;
+    }
     String sha256hex = getSHA256encoding(personId+"shellshellfish");
     return sha256hex;
   }

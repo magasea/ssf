@@ -22,6 +22,7 @@ public class ZhongZhengAPIConstants {
   final public static String ZZ_API_URL_WALLET_INFO = "https://onetest.zhongzhengfund.com/v2/internet/wallet/get_wallet_info";
   final public static String ZZ_API_URL_SELL_WALLET = "https://onetest.zhongzhengfund.com/v2/internet/wallet/sell_wallet";
   final public static String ZZ_API_URL_GET_WALLET_APPLY = "https://onetest.zhongzhengfund.com/v2/internet/wallet/get_wallet_apply";
+  final public static String ZZ_API_URL_WALLET_SELL_TO_BUY = "https://onetest.zhongzhengfund.com/v2/internet/wallet/wallet_sell_to_buy";
   final public static String ZZ_PLATFORM_PUBLIC_KEY = "enVoZWNlc2hpMQ==";
   final public static String ZZ_PLATFORM_PRIVATE_KEY = "6t9L76KqurWlX9Zn";
   final public static String ZZ_PLATFORM_CODE = "zuheceshi1";

@@ -10,6 +10,7 @@ import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 
 import com.shellshellfish.aaas.finance.trade.order.BindCardResult;
 
+import com.shellshellfish.aaas.finance.trade.order.OrderDetailPageResult;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetailQueryInfo;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetailResult;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetailStatusRequest;
@@ -58,6 +59,9 @@ import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -654,4 +658,49 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
         return orderDetail;
     }
 
+
+    @Override
+    public  Page<TrdOrder> getDefaultBankcardOrderByUserId(String userId, List<Long> bankCardList,
+        Pageable pageable) {
+        Page<TrdOrder> trdOrderList = trdOrderRepository
+            .findDefaultOrderBankcard(userId, bankCardList, pageable);
+        return trdOrderList;
+    }
+
+    @Override
+    public Page<TrdOrderDetail> getFailedOrderDetail(int pageSize, int pageNo){
+        Pageable pageable = new PageRequest(pageNo, pageSize);
+        Page<TrdOrderDetail> trdOrderList = trdOrderDetailRepository.findFailedOrderinfo(pageable);
+        return trdOrderList;
+    }
+
+    /**
+     */
+    @Override
+    public void getFailedOrderDetails(com.shellshellfish.aaas.finance.trade.order.GetOrderDetailInfoByPage request,
+        io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.order
+            .OrderDetailPageResult> responseObserver) {
+        try{
+            Page<TrdOrderDetail> trdOrderDetails = getFailedOrderDetail(request.getPageSize(),
+                request.getPageNo());
+            OrderDetailPageResult.Builder odrBuilder = OrderDetailPageResult.newBuilder();
+            odrBuilder.setTotalPages(trdOrderDetails.getTotalPages());
+            OrderDetail.Builder odBuilder = OrderDetail.newBuilder();
+
+            for(TrdOrderDetail trdOrderDetail: trdOrderDetails){
+                odBuilder.clear();
+                MyBeanUtils.mapEntityIntoDTO(trdOrderDetail, odBuilder);
+                odrBuilder.addOrderDetailResult(odBuilder);
+            }
+            responseObserver.onNext(odrBuilder.build());
+            responseObserver.onCompleted();
+        }catch (Exception ex){
+
+            logger.error("Error:", ex);
+            onError(responseObserver, ex);
+        }
+
+
+    }
 }
+

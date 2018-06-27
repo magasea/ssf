@@ -794,7 +794,11 @@ public class TradeOpServiceImpl implements TradeOpService {
         continue;
       }
       detailMap.put("fundSum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
-      totalSum = totalSum + fundSum;
+      if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
+          || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
+      } else {
+        totalSum = totalSum + fundSum;
+      }
       detailMap.put("targetSellPercent", trdOrder.getSellPercent());
 
             //FIXME  交易日判断逻辑使用asset allocation 中的TradeUtils
@@ -832,9 +836,9 @@ public class TradeOpServiceImpl implements TradeOpService {
                 if (statusMap.containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())
                         && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
                     result.put("orderStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
-                }
-                if (statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())
-                        && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
+                } else if (statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())
+//                        && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())
+                        ) {
                     result.put("orderStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
                 }
             } else {
@@ -911,18 +915,20 @@ public class TradeOpServiceImpl implements TradeOpService {
 	    detailMap = new HashMap<>();
 	    TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
 	    int detailStatus = trdOrderDetail.getOrderDetailStatus();
-	    String status;
-	    if (TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus
-	        || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus) {
-	      status = CombinedStatusEnum.CONFIRMED.getComment();
-	    } else if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
-	        || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
-	      status = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
-	    } else {
-	      status = CombinedStatusEnum.WAITCONFIRM.getComment();
-	    }
-	    detailMap.put("fundstatus", status);
-	    statusMap.put(status, status);
+	    String status="0";
+	    if(trdOrderDetail.getFundNum()>0) {
+          if (TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus
+              || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus) {
+              status = CombinedStatusEnum.CONFIRMED.getComment();
+          } else if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
+              || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
+              status = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
+          } else {
+              status = CombinedStatusEnum.WAITCONFIRM.getComment();
+          }
+          detailMap.put("fundstatus", status);
+          statusMap.put(status, status);
+      }
 	    Long instanceLong = trdOrderDetail.getCreateDate();
 	    detailMap.put("fundCode", trdOrderDetail.getFundCode());
 //	    //基金费用
@@ -946,7 +952,7 @@ public class TradeOpServiceImpl implements TradeOpService {
                 .getId() );
         continue;
       }
-	    totalNum = totalNum + fundNum;
+//	    totalNum = totalNum + fundNum;
 	    detailMap.put("fundNum", TradeUtil.getBigDecimalNumWithDiv100(fundNum));
 
             //交易金额
@@ -960,7 +966,12 @@ public class TradeOpServiceImpl implements TradeOpService {
             }
 
             detailMap.put("fundSum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
-      totalSum = totalSum + fundSum;
+            if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
+                || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
+            } else {
+              totalNum = totalNum + fundNum;
+              totalSum = totalSum + fundSum;
+            }
             //FIXME  交易日判断逻辑使用asset allocation 中的TradeUtils
             //QDIIEnum 基金　15个交易确认　其他　１个交易日确认
             String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDIIEnum.isQDII(trdOrderDetail
@@ -1002,9 +1013,9 @@ public class TradeOpServiceImpl implements TradeOpService {
                 if (statusMap.containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())
                         && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
                     result.put("orderStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
-                }
-                if (statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())
-                        && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
+                } else if (statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())
+//                        && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())
+                        ) {
                     result.put("orderStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
                 }
             } else {

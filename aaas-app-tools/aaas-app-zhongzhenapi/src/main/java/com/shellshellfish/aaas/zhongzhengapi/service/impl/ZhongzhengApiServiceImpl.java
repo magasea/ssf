@@ -13,6 +13,7 @@ import com.shellshellfish.aaas.common.grpc.zzapi.ZZTradeLimit;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltAplyInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltInfoRlt;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltSellAndBuyResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.CancelTradeResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.SellResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZBonusInfo;
@@ -26,6 +27,10 @@ import java.util.List;
 import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -436,6 +441,56 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
           .ZZ_API_URL_ALL_NET, ZZFundNetInfo.class, info);
       checkResult(resp);
       return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
+
+  @Override
+  public ZZWltSellAndBuyResult sellWallet2Buy(String trdAcco, String pid, String applyNum,
+      String outsideOrderNo, String targetFundCode) throws Exception {
+
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+      if(targetFundCode.contains(".")){
+        targetFundCode = targetFundCode.split("\\.")[0];
+      }
+      origInfo.put("targetfundcode", targetFundCode);
+      origInfo.put("tradeacco", trdAcco);
+      origInfo.put("applyshare", applyNum);
+      origInfo.put("target_platform_code", ZhongZhengAPIConstants.ZZ_PLATFORM_CODE);
+
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+      ZZGeneralResp<ZZWltSellAndBuyResult> resp = callZZApiGeneral(ZhongZhengAPIConstants.ZZ_API_URL_WALLET_SELL_TO_BUY,
+          ZZWltSellAndBuyResult.class, info);
+      checkResult(resp);
+      return resp.getData();
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
+
+  @Override
+  public Page<ZZBonusInfo> getBonusInfoNoPid(String fundCode, String startDate, Integer pageSize,
+      Integer pageNo) throws Exception {
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(null);
+      origInfo.put("fundcode", fundCode);
+      origInfo.put("page", pageNo.toString());
+      origInfo.put("page_size", pageSize.toString());
+      origInfo.put("startdate", startDate);
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+      ZZGeneralRespWithListData<ZZBonusInfo> resp = callZZApiWithListData(ZhongZhengAPIConstants
+          .ZZ_API_URL_BONUS_LIST, ZZBonusInfo.class, info);
+      checkResult(resp);
+      Pageable pageable = new PageRequest(pageNo, pageSize);
+      Page<ZZBonusInfo> zzBonusInfoPage = new PageImpl<ZZBonusInfo>(resp.getData(), pageable,
+          resp.getData().size());
+      return zzBonusInfoPage;
     } catch (Exception e) {
       logger.error("Error:", e);
       throw e;

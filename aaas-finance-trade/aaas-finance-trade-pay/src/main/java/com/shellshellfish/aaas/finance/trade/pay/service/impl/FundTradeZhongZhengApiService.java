@@ -157,8 +157,10 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         } else {
             String errno = jsonObject.getString("errno");
             String msg = jsonObject.getString("msg");
-            logger.error("{}:{}", errno, msg);
-            throw new Exception(errno + ":" + msg);
+            logger.error("{}:{} for outsideorderno:{} sell_num:{}", errno, msg, outsideOrderNo,
+                sellNum);
+            throw new Exception(String.format("%s:%s for outsideorderno:%s sell_num:%s",errno,
+                msg, outsideOrderNo, sellNum));
         }
 
         return sellFundResult;

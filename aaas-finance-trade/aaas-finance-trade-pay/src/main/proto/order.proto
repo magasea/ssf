@@ -23,13 +23,14 @@ service OrderRpcService {
     };
     rpc getLatestOrderDetail (UserProdId) returns (OrderDetailResult) {
     };
-    rpc getAllOrderDetail (UserProdId) returns (OrderDetailResult) {
-    };
+    rpc getAllOrderDetail (UserProdId) returns (OrderDetailResult) {};
 
 
     rpc getOrderDetailByParams (GenOrderIdAndFundCode) returns (OrderDetailResult) {};
 
     rpc getOrderDetailStatus (OrderDetailStatusRequest) returns (OrderDetailStatusResponse) {};
+
+    rpc getFailedOrderDetails (GetOrderDetailInfoByPage) returns (OrderDetailPageResult) {};
 }
 
 //获取交易用户PID
@@ -85,6 +86,11 @@ message OrderDetailResult {
     repeated OrderDetail order_detail_result = 1;
 }
 
+message OrderDetailPageResult {
+    int32 totalPages = 1;
+    repeated OrderDetail order_detail_result = 2;
+}
+
 
 message UserBankCardNum {
     //用户银行卡号
@@ -123,4 +129,9 @@ message GenOrderIdAndFundCode {
     int64 userProdId = 4;
     int32 trdType = 5;
 
+}
+
+message GetOrderDetailInfoByPage{
+  int32 pageSize = 1;
+  int32 pageNo = 2;
 }

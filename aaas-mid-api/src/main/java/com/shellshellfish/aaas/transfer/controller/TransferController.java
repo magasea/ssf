@@ -290,6 +290,7 @@ public class TransferController {
 	@ResponseBody
 	public JsonResult getBuyInitial(String uuid, String groupId, String subGroupId, @RequestParam(required=false, defaultValue="1")String oemid) {
 		Map resultMap = null;
+
 		try {
 			String url = tradeOrderUrl + "/api/trade/funds/maxminValue?groupId=" + groupId + "&subGroupId="
 					+ subGroupId + "&oemid=" + Integer.parseInt(oemid);
@@ -313,10 +314,16 @@ public class TransferController {
 					.getBody();
 
 			Map<Object, Object>  bankListsResult = restTemplate.getForEntity(tradeOrderUrl + "/api/trade/funds/banklists", Map.class).getBody();
-
+			String bankcardNumbers="";
+      String defaultBankCardNum="";
 			if (resultOriginList != null && resultOriginList.size() > 0) {
 				for (int i = 0; i < resultOriginList.size(); i++) {
 					Map resultOriginMap = resultOriginList.get(i);
+					if("".equals(bankcardNumbers)){
+						bankcardNumbers+=resultOriginMap.get("bankcardNum");
+					}else {
+						bankcardNumbers+=","+resultOriginMap.get("bankcardNum");
+					}
 					if (resultOriginMap.get("bankCode") != null) {
 						Map bankMap = new HashMap();
 						bankMap = restTemplate.getForEntity(
@@ -347,8 +354,27 @@ public class TransferController {
 					}
 				}
 			}
+
+			//获取默认银行卡
+      if(!"".equals(bankcardNumbers)&&resultOriginList.size()>1){
+        defaultBankCardNum = restTemplate.getForEntity(
+            tradeOrderUrl + "/api/trade/funds/getDefaultBankcard?uuid=" + uuid + "&bankcardNumbers="
+                + bankcardNumbers, String.class).getBody();
+				for(Map bankMap:result){
+					if(defaultBankCardNum.equals(bankMap.get("bankcardNum"))){
+						bankMap.put("defaultCard",1);
+					}else {
+						bankMap.put("defaultCard",0);
+					}
+				}
+      }else{
+				for(Map bankMap:result){
+						bankMap.put("defaultCard",1);
+				}
+			}
+
+
 			resultMap.put("banks", result);
-			
 			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/" + Integer.parseInt(oemid);
 			Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
 			if(productMap!=null){
@@ -357,11 +383,12 @@ public class TransferController {
 				}
 			}
 
+			//获取产品列表详情以及按照起购金获取默认费率
 			String tradeUrl = tradeOrderUrl + "/api/trade/funds/getFundDetailList?groupId=" + groupId + "&subGroupId=" + subGroupId
-					+ "&oemid=" + Integer.parseInt(oemid);
+					+ "&oemid=" + Integer.parseInt(oemid)+"&minValue="+resultMap.get("min");
 			HashMap fundAmountListMap = restTemplate.getForEntity(tradeUrl, HashMap.class).getBody();
 			resultMap.put("fundAmountList", fundAmountListMap.get("fundAmountList"));
-
+			resultMap.put("buyRateMap", fundAmountListMap.get("buyRateMap"));
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", resultMap);
 		} catch (HttpClientErrorException e) {
 			String str = e.getResponseBodyAsString();

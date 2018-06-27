@@ -242,13 +242,13 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
         BigDecimal min = this.getMinBuyAmount(productMakeUpInfoList);
         if (!min.equals(new BigDecimal(0)) && totalAmount.compareTo(min) == -1) {
             logger.error("购买金额小于起购金额！");
-            throw new Exception("购买金额小于起购金额！");
+            throw new Exception("购买起购金为"+min.setScale(2,BigDecimal.ROUND_HALF_UP)+"元");
             //return false;
         }
         BigDecimal max = this.getMaxBuyAmount(productMakeUpInfoList);
         if (!max.equals(new BigDecimal(0)) && totalAmount.compareTo(max) == 1) {
             logger.error("购买金额大于最大金额！");
-            throw new Exception("购买金额大于最大金额！");
+            throw new Exception("购买最大金额"+max.setScale(2,BigDecimal.ROUND_HALF_UP)+"元");
             //return false;
         }
         return true;

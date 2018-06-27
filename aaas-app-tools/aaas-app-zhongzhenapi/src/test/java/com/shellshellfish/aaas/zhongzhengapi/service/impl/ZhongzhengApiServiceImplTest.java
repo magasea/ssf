@@ -91,7 +91,7 @@ public class ZhongzhengApiServiceImplTest {
   @Test
   public void getApplyResultByOutSideOrderNo() throws Exception {
     String sellNum = "1";
-    String outsideTradeNo = "6222021560000015294787611052235";
+    String outsideTradeNo = "6222021560000015264606433902174";
     String trdAcco = "33600";
     String fundCode = "40009.OF";
     String sellType = "0";
@@ -128,7 +128,7 @@ public class ZhongzhengApiServiceImplTest {
   public void getApplyResultByApplySerial() throws Exception {
     String pid = "362522198709220031";
     String trdAcco = "33600";
-    String applySerial = "20180223001217";
+    String applySerial = "20180625000873";
     List<ApplyResult> applyResults =  zhongZhengApiService.getApplyResults("", applySerial, pid);
     applyResults.forEach(
         item->{
