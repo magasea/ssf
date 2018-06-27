@@ -52,7 +52,7 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
   public void checkPendingRecords() {
     Query query = new Query();
     query.addCriteria(Criteria.where("order_id").is("").orOperator(Criteria.where("order_id").is
-        (null)).orOperator(Criteria.where("outside_order_id").is(""), Criteria.where
+        (null), Criteria.where("outside_order_id").is(""), Criteria.where
         ("outside_order_id").is(null)));
     List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
     Long currentTime = TradeUtil.getUTCTime();
