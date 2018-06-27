@@ -65,8 +65,22 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
     mongoTemplate.find(query, MongoPendingRecords.class,"ui_pending_records");
     for(MongoPendingRecords item: mongoPendingRecords){
         if(StringUtils.isEmpty(item.getOutsideOrderId())){
+          logger.error("item.getOutsideOrderId() is empty", item.getOutsideOrderId());
           continue;
         }
+        if(item.getTradeType() == TrdOrderOpTypeEnum.REDEEM.getOperation() && (item
+          .getTradeConfirmSum() == null || item.getTradeConfirmSum() == 0)){
+          logger.error("the pendingRecord's tradeConfirmSum is not valid for outsideOrdreId:{}",
+              item.getOutsideOrderId());
+          continue;
+        }
+      if(item.getTradeType() == TrdOrderOpTypeEnum.BUY.getOperation() && (item
+          .getTradeConfirmShare() == null || item.getTradeConfirmShare() == 0)){
+        logger.error("the pendingRecord's getTradeConfirmShare is not valid for outsideOrdreId:{}",
+            item.getOutsideOrderId());
+        continue;
+      }
+            
         Query querySub = new Query();
         querySub.addCriteria(Criteria.where("user_prod_id").is(userProdId).and("fund_code").is
             (fundCode).and("outside_order_id").is(item.getOutsideOrderId()));
