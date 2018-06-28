@@ -147,6 +147,7 @@ public class BroadcastMessageConsumers {
       mongoUiTrdLog.setOperations(trdPayFlow.getTrdType());
       mongoUiTrdLog.setUserProdId(trdPayFlow.getUserProdId());
       mongoUiTrdLog.setUserId(trdPayFlow.getUserId());
+
       mongoUiTrdLog.setTradeStatus(trdPayFlow.getTrdStatus());
 
       mongoUiTrdLog.setOrderId(TradeUtil.getOrderIdByOutsideOrderNo(trdPayFlow
@@ -170,6 +171,9 @@ public class BroadcastMessageConsumers {
         } else if (trdPayFlow.getTrdType() == TrdOrderOpTypeEnum.REDEEM.getOperation()) {
           mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow
               .getTradeConfirmSum()));
+        }
+        if(trdPayFlow.getTrdPayFlowExt().getConfirmDateExpected() != null){
+          mongoUiTrdLog.setConfirmDateExp(trdPayFlow.getTrdPayFlowExt().getConfirmDateExpected());
         }
         mongoUiTrdLog.setApplySerial(trdPayFlow.getApplySerial());
       }

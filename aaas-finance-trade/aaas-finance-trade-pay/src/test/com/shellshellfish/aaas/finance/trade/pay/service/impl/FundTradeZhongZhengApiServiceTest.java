@@ -61,9 +61,9 @@ public class FundTradeZhongZhengApiServiceTest {
   @Test
   public void getApplyResultByOutsideOrderNo() throws Exception {
 
-    String personId = "411327198710181169";
+    String personId = "362522198709220031";
     String openId = TradeUtil.getZZOpenId(personId);
-    String outsideOrderno = "6217007099000015257505156422004";
+    String outsideOrderno = "test123456789012342";
     ApplyResult applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo(openId,
         outsideOrderno);
     System.out.println(applyResult.getConfirmflag());
@@ -128,10 +128,10 @@ public class FundTradeZhongZhengApiServiceTest {
 
   @Test
   public void buyFund() throws  Exception{
-    BigDecimal applySum = new BigDecimal("10");
+    BigDecimal applySum = new BigDecimal(10);
     String trdAcco = "33600";
     String pid = "362522198709220031";
-    String outsideOrderNo = "test12345678901234";
+    String outsideOrderNo = "test123456789012342";
     String fundCode = "003474";
     String openId = TradeUtil.getZZOpenId(pid);
     BuyFundResult buyFundResult = fundTradeApiService.buyFund( openId,  trdAcco,  applySum,

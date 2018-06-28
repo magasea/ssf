@@ -291,6 +291,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
             .shellshellfish.aaas.common.message.order.TrdPayFlow();
         BeanUtils.copyProperties(trdPayFlowResult, trdPayFlowMsg);
+        trdPayFlowMsg.getTrdPayFlowExt().setConfirmDateExpected(fundResult.getConfirmdate());
         notifyPay(trdPayFlowMsg);
       }
 
@@ -1095,6 +1096,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
               .shellshellfish.aaas.common.message.order.TrdPayFlow();
           BeanUtils.copyProperties(trdPayFlowResult, trdPayFlowMsg);
+          trdPayFlowMsg.getTrdPayFlowExt().setConfirmDateExpected(sellFundResult.getConfirmdate());
           notifySell(trdPayFlowMsg);
         }else{
           //ToDo: 以后这里不需要加回去， 因为没有扣减发生， 需要发消息通知把pendingRecord状态置为handled

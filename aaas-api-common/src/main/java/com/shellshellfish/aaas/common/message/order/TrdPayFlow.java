@@ -42,6 +42,7 @@ public class TrdPayFlow implements Serializable {
   private String errCode;
   private Integer trdbkerStatusCode;
   private String trdbkerStatusName;
+  private TrdPayFlowExt trdPayFlowExt;
 
   
   
@@ -353,7 +354,14 @@ public class TrdPayFlow implements Serializable {
     this.trdbkerStatusName = trdbkerStatusName;
   }
 
-  
+  public TrdPayFlowExt getTrdPayFlowExt() {
+    return trdPayFlowExt;
+  }
+
+  public void setTrdPayFlowExt(TrdPayFlowExt trdPayFlowExt) {
+    this.trdPayFlowExt = trdPayFlowExt;
+  }
+
   public boolean equals(Object o) {
     if (this == o) {
       return true;
