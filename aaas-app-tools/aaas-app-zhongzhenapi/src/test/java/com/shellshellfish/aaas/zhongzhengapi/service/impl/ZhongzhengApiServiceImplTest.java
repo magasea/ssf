@@ -128,7 +128,7 @@ public class ZhongzhengApiServiceImplTest {
   public void getApplyResultByApplySerial() throws Exception {
     String pid = "362522198709220031";
     String trdAcco = "33600";
-    String applySerial = "20180601000598";
+    String applySerial = "20180315000095";
     List<ApplyResult> applyResults =  zhongZhengApiService.getApplyResults("", applySerial, pid);
     applyResults.forEach(
         item->{
