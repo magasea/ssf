@@ -5,6 +5,7 @@ public class BuyFundResult {
     private String capitalMode;
     private String requestDate;
     private String outsideOrderNo;
+    private String confirmdate;
     private String kkstat;
 
     public String getApplySerial() {
@@ -45,5 +46,13 @@ public class BuyFundResult {
 
     public void setKkstat(String kkstat) {
         this.kkstat = kkstat;
+    }
+
+    public String getConfirmdate() {
+        return confirmdate;
+    }
+
+    public void setConfirmdate(String confirmdate) {
+        this.confirmdate = confirmdate;
     }
 }

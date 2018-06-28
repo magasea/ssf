@@ -513,6 +513,7 @@ public class BroadcastMessageConsumers {
     if (mongoPendingRecordsRemain.getProcessStatus() == PendingRecordStatusEnum.HANDLED
         .getStatus() && (MonetaryFundEnum.containsCode(mongoPendingRecordsRemain.getFundCode()) &&
         StringUtils.isEmpty(mongoPendingRecordsRemain.getApplyDateStr()) ||
+        mongoPendingRecordsRemain.getApplyDateNavadj() == null||
             mongoPendingRecordsRemain.getApplyDateNavadj() <= 0) ) {
       logger.error("received dupliated mongoUiTrdZZInfo for user_prod_id:{} "
               + "fund_code:{} outside_order_id:{}, but original mongoPendingRecordsRemain with "
@@ -620,6 +621,7 @@ public class BroadcastMessageConsumers {
     if (mongoPendingRecordsRemain.getProcessStatus() == PendingRecordStatusEnum.HANDLED
         .getStatus() && (MonetaryFundEnum.containsCode(mongoPendingRecordsRemain.getFundCode()) &&
         StringUtils.isEmpty(mongoPendingRecordsRemain.getApplyDateStr()) ||
+        mongoPendingRecordsRemain.getApplyDateNavadj() == null ||
         mongoPendingRecordsRemain.getApplyDateNavadj() <= 0) ) {
       logger.error("received dupliated mongoUiTrdZZInfo for user_prod_id:{} "
               + "fund_code:{} outside_order_id:{}, but original mongoPendingRecordsRemain with "
