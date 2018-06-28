@@ -79,6 +79,8 @@ public class TradeOpServiceImpl implements TradeOpService {
 
     @Autowired
     FinanceProdInfoService financeProdInfoService;
+    @Autowired
+    FinanceProdCalcServiceImpl financeProdCalcService;
 
     @Autowired
     TrdOrderRepository trdOrderRepository;
@@ -907,9 +909,9 @@ public class TradeOpServiceImpl implements TradeOpService {
 	  List<Map<String, Object>> detailList = new ArrayList<>();
 	  Map<String, Object> detailMap;
 	  Map<String, String> statusMap = new HashMap<>();
-
+	  //获取确认中及确认成功的基金
+    List<String> fundcodeList=new ArrayList<>();
 	  Long totalNum = 0L;
-	  Long totalSum = 0L;
 	  for (int i = 0; i < trdOrderDetailList.size(); i++) {
 	    detailMap = new HashMap<>();
 	    TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
@@ -919,11 +921,13 @@ public class TradeOpServiceImpl implements TradeOpService {
           if (TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus
               || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus) {
               status = CombinedStatusEnum.CONFIRMED.getComment();
+              fundcodeList.add(trdOrderDetail.getFundCode());
           } else if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
               || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
               status = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
           } else {
               status = CombinedStatusEnum.WAITCONFIRM.getComment();
+              fundcodeList.add(trdOrderDetail.getFundCode());
           }
           detailMap.put("fundstatus", status);
           statusMap.put(status, status);
@@ -955,8 +959,8 @@ public class TradeOpServiceImpl implements TradeOpService {
 	    detailMap.put("fundNum", TradeUtil.getBigDecimalNumWithDiv100(fundNum));
 
             //交易金额
-            Long fundSum;
-            if (trdOrderDetail.getFundSumConfirmed() != null && trdOrderDetail.getFundSumConfirmed() > 0) {
+            /* Long fundSum;
+           if (trdOrderDetail.getFundSumConfirmed() != null && trdOrderDetail.getFundSumConfirmed() > 0) {
                 fundSum = trdOrderDetail.getFundSumConfirmed();
             } else if (trdOrderDetail.getFundSum() != null && trdOrderDetail.getFundSum() > 0) {
                 fundSum = trdOrderDetail.getFundSum();
@@ -971,6 +975,7 @@ public class TradeOpServiceImpl implements TradeOpService {
               totalNum = totalNum + fundNum;
               totalSum = totalSum + fundSum;
             }
+           */
             //FIXME  交易日判断逻辑使用asset allocation 中的TradeUtils
             //QDIIEnum 基金　15个交易确认　其他　１个交易日确认
             String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDIIEnum.isQDII(trdOrderDetail
@@ -1004,18 +1009,13 @@ public class TradeOpServiceImpl implements TradeOpService {
                 serialList.add(serial);
             }
         }
-
-        result.put("totalNum", TradeUtil.getBigDecimalNumWithDiv100(totalNum));
-        result.put("totalSum",TradeUtil.getBigDecimalNumWithDiv100(totalSum));
         if (statusMap != null && statusMap.size() > 0) {
             if (statusMap.size() != 1) {
-                if (statusMap.containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())
+                if (statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())) {
+                    result.put("orderStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
+                }else if (statusMap.containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())
                         && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
                     result.put("orderStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
-                } else if (statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())
-//                        && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())
-                        ) {
-                    result.put("orderStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
                 }
             } else {
                 for (String key : statusMap.keySet()) {
@@ -1025,7 +1025,26 @@ public class TradeOpServiceImpl implements TradeOpService {
                 }
             }
         }
-
+      HashMap<Object, Object> fundNavadMap = financeProdCalcService.getNavadjByFundCodeAndDate(fundcodeList);
+      BigDecimal totalSum=new BigDecimal("0");
+      for(TrdOrderDetail trdOrderDetail:trdOrderDetailList){
+          BigDecimal tempFundNum=new BigDecimal("0");
+          if(trdOrderDetail.getFundNumConfirmed() != null && trdOrderDetail.getFundNumConfirmed() > 0){
+              tempFundNum = new BigDecimal(trdOrderDetail.getFundNumConfirmed());
+          }else if(trdOrderDetail.getFundNum() != null && trdOrderDetail.getFundNum() > 0){
+              tempFundNum = new BigDecimal(trdOrderDetail.getFundNum());
+          }else{
+              logger.error("trdOrderDetail id:{} have no fundNum or fundNumConfirmed",trdOrderDetail
+                  .getId());
+          }
+          if(fundNavadMap.get(trdOrderDetail.getFundCode())!=null){
+              HashMap navadMap = (HashMap)fundNavadMap.get(trdOrderDetail.getFundCode());
+              BigDecimal navadj = new BigDecimal((double) navadMap.get("navadj"));
+              totalSum=totalSum.add(navadj.multiply(tempFundNum).divide(new BigDecimal("100")));
+              logger.info("计算在总赎回金额中FundCode:"+trdOrderDetail.getFundCode());
+          }
+      }
+        result.put("totalSum", totalSum.setScale(2,BigDecimal.ROUND_HALF_UP));
         result.put("detailList", detailList);
         result.put("serialList", serialList);
         result.put("operation", trdOrder.getOrderStatus());
