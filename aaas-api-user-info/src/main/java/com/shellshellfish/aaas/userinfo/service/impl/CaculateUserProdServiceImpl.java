@@ -5,7 +5,6 @@ import com.shellshellfish.aaas.common.enums.PendingRecordStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.userinfo.model.MonetaryFund;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoCaculateBase;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoCaculateResult;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoPendingRecords;
@@ -15,16 +14,17 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import com.shellshellfish.aaas.userinfo.service.CaculateUserProdService;
 import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
 import java.math.BigDecimal;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -63,6 +63,7 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
                 Criteria.where("trade_status").is(TrdOrderStatusEnum.SELLCONFIRMED.getStatus())));
     List<MongoPendingRecords> mongoPendingRecords =
     mongoTemplate.find(query, MongoPendingRecords.class,"ui_pending_records");
+    Set<String> processedOutsideOrderIds = new HashSet<>();
     for(MongoPendingRecords item: mongoPendingRecords){
         if(StringUtils.isEmpty(item.getOutsideOrderId())){
           logger.error("item.getOutsideOrderId() is empty", item.getOutsideOrderId());
@@ -81,6 +82,17 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
         continue;
       }
 
+      if(MonetaryFundEnum.containsCode(item.getFundCode()) && (StringUtils.isEmpty(item
+          .getApplyDateStr()) || (item.getApplyDateNavadj() == null || item.getApplyDateNavadj()
+          <= 0))){
+          logger.error("Monetary FundCode:{} with outsideOrderId:{} doesn't have vaild navadj:{}",
+              item.getFundCode(), item.getOutsideOrderId(), item. getApplyDateNavadj());
+          continue;
+      }
+      if(processedOutsideOrderIds.contains(item.getOutsideOrderId())){
+          logger.error("this pendingRecord item already handled with outsideOrderId:{}", item.getOutsideOrderId());
+          continue;
+      }
       Query querySub = new Query();
       querySub.addCriteria(Criteria.where("user_prod_id").is(userProdId).and("fund_code").is
           (fundCode).and("outside_order_id").is(item.getOutsideOrderId()));
@@ -94,6 +106,7 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
         mongoCaculateBase.setTradeConfirmSum(item.getTradeConfirmSum());
         caculateAbstractShare(mongoCaculateBase);
         mongoTemplate.save(mongoCaculateBase);
+        processedOutsideOrderIds.add(item.getOutsideOrderId());
       }else{
         if(mongoCaculateBases.size() > 1){
           logger.error("user_prod_id:{} fund_code:{} outside_order_id:{} have more than 1 records"
@@ -109,6 +122,7 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
           }
           caculateAbstractShare(mongoCaculateBases.get(0));
           mongoTemplate.save(mongoCaculateBases.get(0));
+          processedOutsideOrderIds.add(item.getOutsideOrderId());
         }else{
           Update update = new Update();
           update.set("trade_confirm_sum", item.getTradeConfirmSum());
@@ -125,12 +139,96 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
           update.set("calculated_share", caculatedShare);
 
           mongoTemplate.findAndModify(querySub, update, MongoCaculateBase.class);
+          processedOutsideOrderIds.add(item.getOutsideOrderId());
         }
       }
     }
     return false;
   }
 
+  @Override
+  public boolean updateCaculateBase(MongoPendingRecords item) {
+
+
+      if(StringUtils.isEmpty(item.getOutsideOrderId())){
+        logger.error("item.getOutsideOrderId() is empty", item.getOutsideOrderId());
+        return false;
+      }
+      if(item.getTradeType() == TrdOrderOpTypeEnum.REDEEM.getOperation() && (item
+          .getTradeConfirmSum() == null || item.getTradeConfirmSum() == 0)){
+        logger.error("the pendingRecord's tradeConfirmSum is not valid for outsideOrdreId:{}",
+            item.getOutsideOrderId());
+        return false;
+      }
+      if(item.getTradeType() == TrdOrderOpTypeEnum.BUY.getOperation() && (item
+          .getTradeConfirmShare() == null || item.getTradeConfirmShare() == 0)){
+        logger.error("the pendingRecord's getTradeConfirmShare is not valid for outsideOrdreId:{}",
+            item.getOutsideOrderId());
+        return false;
+      }
+
+      if(MonetaryFundEnum.containsCode(item.getFundCode()) && (StringUtils.isEmpty(item
+          .getApplyDateStr()) || (item.getApplyDateNavadj() == null || item.getApplyDateNavadj()
+          <= 0))){
+        logger.error("Monetary FundCode:{} with outsideOrderId:{} doesn't have vaild navadj:{}",
+            item.getFundCode(), item.getOutsideOrderId(), item. getApplyDateNavadj());
+        return false;
+      }
+
+      Query querySub = new Query();
+      querySub.addCriteria(Criteria.where("user_prod_id").is(item.getUserProdId()).and("fund_code").is
+          (item.getFundCode()).and("outside_order_id").is(item.getOutsideOrderId()));
+      List<MongoCaculateBase> mongoCaculateBases =
+          mongoTemplate.find(querySub, MongoCaculateBase.class,"ui_calc_base");
+      if(CollectionUtils.isEmpty(mongoCaculateBases)){
+        MongoCaculateBase mongoCaculateBase = new MongoCaculateBase();
+        MyBeanUtils.mapEntityIntoDTO(item, mongoCaculateBase);
+        mongoCaculateBase.setOutsideOrderId(item.getOutsideOrderId());
+        mongoCaculateBase.setTradeConfirmShare(item.getTradeConfirmShare());
+        mongoCaculateBase.setTradeConfirmSum(item.getTradeConfirmSum());
+        caculateAbstractShare(mongoCaculateBase);
+        mongoTemplate.save(mongoCaculateBase);
+      }else{
+        if(mongoCaculateBases.size() > 1){
+          logger.error("user_prod_id:{} fund_code:{} outside_order_id:{} have more than 1 records"
+              + " in ui_calc_base",item.getUserProdId(), item.getFundCode(), item.getOutsideOrderId
+              ());
+          mongoTemplate.remove(querySub, "ui_calc_base");
+          MyBeanUtils.mapEntityIntoDTO(item, mongoCaculateBases.get(0));
+          mongoCaculateBases.get(0).setTradeConfirmShare(item.getTradeConfirmShare());
+          mongoCaculateBases.get(0).setTradeConfirmSum(item.getTradeConfirmSum());
+
+          // 注意凡是pendingProcessStatus状态为Handled的话必须Navadj已经取到，但是如果普通非货币基金那么
+          // 需要考虑applyDateNavadj为 null的情况
+          if(MonetaryFundEnum.containsCode(item.getFundCode())){
+            mongoCaculateBases.get(0).setApplyDateNavadj(item.getApplyDateNavadj());
+          }
+          caculateAbstractShare(mongoCaculateBases.get(0));
+          mongoTemplate.save(mongoCaculateBases.get(0));
+
+        }else{
+          Update update = new Update();
+          update.set("trade_confirm_sum", item.getTradeConfirmSum());
+          update.set("trade_confirm_share", item.getTradeConfirmShare());
+          update.set("trade_target_share", item.getTradeTargetShare());
+          update.set("trade_target_sum", item.getTradeTargetSum());
+          update.set("apply_date_str", item.getApplyDateStr());
+          update.set("apply_date_navadj", item.getApplyDateNavadj());
+          Long caculatedShare = item.getTradeConfirmShare();
+          if(MonetaryFundEnum.containsCode(item.getFundCode())){
+            caculatedShare = caculateAbstractShare(item.getFundCode(), item
+                .getTradeConfirmShare(), item.getApplyDateNavadj());
+          }
+          update.set("calculated_share", caculatedShare);
+
+          mongoTemplate.findAndModify(querySub, update, MongoCaculateBase.class);
+
+        }
+      }
+
+    return true;
+
+  }
 
   private void caculateAbstractShare(MongoCaculateBase mongoCaculateBase){
     if(MonetaryFundEnum.containsCode(mongoCaculateBase.getFundCode())){
