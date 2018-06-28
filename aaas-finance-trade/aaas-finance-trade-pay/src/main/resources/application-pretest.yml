@@ -8,18 +8,13 @@ logging:
     org.springframework.data: debug
     org.springframework.data.mongodb.core.MongoTemplate: DEBUG
 spring:
-#  data:
-#    mongodb:
-#      database: ssfui
-#      host: 192.168.1.10
-#      port: 27017
   rabbitmq:
     listener:
       simple:
         acknowledge-mode: auto
     username: ssf
     password: shellshellfish
-    host: 192.168.1.249
+    host: localhost
     port: 5772
     virtual-host: aaas
     topicQueuePayName: com-ssf-topic-name-pay
