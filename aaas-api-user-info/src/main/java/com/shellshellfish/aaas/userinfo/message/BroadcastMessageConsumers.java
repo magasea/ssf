@@ -27,6 +27,7 @@ import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUserTrdLogMsgRep
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepository;
+import com.shellshellfish.aaas.userinfo.service.CaculateUserProdService;
 import com.shellshellfish.aaas.userinfo.service.DataCollectionService;
 import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
 import com.shellshellfish.aaas.userinfo.service.PayGrpcService;
@@ -84,6 +85,9 @@ public class BroadcastMessageConsumers {
 
   @Autowired
   DataCollectionService dataCollectionService;
+
+  @Autowired
+  CaculateUserProdService caculateUserProdService;
 
   @Autowired
   MongoTemplate mongoTemplate;
@@ -507,61 +511,71 @@ public class BroadcastMessageConsumers {
       return;
     }
     if (mongoPendingRecordsRemain.getProcessStatus() == PendingRecordStatusEnum.HANDLED
-        .getStatus()) {
+        .getStatus() && (MonetaryFundEnum.containsCode(mongoPendingRecordsRemain.getFundCode()) &&
+        StringUtils.isEmpty(mongoPendingRecordsRemain.getApplyDateStr()) ||
+            mongoPendingRecordsRemain.getApplyDateNavadj() <= 0) ) {
       logger.error("received dupliated mongoUiTrdZZInfo for user_prod_id:{} "
-              + "fund_code:{} outside_order_id:{}", mongoUiTrdZZInfo.getUserProdId(),
-          mongoUiTrdZZInfo.getFundCode(), mongoUiTrdZZInfo.getOutSideOrderNo());
-      return;
-    } else {
-      UiProductDetail productDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
-          (mongoUiTrdZZInfo.getUserProdId(), mongoUiTrdZZInfo.getFundCode());
-      //开始处理货币基金
-      if (MonetaryFundEnum.containsCode(mongoUiTrdZZInfo.getFundCode())) {
-        Long navadj = mongoPendingRecordsRemain.getApplyDateNavadj();
-        if (navadj == null || navadj < 0) {
-          navadj = getMoneyCodeNavAdjByDate(mongoUiTrdZZInfo.getFundCode(),
-              mongoPendingRecordsRemain.getApplyDateStr());
-        }
-        if (navadj == null || navadj < 0) {
-          logger.error("cannot get navadj value for:{} of :{}", mongoPendingRecordsRemain
-              .getFundCode(), mongoPendingRecordsRemain.getApplyDateStr());
-          mongoPendingRecordsRemain.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED
-              .getStatus());
-          mongoPendingRecordsRemain.setLastModifiedDate(TradeUtil.getUTCTime());
-          mongoTemplate.save(mongoPendingRecordsRemain, "ui_pending_records");
-          return;
-        } else {
-          mongoPendingRecordsRemain.setApplyDateNavadj(navadj);
-        }
+              + "fund_code:{} outside_order_id:{}, but original mongoPendingRecordsRemain with "
+              + " doesn't have a valid value for applyDateNavadj:{} ",
+          mongoUiTrdZZInfo.getUserProdId(), mongoUiTrdZZInfo.getFundCode(), mongoUiTrdZZInfo
+              .getOutSideOrderNo(), mongoPendingRecordsRemain.getApplyDateNavadj());
 
-        Long confirmedQuantity = mongoUiTrdZZInfo.getTradeConfirmShare();
-        BigDecimal abstractShares = TradeUtil
-            .getBigDecimalNumWithDivOfTwoLongAndRundDown(confirmedQuantity * 1000000L, navadj);
-        Integer valueCaculated = productDetail.getFundQuantity() - abstractShares
-            .intValue();
-        logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
-            valueCaculated);
-        productDetail.setFundQuantity(valueCaculated);
-        productDetail.setFundQuantityTrade(valueCaculated);
-      }
-      //非货币基金
-      else {
-        Integer valueCaculated = productDetail.getFundQuantity() - mongoUiTrdZZInfo
-            .getTradeConfirmShare().intValue();
-        logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
-            valueCaculated);
-        productDetail.setFundQuantity(valueCaculated);
-        productDetail.setFundQuantityTrade(valueCaculated);
-      }
-      productDetail.setUpdateDate(TradeUtil.getUTCTime());
-      //表示该记录需要重新生成证据链标签
-      productDetail.setLastestSerial("");
-      uiProductDetailRepo.save(productDetail);
-      mongoPendingRecordsRemain.setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
-      mongoPendingRecordsRemain.setLastModifiedDate(TradeUtil.getUTCTime());
-      mongoTemplate.save(mongoPendingRecordsRemain, "ui_pending_records");
     }
+    UiProductDetail productDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
+        (mongoUiTrdZZInfo.getUserProdId(), mongoUiTrdZZInfo.getFundCode());
+    //开始处理货币基金
+    if (MonetaryFundEnum.containsCode(mongoUiTrdZZInfo.getFundCode())) {
+      Long navadj = mongoPendingRecordsRemain.getApplyDateNavadj();
+      if (navadj == null || navadj < 0) {
+        navadj = getMoneyCodeNavAdjByDate(mongoUiTrdZZInfo.getFundCode(),mongoUiTrdZZInfo.getApplyDate());
+      }
+      if (navadj == null || navadj < 0) {
+        logger.error("cannot get navadj value for:{} of :{}", mongoPendingRecordsRemain
+            .getFundCode(), mongoPendingRecordsRemain.getApplyDateStr());
+        mongoPendingRecordsRemain.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED
+            .getStatus());
+        mongoPendingRecordsRemain.setLastModifiedDate(TradeUtil.getUTCTime());
+        mongoTemplate.save(mongoPendingRecordsRemain, "ui_pending_records");
+        return;
+      } else {
+        mongoPendingRecordsRemain.setTradeConfirmShare(mongoUiTrdZZInfo.getTradeConfirmShare());
+        mongoPendingRecordsRemain.setTradeConfirmSum(mongoUiTrdZZInfo.getTradeConfirmSum());
+        mongoPendingRecordsRemain.setApplySerial(mongoUiTrdZZInfo.getApplySerial());
+        mongoPendingRecordsRemain.setApplyDateStr(mongoUiTrdZZInfo.getApplyDate());
+        mongoPendingRecordsRemain.setApplyDateNavadj(navadj);
+      }
 
+      Long confirmedQuantity = mongoUiTrdZZInfo.getTradeConfirmShare();
+      BigDecimal abstractShares = TradeUtil
+          .getBigDecimalNumWithDivOfTwoLongAndRundDown(confirmedQuantity * 1000000L, navadj);
+      Integer valueCaculated = productDetail.getFundQuantity() - abstractShares
+          .intValue();
+      logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
+          valueCaculated);
+      productDetail.setFundQuantity(valueCaculated);
+      productDetail.setFundQuantityTrade(valueCaculated);
+    }
+    //非货币基金
+    else {
+      Integer valueCaculated = productDetail.getFundQuantity() - mongoUiTrdZZInfo
+          .getTradeConfirmShare().intValue();
+      logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
+          valueCaculated);
+      productDetail.setFundQuantity(valueCaculated);
+      productDetail.setFundQuantityTrade(valueCaculated);
+    }
+    productDetail.setUpdateDate(TradeUtil.getUTCTime());
+    //表示该记录需要重新生成证据链标签
+    productDetail.setLastestSerial("");
+    uiProductDetailRepo.save(productDetail);
+    mongoPendingRecordsRemain.setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
+    mongoPendingRecordsRemain.setLastModifiedDate(TradeUtil.getUTCTime());
+    mongoPendingRecordsRemain.setTradeConfirmShare(mongoUiTrdZZInfo.getTradeConfirmShare());
+    mongoPendingRecordsRemain.setTradeConfirmSum(mongoUiTrdZZInfo.getTradeConfirmSum());
+    mongoPendingRecordsRemain.setApplySerial(mongoUiTrdZZInfo.getApplySerial());
+    mongoPendingRecordsRemain.setApplyDateStr(mongoUiTrdZZInfo.getApplyDate());
+    mongoTemplate.save(mongoPendingRecordsRemain, "ui_pending_records");
+    caculateUserProdService.updateCaculateBase(mongoPendingRecordsRemain);
   }
 
   private void caculateBuyProductQty(MongoUiTrdZZInfo mongoUiTrdZZInfo) {
@@ -604,65 +618,82 @@ public class BroadcastMessageConsumers {
     }
 
     if (mongoPendingRecordsRemain.getProcessStatus() == PendingRecordStatusEnum.HANDLED
-        .getStatus()) {
+        .getStatus() && (MonetaryFundEnum.containsCode(mongoPendingRecordsRemain.getFundCode()) &&
+        StringUtils.isEmpty(mongoPendingRecordsRemain.getApplyDateStr()) ||
+        mongoPendingRecordsRemain.getApplyDateNavadj() <= 0) ) {
       logger.error("received dupliated mongoUiTrdZZInfo for user_prod_id:{} "
-              + "fund_code:{} outside_order_id:{}", mongoUiTrdZZInfo.getUserProdId(),
-          mongoUiTrdZZInfo.getFundCode(), mongoUiTrdZZInfo.getOutSideOrderNo());
-      return;
-    } else {
+              + "fund_code:{} outside_order_id:{}, but original mongoPendingRecordsRemain with "
+              + " doesn't have a valid value for applyDateNavadj:{} ",
+          mongoUiTrdZZInfo.getUserProdId(), mongoUiTrdZZInfo.getFundCode(), mongoUiTrdZZInfo
+              .getOutSideOrderNo(), mongoPendingRecordsRemain.getApplyDateNavadj());
 
-      UiProductDetail productDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
-          (mongoUiTrdZZInfo.getUserProdId(), mongoUiTrdZZInfo.getFundCode());
-      //开始处理货币基金
-      if (MonetaryFundEnum.containsCode(mongoUiTrdZZInfo.getFundCode())) {
-        Long navadj = mongoPendingRecordsRemain.getApplyDateNavadj();
-        if (navadj == null || navadj < 0) {
-          navadj = getMoneyCodeNavAdjByDate(mongoUiTrdZZInfo.getFundCode(),
-              mongoPendingRecordsRemain.getApplyDateStr());
-        }
-        if (navadj == null || navadj < 0) {
-          logger.error("cannot get navadj value for:{} of :{}", mongoPendingRecordsRemain
-              .getFundCode(), mongoPendingRecordsRemain.getApplyDateStr());
-          mongoPendingRecordsRemain.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED
-              .getStatus());
-          mongoPendingRecordsRemain.setLastModifiedDate(TradeUtil.getUTCTime());
-          mongoTemplate.save(mongoPendingRecordsRemain, "ui_pending_records");
-          return;
-        } else {
-          mongoPendingRecordsRemain.setApplyDateNavadj(navadj);
-        }
-
-        Long confirmedQuantity = mongoUiTrdZZInfo.getTradeConfirmShare();
-        BigDecimal abstractShares = TradeUtil
-            .getBigDecimalNumWithDivOfTwoLongAndRundDown(confirmedQuantity * 1000000L, navadj);
-        Integer valueCaculated = productDetail.getFundQuantity() + abstractShares.intValue();
-        logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
-            valueCaculated);
-        productDetail.setFundQuantity(valueCaculated);
-
-      }
-      //非货币基金
-      else {
-        Integer valueCaculated = 0;
-        if (productDetail.getFundQuantity() != null) {
-          valueCaculated = mongoUiTrdZZInfo.getTradeConfirmShare().intValue() +
-              productDetail.getFundQuantity();
-        } else {
-          valueCaculated = mongoUiTrdZZInfo.getTradeConfirmShare().intValue();
-        }
-
-        logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
-            valueCaculated);
-        productDetail.setFundQuantity(valueCaculated);
-      }
-      productDetail.setUpdateDate(TradeUtil.getUTCTime());
-      //表示该记录需要重新生成证据链标签
-      productDetail.setLastestSerial("");
-      uiProductDetailRepo.save(productDetail);
-      mongoPendingRecordsRemain.setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
-      mongoPendingRecordsRemain.setLastModifiedDate(TradeUtil.getUTCTime());
-      mongoTemplate.save(mongoPendingRecordsRemain, "ui_pending_records");
     }
+
+    UiProductDetail productDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
+        (mongoUiTrdZZInfo.getUserProdId(), mongoUiTrdZZInfo.getFundCode());
+    //开始处理货币基金
+    if (MonetaryFundEnum.containsCode(mongoUiTrdZZInfo.getFundCode())) {
+      Long navadj = mongoPendingRecordsRemain.getApplyDateNavadj();
+      if (navadj == null || navadj < 0) {
+        navadj = getMoneyCodeNavAdjByDate(mongoUiTrdZZInfo.getFundCode(),
+            mongoPendingRecordsRemain.getApplyDateStr());
+      }
+      if (navadj == null || navadj < 0) {
+        logger.error("cannot get navadj value for:{} of :{}", mongoPendingRecordsRemain
+            .getFundCode(), mongoPendingRecordsRemain.getApplyDateStr());
+        mongoPendingRecordsRemain.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED
+            .getStatus());
+        mongoPendingRecordsRemain.setLastModifiedDate(TradeUtil.getUTCTime());
+        mongoTemplate.save(mongoPendingRecordsRemain, "ui_pending_records");
+        productDetail.setLastestSerial("");
+        uiProductDetailRepo.save(productDetail);
+        return;
+      } else {
+        mongoPendingRecordsRemain.setTradeConfirmShare(mongoUiTrdZZInfo.getTradeConfirmShare());
+        mongoPendingRecordsRemain.setTradeConfirmSum(mongoUiTrdZZInfo.getTradeConfirmSum());
+        mongoPendingRecordsRemain.setApplySerial(mongoUiTrdZZInfo.getApplySerial());
+        mongoPendingRecordsRemain.setApplyDateStr(mongoUiTrdZZInfo.getApplyDate());
+        mongoPendingRecordsRemain.setApplyDateNavadj(navadj);
+      }
+
+      Long confirmedQuantity = mongoUiTrdZZInfo.getTradeConfirmShare();
+      BigDecimal abstractShares = TradeUtil
+          .getBigDecimalNumWithDivOfTwoLongAndRundDown(confirmedQuantity * 1000000L, navadj);
+      Integer valueCaculated = productDetail.getFundQuantity() !=null ? productDetail
+          .getFundQuantity(): 0 + abstractShares.intValue();
+      logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
+          valueCaculated);
+      productDetail.setFundQuantity(valueCaculated);
+
+    }
+    //非货币基金
+    else {
+      Integer valueCaculated = 0;
+      if (productDetail.getFundQuantity() != null) {
+        valueCaculated = mongoUiTrdZZInfo.getTradeConfirmShare().intValue() +
+            productDetail.getFundQuantity();
+      } else {
+        valueCaculated = mongoUiTrdZZInfo.getTradeConfirmShare().intValue();
+      }
+
+      logger.info("origin quantity is:{} now:{}", productDetail.getFundQuantity(),
+          valueCaculated);
+      productDetail.setFundQuantity(valueCaculated);
+    }
+    productDetail.setUpdateDate(TradeUtil.getUTCTime());
+    //表示该记录需要重新生成证据链标签
+    productDetail.setLastestSerial("");
+    uiProductDetailRepo.save(productDetail);
+    mongoPendingRecordsRemain.setTradeConfirmShare(mongoUiTrdZZInfo.getTradeConfirmShare());
+    mongoPendingRecordsRemain.setTradeConfirmSum(mongoUiTrdZZInfo.getTradeConfirmSum());
+    mongoPendingRecordsRemain.setApplySerial(mongoUiTrdZZInfo.getApplySerial());
+    mongoPendingRecordsRemain.setApplyDateStr(mongoUiTrdZZInfo.getApplyDate());
+    mongoPendingRecordsRemain.setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
+    mongoPendingRecordsRemain.setLastModifiedDate(TradeUtil.getUTCTime());
+    mongoTemplate.save(mongoPendingRecordsRemain, "ui_pending_records");
+    caculateUserProdService.updateCaculateBase(mongoPendingRecordsRemain);
+
+
 
   }
 

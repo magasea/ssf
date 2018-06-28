@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.userinfo.service;
 
+import com.shellshellfish.aaas.userinfo.model.dao.MongoPendingRecords;
 import java.security.NoSuchAlgorithmException;
 
 /**
@@ -14,6 +15,13 @@ public interface CaculateUserProdService {
    * @return
    */
   public boolean updateCaculateBase(Long userProdId, String fundCode);
+
+  /**
+   * update CaculateBase table with the mongoPendingRecords
+   * @param mongoPendingRecords
+   * @return
+   */
+  public boolean updateCaculateBase(MongoPendingRecords mongoPendingRecords);
 
   /**
    * use CaculateBase to caculate result

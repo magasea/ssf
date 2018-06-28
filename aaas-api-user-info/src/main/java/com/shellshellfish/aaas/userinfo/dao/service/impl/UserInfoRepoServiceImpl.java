@@ -1226,7 +1226,10 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       Integer originQuantity = uiProductDetail.getFundQuantity();
 
 
-      if (originQuantity == null || originQuantity <= 0) {
+      if (originQuantity == null || originQuantity <= 0 || StringUtils.isEmpty(uiProductDetail
+          .getLastestSerial())) {
+        logger.error("uiProductDetail.getLastestSerial:{} originQuantity:{}", uiProductDetail
+            .getLastestSerial(), originQuantity);
         recordStopSellInvaidFunds(request, uiProductDetail);
         spdrBuilder.setFundCode(uiProductDetail.getFundCode());
         spdrBuilder.setFundQuantityTrade(0L);
@@ -1235,6 +1238,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
         sprBuilder.addSellProductDetailResults(spdrBuilder);
         continue;
       }
+
       Long trdTgtShares = TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundDown
           (originQuantity * percent, 10000L).longValue();
       if (CollectionUtils.isEmpty(mongoPendingRecords)) {
@@ -1355,10 +1359,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       result = updateProductQuantity(request);
     } catch (Exception e) {
       logger.error("exception:", e);
-      ErrInfo.Builder eiBuilder = ErrInfo.newBuilder();
-      eiBuilder.setErrCode(ErrorConstants.GRPC_ERROR_UI_CHECKSELL_FAIL_GENERAL);
-      eiBuilder.setErrMsg(e.getMessage());
-      result.setErrInfo(eiBuilder);
+      onError(responseObserver, e);
     }
     responseObserver.onNext(result.build());
     responseObserver.onCompleted();

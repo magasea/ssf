@@ -6,6 +6,7 @@ import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.PayServiceApplication;
 import com.shellshellfish.aaas.finance.trade.pay.model.BankZhongZhenInfo;
+import com.shellshellfish.aaas.finance.trade.pay.model.ConfirmResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.FundNetZZInfo;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import java.math.BigDecimal;
@@ -70,13 +71,25 @@ public class FundTradeZhongZhengApiServiceTest {
   @Test
   public void getApplyResultByApplySerial() throws Exception {
 
-    String personId = "411327198710181169";
+    String personId = "362522198709220031";
     String openId = TradeUtil.getZZOpenId(personId);
-    String applySerial = "20180316000512";
+    String applySerial = "20180315000095";
     ApplyResult applyResult = fundTradeApiService.getApplyResultByApplySerial(openId,
         applySerial);
     System.out.println(applyResult.getConfirmflag());
   }
+
+  @Test
+  public void getConfirmResultByApplySerial() throws Exception {
+
+    String personId = "362522198709220031";
+    String openId = TradeUtil.getZZOpenId(personId);
+    String applySerial = "20180315000095";
+    List<ConfirmResult> confirmResults = fundTradeApiService.getConfirmResultsBySerial(openId,
+        applySerial);
+    System.out.println(confirmResults.get(0).getConfirmflag());
+  }
+
 
   @Test
   public void testGetAllFundsInfo() throws Exception {
