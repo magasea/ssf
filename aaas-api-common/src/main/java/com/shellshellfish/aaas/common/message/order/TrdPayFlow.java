@@ -44,7 +44,9 @@ public class TrdPayFlow implements Serializable {
   private String trdbkerStatusName;
   private TrdPayFlowExt trdPayFlowExt;
 
-  
+  public TrdPayFlow(){
+    this.trdPayFlowExt = new TrdPayFlowExt();
+  }
   
   public long getId() {
     return id;
