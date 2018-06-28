@@ -1297,7 +1297,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                 String orderId = (String) log.get("orderId");
                 Long aLong = ordersDate.get(orderId);
                 System.out.println(aLong);
-                String dateString = TradeUtil.getReadableDateTime(aLong).split("T")[0];
+                String dateString = TradeUtil.getReadableDateTime(aLong).split("T")[0] + " " + TradeUtil.getReadableDateTime(aLong).split("T")[1].split("\\.")[0];
                 log.put("date", dateString);
                 log.put("dateLong", aLong / 1000);
                 System.out.println(dateString);
@@ -1388,7 +1388,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                     Aggregation.match(Criteria.where("operations").is(operationCode)),
                     Aggregation.match(Criteria.where("order_id").exists(true)),
                     Aggregation.sort(Direction.ASC, "trade_date"),
-                    Aggregation.group("order_id").last("trade_date").as("trade_date"),
+                    Aggregation.group("order_id").first("trade_date").as("trade_date"),
                     Aggregation.sort(Direction.DESC, "trade_date"),
                     Aggregation.skip(currentPage * pageSize * 1L),
                     Aggregation.limit(pageSize)
@@ -1399,7 +1399,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                     Aggregation.match(Criteria.where("user_id").is(userId)),
                     Aggregation.match(Criteria.where("order_id").exists(true)),
                     Aggregation.sort(Direction.ASC, "trade_date"),
-                    Aggregation.group("order_id").last("trade_date").as("trade_date"),
+                    Aggregation.group("order_id").first("trade_date").as("trade_date"),
                     Aggregation.sort(Direction.DESC, "trade_date"),
                     Aggregation.skip(currentPage * pageSize * 1L),
                     Aggregation.limit(pageSize)
@@ -1477,6 +1477,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                     continue;
                 }
                 String fundCode = mongoUiTrdLogDTO.getFundCode();
+                map.put("fundCode", fundCode);
                 int operation = mongoUiTrdLogDTO.getOperations();
                 Long dateLong = null;
                 if (mongoUiTrdLogDTO.getTradeDate() != null && mongoUiTrdLogDTO.getTradeDate() > 0) {
@@ -1607,12 +1608,21 @@ public class UserInfoServiceImpl implements UserInfoService {
     public void combineFundsToProduct(Map<String, Map<String, Object>> tradLogsMap,
                                       final List<Map<String, Object>> tradeLogs) {
         Map<String, Map<String, Object>> tradLogsSum = new HashMap<>();
-        if (tradLogsMap != null && tradLogsMap.size() > 0) {
-            for (Map.Entry<String, Map<String, Object>> entry : tradLogsMap.entrySet()) {
+        List<Map<String, Object>> amount = tradLogsMap.values().stream().filter(k ->
+                k.get("amount") != null &&
+                        k.get("amount") instanceof BigDecimal &&
+                        (((BigDecimal) k.get("amount")).compareTo(BigDecimal.ZERO)) > 0).
+                collect(Collectors.toList());
+        Map<String, Map<String, Object>> fundCodeMap = amount.stream().collect(Collectors.toMap(
+                k -> k.get("prodId") + "-" + k.get("fundCode") + "-" + k.get("operationsStatus") + "-" + k.get("orderId"),
+                v -> v));
+        if (fundCodeMap != null && fundCodeMap.size() > 0) {
+            for (Map.Entry<String, Map<String, Object>> entry : fundCodeMap.entrySet()) {
 
                 String[] params = entry.getKey().split("-");
                 String uoKey = String.format("%s-%s-%s", params[0], params[2], params[3]);
                 Map<String, Object> valueMap = entry.getValue();
+                valueMap.remove("fundCode");
 
                 Map<String, String> tradeStatusMap = new HashMap<>();
                 if (!tradLogsSum.containsKey(uoKey)) {
