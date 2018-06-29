@@ -152,7 +152,11 @@ public class BroadcastMessageConsumers {
 
       mongoUiTrdLog.setOrderId(TradeUtil.getOrderIdByOutsideOrderNo(trdPayFlow
           .getOutsideOrderno(), trdPayFlow.getOrderDetailId()));
-
+      logger.info("trdPayFlow.getTrdPayFlowExt().getConfirmDateExpected():{}", trdPayFlow
+          .getTrdPayFlowExt().getConfirmDateExpected());
+      if(trdPayFlow.getTrdPayFlowExt().getConfirmDateExpected() != null){
+        mongoUiTrdLog.setConfirmDateExp(trdPayFlow.getTrdPayFlowExt().getConfirmDateExpected());
+      }
 
       if (trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.WAITPAY.getStatus() ||
           trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()) {
@@ -173,11 +177,7 @@ public class BroadcastMessageConsumers {
           mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow
               .getTradeConfirmSum()));
         }
-        logger.info("trdPayFlow.getTrdPayFlowExt().getConfirmDateExpected():{}", trdPayFlow
-            .getTrdPayFlowExt().getConfirmDateExpected());
-        if(trdPayFlow.getTrdPayFlowExt().getConfirmDateExpected() != null){
-          mongoUiTrdLog.setConfirmDateExp(trdPayFlow.getTrdPayFlowExt().getConfirmDateExpected());
-        }
+
         mongoUiTrdLog.setApplySerial(trdPayFlow.getApplySerial());
       }
       mongoUiTrdLog.setLastModifiedDate(TradeUtil.getUTCTime());
