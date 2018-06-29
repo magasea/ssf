@@ -153,6 +153,7 @@ public class BroadcastMessageConsumers {
       mongoUiTrdLog.setOrderId(TradeUtil.getOrderIdByOutsideOrderNo(trdPayFlow
           .getOutsideOrderno(), trdPayFlow.getOrderDetailId()));
 
+
       if (trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.WAITPAY.getStatus() ||
           trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()) {
         //等待支付金额就是下单请求时候的金额
@@ -172,6 +173,8 @@ public class BroadcastMessageConsumers {
           mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow
               .getTradeConfirmSum()));
         }
+        logger.info("trdPayFlow.getTrdPayFlowExt().getConfirmDateExpected():{}", trdPayFlow
+            .getTrdPayFlowExt().getConfirmDateExpected());
         if(trdPayFlow.getTrdPayFlowExt().getConfirmDateExpected() != null){
           mongoUiTrdLog.setConfirmDateExp(trdPayFlow.getTrdPayFlowExt().getConfirmDateExpected());
         }
