@@ -684,7 +684,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                     continue;
                 }
                 resultMap.put("count", count);
-                if (count > 0) {
+                if (count >= 0) {
                     List<OrderDetail> orderDetails = rpcOrderService
                             .getOrderDetails(products.getId(), Integer.MAX_VALUE);
                     String type = "";
