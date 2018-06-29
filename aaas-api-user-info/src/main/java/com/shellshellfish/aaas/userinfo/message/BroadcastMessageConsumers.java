@@ -152,12 +152,6 @@ public class BroadcastMessageConsumers {
 
       mongoUiTrdLog.setOrderId(TradeUtil.getOrderIdByOutsideOrderNo(trdPayFlow
           .getOutsideOrderno(), trdPayFlow.getOrderDetailId()));
-      logger.info("trdPayFlow.getTrdPayFlowExt().getConfirmDateExpected():{}", trdPayFlow
-          .getTrdPayFlowExt().getConfirmDateExpected());
-      if(trdPayFlow.getTrdPayFlowExt().getConfirmDateExpected() != null){
-        mongoUiTrdLog.setConfirmDateExp(trdPayFlow.getTrdPayFlowExt().getConfirmDateExpected());
-      }
-
       if (trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.WAITPAY.getStatus() ||
           trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()) {
         //等待支付金额就是下单请求时候的金额
