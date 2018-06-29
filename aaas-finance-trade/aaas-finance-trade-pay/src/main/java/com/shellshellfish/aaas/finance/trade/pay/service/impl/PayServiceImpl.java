@@ -292,6 +292,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
             .shellshellfish.aaas.common.message.order.TrdPayFlow();
         BeanUtils.copyProperties(trdPayFlowResult, trdPayFlowMsg);
         trdPayFlowMsg.getTrdPayFlowExt().setConfirmDateExpected(fundResult.getConfirmdate());
+        logger.info(trdPayFlowMsg.getTrdPayFlowExt().getConfirmDateExpected());
         notifyPay(trdPayFlowMsg);
       }
 
