@@ -1182,8 +1182,7 @@ public class UserInfoController {
             userinfoUrl + "/api/userinfo/users/" + userUuid + "/orders/" + prodId + "/status";
         Map resultStatus = restTemplate.getForEntity(url, Map.class).getBody();
         if (resultStatus != null && resultStatus.get("result") != null) {
-          List<Map<String, Object>> resultStatusList = (List<Map<String, Object>>) resultStatus
-              .get("result");
+          List<Map<String, Object>> resultStatusList = (List<Map<String, Object>>) resultStatus.get("result");
           List<Map<String, Object>> resultStatusTemp = new ArrayList<>();
           if (resultStatusList != null && resultStatusList.size() > 0) {
             String orderType = "";

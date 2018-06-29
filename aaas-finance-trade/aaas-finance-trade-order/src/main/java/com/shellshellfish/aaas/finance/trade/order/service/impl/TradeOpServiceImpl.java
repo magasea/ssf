@@ -15,6 +15,7 @@ import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.utils.ZZRiskToSSFRiskUtils;
 import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProducer;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
+import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdLog;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdPreOrder;
@@ -40,6 +41,9 @@ import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoCollection;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoQuery;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.FinanceProdInfosQuery;
+import com.shellshellfish.aaas.userinfo.grpc.OrderId;
+import com.shellshellfish.aaas.userinfo.grpc.OrderId.Builder;
+import com.shellshellfish.aaas.userinfo.grpc.OrderLogDetail;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
@@ -60,6 +64,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
@@ -731,6 +736,13 @@ public class TradeOpServiceImpl implements TradeOpService {
         }
 
         result.put("orderType", TrdOrderOpTypeEnum.getComment(trdOrder.getOrderType()));
+
+        //确认日期
+        List<TrdLog> trdLogList = getTraLogByOrderId(orderId);
+        HashMap<Object,Object> trdLogMap=new HashMap<>();
+        for(TrdLog trdLog:trdLogList){
+            trdLogMap.put(trdLog.getFundCode(),trdLog.getConfirmDateExp());
+        }
         //金额
         long amount = trdOrder.getPayAmount();
         BigDecimal bigDecimalAmount = BigDecimal.ZERO;
@@ -812,14 +824,19 @@ public class TradeOpServiceImpl implements TradeOpService {
 
             detailMap.put("funddate", date);
             if (status.equals(CombinedStatusEnum.WAITCONFIRM.getComment())) {
-                detailMap.put("fundTitle", "预计" + date + "(" + dayOfWeek + ")确认");
+                if(trdLogMap.get(trdOrderDetail.getFundCode())!=null){
+                    detailMap.put("fundTitle", "预计" + trdLogMap.get(trdOrderDetail.getFundCode()) + "(" + dayOfWeek + ")确认");
+                }else {
+                    detailMap.put("fundTitle", "预计" + date + "(" + dayOfWeek + ")确认");
+                }
             } else if (status.equals(CombinedStatusEnum.CONFIRMEDFAILED.getComment())) {
               LocalDateTime localDateTime = LocalDateTime
                   .ofInstant(Instant.ofEpochMilli(instanceLong), ZoneId.systemDefault());
               LocalDate localDate = localDateTime.toLocalDate();
               date = InstantDateUtil.format(localDate);
               dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(instanceLong).getDayOfWeek()).toString();
-              detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
+              String tradeFailReson = getTradeFailReson(trdOrderDetail.getErrMsg());
+              detailMap.put("fundTitle",tradeFailReson);
               detailMap.put("funddate", date);
             } else {
                 detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
@@ -891,7 +908,13 @@ public class TradeOpServiceImpl implements TradeOpService {
 	    logger.error("The order:{} is not sell with percent, sell target money:{}", trdOrder
           .getOrderId(), trdOrder.getPayAmount());
     }
-	  //金额
+    //确认日期
+      List<TrdLog> trdLogList = getTraLogByOrderId(orderId);
+	    HashMap<Object,Object> trdLogMap=new HashMap<>();
+	    for(TrdLog trdLog:trdLogList){
+          trdLogMap.put(trdLog.getFundCode(),trdLog.getConfirmDateExp());
+      }
+      //金额
 	  long amount = trdOrder.getPayAmount();
 	  BigDecimal bigDecimalAmount = BigDecimal.ZERO;
 	  if (amount != 0) {
@@ -911,7 +934,7 @@ public class TradeOpServiceImpl implements TradeOpService {
 	  Map<String, String> statusMap = new HashMap<>();
 	  //获取确认中及确认成功的基金
     List<String> fundcodeList=new ArrayList<>();
-	  Long totalNum = 0L;
+	  BigDecimal totalSum=new BigDecimal("0");
 	  for (int i = 0; i < trdOrderDetailList.size(); i++) {
 	    detailMap = new HashMap<>();
 	    TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
@@ -921,7 +944,6 @@ public class TradeOpServiceImpl implements TradeOpService {
           if (TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus
               || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus) {
               status = CombinedStatusEnum.CONFIRMED.getComment();
-              fundcodeList.add(trdOrderDetail.getFundCode());
           } else if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
               || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
               status = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
@@ -955,27 +977,23 @@ public class TradeOpServiceImpl implements TradeOpService {
                 .getId() );
         continue;
       }
-//	    totalNum = totalNum + fundNum;
-	    detailMap.put("fundNum", TradeUtil.getBigDecimalNumWithDiv100(fundNum));
+
+	    detailMap.put("fundNum",new BigDecimal(fundNum).divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP).toString());
 
             //交易金额
-            /* Long fundSum;
+            BigDecimal  fundSum=new BigDecimal("0");
            if (trdOrderDetail.getFundSumConfirmed() != null && trdOrderDetail.getFundSumConfirmed() > 0) {
-                fundSum = trdOrderDetail.getFundSumConfirmed();
+               fundSum = new BigDecimal(trdOrderDetail.getFundSumConfirmed());
             } else if (trdOrderDetail.getFundSum() != null && trdOrderDetail.getFundSum() > 0) {
-                fundSum = trdOrderDetail.getFundSum();
+                fundSum = new BigDecimal(trdOrderDetail.getFundSum());
             } else {
-                fundSum = trdOrderDetail.getFundMoneyQuantity();
+               fundSum = new BigDecimal(trdOrderDetail.getFundMoneyQuantity());
+           }
+            if(TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus){
+                logger.info("计算在总赎回金额中的确认成功的基金FundCode:"+trdOrderDetail.getFundCode());
+              totalSum = totalSum.add(fundSum.divide(new BigDecimal("100")));
             }
 
-            detailMap.put("fundSum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
-            if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
-                || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
-            } else {
-              totalNum = totalNum + fundNum;
-              totalSum = totalSum + fundSum;
-            }
-           */
             //FIXME  交易日判断逻辑使用asset allocation 中的TradeUtils
             //QDIIEnum 基金　15个交易确认　其他　１个交易日确认
             String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDIIEnum.isQDII(trdOrderDetail
@@ -986,16 +1004,21 @@ public class TradeOpServiceImpl implements TradeOpService {
             
             String msg = "";
             if (status.equals(CombinedStatusEnum.WAITCONFIRM.getComment())) {
-                detailMap.put("fundTitle", "预计" + date + "(" + dayOfWeek + ")确认");
+                if(trdLogMap.get(trdOrderDetail.getFundCode())!=null){
+                    detailMap.put("fundTitle", "预计" + trdLogMap.get(trdOrderDetail.getFundCode()) + "(" + dayOfWeek + ")确认");
+                }else {
+                    detailMap.put("fundTitle", "预计" + date + "(" + dayOfWeek + ")确认");
+                }
+
             }else if (status.equals(CombinedStatusEnum.CONFIRMEDFAILED.getComment())) {
               LocalDateTime localDateTime = LocalDateTime
                   .ofInstant(Instant.ofEpochMilli(instanceLong), ZoneId.systemDefault());
               LocalDate localDate = localDateTime.toLocalDate();
               date = InstantDateUtil.format(localDate);
               dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(instanceLong).getDayOfWeek()).toString();
-              detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
+              String tradeFailReson = getTradeFailReson(trdOrderDetail.getErrMsg());
+              detailMap.put("fundTitle", tradeFailReson);
               detailMap.put("funddate", date);
-              msg = "剩余份额低于最低赎回份额，赎回失败";
             } else {
                 detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
             }
@@ -1026,7 +1049,6 @@ public class TradeOpServiceImpl implements TradeOpService {
             }
         }
       HashMap<Object, Object> fundNavadMap = financeProdCalcService.getNavadjByFundCodeAndDate(fundcodeList);
-      BigDecimal totalSum=new BigDecimal("0");
       for(TrdOrderDetail trdOrderDetail:trdOrderDetailList){
           BigDecimal tempFundNum=new BigDecimal("0");
           if(trdOrderDetail.getFundNumConfirmed() != null && trdOrderDetail.getFundNumConfirmed() > 0){
@@ -1034,22 +1056,37 @@ public class TradeOpServiceImpl implements TradeOpService {
           }else if(trdOrderDetail.getFundNum() != null && trdOrderDetail.getFundNum() > 0){
               tempFundNum = new BigDecimal(trdOrderDetail.getFundNum());
           }else{
-              logger.error("trdOrderDetail id:{} have no fundNum or fundNumConfirmed",trdOrderDetail
-                  .getId());
+              logger.error("trdOrderDetail id:{} have no fundNum or fundNumConfirmed",trdOrderDetail.getId());
           }
           if(fundNavadMap.get(trdOrderDetail.getFundCode())!=null){
               HashMap navadMap = (HashMap)fundNavadMap.get(trdOrderDetail.getFundCode());
               BigDecimal navadj = new BigDecimal((double) navadMap.get("navadj"));
               totalSum=totalSum.add(navadj.multiply(tempFundNum).divide(new BigDecimal("100")));
-              logger.info("计算在总赎回金额中FundCode:"+trdOrderDetail.getFundCode());
+              logger.info("计算在总赎回金额中的确认中的基金FundCode:"+trdOrderDetail.getFundCode());
           }
       }
-        result.put("totalSum", totalSum.setScale(2,BigDecimal.ROUND_HALF_UP));
+        result.put("totalNum", totalSum.setScale(2,BigDecimal.ROUND_HALF_UP));
         result.put("detailList", detailList);
         result.put("serialList", serialList);
         result.put("operation", trdOrder.getOrderStatus());
         result.put("orderDate", trdOrder.getCreateDate());
         return result;
+    }
+    //处理交易失败错误原因
+    private String getTradeFailReson(String errMsg) {
+        if(errMsg.contains("1018:网络错误")){
+            return  "网络错误";
+        }else if(errMsg.contains("1013:该外部订单号重复")){
+            return "外部订单号重复";
+        }else if(errMsg.contains("1019:申请值太小")){
+            return  "申请值太小，低于最小交易限额";
+        }else if(errMsg.contains("1326:赎回后全商户下")){
+            return  "赎回后全商户下，账面份额低于最低可持有份额";
+        }else if(errMsg.contains("1309:可用份额不足")){
+            return  "可用份额不足";
+        }else {
+            return  "系统繁忙，请稍后重试";
+        }
     }
 
     @Override
@@ -1083,4 +1120,18 @@ public class TradeOpServiceImpl implements TradeOpService {
     }
 
 
+    private List<TrdLog> getTraLogByOrderId(String orderId) throws Exception {
+        List<TrdLog> trdLogList=new ArrayList<>();
+        List<TrdLog> trdLogListResult=new ArrayList<>();
+        Builder builder = OrderId.newBuilder();
+        builder.setOrderId(orderId);
+        List<OrderLogDetail> orderLogDetailList = userInfoServiceFutureStub.getUserTraLog(builder.build()).get().getOrderLogDetailList();
+        for (OrderLogDetail orderLogDetail : orderLogDetailList) {
+            TrdLog trdLog=new TrdLog();
+            BeanUtils.copyProperties(orderLogDetail,trdLog);
+            trdLogListResult.add(trdLog);
+        }
+
+        return trdLogListResult;
+    }
 }

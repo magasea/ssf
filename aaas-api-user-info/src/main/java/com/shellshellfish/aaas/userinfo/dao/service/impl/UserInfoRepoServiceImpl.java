@@ -17,6 +17,7 @@ import com.shellshellfish.aaas.common.exceptions.ErrorConstants;
 import com.shellshellfish.aaas.common.utils.MathUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
+import com.shellshellfish.aaas.finance.trade.order.OrderDetailResult;
 import com.shellshellfish.aaas.grpc.common.ErrInfo;
 import com.shellshellfish.aaas.grpc.common.UserProdDetail;
 import com.shellshellfish.aaas.grpc.common.UserProdId;
@@ -26,6 +27,9 @@ import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.GetUserProdDetailResults;
 import com.shellshellfish.aaas.userinfo.grpc.NeedPatchOutsideOrderIds;
+import com.shellshellfish.aaas.userinfo.grpc.OrderId;
+import com.shellshellfish.aaas.userinfo.grpc.OrderLogDetail;
+import com.shellshellfish.aaas.userinfo.grpc.OrderLogResults;
 import com.shellshellfish.aaas.userinfo.grpc.SellPersentProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductDetail;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductDetailResult;
@@ -86,6 +90,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1374,6 +1379,38 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
 
     return users;
   }
+
+  @Override
+  public void getUserTraLog(OrderId request, StreamObserver<OrderLogResults> responseObserver) {
+    try {
+      List<MongoUiTrdLog> trdLogListResult=new ArrayList<>();
+      String orderId = request.getOrderId();
+      Query query = new Query();
+      query.addCriteria(Criteria.where("order_id").is(orderId));
+      List<MongoUiTrdLog> trdLogList = mongoTemplate.find(query, MongoUiTrdLog.class);
+      //过滤筛选confirmdate不为空
+      Map<String, List<MongoUiTrdLog>> collect = trdLogList.stream().collect(Collectors.groupingBy(k -> k.getFundCode()));
+      collect.forEach((k,v)->{
+        List<MongoUiTrdLog> trdLost = v.stream().filter(item -> item.getConfirmDateExp() != null).collect(Collectors.toList());
+        for(MongoUiTrdLog trdLog:trdLost){
+          trdLogListResult.add(trdLog);
+        }
+      });
+      OrderLogDetail.Builder builder = OrderLogDetail.newBuilder();
+      OrderLogResults.Builder orderResultBuilder = OrderLogResults.newBuilder();
+      for(MongoUiTrdLog mongoUiTrdLog: trdLogListResult){
+        MyBeanUtils.mapEntityIntoDTO(mongoUiTrdLog, builder);
+        orderResultBuilder.addOrderLogDetail(builder);
+      }
+      responseObserver.onNext(orderResultBuilder.build());
+      responseObserver.onCompleted();
+    } catch (Exception e) {
+      logger.error("exception:", e);
+      onError(responseObserver, e);
+    }
+  }
+
+
 
   private List<MongoPendingRecords> getMongoPendingRecords(Long userProdId, String fundCode){
     Query query = new Query();
