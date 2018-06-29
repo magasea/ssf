@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
 import com.shellshellfish.aaas.userinfo.model.dto.*;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,8 @@ public interface UserInfoService {
     List<TrendYield> getTrendYield(String uuid) throws Exception;
 
     Map<String, Object> getTotalAssets(String uuid) throws Exception;
+
+    BigDecimal getTotalIncome(String userUuid) throws Exception;
 
     PortfolioInfo getChicombinationAssets(String uuid, Long userid, ProductsDTO productsDTO, LocalDate date)
             throws Exception;
