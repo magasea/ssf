@@ -14,7 +14,6 @@ import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.utils.TrdStatusToCombStatusUtils;
-
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
 import com.shellshellfish.aaas.finance.trade.pay.ZhongZhengQueryByOrderDetailId;
@@ -24,42 +23,16 @@ import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
-import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
-import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.MongoUiTrdLogDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.ProductsDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.TrendYield;
-import com.shellshellfish.aaas.userinfo.model.dto.UiProductDetailDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
+import com.shellshellfish.aaas.userinfo.model.dao.UserDailyIncomeAggregation;
+import com.shellshellfish.aaas.userinfo.model.dto.*;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoDailyAmountRepository;
 import com.shellshellfish.aaas.userinfo.repositories.zhongzheng.MongoUserDailyIncomeRepository;
-import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
-import com.shellshellfish.aaas.userinfo.service.UiProductService;
-import com.shellshellfish.aaas.userinfo.service.UserAssetService;
-import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
-import com.shellshellfish.aaas.userinfo.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.service.*;
 import com.shellshellfish.aaas.userinfo.utils.BankUtil;
 import io.grpc.ManagedChannel;
-
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import javax.annotation.PostConstruct;
-
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +52,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-
+import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.time.*;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static com.shellshellfish.aaas.common.utils.InstantDateUtil.*;
@@ -401,45 +380,59 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public Map<String, Object> getTotalAssets(String uuid) throws Exception {
         List<Map<String, Object>> productsList = this.getMyCombinations(uuid);
-        if (productsList == null || productsList.size() == 0) {
+        if (CollectionUtils.isEmpty(productsList)) {
             logger.error("我的智投组合暂时不存在");
-            return new HashMap<String, Object>();
+            return new HashMap<>();
         }
-        Map<String, Object> resultMap = new HashMap<String, Object>();
-        BigDecimal asserts = new BigDecimal(0);
-        BigDecimal dailyIncome = new BigDecimal(0);
-        BigDecimal totalIncome = new BigDecimal(0);
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("count", productsList.size());
+        BigDecimal assets = BigDecimal.ZERO;
+        BigDecimal dailyIncome = BigDecimal.ZERO;
+        BigDecimal totalIncome = BigDecimal.ZERO;
         if (productsList != null && productsList.size() > 0) {
             for (int i = 0; i < productsList.size(); i++) {
                 Map<String, Object> products = productsList.get(i);
                 if (products.get("totalAssets") != null) {
-                    asserts = asserts.add(new BigDecimal(products.get("totalAssets") + "")).setScale(2,
-                            RoundingMode.HALF_UP);
+                    assets = assets.add((BigDecimal) products.get("totalAssets"));
                 }
                 if (products.get("dailyIncome") != null) {
-                    dailyIncome = dailyIncome.add(new BigDecimal(products.get("dailyIncome") + ""))
-                            .setScale(2,
-                                    RoundingMode.HALF_UP);
+                    dailyIncome = dailyIncome.add((BigDecimal) products.get("dailyIncome"));
                 }
                 if (products.get("totalIncome") != null) {
-                    totalIncome = totalIncome.add(new BigDecimal(products.get("totalIncome") + ""))
-                            .setScale(2,
-                                    RoundingMode.HALF_UP);
+                    totalIncome = totalIncome.add((BigDecimal) products.get("totalIncome"));
                 }
             }
         }
-        resultMap.put("assert", asserts.setScale(2, RoundingMode.HALF_UP));
+        resultMap.put("asset", assets.setScale(2, BigDecimal.ROUND_HALF_UP));
         resultMap.put("dailyIncome", dailyIncome.setScale(2, BigDecimal.ROUND_HALF_UP));
-        resultMap.put("totalIncome", totalIncome.setScale(2, RoundingMode.HALF_UP));
-        if (asserts != BigDecimal.ZERO && !"0.00".equals(asserts + "")) {
-            BigDecimal incomeRate = (totalIncome.divide(asserts, MathContext.DECIMAL128)).setScale(4,
+        resultMap.put("totalIncome", totalIncome.setScale(2, BigDecimal.ROUND_HALF_UP));
+        if (!BigDecimal.ZERO.equals(assets)) {
+            BigDecimal incomeRate = (totalIncome.divide(assets, MathContext.DECIMAL32)).setScale(4,
                     BigDecimal.ROUND_HALF_UP);
-//			BigDecimal incomeRate = totalIncome.divide(asserts, 2, BigDecimal.ROUND_HALF_UP);
             resultMap.put("totalIncomeRate", incomeRate);
         } else {
-            resultMap.put("totalIncomeRate", "0");
+            resultMap.put("totalIncomeRate", BigDecimal.ZERO);
         }
+
         return resultMap;
+    }
+
+    /**
+     * 获取用户从注册以来的累计收益
+     *
+     * @param userUuid
+     * @return
+     */
+    @Override
+    public BigDecimal getTotalIncome(String userUuid) throws Exception {
+        //TODO 生命周期已经结束的持仓，没有必要每天都计算其累计收益值，也就不能用这中方法统计其累计收益
+        UserDailyIncomeAggregation userDailyIncomeAggregation = mongoUserDailyIncomeRepository.getTotalIncome
+                (getUserIdFromUUID(userUuid));
+
+        if (userDailyIncomeAggregation == null)
+            return BigDecimal.ZERO;
+
+        return userDailyIncomeAggregation.getTotalIncome();
     }
 
     /**
