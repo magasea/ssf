@@ -849,7 +849,7 @@ public class TradeOpServiceImpl implements TradeOpService {
                 serialList.add(serial);
             }
         }
-        result.put("totalSum", TradeUtil.getBigDecimalNumWithDiv100(totalSum));
+        result.put("totalSum", TradeUtil.getBigDecimalNumWithDiv100(totalSum).toString());
 
         if (statusMap != null && statusMap.size() > 0) {
             if (statusMap.size() != 1) {
@@ -989,9 +989,10 @@ public class TradeOpServiceImpl implements TradeOpService {
             } else {
                fundSum = new BigDecimal(trdOrderDetail.getFundMoneyQuantity());
            }
+            fundSum=fundSum.divide(new BigDecimal("100")).setScale(2,BigDecimal.ROUND_HALF_UP);
             if(TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus){
                 logger.info("计算在总赎回金额中的确认成功的基金FundCode:"+trdOrderDetail.getFundCode());
-              totalSum = totalSum.add(fundSum.divide(new BigDecimal("100")));
+              totalSum = totalSum.add(fundSum);
             }
 
             //FIXME  交易日判断逻辑使用asset allocation 中的TradeUtils
@@ -1009,7 +1010,6 @@ public class TradeOpServiceImpl implements TradeOpService {
                 }else {
                     detailMap.put("fundTitle", "预计" + date + "(" + dayOfWeek + ")确认");
                 }
-
             }else if (status.equals(CombinedStatusEnum.CONFIRMEDFAILED.getComment())) {
               LocalDateTime localDateTime = LocalDateTime
                   .ofInstant(Instant.ofEpochMilli(instanceLong), ZoneId.systemDefault());
@@ -1019,8 +1019,10 @@ public class TradeOpServiceImpl implements TradeOpService {
               String tradeFailReson = getTradeFailReson(trdOrderDetail.getErrMsg());
               detailMap.put("fundTitle", tradeFailReson);
               detailMap.put("funddate", date);
-            } else {
-                detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
+            } else if( status.equals(CombinedStatusEnum.CONFIRMED.getComment())){
+                String payfee = new BigDecimal(trdOrderDetail.getBuyFee()).divide(new BigDecimal(100))
+                    .setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+                detailMap.put("fundTitle", "已确认金额" + fundSum.toString() + ",手续费"+payfee+"元");
             }
             detailMap.put("fundMsg", msg);
             
@@ -1065,7 +1067,7 @@ public class TradeOpServiceImpl implements TradeOpService {
               logger.info("计算在总赎回金额中的确认中的基金FundCode:"+trdOrderDetail.getFundCode());
           }
       }
-        result.put("totalNum", totalSum.setScale(2,BigDecimal.ROUND_HALF_UP));
+        result.put("totalNum", totalSum.setScale(2,BigDecimal.ROUND_HALF_UP).toString());
         result.put("detailList", detailList);
         result.put("serialList", serialList);
         result.put("operation", trdOrder.getOrderStatus());
@@ -1074,6 +1076,8 @@ public class TradeOpServiceImpl implements TradeOpService {
     }
     //处理交易失败错误原因
     private String getTradeFailReson(String errMsg) {
+        if(errMsg==null)
+            return "系统繁忙，请稍后重试";
         if(errMsg.contains("1018:网络错误")){
             return  "网络错误";
         }else if(errMsg.contains("1013:该外部订单号重复")){
