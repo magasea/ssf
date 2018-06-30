@@ -984,10 +984,8 @@ public class UserInfoController {
         if (result.get("totalSum") != null) {
           result.put("buyfee", result.get("totalSum"));
         }
-        poundage = poundage == null ? "" : poundage;
         bankName = bankName == null ? "" : bankName;
         bankCard = bankCard == null ? "" : bankCard;
-        result.put("poundage", poundage);
         result.put("bankName", bankName);
         result.put("bankCard", bankCard);
       }
@@ -1134,7 +1132,7 @@ public class UserInfoController {
         return new JsonResult(JsonResult.Fail, "产品详情获取失败", JsonResult.EMPTYRESULT);
       } else {
 //				result.put("buyfee", buyfee == null ? "" : buyfee);
-        result.put("poundage", poundage == null ? "" : poundage);
+        //result.put("poundage", poundage == null ? "" : poundage);
         result.put("bankName", bankName == null ? "" : bankName);
         result.put("bankCard", bankCard == null ? "" : bankCard);
         if (!result.containsKey("sellTargetPercent")) {

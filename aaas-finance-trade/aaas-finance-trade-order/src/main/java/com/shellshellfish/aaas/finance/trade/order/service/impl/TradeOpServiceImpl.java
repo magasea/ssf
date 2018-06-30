@@ -763,6 +763,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         Map<String, String> statusMap = new HashMap<>();
         String status = "";
         Long totalSum = 0L;
+        BigDecimal poundage=new BigDecimal(0);
         for (int i = 0; i < trdOrderDetailList.size(); i++) {
             detailMap = new HashMap<>();
             TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
@@ -838,7 +839,10 @@ public class TradeOpServiceImpl implements TradeOpService {
               String tradeFailReson = getTradeFailReson(trdOrderDetail.getErrMsg());
               detailMap.put("fundTitle",tradeFailReson);
               detailMap.put("funddate", date);
-            } else {
+            } else if(status.equals(CombinedStatusEnum.CONFIRMED.getComment())){
+                String payfee = new BigDecimal(trdOrderDetail.getBuyFee()).divide(new BigDecimal(100))
+                    .setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+                poundage=poundage.add(new BigDecimal(payfee));
                 detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
             }
             detailMap.put("fundTradeType", TrdOrderOpTypeEnum.getComment(trdOrderDetail.getTradeType()));
@@ -855,16 +859,25 @@ public class TradeOpServiceImpl implements TradeOpService {
             if (statusMap.size() != 1) {
                 if (statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())) {
                     result.put("orderStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
+                    result.put("poundage","");
                 } else if (statusMap.containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())
                         && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
                     result.put("orderStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
+                    result.put("poundage",poundage.setScale(2,BigDecimal.ROUND_HALF_UP).toString());
                 }
             } else {
                 for (String key : statusMap.keySet()) {
                     if (statusMap.size() == 1) {
                         result.put("orderStatus", key);
+                        if(statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())){
+                            result.put("poundage","");
+                        }else {
+                            result.put("poundage",poundage.setScale(2,BigDecimal.ROUND_HALF_UP).toString());
+                        }
                     }
                 }
+
+
             }
         }
 
@@ -934,7 +947,8 @@ public class TradeOpServiceImpl implements TradeOpService {
 	  Map<String, String> statusMap = new HashMap<>();
 	  //获取确认中及确认成功的基金
     List<String> fundcodeList=new ArrayList<>();
-	  BigDecimal totalSum=new BigDecimal("0");
+	  BigDecimal totalSum=new BigDecimal(0);
+	  BigDecimal poundage=new BigDecimal(0);
 	  for (int i = 0; i < trdOrderDetailList.size(); i++) {
 	    detailMap = new HashMap<>();
 	    TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
@@ -1022,10 +1036,10 @@ public class TradeOpServiceImpl implements TradeOpService {
             } else if( status.equals(CombinedStatusEnum.CONFIRMED.getComment())){
                 String payfee = new BigDecimal(trdOrderDetail.getBuyFee()).divide(new BigDecimal(100))
                     .setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+                poundage=poundage.add(new BigDecimal(payfee));
                 detailMap.put("fundTitle", "已确认金额" + fundSum.toString() + ",手续费"+payfee+"元");
             }
             detailMap.put("fundMsg", msg);
-            
             detailMap.put("fundTradeType", TrdOrderOpTypeEnum.getComment(trdOrderDetail.getTradeType()));
             detailList.add(detailMap);
 
@@ -1038,14 +1052,21 @@ public class TradeOpServiceImpl implements TradeOpService {
             if (statusMap.size() != 1) {
                 if (statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())) {
                     result.put("orderStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
+                    result.put("poundage","");
                 }else if (statusMap.containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())
                         && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
                     result.put("orderStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
+                    result.put("poundage",poundage.setScale(2,BigDecimal.ROUND_HALF_UP).toString());
                 }
             } else {
                 for (String key : statusMap.keySet()) {
                     if (statusMap.size() == 1) {
                         result.put("orderStatus", key);
+                        if(statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())){
+                            result.put("poundage","");
+                        }else {
+                            result.put("poundage",poundage.setScale(2,BigDecimal.ROUND_HALF_UP).toString());
+                        }
                     }
                 }
             }
