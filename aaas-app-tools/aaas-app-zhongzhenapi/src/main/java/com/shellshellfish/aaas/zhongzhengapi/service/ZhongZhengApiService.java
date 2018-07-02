@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.zhongzhengapi.service;
 import com.shellshellfish.aaas.common.grpc.zzapi.ApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.WalletApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZAplyCfmInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZDiscountInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundNetInfo;
@@ -12,8 +13,6 @@ import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZTradeLimit;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltAplyInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltInfoRlt;
-import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
-import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltSellAndBuyResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.CancelTradeResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.SellResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZBonusInfo;
@@ -115,8 +114,8 @@ public interface ZhongZhengApiService {
    * @throws Exception
    */
 
-  public ZZWltSellAndBuyResult sellWallet2Buy(String trdAcco, String pid, String applyNum, String
-      outsideOrderNo, String targetFundCode ) throws Exception;
+//  public ZZWltSellAndBuyResult sellWallet2Buy(String trdAcco, String pid, String applyNum, String
+//      outsideOrderNo, String targetFundCode ) throws Exception;
 
   /**
    *

@@ -489,7 +489,7 @@ public class BroadcastMessageConsumers {
     List<MongoPendingRecords> mongoPendingRecords = mongoTemplate
         .find(query, MongoPendingRecords.class);
     MongoPendingRecords mongoPendingRecordsRemain = null;
-    Long lastModifyDate = null;
+
     if (CollectionUtils.isEmpty(mongoPendingRecords)) {
 
       mongoPendingRecordsRemain = getPatchMongoPendingRecordFromZZInfo(mongoUiTrdZZInfo);
@@ -499,7 +499,8 @@ public class BroadcastMessageConsumers {
     if (mongoPendingRecords.size() > 1) {
       mongoPendingRecordsRemain = mongoPendingRecords.get(0);
       for (MongoPendingRecords mongoPendingRecordsItem : mongoPendingRecords) {
-        if (mongoPendingRecordsItem.getLastModifiedDate() != null && lastModifyDate <
+        if (mongoPendingRecordsItem.getLastModifiedDate() != null &&
+            mongoPendingRecordsRemain.getLastModifiedDate() <
             mongoPendingRecordsItem.getLastModifiedDate()) {
           mongoPendingRecordsRemain = mongoPendingRecordsItem;
         }
@@ -599,12 +600,11 @@ public class BroadcastMessageConsumers {
     //pendingRecords 对每一个outsideOrderId应该只有一条记录，取lastModifiedDate 不为空，
     //而且值比较大的那条记录为准
     if (mongoPendingRecords.size() > 1) {
+      mongoPendingRecordsRemain = mongoPendingRecords.get(0);
 
-      Long lastModifiedDate = 0L;
       for (MongoPendingRecords mongoPendingRecordsCheck : mongoPendingRecords) {
-        if (mongoPendingRecordsCheck.getLastModifiedDate() != null && lastModifiedDate <
-            mongoPendingRecordsCheck.getLastModifiedDate()) {
-          lastModifiedDate = mongoPendingRecordsCheck.getLastModifiedDate();
+        if (mongoPendingRecordsCheck.getLastModifiedDate() != null && mongoPendingRecordsRemain
+            .getLastModifiedDate() <  mongoPendingRecordsCheck.getLastModifiedDate()) {
           mongoPendingRecordsRemain = mongoPendingRecordsCheck;
         }
       }
