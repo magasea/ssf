@@ -98,7 +98,7 @@ public class JobOrderServiceImpl implements JobOrderService {
     processPageOutsideOrderIds(trdOrderList);
     for (int pageStart = 1; pageStart < totalPages; pageStart++) {
       pageable = new PageRequest(pageStart, pageSize);
-      trdOrderList = trdOrderDetailRepository.findPendingOrderinfo(pageable);
+      trdOrderList = trdOrderDetailRepository.findConfirmedOrderinfo(pageable);
       processPageOutsideOrderIds(trdOrderList);
     }
 

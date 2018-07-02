@@ -73,13 +73,10 @@ public class ZhongZhengAPIUtils {
       info = origInfo;
     }
     info.put("public_key", ZhongZhengAPIConstants.ZZ_PLATFORM_PUBLIC_KEY);
-    if(!info.containsKey("target_platform_code")){
-      info.put("platform_code", ZhongZhengAPIConstants.ZZ_PLATFORM_CODE);
-    }else{
+    if(info.containsKey("target_platform_code")){
       info.put("target_platform_code", ZhongZhengAPIConstants.ZZ_PLATFORM_CODE);
     }
-
-
+    info.put("platform_code", ZhongZhengAPIConstants.ZZ_PLATFORM_CODE);
     if(isDefault){
       info.put(KEY_PLATFORM_OPENID,ZhongZhengAPIConstants.ZZ_PLATFORM_DEFAULT_OPENID );
       String[] data = {ZhongZhengAPIConstants.ZZ_PLATFORM_DEFAULT_OPENID};

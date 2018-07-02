@@ -26,8 +26,8 @@ public abstract class AbstractZhongzhengApiService  {
   Logger logger = LoggerFactory.getLogger(getClass());
 
 
-  private final Gson gson = new Gson();
-  private RestTemplate restTemplate = new RestTemplate();
+  protected final Gson gson = new Gson();
+  protected RestTemplate restTemplate = new RestTemplate();
   void logMap(Map info){
     StringBuilder sb = new StringBuilder();
     info.forEach(
@@ -91,6 +91,8 @@ public abstract class AbstractZhongzhengApiService  {
 
     return responseBase;
   }
+
+
 
   private Type getType(final Class<?> rawClass, final Class<?> parameterClass) {
     return new ParameterizedType() {
