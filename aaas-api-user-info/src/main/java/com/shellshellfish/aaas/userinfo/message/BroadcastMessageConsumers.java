@@ -147,11 +147,11 @@ public class BroadcastMessageConsumers {
       mongoUiTrdLog.setOperations(trdPayFlow.getTrdType());
       mongoUiTrdLog.setUserProdId(trdPayFlow.getUserProdId());
       mongoUiTrdLog.setUserId(trdPayFlow.getUserId());
+
       mongoUiTrdLog.setTradeStatus(trdPayFlow.getTrdStatus());
 
       mongoUiTrdLog.setOrderId(TradeUtil.getOrderIdByOutsideOrderNo(trdPayFlow
           .getOutsideOrderno(), trdPayFlow.getOrderDetailId()));
-
       if (trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.WAITPAY.getStatus() ||
           trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()) {
         //等待支付金额就是下单请求时候的金额
@@ -171,6 +171,7 @@ public class BroadcastMessageConsumers {
           mongoUiTrdLog.setAmount(TradeUtil.getBigDecimalNumWithDiv100(trdPayFlow
               .getTradeConfirmSum()));
         }
+
         mongoUiTrdLog.setApplySerial(trdPayFlow.getApplySerial());
       }
       mongoUiTrdLog.setLastModifiedDate(TradeUtil.getUTCTime());
@@ -513,6 +514,7 @@ public class BroadcastMessageConsumers {
     if (mongoPendingRecordsRemain.getProcessStatus() == PendingRecordStatusEnum.HANDLED
         .getStatus() && (MonetaryFundEnum.containsCode(mongoPendingRecordsRemain.getFundCode()) &&
         StringUtils.isEmpty(mongoPendingRecordsRemain.getApplyDateStr()) ||
+        mongoPendingRecordsRemain.getApplyDateNavadj() == null||
             mongoPendingRecordsRemain.getApplyDateNavadj() <= 0) ) {
       logger.error("received dupliated mongoUiTrdZZInfo for user_prod_id:{} "
               + "fund_code:{} outside_order_id:{}, but original mongoPendingRecordsRemain with "
@@ -620,6 +622,7 @@ public class BroadcastMessageConsumers {
     if (mongoPendingRecordsRemain.getProcessStatus() == PendingRecordStatusEnum.HANDLED
         .getStatus() && (MonetaryFundEnum.containsCode(mongoPendingRecordsRemain.getFundCode()) &&
         StringUtils.isEmpty(mongoPendingRecordsRemain.getApplyDateStr()) ||
+        mongoPendingRecordsRemain.getApplyDateNavadj() == null ||
         mongoPendingRecordsRemain.getApplyDateNavadj() <= 0) ) {
       logger.error("received dupliated mongoUiTrdZZInfo for user_prod_id:{} "
               + "fund_code:{} outside_order_id:{}, but original mongoPendingRecordsRemain with "

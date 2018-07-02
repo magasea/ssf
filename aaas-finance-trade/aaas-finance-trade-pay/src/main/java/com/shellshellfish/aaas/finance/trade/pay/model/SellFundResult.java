@@ -4,7 +4,9 @@ public class SellFundResult {
     private String applySerial;
     private String acceptDate;
     private String requestDate;
+    private String confirmdate;
     private String outsideOrderNo;
+
 
     public String getApplySerial() {
         return applySerial;
@@ -38,5 +40,13 @@ public class SellFundResult {
 
     public void setOutsideOrderNo(String outsideOrderNo) {
         this.outsideOrderNo = outsideOrderNo;
+    }
+
+    public String getConfirmdate() {
+        return confirmdate;
+    }
+
+    public void setConfirmdate(String confirmdate) {
+        this.confirmdate = confirmdate;
     }
 }

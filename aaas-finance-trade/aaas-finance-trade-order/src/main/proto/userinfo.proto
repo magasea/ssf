@@ -24,9 +24,20 @@ service UserInfoService {
     rpc GetUserProdDetail(GetUserProdDetailQuery) returns(GetUserProdDetailResults){}
     rpc CheckAbsentPendingRecordsOrders(ConfirmedOutsideOrderIds) returns(NeedPatchOutsideOrderIds){}
     rpc GetUserBankCards(QueryUserBankCards) returns(UserBankCardInfoResults){}
-
+    rpc GetUserTraLog(OrderId) returns(OrderLogResults){}
 }
 
+message OrderId{
+  string order_id = 1;//订单ID
+}
+message OrderLogResults{
+  repeated OrderLogDetail orderLogDetail=1;//交易日志详情
+}
+message OrderLogDetail{
+  string fund_code=1;//基金代号
+  string order_id=2;//订单ID
+  string confirmDateExp=3;//确认日期
+}
 message SellPersentProducts{
   int64 user_product_id = 1;//用户理财产品ID
   int64 user_id = 2; //用户ID

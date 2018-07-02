@@ -1,68 +1,34 @@
 package com.shellshellfish.aaas.userinfo.controller;
 
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.utils.BankUtil;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
-import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
-import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
-import com.shellshellfish.aaas.userinfo.model.dto.AssetDailyReptDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.BankcardDetailBodyDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.TradeLogDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserBaseInfoDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoAssectsBriefDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoCompanyInfoDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserInfoFriendRuleDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPersonMsgDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPersonalMsgBodyDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserPortfolioDTO;
-import com.shellshellfish.aaas.userinfo.model.dto.UserSysMsgDTO;
-import com.shellshellfish.aaas.userinfo.service.OrderRpcService;
-import com.shellshellfish.aaas.userinfo.service.PayGrpcService;
-import com.shellshellfish.aaas.userinfo.service.RpcOrderService;
-import com.shellshellfish.aaas.userinfo.service.UiProductService;
-import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
-import com.shellshellfish.aaas.userinfo.service.UserInfoService;
+import com.shellshellfish.aaas.userinfo.model.dto.*;
+import com.shellshellfish.aaas.userinfo.service.*;
 import com.shellshellfish.aaas.userinfo.utils.DateUtil;
-import com.shellshellfish.aaas.userinfo.utils.PageWrapper;
 import com.shellshellfish.aaas.userinfo.utils.UserInfoUtils;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.ServletRequestBindingException;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/userinfo")
@@ -405,12 +371,12 @@ public class UserInfoController {
             bankCard = rpcOrderService.createBankCard(bankcardDetailVo);
         } catch (UserInfoException ex) {
 //        result.put("message", "绑卡失败：" + ex.getMessage());
-          result.put("message", "" + ex.getMsg());
-          return new ResponseEntity<>(result, HttpStatus.CONFLICT);
+            result.put("message", "" + ex.getMsg());
+            return new ResponseEntity<>(result, HttpStatus.CONFLICT);
         } catch (Exception ex) {
-    //    result.put("message", "绑卡失败：" + ex.getMessage());
-          result.put("message", "" + ex.getMessage());
-          return new ResponseEntity<>(result, HttpStatus.CONFLICT);
+            //    result.put("message", "绑卡失败：" + ex.getMessage());
+            result.put("message", "" + ex.getMessage());
+            return new ResponseEntity<>(result, HttpStatus.CONFLICT);
         }
 
         if (bankCard == null) {
@@ -817,7 +783,6 @@ public class UserInfoController {
                     HttpStatus.OK);
         }
     }
-
 
 
     /**
@@ -1243,9 +1208,8 @@ public class UserInfoController {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         List<UserPersonMsgDTO> userPersonMsgsList = userInfoService.getUserPersonMsg(userUuid);
         int count = 0;
-        if (userPersonMsgsList != null && userPersonMsgsList.size() > 0) {
-            UserPersonMsgDTO userPersonMsg = new UserPersonMsgDTO();
-            userPersonMsg = userPersonMsgsList.get(0);
+        if (!CollectionUtils.isEmpty(userPersonMsgsList)) {
+            UserPersonMsgDTO userPersonMsg = userPersonMsgsList.get(0);
             if (!userPersonMsg.getReaded()) {
                 count++;
             }
@@ -1257,49 +1221,30 @@ public class UserInfoController {
         } else {
             resultMap.put("myCardTotalQty", 0);
         }
-        //我的智投组合数量
-//		List<ProductsDTO> productsList = userInfoService.findProductInfos(userUuid);
-//		if(productsList==null||productsList.size()==0){
-//			resultMap.put("myInvstTotalQty", 0);
-//		} else {
-//			resultMap.put("myInvstTotalQty", productsList.size());
-//		}
-        List<Map<String, Object>> combinationsList = userInfoService.getMyCombinations(userUuid);
-        if (combinationsList != null && combinationsList.size() > 0) {
-            resultMap.put("myInvstTotalQty", combinationsList.size());
-        } else {
-            resultMap.put("myInvstTotalQty", 0);
-        }
-        //UserInfoAssectsBriefDTO userInfoAssectsBrief = userInfoService.getUserInfoAssectsBrief(userUuid);
         // 总资产
         Map<String, Object> totalAssetsMap = userInfoService.getTotalAssets(userUuid);
         if (totalAssetsMap.size() > 0) {
-            resultMap.put("totalAssets", totalAssetsMap.get("assert"));
+            //持仓数量
+            resultMap.put("myInvstTotalQty", totalAssetsMap.get("count"));
+            //总持仓资产
+            resultMap.put("totalAssets", totalAssetsMap.get("asset"));
             // 日收益
             resultMap.put("dailyReturn", totalAssetsMap.get("dailyIncome"));
             // 日收益率
             resultMap.put("dailyIncomeRate", totalAssetsMap.get("dailyIncomeRate"));
-            // 累计收益率
-            resultMap.put("totalIncomeRate", totalAssetsMap.get("totalIncomeRate"));
-            // 累计收益
-            resultMap.put("totalIncome", totalAssetsMap.get("totalIncome"));
+
         } else {
+            resultMap.put("myInvstTotalQty", 0);
             resultMap.put("totalAssets", 0);
             resultMap.put("dailyReturn", 0);
             resultMap.put("dailyIncomeRate", 0);
-            resultMap.put("totalIncomeRate", "0");
-            resultMap.put("totalIncome", 0);
         }
 
-        //累计收益
-//		BigDecimal totalRevenue = new BigDecimal("0");
-//		if(userInfoAssectsBrief.getTotalProfit()!=null){
-//			totalRevenue = userInfoAssectsBrief.getTotalProfit();
-//		}
-        //TODO 暂无作用，暂存
-        //resultMap.put("totalRevenue", "0");
-
-        return new ResponseEntity<Map>(resultMap, HttpStatus.OK);
+        // 累计收益率
+        resultMap.put("totalIncomeRate", BigDecimal.ZERO);
+        // 累计收益
+        resultMap.put("totalIncome", userInfoService.getTotalIncome(userUuid));
+        return new ResponseEntity<>(resultMap, HttpStatus.OK);
     }
 
     /**
@@ -1428,7 +1373,7 @@ public class UserInfoController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    
+
     /**
      * 获取本产品的资产
      */
@@ -1441,8 +1386,8 @@ public class UserInfoController {
             @ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")
     })
     @ApiImplicitParams({
-      @ApiImplicitParam(paramType = "path", name = "uuid", dataType = "String", required = true, value = "用户uuid", defaultValue = ""),
-      @ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = ""),
+            @ApiImplicitParam(paramType = "path", name = "uuid", dataType = "String", required = true, value = "用户uuid", defaultValue = ""),
+            @ApiImplicitParam(paramType = "query", name = "prodId", dataType = "String", required = true, value = "产品ID", defaultValue = ""),
     })
     @RequestMapping(value = "/users/{uuid}/asset-by-prodId", method = RequestMethod.GET)
     public ResponseEntity<Map> getTotalAssetByProdId(
@@ -1454,7 +1399,7 @@ public class UserInfoController {
         result = userInfoService.getMyAssetByProdId(uuid, prodId);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
-    
+
     @ApiOperation("交易结果 购买")
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK"),
@@ -1624,7 +1569,7 @@ public class UserInfoController {
         resudltMap.put("result", coinFundYieldRateList);
         return new ResponseEntity<>(resudltMap, HttpStatus.OK);
     }
-    
+
     @ApiOperation("获取所有用户的信息")
     @ApiResponses({@ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 400, message = "请求参数没填好"),
@@ -1632,27 +1577,27 @@ public class UserInfoController {
             @ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
             @ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")})
     @ApiImplicitParams({
-      @ApiImplicitParam(paramType="query",name="size",dataType="Long",value="每页显示记录数",defaultValue="25"),
-      @ApiImplicitParam(paramType="query",name="page",dataType="Long",value="显示页数（默认第0页开始）",defaultValue="0"),
-      @ApiImplicitParam(paramType="query",name="sort",dataType="String",value="排序条件",defaultValue="id")
+            @ApiImplicitParam(paramType = "query", name = "size", dataType = "Long", value = "每页显示记录数", defaultValue = "25"),
+            @ApiImplicitParam(paramType = "query", name = "page", dataType = "Long", value = "显示页数（默认第0页开始）", defaultValue = "0"),
+            @ApiImplicitParam(paramType = "query", name = "sort", dataType = "String", value = "排序条件", defaultValue = "id")
     })
     @RequestMapping(value = "/users", method = RequestMethod.GET)
     public ResponseEntity<Map> getUsers(
-        Pageable pageable,
-        @RequestParam(value = "size") Long size,
-        @RequestParam(value = "page", defaultValue="0") Long page,
-        @RequestParam(value = "sort", defaultValue="id") String sort)
+            Pageable pageable,
+            @RequestParam(value = "size") Long size,
+            @RequestParam(value = "page", defaultValue = "0") Long page,
+            @RequestParam(value = "sort", defaultValue = "id") String sort)
             throws Exception {
         Map<String, Object> resudltMap = new HashMap<String, Object>();
-        
+
         try {
-          resudltMap = userInfoService.selectUserFindAll(pageable);
+            resudltMap = userInfoService.selectUserFindAll(pageable);
         } catch (InstantiationException e) {
-          logger.error("exception:",e);
+            logger.error("exception:", e);
         } catch (IllegalAccessException e) {
-            logger.error("exception:",e);
+            logger.error("exception:", e);
         }
-        
+
 //        List<UserBaseInfoDTO> userList = pages.getContent();
 //        resudltMap.put("users", userList);
 //        resudltMap.put("totalPages", pages.getTotalPages());

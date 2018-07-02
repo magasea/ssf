@@ -84,6 +84,9 @@ public class MongoUiTrdLog implements Serializable {
   @Indexed()
   private String orderId;
 
+  @Field(value = "confirm_date_exp")
+  private String confirmDateExp;
+
   public MongoUiTrdLog() {
   }
 
@@ -240,5 +243,13 @@ public class MongoUiTrdLog implements Serializable {
 
   public void setOrderId(String orderId) {
     this.orderId = orderId;
+  }
+
+  public String getConfirmDateExp() {
+    return confirmDateExp;
+  }
+
+  public void setConfirmDateExp(String confirmDateExp) {
+    this.confirmDateExp = confirmDateExp;
   }
 }
