@@ -1099,15 +1099,15 @@ public class TradeOpServiceImpl implements TradeOpService {
     private String getTradeFailReson(String errMsg) {
         if(errMsg==null)
             return "系统繁忙，请稍后重试";
-        if(errMsg.contains("1018:网络错误")){
+        if(errMsg.contains(TrdFailtureStatusEnum.NETERROR.getComment())){
             return  "网络错误";
-        }else if(errMsg.contains("1013:该外部订单号重复")){
+        }else if(errMsg.contains(TrdFailtureStatusEnum.OUTORDERIDREPEAT.getComment())){
             return "外部订单号重复";
-        }else if(errMsg.contains("1019:申请值太小")){
+        }else if(errMsg.contains(TrdFailtureStatusEnum.APPLYSHARESMALL.getComment())){
             return  "申请值太小，低于最小交易限额";
-        }else if(errMsg.contains("1326:赎回后全商户下")){
+        }else if(errMsg.contains(TrdFailtureStatusEnum.BOOKSHARELESSHOLD.getComment())){
             return  "赎回后全商户下，账面份额低于最低可持有份额";
-        }else if(errMsg.contains("1309:可用份额不足")){
+        }else if(errMsg.contains(TrdFailtureStatusEnum.SHARENOTENOUGH.getComment())){
             return  "可用份额不足";
         }else {
             return  "系统繁忙，请稍后重试";
