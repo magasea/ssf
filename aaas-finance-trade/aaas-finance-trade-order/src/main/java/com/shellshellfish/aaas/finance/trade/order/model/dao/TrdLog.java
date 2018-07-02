@@ -1,116 +1,59 @@
-package com.shellshellfish.aaas.userinfo.model.dto;
+package com.shellshellfish.aaas.finance.trade.order.model.dao;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 
-/**
- * The persistent class for the ui_trd_log database table.
- *
- */
-public class MongoUiTrdLogDTO implements Serializable {
-  private static final long serialVersionUID = 1L;
-
-  
+public class TrdLog {
   private String id;
 
-  
+
   private BigDecimal amount;
 
-  
+
   private String createdBy;
 
-  
+
   private Long createdDate;
 
-  
+  public TrdLog() {
+  }
+
   private String lastModifiedBy;
 
-  
+
   private Long lastModifiedDate;
 
   private int operations;
 
-  
+
   private Long userProdId;
 
 
-  
+
   private Long tradeDate;
 
-  
+
   private int tradeStatus;
 
-  
+
   private Long userId;
 
-  
+
   private String fundCode;
 
-  
+
   private Long tradeConfirmShare;
 
-  
+
   private Long tradeConfirmSum;
 
-  
+
   private Long tradeTargetShare;
 
-  
+
   private Long tradeTargetSum;
 
-  
-  private String applySerial;
-
-  private String OrderId;
-
-  private String confirmDateExp;
-
-
-
-  @Override
-  public String toString() {
-    return "MongoUiTrdLogDTO{" +
-        "id='" + id + '\'' +
-        ", amount=" + amount +
-
-        ", createdBy='" + createdBy + '\'' +
-        ", createdDate=" + createdDate +
-        ", lastModifiedBy='" + lastModifiedBy + '\'' +
-        ", lastModifiedDate=" + lastModifiedDate +
-        ", operations=" + operations +
-        ", userProdId=" + userProdId +
-        ", tradeDate=" + tradeDate +
-        ", tradeStatus=" + tradeStatus +
-        ", userId=" + userId +
-        ", fundCode='" + fundCode + '\'' +
-        ", tradeConfirmShare=" + tradeConfirmShare +
-        ", tradeConfirmSum=" + tradeConfirmSum +
-        ", tradeTargetShare=" + tradeTargetShare +
-        ", tradeTargetSum=" + tradeTargetSum +
-        ", applySerial='" + applySerial + '\'' +
-        ", OrderId='" + OrderId + '\'' +
-        '}';
-  }
-  public String getConfirmDateExp() {
-    return confirmDateExp;
-  }
-
-  public void setConfirmDateExp(String confirmDateExp) {
-    this.confirmDateExp = confirmDateExp;
-  }
-  public String getOrderId() {
-    return OrderId;
-  }
-
-  public void setOrderId(String orderId) {
-    OrderId = orderId;
-  }
-
-  public MongoUiTrdLogDTO() {
-  }
-
   public String getId() {
-    return this.id;
+    return id;
   }
 
   public void setId(String id) {
@@ -118,7 +61,7 @@ public class MongoUiTrdLogDTO implements Serializable {
   }
 
   public BigDecimal getAmount() {
-    return this.amount;
+    return amount;
   }
 
   public void setAmount(BigDecimal amount) {
@@ -126,7 +69,7 @@ public class MongoUiTrdLogDTO implements Serializable {
   }
 
   public String getCreatedBy() {
-    return this.createdBy;
+    return createdBy;
   }
 
   public void setCreatedBy(String createdBy) {
@@ -134,7 +77,7 @@ public class MongoUiTrdLogDTO implements Serializable {
   }
 
   public Long getCreatedDate() {
-    return this.createdDate;
+    return createdDate;
   }
 
   public void setCreatedDate(Long createdDate) {
@@ -142,7 +85,7 @@ public class MongoUiTrdLogDTO implements Serializable {
   }
 
   public String getLastModifiedBy() {
-    return this.lastModifiedBy;
+    return lastModifiedBy;
   }
 
   public void setLastModifiedBy(String lastModifiedBy) {
@@ -150,7 +93,7 @@ public class MongoUiTrdLogDTO implements Serializable {
   }
 
   public Long getLastModifiedDate() {
-    return this.lastModifiedDate;
+    return lastModifiedDate;
   }
 
   public void setLastModifiedDate(Long lastModifiedDate) {
@@ -158,7 +101,7 @@ public class MongoUiTrdLogDTO implements Serializable {
   }
 
   public int getOperations() {
-    return this.operations;
+    return operations;
   }
 
   public void setOperations(int operations) {
@@ -166,7 +109,7 @@ public class MongoUiTrdLogDTO implements Serializable {
   }
 
   public Long getUserProdId() {
-    return this.userProdId;
+    return userProdId;
   }
 
   public void setUserProdId(Long userProdId) {
@@ -174,7 +117,7 @@ public class MongoUiTrdLogDTO implements Serializable {
   }
 
   public Long getTradeDate() {
-    return this.tradeDate;
+    return tradeDate;
   }
 
   public void setTradeDate(Long tradeDate) {
@@ -182,7 +125,7 @@ public class MongoUiTrdLogDTO implements Serializable {
   }
 
   public int getTradeStatus() {
-    return this.tradeStatus;
+    return tradeStatus;
   }
 
   public void setTradeStatus(int tradeStatus) {
@@ -190,12 +133,9 @@ public class MongoUiTrdLogDTO implements Serializable {
   }
 
   public Long getUserId() {
-    return this.userId;
+    return userId;
   }
 
-  public void setUserId(long userId) {
-    this.userId = userId;
-  }
   public void setUserId(Long userId) {
     this.userId = userId;
   }
@@ -247,4 +187,26 @@ public class MongoUiTrdLogDTO implements Serializable {
   public void setApplySerial(String applySerial) {
     this.applySerial = applySerial;
   }
+
+  public String getOrderId() {
+    return OrderId;
+  }
+
+  public void setOrderId(String orderId) {
+    OrderId = orderId;
+  }
+
+  public String getConfirmDateExp() {
+    return confirmDateExp;
+  }
+
+  public void setConfirmDateExp(String confirmDateExp) {
+    this.confirmDateExp = confirmDateExp;
+  }
+
+  private String applySerial;
+
+  private String OrderId;
+
+  private String confirmDateExp;
 }
