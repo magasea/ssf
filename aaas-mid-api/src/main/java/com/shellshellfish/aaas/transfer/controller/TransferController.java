@@ -344,8 +344,8 @@ public class TransferController {
 										String money_limit_day = map.get("moneyLimitOne") == null ? "0" : map.get("moneyLimitOne") + "";
 										resultOriginMap.put("money_limit", "单笔限额" + money_limit_one + "万元，单日限额" + money_limit_day + "万元");
 										resultOriginMap.put("url", banklink + map.get("bankShortName") + ".png");
-										resultOriginMap.put("bankOrderLimit", money_limit_one);
-										resultOriginMap.put("bankDayLimit", money_limit_day);
+										resultOriginMap.put("bankOrderLimit", money_limit_one+"0000");
+										resultOriginMap.put("bankDayLimit", money_limit_day+"0000");
 										break;
 									}
 								}
