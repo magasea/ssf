@@ -3,7 +3,6 @@ package com.shellshellfish.aaas.zhongzhengapi.service.impl;
 import com.shellshellfish.aaas.common.grpc.zzapi.ApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.WalletApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZAplyCfmInfo;
-import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZDiscountInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundNetInfo;
@@ -13,10 +12,14 @@ import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZTradeLimit;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltAplyInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltInfoRlt;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltSellAndBuyResult;
+import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.zhongzhengapi.model.CancelTradeResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.SellResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZBonusInfo;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZBuyResult;
+import com.shellshellfish.aaas.zhongzhengapi.model.ZZGeneralErrResp;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZGeneralResp;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZGeneralRespWithListData;
 import com.shellshellfish.aaas.zhongzhengapi.service.ZhongZhengApiService;
@@ -24,6 +27,7 @@ import com.shellshellfish.aaas.zhongzhengapi.util.ZhongZhengAPIConstants;
 import com.shellshellfish.aaas.zhongzhengapi.util.ZhongZhengAPIUtils;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -446,42 +450,42 @@ public class ZhongzhengApiServiceImpl extends AbstractZhongzhengApiService imple
     }
   }
 
-//  @Override
-//  public ZZWltSellAndBuyResult sellWallet2Buy(String trdAcco, String pid, String applyNum,
-//      String outsideOrderNo, String targetFundCode) throws Exception {
-//
-//    try {
-//      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
-//      if(targetFundCode.contains(".")){
-//        targetFundCode = targetFundCode.split("\\.")[0];
-//      }
-//      origInfo.put("targetfundcode", targetFundCode);
-//      origInfo.put("tradeacco", trdAcco);
-//      origInfo.put("applyshare", applyNum);
-//      origInfo.put("target_platform_code", ZhongZhengAPIConstants.ZZ_PLATFORM_CODE);
-//      origInfo.put("outsideorderno", outsideOrderNo);
-//
-//      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
-//      logMap(info);
-//
-//
-//      String json = restTemplate.postForObject(ZhongZhengAPIConstants.ZZ_API_URL_WALLET_SELL_TO_BUY, info, String.class);
-//      logger.info(json);
-//      ZZWltSellAndBuyResult responseBase = null;
-//      try {
-//        responseBase = gson.fromJson(json, ZZWltSellAndBuyResult.class);
-//      }catch (Exception ex){
-//        logger.error("err:", ex);
-//        ZZGeneralErrResp errResp = gson.fromJson(json, ZZGeneralErrResp.class);
-//        throw new Exception(String.format("Errno:%s ErrMsg:%s status:%s", errResp.getErrno(),
-//            errResp.getMsg(), errResp.getStatus(), errResp.getStatus()));
-//      }
-//      return responseBase;
-//    } catch (Exception e) {
-//      logger.error("Error:", e);
-//      throw e;
-//    }
-//  }
+  @Override
+  public ZZWltSellAndBuyResult sellWallet2Buy(String trdAcco, String pid, String applyNum,
+      String outsideOrderNo, String targetFundCode) throws Exception {
+
+    try {
+      TreeMap<String, String> origInfo = ZhongZhengAPIUtils.makeOrigInfo(pid);
+      if(targetFundCode.contains(".")){
+        targetFundCode = targetFundCode.split("\\.")[0];
+      }
+      origInfo.put("targetfundcode", targetFundCode);
+      origInfo.put("tradeacco", trdAcco);
+      origInfo.put("applyshare", applyNum);
+      origInfo.put("target_platform_code", ZhongZhengAPIConstants.ZZ_PLATFORM_CODE);
+      origInfo.put("outsideorderno", outsideOrderNo);
+
+      TreeMap<String, String> info = ZhongZhengAPIUtils.makeInfo(false, origInfo);
+      logMap(info);
+
+
+      String json = restTemplate.postForObject(ZhongZhengAPIConstants.ZZ_API_URL_WALLET_SELL_TO_BUY, info, String.class);
+      logger.info(json);
+      ZZWltSellAndBuyResult responseBase = null;
+      try {
+        responseBase = gson.fromJson(json, ZZWltSellAndBuyResult.class);
+      }catch (Exception ex){
+        logger.error("err:", ex);
+        ZZGeneralErrResp errResp = gson.fromJson(json, ZZGeneralErrResp.class);
+        throw new Exception(String.format("Errno:%s ErrMsg:%s status:%s", errResp.getErrno(),
+            errResp.getMsg(), errResp.getStatus(), errResp.getStatus()));
+      }
+      return responseBase;
+    } catch (Exception e) {
+      logger.error("Error:", e);
+      throw e;
+    }
+  }
 
   @Override
   public Page<ZZBonusInfo> getBonusInfoNoPid(String fundCode, String startDate, Integer pageSize,

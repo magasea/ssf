@@ -1,9 +1,5 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
-import static io.grpc.stub.ClientCalls.asyncUnaryCall;
-import static io.grpc.stub.ClientCalls.futureUnaryCall;
-import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
-
 import com.mongodb.client.result.UpdateResult;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
@@ -14,10 +10,8 @@ import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.enums.grpc.ItemStatus;
 import com.shellshellfish.aaas.common.exceptions.ErrorConstants;
-import com.shellshellfish.aaas.common.utils.MathUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.finance.trade.order.OrderDetailResult;
 import com.shellshellfish.aaas.grpc.common.ErrInfo;
 import com.shellshellfish.aaas.grpc.common.UserProdDetail;
 import com.shellshellfish.aaas.grpc.common.UserProdId;
@@ -79,7 +73,6 @@ import com.shellshellfish.aaas.userinfo.repositories.redis.UserInfoBaseDao;
 import com.shellshellfish.aaas.userinfo.utils.MongoUiTrdLogUtil;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -1178,6 +1171,11 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
 
   @Override
   @Transactional
+  //ToDo:
+  // 1. set redis the user_prod_id and fund_code is in caculate status
+  // 2. if latest_serial is empty then calculate origin quantity first
+  // 3. set the scheduler job to check redis user_prod_id and fund_code status, if is in caculate
+  // status, then ignore this element continue others
   public Builder updateProductQuantity(SellPersentProducts request) throws Exception {
     Long percent = request.getPercent();
     if (percent < 0 || percent > 10000) {

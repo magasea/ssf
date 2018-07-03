@@ -529,10 +529,10 @@ public class BroadcastMessageConsumers {
     //开始处理货币基金
     if (MonetaryFundEnum.containsCode(mongoUiTrdZZInfo.getFundCode())) {
       Long navadj = mongoPendingRecordsRemain.getApplyDateNavadj();
-      if (navadj == null || navadj < 0) {
+      if (navadj == null || navadj <= 0) {
         navadj = getMoneyCodeNavAdjByDate(mongoUiTrdZZInfo.getFundCode(),mongoUiTrdZZInfo.getApplyDate());
       }
-      if (navadj == null || navadj < 0) {
+      if (navadj == null || navadj <= 0) {
         logger.error("cannot get navadj value for:{} of :{}", mongoPendingRecordsRemain
             .getFundCode(), mongoPendingRecordsRemain.getApplyDateStr());
         mongoPendingRecordsRemain.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED
