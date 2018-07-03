@@ -1416,7 +1416,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       query.addCriteria(Criteria.where("order_id").is(orderId));
       List<MongoUiTrdLog> trdLogList = mongoTemplate.find(query, MongoUiTrdLog.class);
       //过滤筛选confirmdate不为空
-      Map<String, List<MongoUiTrdLog>> collect = trdLogList.stream().collect(Collectors.groupingBy(k -> k.getFundCode()));
+      Map<String, List<MongoUiTrdLog>> collect = trdLogList.stream().filter(k->k.getFundCode()!=null).collect(Collectors.groupingBy(k -> k.getFundCode()));
       collect.forEach((k,v)->{
         List<MongoUiTrdLog> trdLost = v.stream().filter(item -> item.getConfirmDateExp() != null).collect(Collectors.toList());
         for(MongoUiTrdLog trdLog:trdLost){
