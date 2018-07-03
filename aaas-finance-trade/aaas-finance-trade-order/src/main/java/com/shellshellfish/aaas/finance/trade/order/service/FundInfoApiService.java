@@ -1,6 +1,7 @@
 package com.shellshellfish.aaas.finance.trade.order.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.shellshellfish.aaas.finance.trade.order.model.DailyAmount;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeLimitResult;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeRateResult;
 import com.shellshellfish.aaas.finance.trade.order.model.UserBank;
@@ -53,6 +54,7 @@ public interface FundInfoApiService {
     BigDecimal calcDiscountSaving(BigDecimal amount, BigDecimal rate, BigDecimal discount);
 
     List<UserBank> getUserBank(String fundCode) throws Exception;
+    public  List<DailyAmount> getProdDailyAsset(long prodId);
 
 
 }
