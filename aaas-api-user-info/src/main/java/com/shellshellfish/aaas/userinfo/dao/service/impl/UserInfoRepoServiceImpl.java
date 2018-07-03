@@ -1257,8 +1257,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       Predicate<MongoPendingRecords> mongoPendingRecordsPredicate = p-> orderCalcedIds.contains(p
           .getOutsideOrderId()) ;
       mongoPendingRecords.removeIf(mongoPendingRecordsPredicate);
-      if (originQuantity == null || originQuantity <= 0 || StringUtils.isEmpty(uiProductDetail
-          .getLastestSerial())) {
+      if (originQuantity == null || originQuantity <= 0 ) {
         logger.error("uiProductDetail.getLastestSerial:{} originQuantity:{}", uiProductDetail
             .getLastestSerial(), originQuantity);
         recordStopSellInvaidFunds(request, uiProductDetail);
