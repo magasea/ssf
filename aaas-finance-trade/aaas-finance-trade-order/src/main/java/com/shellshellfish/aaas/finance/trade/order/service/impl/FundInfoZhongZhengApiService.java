@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
+import com.shellshellfish.aaas.finance.trade.order.model.DailyAmount;
 import com.shellshellfish.aaas.finance.trade.order.model.DiscountInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.FundInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.LimitInfo;
@@ -14,6 +16,8 @@ import com.shellshellfish.aaas.finance.trade.order.model.TradeLimitResult;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeRateResult;
 import com.shellshellfish.aaas.finance.trade.order.model.UserBank;
 import com.shellshellfish.aaas.finance.trade.order.service.FundInfoApiService;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import org.apache.commons.codec.digest.UnixCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -505,6 +509,26 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
         return userBanks;
     }
 
+    @Override
+    public List<DailyAmount> getProdDailyAsset(long prodId) {
+        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        LocalDate startDate = InstantDateUtil.format(date);
+        for(int i=-0;;i--){
+            LocalDate queryDate = startDate.plusDays(i);
+            String queryDateStr=queryDate.toString().replace("-","");
+            Query query=new Query();
+            query.addCriteria(Criteria.where("userProdId").is(prodId).and("date").is(queryDateStr));
+            List<DailyAmount> dailyAmounts = mongoTemplate.find(query, DailyAmount.class);
+            if(dailyAmounts.size()>0){
+                return  dailyAmounts;
+            }
+            if(i<=-100){
+                new RuntimeException("getProdDailyAsset: query dailyAmount 值为空");
+                return  null;
+            }
+        }
+    }
+
     private void postInit(Map<String, Object> info) {
         String sign = makeMsg(info);
         logger.info("sign: {}", sign);
@@ -580,4 +604,6 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
         }
         return new String(hexChars);
     }
+
+
 }

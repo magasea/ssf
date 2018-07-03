@@ -1098,7 +1098,7 @@ public class TradeOpServiceImpl implements TradeOpService {
     //处理交易失败错误原因
     private String getTradeFailReson(String errMsg) {
         if(errMsg==null)
-            return "系统繁忙，请稍后重试";
+            return "未知原因，赎回失败";
         if(errMsg.contains(TrdFailtureStatusEnum.NETERROR.getComment())){
             return  "网络错误";
         }else if(errMsg.contains(TrdFailtureStatusEnum.OUTORDERIDREPEAT.getComment())){
@@ -1110,7 +1110,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         }else if(errMsg.contains(TrdFailtureStatusEnum.SHARENOTENOUGH.getComment())){
             return  "可用份额不足";
         }else {
-            return  "系统繁忙，请稍后重试";
+            return  "未知原因，赎回失败";
         }
     }
 
