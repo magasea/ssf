@@ -450,7 +450,7 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
                 double lowLim = Double.parseDouble(rateResult.getPertValLowLim())*10000;
                 double UpLim = Double.parseDouble(rateResult.getPertValUpLim())*10000;
 
-                if(BigDecimal.valueOf(lowLim).compareTo(amount)==-1&&(BigDecimal.valueOf(UpLim).compareTo(amount)==1||UpLim==0.00)){
+                if(BigDecimal.valueOf(lowLim).compareTo(amount)<=-0&&(BigDecimal.valueOf(UpLim).compareTo(amount)>=0||UpLim==0.00)){
                     Double rate = Double.parseDouble(rateResult.getChagRateUpLim())/100d;
                     return BigDecimal.valueOf(rate);
                 }

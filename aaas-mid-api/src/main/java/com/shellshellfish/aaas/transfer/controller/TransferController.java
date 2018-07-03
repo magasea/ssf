@@ -674,7 +674,6 @@ public class TransferController {
 			if(persent.equals(BigDecimal.ZERO)){
 				result = service.sellFundPage(groupId, subGroupId, "0", Integer.parseInt(oemid),persent,prodId);
 				result.put("totalAmount", "--");
-				result.put("poundage", "--");
 			} else {
 //				amount = amount.multiply(persent).divide(new BigDecimal("100")).subtract(new BigDecimal(result.get("poundage") + ""));
 				totalAmount = amount.multiply(persent).divide(new BigDecimal("100")) + "";

@@ -223,7 +223,7 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
                 }
             }
         }
-        return new DistributionResult(totalSellAmount.toString(),totalPoundage, totalDiscountSaving, fundAmountResultList);
+        return new DistributionResult(totalSellAmount.setScale(2,BigDecimal.ROUND_HALF_UP).toString(),totalPoundage, totalDiscountSaving, fundAmountResultList);
     }
 
     private  HashMap<Object, Object> getFundConShare(String prodId) {
