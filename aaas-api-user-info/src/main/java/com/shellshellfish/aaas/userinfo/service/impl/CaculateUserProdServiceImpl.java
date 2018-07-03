@@ -11,6 +11,7 @@ import com.shellshellfish.aaas.userinfo.model.dao.MongoPendingRecords;
 import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductRepo;
+import com.shellshellfish.aaas.userinfo.repositories.redis.UserInfoBaseDao;
 import com.shellshellfish.aaas.userinfo.service.CaculateUserProdService;
 import com.shellshellfish.aaas.userinfo.utils.MyBeanUtils;
 import java.math.BigDecimal;
@@ -45,6 +46,9 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
 
   @Autowired
   UiProductDetailRepo uiProductDetailRepo;
+
+  @Autowired
+  UserInfoBaseDao userInfoBaseDao;
 
   /**
    * 查询PendingRecords表里面所有的已经处理完的记录， 交易状态为购买确认和赎回确认的列入
@@ -359,6 +363,10 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
       List<UiProductDetail> uiProductDetails = uiProductDetailRepo.findAllByUserProdId(userProdId);
       for(UiProductDetail uiProductDetail: uiProductDetails){
         try{
+          if(userInfoBaseDao.getCaculateStatus(userProdId, uiProductDetail.getFundCode()) != null ){
+            logger.error("there is an ongoing sell caculate , so we'd better make no change");
+            continue;
+          }
           updateCaculateBase(userProdId, uiProductDetail.getFundCode());
           caculateQuantityByUserProdIdAndFundCode(userProdId, uiProductDetail.getFundCode());
         }catch (Exception ex){
