@@ -344,8 +344,8 @@ public class TransferController {
 										String money_limit_day = map.get("moneyLimitOne") == null ? "0" : map.get("moneyLimitOne") + "";
 										resultOriginMap.put("money_limit", "单笔限额" + money_limit_one + "万元，单日限额" + money_limit_day + "万元");
 										resultOriginMap.put("url", banklink + map.get("bankShortName") + ".png");
-										resultOriginMap.put("bankOrderLimit", money_limit_one);
-										resultOriginMap.put("bankDayLimit", money_limit_day);
+										resultOriginMap.put("bankOrderLimit", money_limit_one+"0000");
+										resultOriginMap.put("bankDayLimit", money_limit_day+"0000");
 										break;
 									}
 								}
@@ -674,7 +674,6 @@ public class TransferController {
 			if(persent.equals(BigDecimal.ZERO)){
 				result = service.sellFundPage(groupId, subGroupId, "0", Integer.parseInt(oemid),persent,prodId);
 				result.put("totalAmount", "--");
-				result.put("poundage", "--");
 			} else {
 //				amount = amount.multiply(persent).divide(new BigDecimal("100")).subtract(new BigDecimal(result.get("poundage") + ""));
 				totalAmount = amount.multiply(persent).divide(new BigDecimal("100")) + "";
@@ -718,6 +717,12 @@ public class TransferController {
 					result.put("bankinfo", bankName + "(" + bankNum.substring(bankNum.length() - 4) + ")");
 					result.put("bankNum", bankNum);
 				}
+
+				String totalSellAmount=(String) result.get("totalSellAmount");
+				String title2="预估到账金额"+totalSellAmount+"，为保证您的资金安全，赎回时您只能赎回至您购买时的银行卡。其中："
+						+ bankName+"尾号"+bankNum.substring(bankNum.length()-4,bankNum.length())+"预估到账金额为"+totalSellAmount+
+						"*到账金额根据上一个交易日净值估算得出，实际到账金额以基金公司结算为准，预估手续费"+result.get("poundage")+"元";
+				result.put("title2",title2);
 			}
 			return new JsonResult(JsonResult.SUCCESS, "调用成功", result);
 		} catch (Exception ex) {

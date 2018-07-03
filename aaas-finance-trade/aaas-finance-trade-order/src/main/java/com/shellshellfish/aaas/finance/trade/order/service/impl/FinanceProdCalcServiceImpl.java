@@ -166,6 +166,7 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
     public DistributionResult getPoundageOfSellFund(BigDecimal netAmount,
         List<ProductMakeUpInfo> productMakeUpInfoList,BigDecimal persent,String prodId) throws Exception {
         BigDecimal totalPoundage = BigDecimal.ZERO;
+        BigDecimal totalSellAmount = BigDecimal.ZERO;
         BigDecimal totalDiscountSaving = BigDecimal.ZERO;
         List<FundAmount> fundAmountList = new ArrayList<>();
         List<FundAmount> fundAmountResultList = new ArrayList<>();
@@ -176,7 +177,7 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
             BigDecimal amount = netAmount.multiply(
                 BigDecimal.valueOf(info.getFundShare()).divide(BigDecimal.valueOf(10000d)));
             BigDecimal rate = fundInfoService
-                .getRateOfSellFund(info.getFundCode(), SELL_FUND.getCode());
+                .getRateOfSellFund(amount,info.getFundCode(), SELL_FUND.getCode());
             BigDecimal discount = fundInfoService
                 .getDiscount(info.getFundCode(), SELL_FUND.getCode());
             BigDecimal poundage = fundInfoService.calcPoundageWithDiscount(amount, rate, discount);
@@ -204,20 +205,25 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
                     if(fundAmount.getFundCode().equals(tempUserProdDetailMap.get("fundcode"))){
                         BigDecimal conPostAmount = navadj.multiply(
                             new BigDecimal((Integer) tempUserProdDetailMap.get("fundQuantity"))
-                                .divide(new BigDecimal(100d)));
+                                .divide(new BigDecimal(100d))).setScale(2,BigDecimal.ROUND_HALF_UP);
                         if(conPostAmount.compareTo(new BigDecimal("0"))<=0){
                             logger.error("赎回时计算当前持仓金额: fundcode:"+fundAmount.getFundCode()+"获取当前持仓份额小于等于0");
                         }else{
-                            BigDecimal exceptPostAmount = conPostAmount.multiply(persent.divide(new BigDecimal(100)));
-                            fundAmount.setConPosAmount(new BigDecimal(df.format(conPostAmount)));
-                            fundAmount.setExpectSellAmount(new BigDecimal(df.format(exceptPostAmount)));
+                            fundAmount.setConPosAmount(conPostAmount.toString());
+                            BigDecimal exceptPostAmount = conPostAmount.multiply(persent.divide(new BigDecimal(100))).setScale(2,BigDecimal.ROUND_HALF_UP);
+                            if("0".equals(persent.toString())){
+                                fundAmount.setExpectSellAmount("--");
+                            }else {
+                                fundAmount.setExpectSellAmount(exceptPostAmount.toString());
+                                totalSellAmount=totalSellAmount.add(exceptPostAmount);
+                            }
                             fundAmountResultList.add(fundAmount);
                         }
                     }
                 }
             }
         }
-        return new DistributionResult(totalPoundage, totalDiscountSaving, fundAmountResultList);
+        return new DistributionResult(totalSellAmount.setScale(2,BigDecimal.ROUND_HALF_UP).toString(),totalPoundage, totalDiscountSaving, fundAmountResultList);
     }
 
     private  HashMap<Object, Object> getFundConShare(String prodId) {
