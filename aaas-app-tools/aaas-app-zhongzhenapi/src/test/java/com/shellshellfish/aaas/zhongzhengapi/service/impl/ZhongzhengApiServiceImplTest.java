@@ -627,28 +627,28 @@ public class ZhongzhengApiServiceImplTest {
       ZZWltSellAndBuyResult zzWltSellAndBuyResult = zhongZhengApiService.sellWallet2Buy(trdAcco, pid, applyNum,
           outsideOrderNo, targetFundCode);
 
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getBuy());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getSell());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getBuy().getApplyDate());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getSell().getApplyDate());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getBuy().getApplySerial());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getSell().getApplySerial());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getSell().getApplyShare());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getBuy().getApplySum());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getCallingCode());
-      System.out.println(zzWltSellAndBuyResult.getResult().getCode());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getSell().getConfirmDate());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getBuy().getConfirmDate());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getFixFlag());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getBuy().getFundCode());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getSell().getFundCode());
-      System.out.println(zzWltSellAndBuyResult.getResult().getMessage());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getSell().getOutsideOrderNo());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getBuy().getOutsideOrderNo());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getSell().getPlatformCode());
-      System.out.println(zzWltSellAndBuyResult.getResult().getContent().getBuy().getPlatformCode());
-      System.out.println(zzWltSellAndBuyResult.getResult().getStatus());
+      System.out.println(zzWltSellAndBuyResult.getContent().getBuy());
+      System.out.println(zzWltSellAndBuyResult.getContent());
+      System.out.println(zzWltSellAndBuyResult.getContent().getSell());
+      System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getApplyDate());
+      System.out.println(zzWltSellAndBuyResult.getContent().getSell().getApplyDate());
+      System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getApplySerial());
+      System.out.println(zzWltSellAndBuyResult.getContent().getSell().getApplySerial());
+      System.out.println(zzWltSellAndBuyResult.getContent().getSell().getApplyShare());
+      System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getApplySum());
+      System.out.println(zzWltSellAndBuyResult.getContent().getCallingCode());
+      System.out.println(zzWltSellAndBuyResult.getErrno());
+      System.out.println(zzWltSellAndBuyResult.getContent().getSell().getConfirmDate());
+      System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getConfirmDate());
+      System.out.println(zzWltSellAndBuyResult.getContent().getFixFlag());
+      System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getFundCode());
+      System.out.println(zzWltSellAndBuyResult.getContent().getSell().getFundCode());
+      System.out.println(zzWltSellAndBuyResult.getMsg());
+      System.out.println(zzWltSellAndBuyResult.getContent().getSell().getOutsideOrderNo());
+      System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getOutsideOrderNo());
+      System.out.println(zzWltSellAndBuyResult.getContent().getSell().getPlatformCode());
+      System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getPlatformCode());
+      System.out.println(zzWltSellAndBuyResult.getStatus());
 
     }catch (Exception ex){
       System.out.println(ex.toString());
@@ -665,28 +665,28 @@ public class ZhongzhengApiServiceImplTest {
     String json = "{\"status\":1,\"errno\":\"0000\",\"msg\":\"\\u6210\\u529f\","
         + "\"data\":{\"callingcode\":\"024\",\"fixflag\":\"43\",\"sell\":{\"fundcode\":\"004399\",\"applyserial\":\"20180629180018001130\",\"outsideorderno\":\"012345678901234567\",\"applydate\":\"20180702\",\"confirmdate\":\"2018-07-03\",\"applyshare\":\"10.5\",\"platform_code\":\"zuheceshi1\"},\"buy\":{\"fundcode\":\"003474\",\"applyserial\":\"20180629180020001132\",\"outsideorderno\":\"012345678901234567\",\"applydate\":\"20180702\",\"confirmdate\":\"2018-07-03\",\"applysum\":\"10.50\",\"platform_code\":\"zuheceshi1\"}}}";
     ZZWltSellAndBuyResult zzWltSellAndBuyResult = gson.fromJson(json, ZZWltSellAndBuyResult.class);
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getBuy());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getSell());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getBuy().getApplyDate());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getSell().getApplyDate());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getBuy().getApplySerial());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getSell().getApplySerial());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getSell().getApplyShare());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getBuy().getApplySum());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getCallingCode());
-    System.out.println(zzWltSellAndBuyResult.getResult().getCode());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getSell().getConfirmDate());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getBuy().getConfirmDate());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getFixFlag());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getBuy().getFundCode());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getSell().getFundCode());
-    System.out.println(zzWltSellAndBuyResult.getResult().getMessage());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getSell().getOutsideOrderNo());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getBuy().getOutsideOrderNo());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getSell().getPlatformCode());
-    System.out.println(zzWltSellAndBuyResult.getResult().getContent().getBuy().getPlatformCode());
-    System.out.println(zzWltSellAndBuyResult.getResult().getStatus());
+    System.out.println(zzWltSellAndBuyResult.getContent().getBuy());
+    System.out.println(zzWltSellAndBuyResult.getContent());
+    System.out.println(zzWltSellAndBuyResult.getContent().getSell());
+    System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getApplyDate());
+    System.out.println(zzWltSellAndBuyResult.getContent().getSell().getApplyDate());
+    System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getApplySerial());
+    System.out.println(zzWltSellAndBuyResult.getContent().getSell().getApplySerial());
+    System.out.println(zzWltSellAndBuyResult.getContent().getSell().getApplyShare());
+    System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getApplySum());
+    System.out.println(zzWltSellAndBuyResult.getContent().getCallingCode());
+    System.out.println(zzWltSellAndBuyResult.getErrno());
+    System.out.println(zzWltSellAndBuyResult.getContent().getSell().getConfirmDate());
+    System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getConfirmDate());
+    System.out.println(zzWltSellAndBuyResult.getContent().getFixFlag());
+    System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getFundCode());
+    System.out.println(zzWltSellAndBuyResult.getContent().getSell().getFundCode());
+    System.out.println(zzWltSellAndBuyResult.getMsg());
+    System.out.println(zzWltSellAndBuyResult.getContent().getSell().getOutsideOrderNo());
+    System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getOutsideOrderNo());
+    System.out.println(zzWltSellAndBuyResult.getContent().getSell().getPlatformCode());
+    System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getPlatformCode());
+    System.out.println(zzWltSellAndBuyResult.getStatus());
   }
 
   @Test

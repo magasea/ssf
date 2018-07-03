@@ -382,7 +382,7 @@ public class MidApiServiceImpl implements MidApiService {
                     poundageValue = poundageValue.setScale(2, BigDecimal.ROUND_HALF_UP);
                 }
                 result.put("poundage", poundageValue);
-            }
+        }
             Object discountSaving = result.get("discountSaving");
             if (discountSaving != null) {
                 BigDecimal discountSavingValue = new BigDecimal(discountSaving + "");
@@ -405,8 +405,9 @@ public class MidApiServiceImpl implements MidApiService {
                     }
                 }
             }
+            String totalSellAmount=(String)result.get("totalSellAmount")+"元";
+            result.put("totalSellAmount",totalSellAmount);
         }
-
         return result;
     }
 

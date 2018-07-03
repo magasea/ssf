@@ -9,6 +9,7 @@ import com.shellshellfish.aaas.datacollect.DailyFundsQuery;
 import com.shellshellfish.aaas.datacollect.DailyFundsQuery.Builder;
 import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc;
 import com.shellshellfish.aaas.datacollect.DataCollectionServiceGrpc.DataCollectionServiceBlockingStub;
+import com.shellshellfish.aaas.finance.trade.order.model.DailyAmount;
 import com.shellshellfish.aaas.finance.trade.order.model.DistributionResult;
 import com.shellshellfish.aaas.finance.trade.order.model.FundAmount;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeLimitResult;
@@ -166,17 +167,23 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
     public DistributionResult getPoundageOfSellFund(BigDecimal netAmount,
         List<ProductMakeUpInfo> productMakeUpInfoList,BigDecimal persent,String prodId) throws Exception {
         BigDecimal totalPoundage = BigDecimal.ZERO;
+        BigDecimal totalSellAmount = BigDecimal.ZERO;
         BigDecimal totalDiscountSaving = BigDecimal.ZERO;
         List<FundAmount> fundAmountList = new ArrayList<>();
         List<FundAmount> fundAmountResultList = new ArrayList<>();
         List<String> fundCodeList=new ArrayList<>();
+        List<DailyAmount> prodDailyAsset = fundInfoService.getProdDailyAsset(Long.parseLong(prodId));
+        HashMap proCodeWithAssetMap=new HashMap();
+        for(DailyAmount dailyAmount:prodDailyAsset){
+            proCodeWithAssetMap.put(dailyAmount.getFundCode(),dailyAmount.getAsset());
+        }
         for (ProductMakeUpInfo info : productMakeUpInfoList) {
             String fundCode = info.getFundCode();
             fundCodeList.add(fundCode);
             BigDecimal amount = netAmount.multiply(
                 BigDecimal.valueOf(info.getFundShare()).divide(BigDecimal.valueOf(10000d)));
             BigDecimal rate = fundInfoService
-                .getRateOfSellFund(info.getFundCode(), SELL_FUND.getCode());
+                .getRateOfSellFund(amount,info.getFundCode(), SELL_FUND.getCode());
             BigDecimal discount = fundInfoService
                 .getDiscount(info.getFundCode(), SELL_FUND.getCode());
             BigDecimal poundage = fundInfoService.calcPoundageWithDiscount(amount, rate, discount);
@@ -188,14 +195,31 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
 
             FundAmount fundAmount = new FundAmount(info.getFundCode(), info.getFundName(),
                 amount.subtract(poundage),null);
-            fundAmountList.add(fundAmount);
+
+            if(proCodeWithAssetMap.get(fundCode)!=null){
+                String conPostAmountStr =(String) proCodeWithAssetMap.get(fundCode);
+                BigDecimal conPostAmount=new BigDecimal(conPostAmountStr).setScale(2,BigDecimal.ROUND_HALF_UP);
+                BigDecimal exceptPostAmount = conPostAmount.multiply(persent.divide(new BigDecimal(100))).setScale(2,BigDecimal.ROUND_HALF_UP);
+                if(conPostAmount.compareTo(BigDecimal.ZERO)<=0){
+                    logger.error("赎回时计算当前持仓金额: fundcode:"+fundAmount.getFundCode()+"获取当前持仓份额小于0");
+                }else{
+                    fundAmount.setConPosAmount(conPostAmount.toString());
+                    if("0".equals(persent.toString())){
+                        fundAmount.setExpectSellAmount("--");
+                    }else {
+                        fundAmount.setExpectSellAmount(exceptPostAmount.toString());
+                        totalSellAmount=totalSellAmount.add(exceptPostAmount);
+                    }
+                    fundAmountResultList.add(fundAmount);
+                }
+            }
         }
-        HashMap<Object, Object> fundInfoMap = getNavadjByFundCodeAndDate(fundCodeList);
+         /*   HashMap<Object, Object> fundInfoMap = getNavadjByFundCodeAndDate(fundCodeList);
         //获取基金当前持有份额
         HashMap<Object, Object> userProdDetailMap = getFundConShare(prodId);
         //存入当前持仓金额及预期赎回金额
-        java.text.DecimalFormat df = new java.text.DecimalFormat("0.00");
-        for(FundAmount fundAmount:fundAmountList){
+         java.text.DecimalFormat df = new java.text.DecimalFormat("0.00");
+         for(FundAmount fundAmount:fundAmountList){
             if(fundInfoMap.get(fundAmount.getFundCode())!=null){
                 HashMap<Object, Object> fundMap=(HashMap<Object, Object>)fundInfoMap.get(fundAmount.getFundCode());
                 BigDecimal navadj = new BigDecimal(String.valueOf(fundMap.get("navadj")));
@@ -204,20 +228,25 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
                     if(fundAmount.getFundCode().equals(tempUserProdDetailMap.get("fundcode"))){
                         BigDecimal conPostAmount = navadj.multiply(
                             new BigDecimal((Integer) tempUserProdDetailMap.get("fundQuantity"))
-                                .divide(new BigDecimal(100d)));
+                                .divide(new BigDecimal(100d))).setScale(2,BigDecimal.ROUND_HALF_UP);
                         if(conPostAmount.compareTo(new BigDecimal("0"))<=0){
                             logger.error("赎回时计算当前持仓金额: fundcode:"+fundAmount.getFundCode()+"获取当前持仓份额小于等于0");
                         }else{
-                            BigDecimal exceptPostAmount = conPostAmount.multiply(persent.divide(new BigDecimal(100)));
-                            fundAmount.setConPosAmount(new BigDecimal(df.format(conPostAmount)));
-                            fundAmount.setExpectSellAmount(new BigDecimal(df.format(exceptPostAmount)));
+                            fundAmount.setConPosAmount(conPostAmount.toString());
+                            BigDecimal exceptPostAmount = conPostAmount.multiply(persent.divide(new BigDecimal(100))).setScale(2,BigDecimal.ROUND_HALF_UP);
+                            if("0".equals(persent.toString())){
+                                fundAmount.setExpectSellAmount("--");
+                            }else {
+                                fundAmount.setExpectSellAmount(exceptPostAmount.toString());
+                                totalSellAmount=totalSellAmount.add(exceptPostAmount);
+                            }
                             fundAmountResultList.add(fundAmount);
                         }
                     }
                 }
             }
-        }
-        return new DistributionResult(totalPoundage, totalDiscountSaving, fundAmountResultList);
+        }*/
+        return new DistributionResult(totalSellAmount.setScale(2,BigDecimal.ROUND_HALF_UP).toString(),totalPoundage, totalDiscountSaving, fundAmountResultList);
     }
 
     private  HashMap<Object, Object> getFundConShare(String prodId) {
