@@ -7,8 +7,8 @@ public class FundAmount {
     private String fundName;
     private BigDecimal grossAmount;
     private String fundShare;
-    private BigDecimal ConPosAmount;
-    private BigDecimal ExpectSellAmount;
+    private String ConPosAmount;
+    private String ExpectSellAmount;
     public FundAmount(String fundCode, String fundName, BigDecimal grossAmount) {
         this.fundCode = fundCode;
         this.fundName = fundName;
@@ -23,19 +23,19 @@ public class FundAmount {
       this.fundShare = fundShare;
     }
 
-    public BigDecimal getConPosAmount() {
+    public String getConPosAmount() {
         return ConPosAmount;
     }
 
-    public BigDecimal getExpectSellAmount() {
+    public String getExpectSellAmount() {
         return ExpectSellAmount;
     }
 
-    public void setConPosAmount(BigDecimal conPosAmount) {
+    public void setConPosAmount(String conPosAmount) {
         ConPosAmount = conPosAmount;
     }
 
-    public void setExpectSellAmount(BigDecimal expectSellAmount) {
+    public void setExpectSellAmount(String expectSellAmount) {
         ExpectSellAmount = expectSellAmount;
     }
 

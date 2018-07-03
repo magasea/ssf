@@ -440,15 +440,20 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
     }
 
     @Override
-    public BigDecimal getRateOfSellFund(String fundCode, String businFlag) throws Exception {
+    public BigDecimal getRateOfSellFund(BigDecimal amount, String fundCode, String businFlag) throws Exception {
         // TODO:
         fundCode = trimSuffix(fundCode);
 
         List<TradeRateResult> tradeRateResults = getTradeRateAsList(fundCode, businFlag);
         for(TradeRateResult rateResult: tradeRateResults) {
-            if (rateResult.getChngMinTermMark().equals("日常赎回费") && rateResult.getChagRateUnitMark().equals("%")) {
-                Double rate = Double.parseDouble(rateResult.getChagRateUpLim())/100d;
-                return BigDecimal.valueOf(rate);
+            if (rateResult.getChngMinTermMark().equals("日常赎回费")) {
+                double lowLim = Double.parseDouble(rateResult.getPertValLowLim())*10000;
+                double UpLim = Double.parseDouble(rateResult.getPertValUpLim())*10000;
+
+                if(BigDecimal.valueOf(lowLim).compareTo(amount)==-1&&(BigDecimal.valueOf(UpLim).compareTo(amount)==1||UpLim==0.00)){
+                    Double rate = Double.parseDouble(rateResult.getChagRateUpLim())/100d;
+                    return BigDecimal.valueOf(rate);
+                }
             }
         }
         logger.error("no rate found");
