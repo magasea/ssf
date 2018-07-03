@@ -1318,7 +1318,8 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
               //如果之前货基的记录里面没有记录abstractTargetShares，那么用之前保存的targetShare来算
               //但是一旦有update， 那么要用确认的购买或者赎回的信息去算abstractTargetShares
               Long abstractTargetShares = mongoPendingRecordsNotHandled.getTradeTargetShare();
-              if(mongoPendingRecordsNotHandled.getAbstractTargetShare() > 0L && MonetaryFundEnum
+              if(mongoPendingRecordsNotHandled.getAbstractTargetShare() != null && 
+              mongoPendingRecordsNotHandled.getAbstractTargetShare() > 0L && MonetaryFundEnum
                   .containsCode(mongoPendingRecordsNotHandled.getFundCode())){
                 abstractTargetShares = mongoPendingRecordsNotHandled.getAbstractTargetShare();
               }
@@ -1415,7 +1416,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       query.addCriteria(Criteria.where("order_id").is(orderId));
       List<MongoUiTrdLog> trdLogList = mongoTemplate.find(query, MongoUiTrdLog.class);
       //过滤筛选confirmdate不为空
-      Map<String, List<MongoUiTrdLog>> collect = trdLogList.stream().collect(Collectors.groupingBy(k -> k.getFundCode()));
+      Map<String, List<MongoUiTrdLog>> collect = trdLogList.stream().filter(k->k.getFundCode()!=null).collect(Collectors.groupingBy(k -> k.getFundCode()));
       collect.forEach((k,v)->{
         List<MongoUiTrdLog> trdLost = v.stream().filter(item -> item.getConfirmDateExp() != null).collect(Collectors.toList());
         for(MongoUiTrdLog trdLog:trdLost){

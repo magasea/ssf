@@ -719,9 +719,9 @@ public class TransferController {
 				}
 
 				String totalSellAmount=(String) result.get("totalSellAmount");
-				String title2="预估到账金额"+totalSellAmount+"，为保证您的资金安全，赎回时您只能赎回至您购买时的银行卡。其中："
+				String title2="预估到账金额"+totalSellAmount+"，为保证您的资金安全，赎回时您只能赎回至您购买时的银行卡。\r\n其中："
 						+ bankName+"尾号"+bankNum.substring(bankNum.length()-4,bankNum.length())+"预估到账金额为"+totalSellAmount+
-						"*到账金额根据上一个交易日净值估算得出，实际到账金额以基金公司结算为准，预估手续费"+result.get("poundage")+"元";
+						"\r\n*到账金额根据上一个交易日净值估算得出，实际到账金额以基金公司结算为准，预估手续费"+result.get("poundage")+"元";
 				result.put("title2",title2);
 			}
 			return new JsonResult(JsonResult.SUCCESS, "调用成功", result);
