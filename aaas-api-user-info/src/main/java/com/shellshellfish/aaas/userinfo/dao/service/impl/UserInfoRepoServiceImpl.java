@@ -1318,7 +1318,8 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
               //如果之前货基的记录里面没有记录abstractTargetShares，那么用之前保存的targetShare来算
               //但是一旦有update， 那么要用确认的购买或者赎回的信息去算abstractTargetShares
               Long abstractTargetShares = mongoPendingRecordsNotHandled.getTradeTargetShare();
-              if(mongoPendingRecordsNotHandled.getAbstractTargetShare() > 0L && MonetaryFundEnum
+              if(mongoPendingRecordsNotHandled.getAbstractTargetShare() != null && 
+              mongoPendingRecordsNotHandled.getAbstractTargetShare() > 0L && MonetaryFundEnum
                   .containsCode(mongoPendingRecordsNotHandled.getFundCode())){
                 abstractTargetShares = mongoPendingRecordsNotHandled.getAbstractTargetShare();
               }
