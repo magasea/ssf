@@ -1177,6 +1177,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
   // 3. set the scheduler job to check redis user_prod_id and fund_code status, if is in caculate
   // status, then ignore this element continue others
   public Builder updateProductQuantity(SellPersentProducts request) throws Exception {
+
     Long percent = request.getPercent();
     if (percent < 0 || percent > 10000) {
       logger.error("percent:{} is out of range", percent);
@@ -1188,6 +1189,11 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
     List<UiProductDetail> uiProductDetails = uiProductDetailRepo.findAllByUserProdId(request
         .getUserProductId());
 
+    uiProductDetails.forEach(
+        item -> {
+          userInfoBaseDao.setCaculateStatus(item.getUserProdId(), item.getFundCode());
+        }
+    );
 
 
     Map<String, UiProductDetail> currentAvailableFunds = new HashMap<>();
@@ -1223,12 +1229,34 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       for(MongoCaculateBase mongoCaculateBase: mongoCaculateBases){
         orderCalcedIds.add(mongoCaculateBase.getOutsideOrderId());
       }
+
+
+      Integer originQuantity = uiProductDetail.getFundQuantity();
+      if(StringUtils.isEmpty(uiProductDetail.getLastestSerial())){
+        logger.error("userProdId:{} fundCode:{} latestSerial:{}", uiProductDetail.getUserProdId()
+            , uiProductDetail.getFundCode(), uiProductDetail.getLastestSerial());
+        //we need to user caclbase to get the current quantity.
+        originQuantity = 0;
+        for(MongoCaculateBase mongoCaculateBase: mongoCaculateBases){
+          if(mongoCaculateBase.getCalculatedShare() == null || mongoCaculateBase
+              .getCalculatedShare()  == 0){
+            logger.error("this caculateBase is not a good item");
+            orderCalcedIds.remove(mongoCaculateBase.getOutsideOrderId());
+            continue;
+          }
+          if(mongoCaculateBase.getTradeType() == TrdOrderOpTypeEnum.BUY.getOperation()){
+            originQuantity += mongoCaculateBase.getCalculatedShare().intValue();
+          }else if(mongoCaculateBase.getTradeType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+            originQuantity -= mongoCaculateBase.getCalculatedShare().intValue();
+          }else{
+            logger.error("the caculated base with outsideOrderId:{} have not a vaild trdType:{}",
+                mongoCaculateBase.getOutsideOrderId(), mongoCaculateBase.getTradeType());
+          }
+        }
+      }
       Predicate<MongoPendingRecords> mongoPendingRecordsPredicate = p-> orderCalcedIds.contains(p
           .getOutsideOrderId()) ;
       mongoPendingRecords.removeIf(mongoPendingRecordsPredicate);
-      Integer originQuantity = uiProductDetail.getFundQuantity();
-
-
       if (originQuantity == null || originQuantity <= 0 || StringUtils.isEmpty(uiProductDetail
           .getLastestSerial())) {
         logger.error("uiProductDetail.getLastestSerial:{} originQuantity:{}", uiProductDetail
