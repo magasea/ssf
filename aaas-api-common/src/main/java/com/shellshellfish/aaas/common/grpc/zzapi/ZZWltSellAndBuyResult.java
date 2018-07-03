@@ -1,13 +1,6 @@
 package com.shellshellfish.aaas.common.grpc.zzapi;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
-import java.lang.reflect.Type;
 
 /**
  * Created by chenwei on 2018- 五月 - 23
@@ -138,27 +131,7 @@ public class ZZWltSellAndBuyResult {
 
   }
 
-  public class ZZWltSellAndBuyRltContentDeserializer implements
-      JsonDeserializer<Content>{
 
-    @Override
-    public Content deserialize(JsonElement jsonElement, Type type,
-        JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-
-      JsonObject jsonObject = jsonElement.getAsJsonObject();
-      if (type != null) {
-        switch (type.getTypeName()) {
-          case "buy":
-            return jsonDeserializationContext.deserialize(jsonObject,
-                Buy.class);
-          case "sell":
-            return jsonDeserializationContext.deserialize(jsonObject,
-                Sell.class);
-        }
-      }
-      return null;
-    }
-  }
 
   public class Sell{
     @SerializedName("fundcode")
