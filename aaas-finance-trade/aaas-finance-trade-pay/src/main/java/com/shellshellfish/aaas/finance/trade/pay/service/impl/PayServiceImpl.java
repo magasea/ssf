@@ -1066,6 +1066,8 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
               trdPayFlow.getFundCode(), sellAmount, sellNum, navadj);
         }catch (Exception ex){
           logger.error("exception:", ex);
+          logger.error("Failed to get current navadj for :{} with outsideOrderNo:{}", fundCode, outsideOrderNo);
+          return false;
         }
       }
       try{
