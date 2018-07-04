@@ -57,7 +57,7 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
     List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
     Long currentTime = TradeUtil.getUTCTime();
     if(CollectionUtils.isEmpty(mongoPendingRecords)){
-      return;
+      logger.info("there is no pending  records with empty outersider_order_id");
     }else{
       //只允许有一个pendingRecord fundCode
       for(MongoPendingRecords mongoPendingRecord: mongoPendingRecords){
