@@ -61,22 +61,8 @@ public class SpringQrtzScheduler {
         return jobFactory;
     }
 
-
-//    @Bean
-//    public JobDetailFactoryBean jobDetail() {
-//
-//        JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
-//        jobDetailFactory.setJobClass(CheckPendingRecordsJob.class);
-//        jobDetailFactory.setName("Qrtz_Job_Detail");
-//        jobDetailFactory.setDescription("Invoke Sample Job service...");
-//        jobDetailFactory.setDurability(true);
-//        return jobDetailFactory;
-//    }
-
-
     @Bean
-    public Scheduler scheduler(Trigger triggerCheckPendingRecords,Trigger
-        triggerCalculateAndUpdate, JobDetail jobCheckPendingRecords, JobDetail jobCaculateAndUpdate) throws
+    public Scheduler scheduler(Trigger triggerCheckPendingRecords, JobDetail jobCheckPendingRecords) throws
         SchedulerException, IOException {
 
         StdSchedulerFactory factory = new StdSchedulerFactory();
@@ -85,26 +71,17 @@ public class SpringQrtzScheduler {
         logger.debug("Getting a handle to the Scheduler");
         Scheduler scheduler = factory.getScheduler();
         scheduler.setJobFactory(springBeanJobFactory());
-
-        //schedule getZZConfirmInfoToUpdatePayFlow
         scheduler.scheduleJob(jobCheckPendingRecords ,triggerCheckPendingRecords );
-        scheduler.scheduleJob(jobCaculateAndUpdate ,triggerCalculateAndUpdate );
+        scheduler.scheduleJob(jobCaculateAndUpdate() ,triggerCalculateAndUpdate() );
         scheduler.scheduleJob(jobPatchChkPendingRecordByZZInfo() ,
             triggerPatchChkPendingRecordByZZInfo() );
         scheduler.scheduleJob(jobPatchChkPendingRecordNavadj() ,
             triggerPatchChkPendingRecordNavadj() );
-
-//        scheduler.scheduleJob(jobGetZZConfirmInfoToTrggerPreOrder, triggerGetZZConfirmInfoToTrggerPreOrder);
         logger.debug("Starting Scheduler threads");
         scheduler.start();
         return scheduler;
     }
 
-//    @Bean
-//    public JobDetail jobDetail() {
-//
-//        return newJob().ofType(CheckFundsBuyJob.class).storeDurably().withIdentity(JobKey.jobKey("Qrtz_Job_Detail")).withDescription("Invoke Sample Job service...").build();
-//    }
 
     @Bean
     public JobDetail jobCheckPendingRecords() {

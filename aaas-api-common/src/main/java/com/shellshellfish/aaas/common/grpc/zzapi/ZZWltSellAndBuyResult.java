@@ -6,60 +6,79 @@ import com.google.gson.annotations.SerializedName;
  * Created by chenwei on 2018- 五月 - 23
  */
 
+/**
+ * {
+ * "results": {
+ * "status": 1,
+ * "code": "0000",
+ * "message": "成功",
+ * "content": {
+ * "callingcode": "024",
+ * "fixflag": "43",
+ * "sell": {
+ * "fundcode": "001987",
+ * "applyserial": "20171018000037",
+ * "outsideorderno": "test_selltobuy_000008",
+ * "applydate": "20171018",
+ * "confirmdate": "2017-10-19",
+ * "applyshare": "1",
+ * "platform_code": "tg"
+ * },
+ * "buy": {
+ * "fundcode": "040003",
+ * "applyserial": "20171018000040",
+ * "outsideorderno": "test_selltobuy_000008",
+ * "applydate": "20171018",
+ * "confirmdate": "2017-10-19",
+ * "applysum": "1.00",
+ * "platform_code": "tg"
+ * }
+ * }
+ * }
+ * }
+ */
+
 public class ZZWltSellAndBuyResult {
-  @SerializedName("result")
-  ZZWltSellAndBuyRltContent result;
+  @SerializedName("status")
+  String status;
+  @SerializedName("errno")
+  String errno;
+  @SerializedName("msg")
+  String msg;
+  @SerializedName("data")
+//  @JsonAdapter(value = ZZWltSellAndBuyRltContentDeserializer.class)
+  Content content;
 
-  public ZZWltSellAndBuyRltContent getResult() {
-    return result;
+  public String getStatus() {
+    return status;
   }
 
-  public void setResult(ZZWltSellAndBuyRltContent result) {
-    this.result = result;
+  public void setStatus(String status) {
+    this.status = status;
   }
 
+  public String getErrno() {
+    return errno;
+  }
 
-  public class ZZWltSellAndBuyRltContent {
-    @SerializedName("status")
-    String status;
-    @SerializedName("code")
-    String code;
-    @SerializedName("message")
-    String message;
-    @SerializedName("content")
-    Content content;
+  public void setErrno(String errno) {
+    this.errno = errno;
+  }
 
-    public String getStatus() {
-      return status;
-    }
+  public String getMsg() {
+    return msg;
+  }
 
-    public void setStatus(String status) {
-      this.status = status;
-    }
+  public void setMsg(String msg) {
+    this.msg = msg;
+  }
 
-    public String getCode() {
-      return code;
-    }
+  public Content getContent() {
+    return content;
+  }
 
-    public void setCode(String code) {
-      this.code = code;
-    }
-
-    public String getMessage() {
-      return message;
-    }
-
-    public void setMessage(String message) {
-      this.message = message;
-    }
-
-    public Content getContent() {
-      return content;
-    }
-
-    public void setContent(Content content) {
-      this.content = content;
-    }
+  public void setContent(Content content) {
+    this.content = content;
   }
 
   public class Content{
@@ -103,7 +122,16 @@ public class ZZWltSellAndBuyResult {
     public void setBuy(Buy buy) {
       this.buy = buy;
     }
+
+
+
+
+
+
+
   }
+
+
 
   public class Sell{
     @SerializedName("fundcode")
@@ -250,5 +278,4 @@ public class ZZWltSellAndBuyResult {
       this.platformCode = platformCode;
     }
   }
-
 }

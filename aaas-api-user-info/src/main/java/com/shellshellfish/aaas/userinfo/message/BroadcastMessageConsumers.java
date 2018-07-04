@@ -395,10 +395,11 @@ public class BroadcastMessageConsumers {
           durable = "true"), key = RabbitMQConstants.ROUTING_KEY_USERINFO_CFMLOG)
   )
   public void receiveConfirmInfo(MongoUiTrdZZInfo mongoUiTrdZZInfo) throws Exception {
-    com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo mongoUiTrdZZInfoInDb = mongoUiTrdZZInfoRepo
-        .findByUserProdIdAndUserIdAndApplySerial(mongoUiTrdZZInfo
-            .getUserProdId(), mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getApplySerial());
+    
     try {
+      com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo mongoUiTrdZZInfoInDb = mongoUiTrdZZInfoRepo
+          .findByUserProdIdAndUserIdAndApplySerial(mongoUiTrdZZInfo
+              .getUserProdId(), mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getApplySerial());
       if (mongoUiTrdZZInfoInDb == null) {
         mongoUiTrdZZInfoInDb = new com.shellshellfish.aaas.userinfo.model.dao
             .MongoUiTrdZZInfo();
@@ -489,7 +490,7 @@ public class BroadcastMessageConsumers {
     List<MongoPendingRecords> mongoPendingRecords = mongoTemplate
         .find(query, MongoPendingRecords.class);
     MongoPendingRecords mongoPendingRecordsRemain = null;
-    Long lastModifyDate = null;
+
     if (CollectionUtils.isEmpty(mongoPendingRecords)) {
 
       mongoPendingRecordsRemain = getPatchMongoPendingRecordFromZZInfo(mongoUiTrdZZInfo);
@@ -499,7 +500,8 @@ public class BroadcastMessageConsumers {
     if (mongoPendingRecords.size() > 1) {
       mongoPendingRecordsRemain = mongoPendingRecords.get(0);
       for (MongoPendingRecords mongoPendingRecordsItem : mongoPendingRecords) {
-        if (mongoPendingRecordsItem.getLastModifiedDate() != null && lastModifyDate <
+        if (mongoPendingRecordsItem.getLastModifiedDate() != null &&
+            mongoPendingRecordsRemain.getLastModifiedDate() <
             mongoPendingRecordsItem.getLastModifiedDate()) {
           mongoPendingRecordsRemain = mongoPendingRecordsItem;
         }
@@ -528,10 +530,10 @@ public class BroadcastMessageConsumers {
     //开始处理货币基金
     if (MonetaryFundEnum.containsCode(mongoUiTrdZZInfo.getFundCode())) {
       Long navadj = mongoPendingRecordsRemain.getApplyDateNavadj();
-      if (navadj == null || navadj < 0) {
+      if (navadj == null || navadj <= 0) {
         navadj = getMoneyCodeNavAdjByDate(mongoUiTrdZZInfo.getFundCode(),mongoUiTrdZZInfo.getApplyDate());
       }
-      if (navadj == null || navadj < 0) {
+      if (navadj == null || navadj <= 0) {
         logger.error("cannot get navadj value for:{} of :{}", mongoPendingRecordsRemain
             .getFundCode(), mongoPendingRecordsRemain.getApplyDateStr());
         mongoPendingRecordsRemain.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED
@@ -599,12 +601,11 @@ public class BroadcastMessageConsumers {
     //pendingRecords 对每一个outsideOrderId应该只有一条记录，取lastModifiedDate 不为空，
     //而且值比较大的那条记录为准
     if (mongoPendingRecords.size() > 1) {
+      mongoPendingRecordsRemain = mongoPendingRecords.get(0);
 
-      Long lastModifiedDate = 0L;
       for (MongoPendingRecords mongoPendingRecordsCheck : mongoPendingRecords) {
-        if (mongoPendingRecordsCheck.getLastModifiedDate() != null && lastModifiedDate <
-            mongoPendingRecordsCheck.getLastModifiedDate()) {
-          lastModifiedDate = mongoPendingRecordsCheck.getLastModifiedDate();
+        if (mongoPendingRecordsCheck.getLastModifiedDate() != null && mongoPendingRecordsRemain
+            .getLastModifiedDate() <  mongoPendingRecordsCheck.getLastModifiedDate()) {
           mongoPendingRecordsRemain = mongoPendingRecordsCheck;
         }
       }

@@ -1,9 +1,5 @@
 package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
-import static io.grpc.stub.ClientCalls.asyncUnaryCall;
-import static io.grpc.stub.ClientCalls.futureUnaryCall;
-import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
-
 import com.mongodb.client.result.UpdateResult;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
 import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
@@ -14,10 +10,8 @@ import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.enums.grpc.ItemStatus;
 import com.shellshellfish.aaas.common.exceptions.ErrorConstants;
-import com.shellshellfish.aaas.common.utils.MathUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
-import com.shellshellfish.aaas.finance.trade.order.OrderDetailResult;
 import com.shellshellfish.aaas.grpc.common.ErrInfo;
 import com.shellshellfish.aaas.grpc.common.UserProdDetail;
 import com.shellshellfish.aaas.grpc.common.UserProdId;
@@ -79,7 +73,6 @@ import com.shellshellfish.aaas.userinfo.repositories.redis.UserInfoBaseDao;
 import com.shellshellfish.aaas.userinfo.utils.MongoUiTrdLogUtil;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -1178,7 +1171,13 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
 
   @Override
   @Transactional
+  //ToDo:
+  // 1. set redis the user_prod_id and fund_code is in caculate status
+  // 2. if latest_serial is empty then calculate origin quantity first
+  // 3. set the scheduler job to check redis user_prod_id and fund_code status, if is in caculate
+  // status, then ignore this element continue others
   public Builder updateProductQuantity(SellPersentProducts request) throws Exception {
+
     Long percent = request.getPercent();
     if (percent < 0 || percent > 10000) {
       logger.error("percent:{} is out of range", percent);
@@ -1190,6 +1189,11 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
     List<UiProductDetail> uiProductDetails = uiProductDetailRepo.findAllByUserProdId(request
         .getUserProductId());
 
+    uiProductDetails.forEach(
+        item -> {
+          userInfoBaseDao.setCaculateStatus(item.getUserProdId(), item.getFundCode());
+        }
+    );
 
 
     Map<String, UiProductDetail> currentAvailableFunds = new HashMap<>();
@@ -1225,14 +1229,35 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       for(MongoCaculateBase mongoCaculateBase: mongoCaculateBases){
         orderCalcedIds.add(mongoCaculateBase.getOutsideOrderId());
       }
+
+
+      Integer originQuantity = uiProductDetail.getFundQuantity();
+      if(StringUtils.isEmpty(uiProductDetail.getLastestSerial())){
+        logger.error("userProdId:{} fundCode:{} latestSerial:{}", uiProductDetail.getUserProdId()
+            , uiProductDetail.getFundCode(), uiProductDetail.getLastestSerial());
+        //we need to user caclbase to get the current quantity.
+        originQuantity = 0;
+        for(MongoCaculateBase mongoCaculateBase: mongoCaculateBases){
+          if(mongoCaculateBase.getCalculatedShare() == null || mongoCaculateBase
+              .getCalculatedShare()  == 0){
+            logger.error("this caculateBase is not a good item");
+            orderCalcedIds.remove(mongoCaculateBase.getOutsideOrderId());
+            continue;
+          }
+          if(mongoCaculateBase.getTradeType() == TrdOrderOpTypeEnum.BUY.getOperation()){
+            originQuantity += mongoCaculateBase.getCalculatedShare().intValue();
+          }else if(mongoCaculateBase.getTradeType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+            originQuantity -= mongoCaculateBase.getCalculatedShare().intValue();
+          }else{
+            logger.error("the caculated base with outsideOrderId:{} have not a vaild trdType:{}",
+                mongoCaculateBase.getOutsideOrderId(), mongoCaculateBase.getTradeType());
+          }
+        }
+      }
       Predicate<MongoPendingRecords> mongoPendingRecordsPredicate = p-> orderCalcedIds.contains(p
           .getOutsideOrderId()) ;
       mongoPendingRecords.removeIf(mongoPendingRecordsPredicate);
-      Integer originQuantity = uiProductDetail.getFundQuantity();
-
-
-      if (originQuantity == null || originQuantity <= 0 || StringUtils.isEmpty(uiProductDetail
-          .getLastestSerial())) {
+      if (originQuantity == null || originQuantity <= 0 ) {
         logger.error("uiProductDetail.getLastestSerial:{} originQuantity:{}", uiProductDetail
             .getLastestSerial(), originQuantity);
         recordStopSellInvaidFunds(request, uiProductDetail);
@@ -1286,23 +1311,38 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
               && mongoPendingRecordsNotHandled.getTradeStatus() != TrdOrderStatusEnum
               .REDEEMFAILED.getStatus() && !StringUtils.isEmpty(mongoPendingRecordsNotHandled
               .getOutsideOrderId()) && !orderIds.contains(mongoPendingRecordsNotHandled
-              .getOutsideOrderId()) ) {
+              .getOutsideOrderId())) {
+            if(mongoPendingRecordsNotHandled.getTradeType() == TrdOrderOpTypeEnum
+                .REDEEM.getOperation() && ((mongoPendingRecordsNotHandled.getTradeConfirmShare() ==
+                null || mongoPendingRecordsNotHandled.getTradeConfirmShare() == 0L) &&(
+                mongoPendingRecordsNotHandled
+                .getTradeTargetShare() == null || mongoPendingRecordsNotHandled
+                .getTradeTargetShare() == 0))){
+              logger.error("this record is not a valid record to process");
+              continue;
+            }
             if (mongoPendingRecordsNotHandled.getTradeType() == TrdOrderOpTypeEnum.REDEEM
                 .getOperation()) {
               //如果之前货基的记录里面没有记录abstractTargetShares，那么用之前保存的targetShare来算
               //但是一旦有update， 那么要用确认的购买或者赎回的信息去算abstractTargetShares
               Long abstractTargetShares = mongoPendingRecordsNotHandled.getTradeTargetShare();
-              if(mongoPendingRecordsNotHandled.getAbstractTargetShare() > 0L && MonetaryFundEnum
-                  .containsCode(mongoPendingRecordsNotHandled.getFundCode())){
+              if(MonetaryFundEnum.containsCode(mongoPendingRecordsNotHandled.getFundCode()) &&
+                  mongoPendingRecordsNotHandled.getAbstractTargetShare() == null ||
+                  mongoPendingRecordsNotHandled.getAbstractTargetShare() == 0){
+                logger.error("need caculate abstract target share for order:{}",
+                    mongoPendingRecordsNotHandled.getOutsideOrderId());
+                abstractTargetShares = mongoPendingRecordsNotHandled.getTradeTargetShare();
+              }else if(MonetaryFundEnum.containsCode(mongoPendingRecordsNotHandled.getFundCode())){
                 abstractTargetShares = mongoPendingRecordsNotHandled.getAbstractTargetShare();
               }
-
               historyTrdTargetShares = historyTrdTargetShares - abstractTargetShares;
               orderIds.add(mongoPendingRecordsNotHandled.getOutsideOrderId());
             }
           }
         }
         Long finalTrdTargetShares = 0L;
+        logger.info("originQuantity:{} + historyTrdTargetShares:{} - trdTgtShares:{} = {}",
+            originQuantity , historyTrdTargetShares , trdTgtShares, originQuantity + historyTrdTargetShares - trdTgtShares);
         if(originQuantity + historyTrdTargetShares - trdTgtShares > 100){
           finalTrdTargetShares = trdTgtShares;
         }else if(originQuantity + historyTrdTargetShares < trdTgtShares ){
@@ -1389,7 +1429,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       query.addCriteria(Criteria.where("order_id").is(orderId));
       List<MongoUiTrdLog> trdLogList = mongoTemplate.find(query, MongoUiTrdLog.class);
       //过滤筛选confirmdate不为空
-      Map<String, List<MongoUiTrdLog>> collect = trdLogList.stream().collect(Collectors.groupingBy(k -> k.getFundCode()));
+      Map<String, List<MongoUiTrdLog>> collect = trdLogList.stream().filter(k->k.getFundCode()!=null).collect(Collectors.groupingBy(k -> k.getFundCode()));
       collect.forEach((k,v)->{
         List<MongoUiTrdLog> trdLost = v.stream().filter(item -> item.getConfirmDateExp() != null).collect(Collectors.toList());
         for(MongoUiTrdLog trdLog:trdLost){
