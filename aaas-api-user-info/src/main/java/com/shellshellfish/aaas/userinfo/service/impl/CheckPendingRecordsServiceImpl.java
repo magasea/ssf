@@ -93,7 +93,7 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
         logger.error("empty order id is not valid record");
         mongoTemplate.remove(mongoPendingRecord);
       }else{
-          processPendingRecord(mongoPendingRecord);
+        processMiddleStatePendingRecord(mongoPendingRecord);
       }
     }
   }
