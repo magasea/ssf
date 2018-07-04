@@ -76,8 +76,7 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
     //check outside order id is not null but status is in waiting buy or waiting sell long time
     query = new Query();
     query.addCriteria(Criteria.where("process_status").is(PendingRecordStatusEnum.NOTHANDLED.getStatus())
-        .orOperator(Criteria.where("trade_status").is(TrdOrderStatusEnum.WAITSELL.getStatus()),
-            Criteria.where("trade_status").is(TrdOrderStatusEnum.WAITPAY.getStatus())));
+        .and("trade_status").is(TrdOrderStatusEnum.WAITSELL.getStatus()));
 
     mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
     currentTime = TradeUtil.getUTCTime();

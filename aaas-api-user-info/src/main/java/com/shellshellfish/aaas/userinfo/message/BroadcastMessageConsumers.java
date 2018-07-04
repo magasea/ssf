@@ -476,7 +476,7 @@ public class BroadcastMessageConsumers {
             .getTradeType());
       }
 
-      calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo);
+//      calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo);
     } catch (Exception ex) {
       logger.error("Exception:", ex);
     }
