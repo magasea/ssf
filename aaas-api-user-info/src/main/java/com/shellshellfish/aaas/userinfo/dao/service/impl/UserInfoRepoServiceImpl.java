@@ -1257,8 +1257,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       Predicate<MongoPendingRecords> mongoPendingRecordsPredicate = p-> orderCalcedIds.contains(p
           .getOutsideOrderId()) ;
       mongoPendingRecords.removeIf(mongoPendingRecordsPredicate);
-      if (originQuantity == null || originQuantity <= 0 || StringUtils.isEmpty(uiProductDetail
-          .getLastestSerial())) {
+      if (originQuantity == null || originQuantity <= 0 ) {
         logger.error("uiProductDetail.getLastestSerial:{} originQuantity:{}", uiProductDetail
             .getLastestSerial(), originQuantity);
         recordStopSellInvaidFunds(request, uiProductDetail);
@@ -1312,23 +1311,38 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
               && mongoPendingRecordsNotHandled.getTradeStatus() != TrdOrderStatusEnum
               .REDEEMFAILED.getStatus() && !StringUtils.isEmpty(mongoPendingRecordsNotHandled
               .getOutsideOrderId()) && !orderIds.contains(mongoPendingRecordsNotHandled
-              .getOutsideOrderId()) ) {
+              .getOutsideOrderId())) {
+            if(mongoPendingRecordsNotHandled.getTradeType() == TrdOrderOpTypeEnum
+                .REDEEM.getOperation() && ((mongoPendingRecordsNotHandled.getTradeConfirmShare() ==
+                null || mongoPendingRecordsNotHandled.getTradeConfirmShare() == 0L) &&(
+                mongoPendingRecordsNotHandled
+                .getTradeTargetShare() == null || mongoPendingRecordsNotHandled
+                .getTradeTargetShare() == 0))){
+              logger.error("this record is not a valid record to process");
+              continue;
+            }
             if (mongoPendingRecordsNotHandled.getTradeType() == TrdOrderOpTypeEnum.REDEEM
                 .getOperation()) {
               //如果之前货基的记录里面没有记录abstractTargetShares，那么用之前保存的targetShare来算
               //但是一旦有update， 那么要用确认的购买或者赎回的信息去算abstractTargetShares
               Long abstractTargetShares = mongoPendingRecordsNotHandled.getTradeTargetShare();
-              if(mongoPendingRecordsNotHandled.getAbstractTargetShare() > 0L && MonetaryFundEnum
-                  .containsCode(mongoPendingRecordsNotHandled.getFundCode())){
+              if(MonetaryFundEnum.containsCode(mongoPendingRecordsNotHandled.getFundCode()) &&
+                  mongoPendingRecordsNotHandled.getAbstractTargetShare() == null ||
+                  mongoPendingRecordsNotHandled.getAbstractTargetShare() == 0){
+                logger.error("need caculate abstract target share for order:{}",
+                    mongoPendingRecordsNotHandled.getOutsideOrderId());
+                abstractTargetShares = mongoPendingRecordsNotHandled.getTradeTargetShare();
+              }else if(MonetaryFundEnum.containsCode(mongoPendingRecordsNotHandled.getFundCode())){
                 abstractTargetShares = mongoPendingRecordsNotHandled.getAbstractTargetShare();
               }
-
               historyTrdTargetShares = historyTrdTargetShares - abstractTargetShares;
               orderIds.add(mongoPendingRecordsNotHandled.getOutsideOrderId());
             }
           }
         }
         Long finalTrdTargetShares = 0L;
+        logger.info("originQuantity:{} + historyTrdTargetShares:{} - trdTgtShares:{} = {}",
+            originQuantity , historyTrdTargetShares , trdTgtShares, originQuantity + historyTrdTargetShares - trdTgtShares);
         if(originQuantity + historyTrdTargetShares - trdTgtShares > 100){
           finalTrdTargetShares = trdTgtShares;
         }else if(originQuantity + historyTrdTargetShares < trdTgtShares ){
