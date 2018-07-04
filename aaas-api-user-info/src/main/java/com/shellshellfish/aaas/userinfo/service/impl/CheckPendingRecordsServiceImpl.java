@@ -169,9 +169,13 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
       mongoTemplate.remove(mongoPendingRecords);
       return ;
     }
+    boolean canDelete = true;
     for(TrdOrderDetail orderDetail: trdOrderDetails){
-      if(mongoPendingRecords.getOutsideOrderId().equals(orderDetail.getOrderId()+orderDetail.getId())){
-
+      if(mongoPendingRecords.getOutsideOrderId().equals(orderDetail.getOrderId()+orderDetail
+          .getId())|| (!StringUtils.isEmpty(mongoPendingRecords.getOrderId()) &&
+          mongoPendingRecords.getOrderId().equals(orderDetail.getOrderId())&& mongoPendingRecords
+          .getFundCode().equals(orderDetail.getFundCode()))){
+        canDelete = false;
         if(orderDetail.getOrderDetailStatus() == TrdOrderStatusEnum.FAILED.getStatus() ||
             orderDetail.getOrderDetailStatus() == TrdOrderStatusEnum.REDEEMFAILED.getStatus() ){
           logger.info("found correspending orderDetail for outsideOrderId:{} of userProdId:{}",
@@ -181,6 +185,11 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
           mongoTemplate.save(mongoPendingRecords, "ui_pending_records");
         }
       }
+    }
+    if(canDelete){
+      logger.error("this pending record with orderId:{} and outsideOrderId:{} can be delete",
+          mongoPendingRecords.getOrderId(), mongoPendingRecords.getOutsideOrderId());
+      mongoTemplate.remove(mongoPendingRecords);
     }
 
   }
