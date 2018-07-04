@@ -70,7 +70,7 @@ public class TradeOrderController {
 	@RequestMapping(value = "/funds/buy", method = RequestMethod.POST)
 	public ResponseEntity<?> buyFinanceProd(@RequestBody FinanceProdBuyInfo financeProdBuyInfo)
 			throws Exception {
-		UserInfo userInfo = tradeOpService.getUserInfoByUserUUID(financeProdBuyInfo.getUuid());;
+		UserInfo userInfo = tradeOpService.getUserInfoByUserUUID(financeProdBuyInfo.getUuid());
 		Long userId = userInfo.getId();
 		financeProdBuyInfo.setUserId(userId);
 		if(userInfo.getRiskLevel() < 0){
