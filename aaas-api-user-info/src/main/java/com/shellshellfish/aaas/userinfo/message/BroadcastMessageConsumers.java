@@ -395,10 +395,11 @@ public class BroadcastMessageConsumers {
           durable = "true"), key = RabbitMQConstants.ROUTING_KEY_USERINFO_CFMLOG)
   )
   public void receiveConfirmInfo(MongoUiTrdZZInfo mongoUiTrdZZInfo) throws Exception {
-    com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo mongoUiTrdZZInfoInDb = mongoUiTrdZZInfoRepo
-        .findByUserProdIdAndUserIdAndApplySerial(mongoUiTrdZZInfo
-            .getUserProdId(), mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getApplySerial());
+    
     try {
+      com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo mongoUiTrdZZInfoInDb = mongoUiTrdZZInfoRepo
+          .findByUserProdIdAndUserIdAndApplySerial(mongoUiTrdZZInfo
+              .getUserProdId(), mongoUiTrdZZInfo.getUserId(), mongoUiTrdZZInfo.getApplySerial());
       if (mongoUiTrdZZInfoInDb == null) {
         mongoUiTrdZZInfoInDb = new com.shellshellfish.aaas.userinfo.model.dao
             .MongoUiTrdZZInfo();
