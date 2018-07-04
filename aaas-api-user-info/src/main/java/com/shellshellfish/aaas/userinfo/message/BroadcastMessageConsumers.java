@@ -395,7 +395,7 @@ public class BroadcastMessageConsumers {
           durable = "true"), key = RabbitMQConstants.ROUTING_KEY_USERINFO_CFMLOG)
   )
   public void receiveConfirmInfo(MongoUiTrdZZInfo mongoUiTrdZZInfo) throws Exception {
-    
+
     try {
       com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdZZInfo mongoUiTrdZZInfoInDb = mongoUiTrdZZInfoRepo
           .findByUserProdIdAndUserIdAndApplySerial(mongoUiTrdZZInfo
@@ -476,7 +476,7 @@ public class BroadcastMessageConsumers {
             .getTradeType());
       }
 
-      calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo);
+//      calculateConfirmedAsset.calculateConfirmedAsset(mongoUiTrdZZInfo);
     } catch (Exception ex) {
       logger.error("Exception:", ex);
     }

@@ -57,7 +57,7 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
     List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
     Long currentTime = TradeUtil.getUTCTime();
     if(CollectionUtils.isEmpty(mongoPendingRecords)){
-      return;
+      logger.info("there is no pending  records with empty outersider_order_id");
     }else{
       //只允许有一个pendingRecord fundCode
       for(MongoPendingRecords mongoPendingRecord: mongoPendingRecords){
@@ -73,9 +73,29 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
     }
 
 
+    //check outside order id is not null but status is in waiting buy or waiting sell long time
+    query = new Query();
+    query.addCriteria(Criteria.where("process_status").is(PendingRecordStatusEnum.NOTHANDLED.getStatus())
+        .and("trade_status").is(TrdOrderStatusEnum.WAITSELL.getStatus()));
 
+    mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
+    currentTime = TradeUtil.getUTCTime();
 
-
+    for(MongoPendingRecords mongoPendingRecord: mongoPendingRecords){
+      if ( currentTime - mongoPendingRecord.getCreatedDate() < 60*1000){
+        logger.info("we ignore this pendingRecord because time is too short");
+        continue;
+      }else if(mongoPendingRecord.getUserProdId() == null && mongoPendingRecord.getUserProdId() <=
+          0){
+        mongoTemplate.remove(mongoPendingRecord);
+      } else if(StringUtils.isEmpty(mongoPendingRecord.getOutsideOrderId())||
+          StringUtils.isEmpty(mongoPendingRecord.getFundCode()) ) {
+        logger.error("empty order id is not valid record");
+        mongoTemplate.remove(mongoPendingRecord);
+      }else{
+        processMiddleStatePendingRecord(mongoPendingRecord);
+      }
+    }
   }
 
 
@@ -83,9 +103,12 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
   @Transactional
   @Override
   public void processPendingRecord(MongoPendingRecords mongoPendingRecords){
-    List<TrdOrderDetail> trdOrderDetails = orderRpcService
-        .getOrderDetailByUserProdIdAndFundCodeAndTrdType(mongoPendingRecords
-        .getUserProdId(), mongoPendingRecords.getFundCode(), mongoPendingRecords.getTradeType());
+    try {
+      List<TrdOrderDetail> trdOrderDetails = orderRpcService
+          .getOrderDetailByUserProdIdAndFundCodeAndTrdType(mongoPendingRecords
+              .getUserProdId(), mongoPendingRecords.getFundCode(), mongoPendingRecords.getTradeType());
+
+
 //    mongoPendingRecords.getUserProdId();
     //because if there is a pendingRecord with the UserProdId and the FundCode without orderId, then
     //further operation on the same userProdId or the same prodId will be blocked
@@ -132,6 +155,63 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
         mongoTemplate.remove(mongoPendingRecords);
       }
     }
+    }catch (Exception ex){
+      logger.error("failed to process pendingRecord:", ex);
+    }
+  }
+
+
+  @Override
+  public void processMiddleStatePendingRecord(MongoPendingRecords mongoPendingRecords) {
+    if(StringUtils.isEmpty(mongoPendingRecords.getOutsideOrderId())){
+      logger.error("error records, no need handle");
+      return;
+    }
+    List<TrdOrderDetail> trdOrderDetails = orderRpcService
+        .getOrderDetailByUserProdIdAndFundCodeAndTrdType(mongoPendingRecords
+            .getUserProdId(), mongoPendingRecords.getFundCode(), mongoPendingRecords.getTradeType());
+
+    if(CollectionUtils.isEmpty(trdOrderDetails) && mongoPendingRecords.getUserProdId() > 0){
+      mongoTemplate.remove(mongoPendingRecords);
+      return ;
+    }
+    boolean canDelete = true;
+    for(TrdOrderDetail orderDetail: trdOrderDetails){
+      if(mongoPendingRecords.getOutsideOrderId().equals(orderDetail.getOrderId()+orderDetail
+          .getId())|| (!StringUtils.isEmpty(mongoPendingRecords.getOrderId()) &&
+          mongoPendingRecords.getOrderId().equals(orderDetail.getOrderId())&& mongoPendingRecords
+          .getFundCode().equals(orderDetail.getFundCode()))){
+        canDelete = false;
+        if(orderDetail.getOrderDetailStatus() == TrdOrderStatusEnum.FAILED.getStatus() ||
+            orderDetail.getOrderDetailStatus() == TrdOrderStatusEnum.REDEEMFAILED.getStatus() ){
+          logger.info("found correspending orderDetail for outsideOrderId:{} of userProdId:{}",
+              mongoPendingRecords.getOutsideOrderId(), mongoPendingRecords.getUserProdId());
+          mongoPendingRecords.setTradeStatus(orderDetail.getOrderDetailStatus());
+          mongoPendingRecords.setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
+          mongoTemplate.save(mongoPendingRecords, "ui_pending_records");
+        }else if(orderDetail.getOrderDetailStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()||
+            orderDetail.getOrderDetailStatus() == TrdOrderStatusEnum.SELLCONFIRMED.getStatus()){
+          Query query = new Query();
+          query.addCriteria(Criteria.where("order_id").is(orderDetail.getOrderId()).and
+              ("fund_code").is(orderDetail.getFundCode()).and("trade_status").is(orderDetail
+              .getOrderDetailStatus()));
+          List<MongoPendingRecords> mongoPendingRecordConfirms =  mongoTemplate.find(query,
+              MongoPendingRecords.class);
+          if(CollectionUtils.isEmpty(mongoPendingRecordConfirms)){
+            logger.error("outsideOrderId:{} orderId:{} userProdId:{} need to be handled",
+                orderDetail.getOrderId()+orderDetail.getId(), orderDetail.getOrderId(),
+                orderDetail.getUserProdId());
+          }
+          canDelete = true;
+        }
+      }
+    }
+    if(canDelete){
+      logger.error("this pending record with orderId:{} and outsideOrderId:{} can be delete",
+          mongoPendingRecords.getOrderId(), mongoPendingRecords.getOutsideOrderId());
+      mongoTemplate.remove(mongoPendingRecords);
+    }
+
   }
 
   @Override
