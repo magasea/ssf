@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
@@ -285,16 +286,31 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
     }
     @Override
     public HashMap<Object, Object>  getNavadjByFundCodeAndDate(List<String> fundCodes) {
+        List<DailyFunds> dailyFundsList=null;
+        HashMap<Object, Object> fundInfoMap = new HashMap<>();
+        if(fundCodes.size()==0) return  fundInfoMap;
         String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         LocalDate endDate = InstantDateUtil.format(date);
-        LocalDate startDate = endDate.plusDays(-7);
-        Builder builder = DailyFundsQuery.newBuilder();
-        builder.setNavLatestDateStart(String.valueOf(startDate));
-        builder.setNavLatestDateEnd(String.valueOf(endDate));
-        builder.addAllCodes(fundCodes);
-        List<DailyFunds> dailyFundsList = dataCollectionServiceBlockingStub
-            .getFundDataOfDay(builder.build()).getDailyFundsList();
-        HashMap<Object, Object> fundInfoMap = new HashMap<>();
+        LocalDate startDate = endDate.plusDays(-3);
+        for(int i=0;;i--){
+            startDate = startDate.plusDays(i);
+            Builder builder = DailyFundsQuery.newBuilder();
+            builder.setNavLatestDateStart(String.valueOf(startDate));
+            builder.setNavLatestDateEnd(String.valueOf(endDate));
+            builder.addAllCodes(fundCodes);
+            dailyFundsList = dataCollectionServiceBlockingStub
+                .getFundDataOfDay(builder.build()).getDailyFundsList();
+            HashSet<String> fundCodeSet=new HashSet<>();
+            for(DailyFunds dailyFunds:dailyFundsList){
+                fundCodeSet.add(dailyFunds.getCode());
+            }
+            if(fundCodeSet.size()>=fundCodes.size()){
+                break;
+            }else {
+                if(i<=-100) new RuntimeException("Navadj超过100天没更新");
+            }
+        }
+
         for(DailyFunds dailyFund:dailyFundsList){
             String code = dailyFund.getCode();
             HashMap<Object, Object> tempFundInfoMap = new HashMap<>();
