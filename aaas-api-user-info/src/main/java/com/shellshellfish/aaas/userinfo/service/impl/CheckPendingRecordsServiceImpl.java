@@ -182,6 +182,20 @@ public class CheckPendingRecordsServiceImpl implements CheckPendingRecordsServic
           mongoPendingRecords.setTradeStatus(orderDetail.getOrderDetailStatus());
           mongoPendingRecords.setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
           mongoTemplate.save(mongoPendingRecords, "ui_pending_records");
+        }else if(orderDetail.getOrderDetailStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()||
+            orderDetail.getOrderDetailStatus() == TrdOrderStatusEnum.SELLCONFIRMED.getStatus()){
+          Query query = new Query();
+          query.addCriteria(Criteria.where("order_id").is(orderDetail.getOrderId()).and
+              ("fund_code").is(orderDetail.getFundCode()).and("trade_status").is(orderDetail
+              .getOrderDetailStatus()));
+          List<MongoPendingRecords> mongoPendingRecordConfirms =  mongoTemplate.find(query,
+              MongoPendingRecords.class);
+          if(CollectionUtils.isEmpty(mongoPendingRecordConfirms)){
+            logger.error("outsideOrderId:{} orderId:{} userProdId:{} need to be handled",
+                orderDetail.getOrderId()+orderDetail.getId(), orderDetail.getOrderId(),
+                orderDetail.getUserProdId());
+          }
+          canDelete = true;
         }
       }
     }
