@@ -6,6 +6,7 @@ import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.DistributionResult;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeLimitResult;
 import com.shellshellfish.aaas.finance.trade.order.service.FinanceProdCalcService;
+import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
 import java.nio.charset.Charset;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -36,7 +37,8 @@ public class FinanceProdCalcServiceImplTest {
 
     private List<ProductMakeUpInfo> productMakeUpInfoList;
 
-
+    @Autowired
+    TradeOpService tradeOpService;
     @Autowired
     private FundInfoZhongZhengApiService fundInfoService;
 
@@ -55,6 +57,34 @@ public class FinanceProdCalcServiceImplTest {
                 new ProductMakeUpInfo(100021L, 3L, "",  "000395.OF", "汇添富安心中国债券A", 1331),
                 new ProductMakeUpInfo(100021L, 3L, "", "001490.OF", "汇添富国企创新股票", 1000)
         );
+    }
+    @Test
+    public  void getNava(){
+
+        try {
+            Map<String, Object> stringObjectMap = tradeOpService.sellDeatils("622202156000001530515387919");
+            System.out.println(stringObjectMap.size());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+   /*     List<String> fundCodes=new ArrayList<>();
+        fundCodes.add("000083.OF");
+        fundCodes.add("000751.OF");
+        fundCodes.add("000879.OF");
+        fundCodes.add("001076.OF");
+        fundCodes.add("003474.OF");
+        fundCodes.add("040036.OF");
+        fundCodes.add("070012.OF");
+        fundCodes.add("110022.OF");
+        fundCodes.add("202101.OF");
+        fundCodes.add("470010.OF");
+        HashMap<Object, Object> navadjByFundCodeAndDate = financeProdCalcService
+            .getNavadjByFundCodeAndDate(fundCodes);
+        System.out.println(navadjByFundCodeAndDate.keySet());*/
+
+
+
     }
 
     @Test

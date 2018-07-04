@@ -922,8 +922,8 @@ public class TradeOpServiceImpl implements TradeOpService {
           .getOrderId(), trdOrder.getPayAmount());
     }
     //确认日期
-      List<TrdLog> trdLogList = getTraLogByOrderId(orderId);
 	    HashMap<Object,Object> trdLogMap=new HashMap<>();
+      List<TrdLog> trdLogList = getTraLogByOrderId(orderId);
 	    for(TrdLog trdLog:trdLogList){
           trdLogMap.put(trdLog.getFundCode(),trdLog.getConfirmDateExp());
       }

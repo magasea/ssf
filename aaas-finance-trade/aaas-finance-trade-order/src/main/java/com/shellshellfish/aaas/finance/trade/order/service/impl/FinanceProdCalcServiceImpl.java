@@ -1,5 +1,6 @@
 package com.shellshellfish.aaas.finance.trade.order.service.impl;
 
+import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.MathUtil;
@@ -297,7 +298,12 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
         for(DailyFunds dailyFund:dailyFundsList){
             String code = dailyFund.getCode();
             HashMap<Object, Object> tempFundInfoMap = new HashMap<>();
-                                                tempFundInfoMap.put("navadj",dailyFund.getNavadj());
+            //判断是否为货币基金
+            if(MonetaryFundEnum.containsCode(code)){
+                tempFundInfoMap.put("navadj",dailyFund.getNavadj());
+            }else {
+                tempFundInfoMap.put("navadj",dailyFund.getNavunit());
+            }
             tempFundInfoMap.put("querydate",dailyFund.getQuerydate());
             if(fundInfoMap.get(code)==null){
                 fundInfoMap.put(code,tempFundInfoMap);
