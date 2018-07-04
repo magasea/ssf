@@ -21,6 +21,13 @@ public interface CheckPendingRecordsService {
    */
   public void processPendingRecord(MongoPendingRecords mongoPendingRecords);
 
+
+  /**
+   *
+   * @param mongoPendingRecords
+   */
+  public void processMiddleStatePendingRecord(MongoPendingRecords mongoPendingRecords);
+
   /**
    * 如果在目前交易系统里面有中证确认信息MongoUiTrdZZInfo ，而没有对应的MongoPendingRecords， 那么用中证确认信息去把对应的
    * mongoPendRecords 生成出来
