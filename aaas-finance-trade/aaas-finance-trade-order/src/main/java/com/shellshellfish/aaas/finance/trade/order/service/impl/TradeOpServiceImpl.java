@@ -823,6 +823,7 @@ public class TradeOpServiceImpl implements TradeOpService {
             String date =null;
             if(trdLogMap.get(trdOrderDetail.getFundCode())!=null){
                 date=(String)trdLogMap.get(trdOrderDetail.getFundCode());
+                date=DateUtil.handleErrorDateFormat(date);
             }else {
                 date=InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDIIEnum.isQDII(trdOrderDetail.getFundCode()) ? 15 : 1);
             }
