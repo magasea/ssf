@@ -200,8 +200,10 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
 
             if(proCodeWithAssetMap.get(fundCode)!=null){
                 String conPostAmountStr =(String) proCodeWithAssetMap.get(fundCode);
-                BigDecimal conPostAmount=new BigDecimal(conPostAmountStr).setScale(2,BigDecimal.ROUND_HALF_UP);
-                BigDecimal exceptPostAmount = conPostAmount.multiply(persent.divide(new BigDecimal(100))).setScale(2,BigDecimal.ROUND_HALF_UP);
+                BigDecimal conPostAmountOrgin=new BigDecimal(conPostAmountStr);
+                BigDecimal exceptPostAmountOrgin=conPostAmountOrgin.multiply(persent.divide(new BigDecimal(100)));
+                BigDecimal conPostAmount=conPostAmountOrgin.setScale(2,BigDecimal.ROUND_HALF_UP);
+                BigDecimal exceptPostAmount = exceptPostAmountOrgin.setScale(2,BigDecimal.ROUND_HALF_UP);
                 if(conPostAmount.compareTo(BigDecimal.ZERO)<=0){
                     logger.error("赎回时计算当前持仓金额: fundcode:"+fundAmount.getFundCode()+"获取当前持仓份额小于0");
                 }else{
@@ -210,7 +212,7 @@ public class FinanceProdCalcServiceImpl implements FinanceProdCalcService {
                         fundAmount.setExpectSellAmount("--");
                     }else {
                         fundAmount.setExpectSellAmount(exceptPostAmount.toString());
-                        totalSellAmount=totalSellAmount.add(exceptPostAmount);
+                        totalSellAmount=totalSellAmount.add(exceptPostAmountOrgin);
                     }
                     fundAmountResultList.add(fundAmount);
                 }
