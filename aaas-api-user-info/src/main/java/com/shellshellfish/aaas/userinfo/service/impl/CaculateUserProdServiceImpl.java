@@ -387,13 +387,14 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
       if(uiProductDetail.getLastestSerial() == mongoCaculateResult.getCurrHash()){
         if(uiProductDetail.getFundQuantity() == Math.toIntExact(mongoCaculateResult
             .getCurrQuantity())){
-          logger.info("There is no change for both hash and quantity");
+          logger.info("There is no change for both hash and quantity for userProdId:{} "
+              + "fundCode:{}", mongoCaculateResult.getUserProdId(), mongoCaculateResult.getFundCode());
         }else{
           logger.error("the quantity is different: uiProdDetail:{}, caculResult:{} with the same "
-              + "hash:{}", uiProductDetail.getFundQuantity(), mongoCaculateResult.getCurrQuantity
-              (), mongoCaculateResult.getCurrHash());
+              + "hash:{} for userProdId:{} fundCode:{}", uiProductDetail.getFundQuantity(),
+              mongoCaculateResult.getCurrQuantity(), mongoCaculateResult.getCurrHash(),
+              mongoCaculateResult.getUserProdId(), mongoCaculateResult.getFundCode());
           uiProductDetail.setFundQuantity(Math.toIntExact(mongoCaculateResult.getCurrQuantity()));
-
         }
       }else{
         uiProductDetail.setFundQuantity(Math.toIntExact(mongoCaculateResult.getCurrQuantity()));
