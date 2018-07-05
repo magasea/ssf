@@ -10,6 +10,11 @@ import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 
 import com.shellshellfish.aaas.finance.trade.order.BindCardResult;
 
+import com.shellshellfish.aaas.finance.trade.order.FundCodeQuerys;
+import com.shellshellfish.aaas.finance.trade.order.FundLimitDetail;
+import com.shellshellfish.aaas.finance.trade.order.FundLimitResults;
+import com.shellshellfish.aaas.finance.trade.order.FundLimitResults.Builder;
+import com.shellshellfish.aaas.finance.trade.order.FundQuerys;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetailPageResult;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetailQueryInfo;
 import com.shellshellfish.aaas.finance.trade.order.OrderDetailResult;
@@ -25,11 +30,13 @@ import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdTradeBankDic;
+import com.shellshellfish.aaas.finance.trade.order.model.vo.FundTradeLimitInfo;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdBrokerUserRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderDetailRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdOrderRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.mysql.TrdTradeBankDicRepository;
 import com.shellshellfish.aaas.finance.trade.order.repositories.redis.UserPidDAO;
+import com.shellshellfish.aaas.finance.trade.order.service.FundInfoApiService;
 import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
@@ -62,6 +69,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -86,6 +94,9 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 
     @Autowired
     TrdTradeBankDicRepository trdTradeBankDicRepository;
+
+    @Autowired
+    FundInfoApiService fundInfoApiService;
 
     @Resource
     UserPidDAO userPidDAO;
@@ -699,8 +710,34 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
             logger.error("Error:", ex);
             onError(responseObserver, ex);
         }
-
-
     }
+
+    @Override
+    public void getFundsTradeLimit(FundQuerys request, StreamObserver<FundLimitResults> responseObserver) {
+      try {
+        List<FundCodeQuerys> querysList = request.getFundCodeQuerysList();
+        int tradeType = request.getTradeType();
+        List<String> fundCodeList=new ArrayList<>();
+        for(FundCodeQuerys fundCodeQuery:querysList){
+          fundCodeList.add(fundCodeQuery.getFundcode());
+        }
+        List<FundTradeLimitInfo> fundTradeInfoByFundcodes = fundInfoApiService
+            .getFundTradeInfoByFundcodes(fundCodeList, tradeType);
+        Builder builder = FundLimitResults.newBuilder();
+        FundLimitDetail.Builder detailfBuilder = FundLimitDetail.newBuilder();
+        for(FundTradeLimitInfo fundTradeLimitInfo:fundTradeInfoByFundcodes){
+          detailfBuilder.setFundcode(fundTradeLimitInfo.getFundcode());
+          detailfBuilder.setMinLimitValue(fundTradeLimitInfo.getMinLimitValue());
+          detailfBuilder.setMinshare(fundTradeLimitInfo.getMinshare());
+          builder.addFundLimitDetail(detailfBuilder);
+        }
+        responseObserver.onNext(builder.build());
+        responseObserver.onCompleted();
+      }catch (Exception ex){
+        logger.error("Error:", ex);
+        onError(responseObserver, ex);
+      }
+    }
+
 }
 
