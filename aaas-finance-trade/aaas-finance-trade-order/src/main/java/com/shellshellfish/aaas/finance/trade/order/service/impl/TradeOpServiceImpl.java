@@ -32,6 +32,7 @@ import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
+import com.shellshellfish.aaas.finance.trade.order.util.DateUtil;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
@@ -835,7 +836,7 @@ public class TradeOpServiceImpl implements TradeOpService {
               LocalDate localDate = localDateTime.toLocalDate();
               date = InstantDateUtil.format(localDate);
               dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(instanceLong).getDayOfWeek()).toString();
-              String tradeFailReson = TrdFailtureStatusEnum.getTradeFailReson(trdOrderDetail.getErrMsg());
+              String tradeFailReson = TrdFailtureStatusEnum.getTradeFailReson(trdOrderDetail.getErrMsg(),TrdOrderOpTypeEnum.BUY.getOperation());
               detailMap.put("fundTitle",tradeFailReson);
               detailMap.put("funddate", date);
             } else if(status.equals(CombinedStatusEnum.CONFIRMED.getComment())){
@@ -1009,6 +1010,7 @@ public class TradeOpServiceImpl implements TradeOpService {
             String date =null;
             if(trdLogMap.get(trdOrderDetail.getFundCode())!=null){
                 date=(String)trdLogMap.get(trdOrderDetail.getFundCode());
+                date=DateUtil.handleErrorDateFormat(date);
             }else {
                 date=InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDIIEnum.isQDII(trdOrderDetail.getFundCode()) ? 15 : 1);
             }
@@ -1023,7 +1025,7 @@ public class TradeOpServiceImpl implements TradeOpService {
               LocalDate localDate = localDateTime.toLocalDate();
               date = InstantDateUtil.format(localDate);
               dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(instanceLong).getDayOfWeek()).toString();
-              String tradeFailReson = TrdFailtureStatusEnum.getTradeFailReson(trdOrderDetail.getErrMsg());
+              String tradeFailReson = TrdFailtureStatusEnum.getTradeFailReson(trdOrderDetail.getErrMsg(),TrdOrderOpTypeEnum.REDEEM.getOperation());
               detailMap.put("fundTitle", tradeFailReson);
               detailMap.put("funddate", date);
             } else if( status.equals(CombinedStatusEnum.CONFIRMED.getComment())){
