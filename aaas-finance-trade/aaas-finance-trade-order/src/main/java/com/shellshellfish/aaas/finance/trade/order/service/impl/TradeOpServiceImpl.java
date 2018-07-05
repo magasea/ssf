@@ -32,6 +32,7 @@ import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
+import com.shellshellfish.aaas.finance.trade.order.util.DateUtil;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
@@ -819,24 +820,24 @@ public class TradeOpServiceImpl implements TradeOpService {
 
             //FIXME  交易日判断逻辑使用asset allocation 中的TradeUtils
             //QDIIEnum 基金　15个交易确认　其他　１个交易日确认
-            String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDIIEnum.isQDII(trdOrderDetail
-                    .getFundCode()) ? 15 : 1);
+            String date =null;
+            if(trdLogMap.get(trdOrderDetail.getFundCode())!=null){
+                date=(String)trdLogMap.get(trdOrderDetail.getFundCode());
+                date=DateUtil.handleErrorDateFormat(date);
+            }else {
+                date=InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDIIEnum.isQDII(trdOrderDetail.getFundCode()) ? 15 : 1);
+            }
             String dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(date).getDayOfWeek()).toString();
-
             detailMap.put("funddate", date);
             if (status.equals(CombinedStatusEnum.WAITCONFIRM.getComment())) {
-                if(trdLogMap.get(trdOrderDetail.getFundCode())!=null){
-                    detailMap.put("fundTitle", "预计" + trdLogMap.get(trdOrderDetail.getFundCode()) + "(" + dayOfWeek + ")确认");
-                }else {
-                    detailMap.put("fundTitle", "预计" + date + "(" + dayOfWeek + ")确认");
-                }
+                detailMap.put("fundTitle", "预计" + date + "(" + dayOfWeek + ")确认");
             } else if (status.equals(CombinedStatusEnum.CONFIRMEDFAILED.getComment())) {
               LocalDateTime localDateTime = LocalDateTime
                   .ofInstant(Instant.ofEpochMilli(instanceLong), ZoneId.systemDefault());
               LocalDate localDate = localDateTime.toLocalDate();
               date = InstantDateUtil.format(localDate);
               dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(instanceLong).getDayOfWeek()).toString();
-              String tradeFailReson = getTradeFailReson(trdOrderDetail.getErrMsg());
+              String tradeFailReson = TrdFailtureStatusEnum.getTradeFailReson(trdOrderDetail.getErrMsg(),TrdOrderOpTypeEnum.BUY.getOperation());
               detailMap.put("fundTitle",tradeFailReson);
               detailMap.put("funddate", date);
             } else if(status.equals(CombinedStatusEnum.CONFIRMED.getComment())){
@@ -854,7 +855,6 @@ public class TradeOpServiceImpl implements TradeOpService {
             }
         }
         result.put("totalSum", TradeUtil.getBigDecimalNumWithDiv100(totalSum).toString());
-
         if (statusMap != null && statusMap.size() > 0) {
             if (statusMap.size() != 1) {
                 if (statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())) {
@@ -876,11 +876,8 @@ public class TradeOpServiceImpl implements TradeOpService {
                         }
                     }
                 }
-
-
             }
         }
-
         result.put("detailList", detailList);
         result.put("serialList", serialList);
         result.put("operation", trdOrder.getOrderStatus());
@@ -1011,26 +1008,25 @@ public class TradeOpServiceImpl implements TradeOpService {
 
             //FIXME  交易日判断逻辑使用asset allocation 中的TradeUtils
             //QDIIEnum 基金　15个交易确认　其他　１个交易日确认
-            String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDIIEnum.isQDII(trdOrderDetail
-                    .getFundCode()) ? 15 : 1);
+            String date =null;
+            if(trdLogMap.get(trdOrderDetail.getFundCode())!=null){
+                date=(String)trdLogMap.get(trdOrderDetail.getFundCode());
+                date=DateUtil.handleErrorDateFormat(date);
+            }else {
+                date=InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDIIEnum.isQDII(trdOrderDetail.getFundCode()) ? 15 : 1);
+            }
             String dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(date).getDayOfWeek()).toString();
-
             detailMap.put("funddate", date);
-            
             String msg = "";
             if (status.equals(CombinedStatusEnum.WAITCONFIRM.getComment())) {
-                if(trdLogMap.get(trdOrderDetail.getFundCode())!=null){
-                    detailMap.put("fundTitle", "预计" + trdLogMap.get(trdOrderDetail.getFundCode()) + "(" + dayOfWeek + ")确认");
-                }else {
-                    detailMap.put("fundTitle", "预计" + date + "(" + dayOfWeek + ")确认");
-                }
+                detailMap.put("fundTitle", "预计" + date + "(" + dayOfWeek + ")确认");
             }else if (status.equals(CombinedStatusEnum.CONFIRMEDFAILED.getComment())) {
               LocalDateTime localDateTime = LocalDateTime
                   .ofInstant(Instant.ofEpochMilli(instanceLong), ZoneId.systemDefault());
               LocalDate localDate = localDateTime.toLocalDate();
               date = InstantDateUtil.format(localDate);
               dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(instanceLong).getDayOfWeek()).toString();
-              String tradeFailReson = getTradeFailReson(trdOrderDetail.getErrMsg());
+              String tradeFailReson = TrdFailtureStatusEnum.getTradeFailReson(trdOrderDetail.getErrMsg(),TrdOrderOpTypeEnum.REDEEM.getOperation());
               detailMap.put("fundTitle", tradeFailReson);
               detailMap.put("funddate", date);
             } else if( status.equals(CombinedStatusEnum.CONFIRMED.getComment())){
@@ -1095,24 +1091,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         result.put("orderDate", trdOrder.getCreateDate());
         return result;
     }
-    //处理交易失败错误原因
-    private String getTradeFailReson(String errMsg) {
-        if(errMsg==null)
-            return "未知原因，赎回失败";
-        if(errMsg.contains(TrdFailtureStatusEnum.NETERROR.getComment())){
-            return  "网络错误";
-        }else if(errMsg.contains(TrdFailtureStatusEnum.OUTORDERIDREPEAT.getComment())){
-            return "外部订单号重复";
-        }else if(errMsg.contains(TrdFailtureStatusEnum.APPLYSHARESMALL.getComment())){
-            return  "申请值太小，低于最小交易限额";
-        }else if(errMsg.contains(TrdFailtureStatusEnum.BOOKSHARELESSHOLD.getComment())){
-            return  "赎回后全商户下，账面份额低于最低可持有份额";
-        }else if(errMsg.contains(TrdFailtureStatusEnum.SHARENOTENOUGH.getComment())){
-            return  "可用份额不足";
-        }else {
-            return  "未知原因，赎回失败";
-        }
-    }
+
 
     @Override
     public Map<String, Object> getOrderInfos(String uuid, Long prodId, int orderType) throws Exception {

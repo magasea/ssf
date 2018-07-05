@@ -15,6 +15,7 @@ import com.shellshellfish.aaas.finance.trade.order.model.RateInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeLimitResult;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeRateResult;
 import com.shellshellfish.aaas.finance.trade.order.model.UserBank;
+import com.shellshellfish.aaas.finance.trade.order.model.vo.FundTradeLimitInfo;
 import com.shellshellfish.aaas.finance.trade.order.service.FundInfoApiService;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -244,6 +245,26 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public List<FundTradeLimitInfo> getFundTradeInfoByFundcodes(List<String> fundcodes,int tradeType) {
+        Criteria criterialimitInfo=Criteria.where("data.fundcode").in(fundcodes).and("data.businFlag").is(String.valueOf(tradeType));
+        Query querylimitInfo = new Query(criterialimitInfo);
+        Criteria criteriaFundInfo=Criteria.where("fundcode").in(fundcodes);
+        Query queryFundInfo = new Query(criterialimitInfo);
+        List<LimitInfo> limitInfos = mongoTemplate.find(querylimitInfo, LimitInfo.class);
+        List<FundInfo> fundInfos = mongoTemplate.find(queryFundInfo, FundInfo.class);
+        List<FundTradeLimitInfo> fundTradeLimitInfos=new ArrayList<>();
+        for(FundInfo fundInfo:fundInfos ){
+            for(LimitInfo limitInfo:limitInfos){
+                if(fundInfo.getFundcode().equals(limitInfo.getFundCode())){
+                    fundTradeLimitInfos.add(new FundTradeLimitInfo(fundInfo.getFundcode(),fundInfo.getMinshare(),limitInfo.getMinValue()));
+                }
+            }
+        }
+
+        return fundTradeLimitInfos;
     }
 
     @Override

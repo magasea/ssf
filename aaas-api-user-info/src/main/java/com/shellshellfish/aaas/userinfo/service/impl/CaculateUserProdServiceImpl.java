@@ -109,8 +109,16 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
         mongoCaculateBase.setTradeConfirmShare(item.getTradeConfirmShare());
         mongoCaculateBase.setTradeConfirmSum(item.getTradeConfirmSum());
         caculateAbstractShare(mongoCaculateBase);
-        mongoTemplate.save(mongoCaculateBase);
-        processedOutsideOrderIds.add(item.getOutsideOrderId());
+        try{
+          mongoTemplate.save(mongoCaculateBase);
+          processedOutsideOrderIds.add(item.getOutsideOrderId());
+        }catch (Exception ex){
+          logger.error("met exception when save mongoCaculateBase:", ex);
+          if(ex.getMessage().contains("E11000 duplicate key")){
+            updateCacculateBase(item, querySub);
+            processedOutsideOrderIds.add(item.getOutsideOrderId());
+          }
+        }
       }else{
         if(mongoCaculateBases.size() > 1){
           logger.error("user_prod_id:{} fund_code:{} outside_order_id:{} have more than 1 records"
@@ -128,26 +136,32 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
           mongoTemplate.save(mongoCaculateBases.get(0));
           processedOutsideOrderIds.add(item.getOutsideOrderId());
         }else{
-          Update update = new Update();
-          update.set("trade_confirm_sum", item.getTradeConfirmSum());
-          update.set("trade_confirm_share", item.getTradeConfirmShare());
-          update.set("trade_target_share", item.getTradeTargetShare());
-          update.set("trade_target_sum", item.getTradeTargetSum());
-          update.set("apply_date_str", item.getApplyDateStr());
-          update.set("apply_date_navadj", item.getApplyDateNavadj());
-          Long caculatedShare = item.getTradeConfirmShare();
-          if(MonetaryFundEnum.containsCode(item.getFundCode())){
-            caculatedShare = caculateAbstractShare(item.getFundCode(), item
-                .getTradeConfirmShare(), item.getApplyDateNavadj());
-          }
-          update.set("calculated_share", caculatedShare);
+          updateCacculateBase(item, querySub);
 
-          mongoTemplate.findAndModify(querySub, update, MongoCaculateBase.class);
           processedOutsideOrderIds.add(item.getOutsideOrderId());
         }
       }
     }
     return false;
+  }
+
+  private void updateCacculateBase( MongoPendingRecords item
+      , Query querySub){
+    Update update = new Update();
+    update.set("trade_confirm_sum", item.getTradeConfirmSum());
+    update.set("trade_confirm_share", item.getTradeConfirmShare());
+    update.set("trade_target_share", item.getTradeTargetShare());
+    update.set("trade_target_sum", item.getTradeTargetSum());
+    update.set("apply_date_str", item.getApplyDateStr());
+    update.set("apply_date_navadj", item.getApplyDateNavadj());
+    Long caculatedShare = item.getTradeConfirmShare();
+    if(MonetaryFundEnum.containsCode(item.getFundCode())){
+      caculatedShare = caculateAbstractShare(item.getFundCode(), item
+          .getTradeConfirmShare(), item.getApplyDateNavadj());
+    }
+    update.set("calculated_share", caculatedShare);
+
+    mongoTemplate.findAndModify(querySub, update, MongoCaculateBase.class);
   }
 
   @Override
@@ -191,7 +205,13 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
         mongoCaculateBase.setTradeConfirmShare(item.getTradeConfirmShare());
         mongoCaculateBase.setTradeConfirmSum(item.getTradeConfirmSum());
         caculateAbstractShare(mongoCaculateBase);
-        mongoTemplate.save(mongoCaculateBase);
+        try{
+          mongoTemplate.save(mongoCaculateBase);
+        }catch (Exception ex){
+          logger.error("Met error when save caculateBase:", ex);
+          updateCacculateBase(item, querySub);
+        }
+
       }else{
         if(mongoCaculateBases.size() > 1){
           logger.error("user_prod_id:{} fund_code:{} outside_order_id:{} have more than 1 records"
@@ -209,24 +229,8 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
           }
           caculateAbstractShare(mongoCaculateBases.get(0));
           mongoTemplate.save(mongoCaculateBases.get(0));
-
         }else{
-          Update update = new Update();
-          update.set("trade_confirm_sum", item.getTradeConfirmSum());
-          update.set("trade_confirm_share", item.getTradeConfirmShare());
-          update.set("trade_target_share", item.getTradeTargetShare());
-          update.set("trade_target_sum", item.getTradeTargetSum());
-          update.set("apply_date_str", item.getApplyDateStr());
-          update.set("apply_date_navadj", item.getApplyDateNavadj());
-          Long caculatedShare = item.getTradeConfirmShare();
-          if(MonetaryFundEnum.containsCode(item.getFundCode())){
-            caculatedShare = caculateAbstractShare(item.getFundCode(), item
-                .getTradeConfirmShare(), item.getApplyDateNavadj());
-          }
-          update.set("calculated_share", caculatedShare);
-
-          mongoTemplate.findAndModify(querySub, update, MongoCaculateBase.class);
-
+          updateCacculateBase(item, querySub);
         }
       }
 
@@ -310,7 +314,7 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
       mongoCaculateResult = makeNewMongoCaculateResult(userProdId, currentQuantity, fundCode,
           currHash);
       mongoTemplate.save(mongoCaculateResult, "ui_calc_result");
-      updateProductDetailWithCaculateResult(mongoCaculateResult);
+
     }else{
       if(mongoCaculateResults.size() > 1){
         logger.error("There is duplicate records there, need to clean it up");
@@ -318,7 +322,7 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
         mongoCaculateResult = makeNewMongoCaculateResult(userProdId, currentQuantity, fundCode,
             currHash);
         mongoTemplate.save(mongoCaculateResult, "ui_calc_result");
-        updateProductDetailWithCaculateResult(mongoCaculateResult);
+
       }else{
         mongoCaculateResult = mongoCaculateResults.get(0);
         if(useHash && !mongoCaculateResult.getCurrHash().equals(currHash)){
@@ -327,16 +331,17 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
           mongoCaculateResult.setCurrQuantity(currentQuantity);
           mongoCaculateResult.setCurrHash(currHash);
           mongoTemplate.save(mongoCaculateResult, "ui_calc_result");
-          updateProductDetailWithCaculateResult(mongoCaculateResult);
-        }else if(!useHash && (mongoCaculateResult.getCurrQuantity() == currentQuantity)) {
+
+        }else if(!useHash) {
           logger.info("Hash value is different, we need to update quantity, previous quantity:{} "
               + "currentQuantity:{}", mongoCaculateResult.getCurrQuantity(), currentQuantity);
           mongoCaculateResult.setCurrQuantity(currentQuantity);
 //          mongoCaculateResult.setCurrHash(currHash);
           mongoTemplate.save(mongoCaculateResult, "ui_calc_result");
-          updateProductDetailWithCaculateResult(mongoCaculateResult);
+
         }
       }
+      updateProductDetailWithCaculateResult(mongoCaculateResult);
     }
     return true;
   }
@@ -377,19 +382,23 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
   }
 
   private void updateProductDetailWithCaculateResult(MongoCaculateResult mongoCaculateResult){
+    if(mongoCaculateResult  == null){
+      return;
+    }
     UiProductDetail uiProductDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
         (mongoCaculateResult.getUserProdId(), mongoCaculateResult.getFundCode());
     if(uiProductDetail != null){
       if(uiProductDetail.getLastestSerial() == mongoCaculateResult.getCurrHash()){
         if(uiProductDetail.getFundQuantity() == Math.toIntExact(mongoCaculateResult
             .getCurrQuantity())){
-          logger.info("There is no change for both hash and quantity");
+          logger.info("There is no change for both hash and quantity for userProdId:{} "
+              + "fundCode:{}", mongoCaculateResult.getUserProdId(), mongoCaculateResult.getFundCode());
         }else{
           logger.error("the quantity is different: uiProdDetail:{}, caculResult:{} with the same "
-              + "hash:{}", uiProductDetail.getFundQuantity(), mongoCaculateResult.getCurrQuantity
-              (), mongoCaculateResult.getCurrHash());
+              + "hash:{} for userProdId:{} fundCode:{}", uiProductDetail.getFundQuantity(),
+              mongoCaculateResult.getCurrQuantity(), mongoCaculateResult.getCurrHash(),
+              mongoCaculateResult.getUserProdId(), mongoCaculateResult.getFundCode());
           uiProductDetail.setFundQuantity(Math.toIntExact(mongoCaculateResult.getCurrQuantity()));
-
         }
       }else{
         uiProductDetail.setFundQuantity(Math.toIntExact(mongoCaculateResult.getCurrQuantity()));

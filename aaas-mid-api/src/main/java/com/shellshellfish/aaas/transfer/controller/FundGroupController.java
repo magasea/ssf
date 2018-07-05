@@ -95,6 +95,8 @@ public class FundGroupController {
         result.put("totals", totals == null ? "" : totals);
         result.put("totalIncome", totalIncome == null ? "" : totalIncome);
         result.put("totalIncomeRate", totalIncomeRate == null ? "" : totalIncomeRate);
+        result.put("buyDate",buyDate);
+        result.put("count",count);
         return new JsonResult(JsonResult.SUCCESS, "获取成功", result);
 
     }

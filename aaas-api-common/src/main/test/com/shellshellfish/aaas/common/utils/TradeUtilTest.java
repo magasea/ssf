@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.springframework.util.CollectionUtils;
 
@@ -235,5 +236,16 @@ public class TradeUtilTest {
       System.out.println(item);
     }
 
+  }
+
+  @Test
+  public void transferDate(){
+    String confirmdate = "20180909";
+    if(!StringUtils.isEmpty(confirmdate) && !confirmdate.contains("-")){
+      if(confirmdate.length() >= 8){
+        System.out.println(confirmdate.substring(0,4)+"-"+confirmdate.substring(4,6)+"-" +
+            confirmdate.substring(6,8));
+      }
+    }
   }
 }

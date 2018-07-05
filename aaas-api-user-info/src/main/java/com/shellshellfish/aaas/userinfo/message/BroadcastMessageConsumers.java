@@ -177,6 +177,10 @@ public class BroadcastMessageConsumers {
       mongoUiTrdLog.setLastModifiedDate(TradeUtil.getUTCTime());
       mongoUiTrdLog.setFundCode(trdPayFlow.getFundCode());
       mongoUiTrdLog.setTradeDate(trdPayFlow.getUpdateDate());
+      if(trdPayFlow.getTrdPayFlowExt() != null && trdPayFlow.getTrdPayFlowExt()
+          .getConfirmDateExpected() != null){
+        mongoUiTrdLog.setConfirmDateExp(trdPayFlow.getTrdPayFlowExt().getConfirmDateExpected());
+      }
       mongoUserTrdLogMsgRepo.save(mongoUiTrdLog);
     } catch (Exception ex) {
       logger.error("exception:", ex);

@@ -61,6 +61,16 @@ public class DateUtil {
     }
 
 
-
+    public  static  String handleErrorDateFormat(String tempdate) {
+        String date=tempdate;
+        //2018-0706
+        if(!date.contains("-")){
+            StringBuilder sb = new StringBuilder(date);
+            sb=sb.insert(4,"-");
+            sb=sb.insert(7,"-");
+            date=new String(sb);
+        }
+        return  date;
+    }
 
 }

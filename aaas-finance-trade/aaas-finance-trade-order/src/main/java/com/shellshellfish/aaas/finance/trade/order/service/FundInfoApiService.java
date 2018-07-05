@@ -6,10 +6,13 @@ import com.shellshellfish.aaas.finance.trade.order.model.TradeLimitResult;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeRateResult;
 import com.shellshellfish.aaas.finance.trade.order.model.UserBank;
 
+import com.shellshellfish.aaas.finance.trade.order.model.vo.FundTradeLimitInfo;
 import java.math.BigDecimal;
 import java.util.List;
 
 public interface FundInfoApiService {
+    List<FundTradeLimitInfo> getFundTradeInfoByFundcodes(List<String> fundcodes,int tradeType);
+
     void writeAllTradeLimitToMongoDb(List<String> funds);
 
     String getTradeLimitAsRawString(String fundCode, String businFlag);

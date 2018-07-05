@@ -268,6 +268,16 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           sb.append(ex.getMessage());
         }
         trdPayFlow.setErrMsg(sb.toString());
+        trdPayFlow.setTradeTargetSum(trdOrderDetail.getFundSum());
+        trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
+        trdPayFlow.setFundCode(trdOrderDetail.getFundCode());
+        trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
+        trdPayFlow.setCreateBy(trdOrderDetail.getUserId());
+        trdPayFlow.setUpdateBy(trdOrderDetail.getUserId());
+        trdPayFlow.setTradeAcco(trdAcco);
+        trdPayFlow.setUserProdId(trdOrderDetail.getUserProdId());
+        trdPayFlow.setOutsideOrderno(trdOrderDetail.getOrderId()+trdOrderDetail.getId());
+        trdPayFlow.setTradeBrokeId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
         trdPayFlow.setTrdStatus(TrdOrderStatusEnum.FAILED.getStatus());
         notifyPendingRecordsFailed(trdPayFlow);
         continue;
