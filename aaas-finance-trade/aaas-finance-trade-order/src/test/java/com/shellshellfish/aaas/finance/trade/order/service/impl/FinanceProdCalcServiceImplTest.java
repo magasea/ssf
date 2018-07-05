@@ -61,14 +61,14 @@ public class FinanceProdCalcServiceImplTest {
     @Test
     public  void getNava(){
 
-        try {
+      /*  try {
             Map<String, Object> stringObjectMap = tradeOpService.sellDeatils("622202156000001530515387919");
             System.out.println(stringObjectMap.size());
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
 
-   /*     List<String> fundCodes=new ArrayList<>();
+        List<String> fundCodes=new ArrayList<>();
         fundCodes.add("000083.OF");
         fundCodes.add("000751.OF");
         fundCodes.add("000879.OF");
@@ -81,7 +81,7 @@ public class FinanceProdCalcServiceImplTest {
         fundCodes.add("470010.OF");
         HashMap<Object, Object> navadjByFundCodeAndDate = financeProdCalcService
             .getNavadjByFundCodeAndDate(fundCodes);
-        System.out.println(navadjByFundCodeAndDate.keySet());*/
+        System.out.println(navadjByFundCodeAndDate.keySet());
 
 
 
