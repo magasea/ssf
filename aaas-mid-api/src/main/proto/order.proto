@@ -31,8 +31,25 @@ service OrderRpcService {
     rpc getOrderDetailStatus (OrderDetailStatusRequest) returns (OrderDetailStatusResponse) {};
 
     rpc getFailedOrderDetails (GetOrderDetailInfoByPage) returns (OrderDetailPageResult) {};
-}
 
+    rpc getFundsTradeLimit (FundQuerys) returns (FundLimitResults) {};
+}
+//获取基金交易限额
+message FundQuerys{
+    repeated FundCodeQuerys fundCodeQuerys=1;
+    int32 tradeType=2;//交易类型 022申购 024赎回
+}
+message FundCodeQuerys{
+    string fundcode=1;
+}
+message FundLimitResults{
+ repeated  FundLimitDetail fundLimitDetail=1;
+}
+message FundLimitDetail{
+  string fundcode=1;//基金代号
+  string minshare=2;//最低持有份额
+  string minLimitValue=3;//最小交易限额
+}
 //获取交易用户PID
 message GetPIDReq {
     int32 trd_broker_id = 1; //交易系统ID

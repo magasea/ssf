@@ -314,7 +314,7 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
       mongoCaculateResult = makeNewMongoCaculateResult(userProdId, currentQuantity, fundCode,
           currHash);
       mongoTemplate.save(mongoCaculateResult, "ui_calc_result");
-      updateProductDetailWithCaculateResult(mongoCaculateResult);
+
     }else{
       if(mongoCaculateResults.size() > 1){
         logger.error("There is duplicate records there, need to clean it up");
@@ -322,7 +322,7 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
         mongoCaculateResult = makeNewMongoCaculateResult(userProdId, currentQuantity, fundCode,
             currHash);
         mongoTemplate.save(mongoCaculateResult, "ui_calc_result");
-        updateProductDetailWithCaculateResult(mongoCaculateResult);
+
       }else{
         mongoCaculateResult = mongoCaculateResults.get(0);
         if(useHash && !mongoCaculateResult.getCurrHash().equals(currHash)){
@@ -331,16 +331,17 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
           mongoCaculateResult.setCurrQuantity(currentQuantity);
           mongoCaculateResult.setCurrHash(currHash);
           mongoTemplate.save(mongoCaculateResult, "ui_calc_result");
-          updateProductDetailWithCaculateResult(mongoCaculateResult);
-        }else if(!useHash && (mongoCaculateResult.getCurrQuantity() == currentQuantity)) {
+
+        }else if(!useHash) {
           logger.info("Hash value is different, we need to update quantity, previous quantity:{} "
               + "currentQuantity:{}", mongoCaculateResult.getCurrQuantity(), currentQuantity);
           mongoCaculateResult.setCurrQuantity(currentQuantity);
 //          mongoCaculateResult.setCurrHash(currHash);
           mongoTemplate.save(mongoCaculateResult, "ui_calc_result");
-          updateProductDetailWithCaculateResult(mongoCaculateResult);
+
         }
       }
+      updateProductDetailWithCaculateResult(mongoCaculateResult);
     }
     return true;
   }
@@ -381,6 +382,9 @@ public class CaculateUserProdServiceImpl implements CaculateUserProdService {
   }
 
   private void updateProductDetailWithCaculateResult(MongoCaculateResult mongoCaculateResult){
+    if(mongoCaculateResult  == null){
+      return;
+    }
     UiProductDetail uiProductDetail = uiProductDetailRepo.findByUserProdIdAndFundCode
         (mongoCaculateResult.getUserProdId(), mongoCaculateResult.getFundCode());
     if(uiProductDetail != null){

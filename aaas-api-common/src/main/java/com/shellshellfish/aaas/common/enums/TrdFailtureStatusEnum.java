@@ -31,9 +31,14 @@ public enum TrdFailtureStatusEnum {
   }
 
   //处理交易失败错误原因
-  public static String getTradeFailReson(String errMsg) {
-    if(errMsg==null)
-      return "未知原因，请联系客服";
+  public static String getTradeFailReson(String errMsg,int tradeType) {
+    if(errMsg==null) {
+      if (tradeType == TrdOrderOpTypeEnum.BUY.getOperation()) {
+        return "购买失败";
+      }else {
+        return "赎回失败";
+      }
+    }
     if(errMsg.contains(TrdFailtureStatusEnum.NETERROR.getComment())){
       return  "网络错误";
     }else if(errMsg.contains(TrdFailtureStatusEnum.OUTORDERIDREPEAT.getComment())){
@@ -57,7 +62,11 @@ public enum TrdFailtureStatusEnum {
     }else if(errMsg.contains(TrdFailtureStatusEnum.FUNDSTOPTRADE.getComment())){
       return  "基金停止交易";
     } else {
-      return  "未知原因，请联系客服";
+      if (tradeType == TrdOrderOpTypeEnum.BUY.getOperation()) {
+        return "购买失败";
+      }else {
+        return "赎回失败";
+      }
     }
   }
 

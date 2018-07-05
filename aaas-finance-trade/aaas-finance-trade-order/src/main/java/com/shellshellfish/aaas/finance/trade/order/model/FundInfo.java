@@ -19,6 +19,8 @@ public class FundInfo {
   @Field("fundcode")
   private String fundcode; //基金代号
 
+  @Field("minshare")
+  private String minshare; //最小持有份额
   public String getId() {
     return id;
   }
@@ -41,5 +43,16 @@ public class FundInfo {
 
   public void setFundcode(String fundcode) {
     this.fundcode = fundcode;
+  }
+
+  public String getMinshare() {
+    return minshare;
+  }
+
+  public void setMinshare(String minshare) {
+    this.minshare = minshare;
+  }
+
+  public FundInfo() {
   }
 }
