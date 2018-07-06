@@ -102,6 +102,9 @@ oem-info:
      combination_one: http://47.96.164.161/1-Novice.jpg
      combination_two: http://47.96.164.161/2-Robo-advisor.jpg
      combination_three: http://47.96.164.161/3-Risk.jpg
+     combination_one_action: https://mp.weixin.qq.com/s/ChwsGi2QQq3ghnQm5r7Zig
+     combination_two_action: http://47.96.164.161/advisor.png
+     combination_three_action: http://47.96.164.161/risk.png
      me_head_img: http://47.96.164.161:81/icon_me_headphoto2.png
      about_logo: http://47.96.164.161:81/icon_about_logo2.png
    - oem_id: 2
@@ -118,5 +121,8 @@ oem-info:
      combination_three: http://47.96.164.161/APP-invest-banner03.png
      combination_four: http://47.96.164.161/APP-invest-banner04.png
      combination_five: http://47.96.164.161/APP-invest-banner05.png
+     combination_one_action: https://mp.weixin.qq.com/s/ChwsGi2QQq3ghnQm5r7Zig
+     combination_two_action: http://47.96.164.161/advisor.png
+     combination_three_action: http://47.96.164.161/risk.png
      me_head_img: http://47.96.164.161/icon_me_headphoto.png
      about_logo: http://47.96.164.161/icon_about_logo.png
