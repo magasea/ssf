@@ -25,7 +25,7 @@ spring:
         acknowledge-mode: auto
     username: ssf
     password: shellshellfish
-    host: external-rabbitmq-service
+    host: external-rabbitmq-servic
     port: 5672
     virtual-host: aaas
     topicQueuePayName: com-ssf-topic-queue-pay
