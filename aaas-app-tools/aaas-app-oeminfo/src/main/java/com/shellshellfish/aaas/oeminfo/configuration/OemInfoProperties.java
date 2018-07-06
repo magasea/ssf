@@ -28,8 +28,35 @@ public class OemInfoProperties {
     String combinationThree;
     String combinationFour;
     String combinationFive;
+    String combinationOneAction;
+    String combinationTwoAction;
+    String combinationThreeAction;
     String meHeadImg;
     String aboutLogo;
+
+    public String getCombinationOneAction() {
+      return combinationOneAction;
+    }
+
+    public void setCombinationOneAction(String combinationOneAction) {
+      this.combinationOneAction = combinationOneAction;
+    }
+
+    public String getCombinationTwoAction() {
+      return combinationTwoAction;
+    }
+
+    public void setCombinationTwoAction(String combinationTwoAction) {
+      this.combinationTwoAction = combinationTwoAction;
+    }
+
+    public String getCombinationThreeAction() {
+      return combinationThreeAction;
+    }
+
+    public void setCombinationThreeAction(String combinationThreeAction) {
+      this.combinationThreeAction = combinationThreeAction;
+    }
 
     public String getOemId() {
       return oemId;

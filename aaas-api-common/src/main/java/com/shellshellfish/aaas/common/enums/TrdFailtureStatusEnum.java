@@ -34,9 +34,9 @@ public enum TrdFailtureStatusEnum {
   public static String getTradeFailReson(String errMsg,int tradeType) {
     if(errMsg==null) {
       if (tradeType == TrdOrderOpTypeEnum.BUY.getOperation()) {
-        return "购买失败";
+        return "系统原因，申购暂时失败，请稍后再试";
       }else {
-        return "赎回失败";
+        return "系统原因，赎回暂时失败，请稍后再试";
       }
     }
     if(errMsg.contains(TrdFailtureStatusEnum.NETERROR.getComment())){
@@ -63,9 +63,9 @@ public enum TrdFailtureStatusEnum {
       return  "基金停止交易";
     } else {
       if (tradeType == TrdOrderOpTypeEnum.BUY.getOperation()) {
-        return "购买失败";
+        return "系统原因，申购暂时失败，请稍后再试";
       }else {
-        return "赎回失败";
+        return "系统原因，赎回暂时失败，请稍后再试";
       }
     }
   }

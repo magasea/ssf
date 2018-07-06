@@ -1,5 +1,7 @@
 package com.shellshellfish.aaas.transfer.controller;
 
+import com.shellshellfish.aaas.common.enums.ActionTypeEnum;
+import com.shellshellfish.aaas.dto.BannerAction;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
@@ -358,38 +360,24 @@ public class FinanceController {
 		if(obj!=null){
 			HashMap resultMap = (HashMap) obj;
 			List bannerList = new ArrayList();
-//			if (oemid == null) {
-//				oemid = 1L;
-//			}
+			List<BannerAction> bannerActionList=new ArrayList<>();
 			Map<String, String> oemInfos = grpcOemInfoService.getOemInfoById(Long.parseLong(oemid + ""));
 			logger.info("oemInfos====combination1:" + oemInfos.get("combinationOne"));
 			logger.info("oemInfos====combination2:" + oemInfos.get("combinationTwo"));
 			logger.info("oemInfos====combination3:" + oemInfos.get("combinationThree"));
-//			logger.info("oemInfos====combination4:" + oemInfos.get("combinationFour"));
-//			logger.info("oemInfos====combination5:" + oemInfos.get("combinationFive"));
 			bannerList.add(oemInfos.get("combinationOne"));
 			bannerList.add(oemInfos.get("combinationTwo"));
 			bannerList.add(oemInfos.get("combinationThree"));
+			String operation=String.valueOf(ActionTypeEnum.BANNERACTION.getOperation());
+			bannerActionList.add(new BannerAction(oemInfos.get("combinationOne"), operation,oemInfos.get("combinationOneAction")));
+			bannerActionList.add(new BannerAction(oemInfos.get("combinationTwo"),operation,oemInfos.get("combinationTwoAction")));
+			bannerActionList.add(new BannerAction(oemInfos.get("combinationThree"),operation,oemInfos.get("combinationThreeAction")));
 			if("2".equals(oemid)){
 				bannerList.add(oemInfos.get("combinationFour")); 
 				bannerList.add(oemInfos.get("combinationFive")); 
 			}
-//			bannerList.add(oemInfos.get("combinationFour"));
-//			bannerList.add(oemInfos.get("combinationFive"));
-//			if (oemid == null || oemid == 1) {
-//				bannerList.add("http://47.96.164.161:81/APP-invest-banner01.png");
-//				bannerList.add("http://47.96.164.161:81/APP-invest-banner02.png");
-//				bannerList.add("http://47.96.164.161:81/APP-invest-banner03.png");
-//				bannerList.add("http://47.96.164.161:81/APP-invest-banner04.png");
-//				bannerList.add("http://47.96.164.161:81/APP-invest-banner05.png");
-//			} else if(oemid == 2){
-//				bannerList.add("http://47.96.164.161/APP-invest-banner01.png");
-//				bannerList.add("http://47.96.164.161/APP-invest-banner02.png");
-//				bannerList.add("http://47.96.164.161/APP-invest-banner03.png");
-//				bannerList.add("http://47.96.164.161/APP-invest-banner04.png");
-//				bannerList.add("http://47.96.164.161/APP-invest-banner05.png");
-//			}
 			resultMap.put("bannerList", bannerList);
+			resultMap.put("bannerActionList",bannerActionList);
 			resultMap.put("title1", "组合");
 			resultMap.put("title2", "比较基准");
 		}
