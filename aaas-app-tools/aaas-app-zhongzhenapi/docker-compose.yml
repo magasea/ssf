@@ -2,13 +2,13 @@ version: "2"
 
 
 services:
-  aaas-mid-api:
-    image: aaas-mid-api:latest
+  aaas-app-zhongzhengapi:
+    image: aaas-app-zhongzhengapi:latest
     labels:
-      - "aaas-mid-api"
+      - "aaas-app-zhongzhengapi"
     ports:
-      - "10130:10130"
-      - "10131:10131"
+      - "10160:10170"
+      - "10161:10171"
     environment:
       - SPRING_PROFILES_ACTIVE=k8s
       - _JAVA_OPTIONS=-Xmx256m
