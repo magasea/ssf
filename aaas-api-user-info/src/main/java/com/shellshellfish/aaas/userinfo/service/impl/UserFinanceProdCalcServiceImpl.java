@@ -124,14 +124,17 @@ public class UserFinanceProdCalcServiceImpl implements UserFinanceProdCalcServic
 
         BigDecimal share = getFundQuantityAtDate(fundCode, userProdId, date);
         BigDecimal netValue = getFundNetValue(fundCode, InstantDateUtil.format(date, yyyyMMdd));
-        BigDecimal rateOfSellFund = getSellRate(fundCode);
-        BigDecimal fundAsset = share.multiply(netValue)
-                .multiply(BigDecimal.ONE.subtract(rateOfSellFund));
+
+        /**需求变更,总资产不再减去赎回费率**/
+//        BigDecimal rateOfSellFund = getSellRate(fundCode);
+//        BigDecimal fundAsset = share.multiply(netValue)
+//                .multiply(BigDecimal.ONE.subtract(rateOfSellFund));
+
+        BigDecimal fundAsset = share.multiply(netValue);
 
         if (fundAsset.compareTo(BigDecimal.ZERO) < 0)
-            logger.info("update asset====>>>> share:{},netValue:{}，rateOfSellFund:{},userProdId:{},date:{},fundCode:{}," +
-                            "fundAsset:{}",
-                    share, netValue, rateOfSellFund, userProdId, date, fundCode, fundAsset);
+            logger.error("fund asset is negative====>>>> share:{},netValue:{},userProdId:{},date:{}," +
+                    "fundCode:{},fundAsset:{}", share, netValue, userProdId, date, fundCode, fundAsset);
 
         String today = date;//getTodayAsString();
 

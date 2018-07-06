@@ -89,4 +89,17 @@ api-asset-alloction-url: http://aaas-api-asset-allocation:10020
 # 每日收益计算 多线程
 daily-finance-calculate-thread: 8
 
+management:
+  endpoints:
+    web:
+      base-path: /
 
+
+cron:
+  frequency:
+    #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
+    # 	At minute 30 past every hour.
+    jobCheckPendingRecords: 0 0 0/3 1/1 * ? *
+    jobUpdateAndCaculateUPD: 0 0 0/3 1/1 * ? *
+    jobPatchChkPendingRecordByZZInfo: 0 0 0/3 1/1 * ? *
+    jobPatchChkPendingRecordNavadj: 0 0 0/3 1/1 * ? *

@@ -56,11 +56,13 @@ org:
         class: org.quartz.simpl.SimpleThreadPool
         threadCount: 2
         threadsInheritContextClassLoaderOfInitializingThread: true
-
+using:
+  spring:
+    schedulerFactory: true
 cron:
   frequency:
     #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
-    # 	Every 3 hours
+    # 	At 30 minutes past the hour, every 3 hours
     jobCheckFunds: 0 0 0/3 1/1 * ? *
 using:
   spring:

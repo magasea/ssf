@@ -29,7 +29,7 @@ public class TestCotroller {
   @Autowired
   private MongoTemplate mongoTemplate;
 
-  @RequestMapping(value = "/wpUpdateFundResource")
+  @RequestMapping(value = "/wpUpdateFundResource",method = RequestMethod.POST)
   public String wpUpdateFundResource(String fundInfos) {
     System.out.println("开始执行data-manage");
     List<String> funds = new ArrayList<>();

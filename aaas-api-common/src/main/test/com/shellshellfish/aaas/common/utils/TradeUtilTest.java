@@ -3,6 +3,7 @@ package com.shellshellfish.aaas.common.utils;
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,9 +11,14 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Created by chenwei on 2018- 一月 - 08
@@ -35,7 +41,7 @@ public class TradeUtilTest {
   public void getZZOpenIds() throws Exception {
     String[] origins = {"11022319850127211X","11022619850111011X","11022619850127211X",
         "11022619850127212X","352230198703172130","362522198709220031","370181199001026835",
-        "370181199001206536","411327198710181169","412827199205132051","522101197402150413",
+        "370181199001206536","411327198710181169","412827199205132051","",
         "612727198301116032"};
     for(String origin : origins){
       System.out.println(TradeUtil.getZZOpenId(origin));
@@ -154,5 +160,92 @@ public class TradeUtilTest {
   @Test
   public void testDividLong(){
     System.out.println(TradeUtil.getLongWithDiv(110480L, 100L));
+  }
+
+  @Test
+  public void testDiffDays() throws Exception {
+    System.out.println(TradeUtil.getDifferentDays(TradeUtil.getUTCTime(), "2018-06-01"));
+  }
+
+  @Test
+  public void getDayBefore() {
+    System.out.println(TradeUtil.getDayBefore("2018-06-01", 1));
+    System.out.println(TradeUtil.getDayBefore("20180601", 1));
+  }
+
+  @Test
+  public void getLongNumWithMul1000000() {
+    System.out.println(TradeUtil.getLongNumWithMul1000000(1.44164D));
+  }
+  @Test
+  public void testBigDecimalRoundUp(){
+    Long shares = 380L;
+    Long navadj = 1000063L;
+    BigDecimal number = new BigDecimal(shares*1000000L);
+    BigDecimal divider = new BigDecimal(navadj);
+    BigDecimal result = number.divide(divider, 2, RoundingMode.HALF_DOWN);
+    System.out.println(result);
+    System.out.println(TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundUp(shares*1000000L,
+        navadj).intValue());
+  }
+
+  @Test
+  public void testBigDecimalRoundDown(){
+    Long shares = 380L;
+    Long sellPercent = 4555L;
+    Long number = shares*sellPercent;
+    Long dividerL = 10000L;
+    BigDecimal num = new BigDecimal(number);
+    BigDecimal divider = new BigDecimal(dividerL);
+    BigDecimal result = num.divide(divider, 2, RoundingMode.HALF_DOWN);
+    System.out.println(result);
+    System.out.println(TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundDown(shares*sellPercent,
+        dividerL).intValue());
+  }
+
+  @Test
+  public void testTimeDiff(){
+    Long now = TradeUtil.getUTCTime();
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    Long nowNew = TradeUtil.getUTCTime();
+    System.out.println(now - nowNew);
+  }
+
+  @Test
+  public void testCollectionSort(){
+    ArrayList<Long> values = new ArrayList<>();
+    for(long idx = 0; idx< 10; idx++){
+      values.add(idx);
+    }
+    System.out.println("Before sort");
+    for(long item: values){
+      System.out.println(item);
+    }
+    Collections.sort(values, new Comparator<Long>() {
+      @Override
+      public int compare(Long o1, Long o2) {
+        return Math.toIntExact(o2 - o1);
+      }
+    });
+    System.out.println("after sort");
+    for(long item: values){
+      System.out.println(item);
+    }
+
+  }
+
+  @Test
+  public void transferDate(){
+    String confirmdate = "20180909";
+    if(!StringUtils.isEmpty(confirmdate) && !confirmdate.contains("-")){
+      if(confirmdate.length() >= 8){
+        System.out.println(confirmdate.substring(0,4)+"-"+confirmdate.substring(4,6)+"-" +
+            confirmdate.substring(6,8));
+      }
+    }
   }
 }

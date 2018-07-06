@@ -6,6 +6,7 @@ import com.shellshellfish.aaas.userinfo.grpc.SellProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductsResult;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface UserInfoService {
@@ -25,4 +26,8 @@ public interface UserInfoService {
 
   public UserBankInfo getUserBankInfo(String userUUID) throws ExecutionException,
       InterruptedException;
+
+  public String getUserPidByBankCard(String bankCardNo);
+
+  public List<String> getNeedHandleOutsideOrderIds(List<String> outsideOrderIds);
 }

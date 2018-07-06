@@ -6,6 +6,8 @@ import com.shellshellfish.aaas.common.grpc.trade.pay.ApplyResult;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.PayServiceApplication;
 import com.shellshellfish.aaas.finance.trade.pay.model.BankZhongZhenInfo;
+import com.shellshellfish.aaas.finance.trade.pay.model.BuyFundResult;
+import com.shellshellfish.aaas.finance.trade.pay.model.ConfirmResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.FundNetZZInfo;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import java.math.BigDecimal;
@@ -48,15 +50,20 @@ public class FundTradeZhongZhengApiServiceTest {
     List<FundNetZZInfo> fundNetZZInfos =  fundTradeApiService.getFundNets("001987.OF", -1, 2);
     for(FundNetZZInfo fundNetZZInfo: fundNetZZInfos){
       System.out.println(fundNetZZInfo.getTradeDate());
+      System.out.println(fundNetZZInfo.getAccumNet());
+      System.out.println(fundNetZZInfo.getChngPct());
+      System.out.println(fundNetZZInfo.getFundCode());
+      System.out.println(fundNetZZInfo.getTenThouUnitIncm());
+      System.out.println(fundNetZZInfo.getUnitNet());
     }
   }
 
   @Test
   public void getApplyResultByOutsideOrderNo() throws Exception {
 
-    String personId = "411327198710181169";
+    String personId = "362522198709220031";
     String openId = TradeUtil.getZZOpenId(personId);
-    String outsideOrderno = "6217007099000015257505156422004";
+    String outsideOrderno = "test123456789012342";
     ApplyResult applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo(openId,
         outsideOrderno);
     System.out.println(applyResult.getConfirmflag());
@@ -65,13 +72,25 @@ public class FundTradeZhongZhengApiServiceTest {
   @Test
   public void getApplyResultByApplySerial() throws Exception {
 
-    String personId = "411327198710181169";
+    String personId = "362522198709220031";
     String openId = TradeUtil.getZZOpenId(personId);
-    String applySerial = "20180316000512";
+    String applySerial = "20180315000095";
     ApplyResult applyResult = fundTradeApiService.getApplyResultByApplySerial(openId,
         applySerial);
     System.out.println(applyResult.getConfirmflag());
   }
+
+  @Test
+  public void getConfirmResultByApplySerial() throws Exception {
+
+    String personId = "362522198709220031";
+    String openId = TradeUtil.getZZOpenId(personId);
+    String applySerial = "20180315000095";
+    List<ConfirmResult> confirmResults = fundTradeApiService.getConfirmResultsBySerial(openId,
+        applySerial);
+    System.out.println(confirmResults.get(0).getConfirmflag());
+  }
+
 
   @Test
   public void testGetAllFundsInfo() throws Exception {
@@ -102,8 +121,27 @@ public class FundTradeZhongZhengApiServiceTest {
     String trdAcco = "33653";
     String fundCode = "40009.OF";
     String sellType = "0";
-    String pid = "522101197402150413";
+    String pid = "";
     String userOpenId = TradeUtil.getZZOpenId(pid);
     fundTradeApiService.sellFund(userOpenId, BigDecimal.ONE, outsideTradeNo, trdAcco, fundCode);
+  }
+
+  @Test
+  public void buyFund() throws  Exception{
+    BigDecimal applySum = new BigDecimal(10);
+    String trdAcco = "33600";
+    String pid = "362522198709220031";
+    String outsideOrderNo = "test123456789012342";
+    String fundCode = "003474";
+    String openId = TradeUtil.getZZOpenId(pid);
+    BuyFundResult buyFundResult = fundTradeApiService.buyFund( openId,  trdAcco,  applySum,
+        outsideOrderNo, fundCode);
+
+    System.out.println(buyFundResult.getApplySerial());
+    System.out.println(buyFundResult.getCapitalMode());
+    System.out.println(buyFundResult.getRequestDate());
+    System.out.println(buyFundResult.getOutsideOrderNo());
+    System.out.println(buyFundResult.getConfirmdate());
+    System.out.println(buyFundResult.getKkstat());
   }
 }

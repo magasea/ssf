@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.shellshellfish.aaas.common.utils.InstantDateUtil;
+import com.shellshellfish.aaas.finance.trade.order.model.DailyAmount;
 import com.shellshellfish.aaas.finance.trade.order.model.DiscountInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.FundInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.LimitInfo;
@@ -13,7 +15,10 @@ import com.shellshellfish.aaas.finance.trade.order.model.RateInfo;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeLimitResult;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeRateResult;
 import com.shellshellfish.aaas.finance.trade.order.model.UserBank;
+import com.shellshellfish.aaas.finance.trade.order.model.vo.FundTradeLimitInfo;
 import com.shellshellfish.aaas.finance.trade.order.service.FundInfoApiService;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import org.apache.commons.codec.digest.UnixCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -243,6 +248,26 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
     }
 
     @Override
+    public List<FundTradeLimitInfo> getFundTradeInfoByFundcodes(List<String> fundcodes,int tradeType) {
+        Criteria criterialimitInfo=Criteria.where("data.fundcode").in(fundcodes).and("data.businFlag").is(String.valueOf(tradeType));
+        Query querylimitInfo = new Query(criterialimitInfo);
+        Criteria criteriaFundInfo=Criteria.where("fundcode").in(fundcodes);
+        Query queryFundInfo = new Query(criterialimitInfo);
+        List<LimitInfo> limitInfos = mongoTemplate.find(querylimitInfo, LimitInfo.class);
+        List<FundInfo> fundInfos = mongoTemplate.find(queryFundInfo, FundInfo.class);
+        List<FundTradeLimitInfo> fundTradeLimitInfos=new ArrayList<>();
+        for(FundInfo fundInfo:fundInfos ){
+            for(LimitInfo limitInfo:limitInfos){
+                if(fundInfo.getFundcode().equals(limitInfo.getFundCode())){
+                    fundTradeLimitInfos.add(new FundTradeLimitInfo(fundInfo.getFundcode(),fundInfo.getMinshare(),limitInfo.getMinValue()));
+                }
+            }
+        }
+
+        return fundTradeLimitInfos;
+    }
+
+    @Override
     public void writeAllTradeLimitToMongoDb(List<String> funds) {
         //清理老数据
         Query query=new Query();
@@ -440,15 +465,20 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
     }
 
     @Override
-    public BigDecimal getRateOfSellFund(String fundCode, String businFlag) throws Exception {
+    public BigDecimal getRateOfSellFund(BigDecimal amount, String fundCode, String businFlag) throws Exception {
         // TODO:
         fundCode = trimSuffix(fundCode);
 
         List<TradeRateResult> tradeRateResults = getTradeRateAsList(fundCode, businFlag);
         for(TradeRateResult rateResult: tradeRateResults) {
-            if (rateResult.getChngMinTermMark().equals("日常赎回费") && rateResult.getChagRateUnitMark().equals("%")) {
-                Double rate = Double.parseDouble(rateResult.getChagRateUpLim())/100d;
-                return BigDecimal.valueOf(rate);
+            if (rateResult.getChngMinTermMark().equals("日常赎回费")) {
+                double lowLim = Double.parseDouble(rateResult.getPertValLowLim())*10000;
+                double UpLim = Double.parseDouble(rateResult.getPertValUpLim())*10000;
+
+                if(BigDecimal.valueOf(lowLim).compareTo(amount)<=-0&&(BigDecimal.valueOf(UpLim).compareTo(amount)>=0||UpLim==0.00)){
+                    Double rate = Double.parseDouble(rateResult.getChagRateUpLim())/100d;
+                    return BigDecimal.valueOf(rate);
+                }
             }
         }
         logger.error("no rate found");
@@ -498,6 +528,26 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
             userBanks.add(jsonArray.getObject(i, UserBank.class));
         }
         return userBanks;
+    }
+
+    @Override
+    public List<DailyAmount> getProdDailyAsset(long prodId) {
+        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        LocalDate startDate = InstantDateUtil.format(date);
+        for(int i=-0;;i--){
+            LocalDate queryDate = startDate.plusDays(i);
+            String queryDateStr=queryDate.toString().replace("-","");
+            Query query=new Query();
+            query.addCriteria(Criteria.where("userProdId").is(prodId).and("date").is(queryDateStr));
+            List<DailyAmount> dailyAmounts = mongoTemplate.find(query, DailyAmount.class);
+            if(dailyAmounts.size()>0){
+                return  dailyAmounts;
+            }
+            if(i<=-100){
+                new RuntimeException("getProdDailyAsset: query dailyAmount 值为空");
+                return  null;
+            }
+        }
     }
 
     private void postInit(Map<String, Object> info) {
@@ -575,4 +625,6 @@ public class FundInfoZhongZhengApiService implements FundInfoApiService {
         }
         return new String(hexChars);
     }
+
+
 }

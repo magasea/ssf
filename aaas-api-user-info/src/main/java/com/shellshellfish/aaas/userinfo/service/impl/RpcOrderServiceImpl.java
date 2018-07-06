@@ -2,9 +2,19 @@ package com.shellshellfish.aaas.userinfo.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shellshellfish.aaas.finance.trade.order.*;
+
+import com.shellshellfish.aaas.finance.trade.order.BindCardInfo;
+import com.shellshellfish.aaas.finance.trade.order.BindCardResult;
+
+import com.shellshellfish.aaas.finance.trade.order.OrderDetailQueryInfo;
+import com.shellshellfish.aaas.finance.trade.order.OrderDetailResult;
+import com.shellshellfish.aaas.finance.trade.order.OrderDetailStatusRequest;
+import com.shellshellfish.aaas.finance.trade.order.OrderQueryInfo;
+import com.shellshellfish.aaas.finance.trade.order.OrderResult;
+
 import com.shellshellfish.aaas.finance.trade.order.OrderRpcServiceGrpc.OrderRpcServiceBlockingStub;
 
+import com.shellshellfish.aaas.grpc.common.OrderDetail;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
 import com.shellshellfish.aaas.userinfo.model.dto.BankCardDTO;
@@ -108,8 +118,8 @@ public class RpcOrderServiceImpl implements RpcOrderService {
         if (object == null || "".equals(object)) {
             object = BankUtil.getNameOfBank(params.get("cardNumber").toString());
             if (StringUtils.isEmpty(object)) {
-                logger.error("此卡暂不支持!");
-                throw new UserInfoException("404", "此卡暂不支持!");
+                logger.error("银行卡号不正确!");
+                throw new UserInfoException("404", "银行卡号不正确!");
             }
             if (!BankUtil.Luhn((String) params.get("cardNumber"))) {
                 logger.error("输入的银行卡号不正确!");
@@ -140,7 +150,7 @@ public class RpcOrderServiceImpl implements RpcOrderService {
                 , bankcardDetailVo.getCardNumber());
         if (!CollectionUtils.isEmpty(bankCardDTOS)) {
             logger.error("银行卡号已经存在，请重新输入");
-            throw new Exception(String.format("userId:%s with card:%s already exists!",
+            throw new Exception(String.format("您已绑此卡！",
                     bankcardDetailVo.getUserId(), bankcardDetailVo.getCardNumber()));
         }
 

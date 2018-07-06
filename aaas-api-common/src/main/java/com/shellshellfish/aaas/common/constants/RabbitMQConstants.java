@@ -18,6 +18,7 @@ public class RabbitMQConstants {
   public final static String QUEUE_ORDER_BASE = "QUEUE_ORDER";
   public final static String QUEUE_USERINFO_BASE = "QUEUE_USERINFO";
   public final static String ROUTING_KEY_PAY = "routing.pay";
+  public final static String ROUTING_KEY_UI_PENDRECORDS = "routing.ui.pending.records";
   public final static String ROUTING_KEY_SELL = "routing.sell";
   public final static String ROUTING_KEY_SELLPERCENT = "routing.sellpercent";
   public final static String ROUTING_KEY_ORDER = "routing.order";
@@ -35,6 +36,13 @@ public class RabbitMQConstants {
   public final static String OPERATION_TYPE_UPDATE_UIPROD = "update_uiprod";
   public final static String OPERATION_TYPE_UPDATE_UITRDLOG = "update_uitrdlog";
   public final static String OPERATION_TYPE_UPDATE_UITRDCONFIRMINFO = "update_uitrdconfirminfo";
+  public final static String OPERATION_TYPE_UPDATE_BUY_PENDINGRECORDS = "update_buy_pendingrecords";
+  public final static String OPERATION_TYPE_UPDATE_SELL_PENDINGRECORDS = "update_sell_pendingrecords";
+  public final static String OPERATION_TYPE_FAILED_PENDINGRECORDS = "update_failed_pendingrecords";
+  public final static String OPERATION_TYPE_UPDATE_PRECONFIRM_PENDINGRECORDS = "update_preconfirm_pendingrecords";
+  public final static String OPERATION_TYPE_FAILED_SELL_PENDINGRECORDS = "update_sellfailed_pendingrecords";
+  public final static String OPERATION_TYPE_CONFIRM_PENDINGRECORDS = "update_confirm_pendingrecords";
+  public final static String OPERATION_TYPE_FAILED_TRADE = "order_failed_trdflow";
   public final static String OPERATION_TYPE_CACULATE_UIACCECTS = "caculate_userassect";
   public final static String OPERATION_TYPE_UPDATE_UIPRODQUANTITY = "update_uiprodquantity";
   public final static String OPERATION_TYPE_CHECKSELL_ROLLBACK = "update_checksell_rollback";

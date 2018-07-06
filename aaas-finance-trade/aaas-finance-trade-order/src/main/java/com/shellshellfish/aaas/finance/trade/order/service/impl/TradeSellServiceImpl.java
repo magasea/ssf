@@ -57,12 +57,6 @@ import org.springframework.util.StringUtils;
 @Service
 public class TradeSellServiceImpl implements TradeSellService {
   Logger logger = LoggerFactory.getLogger(TradeSellServiceImpl.class);
-
-  @Autowired
-  ManagedChannel managedDCChannel;
-
-  DataCollectionServiceFutureStub dataCollectionServiceFutureStub;
-
   @Autowired
   TrdBrokerUserRepository trdBrokerUserRepository;
 
@@ -81,10 +75,6 @@ public class TradeSellServiceImpl implements TradeSellService {
   @Autowired
   PayService payGrpcService;
 
-  @PostConstruct
-  void init(){
-    dataCollectionServiceFutureStub = DataCollectionServiceGrpc.newFutureStub(managedDCChannel);
-  }
 
   private Map<String, Integer> getFundNetInfo(List<String> fundCodes, String userPid)
       throws ExecutionException, InterruptedException {
@@ -116,6 +106,7 @@ public class TradeSellServiceImpl implements TradeSellService {
 
   @Override
   @Transactional
+  @Deprecated
   public TrdOrder sellProduct(ProdSellPageDTO prodSellPageDTO)
       throws Exception {
     if(CollectionUtils.isEmpty(prodSellPageDTO.getProdDtlSellPageDTOList())){
@@ -249,7 +240,7 @@ public class TradeSellServiceImpl implements TradeSellService {
     results.getSellProductDetailResultsList().forEach(
         item-> fundCodes.add(item.getFundCode())
     );
-    Map<String, Integer> fundNetInfos =  getFundNetInfo(fundCodes, userPid);
+//    Map<String, Integer> fundNetInfos =  getFundNetInfo(fundCodes, userPid);
     boolean canSell = false;
     List<SellProductDetailResult> sellProductDetailResults =  results
         .getSellProductDetailResultsList();
@@ -316,17 +307,18 @@ public class TradeSellServiceImpl implements TradeSellService {
       trdOrderDetail.setOrderDetailStatus(TrdOrderStatusEnum.WAITSELL.getStatus());
       trdOrderDetail = trdOrderDetailRepository.save(trdOrderDetail);
       prodDtlSellDTO.setOrderDetailId(trdOrderDetail.getId());
-      //如果是货币基金 需要拿当日净值换算成货币基金的交易份额(默认是1)
-      if(MonetaryFundEnum.containsCode(sellProductDetailResult.getFundCode())){
-
-          prodDtlSellDTO.setFundQuantity(Math.toIntExact(sellProductDetailResult.getFundQuantityTrade()
-              *fundNetInfos.get(sellProductDetailResult.getFundCode())));
-          logger.info("origin quantity:{} target sell quantity for this monetary fund:{}",
-              sellProductDetailResult.getFundQuantityTrade(), prodDtlSellDTO.getFundQuantity());
-      }else{
-        prodDtlSellDTO.setFundQuantity(Math.toIntExact(sellProductDetailResult.getFundQuantityTrade
-            ()));
-      }
+      prodDtlSellDTO.setFundQuantity(Math.toIntExact(sellProductDetailResult.getFundQuantityTrade
+          ()));
+//      //如果是货币基金 需要拿当日净值换算成货币基金的交易份额(默认是1)
+//      if(MonetaryFundEnum.containsCode(sellProductDetailResult.getFundCode())){
+//
+//          prodDtlSellDTO.setFundQuantity(Math.toIntExact(sellProductDetailResult.getFundQuantityTrade()
+//              *fundNetInfos.get(sellProductDetailResult.getFundCode())));
+//          logger.info("origin quantity:{} target sell quantity for this monetary fund:{}",
+//              sellProductDetailResult.getFundQuantityTrade(), prodDtlSellDTO.getFundQuantity());
+//      }else{
+//
+//      }
 
       prodDtlSellDTO.setTargetSellAmount(prodSellPercentDTO.getSellTargetPercent());
       prodDtlSellDTO.setFundCode(sellProductDetailResult.getFundCode());

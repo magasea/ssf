@@ -1,17 +1,22 @@
 package com.shellshellfish.aaas.zhongzhengapi.service.impl;
 
+import static org.junit.Assert.assertEquals;
+
+import com.google.gson.Gson;
 import com.shellshellfish.aaas.AaasZhongzhengApp;
 import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
 import com.shellshellfish.aaas.common.grpc.zzapi.ApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.WalletApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZAplyCfmInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundNetInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundShareInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZRiskCmtResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZTradeLimit;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltAplyInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltInfoRlt;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltSellAndBuyResult;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
 import com.shellshellfish.aaas.zhongzhengapi.model.FundRiskCheckLog;
@@ -90,7 +95,7 @@ public class ZhongzhengApiServiceImplTest {
   @Test
   public void getApplyResultByOutSideOrderNo() throws Exception {
     String sellNum = "1";
-    String outsideTradeNo = "6222021560000015257014084601998";
+    String outsideTradeNo = "6222021560000015264606433902174";
     String trdAcco = "33600";
     String fundCode = "40009.OF";
     String sellType = "0";
@@ -99,6 +104,7 @@ public class ZhongzhengApiServiceImplTest {
         (outsideTradeNo,   pid );
     applyResults.forEach(
         item->{
+          System.out.println(item.getKkStat());
           System.out.println(item.getApplyDate());
           System.out.println(item.getApplySerial());
           System.out.println(item.getConfirmstat());
@@ -126,7 +132,7 @@ public class ZhongzhengApiServiceImplTest {
   public void getApplyResultByApplySerial() throws Exception {
     String pid = "362522198709220031";
     String trdAcco = "33600";
-    String applySerial = "20180531000642";
+    String applySerial = "20180315000095";
     List<ApplyResult> applyResults =  zhongZhengApiService.getApplyResults("", applySerial, pid);
     applyResults.forEach(
         item->{
@@ -388,7 +394,7 @@ public class ZhongzhengApiServiceImplTest {
 
   @Test
   public void getFundShare() throws Exception {
-    String pid = "522101197402150413";
+    String pid = "362522198709220031";
     List<ZZFundShareInfo> fundShareInfos = zhongZhengApiService.getFundShare(pid);
     fundShareInfos.forEach(
         item->{
@@ -467,7 +473,7 @@ public class ZhongzhengApiServiceImplTest {
   @Test
   public void getBonusInfo() throws Exception {
     String pid = "362522198709220031"; //362522198709220031
-    String fundCode = "110022";
+    String fundCode = "000248";
     String startDate = "20180101";
     List<ZZBonusInfo> zzBonusInfos = zhongZhengApiService.getBonusInfo(pid,fundCode,startDate);
     zzBonusInfos.forEach(
@@ -596,4 +602,110 @@ public class ZhongzhengApiServiceImplTest {
     System.out.println(line);
   }
 
+  @Test
+  public void getFundInfos() throws Exception {
+    List<ZZFundNetInfo> zzFundNetInfos = zhongZhengApiService.getAllNet("003474.OF", 3, 3);
+    zzFundNetInfos.forEach(
+        item->{
+          System.out.println(item.getAccumNet());
+          System.out.println(item.getChngPct());
+          System.out.println(item.getFundCode());
+          System.out.println(item.getTradeDate());
+          System.out.println(item.getUnitNet());
+        }
+    );
+  }
+
+  @Test
+  public void sellWallet2Buy() throws Exception {
+    String targetFundCode = "003474.OF";
+    String pid = "362522198709220031";
+    String applyNum = "10.5";
+    String trdAcco = "33600";
+    String outsideOrderNo = "012345678901234567";
+    try{
+      ZZWltSellAndBuyResult zzWltSellAndBuyResult = zhongZhengApiService.sellWallet2Buy(trdAcco, pid, applyNum,
+          outsideOrderNo, targetFundCode);
+
+      System.out.println(zzWltSellAndBuyResult.getContent().getBuy());
+      System.out.println(zzWltSellAndBuyResult.getContent());
+      System.out.println(zzWltSellAndBuyResult.getContent().getSell());
+      System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getApplyDate());
+      System.out.println(zzWltSellAndBuyResult.getContent().getSell().getApplyDate());
+      System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getApplySerial());
+      System.out.println(zzWltSellAndBuyResult.getContent().getSell().getApplySerial());
+      System.out.println(zzWltSellAndBuyResult.getContent().getSell().getApplyShare());
+      System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getApplySum());
+      System.out.println(zzWltSellAndBuyResult.getContent().getCallingCode());
+      System.out.println(zzWltSellAndBuyResult.getErrno());
+      System.out.println(zzWltSellAndBuyResult.getContent().getSell().getConfirmDate());
+      System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getConfirmDate());
+      System.out.println(zzWltSellAndBuyResult.getContent().getFixFlag());
+      System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getFundCode());
+      System.out.println(zzWltSellAndBuyResult.getContent().getSell().getFundCode());
+      System.out.println(zzWltSellAndBuyResult.getMsg());
+      System.out.println(zzWltSellAndBuyResult.getContent().getSell().getOutsideOrderNo());
+      System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getOutsideOrderNo());
+      System.out.println(zzWltSellAndBuyResult.getContent().getSell().getPlatformCode());
+      System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getPlatformCode());
+      System.out.println(zzWltSellAndBuyResult.getStatus());
+
+    }catch (Exception ex){
+      System.out.println(ex.toString());
+    }
+
+
+
+
+  }
+
+  @Test
+  public void gsonTest(){
+    Gson gson = new Gson();
+    String json = "{\"status\":1,\"errno\":\"0000\",\"msg\":\"\\u6210\\u529f\","
+        + "\"data\":{\"callingcode\":\"024\",\"fixflag\":\"43\",\"sell\":{\"fundcode\":\"004399\",\"applyserial\":\"20180629180018001130\",\"outsideorderno\":\"012345678901234567\",\"applydate\":\"20180702\",\"confirmdate\":\"2018-07-03\",\"applyshare\":\"10.5\",\"platform_code\":\"zuheceshi1\"},\"buy\":{\"fundcode\":\"003474\",\"applyserial\":\"20180629180020001132\",\"outsideorderno\":\"012345678901234567\",\"applydate\":\"20180702\",\"confirmdate\":\"2018-07-03\",\"applysum\":\"10.50\",\"platform_code\":\"zuheceshi1\"}}}";
+    ZZWltSellAndBuyResult zzWltSellAndBuyResult = gson.fromJson(json, ZZWltSellAndBuyResult.class);
+    System.out.println(zzWltSellAndBuyResult.getContent().getBuy());
+    System.out.println(zzWltSellAndBuyResult.getContent());
+    System.out.println(zzWltSellAndBuyResult.getContent().getSell());
+    System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getApplyDate());
+    System.out.println(zzWltSellAndBuyResult.getContent().getSell().getApplyDate());
+    System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getApplySerial());
+    System.out.println(zzWltSellAndBuyResult.getContent().getSell().getApplySerial());
+    System.out.println(zzWltSellAndBuyResult.getContent().getSell().getApplyShare());
+    System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getApplySum());
+    System.out.println(zzWltSellAndBuyResult.getContent().getCallingCode());
+    System.out.println(zzWltSellAndBuyResult.getErrno());
+    System.out.println(zzWltSellAndBuyResult.getContent().getSell().getConfirmDate());
+    System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getConfirmDate());
+    System.out.println(zzWltSellAndBuyResult.getContent().getFixFlag());
+    System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getFundCode());
+    System.out.println(zzWltSellAndBuyResult.getContent().getSell().getFundCode());
+    System.out.println(zzWltSellAndBuyResult.getMsg());
+    System.out.println(zzWltSellAndBuyResult.getContent().getSell().getOutsideOrderNo());
+    System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getOutsideOrderNo());
+    System.out.println(zzWltSellAndBuyResult.getContent().getSell().getPlatformCode());
+    System.out.println(zzWltSellAndBuyResult.getContent().getBuy().getPlatformCode());
+    System.out.println(zzWltSellAndBuyResult.getStatus());
+  }
+
+  @Test
+  public void whenDeserializingToNestedObjects_thenCorrect() {
+    String json = "{\"intValue\":1,\"stringValue\":\"one\",\"innerFoo\":{\"name\":\"inner\"}}";
+
+    FooWithInner targetObject = new Gson().fromJson(json, FooWithInner.class);
+    assertEquals(targetObject.intValue, 1);
+    assertEquals(targetObject.stringValue, "one");
+    assertEquals(targetObject.innerFoo.name, "inner");
+  }
+
+  public class FooWithInner {
+    public int intValue;
+    public String stringValue;
+    public InnerFoo innerFoo;
+
+    public class InnerFoo {
+      public String name;
+    }
+  }
 }

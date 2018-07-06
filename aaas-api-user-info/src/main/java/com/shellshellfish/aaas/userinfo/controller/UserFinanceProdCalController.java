@@ -48,6 +48,10 @@ public class UserFinanceProdCalController {
     @GetMapping("/calculateDays")
     public HttpStatus calculate(@RequestParam @DateTimeFormat(iso = ISO.DATE) LocalDate startDate,
                                 @RequestParam @DateTimeFormat(iso = ISO.DATE) LocalDate endDate) throws Exception {
+        if (!endDate.isBefore(LocalDate.now()))
+            endDate = InstantDateUtil.yesterday();
+
+
         LocalDate limitDate = endDate.plusDays(1L);
         while (startDate.isBefore(limitDate)) {
             userFinanceProdCalcService
@@ -69,6 +73,9 @@ public class UserFinanceProdCalController {
     public HttpStatus calculateAllUserDailyIncome(
             @RequestParam @DateTimeFormat(iso = ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = ISO.DATE) LocalDate endDate) {
+        if (!endDate.isBefore(LocalDate.now()))
+            endDate = InstantDateUtil.yesterday();
+
         LocalDate limitDate = endDate.plusDays(1L);
         while (startDate.isBefore(limitDate)) {
             calculateUserDailyIncome.dailyCalculateIncome(startDate);

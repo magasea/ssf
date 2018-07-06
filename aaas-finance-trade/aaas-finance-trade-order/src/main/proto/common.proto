@@ -14,3 +14,99 @@ message ErrInfo{
   int64 err_code = 1;//错误编号
   string err_msg = 2;//错误内容
 }
+
+//orderDetail就是拿orderDetail dao生成
+message OrderDetail{
+  int64 id = 1;
+  string orderId = 2;
+  string tradeApplySerial = 3;
+  int64 buysellDate = 4;
+  int32 tradeType = 5;
+  int64 payAmount = 6;
+  int64 payFee = 7;
+  int64 userId = 8;
+  int64 userProdId = 9;
+  string fundCode = 10;
+  int64 fundMoneyQuantity = 11;
+  int64 fundNum = 12;
+  int64 fundSum = 13;
+  int64 fundNumConfirmed = 14;
+  int64 fundSumConfirmed = 15;
+  int32 fundShare = 16;
+  int64 buyFee = 17;
+  int64 buyDiscount = 18;
+  int32 orderDetailStatus = 19;
+  int64 createBy = 20;
+  int64 createDate = 21;
+  int64 updateBy = 22;
+  int64 updateDate = 23;
+  string bankCardNum = 24;
+  string errMsg = 25;
+  int64 fundQuantity = 26;
+  int64 prodId = 27;
+}
+//就是拿 pay_flow生成
+message PayFlowResult{
+  int64 id = 1;
+  int64 orderDetailId = 2;
+  string tradeAcco = 3;
+  int64 tradeBrokeId = 4;
+  string applySerial = 5;
+  string outsideOrderno = 6;
+  string bankCardNum = 7;
+  int64 userProdId = 8;
+  string fundCode = 9;
+  int32 trdStatus = 10;
+  int64 trdConfirmDate = 11;
+  int32 trdType = 12;
+  string trdApplyDate = 13;
+  int64 applydateUnitvalue = 14;
+  int64 trdApplySum = 15;
+  int64 trdApplyShare = 16;
+  int64 tradeTargetSum = 17;
+  int64 tradeTargetShare = 18;
+  int64 tradeConfirmShare = 19;
+  int64 tradeConfirmSum = 20;
+  int64 buyFee = 21;
+  int64 buyDiscount = 22;
+  int64 userId = 23;
+  int64 createBy = 24;
+  int64 createDate = 25;
+  int64 updateBy = 26;
+  int64 updateDate = 27;
+  string errMsg = 28;
+  string errCode = 29;
+  int32 trdbkerStatusCode = 30;
+  string trdbkerStatusName = 31;
+}
+
+message UserProdDetail{
+  int64 id = 1;
+  int64 createBy = 2;
+  int64 createDate = 3;
+  string fundCode = 4;
+  string fundName = 5;
+  int32 fundQuantity = 6;
+  int32 fundQuantityTrade = 7;
+  int32 fundShare = 8;
+  int32 status = 9;
+  int64 updateBy = 10;
+  int64 updateDate = 11;
+  int64 userProdId = 12;
+  string lastestSerial = 13;
+}
+
+message UserBankCardInfo{
+  int64 id = 1;
+  int64 userId = 2;
+  string userName = 3;
+  string userPid = 4;
+  string cellphone = 5;
+  string bankName = 6;
+  string cardNumber = 7;
+  int32 status = 8;
+  int64 createdBy = 9;
+  int64 createdDate = 10;
+  int64 updateBy = 11;
+  int64 updateDate = 12;
+}

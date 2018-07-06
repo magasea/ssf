@@ -8,7 +8,10 @@ import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
 import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -25,6 +28,8 @@ import org.springframework.util.StringUtils;
 
 
 public class TradeUtil {
+  public  static final String ZZ_NO_PID_PLATFORMID = "noUserToOneFund";
+
   private static String generateOrderId(Long bankId, int tradeBrokerId ){
     Long utcTime = getUTCTime();
     System.out.println(utcTime);
@@ -181,6 +186,14 @@ public class TradeUtil {
     return  originNum.multiply(BigDecimal.valueOf(100)).longValue();
   }
 
+  public static Long getLongNumWithMul1000000(Double originNum){
+    Double result = originNum*1000000;
+    return result.longValue();
+  }
+  //originNavadj is 1000000 times origin navadj
+  public static BigDecimal getNavadjByLongOrigin(Long navadj){
+    return MathUtil.round(BigDecimal.valueOf(navadj).divide(BigDecimal.valueOf(1000000)),6,true);
+  }
 
   /**
    *
@@ -198,6 +211,14 @@ public class TradeUtil {
   public static Long getLongWithDiv(Long originNum, Long divider){
     int sign = (originNum > 0 ? 1 : -1) * (divider > 0 ? 1 : -1);
     return sign * (abs(originNum) + abs(divider) - 1) / abs(divider);
+  }
+
+  public static BigDecimal getBigDecimalNumWithDivOfTwoLongAndRundDown(Long number, Long divider){
+    return BigDecimal.valueOf(number).divide(BigDecimal.valueOf(divider),2,RoundingMode.HALF_DOWN);
+  }
+
+  public static BigDecimal getBigDecimalNumWithDivOfTwoLongAndRundUp(Long number, Long divider){
+    return BigDecimal.valueOf(number).divide(BigDecimal.valueOf(divider),2,RoundingMode.HALF_UP);
   }
 
   public static BigDecimal getBigDecimalNumWithDivOfTwoLong(Long number, Long divider){
@@ -259,6 +280,9 @@ public class TradeUtil {
   }
 
   public static String getZZOpenId(String personId){
+    if(StringUtils.isEmpty(personId)){
+      return ZZ_NO_PID_PLATFORMID;
+    }
     String sha256hex = getSHA256encoding(personId+"shellshellfish");
     return sha256hex;
   }
@@ -343,8 +367,98 @@ public class TradeUtil {
     return outsideOrderNo.substring(0, lastIdxOfODI);
   }
 
-  public static Long getLongFromDividByBD(String tradeconfirmsum, String tradeconfirmshare) {
-    BigDecimal result = (new BigDecimal(tradeconfirmsum)).divide(new BigDecimal(tradeconfirmshare));
-    return getLongNumWithMul100(result);
+//  public static Long getLongFromDividByBD(String tradeconfirmsum, String tradeconfirmshare) {
+//    BigDecimal result = (new BigDecimal(tradeconfirmsum)).divide(new BigDecimal(tradeconfirmshare));
+//    return getLongNumWithMul100(result);
+//  }
+
+  /**
+   *
+   * @param currentTime currentUtcTime
+   * @param dayCompare format yyyy-mm-dd
+   * @return
+   */
+
+
+  public static Long getDifferentDays(Long currentTime, String dayCompare){
+    String currentDay = getReadableDateTime(currentTime).split("T")[0];
+    String[] currentTimes = currentDay.split("-");
+    Long getStanardTimeOfCurrentDay = getUTCTimeOfSpecificTime(Integer.parseInt(currentTimes[0]),
+        Integer.parseInt(currentTimes[1]), Integer.parseInt(currentTimes[2]), 12, 0);
+    String[] compareTimes = dayCompare.split("-");
+    Long getStanardTimeOfCompareDay = getUTCTimeOfSpecificTime(Integer.parseInt(compareTimes[0]),
+        Integer.parseInt(compareTimes[1]), Integer.parseInt(compareTimes[2]), 12, 0);
+    Long dayTime  = 24*60*60*1000L;
+
+    Long diffDays =   (getStanardTimeOfCurrentDay - getStanardTimeOfCompareDay)/dayTime;
+
+
+    return diffDays;
+
+
+  }
+
+  /**
+   * yyyymmdd or yyyy-mm-dd
+   * @param dayStub
+   * @param daysBefore
+   * @return
+   */
+  public static String getDayBefore(String dayStub, int daysBefore){
+    String[] currentTimes = new String[3];
+    if(dayStub.contains("-")){
+      currentTimes = dayStub.split("-");
+    }else{
+      currentTimes[0] = dayStub.substring(0,4);
+      currentTimes[1] = dayStub.substring(4,6);
+      currentTimes[2] = dayStub.substring(6,8);
+    }
+
+
+    Long getStanardTimeOfCurrentDay = getUTCTimeOfSpecificTime(Integer.parseInt(currentTimes[0]),
+        Integer.parseInt(currentTimes[1]), Integer.parseInt(currentTimes[2]), 12, 0);
+    Long dayTime  = 24*60*60*1000L;
+    Long daysBeforeTime = getStanardTimeOfCurrentDay - dayTime*daysBefore;
+    String dayWanted = getReadableDateTime(daysBeforeTime).split("T")[0];
+    return dayWanted;
+
+  }
+  public static String getMD5(String originStr) throws NoSuchAlgorithmException
+  {
+    MessageDigest messageDigest=MessageDigest.getInstance("MD5");
+
+    messageDigest.update(originStr.getBytes());
+    byte[] digest=messageDigest.digest();
+    StringBuffer sb = new StringBuffer();
+    for (byte b : digest) {
+      sb.append(Integer.toHexString((int) (b & 0xff)));
+    }
+    return sb.toString();
+  }
+
+  public static boolean isLatterThan(TrdOrderStatusEnum statusCurr, TrdOrderStatusEnum
+      statusCompared){
+    if(statusCompared.getStatus() == statusCurr.getStatus()){
+      return false;
+    }
+
+    if(statusCurr.getStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()){
+      if(statusCompared.getStatus() == TrdOrderStatusEnum.WAITPAY.getStatus()|| statusCompared
+          .getStatus() == TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus()){
+        return true;
+      }
+    }
+    if(statusCurr.getStatus() == TrdOrderStatusEnum.SELLCONFIRMED.getStatus()){
+      if(statusCompared.getStatus() == TrdOrderStatusEnum.WAITSELL.getStatus()|| statusCompared
+          .getStatus() == TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus()){
+        return true;
+      }
+    }
+    if((statusCurr.getStatus() == TrdOrderStatusEnum.FAILED.getStatus()|| statusCurr.getStatus()
+        == TrdOrderStatusEnum.REDEEMFAILED.getStatus()) && statusCompared.getStatus() !=
+        statusCurr.getStatus()){
+      return true;
+    }
+    return true;
   }
 }

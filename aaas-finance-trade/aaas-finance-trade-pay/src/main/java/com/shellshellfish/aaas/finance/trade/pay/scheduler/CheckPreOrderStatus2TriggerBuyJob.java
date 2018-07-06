@@ -22,7 +22,7 @@ public class CheckPreOrderStatus2TriggerBuyJob implements Job {
 
         logger.info("Job ** {} ** fired @ {}", context.getJobDetail().getKey().getName(), context.getFireTime());
 
-        jobService.executePreOrderStatus();
+//        jobService.executePreOrderStatus();
 
         logger.info("Next job scheduled @ {}", context.getNextFireTime());
     }

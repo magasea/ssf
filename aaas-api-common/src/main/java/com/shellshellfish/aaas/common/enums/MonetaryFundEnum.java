@@ -18,7 +18,13 @@ public enum MonetaryFundEnum {
 
     FIVE("004568.OF", "长城工资宝货币B"),
 
-    SIX("004399.OF", "融通汇财宝货币E");
+    SIX("004399.OF", "融通汇财宝货币E"),
+
+    SEVEN("000647.OF", "易方达财富快线货币A"),
+
+    EIGHT("000709.OF", "华安汇财通货币"),
+
+    NINE("200103.OF", "长城货币B");
 
     private String code;
     private String name;

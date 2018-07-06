@@ -3,14 +3,13 @@ package com.shellshellfish.aaas.userinfo.controller;
 import com.shellshellfish.aaas.datacollect.GrowthRateOfMonetaryFund;
 import com.shellshellfish.aaas.userinfo.model.MonetaryFund;
 import com.shellshellfish.aaas.userinfo.service.FundGroupService;
-import com.shellshellfish.aaas.userinfo.service.MonetaryFundsService;
+import com.shellshellfish.aaas.userinfo.service.DataCollectionService;
 import com.shellshellfish.aaas.userinfo.service.UserFinanceProdCalcService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +45,7 @@ public class FundGroupController {
 	UserFinanceProdCalcService userFinanceProdCalcService;
 
 	@Autowired
-	MonetaryFundsService monetaryFundsService;
+  DataCollectionService monetaryFundsService;
 
 	@ApiOperation("获取我的产品详情")
 	@ApiImplicitParams({

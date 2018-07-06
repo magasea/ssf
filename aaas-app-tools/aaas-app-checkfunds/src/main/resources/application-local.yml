@@ -1,9 +1,14 @@
 ---
 server:
   port: 10150
-
 ---
 spring:
+  security:
+    basic:
+      enabled: false
+  management:
+    security:
+      enabled: false
   data:
       mongodb:
         database: funds
@@ -13,7 +18,6 @@ spring:
 
   http:
     multipart:
-
   redis:
     host: 192.168.1.10
     port: 6379
@@ -32,24 +36,40 @@ datasource:
       format_sql: true
       dialect: org.hibernate.dialect.MySQLDialect
 shellshellfish:
-  asset-allocation-insertdf-url: "http://localhost:10020/api/asset-allocation/job/insertDailyFund"
-  asset-allocation-inithistory-url: "http://localhost:10020/api/asset-allocation/job/getAllIdAndSubId"
-  asset-allocation-initpyamongo-url: "http://localhost:10020/api/asset-allocation/job/getFundGroupIncomeAllToMongoDb"
-  data-manager-initcache-url: "http://192.168.1.45:10030/api/datamanager/financeFrontPage"
-  data-manager-initcache-detail-url: "http://192.168.1.45:10030/api/datamanager/checkPrdDetails"
+  asset-allocation-insertdf-url: "http://localhost:10020//api//asset-allocation//job//insertDailyFund"
+  asset-allocation-inithistory-url: "http://localhost:10020//api//asset-allocation//job//getAllIdAndSubId"
+  asset-allocation-updateallmaximumlosses-url: "http://localhost:10020/api/asset-allocation/job/updateAllMaximumLosses/"
+  asset-allocation-initpyamongo-url: "http://localhost:10020//api//asset-allocation//job//getFundGroupIncomeAllToMongoDb"
+  data-manager-initcache-url: "http://localhost:10030//api//datamanager//financeFrontPage"
+  data-manager-initcache-detail-url: "http://localhost:10030//api//datamanager//checkPrdDetails"
   data-manager-initcache-detail-url-ver2: "http://localhost:10030//api//datamanager//checkPrdDetails-ver2"
-  csvFilePath: temp
+  csvFilePath: /temp
   csvFundFileOriginName: csvFundsInfo
   csvBaseFileOriginName: csvBaseInfo
+
+org:
+  quartz:
+    jobStore:
+        class: org.quartz.simpl.RAMJobStore
+        misfireThreshold: 60000
+    threadPool:
+        class: org.quartz.simpl.SimpleThreadPool
+        threadCount: 2
+        threadsInheritContextClassLoaderOfInitializingThread: true
+using:
+  spring:
+    schedulerFactory: true
 cron:
   frequency:
     #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
-    # 	Every 3 hours
+    # 	At 30 minutes past the hour, every 3 hours
     jobCheckFunds: 0 0 0/3 1/1 * ? *
+#    jobCheckFunds: 0 10/1 1/1 ? * * *
 using:
   spring:
     schedulerFactory: true
 grpc:
   pythonServer:
-    ip: 192.168.1.45
+    ip: localhost
+#    ip: 192.168.1.65
     port: 10161

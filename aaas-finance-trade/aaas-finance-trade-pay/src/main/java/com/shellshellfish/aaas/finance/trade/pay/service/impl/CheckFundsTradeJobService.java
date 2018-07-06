@@ -1,11 +1,13 @@
 package com.shellshellfish.aaas.finance.trade.pay.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.TrdZZCheckStatusEnum;
 import com.shellshellfish.aaas.common.enums.ZZKKStatusEnum;
+import com.shellshellfish.aaas.common.grpc.datacollection.DCDailyFunds;
 import com.shellshellfish.aaas.common.message.order.MongoUiTrdZZInfo;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.ZZStatsToOrdStatsUtils;
@@ -15,16 +17,21 @@ import com.shellshellfish.aaas.finance.trade.pay.model.ConfirmResult;
 import com.shellshellfish.aaas.finance.trade.pay.model.dao.mysql.TrdPayFlow;
 
 import com.shellshellfish.aaas.finance.trade.pay.repositories.mysql.TrdPayFlowRepository;
+import com.shellshellfish.aaas.finance.trade.pay.service.DataCollectionService;
 import com.shellshellfish.aaas.finance.trade.pay.service.FundTradeApiService;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.finance.trade.pay.service.OrderService;
+import com.shellshellfish.aaas.finance.trade.pay.service.PayService;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -46,6 +53,15 @@ public class CheckFundsTradeJobService {
     @Autowired
     OrderService orderService;
 
+    @Autowired
+    MongoTemplate mongoPayTemplate;
+
+    @Autowired
+    PayService payService;
+
+    @Autowired
+    DataCollectionService dataCollectionService;
+
     public void executeSampleJob() {
 
         logger.info("The sample job has begun...");
@@ -56,16 +72,16 @@ public class CheckFundsTradeJobService {
 
     public void checkBuyPayFlows(){
         //先查一遍购买未确认状态的payFlow
-
+        boolean shouldCheckStatus = true;
         List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-            .findAllByTradeConfirmShareIsAndTrdTypeIsAndTrdStatusIsGreaterThan(0L, TrdOrderOpTypeEnum.BUY.getOperation
-                (), TrdOrderStatusEnum.FAILED.getStatus());
+            .findAllByTrdTypeIsAndTrdStatusIs(TrdOrderOpTypeEnum.BUY.getOperation
+                (), TrdOrderStatusEnum.PAYWAITCONFIRM.getStatus());
 
         if(!CollectionUtils.isEmpty(trdPayFlows)) {
             ApplyResult applyResult = null;
             String userPid = null;
             String applySerial = null;
-            List<TrdPayFlow> trdPayFlowListToGetConfirmInfo = new ArrayList<>();
+            List<MyEntry<String, TrdPayFlow>> trdPayFlowListToGetConfirmInfo = new ArrayList<>();
             for (TrdPayFlow trdPayFlow : trdPayFlows) {
                 try {
                     // TODO: replace userId with userUuid
@@ -78,55 +94,9 @@ public class CheckFundsTradeJobService {
                     }
                     applyResult = fundTradeApiService.getApplyResultByApplySerial
                         (TradeUtil.getZZOpenId(userPid), applySerial);
-                    if (null != applyResult && !StringUtils
-                        .isEmpty(applyResult.getApplyshare())) {
-                        com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
-                            new com.shellshellfish.aaas.common.message.order.TrdPayFlow();
-                        trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
-                        trdPayFlow.setUpdateDate(Instant.now().getEpochSecond());
-                        trdPayFlow.setTrdApplyDate(applyResult.getApplydate());
-                        trdPayFlow.setBuyDiscount(TradeUtil.getLongNumWithMul100(applyResult
-                            .getCommisiondiscount()));
-                        trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno
-                            ());
-                        trdPayFlow.setId(trdPayFlow.getId());
-                        trdPayFlow.setApplySerial(applyResult.getApplyserial());
-                        TrdOrderOpTypeEnum opTypeEnum = ZZStatsToOrdStatsUtils
-                            .getTrdOrdOpTypeFromCallingCode(Integer
-                                .valueOf(applyResult.getCallingcode()));
-                        if(StringUtils.isEmpty(applyResult.getKkstat())){
-                            logger.error("applyResult.getKkstat() is empty");
-                        }
-                        ZZKKStatusEnum zzkkStatusEnum = ZZKKStatusEnum.getByStatus(applyResult
-                            .getKkstat());
-                        int queryStatus = ZZStatsToOrdStatsUtils
-                            .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
-                                Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum, zzkkStatusEnum)
-                            .getStatus();
-                        if(trdPayFlow.getTrdStatus() == queryStatus){
-                            logger.error("There is no status change for applySerial:{}, current "
-                                    + "status:{} queryStatus:{}", applySerial, trdPayFlow
-                                .getTrdStatus(), queryStatus);
-                            continue;
-                        }
-                        trdPayFlow.setTrdStatus(ZZStatsToOrdStatsUtils
-                            .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
-                                Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum, zzkkStatusEnum)
-                            .getStatus());
-                        if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()){
-                            trdPayFlowListToGetConfirmInfo.add(trdPayFlow);
-                        }
-                        trdPayFlow.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
-                            .getPoundage()));
-                        updateByCheckAboutSumNum(trdPayFlow, applyResult);
+                    updateTrdPayFlowWithApplyResult(userPid, applyResult, trdPayFlow,
+                        trdPayFlowListToGetConfirmInfo, shouldCheckStatus);
 
-                        trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno());
-                        trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
-                        trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
-                        BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
-                        trdPayFlowRepository.save(trdPayFlow);
-                        broadcastMessageProducers.sendMessage(trdPayFlowMsg);
-                    }
                 } catch (Exception ex) {
                     logger.error("exception:",ex);
 
@@ -138,26 +108,142 @@ public class CheckFundsTradeJobService {
                     logger.info("Sample job has finished...");
                 }
             }
-            CheckAndSendConfirmInfo(trdPayFlowListToGetConfirmInfo);
+            checkAndSendConfirmInfo(trdPayFlowListToGetConfirmInfo);
         }
     }
 
-    private void CheckAndSendConfirmInfo(List<TrdPayFlow> trdPayFlowListToGetConfirmInfo) {
+    public boolean updateTrdPayFlowWithApplyResult(String userPid, ApplyResult applyResult,
+        TrdPayFlow trdPayFlow, List<MyEntry<String,TrdPayFlow>> confirmList, boolean
+        shouldCheckCurrStat ){
+        if (null != applyResult && !StringUtils
+            .isEmpty(applyResult.getApplyshare())) {
+            boolean statusChanged = true;
+            com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
+                new com.shellshellfish.aaas.common.message.order.TrdPayFlow();
+            trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+            trdPayFlow.setUpdateDate(Instant.now().getEpochSecond());
+            trdPayFlow.setTrdApplyDate(applyResult.getApplydate());
+            trdPayFlow.setApplydateUnitvalue(getMoneyCodeNavAdjByDate(trdPayFlow
+                .getFundCode(), applyResult.getApplydate()));
+            trdPayFlow.setBuyDiscount(TradeUtil.getLongNumWithMul100(applyResult
+                .getCommisiondiscount()));
+            trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno
+                ());
+            trdPayFlow.setId(trdPayFlow.getId());
+            trdPayFlow.setApplySerial(applyResult.getApplyserial());
+            TrdOrderOpTypeEnum opTypeEnum = ZZStatsToOrdStatsUtils
+                .getTrdOrdOpTypeFromCallingCode(Integer
+                    .valueOf(applyResult.getCallingcode()));
+            if(StringUtils.isEmpty(applyResult.getKkstat())){
+                logger.error("applyResult.getKkstat() is empty");
+            }
+            ZZKKStatusEnum zzkkStatusEnum = ZZKKStatusEnum.getByStatus(applyResult
+                .getKkstat());
+            int queryStatus = ZZStatsToOrdStatsUtils
+                .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
+                    Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum, zzkkStatusEnum)
+                .getStatus();
+            if(trdPayFlow.getTrdStatus() == queryStatus){
+                logger.error("There is no status change for applySerial:{}, current "
+                    + "status:{} queryStatus:{}", applyResult.getApplyserial(), trdPayFlow
+                    .getTrdStatus(), queryStatus);
+                statusChanged = false;
+                if(shouldCheckCurrStat){
+                    return false;
+                }
+            }
+            trdPayFlow.setTrdStatus(ZZStatsToOrdStatsUtils
+                .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
+                    Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum, zzkkStatusEnum)
+                .getStatus());
+            if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()|| trdPayFlow
+                .getTrdStatus() == TrdOrderStatusEnum.SELLCONFIRMED.getStatus()){
+                confirmList.add(new MyEntry<>(userPid,trdPayFlow));
+            }
+            trdPayFlow.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
+                .getPoundage()));
+            updateByCheckAboutSumNum(trdPayFlow, applyResult);
+
+            trdPayFlow.setOutsideOrderno(applyResult.getOutsideorderno());
+            trdPayFlow.setUpdateDate(TradeUtil.getUTCTime());
+            trdPayFlow.setUpdateBy(SystemUserEnum.SYSTEM_USER_ENUM.getUserId());
+            BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
+            trdPayFlowRepository.save(trdPayFlow);
+            broadcastMessageProducers.sendMessage(trdPayFlowMsg);
+            return true;
+        }
+        return true;
+    }
+
+    public void checkAndSendConfirmInfo(List<MyEntry<String,TrdPayFlow>> trdPayFlowListToGetConfirmInfo) {
         if(CollectionUtils.isEmpty(trdPayFlowListToGetConfirmInfo)){
             logger.info("there is no confirm trdPayFlow to handle");
             return;
         }
         String userPid;
         String applySerial;
-        for(TrdPayFlow trdPayFlow: trdPayFlowListToGetConfirmInfo){
-            try {
-                userPid = orderService.getPidFromTrdAccoBrokerId(trdPayFlow);
-            } catch (Exception ex) {
-                logger.error("exception:",ex);
-                logger.error("failed to retrieve userPid for trdPayFlow with userId:{} in "
-                    + "applySerial:{}"+ trdPayFlow.getUserId(), trdPayFlow.getApplySerial());
+        for(MyEntry<String, TrdPayFlow> trdPayFlowEntry: trdPayFlowListToGetConfirmInfo){
+
+            applySerial = trdPayFlowEntry.value.getApplySerial();
+            if(StringUtils.isEmpty(applySerial)){
+                logger.error("the applySerial is empty, the payflow is not need to be handle");
                 continue;
             }
+            List<ConfirmResult> confirmResults = null;
+            try{
+                confirmResults = fundTradeApiService.getConfirmResultsBySerial(TradeUtil.getZZOpenId
+                    (trdPayFlowEntry.key), applySerial);
+            }catch (Exception ex){
+                logger.error("exception:",ex);
+                logger.error("failed to get confirmResults with userPid:" + trdPayFlowEntry.key + " "
+                    + "applySerial:" + applySerial + " errMsg:" + ex.getMessage());
+            }
+            //now compond the message for sending
+            if(CollectionUtils.isEmpty(confirmResults)){
+               logger.error("there is no confirm information for applySerial:" + applySerial);
+               continue;
+            }
+            ConfirmResult confirmResult = confirmResults.get(0);
+            MongoUiTrdZZInfo mongoUiTrdZZInfo = new MongoUiTrdZZInfo();
+            MyBeanUtils.mapEntityIntoDTO(trdPayFlowEntry.value, mongoUiTrdZZInfo);
+            MyBeanUtils.mapEntityIntoDTO(confirmResult, mongoUiTrdZZInfo);
+            mongoUiTrdZZInfo.setBankName(confirmResult.getBankname());
+            mongoUiTrdZZInfo.setBankAcco(confirmResult.getBankacco());
+            mongoUiTrdZZInfo.setOrderDetailId(trdPayFlowEntry.value.getOrderDetailId());
+            mongoUiTrdZZInfo.setBusinFlagStr(confirmResult.getBusinflagStr());
+            mongoUiTrdZZInfo.setApplyDate(confirmResult.getApplydate());
+            mongoUiTrdZZInfo.setApplySerial(confirmResult.getApplyserial());
+            mongoUiTrdZZInfo.setTradeStatus(trdPayFlowEntry.value.getTrdStatus());
+            mongoUiTrdZZInfo.setConfirmDate(confirmResult.getConfirmdate());
+            mongoUiTrdZZInfo.setOutSideOrderNo(confirmResult.getOutsideorderno());
+            mongoUiTrdZZInfo.setTradeType(trdPayFlowEntry.value.getTrdType());
+            mongoUiTrdZZInfo.setMelonMethod(confirmResult.getMelonmethod());
+            mongoUiTrdZZInfo.setOriApplyDate(confirmResult.getOriapplydate());
+            mongoUiTrdZZInfo.setBankSerial(confirmResult.getBankSerial());
+            mongoUiTrdZZInfo.setFee(TradeUtil.getLongNumWithMul100(confirmResult.getPoundage()));
+            mongoUiTrdZZInfo.setFundCode(trdPayFlowEntry.value.getFundCode());
+            mongoUiTrdZZInfo.setTradeConfirmShare(TradeUtil.getLongNumWithMul100(confirmResult
+                .getTradeconfirmshare()));
+            mongoUiTrdZZInfo.setTradeConfirmSum(TradeUtil.getLongNumWithMul100(confirmResult
+                .getTradeconfirmsum()));
+            mongoUiTrdZZInfo.setTradeTargetShare(TradeUtil.getLongNumWithMul100(confirmResult
+                .getApplyshare()));
+            mongoUiTrdZZInfo.setTradeTargetSum(TradeUtil.getLongNumWithMul100(confirmResult
+                .getApplysum()));
+            broadcastMessageProducers.sendConfirmMessage(mongoUiTrdZZInfo);
+        }
+
+    }
+
+    public void checkAndSendConfirmInfo(List<TrdPayFlow> trdPayFlowListToGetConfirmInfo, String
+        userPid) {
+        if(CollectionUtils.isEmpty(trdPayFlowListToGetConfirmInfo)){
+            logger.info("there is no confirm trdPayFlow to handle");
+            return;
+        }
+
+        String applySerial;
+        for(TrdPayFlow trdPayFlow: trdPayFlowListToGetConfirmInfo){
             applySerial = trdPayFlow.getApplySerial();
             if(StringUtils.isEmpty(applySerial)){
                 logger.error("the applySerial is empty, the payflow is not need to be handle");
@@ -174,8 +260,8 @@ public class CheckFundsTradeJobService {
             }
             //now compond the message for sending
             if(CollectionUtils.isEmpty(confirmResults)){
-               logger.error("there is no confirm information for applySerial:" + applySerial);
-               continue;
+                logger.error("there is no confirm information for applySerial:" + applySerial);
+                continue;
             }
             ConfirmResult confirmResult = confirmResults.get(0);
             MongoUiTrdZZInfo mongoUiTrdZZInfo = new MongoUiTrdZZInfo();
@@ -183,6 +269,7 @@ public class CheckFundsTradeJobService {
             MyBeanUtils.mapEntityIntoDTO(confirmResult, mongoUiTrdZZInfo);
             mongoUiTrdZZInfo.setBankName(confirmResult.getBankname());
             mongoUiTrdZZInfo.setBankAcco(confirmResult.getBankacco());
+            mongoUiTrdZZInfo.setOrderDetailId(trdPayFlow.getOrderDetailId());
             mongoUiTrdZZInfo.setBusinFlagStr(confirmResult.getBusinflagStr());
             mongoUiTrdZZInfo.setApplyDate(confirmResult.getApplydate());
             mongoUiTrdZZInfo.setApplySerial(confirmResult.getApplyserial());
@@ -194,6 +281,15 @@ public class CheckFundsTradeJobService {
             mongoUiTrdZZInfo.setOriApplyDate(confirmResult.getOriapplydate());
             mongoUiTrdZZInfo.setBankSerial(confirmResult.getBankSerial());
             mongoUiTrdZZInfo.setFee(TradeUtil.getLongNumWithMul100(confirmResult.getPoundage()));
+            mongoUiTrdZZInfo.setFundCode(trdPayFlow.getFundCode());
+            mongoUiTrdZZInfo.setTradeConfirmShare(TradeUtil.getLongNumWithMul100(confirmResult
+                .getTradeconfirmshare()));
+            mongoUiTrdZZInfo.setTradeConfirmSum(TradeUtil.getLongNumWithMul100(confirmResult
+                .getTradeconfirmsum()));
+            mongoUiTrdZZInfo.setTradeTargetShare(TradeUtil.getLongNumWithMul100(confirmResult
+                .getApplyshare()));
+            mongoUiTrdZZInfo.setTradeTargetSum(TradeUtil.getLongNumWithMul100(confirmResult
+                .getApplysum()));
             broadcastMessageProducers.sendConfirmMessage(mongoUiTrdZZInfo);
         }
 
@@ -221,14 +317,14 @@ public class CheckFundsTradeJobService {
     public void checkReedemPayFlows(){
         //先查一遍赎回未确认状态的payFlow
         List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-            .findAllByTradeConfirmSumIsAndTrdTypeIs(0L, TrdOrderOpTypeEnum.REDEEM.getOperation
-                ());
+            .findAllByTrdTypeIsAndTrdStatusIs(TrdOrderOpTypeEnum.REDEEM.getOperation
+                (), TrdOrderStatusEnum.SELLWAITCONFIRM.getStatus());
         if(!CollectionUtils.isEmpty(trdPayFlows)) {
             ApplyResult applyResult = null;
             String userPid = null;
 //            String outsideOrderno = null;
             String applySerial = null;
-            List<TrdPayFlow> trdPayFlowListToGetConfirmInfo = new ArrayList<>();
+            List<MyEntry<String,TrdPayFlow>> trdPayFlowListToGetConfirmInfo = new ArrayList<>();
             for (TrdPayFlow trdPayFlow : trdPayFlows) {
                 try {
                     // TODO: replace userId with userUuid
@@ -249,15 +345,11 @@ public class CheckFundsTradeJobService {
                         trdPayFlow.setUpdateDate(Instant.now().getEpochSecond());
                         if(!StringUtils.isEmpty(applyResult.getApplydate())){
                             trdPayFlow.setTrdApplyDate(applyResult.getApplydate());
+                            trdPayFlow.setApplydateUnitvalue(getMoneyCodeNavAdjByDate(trdPayFlow.getFundCode(),
+                                applyResult.getApplydate()));
                         }else{
                             trdPayFlow.setTrdApplyDate("-1");
-                        }
-                        if(!StringUtils.isEmpty(applyResult.getTradeconfirmsum()) &&
-                        !StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
-                            trdPayFlow.setApplydateUnitvalue(TradeUtil.getLongFromDividByBD(applyResult
-                                    .getTradeconfirmsum(), applyResult.getTradeconfirmshare()));
-                        }else{
-                            trdPayFlow.setApplydateUnitvalue(-1);
+                            trdPayFlow.setApplydateUnitvalue(-1L);
                         }
 
                         trdPayFlow.setBuyDiscount(TradeUtil.getLongNumWithMul100(applyResult
@@ -266,12 +358,16 @@ public class CheckFundsTradeJobService {
                             ());
                         trdPayFlow.setId(trdPayFlow.getId());
                         trdPayFlow.setApplySerial(applyResult.getApplyserial());
+
                         TrdOrderOpTypeEnum opTypeEnum = ZZStatsToOrdStatsUtils
                             .getTrdOrdOpTypeFromCallingCode(Integer
                                 .valueOf(applyResult.getCallingcode()));
+                        ZZKKStatusEnum zzkkStatusEnum = ZZKKStatusEnum.getByStatus(applyResult
+                            .getKkstat());
                         trdPayFlow.setTrdStatus(ZZStatsToOrdStatsUtils
                             .getOrdDtlStatFromZZStats(TrdZZCheckStatusEnum.getByStatus(
-                                Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum).getStatus());
+                                Integer.valueOf(applyResult.getConfirmflag())),opTypeEnum, zzkkStatusEnum)
+                            .getStatus());
                         trdPayFlow.setBuyFee(TradeUtil.getLongNumWithMul100(applyResult
                             .getPoundage()));
                         updateByCheckAboutSumNum(trdPayFlow, applyResult);
@@ -285,7 +381,7 @@ public class CheckFundsTradeJobService {
                         broadcastMessageProducers.sendMessage(trdPayFlowMsg);
                         if(trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.CONFIRMED.getStatus()
                             || trdPayFlow.getTrdStatus() == TrdOrderStatusEnum.SELLCONFIRMED.getStatus()){
-                            trdPayFlowListToGetConfirmInfo.add(trdPayFlow);
+                            trdPayFlowListToGetConfirmInfo.add(new MyEntry<>(userPid,trdPayFlow));
                         }
                     }
                 } catch (Exception ex) {
@@ -299,31 +395,31 @@ public class CheckFundsTradeJobService {
                     logger.info("Sample job has finished...");
                 }
             }
-            CheckAndSendConfirmInfo(trdPayFlowListToGetConfirmInfo);
+            checkAndSendConfirmInfo(trdPayFlowListToGetConfirmInfo);
         }
     }
-    public void executePreOrderStatus(){
-        logger.info("The sample job has begun...");
-        Instant.now().getEpochSecond();
-
-        List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
-            .findAllByTradeConfirmShareIsAndTrdTypeIsAndTrdStatusIsGreaterThan(0L, TrdOrderOpTypeEnum.PREORDER.getOperation
-                (), TrdOrderStatusEnum.FAILED.getStatus());
-        if(!CollectionUtils.isEmpty(trdPayFlows)) {
-            for (TrdPayFlow trdPayFlow : trdPayFlows) {
-                try {
-                    com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
-                    updateTrdPayFlowAndMakeMsg(trdPayFlow);
-                    if(null != trdPayFlowMsg){
-                        broadcastMessageProducers.sendMessage(trdPayFlowMsg);
-                    }
-                } catch (JsonProcessingException ex) {
-                    logger.error("exception:",ex);
-
-                }
-            }
-        }
-    }
+//    public void executePreOrderStatus(){
+//        logger.info("The sample job has begun...");
+//        Instant.now().getEpochSecond();
+//
+//        List<TrdPayFlow> trdPayFlows = trdPayFlowRepository
+//            .findAllByTradeConfirmShareIsAndTrdTypeIsAndTrdStatusIsGreaterThan(0L, TrdOrderOpTypeEnum.PREORDER.getOperation
+//                (), TrdOrderStatusEnum.FAILED.getStatus());
+//        if(!CollectionUtils.isEmpty(trdPayFlows)) {
+//            for (TrdPayFlow trdPayFlow : trdPayFlows) {
+//                try {
+//                    com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg =
+//                    updateTrdPayFlowAndMakeMsg(trdPayFlow);
+//                    if(null != trdPayFlowMsg){
+//                        broadcastMessageProducers.sendMessage(trdPayFlowMsg);
+//                    }
+//                } catch (JsonProcessingException ex) {
+//                    logger.error("exception:",ex);
+//
+//                }
+//            }
+//        }
+//    }
 
 
     private com.shellshellfish.aaas.common.message.order.TrdPayFlow updateTrdPayFlowAndMakeMsg
@@ -378,13 +474,7 @@ public class CheckFundsTradeJobService {
                 trdPayFlow.setTrdApplyDate(applyResult.getApplydate());
             }else{
                 trdPayFlow.setTrdApplyDate("-1");
-            }
-            if(!StringUtils.isEmpty(applyResult.getTradeconfirmsum()) &&
-                !StringUtils.isEmpty(applyResult.getTradeconfirmshare())){
-                trdPayFlow.setApplydateUnitvalue(TradeUtil.getLongFromDividByBD(applyResult
-                    .getTradeconfirmsum(), applyResult.getTradeconfirmshare()));
-            }else{
-                trdPayFlow.setApplydateUnitvalue(-1);
+                trdPayFlow.setApplydateUnitvalue(-1L);
             }
             BeanUtils.copyProperties(trdPayFlow, trdPayFlowMsg);
             trdPayFlowRepository.save(trdPayFlow);
@@ -392,5 +482,49 @@ public class CheckFundsTradeJobService {
         }
         return null;
 
+    }
+
+    private Long getMoneyCodeNavAdjByDate(String fundCode, String applyDate){
+        if(!applyDate.contains("-")){
+            StringBuilder sb = new StringBuilder();
+            sb.append(applyDate.substring(0,4)).append("-").append(applyDate.substring(4,6)).append
+                ("-").append(applyDate.substring(6,8));
+            applyDate = sb.toString();
+        }
+        if(MonetaryFundEnum.containsCode(fundCode)){
+            String beginDate = TradeUtil.getDayBefore(applyDate, 1);
+            List<String> codes = new ArrayList<>();
+            codes.add(fundCode);
+            List<DCDailyFunds> dcDailyFunds = dataCollectionService.getFundDataOfDay(codes,
+                beginDate, applyDate);
+            if(!CollectionUtils.isEmpty(dcDailyFunds)){
+                Double navadj = dcDailyFunds.get(0).getNavadj();
+                return TradeUtil.getLongNumWithMul1000000(navadj);
+            }
+        }
+        return -1L;
+    }
+
+    public class MyEntry<K, V> implements Entry<K, V> {
+        private final K key;
+        private V value;
+        public MyEntry(final K key) {
+            this.key = key;
+        }
+        public MyEntry(final K key, final V value) {
+            this.key = key;
+            this.value = value;
+        }
+        public K getKey() {
+            return key;
+        }
+        public V getValue() {
+            return value;
+        }
+        public V setValue(final V value) {
+            final V oldValue = this.value;
+            this.value = value;
+            return oldValue;
+        }
     }
 }

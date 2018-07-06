@@ -21,8 +21,23 @@ service UserInfoService {
     rpc SellUserProducts (SellProducts) returns (SellProductsResult){}
     rpc RollbackUserProducts (SellProducts) returns (SellProducts){}
     rpc sellPersentUserProducts (SellPersentProducts) returns (SellProductsResult){}
+    rpc GetUserProdDetail(GetUserProdDetailQuery) returns(GetUserProdDetailResults){}
+    rpc CheckAbsentPendingRecordsOrders(ConfirmedOutsideOrderIds) returns(NeedPatchOutsideOrderIds){}
+    rpc GetUserBankCards(QueryUserBankCards) returns(UserBankCardInfoResults){}
+    rpc GetUserTraLog(OrderId) returns(OrderLogResults){}
 }
 
+message OrderId{
+  string order_id = 1;//订单ID
+}
+message OrderLogResults{
+  repeated OrderLogDetail orderLogDetail=1;//交易日志详情
+}
+message OrderLogDetail{
+  string fund_code=1;//基金代号
+  string order_id=2;//订单ID
+  string confirmDateExp=3;//确认日期
+}
 message SellPersentProducts{
   int64 user_product_id = 1;//用户理财产品ID
   int64 user_id = 2; //用户ID
@@ -75,6 +90,7 @@ message UserUUID{
 message UserIdOrUUIDQuery{
   int64 userId = 1;
   string uuid = 2;
+  string bankCardNo = 3;
 }
 
 message UserBankInfo{
@@ -122,4 +138,29 @@ message UserInfo{
   int32 activated = 6;
   int32 isTestFlag = 7;
   int32 riskLevel = 8;
+}
+
+message GetUserProdDetailQuery{
+  int64 userProdId= 1;
+}
+message GetUserProdDetailResults{
+  repeated UserProdDetail userProdDetail = 1;
+}
+
+message ConfirmedOutsideOrderIds{
+  repeated string outsideOrderId = 1;
+}
+
+message NeedPatchOutsideOrderIds{
+  repeated string outsideOrderId = 1;
+}
+
+message QueryUserBankCards{
+  int64 userId = 1;
+  string cardNumber = 2;
+  string cellphone = 3;
+}
+
+message UserBankCardInfoResults{
+  repeated UserBankCardInfo userBankCardInfo = 1;
 }

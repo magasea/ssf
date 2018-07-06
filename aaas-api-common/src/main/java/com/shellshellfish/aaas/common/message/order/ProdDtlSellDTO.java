@@ -15,6 +15,7 @@ public class ProdDtlSellDTO implements Serializable {
   private String fundName;
   private int fundShare;
   private int fundQuantity;
+  private Long moneyFundNetValue;
   private long orderDetailId;
   //目标金额
   private BigDecimal targetSellAmount;
@@ -79,5 +80,13 @@ public class ProdDtlSellDTO implements Serializable {
 
   public void setOrderDetailId(long orderDetailId) {
     this.orderDetailId = orderDetailId;
+  }
+
+  public Long getMoneyFundNetValue() {
+    return moneyFundNetValue;
+  }
+
+  public void setMoneyFundNetValue(Long moneyFundNetValue) {
+    this.moneyFundNetValue = moneyFundNetValue;
   }
 }

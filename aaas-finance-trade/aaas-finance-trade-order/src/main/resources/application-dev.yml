@@ -77,9 +77,7 @@ grpc:
     host: localhost
     port: 10171
 
-using:
-  spring:
-    schedulerFactory: true
+
 org:
   quartz:
     jobStore:
@@ -89,10 +87,14 @@ org:
         class: org.quartz.simpl.SimpleThreadPool
         threadCount: 2
         threadsInheritContextClassLoaderOfInitializingThread: true
+using:
+  spring:
+    schedulerFactory: true
 cron:
   frequency:
-    #每天10：45分开始
-    jobwithcrontrigger: 0 45 10 ? * * *
+    #每天5 18 点开始
+    jobCheckOrderWithPay: 0 0 0/3 1/1 * ? *
+    jobPatchPendingRecords: 0 0 0/3 1/1 * ? *
 
 management:
   endpoints:

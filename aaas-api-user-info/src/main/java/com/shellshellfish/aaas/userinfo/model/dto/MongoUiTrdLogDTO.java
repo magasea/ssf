@@ -63,11 +63,16 @@ public class MongoUiTrdLogDTO implements Serializable {
 
   private String OrderId;
 
+  private String confirmDateExp;
+
+
+
   @Override
   public String toString() {
     return "MongoUiTrdLogDTO{" +
         "id='" + id + '\'' +
         ", amount=" + amount +
+
         ", createdBy='" + createdBy + '\'' +
         ", createdDate=" + createdDate +
         ", lastModifiedBy='" + lastModifiedBy + '\'' +
@@ -86,7 +91,13 @@ public class MongoUiTrdLogDTO implements Serializable {
         ", OrderId='" + OrderId + '\'' +
         '}';
   }
+  public String getConfirmDateExp() {
+    return confirmDateExp;
+  }
 
+  public void setConfirmDateExp(String confirmDateExp) {
+    this.confirmDateExp = confirmDateExp;
+  }
   public String getOrderId() {
     return OrderId;
   }

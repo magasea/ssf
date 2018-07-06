@@ -16,7 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ActiveProfiles(profiles="dev")
+@ActiveProfiles(profiles="pretest")
 public class FundInfoServiceImplTest {
   @Autowired
   FundInfoService fundInfoService;
@@ -24,11 +24,11 @@ public class FundInfoServiceImplTest {
   @Test
   public void getDailyFunds() throws Exception {
     DailyFundsQuery.Builder builder = DailyFundsQuery.newBuilder();
-    builder.setNavLatestDateStart("2018-05-10");
-    builder.setNavLatestDateEnd("2018-05-29");
+    builder.setNavLatestDateStart("2018-07-01");
+    builder.setNavLatestDateEnd("2018-07-03");
 //    builder.addCodes("300SH_5_CSI_5");
 //    builder.addCodes("001987.OF");
-    builder.addCodes("003474.OF");
+    builder.addCodes("040036.OF");
     List<DailyFunds> dailyFundsList = fundInfoService.getDailyFunds(builder.build());
     for(DailyFunds dailyFunds: dailyFundsList){
       System.out.println(dailyFunds.getNavadj());

@@ -367,8 +367,8 @@ public class MidApiServiceImpl implements MidApiService {
 
 
     @Override
-    public Map sellFundPage(String groupId, String subGroupId, String totalAmount, Integer oemid) throws Exception {
-        String url = tradeOrderUrl + "api/trade/funds/sellProduct?groupId=" + groupId + "&subGroupId=" + subGroupId + "&totalAmount=" + totalAmount + "&oemid=" + oemid;
+    public Map sellFundPage(String groupId, String subGroupId, String totalAmount, Integer oemid,BigDecimal persent,String prodId) throws Exception {
+        String url = tradeOrderUrl + "api/trade/funds/sellProduct?groupId=" + groupId + "&subGroupId=" + subGroupId + "&totalAmount=" + totalAmount + "&oemid=" + oemid+ "&persent=" + persent+ "&prodId=" + prodId;
         Map result = restTemplate.getForEntity(url, Map.class).getBody();
         if (result != null) {
             Object poundage = result.get("poundage");
@@ -382,7 +382,7 @@ public class MidApiServiceImpl implements MidApiService {
                     poundageValue = poundageValue.setScale(2, BigDecimal.ROUND_HALF_UP);
                 }
                 result.put("poundage", poundageValue);
-            }
+        }
             Object discountSaving = result.get("discountSaving");
             if (discountSaving != null) {
                 BigDecimal discountSavingValue = new BigDecimal(discountSaving + "");
@@ -405,8 +405,9 @@ public class MidApiServiceImpl implements MidApiService {
                     }
                 }
             }
+            String totalSellAmount=(String)result.get("totalSellAmount")+"元";
+            result.put("totalSellAmount",totalSellAmount);
         }
-
         return result;
     }
 

@@ -15,6 +15,7 @@ import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.utils.ZZRiskToSSFRiskUtils;
 import com.shellshellfish.aaas.finance.trade.order.message.BroadcastMessageProducer;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdBrokerUser;
+import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdLog;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdPreOrder;
@@ -31,6 +32,7 @@ import com.shellshellfish.aaas.finance.trade.order.service.OrderService;
 import com.shellshellfish.aaas.finance.trade.order.service.PayService;
 import com.shellshellfish.aaas.finance.trade.order.service.TradeOpService;
 import com.shellshellfish.aaas.finance.trade.order.service.UserInfoService;
+import com.shellshellfish.aaas.finance.trade.order.util.DateUtil;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
@@ -40,6 +42,9 @@ import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoCollection;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfoQuery;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
 import com.shellshellfish.aaas.userinfo.grpc.FinanceProdInfosQuery;
+import com.shellshellfish.aaas.userinfo.grpc.OrderId;
+import com.shellshellfish.aaas.userinfo.grpc.OrderId.Builder;
+import com.shellshellfish.aaas.userinfo.grpc.OrderLogDetail;
 import com.shellshellfish.aaas.userinfo.grpc.UserBankInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
@@ -60,6 +65,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
@@ -79,6 +85,8 @@ public class TradeOpServiceImpl implements TradeOpService {
 
     @Autowired
     FinanceProdInfoService financeProdInfoService;
+    @Autowired
+    FinanceProdCalcServiceImpl financeProdCalcService;
 
     @Autowired
     TrdOrderRepository trdOrderRepository;
@@ -216,7 +224,7 @@ public class TradeOpServiceImpl implements TradeOpService {
         trdOrder.setProdId(financeProdBuyInfo.getProdId());
         trdOrder.setGroupId(financeProdBuyInfo.getGroupId());
         trdOrder.setUserProdId(financeProdBuyInfo.getUserProdId());
-        trdOrder.setOrderStatus(TrdOrderStatusEnum.PAYWAITCONFIRM.ordinal());
+        trdOrder.setOrderStatus(TrdOrderStatusEnum.WAITPAY.ordinal());
         trdOrder.setOrderId(orderId);
         trdOrder.setUserId(financeProdBuyInfo.getUserId());
         trdOrder.setCreateBy(financeProdBuyInfo.getUserId());
@@ -392,10 +400,12 @@ public class TradeOpServiceImpl implements TradeOpService {
             fundNum, Long fundNumConfirmed, Long updateDate, Long updateBy, Long id, int
                                       orderDetailStatus, Long buyFee)
             throws Exception {
-        TrdOrderDetail trdOrderDetail;
+        TrdOrderDetail trdOrderDetail = null;
         if (id > 0) {
-            trdOrderDetail = trdOrderDetailRepository.findById(id).get();
-        } else {
+            trdOrderDetail = trdOrderDetailRepository.findById(id).isPresent()?
+                trdOrderDetailRepository.findById(id).get(): null;
+        }
+        if(trdOrderDetail == null) {
             trdOrderDetail = trdOrderDetailRepository.findByTradeApplySerial(tradeApplySerial);
         }
         if (trdOrderDetail == null) {
@@ -727,6 +737,13 @@ public class TradeOpServiceImpl implements TradeOpService {
         }
 
         result.put("orderType", TrdOrderOpTypeEnum.getComment(trdOrder.getOrderType()));
+
+        //确认日期
+        List<TrdLog> trdLogList = getTraLogByOrderId(orderId);
+        HashMap<Object,Object> trdLogMap=new HashMap<>();
+        for(TrdLog trdLog:trdLogList){
+            trdLogMap.put(trdLog.getFundCode(),trdLog.getConfirmDateExp());
+        }
         //金额
         long amount = trdOrder.getPayAmount();
         BigDecimal bigDecimalAmount = BigDecimal.ZERO;
@@ -747,27 +764,29 @@ public class TradeOpServiceImpl implements TradeOpService {
         Map<String, String> statusMap = new HashMap<>();
         String status = "";
         Long totalSum = 0L;
+        BigDecimal poundage=new BigDecimal(0);
         for (int i = 0; i < trdOrderDetailList.size(); i++) {
             detailMap = new HashMap<>();
             TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
             int detailStatus = trdOrderDetail.getOrderDetailStatus();
-            String msg = ""; 
-            if (TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus
+            String msg = "";
+            if(trdOrderDetail.getFundSum()>0) {
+                if (TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus
                     || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus) {
-                status = CombinedStatusEnum.CONFIRMED.getComment();
-            } else if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
+                    status = CombinedStatusEnum.CONFIRMED.getComment();
+                } else if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
                     || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
-                status = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
-                msg = "支付失败，余额不足";
-            } else {
-                if(trdOrderDetail.getFundMoneyQuantity() > 0) {
-                  status = CombinedStatusEnum.WAITCONFIRM.getComment();
+                    status = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
+                    msg = "支付失败，余额不足";
+                } else {
+                    if (trdOrderDetail.getFundMoneyQuantity() > 0) {
+                        status = CombinedStatusEnum.WAITCONFIRM.getComment();
+                    }
                 }
+                detailMap.put("fundMsg", msg);
+                detailMap.put("fundstatus", status);
+                statusMap.put(status, status);
             }
-            detailMap.put("fundMsg", msg);
-            detailMap.put("fundstatus", status);
-            statusMap.put(status, status);
-
             Long instanceLong = trdOrderDetail.getCreateDate();
             detailMap.put("fundCode", trdOrderDetail.getFundCode());
             //基金费用
@@ -792,15 +811,23 @@ public class TradeOpServiceImpl implements TradeOpService {
         continue;
       }
       detailMap.put("fundSum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
-      totalSum = totalSum + fundSum;
+      if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
+          || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
+      } else {
+        totalSum = totalSum + fundSum;
+      }
       detailMap.put("targetSellPercent", trdOrder.getSellPercent());
 
             //FIXME  交易日判断逻辑使用asset allocation 中的TradeUtils
             //QDIIEnum 基金　15个交易确认　其他　１个交易日确认
-            String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDIIEnum.isQDII(trdOrderDetail
-                    .getFundCode()) ? 15 : 1);
+            String date =null;
+            if(trdLogMap.get(trdOrderDetail.getFundCode())!=null){
+                date=(String)trdLogMap.get(trdOrderDetail.getFundCode());
+                date=DateUtil.handleErrorDateFormat(date);
+            }else {
+                date=InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDIIEnum.isQDII(trdOrderDetail.getFundCode()) ? 15 : 1);
+            }
             String dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(date).getDayOfWeek()).toString();
-
             detailMap.put("funddate", date);
             if (status.equals(CombinedStatusEnum.WAITCONFIRM.getComment())) {
                 detailMap.put("fundTitle", "预计" + date + "(" + dayOfWeek + ")确认");
@@ -810,9 +837,13 @@ public class TradeOpServiceImpl implements TradeOpService {
               LocalDate localDate = localDateTime.toLocalDate();
               date = InstantDateUtil.format(localDate);
               dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(instanceLong).getDayOfWeek()).toString();
-              detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
+              String tradeFailReson = TrdFailtureStatusEnum.getTradeFailReson(trdOrderDetail.getErrMsg(),TrdOrderOpTypeEnum.BUY.getOperation());
+              detailMap.put("fundTitle",tradeFailReson);
               detailMap.put("funddate", date);
-            } else {
+            } else if(status.equals(CombinedStatusEnum.CONFIRMED.getComment())){
+                String payfee = new BigDecimal(trdOrderDetail.getBuyFee()).divide(new BigDecimal(100))
+                    .setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+                poundage=poundage.add(new BigDecimal(payfee));
                 detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
             }
             detailMap.put("fundTradeType", TrdOrderOpTypeEnum.getComment(trdOrderDetail.getTradeType()));
@@ -823,27 +854,30 @@ public class TradeOpServiceImpl implements TradeOpService {
                 serialList.add(serial);
             }
         }
-        result.put("totalSum", TradeUtil.getBigDecimalNumWithDiv100(totalSum));
-
+        result.put("totalSum", TradeUtil.getBigDecimalNumWithDiv100(totalSum).toString());
         if (statusMap != null && statusMap.size() > 0) {
             if (statusMap.size() != 1) {
-                if (statusMap.containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())
+                if (statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())) {
+                    result.put("orderStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
+                    result.put("poundage","");
+                } else if (statusMap.containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())
                         && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
                     result.put("orderStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
-                }
-                if (statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())
-                        && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
-                    result.put("orderStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
+                    result.put("poundage",poundage.setScale(2,BigDecimal.ROUND_HALF_UP).toString());
                 }
             } else {
                 for (String key : statusMap.keySet()) {
                     if (statusMap.size() == 1) {
                         result.put("orderStatus", key);
+                        if(statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())){
+                            result.put("poundage","");
+                        }else {
+                            result.put("poundage",poundage.setScale(2,BigDecimal.ROUND_HALF_UP).toString());
+                        }
                     }
                 }
             }
         }
-
         result.put("detailList", detailList);
         result.put("serialList", serialList);
         result.put("operation", trdOrder.getOrderStatus());
@@ -884,7 +918,13 @@ public class TradeOpServiceImpl implements TradeOpService {
 	    logger.error("The order:{} is not sell with percent, sell target money:{}", trdOrder
           .getOrderId(), trdOrder.getPayAmount());
     }
-	  //金额
+    //确认日期
+	    HashMap<Object,Object> trdLogMap=new HashMap<>();
+      List<TrdLog> trdLogList = getTraLogByOrderId(orderId);
+	    for(TrdLog trdLog:trdLogList){
+          trdLogMap.put(trdLog.getFundCode(),trdLog.getConfirmDateExp());
+      }
+      //金额
 	  long amount = trdOrder.getPayAmount();
 	  BigDecimal bigDecimalAmount = BigDecimal.ZERO;
 	  if (amount != 0) {
@@ -902,25 +942,29 @@ public class TradeOpServiceImpl implements TradeOpService {
 	  List<Map<String, Object>> detailList = new ArrayList<>();
 	  Map<String, Object> detailMap;
 	  Map<String, String> statusMap = new HashMap<>();
-
-	  Long totalNum = 0L;
-	  Long totalSum = 0L;
+	  //获取确认中及确认成功的基金
+    List<String> fundcodeList=new ArrayList<>();
+	  BigDecimal totalSum=new BigDecimal(0);
+	  BigDecimal poundage=new BigDecimal(0);
 	  for (int i = 0; i < trdOrderDetailList.size(); i++) {
 	    detailMap = new HashMap<>();
 	    TrdOrderDetail trdOrderDetail = trdOrderDetailList.get(i);
 	    int detailStatus = trdOrderDetail.getOrderDetailStatus();
-	    String status;
-	    if (TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus
-	        || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus) {
-	      status = CombinedStatusEnum.CONFIRMED.getComment();
-	    } else if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
-	        || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
-	      status = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
-	    } else {
-	      status = CombinedStatusEnum.WAITCONFIRM.getComment();
-	    }
-	    detailMap.put("fundstatus", status);
-	    statusMap.put(status, status);
+	    String status="0";
+	    if(trdOrderDetail.getFundNum()>0) {
+          if (TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus
+              || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus) {
+              status = CombinedStatusEnum.CONFIRMED.getComment();
+          } else if (TrdOrderStatusEnum.FAILED.getStatus() == detailStatus
+              || TrdOrderStatusEnum.REDEEMFAILED.getStatus() == detailStatus) {
+              status = CombinedStatusEnum.CONFIRMEDFAILED.getComment();
+          } else {
+              status = CombinedStatusEnum.WAITCONFIRM.getComment();
+              fundcodeList.add(trdOrderDetail.getFundCode());
+          }
+          detailMap.put("fundstatus", status);
+          statusMap.put(status, status);
+      }
 	    Long instanceLong = trdOrderDetail.getCreateDate();
 	    detailMap.put("fundCode", trdOrderDetail.getFundCode());
 //	    //基金费用
@@ -944,29 +988,35 @@ public class TradeOpServiceImpl implements TradeOpService {
                 .getId() );
         continue;
       }
-	    totalNum = totalNum + fundNum;
-	    detailMap.put("fundNum", TradeUtil.getBigDecimalNumWithDiv100(fundNum));
+
+	    detailMap.put("fundNum",new BigDecimal(fundNum).divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP).toString());
 
             //交易金额
-            Long fundSum;
-            if (trdOrderDetail.getFundSumConfirmed() != null && trdOrderDetail.getFundSumConfirmed() > 0) {
-                fundSum = trdOrderDetail.getFundSumConfirmed();
+            BigDecimal  fundSum=new BigDecimal("0");
+           if (trdOrderDetail.getFundSumConfirmed() != null && trdOrderDetail.getFundSumConfirmed() > 0) {
+               fundSum = new BigDecimal(trdOrderDetail.getFundSumConfirmed());
             } else if (trdOrderDetail.getFundSum() != null && trdOrderDetail.getFundSum() > 0) {
-                fundSum = trdOrderDetail.getFundSum();
+                fundSum = new BigDecimal(trdOrderDetail.getFundSum());
             } else {
-                fundSum = trdOrderDetail.getFundMoneyQuantity();
+               fundSum = new BigDecimal(trdOrderDetail.getFundMoneyQuantity());
+           }
+            fundSum=fundSum.divide(new BigDecimal("100")).setScale(2,BigDecimal.ROUND_HALF_UP);
+            if(TrdOrderStatusEnum.CONFIRMED.getStatus() == detailStatus || TrdOrderStatusEnum.SELLCONFIRMED.getStatus() == detailStatus){
+                logger.info("计算在总赎回金额中的确认成功的基金FundCode:"+trdOrderDetail.getFundCode());
+              totalSum = totalSum.add(fundSum);
             }
 
-            detailMap.put("fundSum", TradeUtil.getBigDecimalNumWithDiv100(fundSum));
-      totalSum = totalSum + fundSum;
             //FIXME  交易日判断逻辑使用asset allocation 中的TradeUtils
             //QDIIEnum 基金　15个交易确认　其他　１个交易日确认
-            String date = InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDIIEnum.isQDII(trdOrderDetail
-                    .getFundCode()) ? 15 : 1);
+            String date =null;
+            if(trdLogMap.get(trdOrderDetail.getFundCode())!=null){
+                date=(String)trdLogMap.get(trdOrderDetail.getFundCode());
+                date=DateUtil.handleErrorDateFormat(date);
+            }else {
+                date=InstantDateUtil.getTplusNDayNWeekendOfWork(instanceLong, QDIIEnum.isQDII(trdOrderDetail.getFundCode()) ? 15 : 1);
+            }
             String dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(date).getDayOfWeek()).toString();
-
             detailMap.put("funddate", date);
-            
             String msg = "";
             if (status.equals(CombinedStatusEnum.WAITCONFIRM.getComment())) {
                 detailMap.put("fundTitle", "预计" + date + "(" + dayOfWeek + ")确认");
@@ -976,14 +1026,16 @@ public class TradeOpServiceImpl implements TradeOpService {
               LocalDate localDate = localDateTime.toLocalDate();
               date = InstantDateUtil.format(localDate);
               dayOfWeek = DayOfWeekZh.of(InstantDateUtil.format(instanceLong).getDayOfWeek()).toString();
-              detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
+              String tradeFailReson = TrdFailtureStatusEnum.getTradeFailReson(trdOrderDetail.getErrMsg(),TrdOrderOpTypeEnum.REDEEM.getOperation());
+              detailMap.put("fundTitle", tradeFailReson);
               detailMap.put("funddate", date);
-              msg = "剩余份额低于最低赎回份额，赎回失败";
-            } else {
-                detailMap.put("fundTitle", "已于" + date + "(" + dayOfWeek + ")确认");
+            } else if( status.equals(CombinedStatusEnum.CONFIRMED.getComment())){
+                String payfee = new BigDecimal(trdOrderDetail.getBuyFee()).divide(new BigDecimal(100))
+                    .setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+                poundage=poundage.add(new BigDecimal(payfee));
+                detailMap.put("fundTitle", "已确认金额" + fundSum.toString() + ",手续费"+payfee+"元");
             }
             detailMap.put("fundMsg", msg);
-            
             detailMap.put("fundTradeType", TrdOrderOpTypeEnum.getComment(trdOrderDetail.getTradeType()));
             detailList.add(detailMap);
 
@@ -992,34 +1044,54 @@ public class TradeOpServiceImpl implements TradeOpService {
                 serialList.add(serial);
             }
         }
-
-        result.put("totalNum", TradeUtil.getBigDecimalNumWithDiv100(totalNum));
-        result.put("totalSum",TradeUtil.getBigDecimalNumWithDiv100(totalSum));
         if (statusMap != null && statusMap.size() > 0) {
             if (statusMap.size() != 1) {
-                if (statusMap.containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())
+                if (statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())) {
+                    result.put("orderStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
+                    result.put("poundage","");
+                }else if (statusMap.containsKey(CombinedStatusEnum.CONFIRMEDFAILED.getComment())
                         && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
                     result.put("orderStatus", CombinedStatusEnum.SOMECONFIRMED.getComment());
-                }
-                if (statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())
-                        && statusMap.containsKey(CombinedStatusEnum.CONFIRMED.getComment())) {
-                    result.put("orderStatus", CombinedStatusEnum.WAITCONFIRM.getComment());
+                    result.put("poundage",poundage.setScale(2,BigDecimal.ROUND_HALF_UP).toString());
                 }
             } else {
                 for (String key : statusMap.keySet()) {
                     if (statusMap.size() == 1) {
                         result.put("orderStatus", key);
+                        if(statusMap.containsKey(CombinedStatusEnum.WAITCONFIRM.getComment())){
+                            result.put("poundage","");
+                        }else {
+                            result.put("poundage",poundage.setScale(2,BigDecimal.ROUND_HALF_UP).toString());
+                        }
                     }
                 }
             }
         }
-
+      HashMap<Object, Object> fundNavadMap = financeProdCalcService.getNavadjByFundCodeAndDate(fundcodeList);
+      for(TrdOrderDetail trdOrderDetail:trdOrderDetailList){
+          BigDecimal tempFundNum=new BigDecimal("0");
+          if(trdOrderDetail.getFundNumConfirmed() != null && trdOrderDetail.getFundNumConfirmed() > 0){
+              tempFundNum = new BigDecimal(trdOrderDetail.getFundNumConfirmed());
+          }else if(trdOrderDetail.getFundNum() != null && trdOrderDetail.getFundNum() > 0){
+              tempFundNum = new BigDecimal(trdOrderDetail.getFundNum());
+          }else{
+              logger.error("trdOrderDetail id:{} have no fundNum or fundNumConfirmed",trdOrderDetail.getId());
+          }
+          if(fundNavadMap.get(trdOrderDetail.getFundCode())!=null){
+              HashMap navadMap = (HashMap)fundNavadMap.get(trdOrderDetail.getFundCode());
+              BigDecimal navadj = new BigDecimal((double) navadMap.get("navadj"));
+              totalSum=totalSum.add(navadj.multiply(tempFundNum).divide(new BigDecimal("100")));
+              logger.info("计算在总赎回金额中的确认中的基金FundCode:"+trdOrderDetail.getFundCode());
+          }
+      }
+        result.put("totalNum", totalSum.setScale(2,BigDecimal.ROUND_HALF_UP).toString());
         result.put("detailList", detailList);
         result.put("serialList", serialList);
         result.put("operation", trdOrder.getOrderStatus());
         result.put("orderDate", trdOrder.getCreateDate());
         return result;
     }
+
 
     @Override
     public Map<String, Object> getOrderInfos(String uuid, Long prodId, int orderType) throws Exception {
@@ -1052,4 +1124,18 @@ public class TradeOpServiceImpl implements TradeOpService {
     }
 
 
+    private List<TrdLog> getTraLogByOrderId(String orderId) throws Exception {
+        List<TrdLog> trdLogList=new ArrayList<>();
+        List<TrdLog> trdLogListResult=new ArrayList<>();
+        Builder builder = OrderId.newBuilder();
+        builder.setOrderId(orderId);
+        List<OrderLogDetail> orderLogDetailList = userInfoServiceFutureStub.getUserTraLog(builder.build()).get().getOrderLogDetailList();
+        for (OrderLogDetail orderLogDetail : orderLogDetailList) {
+            TrdLog trdLog=new TrdLog();
+            BeanUtils.copyProperties(orderLogDetail,trdLog);
+            trdLogListResult.add(trdLog);
+        }
+
+        return trdLogListResult;
+    }
 }

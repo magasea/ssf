@@ -1,8 +1,9 @@
 package com.shellshellfish.aaas.userinfo.service;
 
-import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
+import com.shellshellfish.aaas.common.grpc.trade.order.TrdOrderDetail;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
 
 /**
  * Created by chenwei on 2018- 二月 - 09
@@ -16,7 +17,7 @@ public interface OrderRpcService {
      * @param userProdId
      * @return
      */
-    List<OrderDetail> getAllTrdOrderDetail(Long userProdId);
+    List<TrdOrderDetail> getAllTrdOrderDetail(Long userProdId);
 
     /**
      * 获取该笔交易最近的操作记录
@@ -24,7 +25,42 @@ public interface OrderRpcService {
      * @param userProdId
      * @return
      */
-    List<OrderDetail> getLatestOrderDetail(Long userProdId);
+    List<TrdOrderDetail> getLatestOrderDetail(Long userProdId);
 
+    /**
+     *
+     * @param orderId
+     * @param fundCode
+     * @return
+     */
+    List<TrdOrderDetail> getOrderDetailByGenOrderIdAndFundCode(String orderId, String fundCode);
+
+    /**
+     *
+     * @param applySerial
+     * @return
+     */
+
+    List<TrdOrderDetail> getOrderDetailByApplySerial(String applySerial);
+
+    /**
+     *
+     * @param userProdId
+     * @param fundCode
+     * @param trdType
+     * @return
+     */
+    List<TrdOrderDetail> getOrderDetailByUserProdIdAndFundCodeAndTrdType(Long userProdId, String
+        fundCode, Integer trdType);
+
+
+    /**
+     *
+     * @param pageNo
+     * @param pageSize
+     * @return
+     */
+
+    Page<TrdOrderDetail> getFailedOrderInfos(int pageNo, int pageSize);
 
 }

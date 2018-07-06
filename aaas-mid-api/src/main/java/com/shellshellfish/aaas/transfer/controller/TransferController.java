@@ -88,6 +88,7 @@ public class TransferController {
 			resultMap = restTemplate.getForEntity(url, Map.class).getBody();
 			BigDecimal poundage = BigDecimal.valueOf(Double.parseDouble(resultMap.get("poundage").toString()));
 			BigDecimal discount = BigDecimal.valueOf(Double.parseDouble(resultMap.get("discountSaving").toString()));
+			Map<Object,Object> buyRateMap = (Map<Object,Object>)resultMap.get("buyRateMap");
 			// BigDecimal
 			// total=poundage.add(BigDecimal.valueOf(Double.parseDouble((totalAmount))));
 			BigDecimal total = poundage;
@@ -289,6 +290,7 @@ public class TransferController {
 	@ResponseBody
 	public JsonResult getBuyInitial(String uuid, String groupId, String subGroupId, @RequestParam(required=false, defaultValue="1")String oemid) {
 		Map resultMap = null;
+
 		try {
 			String url = tradeOrderUrl + "/api/trade/funds/maxminValue?groupId=" + groupId + "&subGroupId="
 					+ subGroupId + "&oemid=" + Integer.parseInt(oemid);
@@ -311,9 +313,17 @@ public class TransferController {
 					"/bankcards", List.class)
 					.getBody();
 
+			Map<Object, Object>  bankListsResult = restTemplate.getForEntity(tradeOrderUrl + "/api/trade/funds/banklists", Map.class).getBody();
+			String bankcardNumbers="";
+      String defaultBankCardNum="";
 			if (resultOriginList != null && resultOriginList.size() > 0) {
 				for (int i = 0; i < resultOriginList.size(); i++) {
 					Map resultOriginMap = resultOriginList.get(i);
+					if("".equals(bankcardNumbers)){
+						bankcardNumbers+=resultOriginMap.get("bankcardNum");
+					}else {
+						bankcardNumbers+=","+resultOriginMap.get("bankcardNum");
+					}
 					if (resultOriginMap.get("bankCode") != null) {
 						Map bankMap = new HashMap();
 						bankMap = restTemplate.getForEntity(
@@ -322,13 +332,51 @@ public class TransferController {
 						if (!StringUtils.isEmpty(bankMap.get("bankName"))) {
 							resultOriginMap.put("bankShortName", bankMap.get("bankName"));
 							resultOriginMap.put("bankName", bankMap.get("bankName"));
+
+							if(bankListsResult!=null){
+								List<Map> banklist = (List<Map>) bankListsResult.get("result");
+								String banklink = "http://47.96.164.161/";
+								for(Map map : banklist){
+									if(resultOriginMap.get("bankShortName").equals(map.get("bankName"))){
+										//money_limit_one 单笔限额（单位：万元）
+										String money_limit_one = map.get("moneyLimitDay") == null ? "0" : map.get("moneyLimitDay") + "";
+										//money_limit_day 单日限额（单位：万元）
+										String money_limit_day = map.get("moneyLimitOne") == null ? "0" : map.get("moneyLimitOne") + "";
+										resultOriginMap.put("money_limit", "单笔限额" + money_limit_one + "万元，单日限额" + money_limit_day + "万元");
+										resultOriginMap.put("url", banklink + map.get("bankShortName") + ".png");
+										resultOriginMap.put("bankOrderLimit", money_limit_one+"0000");
+										resultOriginMap.put("bankDayLimit", money_limit_day+"0000");
+										break;
+									}
+								}
+							}
+
 							result.add(resultOriginMap);
 						}
 					}
 				}
 			}
+
+			//获取默认银行卡
+      if(!"".equals(bankcardNumbers)&&resultOriginList.size()>1){
+        defaultBankCardNum = restTemplate.getForEntity(
+            tradeOrderUrl + "/api/trade/funds/getDefaultBankcard?uuid=" + uuid + "&bankcardNumbers="
+                + bankcardNumbers, String.class).getBody();
+				for(Map bankMap:result){
+					if(defaultBankCardNum.equals(bankMap.get("bankcardNum"))){
+						bankMap.put("defaultCard",1);
+					}else {
+						bankMap.put("defaultCard",0);
+					}
+				}
+      }else{
+				for(Map bankMap:result){
+						bankMap.put("defaultCard",1);
+				}
+			}
+
+
 			resultMap.put("banks", result);
-			
 			url = assetAlloctionUrl + "/api/asset-allocation/product-groups/" + groupId + "/sub-groups/" + subGroupId + "/" + Integer.parseInt(oemid);
 			Map productMap = restTemplate.getForEntity(url, Map.class).getBody();
 			if(productMap!=null){
@@ -336,6 +384,13 @@ public class TransferController {
 					resultMap.put("name", productMap.get("name"));
 				}
 			}
+
+			//获取产品列表详情以及按照起购金获取默认费率
+			String tradeUrl = tradeOrderUrl + "/api/trade/funds/getFundDetailList?groupId=" + groupId + "&subGroupId=" + subGroupId
+					+ "&oemid=" + Integer.parseInt(oemid)+"&minValue="+resultMap.get("min");
+			HashMap fundAmountListMap = restTemplate.getForEntity(tradeUrl, HashMap.class).getBody();
+			resultMap.put("fundAmountList", fundAmountListMap.get("fundAmountList"));
+			resultMap.put("buyRateMap", fundAmountListMap.get("buyRateMap"));
 			return new JsonResult(JsonResult.SUCCESS, "获取成功", resultMap);
 		} catch (HttpClientErrorException e) {
 			String str = e.getResponseBodyAsString();
@@ -542,7 +597,7 @@ public class TransferController {
 				String prodId, String totalAmount) {
 			Map result = null;
 			try {
-				result = service.sellFundPage(groupId, subGroupId, totalAmount, Integer.parseInt(oemid));
+				result = service.sellFundPage(groupId, subGroupId, totalAmount, Integer.parseInt(oemid),new BigDecimal("100"),prodId);
 				if (result != null) {
 					result.put("userUuid", userUuid);
 					result.put("bankNum", bankNum);
@@ -617,13 +672,12 @@ public class TransferController {
 			BigDecimal amount = new BigDecimal(totalAmount);
 //			result = service.sellFundPage(groupId, subGroupId, amount + "", Integer.parseInt(oemid));
 			if(persent.equals(BigDecimal.ZERO)){
-				result = service.sellFundPage(groupId, subGroupId, "0", Integer.parseInt(oemid));
+				result = service.sellFundPage(groupId, subGroupId, "0", Integer.parseInt(oemid),persent,prodId);
 				result.put("totalAmount", "--");
-				result.put("poundage", "--");
 			} else {
 //				amount = amount.multiply(persent).divide(new BigDecimal("100")).subtract(new BigDecimal(result.get("poundage") + ""));
 				totalAmount = amount.multiply(persent).divide(new BigDecimal("100")) + "";
-				result = service.sellFundPage(groupId, subGroupId, totalAmount, Integer.parseInt(oemid));
+				result = service.sellFundPage(groupId, subGroupId, totalAmount, Integer.parseInt(oemid),persent,prodId);
 				amount = (new BigDecimal(totalAmount)).subtract(new BigDecimal(result.get("poundage") + ""));
 				result.put("totalAmount", amount);
 			}
@@ -663,6 +717,12 @@ public class TransferController {
 					result.put("bankinfo", bankName + "(" + bankNum.substring(bankNum.length() - 4) + ")");
 					result.put("bankNum", bankNum);
 				}
+
+				String totalSellAmount=(String) result.get("totalSellAmount");
+				String title2="预估到账金额"+totalSellAmount+"，为保证您的资金安全，赎回时您只能赎回至您购买时的银行卡。\r\n其中："
+						+ bankName+"尾号"+bankNum.substring(bankNum.length()-4,bankNum.length())+"预估到账金额为"+totalSellAmount+
+						"\r\n*到账金额根据上一个交易日净值估算得出，实际到账金额以基金公司结算为准，预估手续费"+result.get("poundage")+"元";
+				result.put("title2",title2);
 			}
 			return new JsonResult(JsonResult.SUCCESS, "调用成功", result);
 		} catch (Exception ex) {

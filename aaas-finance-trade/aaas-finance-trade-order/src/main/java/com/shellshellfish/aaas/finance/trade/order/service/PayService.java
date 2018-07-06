@@ -3,9 +3,12 @@ package com.shellshellfish.aaas.finance.trade.order.service;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.grpc.trade.pay.BindBankCard;
 import com.shellshellfish.aaas.common.message.order.PayOrderDto;
+import com.shellshellfish.aaas.common.message.order.TrdPayFlow;
+import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.pay.FundNetInfo;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayReq;
 import com.shellshellfish.aaas.finance.trade.pay.PreOrderPayResult;
+import com.shellshellfish.aaas.grpc.common.OrderDetail;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -55,5 +58,13 @@ public interface PayService {
    */
   public List<FundNetInfo> getFundNetInfo(String userPid , List<String> fundCodes, int days)
       throws ExecutionException, InterruptedException;
+
+  /**
+   *
+   * @param trdOrderDetail
+   * @return
+   */
+  public TrdPayFlow patchOrderToPay(TrdOrderDetail trdOrderDetail);
+
 
 }

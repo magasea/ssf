@@ -1,14 +1,18 @@
 package com.shellshellfish.aaas.finance.trade.order.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.shellshellfish.aaas.finance.trade.order.model.DailyAmount;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeLimitResult;
 import com.shellshellfish.aaas.finance.trade.order.model.TradeRateResult;
 import com.shellshellfish.aaas.finance.trade.order.model.UserBank;
 
+import com.shellshellfish.aaas.finance.trade.order.model.vo.FundTradeLimitInfo;
 import java.math.BigDecimal;
 import java.util.List;
 
 public interface FundInfoApiService {
+    List<FundTradeLimitInfo> getFundTradeInfoByFundcodes(List<String> fundcodes,int tradeType);
+
     void writeAllTradeLimitToMongoDb(List<String> funds);
 
     String getTradeLimitAsRawString(String fundCode, String businFlag);
@@ -43,7 +47,7 @@ public interface FundInfoApiService {
 
     BigDecimal getRateOfBuyFund(BigDecimal amount, String fundCode, String businFlag) throws Exception;
 
-    BigDecimal getRateOfSellFund(String fundCode, String businFlag) throws Exception;
+    BigDecimal getRateOfSellFund(BigDecimal amount,String fundCode, String businFlag) throws Exception;
 
     BigDecimal calcPoundageByGrossAmount(BigDecimal totalAmount, BigDecimal rate,
         BigDecimal discount);
@@ -53,6 +57,7 @@ public interface FundInfoApiService {
     BigDecimal calcDiscountSaving(BigDecimal amount, BigDecimal rate, BigDecimal discount);
 
     List<UserBank> getUserBank(String fundCode) throws Exception;
+    public  List<DailyAmount> getProdDailyAsset(long prodId);
 
 
 }

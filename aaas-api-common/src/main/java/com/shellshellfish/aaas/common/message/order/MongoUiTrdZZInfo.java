@@ -46,6 +46,12 @@ public class MongoUiTrdZZInfo implements Serializable {
     private String melonMethod;
 
 
+  private Long orderDetailId;
+
+  
+  private int tradeType;
+
+
     private int tradeStatus;
 
 
@@ -80,9 +86,6 @@ public class MongoUiTrdZZInfo implements Serializable {
 
 
     private String outSideOrderNo;
-
-
-    private int tradeType;
 
 
     private Long tradeConfirmShare;
@@ -217,6 +220,16 @@ public class MongoUiTrdZZInfo implements Serializable {
     public void setConfirmFlag(String confirmFlag) {
         this.confirmFlag = confirmFlag;
     }
+
+
+
+  public Long getOrderDetailId() {
+    return orderDetailId;
+  }
+
+  public void setOrderDetailId(Long orderDetailId) {
+    this.orderDetailId = orderDetailId;
+  }
 
     public String getConfirmStat() {
         return confirmStat;
@@ -374,4 +387,5 @@ public class MongoUiTrdZZInfo implements Serializable {
                 ", fee=" + fee +
                 '}';
     }
+
 }

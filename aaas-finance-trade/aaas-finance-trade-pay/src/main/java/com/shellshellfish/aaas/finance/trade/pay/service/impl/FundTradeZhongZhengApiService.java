@@ -69,16 +69,23 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         if (status.equals(1)) {
             openAccountResult = jsonObject.getObject("data", OpenAccountResult.class);
         } else {
-
+            String msg = jsonObject.getString("msg");
             String errno = jsonObject.getString("errno");
+            JSONObject dataJson = (JSONObject)jsonObject.get("data");
+            String errorMsg =dataJson.getString("error");
             if(!StringUtils.isEmpty(errno) && errno.equals("1009")){
                 openAccountResult = jsonObject.getObject("data", OpenAccountResult.class);
                 logger.info("the bind card user already had account:{}", openAccountResult.getTradeAcco());
                 return openAccountResult;
             }
-            String msg = jsonObject.getString("msg");
+           if(errorMsg!=null){
+               msg=errorMsg;
+               if(errorMsg.contains("姓名或手机号不符"))  msg="持卡人姓名或预留手机号码不正确";
+               if(errorMsg.contains("身份证格式错误"))  msg="身份证号码不正确";
+           }
+
 			logger.error("{}:{}", errno, msg);
-            throw new Exception(errno + ":" + msg);
+            throw new Exception(msg);
         }
         return openAccountResult;
     }
@@ -150,8 +157,10 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
         } else {
             String errno = jsonObject.getString("errno");
             String msg = jsonObject.getString("msg");
-            logger.error("{}:{}", errno, msg);
-            throw new Exception(errno + ":" + msg);
+            logger.error("{}:{} for outsideorderno:{} sell_num:{}", errno, msg, outsideOrderNo,
+                sellNum);
+            throw new Exception(String.format("%s:%s for outsideorderno:%s sell_num:%s",errno,
+                msg, outsideOrderNo, sellNum));
         }
 
         return sellFundResult;
@@ -302,7 +311,8 @@ public class FundTradeZhongZhengApiService implements FundTradeApiService {
 
 
     private ApplyResult getApplyResult(ApplyResult applyResult, JSONObject jsonObject, Integer status) {
-        if (status.equals(1)) {
+        if (status.equals(1) && (jsonObject.containsKey("errno") && jsonObject.get("errno").equals
+            ("0000"))|| !jsonObject.containsKey("errno")) {
             JSONArray jsonArray = jsonObject.getJSONArray("data");
             applyResult = jsonArray.getObject(0, ApplyResult.class);
         } else {

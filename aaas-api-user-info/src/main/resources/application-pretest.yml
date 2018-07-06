@@ -93,3 +93,23 @@ management:
   endpoints:
     web:
       base-path: /
+org:
+  quartz:
+    jobStore:
+        class: org.quartz.simpl.RAMJobStore
+        misfireThreshold: 60000
+    threadPool:
+        class: org.quartz.simpl.SimpleThreadPool
+        threadCount: 2
+        threadsInheritContextClassLoaderOfInitializingThread: true
+using:
+  spring:
+    schedulerFactory: true
+cron:
+  frequency:
+    #Seconds	Minutes	Hours	Day Of Month	Month	Day Of Week	Year
+    # 	At minute 30 past every hour.
+    jobCheckPendingRecords: 0 0 0/3 1/1 * ? *
+    jobUpdateAndCaculateUPD: 0 0 0/3 1/1 * ? *
+    jobPatchChkPendingRecordByZZInfo: 0 0 0/3 1/1 * ? *
+    jobPatchChkPendingRecordNavadj: 0 0 0/3 1/1 * ? *

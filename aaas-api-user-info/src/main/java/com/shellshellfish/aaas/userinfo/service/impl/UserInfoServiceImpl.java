@@ -14,17 +14,17 @@ import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.common.utils.TrdStatusToCombStatusUtils;
-import com.shellshellfish.aaas.finance.trade.order.OrderDetail;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc;
 import com.shellshellfish.aaas.finance.trade.pay.PayRpcServiceGrpc.PayRpcServiceFutureStub;
 import com.shellshellfish.aaas.finance.trade.pay.ZhongZhengQueryByOrderDetailId;
+import com.shellshellfish.aaas.grpc.common.OrderDetail;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.model.DailyAmount;
 import com.shellshellfish.aaas.userinfo.model.PortfolioInfo;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
-import com.shellshellfish.aaas.userinfo.model.dao.UiProductDetail;
 import com.shellshellfish.aaas.userinfo.model.dao.UiUser;
+import com.shellshellfish.aaas.userinfo.model.dao.UserDailyIncomeAggregation;
 import com.shellshellfish.aaas.userinfo.model.dto.*;
 import com.shellshellfish.aaas.userinfo.repositories.mongo.MongoUiTrdZZInfoRepo;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UiProductDetailRepo;
@@ -61,7 +61,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static com.shellshellfish.aaas.common.utils.InstantDateUtil.yyyyMMdd;
+import static com.shellshellfish.aaas.common.utils.InstantDateUtil.*;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 
@@ -316,6 +316,20 @@ public class UserInfoServiceImpl implements UserInfoService {
         return null;
     }
 
+    /**
+     * 确认前
+     * ------- asset = 申购金额（标记为昨日）
+     * ------- 昨日收益 = 0
+     * ------- 走势图最后一日收益 = 昨日收益
+     * 确认后
+     * ------- asset = 基金×昨日净值×（1-赎回费率）（标记为昨日）
+     * ------- 昨日收益 = asset - 申购金额
+     * ------- 走势图最后一日收益（昨日）= 昨日收益
+     *
+     * @param userUuid
+     * @return
+     * @throws Exception
+     */
     @Override
     public List<TrendYield> getTrendYield(String userUuid) throws Exception {
         Aggregation agg = newAggregation(
@@ -330,57 +344,95 @@ public class UserInfoServiceImpl implements UserInfoService {
             return new ArrayList<>(0);
         }
         List<TrendYield> result = new ArrayList<>(list);
-        for (TrendYield trendYield : result) {
+
+        Iterator<TrendYield> iterator = result.iterator();
+        TrendYield today = null;
+        TrendYield yesterday = null;
+        while (iterator.hasNext()) {
+            TrendYield trendYield = iterator.next();
             String date = trendYield.getDate().replace("-", "");
             trendYield.setDate(date);
+
+            if (now().toString().equalsIgnoreCase(date)) {
+                today = trendYield;
+                today.setDate(InstantDateUtil.format(yesterday(), yyyyMMdd));
+                iterator.remove();
+            }
+            if (yesterday().toString().equalsIgnoreCase(date)) {
+                yesterday = trendYield;
+                iterator.remove();
+            }
         }
+        // 确认日当天,会生成当日的asset 但是因为当日的基金净值还没有生成，所以用的是昨日的基金净值
+        // today 不为空，表明今天有确认信息，今天的数据表示昨日（今天的asset 用昨日的净值计算的）
+        //
+        yesterday = today == null ? yesterday : today;
+        if (yesterday != null)
+            result.add(yesterday);
+
         Collections
-                .sort(result, Comparator.comparing(o -> InstantDateUtil.format(o.getDate(), "yyyyMMdd")));
+                .sort(result, Comparator.comparing(o -> InstantDateUtil.format(o.getDate(), yyyyMMdd)));
+
+
         return result;
     }
 
     @Override
     public Map<String, Object> getTotalAssets(String uuid) throws Exception {
         List<Map<String, Object>> productsList = this.getMyCombinations(uuid);
-        if (productsList == null || productsList.size() == 0) {
+        if (CollectionUtils.isEmpty(productsList)) {
             logger.error("我的智投组合暂时不存在");
-            return new HashMap<String, Object>();
+            return new HashMap<>();
         }
-        Map<String, Object> resultMap = new HashMap<String, Object>();
-        BigDecimal asserts = new BigDecimal(0);
-        BigDecimal dailyIncome = new BigDecimal(0);
-        BigDecimal totalIncome = new BigDecimal(0);
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("count", productsList.size());
+        BigDecimal assets = BigDecimal.ZERO;
+        BigDecimal dailyIncome = BigDecimal.ZERO;
+        BigDecimal totalIncome = BigDecimal.ZERO;
         if (productsList != null && productsList.size() > 0) {
             for (int i = 0; i < productsList.size(); i++) {
                 Map<String, Object> products = productsList.get(i);
                 if (products.get("totalAssets") != null) {
-                    asserts = asserts.add(new BigDecimal(products.get("totalAssets") + "")).setScale(2,
-                            RoundingMode.HALF_UP);
+                    assets = assets.add((BigDecimal) products.get("totalAssets"));
                 }
                 if (products.get("dailyIncome") != null) {
-                    dailyIncome = dailyIncome.add(new BigDecimal(products.get("dailyIncome") + ""))
-                            .setScale(2,
-                                    RoundingMode.HALF_UP);
+                    dailyIncome = dailyIncome.add((BigDecimal) products.get("dailyIncome"));
                 }
                 if (products.get("totalIncome") != null) {
-                    totalIncome = totalIncome.add(new BigDecimal(products.get("totalIncome") + ""))
-                            .setScale(2,
-                                    RoundingMode.HALF_UP);
+                    totalIncome = totalIncome.add((BigDecimal) products.get("totalIncome"));
                 }
             }
         }
-        resultMap.put("assert", asserts.setScale(2, RoundingMode.HALF_UP));
+        resultMap.put("asset", assets.setScale(2, BigDecimal.ROUND_HALF_UP));
         resultMap.put("dailyIncome", dailyIncome.setScale(2, BigDecimal.ROUND_HALF_UP));
-        resultMap.put("totalIncome", totalIncome.setScale(2, RoundingMode.HALF_UP));
-        if (asserts != BigDecimal.ZERO && !"0.00".equals(asserts + "")) {
-            BigDecimal incomeRate = (totalIncome.divide(asserts, MathContext.DECIMAL128)).setScale(4,
+        resultMap.put("totalIncome", totalIncome.setScale(2, BigDecimal.ROUND_HALF_UP));
+        if (!BigDecimal.ZERO.equals(assets)) {
+            BigDecimal incomeRate = (totalIncome.divide(assets, MathContext.DECIMAL32)).setScale(4,
                     BigDecimal.ROUND_HALF_UP);
-//			BigDecimal incomeRate = totalIncome.divide(asserts, 2, BigDecimal.ROUND_HALF_UP);
             resultMap.put("totalIncomeRate", incomeRate);
         } else {
-            resultMap.put("totalIncomeRate", "0");
+            resultMap.put("totalIncomeRate", BigDecimal.ZERO);
         }
+
         return resultMap;
+    }
+
+    /**
+     * 获取用户从注册以来的累计收益
+     *
+     * @param userUuid
+     * @return
+     */
+    @Override
+    public BigDecimal getTotalIncome(String userUuid) throws Exception {
+        //TODO 生命周期已经结束的持仓，没有必要每天都计算其累计收益值，也就不能用这中方法统计其累计收益
+        UserDailyIncomeAggregation userDailyIncomeAggregation = mongoUserDailyIncomeRepository.getTotalIncome
+                (getUserIdFromUUID(userUuid));
+
+        if (userDailyIncomeAggregation == null)
+            return BigDecimal.ZERO;
+
+        return userDailyIncomeAggregation.getTotalIncome();
     }
 
     /**
@@ -429,6 +481,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     /**
      * 计算组合的累计收益，累计收益率
+     * 确认前
+     * ------- asset = 申购金额（标记为昨日）
+     * ------- 昨日收益 = 0
+     * ------- 走势图最后一日收益 = 昨日收益
+     * <p>
+     * 确认后
+     * ------- asset = 基金×昨日净值×（1-赎回费率）（标记为昨日）
+     * ------- 昨日收益 = asset - 申购金额
+     * ------- 走势图最后一日收益（昨日）= 昨日收益
      */
     @Override
     public Map<String, PortfolioInfo> getCalculateTotalAndRate(String uuid, Long userId,
@@ -448,14 +509,34 @@ public class UserInfoServiceImpl implements UserInfoService {
         LocalDate startLocalDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(startDate),
                 ZoneId.systemDefault()).toLocalDate();
 
-        LocalDate endLocalDate = LocalDate.now();
+
+        LocalDate endLocalDate = yesterday();
         while (startLocalDate.isBefore(endLocalDate) || startLocalDate.isEqual(endLocalDate)) {
             String endDay = InstantDateUtil.format(endLocalDate, yyyyMMdd);
             result.put(endDay, getChicombinationAssets(uuid, userId, products, endLocalDate, flag));
             endLocalDate = endLocalDate.plusDays(-1);
         }
-        return result;
 
+        //==========================================================================================================
+        // 当日确认的持仓，其资产会计算到当日，但是使用的是前一日的基金净值数据（当日基金净值数据尚未生成）
+        // 所以此时资产时间定为昨天（需求定的）
+        //==========================================================================================================
+        DailyAmount dailyAmount = mongoDailyAmountRepository.findFirstByUserProdIdOrderByDateDesc(products.getId());
+        LocalDate date = Optional.ofNullable(dailyAmount).map(m -> InstantDateUtil.format(m.getDate(), yyyyMMdd)).orElse
+                (yesterday());
+
+        //补丁程序
+        if (now().equals(date)) {
+            // 该只持仓今日有确认信息
+            // 今日净值尚未产生，所以今日资产= 份额×净值×（1-赎回费率） 故标记为昨日
+            // 昨日收益 也用 今日的数据
+            PortfolioInfo portfolioInfo = getChicombinationAssets(uuid, userId, products,
+                    now(), flag);
+            portfolioInfo.setDate(yesterday());
+            result.replace(InstantDateUtil.format(yesterday(), yyyyMMdd), portfolioInfo);
+        }
+
+        return result;
     }
 
 
@@ -603,7 +684,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                     continue;
                 }
                 resultMap.put("count", count);
-                if (count > 0) {
+                if (count >= 0) {
                     List<OrderDetail> orderDetails = rpcOrderService
                             .getOrderDetails(products.getId(), Integer.MAX_VALUE);
                     String type = "";
@@ -659,11 +740,29 @@ public class UserInfoServiceImpl implements UserInfoService {
 //			resultMap.put("updateDate", DateUtil.getDateType(products.getUpdateDate()));
             String date = InstantDateUtil.getDayConvertString(products.getCreateDate());
             resultMap.put("updateDate", date);
-            resultMap.put("recentDate",
-                    Optional.ofNullable(mongoDailyAmountRepository.findFirstByUserProdIdOrderByDateDesc
-                            (products.getId()))
-                            .map(m -> InstantDateUtil.format(m.getDate(), yyyyMMdd).toString())
-                            .orElse(InstantDateUtil.now().toString()));
+
+            //==========================================================================================================
+            // 当日确认的持仓，其资产会计算到当日，但是使用的是前一日的基金净值数据（当日基金净值数据尚未生成）
+            // 所以此时资产时间定为昨天（需求定的）
+            //==========================================================================================================
+
+            DailyAmount dailyAmount = mongoDailyAmountRepository.findFirstByUserProdIdOrderByDateDesc
+                    (products.getId());
+
+            String recentDate;
+            if (dailyAmount == null && now().equals(InstantDateUtil.format(products.getCreateDate())))
+                //申购日当天显示当日
+                recentDate = InstantDateUtil.format(now(), yyyyMMdd);
+            else {
+                recentDate = Optional.ofNullable(dailyAmount)
+                        .map(m -> m.getDate())
+                        .orElse(InstantDateUtil.format(yesterday(), yyyyMMdd));
+
+                recentDate = InstantDateUtil.format(recentDate, yyyyMMdd).isBefore(now()) ? recentDate :
+                        InstantDateUtil.format(yesterday(), yyyyMMdd);
+            }
+
+            resultMap.put("recentDate", InstantDateUtil.format(recentDate, yyyyMMdd).toString());
             resultList.add(resultMap);
         }
         return resultList;
@@ -1191,7 +1290,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                 String orderId = (String) log.get("orderId");
                 Long aLong = ordersDate.get(orderId);
                 System.out.println(aLong);
-                String dateString = TradeUtil.getReadableDateTime(aLong).split("T")[0];
+                String dateString = TradeUtil.getReadableDateTime(aLong).split("T")[0] + " " + TradeUtil.getReadableDateTime(aLong).split("T")[1].split("\\.")[0];
                 log.put("date", dateString);
                 log.put("dateLong", aLong / 1000);
                 System.out.println(dateString);
@@ -1282,7 +1381,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                     Aggregation.match(Criteria.where("operations").is(operationCode)),
                     Aggregation.match(Criteria.where("order_id").exists(true)),
                     Aggregation.sort(Direction.ASC, "trade_date"),
-                    Aggregation.group("order_id").last("trade_date").as("trade_date"),
+                    Aggregation.group("order_id").first("trade_date").as("trade_date"),
                     Aggregation.sort(Direction.DESC, "trade_date"),
                     Aggregation.skip(currentPage * pageSize * 1L),
                     Aggregation.limit(pageSize)
@@ -1293,7 +1392,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                     Aggregation.match(Criteria.where("user_id").is(userId)),
                     Aggregation.match(Criteria.where("order_id").exists(true)),
                     Aggregation.sort(Direction.ASC, "trade_date"),
-                    Aggregation.group("order_id").last("trade_date").as("trade_date"),
+                    Aggregation.group("order_id").first("trade_date").as("trade_date"),
                     Aggregation.sort(Direction.DESC, "trade_date"),
                     Aggregation.skip(currentPage * pageSize * 1L),
                     Aggregation.limit(pageSize)
@@ -1371,6 +1470,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                     continue;
                 }
                 String fundCode = mongoUiTrdLogDTO.getFundCode();
+                map.put("fundCode", fundCode);
                 int operation = mongoUiTrdLogDTO.getOperations();
                 Long dateLong = null;
                 if (mongoUiTrdLogDTO.getTradeDate() != null && mongoUiTrdLogDTO.getTradeDate() > 0) {
@@ -1501,12 +1601,21 @@ public class UserInfoServiceImpl implements UserInfoService {
     public void combineFundsToProduct(Map<String, Map<String, Object>> tradLogsMap,
                                       final List<Map<String, Object>> tradeLogs) {
         Map<String, Map<String, Object>> tradLogsSum = new HashMap<>();
-        if (tradLogsMap != null && tradLogsMap.size() > 0) {
-            for (Map.Entry<String, Map<String, Object>> entry : tradLogsMap.entrySet()) {
+        List<Map<String, Object>> amount = tradLogsMap.values().stream().filter(k ->
+                k.get("amount") != null &&
+                        k.get("amount") instanceof BigDecimal &&
+                        (((BigDecimal) k.get("amount")).compareTo(BigDecimal.ZERO)) > 0).
+                collect(Collectors.toList());
+        Map<String, Map<String, Object>> fundCodeMap = amount.stream().collect(Collectors.toMap(
+                k -> k.get("prodId") + "-" + k.get("fundCode") + "-" + k.get("operationsStatus") + "-" + k.get("orderId"),
+                v -> v));
+        if (fundCodeMap != null && fundCodeMap.size() > 0) {
+            for (Map.Entry<String, Map<String, Object>> entry : fundCodeMap.entrySet()) {
 
                 String[] params = entry.getKey().split("-");
                 String uoKey = String.format("%s-%s-%s", params[0], params[2], params[3]);
                 Map<String, Object> valueMap = entry.getValue();
+                valueMap.remove("fundCode");
 
                 Map<String, String> tradeStatusMap = new HashMap<>();
                 if (!tradLogsSum.containsKey(uoKey)) {

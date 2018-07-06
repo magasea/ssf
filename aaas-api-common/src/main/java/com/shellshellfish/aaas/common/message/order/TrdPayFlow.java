@@ -20,7 +20,7 @@ public class TrdPayFlow implements Serializable {
   private String bankCardNum;
   private long userProdId;
   private String fundCode;
-  private int trdStatus;
+  private int trdStatus = Integer.MIN_VALUE;
   private long trdConfirmDate;
   private int trdType;
   private String trdApplyDate;
@@ -42,8 +42,11 @@ public class TrdPayFlow implements Serializable {
   private String errCode;
   private Integer trdbkerStatusCode;
   private String trdbkerStatusName;
+  private TrdPayFlowExt trdPayFlowExt;
 
-  
+  public TrdPayFlow(){
+    this.trdPayFlowExt = new TrdPayFlowExt();
+  }
   
   public long getId() {
     return id;
@@ -353,7 +356,14 @@ public class TrdPayFlow implements Serializable {
     this.trdbkerStatusName = trdbkerStatusName;
   }
 
-  
+  public TrdPayFlowExt getTrdPayFlowExt() {
+    return trdPayFlowExt;
+  }
+
+  public void setTrdPayFlowExt(TrdPayFlowExt trdPayFlowExt) {
+    this.trdPayFlowExt = trdPayFlowExt;
+  }
+
   public boolean equals(Object o) {
     if (this == o) {
       return true;

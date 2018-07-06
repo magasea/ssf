@@ -6,6 +6,8 @@ import com.shellshellfish.aaas.common.grpc.finance.product.ProductBaseInfo;
 import com.shellshellfish.aaas.common.grpc.finance.product.ProductMakeUpInfo;
 import com.shellshellfish.aaas.common.utils.InstantDateUtil;
 import com.shellshellfish.aaas.finance.trade.order.model.DistributionResult;
+import com.shellshellfish.aaas.finance.trade.order.model.FundAmount;
+import com.shellshellfish.aaas.finance.trade.order.model.FundDetailResult;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrder;
 import com.shellshellfish.aaas.finance.trade.order.model.dao.TrdOrderDetail;
 import com.shellshellfish.aaas.finance.trade.order.model.vo.FinanceProdBuyInfo;
@@ -17,6 +19,8 @@ import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -66,7 +70,7 @@ public class TradeOrderController {
 	@RequestMapping(value = "/funds/buy", method = RequestMethod.POST)
 	public ResponseEntity<?> buyFinanceProd(@RequestBody FinanceProdBuyInfo financeProdBuyInfo)
 			throws Exception {
-		UserInfo userInfo = tradeOpService.getUserInfoByUserUUID(financeProdBuyInfo.getUuid());;
+		UserInfo userInfo = tradeOpService.getUserInfoByUserUUID(financeProdBuyInfo.getUuid());
 		Long userId = userInfo.getId();
 		financeProdBuyInfo.setUserId(userId);
 		if(userInfo.getRiskLevel() < 0){
@@ -175,6 +179,81 @@ public class TradeOrderController {
 		return new ResponseEntity<DistributionResult>(distributionResult, HttpStatus.OK);
 	}
 
+
+
+	@ApiOperation("获取组合产品详细信息")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = true, value = "groupId", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "Long", required = true, value = "subGroupId", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1"),
+			@ApiImplicitParam(paramType = "query", name = "minValue", dataType = "BigDecimal", required = true, value = "minValue"),
+	})
+	@ApiResponses({
+			@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
+			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
+			@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")})
+	@RequestMapping(value = "/funds/getFundDetailList", method = RequestMethod.GET)
+	public ResponseEntity<HashMap> getFundDetailList(
+			@RequestParam(value = "groupId") Long groupId,
+			@RequestParam(value = "subGroupId") Long subGroupId,
+			@RequestParam(value = "oemid") Integer oemid,
+			@RequestParam(value = "minValue") BigDecimal minValue) throws Exception {
+				java.text.DecimalFormat df = new java.text.DecimalFormat("0.00");
+				HashMap<Object, Object> fundDetailMap = new HashMap<>();
+				List<FundDetailResult> fundDetailList=new ArrayList<>();
+				ProductBaseInfo productBaseInfo = new ProductBaseInfo();
+				productBaseInfo.setProdId(groupId);
+				productBaseInfo.setGroupId(subGroupId);
+				productBaseInfo.setOemId(oemid);
+				List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
+				DistributionResult distributionResult = financeProdCalcService.getPoundageOfBuyFund(minValue, productList);
+				fundDetailMap.put("buyRateMap",distributionResult.getBuyRateMap());
+				for(ProductMakeUpInfo productMakeUpInfo: productList){
+					BigDecimal fundShare = BigDecimal.valueOf(productMakeUpInfo.getFundShare()).divide(BigDecimal.valueOf(10000));
+					String fundShareStr = df.format(fundShare.multiply(new BigDecimal("100")))+"%";
+					FundDetailResult fundDetailResult = new FundDetailResult(productMakeUpInfo.getFundCode(),productMakeUpInfo.getFundName(),"--",fundShareStr);
+					fundDetailList.add(fundDetailResult);
+				}
+				fundDetailMap.put("fundAmountList",fundDetailList);
+				return new ResponseEntity<HashMap>(fundDetailMap, HttpStatus.OK);
+	}
+
+	@ApiOperation("获取默认选择银行卡信息")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "query", name = "bankcardNumbers", dataType = "String", required = true, value = "bankcardNumbers"),
+			@ApiImplicitParam(paramType = "path", name = "uuid", dataType = "String", required = true, value = "用户ID", defaultValue = "")
+			})
+	@ApiResponses({
+			@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
+			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
+			@ApiResponse(code = 403, message = "服务器已经理解请求，但是拒绝执行它"),
+			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对")})
+	@RequestMapping(value = "/funds/getDefaultBankcard", method = RequestMethod.GET)
+	public ResponseEntity<String> getDefaultBankcard(
+			@RequestParam(value = "bankcardNumbers") String bankcardNumbers,
+			@RequestParam(value = "uuid") String uuid
+	) throws Exception {
+		UserInfo userInfo = tradeOpService.getUserInfoByUserUUID(uuid);
+		List<Long> bankcardList=new ArrayList<>();
+		if(bankcardNumbers!=null){
+			String[] bankcardArr = bankcardNumbers.split(",");
+			for(String bankcard:bankcardArr){
+				bankcardList.add(Long.parseLong(bankcard));
+			}
+		}
+		Page<TrdOrder> trdOrderPage = orderService
+				.getDefaultBankcardOrderByUserId(String.valueOf(userInfo.getId()), bankcardList,
+						new PageRequest(0, 1));
+		List<TrdOrder> trdOrderList = trdOrderPage.getContent();
+		if(trdOrderList.size()>0){
+			return new ResponseEntity<String>(trdOrderList.get(0).getBankCardNum(), HttpStatus.OK);
+		}else {
+			return null;
+		}
+	}
+
+
 	/**
 	 * 赎回理财产品 赎回
 	 *
@@ -186,7 +265,10 @@ public class TradeOrderController {
 			@ApiImplicitParam(paramType = "query", name = "groupId", dataType = "Long", required = true, value = "groupId", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "subGroupId", dataType = "Long", required = true, value = "subGroupId", defaultValue = ""),
 			@ApiImplicitParam(paramType = "query", name = "oemid", dataType = "Integer", required = true, value = "oemid", defaultValue = "1"),
-			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "BigDecimal", required = true, value = "赎回金额", defaultValue = "")})
+			@ApiImplicitParam(paramType = "query", name = "totalAmount", dataType = "BigDecimal", required = true, value = "赎回金额", defaultValue = ""),
+			@ApiImplicitParam(paramType = "query", name = "persent", dataType = "BigDecimal", required = false, value = "赎回比例", defaultValue = "")
+	}
+			)
 	@ApiResponses({
 			@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
 			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 401, message = "未授权用户"),
@@ -197,14 +279,19 @@ public class TradeOrderController {
 			@RequestParam(value = "groupId") Long groupId,
 			@RequestParam(value = "subGroupId") Long subGroupId,
 			@RequestParam(value = "oemid") Integer oemid,
-			@RequestParam(value = "totalAmount") BigDecimal totalAmount)
+			@RequestParam(value = "totalAmount") BigDecimal totalAmount,
+			@RequestParam(value = "persent",required = false,defaultValue = "0") BigDecimal persent,
+			@RequestParam(value = "prodId") String prodId)
+
+
 			throws Exception {
 		ProductBaseInfo productBaseInfo = new ProductBaseInfo();
 		productBaseInfo.setProdId(groupId);
 		productBaseInfo.setGroupId(subGroupId);
 		productBaseInfo.setOemId(oemid);
 		List<ProductMakeUpInfo> productList = financeProdInfoService.getFinanceProdMakeUpInfo(productBaseInfo);
-		DistributionResult distributionResult = financeProdCalcService.getPoundageOfSellFund(totalAmount, productList);
+		DistributionResult distributionResult = financeProdCalcService.getPoundageOfSellFund(totalAmount, productList,persent,prodId);
+
 		return new ResponseEntity<DistributionResult>(distributionResult, HttpStatus.OK);
 	}
 
@@ -330,7 +417,7 @@ public class TradeOrderController {
 	@ApiOperation("购买理财产品 产品详情页面(购买)")
 	@ApiImplicitParams({
 //				@ApiImplicitParam(paramType = "path", name = "uuid", dataType = "String", required = true, value = "用户UUID", defaultValue = ""),
-		@ApiImplicitParam(paramType = "query", name = "orderId", dataType = "String", required = true, value = "订单编号", defaultValue = "1231230001000001513657092497")
+		@ApiImplicitParam(paramType = "path", name = "orderId", dataType = "String", required = true, value = "订单编号", defaultValue = "1231230001000001513657092497")
 	})
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
@@ -355,7 +442,7 @@ public class TradeOrderController {
 	 */
 	@ApiOperation("购买理财产品 产品详情页面(赎回)")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "query", name = "orderId", dataType = "String", required = true, value = "订单编号", defaultValue = "1231230001000001513657092497")
+		@ApiImplicitParam(paramType = "path", name = "orderId", dataType = "String", required = true, value = "订单编号", defaultValue = "1231230001000001513657092497")
 	})
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "OK"),
@@ -365,7 +452,7 @@ public class TradeOrderController {
 	@RequestMapping(value = "/funds/sellDetails/{orderId}", method = RequestMethod.GET)
 	public ResponseEntity<Map> sellDetails(
 			// @PathVariable(value = "groupId") Long uuid,
-			@PathVariable(value = "orderId") String orderId) throws Exception {
+			@PathVariable String orderId) throws Exception {
 		logger.error("method sellDetails run ..");
 		Map<String, Object> result = tradeOpService.sellDeatils(orderId);
 //		Map<String, Object> result = new HashMap<String, Object>();

@@ -5,6 +5,7 @@ import com.shellshellfish.aaas.common.grpc.zzapi.WalletApplyResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZAplyCfmInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZDiscountInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundNetInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZFundShareInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZRiskCmtResult;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZSellWltRlt;
@@ -12,11 +13,13 @@ import com.shellshellfish.aaas.common.grpc.zzapi.ZZTradeLimit;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltAplyInfo;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltInfoRlt;
 import com.shellshellfish.aaas.common.grpc.zzapi.ZZBankInfo;
+import com.shellshellfish.aaas.common.grpc.zzapi.ZZWltSellAndBuyResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.CancelTradeResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.SellResult;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZBonusInfo;
 import com.shellshellfish.aaas.zhongzhengapi.model.ZZBuyResult;
 import java.util.List;
+import org.springframework.data.domain.Page;
 
 /**
  * Created by chenwei on 2018- 四月 - 03
@@ -103,6 +106,20 @@ public interface ZhongZhengApiService {
 
   /**
    *
+   * @param trdAcco
+   * @param pid
+   * @param applyNum
+   * @param outsideOrderNo
+   * @param targetFundCode
+   * @return
+   * @throws Exception
+   */
+
+  public ZZWltSellAndBuyResult sellWallet2Buy(String trdAcco, String pid, String applyNum, String
+      outsideOrderNo, String targetFundCode ) throws Exception;
+
+  /**
+   *
    * @param pid
    * @return
    * @throws Exception
@@ -185,6 +202,20 @@ public interface ZhongZhengApiService {
   public List<ZZBonusInfo> getBonusInfo(String pid, String fundCode, String startDate)
       throws Exception;
 
+
+  /**
+   *
+   * @param fundCode
+   * @param startDate
+   * @param pageSize
+   * @param pageNo
+   * @return
+   * @throws Exception
+   */
+
+  public Page<ZZBonusInfo> getBonusInfoNoPid(String fundCode, String startDate, Integer pageSize,
+      Integer pageNo ) throws Exception;
+
   /**
    *
    * @param pid
@@ -202,5 +233,15 @@ public interface ZhongZhengApiService {
    */
   public ZZRiskCmtResult commitRiskLevel(String pid, Integer riskAbility) throws Exception;
 
+
+  /**
+   *
+   * @param fundCode
+   * @param limitLeft
+   * @param limitRight
+   * @return
+   */
+  public List<ZZFundNetInfo> getAllNet( String fundCode, Integer limitLeft, Integer
+      limitRight) throws Exception;
 
 }

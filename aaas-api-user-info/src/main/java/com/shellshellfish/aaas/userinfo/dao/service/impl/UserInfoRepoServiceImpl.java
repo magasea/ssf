@@ -2,7 +2,10 @@ package com.shellshellfish.aaas.userinfo.dao.service.impl;
 
 import com.mongodb.client.result.UpdateResult;
 import com.shellshellfish.aaas.common.enums.BankCardStatusEnum;
+import com.shellshellfish.aaas.common.enums.MonetaryFundEnum;
+import com.shellshellfish.aaas.common.enums.PendingRecordStatusEnum;
 import com.shellshellfish.aaas.common.enums.SystemUserEnum;
+import com.shellshellfish.aaas.common.enums.TrdOrderOpTypeEnum;
 import com.shellshellfish.aaas.common.enums.TrdOrderStatusEnum;
 import com.shellshellfish.aaas.common.enums.UserRiskLevelEnum;
 import com.shellshellfish.aaas.common.enums.grpc.ItemStatus;
@@ -10,11 +13,17 @@ import com.shellshellfish.aaas.common.exceptions.ErrorConstants;
 import com.shellshellfish.aaas.common.utils.MyBeanUtils;
 import com.shellshellfish.aaas.common.utils.TradeUtil;
 import com.shellshellfish.aaas.grpc.common.ErrInfo;
+import com.shellshellfish.aaas.grpc.common.UserProdDetail;
 import com.shellshellfish.aaas.grpc.common.UserProdId;
 import com.shellshellfish.aaas.trade.finance.prod.FinanceProdInfo;
 import com.shellshellfish.aaas.userinfo.dao.service.UserInfoRepoService;
 import com.shellshellfish.aaas.userinfo.exception.UserInfoException;
 import com.shellshellfish.aaas.userinfo.grpc.CardInfo;
+import com.shellshellfish.aaas.userinfo.grpc.GetUserProdDetailResults;
+import com.shellshellfish.aaas.userinfo.grpc.NeedPatchOutsideOrderIds;
+import com.shellshellfish.aaas.userinfo.grpc.OrderId;
+import com.shellshellfish.aaas.userinfo.grpc.OrderLogDetail;
+import com.shellshellfish.aaas.userinfo.grpc.OrderLogResults;
 import com.shellshellfish.aaas.userinfo.grpc.SellPersentProducts;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductDetail;
 import com.shellshellfish.aaas.userinfo.grpc.SellProductDetailResult;
@@ -28,6 +37,8 @@ import com.shellshellfish.aaas.userinfo.grpc.UserIdQuery;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfo;
 import com.shellshellfish.aaas.userinfo.grpc.UserInfoServiceGrpc;
 import com.shellshellfish.aaas.userinfo.grpc.UserUUID;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoCaculateBase;
+import com.shellshellfish.aaas.userinfo.model.dao.MongoPendingRecords;
 import com.shellshellfish.aaas.userinfo.model.dao.MongoUiTrdLog;
 import com.shellshellfish.aaas.userinfo.model.dao.UiAssetDailyRept;
 import com.shellshellfish.aaas.userinfo.model.dao.UiBankcard;
@@ -59,17 +70,20 @@ import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoBankCardsRepo
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoFriendRuleRepository;
 import com.shellshellfish.aaas.userinfo.repositories.mysql.UserInfoRepository;
 import com.shellshellfish.aaas.userinfo.repositories.redis.UserInfoBaseDao;
-import com.shellshellfish.aaas.userinfo.service.impl.UserInfoServiceImpl;
 import com.shellshellfish.aaas.userinfo.utils.MongoUiTrdLogUtil;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -225,16 +239,12 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
         (uiBankcard.getCardNumber());
     if (!CollectionUtils.isEmpty(uiBankcardsWithCardNum) && uiBankcardsWithCardNum.get(0)
         .getUserId() != uiBankcard.getUserId()) {
-      logger.warn("the bankcard:{} origin is with userId{} and status is:{} now intend to bind it"
+      logger.warn("kcard:{} origin is with userId{} and status is:{} now intend to bind it"
           + " with userId{}", uiBankcard.getCardNumber(), uiBankcardsWithCardNum.get(0).getUserId
           (), uiBankcardsWithCardNum.get(0).getStatus(), uiBankcard.getUserId()
       );
       if (uiBankcardsWithCardNum.get(0).getStatus() != BankCardStatusEnum.INVALID.getStatus()) {
-        throw new Exception(String.format("the bankcard:%s origin is with userId:%s and "
-                + "cellphone:%s and status is:%s now intend to bind it with userId:%s", uiBankcard
-                .getCardNumber(), uiBankcardsWithCardNum.get(0).getUserId(),
-            uiBankcardsWithCardNum.get(0).getCellphone(),
-            uiBankcardsWithCardNum.get(0).getStatus(), uiBankcard.getUserId()));
+        throw new Exception(String.format("此银行卡已被其他账户绑定"));
       } else {
         uiBankcardsWithCardNum.get(0).setStatus(BankCardStatusEnum.VALID.getStatus());
         uiBankcardsWithCardNum.get(0).setUserId(uiBankcard.getUserId());
@@ -579,11 +589,27 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
     Long userId = request.getUserId();
     String userUUID = request.getUuid();
     UiUser uiUser = null;
+    UserBankInfo.Builder builder = UserBankInfo.newBuilder();
+    //有个需要是直接去拿pid就行了
+    if(!StringUtils.isEmpty(request.getBankCardNo())){
+      BankCardDTO bankCardDTO =  getUserInfoBankCard(request.getBankCardNo());
+      if(bankCardDTO == null || StringUtils.isEmpty(bankCardDTO.getUserPid())){
+        onError(responseObserver, new Exception("Failed to get bankCardInfo by bankCardNo"+
+            request.getBankCardNo()));
+      }
+      MyBeanUtils.mapEntityIntoDTO(bankCardDTO, builder);
+      builder.setUserPid(bankCardDTO.getUserPid());
+      responseObserver.onNext(builder.build());
+      responseObserver.onCompleted();
+      return;
+    }
+
     if (userId <= 0) {
       logger.error("userId is not valid:" + userId);
       if (StringUtils.isEmpty(userUUID)) {
         logger.error("userId and userUUID both is not valid:" + userId + " " + userUUID);
         //Todo: 是否直接返回？
+        onError(responseObserver, new Exception("userId and userUUID both is not valid:" + userId + " " + userUUID));
         return;
       } else {
         try {
@@ -592,6 +618,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
         } catch (Exception e) {
           logger.error("exception:", e);
           logger.error("failed to retrieve userId by userUUID:" + userUUID);
+          onError(responseObserver, new Exception("failed to retrieve userId by userUUID:" + userUUID));
           return;
         }
       }
@@ -606,7 +633,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
     } catch (InstantiationException e) {
       logger.error("exception:", e);
     }
-    UserBankInfo.Builder builder = UserBankInfo.newBuilder();
+
     builder.setUserId(userId);
 
     if (bankCardDTOS.size() <= 0) {
@@ -638,6 +665,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
 
   /**
    */
+  @Transactional
   public void genUserProdsFromOrder(
       com.shellshellfish.aaas.userinfo.grpc.FinanceProdInfosQuery request,
       io.grpc.stub.StreamObserver<com.shellshellfish.aaas.grpc.common.UserProdId>
@@ -675,6 +703,17 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       Long userProdId = saveResult.getId();
       logger.info("saved UiProducts with result id:" + userProdId);
       for (FinanceProdInfo financeProdInfo : financeProdInfosValue) {
+        List<MongoPendingRecords> mongoPendingRecords = getMongoPendingRecordsNotInited
+            (financeProdInfo.getFundCode(), uiProducts.getProdId(), uiProducts.getGroupId(),
+                TrdOrderOpTypeEnum.BUY.getOperation(), request.getUserId(), userProdId);
+        if(!CollectionUtils.isEmpty(mongoPendingRecords)){
+          throw new Exception(String.format("There still pending request need to be handled "
+              + "prodId:%s groupId:%s fundCode:%s created in:%s", mongoPendingRecords.get(0)
+              .getProdId(), mongoPendingRecords.get(0).getGroupId(),  mongoPendingRecords.get(0)
+              .getFundCode(), mongoPendingRecords.get(0).getCreatedDate()));
+        }
+
+
         UiProductDetail uiProductDetail = new UiProductDetail();
         BeanUtils.copyProperties(financeProdInfo, uiProductDetail);
         uiProductDetail.setCreateBy(request.getUserId());
@@ -683,17 +722,25 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
         uiProductDetail.setUpdateDate(TradeUtil.getUTCTime());
         uiProductDetail.setUserProdId(userProdId);
         uiProductDetailRepo.save(uiProductDetail);
+
+        MongoPendingRecords mongoPendingRecordNew = new MongoPendingRecords();
+        mongoPendingRecordNew.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED.getStatus());
+        mongoPendingRecordNew.setUserId(request.getUserId());
+        mongoPendingRecordNew.setProdId(uiProducts.getProdId());
+        mongoPendingRecordNew.setGroupId(uiProducts.getGroupId());
+        mongoPendingRecordNew.setCreatedDate(TradeUtil.getUTCTime());
+        mongoPendingRecordNew.setCreatedBy(request.getUserId());
+        mongoPendingRecordNew.setFundCode(financeProdInfo.getFundCode());
+        mongoPendingRecordNew.setTradeType(TrdOrderOpTypeEnum.BUY.getOperation());
+        mongoPendingRecordNew.setUserProdId(userProdId);
+        mongoTemplate.save(mongoPendingRecordNew, "ui_pending_records");
       }
       respBuilder.setUserProdId(userProdId);
       responseObserver.onNext(respBuilder.build());
       responseObserver.onCompleted();
       return;
     } catch (Exception ex) {
-
-      respBuilder.setUserProdId(-1L);
-      responseObserver.onNext(respBuilder.build());
-      responseObserver.onCompleted();
-      return;
+      onError(responseObserver, ex);
     }
 
   }
@@ -1124,7 +1171,13 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
 
   @Override
   @Transactional
+  //ToDo:
+  // 1. set redis the user_prod_id and fund_code is in caculate status
+  // 2. if latest_serial is empty then calculate origin quantity first
+  // 3. set the scheduler job to check redis user_prod_id and fund_code status, if is in caculate
+  // status, then ignore this element continue others
   public Builder updateProductQuantity(SellPersentProducts request) throws Exception {
+
     Long percent = request.getPercent();
     if (percent < 0 || percent > 10000) {
       logger.error("percent:{} is out of range", percent);
@@ -1132,58 +1185,213 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
     }
     //检查出售的每个基金在当前用户拥有的产品有足够的份额
     UiProducts uiProducts = uiProductRepo.findById(request.getUserProductId());
+
     List<UiProductDetail> uiProductDetails = uiProductDetailRepo.findAllByUserProdId(request
         .getUserProductId());
-    Map<String, UiProductDetail> currentAvailableFunds = new HashMap<>();
-//		Map<String, Integer> currentFundsStatus = new HashMap<>();
-    for (UiProductDetail uiProductDetail : uiProductDetails) {
-      if (uiProductDetail.getFundQuantityTrade() == null
-          || uiProductDetail.getFundQuantityTrade() <=
-          0) {
-        continue;
-      }
-      if (uiProductDetail.getStatus() != null && uiProductDetail.getStatus() ==
-          TrdOrderStatusEnum.WAITSELL.getStatus()) {
-        logger.error("fundCode:{} is in WAITSELL status:{}", uiProductDetail.getFundCode(),
-            uiProductDetail.getStatus());
-        throw new Exception(String.format("fundCode:%s is in WAITSELL status:%s",
-            uiProductDetail.getFundCode(), uiProductDetail.getStatus()));
-      }
-      currentAvailableFunds.put(uiProductDetail.getFundCode(), uiProductDetail);
-//			currentFundsStatus.put(uiProductDetail.getFundCode(), uiProductDetail.getStatus());
-    }
-    SellProductsResult.Builder sprBuilder = SellProductsResult.newBuilder();
-    SellProductDetailResult.Builder spdrBuilder = SellProductDetailResult.newBuilder();
-    for (Map.Entry<String, UiProductDetail> entryItem : currentAvailableFunds.entrySet()) {
-      spdrBuilder.setFundCode(entryItem.getKey());
-      Long quantity = TradeUtil.getLongFromNumWithDiv10000(entryItem.getValue()
-          .getFundQuantityTrade() * percent);
 
-      Long quantityRemain = entryItem.getValue().getFundQuantityTrade() - quantity;
-      if (quantityRemain < 100) {
-        logger.error("quantityRemain:{} is too small", quantityRemain);
-        //按百分比份额赎回如果剩余的份额不足一份， 则把剩余份额全部赎回
-        quantity = new Long(entryItem.getValue().getFundQuantityTrade());
-        quantityRemain = 0L;
-        spdrBuilder.setFundQuantityTrade(quantity);
-        spdrBuilder.setFundQuantityTradeRemain(quantityRemain);
-      } else {
-        spdrBuilder.setFundQuantityTrade(quantity);
-        spdrBuilder.setFundQuantityTradeRemain(quantityRemain);
-      }
-      spdrBuilder.setResult(ItemStatus.SUCCESS.ordinal());
-      sprBuilder.addSellProductDetailResults(spdrBuilder);
-      uiProductDetailRepo.updateByParamDeductTrade(quantityRemain, TradeUtil.getUTCTime(),
-          request.getUserId(), request.getUserProductId(), entryItem.getValue().getFundCode(),
-          TrdOrderStatusEnum.WAITSELL.getStatus());
-      spdrBuilder.clear();
-    }
+    uiProductDetails.forEach(
+        item -> {
+          userInfoBaseDao.setCaculateStatus(item.getUserProdId(), item.getFundCode());
+        }
+    );
+
+
+    Map<String, UiProductDetail> currentAvailableFunds = new HashMap<>();
+    Map<String, MongoPendingRecords> mongoPendingRecordsHashMap = new HashMap<>();
+
+//		Map<String, Integer> currentFundsStatus = new HashMap<>();
+    SellProductsResult.Builder sprBuilder = SellProductsResult.newBuilder();
     if (!StringUtils.isEmpty(uiProducts.getBankCardNum())) {
       sprBuilder.setUserBankNum(uiProducts.getBankCardNum());
     }
+    SellProductDetailResult.Builder spdrBuilder = SellProductDetailResult.newBuilder();
+    for (UiProductDetail uiProductDetail : uiProductDetails) {
+      //注意 这里开始重构： 查出现有未处理的pendRecords,
+      // 1. 如果还没有orderId生成的话， 直接返回错误，提示尚有未处理订单
+      // 2. 已经有orderId生成，如果是赎回的话，算出剩余份额
+      // 3. 如果这次要赎回的份额大于剩余份额的话，将剩余份额全部返回
+      //    如果这次要赎回的份额导致剩余份额小于1份的话，将剩余份额全部返回
+      // 重构的原则： 不改动uiProductDetail里的fundQuantity, 只有在收到确认消息后才扣减， 废除fundQuantityTrade
+      spdrBuilder.clear();
+      Query query = new Query();
+      query.addCriteria(Criteria.where("user_prod_id").is(request.getUserProductId()).and
+          ("fund_code").is(uiProductDetail.getFundCode()));
+      List<MongoPendingRecords> mongoPendingRecords = mongoTemplate
+          .find(query, MongoPendingRecords.class);
+
+      //用 ui_calc_base记录做过滤，如果outside_order_id出现了， 那么排除
+      Query queryCalc = new Query();
+      queryCalc.addCriteria(Criteria.where("user_prod_id").is(request.getUserProductId()).and
+          ("fund_code").is(uiProductDetail.getFundCode()));
+      Set<String> orderCalcedIds = new HashSet<>();
+      List<MongoCaculateBase> mongoCaculateBases = mongoTemplate.find(queryCalc,
+          MongoCaculateBase.class);
+      for(MongoCaculateBase mongoCaculateBase: mongoCaculateBases){
+        orderCalcedIds.add(mongoCaculateBase.getOutsideOrderId());
+      }
+
+
+      Integer originQuantity = uiProductDetail.getFundQuantity();
+      if(StringUtils.isEmpty(uiProductDetail.getLastestSerial())){
+        logger.error("userProdId:{} fundCode:{} latestSerial:{}", uiProductDetail.getUserProdId()
+            , uiProductDetail.getFundCode(), uiProductDetail.getLastestSerial());
+        //we need to user caclbase to get the current quantity.
+        originQuantity = 0;
+        for(MongoCaculateBase mongoCaculateBase: mongoCaculateBases){
+          if(mongoCaculateBase.getCalculatedShare() == null || mongoCaculateBase
+              .getCalculatedShare()  == 0){
+            logger.error("this caculateBase is not a good item");
+            orderCalcedIds.remove(mongoCaculateBase.getOutsideOrderId());
+            continue;
+          }
+          if(mongoCaculateBase.getTradeType() == TrdOrderOpTypeEnum.BUY.getOperation()){
+            originQuantity += mongoCaculateBase.getCalculatedShare().intValue();
+          }else if(mongoCaculateBase.getTradeType() == TrdOrderOpTypeEnum.REDEEM.getOperation()){
+            originQuantity -= mongoCaculateBase.getCalculatedShare().intValue();
+          }else{
+            logger.error("the caculated base with outsideOrderId:{} have not a vaild trdType:{}",
+                mongoCaculateBase.getOutsideOrderId(), mongoCaculateBase.getTradeType());
+          }
+        }
+      }
+      Predicate<MongoPendingRecords> mongoPendingRecordsPredicate = p-> orderCalcedIds.contains(p
+          .getOutsideOrderId()) ;
+      mongoPendingRecords.removeIf(mongoPendingRecordsPredicate);
+      if (originQuantity == null || originQuantity <= 0 ) {
+        logger.error("uiProductDetail.getLastestSerial:{} originQuantity:{}", uiProductDetail
+            .getLastestSerial(), originQuantity);
+        recordStopSellInvaidFunds(request, uiProductDetail);
+        spdrBuilder.setFundCode(uiProductDetail.getFundCode());
+        spdrBuilder.setFundQuantityTrade(0L);
+        spdrBuilder.setFundQuantityTradeRemain(0L);
+        spdrBuilder.setResult(ItemStatus.FAIL.ordinal());
+        sprBuilder.addSellProductDetailResults(spdrBuilder);
+        continue;
+      }
+
+      Long trdTgtShares = TradeUtil.getBigDecimalNumWithDivOfTwoLongAndRundDown
+          (originQuantity * percent, 10000L).longValue();
+      if (CollectionUtils.isEmpty(mongoPendingRecords)) {
+        logger.info("there is no pendingRecord for this redeem with userProdId:{} fundCode:{}",
+            request.getUserProductId(), uiProductDetail.getFundCode());
+        //直接计算剩余份额
+
+        Long finalTrdTargetShares = 0L;
+        if (originQuantity < 100 || originQuantity - trdTgtShares < 100) {
+          logger.info("because originQuantity:{} trdTgtShares:{} we need to sell all remaining "
+              + "part", originQuantity, trdTgtShares);
+          finalTrdTargetShares = new Long(originQuantity);
+        } else {
+          finalTrdTargetShares = trdTgtShares;
+        }
+        MongoPendingRecords mongoPendingRecordsPatch = new MongoPendingRecords();
+        mongoPendingRecordsPatch.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED.getStatus());
+        mongoPendingRecordsPatch.setUserProdId(request.getUserProductId());
+        mongoPendingRecordsPatch.setTradeType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+        mongoPendingRecordsPatch.setFundCode(uiProductDetail.getFundCode());
+        mongoPendingRecordsPatch.setCreatedBy(request.getUserId());
+        mongoPendingRecordsPatch.setCreatedDate(TradeUtil.getUTCTime());
+        if(MonetaryFundEnum.containsCode(uiProductDetail.getFundCode())){
+          mongoPendingRecordsPatch.setAbstractTargetShare(finalTrdTargetShares);
+        }else {
+          mongoPendingRecordsPatch.setTradeTargetShare(finalTrdTargetShares);
+        }
+        mongoTemplate.save(mongoPendingRecordsPatch, "ui_pending_records");
+        spdrBuilder.setFundCode(uiProductDetail.getFundCode());
+        spdrBuilder.setFundQuantityTrade(finalTrdTargetShares);
+        spdrBuilder.setFundQuantityTradeRemain(originQuantity - finalTrdTargetShares);
+        spdrBuilder.setResult(ItemStatus.SUCCESS.ordinal());
+      } else {
+        //有历史尚未处理记录，需要先减去待处理记录
+        Long historyTrdTargetShares = 0L;
+        Set<String> orderIds = new HashSet<>();
+        for (MongoPendingRecords mongoPendingRecordsNotHandled : mongoPendingRecords) {
+          if (mongoPendingRecordsNotHandled.getTradeStatus() != TrdOrderStatusEnum.FAILED
+              .getStatus()
+              && mongoPendingRecordsNotHandled.getTradeStatus() != TrdOrderStatusEnum
+              .REDEEMFAILED.getStatus() && !StringUtils.isEmpty(mongoPendingRecordsNotHandled
+              .getOutsideOrderId()) && !orderIds.contains(mongoPendingRecordsNotHandled
+              .getOutsideOrderId())) {
+            if(mongoPendingRecordsNotHandled.getTradeType() == TrdOrderOpTypeEnum
+                .REDEEM.getOperation() && ((mongoPendingRecordsNotHandled.getTradeConfirmShare() ==
+                null || mongoPendingRecordsNotHandled.getTradeConfirmShare() == 0L) &&(
+                mongoPendingRecordsNotHandled
+                .getTradeTargetShare() == null || mongoPendingRecordsNotHandled
+                .getTradeTargetShare() == 0))){
+              logger.error("this record is not a valid record to process");
+              continue;
+            }
+            if (mongoPendingRecordsNotHandled.getTradeType() == TrdOrderOpTypeEnum.REDEEM
+                .getOperation()) {
+              //如果之前货基的记录里面没有记录abstractTargetShares，那么用之前保存的targetShare来算
+              //但是一旦有update， 那么要用确认的购买或者赎回的信息去算abstractTargetShares
+              Long abstractTargetShares = mongoPendingRecordsNotHandled.getTradeTargetShare();
+              if(MonetaryFundEnum.containsCode(mongoPendingRecordsNotHandled.getFundCode()) &&
+                  mongoPendingRecordsNotHandled.getAbstractTargetShare() == null ||
+                  mongoPendingRecordsNotHandled.getAbstractTargetShare() == 0){
+                logger.error("need caculate abstract target share for order:{}",
+                    mongoPendingRecordsNotHandled.getOutsideOrderId());
+                abstractTargetShares = mongoPendingRecordsNotHandled.getTradeTargetShare();
+              }else if(MonetaryFundEnum.containsCode(mongoPendingRecordsNotHandled.getFundCode())){
+                abstractTargetShares = mongoPendingRecordsNotHandled.getAbstractTargetShare();
+              }
+              historyTrdTargetShares = historyTrdTargetShares - abstractTargetShares;
+              orderIds.add(mongoPendingRecordsNotHandled.getOutsideOrderId());
+            }
+          }
+        }
+        Long finalTrdTargetShares = 0L;
+        logger.info("originQuantity:{} + historyTrdTargetShares:{} - trdTgtShares:{} = {}",
+            originQuantity , historyTrdTargetShares , trdTgtShares, originQuantity + historyTrdTargetShares - trdTgtShares);
+        if(originQuantity + historyTrdTargetShares - trdTgtShares > 100){
+          finalTrdTargetShares = trdTgtShares;
+        }else if(originQuantity + historyTrdTargetShares < trdTgtShares ){
+          logger.info("because originQuantity:{} histroyTrdTargetShares:{} trdTgtShares:{} we "
+              + "can only deny trade ", originQuantity, historyTrdTargetShares, trdTgtShares);
+          finalTrdTargetShares = 0L;
+        }else if(originQuantity + historyTrdTargetShares - trdTgtShares < 100){
+          logger.info("because originQuantity:{} histroyTrdTargetShares:{} trdTgtShares:{} we "
+              + "can should sell all remain shares ", originQuantity, historyTrdTargetShares,
+              trdTgtShares);
+          finalTrdTargetShares = originQuantity + historyTrdTargetShares;
+        }
+
+        MongoPendingRecords mongoPendingRecordsPatch = new MongoPendingRecords();
+        mongoPendingRecordsPatch.setProcessStatus(PendingRecordStatusEnum.NOTHANDLED.getStatus());
+        mongoPendingRecordsPatch.setUserProdId(request.getUserProductId());
+        mongoPendingRecordsPatch.setTradeType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+        mongoPendingRecordsPatch.setFundCode(uiProductDetail.getFundCode());
+        mongoPendingRecordsPatch.setCreatedBy(request.getUserId());
+        mongoPendingRecordsPatch.setCreatedDate(TradeUtil.getUTCTime());
+        mongoPendingRecordsPatch.setTradeTargetShare(finalTrdTargetShares);
+        if(finalTrdTargetShares > 0){
+          mongoTemplate.save(mongoPendingRecordsPatch, "ui_pending_records");
+        }
+        spdrBuilder.setFundCode(uiProductDetail.getFundCode());
+        spdrBuilder.setFundQuantityTrade(finalTrdTargetShares);
+        spdrBuilder.setFundQuantityTradeRemain(originQuantity + historyTrdTargetShares);
+        spdrBuilder.setResult(ItemStatus.SUCCESS.ordinal());
+      }
+      sprBuilder.addSellProductDetailResults(spdrBuilder);
+      //到此循环结束
+    }
+
     return sprBuilder;
   }
 
+  private void recordStopSellInvaidFunds(SellPersentProducts request, UiProductDetail uiProductDetail ){
+    logger.error("userProdId:{} fundCode:{}'s quantity is:{}", request.getUserProductId(),
+        uiProductDetail.getFundCode(), uiProductDetail.getFundQuantity());
+    MongoPendingRecords mongoPendingRecordsPatch = new MongoPendingRecords();
+    mongoPendingRecordsPatch.setProcessStatus(PendingRecordStatusEnum.HANDLED.getStatus());
+    mongoPendingRecordsPatch.setUserProdId(request.getUserProductId());
+    mongoPendingRecordsPatch.setTradeType(TrdOrderOpTypeEnum.REDEEM.getOperation());
+    mongoPendingRecordsPatch.setFundCode(uiProductDetail.getFundCode());
+    mongoPendingRecordsPatch.setCreatedBy(request.getUserId());
+    mongoPendingRecordsPatch.setCreatedDate(TradeUtil.getUTCTime());
+    mongoPendingRecordsPatch.setTradeTargetShare(0L);
+    mongoTemplate.save(mongoPendingRecordsPatch, "ui_pending_records");
+  }
 
   /**
    */
@@ -1196,10 +1404,7 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
       result = updateProductQuantity(request);
     } catch (Exception e) {
       logger.error("exception:", e);
-      ErrInfo.Builder eiBuilder = ErrInfo.newBuilder();
-      eiBuilder.setErrCode(ErrorConstants.GRPC_ERROR_UI_CHECKSELL_FAIL_GENERAL);
-      eiBuilder.setErrMsg(e.getMessage());
-      result.setErrInfo(eiBuilder);
+      onError(responseObserver, e);
     }
     responseObserver.onNext(result.build());
     responseObserver.onCompleted();
@@ -1214,5 +1419,134 @@ UserInfoRepoServiceImpl extends UserInfoServiceGrpc.UserInfoServiceImplBase
 
     return users;
   }
+
+  @Override
+  public void getUserTraLog(OrderId request, StreamObserver<OrderLogResults> responseObserver) {
+    try {
+      List<MongoUiTrdLog> trdLogListResult=new ArrayList<>();
+      String orderId = request.getOrderId();
+      Query query = new Query();
+      query.addCriteria(Criteria.where("order_id").is(orderId));
+      List<MongoUiTrdLog> trdLogList = mongoTemplate.find(query, MongoUiTrdLog.class);
+      //过滤筛选confirmdate不为空
+      Map<String, List<MongoUiTrdLog>> collect = trdLogList.stream().filter(k->k.getFundCode()!=null).collect(Collectors.groupingBy(k -> k.getFundCode()));
+      collect.forEach((k,v)->{
+        List<MongoUiTrdLog> trdLost = v.stream().filter(item -> item.getConfirmDateExp() != null).collect(Collectors.toList());
+        for(MongoUiTrdLog trdLog:trdLost){
+          trdLogListResult.add(trdLog);
+        }
+      });
+      OrderLogDetail.Builder builder = OrderLogDetail.newBuilder();
+      OrderLogResults.Builder orderResultBuilder = OrderLogResults.newBuilder();
+      for(MongoUiTrdLog mongoUiTrdLog: trdLogListResult){
+        MyBeanUtils.mapEntityIntoDTO(mongoUiTrdLog, builder);
+        orderResultBuilder.addOrderLogDetail(builder);
+      }
+      responseObserver.onNext(orderResultBuilder.build());
+      responseObserver.onCompleted();
+    } catch (Exception e) {
+      logger.error("exception:", e);
+      onError(responseObserver, e);
+    }
+  }
+
+
+
+  private List<MongoPendingRecords> getMongoPendingRecords(Long userProdId, String fundCode){
+    Query query = new Query();
+    query.addCriteria(Criteria.where("user_prod_id").is(userProdId).and("fund_code").is(fundCode));
+
+    List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
+    return mongoPendingRecords;
+  }
+
+  private List<MongoPendingRecords> getMongoPendingRecordsNotInited(String fundCode, Long
+      prodId, Long groupId, int trdType, Long userId, Long userProdId){
+    Query query = new Query();
+    query.addCriteria(Criteria.where("prod_id").is(prodId).and("fund_code").is(fundCode).and
+        ("group_id").is(groupId).orOperator(Criteria.where("order_id").is(""), Criteria.where
+        ("order_id").is(null)).and("trade_type").is(trdType).and("user_id").is(userId).and
+        ("user_prod_id").is(userProdId));
+
+    List<MongoPendingRecords> mongoPendingRecords = mongoTemplate.find(query, MongoPendingRecords.class);
+    return mongoPendingRecords;
+  }
+
+
+  /**
+   */
+  @Override
+  public void getUserProdDetail(com.shellshellfish.aaas.userinfo.grpc.GetUserProdDetailQuery request,
+      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.GetUserProdDetailResults> responseObserver) {
+
+
+   Long userProdId = request.getUserProdId();
+   if(userProdId <= 0){
+     Exception ex =  new Exception(String.format("Illegal input param:%s", request.getUserProdId
+         ()));
+     onError(responseObserver, ex);
+   }
+   List<UiProductDetail> uiProductDetails =  uiProductDetailRepo.findAllByUserProdId(userProdId);
+   if(CollectionUtils.isEmpty(uiProductDetails)){
+     Exception ex =  new Exception(String.format("Havent found uiProductDetails by userProdId:%s",
+         request.getUserProdId()));
+     onError(responseObserver, ex);
+   }
+    GetUserProdDetailResults.Builder gupdrBuilder = GetUserProdDetailResults.newBuilder();
+   UserProdDetail.Builder updBuilder = UserProdDetail.newBuilder();
+   for(UiProductDetail uiProductDetail: uiProductDetails){
+     MyBeanUtils.mapEntityIntoDTO(uiProductDetail, updBuilder);
+     gupdrBuilder.addUserProdDetail(updBuilder);
+     updBuilder.clear();
+   }
+   responseObserver.onNext(gupdrBuilder.build());
+   responseObserver.onCompleted();
+  }
+
+  /**
+   */
+  @Override
+  public void checkAbsentPendingRecordsOrders(com.shellshellfish.aaas.userinfo.grpc.ConfirmedOutsideOrderIds request,
+      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.userinfo.grpc.NeedPatchOutsideOrderIds> responseObserver) {
+    List<String> outsiddOrderIds = request.getOutsideOrderIdList();
+    if(CollectionUtils.isEmpty(outsiddOrderIds)){
+      onError(responseObserver, new Exception("Input list of outsideOrderIds is empty"));
+      return;
+    }
+    NeedPatchOutsideOrderIds.Builder npooiBuilder = NeedPatchOutsideOrderIds.newBuilder();
+    for(String outsideOrderId: outsiddOrderIds){
+      if(!isOutsideOrderIdHandled(outsideOrderId)){
+        npooiBuilder.addOutsideOrderId(outsideOrderId);
+      }
+    }
+    responseObserver.onNext(npooiBuilder.build());
+    responseObserver.onCompleted();
+  }
+
+  public boolean isOutsideOrderIdHandled(String outsideOrderId){
+    Query query = new Query();
+    query.addCriteria(Criteria.where("outside_order_id").is(outsideOrderId).and
+        ("trade_confirm_share").is(null).orOperator(Criteria
+        .where("trade_status").is(TrdOrderStatusEnum.CONFIRMED.getStatus()), Criteria.where
+        ("trade_status").is(TrdOrderStatusEnum.SELLCONFIRMED.getStatus())));
+    List<MongoPendingRecords> mongoPendingRecords =  mongoTemplate.find(query, MongoPendingRecords
+        .class);
+    if(CollectionUtils.isEmpty(mongoPendingRecords)){
+      return false;
+    }else{
+      return true;
+    }
+  }
+
+  private void onError(StreamObserver responseObserver, Exception ex){
+    responseObserver.onError(Status.INTERNAL
+        .withDescription(ex.getMessage())
+        .augmentDescription("customException()")
+        .withCause(ex) // This can be attached to the Status locally, but NOT transmitted to
+        // the client!
+        .asRuntimeException());
+  }
+
+
 }
 
