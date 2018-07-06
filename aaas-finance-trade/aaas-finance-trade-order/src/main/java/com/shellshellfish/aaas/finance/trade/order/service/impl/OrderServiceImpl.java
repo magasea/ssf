@@ -299,10 +299,9 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
                     String orderId = result.get(0).getOrderId();
                     List<TrdOrderDetail> filterCollect = result.stream()
                             .filter(filter -> orderId.equals(filter.getOrderId())).collect(Collectors.toList());
-                  /*  List<TrdOrderDetail> collect = filterCollect.stream()
-                        .filter(k -> k.getFundNum() > 0 && k.getFundNumConfirmed() > 0)
-                        .collect(Collectors.toList());*/
-                    result = filterCollect;
+                    List<TrdOrderDetail> collect = filterCollect.stream()
+                        .filter(k -> k.getFundNum() > 0).collect(Collectors.toList());
+                    result = collect;
                 }
             } else {
                 result = trdOrderDetailRepository
