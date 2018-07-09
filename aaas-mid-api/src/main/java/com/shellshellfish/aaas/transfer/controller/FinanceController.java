@@ -369,9 +369,9 @@ public class FinanceController {
 			bannerList.add(oemInfos.get("combinationTwo"));
 			bannerList.add(oemInfos.get("combinationThree"));
 			String operation=String.valueOf(ActionTypeEnum.BANNERACTION.getOperation());
-			bannerActionList.add(new BannerAction(oemInfos.get("combinationOne"), operation,oemInfos.get("combinationOneAction")));
-			bannerActionList.add(new BannerAction(oemInfos.get("combinationTwo"),operation,oemInfos.get("combinationTwoAction")));
-			bannerActionList.add(new BannerAction(oemInfos.get("combinationThree"),operation,oemInfos.get("combinationThreeAction")));
+			bannerActionList.add(new BannerAction(oemInfos.get("combinationOne"), operation,oemInfos.get("combinationOneAction"),oemInfos.get("combinationOneTitle")));
+			bannerActionList.add(new BannerAction(oemInfos.get("combinationTwo"),operation,oemInfos.get("combinationTwoAction"),oemInfos.get("combinationTwoTitle")));
+			bannerActionList.add(new BannerAction(oemInfos.get("combinationThree"),operation,oemInfos.get("combinationThreeAction"),oemInfos.get("combinationThreeTitle")));
 			if("2".equals(oemid)){
 				bannerList.add(oemInfos.get("combinationFour")); 
 				bannerList.add(oemInfos.get("combinationFive")); 

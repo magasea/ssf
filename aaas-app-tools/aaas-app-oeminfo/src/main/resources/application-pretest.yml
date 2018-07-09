@@ -102,6 +102,9 @@ oem-info:
      combination_one_action: https://mp.weixin.qq.com/s/ChwsGi2QQq3ghnQm5r7Zig
      combination_two_action: http://47.96.164.161/advisor.png
      combination_three_action: http://47.96.164.161/risk.png
+     combination_one_title: 新手上路，求指点
+     combination_two_title: 一分钟看懂智能投顾
+     combination_three_title: 风险，源于无知
      me_head_img: http://47.96.164.161:81/icon_me_headphoto2.png
      about_logo: http://47.96.164.161:81/icon_about_logo2.png
    - oem_id: 2
@@ -121,5 +124,8 @@ oem-info:
      combination_one_action: https://mp.weixin.qq.com/s/ChwsGi2QQq3ghnQm5r7Zig
      combination_two_action: http://47.96.164.161/advisor.png
      combination_three_action: http://47.96.164.161/risk.png
+     combination_one_title: 新手上路，求指点
+     combination_two_title: 一分钟看懂智能投顾
+     combination_three_title: 风险，源于无知
      me_head_img: http://47.96.164.161/icon_me_headphoto.png
      about_logo: http://47.96.164.161/icon_about_logo.png

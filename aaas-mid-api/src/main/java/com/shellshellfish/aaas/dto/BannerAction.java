@@ -4,14 +4,24 @@ public class BannerAction {
   String pic_url;
   String action_type;
   String action;
+  String title;
 
   public BannerAction() {
   }
 
-  public BannerAction(String pic_url, String action_type, String action) {
+  public BannerAction(String pic_url, String action_type, String action, String title) {
     this.pic_url = pic_url;
     this.action_type = action_type;
     this.action = action;
+    this.title = title;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
   }
 
   public String getPic_url() {

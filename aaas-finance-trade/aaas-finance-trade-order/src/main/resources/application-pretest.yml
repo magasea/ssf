@@ -67,8 +67,7 @@ grpc:
     host: localhost
     port: 10111
   order_server:
-    host: localhost
-    port: 10101
+ .
   datacollection_client:
     host: localhost
     port: 10091

@@ -31,8 +31,35 @@ public class OemInfoProperties {
     String combinationOneAction;
     String combinationTwoAction;
     String combinationThreeAction;
+    String combinationOneTitle;
+    String combinationTwoTitle;
+    String combinationThreeTitle;
     String meHeadImg;
     String aboutLogo;
+
+    public String getCombinationOneTitle() {
+      return combinationOneTitle;
+    }
+
+    public void setCombinationOneTitle(String combinationOneTitle) {
+      this.combinationOneTitle = combinationOneTitle;
+    }
+
+    public String getCombinationTwoTitle() {
+      return combinationTwoTitle;
+    }
+
+    public void setCombinationTwoTitle(String combinationTwoTitle) {
+      this.combinationTwoTitle = combinationTwoTitle;
+    }
+
+    public String getCombinationThreeTitle() {
+      return combinationThreeTitle;
+    }
+
+    public void setCombinationThreeTitle(String combinationThreeTitle) {
+      this.combinationThreeTitle = combinationThreeTitle;
+    }
 
     public String getCombinationOneAction() {
       return combinationOneAction;
