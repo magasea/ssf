@@ -61,6 +61,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
+import net.bytebuddy.description.field.FieldDescription.InGenericShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -238,6 +239,7 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
       trdPayFlow.setOrderDetailId(trdOrderDetail.getId());
       trdPayFlow.setTrdType(TrdOrderOpTypeEnum.BUY.getOperation());
       BuyFundResult fundResult = null;
+      ApplyResult applyResult = null;
       try {
         fundResult = fundTradeApiService.buyFund(userId4Pay, trdAcco, payAmount,
             sbOutsideOrderno.toString(),trdOrderDetail.getFundCode());
@@ -253,13 +255,23 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
           }catch(Exception exagain){
 
             logger.error("Exception:",exagain);
+            if(exagain.getMessage().contains("1013")||exagain.getMessage().contains("订单号重复")){
+              logger.info("because it is a retry, so maybe the order is already available for "
+                  + "next query");
+              try {
+                applyResult = fundTradeApiService.getApplyResultByOutsideOrderNo
+                    (userId4Pay, sbOutsideOrderno.toString());
+              }catch (Exception exagainagain){
+                logger.error("Exception:", exagainagain);
+              }
+            }
             errs.add(exagain);
           }
         }
 
       }
 
-      if(null == fundResult){
+      if(null == fundResult && null == applyResult ){
         logger.error("failed to pay for:" + payOrderDto.getUserPid() + " with prodId:" +
             payOrderDto.getUserProdId() + " with TrdMoneyAmount" + payAmount + " fundCode:"+
             trdOrderDetail.getFundCode());
@@ -282,9 +294,18 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         notifyPendingRecordsFailed(trdPayFlow);
         continue;
       }
+      com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
+          .shellshellfish.aaas.common.message.order.TrdPayFlow();
       if(null != fundResult){
         trdPayFlow.setApplySerial(fundResult.getApplySerial());
         trdPayFlow.setTrdStatus(TradeUtil.getPayFlowStatus(fundResult.getKkstat()));
+        trdPayFlowMsg.getTrdPayFlowExt().setConfirmDateExpected(fundResult.getConfirmdate());
+      }else if(null != applyResult){
+        trdPayFlow.setApplySerial(applyResult.getApplyserial());
+        // to avoid unnecessary error for this kind of applyResult, make the status in a init status
+        trdPayFlow.setTrdStatus(TrdOrderStatusEnum.WAITPAY.getStatus());
+      }
+      if( null != fundResult || null != applyResult){
         trdPayFlow.setTradeTargetSum(trdOrderDetail.getFundSum());
         trdPayFlow.setCreateDate(TradeUtil.getUTCTime());
         trdPayFlow.setFundCode(trdOrderDetail.getFundCode());
@@ -298,13 +319,11 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         trdPayFlow.setTrdApplyDate("-1"); // default value
         trdPayFlow.setApplydateUnitvalue(-1);
         TrdPayFlow trdPayFlowResult =  trdPayFlowRepository.save(trdPayFlow);
-        com.shellshellfish.aaas.common.message.order.TrdPayFlow trdPayFlowMsg = new com
-            .shellshellfish.aaas.common.message.order.TrdPayFlow();
+
         BeanUtils.copyProperties(trdPayFlowResult, trdPayFlowMsg);
-        trdPayFlowMsg.getTrdPayFlowExt().setConfirmDateExpected(fundResult.getConfirmdate());
+
         notifyPay(trdPayFlowMsg);
       }
-
     }
     if(errs.size() > 0){
       logger.error("meet errors in pay api services");
