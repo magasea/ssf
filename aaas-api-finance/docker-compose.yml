@@ -12,6 +12,6 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=k8s
       - _JAVA_OPTIONS=-Xmx256m
-      
+      - TZ=Asia/Shanghai
       
       

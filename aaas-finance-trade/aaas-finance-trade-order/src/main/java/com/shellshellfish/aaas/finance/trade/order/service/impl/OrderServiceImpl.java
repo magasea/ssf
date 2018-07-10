@@ -204,21 +204,21 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
             Set<String> cardNums = new HashSet<>();
             trdBrokerUsers.forEach(item -> cardNums.add(item.getBankCardNum()));
             List<UserBankInfo> userBankInfos = new ArrayList<>();
-            if(userId <= 0){
+            if (userId <= 0) {
                 logger.error("the payflow havent store valid userid:{}, we use the tradeAcco "
-                    + "related userId", userId);
+                        + "related userId", userId);
 
-                for(TrdBrokerUser trdBrokerUser: trdBrokerUsers){
-                   UserBankInfo userBankInfo =  userInfoService.getUserBankInfo(trdBrokerUser.getUserId());
-                   if(userBankInfo != null){
-                       userBankInfos.add(userBankInfo);
-                   }
+                for (TrdBrokerUser trdBrokerUser : trdBrokerUsers) {
+                    UserBankInfo userBankInfo = userInfoService.getUserBankInfo(trdBrokerUser.getUserId());
+                    if (userBankInfo != null) {
+                        userBankInfos.add(userBankInfo);
+                    }
                 }
-            }else{
+            } else {
                 userInfo = userInfoService.getUserBankInfo(userId);
                 userBankInfos.add(userInfo);
             }
-            for(UserBankInfo userBankInfo: userBankInfos){
+            for (UserBankInfo userBankInfo : userBankInfos) {
                 for (CardInfo cardInfo : userBankInfo.getCardNumbersList()) {
                     if (cardNums.contains(cardInfo.getCardNumbers())) {
                         userPidDAO.addUserPid(trdAcco, brokerId, userId, cardInfo.getUserPid());
@@ -297,9 +297,17 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
                         return map2value.compareTo(map1value);
                     });
                     String orderId = result.get(0).getOrderId();
+                    int tradeType = result.get(0).getTradeType();
                     List<TrdOrderDetail> filterCollect = result.stream()
                             .filter(filter -> orderId.equals(filter.getOrderId())).collect(Collectors.toList());
-                    result = filterCollect;
+                    List<TrdOrderDetail> collect = null;
+                    if (tradeType == 2) {
+                        collect = filterCollect.stream()
+                                .filter(k -> k.getFundNum() > 0).collect(Collectors.toList());
+                    } else if (tradeType == 1) {
+                        collect = filterCollect.stream().filter(k -> k.getFundSum() > 0).collect(Collectors.toList());
+                    }
+                    result = collect;
                 }
             } else {
                 result = trdOrderDetailRepository
@@ -457,14 +465,14 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
                     tradeNo = "-1";
                 }
             }
-        }else {
+        } else {
             responseObserver.onError(Status.UNAVAILABLE.withDescription("此银行卡不支持").asRuntimeException());
         }
         try {
             resultBuilder.setTradeacco(tradeNo);
             responseObserver.onNext(resultBuilder.build());
             responseObserver.onCompleted();
-        }catch (Exception ex){
+        } catch (Exception ex) {
             onError(responseObserver, ex);
         }
 
@@ -517,90 +525,91 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
      */
     @Override
     public void getOrderDetailByParams(com.shellshellfish.aaas.finance.trade.order
-        .GenOrderIdAndFundCode request, io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.order.OrderDetailResult> responseObserver) {
+                                               .GenOrderIdAndFundCode request, io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.order.OrderDetailResult> responseObserver) {
         String orderId = request.getOrderId();
 
         String fundCode = request.getFundCode();
         Long userProdId = request.getUserProdId();
         Integer trdType = request.getTrdType();
         String applySerial = request.getApplySerial();
-        if(!StringUtils.isEmpty(orderId) && !StringUtils.isEmpty(fundCode)){
+        if (!StringUtils.isEmpty(orderId) && !StringUtils.isEmpty(fundCode)) {
             getOrderDetailByOrderIdAndFundCode(orderId, fundCode, responseObserver);
-        }else if(!StringUtils.isEmpty(applySerial)){
+        } else if (!StringUtils.isEmpty(applySerial)) {
             getOrderDetailByApplySerial(applySerial, responseObserver);
-        } else{
+        } else {
             getOrderDetailByUserProdIdAndTrdType(userProdId, fundCode, trdType, responseObserver);
         }
 
     }
+
     private void getOrderDetailByApplySerial(String applySerial,
-        StreamObserver<OrderDetailResult> responseObserver) {
-        try{
+                                             StreamObserver<OrderDetailResult> responseObserver) {
+        try {
             TrdOrderDetail trdOrderDetail = getOrderDetailByApplySerial(applySerial);
             OrderDetailResult.Builder odrBuilder = OrderDetailResult.newBuilder();
             OrderDetail.Builder odBuilder = OrderDetail.newBuilder();
 
-            if(trdOrderDetail != null){
+            if (trdOrderDetail != null) {
                 MyBeanUtils.mapEntityIntoDTO(trdOrderDetail, odBuilder);
                 odrBuilder.addOrderDetailResult(odBuilder);
             }
             responseObserver.onNext(odrBuilder.build());
             responseObserver.onCompleted();
-        }catch (Exception ex){
+        } catch (Exception ex) {
             onError(responseObserver, ex);
         }
     }
 
 
     private void getOrderDetailByUserProdIdAndTrdType(Long userProdId, String fundCode, Integer
-        trdType, StreamObserver<OrderDetailResult> responseObserver) {
-        try{
+            trdType, StreamObserver<OrderDetailResult> responseObserver) {
+        try {
             List<TrdOrderDetail> trdOrderDetails = getOrderDetailByUserProdIdAndTrdType(userProdId,
-                fundCode, trdType);
+                    fundCode, trdType);
             OrderDetailResult.Builder odrBuilder = OrderDetailResult.newBuilder();
             OrderDetail.Builder odBuilder = OrderDetail.newBuilder();
 
-            if(!CollectionUtils.isEmpty(trdOrderDetails)){
+            if (!CollectionUtils.isEmpty(trdOrderDetails)) {
                 trdOrderDetails.forEach(
-                    trdOrderDetail -> {
-                        odBuilder.clear();
-                        MyBeanUtils.mapEntityIntoDTO(trdOrderDetail, odBuilder);
-                        odrBuilder.addOrderDetailResult(odBuilder);
-                    }
+                        trdOrderDetail -> {
+                            odBuilder.clear();
+                            MyBeanUtils.mapEntityIntoDTO(trdOrderDetail, odBuilder);
+                            odrBuilder.addOrderDetailResult(odBuilder);
+                        }
                 );
             }
             responseObserver.onNext(odrBuilder.build());
             responseObserver.onCompleted();
-        }catch (Exception ex){
+        } catch (Exception ex) {
             onError(responseObserver, ex);
         }
     }
 
     private List<TrdOrderDetail> getOrderDetailByUserProdIdAndTrdType(Long userProdId, String fundCode, Integer trdType)
-        throws IllegalAccessException {
+            throws IllegalAccessException {
 
-        if(StringUtils.isEmpty(fundCode)){
-            throw new IllegalAccessException(String.format("fundCode:%s",fundCode));
+        if (StringUtils.isEmpty(fundCode)) {
+            throw new IllegalAccessException(String.format("fundCode:%s", fundCode));
         }
         List<TrdOrderDetail> orderDetails = trdOrderDetailRepository.findAllByUserProdIdAndFundCodeAndTradeType
-            (userProdId, fundCode, trdType);
+                (userProdId, fundCode, trdType);
         return orderDetails;
     }
 
     private void getOrderDetailByOrderIdAndFundCode(String orderId, String fundCode, StreamObserver<OrderDetailResult> responseObserver) {
         try {
             List<TrdOrderDetail> trdOrderDetails = getOrderDetailByGenOrderIdAndFundCode(orderId,
-                fundCode);
+                    fundCode);
             OrderDetailResult.Builder odrBuilder = OrderDetailResult.newBuilder();
             OrderDetail.Builder odBuilder = OrderDetail.newBuilder();
 
             if (!CollectionUtils.isEmpty(trdOrderDetails)) {
                 trdOrderDetails.forEach(
-                    trdOrderDetail -> {
-                        odBuilder.clear();
-                        MyBeanUtils.mapEntityIntoDTO(trdOrderDetail, odBuilder);
-                        odrBuilder.addOrderDetailResult(odBuilder);
-                    }
+                        trdOrderDetail -> {
+                            odBuilder.clear();
+                            MyBeanUtils.mapEntityIntoDTO(trdOrderDetail, odBuilder);
+                            odrBuilder.addOrderDetailResult(odBuilder);
+                        }
                 );
             }
             responseObserver.onNext(odrBuilder.build());
@@ -638,48 +647,47 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
     }
 
 
-
     @Override
     public List<TrdOrderDetail> getOrderDetailByGenOrderIdAndFundCode(String orderId,
-        String fundCode) throws IllegalAccessException {
-        if(StringUtils.isEmpty(orderId)||StringUtils.isEmpty(fundCode)){
-            throw new IllegalAccessException(String.format("orderId:%s fundCode:%s",orderId,
-                fundCode));
+                                                                      String fundCode) throws IllegalAccessException {
+        if (StringUtils.isEmpty(orderId) || StringUtils.isEmpty(fundCode)) {
+            throw new IllegalAccessException(String.format("orderId:%s fundCode:%s", orderId,
+                    fundCode));
         }
         List<TrdOrderDetail> orderDetails = trdOrderDetailRepository.findAllByOrderIdAndFundCode
-            (orderId, fundCode);
+                (orderId, fundCode);
         return orderDetails;
     }
 
-    private void onError(StreamObserver responseObserver, Exception ex){
+    private void onError(StreamObserver responseObserver, Exception ex) {
         responseObserver.onError(Status.INTERNAL
-            .withDescription(ex.getMessage())
-            .augmentDescription("orderGrpcException")
-            .withCause(ex) // This can be attached to the Status locally, but NOT transmitted to
-            // the client!
-            .asRuntimeException());
+                .withDescription(ex.getMessage())
+                .augmentDescription("orderGrpcException")
+                .withCause(ex) // This can be attached to the Status locally, but NOT transmitted to
+                // the client!
+                .asRuntimeException());
     }
 
     @Override
     public TrdOrderDetail getOrderDetailByApplySerial(String applySerial) {
 
         TrdOrderDetail orderDetail = trdOrderDetailRepository.findByTradeApplySerial
-            (applySerial);
+                (applySerial);
 
         return orderDetail;
     }
 
 
     @Override
-    public  Page<TrdOrder> getDefaultBankcardOrderByUserId(String userId, List<Long> bankCardList,
-        Pageable pageable) {
+    public Page<TrdOrder> getDefaultBankcardOrderByUserId(String userId, List<Long> bankCardList,
+                                                          Pageable pageable) {
         Page<TrdOrder> trdOrderList = trdOrderRepository
-            .findDefaultOrderBankcard(userId, bankCardList, pageable);
+                .findDefaultOrderBankcard(userId, bankCardList, pageable);
         return trdOrderList;
     }
 
     @Override
-    public Page<TrdOrderDetail> getFailedOrderDetail(int pageSize, int pageNo){
+    public Page<TrdOrderDetail> getFailedOrderDetail(int pageSize, int pageNo) {
         Pageable pageable = new PageRequest(pageNo, pageSize);
         Page<TrdOrderDetail> trdOrderList = trdOrderDetailRepository.findFailedOrderinfo(pageable);
         return trdOrderList;
@@ -689,23 +697,23 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
      */
     @Override
     public void getFailedOrderDetails(com.shellshellfish.aaas.finance.trade.order.GetOrderDetailInfoByPage request,
-        io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.order
-            .OrderDetailPageResult> responseObserver) {
-        try{
+                                      io.grpc.stub.StreamObserver<com.shellshellfish.aaas.finance.trade.order
+                                              .OrderDetailPageResult> responseObserver) {
+        try {
             Page<TrdOrderDetail> trdOrderDetails = getFailedOrderDetail(request.getPageSize(),
-                request.getPageNo());
+                    request.getPageNo());
             OrderDetailPageResult.Builder odrBuilder = OrderDetailPageResult.newBuilder();
             odrBuilder.setTotalPages(trdOrderDetails.getTotalPages());
             OrderDetail.Builder odBuilder = OrderDetail.newBuilder();
 
-            for(TrdOrderDetail trdOrderDetail: trdOrderDetails){
+            for (TrdOrderDetail trdOrderDetail : trdOrderDetails) {
                 odBuilder.clear();
                 MyBeanUtils.mapEntityIntoDTO(trdOrderDetail, odBuilder);
                 odrBuilder.addOrderDetailResult(odBuilder);
             }
             responseObserver.onNext(odrBuilder.build());
             responseObserver.onCompleted();
-        }catch (Exception ex){
+        } catch (Exception ex) {
 
             logger.error("Error:", ex);
             onError(responseObserver, ex);
@@ -714,29 +722,29 @@ public class OrderServiceImpl extends OrderRpcServiceGrpc.OrderRpcServiceImplBas
 
     @Override
     public void getFundsTradeLimit(FundQuerys request, StreamObserver<FundLimitResults> responseObserver) {
-      try {
-        List<FundCodeQuerys> querysList = request.getFundCodeQuerysList();
-        int tradeType = request.getTradeType();
-        List<String> fundCodeList=new ArrayList<>();
-        for(FundCodeQuerys fundCodeQuery:querysList){
-          fundCodeList.add(fundCodeQuery.getFundcode());
+        try {
+            List<FundCodeQuerys> querysList = request.getFundCodeQuerysList();
+            int tradeType = request.getTradeType();
+            List<String> fundCodeList = new ArrayList<>();
+            for (FundCodeQuerys fundCodeQuery : querysList) {
+                fundCodeList.add(fundCodeQuery.getFundcode());
+            }
+            List<FundTradeLimitInfo> fundTradeInfoByFundcodes = fundInfoApiService
+                    .getFundTradeInfoByFundcodes(fundCodeList, tradeType);
+            Builder builder = FundLimitResults.newBuilder();
+            FundLimitDetail.Builder detailfBuilder = FundLimitDetail.newBuilder();
+            for (FundTradeLimitInfo fundTradeLimitInfo : fundTradeInfoByFundcodes) {
+                detailfBuilder.setFundcode(fundTradeLimitInfo.getFundcode());
+                detailfBuilder.setMinLimitValue(fundTradeLimitInfo.getMinLimitValue());
+                detailfBuilder.setMinshare(fundTradeLimitInfo.getMinshare());
+                builder.addFundLimitDetail(detailfBuilder);
+            }
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted();
+        } catch (Exception ex) {
+            logger.error("Error:", ex);
+            onError(responseObserver, ex);
         }
-        List<FundTradeLimitInfo> fundTradeInfoByFundcodes = fundInfoApiService
-            .getFundTradeInfoByFundcodes(fundCodeList, tradeType);
-        Builder builder = FundLimitResults.newBuilder();
-        FundLimitDetail.Builder detailfBuilder = FundLimitDetail.newBuilder();
-        for(FundTradeLimitInfo fundTradeLimitInfo:fundTradeInfoByFundcodes){
-          detailfBuilder.setFundcode(fundTradeLimitInfo.getFundcode());
-          detailfBuilder.setMinLimitValue(fundTradeLimitInfo.getMinLimitValue());
-          detailfBuilder.setMinshare(fundTradeLimitInfo.getMinshare());
-          builder.addFundLimitDetail(detailfBuilder);
-        }
-        responseObserver.onNext(builder.build());
-        responseObserver.onCompleted();
-      }catch (Exception ex){
-        logger.error("Error:", ex);
-        onError(responseObserver, ex);
-      }
     }
 
 }

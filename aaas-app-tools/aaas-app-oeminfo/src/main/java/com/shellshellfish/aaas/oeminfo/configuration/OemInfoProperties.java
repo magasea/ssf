@@ -28,8 +28,62 @@ public class OemInfoProperties {
     String combinationThree;
     String combinationFour;
     String combinationFive;
+    String combinationOneAction;
+    String combinationTwoAction;
+    String combinationThreeAction;
+    String combinationOneTitle;
+    String combinationTwoTitle;
+    String combinationThreeTitle;
     String meHeadImg;
     String aboutLogo;
+
+    public String getCombinationOneTitle() {
+      return combinationOneTitle;
+    }
+
+    public void setCombinationOneTitle(String combinationOneTitle) {
+      this.combinationOneTitle = combinationOneTitle;
+    }
+
+    public String getCombinationTwoTitle() {
+      return combinationTwoTitle;
+    }
+
+    public void setCombinationTwoTitle(String combinationTwoTitle) {
+      this.combinationTwoTitle = combinationTwoTitle;
+    }
+
+    public String getCombinationThreeTitle() {
+      return combinationThreeTitle;
+    }
+
+    public void setCombinationThreeTitle(String combinationThreeTitle) {
+      this.combinationThreeTitle = combinationThreeTitle;
+    }
+
+    public String getCombinationOneAction() {
+      return combinationOneAction;
+    }
+
+    public void setCombinationOneAction(String combinationOneAction) {
+      this.combinationOneAction = combinationOneAction;
+    }
+
+    public String getCombinationTwoAction() {
+      return combinationTwoAction;
+    }
+
+    public void setCombinationTwoAction(String combinationTwoAction) {
+      this.combinationTwoAction = combinationTwoAction;
+    }
+
+    public String getCombinationThreeAction() {
+      return combinationThreeAction;
+    }
+
+    public void setCombinationThreeAction(String combinationThreeAction) {
+      this.combinationThreeAction = combinationThreeAction;
+    }
 
     public String getOemId() {
       return oemId;

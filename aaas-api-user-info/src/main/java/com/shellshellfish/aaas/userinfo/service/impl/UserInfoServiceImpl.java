@@ -696,6 +696,8 @@ public class UserInfoServiceImpl implements UserInfoService {
                                 .filter(o -> TrdOrderStatusEnum.isInWaiting(o.getOrderDetailStatus()))
                                 .collect(Collectors.toList()).size();
                         resultMap.put("count", count);
+                    } else {
+                        count = 0;
                     }
                     if (count > 0) {
                         resultMap.put("title2", "* 您有" + count + "支基金正在" + type + "确认中");

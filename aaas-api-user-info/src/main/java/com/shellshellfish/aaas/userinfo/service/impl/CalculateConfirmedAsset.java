@@ -55,10 +55,12 @@ public class CalculateConfirmedAsset {
                     .findAllByUserProdId(mongoUiTrdZZInfo.getUserProdId());
             String date = mongoUiTrdZZInfo.getConfirmDate();
 
-            //从确认日期开始到当前时间的数据都要修正（此处默认此次确认到当前时间没有其他操作）
-            LocalDate now = LocalDate.now(ZoneId.systemDefault()).plusDays(1);
+            //当天的确认信息,计算到当天,
+            //今天之前的确认信息,计算到昨天
             LocalDate confirmDate = InstantDateUtil.format(date, pattern);
-            for (LocalDate startDate = confirmDate; startDate.isBefore(now); startDate = startDate.plusDays(1)) {
+            LocalDate endDate = confirmDate.equals(LocalDate.now()) ? InstantDateUtil.tomorrow() : LocalDate.now();
+
+            for (LocalDate startDate = confirmDate; startDate.isBefore(endDate); startDate = startDate.plusDays(1)) {
                 for (UiProductDetail uiProductDetail : uiProductDetailList) {
                     try {
                         logger.info("start to calculate asset startDate:{},userProdDetail:{} ", startDate, uiProductDetail);
@@ -74,5 +76,4 @@ public class CalculateConfirmedAsset {
             logger.error("计算用户资产失败：mongoUiTrdZZInfo：{}，{}", mongoUiTrdZZInfo, e);
         }
     }
-
 }
