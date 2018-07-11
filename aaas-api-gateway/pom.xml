@@ -39,6 +39,14 @@
 					<groupId>io.netty</groupId>
 					<artifactId>netty-common</artifactId>
 				</exclusion>
+				<exclusion>
+					<artifactId>netty-codec-http</artifactId>
+					<groupId>io.netty</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>netty-transport-native-epoll</artifactId>
+					<groupId>io.netty</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
