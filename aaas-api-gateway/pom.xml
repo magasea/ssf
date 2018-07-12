@@ -30,7 +30,12 @@
 		<!--<artifactId>com.shellshellfish.bankaccount.grpc.api</artifactId>-->
 		<!--<version>1.0.0-SNAPSHOT</version>-->
 		<!--</dependency>-->
-
+		<!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-all</artifactId>
+			<version>4.1.25.Final</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-zuul</artifactId>
@@ -38,6 +43,14 @@
 				<exclusion>
 					<groupId>io.netty</groupId>
 					<artifactId>netty-common</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>netty-codec-http</artifactId>
+					<groupId>io.netty</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>netty-transport-native-epoll</artifactId>
+					<groupId>io.netty</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>

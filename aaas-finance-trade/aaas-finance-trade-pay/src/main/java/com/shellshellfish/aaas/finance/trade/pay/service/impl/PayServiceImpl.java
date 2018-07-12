@@ -290,7 +290,12 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         trdPayFlow.setUserProdId(trdOrderDetail.getUserProdId());
         trdPayFlow.setOutsideOrderno(trdOrderDetail.getOrderId()+trdOrderDetail.getId());
         trdPayFlow.setTradeBrokeId(TradeBrokerIdEnum.ZhongZhenCaifu.getTradeBrokerId());
-        trdPayFlow.setTrdStatus(TrdOrderStatusEnum.FAILED.getStatus());
+        if(sb.toString().contains("网络错误")){
+          trdPayFlow.setTrdStatus(TrdOrderStatusEnum.WAITPAY.getStatus());
+        }else{
+          trdPayFlow.setTrdStatus(TrdOrderStatusEnum.FAILED.getStatus());
+        }
+
         notifyPendingRecordsFailed(trdPayFlow);
         continue;
       }
