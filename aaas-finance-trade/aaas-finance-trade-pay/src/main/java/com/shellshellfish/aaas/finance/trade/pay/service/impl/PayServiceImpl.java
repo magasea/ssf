@@ -302,6 +302,9 @@ public class PayServiceImpl extends PayRpcServiceImplBase implements PayService 
         trdPayFlowMsg.getTrdPayFlowExt().setConfirmDateExpected(fundResult.getConfirmdate());
       }else if(null != applyResult){
         trdPayFlow.setApplySerial(applyResult.getApplyserial());
+        if(!StringUtils.isEmpty(applyResult.getConfirmdate())){
+          trdPayFlowMsg.getTrdPayFlowExt().setConfirmDateExpected(fundResult.getConfirmdate());
+        }
         // to avoid unnecessary error for this kind of applyResult, make the status in a init status
         trdPayFlow.setTrdStatus(TrdOrderStatusEnum.WAITPAY.getStatus());
       }
